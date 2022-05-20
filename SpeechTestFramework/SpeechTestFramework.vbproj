@@ -44,6 +44,9 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.5.0.0\lib\net48\MathNet.Numerics.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -68,6 +71,23 @@
   <ItemGroup>
     <Compile Include="AudiologyDatatypes\AudiogramData.vb" />
     <Compile Include="AudiologyDatatypes\HearingAidGainData.vb" />
+    <Compile Include="AudioProcessing\Audio_DSP.vb" />
+    <Compile Include="AudioProcessing\Audio_DSPExt.vb" />
+    <Compile Include="AudioProcessing\Audio_Ext.vb" />
+    <Compile Include="AudioProcessing\Audio_FFT.vb" />
+    <Compile Include="AudioProcessing\Audio_Formats.vb" />
+    <Compile Include="AudioProcessing\Audio_FormatsExt.vb" />
+    <Compile Include="AudioProcessing\Audio_GlobalAudioData.vb" />
+    <Compile Include="AudioProcessing\Audio_Graphics.vb" />
+    <Compile Include="AudioProcessing\Audio_IO.vb" />
+    <Compile Include="AudioProcessing\Audio_LegacyExtensionMethods.vb" />
+    <Compile Include="AudioProcessing\Audio_Logging.vb" />
+    <Compile Include="AudioProcessing\Audio_Management.vb" />
+    <Compile Include="AudioProcessing\Audio_ManagementExt.vb" />
+    <Compile Include="AudioProcessing\Audio_Sound.vb" />
+    <Compile Include="AudioProcessing\Audio_SoundApiSettings.vb" />
+    <Compile Include="AudioProcessing\Audio_Sounds.vb" />
+    <Compile Include="AudioProcessing\PortAudioVB.vb" />
     <Compile Include="Class1.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
@@ -84,10 +104,22 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="SpeechMaterials\MediaSets.vb" />
+    <Compile Include="SpeechMaterials\SpeechMaterialComponent.vb" />
+    <Compile Include="Utils\Calculations.vb" />
+    <Compile Include="Utils\Enums.vb" />
+    <Compile Include="Utils\GeneralIO.vb" />
+    <Compile Include="Utils\GlobalUtilsData.vb" />
+    <Compile Include="Utils\SimulatedPatientData.vb" />
+    <Compile Include="Utils\Logging.vb" />
+    <Compile Include="Utils\StringMethods.vb" />
     <Compile Include="WinFormControls\AudioButton.vb">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="WinFormControls\Audiogram.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\AutoHeightTextBox.vb">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="WinFormControls\GainDiagram.vb">
@@ -111,6 +143,36 @@
     <Compile Include="WinFormControls\VerticalLabel.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WinFormDialogs\AudioSettingsDialog.designer.vb">
+      <DependentUpon>AudioSettingsDialog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormDialogs\AudioSettingsDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinFormDialogs\GeneralDialogBox.designer.vb">
+      <DependentUpon>GeneralDialogBox.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormDialogs\GeneralDialogBox.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinFormDialogs\ProgressDisplay.designer.vb">
+      <DependentUpon>ProgressDisplay.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormDialogs\ProgressDisplay.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinFormDialogs\SpectrogramSettingsDialog.designer.vb">
+      <DependentUpon>SpectrogramSettingsDialog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormDialogs\SpectrogramSettingsDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinForms\TestWordRecorder.designer.vb">
+      <DependentUpon>TestWordRecorder.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinForms\TestWordRecorder.vb">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -118,6 +180,18 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormDialogs\AudioSettingsDialog.resx">
+      <DependentUpon>AudioSettingsDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormDialogs\ProgressDisplay.resx">
+      <DependentUpon>ProgressDisplay.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormDialogs\SpectrogramSettingsDialog.resx">
+      <DependentUpon>SpectrogramSettingsDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinForms\TestWordRecorder.resx">
+      <DependentUpon>TestWordRecorder.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +204,7 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{94E38DFF-614B-4CBD-B67C-F211BB35CE8B}" />
