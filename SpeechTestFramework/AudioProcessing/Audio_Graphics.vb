@@ -294,11 +294,11 @@ Namespace Audio
                 End If
 
 
-                For index = 0 To sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData.Count - 1
+                For index = 0 To sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).Count - 1
                     Dim phonemeLabelButton As New Label
 
                     With phonemeLabelButton
-                        .Text = "[ " & sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(index).PhoneticForm & " ]"
+                        .Text = "[ " & sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(index).PhoneticForm & " ]"
                         .Name = index.ToString 'storing the identity of the phoneme as an index reference to the phoneme list 
                         .BorderStyle = BorderStyle.Fixed3D
                         .TextAlign = ContentAlignment.MiddleCenter
@@ -407,9 +407,9 @@ Namespace Audio
             Private Sub resetCurrentWordLevelSegmentationData()
 
                 If usePhonemeAssignment = True Then
-                    For phoneme = 0 To sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData.Count - 1
-                        sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(phoneme).StartSample = -1
-                        sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(phoneme).Length = -1
+                    For phoneme = 0 To sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).Count - 1
+                        sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(phoneme).StartSample = -1
+                        sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(phoneme).Length = -1
                     Next
                 End If
 
@@ -903,23 +903,23 @@ Namespace Audio
                             'Dim TempPen As New Pen(Color.FromArgb(0, 91, 192), 5)
 
 
-                            For phoneme = 0 To sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData.Count - 1
+                            For phoneme = 0 To sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).Count - 1
                                 'Drawing line
 
-                                Dim phonemeStartPixel As Single = (sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(phoneme).StartSample - displayStartSample) / SampleToPixelScale
-                                If Not (sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(phoneme).StartSample) < 0 Then ' Is used to "hide" the lines and phoneme strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
+                                Dim phonemeStartPixel As Single = (sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(phoneme).StartSample - displayStartSample) / SampleToPixelScale
+                                If Not (sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(phoneme).StartSample) < 0 Then ' Is used to "hide" the lines and phoneme strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
                                     g.DrawLine(currentPen, phonemeStartPixel, soundBackgroundArea.Top, phonemeStartPixel, soundBackgroundArea.Height)
 
                                     'Adding phoneme string
                                     If showSpectrogram = True Then
                                         'Putting the phoneme string in the middle of the background panel
-                                        g.DrawString(sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(phoneme).PhoneticForm,
+                                        g.DrawString(sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(phoneme).PhoneticForm,
                                               New Font("Arial", 20), Brushes.Blue, New PointF(phonemeStartPixel, soundBackgroundArea.Height / 2 - 14))
                                     Else
                                         'Putting the phoneme string in the bottom of the background panel, above the time scale
                                         'Dim TempPhonemeColorBrush As New SolidBrush(Color.FromArgb(0, 91, 192))
 
-                                        g.DrawString(sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(phoneme).PhoneticForm,
+                                        g.DrawString(sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(phoneme).PhoneticForm,
                                               New Font("Arial", 20), Brushes.Black, New PointF(phonemeStartPixel, soundBackgroundArea.Height - 55))
 
                                         'g.DrawString(sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(phoneme).Phoneme,
@@ -1138,9 +1138,9 @@ Namespace Audio
                 If SetSegmentationToZeroCrossings Then
                     Dim StartSampl As Integer = displayStartSample + e.X * SampleToPixelScale
                     StartSampl = DSP.GetZeroCrossingSample(sound, 1, StartSampl, DSP.MeasurementsExt.SearchDirections.Closest)
-                    sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(currentPhonemeIndex).StartSample = StartSampl
+                    sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(currentPhonemeIndex).StartSample = StartSampl
                 Else
-                    sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(currentPhonemeIndex).StartSample = displayStartSample + e.X * SampleToPixelScale
+                    sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(currentPhonemeIndex).StartSample = displayStartSample + e.X * SampleToPixelScale
                 End If
                 InvalidateGraphics()
 
@@ -1151,9 +1151,9 @@ Namespace Audio
                 If SetSegmentationToZeroCrossings Then
                     Dim StartSampl As Integer = displayStartSample + e.X * SampleToPixelScale
                     StartSampl = DSP.GetZeroCrossingSample(sound, 1, StartSampl, DSP.MeasurementsExt.SearchDirections.Closest)
-                    sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(currentPhonemeIndex).StartSample = StartSampl
+                    sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(currentPhonemeIndex).StartSample = StartSampl
                 Else
-                    sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(currentPhonemeIndex).StartSample = displayStartSample + e.X * SampleToPixelScale
+                    sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(currentPhonemeIndex).StartSample = displayStartSample + e.X * SampleToPixelScale
                 End If
 
                 'Resets the colors of the buttons
@@ -1335,14 +1335,14 @@ Namespace Audio
                     Case MouseButtons.Left
                         'Playing the phoneme (but not the word end)
 
-                        If Not currentPhonemeIndex = sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData.Count - 1 Then
-                            Dim startSample As Integer = sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(currentPhonemeIndex).StartSample
-                            Dim lengthToPlay As Integer = sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(currentPhonemeIndex + 1).StartSample - 1 - startSample 'PlaySoundStream plays to the end if length is 0
+                        If Not currentPhonemeIndex = sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).Count - 1 Then
+                            Dim startSample As Integer = sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(currentPhonemeIndex).StartSample
+                            Dim lengthToPlay As Integer = sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(currentPhonemeIndex + 1).StartSample - 1 - startSample 'PlaySoundStream plays to the end if length is 0
                             If lengthToPlay < 0 Then lengthToPlay = 0
                             'PlayBack.Play.PlaySoundStream(sound, currentSentenceData(currentWord).PhoneData(currentPhonemeIndex).StartSample, lengthToPlay)
 
                             If CurrentSoundPlayer Is Nothing Then CreateNewPaSoundPLayer()
-                            PlayBack.PlayDuplexSoundStream(CurrentSoundPlayer, sound, sound.SMA.ChannelData(currentChannel)(sentence)(currentWord).PhoneData(currentPhonemeIndex).StartSample, lengthToPlay,, , 0, 0)
+                            PlayBack.PlayDuplexSoundStream(CurrentSoundPlayer, sound, sound.SMA.ChannelData(currentChannel)(sentence)(currentWord)(currentPhonemeIndex).StartSample, lengthToPlay,, , 0, 0)
 
                         End If
 
@@ -1721,39 +1721,39 @@ Namespace Audio
 
 
                         For word = 0 To sound.SMA.ChannelData(c)(sentence).Count - 1
-                            For testedPhonemeIndex = 0 To sound.SMA.ChannelData(c)(sentence)(word).PhoneData.Count - 1
+                            For testedPhonemeIndex = 0 To sound.SMA.ChannelData(c)(sentence)(word).Count - 1
 
                                 'Updates the word bounaries
                                 If StoreWordSegmentationFromPhonemes = True Then
 
                                     If testedPhonemeIndex = 0 Then
-                                        sound.SMA.ChannelData(c)(sentence)(word).StartSample = sound.SMA.ChannelData(c)(sentence)(word).PhoneData(0).StartSample
+                                        sound.SMA.ChannelData(c)(sentence)(word).StartSample = sound.SMA.ChannelData(c)(sentence)(word)(0).StartSample
                                     End If
 
-                                    If testedPhonemeIndex = sound.SMA.ChannelData(c)(sentence)(word).PhoneData.Count - 1 Then
+                                    If testedPhonemeIndex = sound.SMA.ChannelData(c)(sentence)(word).Count - 1 Then
                                         sound.SMA.ChannelData(c)(sentence)(word).Length =
-                                    sound.SMA.ChannelData(c)(sentence)(word).PhoneData(sound.SMA.ChannelData(c)(sentence)(word).PhoneData.Count - 1).StartSample -
-                                   sound.SMA.ChannelData(c)(sentence)(word).PhoneData(0).StartSample + 1
+                                    sound.SMA.ChannelData(c)(sentence)(word)(sound.SMA.ChannelData(c)(sentence)(word).Count - 1).StartSample -
+                                   sound.SMA.ChannelData(c)(sentence)(word)(0).StartSample + 1
                                     End If
                                 End If
 
                                 'Compared to the previous phoneme
                                 If Not testedPhonemeIndex = 0 Then
-                                    If sound.SMA.ChannelData(c)(sentence)(word).PhoneData(testedPhonemeIndex).StartSample < sound.SMA.ChannelData(c)(sentence)(word).PhoneData(testedPhonemeIndex - 1).StartSample Then
+                                    If sound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex).StartSample < sound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex - 1).StartSample Then
                                         'currentSentenceData(currentWord).PhoneData(testedPhonemeIndex).StartSample = -1
                                         MsgBox("Wrong order of phonemes in the word " & sound.SMA.ChannelData(c)(sentence)(word).OrthographicForm & ": " & vbCr & vbCr &
-                                       "The phoneme [" & sound.SMA.ChannelData(c)(sentence)(word).PhoneData(testedPhonemeIndex).PhoneticForm & "] must be placed after [" & sound.SMA.ChannelData(c)(sentence)(word).PhoneData(testedPhonemeIndex - 1).PhoneticForm & "]!",, "Place phonemes in currect order!")
+                                       "The phoneme [" & sound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex).PhoneticForm & "] must be placed after [" & sound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex - 1).PhoneticForm & "]!",, "Place phonemes in currect order!")
                                         Return False
                                     End If
                                 End If
 
                                 'Compared to the following phoneme
-                                If Not testedPhonemeIndex = sound.SMA.ChannelData(c)(sentence)(word).PhoneData.Count - 1 Then
-                                    If Not sound.SMA.ChannelData(c)(sentence)(word).PhoneData(testedPhonemeIndex + 1).StartSample = -1 Then
-                                        If sound.SMA.ChannelData(c)(sentence)(word).PhoneData(testedPhonemeIndex).StartSample > sound.SMA.ChannelData(c)(sentence)(word).PhoneData(testedPhonemeIndex + 1).StartSample Then
+                                If Not testedPhonemeIndex = sound.SMA.ChannelData(c)(sentence)(word).Count - 1 Then
+                                    If Not sound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex + 1).StartSample = -1 Then
+                                        If sound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex).StartSample > sound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex + 1).StartSample Then
                                             'currentSentenceData(currentWord).PhoneData(testedPhonemeIndex).StartSample = -1
                                             MsgBox("Wrong order of phonemes in the word " & sound.SMA.ChannelData(c)(sentence)(word).OrthographicForm & ": " & vbCr & vbCr &
-                                           "The phoneme [" & sound.SMA.ChannelData(c)(sentence)(word).PhoneData(testedPhonemeIndex + 1).PhoneticForm & "] must be placed after [" & sound.SMA.ChannelData(c)(sentence)(word).PhoneData(testedPhonemeIndex).PhoneticForm & "]!",, "Place phonemes in currect order!")
+                                           "The phoneme [" & sound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex + 1).PhoneticForm & "] must be placed after [" & sound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex).PhoneticForm & "]!",, "Place phonemes in currect order!")
                                             Return False
                                         End If
                                     End If
@@ -1762,10 +1762,10 @@ Namespace Audio
 
 
                             'Calculating phoneme lengths
-                            For phoneme = 0 To sound.SMA.ChannelData(c)(sentence)(word).PhoneData.Count - 2
-                                Dim phonemeLength As Integer = sound.SMA.ChannelData(c)(sentence)(word).PhoneData(phoneme + 1).StartSample - sound.SMA.ChannelData(c)(sentence)(word).PhoneData(phoneme).StartSample
+                            For phoneme = 0 To sound.SMA.ChannelData(c)(sentence)(word).Count - 2
+                                Dim phonemeLength As Integer = sound.SMA.ChannelData(c)(sentence)(word)(phoneme + 1).StartSample - sound.SMA.ChannelData(c)(sentence)(word)(phoneme).StartSample
                                 If phonemeLength < 0 Then phonemeLength = 0
-                                sound.SMA.ChannelData(c)(sentence)(word).PhoneData(phoneme).Length = phonemeLength
+                                sound.SMA.ChannelData(c)(sentence)(word)(phoneme).Length = phonemeLength
                             Next
                         Next
                     Next

@@ -542,9 +542,9 @@ SavingFile:             Dim sfd As New SaveFileDialog
                             '(word1: pre-measurement section, word2: measurement section, word 3: post measurement section)
                             InputSound.SMA.ChannelData(1)(sentence).StartSample = 0
                             InputSound.SMA.ChannelData(1)(sentence).Length = InputSound.WaveData.SampleData(1).Length
-                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaWordData(InputSound.SMA) With {.StartSample = 0, .Length = Math.Max(0, MeasurementRegionStartSample), .OrthographicForm = "", .PhoneticForm = ""})
-                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaWordData(InputSound.SMA) With {.StartSample = MeasurementRegionStartSample, .Length = MeasurementRegionLength, .OrthographicForm = "", .PhoneticForm = ""})
-                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaWordData(InputSound.SMA) With {.StartSample = MeasurementRegionStartSample + MeasurementRegionLength, .Length = InputSound.WaveData.SampleData(1).Length - (MeasurementRegionStartSample + MeasurementRegionLength), .OrthographicForm = "", .PhoneticForm = ""})
+                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(InputSound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = 0, .Length = Math.Max(0, MeasurementRegionStartSample), .OrthographicForm = "", .PhoneticForm = ""})
+                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(InputSound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = MeasurementRegionStartSample, .Length = MeasurementRegionLength, .OrthographicForm = "", .PhoneticForm = ""})
+                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(InputSound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = MeasurementRegionStartSample + MeasurementRegionLength, .Length = InputSound.WaveData.SampleData(1).Length - (MeasurementRegionStartSample + MeasurementRegionLength), .OrthographicForm = "", .PhoneticForm = ""})
                         End If
 
                         'Sets the SoundLevelFormat
@@ -951,7 +951,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
                                     'Word level data
                                     For word = 0 To currentWordCount - 1
 
-                                        sound.SMA.ChannelData(channel)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaWordData(sound.SMA))
+                                        sound.SMA.ChannelData(channel)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD))
 
                                         Dim OrthographicFormLength As Integer = reader.ReadUInt32
                                         sound.SMA.ChannelData(channel)(sentence)(word).OrthographicForm = reader.ReadChars(OrthographicFormLength)
@@ -997,41 +997,41 @@ SavingFile:             Dim sfd As New SaveFileDialog
 
                                         'Phone level data
                                         For phone = 0 To phoneListLength - 1
-                                            sound.SMA.ChannelData(channel)(sentence)(word).PhoneData.Add(New Sound.SpeechMaterialAnnotation.SmaPhoneData(sound.SMA))
+                                            sound.SMA.ChannelData(channel)(sentence)(word).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.PHONE))
 
                                             Dim phoneticTranscription As String = reader.ReadChars(10)
-                                            sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).PhoneticForm = phoneticTranscription.Trim(" ")
-                                            sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).StartSample = reader.ReadInt32
-                                            sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).Length = reader.ReadInt32
+                                            sound.SMA.ChannelData(channel)(sentence)(word)(phone).PhoneticForm = phoneticTranscription.Trim(" ")
+                                            sound.SMA.ChannelData(channel)(sentence)(word)(phone).StartSample = reader.ReadInt32
+                                            sound.SMA.ChannelData(channel)(sentence)(word)(phone).Length = reader.ReadInt32
 
                                             'Changing the previously used default not-measured value (-999999) to Nothing
                                             Dim puwl As Double = reader.ReadDouble
                                             If puwl = DefaultNotMeasuredValue Then
-                                                sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).UnWeightedLevel = Nothing
+                                                sound.SMA.ChannelData(channel)(sentence)(word)(phone).UnWeightedLevel = Nothing
                                             Else
-                                                sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).UnWeightedLevel = puwl
+                                                sound.SMA.ChannelData(channel)(sentence)(word)(phone).UnWeightedLevel = puwl
                                             End If
 
                                             Dim ppl As Double = reader.ReadDouble
                                             If ppl = DefaultNotMeasuredValue Then
-                                                sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).UnWeightedPeakLevel = Nothing
+                                                sound.SMA.ChannelData(channel)(sentence)(word)(phone).UnWeightedPeakLevel = Nothing
                                             Else
-                                                sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).UnWeightedPeakLevel = ppl
+                                                sound.SMA.ChannelData(channel)(sentence)(word)(phone).UnWeightedPeakLevel = ppl
                                             End If
 
                                             Dim pwl As Double = reader.ReadDouble
                                             If pwl = DefaultNotMeasuredValue Then
-                                                sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).WeightedLevel = Nothing
+                                                sound.SMA.ChannelData(channel)(sentence)(word)(phone).WeightedLevel = Nothing
                                             Else
-                                                sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).WeightedLevel = pwl
+                                                sound.SMA.ChannelData(channel)(sentence)(word)(phone).WeightedLevel = pwl
                                             End If
 
                                             'Adding data described in the new SMA format
-                                            sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).FrequencyWeighting = soundLevelMeasurementFormat.FrequencyWeighting
+                                            sound.SMA.ChannelData(channel)(sentence)(word)(phone).FrequencyWeighting = soundLevelMeasurementFormat.FrequencyWeighting
                                             If soundLevelMeasurementFormat.LoudestSectionMeasurement = True Then
-                                                sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).TimeWeighting = DefaultPtwfTimeWeighting
+                                                sound.SMA.ChannelData(channel)(sentence)(word)(phone).TimeWeighting = DefaultPtwfTimeWeighting
                                             Else
-                                                sound.SMA.ChannelData(channel)(sentence)(word).PhoneData(phone).TimeWeighting = 0
+                                                sound.SMA.ChannelData(channel)(sentence)(word)(phone).TimeWeighting = 0
                                             End If
                                         Next
                                     Next

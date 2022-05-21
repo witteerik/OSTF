@@ -1,66 +1,17 @@
-﻿Public Class SpeechMaterial
-    Inherits SpeechMaterialComponent
+﻿
 
-    Public Property TestLists As List(Of SpeechMaterialList)
-        Get
-            Return Me.ChildComponents
-        End Get
-        Set(value As List(Of SpeechMaterialComponent))
-            Me.ChildComponents = value
-        End Set
-    End Property
-
-    Public Sub New(ByRef rnd As Random)
-        MyBase.New(rnd)
-    End Sub
-
-End Class
-
-Public Class SpeechMaterialList
-    Inherits SpeechMaterialComponent
-    Public Property TestSentences As List(Of SpeechMaterialComponent)
-        Get
-            Return Me.ChildComponents
-        End Get
-        Set(value As List(Of SpeechMaterialComponent))
-            Me.ChildComponents = value
-        End Set
-    End Property
-
-    Public Sub New(ByRef rnd As Random)
-        MyBase.New(rnd)
-    End Sub
-
-End Class
-
-Public Class SpeechMaterialSentence
-    Inherits SpeechMaterialComponent
-
-    Public Sub New(ByRef rnd As Random)
-        MyBase.New(rnd)
-    End Sub
-
-End Class
-
-Public Class SpeechMaterialWord
-    Inherits SpeechMaterialComponent
-
-    Public Sub New(ByRef rnd As Random)
-        MyBase.New(rnd)
-    End Sub
-
-End Class
-
-Public Class SpeechMaterialPhoneme
-    Inherits SpeechMaterialComponent
-
-    Public Sub New(ByRef rnd As Random)
-        MyBase.New(rnd)
-    End Sub
-
-End Class
 
 Public Class SpeechMaterialComponent
+
+    Public Property LinguisticLevel As LinguisticLevels
+
+    Public Enum LinguisticLevels
+        ListCollection ' Represents a collection of test lists which together forms a speech material. This level cannot have sound recordings.
+        List ' Represents a full speech test list. Should always have one or more sentences as child components. This level may have sound recordings.
+        Sentence ' Represents a sentence, may have one or more words as child components (in a word list, each sentence will always have only one single word). This level may have sound recordings.
+        Word ' Represents a word in a sentence, may have one or more phonemes as child components. This level may have sound recordings.
+        Phoneme ' Represents a phoneme in a word. This level may have sound recordings.
+    End Enum
 
     Public Property Id As String
 
@@ -70,51 +21,17 @@ Public Class SpeechMaterialComponent
 
     Public Property ChildComponents As New List(Of SpeechMaterialComponent)
 
-    'These two should contain the data defines in the LinguisticDatabase associated to the component in the speech material file.
+    'These two should contain the data defined in the LinguisticDatabase associated to the component in the speech material file.
     Private NumericVariables As New SortedList(Of String, Double)
     Private CategoricalVariables As New SortedList(Of String, String)
 
     Public Property OrderedChildren As Boolean = False
-
-    Public Property TrialCapacity As TrialCapacities
-
-    Public Enum TrialCapacities
-        SuperTrial
-        Trial
-        SubTrial
-    End Enum
-
-    Public Property DefinesLevel As DefinesLevelOptions = DefinesLevelOptions.False
-
-    Public Enum DefinesLevelOptions
-        [False]
-        Self
-        SamePlaceCousins
-        Children
-        Relatives
-    End Enum
-
-    Public Property LevelIntegrationTime As Integer? = Nothing
-
-    Public Property DefinesMaskerSpectrum As DefinesLevelOptions = DefinesLevelOptions.False ' This might need another, additional, enumerator!
-
-    Public Property DefinesReferenceLevel As DefinesLevelOptions = DefinesLevelOptions.False ' This might need another, additional, enumerator!
-
-    Public Property LimitsLevel As Boolean = False
 
     Private MediaFolder As String
     Private MaskerFolder As String
     Private BackgroundNonspeechFolder As String
     Private BackgroundSpeechFolder As String
 
-    Public Property DistractorItems As DistractorItemTypes = DistractorItemTypes.None
-
-    Public Enum DistractorItemTypes
-        None
-        Siblings
-        SamePlaceCousins
-        Relatives
-    End Enum
 
     Private Randomizer As Random
 
@@ -359,6 +276,64 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    ''' <summary>
+    ''' Returns the second cousin components that are stored at the same hierachical index orders.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function SamePlaceSecondCousins() As List(Of SpeechMaterialComponent)
+
+        Dim SelfIndex = GetSelfIndex()
+
+        If SelfIndex Is Nothing Then Return Nothing
+
+        Dim SiblingCount As Integer = ParentComponent.GetSiblings.Count
+
+        If ParentComponent Is Nothing Then Return Nothing
+
+        Dim ParentSelfIndex = ParentComponent.GetSelfIndex()
+
+        Dim ParentSiblingCount As Integer = ParentComponent.GetSiblings.Count
+
+        If ParentSelfIndex Is Nothing Then Return Nothing
+
+        If ParentComponent.ParentComponent Is Nothing Then Return Nothing
+
+        'Checks that the grand-parent has ordered children
+        If ParentComponent.ParentComponent.OrderedChildren = False Then Throw New Exception("Cannot return same-place second cousins from unordered components. (Component id: " & ParentComponent.ParentComponent.Id & ")")
+
+        Dim ParentAunties = ParentComponent.ParentComponent.GetSiblingsExcludingSelf
+
+        If ParentAunties Is Nothing Then Return Nothing
+
+        Dim OutputList As New List(Of SpeechMaterialComponent)
+
+        For Each parentAuntie In ParentAunties
+
+            'Checks that the parent auntie have ordered children
+            If parentAuntie.OrderedChildren = False Then Throw New Exception("Cannot return same-place cousins from unordered components. (Component id: " & parentAuntie.Id & ")")
+
+            'Checks that the number of sibling components are the same
+            Dim ParentAuntieChildCount As Integer = parentAuntie.ChildComponents.Count
+            If ParentSiblingCount <> ParentAuntieChildCount Then Throw New Exception("Cannot return same-place cousins from cousin groups that differ in count. (Component ids: " & ParentComponent.Id & " vs. " & parentAuntie.Id & ")")
+
+            'Getting the same place second cousins
+            Dim SamePlaceParentCousin = parentAuntie.ChildComponents(ParentSelfIndex)
+
+            'Checks that the SamePlaceParentCousin have ordered children
+            If SamePlaceParentCousin.OrderedChildren = False Then Throw New Exception("Cannot return same-place cousins from unordered components. (Component id: " & SamePlaceParentCousin.Id & ")")
+
+            'Checks that the number of sibling components are the same
+            Dim SamePlaceParentCousinChildCount As Integer = SamePlaceParentCousin.ChildComponents.Count
+            If SiblingCount <> SamePlaceParentCousinChildCount Then Throw New Exception("Cannot return same-place second cousins from cousin groups that differ in count. (Component ids: " & ParentComponent.Id & " vs. " & SamePlaceParentCousin.Id & ")")
+
+            OutputList.Add(SamePlaceParentCousin.ChildComponents(SelfIndex))
+
+        Next
+
+        Return OutputList
+
+    End Function
+
     Public Function GetSiblingsExcludingSelf() As List(Of SpeechMaterialComponent)
         Dim OutputList As New List(Of SpeechMaterialComponent)
         If ParentComponent IsNot Nothing Then
@@ -399,22 +374,6 @@ Public Class SpeechMaterialComponent
         Return OutputList
     End Function
 
-    Public Function GetAllTrialLevelComponents() As List(Of SpeechMaterialComponent)
-
-        Dim AllRelatives = GetAllRelatives()
-
-        If AllRelatives Is Nothing Then Return Nothing
-
-        Dim OutputList As New List(Of SpeechMaterialComponent)
-        For Each Component In AllRelatives
-            If Component.TrialCapacity = TrialCapacities.Trial Then
-                OutputList.Add(Component)
-            End If
-        Next
-
-        Return OutputList
-
-    End Function
 
     ''' <summary>
     ''' Recursively adds all descentents to the DescendentsList
@@ -446,11 +405,11 @@ Public Class SpeechMaterialComponent
 
 
         'Gets a file path from the user if none is supplied
-        'If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured speech material .txt file.")
-        'If FilePath = "" Then
-        '    MsgBox("No file selected!")
-        '    Return Nothing
-        'End If
+        If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured speech material component .txt file.")
+        If FilePath = "" Then
+            MsgBox("No file selected!")
+            Return Nothing
+        End If
 
         'Creates a new random that will be references in all speech material components
         Dim rnd As New Random
@@ -474,12 +433,23 @@ Public Class SpeechMaterialComponent
 
             Dim SplitRow = Line.Split(vbTab)
 
-            If SplitRow.Length < 17 Then Throw New ArgumentException("Not enough data columns in the file " & FilePath & vbCrLf & "At the line: " & Line)
+            If SplitRow.Length < 10 Then Throw New ArgumentException("Not enough data columns in the file " & FilePath & vbCrLf & "At the line: " & Line)
 
             Dim NewComponent As New SpeechMaterialComponent(rnd)
 
             'Adds component data
             Dim index As Integer = 0
+
+            'Linguistic Level
+            Dim LinguisticLevel = InputFileSupport.InputFileEnumValueParsing(SplitRow(index), GetType(LinguisticLevels), FilePath, False)
+            If LinguisticLevel IsNot Nothing Then
+                NewComponent.LinguisticLevel = LinguisticLevel
+            Else
+                Throw New Exception("Missing value for LinguisticLevel detected in the speech material file. A value for LinguisticLevel is obligatory for all speech material components. Line: " & vbCrLf & Line & vbCrLf &
+                                    "Possible values are:" & vbCrLf & String.Join(" ", [Enum].GetNames(GetType(LinguisticLevels))))
+            End If
+            index += 1
+
             NewComponent.Id = InputFileSupport.GetInputFileValue(SplitRow(index), False)
             index += 1
 
@@ -526,34 +496,6 @@ Public Class SpeechMaterialComponent
             If OrderedChildren IsNot Nothing Then NewComponent.OrderedChildren = OrderedChildren
             index += 1
 
-            Dim TrialCapacity = InputFileSupport.InputFileEnumValueParsing(SplitRow(index), GetType(TrialCapacities), FilePath, False)
-            If TrialCapacity IsNot Nothing Then
-                NewComponent.TrialCapacity = TrialCapacity
-            Else
-                Throw New Exception("Missing value for TrialCapacity detected in the speech material file. A value for TrialCapacity is obligatory for all speech material components. Line: " & vbCrLf & Line)
-            End If
-            index += 1
-
-            Dim DefinesLevel = InputFileSupport.InputFileEnumValueParsing(SplitRow(index), GetType(DefinesLevelOptions), FilePath, False)
-            If DefinesLevel IsNot Nothing Then NewComponent.DefinesLevel = DefinesLevel
-            index += 1
-
-            Dim LevelIntegrationTime = InputFileSupport.InputFileIntegerValueParsing(SplitRow(index), False, FilePath)
-            If LevelIntegrationTime IsNot Nothing Then NewComponent.LevelIntegrationTime = LevelIntegrationTime
-            index += 1
-
-            Dim DefinesMaskerSpectrum = InputFileSupport.InputFileEnumValueParsing(SplitRow(index), GetType(DefinesLevelOptions), FilePath, False)
-            If DefinesMaskerSpectrum IsNot Nothing Then NewComponent.DefinesMaskerSpectrum = DefinesMaskerSpectrum
-            index += 1
-
-            Dim DefinesReferenceLevel = InputFileSupport.InputFileEnumValueParsing(SplitRow(index), GetType(DefinesLevelOptions), FilePath, False)
-            If DefinesReferenceLevel IsNot Nothing Then NewComponent.DefinesReferenceLevel = DefinesReferenceLevel
-            index += 1
-
-            Dim LimitsLevel = InputFileSupport.InputFileBooleanValueParsing(SplitRow(index), False, FilePath)
-            If LimitsLevel IsNot Nothing Then NewComponent.LimitsLevel = LimitsLevel
-            index += 1
-
             NewComponent.MediaFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False)
             index += 1
 
@@ -565,9 +507,6 @@ Public Class SpeechMaterialComponent
 
             NewComponent.BackgroundSpeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False)
             index += 1
-
-            Dim DistractorItems = InputFileSupport.InputFileEnumValueParsing(SplitRow(index), GetType(DistractorItemTypes), FilePath, False)
-            If DistractorItems IsNot Nothing Then NewComponent.DistractorItems = DistractorItems
 
             'Adds the component
             If Output Is Nothing Then

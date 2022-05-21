@@ -3684,8 +3684,8 @@ Namespace Audio
                 Dim sentence As Integer = 0
 
                 'Noting indices
-                Dim TestPhonemeSampleStartIndex As Integer = CurrentPtwfData.ChannelData(1)(sentence)(0).PhoneData(TestPhonemeIndex).StartSample + ExtraPaddingSamplesBeforeRecordingStart
-                Dim TestPhonemeSampleCount As Integer = CurrentPtwfData.ChannelData(1)(sentence)(0).PhoneData(TestPhonemeIndex).Length
+                Dim TestPhonemeSampleStartIndex As Integer = CurrentPtwfData.ChannelData(1)(sentence)(0)(TestPhonemeIndex).StartSample + ExtraPaddingSamplesBeforeRecordingStart
+                Dim TestPhonemeSampleCount As Integer = CurrentPtwfData.ChannelData(1)(sentence)(0)(TestPhonemeIndex).Length
 
 
                 'Determining the fade lengths
@@ -3717,7 +3717,7 @@ Namespace Audio
                 End If
 
                 'Doing fade out after the test word, if the test phoneme is the last phoneme (if not fade out is done below)
-                If TestPhonemeIndex = CurrentPtwfData.ChannelData(1)(sentence)(0).PhoneData.Count - 2 Then '-2 is used because the last item in PhoneData should be a word end marker.
+                If TestPhonemeIndex = CurrentPtwfData.ChannelData(1)(sentence)(0).Count - 2 Then '-2 is used because the last item in PhoneData should be a word end marker.
 
                     'We're on the last phoneme, fading to silence
                     DSP.Fade(InputSound, -PhonemeGain, , SpeechChannel, TestPhonemeSampleStartIndex + TestPhonemeSampleCount) 'Fade goes to the end of the sound by leaving length out.
@@ -3731,7 +3731,7 @@ Namespace Audio
                 DSP.AmplifySection(InputSound, PhonemeGain, SpeechChannel, TestPhonemeSampleStartIndex + FadeInLength, TestPhonemeSampleCount - FadeInLength - FadeOutLength)
 
                 'Doing fade out in not last phoneme
-                If Not TestPhonemeIndex = CurrentPtwfData.ChannelData(1)(sentence)(0).PhoneData.Count - 2 Then '-2 is used because the last item in PhoneData should be a word end marker.
+                If Not TestPhonemeIndex = CurrentPtwfData.ChannelData(1)(sentence)(0).Count - 2 Then '-2 is used because the last item in PhoneData should be a word end marker.
                     'Doing test phoneme section fade out
                     If FadeOutLength > 0 Then
                         'Calculating the fade out start sample and doing the fading
@@ -7705,9 +7705,9 @@ Namespace Audio
                             Dim sentence As Integer = 0
                             SoundSection.SMA.ChannelData(1)(sentence).StartSample = 0
                             SoundSection.SMA.ChannelData(1)(sentence).Length = SoundSection.WaveData.SampleData(1).Length
-                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaWordData(SoundSection.SMA) With {.StartSample = 0, .Length = Math.Max(0, MeasurementRegionStartSample), .OrthographicForm = "", .PhoneticForm = ""})
-                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaWordData(SoundSection.SMA) With {.StartSample = MeasurementRegionStartSample, .Length = MeasurementRegionLength, .OrthographicForm = "", .PhoneticForm = ""})
-                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaWordData(SoundSection.SMA) With {.StartSample = MeasurementRegionStartSample + MeasurementRegionLength, .Length = SoundSection.WaveData.SampleData(1).Length - (MeasurementRegionStartSample + MeasurementRegionLength), .OrthographicForm = "", .PhoneticForm = ""})
+                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = 0, .Length = Math.Max(0, MeasurementRegionStartSample), .OrthographicForm = "", .PhoneticForm = ""})
+                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = MeasurementRegionStartSample, .Length = MeasurementRegionLength, .OrthographicForm = "", .PhoneticForm = ""})
+                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = MeasurementRegionStartSample + MeasurementRegionLength, .Length = SoundSection.WaveData.SampleData(1).Length - (MeasurementRegionStartSample + MeasurementRegionLength), .OrthographicForm = "", .PhoneticForm = ""})
 
                         Else
                             MeasureMentSound = SoundSection
@@ -7716,7 +7716,7 @@ Namespace Audio
                             Dim sentence As Integer = 0
                             SoundSection.SMA.ChannelData(1)(sentence).StartSample = 0
                             SoundSection.SMA.ChannelData(1)(sentence).Length = SoundSection.WaveData.SampleData(1).Length
-                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaWordData(SoundSection.SMA) With {.StartSample = 0, .Length = SoundSection.WaveData.SampleData(1).Length, .OrthographicForm = "", .PhoneticForm = ""})
+                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = 0, .Length = SoundSection.WaveData.SampleData(1).Length, .OrthographicForm = "", .PhoneticForm = ""})
 
                         End If
 
