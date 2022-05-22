@@ -1142,6 +1142,8 @@ Namespace Audio
                     writer.WriteStartElement("SMA")
                     writer.WriteElementString("SMA_VERSION", Sound.SpeechMaterialAnnotation.CurrentVersion) 'I.e. SMA version number
 
+                    writer.WriteElementString("SEGMENTATION_COMPLETED", SMA.SegmentationCompleted.ToString(InvariantCulture))
+
                     For channel As Integer = 1 To SMA.ChannelCount
 
                         writer.WriteStartElement("CHANNEL")
@@ -1385,6 +1387,14 @@ Namespace Audio
 
                                         ElseIf smaReader.Name = "SMA_VERSION" Then
                                             If smaReader.Read() Then NewSMA.ReadFromVersion = smaReader.Value.Trim()
+
+                                        ElseIf smaReader.Name = "SEGMENTATION_COMPLETED" Then
+                                            Dim value As Integer
+                                            If smaReader.Read() Then
+                                                If Boolean.TryParse(smaReader.Value.Trim(), value) = True Then
+                                                    NewSMA.SegmentationCompleted = value
+                                                End If
+                                            End If
 
                                         ElseIf smaReader.Name = "CHANNEL" Then
 

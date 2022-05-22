@@ -49,10 +49,10 @@ Public Class SpeechMaterialComponent
 
     Public Property OrderedChildren As Boolean = False
 
-    Private MediaFolder As String
-    Private MaskerFolder As String
-    Private BackgroundNonspeechFolder As String
-    Private BackgroundSpeechFolder As String
+    Public Property MediaFolder As String
+    Public Property MaskerFolder As String
+    Public Property BackgroundNonspeechFolder As String
+    Public Property BackgroundSpeechFolder As String
 
 
     Private Randomizer As Random

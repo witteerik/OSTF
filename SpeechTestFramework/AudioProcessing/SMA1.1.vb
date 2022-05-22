@@ -22,6 +22,8 @@ Namespace Audio
             ''' </summary>
             Public ReadFromVersion As String = CurrentVersion ' Using CurrentVersion as default
 
+            Public Property SegmentationCompleted As Boolean = True
+
             Public ReadOnly Property ChannelCount As Integer
                 Get
                     Return _ChannelData.Count
