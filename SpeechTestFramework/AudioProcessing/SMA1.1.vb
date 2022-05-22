@@ -1177,7 +1177,7 @@ Namespace Audio
             Public Class SmaComponent
                 Inherits List(Of SmaComponent)
 
-                Private Property ParentSMA As SpeechMaterialAnnotation
+                Public Property ParentSMA As SpeechMaterialAnnotation
 
                 Public Property SmaTag As SpeechMaterialAnnotation.SmaTags
 

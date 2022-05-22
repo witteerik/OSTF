@@ -5,7 +5,12 @@
 
         Dim settings = New SpeechTestFramework.OstfSettings 'TODO: these should be read from text file!
 
-        Dim CompleteSpeechMaterial = SpeechTestFramework.SpeechMaterialComponent.LoadSpeechMaterial(settings.SpeechMaterialComponentsPath, settings.RootPath)
+        Dim CompleteSpeechMaterial = SpeechTestFramework.SpeechMaterialComponent.LoadSpeechMaterial(settings.SpeechMaterialComponentsPath)
+
+        Dim NewMediaSet = New SpeechTestFramework.MediaSet
+        NewMediaSet.SetSipValues()
+
+        NewMediaSet.CreateLackingAudioMediaFiles(CompleteSpeechMaterial)
 
 
         Exit Sub

@@ -67,10 +67,10 @@ Public Class MediaSet
         MediaImageItems = 0
         MaskerImageItems = 0
 
-        MediaParentFolder = "Unechoic-Talker1-RVE\TestWordRecordings"
-        MaskerParentFolder = "City-Talker1-RVE\TWRB"
-        BackgroundNonspeechParentFolder = "City-Talker1-RVE\BackgroundNonspeech"
-        BackgroundSpeechParentFolder = "City-Talker1-RVE\BackgroundSpeech"
+        MediaParentFolder = "Media\Unechoic-Talker1-RVE\TestWordRecordings"
+        MaskerParentFolder = "Media\City-Talker1-RVE\TWRB"
+        BackgroundNonspeechParentFolder = "Media\City-Talker1-RVE\BackgroundNonspeech"
+        BackgroundSpeechParentFolder = "Media\City-Talker1-RVE\BackgroundSpeech"
 
     End Sub
 
@@ -84,25 +84,39 @@ Public Class MediaSet
         List(Of Tuple(Of String, SpeechMaterialComponent)),
         List(Of Tuple(Of String, SpeechMaterialComponent)))
 
+        Dim CurrentTestRootPath As String = IO.Path.Combine(OstfSettings.RootPath, OstfSettings.CurrentTestSubPath)
+
         Dim AllComponents = SpeechMaterial.GetAllRelatives
 
         Dim ExistingFilesList As New List(Of Tuple(Of String, SpeechMaterialComponent))
         Dim LackingFilesList As New List(Of Tuple(Of String, SpeechMaterialComponent))
         Dim AllPaths As New List(Of Tuple(Of String, SpeechMaterialComponent))
 
+        Dim AddedMediaFolders As New List(Of String)
 
         For Each Component In AllComponents
 
             'Skipd to next if no media items are expected
             If Component.MediaFolder = "" Then Continue For
 
+            Dim FullMediaFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaParentFolder, Component.MediaFolder)
+
+            'Skipping the media folder if it has already been added (this will happen if several differen component share the same media folder)
+            If AddedMediaFolders.Contains(FullMediaFolderPath) Then
+                'The needed files will have already been added in a previous loop
+                Continue For
+            Else
+                'Notes the MediaFolder in AddedMediaFolders
+                AddedMediaFolders.Add(FullMediaFolderPath)
+            End If
+
             Dim ExistingFileCount As Integer = 0
 
             'Checks if the media folder exists
-            If IO.Directory.Exists(Component.MediaFolder) = True Then
+            If IO.Directory.Exists(FullMediaFolderPath) = True Then
 
                 'Gets the sound file paths present there 
-                Dim FilesPresent = IO.Directory.GetFiles(Component.MediaFolder)
+                Dim FilesPresent = IO.Directory.GetFiles(FullMediaFolderPath)
                 For Each filePath In FilesPresent
                     If filePath.EndsWith(".wav") Then
                         ExistingFilesList.Add(New Tuple(Of String, SpeechMaterialComponent)(filePath, Component))
@@ -118,7 +132,7 @@ Public Class MediaSet
             'Creates file paths for files not present
             For n = ExistingFileCount To MediaAudioItems - 1
                 'Creating a file name (avoiding file name conflicts)
-                LackingFilesList.Add(New Tuple(Of String, SpeechMaterialComponent)(Utils.CheckFileNameConflict(IO.Path.Combine(Component.MediaFolder, Component.Id & (n).ToString("000") & ".wav")), Component))
+                LackingFilesList.Add(New Tuple(Of String, SpeechMaterialComponent)(Utils.CheckFileNameConflict(IO.Path.Combine(FullMediaFolderPath, Component.MediaFolder & "_" & (n).ToString("000") & ".wav")), Component))
                 AllPaths.Add(LackingFilesList.Last)
             Next
 
@@ -130,13 +144,13 @@ Public Class MediaSet
 
     End Function
 
-    Public Sub CreateLackingAudioPaths(ByVal SpeechMaterial As SpeechMaterialComponent)
+    Public Sub CreateLackingAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent)
 
         Dim ExpectedAudioPaths = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial)
 
         If ExpectedAudioPaths.Item3.Count > 0 Then
 
-            Dim MsgResult = MsgBox(ExpectedAudioPaths.Item3.Count & " audio files are missing from test situation " & TestSituationName & ". Do you want to create new wave files () for these components?", MsgBoxStyle.YesNo)
+            Dim MsgResult = MsgBox(ExpectedAudioPaths.Item3.Count & " audio files are missing from test situation " & TestSituationName & ". Do you want to prepare new wave files for these components?", MsgBoxStyle.YesNo)
             If MsgResult = MsgBoxResult.Yes Then
 
                 Dim FilesCreated As Integer = 0
@@ -148,11 +162,13 @@ Public Class MediaSet
 
                     Dim NewSound = New Audio.Sound(New Audio.Formats.WaveFormat(WaveFileSampleRate, WaveFileBitDepth, 1,, WaveFileEncoding))
 
-                    NewSound.SMA = New Audio.Sound.SpeechMaterialAnnotation With {.SegmentationCompleted = False}
-
                     'Assign SMA values based on all child components!
+                    NewSound.SMA = Component.ConvertToSMA()
 
-                    FilesCreated += NewSound.WriteWaveFile(NewPath)
+                    'Also assigning the SMA parent sound
+                    NewSound.SMA.ParentSound = NewSound
+
+                    If NewSound.WriteWaveFile(NewPath) = True Then FilesCreated += 1
 
                 Next
 

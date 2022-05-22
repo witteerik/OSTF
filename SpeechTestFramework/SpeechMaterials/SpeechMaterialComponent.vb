@@ -212,8 +212,8 @@ Public Class SpeechMaterialComponent
     ''' <returns></returns>
     Public Function GetCategoricalWordMetricValue(ByVal VariableName As String) As String
 
-        If NumericVariables.Keys.Contains(VariableName) Then
-            Return NumericVariables(VariableName)
+        If CategoricalVariables.Keys.Contains(VariableName) Then
+            Return CategoricalVariables(VariableName)
         End If
 
         Return ""
@@ -423,8 +423,9 @@ Public Class SpeechMaterialComponent
 
     End Function
 
-    Public Shared Function LoadSpeechMaterial(ByVal FilePath As String, ByVal RootPath As String) As SpeechMaterialComponent
+    Public Shared Function LoadSpeechMaterial(ByVal FilePath As String) As SpeechMaterialComponent
 
+        Dim CurrentTestRootPath As String = IO.Path.Combine(OstfSettings.RootPath, OstfSettings.CurrentTestSubPath)
 
         'Gets a file path from the user if none is supplied
         If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured speech material component .txt file.")
@@ -439,7 +440,7 @@ Public Class SpeechMaterialComponent
         Dim Output As SpeechMaterialComponent = Nothing
 
         'Parses the input file
-        Dim InputLines() As String = System.IO.File.ReadAllLines(InputFileSupport.InputFilePathValueParsing(FilePath, RootPath, False), Text.Encoding.UTF8)
+        Dim InputLines() As String = System.IO.File.ReadAllLines(InputFileSupport.InputFilePathValueParsing(FilePath, CurrentTestRootPath, False), Text.Encoding.UTF8)
 
         Dim CustomVariablesDatabases As New SortedList(Of String, CustomVariablesDatabase)
 
@@ -492,12 +493,12 @@ Public Class SpeechMaterialComponent
             index += 1
 
             ' Getting the custom variables path
-            Dim CustomVariablesDatabasePath As String = IO.Path.Combine(RootPath, "CustomVariables", InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False))
+            Dim CustomVariablesDatabasePath As String = IO.Path.Combine(CurrentTestRootPath, "CustomVariables", InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False))
             NewComponent.CustomVariablesDatabasePath = CustomVariablesDatabasePath
             index += 1
 
             ' Adding the test situation database subpath
-            Dim TestSituationDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False)
+            Dim TestSituationDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
             NewComponent.TestSituationDatabaseSubPath = TestSituationDatabaseSubPath
             index += 1
 
@@ -531,16 +532,16 @@ Public Class SpeechMaterialComponent
             If OrderedChildren IsNot Nothing Then NewComponent.OrderedChildren = OrderedChildren
             index += 1
 
-            NewComponent.MediaFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False)
+            NewComponent.MediaFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
             index += 1
 
-            NewComponent.MaskerFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False)
+            NewComponent.MaskerFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
             index += 1
 
-            NewComponent.BackgroundNonspeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False)
+            NewComponent.BackgroundNonspeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
             index += 1
 
-            NewComponent.BackgroundSpeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False)
+            NewComponent.BackgroundSpeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
             index += 1
 
             'Adds the component
@@ -589,6 +590,107 @@ Public Class SpeechMaterialComponent
         End If
 
     End Function
+
+    ''' <summary>
+    ''' Converts the speech material component to a new SpeechMaterialAnnotation object prepared for manual segmentation.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function ConvertToSMA() As Audio.Sound.SpeechMaterialAnnotation
+
+        If Me.LinguisticLevel = LinguisticLevels.ListCollection Then
+            MsgBox("Cannot convert a component at the ListCollection linguistic level to a SMA object. The highest level which can be stored in a SMA object is LinguisticLevels.ListCollection." & vbCrLf & "Aborting conversion!")
+            Return Nothing
+        End If
+
+        Dim NewSMA = New Audio.Sound.SpeechMaterialAnnotation With {.SegmentationCompleted = False}
+
+        'Creating a (mono) channel level SmaComponent
+        NewSMA.AddChannelData(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL))
+
+        'Adjusting to the right level
+        If Me.LinguisticLevel = LinguisticLevels.Phoneme Then
+
+            'We need to add all levels: Sentence, Word, Phone
+            NewSMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE))
+            NewSMA.ChannelData(1)(0).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.WORD))
+            NewSMA.ChannelData(1)(0)(0).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.PHONE))
+
+            'Calling AddSmaValues, which recursively adds all lower level components
+            AddSmaValues(NewSMA.ChannelData(1)(0)(0)(0))
+
+        ElseIf Me.LinguisticLevel = LinguisticLevels.Word Then
+
+            'We need to add all levels: Sentence, Word
+            NewSMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE))
+            NewSMA.ChannelData(1)(0).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.WORD))
+
+            'Calling AddSmaValues, which recursively adds all lower level components
+            AddSmaValues(NewSMA.ChannelData(1)(0)(0))
+
+        ElseIf Me.LinguisticLevel = LinguisticLevels.Sentence Then
+
+            'We need to add all levels: Sentence
+            NewSMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE))
+            AddSmaValues(NewSMA.ChannelData(1)(0))
+
+        ElseIf Me.LinguisticLevel = LinguisticLevels.List Then
+
+            'No need to add any levels. Calling AddSmaValues, which recursively adds all lower level components
+            AddSmaValues(NewSMA.ChannelData(1))
+
+        Else
+
+            MsgBox("Unknown value for the LinguisticLevels Enum" & vbCrLf & "Aborting conversion!")
+            Return Nothing
+
+        End If
+
+        Return NewSMA
+
+    End Function
+
+    Private Sub AddSmaValues(ByRef SmaComponent As Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+
+        'Attemption to get the spelling and transcription from the custom variables
+        Dim MySpelling As String = ""
+        Dim SpellingCandidateVariableNames As New List(Of String) From {"Spelling", "OrthographicForm"}
+        For Each vn In SpellingCandidateVariableNames
+            Dim SpellingCandidate = GetCategoricalWordMetricValue(vn)
+            If SpellingCandidate.Trim <> "" Then
+                MySpelling = SpellingCandidate
+                Exit For
+            End If
+        Next
+
+        Dim MyTranscription As String = ""
+        Dim TranscriptionCandidateVariableNames As New List(Of String) From {"Transcription", "PhonemicForm", "PhoneticForm", "PhoneticTranscription", "PhonemicTranscription"}
+        For Each vn In TranscriptionCandidateVariableNames
+            Dim TranscriptionCandidate = GetCategoricalWordMetricValue(vn)
+            If TranscriptionCandidate.Trim <> "" Then
+                MyTranscription = TranscriptionCandidate
+                Exit For
+            End If
+        Next
+
+        'Using the PrimaryStringRepresentation instead of the spelling it was not found
+        If MySpelling = "" Then MySpelling = Me.PrimaryStringRepresentation
+
+        'Using MySpelling in place of the transcription of it was not found
+        If MyTranscription = "" Then MyTranscription = MySpelling
+
+        SmaComponent.OrthographicForm = MySpelling
+        SmaComponent.PhoneticForm = MyTranscription
+
+        For Each child In Me.ChildComponents
+
+            Dim NewChildComponent = New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(SmaComponent.ParentSMA, SmaComponent.SmaTag + 1)
+            SmaComponent.Add(NewChildComponent)
+            child.AddSmaValues(NewChildComponent)
+
+        Next
+
+    End Sub
+
 
 End Class
 
