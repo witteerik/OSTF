@@ -3,6 +3,13 @@
         'ResponseGuiItemTable1.AdjustControls()
 
 
+        Dim settings = New SpeechTestFramework.OstfSettings 'TODO: these should be read from text file!
+
+        Dim CompleteSpeechMaterial = SpeechTestFramework.SpeechMaterialComponent.LoadSpeechMaterial(settings.SpeechMaterialComponentsPath, settings.RootPath)
+
+
+        Exit Sub
+
         'Dim s = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\OSTA\Tests\SwedishSiPTest\SoundFiles\Unechoic-Talker1-RVE\TestWordRecordings\farm\M_000_001_farm.wav")
 
         Dim s = SpeechTestFramework.Audio.Sound.LoadWaveFile(IO.Path.Combine(SpeechTestFramework.Utils.logFilePath, "Test1.wav"))

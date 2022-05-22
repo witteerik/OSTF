@@ -25,6 +25,28 @@ Public Class SpeechMaterialComponent
     Private NumericVariables As New SortedList(Of String, Double)
     Private CategoricalVariables As New SortedList(Of String, String)
 
+    ' This variable is loaded from the speech material file and contains the full path to a custom variables database file for the component. The data is stored within the objects NumericVariables and CategoricalVariables.
+    ' The path is stored to be able to write to the same file in order to update the variables.
+    Private CustomVariablesDatabasePath As String = ""
+
+    'These two should contain the data defined in the TestSituationDatabase associated to the component in the speech material file.
+    Private NumericTestSituationVariables As New SortedList(Of String, SortedList(Of String, Double)) ' Test situation Id, Variable name, Variable Value
+    Private CategoricalTestSituationVariables As New SortedList(Of String, SortedList(Of String, String)) ' Test situation Id, Variable name, Variable Value
+
+    ' This variable should contain a subpath to a custom variables database file in the test situation folder in which test situation specific data for the component are stored. 
+    ' Once these data are loaded/created, they are stored in the objects NumericTestSituationVariables and CategoricalTestSituationVariables.
+    Private TestSituationDatabaseSubPath As String = ""
+
+    ''' <summary>
+    ''' The Id used to refer to the component in the LinguisticDatabase and/or the TestSituationDatabase
+    ''' </summary>
+    Private DbId As String = ""
+
+    Public Function GetTestSituationVariableValue()
+        'This function should somehow returns the requested variable values from the indicated test situation, or even offer an option to create/calculate that data if not present.
+        Throw New NotImplementedException
+    End Function
+
     Public Property OrderedChildren As Boolean = False
 
     Private MediaFolder As String
@@ -83,7 +105,7 @@ Public Class SpeechMaterialComponent
                 AllowedFileExtensions.Add(".png")
 
             Case Else
-                Throw New Exception("Unknown value for MediaType")
+                Throw New Exception("Unknown value For MediaType")
         End Select
 
         For Each file In AvailableFiles
@@ -250,7 +272,7 @@ Public Class SpeechMaterialComponent
         If ParentComponent Is Nothing Then Return Nothing
 
         'Checks that the parent has ordered children
-        If ParentComponent.OrderedChildren = False Then Throw New Exception("Cannot return same-place cousins from unordered components. (Component id: " & ParentComponent.Id & ")")
+        If ParentComponent.OrderedChildren = False Then Throw New Exception("Cannot Return same-place cousins from unordered components. (Component id: " & ParentComponent.Id & ")")
 
         Dim Aunties = ParentComponent.GetSiblingsExcludingSelf
 
@@ -433,7 +455,7 @@ Public Class SpeechMaterialComponent
 
             Dim SplitRow = Line.Split(vbTab)
 
-            If SplitRow.Length < 10 Then Throw New ArgumentException("Not enough data columns in the file " & FilePath & vbCrLf & "At the line: " & Line)
+            If SplitRow.Length < 12 Then Throw New ArgumentException("Not enough data columns in the file " & FilePath & vbCrLf & "At the line: " & Line)
 
             Dim NewComponent As New SpeechMaterialComponent(rnd)
 
@@ -456,6 +478,9 @@ Public Class SpeechMaterialComponent
             'Checking that the Id is not already used (Ids can only be used once throughout all speech component levels!!!)
             If IdsUsed.Contains(NewComponent.Id) Then
                 Throw New ArgumentException("Re-used Id (" & NewComponent.Id & ")! Speech material components must only be used once throughout the whole speech material!")
+            Else
+                'Adding the Id to IdsUsed
+                IdsUsed.Add(NewComponent.Id)
             End If
 
             ' Reading ParentId (which is used below
@@ -466,26 +491,36 @@ Public Class SpeechMaterialComponent
             NewComponent.PrimaryStringRepresentation = InputFileSupport.GetInputFileValue(SplitRow(index), False)
             index += 1
 
-            ' Add custom variables
-            Dim CustomVariablesDatabase As String = IO.Path.Combine(RootPath, "CustomVariables", InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False))
-            index += 1
-            Dim DbId As String = InputFileSupport.GetInputFileValue(SplitRow(index), False)
+            ' Getting the custom variables path
+            Dim CustomVariablesDatabasePath As String = IO.Path.Combine(RootPath, "CustomVariables", InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False))
+            NewComponent.CustomVariablesDatabasePath = CustomVariablesDatabasePath
             index += 1
 
-            If CustomVariablesDatabases.ContainsKey(CustomVariablesDatabase) = False Then
+            ' Adding the test situation database subpath
+            Dim TestSituationDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), RootPath, False)
+            NewComponent.TestSituationDatabaseSubPath = TestSituationDatabaseSubPath
+            index += 1
+
+            ' Adding the DbId
+            Dim DbId As String = InputFileSupport.GetInputFileValue(SplitRow(index), False)
+            NewComponent.DbId = DbId
+            index += 1
+
+            ' Adding the custom variables
+            If CustomVariablesDatabases.ContainsKey(CustomVariablesDatabasePath) = False Then
                 'Loading the database
                 Dim NewDatabase As New CustomVariablesDatabase
-                NewDatabase.LoadTabDelimitedFile(CustomVariablesDatabase)
-                CustomVariablesDatabases.Add(CustomVariablesDatabase, NewDatabase)
+                NewDatabase.LoadTabDelimitedFile(CustomVariablesDatabasePath)
+                CustomVariablesDatabases.Add(CustomVariablesDatabasePath, NewDatabase)
             End If
 
             'Adding the variables
-            For n = 0 To CustomVariablesDatabases(CustomVariablesDatabase).CustomVariableNames.Count - 1
-                Dim VariableName = CustomVariablesDatabases(CustomVariablesDatabase).CustomVariableNames(n)
-                If CustomVariablesDatabases(CustomVariablesDatabase).CustomVariableTypes(n) = VariableTypes.Categorical Then
-                    NewComponent.CategoricalVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabase).GetVariableValue(DbId, VariableName))
-                ElseIf CustomVariablesDatabases(CustomVariablesDatabase).CustomVariableTypes(n) = VariableTypes.Numeric Then
-                    NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabase).GetVariableValue(DbId, VariableName))
+            For n = 0 To CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames.Count - 1
+                Dim VariableName = CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames(n)
+                If CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Categorical Then
+                    NewComponent.CategoricalVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
+                ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Numeric Then
+                    NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
                 Else
                     Throw New NotImplementedException("Variable type not implemented!")
                 End If
