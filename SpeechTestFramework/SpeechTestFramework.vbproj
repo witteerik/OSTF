@@ -78,7 +78,10 @@
     <Compile Include="AudioProcessing\Audio_Formats.vb" />
     <Compile Include="AudioProcessing\Audio_FormatsExt.vb" />
     <Compile Include="AudioProcessing\Audio_GlobalAudioData.vb" />
-    <Compile Include="AudioProcessing\Audio_Graphics.vb" />
+    <Compile Include="AudioProcessing\Audio_Graphics.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="AudioProcessing\Audio_Graphics_NewVersion_NotFinished.vb" />
     <Compile Include="AudioProcessing\Audio_IO.vb" />
     <Compile Include="AudioProcessing\Audio_LegacyExtensionMethods.vb" />
     <Compile Include="AudioProcessing\Audio_Logging.vb" />

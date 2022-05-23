@@ -33,6 +33,8 @@ Namespace Audio
             Inherits SplitContainer
 
             'Sound panels, etc
+            Friend WithEvents LeftMainContainer As New SplitContainer
+
             Friend WithEvents SoundContainerPanel As New Panel
             Friend WithEvents SoundBackgroundArea As New System.Windows.Forms.PictureBox
             Friend WithEvents SpectrogramArea As New System.Windows.Forms.PictureBox
@@ -41,6 +43,10 @@ Namespace Audio
 
             Private WithEvents SoundScrollBar As New HScrollBar
             Friend WithEvents SegmentationItemsPanel As New FlowLayoutPanel
+
+            Private RightMainContainer As New SplitContainer
+            Private SentenceSelectorPanel As New FlowLayoutPanel
+            Private WordSelectorPanel As New FlowLayoutPanel
 
             'Other panels, etc
             Private ChangeWordButtonTexts As New List(Of String) From {"Previous Word", "Next Word"} ' Button text
@@ -111,23 +117,81 @@ Namespace Audio
             Public ShowUpdateSegmentationButton As Boolean
             Public ShowFadePaddingButton As Boolean
 
-            Public Sub New()
+            Private CurrentSegmentationLevel As Audio.Sound.SpeechMaterialAnnotation.SmaTags
 
-                Me.New(False)
+            Private Sub CreateContextMenu()
+
+                Dim menuItemNameList As New List(Of String) From {"Play", "PlayAll", "StopSound", "ZoomOut", "ZoomIn", "ZoomToSelection", "ZoomFull", "SmoothFadeIn", "SmoothFadeOut", "LinearFadeIn", "LinearFadeOut", "SilenceSelection", "SilenceSelectionZeroCross", "Copy", "Cut", "Paste", "Delete", "Crop", "UndoAll"}
+                Dim menuItemTextList As New List(Of String) From {"Play", "Play all", "Stop", "Zoom out", "Zoom in", "Zoom to selection", "Zoom full", "Fade in selection (smooth)", "Fade out selection (smooth)", "Fade in selection (linear)", "Fade out selection (linear)", "Silence selection", "Silence selection (search zero crossings)", "Copy", "Cut", "Paste", "Delete", "Crop", "Undo all"}
+
+                For item = 0 To menuItemNameList.Count - 1
+                    Dim menuItem As New ToolStripMenuItem
+                    menuItem.Name = menuItemNameList(item)
+                    menuItem.Text = menuItemTextList(item)
+                    SoundDisplayContextMenu.Items.Add(menuItem)
+                Next
+
+                'AddHandler soundDisplayContextMenu.ItemClicked, AddressOf menuItem_CLick
 
             End Sub
 
+
             'Setting things up
-            Public Sub New(Optional ByVal UseItemSegmentation As Boolean = False, Optional ByVal DisplaySpectrogram As Boolean = False,
+            Public Sub New(ByRef InputSound As Sound, Optional ByVal StartSample As Integer = 0, Optional ByVal LengthInSamples As Integer? = Nothing, Optional ByVal ViewChannel As Integer = 1,
+                           Optional ByVal UseItemSegmentation As Boolean = False, Optional ByVal DisplaySpectrogram As Boolean = False,
                     Optional ByRef SpectrogramFormat As Formats.SpectrogramFormat = Nothing, Optional ByVal PaddingTime As Single = 0,
                     Optional ByVal DrawNormalizedWave As Boolean = False, Optional ByRef SoundPlayer As PortAudioVB.SoundPlayer = Nothing,
                     Optional ByVal SetSegmentationToZeroCrossings As Boolean = True, Optional ByVal ShowDetectBoundariesButton As Boolean = True,
                     Optional ByVal ShowUpdateSegmentationButton As Boolean = True, Optional ByVal ShowFadePaddingButton As Boolean = True)
 
 
-                'Setting some default sound data
-                CurrentSound = Audio.Sound.GetTestSound()
+                'Setting channel (the viewer currently only supports display of one channel at a time)
+                CurrentChannel = ViewChannel ' This should be changed so that the container can display stereo channels
 
+                CurrentSound = InputSound
+
+                'Creatig  back-up copy of the input sound
+                SoundBackUp = CurrentSound.CreateCopy
+
+                'Setting full scale
+                FS_pos = CurrentSound.WaveFormat.PositiveFullScale
+
+                'Setting display section
+                If LengthInSamples.HasValue = False Then LengthInSamples = CurrentSound.WaveData.SampleData(CurrentChannel).Length
+                If LengthInSamples < 2 Then LengthInSamples = 2
+                DisplayStart_Sample = StartSample
+                DisplayLength_Samples = LengthInSamples
+
+
+                'Setting up layout
+                Me.Orientation = Orientation.Vertical
+                Me.Panel1.Controls.Add(LeftMainContainer)
+                LeftMainContainer.Dock = DockStyle.Fill
+
+
+                If UseItemSegmentation = True Then
+
+                    Me.SplitterDistance = 3 * Me.Width / 4
+
+                    Me.Panel2.Controls.Add(RightMainContainer)
+                    RightMainContainer.Dock = DockStyle.Fill
+                    RightMainContainer.Orientation = Orientation.Horizontal
+
+                    RightMainContainer.Panel1.Controls.Add(SentenceSelectorPanel)
+                    RightMainContainer.Panel2.Controls.Add(WordSelectorPanel)
+
+                    SentenceSelectorPanel.Dock = DockStyle.Fill
+                    SentenceSelectorPanel.FlowDirection = FlowDirection.TopDown
+                    SentenceSelectorPanel.AutoScroll = True
+
+                    WordSelectorPanel.Dock = DockStyle.Fill
+                    WordSelectorPanel.FlowDirection = FlowDirection.LeftToRight
+                    WordSelectorPanel.AutoScroll = True
+
+                Else
+
+                    Me.Panel2Collapsed = True
+                End If
 
                 Me.ShowDetectBoundariesButton = ShowDetectBoundariesButton
                 Me.ShowUpdateSegmentationButton = ShowUpdateSegmentationButton
@@ -142,15 +206,15 @@ Namespace Audio
 
                 Me.PaddingTime = PaddingTime
                 SoundContainerPanel.Dock = DockStyle.Fill
-                Me.Orientation = Orientation.Horizontal
-                Me.Panel1.Controls.Add(SoundContainerPanel)
-                Me.IsSplitterFixed = True
+                LeftMainContainer.Orientation = Orientation.Horizontal
+                LeftMainContainer.Panel1.Controls.Add(SoundContainerPanel)
+                LeftMainContainer.IsSplitterFixed = True
                 If Me.UseItemSegmentation = True Then
-                    Me.Panel2.Controls.Add(SegmentationItemsPanel)
+                    LeftMainContainer.Panel2.Controls.Add(SegmentationItemsPanel)
                     SegmentationItemsPanel.Height = 50
-                    Me.SplitterDistance = Me.Height - SegmentationItemsPanel.Height
+                    LeftMainContainer.SplitterDistance = LeftMainContainer.Height - SegmentationItemsPanel.Height
                 Else
-                    Me.SplitterDistance = Me.Height
+                    LeftMainContainer.SplitterDistance = LeftMainContainer.Height
                 End If
 
                 ShowSpectrogram = DisplaySpectrogram
@@ -181,6 +245,7 @@ Namespace Audio
                 TimeArea.BackColor = Color.Transparent
                 TimeArea.BringToFront()
                 SoundContainerPanel.Controls.Add(SoundScrollBar)
+                SoundScrollBar.Dock = DockStyle.Bottom
 
                 'Adding borders to the sound boxes
                 TimeArea.BorderStyle = BorderStyle.FixedSingle
@@ -204,8 +269,11 @@ Namespace Audio
 
                 End If
 
-                'Showing the temporary sound
-                ShowSound(CurrentSound)
+                'Calculating FFT
+                If ShowSpectrogram = True Then
+                    CurrentSound.FFT = New FftData(CurrentSound.WaveFormat, Me.SpectrogramFormat.SpectrogramFftFormat)
+                    CurrentSound.FFT.CalculateSpectrogramData(CurrentSound, Me.SpectrogramFormat, CurrentChannel)
+                End If
 
                 'Loading phoneme data
                 If Me.UseItemSegmentation = True Then
@@ -214,16 +282,20 @@ Namespace Audio
                     'phonemesContainerPanel.AutoSize = True
                     'phonemesContainerPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink
                     SegmentationItemsPanel.AutoScroll = True
-                    Me.Panel2MinSize = 30
-                    LoadAndModifyPhonemeLevelData()
+                    LeftMainContainer.Panel2MinSize = 30
+                    'LoadAndModifyPhonemeLevelData()
                 Else
-                    Me.Panel2MinSize = 0
-                    Me.SplitterDistance = Me.Height
+                    LeftMainContainer.Panel2MinSize = 0
+                    LeftMainContainer.SplitterDistance = LeftMainContainer.Height
                 End If
 
                 'Adding event handler for spectrogram. Paint events for other drawing areas are declared by Handles statments on the appropriate subs
-                If ShowSpectrogram = True Then
+                If Me.ShowSpectrogram = True Then
                     AddHandler SpectrogramArea.Paint, AddressOf Me.DrawSpectrogram
+                End If
+
+                If Me.UseItemSegmentation = True Then
+                    LoadAndModifyPhonemeLevelData()
                 End If
 
                 'Creating the context menu
@@ -232,38 +304,11 @@ Namespace Audio
 
                 'Adding handlers for the wave and spectrogram areas
                 AddHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
-                If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
+                If Me.ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
+
 
             End Sub
 
-            Public Sub ShowSound(ByRef InputSound As Sound, Optional ByVal StartSample As Integer = 0, Optional ByVal LengthInSamples As Integer? = Nothing, Optional ByVal ViewChannel As Integer = 1)
-
-                'Setting channel (the viewer currently only supports display of one channel at a time)
-                CurrentChannel = ViewChannel ' This should be changed so that the container can display stereo channels
-
-                CurrentSound = InputSound
-
-                'Creatig  back-up copy of the input sound
-                SoundBackUp = CurrentSound.CreateCopy
-
-                'Setting full scale
-                FS_pos = CurrentSound.WaveFormat.PositiveFullScale
-
-                'Setting display section
-                If LengthInSamples.HasValue = False Then LengthInSamples = CurrentSound.WaveData.SampleData(CurrentChannel).Length
-                If LengthInSamples < 2 Then LengthInSamples = 2
-                DisplayStart_Sample = StartSample
-                DisplayLength_Samples = LengthInSamples
-
-                'Calculating FFT
-                If ShowSpectrogram = True Then
-                    CurrentSound.FFT = New FftData(CurrentSound.WaveFormat, Me.SpectrogramFormat.SpectrogramFftFormat)
-                    CurrentSound.FFT.CalculateSpectrogramData(CurrentSound, Me.SpectrogramFormat, CurrentChannel)
-                End If
-
-                UpdateLayout()
-
-            End Sub
 
             Private Sub LoadAndModifyPhonemeLevelData()
 
@@ -275,17 +320,266 @@ Namespace Audio
                 'sound.SMA.AddWordStartString()
 
                 'Adding word end string so that the end of the word can be located. However, if one is already added, no new word end string is added
-                CurrentSound.SMA.AddWordEndString()
+                'CurrentSound.SMA.AddWordEndString()
 
                 'currentSentenceData = sound.SMA.ChannelData(currentChannel)
 
-                AddButtons()
+                AddSentences()
 
             End Sub
 
-            Private Sub AddButtons()
+            Private Sub AddSentences()
+
+                SentenceSelectorPanel.Controls.Clear()
+
+                For sentenceIndex = 0 To CurrentSound.SMA.ChannelData(CurrentChannel).Count - 1
+                    Dim SentenceLabel As New Label
+
+                    With SentenceLabel
+                        .Text = CurrentSound.SMA.ChannelData(CurrentChannel)(sentenceIndex).OrthographicForm
+                        .Name = sentenceIndex.ToString 'storing the identity of the sentence as an index that can be used to set the CurrentSentenceIndex 
+                        .BorderStyle = BorderStyle.Fixed3D
+                        .TextAlign = ContentAlignment.MiddleCenter
+                        .BackColor = Color.LightGray
+                        .AutoSize = True
+                        .Font = New Font("Times New Roman", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
+                    End With
+
+                    'Adding eventhandler
+                    AddHandler SentenceLabel.Click, AddressOf SentenceLabelButtonClick
+
+                    'Adding margin
+                    SentenceLabel.Margin = New Padding(2)
+
+                    'Adding the control
+                    SentenceSelectorPanel.Controls.Add(SentenceLabel)
+                Next
+
+            End Sub
+
+            Private Sub AddWords()
+
+                WordSelectorPanel.Controls.Clear()
+
+                For wordIndex = 0 To CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count - 1
+                    Dim WordLabel As New Label
+
+                    With WordLabel
+                        .Text = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(wordIndex).OrthographicForm
+                        .Name = wordIndex.ToString 'storing the identity of the sentence as an index that can be used to set the CurrentSentenceIndex 
+                        .BorderStyle = BorderStyle.Fixed3D
+                        .TextAlign = ContentAlignment.MiddleCenter
+                        .BackColor = Color.LightGray
+                        .AutoSize = True
+                        .Font = New Font("Times New Roman", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
+                    End With
+
+                    'Adding eventhandler
+                    AddHandler WordLabel.Click, AddressOf WordLabelButtonClick
+
+                    'Adding margin
+                    WordLabel.Margin = New Padding(2)
+
+                    'Adding the control
+                    WordSelectorPanel.Controls.Add(WordLabel)
+                Next
+
+                CurrentWordIndex = 0
 
                 If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 0 Then
+                    AddPhones()
+                End If
+
+            End Sub
+
+
+            Private Sub SentenceLabelButtonClick(sender As Object, ByVal e As MouseEventArgs)
+
+                'This sub handles clicking on the sentence labels
+                'A left click will play phoneme
+                'A right click will start the event handlers that is used to position the phoneme on the sound display
+
+                CurrentSegmentationLevel = Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE
+
+                CurrentSentenceIndex = sender.name
+
+                Select Case e.Button
+                    Case MouseButtons.Left
+                        'Playing the phoneme (but not the word end)
+
+                        If Not CurrentSentenceIndex = CurrentSound.SMA.ChannelData(CurrentChannel).Count - 1 Then
+                            Dim startSample As Integer = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).StartSample
+                            Dim lengthToPlay As Integer = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex + 1).StartSample - 1 - startSample 'PlaySoundStream plays to the end if length is 0
+                            If lengthToPlay < 0 Then lengthToPlay = 0
+                            'PlayBack.Play.PlaySoundStream(sound, currentSentenceData(currentWordIndex).PhoneData(currentPhonemeIndex).StartSample, lengthToPlay)
+
+                            If SoundPlayer Is Nothing Then CreateNewPaSoundPLayer()
+                            PlayBack.PlayDuplexSoundStream(SoundPlayer, CurrentSound, CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).StartSample, lengthToPlay,, , 0, 0)
+
+                        End If
+
+                    Case MouseButtons.Right
+
+                        sender.backcolor = Color.Red
+
+                        'Turn of other eventhandlers
+                        RemoveHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
+                        If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
+
+                        'Turn on mouse move eventhandler
+                        AddHandler WaveArea.MouseDown, AddressOf Me.Container_PositionSentence
+                        AddHandler WaveArea.MouseMove, AddressOf Me.Container_MoveSentence_MouseMove
+
+
+                        If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_PositionSentence
+                        If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseMove, AddressOf Me.Container_MoveSentence_MouseMove
+
+                End Select
+
+                If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 0 Then
+                    AddWords()
+                End If
+
+            End Sub
+
+            Private Sub Container_MoveSentence_MouseMove(sender As System.Object, e As MouseEventArgs)
+
+                'This sub sets the position of the CurrentSentenceIndex sentence.
+                If SetSegmentationToZeroCrossings Then
+                    Dim StartSampl As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
+                    StartSampl = DSP.GetZeroCrossingSample(CurrentSound, 1, StartSampl, DSP.MeasurementsExt.SearchDirections.Closest)
+                    CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).StartSample = StartSampl
+                Else
+                    CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).StartSample = DisplayStart_Sample + e.X * SampleToPixelScale
+                End If
+                InvalidateGraphics()
+
+            End Sub
+
+            Private Sub Container_PositionSentence(sender As System.Object, e As MouseEventArgs)
+
+                'This sub positions the CurrentSentenceIndex sentence, and switches on event handlers to normal state
+                If SetSegmentationToZeroCrossings Then
+                    Dim StartSampl As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
+                    StartSampl = DSP.GetZeroCrossingSample(CurrentSound, 1, StartSampl, DSP.MeasurementsExt.SearchDirections.Closest)
+                    CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).StartSample = StartSampl
+                Else
+                    CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).StartSample = DisplayStart_Sample + e.X * SampleToPixelScale
+                End If
+
+                'Resets the colors of the buttons
+                For Each item As Control In SentenceSelectorPanel.Controls
+                    item.BackColor = Color.LightGray
+                Next
+
+                RemoveHandler WaveArea.MouseDown, AddressOf Me.Container_PositionSentence
+                RemoveHandler WaveArea.MouseMove, AddressOf Me.Container_MoveSentence_MouseMove
+                If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseDown, AddressOf Me.Container_PositionSentence
+                If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseMove, AddressOf Me.Container_MoveSentence_MouseMove
+
+                InvalidateGraphics()
+
+                AddHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
+                If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
+
+            End Sub
+
+            Private Sub WordLabelButtonClick(sender As Object, ByVal e As MouseEventArgs)
+
+                'This sub handles clicking on the Word labels
+                'A left click will play phoneme
+                'A right click will start the event handlers that is used to position the phoneme on the sound display
+
+                CurrentSegmentationLevel = Sound.SpeechMaterialAnnotation.SmaTags.WORD
+
+                CurrentWordIndex = sender.name
+
+                Select Case e.Button
+                    Case MouseButtons.Left
+                        'Playing the phoneme (but not the word end)
+
+                        If Not CurrentWordIndex = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count - 1 Then
+                            Dim startSample As Integer = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).StartSample
+                            Dim lengthToPlay As Integer = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex + 1).StartSample - 1 - startSample 'PlaySoundStream plays to the end if length is 0
+                            If lengthToPlay < 0 Then lengthToPlay = 0
+                            'PlayBack.Play.PlaySoundStream(sound, currentSentenceData(currentWordIndex).PhoneData(currentPhonemeIndex).StartSample, lengthToPlay)
+
+                            If SoundPlayer Is Nothing Then CreateNewPaSoundPLayer()
+                            PlayBack.PlayDuplexSoundStream(SoundPlayer, CurrentSound, CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).StartSample, lengthToPlay,, , 0, 0)
+
+                        End If
+
+                    Case MouseButtons.Right
+
+                        sender.backcolor = Color.Red
+
+                        'Turn of other eventhandlers
+                        RemoveHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
+                        If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
+
+                        'Turn on mouse move eventhandler
+                        AddHandler WaveArea.MouseDown, AddressOf Me.Container_PositionWord
+                        AddHandler WaveArea.MouseMove, AddressOf Me.Container_MoveWord_MouseMove
+
+
+                        If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_PositionWord
+                        If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseMove, AddressOf Me.Container_MoveWord_MouseMove
+
+                End Select
+
+                If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).Count > 0 Then
+                    AddPhones()
+                End If
+
+            End Sub
+
+            Private Sub Container_MoveWord_MouseMove(sender As System.Object, e As MouseEventArgs)
+
+                'This sub sets the position of the CurrentWordIndex Word.
+                If SetSegmentationToZeroCrossings Then
+                    Dim StartSampl As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
+                    StartSampl = DSP.GetZeroCrossingSample(CurrentSound, 1, StartSampl, DSP.MeasurementsExt.SearchDirections.Closest)
+                    CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).StartSample = StartSampl
+                Else
+                    CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).StartSample = DisplayStart_Sample + e.X * SampleToPixelScale
+                End If
+                InvalidateGraphics()
+
+            End Sub
+
+            Private Sub Container_PositionWord(sender As System.Object, e As MouseEventArgs)
+
+                'This sub positions the CurrentWordIndex Word, and switches on event handlers to normal state
+                If SetSegmentationToZeroCrossings Then
+                    Dim StartSampl As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
+                    StartSampl = DSP.GetZeroCrossingSample(CurrentSound, 1, StartSampl, DSP.MeasurementsExt.SearchDirections.Closest)
+                    CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).StartSample = StartSampl
+                Else
+                    CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).StartSample = DisplayStart_Sample + e.X * SampleToPixelScale
+                End If
+
+                'Resets the colors of the buttons
+                For Each item As Control In WordSelectorPanel.Controls
+                    item.BackColor = Color.LightGray
+                Next
+
+                RemoveHandler WaveArea.MouseDown, AddressOf Me.Container_PositionWord
+                RemoveHandler WaveArea.MouseMove, AddressOf Me.Container_MoveWord_MouseMove
+                If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseDown, AddressOf Me.Container_PositionWord
+                If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseMove, AddressOf Me.Container_MoveWord_MouseMove
+
+                InvalidateGraphics()
+
+                AddHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
+                If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
+
+            End Sub
+
+            Private Sub AddPhones()
+
+                SegmentationItemsPanel.Controls.Clear()
+
+                If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).Count > 0 Then
 
                     For n = 0 To 1
                         Dim ChangeWordButton As New Button
@@ -403,21 +697,6 @@ Namespace Audio
 
 
             End Sub
-            Private Sub CreateContextMenu()
-
-                Dim menuItemNameList As New List(Of String) From {"Play", "PlayAll", "StopSound", "ZoomOut", "ZoomIn", "ZoomToSelection", "ZoomFull", "SmoothFadeIn", "SmoothFadeOut", "LinearFadeIn", "LinearFadeOut", "SilenceSelection", "SilenceSelectionZeroCross", "Copy", "Cut", "Paste", "Delete", "Crop", "UndoAll"}
-                Dim menuItemTextList As New List(Of String) From {"Play", "Play all", "Stop", "Zoom out", "Zoom in", "Zoom to selection", "Zoom full", "Fade in selection (smooth)", "Fade out selection (smooth)", "Fade in selection (linear)", "Fade out selection (linear)", "Silence selection", "Silence selection (search zero crossings)", "Copy", "Cut", "Paste", "Delete", "Crop", "Undo all"}
-
-                For item = 0 To menuItemNameList.Count - 1
-                    Dim menuItem As New ToolStripMenuItem
-                    menuItem.Name = menuItemNameList(item)
-                    menuItem.Text = menuItemTextList(item)
-                    SoundDisplayContextMenu.Items.Add(menuItem)
-                Next
-
-                'AddHandler soundDisplayContextMenu.ItemClicked, AddressOf menuItem_CLick
-
-            End Sub
 
             'Resetting data
             Private Sub ResetCurrentWordLevelSegmentationData()
@@ -478,16 +757,6 @@ Namespace Audio
                     SoundScrollBar.Maximum = CurrentSound.WaveData.SampleData(CurrentChannel).Length - DisplayLength_Samples
                     SoundScrollBar.Value = DisplayStart_Sample
 
-                    'Updating the size of the graphic elements
-                    'If UseItemSegmentation = True Then Me.SplitterDistance = Me.Height - 20
-
-                    SoundBackgroundArea.Left = 0
-                    SoundScrollBar.Left = 0
-                    'phonemesContainerPanel.Left = 0
-
-                    SoundBackgroundArea.Width = Me.Width
-                    SoundScrollBar.Width = Me.Width
-                    'phonemesContainerPanel.Width = Me.Width
 
                     Dim drawAreaHeight = SoundContainerPanel.Height - SoundScrollBar.Height
                     'If drawAreaHeight < buttonPanel.Height - hScBar.Height Then instanceContainerPanel.Height = drawAreaHeight + buttonPanel.Height + hScBar.Height
@@ -795,7 +1064,7 @@ Namespace Audio
                 End Try
 
             End Sub
-            Private Sub DrawSpectrogram(ByVal sender As Object, ByVal e As System.Windows.Forms.PaintEventArgs)
+            Private Sub DrawSpectrogram(ByVal sender As Object, ByVal e As System.Windows.Forms.PaintEventArgs) Handles SpectrogramArea.Paint
 
                 Try
 
@@ -910,38 +1179,82 @@ Namespace Audio
 
                     'Drawing phoneme boundary lines and labels
                     If UseItemSegmentation = True Then
-                        If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 0 Then
 
-                            Dim currentPen As New System.Drawing.Pen(System.Drawing.Color.Red, 2)
-                            'Dim TempPen As New Pen(Color.FromArgb(0, 91, 192), 5)
+                        Select Case CurrentSegmentationLevel
+                            Case Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL
+                                '??
+                            Case Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE
 
+                                If CurrentSound.SMA.ChannelData(CurrentChannel).Count > 0 Then
 
-                            For phoneme = 0 To CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).Count - 1
-                                'Drawing line
+                                    Dim currentPen As New System.Drawing.Pen(System.Drawing.Color.Red, 2)
+                                    'Dim TempPen As New Pen(Color.FromArgb(0, 91, 192), 5)
 
-                                Dim phonemeStartPixel As Single = (CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).StartSample - DisplayStart_Sample) / SampleToPixelScale
-                                If Not (CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).StartSample) < 0 Then ' Is used to "hide" the lines and phoneme strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
-                                    g.DrawLine(currentPen, phonemeStartPixel, SoundBackgroundArea.Top, phonemeStartPixel, SoundBackgroundArea.Height)
+                                    For sentence = 0 To CurrentSound.SMA.ChannelData(CurrentChannel).Count - 1
+                                        'Drawing line
 
-                                    'Adding phoneme string
-                                    If ShowSpectrogram = True Then
-                                        'Putting the phoneme string in the middle of the background panel
-                                        g.DrawString(CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).PhoneticForm,
+                                        Dim phonemeStartPixel As Single = (CurrentSound.SMA.ChannelData(CurrentChannel)(sentence).StartSample - DisplayStart_Sample) / SampleToPixelScale
+                                        If Not (CurrentSound.SMA.ChannelData(CurrentChannel)(sentence).StartSample) < 0 Then ' Is used to "hide" the lines and phoneme strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
+                                            g.DrawLine(currentPen, phonemeStartPixel, SoundBackgroundArea.Top, phonemeStartPixel, SoundBackgroundArea.Height)
+
+                                            'Adding phoneme string
+                                            If ShowSpectrogram = True Then
+
+                                                'Putting the phoneme string in the middle of the background panel
+                                                g.DrawString(CurrentSound.SMA.ChannelData(CurrentChannel)(sentence).OrthographicForm,
                                               New Font("Arial", 20), Brushes.Blue, New PointF(phonemeStartPixel, SoundBackgroundArea.Height / 2 - 14))
-                                    Else
-                                        'Putting the phoneme string in the bottom of the background panel, above the time scale
-                                        'Dim TempPhonemeColorBrush As New SolidBrush(Color.FromArgb(0, 91, 192))
 
-                                        g.DrawString(CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).PhoneticForm,
+                                            Else
+
+                                                'Putting the phoneme string in the bottom of the background panel, above the time scale
+                                                g.DrawString(CurrentSound.SMA.ChannelData(CurrentChannel)(sentence).OrthographicForm,
                                               New Font("Arial", 20), Brushes.Black, New PointF(phonemeStartPixel, SoundBackgroundArea.Height - 55))
 
-                                        'g.DrawString(sound.SMA.ChannelData(currentChannel)(sentence)(currentWordIndex).PhoneData(phoneme).Phoneme,
-                                        '         New Font("Doulos SIL", 40), Brushes.Black, New PointF(phonemeStartPixel, soundBackgroundArea.Height - 105))
-                                    End If
-
+                                            End If
+                                        End If
+                                    Next
                                 End If
-                            Next
-                        End If
+
+
+                            Case Sound.SpeechMaterialAnnotation.SmaTags.WORD
+
+                            Case Sound.SpeechMaterialAnnotation.SmaTags.PHONE
+
+                                If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 0 Then
+
+                                    Dim currentPen As New System.Drawing.Pen(System.Drawing.Color.Red, 2)
+                                    'Dim TempPen As New Pen(Color.FromArgb(0, 91, 192), 5)
+
+
+                                    For phoneme = 0 To CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).Count - 1
+                                        'Drawing line
+
+                                        Dim phonemeStartPixel As Single = (CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).StartSample - DisplayStart_Sample) / SampleToPixelScale
+                                        If Not (CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).StartSample) < 0 Then ' Is used to "hide" the lines and phoneme strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
+                                            g.DrawLine(currentPen, phonemeStartPixel, SoundBackgroundArea.Top, phonemeStartPixel, SoundBackgroundArea.Height)
+
+                                            'Adding phoneme string
+                                            If ShowSpectrogram = True Then
+                                                'Putting the phoneme string in the middle of the background panel
+                                                g.DrawString(CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).PhoneticForm,
+                                              New Font("Arial", 20), Brushes.Blue, New PointF(phonemeStartPixel, SoundBackgroundArea.Height / 2 - 14))
+                                            Else
+                                                'Putting the phoneme string in the bottom of the background panel, above the time scale
+                                                'Dim TempPhonemeColorBrush As New SolidBrush(Color.FromArgb(0, 91, 192))
+
+                                                g.DrawString(CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).PhoneticForm,
+                                              New Font("Arial", 20), Brushes.Black, New PointF(phonemeStartPixel, SoundBackgroundArea.Height - 55))
+
+                                                'g.DrawString(sound.SMA.ChannelData(currentChannel)(sentence)(currentWordIndex).PhoneData(phoneme).Phoneme,
+                                                '         New Font("Doulos SIL", 40), Brushes.Black, New PointF(phonemeStartPixel, soundBackgroundArea.Height - 105))
+                                            End If
+
+                                        End If
+                                    Next
+                                End If
+
+                        End Select
+
                     End If
 
 
@@ -1004,15 +1317,15 @@ Namespace Audio
             Private Sub InvalidateGraphics()
 
                 'Invalidates each control of the sound area so that they are redrawn on next draw event
-                Dim mySoundDisplayRectangle As New Rectangle(Me.Panel1.Left, Me.Panel1.Top,
-                                      Me.Panel1.Width, Me.Panel1.Height)
-                Me.Panel1.Invalidate(mySoundDisplayRectangle, True)
+                Dim mySoundDisplayRectangle As New Rectangle(LeftMainContainer.Panel1.Left, LeftMainContainer.Panel1.Top,
+                                      LeftMainContainer.Panel1.Width, LeftMainContainer.Panel1.Height)
+                LeftMainContainer.Panel1.Invalidate(mySoundDisplayRectangle, True)
 
             End Sub
 
             'Taking care of user input
             '   - Things that concern the sound drawing area
-            Private Sub Container_MouseDown(sender As System.Object, e As MouseEventArgs)
+            Private Sub Container_MouseDown(sender As System.Object, e As MouseEventArgs) Handles WaveArea.MouseDown, SpectrogramArea.MouseDown
 
                 If e.Button = MouseButtons.Left Then
                     RemoveHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
@@ -1255,15 +1568,15 @@ Namespace Audio
             End Sub
 
 
-            Private Sub ReSizeTimer_Tick() Handles Me.SizeChanged
+            Private Sub ReSizeTimer_Tick() Handles Me.SizeChanged, Me.SplitterMoved
 
                 Try
 
                     'Since the SplitterDistance of myLayoutContainer is changed when myLayoutContainer is resized, it is corrected here
                     If UseItemSegmentation = True Then
-                        Me.SplitterDistance = Me.Height - SegmentationItemsPanel.Height
+                        LeftMainContainer.SplitterDistance = LeftMainContainer.Height - SegmentationItemsPanel.Height
                     Else
-                        Me.SplitterDistance = Me.Height
+                        LeftMainContainer.SplitterDistance = LeftMainContainer.Height
                     End If
 
                     UpdateLayout()
@@ -1296,7 +1609,7 @@ Namespace Audio
                         Next
 
                         'Adding new buttons
-                        AddButtons()
+                        AddPhones()
 
                         'Updating the sound display
                         InvalidateGraphics()
@@ -1317,7 +1630,7 @@ Namespace Audio
                         Next
 
                         'Adding new buttons
-                        AddButtons()
+                        AddPhones()
 
                         'Updating the sound display
                         InvalidateGraphics()
@@ -1332,6 +1645,8 @@ Namespace Audio
                 'This sub handles clicking on the phoneme buttons
                 'A left click will play phoneme
                 'A right click will start the event handlers that is used to position the phoneme on the sound display
+
+                CurrentSegmentationLevel = Sound.SpeechMaterialAnnotation.SmaTags.PHONE
 
                 CurrentPhonemeIndex = sender.name
 
