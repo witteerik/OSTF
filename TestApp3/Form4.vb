@@ -10,7 +10,9 @@
         Dim NewMediaSet = New SpeechTestFramework.MediaSet
         NewMediaSet.SetSipValues()
 
-        NewMediaSet.CreateLackingAudioMediaFiles(CompleteSpeechMaterial)
+        NewMediaSet.RecordAndEditAudioMediaFiles(CompleteSpeechMaterial, SpeechTestFramework.MediaSet.SpeechMaterialRecorderLoadOptions.LoadAllSounds)
+
+        'NewMediaSet.CreateLackingAudioMediaFiles(CompleteSpeechMaterial)
 
 
         Exit Sub

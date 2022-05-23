@@ -1,24 +1,22 @@
 ﻿
 Public Class SpeechMaterialRecorder
 
+    Private EditItems As List(Of Tuple(Of String, SpeechMaterialComponent))
 
-    'TODO: Large change: The way sounds are stored need to be updated! In addition, all(?) methods need to be implemented
+    Private CurrentItemHasUnsavedChanged As Boolean = False
+    Private CurrentlyLoadedSound As Audio.Sound = Nothing
 
-    Private ParentSoundLibrary As SpeechAudiometrySoundLibrary
-
-    Public AllRecordings As List(Of Tuple(Of String, SpeechMaterialLibrary.TestWordRecording))
-
-    Private CurrentRecordingIndex As Integer = 0
+    Private CurrentItemIndex As Integer = 0
     Public MinSelectionIndex As Integer = -1
     Public MaxSelectionIndex As Integer = -1
 
-    Public Property RecordingWaveFormat As Audio.Formats.WaveFormat
+    Private RecordingWaveFormat As Audio.Formats.WaveFormat
 
     'SoundPlayers
     Public MyGeneralSoundPlayer As Audio.PortAudioVB.SoundPlayer
 
     'Sound output settings
-    Public CurrentAudioApiSettings As Audio.AudioApiSettings
+    Public CurrentAudioApiSettings As Audio.AudioApiSettings = Nothing
 
     'Spectrogram settings
     Public CurrentSpectrogramFormat As Audio.Formats.SpectrogramFormat
@@ -26,25 +24,43 @@ Public Class SpeechMaterialRecorder
     'TODO: This should be a setting somewhere!!!
     Public paddingTime As Double = 0.5
 
-    Public Sub New(ByRef ParentSoundLibrary As SpeechAudiometrySoundLibrary)
+    Public Sub New(ByRef EditItems As List(Of Tuple(Of String, SpeechMaterialComponent)), ByRef RecordingWaveFormat As Audio.Formats.WaveFormat)
 
         ' This call is required by the designer.
         InitializeComponent()
 
+        'Setting the RecordingWaveFormat
+        Me.RecordingWaveFormat = RecordingWaveFormat
+
         ' Add any initialization after the InitializeComponent() call.
-        Me.ParentSoundLibrary = ParentSoundLibrary
+        Me.EditItems = EditItems
 
-        UpdateAllRecordingsList("Tyst")
-
-        SelectRecoringIndex(0)
+        SetupAudioIO()
 
     End Sub
+
 
     Private Sub TestWordRecorder_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         MainTabControl.SelectedIndex = 0
 
         RecordingTabMainSplitContainer.SplitterDistance = 2 * (Me.Width / 3)
+
+        ' Adding items into the ItemComboBox
+        For n = 1 To EditItems.Count
+            ItemComboBox.Items.Add(n)
+        Next
+
+        ' Setting MinSelectionIndex
+        If EditItems.Count > 0 Then
+            MinSelectionIndex = 0
+            MaxSelectionIndex = EditItems.Count - 1
+        Else
+            MinSelectionIndex = -1
+            MaxSelectionIndex = -1
+        End If
+
+        SelectRecoringIndex(0)
 
     End Sub
 
@@ -73,22 +89,20 @@ Public Class SpeechMaterialRecorder
     ''' </summary>
     Public Sub SetupAudioIO()
 
-        Dim newAudioSettingsDialog As New AudioSettingsDialog()
+        Dim newAudioSettingsDialog As New AudioSettingsDialog(RecordingWaveFormat.SampleRate)
         Dim Result = newAudioSettingsDialog.ShowDialog()
         If Result = Windows.Forms.DialogResult.OK Then
             CurrentAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
+        Else
+            'Attempting to set default AudioApiSettings if the user pressed ok
+            CurrentAudioApiSettings.SelectDefaultAudioDevice(RecordingWaveFormat.SampleRate)
+        End If
 
-            'Updating the recording format with the selected sample rate
-            RecordingWaveFormat = New Audio.Formats.WaveFormat(CurrentAudioApiSettings.SampleRate, 32, 1)
-
+        If CurrentAudioApiSettings IsNot Nothing Then
             'Creating a new sound player with the updated audio settings
-            If MyGeneralSoundPlayer IsNot Nothing Then MyGeneralSoundPlayer.Dispose()
-
-            Dim TemporaryOutputSound As Audio.Sound = Audio.GenerateSound.CreateSilence(RecordingWaveFormat,, 1)
-
-            MyGeneralSoundPlayer = New Audio.PortAudioVB.SoundPlayer(False, RecordingWaveFormat, TemporaryOutputSound, CurrentAudioApiSettings,
-                                                                         False, False, False, True, True)
-
+            CreateAudioPlayer()
+        Else
+            MsgBox("Unable to set audio device! You will not be able to play or record audio.", MsgBoxStyle.Exclamation, "No audio device?")
         End If
 
     End Sub
@@ -127,46 +141,23 @@ Public Class SpeechMaterialRecorder
     End Sub
 
 
-    Public Sub UpdateAllRecordingsList(ByVal TestSituationName As String)
 
-        'Creates a list of all sounds
-        Dim FilenameList As New SortedSet(Of String)
-        Dim TempList As New List(Of Tuple(Of String, SpeechMaterialLibrary.TestWordRecording))
-
-        For Each TestWordList In ParentSoundLibrary.ParentSpeechMaterial.TestWordLists
-            For Each TestWord In TestWordList.MemberWords
-                For Each TestStimulus In TestWord.Recordings(TestSituationName)
-
-                    Dim FileName As String = TestStimulus.SoundFileNameWithoutExtension
-
-                    'Skips if the sound is already added (from another list)
-                    'N.B. This means that even though two different instances of TestWordRecording may have some features that differ, only the features from the first one will be used.
-                    If FilenameList.Contains(FileName) Then Continue For
-
-                    'Adds the sound to the list
-                    TempList.Add(New Tuple(Of String, SpeechMaterialLibrary.TestWordRecording)(FileName, TestStimulus))
-
-                Next
-            Next
-        Next
-
-        AllRecordings = TempList
-
-        For n = 1 To AllRecordings.Count
-            ItemComboBox.Items.Add(n)
-        Next
-
-        If AllRecordings.Count > 0 Then
-            MinSelectionIndex = 0
-            MaxSelectionIndex = AllRecordings.Count - 1
-        Else
-            MinSelectionIndex = -1
-            MaxSelectionIndex = -1
-        End If
-
-    End Sub
 
     Private Sub SelectRecoringIndex(ByVal NewIndex As Integer)
+
+        If CurrentlyLoadedSound IsNot Nothing Then
+            If CurrentItemHasUnsavedChanged = True Then
+
+                Dim Res = MsgBox("The current sound has unsaved changes. Do you want to save the changes? (This will overwrite the old loaded sound file!)", MsgBoxStyle.YesNo, "Save file?")
+
+                If Res = MsgBoxResult.Yes Then
+                    If CurrentlyLoadedSound.WriteWaveFile(EditItems(CurrentItemIndex).Item1) = False Then
+                        MsgBox("Unable to save the current sound (" & EditItems(CurrentItemIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
+                        Exit Sub
+                    End If
+                End If
+            End If
+        End If
 
         Select Case NewIndex
             Case < MinSelectionIndex
@@ -178,9 +169,9 @@ Public Class SpeechMaterialRecorder
                 MsgBox("Index too high")
 
             Case Else
-                CurrentRecordingIndex = NewIndex
+                CurrentItemIndex = NewIndex
 
-                ItemComboBox.SelectedItem = CurrentRecordingIndex + 1
+                ItemComboBox.SelectedItem = CurrentItemIndex + 1
 
                 Select Case MainTabControl.SelectedTab.Text
                     Case RecordingTab.Text
@@ -197,56 +188,18 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Public Function GetLackingTestWordRecordings(ByVal TestSituationName As String) As SortedList(Of String, SpeechMaterialLibrary.TestWordRecording)
-
-
-        'Creates a list of all sounds
-        Dim RecordingsNeeded As New SortedList(Of String, SpeechMaterialLibrary.TestWordRecording)
-
-        For Each TestWordList In ParentSoundLibrary.ParentSpeechMaterial.TestWordLists
-            For Each TestWord In TestWordList.MemberWords
-                For Each TestStimulus In TestWord.Recordings(TestSituationName)
-
-                    Dim FileName As String = TestStimulus.SoundFileNameWithoutExtension
-
-                    'Skips if the sound is already added (from another list)
-                    'N.B. This means that even though two different instances of TestWordRecording may have some features that differ, only the features from the first one will be used.
-                    If RecordingsNeeded.ContainsKey(FileName) Then Continue For
-
-                    'Adds the sound to the list
-                    RecordingsNeeded.Add(FileName, TestStimulus)
-
-                Next
-            Next
-        Next
-
-        'Getting the recordings lacking
-        Dim RecordingsLacking As New SortedList(Of String, SpeechMaterialLibrary.TestWordRecording)
-        For Each Recording In RecordingsNeeded
-            If ParentSoundLibrary.CheckIfTestWordRecordingExists(Recording.Key, TestSituationName) Then
-                RecordingsLacking.Add(Recording.Key, Recording.Value)
-            End If
-        Next
-
-        Return RecordingsLacking
-
-    End Function
-
-
 
     Public Sub DisplayRecordedSound()
 
         Try
 
-            If CurrentRecordingIndex >= 0 Then
+            If CurrentItemIndex >= 0 Then
 
-                Dim SoundRecordingFileName = AllRecordings(CurrentRecordingIndex).Item1
+                Dim SoundPath = EditItems(CurrentItemIndex).Item1
 
-                If ParentSoundLibrary.CheckIfTestWordRecordingExists(SoundRecordingFileName, ParentSoundLibrary.CurrentTestSituationName) = True Then
+                If IO.File.Exists(SoundPath) = True Then
 
-                    Dim SoundPath As String = IO.Path.Combine(ParentSoundLibrary.ParentSpeechMaterial.AvailableTestSituations(ParentSoundLibrary.CurrentTestSituationName).TestWordSoundFolder, SoundRecordingFileName & ".wav")
-
-                    Dim ShowSound = Audio.AudioIOs.LoadWaveFile(SoundPath)
+                    CurrentlyLoadedSound = Audio.AudioIOs.LoadWaveFile(SoundPath)
 
                     'Resetting sound display
                     If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
@@ -254,13 +207,15 @@ Public Class SpeechMaterialRecorder
                     Dim soundPanel As New Windows.Forms.SplitContainer
                     soundPanel.Dock = Windows.Forms.DockStyle.Fill
 
-                    Dim waveDrawer As New Audio.Graphics.SoundEditor(ShowSound, soundPanel,,,,,,,, MyGeneralSoundPlayer)
+                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSound, soundPanel,,,,,,,, MyGeneralSoundPlayer)
 
                     RecordingTabMainSplitContainer.Panel2.Controls.Add(soundPanel)
 
                     ListenButton.Enabled = True
 
                 Else
+
+                    CurrentlyLoadedSound = Nothing
 
                     RecordingTabMainSplitContainer.Controls.Clear()
 
@@ -295,49 +250,55 @@ Public Class SpeechMaterialRecorder
 
         Try
 
-            Dim ShowSound = Audio.AudioIOs.LoadWaveFile("C:\SpeechAndHearingToolsLog\F_001_000_hyrs.wav")
+            Dim SoundPath = EditItems(CurrentItemIndex).Item1
 
-            'Dim ShowSound = Audio.GenerateSound.CreateSineWave(New Audio.Formats.WaveFormat(48000, 32, 1),, 2000)
+            If IO.File.Exists(SoundPath) = True Then
 
-            'Diplays the sound if there is any
-            If ShowSound.WaveData.ShortestChannelSampleCount > 0 = True Then
+                CurrentlyLoadedSound = Audio.AudioIOs.LoadWaveFile(SoundPath)
 
-                'Resetting sound display
-                If SegmentationPanel.Controls.Count > 0 Then SegmentationPanel.Controls.RemoveAt(0)
+                'Diplays the sound if there is any
+                If CurrentlyLoadedSound.WaveData.ShortestChannelSampleCount > 0 = True Then
 
-                Dim newSoundPanel As New Windows.Forms.SplitContainer
-                newSoundPanel.Dock = Windows.Forms.DockStyle.Fill
+                    'Resetting sound display
+                    If SegmentationPanel.Controls.Count > 0 Then SegmentationPanel.Controls.RemoveAt(0)
 
-                If CurrentSpectrogramFormat Is Nothing Then
-                    Dim SpectrogramSettingsResult As New SpectrogramSettingsDialog
-                    If SpectrogramSettingsResult.ShowDialog = Windows.Forms.DialogResult.OK Then
-                        CurrentSpectrogramFormat = SpectrogramSettingsResult.NewSpectrogramFormat
-                    Else
-                        CurrentSpectrogramFormat = New Audio.Formats.SpectrogramFormat(, 1024,, 512,, True,,,, True)
+                    Dim newSoundPanel As New Windows.Forms.SplitContainer
+                    newSoundPanel.Dock = Windows.Forms.DockStyle.Fill
+
+                    If CurrentSpectrogramFormat Is Nothing Then
+                        Dim SpectrogramSettingsResult As New SpectrogramSettingsDialog
+                        If SpectrogramSettingsResult.ShowDialog = Windows.Forms.DialogResult.OK Then
+                            CurrentSpectrogramFormat = SpectrogramSettingsResult.NewSpectrogramFormat
+                        Else
+                            CurrentSpectrogramFormat = New Audio.Formats.SpectrogramFormat(, 1024,, 512,, True,,,, True)
+                        End If
                     End If
+
+                    'SoundEditor
+                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSound, newSoundPanel,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
+
+                    SegmentationPanel.Controls.Add(newSoundPanel)
+
+                Else
+                    'Resets the sound display, and adds a message that no sound is recorded
+                    If SegmentationPanel.Controls.Count > 0 Then SegmentationPanel.Controls.RemoveAt(0)
+
+                    Dim noSoundLabel As New Windows.Forms.Label
+                    noSoundLabel.Dock = Windows.Forms.DockStyle.Fill
+                    noSoundLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+                    noSoundLabel.Text = "No sound is yet recorded for this item."
+                    SegmentationPanel.Controls.Add(noSoundLabel)
+
                 End If
 
-                'SoundEditor
-                Dim waveDrawer As New Audio.Graphics.SoundEditor(ShowSound, newSoundPanel,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
-
-                SegmentationPanel.Controls.Add(newSoundPanel)
-
             Else
-                'Resets the sound display, and adds a message that no sound is recorded
-                If SegmentationPanel.Controls.Count > 0 Then SegmentationPanel.Controls.RemoveAt(0)
-
-                Dim noSoundLabel As New Windows.Forms.Label
-                noSoundLabel.Dock = Windows.Forms.DockStyle.Fill
-                noSoundLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-                noSoundLabel.Text = "No sound is yet recorded for this item."
-                SegmentationPanel.Controls.Add(noSoundLabel)
+                CurrentlyLoadedSound = Nothing
 
             End If
 
         Catch ex As Exception
-            MsgBox(ex.ToString)
+            MsgBox("The following exception occurred: " & ex.ToString)
         End Try
-
 
     End Sub
 
@@ -425,21 +386,6 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-
-    End Sub
-
-    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-
-    End Sub
-
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
-
-    End Sub
-
-    Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
-
-    End Sub
 
     Private Sub StartRecordingButton_Click(sender As Object, e As EventArgs) Handles StartRecordingButton.Click
 
@@ -449,29 +395,21 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub Top_PreviousItemButton_Click(sender As Object, e As EventArgs) Handles Top_PreviousItemButton.Click
+    Private Sub Top_PreviousItemButton_Click(sender As Object, e As EventArgs) Handles Top_PreviousItemButton.Click, Rec_PreviousItemButton.Click
 
-        SelectRecoringIndex(CurrentRecordingIndex - 1)
+        SelectRecoringIndex(CurrentItemIndex - 1)
+
+    End Sub
+
+    Private Sub Top_NextItemButton_Click(sender As Object, e As EventArgs) Handles Top_NextItemButton.Click, Rec_NextItemButton.Click
+
+        SelectRecoringIndex(CurrentItemIndex + 1)
 
     End Sub
 
-    Private Sub Top_NextItemButton_Click(sender As Object, e As EventArgs) Handles Top_NextItemButton.Click
-
-        SelectRecoringIndex(CurrentRecordingIndex + 1)
+    Private Sub ItemComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ItemComboBox.SelectedIndexChanged
 
     End Sub
-End Class
 
-#Region "OnlyTemporary_Remove"
-Public Class SpeechAudiometrySoundLibrary
-    Public Property ParentSpeechMaterial
-    Public Property CurrentTestSituationName
-    Public Function CheckIfTestWordRecordingExists()
-        Throw New NotImplementedException
-    End Function
+
 End Class
-Public Class SpeechMaterialLibrary
-    Public Class TestWordRecording
-    End Class
-End Class
-#End Region

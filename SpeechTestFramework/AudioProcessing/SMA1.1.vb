@@ -1173,7 +1173,7 @@ Namespace Audio
 
 #End Region
 
-
+            <Serializable>
             Public Class SmaComponent
                 Inherits List(Of SmaComponent)
 
@@ -1575,10 +1575,15 @@ Namespace Audio
                 ''' </summary>
                 Public Sub AddWordEndString()
 
+                    'Checking if and child components exist, and exits if not.
+                    If Me.Count = 0 Then Exit Sub
+
                     'Adding word-end marker
 
+                    Dim MarkerAdded As Boolean = False
+
                     'Checks if there is already a word end marker
-                    If Me(Me.Count - 1).PhoneticForm = WordEndString Then
+                    If Me(Me.Count - 1).PhoneticForm = WordEndString Or Me(Me.Count - 1).OrthographicForm = WordEndString Then
                         'There is already a word end marker stored (in a previous segmentation).
                     Else
                         Me.Add(New SmaComponent(Me.ParentSMA, Me.SmaTag + 1) With {.PhoneticForm = WordEndString, .OrthographicForm = WordEndString})
@@ -1588,10 +1593,16 @@ Namespace Audio
                             Me(Me.Count - 1).StartSample = Me(Me.Count - 2).StartSample + Me(Me.Count - 2).Length
                         End If
 
+                        MarkerAdded = True
+
                     End If
 
                     'Cascading to lower levels
-                    Me(Me.Count - 1).AddWordEndString()
+                    If MarkerAdded = False Then
+                        Me(Me.Count - 1).AddWordEndString()
+                    Else
+                        Me(Me.Count - 2).AddWordEndString()
+                    End If
 
                 End Sub
 

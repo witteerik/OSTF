@@ -75,7 +75,8 @@ Public Class MediaSet
     End Sub
 
     ''' <summary>
-    ''' Returns the full file paths to all existing and nonexisting sound recordings assumed to exist in the Media folder in Item1. For lacking recordings a new paths are suggested. Existing file paths are returned in Item2, and nonexisting paths in Item3.
+    ''' Returns the full file paths to all existing and nonexisting sound recordings assumed to exist in the Media folder in Item1, along with the (first, if several) SpeechMaterialComponent using those paths. 
+    ''' For lacking recordings a new paths are suggested. Existing file paths are returned in Item2, and nonexisting paths in Item3.
     ''' </summary>
     ''' <param name="SpeechMaterial"></param>
     ''' <returns></returns>
@@ -144,16 +145,22 @@ Public Class MediaSet
 
     End Function
 
-    Public Sub CreateLackingAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent)
+    ''' <summary>
+    ''' Checks whether there are missing audio media files, and offers an option to create the files needed. Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.
+    ''' </summary>
+    ''' <param name="SpeechMaterial"></param>
+    ''' <returns>Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.</returns>
+    Public Function CreateLackingAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent, Optional SupressUnnecessaryMessages As Boolean = False) As Tuple(Of Integer, Integer)
 
         Dim ExpectedAudioPaths = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial)
+
+        Dim FilesCreated As Integer = 0
 
         If ExpectedAudioPaths.Item3.Count > 0 Then
 
             Dim MsgResult = MsgBox(ExpectedAudioPaths.Item3.Count & " audio files are missing from test situation " & TestSituationName & ". Do you want to prepare new wave files for these components?", MsgBoxStyle.YesNo)
             If MsgResult = MsgBoxResult.Yes Then
 
-                Dim FilesCreated As Integer = 0
 
                 For Each item In ExpectedAudioPaths.Item3
 
@@ -164,6 +171,9 @@ Public Class MediaSet
 
                     'Assign SMA values based on all child components!
                     NewSound.SMA = Component.ConvertToSMA()
+
+                    'Adds an empty channel 1 array
+                    NewSound.WaveData.SampleData(1) = {}
 
                     'Also assigning the SMA parent sound
                     NewSound.SMA.ParentSound = NewSound
@@ -180,11 +190,110 @@ Public Class MediaSet
 
         Else
 
-            MsgBox("All files needed are already in place!")
+            If SupressUnnecessaryMessages = False Then MsgBox("All files needed are already in place!")
 
         End If
 
+        Return New Tuple(Of Integer, Integer)(FilesCreated, ExpectedAudioPaths.Item3.Count - FilesCreated)
+
+    End Function
+
+    Public Enum SpeechMaterialRecorderLoadOptions
+        LoadAllSounds
+        LoadOnlyEmptySounds
+        LoadOnlySoundsWithoutCompletedSegmentation
+    End Enum
+
+
+    Public Sub RecordAndEditAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent, ByVal SpeechMaterialRecorderLoadOption As SpeechMaterialRecorderLoadOptions)
+
+        'Checks first that all expected sound files exist
+        Dim FilesStillLacking = CreateLackingAudioMediaFiles(SpeechMaterial, True).Item2
+
+        If FilesStillLacking > 0 Then
+            MsgBox("All audio files needed were not created. Exiting RecordAudioMediaFiles.")
+            Exit Sub
+        End If
+
+        'Getting all paths
+        Dim AudioPaths = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial)
+
+        Dim FilesForRecordAndEdit As New List(Of Tuple(Of String, SpeechMaterialComponent))
+
+        'Parsing through all sound files (without storing them in memory) and stores the paths to be included in the recorder GUI
+        For Each soundFileTuple In AudioPaths.Item1
+
+            Dim LoadedSound = Audio.Sound.LoadWaveFile(soundFileTuple.Item1)
+
+            'Checks the waveformat of the sound
+            CheckSoundFileFormat(LoadedSound, soundFileTuple.Item1)
+
+            If LoadedSound Is Nothing Then
+                MsgBox("The sound file " & soundFileTuple.Item1 & " could not be loaded.")
+                Continue For
+            End If
+
+            'Checking that the format agrees with the expected format of the Media set.
+            If CheckSoundFileFormat(LoadedSound, soundFileTuple.Item1) = False Then
+                'TODO: Lets this through for now, but it may be good to offer a chioce to update the format???
+            End If
+
+            Select Case SpeechMaterialRecorderLoadOption
+                Case SpeechMaterialRecorderLoadOptions.LoadAllSounds
+
+                    'Adds all files
+                    FilesForRecordAndEdit.Add(soundFileTuple)
+
+                Case SpeechMaterialRecorderLoadOptions.LoadOnlyEmptySounds
+
+                    'Checks if the sound is empty (N.B. Expects only mono sounds here!)
+                    If LoadedSound.WaveData.SampleData(1).Length = 0 Then
+                        'Adds the sound
+                        FilesForRecordAndEdit.Add(soundFileTuple)
+                    End If
+
+                Case SpeechMaterialRecorderLoadOptions.LoadOnlySoundsWithoutCompletedSegmentation
+
+                    'Checks if segmentation if completed
+                    If LoadedSound.SMA.SegmentationCompleted = False Then
+                        'Adds the sound
+                        FilesForRecordAndEdit.Add(soundFileTuple)
+                    End If
+
+            End Select
+
+        Next
+
+        'Launches the Recorder GUI
+        Dim RecordingWaveFormat As New Audio.Formats.WaveFormat(Me.WaveFileSampleRate, Me.WaveFileBitDepth, 1,, Me.WaveFileEncoding)
+
+        Dim RecorderGUI As New SpeechMaterialRecorder(FilesForRecordAndEdit, RecordingWaveFormat)
+
+        RecorderGUI.Show()
+
+
     End Sub
+
+    Public Function CheckSoundFileFormat(ByRef Sound As Audio.Sound, Optional ByVal SoundFilePath As String = "") As Boolean
+
+        If SoundFilePath = "" Then SoundFilePath = Sound.FileName
+
+        If Sound.WaveFormat.SampleRate <> Me.WaveFileSampleRate Then
+            MsgBox("The sound file " & SoundFilePath & " has a different sample rate than what is expected by the current media set.", MsgBoxStyle.Exclamation, "Warning!")
+            Return False
+        End If
+        If Sound.WaveFormat.BitDepth <> Me.WaveFileBitDepth Then
+            MsgBox("The sound file " & SoundFilePath & " has a different bitdepth than what is expected by the current media set.", MsgBoxStyle.Exclamation, "Warning!")
+            Return False
+        End If
+        If Sound.WaveFormat.Encoding <> Me.WaveFileEncoding Then
+            MsgBox("The sound file " & SoundFilePath & " has a different encoding what is expected by the current media set.", MsgBoxStyle.Exclamation, "Warning!")
+            Return False
+        End If
+
+        Return True
+
+    End Function
 
 End Class
 
