@@ -204,12 +204,14 @@ Public Class SpeechMaterialRecorder
                     'Resetting sound display
                     If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
 
-                    Dim soundPanel As New Windows.Forms.SplitContainer
-                    soundPanel.Dock = Windows.Forms.DockStyle.Fill
+                    'Dim soundPanel As New Windows.Forms.SplitContainer
+                    'soundPanel.Dock = Windows.Forms.DockStyle.Fill
 
-                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSound, soundPanel,,,,,,,, MyGeneralSoundPlayer)
+                    Dim waveDrawer As New Audio.Graphics.SoundEditor(,,,,, MyGeneralSoundPlayer)
+                    waveDrawer.ShowSound(CurrentlyLoadedSound)
+                    waveDrawer.Dock = Windows.Forms.DockStyle.Fill
 
-                    RecordingTabMainSplitContainer.Panel2.Controls.Add(soundPanel)
+                    RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
 
                     ListenButton.Enabled = True
 
@@ -262,8 +264,8 @@ Public Class SpeechMaterialRecorder
                     'Resetting sound display
                     If SegmentationPanel.Controls.Count > 0 Then SegmentationPanel.Controls.RemoveAt(0)
 
-                    Dim newSoundPanel As New Windows.Forms.SplitContainer
-                    newSoundPanel.Dock = Windows.Forms.DockStyle.Fill
+                    'Dim newSoundPanel As New Windows.Forms.SplitContainer
+                    'newSoundPanel.Dock = Windows.Forms.DockStyle.Fill
 
                     If CurrentSpectrogramFormat Is Nothing Then
                         Dim SpectrogramSettingsResult As New SpectrogramSettingsDialog
@@ -275,9 +277,10 @@ Public Class SpeechMaterialRecorder
                     End If
 
                     'SoundEditor
-                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSound, newSoundPanel,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
-
-                    SegmentationPanel.Controls.Add(newSoundPanel)
+                    Dim waveDrawer As New Audio.Graphics.SoundEditor(True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
+                    waveDrawer.ShowSound(CurrentlyLoadedSound)
+                    waveDrawer.Dock = Windows.Forms.DockStyle.Fill
+                    SegmentationPanel.Controls.Add(waveDrawer)
 
                 Else
                     'Resets the sound display, and adds a message that no sound is recorded

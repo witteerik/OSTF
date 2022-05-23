@@ -34,7 +34,7 @@ Partial Class Form4
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(365, 118)
+        Me.Button1.Location = New System.Drawing.Point(289, 15)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(75, 23)
         Me.Button1.TabIndex = 0
@@ -44,21 +44,21 @@ Partial Class Form4
         'ResponseGuiItemTable1
         '
         Me.ResponseGuiItemTable1.ColumnCount = 3
-        Me.ResponseGuiItemTable1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 267.3333!))
-        Me.ResponseGuiItemTable1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 267.3333!))
-        Me.ResponseGuiItemTable1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 267.3333!))
+        Me.ResponseGuiItemTable1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 82.0!))
+        Me.ResponseGuiItemTable1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 82.0!))
+        Me.ResponseGuiItemTable1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 82.0!))
         Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem1, 0, 0)
         Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem2, 1, 0)
         Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem3, 0, 1)
         Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem4, 2, 0)
         Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem5, 2, 1)
         Me.ResponseGuiItemTable1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize
-        Me.ResponseGuiItemTable1.Location = New System.Drawing.Point(55, 147)
+        Me.ResponseGuiItemTable1.Location = New System.Drawing.Point(22, 12)
         Me.ResponseGuiItemTable1.Name = "ResponseGuiItemTable1"
         Me.ResponseGuiItemTable1.RowCount = 2
-        Me.ResponseGuiItemTable1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 115.3333!))
-        Me.ResponseGuiItemTable1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 115.3333!))
-        Me.ResponseGuiItemTable1.Size = New System.Drawing.Size(802, 346)
+        Me.ResponseGuiItemTable1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 98.0!))
+        Me.ResponseGuiItemTable1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 98.0!))
+        Me.ResponseGuiItemTable1.Size = New System.Drawing.Size(246, 196)
         Me.ResponseGuiItemTable1.StackedControls = False
         Me.ResponseGuiItemTable1.StackOrientation = SpeechTestFramework.ResponseGuiItemTable.VisualStackOrientations.Horizontal
         Me.ResponseGuiItemTable1.TabIndex = 2
@@ -76,7 +76,7 @@ Partial Class Form4
         '
         'ResponseGuiItem2
         '
-        Me.ResponseGuiItem2.Location = New System.Drawing.Point(270, 3)
+        Me.ResponseGuiItem2.Location = New System.Drawing.Point(85, 3)
         Me.ResponseGuiItem2.Name = "ResponseGuiItem2"
         Me.ResponseGuiItem2.NonSelectedColor = System.Drawing.Color.Empty
         Me.ResponseGuiItem2.ResponseString = Nothing
@@ -87,7 +87,7 @@ Partial Class Form4
         '
         'ResponseGuiItem3
         '
-        Me.ResponseGuiItem3.Location = New System.Drawing.Point(3, 118)
+        Me.ResponseGuiItem3.Location = New System.Drawing.Point(3, 101)
         Me.ResponseGuiItem3.Name = "ResponseGuiItem3"
         Me.ResponseGuiItem3.NonSelectedColor = System.Drawing.Color.Empty
         Me.ResponseGuiItem3.ResponseString = Nothing
@@ -98,7 +98,7 @@ Partial Class Form4
         '
         'ResponseGuiItem4
         '
-        Me.ResponseGuiItem4.Location = New System.Drawing.Point(537, 3)
+        Me.ResponseGuiItem4.Location = New System.Drawing.Point(167, 3)
         Me.ResponseGuiItem4.Name = "ResponseGuiItem4"
         Me.ResponseGuiItem4.NonSelectedColor = System.Drawing.Color.Empty
         Me.ResponseGuiItem4.ResponseString = Nothing
@@ -109,7 +109,7 @@ Partial Class Form4
         '
         'ResponseGuiItem5
         '
-        Me.ResponseGuiItem5.Location = New System.Drawing.Point(537, 118)
+        Me.ResponseGuiItem5.Location = New System.Drawing.Point(167, 101)
         Me.ResponseGuiItem5.Name = "ResponseGuiItem5"
         Me.ResponseGuiItem5.NonSelectedColor = System.Drawing.Color.Empty
         Me.ResponseGuiItem5.ResponseString = Nothing
