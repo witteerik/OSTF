@@ -277,8 +277,8 @@ Public Class SpeechMaterialRecorder
 
                     'SoundEditor
                     Dim TestSound = Audio.Sound.GetTestSound
-                    'Dim waveDrawer As New Audio.Graphics.SoundEditor(TestSound,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
-                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSound,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
+                    Dim waveDrawer As New Audio.Graphics.SoundEditor(TestSound,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
+                    'Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSound,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
                     waveDrawer.Dock = Windows.Forms.DockStyle.Fill
                     SegmentationPanel.Controls.Add(waveDrawer)
 

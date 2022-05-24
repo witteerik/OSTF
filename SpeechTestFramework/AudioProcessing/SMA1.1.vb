@@ -1709,7 +1709,16 @@ Namespace Audio
                     Return OutputList
                 End Function
 
-                Public Sub AlignSegmentationBoundariesAcrossLevels(ByVal SoundLength As Integer)
+                Public Sub AlignSegmentationStartsAcrossLevels(ByVal SoundLength As Integer)
+
+                    'Aligning the start of a segmentation set on the current level to dependent segmentation starts on all other levels, without moving the end of each segmentation (unless it the length would have to be reduced below zero, which is not allowed)
+                    'These functions may reduce the length of a segmentation to zero
+                    AlignSegmentationStarts(StartSample, SoundLength, HierarchicalDirections.Upwards)
+                    AlignSegmentationStarts(StartSample, SoundLength, HierarchicalDirections.Downwards)
+
+                End Sub
+
+                Public Sub AlignSegmentationEndsAcrossLevels()
 
                     'TODO: I'm not entirely clear as to if the ends or starts should be aligned first....????
 
@@ -1718,11 +1727,6 @@ Namespace Audio
                     'These functions may move the start of a segmentation to an earlier time
                     AlignSegmentationEnds(ExclusiveEndSample, HierarchicalDirections.Upwards)
                     AlignSegmentationEnds(ExclusiveEndSample, HierarchicalDirections.Downwards)
-
-                    'Aligning the start of a segmentation set on the current level to dependent segmentation starts on all other levels, without moving the end of each segmentation (unless it the length would have to be reduced below zero, which is not allowed)
-                    'These functions may reduce the length of a segmentation to zero
-                    AlignSegmentationStarts(StartSample, SoundLength, HierarchicalDirections.Upwards)
-                    AlignSegmentationStarts(StartSample, SoundLength, HierarchicalDirections.Downwards)
 
                 End Sub
 
@@ -1739,24 +1743,7 @@ Namespace Audio
                 ''' <param name="HierarchicalDirection"></param>
                 Private Sub AlignSegmentationStarts(ByVal NewStartSample As Integer, ByVal SoundLength As Integer, ByVal HierarchicalDirection As HierarchicalDirections)
 
-                    Dim TempStartSample As Integer = Math.Max(0, StartSample) ' Needed since default (onset) StartSample value is -1
-                    Dim ExclusiveEndSample As Integer = TempStartSample + Length
-
-                    Dim StartSampleChange As Integer = NewStartSample - TempStartSample
-                    'A positive value of StartSampleChange represent a forward shift, and vice versa
-
-                    'Changing the start value
-                    TempStartSample += StartSampleChange
-
-                    'Making sure the start value stays withing the sound file
-                    TempStartSample = Math.Min(SoundLength - 1, TempStartSample)
-                    TempStartSample = Math.Max(0, TempStartSample)
-
-                    'Storing the new StartSample
-                    StartSample = TempStartSample
-
-                    'Adjusting the Length
-                    Length = ExclusiveEndSample - StartSample
+                    MoveStart(NewStartSample, SoundLength)
 
                     'Cascading up or down
                     Select Case HierarchicalDirection
@@ -1778,6 +1765,33 @@ Namespace Audio
                 End Sub
 
                 ''' <summary>
+                ''' Moves the start sample of a segmentation without changing the end sample (unless the length would be reduced below zero).
+                ''' </summary>
+                ''' <param name="NewStartSample"></param>
+                Public Sub MoveStart(ByVal NewStartSample As Integer, ByVal SoundLength As Integer)
+
+                    Dim TempStartSample As Integer = Math.Max(0, StartSample) ' Needed since default (onset) StartSample value is -1
+                    Dim ExclusiveEndSample As Integer = TempStartSample + Length
+
+                    Dim StartSampleChange As Integer = NewStartSample - TempStartSample
+                    'A positive value of StartSampleChange represent a forward shift, and vice versa
+
+                    'Changing the start value
+                    TempStartSample += StartSampleChange
+
+                    'Making sure the start value stays withing the sound file
+                    TempStartSample = Math.Min(SoundLength - 1, TempStartSample)
+                    TempStartSample = Math.Max(0, TempStartSample)
+
+                    'Storing the new StartSample
+                    StartSample = TempStartSample
+
+                    'Adjusting the Length
+                    Length = ExclusiveEndSample - StartSample
+
+                End Sub
+
+                ''' <summary>
                 ''' Aligns the end of a segmentation set on the current level to the ends of dependent segmentation on all other levels, by adjusting their lengths, and if needed also their start positions, in case lengths gets reduced to zero.
                 ''' </summary>
                 ''' <param name="NewExclusiveEndSample"></param>
@@ -1793,7 +1807,7 @@ Namespace Audio
                     'Changing the length
                     MyExclusiveEndSample += EndSampleChange
 
-                    Dim NewLengthValue As Integer = TempStartSample + MyExclusiveEndSample - 1
+                    Dim NewLengthValue As Integer = (MyExclusiveEndSample - 1) - TempStartSample
 
                     'Moves the start sample (and sets length to zero) if the new length would have to be reduced below zero.
                     If NewLengthValue < 0 Then
@@ -1810,8 +1824,8 @@ Namespace Audio
                         Case HierarchicalDirections.Upwards
 
                             Dim SelfIndex = GetSelfIndex()
-                            Dim SiblingCount = GetSiblings.Count
                             If SelfIndex.HasValue Then
+                                Dim SiblingCount = GetSiblings.Count
                                 If SelfIndex = SiblingCount - 1 Then
                                     'The current instance is the last of its same level components
                                     ParentComponent.AlignSegmentationEnds(NewExclusiveEndSample, HierarchicalDirection)

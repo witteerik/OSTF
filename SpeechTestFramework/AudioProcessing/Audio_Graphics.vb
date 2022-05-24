@@ -1504,9 +1504,9 @@ Namespace Audio
                     If SetSegmentationToZeroCrossings Then
                         Dim StartSample As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
                         StartSample = DSP.GetZeroCrossingSample(CurrentSound, 1, StartSample, DSP.MeasurementsExt.SearchDirections.Closest)
-                        CurrentSegmentationItem.StartSample = StartSample
+                        CurrentSegmentationItem.MoveStart(StartSample, CurrentSound.WaveData.SampleData(CurrentChannel).Length)
                     Else
-                        CurrentSegmentationItem.StartSample = DisplayStart_Sample + e.X * SampleToPixelScale
+                        CurrentSegmentationItem.MoveStart(DisplayStart_Sample + e.X * SampleToPixelScale, CurrentSound.WaveData.SampleData(CurrentChannel).Length)
                     End If
 
                 End If
@@ -1532,6 +1532,11 @@ Namespace Audio
 
                 AddHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
                 If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
+
+                'Aligning segmentations
+                If CurrentSegmentationItem IsNot Nothing And CurrentSound IsNot Nothing Then
+                    CurrentSegmentationItem.AlignSegmentationStartsAcrossLevels(CurrentSound.WaveData.SampleData(CurrentChannel).Length)
+                End If
 
             End Sub
 
@@ -1584,6 +1589,11 @@ Namespace Audio
 
                 AddHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
                 If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
+
+                'Aligning segmentations
+                If CurrentSegmentationItem IsNot Nothing Then
+                    CurrentSegmentationItem.AlignSegmentationEndsAcrossLevels()
+                End If
 
             End Sub
 
