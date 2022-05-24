@@ -142,17 +142,29 @@ Namespace Audio
 
             'Setting things up
             Public Sub New(ByRef InputSound As Sound, Optional ByVal StartSample As Integer = 0, Optional ByVal LengthInSamples As Integer? = Nothing, Optional ByVal ViewChannel As Integer = 1,
-                           Optional ByVal UseItemSegmentation As Boolean = False, Optional ByVal DisplaySpectrogram As Boolean = False,
+                           Optional ByVal UseItemSegmentation As Boolean = False, Optional ByVal ShowSpectrogram As Boolean = False,
                     Optional ByRef SpectrogramFormat As Formats.SpectrogramFormat = Nothing, Optional ByVal PaddingTime As Single = 0,
                     Optional ByVal DrawNormalizedWave As Boolean = False, Optional ByRef SoundPlayer As PortAudioVB.SoundPlayer = Nothing,
                     Optional ByVal SetSegmentationToZeroCrossings As Boolean = True, Optional ByVal ShowDetectBoundariesButton As Boolean = True,
                     Optional ByVal ShowUpdateSegmentationButton As Boolean = True, Optional ByVal ShowFadePaddingButton As Boolean = True)
 
+                Me.CurrentSound = InputSound
+                Me.DisplayStart_Sample = StartSample
+                Me.CurrentChannel = ViewChannel 'Setting channel (the viewer currently only supports display of one channel at a time) ' This should be changed so that the container can display stereo channels
+                Me.UseItemSegmentation = UseItemSegmentation
+                Me.ShowSpectrogram = ShowSpectrogram
+                Me.SpectrogramFormat = SpectrogramFormat
+                Me.PaddingTime = PaddingTime
+                Me.DrawNormalizedWave = DrawNormalizedWave
+                Me.SoundPlayer = SoundPlayer
+                Me.SetSegmentationToZeroCrossings = SetSegmentationToZeroCrossings
+                Me.ShowDetectBoundariesButton = ShowDetectBoundariesButton
+                Me.ShowUpdateSegmentationButton = ShowUpdateSegmentationButton
+                Me.ShowFadePaddingButton = ShowFadePaddingButton
 
-                'Setting channel (the viewer currently only supports display of one channel at a time)
-                CurrentChannel = ViewChannel ' This should be changed so that the container can display stereo channels
-
-                CurrentSound = InputSound
+                If LengthInSamples.HasValue = False Then LengthInSamples = CurrentSound.WaveData.SampleData(CurrentChannel).Length
+                If LengthInSamples < 2 Then LengthInSamples = 2
+                Me.DisplayLength_Samples = LengthInSamples
 
                 'Creatig  back-up copy of the input sound
                 SoundBackUp = CurrentSound.CreateCopy
@@ -160,11 +172,6 @@ Namespace Audio
                 'Setting full scale
                 FS_pos = CurrentSound.WaveFormat.PositiveFullScale
 
-                'Setting display section
-                If LengthInSamples.HasValue = False Then LengthInSamples = CurrentSound.WaveData.SampleData(CurrentChannel).Length
-                If LengthInSamples < 2 Then LengthInSamples = 2
-                DisplayStart_Sample = StartSample
-                DisplayLength_Samples = LengthInSamples
 
 
                 'Setting up layout
@@ -203,37 +210,26 @@ Namespace Audio
                     Me.Panel2Collapsed = True
                 End If
 
-                Me.ShowDetectBoundariesButton = ShowDetectBoundariesButton
-                Me.ShowUpdateSegmentationButton = ShowUpdateSegmentationButton
-                Me.ShowFadePaddingButton = ShowFadePaddingButton
-                Me.SetSegmentationToZeroCrossings = SetSegmentationToZeroCrossings
-                Me.SoundPlayer = SoundPlayer
-                Me.DrawNormalizedWave = DrawNormalizedWave
 
 
-                'Reading input data or creating default data
-                Me.UseItemSegmentation = UseItemSegmentation
-
-                Me.PaddingTime = PaddingTime
                 SoundContainerPanel.Dock = DockStyle.Fill
                 LeftMainContainer.Orientation = Orientation.Horizontal
                 LeftMainContainer.Panel1.Controls.Add(SoundContainerPanel)
                 LeftMainContainer.IsSplitterFixed = True
                 If Me.UseItemSegmentation = True Then
                     LeftMainContainer.Panel2.Controls.Add(SegmentationItemsPanel)
-                    SegmentationItemsPanel.Height = 50
+                    SegmentationItemsPanel.Height = 50 '68
                     LeftMainContainer.SplitterDistance = LeftMainContainer.Height - SegmentationItemsPanel.Height
                 Else
                     LeftMainContainer.SplitterDistance = LeftMainContainer.Height
                 End If
 
-                ShowSpectrogram = DisplaySpectrogram
 
 
                 'Setting realtions between panels and pictureboxes
                 SoundBackgroundArea.Dock = DockStyle.Top
                 SoundContainerPanel.Controls.Add(SoundBackgroundArea)
-                If ShowSpectrogram = True Then
+                If Me.ShowSpectrogram = True Then
 
                     SoundBackgroundArea.Controls.Add(SpectrogramArea)
                     SpectrogramArea.BackColor = Color.Transparent
@@ -265,22 +261,18 @@ Namespace Audio
 
                 'calculating spectrogram data
                 'Creating a temporary setting
-                If ShowSpectrogram = True Then
+                If Me.ShowSpectrogram = True Then
                     DisplayTypeCount += 1
 
                     'Creating a default spectrogram format if needed
-                    If SpectrogramFormat Is Nothing Then
-                        Me.SpectrogramFormat = New Formats.SpectrogramFormat(,,,,,,,,, True)
-                    Else
-                        Me.SpectrogramFormat = SpectrogramFormat
-                    End If
+                    If Me.SpectrogramFormat Is Nothing Then Me.SpectrogramFormat = New Formats.SpectrogramFormat(,,,,,,,,, True)
 
                     SpectrogramWindowDistance = Me.SpectrogramFormat.SpectrogramFftFormat.AnalysisWindowSize - Me.SpectrogramFormat.SpectrogramFftFormat.OverlapSize
 
                 End If
 
                 'Calculating FFT
-                If ShowSpectrogram = True Then
+                If Me.ShowSpectrogram = True Then
                     CurrentSound.FFT = New FftData(CurrentSound.WaveFormat, Me.SpectrogramFormat.SpectrogramFftFormat)
                     CurrentSound.FFT.CalculateSpectrogramData(CurrentSound, Me.SpectrogramFormat, CurrentChannel)
                 End If
@@ -322,58 +314,36 @@ Namespace Audio
 
             Private Sub LoadAndModifyPhonemeLevelData()
 
-                RightMainContainer.Controls.Clear()
-                RightMainContainer.ColumnCount = 1
-                RightMainContainer.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 100))
+                If CurrentSound.SMA.ChannelData(CurrentChannel).Count > 0 Then
 
-                If CurrentSound.SMA.ChannelData(CurrentChannel).Count > 1 Then
+                    RightMainContainer.Controls.Clear()
+
+                    'Adding one column
+                    RightMainContainer.ColumnCount = 1
+                    RightMainContainer.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 100))
 
                     'Adding all three selection containers
                     RightMainContainer.RowCount = 3
-                    RightMainContainer.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 60))
+                    RightMainContainer.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 55))
                     RightMainContainer.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 30))
-                    RightMainContainer.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 10))
+                    RightMainContainer.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 15))
 
-                    RightMainContainer.Controls.Add(SentenceSelectorPanel)
-                    RightMainContainer.Controls.Add(WordSelectorPanel)
-                    RightMainContainer.Controls.Add(PhonemeSelectorPanel)
+                    Dim SentenceGroupBox As New GroupBox With {.Text = "Select sentence", .Dock = DockStyle.Fill}
+                    SentenceGroupBox.Controls.Add(SentenceSelectorPanel)
+                    RightMainContainer.Controls.Add(SentenceGroupBox)
+
+                    Dim WordGroupBox As New GroupBox With {.Text = "Select word", .Dock = DockStyle.Fill}
+                    WordGroupBox.Controls.Add(WordSelectorPanel)
+                    RightMainContainer.Controls.Add(WordGroupBox)
+
+                    Dim PhonemeGroupBox As New GroupBox With {.Text = "Select phone", .Dock = DockStyle.Fill}
+                    PhonemeGroupBox.Controls.Add(PhonemeSelectorPanel)
+                    RightMainContainer.Controls.Add(PhonemeGroupBox)
 
                     AllSegmentationComponents = CurrentSound.SMA.ChannelData(CurrentChannel).GetAllDescentantComponents
 
                     AddSentences()
 
-                Else
-                    CurrentSentenceIndex = 0
-                    If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 1 Then
-                        'Adding word and phoneme selection containers
-                        RightMainContainer.RowCount = 2
-                        RightMainContainer.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 70))
-                        RightMainContainer.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 30))
-
-                        RightMainContainer.Controls.Add(WordSelectorPanel)
-                        RightMainContainer.Controls.Add(PhonemeSelectorPanel)
-
-                        AllSegmentationComponents = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).GetAllDescentantComponents
-
-                        AddWords()
-
-                    Else
-                        CurrentWordIndex = 0
-                        If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).Count > 1 Then
-                            'Adding only the phoneme selection container
-                            RightMainContainer.RowCount = 1
-                            RightMainContainer.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 100))
-
-                            RightMainContainer.Controls.Add(PhonemeSelectorPanel)
-
-                            AllSegmentationComponents = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).GetAllDescentantComponents
-
-                            AddPhones()
-
-                        Else
-                            'No data to segment present!
-                        End If
-                    End If
                 End If
 
             End Sub
@@ -385,8 +355,11 @@ Namespace Audio
                 For sentenceIndex = 0 To CurrentSound.SMA.ChannelData(CurrentChannel).Count - 1
                     Dim SentenceLabel As New SegmentationItemLabel
 
+                    Dim SentenceStringRepresentation = CurrentSound.SMA.ChannelData(CurrentChannel)(sentenceIndex).GetStringRepresentation
+                    If SentenceStringRepresentation = "" Then SentenceStringRepresentation = "Sentence " & sentenceIndex + 1
+
                     With SentenceLabel
-                        .Text = CurrentSound.SMA.ChannelData(CurrentChannel)(sentenceIndex).OrthographicForm
+                        .Text = SentenceStringRepresentation
                         .Name = sentenceIndex.ToString 'storing the identity of the sentence as an index that can be used to set the CurrentSentenceIndex 
                         .BorderStyle = BorderStyle.Fixed3D
                         .TextAlign = ContentAlignment.MiddleCenter
@@ -405,6 +378,13 @@ Namespace Audio
                     'Adding the control
                     SentenceSelectorPanel.Controls.Add(SentenceLabel)
                 Next
+
+                'If there is only one sentence, selecting it right away
+                If CurrentSound.SMA.ChannelData(CurrentChannel).Count = 1 Then
+                    If SentenceSelectorPanel.Controls.Count = 1 Then
+                        SentenceLabelButtonClick(SentenceSelectorPanel.Controls.Item(0), Nothing)
+                    End If
+                End If
 
             End Sub
 
@@ -436,6 +416,14 @@ Namespace Audio
                     WordSelectorPanel.Controls.Add(WordLabel)
                 Next
 
+                'If there is only one word in the current sentence, selecting it right away
+                If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count = 1 Then
+                    If WordSelectorPanel.Controls.Count = 1 Then
+                        WordLabelButtonClick(WordSelectorPanel.Controls.Item(0), Nothing)
+                    End If
+                End If
+
+
             End Sub
 
 
@@ -447,7 +435,7 @@ Namespace Audio
                     Dim PhoneLabel As New SegmentationItemLabel
 
                     With PhoneLabel
-                        .Text = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneIndex).OrthographicForm
+                        .Text = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneIndex).GetStringRepresentation
                         .Name = phoneIndex.ToString 'storing the identity of the sentence as an index that can be used to set the CurrentSentenceIndex 
                         .BorderStyle = BorderStyle.Fixed3D
                         .TextAlign = ContentAlignment.MiddleCenter
@@ -557,6 +545,45 @@ Namespace Audio
             End Sub
 
             Private Sub AddSegmentationControls()
+
+                'Zooming to parent component (with margin)
+                Dim HasZoomed As Boolean = False
+                If CurrentSegmentationItem IsNot Nothing Then
+                    Dim ParentComponent = CurrentSegmentationItem.ParentComponent
+                    If ParentComponent IsNot Nothing Then
+                        If ParentComponent.SmaTag <> Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL Then
+                            'The parent should be either a sentence or a word 
+                            'Assuming that the parent component is segmented if its length has been set
+                            If ParentComponent.Length > 0 Then
+
+                                'Zooming to parent
+                                Dim ZoomMargin = ParentComponent.Length * 0.2
+                                Dim ZoomStart = Math.Max(0, ParentComponent.StartSample - ZoomMargin)
+                                Dim ZoomLength = ParentComponent.Length + ZoomMargin + (ParentComponent.StartSample - ZoomStart)
+                                ZoomTo(ZoomStart, ZoomLength)
+                                HasZoomed = True
+                            Else
+                                'Looks for a grandparent with length set
+                                If ParentComponent.ParentComponent IsNot Nothing Then
+                                    If ParentComponent.ParentComponent.Length > 0 Then
+
+                                        'Zooming to the grand parent
+                                        Dim ZoomMargin = ParentComponent.ParentComponent.Length * 0.2
+                                        Dim ZoomStart = Math.Max(0, ParentComponent.ParentComponent.StartSample - ZoomMargin)
+                                        Dim ZoomLength = ParentComponent.ParentComponent.Length + ZoomMargin + (ParentComponent.ParentComponent.StartSample - ZoomStart)
+                                        ZoomTo(ZoomStart, ZoomLength)
+                                        HasZoomed = True
+                                    End If
+                                End If
+                            End If
+                        End If
+                    End If
+                End If
+
+                If HasZoomed = False Then
+                    'Zooms out to full sound if no other zoom has been made
+                    ZoomFull()
+                End If
 
                 Dim CurrentFont = New Font("Arial", 12.0F, FontStyle.Regular)
 
@@ -892,6 +919,9 @@ Namespace Audio
 
             Private Sub ReCalculateSpectrogramData()
 
+                If CurrentSound Is Nothing Then Exit Sub
+                If CurrentSound.FFT Is Nothing Then Exit Sub
+
                 Try
 
                     'Updating spectrogram data
@@ -1155,7 +1185,7 @@ Namespace Audio
                     ' Create pen.
                     Dim blackPen As New System.Drawing.Pen(System.Drawing.Color.Black, 1)
 
-                    'Drawing phoneme boundary lines and labels
+                    'Drawing segmentation boundary lines and labels
                     If UseItemSegmentation = True Then
 
                         If CurrentSegmentationItem IsNot Nothing Then
@@ -1165,7 +1195,7 @@ Namespace Audio
                             Dim endPen As New System.Drawing.Pen(System.Drawing.Color.Red, 2)
 
                             Dim SegmentationStartPixel As Single = (CurrentSegmentationItem.StartSample - DisplayStart_Sample) / SampleToPixelScale
-                            Dim SegmentationWidthInPixels As Single = (CurrentSegmentationItem.Length - DisplayStart_Sample) / SampleToPixelScale
+                            Dim SegmentationWidthInPixels As Single = CurrentSegmentationItem.Length / SampleToPixelScale
 
                             If Not (CurrentSegmentationItem.StartSample) < 0 Then ' Is used to "hide" the segmentation lines and strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
 
@@ -1204,6 +1234,62 @@ Namespace Audio
 
 
                         End If
+
+                        'Drawing the (visible) surrounding segments
+                        If CurrentSegmentationItem IsNot Nothing Then
+
+                            Dim SegmentationSiblings = CurrentSegmentationItem.GetSiblingsExcludingSelf
+
+                            If SegmentationSiblings IsNot Nothing Then
+
+                                For Each SiblingComponent In SegmentationSiblings
+
+                                    Dim startPen As New System.Drawing.Pen(System.Drawing.Color.Gray, 2)
+                                    Dim segmentBrush As New SolidBrush(Color.FromArgb(60, Color.Gray))
+                                    Dim endPen As New System.Drawing.Pen(System.Drawing.Color.Gray, 2)
+
+                                    Dim SegmentationStartPixel As Single = (SiblingComponent.StartSample - DisplayStart_Sample) / SampleToPixelScale
+                                    Dim SegmentationWidthInPixels As Single = SiblingComponent.Length / SampleToPixelScale
+
+                                    If Not (SiblingComponent.StartSample) < 0 Then ' Is used to "hide" the segmentation lines and strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
+
+                                        'Draws the segmentation area
+                                        Dim SegmentationLayoutRectangle As New RectangleF(SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationWidthInPixels, SoundBackgroundArea.Height)
+                                        g.FillRectangle(segmentBrush, SegmentationLayoutRectangle)
+
+                                        'Draws the segmentation end line first (as it may otherwise be overwrite the start line)
+                                        g.DrawLine(endPen, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Top, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Height)
+
+                                        'Draws the segmentation start line
+                                        g.DrawLine(startPen, SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationStartPixel, SoundBackgroundArea.Height)
+
+                                        'Getting an appropriate string to display
+                                        Dim SegmentationStartText As String = SiblingComponent.GetStringRepresentation
+                                        If SegmentationStartText = "" Then SegmentationStartText = "Start"
+
+                                        'Adding phoneme string
+                                        If ShowSpectrogram = True Then
+
+                                            'Putting the string in the middle of the background panel
+                                            g.DrawString(SegmentationStartText,
+                                              New Font("Arial", 20), segmentBrush, New PointF(SegmentationStartPixel, SoundBackgroundArea.Height / 2 - 14))
+
+                                            g.DrawString(SegmentationStartText,
+                                              New Font("Arial", 20), segmentBrush, New PointF(SegmentationStartPixel, SoundBackgroundArea.Height / 2 - 14))
+
+                                        Else
+
+                                            'Putting the string in the bottom of the background panel, above the time scale
+                                            g.DrawString(SegmentationStartText,
+                                              New Font("Arial", 20), segmentBrush, New PointF(SegmentationStartPixel, SoundBackgroundArea.Height - 55))
+
+                                        End If
+                                    End If
+
+                                Next
+                            End If
+                        End If
+
 
                     End If
 
@@ -1564,8 +1650,6 @@ Namespace Audio
                         GraphicUndoAll()
                 End Select
 
-                UpdateLayout() 'This could be moved to the specific subs to increase performance (not all actions need an update)
-
             End Sub
 
 
@@ -1830,6 +1914,8 @@ Namespace Audio
                 If DisplayStart_Sample > CurrentSound.WaveData.SampleData(CurrentChannel).Length - 1 Then DisplayStart_Sample = CurrentSound.WaveData.SampleData(CurrentChannel).Length - 1
                 If DisplayStart_Sample + DisplayLength_Samples > CurrentSound.WaveData.SampleData(CurrentChannel).Length Then DisplayLength_Samples = CurrentSound.WaveData.SampleData(CurrentChannel).Length - DisplayStart_Sample
 
+                UpdateLayout()
+
             End Sub
             Public Sub ZoomIn()
                 ' making the selection half the size
@@ -1842,6 +1928,8 @@ Namespace Audio
                 'Making sure length is not shorter that 2 samples
                 If DisplayLength_Samples < 2 Then DisplayLength_Samples = 2
 
+                UpdateLayout()
+
             End Sub
             Public Sub ZoomToSelection()
                 UpdateSampleTimeScale()
@@ -1851,11 +1939,15 @@ Namespace Audio
                 'Making sure length is not shorter that 1 sample
                 If DisplayLength_Samples < 2 Then DisplayLength_Samples = 2
 
+                UpdateLayout()
+
             End Sub
             Public Sub ZoomFull()
                 UpdateSampleTimeScale()
                 DisplayStart_Sample = 0
                 DisplayLength_Samples = CurrentSound.WaveData.SampleData(CurrentChannel).Length
+
+                UpdateLayout()
 
             End Sub
 
@@ -1870,6 +1962,8 @@ Namespace Audio
 
                     'Recalculates spectrogram data, since the waveform have been changed
                     If ShowSpectrogram = True Then UpdateSpectrogramData()
+
+                    UpdateLayout()
 
                 End If
 
@@ -1886,6 +1980,8 @@ Namespace Audio
 
                     'Recalculates spectrogram data, since the waveform have been changed
                     If ShowSpectrogram = True Then UpdateSpectrogramData()
+
+                    UpdateLayout()
 
                 End If
 
@@ -1920,6 +2016,9 @@ Namespace Audio
                     If ShowSpectrogram = True Then UpdateSpectrogramData()
 
                 End If
+
+                UpdateLayout()
+
             End Sub
 
 
@@ -1967,6 +2066,8 @@ Namespace Audio
 
                 End If
 
+                UpdateLayout()
+
             End Sub
             Private Sub GraphicPaste()
 
@@ -2002,6 +2103,7 @@ Namespace Audio
 
                 End If
 
+                UpdateLayout()
 
             End Sub
             Private Sub GraphicDelete()
@@ -2029,6 +2131,8 @@ Namespace Audio
 
                 End If
 
+                UpdateLayout()
+
             End Sub
             Private Sub GraphicCrop()
 
@@ -2053,6 +2157,8 @@ Namespace Audio
 
                 End If
 
+                UpdateLayout()
+
             End Sub
             Private Sub GraphicUndoAll()
                 RetriveSoundBackUp()
@@ -2075,13 +2181,14 @@ Namespace Audio
                 If startSample > CurrentSound.WaveData.SampleData(CurrentChannel).Length - 1 Then startSample = CurrentSound.WaveData.SampleData(CurrentChannel).Length - 1
                 If startSample + length > CurrentSound.WaveData.SampleData(CurrentChannel).Length Then length = CurrentSound.WaveData.SampleData(CurrentChannel).Length - startSample
 
-                DisplayLength_Samples = startSample
-                DisplayStart_Sample = length
+                DisplayStart_Sample = startSample
+                DisplayLength_Samples = length
 
                 'Updating the value of the sound scroll bar
-                SoundScrollBar.Value = DisplayStart_Sample
+                'SoundScrollBar.Value = DisplayStart_Sample
 
                 UpdateLayout()
+
             End Sub
 
             'Performing automatic speech boundary detection

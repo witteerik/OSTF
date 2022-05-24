@@ -1697,6 +1697,18 @@ Namespace Audio
 
                 End Function
 
+                Public Function GetSiblingsExcludingSelf() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    If ParentComponent IsNot Nothing Then
+                        For Each child In ParentComponent
+                            If child IsNot Me Then
+                                OutputList.Add(child)
+                            End If
+                        Next
+                    End If
+                    Return OutputList
+                End Function
+
             End Class
 
         End Class
