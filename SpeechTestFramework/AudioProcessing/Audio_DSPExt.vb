@@ -7705,9 +7705,9 @@ Namespace Audio
                             Dim sentence As Integer = 0
                             SoundSection.SMA.ChannelData(1)(sentence).StartSample = 0
                             SoundSection.SMA.ChannelData(1)(sentence).Length = SoundSection.WaveData.SampleData(1).Length
-                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = 0, .Length = Math.Max(0, MeasurementRegionStartSample), .OrthographicForm = "", .PhoneticForm = ""})
-                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = MeasurementRegionStartSample, .Length = MeasurementRegionLength, .OrthographicForm = "", .PhoneticForm = ""})
-                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = MeasurementRegionStartSample + MeasurementRegionLength, .Length = SoundSection.WaveData.SampleData(1).Length - (MeasurementRegionStartSample + MeasurementRegionLength), .OrthographicForm = "", .PhoneticForm = ""})
+                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, SoundSection.SMA.ChannelData(1)(sentence)) With {.StartSample = 0, .Length = Math.Max(0, MeasurementRegionStartSample), .OrthographicForm = "", .PhoneticForm = ""})
+                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, SoundSection.SMA.ChannelData(1)(sentence)) With {.StartSample = MeasurementRegionStartSample, .Length = MeasurementRegionLength, .OrthographicForm = "", .PhoneticForm = ""})
+                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, SoundSection.SMA.ChannelData(1)(sentence)) With {.StartSample = MeasurementRegionStartSample + MeasurementRegionLength, .Length = SoundSection.WaveData.SampleData(1).Length - (MeasurementRegionStartSample + MeasurementRegionLength), .OrthographicForm = "", .PhoneticForm = ""})
 
                         Else
                             MeasureMentSound = SoundSection
@@ -7716,7 +7716,7 @@ Namespace Audio
                             Dim sentence As Integer = 0
                             SoundSection.SMA.ChannelData(1)(sentence).StartSample = 0
                             SoundSection.SMA.ChannelData(1)(sentence).Length = SoundSection.WaveData.SampleData(1).Length
-                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = 0, .Length = SoundSection.WaveData.SampleData(1).Length, .OrthographicForm = "", .PhoneticForm = ""})
+                            SoundSection.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SoundSection.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, SoundSection.SMA.ChannelData(1)(sentence)) With {.StartSample = 0, .Length = SoundSection.WaveData.SampleData(1).Length, .OrthographicForm = "", .PhoneticForm = ""})
 
                         End If
 

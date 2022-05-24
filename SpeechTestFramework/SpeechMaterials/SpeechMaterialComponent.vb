@@ -605,15 +605,15 @@ Public Class SpeechMaterialComponent
         Dim NewSMA = New Audio.Sound.SpeechMaterialAnnotation With {.SegmentationCompleted = False}
 
         'Creating a (mono) channel level SmaComponent
-        NewSMA.AddChannelData(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL))
+        NewSMA.AddChannelData(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL, Nothing))
 
         'Adjusting to the right level
         If Me.LinguisticLevel = LinguisticLevels.Phoneme Then
 
             'We need to add all levels: Sentence, Word, Phone
-            NewSMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE))
-            NewSMA.ChannelData(1)(0).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.WORD))
-            NewSMA.ChannelData(1)(0)(0).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.PHONE))
+            NewSMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE, NewSMA.ChannelData(1)))
+            NewSMA.ChannelData(1)(0).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.WORD, NewSMA.ChannelData(1)(0)))
+            NewSMA.ChannelData(1)(0)(0).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.PHONE, NewSMA.ChannelData(1)(0)(0)))
 
             'Calling AddSmaValues, which recursively adds all lower level components
             AddSmaValues(NewSMA.ChannelData(1)(0)(0)(0))
@@ -621,8 +621,8 @@ Public Class SpeechMaterialComponent
         ElseIf Me.LinguisticLevel = LinguisticLevels.Word Then
 
             'We need to add all levels: Sentence, Word
-            NewSMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE))
-            NewSMA.ChannelData(1)(0).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.WORD))
+            NewSMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE, NewSMA.ChannelData(1)))
+            NewSMA.ChannelData(1)(0).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.WORD, NewSMA.ChannelData(1)(0)))
 
             'Calling AddSmaValues, which recursively adds all lower level components
             AddSmaValues(NewSMA.ChannelData(1)(0)(0))
@@ -630,7 +630,7 @@ Public Class SpeechMaterialComponent
         ElseIf Me.LinguisticLevel = LinguisticLevels.Sentence Then
 
             'We need to add all levels: Sentence
-            NewSMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE))
+            NewSMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE, NewSMA.ChannelData(1)))
             AddSmaValues(NewSMA.ChannelData(1)(0))
 
         ElseIf Me.LinguisticLevel = LinguisticLevels.List Then
@@ -683,7 +683,7 @@ Public Class SpeechMaterialComponent
 
         For Each child In Me.ChildComponents
 
-            Dim NewChildComponent = New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(SmaComponent.ParentSMA, SmaComponent.SmaTag + 1)
+            Dim NewChildComponent = New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(SmaComponent.ParentSMA, SmaComponent.SmaTag + 1, SmaComponent)
             SmaComponent.Add(NewChildComponent)
             child.AddSmaValues(NewChildComponent)
 

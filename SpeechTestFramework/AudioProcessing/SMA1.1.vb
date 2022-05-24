@@ -41,7 +41,7 @@ Namespace Audio
             End Property
 
             Public Sub AddChannelData()
-                _ChannelData.Add(New SmaComponent(Me, SmaTags.CHANNEL))
+                _ChannelData.Add(New SmaComponent(Me, SmaTags.CHANNEL, Nothing))
             End Sub
 
             Public Sub AddChannelData(ByRef NewSmaChannelData As SmaComponent)
@@ -394,8 +394,8 @@ Namespace Audio
                             TempSound1.SMA = New Sound.SpeechMaterialAnnotation(FrequencyWeightings.Z, DetailedTemporalIntegrationDuration)
 
                             'Adding one one channel and one sentence
-                            TempSound1.SMA.AddChannelData(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound1.SMA, SmaTags.CHANNEL))
-                            TempSound1.SMA.ChannelData(1).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound1.SMA, SmaTags.SENTENCE))
+                            TempSound1.SMA.AddChannelData(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound1.SMA, SmaTags.CHANNEL, Nothing))
+                            TempSound1.SMA.ChannelData(1).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound1.SMA, SmaTags.SENTENCE, TempSound1.SMA.ChannelData(1)))
 
                             'Looking inside the TempSound1 window to determine a more exact boundary 
                             Dim InnerWindowList As New List(Of Double)
@@ -475,8 +475,8 @@ Namespace Audio
                             TempSound2.SMA = New Sound.SpeechMaterialAnnotation(FrequencyWeightings.Z, DetailedTemporalIntegrationDuration)
 
                             'Adding one one channel and one sentence
-                            TempSound2.SMA.AddChannelData(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound2.SMA, SmaTags.CHANNEL))
-                            TempSound2.SMA.ChannelData(1).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound2.SMA, SmaTags.SENTENCE))
+                            TempSound2.SMA.AddChannelData(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound2.SMA, SmaTags.CHANNEL, Nothing))
+                            TempSound2.SMA.ChannelData(1).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound2.SMA, SmaTags.SENTENCE, TempSound2.SMA.ChannelData(1)))
 
                             'Looking inside the TempSound1 window to determine a more exakt boundary 
                             InnerWindowList = New List(Of Double)
@@ -1179,6 +1179,8 @@ Namespace Audio
 
                 Public Property ParentSMA As SpeechMaterialAnnotation
 
+                Public Property ParentComponent As SmaComponent
+
                 Public Property SmaTag As SpeechMaterialAnnotation.SmaTags
 
                 Public Property OrthographicForm As String = ""
@@ -1233,8 +1235,9 @@ Namespace Audio
 
                 Private Shared DefaultNotMeasuredValue As String = "Not measured"
 
-                Public Sub New(ByRef ParentSMA As SpeechMaterialAnnotation, ByVal SmaLevel As SmaTags)
+                Public Sub New(ByRef ParentSMA As SpeechMaterialAnnotation, ByVal SmaLevel As SmaTags, ByRef ParentComponent As SmaComponent)
                     Me.ParentSMA = ParentSMA
+                    Me.ParentComponent = ParentComponent
                     Me.SmaTag = SmaLevel
                     Me.FrequencyWeighting = ParentSMA.GetFrequencyWeighting
                     Me.TimeWeighting = ParentSMA.GetTimeWeighting
@@ -1586,7 +1589,7 @@ Namespace Audio
                     If Me(Me.Count - 1).PhoneticForm = WordEndString Or Me(Me.Count - 1).OrthographicForm = WordEndString Then
                         'There is already a word end marker stored (in a previous segmentation).
                     Else
-                        Me.Add(New SmaComponent(Me.ParentSMA, Me.SmaTag + 1) With {.PhoneticForm = WordEndString, .OrthographicForm = WordEndString})
+                        Me.Add(New SmaComponent(Me.ParentSMA, Me.SmaTag + 1, Me) With {.PhoneticForm = WordEndString, .OrthographicForm = WordEndString})
 
                         'Positions the word end marker, according to the information stored in the previous component, if there is any
                         If Me.Count > 1 Then
@@ -1645,6 +1648,54 @@ Namespace Audio
                     Next
 
                 End Sub
+
+                Public Function GetStringRepresentation() As String
+
+                    If OrthographicForm = "" And PhoneticForm = "" Then
+                        Return ""
+                    Else
+                        If OrthographicForm <> "" And PhoneticForm <> "" Then
+                            Return OrthographicForm & vbCrLf & "[" & PhoneticForm & "]"
+                        ElseIf OrthographicForm <> "" Then
+                            Return OrthographicForm
+                        Else
+                            Return "[" & PhoneticForm & "]"
+                        End If
+                    End If
+
+                End Function
+
+                ''' <summary>
+                ''' Returns all descendant SmaComponents in the current instance of SmaComponent 
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function GetAllDescentantComponents() As List(Of SmaComponent)
+
+                    Dim AllComponents As New List(Of SmaComponent)
+
+                    For Each child In Me
+                        AllComponents.Add(child)
+                    Next
+
+                    For Each child In Me
+                        AllComponents.AddRange(child.GetAllDescentantComponents())
+                    Next
+
+                    Return AllComponents
+
+                End Function
+
+                Public Function GetAncestorComponent(ByVal RequestedParentComponentType As Sound.SpeechMaterialAnnotation.SmaTags) As SmaComponent
+
+                    If ParentComponent Is Nothing Then Return Nothing
+
+                    If ParentComponent.SmaTag = RequestedParentComponentType Then
+                        Return ParentComponent
+                    Else
+                        Return ParentComponent.GetAncestorComponent(RequestedParentComponentType)
+                    End If
+
+                End Function
 
             End Class
 

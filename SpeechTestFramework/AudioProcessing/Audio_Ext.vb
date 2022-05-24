@@ -542,9 +542,9 @@ SavingFile:             Dim sfd As New SaveFileDialog
                             '(word1: pre-measurement section, word2: measurement section, word 3: post measurement section)
                             InputSound.SMA.ChannelData(1)(sentence).StartSample = 0
                             InputSound.SMA.ChannelData(1)(sentence).Length = InputSound.WaveData.SampleData(1).Length
-                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(InputSound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = 0, .Length = Math.Max(0, MeasurementRegionStartSample), .OrthographicForm = "", .PhoneticForm = ""})
-                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(InputSound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = MeasurementRegionStartSample, .Length = MeasurementRegionLength, .OrthographicForm = "", .PhoneticForm = ""})
-                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(InputSound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD) With {.StartSample = MeasurementRegionStartSample + MeasurementRegionLength, .Length = InputSound.WaveData.SampleData(1).Length - (MeasurementRegionStartSample + MeasurementRegionLength), .OrthographicForm = "", .PhoneticForm = ""})
+                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(InputSound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, InputSound.SMA.ChannelData(1)(sentence)) With {.StartSample = 0, .Length = Math.Max(0, MeasurementRegionStartSample), .OrthographicForm = "", .PhoneticForm = ""})
+                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(InputSound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, InputSound.SMA.ChannelData(1)(sentence)) With {.StartSample = MeasurementRegionStartSample, .Length = MeasurementRegionLength, .OrthographicForm = "", .PhoneticForm = ""})
+                            InputSound.SMA.ChannelData(1)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(InputSound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, InputSound.SMA.ChannelData(1)(sentence)) With {.StartSample = MeasurementRegionStartSample + MeasurementRegionLength, .Length = InputSound.WaveData.SampleData(1).Length - (MeasurementRegionStartSample + MeasurementRegionLength), .OrthographicForm = "", .PhoneticForm = ""})
                         End If
 
                         'Sets the SoundLevelFormat
@@ -951,7 +951,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
                                     'Word level data
                                     For word = 0 To currentWordCount - 1
 
-                                        sound.SMA.ChannelData(channel)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD))
+                                        sound.SMA.ChannelData(channel)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, sound.SMA.ChannelData(channel)(sentence)))
 
                                         Dim OrthographicFormLength As Integer = reader.ReadUInt32
                                         sound.SMA.ChannelData(channel)(sentence)(word).OrthographicForm = reader.ReadChars(OrthographicFormLength)
@@ -997,7 +997,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
 
                                         'Phone level data
                                         For phone = 0 To phoneListLength - 1
-                                            sound.SMA.ChannelData(channel)(sentence)(word).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.PHONE))
+                                            sound.SMA.ChannelData(channel)(sentence)(word).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.PHONE, sound.SMA.ChannelData(channel)(sentence)(word)))
 
                                             Dim phoneticTranscription As String = reader.ReadChars(10)
                                             sound.SMA.ChannelData(channel)(sentence)(word)(phone).PhoneticForm = phoneticTranscription.Trim(" ")

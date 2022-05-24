@@ -106,8 +106,8 @@ Namespace Audio
 
             'Adding Waveformat.Channels channels and one sentence in each channel
             For n = 1 To Waveformat.Channels
-                SMA.AddChannelData(New Sound.SpeechMaterialAnnotation.SmaComponent(SMA, SpeechMaterialAnnotation.SmaTags.CHANNEL))
-                SMA.ChannelData(n).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SMA, SpeechMaterialAnnotation.SmaTags.SENTENCE))
+                SMA.AddChannelData(New Sound.SpeechMaterialAnnotation.SmaComponent(SMA, SpeechMaterialAnnotation.SmaTags.CHANNEL, Nothing))
+                SMA.ChannelData(n).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(SMA, SpeechMaterialAnnotation.SmaTags.SENTENCE, SMA.ChannelData(n)))
             Next
 
         End Sub
@@ -1514,7 +1514,7 @@ Namespace Audio
 
                                                         'New sentence
                                                         CurrentSentence += 1
-                                                        NewSMA.ChannelData(CurrentChannel).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.SENTENCE))
+                                                        NewSMA.ChannelData(CurrentChannel).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.SENTENCE, NewSMA.ChannelData(CurrentChannel)))
 
                                                         'Reading the SMA sentence subtree
                                                         Dim smaSentenceReader = smaChannelReader.ReadSubtree()
@@ -1627,7 +1627,7 @@ Namespace Audio
 
                                                                     ' A new word
                                                                     CurrentWord += 1
-                                                                    NewSMA.ChannelData(CurrentChannel)(CurrentSentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.WORD))
+                                                                    NewSMA.ChannelData(CurrentChannel)(CurrentSentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.WORD, NewSMA.ChannelData(CurrentChannel)(CurrentSentence)))
 
                                                                     'Reading the SMA word subtree
                                                                     Dim smaWordReader = smaSentenceReader.ReadSubtree()
@@ -1741,7 +1741,7 @@ Namespace Audio
 
                                                                                 'A new phone
                                                                                 CurrentPhone += 1
-                                                                                NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.PHONE))
+                                                                                NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.PHONE, NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord)))
 
                                                                                 'Reading the SMA phone subtree
                                                                                 Dim smaPhoneReader = smaWordReader.ReadSubtree()
@@ -1909,43 +1909,43 @@ Namespace Audio
             Dim TestSound = Audio.GenerateSound.CreateSineWave(New Formats.WaveFormat(48000, 32, 1, , Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 500, 0.1, 3)
 
             TestSound.SMA = New SpeechMaterialAnnotation
-            TestSound.SMA.AddChannelData(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.CHANNEL) With {.OrthographicForm = "Test sound, channel 1", .PhoneticForm = "Test sound, channel 1 (phonetic form)"})
+            TestSound.SMA.AddChannelData(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.CHANNEL, Nothing) With {.OrthographicForm = "Test sound, channel 1", .PhoneticForm = "Test sound, channel 1 (phonetic form)"})
 
-            TestSound.SMA.ChannelData(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.SENTENCE) With {.OrthographicForm = "Sentence 1 (orthographic form)", .PhoneticForm = "Sentence 1 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD) With {.OrthographicForm = "Word 1 (orthographic form)", .PhoneticForm = "Word 1 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD) With {.OrthographicForm = "Word 2 (orthographic form)", .PhoneticForm = "Word 2 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD) With {.OrthographicForm = "Word 3 (orthographic form)", .PhoneticForm = "Word 3 (phonetic form)"})
+            TestSound.SMA.ChannelData(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.SENTENCE, TestSound.SMA.ChannelData(1)) With {.OrthographicForm = "Sentence 1 (orthographic form)", .PhoneticForm = "Sentence 1 (phonetic form)"})
+            TestSound.SMA.ChannelData(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(0)) With {.OrthographicForm = "Word 1 (orthographic form)", .PhoneticForm = "Word 1 (phonetic form)"})
+            TestSound.SMA.ChannelData(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(0)) With {.OrthographicForm = "Word 2 (orthographic form)", .PhoneticForm = "Word 2 (phonetic form)"})
+            TestSound.SMA.ChannelData(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(0)) With {.OrthographicForm = "Word 3 (orthographic form)", .PhoneticForm = "Word 3 (phonetic form)"})
 
-            TestSound.SMA.ChannelData(1)(0)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G1", .PhoneticForm = "P1"})
-            TestSound.SMA.ChannelData(1)(0)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G2", .PhoneticForm = "P2"})
-            TestSound.SMA.ChannelData(1)(0)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G3", .PhoneticForm = "P3"})
+            TestSound.SMA.ChannelData(1)(0)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(0)) With {.OrthographicForm = "G1", .PhoneticForm = "P1"})
+            TestSound.SMA.ChannelData(1)(0)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(0)) With {.OrthographicForm = "G2", .PhoneticForm = "P2"})
+            TestSound.SMA.ChannelData(1)(0)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(0)) With {.OrthographicForm = "G3", .PhoneticForm = "P3"})
 
-            TestSound.SMA.ChannelData(1)(0)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G4", .PhoneticForm = "P4"})
-            TestSound.SMA.ChannelData(1)(0)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G5", .PhoneticForm = "P5"})
-            TestSound.SMA.ChannelData(1)(0)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G6", .PhoneticForm = "P6"})
+            TestSound.SMA.ChannelData(1)(0)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(1)) With {.OrthographicForm = "G4", .PhoneticForm = "P4"})
+            TestSound.SMA.ChannelData(1)(0)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(1)) With {.OrthographicForm = "G5", .PhoneticForm = "P5"})
+            TestSound.SMA.ChannelData(1)(0)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(1)) With {.OrthographicForm = "G6", .PhoneticForm = "P6"})
 
-            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G7", .PhoneticForm = "P7"})
-            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G8", .PhoneticForm = "P8"})
-            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G9", .PhoneticForm = "P9"})
-            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G10", .PhoneticForm = "P10"})
+            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(2)) With {.OrthographicForm = "G7", .PhoneticForm = "P7"})
+            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(2)) With {.OrthographicForm = "G8", .PhoneticForm = "P8"})
+            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(2)) With {.OrthographicForm = "G9", .PhoneticForm = "P9"})
+            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(2)) With {.OrthographicForm = "G10", .PhoneticForm = "P10"})
 
-            TestSound.SMA.ChannelData(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.SENTENCE) With {.OrthographicForm = "Sentence 2 (orthographic form)", .PhoneticForm = "Sentence 2 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD) With {.OrthographicForm = "Word 4 (orthographic form)", .PhoneticForm = "Word 4 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD) With {.OrthographicForm = "Word 5 (orthographic form)", .PhoneticForm = "Word 5 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD) With {.OrthographicForm = "Word 6 (orthographic form)", .PhoneticForm = "Word 6 (phonetic form)"})
+            TestSound.SMA.ChannelData(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.SENTENCE, TestSound.SMA.ChannelData(1)) With {.OrthographicForm = "Sentence 2 (orthographic form)", .PhoneticForm = "Sentence 2 (phonetic form)"})
+            TestSound.SMA.ChannelData(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(1)) With {.OrthographicForm = "Word 4 (orthographic form)", .PhoneticForm = "Word 4 (phonetic form)"})
+            TestSound.SMA.ChannelData(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(1)) With {.OrthographicForm = "Word 5 (orthographic form)", .PhoneticForm = "Word 5 (phonetic form)"})
+            TestSound.SMA.ChannelData(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(1)) With {.OrthographicForm = "Word 6 (orthographic form)", .PhoneticForm = "Word 6 (phonetic form)"})
 
-            TestSound.SMA.ChannelData(1)(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G11", .PhoneticForm = "P11"})
-            TestSound.SMA.ChannelData(1)(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G12", .PhoneticForm = "P12"})
-            TestSound.SMA.ChannelData(1)(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G13", .PhoneticForm = "P13"})
+            TestSound.SMA.ChannelData(1)(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(0)) With {.OrthographicForm = "G11", .PhoneticForm = "P11"})
+            TestSound.SMA.ChannelData(1)(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(0)) With {.OrthographicForm = "G12", .PhoneticForm = "P12"})
+            TestSound.SMA.ChannelData(1)(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(0)) With {.OrthographicForm = "G13", .PhoneticForm = "P13"})
 
-            TestSound.SMA.ChannelData(1)(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G14", .PhoneticForm = "P14"})
-            TestSound.SMA.ChannelData(1)(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G15", .PhoneticForm = "P15"})
-            TestSound.SMA.ChannelData(1)(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G16", .PhoneticForm = "P16"})
+            TestSound.SMA.ChannelData(1)(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(0)) With {.OrthographicForm = "G14", .PhoneticForm = "P14"})
+            TestSound.SMA.ChannelData(1)(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(0)) With {.OrthographicForm = "G15", .PhoneticForm = "P15"})
+            TestSound.SMA.ChannelData(1)(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(0)) With {.OrthographicForm = "G16", .PhoneticForm = "P16"})
 
-            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G17", .PhoneticForm = "P17"})
-            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G18", .PhoneticForm = "P18"})
-            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G19", .PhoneticForm = "P19"})
-            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE) With {.OrthographicForm = "G20", .PhoneticForm = "P20"})
+            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(2)) With {.OrthographicForm = "G17", .PhoneticForm = "P17"})
+            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(2)) With {.OrthographicForm = "G18", .PhoneticForm = "P18"})
+            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(2)) With {.OrthographicForm = "G19", .PhoneticForm = "P19"})
+            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(2)) With {.OrthographicForm = "G20", .PhoneticForm = "P20"})
 
             Return TestSound
 

@@ -182,7 +182,7 @@ Namespace Audio
                                     'Word level data
                                     For word = 0 To currentWordCount - 1
 
-                                        sound.SMA.ChannelData(channel)(sentence).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD))
+                                        sound.SMA.ChannelData(channel)(sentence).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, sound.SMA.ChannelData(channel)(sentence)))
 
                                         Dim OrthographicFormLength As Integer = reader.ReadUInt32
                                         sound.SMA.ChannelData(channel)(sentence)(word).OrthographicForm = reader.ReadChars(OrthographicFormLength)
@@ -229,7 +229,7 @@ Namespace Audio
                                         'Phone level data
                                         For phone = 0 To phoneListLength - 1
 
-                                            Dim NewPhoneLevelData = New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.PHONE)
+                                            Dim NewPhoneLevelData = New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.PHONE, sound.SMA.ChannelData(channel)(sentence)(word))
 
                                             Dim phoneticTranscription As String = reader.ReadChars(10)
                                             NewPhoneLevelData.PhoneticForm = phoneticTranscription.Trim(" ")
