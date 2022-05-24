@@ -365,7 +365,7 @@ Namespace Audio
                         .TextAlign = ContentAlignment.MiddleCenter
                         .BackColor = Color.LightGray
                         .AutoSize = True
-                        .Font = New Font("Times New Roman", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
+                        .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(sentenceIndex)
                     End With
 
@@ -402,7 +402,7 @@ Namespace Audio
                         .TextAlign = ContentAlignment.MiddleCenter
                         .BackColor = Color.LightGray
                         .AutoSize = True
-                        .Font = New Font("Times New Roman", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
+                        .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(wordIndex)
                     End With
 
@@ -441,7 +441,7 @@ Namespace Audio
                         .TextAlign = ContentAlignment.MiddleCenter
                         .BackColor = Color.LightGray
                         .AutoSize = True
-                        .Font = New Font("Times New Roman", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
+                        .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneIndex)
                     End With
 
@@ -1732,7 +1732,6 @@ Namespace Audio
                                 If control.SegmentationItem Is Sentence Then
                                     'Emulates a click on the appropriate button
                                     SentenceLabelButtonClick(control, Nothing)
-                                    Exit Sub
                                 End If
                             Next
                         End If
@@ -1747,7 +1746,6 @@ Namespace Audio
                                 If control.SegmentationItem Is Word Then
                                     'Emulates a click on the appropriate button
                                     WordLabelButtonClick(control, Nothing)
-                                    Exit Sub
                                 End If
                             Next
                         End If
@@ -1762,7 +1760,6 @@ Namespace Audio
                                 If control.SegmentationItem Is NewSegmentationItem Then
                                     'Emulates a click on the appropriate button
                                     SentenceLabelButtonClick(control, Nothing)
-                                    Exit Sub
                                 End If
                             Next
 
@@ -1773,7 +1770,6 @@ Namespace Audio
                                 If control.SegmentationItem Is NewSegmentationItem Then
                                     'Emulates a click on the appropriate button
                                     WordLabelButtonClick(control, Nothing)
-                                    Exit Sub
                                 End If
                             Next
 
@@ -1784,7 +1780,6 @@ Namespace Audio
                                 If control.SegmentationItem Is NewSegmentationItem Then
                                     'Emulates a click on the appropriate button
                                     PhoneLabelButtonClick(control, Nothing)
-                                    Exit Sub
                                 End If
                             Next
 
