@@ -228,28 +228,6 @@ Namespace Audio
 
 
             ''' <summary>
-            ''' This sub adds a word end string to the the phonetic and orthographic forms of each level of the SMA object. However, if a word end marker does already exists, it is not added.
-            ''' </summary>
-            Public Sub AddWordEndString()
-
-                For Each c In _ChannelData
-                    c.AddWordEndString()
-                Next
-
-            End Sub
-
-            ''' <summary>
-            ''' This sub removes word end component based defined by the presence of word end strings in the phonetic or orthographic forms throughout current SMA object.
-            ''' </summary>
-            Public Sub RemoveWordEndString()
-
-                For Each c In _ChannelData
-                    c.RemoveWordEndString()
-                Next
-
-            End Sub
-
-            ''' <summary>
             ''' This sub resets segmentation time data (startSample and Length) stored in the current SMA object.
             ''' </summary>
             Public Sub ResetTemporalData()
@@ -260,523 +238,25 @@ Namespace Audio
 
             End Sub
 
-
-
             ''' <summary>
-            ''' Detects the boundaries (speech start, and speech end) of recorded speech (with no pauses), using the transcriptions stored in the current SMA object.
-            ''' This method may be used to fascilitate manual segmentation, as it suggests appropriate word/sentence boundary positions.
-            '''The method works by 
-            ''' a) detecting the speech location by assuming that the loudest window in the recording will be found inside the sentence/word.
-            ''' b) detecting word/sentence start by locating the centre of the last window of a silent section of at least LongestSilentSegment milliseconds.
-            ''' c) detecting word/sentence end by locating the centre of the first window of a silent section of at least LongestSilentSegment milliseconds.
+            ''' Checks the SegmentationCompleted value of all descentant SmaComponents in the indicated channel is True. Otherwise returns False .
             ''' </summary>
-            ''' <param name="MeasurementSound">The sound that the measurents should be made upon.</param>
-            ''' <param name="LongestSilentSegment">The longest silent section (in seconds) that is allowed within the speech recording.</param>
-            ''' <param name="SilenceDefinition">The definition of a silent window is set to SilenceDefinition dB lower that the loudest detected window in the recording.</param>
-            Public Sub DetectSpeechBoundaries(ByRef MeasurementSound As Sound,
-                                          Optional ByVal LongestSilentSegment As Double = 0.3,
-                                          Optional ByVal SilenceDefinition As Double = 40,
-                                          Optional ByVal TemporalIntegrationDuration As Double = 0.06,
-                                          Optional ByVal DetailedTemporalIntegrationDuration As Double = 0.006,
-                                          Optional ByVal DetailedSilenceCriteria As Double = 20,
-                                          Optional ByVal SetToZeroCrossings As Boolean = True) ',
-                'Optional ByVal PlaceIntermediatePhonemes As Boolean = False)
+            ''' <returns></returns>
+            Public Function AllSegmentationsCompleted(ByVal Channel As Integer) As Boolean
 
-                Try
+                Dim AllComponents = ChannelData(Channel).GetAllDescentantComponents
 
-                    'Storing the original soundlevel format
-                    Dim OriginalSoundFrequencyWeighting As FrequencyWeightings = MeasurementSound.SMA.GetFrequencyWeighting
-                    Dim OriginalSoundTimeWeighting As Double = MeasurementSound.SMA.GetTimeWeighting
-
-                    'Creating a temporary sound level format
-                    MeasurementSound.SMA.SetFrequencyWeighting(FrequencyWeightings.Z, True)
-                    MeasurementSound.SMA.SetTimeWeighting(TemporalIntegrationDuration, True)
-
-                    'Frequency weighting the sound prior to measurement
-
-                    'Doing high-pass filterring to reduce vibration influences
-                    Dim CurrentFftFormat As Formats.FftFormat = New Formats.FftFormat(1024 * 4,,,, True)
-                    Dim PreFftFilteringKernelSize As Integer = 4000
-                    Dim kernel As Sound = GenerateSound.CreateSpecialTypeImpulseResponse(MeasurementSound.WaveFormat, CurrentFftFormat, PreFftFilteringKernelSize, ,
-                                                                                                 FilterType.LinearAttenuationBelowCF_dBPerOctave,
-                                                                                                 100,,,, 25,, True)
-                    Dim filterredSound As Sound = DSP.TransformationsExt.FIRFilter(MeasurementSound, kernel, CurrentFftFormat,,,,,, True)
-                    Dim FirFilterDelayInSamles As Integer = kernel.WaveData.ShortestChannelSampleCount / 2
-
-                    'Creating a temporary and extended copy of the filterred sound, with the delay created by the FIR-filtering removed
-                    Dim tempSound As Sound = New Sound(MeasurementSound.WaveFormat)
-                    tempSound.FFT = New FftData(MeasurementSound.WaveFormat, CurrentFftFormat)
-                    For c = 1 To MeasurementSound.WaveFormat.Channels
-
-                        Dim SoundArray(MeasurementSound.WaveData.SampleData(c).Length + CurrentFftFormat.AnalysisWindowSize - 1) As Single
-                        For s = 0 To filterredSound.WaveData.SampleData(c).Length - FirFilterDelayInSamles - 1
-                            SoundArray(s) = filterredSound.WaveData.SampleData(c)(s + FirFilterDelayInSamles)
-                        Next
-                        tempSound.WaveData.SampleData(c) = SoundArray
-
+                If AllComponents Is Nothing Then
+                    Return False
+                Else
+                    For Each c In AllComponents
+                        If c.SegmentationCompleted = False Then Return False
                     Next
-                    tempSound.SMA = MeasurementSound.SMA
+                End If
 
-                    'Code to save the original and filterred sound for inspection
-                    'AudioIOs.SaveToWaveFile(MeasurementSound,,,,,, "Original")
-                    'AudioIOs.SaveToWaveFile(filterredSound,,,,,, "Filterred")
-                    'AudioIOs.SaveToWaveFile(tempSound,,,,,, "FilterredAndAdjusted")
+                Return True
 
-                    If tempSound Is Nothing Then
-                        Throw New Exception("Something went wrong during IIR-filterring")
-                    End If
-
-                    For c = 1 To Me.ChannelCount
-
-                        For sentence As Integer = 0 To Me.ChannelData(c).Count - 1
-                            'Looking at channel c
-
-                            'Detecting the start position, and level, of the loudest 100/4 ms window
-                            Dim LoudestWindowLevel As Double
-                            Dim WholeWindowList As New List(Of Double)
-                            Dim WindowDistance As Integer
-                            Dim CurrentSilenceEndCandidateWindow As Integer
-                            Dim CurrentSilenceLength As Double
-
-                            'Measuring sentence sound level
-                            LoudestWindowLevel = DSP.MeasureTimeAndFrequencyWeightedSectionLevel_QuarterOverlap(
-                        tempSound, c, 0, tempSound.WaveData.ShortestChannelSampleCount, SoundDataUnit.dB,
-                        WholeWindowList,, WindowDistance)
-                            Dim IndexOfLoudestWindow As Integer = WholeWindowList.LastIndexOf(WholeWindowList.Max)
-
-                            'Setting the value of silence definition
-                            Dim SilenceLevel As Double = LoudestWindowLevel - SilenceDefinition
-                            Dim SilenceRMS As Double = dBConversion(SilenceLevel, dBConversionDirection.from_dB, tempSound.WaveFormat)
-
-                            'Looking for the speech-onset window
-                            Dim SpeechStartSample As Integer = 0
-                            CurrentSilenceEndCandidateWindow = 0 'Setting default to the first window
-                            CurrentSilenceLength = 0
-                            For InverseWindowIndex = 0 To IndexOfLoudestWindow - 1
-                                Dim CurrentWindow As Integer = IndexOfLoudestWindow - 1 - InverseWindowIndex
-
-                                If WholeWindowList(CurrentWindow) > SilenceRMS Then
-                                    'The window is not "silent"
-                                    'Resetting CurrentSilenceLength
-                                    CurrentSilenceLength = 0
-
-                                    'Resetting CurrentSilenceEndCandidateWindow to the first window
-                                    CurrentSilenceEndCandidateWindow = 0
-
-                                Else
-                                    'The window is "silent"
-                                    'Updating the CurrentSilenceEndCandidate
-                                    If CurrentWindow > CurrentSilenceEndCandidateWindow Then
-                                        CurrentSilenceEndCandidateWindow = CurrentWindow
-                                    End If
-
-                                    'Adding the current window length to the silent section
-                                    CurrentSilenceLength += WindowDistance / MeasurementSound.WaveFormat.SampleRate
-
-                                End If
-
-                                'Checking if the silent section found is equal to or longer than LongestSilentSegment
-                                If CurrentSilenceLength >= LongestSilentSegment Then
-
-                                    'The word/sentence start has been found
-                                    SpeechStartSample = WindowDistance * (CurrentSilenceEndCandidateWindow + 1)
-                                    Exit For
-                                End If
-                            Next
-
-                            'Copying the window that follows after the first detected silant windo to a new sound, which is analysed to detect a more exact boundary
-                            Dim TempSound1 As Sound = New Sound(New Formats.WaveFormat(tempSound.WaveFormat.SampleRate, tempSound.WaveFormat.BitDepth, 1))
-                            Dim TempSoundArray(WindowDistance * 4 - 1) As Single
-                            For sample = 0 To TempSoundArray.Length - 1
-                                TempSoundArray(sample) = tempSound.WaveData.SampleData(c)(sample + SpeechStartSample)
-                            Next
-                            TempSound1.WaveData.SampleData(1) = TempSoundArray
-                            TempSound1.SMA = New Sound.SpeechMaterialAnnotation(FrequencyWeightings.Z, DetailedTemporalIntegrationDuration)
-
-                            'Adding one one channel and one sentence
-                            TempSound1.SMA.AddChannelData(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound1.SMA, SmaTags.CHANNEL, Nothing))
-                            TempSound1.SMA.ChannelData(1).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound1.SMA, SmaTags.SENTENCE, TempSound1.SMA.ChannelData(1)))
-
-                            'Looking inside the TempSound1 window to determine a more exact boundary 
-                            Dim InnerWindowList As New List(Of Double)
-                            Dim InnerWindowDistance As Integer
-                            LoudestWindowLevel = DSP.MeasureTimeAndFrequencyWeightedSectionLevel_QuarterOverlap(
-                        TempSound1, 1, 0,, SoundDataUnit.dB,,
-                        InnerWindowList, InnerWindowDistance)
-                            'Detecting the first window that is at least DetailedSilenceCriteria softer than the loudest window
-                            Dim InnerStartSample As Integer = 0
-                            Dim InnerListMaxLevel As Double = dBConversion(InnerWindowList.Max, dBConversionDirection.to_dB, TempSound1.WaveFormat)
-                            Dim InnelListLevelLimit As Double = InnerListMaxLevel - DetailedSilenceCriteria
-                            Dim InnerListRMSLimit As Double = dBConversion(InnelListLevelLimit, dBConversionDirection.from_dB, TempSound1.WaveFormat)
-
-                            For w = 0 To InnerWindowList.Count - 1
-                                If InnerWindowList(w) >= InnerListRMSLimit And InnerWindowList(w) > 0 Then 'The last argument ignores windows made up of zero-padding
-                                    InnerStartSample = w * InnerWindowDistance
-                                    Exit For
-                                End If
-                            Next
-
-                            'Adding the detailed samples from the last analysis
-                            SpeechStartSample += InnerStartSample
-
-
-                            'Looking for the speech-end window
-                            Dim SpeechEndSample As Integer = tempSound.WaveData.ShortestChannelSampleCount - 1
-
-                            'Restting CurrentSilenceEndCandidateWindow and CurrentSilenceLength 
-                            CurrentSilenceEndCandidateWindow = WholeWindowList.Count - 1 'Since the three last windows Setting default to the last window
-                            CurrentSilenceLength = 0
-
-                            For CurrentWindow = IndexOfLoudestWindow + 1 To WholeWindowList.Count - 1
-
-                                If WholeWindowList(CurrentWindow) > SilenceRMS Then
-                                    'The window is not "silent"
-                                    'Resetting CurrentSilenceLength
-                                    CurrentSilenceLength = 0
-
-                                    'Resetting CurrentSilenceEndCandidateWindow to the last window
-                                    CurrentSilenceEndCandidateWindow = WholeWindowList.Count - 1
-
-                                Else
-                                    'The window is "silent"
-                                    'Updating the CurrentSilenceEndCandidate
-                                    If CurrentWindow < CurrentSilenceEndCandidateWindow Then
-                                        CurrentSilenceEndCandidateWindow = CurrentWindow
-                                    End If
-
-                                    'Adding the current window distance to the silent section
-                                    CurrentSilenceLength += WindowDistance / tempSound.WaveFormat.SampleRate
-
-                                End If
-
-                                'Checking if the silent section found is equal to or longer than LongestSilentSegment
-                                If CurrentSilenceLength >= LongestSilentSegment Then
-
-                                    'The word/sentence end has been found
-                                    SpeechEndSample = WindowDistance * (CurrentSilenceEndCandidateWindow - 1)
-
-                                    Exit For
-                                End If
-                            Next
-
-                            'Copying the window prior to the detected silent window to a new sound, and analyses it to detect a more exact boundary
-                            Dim TempSound2 As Sound = New Sound(New Formats.WaveFormat(tempSound.WaveFormat.SampleRate, tempSound.WaveFormat.BitDepth, 1))
-                            Dim TempSoundArray2(WindowDistance * 4 - 1) As Single
-
-                            'Correcting SpeechEndSample to be at least one window lower than the sound array
-                            If SpeechEndSample > tempSound.WaveData.SampleData(c).Length - TempSoundArray2.Length - 1 Then
-                                SpeechEndSample = tempSound.WaveData.SampleData(c).Length - TempSoundArray2.Length - 1
-                            End If
-
-                            For sample = 0 To TempSoundArray2.Length - 1
-                                TempSoundArray2(sample) = tempSound.WaveData.SampleData(c)(sample + SpeechEndSample)
-                            Next
-                            TempSound2.WaveData.SampleData(1) = TempSoundArray
-                            TempSound2.SMA = New Sound.SpeechMaterialAnnotation(FrequencyWeightings.Z, DetailedTemporalIntegrationDuration)
-
-                            'Adding one one channel and one sentence
-                            TempSound2.SMA.AddChannelData(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound2.SMA, SmaTags.CHANNEL, Nothing))
-                            TempSound2.SMA.ChannelData(1).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(TempSound2.SMA, SmaTags.SENTENCE, TempSound2.SMA.ChannelData(1)))
-
-                            'Looking inside the TempSound1 window to determine a more exakt boundary 
-                            InnerWindowList = New List(Of Double)
-                            LoudestWindowLevel = DSP.MeasureTimeAndFrequencyWeightedSectionLevel_QuarterOverlap(
-                        TempSound2, 1, 0, , SoundDataUnit.dB,,
-                        InnerWindowList, InnerWindowDistance)
-                            'Detecting the last window that is at least half as loud as the loudest window (6 dB)
-                            Dim InnerEndSample As Integer = 0
-                            InnerStartSample = 0
-                            InnerListMaxLevel = dBConversion(InnerWindowList.Max, dBConversionDirection.to_dB, TempSound1.WaveFormat)
-                            InnelListLevelLimit = InnerListMaxLevel - DetailedSilenceCriteria
-                            InnerListRMSLimit = dBConversion(InnelListLevelLimit, dBConversionDirection.from_dB, TempSound1.WaveFormat)
-
-                            For w_inverse = 0 To InnerWindowList.Count - 1
-                                Dim w As Integer = InnerWindowList.Count - 1 - w_inverse
-                                If InnerWindowList(w) >= InnerListRMSLimit And InnerWindowList(w) > 0 Then 'The last argument ignores windows made up of zero-padding
-                                    InnerEndSample = w * InnerWindowDistance
-                                    Exit For
-                                End If
-                            Next
-
-
-                            'Adding the detailed samples from the last analysis
-                            SpeechEndSample += InnerEndSample
-
-                            If SetToZeroCrossings = True Then
-                                SpeechStartSample = DSP.GetZeroCrossingSample(MeasurementSound, c, SpeechStartSample, DSP.MeasurementsExt.SearchDirections.Closest)
-                                SpeechEndSample = DSP.GetZeroCrossingSample(MeasurementSound, c, SpeechEndSample, DSP.MeasurementsExt.SearchDirections.Closest)
-                            End If
-
-                            'Storing the data start and end samples in the ptwf object
-                            'Storing speech start and end, on both sentence, word (only using the first word, which has index 0) and phoneme level
-
-                            'Sentence level
-                            Me.ChannelData(c)(sentence).StartSample = SpeechStartSample
-                            Me.ChannelData(c)(sentence).Length = SpeechEndSample - SpeechStartSample - 1
-
-                            'Word level (first word only (index 0))
-                            Me.ChannelData(c)(sentence)(0).StartSample = SpeechStartSample
-                            Me.ChannelData(c)(sentence)(0).Length = SpeechEndSample - SpeechStartSample - 1
-
-                            'Phoneme level
-                            If Me.ChannelData(c)(sentence)(0) IsNot Nothing Then
-                                'Storing the position of the first phoneme
-                                If Me.ChannelData(c)(sentence)(0).Count > 0 Then
-                                    Me.ChannelData(c)(sentence)(0)(0).StartSample = SpeechStartSample
-                                End If
-                                'Storing the position of the last item in the phoneme array (which should be a word-end string)
-                                If Me.ChannelData(c)(sentence)(0).Count > 1 Then
-                                    Me.ChannelData(c)(sentence)(Me.ChannelData(c)(sentence).Count - 1)(Me.ChannelData(c)(sentence)(Me.ChannelData(c)(sentence).Count - 1).Count - 1).StartSample = SpeechEndSample
-                                End If
-                            End If
-
-                        Next
-                    Next
-
-                    'Restoring the origial sound level format
-                    MeasurementSound.SMA.SetFrequencyWeighting(OriginalSoundFrequencyWeighting, True)
-                    MeasurementSound.SMA.SetTimeWeighting(OriginalSoundTimeWeighting, True)
-
-                Catch ex As Exception
-                    MsgBox(ex.ToString)
-                End Try
-
-            End Sub
-
-            ''' <summary>
-            ''' Moves segmented phoneme boundaries to the nearset zero crossings. If DoFinalizeSegmentation = True, also phoneme lengths and sound levels are calculated, and fade padding applied the segmented sound.
-            ''' </summary>
-            ''' <param name="Sound"></param>
-            ''' <param name="CurrentChannel"></param>
-            ''' <param name="SearchDirection"></param>
-            ''' <param name="DoFinalizeSegmentation"></param>
-            ''' <param name="PaddingTime"></param>
-            Public Sub MoveSegmentationsToClosestZeroCrossings(ByRef Sound As Sound, ByVal CurrentChannel As Integer, Optional ByVal SearchDirection As DSP.SearchDirections = DSP.SearchDirections.Closest,
-                                                       Optional DoFinalizeSegmentation As Boolean = True, Optional ByRef PaddingTime As Single = 0.5)
-                Try
-
-                    'TODO: This sub currently can only use mono sounds!
-
-                    'For c = 1 To Sound.WaveFormat.Channels
-
-                    For sentence As Integer = 0 To Me.ChannelData(CurrentChannel).Count - 1
-
-                        'Adjusting sentenceStartTime
-                        Me.ChannelData(CurrentChannel)(sentence).StartSample = DSP.GetZeroCrossingSample(Sound, CurrentChannel, Me.ChannelData(CurrentChannel)(sentence).StartSample, SearchDirection)
-
-                        'TODO: Perhaps ChannelData(CurrentChannel)(sentence).StartTime should also be updated? 
-                        'For now, StartTime is derived from ChannelData(CurrentChannel)(sentence).StartSample (But, wasn't StartTime supposed to be in reference to a e.g. camera?)
-                        Me.ChannelData(CurrentChannel)(sentence).StartTime = Me.ChannelData(CurrentChannel)(sentence).StartSample / Sound.WaveFormat.SampleRate
-
-                        For word = 0 To Me.ChannelData(CurrentChannel)(sentence).Count - 1
-
-                            'Adjusting wordStartTime and start sample
-                            Me.ChannelData(CurrentChannel)(sentence)(word).StartTime = DSP.GetZeroCrossingSample(Sound, CurrentChannel, Me.ChannelData(CurrentChannel)(sentence)(word).StartTime, SearchDirection)
-                            Me.ChannelData(CurrentChannel)(sentence)(word).StartSample = DSP.GetZeroCrossingSample(Sound, CurrentChannel, Me.ChannelData(CurrentChannel)(sentence)(word).StartSample, SearchDirection)
-
-                            For phoneme = 0 To Me.ChannelData(CurrentChannel)(sentence)(word).Count - 1
-                                'Adjusting phoneme start sample
-                                Me.ChannelData(CurrentChannel)(sentence)(word)(phoneme).StartSample = DSP.GetZeroCrossingSample(Sound, CurrentChannel, Me.ChannelData(CurrentChannel)(sentence)(word)(phoneme).StartSample, SearchDirection)
-                            Next phoneme
-                        Next word
-
-                        Me.UpdateSegmentation(Sound, PaddingTime, CurrentChannel)
-
-                        'Next
-
-                    Next
-                Catch ex As Exception
-                    MsgBox(ex.ToString)
-                End Try
-
-            End Sub
-
-            ''' <summary>
-            ''' Updates the segmentation, data of the current sound file. The following steps are taken. N.B. Presently only multiple sentences are supported!
-            ''' a) 
-            ''' </summary>
-            ''' <param name="Sound">The sound that belong to the current SMA object.</param>
-            ''' <param name="PaddingTime">The time between sound start and speech start, as well as between speech end and sound end.</param>
-            ''' <param name="CurrentChannel"></param>
-            ''' <param name="FadeStartAndEnd">If set to True, the Padding section before and after the recorded material is faded in/out.</param>
-            Public Sub UpdateSegmentation(ByRef Sound As Sound, ByRef PaddingTime As Single, ByRef CurrentChannel As Integer,
-                                  Optional FadeStartAndEnd As Boolean = False,
-                                  Optional FadeType As DSP.FadeSlopeType = DSP.FadeSlopeType.PowerCosine_SkewedFromFadeDirection,
-                                  Optional CosinePower As Double = 100)
-                Try
-
-                    'Throw New NotImplementedException("The UpdateSegmentation method needs to be changed as the word end string has ben removed from the SMA segmentation. Instead of containing the word end string within the SMA object, an end string should be added by the current method (or in another appropriate place) on all segmentation levels (channel, sentence, word and phone, and then removed when not needed again.")
-
-                    'Adding a word and string
-                    AddWordEndString()
-
-                    'Throws exception if ChannelSpecific is set to true. This should be removed when channel specific segmentation is implemented in the future
-                    If CurrentChannel <> 1 Then Throw New NotImplementedException("At present, only mono sounds are supported by FinalizeSegmentation")
-
-                    Dim sentence As Integer = 0
-
-                    MsgBox("Time to add support for multiple sentences??? Only one sentence per sound file is supported by UpdateSegmentation")
-
-                    'Determining the sentence start sample and length
-                    Dim SentenceStartSample As Integer = Me.ChannelData(1)(sentence)(0)(0).StartSample
-                    Dim SentenceEndSample As Integer = Me.ChannelData(1)(sentence)(Me.ChannelData(1)(sentence).Count - 1)(Me.ChannelData(1)(sentence)(Me.ChannelData(1)(sentence).Count - 1).Count - 1).StartSample
-                    Dim SentenceLength As Integer = SentenceEndSample - SentenceStartSample
-
-                    'Calculating the length of the padding section in samples
-                    Dim PaddingSamples As Integer = PaddingTime * Sound.WaveFormat.SampleRate
-
-                    'Storing the time of the first phoneme in the first word as sentence start time
-                    Me.ChannelData(1)(sentence).StartTime += SentenceStartSample / Sound.WaveFormat.SampleRate
-
-                    'Finding out how the the ends of the file should be adjusted
-                    Dim temporalAdjustmentOfSoundArray As Integer = 0
-                    Dim indendedChannelArrayLengthInSample As Integer = SentenceLength + (2 * PaddingSamples)
-
-                    'Adding word start and length data, and adjusting the lengths of each channel separately (according to channel 1 segmentation data)
-                    For c = 1 To Sound.WaveFormat.Channels
-
-                        'Adding sentence time data (all from channel 1, which should be changed when ChannelSpecific is implemented)
-                        Me.ChannelData(c)(sentence).StartSample = SentenceStartSample
-                        Me.ChannelData(c)(sentence).Length = SentenceLength
-                        Me.ChannelData(c)(sentence).StartTime = SentenceStartSample / Sound.WaveFormat.SampleRate
-
-                        'Adding word time data
-                        For word = 0 To Me.ChannelData(c)(sentence).Count - 1
-                            Dim SampleOfFirstPhoneme As Integer = Me.ChannelData(c)(sentence)(word)(0).StartSample
-                            Dim WordEndSample As Integer = Me.ChannelData(c)(sentence)(word)(Me.ChannelData(c)(sentence)(word).Count - 1).StartSample
-                            Dim LengthOfWord As Integer = WordEndSample - SampleOfFirstPhoneme
-                            Me.ChannelData(c)(sentence)(word).StartSample = Me.ChannelData(c)(sentence)(word)(0).StartSample
-                            Me.ChannelData(c)(sentence)(word).Length = LengthOfWord
-                            Me.ChannelData(c)(sentence)(word).StartTime = SampleOfFirstPhoneme / Sound.WaveFormat.SampleRate
-                        Next
-
-                        'Modifying the sound array so that it is equal in length and is synchronized with the newChannelArray
-                        'taking care of the section prior to the first phoneme
-                        Select Case SentenceStartSample
-                            Case > PaddingSamples
-
-                                'cutting the section of the sound array before padding time
-                                Dim samplesToCut As Integer = SentenceStartSample - PaddingSamples
-                                Dim tempArray(Sound.WaveData.SampleData(c).Length - samplesToCut - 1) As Single
-                                For sample = 0 To tempArray.Length - 1
-                                    tempArray(sample) = Sound.WaveData.SampleData(c)(sample + samplesToCut)
-                                Next
-                                Sound.WaveData.SampleData(c) = tempArray
-                                If c = 1 Then 'TODO: Getting the sentence start and ends segmentation from channel 1 only. This should change when soundEditor is modified to support multi channel sounds
-                                    temporalAdjustmentOfSoundArray = -samplesToCut
-                                End If
-
-                            Case < PaddingSamples
-                                'extending the section of the sound array before padding time
-                                Dim samplesToAdd As Integer = PaddingSamples - SentenceStartSample
-                                Dim tempArray(Sound.WaveData.SampleData(c).Length + samplesToAdd - 1) As Single
-                                For sample = 0 To Sound.WaveData.SampleData(c).Length - 1
-                                    tempArray(sample + samplesToAdd) = Sound.WaveData.SampleData(c)(sample)
-                                Next
-                                Sound.WaveData.SampleData(c) = tempArray
-                                If c = 1 Then 'TODO: This should actually be the measurement channel, however soundEditor presently only supports mono sounds
-                                    temporalAdjustmentOfSoundArray = samplesToAdd
-                                End If
-
-                            Case Else
-                                'I.E. equal length, does nothing
-
-                        End Select
-
-                        'Extending the sound array to the length of indendedChannelArrayLengthInSample
-                        ReDim Preserve Sound.WaveData.SampleData(c)(indendedChannelArrayLengthInSample - 1)
-
-                        If FadeStartAndEnd = True Then
-
-                            'Fading in start
-                            DSP.Fade(Sound, , 0, c, 0, PaddingSamples, FadeType, CosinePower)
-
-                            'Fading out end
-                            DSP.Fade(Sound, 0, , c, Sound.WaveData.SampleData(c).Length - PaddingSamples - 1,,
-                                   FadeType, CosinePower)
-                        End If
-
-                    Next c
-
-
-                    'Adjusting times stored in the SMA phoneme data
-                    For c = 1 To Sound.WaveFormat.Channels
-
-                        'Adjusting sentenceStartTime (this is the reference time, e.g the duration since a video camera was started), and start sample
-                        Me.ChannelData(CurrentChannel)(sentence).StartTime = ((Me.ChannelData(CurrentChannel)(sentence).StartTime * Sound.WaveFormat.SampleRate) + temporalAdjustmentOfSoundArray) / Sound.WaveFormat.SampleRate
-                        Me.ChannelData(CurrentChannel)(sentence).StartSample += temporalAdjustmentOfSoundArray
-
-                        For word = 0 To Me.ChannelData(c)(sentence).Count - 1
-
-                            'Adjusting wordStartTime and start sample
-                            Me.ChannelData(CurrentChannel)(sentence)(word).StartTime = ((Me.ChannelData(CurrentChannel)(sentence)(word).StartTime * Sound.WaveFormat.SampleRate) + temporalAdjustmentOfSoundArray) / Sound.WaveFormat.SampleRate
-
-                            Me.ChannelData(CurrentChannel)(sentence)(word).StartSample += temporalAdjustmentOfSoundArray
-
-                            For phoneme = 0 To Me.ChannelData(CurrentChannel)(sentence)(word).Count - 1
-                                'Adjusting phoneme start sample (If phoneme position has been set, i.e. has a value other than -1)
-                                If Me.ChannelData(CurrentChannel)(sentence)(word)(phoneme).StartSample <> -1 Then
-                                    Me.ChannelData(CurrentChannel)(sentence)(word)(phoneme).StartSample += temporalAdjustmentOfSoundArray
-                                End If
-                            Next phoneme
-                        Next word
-                    Next c
-
-                    'Setting phoneme lengths
-                    For c = 1 To Sound.WaveFormat.Channels
-                        For word = 0 To Me.ChannelData(c)(sentence).Count - 1
-
-                            ''Setting the length of the last phoneme to 0 if it is the WordEndString
-                            'If Me.ChannelData(CurrentChannel)(sentence)(word).PhoneData(Me.ChannelData(CurrentChannel)(sentence)(word).PhoneData.Count - 1).PhoneticForm = WordEndString Then
-                            '    Me.ChannelData(CurrentChannel)(sentence)(word).PhoneData(Me.ChannelData(CurrentChannel)(sentence)(word).PhoneData.Count - 1).Length = 0
-                            'End If
-
-                            'Setting the length of the rest of the phonemes
-                            For phoneme = 0 To Me.ChannelData(CurrentChannel)(sentence)(word).Count - 2
-                                'Setting the phoneme length to that of the distance between the current phoneme and the next (If both phoneme positions have been set, i.e. have values other than -1)
-                                If Me.ChannelData(CurrentChannel)(sentence)(word)(phoneme).StartSample <> -1 And Me.ChannelData(CurrentChannel)(sentence)(word)(phoneme + 1).StartSample <> -1 Then
-                                    Me.ChannelData(CurrentChannel)(sentence)(word)(phoneme).Length =
-                                Me.ChannelData(CurrentChannel)(sentence)(word)(phoneme + 1).StartSample - Me.ChannelData(CurrentChannel)(sentence)(word)(phoneme).StartSample
-                                End If
-                            Next phoneme
-                        Next word
-                    Next c
-
-
-                    'Measures InitialpeakAmplitudes
-                    If Not Me.SetInitialPeakAmplitudes(Sound) = True Then MsgBox("Failed setting initial peak amplitudes.")
-
-                    'Adjusting sound level
-                    If Me.GetTimeWeighting <> 0 = True Then
-
-                        If Not DSP.TimeAndFrequencyWeightedNormalization(Sound, CurrentChannel,,,) = True Then 'SoundLevelFormat.TemporalIntegrationDuration, SoundLevelFormat.Frequencyweighting) = True Then
-                            MsgBox("Distorsion occurred during time and frequency weighted normalization.")
-                        End If
-
-                        'DSP.MeasureAndSetGatedSectionLevel(sound, currentChannel,,,
-                        'SoundLevelFormat.OutputLevel,
-                        'SoundLevelFormat.GatingWindowDuration,
-                        'SoundLevelFormat.GateRelativeThreshold,
-                        'SoundLevelFormat.FractionForCalculatingAbsThreshold,
-                        'SoundLevelFormat.Frequencyweighting)
-
-                    Else
-                        DSP.MeasureAndAdjustSectionLevel(Sound, -23, CurrentChannel,,, Me.GetFrequencyWeighting)
-                    End If
-
-                    'Measuring sound levels
-                    If Not Me.MeasureSoundLevels(True) = True Then MsgBox("Failed measuring sound levels.")
-
-                    'Remoiving the previously added word and string
-                    RemoveWordEndString()
-
-                Catch ex As Exception
-
-                    MsgBox(ex.ToString)
-
-                End Try
-
-            End Sub
+            End Function
 
             ''' <summary>
             ''' Goes through all segmentation data and detects unset start values and zero lengths. The accumulated number of unset starts, and zero-lengths are returned in the parameters.
@@ -877,8 +357,7 @@ Namespace Audio
             End Sub
 
             ''' <summary>
-            ''' Fading the padded sections before the word start and after the word end.
-            ''' N.B. Presently, only multiple sentences are supported!
+            ''' Fading the padded sections before the first sentnce and after the last sentence.
             ''' </summary>
             ''' <param name="Sound"></param>
             ''' <param name="CurrentChannel"></param>
@@ -888,23 +367,89 @@ Namespace Audio
                                   Optional FadeType As DSP.FadeSlopeType = DSP.FadeSlopeType.PowerCosine_SkewedFromFadeDirection,
                                   Optional CosinePower As Double = 100)
 
-                Dim sentence As Integer = 0
+                If CurrentChannel > Sound.SMA.ChannelCount Then
+                    If CurrentChannel > Sound.WaveFormat.Channels Then
 
-                For c = 1 To Sound.WaveFormat.Channels
+                        Dim FirstSentenceStartSample As Integer = Sound.SMA.ChannelData(CurrentChannel)(0).StartSample
+                        Dim LastSentenceIndex As Integer = Sound.SMA.ChannelData(CurrentChannel).Count - 1
+                        Dim LastSentenceEndSample As Integer = Sound.SMA.ChannelData(CurrentChannel)(LastSentenceIndex).StartSample + Sound.SMA.ChannelData(CurrentChannel)(LastSentenceIndex).Length
 
-                    Dim SentenceStartSample As Integer = Sound.SMA.ChannelData(CurrentChannel)(sentence).StartSample
-                    Dim SentenceEndSample As Integer = Sound.SMA.ChannelData(CurrentChannel)(sentence).StartSample + Sound.SMA.ChannelData(CurrentChannel)(sentence).Length
+                        'Fading in start
+                        DSP.Fade(Sound, , 0, CurrentChannel, 0, FirstSentenceStartSample - 1, FadeType, CosinePower)
 
+                        'Fading out end
+                        DSP.Fade(Sound, 0, , CurrentChannel, LastSentenceEndSample + 1,, FadeType, CosinePower)
 
-                    'Fading in start
-                    DSP.Fade(Sound, , 0, c, 0, SentenceStartSample - 1, FadeType, CosinePower)
+                    Else
+                        MsgBox("The current sound does not contain the requested channel: " & CurrentChannel)
+                    End If
+                Else
+                    MsgBox("The current SMA object does not contain the requested channel: " & CurrentChannel)
+                End If
 
-                    'Fading out end
-                    DSP.Fade(Sound, 0, , c, SentenceEndSample + 1,,
-                           FadeType, CosinePower)
+            End Sub
 
-                Next
+            Public Sub ApplyPaddingSection(ByRef Sound As Sound, ByRef CurrentChannel As Integer, ByVal PaddingTime As Single)
 
+                If CurrentChannel > Sound.SMA.ChannelCount Then
+                    If CurrentChannel > Sound.WaveFormat.Channels Then
+
+                        Dim FirstSentenceStartSample As Integer = Sound.SMA.ChannelData(CurrentChannel)(0).StartSample
+
+                        'Converts PaddingTime to samples
+                        Dim PaddingLength As Integer = Math.Floor(PaddingTime * Sound.WaveFormat.SampleRate)
+
+                        'Fixing the end
+                        'Determines the needed initial shift
+                        Dim InitialShift As Integer = PaddingLength - FirstSentenceStartSample
+                        'If InitialShift is positive, a forward shift is needed, thus:
+                        ' - a silent sound with the length of InitialShift samples need to be inserted at the beginning of the sound
+                        ' - InitialShift need to be added to the start samples of all SMA components 
+
+                        'If InitialShift is negative, a backward shift is needed, thus:
+                        ' - InitialShift samples need to cut out from the beginning of the sound
+                        ' - InitialShift need to be subtracted from the start samples of all SMA components 
+
+                        ' If InitialShift is zero, nothing need to be changed.
+                        If InitialShift > 0 Then
+                            DSP.InsertSilentSection(Sound, 0, InitialShift)
+                            ShiftSegmentationData(InitialShift)
+                        ElseIf InitialShift < 0 Then
+                            DSP.DeleteSection(Sound, 0, InitialShift)
+                            ShiftSegmentationData(-InitialShift)
+                        End If
+
+                        'Fixing the end
+                        'Determines the final adjustment of the sound file
+                        Dim SoundFileLength As Integer = Sound.WaveData.SampleData(CurrentChannel).Length
+                        Dim LastSentenceIndex As Integer = Sound.SMA.ChannelData(CurrentChannel).Count - 1
+                        Dim LastSentenceEndSample As Integer = Sound.SMA.ChannelData(CurrentChannel)(LastSentenceIndex).StartSample + Sound.SMA.ChannelData(CurrentChannel)(LastSentenceIndex).Length
+                        Dim IntendedSoundLength As Integer = LastSentenceEndSample + PaddingLength
+                        Dim FinalAdjustment As Integer = SoundFileLength - IntendedSoundLength
+                        'If FinalAdjustment is positive, the sound file nedd to be shortened by FinalAdjustment samples 
+                        'If FinalAdjustment is negative, the sound file nedd to be lengthed by FinalAdjustment samples 
+                        ' No changes is needed to the SMA object
+                        'If FinalAdjustment is zero no changes are needed
+                        If FinalAdjustment > 0 Then
+                            DSP.InsertSilentSection(Sound, SoundFileLength - 1, FinalAdjustment)
+                        ElseIf FinalAdjustment < 0 Then
+                            DSP.DeleteSection(Sound, SoundFileLength - FinalAdjustment, FinalAdjustment)
+                        End If
+
+                    Else
+                        MsgBox("The current sound does not contain the requested channel: " & CurrentChannel)
+                    End If
+                Else
+                    MsgBox("The current SMA object does not contain the requested channel: " & CurrentChannel)
+                End If
+
+            End Sub
+
+            Public Sub ApplyInterSentenceInterval(ByVal Interval As Single, ByVal FadeInterval As Boolean, ByRef CurrentChannel As Integer,
+                                  Optional FadeType As DSP.FadeSlopeType = DSP.FadeSlopeType.PowerCosine_SkewedFromFadeDirection,
+                                  Optional CosinePower As Double = 100)
+
+                Throw New NotImplementedException
 
             End Sub
 
@@ -1183,6 +728,8 @@ Namespace Audio
 
                 Public Property SmaTag As SpeechMaterialAnnotation.SmaTags
 
+                Public Property SegmentationCompleted As Boolean = False
+
                 Public Property OrthographicForm As String = ""
                 Public Property PhoneticForm As String = ""
 
@@ -1361,7 +908,8 @@ Namespace Audio
 
                 Public Shadows Sub ToString(ByRef HeadingList As List(Of String), ByRef OutputList As List(Of String))
 
-                    'Writing sentence data
+                    'Writing headings
+                    HeadingList.Add("SEGMENTATION_COMPLETED")
                     HeadingList.Add("ORTHOGRAPHIC_FORM")
                     HeadingList.Add("PHONETIC_FORM")
                     HeadingList.Add("START_SAMPLE")
@@ -1374,7 +922,8 @@ Namespace Audio
                     HeadingList.Add("INITIAL_PEAK")
                     HeadingList.Add("START_TIME")
 
-                    'Writing sentence data
+                    'Writing data
+                    OutputList.Add(SegmentationCompleted.ToString)
                     OutputList.Add(OrthographicForm)
                     OutputList.Add(PhoneticForm)
                     OutputList.Add(StartSample)
@@ -1443,20 +992,10 @@ Namespace Audio
                         'Checks that parent the current channel of the parent sound contains sounds
                         If ParentSound.WaveData.SampleData(c).Length > 0 Then
 
-                            ' Naturally, do not attempt to measure the segment if it is marked as a word end.
-                            If PhoneticForm = WordEndString Or OrthographicForm = WordEndString Then
+                            'Measuring sound levels
 
-                                ' It's marked as a word and, setting sound levels to Nothing
-                                UnWeightedLevel = Nothing
-                                UnWeightedPeakLevel = Nothing
-                                WeightedLevel = Nothing
-
-                            Else
-
-                                'Measuring sound levels
-
-                                'Measuring UnWeightedLevel
-                                UnWeightedLevel = Nothing
+                            'Measuring UnWeightedLevel
+                            UnWeightedLevel = Nothing
                                 UnWeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, Nothing, SoundDataUnit.dB)
                                 AttemptedMeasurementCount += 1
                                 If UnWeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
@@ -1479,9 +1018,8 @@ Namespace Audio
                                 AttemptedMeasurementCount += 1
                                 If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
-                            End If
 
-                        Else
+                                Else
                             'Notes a missing measurement
                             AttemptedMeasurementCount += 1
                         End If
@@ -1515,33 +1053,21 @@ Namespace Audio
                         'Checks that parent the current channel of the parent sound contains sounds
                         If MeasurementSound.WaveData.SampleData(c).Length > 0 Then
 
-                            ' Naturally, do not attempt to measure the segment if it is marked as a word end.
-                            If PhoneticForm = WordEndString Or OrthographicForm = WordEndString Then
+                            If InitialPeak <> -1 Then
+                                'Aborting measurements if the current channel InitialPeak is already set (-1 is the default/unmeasured value)
+                                'Measures UnWeightedPeakLevel of each word using Z-weighting
+                                Dim UnWeightedPeakLevel As Double?
+                                UnWeightedPeakLevel = DSP.MeasureSectionLevel(MeasurementSound, c, StartSample, Length, SoundDataUnit.linear, SoundMeasurementType.AbsolutePeakAmplitude)
+                                AttemptedMeasurementCount += 1
+                                If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
-                                ' It's marked as a word and, setting sound levels to Nothing
-                                UnWeightedLevel = Nothing
-                                UnWeightedPeakLevel = Nothing
-                                WeightedLevel = Nothing
-
-                            Else
-
-                                If InitialPeak <> -1 Then
-                                    'Aborting measurements if the current channel InitialPeak is already set (-1 is the default/unmeasured value)
-                                    'Measures UnWeightedPeakLevel of each word using Z-weighting
-                                    Dim UnWeightedPeakLevel As Double?
-                                    UnWeightedPeakLevel = DSP.MeasureSectionLevel(MeasurementSound, c, StartSample, Length, SoundDataUnit.linear, SoundMeasurementType.AbsolutePeakAmplitude)
-                                    AttemptedMeasurementCount += 1
-                                    If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
-
-                                    'Setting InitialPeak to the highest detected so far
-                                    InitialPeak = Math.Max(InitialPeak, CDbl(UnWeightedPeakLevel))
-                                End If
-
+                                'Setting InitialPeak to the highest detected so far
+                                InitialPeak = Math.Max(InitialPeak, CDbl(UnWeightedPeakLevel))
                             End If
 
                         Else
-                            'Notes a missing measurement
-                            AttemptedMeasurementCount += 1
+                                'Notes a missing measurement
+                                AttemptedMeasurementCount += 1
                         End If
                     Else
                         'Notes a missing measurement
@@ -1569,69 +1095,6 @@ Namespace Audio
                     For Each childcomponent In Me
                         childcomponent.ResetSoundLevels()
                     Next
-
-                End Sub
-
-
-                ''' <summary>
-                ''' This sub adds a word end string to the the phonetic and orthographic forms of all descentands of the last stored child component. However, if a word end marker does already exists, it is not added.
-                ''' </summary>
-                Public Sub AddWordEndString()
-
-                    'Checking if and child components exist, and exits if not.
-                    If Me.Count = 0 Then Exit Sub
-
-                    'Adding word-end marker
-
-                    Dim MarkerAdded As Boolean = False
-
-                    'Checks if there is already a word end marker
-                    If Me(Me.Count - 1).PhoneticForm = WordEndString Or Me(Me.Count - 1).OrthographicForm = WordEndString Then
-                        'There is already a word end marker stored (in a previous segmentation).
-                    Else
-                        Me.Add(New SmaComponent(Me.ParentSMA, Me.SmaTag + 1, Me) With {.PhoneticForm = WordEndString, .OrthographicForm = WordEndString})
-
-                        'Positions the word end marker, according to the information stored in the previous component, if there is any
-                        If Me.Count > 1 Then
-                            Me(Me.Count - 1).StartSample = Me(Me.Count - 2).StartSample + Me(Me.Count - 2).Length
-                        End If
-
-                        MarkerAdded = True
-
-                    End If
-
-                    'Cascading to lower levels
-                    If MarkerAdded = False Then
-                        Me(Me.Count - 1).AddWordEndString()
-                    Else
-                        Me(Me.Count - 2).AddWordEndString()
-                    End If
-
-                End Sub
-
-                ''' <summary>
-                ''' This sub removes word end component based defined by the presence of word end strings in the phonetic or orthographic forms in all descending final components.
-                ''' </summary>
-                Public Sub RemoveWordEndString()
-
-                    'Removing from the lowerst level first
-                    If Me.Count > 0 Then
-                        Me(Me.Count - 1).RemoveWordEndString()
-                    End If
-
-                    'Removing based on PhoneticForm 
-                    If Me.Count > 0 Then
-                        If Me(Me.Count - 1).PhoneticForm = WordEndString Then
-                            Me.RemoveAt(Me.Count - 1)
-                        End If
-                    End If
-
-                    'Removing based on OrthographicForm 
-                    If Me.Count > 0 Then
-                        If Me(Me.Count - 1).OrthographicForm = WordEndString Then
-                            Me.RemoveAt(Me.Count - 1)
-                        End If
-                    End If
 
                 End Sub
 
@@ -1867,6 +1330,36 @@ Namespace Audio
                         Return Nothing
                     End If
                 End Function
+
+                ''' <summary>
+                ''' Infers the lengths of each sibling segment from the startposition of the next sibling (naturally, this does not set the length of the last sibling).
+                ''' </summary>
+                Public Sub InferSiblingLengths()
+
+                    Dim Siblings = GetSiblings()
+                    If Siblings IsNot Nothing Then
+                        For i = 0 To Siblings.Count - 2
+
+                            'Locks the length of sibling i to the start position (-1) of the sibling i+1
+                            Siblings(i).Length = Siblings(i + 1).StartSample - Siblings(i).StartSample
+                        Next
+                    End If
+
+                End Sub
+
+                ''' <summary>
+                ''' Sets the value of the SegmentationCompleted property and optinally cascades that value to all descendant components.
+                ''' </summary>
+                ''' <param name="Value"></param>
+                ''' <param name="CascadeToAllDescendants"></param>
+                Public Sub SetSegmentationCompleted(ByVal Value As Boolean, ByVal CascadeToAllDescendants As Boolean)
+                    SegmentationCompleted = Value
+                    If CascadeToAllDescendants = True Then
+                        For Each child In Me
+                            child.SetSegmentationCompleted(Value, CascadeToAllDescendants)
+                        Next
+                    End If
+                End Sub
 
             End Class
 

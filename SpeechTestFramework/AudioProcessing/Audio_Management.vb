@@ -24,7 +24,6 @@
 Namespace Audio
     Public Module AudioManagement
 
-        Public WordEndString As String = "Word end"
 
         ''' <summary>
         ''' A helper function to determine which channels to modify on a sound.

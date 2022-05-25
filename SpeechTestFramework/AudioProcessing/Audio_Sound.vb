@@ -1142,11 +1142,11 @@ Namespace Audio
                     writer.WriteStartElement("SMA")
                     writer.WriteElementString("SMA_VERSION", Sound.SpeechMaterialAnnotation.CurrentVersion) 'I.e. SMA version number
 
-                    writer.WriteElementString("SEGMENTATION_COMPLETED", SMA.SegmentationCompleted.ToString(InvariantCulture))
-
                     For channel As Integer = 1 To SMA.ChannelCount
 
                         writer.WriteStartElement("CHANNEL")
+
+                        writer.WriteElementString("SEGMENTATION_COMPLETED", SMA.ChannelData(channel).SegmentationCompleted.ToString(InvariantCulture))
 
                         If SMA.ChannelData(channel).OrthographicForm <> "" Then
                             writer.WriteElementString("ORTHOGRAPHIC_FORM", SMA.ChannelData(channel).OrthographicForm)
@@ -1185,6 +1185,8 @@ Namespace Audio
                             writer.WriteStartElement("SENTENCE")
 
                             'Writing sentence data
+                            writer.WriteElementString("SEGMENTATION_COMPLETED", SMA.ChannelData(channel)(sentence).SegmentationCompleted.ToString(InvariantCulture))
+
                             If SMA.ChannelData(channel)(sentence).OrthographicForm <> "" Then
                                 writer.WriteElementString("ORTHOGRAPHIC_FORM", SMA.ChannelData(channel)(sentence).OrthographicForm)
                             End If
@@ -1221,6 +1223,8 @@ Namespace Audio
                                 writer.WriteStartElement("WORD")
 
                                 'writing word data
+                                writer.WriteElementString("SEGMENTATION_COMPLETED", SMA.ChannelData(channel)(sentence)(word).SegmentationCompleted.ToString(InvariantCulture))
+
                                 If SMA.ChannelData(channel)(sentence)(word).OrthographicForm <> "" Then
                                     writer.WriteElementString("ORTHOGRAPHIC_FORM", SMA.ChannelData(channel)(sentence)(word).OrthographicForm)
                                 End If
@@ -1257,6 +1261,8 @@ Namespace Audio
                                 For phone = 0 To SMA.ChannelData(channel)(sentence)(word).Count - 1
 
                                     writer.WriteStartElement("PHONE")
+
+                                    writer.WriteElementString("SEGMENTATION_COMPLETED", SMA.ChannelData(channel)(sentence)(word)(phone).SegmentationCompleted.ToString(InvariantCulture))
 
                                     If SMA.ChannelData(channel)(sentence)(word)(phone).OrthographicForm <> "" Then
                                         writer.WriteElementString("ORTHOGRAPHIC_FORM", SMA.ChannelData(channel)(sentence)(word)(phone).OrthographicForm)
@@ -1388,14 +1394,6 @@ Namespace Audio
                                         ElseIf smaReader.Name = "SMA_VERSION" Then
                                             If smaReader.Read() Then NewSMA.ReadFromVersion = smaReader.Value.Trim()
 
-                                        ElseIf smaReader.Name = "SEGMENTATION_COMPLETED" Then
-                                            Dim value As Integer
-                                            If smaReader.Read() Then
-                                                If Boolean.TryParse(smaReader.Value.Trim(), value) = True Then
-                                                    NewSMA.SegmentationCompleted = value
-                                                End If
-                                            End If
-
                                         ElseIf smaReader.Name = "CHANNEL" Then
 
                                             'New channel
@@ -1411,6 +1409,14 @@ Namespace Audio
 
                                                     If smaChannelReader.Name = "CHANNEL" Then
                                                         'Just ignores the head node
+
+                                                    ElseIf smaChannelReader.Name = "SEGMENTATION_COMPLETED" Then
+                                                        Dim value As Integer
+                                                        If smaChannelReader.Read() Then
+                                                            If Boolean.TryParse(smaChannelReader.Value.Trim(), value) = True Then
+                                                                NewSMA.ChannelData(CurrentChannel).SegmentationCompleted = value
+                                                            End If
+                                                        End If
 
                                                     ElseIf smaChannelReader.Name = "ORTHOGRAPHIC_FORM" Then
                                                         If smaChannelReader.Read() Then
@@ -1526,6 +1532,14 @@ Namespace Audio
                                                                 If smaSentenceReader.Name = "SENTENCE" Then
                                                                     'Just ignores the head node
 
+                                                                ElseIf smaSentenceReader.Name = "SEGMENTATION_COMPLETED" Then
+                                                                    Dim value As Integer
+                                                                    If smaSentenceReader.Read() Then
+                                                                        If Boolean.TryParse(smaSentenceReader.Value.Trim(), value) = True Then
+                                                                            NewSMA.ChannelData(CurrentChannel)(CurrentSentence).SegmentationCompleted = value
+                                                                        End If
+                                                                    End If
+
                                                                 ElseIf smaSentenceReader.Name = "ORTHOGRAPHIC_FORM" Then
                                                                     If smaSentenceReader.Read() Then
                                                                         NewSMA.ChannelData(CurrentChannel)(CurrentSentence).OrthographicForm = smaSentenceReader.Value.Trim()
@@ -1638,6 +1652,14 @@ Namespace Audio
 
                                                                             If smaWordReader.Name = "WORD" Then
                                                                                 'Just ignores the head node
+
+                                                                            ElseIf smaWordReader.Name = "SEGMENTATION_COMPLETED" Then
+                                                                                Dim value As Integer
+                                                                                If smaWordReader.Read() Then
+                                                                                    If Boolean.TryParse(smaWordReader.Value.Trim(), value) = True Then
+                                                                                        NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).SegmentationCompleted = value
+                                                                                    End If
+                                                                                End If
 
                                                                             ElseIf smaWordReader.Name = "ORTHOGRAPHIC_FORM" Then
                                                                                 If smaWordReader.Read() Then
@@ -1752,6 +1774,14 @@ Namespace Audio
 
                                                                                         If smaPhoneReader.Name = "PHONE" Then
                                                                                             'Just ignores the head node
+
+                                                                                        ElseIf smaPhoneReader.Name = "SEGMENTATION_COMPLETED" Then
+                                                                                            Dim value As Integer
+                                                                                            If smaPhoneReader.Read() Then
+                                                                                                If Boolean.TryParse(smaPhoneReader.Value.Trim(), value) = True Then
+                                                                                                    NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord)(CurrentPhone).SegmentationCompleted = value
+                                                                                                End If
+                                                                                            End If
 
                                                                                         ElseIf smaPhoneReader.Name = "ORTHOGRAPHIC_FORM" Then
                                                                                             If smaPhoneReader.Read() Then
@@ -1887,6 +1917,12 @@ Namespace Audio
 
                 End Using
 
+                'Sets the value of SegmentationCompleted to true at all levels if loaded from version 1.0, as the SegmentationCompleted property was introcudes in version 1.1
+                If NewSMA.ReadFromVersion = "1.0" Then
+                    For c = 1 To NewSMA.ChannelCount
+                        NewSMA.ChannelData(c).SetSegmentationCompleted(True, True)
+                    Next
+                End If
 
                 Return New Tuple(Of Sound.SpeechMaterialAnnotation, List(Of Tuple(Of String, String)))(NewSMA, unUsediXMLNodes)
 

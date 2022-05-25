@@ -51,7 +51,6 @@ Namespace Audio
 
 
             'Other panels, etc
-            Private ChangeItemButtonTexts As New List(Of String) From {"Previous item", "Next item"} ' Button text
             Private WithEvents SoundDisplayContextMenu As New ContextMenuStrip
 
             'Panel settings
@@ -119,9 +118,12 @@ Namespace Audio
             Private SoundPlayer As PortAudioVB.SoundPlayer
 
             'Buttons
-            Public ShowDetectBoundariesButton As Boolean
-            Public ShowUpdateSegmentationButton As Boolean
+            Public ShowPlaySoundButton As Boolean
+            Public ShowInferEndsButton As Boolean
+            Public ShowNextUnvalidatedItemButtons As Boolean
+            Public ShowValidateSegmentationButton As Boolean
             Public ShowFadePaddingButton As Boolean
+            Public ShowFadeIntervalsButton As Boolean
 
             Private Sub CreateContextMenu()
 
@@ -143,10 +145,11 @@ Namespace Audio
             'Setting things up
             Public Sub New(ByRef InputSound As Sound, Optional ByVal StartSample As Integer = 0, Optional ByVal LengthInSamples As Integer? = Nothing, Optional ByVal ViewChannel As Integer = 1,
                            Optional ByVal UseItemSegmentation As Boolean = False, Optional ByVal ShowSpectrogram As Boolean = False,
-                    Optional ByRef SpectrogramFormat As Formats.SpectrogramFormat = Nothing, Optional ByVal PaddingTime As Single = 0,
-                    Optional ByVal DrawNormalizedWave As Boolean = False, Optional ByRef SoundPlayer As PortAudioVB.SoundPlayer = Nothing,
-                    Optional ByVal SetSegmentationToZeroCrossings As Boolean = True, Optional ByVal ShowDetectBoundariesButton As Boolean = True,
-                    Optional ByVal ShowUpdateSegmentationButton As Boolean = True, Optional ByVal ShowFadePaddingButton As Boolean = True)
+                    Optional ByRef SpectrogramFormat As Formats.SpectrogramFormat = Nothing, Optional ByRef PaddingTime As Single = 0.5, Optional ByRef InterSentenceTime As Single = 4,
+                    Optional ByRef DrawNormalizedWave As Boolean = False, Optional ByRef SoundPlayer As PortAudioVB.SoundPlayer = Nothing,
+                    Optional ByRef SetSegmentationToZeroCrossings As Boolean = True, Optional ByRef ShowPlaySoundButton As Boolean = True, Optional ShowInferLengthsButton As Boolean = True,
+                    Optional ByRef ShowNextUnvalidatedItemButtons As Boolean = True, Optional ByRef ShowValidateSegmentationButton As Boolean = True,
+                           Optional ByRef ShowFadePaddingButton As Boolean = True, Optional ByRef ShowFadeIntervalsButton As Boolean = True)
 
                 Me.CurrentSound = InputSound
                 Me.DisplayStart_Sample = StartSample
@@ -158,9 +161,14 @@ Namespace Audio
                 Me.DrawNormalizedWave = DrawNormalizedWave
                 Me.SoundPlayer = SoundPlayer
                 Me.SetSegmentationToZeroCrossings = SetSegmentationToZeroCrossings
-                Me.ShowDetectBoundariesButton = ShowDetectBoundariesButton
-                Me.ShowUpdateSegmentationButton = ShowUpdateSegmentationButton
+
+                Me.ShowPlaySoundButton = ShowPlaySoundButton
+                Me.ShowInferEndsButton = ShowInferLengthsButton
+                Me.ShowNextUnvalidatedItemButtons = ShowNextUnvalidatedItemButtons
+                Me.ShowValidateSegmentationButton = ShowValidateSegmentationButton
                 Me.ShowFadePaddingButton = ShowFadePaddingButton
+                Me.ShowFadeIntervalsButton = ShowFadeIntervalsButton
+
 
                 If LengthInSamples.HasValue = False Then LengthInSamples = CurrentSound.WaveData.SampleData(CurrentChannel).Length
                 If LengthInSamples < 2 Then LengthInSamples = 2
@@ -361,9 +369,8 @@ Namespace Audio
                     With SentenceLabel
                         .Text = SentenceStringRepresentation
                         .Name = sentenceIndex.ToString 'storing the identity of the sentence as an index that can be used to set the CurrentSentenceIndex 
-                        .BorderStyle = BorderStyle.Fixed3D
                         .TextAlign = ContentAlignment.MiddleCenter
-                        .BackColor = Color.LightGray
+                        .BackColor = Color.White
                         .AutoSize = True
                         .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(sentenceIndex)
@@ -398,9 +405,8 @@ Namespace Audio
                     With WordLabel
                         .Text = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(wordIndex).OrthographicForm
                         .Name = wordIndex.ToString 'storing the identity of the sentence as an index that can be used to set the CurrentSentenceIndex 
-                        .BorderStyle = BorderStyle.Fixed3D
                         .TextAlign = ContentAlignment.MiddleCenter
-                        .BackColor = Color.LightGray
+                        .BackColor = Color.White
                         .AutoSize = True
                         .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(wordIndex)
@@ -437,9 +443,8 @@ Namespace Audio
                     With PhoneLabel
                         .Text = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneIndex).GetStringRepresentation
                         .Name = phoneIndex.ToString 'storing the identity of the sentence as an index that can be used to set the CurrentSentenceIndex 
-                        .BorderStyle = BorderStyle.Fixed3D
                         .TextAlign = ContentAlignment.MiddleCenter
-                        .BackColor = Color.LightGray
+                        .BackColor = Color.White
                         .AutoSize = True
                         .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneIndex)
@@ -467,13 +472,13 @@ Namespace Audio
 
                 'Resets the colors of the buttons
                 For Each item As Control In SentenceSelectorPanel.Controls
-                    item.BackColor = Color.LightGray
+                    item.BackColor = Color.White
                 Next
                 For Each item As Control In WordSelectorPanel.Controls
-                    item.BackColor = Color.LightGray
+                    item.BackColor = Color.White
                 Next
                 For Each item As Control In PhonemeSelectorPanel.Controls
-                    item.BackColor = Color.LightGray
+                    item.BackColor = Color.White
                 Next
 
                 sender.BackColor = Color.LightGreen
@@ -500,10 +505,10 @@ Namespace Audio
 
                 'Resets the colors of the buttons
                 For Each item As Control In WordSelectorPanel.Controls
-                    item.BackColor = Color.LightGray
+                    item.BackColor = Color.White
                 Next
                 For Each item As Control In PhonemeSelectorPanel.Controls
-                    item.BackColor = Color.LightGray
+                    item.BackColor = Color.White
                 Next
 
                 sender.BackColor = Color.LightGreen
@@ -527,7 +532,7 @@ Namespace Audio
 
                 'Resets the colors of the buttons
                 For Each item As Control In PhonemeSelectorPanel.Controls
-                    item.BackColor = Color.LightGray
+                    item.BackColor = Color.White
                 Next
 
                 sender.BackColor = Color.LightGreen
@@ -588,119 +593,74 @@ Namespace Audio
                 Dim CurrentFont = New Font("Arial", 12.0F, FontStyle.Regular)
 
                 SegmentationItemsPanel.Controls.Clear()
-                For n = 0 To 1
-                    Dim ChangeItemButton As New Button
-                    With ChangeItemButton
-                        .Text = ChangeItemButtonTexts(n)
-                        .Name = ChangeItemButtonTexts(n).Replace(" ", "") 'storing the identity as an index reference to the changeWordButtonTexts list 
-                        .TextAlign = ContentAlignment.MiddleCenter
-                        .AutoSize = True
-                        .AutoSizeMode = AutoSizeMode.GrowAndShrink
-                        .Font = CurrentFont
-                    End With
 
-                    'Adding eventhandler
-                    AddHandler ChangeItemButton.Click, AddressOf ChangeItemButtonClick
+                Dim NextItemButton As New Button With {.Text = "Next", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = True, .Font = CurrentFont}
+                AddHandler NextItemButton.Click, AddressOf GotoNextItem
+                SegmentationItemsPanel.Controls.Add(NextItemButton)
 
-                    'Adding the control
-                    SegmentationItemsPanel.Controls.Add(ChangeItemButton)
+                Dim PreviousItemButton As New Button With {.Text = "Previous", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = True, .Font = CurrentFont}
+                AddHandler PreviousItemButton.Click, AddressOf GotoPreviuosItem
+                SegmentationItemsPanel.Controls.Add(PreviousItemButton)
 
-                Next
-
-                Dim SegmentationItemStartButton As New Button With {.Text = "Start", .TextAlign = ContentAlignment.MiddleCenter,
-                    .AutoSize = True, .Font = CurrentFont, .BackColor = Color.LightGreen}
+                Dim SegmentationItemStartButton As New Button With {.Text = "Set start", .TextAlign = ContentAlignment.MiddleCenter,
+                    .AutoSize = True, .Font = CurrentFont, .BackColor = Color.FromArgb(50, Color.LightGreen)}
                 AddHandler SegmentationItemStartButton.Click, AddressOf SegmentationItemStartButton_Click
                 SegmentationItemsPanel.Controls.Add(SegmentationItemStartButton)
 
-                Dim SegmentationItemLengthButton As New Button With {.Text = "Length", .TextAlign = ContentAlignment.MiddleCenter,
-                    .AutoSize = True, .Font = CurrentFont, .BackColor = Color.LightCoral}
-                AddHandler SegmentationItemLengthButton.Click, AddressOf SegmentationItemLengthButton_Click
-                SegmentationItemsPanel.Controls.Add(SegmentationItemLengthButton)
+                Dim SegmentationItemEndButton As New Button With {.Text = "Set end", .TextAlign = ContentAlignment.MiddleCenter,
+                    .AutoSize = True, .Font = CurrentFont, .BackColor = Color.FromArgb(50, Color.LightCoral)}
+                AddHandler SegmentationItemEndButton.Click, AddressOf SegmentationItemEndButton_Click
+                SegmentationItemsPanel.Controls.Add(SegmentationItemEndButton)
 
 
                 'Adding a play button
-                If ShowDetectBoundariesButton = True Then
-                    Dim PlaySectionButton As New Button
-
-                    With PlaySectionButton
-                        .Text = "Play section"
-                        .Name = "PlaySectionButton"
-                        .TextAlign = ContentAlignment.MiddleCenter
-                        .BackColor = Color.LightGray
-                        .AutoSize = True
-                        .Font = CurrentFont
-                    End With
-
-                    'Adding eventhandler
+                If ShowPlaySoundButton = True Then
+                    Dim PlaySectionButton As New Button With {.Text = "Play section", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = True, .Font = CurrentFont}
                     AddHandler PlaySectionButton.Click, AddressOf SegmentationItemPlay
-
-                    'Adding the control
                     SegmentationItemsPanel.Controls.Add(PlaySectionButton)
                 End If
 
-
-                'Adding a Button for automatic word boundary detection
-                If ShowDetectBoundariesButton = True Then
-                    Dim detectBoundariesButton As New Button
-
-                    With detectBoundariesButton
-                        .Text = "Detect boundaries"
-                        .Name = "detectBoundariesButton"
-                        .TextAlign = ContentAlignment.MiddleCenter
-                        .BackColor = Color.LightGray
-                        .AutoSize = True
-                        .Font = CurrentFont
-                    End With
-
-                    'Adding eventhandler
-                    AddHandler detectBoundariesButton.Click, AddressOf DetectBoundariesButtonClick
-
-                    'Adding the control
-                    SegmentationItemsPanel.Controls.Add(detectBoundariesButton)
+                If ShowInferEndsButton = True Then
+                    Dim SyncEndsButton As New Button With {.Text = "Sync ends", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = True, .Font = CurrentFont}
+                    AddHandler SyncEndsButton.Click, AddressOf InferSiblingLengths
+                    SegmentationItemsPanel.Controls.Add(SyncEndsButton)
                 End If
 
+                If ShowNextUnvalidatedItemButtons = True Then
+                    Dim NextUnvalidatedItemButton As New Button With {.Text = "Next unvalidated", .TextAlign = ContentAlignment.MiddleCenter,
+                            .AutoSize = True, .Font = CurrentFont}
+                    AddHandler NextUnvalidatedItemButton.Click, AddressOf GotoNextUnvalidatedItem
+                    SegmentationItemsPanel.Controls.Add(NextUnvalidatedItemButton)
 
-
-                'Adding UpdateSegmentationButton button
-                If ShowUpdateSegmentationButton = True Then
-                    Dim UpdateSegmentationButton As New Button
-
-                    With UpdateSegmentationButton
-                        .Text = "Update segmentation"
-                        .Name = "UpdateSegmentation"
-                        .TextAlign = ContentAlignment.MiddleCenter
-                        .BackColor = Color.LightGray
-                        .AutoSize = True
-                        .Font = CurrentFont
-                    End With
-
-                    'Adding eventhandler
-                    AddHandler UpdateSegmentationButton.Click, AddressOf UpdateSegmentationButtonClick
-
-                    'Adding the control
-                    SegmentationItemsPanel.Controls.Add(UpdateSegmentationButton)
+                    Dim PreviousUnvalidatedItemButton As New Button With {.Text = "Previous unvalidated", .TextAlign = ContentAlignment.MiddleCenter,
+                            .AutoSize = True, .Font = CurrentFont}
+                    AddHandler PreviousUnvalidatedItemButton.Click, AddressOf GotoPreviousUnvalidatedItem
+                    SegmentationItemsPanel.Controls.Add(PreviousUnvalidatedItemButton)
                 End If
 
+                If ShowValidateSegmentationButton = True Then
+                    Dim ValidateSegmentationButton As New Button With {.Text = "Validate", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = True, .Font = CurrentFont}
+                    AddHandler ValidateSegmentationButton.Click, AddressOf ValidateSegmentation
+                    SegmentationItemsPanel.Controls.Add(ValidateSegmentationButton)
+                End If
 
-                'Adding a fade padding Button
-                If ShowFadePaddingButton = True Then
+                If ShowFadeIntervalsButton = True Then
+                    Dim FixIntervalsButton As New Button With {.Text = "Fix intervals", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = True, .Font = CurrentFont}
+                    AddHandler FixIntervalsButton.Click, AddressOf FixIntervals
+                    SegmentationItemsPanel.Controls.Add(FixIntervalsButton)
+                End If
 
-                    Dim FadePaddingButton As New Button
-
-                    With FadePaddingButton
-                        .Text = "Fade padding"
-                        .Name = "FadePadding"
-                        .TextAlign = ContentAlignment.MiddleCenter
-                        .BackColor = Color.LightGray
-                        .AutoSize = True
-                        .Font = CurrentFont
-                    End With
-
-                    'Adding eventhandler
-                    AddHandler FadePaddingButton.Click, AddressOf FadePaddingButtonClick
-
-                    'Adding the control
-                    SegmentationItemsPanel.Controls.Add(FadePaddingButton)
+                If ShowFadeIntervalsButton = True Then
+                    Dim FixPaddingButton As New Button With {.Text = "Fix padding", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = True, .Font = CurrentFont}
+                    AddHandler FixPaddingButton.Click, AddressOf FixPadding
+                    SegmentationItemsPanel.Controls.Add(FixPaddingButton)
                 End If
 
 
@@ -1089,33 +1049,33 @@ Namespace Audio
 
 
                     'Draws frequencies on the spectrogram area
-
-                    'Dim blackPen As New System.Drawing.Pen(System.Drawing.Color.Black, 1)
-                    Dim currentPen As New System.Drawing.Pen(System.Drawing.Color.Red, 1)
+                    Dim DiagramValuesBrush = Brushes.Black
+                    Dim SpectrogramSettingsBrush As New SolidBrush(Color.FromArgb(150, Color.Black))
+                    Dim TickPen As New System.Drawing.Pen(System.Drawing.Color.Black, 2)
 
                     Dim valuesToWrite As Integer = Utils.Rounding(SpectrogramFormat.SpectrogramCutFrequency / 1000, Utils.roundingMethods.alwaysUp)
 
                     For n = 0 To valuesToWrite - 1
 
                         'Drawing frequency numbers
-                        g.DrawString((n * 1000).ToString, New Font("Arial", 7), Brushes.Blue, New PointF(10, SpectrogramArea.Height - n * (SpectrogramArea.Height / (SpectrogramFormat.SpectrogramCutFrequency / 1000)) - 5))
+                        g.DrawString((n * 1000).ToString, New Font("Arial", 7), DiagramValuesBrush, New PointF(10, SpectrogramArea.Height - n * (SpectrogramArea.Height / (SpectrogramFormat.SpectrogramCutFrequency / 1000)) - 5))
 
                         'Drawing lines
                         Dim y As Single = SpectrogramArea.Height - n * (SpectrogramArea.Height / (SpectrogramFormat.SpectrogramCutFrequency / 1000))
-                        g.DrawLine(currentPen, 0, y, 7, y)
+                        g.DrawLine(TickPen, 0, y, 7, y)
 
                     Next
 
                     'Drawing unit
-                    g.DrawString("(Hz)", New Font("Arial", 7), Brushes.Blue, New PointF(0, 0))
+                    g.DrawString("(Hz)", New Font("Arial", 7), DiagramValuesBrush, New PointF(0, 0))
 
                     'Drawing the spectrogram settings on the spectrogram area
                     Dim drawSpetrogramSettings As Boolean = True
                     If drawSpetrogramSettings = True Then
 
-                        g.DrawString("Frequency resolution (FFT size in samples): " & SpectrogramFormat.SpectrogramFftFormat.FftWindowSize.ToString, New Font("Arial", 7), Brushes.Blue, New PointF(40, 4))
-                        g.DrawString("Filter FFT size (samples): " & SpectrogramFormat.SpectrogramPreFirFilterFftFormat.FftWindowSize.ToString, New Font("Arial", 7), Brushes.Blue, New PointF(40, 14))
-                        g.DrawString("Filter kernel creation FFT size (samples): " & SpectrogramFormat.SpectrogramPreFilterKernelFftFormat.FftWindowSize.ToString, New Font("Arial", 7), Brushes.Blue, New PointF(40, 24))
+                        g.DrawString("Frequency resolution (FFT size in samples): " & SpectrogramFormat.SpectrogramFftFormat.FftWindowSize.ToString, New Font("Arial", 7), SpectrogramSettingsBrush, New PointF(40, 4))
+                        g.DrawString("Filter FFT size (samples): " & SpectrogramFormat.SpectrogramPreFirFilterFftFormat.FftWindowSize.ToString, New Font("Arial", 7), SpectrogramSettingsBrush, New PointF(40, 14))
+                        g.DrawString("Filter kernel creation FFT size (samples): " & SpectrogramFormat.SpectrogramPreFilterKernelFftFormat.FftWindowSize.ToString, New Font("Arial", 7), SpectrogramSettingsBrush, New PointF(40, 24))
 
                     End If
 
@@ -1131,8 +1091,8 @@ Namespace Audio
 
                 ' Create a local version of the graphics object for the PictureBox.
                 Dim g As System.Drawing.Graphics = e.Graphics
-                Dim blackPen As New System.Drawing.Pen(System.Drawing.Color.Black, 1)
-                Dim currentPen As New System.Drawing.Pen(System.Drawing.Color.Red, 2)
+                Dim TickPen As New System.Drawing.Pen(System.Drawing.Color.Black, 2)
+                Dim DiagramValuesBrush = Brushes.Black
 
                 Select Case TimeUnit
                     Case TimeUnits.samples
@@ -1141,16 +1101,16 @@ Namespace Audio
                         For n = 0 To valuesToWrite - 1
 
                             'Drawing sample numbers
-                            g.DrawString(DisplayStart_Sample + n * (DisplayLength_Samples / valuesToWrite), New Font("Arial", 7), Brushes.Blue, New PointF(n * (TimeArea.Width / valuesToWrite), 2))
+                            g.DrawString(DisplayStart_Sample + n * (DisplayLength_Samples / valuesToWrite), New Font("Arial", 7), DiagramValuesBrush, New PointF(n * (TimeArea.Width / valuesToWrite), 2))
 
                             'Drawing lines
                             Dim x As Single = n * (TimeArea.Width / valuesToWrite)
-                            g.DrawLine(currentPen, x, 0, x, TimeArea.Height)
+                            g.DrawLine(TickPen, x, 0, x, TimeArea.Height)
 
                         Next
 
                         'Drawing unit
-                        g.DrawString("(Samples)", New Font("Arial", 7), Brushes.Blue, New PointF(TimeArea.Width - 50, 2))
+                        g.DrawString("(Samples)", New Font("Arial", 7), DiagramValuesBrush, New PointF(TimeArea.Width - 50, 2))
 
                     Case TimeUnits.seconds
 
@@ -1158,16 +1118,16 @@ Namespace Audio
                         For n = 0 To valuesToWrite - 1
 
                             'Drawing sample numbers
-                            g.DrawString(Math.Round((DisplayStart_Sample + n * (DisplayLength_Samples / valuesToWrite)) / CurrentSound.WaveFormat.SampleRate, 3), New Font("Arial", 7), Brushes.Blue, New PointF(n * (TimeArea.Width / valuesToWrite) + 1, 2))
+                            g.DrawString(Math.Round((DisplayStart_Sample + n * (DisplayLength_Samples / valuesToWrite)) / CurrentSound.WaveFormat.SampleRate, 3), New Font("Arial", 7), DiagramValuesBrush, New PointF(n * (TimeArea.Width / valuesToWrite) + 1, 2))
 
                             'Drawing lines
                             Dim x As Single = n * (TimeArea.Width / valuesToWrite)
-                            g.DrawLine(currentPen, x, 0, x, TimeArea.Height)
+                            g.DrawLine(TickPen, x, 0, x, TimeArea.Height)
 
                         Next
 
                         'Drawing unit
-                        g.DrawString("(s)", New Font("Arial", 7), Brushes.Blue, New PointF(TimeArea.Width - 25, 2))
+                        g.DrawString("(s)", New Font("Arial", 7), DiagramValuesBrush, New PointF(TimeArea.Width - 25, 2))
 
                     Case Else
                         Throw New NotSupportedException
@@ -1188,53 +1148,6 @@ Namespace Audio
                     'Drawing segmentation boundary lines and labels
                     If UseItemSegmentation = True Then
 
-                        If CurrentSegmentationItem IsNot Nothing Then
-
-                            Dim startPen As New System.Drawing.Pen(System.Drawing.Color.Green, 2)
-                            Dim segmentBrush As New SolidBrush(Color.FromArgb(50, Color.Green))
-                            Dim endPen As New System.Drawing.Pen(System.Drawing.Color.Red, 2)
-
-                            Dim SegmentationStartPixel As Single = (CurrentSegmentationItem.StartSample - DisplayStart_Sample) / SampleToPixelScale
-                            Dim SegmentationWidthInPixels As Single = CurrentSegmentationItem.Length / SampleToPixelScale
-
-                            If Not (CurrentSegmentationItem.StartSample) < 0 Then ' Is used to "hide" the segmentation lines and strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
-
-                                'Draws the segmentation area
-                                Dim SegmentationLayoutRectangle As New RectangleF(SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationWidthInPixels, SoundBackgroundArea.Height)
-                                g.FillRectangle(segmentBrush, SegmentationLayoutRectangle)
-
-                                'Draws the segmentation end line first (as it may otherwise be overwrite the start line)
-                                g.DrawLine(endPen, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Top, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Height)
-
-                                'Draws the segmentation start line
-                                g.DrawLine(startPen, SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationStartPixel, SoundBackgroundArea.Height)
-
-                                'Getting an appropriate string to display
-                                Dim SegmentationStartText As String = CurrentSegmentationItem.GetStringRepresentation
-                                If SegmentationStartText = "" Then SegmentationStartText = "Start"
-
-                                'Adding phoneme string
-                                If ShowSpectrogram = True Then
-
-                                    'Putting the string in the middle of the background panel
-                                    g.DrawString(SegmentationStartText,
-                                              New Font("Arial", 20), Brushes.Blue, New PointF(SegmentationStartPixel, SoundBackgroundArea.Height / 2 - 14))
-
-                                    g.DrawString(SegmentationStartText,
-                                              New Font("Arial", 20), Brushes.Blue, New PointF(SegmentationStartPixel, SoundBackgroundArea.Height / 2 - 14))
-
-                                Else
-
-                                    'Putting the string in the bottom of the background panel, above the time scale
-                                    g.DrawString(SegmentationStartText,
-                                              New Font("Arial", 20), Brushes.Black, New PointF(SegmentationStartPixel, SoundBackgroundArea.Height - 55))
-
-                                End If
-                            End If
-
-
-                        End If
-
                         'Drawing the (visible) surrounding segments
                         If CurrentSegmentationItem IsNot Nothing Then
 
@@ -1246,6 +1159,7 @@ Namespace Audio
 
                                     Dim startPen As New System.Drawing.Pen(System.Drawing.Color.Gray, 2)
                                     Dim segmentBrush As New SolidBrush(Color.FromArgb(60, Color.Gray))
+                                    Dim segmentTextBrush As New SolidBrush(Color.FromArgb(120, Color.Gray))
                                     Dim endPen As New System.Drawing.Pen(System.Drawing.Color.Gray, 2)
 
                                     Dim SegmentationStartPixel As Single = (SiblingComponent.StartSample - DisplayStart_Sample) / SampleToPixelScale
@@ -1254,8 +1168,16 @@ Namespace Audio
                                     If Not (SiblingComponent.StartSample) < 0 Then ' Is used to "hide" the segmentation lines and strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
 
                                         'Draws the segmentation area
-                                        Dim SegmentationLayoutRectangle As New RectangleF(SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationWidthInPixels, SoundBackgroundArea.Height)
-                                        g.FillRectangle(segmentBrush, SegmentationLayoutRectangle)
+                                        'As a rectangle
+                                        'Dim SegmentationLayoutRectangle As New RectangleF(SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationWidthInPixels, SoundBackgroundArea.Height - TimeArea.Height)
+                                        'g.FillRectangle(segmentBrush, SegmentationLayoutRectangle)
+
+                                        'As a triangle
+                                        Dim SegmentationLayoutTriangle() As PointF = {
+                                            New PointF(SegmentationStartPixel, SoundBackgroundArea.Height - TimeArea.Height),
+                                            New PointF(SegmentationStartPixel, SoundBackgroundArea.Top),
+                                            New PointF(SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Height - TimeArea.Height)}
+                                        g.FillPolygon(segmentBrush, SegmentationLayoutTriangle)
 
                                         'Draws the segmentation end line first (as it may otherwise be overwrite the start line)
                                         g.DrawLine(endPen, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Top, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Height)
@@ -1267,27 +1189,58 @@ Namespace Audio
                                         Dim SegmentationStartText As String = SiblingComponent.GetStringRepresentation
                                         If SegmentationStartText = "" Then SegmentationStartText = "Start"
 
-                                        'Adding phoneme string
-                                        If ShowSpectrogram = True Then
+                                        'Putting the string at the top of the background panel
+                                        g.DrawString(SegmentationStartText,
+                                              New Font("Arial", 20), segmentTextBrush, New PointF(SegmentationStartPixel, 0))
 
-                                            'Putting the string in the middle of the background panel
-                                            g.DrawString(SegmentationStartText,
-                                              New Font("Arial", 20), segmentBrush, New PointF(SegmentationStartPixel, SoundBackgroundArea.Height / 2 - 14))
-
-                                            g.DrawString(SegmentationStartText,
-                                              New Font("Arial", 20), segmentBrush, New PointF(SegmentationStartPixel, SoundBackgroundArea.Height / 2 - 14))
-
-                                        Else
-
-                                            'Putting the string in the bottom of the background panel, above the time scale
-                                            g.DrawString(SegmentationStartText,
-                                              New Font("Arial", 20), segmentBrush, New PointF(SegmentationStartPixel, SoundBackgroundArea.Height - 55))
-
-                                        End If
                                     End If
 
                                 Next
                             End If
+                        End If
+
+                        'Drawing the current segmentation item
+                        If CurrentSegmentationItem IsNot Nothing Then
+
+                            Dim startPen As New System.Drawing.Pen(Color.FromArgb(150, Color.Green), 2)
+                            Dim segmentBrush As New SolidBrush(Color.FromArgb(80, Color.LightGreen))
+                            Dim segmentTextBrush As New SolidBrush(Color.FromArgb(200, Color.Green))
+                            Dim endPen As New System.Drawing.Pen(System.Drawing.Color.LightCoral, 2)
+
+                            Dim SegmentationStartPixel As Single = (CurrentSegmentationItem.StartSample - DisplayStart_Sample) / SampleToPixelScale
+                            Dim SegmentationWidthInPixels As Single = CurrentSegmentationItem.Length / SampleToPixelScale
+
+                            If Not (CurrentSegmentationItem.StartSample) < 0 Then ' Is used to "hide" the segmentation lines and strings if they are not set. Also means that they cannot be displayed if they are set to 0. 
+
+                                'Draws the segmentation area
+                                'As a rectangle
+                                'Dim SegmentationLayoutRectangle As New RectangleF(SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationWidthInPixels, SoundBackgroundArea.Height - TimeArea.Height)
+                                'g.FillRectangle(segmentBrush, SegmentationLayoutRectangle)
+
+                                'As a triangle
+                                Dim SegmentationLayoutTriangle() As PointF = {
+                                            New PointF(SegmentationStartPixel, SoundBackgroundArea.Height - TimeArea.Height),
+                                            New PointF(SegmentationStartPixel, SoundBackgroundArea.Top),
+                                            New PointF(SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Height - TimeArea.Height)}
+                                g.FillPolygon(segmentBrush, SegmentationLayoutTriangle)
+
+                                'Draws the segmentation end line first (as it may otherwise be overwrite the start line)
+                                g.DrawLine(endPen, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Top, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Height)
+
+                                'Draws the segmentation start line
+                                g.DrawLine(startPen, SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationStartPixel, SoundBackgroundArea.Height)
+
+                                'Getting an appropriate string to display
+                                Dim SegmentationStartText As String = CurrentSegmentationItem.GetStringRepresentation
+                                If SegmentationStartText = "" Then SegmentationStartText = "Start"
+
+                                'Putting the string at the top of the background panel
+                                g.DrawString(SegmentationStartText,
+                                              New Font("Arial", 20), segmentTextBrush, New PointF(SegmentationStartPixel, 0))
+
+                            End If
+
+
                         End If
 
 
@@ -1495,26 +1448,6 @@ Namespace Audio
                 UpdateLayout()
             End Sub
 
-            Private Sub Container_MoveSegmentationStart(sender As System.Object, e As MouseEventArgs)
-
-                'This sub sets the start position of the selected sentence, word or phone.
-
-                If CurrentSegmentationItem IsNot Nothing Then
-
-                    If SetSegmentationToZeroCrossings Then
-                        Dim StartSample As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
-                        StartSample = DSP.GetZeroCrossingSample(CurrentSound, 1, StartSample, DSP.MeasurementsExt.SearchDirections.Closest)
-                        CurrentSegmentationItem.MoveStart(StartSample, CurrentSound.WaveData.SampleData(CurrentChannel).Length)
-                    Else
-                        CurrentSegmentationItem.MoveStart(DisplayStart_Sample + e.X * SampleToPixelScale, CurrentSound.WaveData.SampleData(CurrentChannel).Length)
-                    End If
-
-                End If
-
-                InvalidateGraphics()
-
-            End Sub
-
 
 
             Private Sub Container_PositionSegmentationStart(sender As System.Object, e As MouseEventArgs)
@@ -1540,9 +1473,52 @@ Namespace Audio
 
             End Sub
 
-            Private Sub Container_MoveSegmentationLength(sender As System.Object, e As MouseEventArgs)
+            Private Sub Container_PositionSegmentationEnd(sender As System.Object, e As MouseEventArgs)
 
-                'This sub sets the length position of the selected sentence, word or phone.
+                Container_MoveSegmentationEnd(sender, e)
+
+                ResetSegmentationIntemPanelControlColors()
+
+                RemoveHandler WaveArea.MouseDown, AddressOf Me.Container_PositionSegmentationEnd
+                RemoveHandler WaveArea.MouseMove, AddressOf Me.Container_MoveSegmentationEnd
+                If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseDown, AddressOf Me.Container_PositionSegmentationEnd
+                If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseMove, AddressOf Me.Container_MoveSegmentationEnd
+
+                InvalidateGraphics()
+
+                AddHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
+                If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
+
+                'Aligning segmentations
+                If CurrentSegmentationItem IsNot Nothing Then
+                    CurrentSegmentationItem.AlignSegmentationEndsAcrossLevels()
+                End If
+
+            End Sub
+
+            Private Sub Container_MoveSegmentationStart(sender As System.Object, e As MouseEventArgs)
+
+                'This sub sets the start position of the selected sentence, word or phone.
+
+                If CurrentSegmentationItem IsNot Nothing Then
+
+                    If SetSegmentationToZeroCrossings Then
+                        Dim StartSample As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
+                        StartSample = DSP.GetZeroCrossingSample(CurrentSound, 1, StartSample, DSP.MeasurementsExt.SearchDirections.Closest)
+                        CurrentSegmentationItem.MoveStart(StartSample, CurrentSound.WaveData.SampleData(CurrentChannel).Length)
+                    Else
+                        CurrentSegmentationItem.MoveStart(DisplayStart_Sample + e.X * SampleToPixelScale, CurrentSound.WaveData.SampleData(CurrentChannel).Length)
+                    End If
+
+                End If
+
+                InvalidateGraphics()
+
+            End Sub
+
+            Private Sub Container_MoveSegmentationEnd(sender As System.Object, e As MouseEventArgs)
+
+                'This sub sets the end position of the selected sentence, word or phone.
                 If CurrentSegmentationItem IsNot Nothing Then
 
                     If SetSegmentationToZeroCrossings Then
@@ -1559,42 +1535,20 @@ Namespace Audio
 
             End Sub
 
+
+
             Private Sub ResetSegmentationIntemPanelControlColors()
 
                 'Resets the colors of the buttons
                 For Each item As Control In SegmentationItemsPanel.Controls
-                    If item.Text = "Start" Then
-                        item.BackColor = Color.LightGreen
-                    ElseIf item.Text = "Length" Then
-                        item.BackColor = Color.LightCoral
+                    If item.Text = "Set start" Then
+                        item.BackColor = Color.FromArgb(50, Color.LightGreen)
+                    ElseIf item.Text = "Set end" Then
+                        item.BackColor = Color.FromArgb(50, Color.LightCoral)
                     Else
                         item.BackColor = Color.LightGray
                     End If
                 Next
-            End Sub
-
-
-            Private Sub Container_PositionSegmentationLength(sender As System.Object, e As MouseEventArgs)
-
-                Container_MoveSegmentationLength(sender, e)
-
-                ResetSegmentationIntemPanelControlColors()
-
-                RemoveHandler WaveArea.MouseDown, AddressOf Me.Container_PositionSegmentationLength
-                RemoveHandler WaveArea.MouseMove, AddressOf Me.Container_MoveSegmentationLength
-                If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseDown, AddressOf Me.Container_PositionSegmentationLength
-                If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseMove, AddressOf Me.Container_MoveSegmentationLength
-
-                InvalidateGraphics()
-
-                AddHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
-                If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
-
-                'Aligning segmentations
-                If CurrentSegmentationItem IsNot Nothing Then
-                    CurrentSegmentationItem.AlignSegmentationEndsAcrossLevels()
-                End If
-
             End Sub
 
             '   - Other user input
@@ -1683,120 +1637,160 @@ Namespace Audio
             End Sub
 
             '   - variuos button clicks
-            Private Sub ChangeItemButtonClick(sender As Object, ByVal e As MouseEventArgs)
 
-                'This sub handles clicking on the buttons that change to the next word within the same recording
+            Private Sub GotoNextItem()
+                GotoNextItem(False, False)
+            End Sub
+
+            Private Sub GotoPreviuosItem()
+                GotoNextItem(True, False)
+            End Sub
+
+            Private Sub GotoNextUnvalidatedItem()
+                GotoNextItem(False, True)
+            End Sub
+
+            Private Sub GotoPreviousUnvalidatedItem()
+                GotoNextItem(True, True)
+            End Sub
+
+
+            Private Sub GotoNextItem(ByVal Backwards As Boolean, ByVal SkipValidated As Boolean)
 
                 If CurrentSegmentationItem IsNot Nothing Then
 
+                    Dim TemporaryComponentCollection As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    If SkipValidated = False Then
+                        For Each component In AllSegmentationComponents
+                            'Adds all components
+                            TemporaryComponentCollection.Add(component)
+                        Next
+                    Else
+                        For Each component In AllSegmentationComponents
+                            'Adds only unvalidated components
+                            If component.SegmentationCompleted = False Then TemporaryComponentCollection.Add(component)
+                        Next
+
+                        'Exits if all componants are validated
+                        If TemporaryComponentCollection.Count = 0 Then
+                            MsgBox("All items are validated!")
+                            Exit Sub
+                        End If
+                    End If
+
                     Dim CurrentSegmentationItemIndex As Integer = -1
-                    For i = 0 To AllSegmentationComponents.Count - 1
-                        If AllSegmentationComponents(i) Is CurrentSegmentationItem Then
+                    For i = 0 To TemporaryComponentCollection.Count - 1
+                        If TemporaryComponentCollection(i) Is CurrentSegmentationItem Then
                             CurrentSegmentationItemIndex = i
                             Exit For
                         End If
                     Next
+
                     If CurrentSegmentationItemIndex = -1 Then
-                        MsgBox("Could not find the next or previous item.")
+                        MsgBox("Could not find the indicated item.")
                         Exit Sub
                     End If
 
-                    Select Case sender.name
-                        Case ChangeItemButtonTexts(0).Replace(" ", "") ' Previous item
-
-                            'Check to see if more items exist
-                            If CurrentSegmentationItemIndex - 1 < 0 Then
-                                MsgBox("You're already displaying the first segmentation item.")
-                                Exit Sub
-                            End If
-
-                            CurrentSegmentationItemIndex -= 1
-
-
-                        Case ChangeItemButtonTexts(1).Replace(" ", "") ' Next item
-
-                            'Check to see if more items exist
-                            If CurrentSegmentationItemIndex + 1 > AllSegmentationComponents.Count - 1 Then
-                                MsgBox("You're already displaying the last segmentation item.")
-                                Exit Sub
-                            End If
-
-                            CurrentSegmentationItemIndex += 1
-
-                    End Select
-
-
-                    Dim NewSegmentationItem = AllSegmentationComponents(CurrentSegmentationItemIndex)
-
-                    If NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL Then
-                        MsgBox("Cannot select next audio channel! Only single channel segmentation is supported!")
-                        Exit Sub
-                    End If
-
-                    'If the NewSegmentationItem is a word or a phone, the sentence components is retreived by the GetAncestorComponent function of the NewSegmentationItem
-                    If NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.PHONE Or NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.WORD Then
-                        'Selecting the sentence
-                        Dim Sentence = NewSegmentationItem.GetAncestorComponent(Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE)
-                        If Sentence IsNot Nothing Then
-                            For Each control As SegmentationItemLabel In SentenceSelectorPanel.Controls
-                                If control.SegmentationItem Is Sentence Then
-                                    'Emulates a click on the appropriate button
-                                    SentenceLabelButtonClick(control, Nothing)
-                                End If
-                            Next
+                    If Backwards = False Then
+                        'Check to see if more items exist
+                        If CurrentSegmentationItemIndex + 1 > TemporaryComponentCollection.Count - 1 Then
+                            MsgBox("You're already displaying the last segmentation item.")
+                            Exit Sub
                         End If
-                    End If
+                        CurrentSegmentationItemIndex += 1
 
-                    'If the NewSegmentationItem is a phone, the word components is retreived by the GetAncestorComponent function of the NewSegmentationItem
-                    If NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.PHONE Then
-                        'Selecting the word
-                        Dim Word = NewSegmentationItem.GetAncestorComponent(Sound.SpeechMaterialAnnotation.SmaTags.WORD)
-                        If Word IsNot Nothing Then
-                            For Each control As SegmentationItemLabel In WordSelectorPanel.Controls
-                                If control.SegmentationItem Is Word Then
-                                    'Emulates a click on the appropriate button
-                                    WordLabelButtonClick(control, Nothing)
-                                End If
-                            Next
+                    Else
+                        'Check to see if more items exist
+                        If CurrentSegmentationItemIndex - 1 < 0 Then
+                            MsgBox("You're already displaying the first segmentation item.")
+                            Exit Sub
                         End If
+                        CurrentSegmentationItemIndex -= 1
                     End If
 
-                    ' Finally setting the segmentation item based directly on the NewSegmentationItem
-                    Select Case NewSegmentationItem.SmaTag
-                        Case Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE
+                    ViewSegmentationItem(TemporaryComponentCollection(CurrentSegmentationItemIndex))
 
-                            'We only select the sentence
-                            For Each control As SegmentationItemLabel In SentenceSelectorPanel.Controls
-                                If control.SegmentationItem Is NewSegmentationItem Then
-                                    'Emulates a click on the appropriate button
-                                    SentenceLabelButtonClick(control, Nothing)
-                                End If
-                            Next
+                End If
 
-                        Case Sound.SpeechMaterialAnnotation.SmaTags.WORD
+            End Sub
 
-                            'Selects the word
-                            For Each control As SegmentationItemLabel In WordSelectorPanel.Controls
-                                If control.SegmentationItem Is NewSegmentationItem Then
-                                    'Emulates a click on the appropriate button
-                                    WordLabelButtonClick(control, Nothing)
-                                End If
-                            Next
 
-                        Case Sound.SpeechMaterialAnnotation.SmaTags.PHONE
 
-                            'Selects the phoneme
-                            For Each control As SegmentationItemLabel In PhonemeSelectorPanel.Controls
-                                If control.SegmentationItem Is NewSegmentationItem Then
-                                    'Emulates a click on the appropriate button
-                                    PhoneLabelButtonClick(control, Nothing)
-                                End If
-                            Next
+            ''' <summary>
+            ''' Sets the indicated new SegmentationItem into view.
+            ''' </summary>
+            ''' <param name="NewSegmentationItem"></param>
+            Private Sub ViewSegmentationItem(ByRef NewSegmentationItem As Sound.SpeechMaterialAnnotation.SmaComponent)
 
-                    End Select
+                If NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL Then
+                    MsgBox("Cannot select next audio channel! Only single channel segmentation is supported!")
+                    Exit Sub
+                End If
+
+                'If the NewSegmentationItem is a word or a phone, the sentence components is retreived by the GetAncestorComponent function of the NewSegmentationItem
+                If NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.PHONE Or NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.WORD Then
+                    'Selecting the sentence
+                    Dim Sentence = NewSegmentationItem.GetAncestorComponent(Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE)
+                    If Sentence IsNot Nothing Then
+                        For Each control As SegmentationItemLabel In SentenceSelectorPanel.Controls
+                            If control.SegmentationItem Is Sentence Then
+                                'Emulates a click on the appropriate button
+                                SentenceLabelButtonClick(control, Nothing)
+                            End If
+                        Next
+                    End If
+                End If
+
+                'If the NewSegmentationItem is a phone, the word components is retreived by the GetAncestorComponent function of the NewSegmentationItem
+                If NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.PHONE Then
+                    'Selecting the word
+                    Dim Word = NewSegmentationItem.GetAncestorComponent(Sound.SpeechMaterialAnnotation.SmaTags.WORD)
+                    If Word IsNot Nothing Then
+                        For Each control As SegmentationItemLabel In WordSelectorPanel.Controls
+                            If control.SegmentationItem Is Word Then
+                                'Emulates a click on the appropriate button
+                                WordLabelButtonClick(control, Nothing)
+                            End If
+                        Next
+                    End If
+                End If
+
+                ' Finally setting the segmentation item based directly on the NewSegmentationItem
+                Select Case NewSegmentationItem.SmaTag
+                    Case Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE
+
+                        'We only select the sentence
+                        For Each control As SegmentationItemLabel In SentenceSelectorPanel.Controls
+                            If control.SegmentationItem Is NewSegmentationItem Then
+                                'Emulates a click on the appropriate button
+                                SentenceLabelButtonClick(control, Nothing)
+                            End If
+                        Next
+
+                    Case Sound.SpeechMaterialAnnotation.SmaTags.WORD
+
+                        'Selects the word
+                        For Each control As SegmentationItemLabel In WordSelectorPanel.Controls
+                            If control.SegmentationItem Is NewSegmentationItem Then
+                                'Emulates a click on the appropriate button
+                                WordLabelButtonClick(control, Nothing)
+                            End If
+                        Next
+
+                    Case Sound.SpeechMaterialAnnotation.SmaTags.PHONE
+
+                        'Selects the phoneme
+                        For Each control As SegmentationItemLabel In PhonemeSelectorPanel.Controls
+                            If control.SegmentationItem Is NewSegmentationItem Then
+                                'Emulates a click on the appropriate button
+                                PhoneLabelButtonClick(control, Nothing)
+                            End If
+                        Next
+
+                End Select
 
                 Else
-                    MsgBox("No segmentation item selected!")
+                MsgBox("No segmentation item selected!")
                 End If
 
             End Sub
@@ -1822,7 +1816,7 @@ Namespace Audio
                 'This sub handles clicking on the segmentation item start button
                 'Starts the event handlers that is used to position the start of the segmentation on the sound display
 
-                sender.backcolor = Color.Green
+                sender.backcolor = Color.LightGreen
 
                 'Turn of other eventhandlers
                 RemoveHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
@@ -1838,23 +1832,23 @@ Namespace Audio
             End Sub
 
 
-            Private Sub SegmentationItemLengthButton_Click(sender As Object, ByVal e As MouseEventArgs)
+            Private Sub SegmentationItemEndButton_Click(sender As Object, ByVal e As MouseEventArgs)
 
                 'This sub handles clicking on the segmentation item length button
                 'Starts the event handlers that is used to position the length of the segmentation on the sound display
 
-                sender.backcolor = Color.Red
+                sender.backcolor = Color.LightCoral
 
                 'Turn of other eventhandlers
                 RemoveHandler WaveArea.MouseDown, AddressOf Me.Container_MouseDown
                 If ShowSpectrogram = True Then RemoveHandler SpectrogramArea.MouseDown, AddressOf Me.Container_MouseDown
 
                 'Turn on mouse move eventhandler
-                AddHandler WaveArea.MouseDown, AddressOf Me.Container_PositionSegmentationLength
-                AddHandler WaveArea.MouseMove, AddressOf Me.Container_MoveSegmentationLength
+                AddHandler WaveArea.MouseDown, AddressOf Me.Container_PositionSegmentationEnd
+                AddHandler WaveArea.MouseMove, AddressOf Me.Container_MoveSegmentationEnd
 
-                If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_PositionSegmentationLength
-                If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseMove, AddressOf Me.Container_MoveSegmentationLength
+                If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseDown, AddressOf Me.Container_PositionSegmentationEnd
+                If ShowSpectrogram = True Then AddHandler SpectrogramArea.MouseMove, AddressOf Me.Container_MoveSegmentationEnd
 
             End Sub
 
@@ -2196,27 +2190,16 @@ Namespace Audio
 
             End Sub
 
-            'Performing automatic speech boundary detection
-            Private Sub DetectBoundariesButtonClick()
 
-                CurrentSound.SMA.DetectSpeechBoundaries(CurrentSound, LongestSilentSegment, SilenceDefinition, TemporalIntegrationDuration,
-                                              DetailedTemporalIntegrationDuration, DetailedSilenceCriteria)
+            Private Sub InferSiblingLengths()
+
+                If CurrentSegmentationItem IsNot Nothing Then
+                    CurrentSegmentationItem.InferSiblingLengths()
+                End If
 
                 UpdateLayout()
 
             End Sub
-
-
-            'Storing data
-            Private Sub UpdateSegmentationButtonClick(sender As Object, ByVal e As MouseEventArgs)
-                UpdateSegmentation()
-            End Sub
-
-            Private Sub FadePaddingButtonClick(sender As Object, ByVal e As MouseEventArgs)
-                FadePadding()
-                UpdateLayout()
-            End Sub
-
 
             ''' <summary>
             ''' Checks that the order of phonemes is correct and returns False if the order is wrong.
@@ -2299,31 +2282,27 @@ Namespace Audio
 
             End Function
 
-            Dim InitialSegmentationIsDone As Boolean = False
-            Public Sub UpdateSegmentation(Optional ByVal DoZoomFull As Boolean = True)
+            Private Sub FixPadding()
+                ApplyPadding()
+                FadePadding()
+            End Sub
 
-                Try
+            ''' <summary>
+            ''' Sets the length of the padding sections (before the first sentence and after the last sentence)
+            ''' </summary>
+            Private Sub ApplyPadding()
 
-                    If Not CheckPhonemeOrderAndCalculatePhonemeLengths() = True Then Exit Sub
-
-                    CurrentSound.SMA.UpdateSegmentation(CurrentSound, PaddingTime, CurrentChannel)
-
-                    'Updating spectrogram data
-                    If ShowSpectrogram = True Then
-                        'Updating fft data
-                        CurrentSound.FFT = New FftData(CurrentSound.WaveFormat, SpectrogramFormat.SpectrogramFftFormat)
-                        CurrentSound.FFT.CalculateSpectrogramData(CurrentSound, SpectrogramFormat, CurrentChannel)
+                If CurrentSound IsNot Nothing Then
+                    If CurrentSound.SMA IsNot Nothing Then
+                        If CurrentSound.SMA.AllSegmentationsCompleted(CurrentChannel) = True Then
+                            CurrentSound.SMA.ApplyPaddingSection(CurrentSound, CurrentChannel, PaddingTime)
+                        Else
+                            MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
+                        End If
                     End If
+                End If
 
-                    InitialSegmentationIsDone = True
-
-                    If DoZoomFull = True Then ZoomFull()
-                    SelectionLength_Sample = 0
-                    UpdateLayout()
-
-                Catch ex As Exception
-                    MsgBox(ex.ToString)
-                End Try
+                UpdateLayout()
 
             End Sub
 
@@ -2332,11 +2311,17 @@ Namespace Audio
             ''' </summary>
             Private Sub FadePadding()
 
-                If InitialSegmentationIsDone = True And CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).StartSample <> -1 And CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Length <> 0 Then
-                    CurrentSound.SMA.FadePaddingSection(CurrentSound, CurrentChannel)
-                Else
-                    MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
+                If CurrentSound IsNot Nothing Then
+                    If CurrentSound.SMA IsNot Nothing Then
+                        If CurrentSound.SMA.AllSegmentationsCompleted(CurrentChannel) = True Then
+                            CurrentSound.SMA.FadePaddingSection(CurrentSound, CurrentChannel)
+                        Else
+                            MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
+                        End If
+                    End If
                 End If
+
+                UpdateLayout()
 
             End Sub
 

@@ -24,6 +24,8 @@ Namespace Audio
 
                 Try
 
+                    Dim WordEndString As String = "Word end"
+
                     Dim fileName As String = ""
 
                     'Finds out the filename
