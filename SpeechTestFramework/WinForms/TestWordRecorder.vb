@@ -210,7 +210,7 @@ Public Class SpeechMaterialRecorder
 
                 If IO.File.Exists(SoundPath) = True Then
 
-                    CurrentlyLoadedSound = Audio.AudioIOs.LoadWaveFile(SoundPath)
+                    CurrentlyLoadedSound = Audio.Sound.LoadWaveFile(SoundPath,,,,, True)
 
                     'Resetting sound display
                     If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
@@ -266,7 +266,7 @@ Public Class SpeechMaterialRecorder
 
             If IO.File.Exists(SoundPath) = True Then
 
-                CurrentlyLoadedSound = Audio.AudioIOs.LoadWaveFile(SoundPath)
+                CurrentlyLoadedSound = Audio.Sound.LoadWaveFile(SoundPath,,,,, True)
 
                 'Diplays the sound if there is any
                 If CurrentlyLoadedSound.WaveData.ShortestChannelSampleCount > 0 = True Then

@@ -50,24 +50,11 @@ Namespace Audio
         ''' </summary>
         Public SourcePath As String = ""
 
-        Private _WaveData As LocalWaveData
-
         ''' <summary>
         ''' Holds the wave sample data of the current sound.
         ''' </summary>
         ''' <returns></returns>
         Public Property WaveData As LocalWaveData
-            Get
-                Return _WaveData
-            End Get
-            Set(value As LocalWaveData)
-                'Noting change in data
-                IsChanged = True
-
-                _WaveData = value
-            End Set
-        End Property
-
 
         ''' <summary>
         ''' Gets the wave format of the current sound.
@@ -86,9 +73,6 @@ Namespace Audio
                 Return _SMA
             End Get
             Set(value As SpeechMaterialAnnotation)
-                'Noting change in data
-                IsChanged = True
-
                 _SMA = value
                 _SMA.ParentSound = Me
             End Set
@@ -107,21 +91,6 @@ Namespace Audio
         ''' </summary>
         ''' <returns></returns>
         Private Property UnparsedWaveChunks As New List(Of Byte())
-
-        Private _IsChanged As Boolean = False
-        ''' <summary>
-        ''' This field should indicate is the sound data which is written to file (wave data and SMA data) is has been changed since it was loaded from a sound file. (It is set internally in the properties WaveData and SMA)
-        ''' </summary>
-        Public Property IsChanged As Boolean
-            Get
-                MsgBox("IsChanged doesn't work!!!")
-                Return _IsChanged
-            End Get
-            Set(value As Boolean)
-                MsgBox("IsChanged doesn't work!!!")
-                _IsChanged = value
-            End Set
-        End Property
 
 
         ''' <summary>
@@ -143,6 +112,41 @@ Namespace Audio
             Next
 
         End Sub
+
+        ''' <summary>
+        ''' Stores the current stage as the unchanged state. The current state can then later be compared to a following state to determine whether the Wave or SMA data has changed or not.
+        ''' </summary>
+        Public Sub StoreUnchangedState()
+            If Me.SMA IsNot Nothing Then Me.SMA.StoreUnchangedState()
+            If Me.WaveData IsNot Nothing Then Me.WaveData.StoreUnchangedState()
+        End Sub
+
+        Public Function IsChanged() As Boolean?
+
+            Dim SmaIsChanged As Boolean? = Nothing
+            Dim WaveDataIsChanged As Boolean? = Nothing
+
+            If SMA IsNot Nothing Then
+                SmaIsChanged = SMA.IsChanged
+                If SmaIsChanged.HasValue Then
+                    If SmaIsChanged = True Then Return True
+                End If
+            End If
+            If WaveData IsNot Nothing Then
+                WaveDataIsChanged = WaveData.IsChanged
+                If WaveDataIsChanged.HasValue Then
+                    If WaveDataIsChanged = True Then Return True
+                End If
+            End If
+
+            If SmaIsChanged.HasValue = False Or WaveDataIsChanged.HasValue = False Then
+                Return Nothing
+            Else
+                Return False
+            End If
+
+        End Function
+
 
         ''' <summary>
         ''' Creates a new Sound which is a deep copy of the original, by using serialization.
@@ -386,6 +390,21 @@ Namespace Audio
         <Serializable>
         Class LocalWaveData
 
+            <NonSerialized>
+            Private ChangeDetector As Utils.ObjectChangeDetector
+            Public Sub StoreUnchangedState()
+                ChangeDetector = New Utils.ObjectChangeDetector(Me)
+                ChangeDetector.SetUnchangedState()
+            End Sub
+
+            Public Function IsChanged() As Boolean?
+                If ChangeDetector IsNot Nothing Then
+                    Return ChangeDetector.IsChanged()
+                Else
+                    Return Nothing
+                End If
+            End Function
+
             Private _sampleData As List(Of Single())
 
             ''' <summary>
@@ -548,7 +567,8 @@ Namespace Audio
                                             Optional ByVal startReadTime As Decimal = 0,
                                             Optional ByVal stopReadTime As Decimal = 0,
                                             Optional ByVal inputTimeFormat As TimeUnits = TimeUnits.seconds,
-                                            Optional ByVal StoreSourcePath As Boolean = True) As Sound
+                                            Optional ByVal StoreSourcePath As Boolean = True,
+                                            Optional ByVal StoreUnchangedState As Boolean = False) As Sound
 
             Try
 
@@ -778,8 +798,8 @@ Namespace Audio
                 'Adding the input file name
                 sound.FileName = fileName
 
-                'Noting that it's not changes
-                sound.IsChanged = False
+                'Storing the read version as serialized
+                If StoreUnchangedState = True Then sound.StoreUnchangedState()
 
                 Return sound
 

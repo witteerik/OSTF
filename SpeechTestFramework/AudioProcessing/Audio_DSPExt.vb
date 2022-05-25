@@ -7395,7 +7395,12 @@ Namespace Audio
                 'Copying the SMA object
                 If CopyPTWFObjectToOutput = True Then
 
+                    'Copying a reference to the parent sound as this does not get serialized
+                    Dim SMAParentSound = InputSound.SMA.ParentSound
+
                     ResampledSignalSound.SMA = InputSound.SMA.CreateCopy
+
+                    ResampledSignalSound.SMA.ParentSound = SMAParentSound
 
                     MsgBox("Warning the PTWF temporal data will be incorrect, as sample rate has changed!")
                     'TODO We should write a method for SMA sample rate conversion

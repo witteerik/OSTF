@@ -14,7 +14,24 @@ Namespace Audio
         <Serializable>
         Public Class SpeechMaterialAnnotation
 
-            Public Property ParentSound As Sound
+            <NonSerialized>
+            Private ChangeDetector As Utils.ObjectChangeDetector
+
+            Public Sub StoreUnchangedState()
+                ChangeDetector = New Utils.ObjectChangeDetector(Me)
+                ChangeDetector.SetUnchangedState()
+            End Sub
+
+            Public Function IsChanged() As Boolean?
+                If ChangeDetector IsNot Nothing Then
+                    Return ChangeDetector.IsChanged()
+                Else
+                    Return Nothing
+                End If
+            End Function
+
+            <NonSerialized>
+            Public ParentSound As Sound
 
             Public Const CurrentVersion As String = "1.1"
             ''' <summary>
@@ -59,15 +76,15 @@ Namespace Audio
             End Sub
 
 
-            Private _FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z
+            Private FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z
             Public Function GetFrequencyWeighting() As FrequencyWeightings
-                Return _FrequencyWeighting
+                Return FrequencyWeighting
             End Function
 
             Public Sub SetFrequencyWeighting(ByVal FrequencyWeighting As FrequencyWeightings, ByVal EnforceOnAllDescendents As Boolean)
 
                 'Setting only SMA top level frequency weighting
-                _FrequencyWeighting = FrequencyWeighting
+                FrequencyWeighting = FrequencyWeighting
 
                 If EnforceOnAllDescendents = True Then
                     'Enforcing the same frequency weighting on all descendant channels, sentences, words, and phones
@@ -77,15 +94,15 @@ Namespace Audio
                 End If
             End Sub
 
-            Private _TimeWeighting As Double = 0
+            Private TimeWeighting As Double = 0
             Public Function GetTimeWeighting() As Double
-                Return _TimeWeighting
+                Return TimeWeighting
             End Function
 
             Public Sub SetTimeWeighting(ByVal TimeWeighting As Double, ByVal EnforceOnAllDescendents As Boolean)
 
                 'Setting only SMA top level Time weighting
-                _TimeWeighting = TimeWeighting
+                TimeWeighting = TimeWeighting
 
                 If EnforceOnAllDescendents = True Then
                     'Enforcing the same Time weighting on all descendant channels, sentences, words, and phones

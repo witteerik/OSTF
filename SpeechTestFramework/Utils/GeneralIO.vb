@@ -23,7 +23,7 @@
 
 Imports System.Windows.Forms
 Imports System.IO
-Imports System.Reflection
+Imports System.Runtime.Serialization.Formatters.Binary
 
 Namespace Utils
 
@@ -744,7 +744,6 @@ SavingFile: Dim ofd As New OpenFileDialog
 
     End Module
 
-
     Public Class Utf8ToByteStringConverter
 
         ''' <summary>
@@ -772,6 +771,47 @@ SavingFile: Dim ofd As New OpenFileDialog
             Return System.Text.Encoding.UTF8.GetString(NewBytesArray)
 
         End Function
+
+    End Class
+
+
+    <Serializable>
+    Public Class ObjectChangeDetector
+        Private UnchangedState() As Byte = {}
+
+        Private Property TargetObject As Object
+
+        Public Sub New(ByRef TargetObject As Object)
+            Me.TargetObject = TargetObject
+        End Sub
+
+
+        ''' <summary>
+        ''' Determines if the object has changed since it was read from file by comparing serialized versions.
+        ''' </summary>
+        Public Function IsChanged() As Boolean
+
+            Dim serializedMe As New MemoryStream
+            Dim serializer As New BinaryFormatter
+            serializer.Serialize(serializedMe, TargetObject)
+            Dim MeAsByteArray = serializedMe.ToArray()
+
+            If MeAsByteArray.SequenceEqual(UnchangedState) = True Then
+                Return False
+            Else
+                Return True
+            End If
+
+        End Function
+
+        Public Sub SetUnchangedState()
+
+            Dim serializedMe As New MemoryStream
+            Dim serializer As New BinaryFormatter
+            serializer.Serialize(serializedMe, TargetObject)
+            UnchangedState = serializedMe.ToArray()
+
+        End Sub
 
     End Class
 
