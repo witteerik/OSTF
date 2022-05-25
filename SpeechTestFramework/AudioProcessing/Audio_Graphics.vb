@@ -372,6 +372,7 @@ Namespace Audio
                         .TextAlign = ContentAlignment.MiddleCenter
                         .BackColor = Color.White
                         .AutoSize = True
+                        .Padding = New Padding(2)
                         .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(sentenceIndex)
                     End With
@@ -408,7 +409,8 @@ Namespace Audio
                         .TextAlign = ContentAlignment.MiddleCenter
                         .BackColor = Color.White
                         .AutoSize = True
-                        .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
+                        .Padding = New Padding(2)
+                        .Font = New Font("Arial", 14.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(wordIndex)
                     End With
 
@@ -446,7 +448,8 @@ Namespace Audio
                         .TextAlign = ContentAlignment.MiddleCenter
                         .BackColor = Color.White
                         .AutoSize = True
-                        .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
+                        .Padding = New Padding(4)
+                        .Font = New Font("Arial", 14.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneIndex)
                     End With
 
@@ -669,14 +672,7 @@ Namespace Audio
             'Resetting data
             Private Sub ResetCurrentWordLevelSegmentationData()
 
-                If UseItemSegmentation = True Then
-                    For phoneme = 0 To CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).Count - 1
-                        CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).StartSample = -1
-                        CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneme).Length = -1
-                    Next
-                End If
-
-                InitialSegmentationIsDone = False
+                CurrentSound.SMA.ChannelData(CurrentChannel).ResetTemporalData()
 
             End Sub
             Private Sub RetriveSoundBackUp()
@@ -685,8 +681,6 @@ Namespace Audio
                 CurrentSound = SoundBackUp.CreateCopy
 
                 If ShowSpectrogram = True Then UpdateSpectrogramData()
-
-                InitialSegmentationIsDone = False
 
                 UpdateLayout()
 
@@ -1471,6 +1465,15 @@ Namespace Audio
                     CurrentSegmentationItem.AlignSegmentationStartsAcrossLevels(CurrentSound.WaveData.SampleData(CurrentChannel).Length)
                 End If
 
+                'Setting all dependent segmentations to SegmentationCompleted = False
+                Dim DependentSegmentations = CurrentSegmentationItem.GetDependentSegmentationsStarts
+                For Each DependentSegmentation In DependentSegmentations
+                    DependentSegmentation.SegmentationCompleted = False
+                Next
+
+                'Updates the controls in the side segmentation panel, to ensure they show the correct validated status
+                UpdateSideSegmentationPanelControls()
+
             End Sub
 
             Private Sub Container_PositionSegmentationEnd(sender As System.Object, e As MouseEventArgs)
@@ -1494,6 +1497,15 @@ Namespace Audio
                     CurrentSegmentationItem.AlignSegmentationEndsAcrossLevels()
                 End If
 
+                'Setting all dependent segmentations to SegmentationCompleted = False
+                Dim DependentSegmentations = CurrentSegmentationItem.GetDependentSegmentationsEnds
+                For Each DependentSegmentation In DependentSegmentations
+                    DependentSegmentation.SegmentationCompleted = False
+                Next
+
+                'Updates the controls in the side segmentation panel, to ensure they show the correct validated status
+                UpdateSideSegmentationPanelControls()
+
             End Sub
 
             Private Sub Container_MoveSegmentationStart(sender As System.Object, e As MouseEventArgs)
@@ -1501,6 +1513,9 @@ Namespace Audio
                 'This sub sets the start position of the selected sentence, word or phone.
 
                 If CurrentSegmentationItem IsNot Nothing Then
+
+                    'Invadates the segmentation, if graphically modified
+                    CurrentSegmentationItem.SegmentationCompleted = False
 
                     If SetSegmentationToZeroCrossings Then
                         Dim StartSample As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
@@ -1520,6 +1535,9 @@ Namespace Audio
 
                 'This sub sets the end position of the selected sentence, word or phone.
                 If CurrentSegmentationItem IsNot Nothing Then
+
+                    'Invadates the segmentation, if graphically modified
+                    CurrentSegmentationItem.SegmentationCompleted = False
 
                     If SetSegmentationToZeroCrossings Then
                         Dim EndSample As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
@@ -1714,6 +1732,23 @@ Namespace Audio
 
             End Sub
 
+            Private Sub UpdateSideSegmentationPanelControls()
+
+                'Updates the layout of the controls in SentenceSelectorPanel, in order to ensure they show correct Validated state
+                For Each control As Control In SentenceSelectorPanel.Controls
+                    control.Invalidate()
+                Next
+
+                For Each control As Control In WordSelectorPanel.Controls
+                    control.Invalidate()
+                Next
+
+                For Each control As Control In PhonemeSelectorPanel.Controls
+                    control.Invalidate()
+                Next
+
+            End Sub
+
 
 
             ''' <summary>
@@ -1727,10 +1762,15 @@ Namespace Audio
                     Exit Sub
                 End If
 
+                'Updates the layout of the controls in SentenceSelectorPanel, in order to ensure they show correct Validated state
+                For Each control As Control In SentenceSelectorPanel.Controls
+                    control.Invalidate()
+                Next
+
                 'If the NewSegmentationItem is a word or a phone, the sentence components is retreived by the GetAncestorComponent function of the NewSegmentationItem
                 If NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.PHONE Or NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.WORD Then
                     'Selecting the sentence
-                    Dim Sentence = NewSegmentationItem.GetAncestorComponent(Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE)
+                    Dim Sentence = NewSegmentationItem.GetClosestAncestorComponent(Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE)
                     If Sentence IsNot Nothing Then
                         For Each control As SegmentationItemLabel In SentenceSelectorPanel.Controls
                             If control.SegmentationItem Is Sentence Then
@@ -1744,7 +1784,7 @@ Namespace Audio
                 'If the NewSegmentationItem is a phone, the word components is retreived by the GetAncestorComponent function of the NewSegmentationItem
                 If NewSegmentationItem.SmaTag = Sound.SpeechMaterialAnnotation.SmaTags.PHONE Then
                     'Selecting the word
-                    Dim Word = NewSegmentationItem.GetAncestorComponent(Sound.SpeechMaterialAnnotation.SmaTags.WORD)
+                    Dim Word = NewSegmentationItem.GetClosestAncestorComponent(Sound.SpeechMaterialAnnotation.SmaTags.WORD)
                     If Word IsNot Nothing Then
                         For Each control As SegmentationItemLabel In WordSelectorPanel.Controls
                             If control.SegmentationItem Is Word Then
@@ -1788,10 +1828,6 @@ Namespace Audio
                         Next
 
                 End Select
-
-                Else
-                MsgBox("No segmentation item selected!")
-                End If
 
             End Sub
 
@@ -2126,7 +2162,9 @@ Namespace Audio
                     If ShowSpectrogram = True Then UpdateSpectrogramData()
 
                     SelectionLength_Sample = 0
-                    If UseItemSegmentation = True Then ResetCurrentWordLevelSegmentationData()
+                    If UseItemSegmentation = True Then
+                        ResetCurrentWordLevelSegmentationData()
+                    End If
 
                 End If
 
@@ -2201,96 +2239,23 @@ Namespace Audio
 
             End Sub
 
-            ''' <summary>
-            ''' Checks that the order of phonemes is correct and returns False if the order is wrong.
-            ''' If the order is correct phoneme lengths are calculated and stored in currentSentenceData.
-            ''' </summary>
-            ''' <returns></returns>
-            Public Function CheckPhonemeOrderAndCalculatePhonemeLengths(Optional ByVal StoreWordSegmentationFromPhonemes As Boolean = False)
+            Private Sub FixIntervals()
 
-                'Checking the order of phonemes
+                MsgBox("Fixing the inter-sentence intervals has not yet been implemented!")
 
-                For c As Integer = 1 To CurrentSound.SMA.ChannelCount
-                    For sentence As Integer = 0 To CurrentSound.SMA.ChannelData(c).Count - 1
-
-
-                        For word = 0 To CurrentSound.SMA.ChannelData(c)(sentence).Count - 1
-                            For testedPhonemeIndex = 0 To CurrentSound.SMA.ChannelData(c)(sentence)(word).Count - 1
-
-                                'Updates the word bounaries
-                                If StoreWordSegmentationFromPhonemes = True Then
-
-                                    If testedPhonemeIndex = 0 Then
-                                        CurrentSound.SMA.ChannelData(c)(sentence)(word).StartSample = CurrentSound.SMA.ChannelData(c)(sentence)(word)(0).StartSample
-                                    End If
-
-                                    If testedPhonemeIndex = CurrentSound.SMA.ChannelData(c)(sentence)(word).Count - 1 Then
-                                        CurrentSound.SMA.ChannelData(c)(sentence)(word).Length =
-                                    CurrentSound.SMA.ChannelData(c)(sentence)(word)(CurrentSound.SMA.ChannelData(c)(sentence)(word).Count - 1).StartSample -
-                                   CurrentSound.SMA.ChannelData(c)(sentence)(word)(0).StartSample + 1
-                                    End If
-                                End If
-
-                                'Compared to the previous phoneme
-                                If Not testedPhonemeIndex = 0 Then
-                                    If CurrentSound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex).StartSample < CurrentSound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex - 1).StartSample Then
-                                        'currentSentenceData(currentWordIndex).PhoneData(testedPhonemeIndex).StartSample = -1
-                                        MsgBox("Wrong order of phonemes in the word " & CurrentSound.SMA.ChannelData(c)(sentence)(word).OrthographicForm & ": " & vbCr & vbCr &
-                                       "The phoneme [" & CurrentSound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex).PhoneticForm & "] must be placed after [" & CurrentSound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex - 1).PhoneticForm & "]!",, "Place phonemes in currect order!")
-                                        Return False
-                                    End If
-                                End If
-
-                                'Compared to the following phoneme
-                                If Not testedPhonemeIndex = CurrentSound.SMA.ChannelData(c)(sentence)(word).Count - 1 Then
-                                    If Not CurrentSound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex + 1).StartSample = -1 Then
-                                        If CurrentSound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex).StartSample > CurrentSound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex + 1).StartSample Then
-                                            'currentSentenceData(currentWordIndex).PhoneData(testedPhonemeIndex).StartSample = -1
-                                            MsgBox("Wrong order of phonemes in the word " & CurrentSound.SMA.ChannelData(c)(sentence)(word).OrthographicForm & ": " & vbCr & vbCr &
-                                           "The phoneme [" & CurrentSound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex + 1).PhoneticForm & "] must be placed after [" & CurrentSound.SMA.ChannelData(c)(sentence)(word)(testedPhonemeIndex).PhoneticForm & "]!",, "Place phonemes in currect order!")
-                                            Return False
-                                        End If
-                                    End If
-                                End If
-                            Next
-
-
-                            'Calculating phoneme lengths
-                            For phoneme = 0 To CurrentSound.SMA.ChannelData(c)(sentence)(word).Count - 2
-                                Dim phonemeLength As Integer = CurrentSound.SMA.ChannelData(c)(sentence)(word)(phoneme + 1).StartSample - CurrentSound.SMA.ChannelData(c)(sentence)(word)(phoneme).StartSample
-                                If phonemeLength < 0 Then phonemeLength = 0
-                                CurrentSound.SMA.ChannelData(c)(sentence)(word)(phoneme).Length = phonemeLength
-                            Next
-                        Next
-                    Next
-                Next
-
-
-                Return True
-
-                'To check values only
-                'Dim table As New DataTable
-                'table.Columns.Add("phoneme", GetType(String))
-                'table.Columns.Add("startSample", GetType(String))
-                'table.Columns.Add("length", GetType(String))
-
-                'For row = 0 To currentChannelData(currentWordIndex).PhonemeLevelDataList.Count - 1
-                'table.Rows.Add(currentChannelData(currentWordIndex).PhonemeLevelDataList(row).phoneme, currentChannelData(currentWordIndex).PhonemeLevelDataList(row).startSample, currentChannelData(currentWordIndex).PhonemeLevelDataList(row).length)
-                'Next
-
-                'displayTable.DataGridView1.DataSource = table
-
-            End Function
+            End Sub
 
             Private Sub FixPadding()
-                ApplyPadding()
-                FadePadding()
+                If ApplyPadding(True) = False Then Exit Sub
+                FadePadding(False)
+                ZoomFull()
+
             End Sub
 
             ''' <summary>
             ''' Sets the length of the padding sections (before the first sentence and after the last sentence)
             ''' </summary>
-            Private Sub ApplyPadding()
+            Private Function ApplyPadding(Optional ByVal SkipRecalculationOfSpectrogramData As Boolean = False) As Boolean
 
                 If CurrentSound IsNot Nothing Then
                     If CurrentSound.SMA IsNot Nothing Then
@@ -2298,18 +2263,25 @@ Namespace Audio
                             CurrentSound.SMA.ApplyPaddingSection(CurrentSound, CurrentChannel, PaddingTime)
                         Else
                             MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
+                            Return False
                         End If
                     End If
                 End If
 
-                UpdateLayout()
+                If SkipRecalculationOfSpectrogramData = False Then
+                    'Recalculates spectrogram data, since the waveform have been changed
+                    If ShowSpectrogram = True Then UpdateSpectrogramData()
+                End If
 
-            End Sub
+                UpdateLayout()
+                Return True
+
+            End Function
 
             ''' <summary>
             ''' Fades the padded sections
             ''' </summary>
-            Private Sub FadePadding()
+            Private Function FadePadding(Optional ByVal SkipRecalculationOfSpectrogramData As Boolean = False) As Boolean
 
                 If CurrentSound IsNot Nothing Then
                     If CurrentSound.SMA IsNot Nothing Then
@@ -2317,13 +2289,109 @@ Namespace Audio
                             CurrentSound.SMA.FadePaddingSection(CurrentSound, CurrentChannel)
                         Else
                             MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
+                            Return False
                         End If
                     End If
                 End If
 
+                If SkipRecalculationOfSpectrogramData = False Then
+                    'Recalculates spectrogram data, since the waveform have been changed
+                    If ShowSpectrogram = True Then UpdateSpectrogramData()
+                End If
+
                 UpdateLayout()
+                Return True
+
+            End Function
+
+
+            Private Sub ValidateSegmentation()
+
+                If CurrentSegmentationItem IsNot Nothing Then
+
+                    Dim Siblings = CurrentSegmentationItem.GetSiblings
+                    If Siblings IsNot Nothing Then
+
+                        If CheckItemStartOrders(Siblings) = False Then Exit Sub
+
+                        If CheckItemLengths(Siblings) = False Then Exit Sub
+
+                        If CheckItemEndOrders(Siblings) = False Then Exit Sub
+
+                        'Validates the segmentation of the siblings and all members of an UnbrokenLineOfAncestorsWithoutSiblings
+                        For Each item In Siblings
+                            item.SegmentationCompleted = True
+                        Next
+
+                        Dim UnbrokenLineOfAncestorsWithoutSiblings = CurrentSegmentationItem.GetUnbrokenLineOfAncestorsWithoutSiblings()
+                        For Each Item In UnbrokenLineOfAncestorsWithoutSiblings
+                            Item.SegmentationCompleted = True
+                        Next
+
+                        'Updates the controls in the side segmentation panel
+                        UpdateSideSegmentationPanelControls()
+
+                    End If
+                End If
 
             End Sub
+
+            ''' <summary>
+            ''' Ensures that the order of StartSamples of items are correct
+            ''' </summary>
+            ''' <param name="Items"></param>
+            ''' <returns></returns>
+            Private Function CheckItemStartOrders(ByRef Items As List(Of Sound.SpeechMaterialAnnotation.SmaComponent))
+
+                For i = 0 To Items.Count - 2
+                    If Items(i).StartSample >= Items(i + 1).StartSample Then
+                        MsgBox("The start position of item " & Items(i + 1).GetStringRepresentation & " must be later than the start postion of " & Items(i + 1).GetStringRepresentation)
+                        Return False
+                    End If
+                Next
+
+                'All is ok, returns True
+                Return True
+
+            End Function
+
+            ''' <summary>
+            ''' Ensures that the Length items exceeds 0 
+            ''' </summary>
+            ''' <param name="Items"></param>
+            ''' <returns></returns>
+            Private Function CheckItemLengths(ByRef Items As List(Of Sound.SpeechMaterialAnnotation.SmaComponent))
+
+                For i = 0 To Items.Count - 1
+                    If Items(i).Length <= 0 Then
+                        MsgBox("The length of item " & Items(i).GetStringRepresentation & " cannot be " & Items(i).Length)
+                        Return False
+                    End If
+                Next
+
+                'All is ok, returns True
+                Return True
+
+            End Function
+
+            ''' <summary>
+            ''' Ensures that the order of item ends are correct
+            ''' </summary>
+            ''' <param name="Items"></param>
+            ''' <returns></returns>
+            Private Function CheckItemEndOrders(ByRef Items As List(Of Sound.SpeechMaterialAnnotation.SmaComponent))
+
+                For i = 0 To Items.Count - 2
+                    If Items(i).StartSample + Items(i).Length >= Items(i + 1).StartSample + Items(i + 1).Length Then
+                        MsgBox("The end position of item " & Items(i + 1).GetStringRepresentation & " must be later than the end postion of " & Items(i + 1).GetStringRepresentation)
+                        Return False
+                    End If
+                Next
+
+                'All is ok, returns True
+                Return True
+
+            End Function
 
             Private Class SpectrogramDisplayData
 
@@ -2519,6 +2587,20 @@ Namespace Audio
             Inherits Label
 
             Public Property SegmentationItem As Audio.Sound.SpeechMaterialAnnotation.SmaComponent
+
+            Private RedPen As Pen = New System.Drawing.Pen(System.Drawing.Color.Red, 2)
+
+            Private Sub SegmentationItemLabel_Paint(ByVal sender As Object, ByVal e As System.Windows.Forms.PaintEventArgs) Handles Me.Paint
+
+                If SegmentationItem IsNot Nothing Then
+                    'Draws a red border around the item if its segmentation is not validated.
+                    If SegmentationItem.SegmentationCompleted = False Then
+                        e.Graphics.DrawRectangle(RedPen, New Rectangle(Me.ClientRectangle.X + 1, Me.ClientRectangle.Y + 1, Me.ClientRectangle.Width - 2, Me.ClientRectangle.Height - 2))
+                    End If
+                End If
+
+            End Sub
+
 
         End Class
 

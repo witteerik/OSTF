@@ -50,11 +50,24 @@ Namespace Audio
         ''' </summary>
         Public SourcePath As String = ""
 
+        Private _WaveData As LocalWaveData
+
         ''' <summary>
         ''' Holds the wave sample data of the current sound.
         ''' </summary>
         ''' <returns></returns>
         Public Property WaveData As LocalWaveData
+            Get
+                Return _WaveData
+            End Get
+            Set(value As LocalWaveData)
+                'Noting change in data
+                IsChanged = True
+
+                _WaveData = value
+            End Set
+        End Property
+
 
         ''' <summary>
         ''' Gets the wave format of the current sound.
@@ -73,6 +86,9 @@ Namespace Audio
                 Return _SMA
             End Get
             Set(value As SpeechMaterialAnnotation)
+                'Noting change in data
+                IsChanged = True
+
                 _SMA = value
                 _SMA.ParentSound = Me
             End Set
@@ -91,6 +107,11 @@ Namespace Audio
         ''' </summary>
         ''' <returns></returns>
         Private Property UnparsedWaveChunks As New List(Of Byte())
+
+        ''' <summary>
+        ''' This field should indicate is the sound data which is written to file (wave data and SMA data) is has been changed since it was loaded from a sound file. (It is set internally in the properties WaveData and SMA)
+        ''' </summary>
+        Public IsChanged As Boolean = False
 
         ''' <summary>
         ''' Creates a new instance of the Sound class.
@@ -516,7 +537,7 @@ Namespace Audio
                                             Optional ByVal startReadTime As Decimal = 0,
                                             Optional ByVal stopReadTime As Decimal = 0,
                                             Optional ByVal inputTimeFormat As TimeUnits = TimeUnits.seconds,
-                                            Optional ByVal StoreSourcePath As Boolean = False) As Sound
+                                            Optional ByVal StoreSourcePath As Boolean = True) As Sound
 
             Try
 
@@ -745,6 +766,9 @@ Namespace Audio
 
                 'Adding the input file name
                 sound.FileName = fileName
+
+                'Noting that it's not changes
+                sound.IsChanged = False
 
                 Return sound
 

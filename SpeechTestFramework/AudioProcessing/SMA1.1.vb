@@ -345,7 +345,7 @@ Namespace Audio
 
             Private Sub LimitStartIndexAndLengthOnShift(ByVal Shift As Integer, ByVal TotalAvailableLength As Integer, ByRef StartIndex As Integer, ByRef Length As Integer)
 
-                MsgBox("Check the code below for accuracy!!!")
+                'MsgBox("Check the code below for accuracy!!!")
 
                 'Adjusting the StartSample and limiting it to the available range
                 StartIndex = Math.Min(Math.Max(StartIndex + Shift, 0), TotalAvailableLength - 1)
@@ -367,8 +367,8 @@ Namespace Audio
                                   Optional FadeType As DSP.FadeSlopeType = DSP.FadeSlopeType.PowerCosine_SkewedFromFadeDirection,
                                   Optional CosinePower As Double = 100)
 
-                If CurrentChannel > Sound.SMA.ChannelCount Then
-                    If CurrentChannel > Sound.WaveFormat.Channels Then
+                If CurrentChannel <= Sound.SMA.ChannelCount Then
+                    If CurrentChannel <= Sound.WaveFormat.Channels Then
 
                         Dim FirstSentenceStartSample As Integer = Sound.SMA.ChannelData(CurrentChannel)(0).StartSample
                         Dim LastSentenceIndex As Integer = Sound.SMA.ChannelData(CurrentChannel).Count - 1
@@ -391,8 +391,8 @@ Namespace Audio
 
             Public Sub ApplyPaddingSection(ByRef Sound As Sound, ByRef CurrentChannel As Integer, ByVal PaddingTime As Single)
 
-                If CurrentChannel > Sound.SMA.ChannelCount Then
-                    If CurrentChannel > Sound.WaveFormat.Channels Then
+                If CurrentChannel <= Sound.SMA.ChannelCount Then
+                    If CurrentChannel <= Sound.WaveFormat.Channels Then
 
                         Dim FirstSentenceStartSample As Integer = Sound.SMA.ChannelData(CurrentChannel)(0).StartSample
 
@@ -415,8 +415,8 @@ Namespace Audio
                             DSP.InsertSilentSection(Sound, 0, InitialShift)
                             ShiftSegmentationData(InitialShift)
                         ElseIf InitialShift < 0 Then
-                            DSP.DeleteSection(Sound, 0, InitialShift)
-                            ShiftSegmentationData(-InitialShift)
+                            DSP.DeleteSection(Sound, 0, -InitialShift)
+                            ShiftSegmentationData(InitialShift)
                         End If
 
                         'Fixing the end
@@ -425,15 +425,18 @@ Namespace Audio
                         Dim LastSentenceIndex As Integer = Sound.SMA.ChannelData(CurrentChannel).Count - 1
                         Dim LastSentenceEndSample As Integer = Sound.SMA.ChannelData(CurrentChannel)(LastSentenceIndex).StartSample + Sound.SMA.ChannelData(CurrentChannel)(LastSentenceIndex).Length
                         Dim IntendedSoundLength As Integer = LastSentenceEndSample + PaddingLength
-                        Dim FinalAdjustment As Integer = SoundFileLength - IntendedSoundLength
+                        Dim FinalAdjustment As Integer = IntendedSoundLength - SoundFileLength
                         'If FinalAdjustment is positive, the sound file nedd to be shortened by FinalAdjustment samples 
                         'If FinalAdjustment is negative, the sound file nedd to be lengthed by FinalAdjustment samples 
                         ' No changes is needed to the SMA object
                         'If FinalAdjustment is zero no changes are needed
                         If FinalAdjustment > 0 Then
-                            DSP.InsertSilentSection(Sound, SoundFileLength - 1, FinalAdjustment)
+                            'NB. As changing only the CurrentChannel channel would create channels of differing in lengths in multi channel sounds!!! Avoiding this by also extending the other channels if there are any.
+                            For c = 1 To Sound.WaveFormat.Channels
+                                ReDim Preserve Sound.WaveData.SampleData(c)(IntendedSoundLength)
+                            Next
                         ElseIf FinalAdjustment < 0 Then
-                            DSP.DeleteSection(Sound, SoundFileLength - FinalAdjustment, FinalAdjustment)
+                            DSP.DeleteSection(Sound, SoundFileLength + FinalAdjustment, -FinalAdjustment)
                         End If
 
                     Else
@@ -996,30 +999,30 @@ Namespace Audio
 
                             'Measuring UnWeightedLevel
                             UnWeightedLevel = Nothing
-                                UnWeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, Nothing, SoundDataUnit.dB)
-                                AttemptedMeasurementCount += 1
-                                If UnWeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
+                            UnWeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, Nothing, SoundDataUnit.dB)
+                            AttemptedMeasurementCount += 1
+                            If UnWeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
-                                'Meaures UnWeightedPeakLevel
-                                UnWeightedPeakLevel = Nothing
-                                UnWeightedPeakLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, , SoundDataUnit.dB, SoundMeasurementType.AbsolutePeakAmplitude)
-                                AttemptedMeasurementCount += 1
-                                If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
+                            'Meaures UnWeightedPeakLevel
+                            UnWeightedPeakLevel = Nothing
+                            UnWeightedPeakLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, , SoundDataUnit.dB, SoundMeasurementType.AbsolutePeakAmplitude)
+                            AttemptedMeasurementCount += 1
+                            If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
-                                'Measures weighted level
-                                WeightedLevel = Nothing
-                                If GetTimeWeighting() <> 0 Then
-                                    WeightedLevel = DSP.GetLevelOfLoudestWindow(ParentSound, c,
+                            'Measures weighted level
+                            WeightedLevel = Nothing
+                            If GetTimeWeighting() <> 0 Then
+                                WeightedLevel = DSP.GetLevelOfLoudestWindow(ParentSound, c,
                                                                                      GetTimeWeighting() * ParentSound.WaveFormat.SampleRate,
                                                                                       0, Nothing, , GetFrequencyWeighting, True)
-                                Else
-                                    WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, Nothing, SoundDataUnit.dB, SoundMeasurementType.RMS, GetFrequencyWeighting)
-                                End If
-                                AttemptedMeasurementCount += 1
-                                If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
+                            Else
+                                WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, Nothing, SoundDataUnit.dB, SoundMeasurementType.RMS, GetFrequencyWeighting)
+                            End If
+                            AttemptedMeasurementCount += 1
+                            If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
 
-                                Else
+                        Else
                             'Notes a missing measurement
                             AttemptedMeasurementCount += 1
                         End If
@@ -1066,8 +1069,8 @@ Namespace Audio
                             End If
 
                         Else
-                                'Notes a missing measurement
-                                AttemptedMeasurementCount += 1
+                            'Notes a missing measurement
+                            AttemptedMeasurementCount += 1
                         End If
                     Else
                         'Notes a missing measurement
@@ -1148,14 +1151,14 @@ Namespace Audio
 
                 End Function
 
-                Public Function GetAncestorComponent(ByVal RequestedParentComponentType As Sound.SpeechMaterialAnnotation.SmaTags) As SmaComponent
+                Public Function GetClosestAncestorComponent(ByVal RequestedParentComponentType As Sound.SpeechMaterialAnnotation.SmaTags) As SmaComponent
 
                     If ParentComponent Is Nothing Then Return Nothing
 
                     If ParentComponent.SmaTag = RequestedParentComponentType Then
                         Return ParentComponent
                     Else
-                        Return ParentComponent.GetAncestorComponent(RequestedParentComponentType)
+                        Return ParentComponent.GetClosestAncestorComponent(RequestedParentComponentType)
                     End If
 
                 End Function
@@ -1170,6 +1173,113 @@ Namespace Audio
                         Next
                     End If
                     Return OutputList
+                End Function
+
+                Public Function GetNumberOfSiblingsExcludingSelf() As Integer
+
+                    Dim Siblings = GetSiblingsExcludingSelf()
+                    If Siblings IsNot Nothing Then
+                        Return Siblings.Count
+                    Else
+                        Return 0
+                    End If
+
+                End Function
+
+                Public Function GetUnbrokenLineOfAncestorsWithoutSiblings() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+
+                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    If ParentComponent IsNot Nothing Then
+                        If ParentComponent.GetNumberOfSiblingsExcludingSelf = 0 Then
+                            OutputList.AddRange(ParentComponent)
+                            OutputList.AddRange(ParentComponent.GetUnbrokenLineOfAncestorsWithoutSiblings)
+                        End If
+                    End If
+
+                    Return OutputList
+
+                End Function
+
+                ''' <summary>
+                ''' Returns all SmaComponents that locically share the same StartSample value as the current instance of SmaComponent 
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function GetDependentSegmentationsStarts() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    OutputList.AddRange(GetDependentSegmentationsStarts(HierarchicalDirections.Upwards))
+                    OutputList.AddRange(GetDependentSegmentationsStarts(HierarchicalDirections.Downwards))
+                    Return OutputList
+                End Function
+
+                Private Function GetDependentSegmentationsStarts(ByVal HierarchicalDirection As HierarchicalDirections) As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+
+                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+
+                    OutputList.Add(Me)
+
+                    'Cascading up or down
+                    Select Case HierarchicalDirection
+                        Case HierarchicalDirections.Upwards
+
+                            Dim SelfIndex = GetSelfIndex()
+                            If SelfIndex.HasValue Then
+                                If SelfIndex = 0 Then
+                                    OutputList.AddRange(ParentComponent.GetDependentSegmentationsStarts(HierarchicalDirection))
+                                End If
+                            End If
+
+                        Case HierarchicalDirections.Downwards
+
+                            If Me.Count > 0 Then
+                                OutputList.AddRange(Me(0).GetDependentSegmentationsStarts(HierarchicalDirection))
+                            End If
+
+                    End Select
+
+                    Return OutputList
+
+                End Function
+
+                ''' <summary>
+                ''' Returns all SmaComponents that locically share the same end time as the current instance of SmaComponent 
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function GetDependentSegmentationsEnds() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    OutputList.AddRange(GetDependentSegmentationsEnds(HierarchicalDirections.Upwards))
+                    OutputList.AddRange(GetDependentSegmentationsEnds(HierarchicalDirections.Downwards))
+                    Return OutputList
+                End Function
+
+                Public Function GetDependentSegmentationsEnds(ByVal HierarchicalDirection As HierarchicalDirections) As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+
+                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+
+                    OutputList.Add(Me)
+
+                    'Cascading up or down
+                    Select Case HierarchicalDirection
+                        Case HierarchicalDirections.Upwards
+
+                            Dim SelfIndex = GetSelfIndex()
+                            If SelfIndex.HasValue Then
+                                Dim SiblingCount = GetSiblings.Count
+                                If SelfIndex = SiblingCount - 1 Then
+                                    'The current instance is the last of its same level components
+                                    OutputList.AddRange(ParentComponent.GetDependentSegmentationsEnds(HierarchicalDirection))
+                                End If
+                            End If
+
+                        Case HierarchicalDirections.Downwards
+
+                            If Me.Count > 0 Then
+                                OutputList.AddRange(Me(Me.Count - 1).GetDependentSegmentationsEnds(HierarchicalDirection))
+                            End If
+
+                    End Select
+
+                    Return OutputList
+
                 End Function
 
                 Public Sub AlignSegmentationStartsAcrossLevels(ByVal SoundLength As Integer)

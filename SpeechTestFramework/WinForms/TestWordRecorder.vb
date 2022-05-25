@@ -1,9 +1,8 @@
 ﻿
 Public Class SpeechMaterialRecorder
 
-    Private EditItems As List(Of Tuple(Of String, SpeechMaterialComponent))
+    Private EditItems As New List(Of Tuple(Of String, SpeechMaterialComponent))
 
-    Private CurrentItemHasUnsavedChanged As Boolean = False
     Private CurrentlyLoadedSound As Audio.Sound = Nothing
 
     Private CurrentItemIndex As Integer = 0
@@ -23,6 +22,18 @@ Public Class SpeechMaterialRecorder
 
     'TODO: This should be a setting somewhere!!!
     Public paddingTime As Double = 0.5
+
+    Public Sub New()
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+
+        'Setting up a default RecordingWaveFormat
+        SetupAudioIO()
+
+    End Sub
 
     Public Sub New(ByRef EditItems As List(Of Tuple(Of String, SpeechMaterialComponent)), ByRef RecordingWaveFormat As Audio.Formats.WaveFormat)
 
@@ -60,7 +71,7 @@ Public Class SpeechMaterialRecorder
             MaxSelectionIndex = -1
         End If
 
-        SelectRecoringIndex(0)
+        If EditItems.Count > 0 Then SelectSoundFileIndex(0)
 
     End Sub
 
@@ -89,7 +100,15 @@ Public Class SpeechMaterialRecorder
     ''' </summary>
     Public Sub SetupAudioIO()
 
-        Dim newAudioSettingsDialog As New AudioSettingsDialog(RecordingWaveFormat.SampleRate)
+        Dim newAudioSettingsDialog As AudioSettingsDialog = Nothing
+
+        If RecordingWaveFormat IsNot Nothing Then
+            newAudioSettingsDialog = New AudioSettingsDialog(RecordingWaveFormat.SampleRate)
+        Else
+            newAudioSettingsDialog = New AudioSettingsDialog()
+            RecordingWaveFormat = New Audio.Formats.WaveFormat(newAudioSettingsDialog.CurrentAudioApiSettings.SampleRate, 32, 1, , Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+        End If
+
         Dim Result = newAudioSettingsDialog.ShowDialog()
         If Result = Windows.Forms.DialogResult.OK Then
             CurrentAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
@@ -143,21 +162,10 @@ Public Class SpeechMaterialRecorder
 
 
 
-    Private Sub SelectRecoringIndex(ByVal NewIndex As Integer)
+    Private Sub SelectSoundFileIndex(ByVal NewIndex As Integer)
 
-        If CurrentlyLoadedSound IsNot Nothing Then
-            If CurrentItemHasUnsavedChanged = True Then
+        CheckIfSaveSound()
 
-                Dim Res = MsgBox("The current sound has unsaved changes. Do you want to save the changes? (This will overwrite the old loaded sound file!)", MsgBoxStyle.YesNo, "Save file?")
-
-                If Res = MsgBoxResult.Yes Then
-                    If CurrentlyLoadedSound.WriteWaveFile(EditItems(CurrentItemIndex).Item1) = False Then
-                        MsgBox("Unable to save the current sound (" & EditItems(CurrentItemIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
-                        Exit Sub
-                    End If
-                End If
-            End If
-        End If
 
         Select Case NewIndex
             Case < MinSelectionIndex
@@ -400,18 +408,64 @@ Public Class SpeechMaterialRecorder
 
     Private Sub Top_PreviousItemButton_Click(sender As Object, e As EventArgs) Handles Top_PreviousItemButton.Click, Rec_PreviousItemButton.Click
 
-        SelectRecoringIndex(CurrentItemIndex - 1)
+        SelectSoundFileIndex(CurrentItemIndex - 1)
 
     End Sub
 
     Private Sub Top_NextItemButton_Click(sender As Object, e As EventArgs) Handles Top_NextItemButton.Click, Rec_NextItemButton.Click
 
-        SelectRecoringIndex(CurrentItemIndex + 1)
+        SelectSoundFileIndex(CurrentItemIndex + 1)
 
     End Sub
 
     Private Sub ItemComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ItemComboBox.SelectedIndexChanged
 
+    End Sub
+
+    Private Sub LoadWaveFileSMAIXMLChunkRequiredToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LoadWaveFileSMAIXMLChunkRequiredToolStripMenuItem.Click
+
+        Dim FilePath As String = Utils.GetOpenFilePath("",, {".wav"}, "Open wave file (SMA iXML chunk required)", True)
+        If FilePath <> "" Then
+            EditItems.Add(New Tuple(Of String, SpeechMaterialComponent)(FilePath, Nothing))
+            SelectSoundFileIndex(EditItems.Count - 1)
+        Else
+            MsgBox("Unable to load the sound file from " & FilePath)
+        End If
+
+    End Sub
+
+    Private Sub SaveWaveFileToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWaveFileToolStripMenuItem.Click
+
+
+
+    End Sub
+    Private Sub SaveWaveFileAsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWaveFileAsToolStripMenuItem.Click
+
+
+
+    End Sub
+
+    Private Sub CheckIfSaveSound()
+
+        If CurrentlyLoadedSound IsNot Nothing Then
+            If CurrentlyLoadedSound.IsChanged = True Then
+
+                Dim Res = MsgBox("The current sound has unsaved changes. Do you want to save the changes? (This will overwrite the old loaded sound file!)", MsgBoxStyle.YesNo, "Save file?")
+
+                If Res = MsgBoxResult.Yes Then
+                    If CurrentlyLoadedSound.WriteWaveFile(EditItems(CurrentItemIndex).Item1) = False Then
+                        MsgBox("Unable to save the current sound (" & EditItems(CurrentItemIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
+                        Exit Sub
+                    End If
+                End If
+            End If
+        End If
+
+    End Sub
+
+    Private Sub CloseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CloseToolStripMenuItem.Click
+        CheckIfSaveSound()
+        Me.Close()
     End Sub
 
 
