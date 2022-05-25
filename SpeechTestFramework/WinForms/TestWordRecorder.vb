@@ -1,4 +1,8 @@
-﻿
+﻿Imports SpeechTestFramework
+Imports SpeechTestFramework.SpeechMaterialComponent
+Imports SpeechTestFramework.Audio
+Imports SpeechTestFramework.Audio.Graphics
+
 Public Class SpeechMaterialRecorder
 
     Private EditItems As New List(Of Tuple(Of String, SpeechMaterialComponent))
@@ -61,15 +65,6 @@ Public Class SpeechMaterialRecorder
         For n = 1 To EditItems.Count
             ItemComboBox.Items.Add(n)
         Next
-
-        ' Setting MinSelectionIndex
-        If EditItems.Count > 0 Then
-            MinSelectionIndex = 0
-            MaxSelectionIndex = EditItems.Count - 1
-        Else
-            MinSelectionIndex = -1
-            MaxSelectionIndex = -1
-        End If
 
         If EditItems.Count > 0 Then SelectSoundFileIndex(0)
 
@@ -166,6 +161,14 @@ Public Class SpeechMaterialRecorder
 
         CheckIfSaveSound()
 
+        ' Setting MinSelectionIndex
+        If EditItems.Count > 0 Then
+            MinSelectionIndex = 0
+            MaxSelectionIndex = EditItems.Count - 1
+        Else
+            MinSelectionIndex = -1
+            MaxSelectionIndex = -1
+        End If
 
         Select Case NewIndex
             Case < MinSelectionIndex
@@ -179,7 +182,7 @@ Public Class SpeechMaterialRecorder
             Case Else
                 CurrentItemIndex = NewIndex
 
-                ItemComboBox.SelectedItem = CurrentItemIndex + 1
+                ItemComboBox.SelectedIndex = CurrentItemIndex
 
                 Select Case MainTabControl.SelectedTab.Text
                     Case RecordingTab.Text
@@ -427,6 +430,7 @@ Public Class SpeechMaterialRecorder
         Dim FilePath As String = Utils.GetOpenFilePath("",, {".wav"}, "Open wave file (SMA iXML chunk required)", True)
         If FilePath <> "" Then
             EditItems.Add(New Tuple(Of String, SpeechMaterialComponent)(FilePath, Nothing))
+            ItemComboBox.Items.Add(EditItems.Count)
             SelectSoundFileIndex(EditItems.Count - 1)
         Else
             MsgBox("Unable to load the sound file from " & FilePath)
@@ -436,12 +440,28 @@ Public Class SpeechMaterialRecorder
 
     Private Sub SaveWaveFileToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWaveFileToolStripMenuItem.Click
 
-
+        If CurrentlyLoadedSound IsNot Nothing Then
+            If CurrentlyLoadedSound.WriteWaveFile(EditItems(CurrentItemIndex).Item1) = False Then
+                MsgBox("Unable to save the current sound (" & EditItems(CurrentItemIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
+            End If
+        End If
 
     End Sub
     Private Sub SaveWaveFileAsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWaveFileAsToolStripMenuItem.Click
 
+        If CurrentlyLoadedSound IsNot Nothing Then
 
+            Dim FilePath As String = Utils.GetSaveFilePath(,, {".wav"}, "Save wave file as...")
+            If FilePath <> "" Then
+                If CurrentlyLoadedSound.WriteWaveFile(FilePath) = False Then
+                    MsgBox("Unable to save the current sound to " & FilePath & ". Unknown reason. Is the file open in another application?")
+                End If
+            Else
+                MsgBox("No file path was supplied.", MsgBoxStyle.Exclamation, "Save wave file as...")
+            End If
+        Else
+            MsgBox("No sound to save.", MsgBoxStyle.Information, "Save as...")
+        End If
 
     End Sub
 

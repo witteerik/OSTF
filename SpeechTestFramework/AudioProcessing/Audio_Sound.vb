@@ -108,10 +108,21 @@ Namespace Audio
         ''' <returns></returns>
         Private Property UnparsedWaveChunks As New List(Of Byte())
 
+        Private _IsChanged As Boolean = False
         ''' <summary>
         ''' This field should indicate is the sound data which is written to file (wave data and SMA data) is has been changed since it was loaded from a sound file. (It is set internally in the properties WaveData and SMA)
         ''' </summary>
-        Public IsChanged As Boolean = False
+        Public Property IsChanged As Boolean
+            Get
+                MsgBox("IsChanged doesn't work!!!")
+                Return _IsChanged
+            End Get
+            Set(value As Boolean)
+                MsgBox("IsChanged doesn't work!!!")
+                _IsChanged = value
+            End Set
+        End Property
+
 
         ''' <summary>
         ''' Creates a new instance of the Sound class.
