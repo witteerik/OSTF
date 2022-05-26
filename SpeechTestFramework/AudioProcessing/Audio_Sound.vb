@@ -215,6 +215,29 @@ Namespace Audio
         End Function
 
         ''' <summary>
+        ''' Creates a multi channel sound out of a mono sound (or the first channel in a multichannel sound).
+        ''' </summary>
+        ''' <param name="NewChannelCount"></param>
+        ''' <returns></returns>
+        Public Function ConvertMonoToMultiChannel(Optional NewChannelCount As Integer = 2, Optional ShallowChannelCopies As Boolean = False) As Sound
+
+            Dim OutputSound As New Sound(New Formats.WaveFormat(WaveFormat.SampleRate, WaveFormat.BitDepth, NewChannelCount,, WaveFormat.Encoding))
+
+            If ShallowChannelCopies = True Then
+                For c = 1 To NewChannelCount
+                    OutputSound.WaveData.SampleData(c) = WaveData.SampleData(1)
+                Next
+            Else
+                For c = 1 To NewChannelCount
+                    OutputSound.WaveData.SampleData(c) = WaveData.SampleData(1).Take(WaveData.SampleData(1).Length).ToArray
+                Next
+            End If
+
+            Return OutputSound
+
+        End Function
+
+        ''' <summary>
         ''' Creates a new sound converted to the specified format. The SMA object neither copied or referenced.
         ''' </summary>
         ''' <returns></returns>

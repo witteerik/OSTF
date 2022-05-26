@@ -9,20 +9,146 @@ Public Class SpeechMaterialRecorder
     Private CurrentlyLoadedSoundFile As Audio.Sound = Nothing
     Private CurrentSoundFileIndex As Integer = -1
 
+    Private BackgroundSound As Audio.Sound = Nothing
+
     'SoundPlayers
     Private MyGeneralSoundPlayer As Audio.PortAudioVB.SoundPlayer
 
     'Sound output settings
     Private CurrentAudioApiSettings As Audio.AudioApiSettings = Nothing
 
+    Private _CurrentSoundTransducerMode As Audio.SoundTransducerModes = Audio.GlobalAudioData.SoundTransducerModes.SoundField
+    Private Property CurrentSoundTransducerMode As Audio.SoundTransducerModes
+        Get
+            Return _CurrentSoundTransducerMode
+        End Get
+        Set(value As Audio.SoundTransducerModes)
+            _CurrentSoundTransducerMode = value
+            If _CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.HeadPhones Then
+                HeadphonesToolStripMenuItem.Checked = True
+                SoundFieldToolStripMenuItem.Checked = False
+            Else
+                HeadphonesToolStripMenuItem.Checked = False
+                SoundFieldToolStripMenuItem.Checked = True
+            End If
+        End Set
+    End Property
+
+    Private PresentationSound_SoundLevelFormat As Audio.Formats.SoundLevelFormat = New Audio.Formats.SoundLevelFormat(Audio.BasicAudioEnums.SoundMeasurementTypes.LoudestSection_C_Weighted, 0.05)
+    Private BackgroundSound_SoundLevelFormat As Audio.Formats.SoundLevelFormat = New Audio.Formats.SoundLevelFormat(Audio.BasicAudioEnums.SoundMeasurementTypes.LoudestSection_C_Weighted, 0.05)
 
 #Region "Recording variables"
 
+    Private _PresentationLevel As Double  ' This level is in dB SPL
+    Private Property PresentationLevel As Double
+        Get
+            Return _PresentationLevel
+        End Get
+        Set(value As Double)
+
+            _PresentationLevel = value
+
+            'Noting the selected level in the combobox
+            For Each Item In PresentationLevel_ToolStripComboBox.Items
+                If Item = _PresentationLevel Then
+                    PresentationLevel_ToolStripComboBox.SelectedItem = Item
+                End If
+            Next
+
+            'And displays the level in the status field
+            PresentationLevelToolStripStatusLabel.Text = "Presentation level: " & _PresentationLevel & " dB SPL"
+
+        End Set
+    End Property
+
+    Private ReMeasureBackgroundSoundLevel As Boolean = True
+
+    Private _BackgroundSoundLevel As Double
+    Private Property BackgroundSoundLevel As Double
+        Get
+            Return _BackgroundSoundLevel
+        End Get
+        Set(value As Double)
+
+            _BackgroundSoundLevel = value
+
+            'Noting a change in background sound level enforcing recalculation of background sound level on next presentation
+            ReMeasureBackgroundSoundLevel = True
+
+            'Noting the selected level in the combobox
+            For Each Item In BackgroundSoundLevel_ToolStripComboBox.Items
+                If Item = _BackgroundSoundLevel Then
+                    BackgroundSoundLevel_ToolStripComboBox.SelectedItem = Item
+                End If
+            Next
+
+            'And displays the level in the status field 
+            BackgroundLevel_ToolStripStatusLabel.Text = "Background level: " & _BackgroundSoundLevel & " dB SPL"
+
+        End Set
+    End Property
+
+
     Private RecordingWaveFormat As Audio.Formats.WaveFormat
-    Private UseAuditoryPrequeing As Boolean = False
-    Private AutoStartRecording As Boolean = False
-    Private UseRecordingNoise As Boolean = False
-    Private ShowSoundLevelMeter As Boolean = False
+
+    Private _UseAuditoryPrequeing As Boolean = False
+    Private Property UseAuditoryPrequeing As Boolean
+        Get
+            Return _UseAuditoryPrequeing
+        End Get
+        Set(value As Boolean)
+            _UseAuditoryPrequeing = value
+            AuditoryPrequeingToolStripMenuItem.Checked = _UseAuditoryPrequeing
+            If _UseAuditoryPrequeing = True Then
+                preQueLabel.Text = "Pre-queing: On"
+            Else
+                preQueLabel.Text = "Pre-queing: Off"
+            End If
+        End Set
+    End Property
+
+    Private _AutoStartRecording As Boolean = False
+    Private Property AutoStartRecording As Boolean
+        Get
+            Return _AutoStartRecording
+        End Get
+        Set(value As Boolean)
+            _AutoStartRecording = value
+            StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Checked = _AutoStartRecording
+            If _AutoStartRecording = True Then
+                AutoRecordingStatusLabel.Text = "Auto-recording: On"
+            Else
+                AutoRecordingStatusLabel.Text = "Auto-recording: Off"
+            End If
+        End Set
+    End Property
+
+    Private _UseRecordingNoise As Boolean = False
+    Private Property UseRecordingNoise As Boolean
+        Get
+            Return _UseRecordingNoise
+        End Get
+        Set(value As Boolean)
+            _UseRecordingNoise = value
+            ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Checked = _UseRecordingNoise
+            If _UseRecordingNoise = True Then
+                BackgroundSoundStatusLabel.Text = "Background sound: On"
+            Else
+                BackgroundSoundStatusLabel.Text = "Background sound: Off"
+            End If
+        End Set
+    End Property
+
+    Private _ShowSoundLevelMeter As Boolean = False
+    Private Property ShowSoundLevelMeter As Boolean
+        Get
+            Return _ShowSoundLevelMeter
+        End Get
+        Set(value As Boolean)
+            _ShowSoundLevelMeter = value
+            ToggleSoundLevelMeteronoffToolStripMenuItem.Checked = _ShowSoundLevelMeter
+        End Set
+    End Property
 
 #End Region
 
@@ -32,8 +158,46 @@ Public Class SpeechMaterialRecorder
     Private CurrentSpectrogramFormat As Audio.Formats.SpectrogramFormat
     Private SetSegmentationToZeroCrossings As Boolean
     Private ShowSpectrogram As Boolean = False
-    Private PaddingTime As Single = 0.5
-    Private InterSentenceTime As Single = 4
+
+    Private _PaddingTime As Single = 0.5
+    Private Property PaddingTime As Single
+        Get
+            Return _PaddingTime
+        End Get
+        Set(value As Single)
+
+            _PaddingTime = value
+
+            'Noting the selected level in the combobox
+            For Each Item In PaddingTimeComboBox.Items
+                If Item = _PaddingTime Then
+                    PaddingTimeComboBox.SelectedItem = Item
+                End If
+            Next
+
+        End Set
+    End Property
+
+
+    Private _InterSentenceTime As Single = 4
+    Private Property InterSentenceTime As Single
+        Get
+            Return _InterSentenceTime
+        End Get
+        Set(value As Single)
+
+            _InterSentenceTime = value
+
+            'Noting the selected level in the combobox
+            For Each Item In InterSentenceTimeComboBox.Items
+                If Item = _InterSentenceTime Then
+                    InterSentenceTimeComboBox.SelectedItem = Item
+                End If
+            Next
+
+        End Set
+    End Property
+
     Private DrawNormalizedWave As Boolean = False
 
 #End Region
@@ -49,6 +213,8 @@ Public Class SpeechMaterialRecorder
         'Setting up a default RecordingWaveFormat
         SetupAudioIO()
 
+        SetDefaultValues()
+
     End Sub
 
     Public Sub New(ByRef EditItems As List(Of Tuple(Of String, SpeechMaterialComponent)), ByRef RecordingWaveFormat As Audio.Formats.WaveFormat)
@@ -63,6 +229,8 @@ Public Class SpeechMaterialRecorder
         Me.SoundFilesForEditing = EditItems
 
         SetupAudioIO()
+
+        SetDefaultValues()
 
     End Sub
 
@@ -81,7 +249,20 @@ Public Class SpeechMaterialRecorder
             FileComboBox.Items.Add(n)
         Next
 
+        SetDefaultValues()
+
         If SoundFilesForEditing.Count > 0 Then SelectSoundFileIndex(0)
+
+    End Sub
+
+    Private Sub SetDefaultValues()
+
+        PresentationLevel = 65
+        BackgroundSoundLevel = 65
+
+        CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.HeadPhones
+
+        SetRecordLabelText(False)
 
     End Sub
 
@@ -252,6 +433,15 @@ Public Class SpeechMaterialRecorder
             CurrentSpectrogramFormat = New Audio.Formats.SpectrogramFormat(, 1024,, 512,, True,,,, True)
         End If
     End Sub
+
+    Private Sub HeadphonesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles HeadphonesToolStripMenuItem.Click
+        CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.HeadPhones
+    End Sub
+
+    Private Sub SoundFieldToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SoundFieldToolStripMenuItem.Click
+        CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.SoundField
+    End Sub
+
 
 #End Region
 
@@ -462,6 +652,44 @@ Public Class SpeechMaterialRecorder
 
 #Region "RecordingView"
 
+    Private Sub PresentationLevel_ToolStripComboBox_Click(sender As Object, e As EventArgs) Handles PresentationLevel_ToolStripComboBox.SelectedIndexChanged
+
+        If PresentationLevel_ToolStripComboBox.SelectedItem = "" Then Exit Sub
+
+        Dim TempValue As Single
+        If Double.TryParse(PresentationLevel_ToolStripComboBox.SelectedItem, TempValue) = True Then
+            PresentationLevel = TempValue
+        Else
+            MsgBox("Unable to set the presentation level!", MsgBoxStyle.Information, "Set presentation level")
+        End If
+
+        PresentationLevel_ToolStripComboBox.PerformClick()
+
+    End Sub
+
+    Private Sub BackgroundSoundLevel_ToolStripComboBox_Click(sender As Object, e As EventArgs) Handles BackgroundSoundLevel_ToolStripComboBox.SelectedIndexChanged
+
+        If BackgroundSoundLevel_ToolStripComboBox.SelectedItem = "" Then Exit Sub
+
+        Dim TempValue As Single
+        If Double.TryParse(BackgroundSoundLevel_ToolStripComboBox.SelectedItem, TempValue) = True Then
+            BackgroundSoundLevel = TempValue
+        Else
+            MsgBox("Unable to set the background sound level!", MsgBoxStyle.Information, "Set background sound level")
+        End If
+
+        BackgroundSoundLevel_ToolStripComboBox.PerformClick()
+
+    End Sub
+
+    Private Sub PresentationSoundLevelTypeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PresentationSoundLevelTypeToolStripMenuItem.Click
+        PresentationSound_SoundLevelFormat.SelectFormatWithGui()
+    End Sub
+
+    Private Sub BackgroundSoundLevelTypeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles BackgroundSoundLevelTypeToolStripMenuItem.Click
+        BackgroundSound_SoundLevelFormat.SelectFormatWithGui()
+    End Sub
+
 
     Private Sub UpdateSoundLevelMeter(ByRef NewBuffer As Audio.Sound)
 
@@ -494,16 +722,260 @@ Public Class SpeechMaterialRecorder
 
     Private Sub ListenButton_Click(sender As Object, e As EventArgs) Handles ListenButton.Click
 
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+
+            If CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.SoundField Then
+                'Presenting a mono sound
+                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, CurrentlyLoadedSoundFile,,,, Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
+            Else
+                'Prestenting a stereo sound
+                Dim TempMultiChannelSound As Audio.Sound = CurrentlyLoadedSoundFile.ConvertMonoToMultiChannel(2, True)
+                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, TempMultiChannelSound,,,, Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
+            End If
+
+        End If
 
     End Sub
 
     Private Sub StartRecordingButton_Click(sender As Object, e As EventArgs) Handles StartRecordingButton.Click
+
+        Select Case myRecordingStatus
+            Case RecordingStatus.NotRecorded, RecordingStatus.FinishedRecording
+                newRecording()
+
+            Case RecordingStatus.Recording
+                stopRecording(RecordingButton)
+
+        End Select
 
     End Sub
 
     Private Sub StopRecordingButton_Click(sender As Object, e As EventArgs) Handles StopRecordingButton.Click
 
     End Sub
+
+#Region "Recording Loop"
+
+    Private CurrentSentence As Integer
+
+    Private delayBeforeStoppingRecording As Integer = 500
+
+    Private myRecordingStatus As RecordingStatus = RecordingStatus.NotRecorded
+    Private Enum RecordingStatus
+        NotRecorded
+        Recording
+        FinishedRecording
+    End Enum
+
+
+    Private WithEvents StartRecordingTimer As New Timer
+    Private Sub newRecording()
+
+        'Plays the specified sound
+        If UseAuditoryPrequeing = True Then
+
+            MsgBox("From where should we get the prototype recordings?")
+            Dim PreCueSound As Audio.Sound
+
+            If CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.SoundField Then
+
+                'Presenting a mono sound
+                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, PreCueSound,,,, Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
+            Else
+
+                'Prestenting a stereo sound
+                Dim TempMultiChannelSound As Audio.Sound = PreCueSound.ConvertMonoToMultiChannel(2, True)
+                TempMultiChannelSound.SMA.SetTimeWeighting(PresentationSound_SoundLevelFormat.TemporalIntegrationDuration, True)
+                TempMultiChannelSound.SMA.SetFrequencyWeighting(PresentationSound_SoundLevelFormat.FrequencyWeighting, True)
+
+                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, TempMultiChannelSound,
+                                                     TempMultiChannelSound.SMA.ChannelData(1)(CurrentSentence).StartSample,
+                                                     TempMultiChannelSound.SMA.ChannelData(1)(CurrentSentence).Length,,
+                                                                Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
+
+            End If
+
+            StartRecordingTimer.Interval = 50 + (1000 * PreCueSound.SMA.ChannelData(1)(CurrentSentence).Length / PreCueSound.WaveFormat.SampleRate)
+            StartRecordingTimer.Start()
+
+        Else
+
+            StartRecordingTimer.Interval = 1
+            StartRecordingTimer.Start()
+        End If
+
+    End Sub
+
+
+    Private Sub StartRecording() Handles StartRecordingTimer.Tick
+
+        StartRecordingTimer.Stop()
+
+        Dim rnd As New Random
+
+        'Prepares the background noise
+        If UseRecordingNoise = True Then
+
+            If BackgroundSound Is Nothing Then
+                Dim BoxResult = MsgBox("Please press OK select a background sound file.", MsgBoxStyle.OkCancel)
+
+                If BoxResult = MsgBoxResult.Ok Then
+                    BackgroundSound = Audio.AudioIOs.ReadWaveFile(,,,,,)
+
+                    'Checking that the length is enough
+                    Dim BackgroundSoundLength As Integer = BackgroundSound.WaveData.SampleData(1).Length
+
+                    'It should be at least 100 seconds
+                    If BackgroundSoundLength / BackgroundSound.WaveFormat.SampleRate < 100 Then
+                        MsgBox("The background sound should be at least 100 seconds long!")
+                        Exit Sub
+                    End If
+
+                    If BackgroundSound.WaveFormat.Channels = 1 Then
+                        'Creating a stereo sound with uncorrelated channels by copying from random sections 
+                        Dim NewBackgroundSound As New Audio.Sound(New Audio.Formats.WaveFormat(BackgroundSound.WaveFormat.SampleRate, BackgroundSound.WaveFormat.BitDepth, 2, , BackgroundSound.WaveFormat.Encoding))
+                        Dim Chl1Rnd = rnd.Next(0, BackgroundSoundLength / 4)
+                        Dim Chl2Rnd = rnd.Next((1 * BackgroundSoundLength) / 4, (3 * BackgroundSoundLength) / 4)
+                        Dim FinalLength = (BackgroundSoundLength / 4) - 50
+                        NewBackgroundSound.WaveData.SampleData(1) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl1Rnd, FinalLength).ToArray
+                        NewBackgroundSound.WaveData.SampleData(2) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl2Rnd, FinalLength).ToArray
+                        BackgroundSound = NewBackgroundSound
+                    End If
+                Else
+                    Exit Sub
+                End If
+            Else
+
+                If ReMeasureBackgroundSoundLevel = True Then
+
+                    For c = 1 To 2
+
+                        'Setting the background sound level
+                        'Measures weighted level
+                        Dim PreLevel As Double
+                        If BackgroundSound_SoundLevelFormat.LoudestSectionMeasurement = True Then
+                            PreLevel = Audio.DSP.GetLevelOfLoudestWindow(BackgroundSound, c,
+                                                                                     BackgroundSound_SoundLevelFormat.TemporalIntegrationDuration * BackgroundSound.WaveFormat.SampleRate,
+                                                                                      0, Nothing, , BackgroundSound_SoundLevelFormat.FrequencyWeighting, True)
+                        Else
+                            PreLevel = Audio.DSP.MeasureSectionLevel(BackgroundSound, c, 0, Nothing, Audio.AudioManagement.SoundDataUnit.dB, Audio.AudioManagement.SoundMeasurementType.RMS, BackgroundSound_SoundLevelFormat.FrequencyWeighting)
+                        End If
+
+                        'Adjusting the level
+                        Audio.DSP.AmplifySection(BackgroundSound, PreLevel - BackgroundSoundLevel, c)
+                    Next
+
+                    ReMeasureBackgroundSoundLevel = False
+                End If
+
+                'Taking a random section of the sound
+                Dim MaskerDuration As Single = 15
+                Dim MaskerLength As Integer = MaskerDuration * BackgroundSound.WaveFormat.SampleRate
+
+                Dim Chl1_2Rnd = rnd.Next(0, BackgroundSound.WaveData.SampleData(1).Length - MaskerLength - 50)
+                Dim CurrentMasker As New Audio.Sound(BackgroundSound.WaveFormat)
+                CurrentMasker.WaveData.SampleData(1) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl1_2Rnd, MaskerLength).ToArray
+                CurrentMasker.WaveData.SampleData(2) = BackgroundSound.WaveData.SampleData(2).ToList.GetRange(Chl1_2Rnd, MaskerLength).ToArray
+
+                'Fading in the masker
+                Audio.DSP.Fade(CurrentMasker,, 1,,, 2000)
+
+            End If
+        End If
+
+        Try
+
+            SetRecordLabelText(False)
+
+            'Starts the recording
+            If UseRecordingNoise = True Then
+
+                'Starting to record with background sound
+                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, BackgroundSound,,,, , 0.2, 0.1)
+
+            Else
+                'Starting to record without background sound
+                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, Nothing,,,, , 0, 0)
+
+            End If
+
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+        End Try
+
+    End Sub
+
+
+    Private Function stopRecording(ByVal sender As Object) As Boolean
+
+        If myRecordingStatus = RecordingStatus.Recording Then
+
+            MyGeneralSoundPlayer.Stop(0.2)
+
+            myRecordingStatus = RecordingStatus.FinishedRecording
+            SetRecordLabelText(False)
+
+            'Copying the sound from the recorded sound to the current index in mySounds (not just coying the sound sincePTWF info will be lost then)
+            Dim RecordedSound = MyGeneralSoundPlayer.GetRecordedSound
+
+
+
+        End If
+
+    End Function
+
+    Public Sub SetRecordLabelText(ByVal recording As Boolean)
+
+        If recording = True Then
+            RecordingLabel.ForeColor = Drawing.Color.White
+            RecordingLabel.BackColor = Drawing.Color.Red
+            RecordingLabel.Text = "Recording"
+            ListenButton.Enabled = False
+        Else
+            RecordingLabel.ForeColor = Drawing.Color.Blue
+            RecordingLabel.BackColor = Drawing.Color.DarkGray
+            RecordingLabel.Text = "Not recording"
+        End If
+
+    End Sub
+
+
+    Private WithEvents nextItemTimer As New Timer
+    Private Sub nextWordButton_Click(sender As Object, e As EventArgs) Handles NextWordButton.Click, NextUnrecordedWordButton.Click
+        NextWordButton.Enabled = False
+        nextItemTimer.Interval = delayBeforeStoppingRecording
+        nextItemTimer.Start()
+
+        If RandomOrderOfSounds = True And sender Is NextUnrecordedWordButton Then
+            JumpToUnrecorded = True
+        Else
+            JumpToUnrecorded = False
+        End If
+
+    End Sub
+    Public Sub nextWordKey_Pressed()
+        NextWordButton.Enabled = False
+        nextItemTimer.Interval = delayBeforeStoppingRecording
+
+        If RandomOrderOfSounds = True Then
+            JumpToUnrecorded = True
+        Else
+            JumpToUnrecorded = False
+        End If
+
+        nextItemTimer.Start()
+
+    End Sub
+    Private Sub nextItem() Handles nextItemTimer.Tick
+        nextItemTimer.Stop()
+
+        stopRecording(NextWordButton)
+
+    End Sub
+
+#End Region
+
 
 #Region "Font change"
 
@@ -567,42 +1039,18 @@ Public Class SpeechMaterialRecorder
 
     Private Sub AuditoryPrequeingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AuditoryPrequeingToolStripMenuItem.Click
         UseAuditoryPrequeing = Not UseAuditoryPrequeing
-        AuditoryPrequeingToolStripMenuItem.Checked = UseAuditoryPrequeing
-        If UseAuditoryPrequeing = True Then
-            preQueLabel.Text = "Pre-queing: On"
-        Else
-            preQueLabel.Text = "Pre-queing: Off"
-        End If
-
     End Sub
 
     Private Sub StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Click
         AutoStartRecording = Not AutoStartRecording
-        StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Checked = AutoStartRecording
-
-        If AutoStartRecording = True Then
-            AutoRecordingStatusLabel.Text = "Auto-recording: On"
-        Else
-            AutoRecordingStatusLabel.Text = "Auto-recording: Off"
-        End If
-
     End Sub
 
     Private Sub ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Click
         UseRecordingNoise = Not UseRecordingNoise
-        ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Checked = UseRecordingNoise
-
-        If UseRecordingNoise = True Then
-            BackgroundSoundStatusLabel.Text = "Background sound: On"
-        Else
-            BackgroundSoundStatusLabel.Text = "Background sound: Off"
-        End If
-
     End Sub
 
     Private Sub ToggleSoundLevelMeteronoffToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ToggleSoundLevelMeteronoffToolStripMenuItem.Click
         ShowSoundLevelMeter = Not ShowSoundLevelMeter
-        ToggleSoundLevelMeteronoffToolStripMenuItem.Checked = ShowSoundLevelMeter
     End Sub
 
 
@@ -643,25 +1091,33 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub PaddingTimeComboBox_Click(sender As Object, e As EventArgs) Handles PaddingTimeComboBox.Click
+    Private Sub PaddingTimeComboBox_Click(sender As Object, e As EventArgs) Handles PaddingTimeComboBox.SelectedIndexChanged
+
+        If PaddingTimeComboBox.SelectedItem = "" Then Exit Sub
 
         Dim TempValue As Single
-        If Single.TryParse(PaddingTimeComboBox.SelectedText, TempValue) = True Then
+        If Single.TryParse(PaddingTimeComboBox.SelectedItem, TempValue) = True Then
             PaddingTime = TempValue
         Else
             MsgBox("Unable to set the padding time!", MsgBoxStyle.Information, "Set padding time")
         End If
 
+        PaddingTimeComboBox.PerformClick()
+
     End Sub
 
-    Private Sub InterSentenceTimeComboBox_Click(sender As Object, e As EventArgs) Handles InterSentenceTimeComboBox.Click
+    Private Sub InterSentenceTimeComboBox_Click(sender As Object, e As EventArgs) Handles InterSentenceTimeComboBox.SelectedIndexChanged
+
+        If InterSentenceTimeComboBox.SelectedItem = "" Then Exit Sub
 
         Dim TempValue As Single
-        If Single.TryParse(InterSentenceTimeComboBox.SelectedText, TempValue) = True Then
+        If Single.TryParse(InterSentenceTimeComboBox.SelectedItem, TempValue) = True Then
             InterSentenceTime = TempValue
         Else
             MsgBox("Unable to set the inter-sentence time!", MsgBoxStyle.Information, "Set inter-sentence time")
         End If
+
+        InterSentenceTimeComboBox.PerformClick()
 
     End Sub
 
@@ -676,7 +1132,6 @@ Public Class SpeechMaterialRecorder
     Private Sub CloseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CloseToolStripMenuItem.Click
         Me.Close()
     End Sub
-
 
 
 

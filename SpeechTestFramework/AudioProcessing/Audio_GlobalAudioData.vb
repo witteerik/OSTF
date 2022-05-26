@@ -25,12 +25,12 @@ Namespace Audio
         ''' </summary>
         Public Simulated_dBFS_dBSPL_Difference As Double = 100
 
-        Public Enum SoundTransducerMode
+        Public Enum SoundTransducerModes
             SoundField
             HeadPhones
         End Enum
 
-        Public CurrentSoundTransducerMode As Audio.SoundTransducerMode = SoundTransducerMode.SoundField
+        Public CurrentSoundTransducerMode As Audio.SoundTransducerModes = SoundTransducerModes.SoundField
 
 
         ''' <summary>
@@ -44,9 +44,9 @@ Namespace Audio
             If MeasuredCalibrationLevel = True Then
 
                 Select Case CurrentSoundTransducerMode
-                    Case SoundTransducerMode.SoundField
+                    Case SoundTransducerModes.SoundField
                         Return InputSPL - FullScaleSoundFieldOutputSoundLevel
-                    Case SoundTransducerMode.HeadPhones
+                    Case SoundTransducerModes.HeadPhones
                         Return InputSPL - FullScaleHeadphonesOutputSoundLevel
                     Case Else
                         Throw New NotImplementedException
@@ -55,9 +55,9 @@ Namespace Audio
             Else
 
                 Select Case CurrentSoundTransducerMode
-                    Case SoundTransducerMode.SoundField
+                    Case SoundTransducerModes.SoundField
                         Return InputSPL - Simulated_dBFS_dBSPL_Difference
-                    Case SoundTransducerMode.HeadPhones
+                    Case SoundTransducerModes.HeadPhones
                         Return InputSPL - Simulated_dBFS_dBSPL_Difference
                     Case Else
                         Throw New NotImplementedException
@@ -77,9 +77,9 @@ Namespace Audio
 
             If MeasuredCalibrationLevel = True Then
                 Select Case CurrentSoundTransducerMode
-                    Case SoundTransducerMode.SoundField
+                    Case SoundTransducerModes.SoundField
                         Return FullScaleSoundFieldOutputSoundLevel + InputFS
-                    Case SoundTransducerMode.HeadPhones
+                    Case SoundTransducerModes.HeadPhones
                         Return FullScaleHeadphonesOutputSoundLevel + InputFS
                     Case Else
                         Throw New NotImplementedException
@@ -87,9 +87,9 @@ Namespace Audio
 
             Else
                 Select Case CurrentSoundTransducerMode
-                    Case SoundTransducerMode.SoundField
+                    Case SoundTransducerModes.SoundField
                         Return Simulated_dBFS_dBSPL_Difference + InputFS
-                    Case SoundTransducerMode.HeadPhones
+                    Case SoundTransducerModes.HeadPhones
                         Return Simulated_dBFS_dBSPL_Difference + InputFS
                     Case Else
                         Throw New NotImplementedException
