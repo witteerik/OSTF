@@ -110,6 +110,26 @@ Namespace Audio
 
             End Sub
 
+            ''' <summary>
+            ''' Determines whether values are the same between the current WaveFormat and ComparisonFormat
+            ''' </summary>
+            ''' <param name="ComparisonFormat"></param>
+            ''' <returns></returns>
+            Public Function IsEqual(ByRef ComparisonFormat As WaveFormat,
+                                    Optional ByVal CompareChannels As Boolean = True,
+                                    Optional ByVal CompareSampleRate As Boolean = True,
+                                    Optional ByVal CompareBitDepth As Boolean = True,
+                                    Optional ByVal CompareEncoding As Boolean = True) As Boolean
+
+                If CompareChannels = True Then If ComparisonFormat.Channels <> Me.Channels Then Return False
+                If CompareSampleRate = True Then If ComparisonFormat.SampleRate <> Me.SampleRate Then Return False
+                If CompareBitDepth = True Then If ComparisonFormat.BitDepth <> Me.BitDepth Then Return False
+                If CompareEncoding = True Then If ComparisonFormat.Encoding <> Me.Encoding Then Return False
+
+                Return True
+
+            End Function
+
         End Class
 
 

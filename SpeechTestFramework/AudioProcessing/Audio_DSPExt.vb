@@ -4090,6 +4090,97 @@ Namespace Audio
 
 
             ''' <summary>
+            ''' Directly concatenates Sound2 to the start of Sound1. The same samplerate, bit depth, sample encoding and number of channels are required in Sound1 and Sound2. Within each each input sound, equal channel lengths are also required.
+            ''' </summary>
+            ''' <param name="Sound1"></param>
+            ''' <param name="Sound2"></param>
+            Public Sub AddSoundToStart(ByRef Sound1 As Sound, ByRef Sound2 As Sound)
+
+                Try
+
+                    'Checking format equality
+                    If Sound1.WaveFormat.IsEqual(Sound2.WaveFormat) = False Then
+                        MsgBox("The function AddSoundToEnd requires the same wave sound format between Sound1 and Sound2.")
+                    End If
+
+                    'NB. As changing only the CurrentChannel channel would create channels of differing in lengths in multi channel sounds!!! Avoiding this by also extending the other channels if there are any.
+                    For c = 1 To Sound1.WaveFormat.Channels
+                        Sound1.WaveData.SampleData(c) = Sound2.WaveData.SampleData(c).Concat(Sound1.WaveData.SampleData(c)).ToArray
+                    Next
+
+                Catch ex As Exception
+                    AudioError(ex.ToString)
+                End Try
+
+            End Sub
+
+
+            ''' <summary>
+            ''' Directly concatenates Sound2 to the end of Sound1. The same samplerate, bit depth, sample encoding and number of channels are required in Sound1 and Sound2. Within each each input sound, equal channel lengths are also required.
+            ''' </summary>
+            ''' <param name="Sound1"></param>
+            ''' <param name="Sound2"></param>
+            Public Sub AddSoundToEnd(ByRef Sound1 As Sound, ByRef Sound2 As Sound)
+
+                Try
+
+                    'Checking format equality
+                    If Sound1.WaveFormat.IsEqual(Sound2.WaveFormat) = False Then
+                        MsgBox("The function AddSoundToEnd requires the same wave sound format between Sound1 and Sound2.")
+                    End If
+
+                    'NB. As changing only the CurrentChannel channel would create channels of differing in lengths in multi channel sounds!!! Avoiding this by also extending the other channels if there are any.
+                    For c = 1 To Sound1.WaveFormat.Channels
+                        Sound1.WaveData.SampleData(c) = Sound1.WaveData.SampleData(c).Concat(Sound2.WaveData.SampleData(c)).ToArray
+                    Next
+
+                Catch ex As Exception
+                    AudioError(ex.ToString)
+                End Try
+
+            End Sub
+
+            ''' <summary>
+            ''' Inserts Sound2 in Sound1 at the InsertionStart sample position. The same samplerate, bit depth, sample encoding and number of channels are required in Sound1 and Sound2. Within each each input sound, equal channel lengths are also required.
+            ''' </summary>
+            ''' <param name="Sound1"></param>
+            ''' <param name="Sound2"></param>
+            Public Sub InsertSoundAt(ByRef Sound1 As Sound, ByRef Sound2 As Sound, ByVal InsertionStart As Integer)
+
+                Try
+                    'Checking format equality
+                    If Sound1.WaveFormat.IsEqual(Sound1.WaveFormat) = False Then
+                        MsgBox("The function AddSoundToEnd requires the same wave sound format between Sound1 and Sound2.")
+                        Exit Sub
+                    End If
+
+                    'NB. As changing only the CurrentChannel channel would create channels of differing in lengths in multi channel sounds!!! Avoiding this by also extending the other channels if there are any.
+                    For c = 1 To Sound1.WaveFormat.Channels
+
+                        Dim ChannelData = Sound1.WaveData.SampleData(c)
+                        Dim ChannelDataLength = ChannelData.Length
+
+                        'Limits the InsertionStart to the range of Sound1
+                        InsertionStart = Math.Max(0, InsertionStart)
+                        InsertionStart = Math.Min(ChannelDataLength, InsertionStart)
+
+                        'Splits the first file array
+                        Dim FirstBit = Sound1.WaveData.SampleData(c).Take(InsertionStart).ToArray
+                        Dim SecondBit = Sound1.WaveData.SampleData(c).ToList.GetRange(InsertionStart, ChannelDataLength - InsertionStart).ToArray
+
+                        Dim NewChannelArray = FirstBit.Concat(Sound2.WaveData.SampleData(c)).Concat(SecondBit).ToArray
+
+                        Sound1.WaveData.SampleData(c) = NewChannelArray
+                    Next
+
+                Catch ex As Exception
+                    AudioError(ex.ToString)
+                End Try
+
+            End Sub
+
+
+            ''' <summary>
             ''' Insert a section of silence, with the specified startsample and length into all channels of the input sound
             ''' </summary>
             ''' <param name="InputSound"></param>

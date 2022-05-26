@@ -338,21 +338,22 @@ Namespace Audio
             End Sub
 
             ''' <summary>
-            ''' Shifts all StartSample indices in the current instance of SpeechMaterialAnnotation, and limits the StartSample and Length values to the sample indices available in the parent sounds file
+            ''' Shifts all StartSample indices in the current instance of SpeechMaterialAnnotation located at or after FirstSampleToShift, and limits the StartSample and Length values to the sample indices available in the parent sound file
             ''' </summary>
             ''' <param name="ShiftInSamples"></param>
-            Public Sub ShiftSegmentationData(ByVal ShiftInSamples As Integer)
+            '''   <param name="FirstSampleToShift">Applies shift to all StartSample values after FirstSampleToShift.</param>
+            Public Sub ShiftSegmentationData(ByVal ShiftInSamples As Integer, ByVal FirstSampleToShift As Integer)
 
                 For c = 1 To Me.ChannelCount
                     Dim Channel = Me.ChannelData(c)
                     Dim SoundChannelLength As Integer = ParentSound.WaveData.SampleData(c).Length
-                    LimitStartIndexAndLengthOnShift(ShiftInSamples, SoundChannelLength, Channel.StartSample, Channel.Length)
+                    ApplyShift(ShiftInSamples, SoundChannelLength, Channel.StartSample, Channel.Length, FirstSampleToShift)
                     For Each Sentence In Channel
-                        LimitStartIndexAndLengthOnShift(ShiftInSamples, SoundChannelLength, Sentence.StartSample, Sentence.Length)
+                        ApplyShift(ShiftInSamples, SoundChannelLength, Sentence.StartSample, Sentence.Length, FirstSampleToShift)
                         For Each Word In Sentence
-                            LimitStartIndexAndLengthOnShift(ShiftInSamples, SoundChannelLength, Word.StartSample, Word.Length)
+                            ApplyShift(ShiftInSamples, SoundChannelLength, Word.StartSample, Word.Length, FirstSampleToShift)
                             For Each Phone In Word
-                                LimitStartIndexAndLengthOnShift(ShiftInSamples, SoundChannelLength, Phone.StartSample, Phone.Length)
+                                ApplyShift(ShiftInSamples, SoundChannelLength, Phone.StartSample, Phone.Length, FirstSampleToShift)
                             Next
                         Next
                     Next
@@ -360,16 +361,27 @@ Namespace Audio
 
             End Sub
 
-            Private Sub LimitStartIndexAndLengthOnShift(ByVal Shift As Integer, ByVal TotalAvailableLength As Integer, ByRef StartIndex As Integer, ByRef Length As Integer)
+
+            ''' <summary>
+            ''' Shifts all StartSample indices located at or after FirstSampleToShift in the current instance of SpeechMaterialAnnotation, and limits the StartSample and Length values to the sample indices available in the parent sound file
+            ''' </summary>
+            ''' <param name="Shift"></param>
+            ''' <param name="TotalAvailableLength"></param>
+            ''' <param name="StartIndex"></param>
+            ''' <param name="Length"></param>
+            ''' <param name="FirstSampleToShift"></param>
+            Private Sub ApplyShift(ByVal Shift As Integer, ByVal TotalAvailableLength As Integer, ByRef StartIndex As Integer, ByRef Length As Integer, ByVal FirstSampleToShift As Integer)
 
                 'MsgBox("Check the code below for accuracy!!!")
 
-                'Adjusting the StartSample and limiting it to the available range
-                StartIndex = Math.Min(Math.Max(StartIndex + Shift, 0), TotalAvailableLength - 1)
+                If StartIndex >= FirstSampleToShift Then
+                    'Adjusting the StartSample and limiting it to the available range
+                    StartIndex = Math.Min(Math.Max(StartIndex + Shift, 0), TotalAvailableLength - 1)
 
-                'Limiting Length to the available length after adjustment of startsample
-                Dim MaximumPossibleLength = TotalAvailableLength - StartIndex
-                Length = Math.Max(0, Math.Min(Length, MaximumPossibleLength))
+                    'Limiting Length to the available length after adjustment of startsample
+                    Dim MaximumPossibleLength = TotalAvailableLength - StartIndex
+                    Length = Math.Max(0, Math.Min(Length, MaximumPossibleLength))
+                End If
 
             End Sub
 
@@ -430,10 +442,10 @@ Namespace Audio
                         ' If InitialShift is zero, nothing need to be changed.
                         If InitialShift > 0 Then
                             DSP.InsertSilentSection(Sound, 0, InitialShift)
-                            ShiftSegmentationData(InitialShift)
+                            ShiftSegmentationData(InitialShift, 0)
                         ElseIf InitialShift < 0 Then
                             DSP.DeleteSection(Sound, 0, -InitialShift)
-                            ShiftSegmentationData(InitialShift)
+                            ShiftSegmentationData(InitialShift, 0)
                         End If
 
                         'Fixing the end
@@ -467,9 +479,98 @@ Namespace Audio
 
             Public Sub ApplyInterSentenceInterval(ByVal Interval As Single, ByVal FadeInterval As Boolean, ByRef CurrentChannel As Integer,
                                   Optional FadeType As DSP.FadeSlopeType = DSP.FadeSlopeType.PowerCosine_SkewedFromFadeDirection,
-                                  Optional CosinePower As Double = 100)
+                                  Optional CosinePower As Double = 100, Optional ByVal FadedMarginTime As Single = 0.05)
 
-                Throw New NotImplementedException
+                MsgBox("This function really need to be checked, especially the SMA StartSample shifts!")
+
+                Dim FadedMarginLength As Integer = Math.Floor(ParentSound.WaveFormat.SampleRate * FadedMarginTime)
+                If FadedMarginLength Mod 2 = 1 Then FadedMarginLength -= 1 'Adjusts FadedMarginLength to an even value
+                Dim IntervalLength As Integer = Math.Floor(ParentSound.WaveFormat.SampleRate * Interval)
+                If IntervalLength Mod 2 = 1 Then IntervalLength -= 1 'Adjusts IntervalLength to an even value
+
+                'Ensuring that the interval is large enough to room two faded margins
+                If 2 * FadedMarginLength > IntervalLength Then
+                    'Adjusting the FadedMarginLength to be half of the FadedMarginLength
+                    FadedMarginLength = IntervalLength / 2
+                End If
+
+                Dim SentenceSoundSections As New List(Of Sound)
+                'Getting all sentence sound sections including a margin of FadedMarginTime
+
+                Dim SoundChannelData As List(Of Single) = ParentSound.WaveData.SampleData(CurrentChannel).ToList
+
+                For s = 0 To ChannelData(CurrentChannel).Count - 1
+
+                    Dim sentence = ChannelData(CurrentChannel)(s)
+
+                    Dim StartReadSample = sentence.StartSample - FadedMarginLength
+                    Dim InitialAdjustment As Integer = 0
+                    If StartReadSample < 0 Then
+                        InitialAdjustment = -StartReadSample
+                    End If
+                    StartReadSample = Math.Max(0, StartReadSample)
+
+                    Dim ReadLength = InitialAdjustment + sentence.Length + FadedMarginLength
+                    Dim FinalAdjustment As Integer = 0
+                    If StartReadSample + ReadLength > SoundChannelData.Count Then
+                        FinalAdjustment = Math.Abs((StartReadSample + ReadLength) - SoundChannelData.Count)
+                    End If
+                    ReadLength -= FinalAdjustment
+
+                    Dim SentenceData = SoundChannelData.GetRange(StartReadSample, ReadLength).ToArray
+
+                    'Adjusting for missing samples
+                    If InitialAdjustment > 0 Then
+                        Dim InitialAdjustmentArray(InitialAdjustment - 1) As Single
+                        SentenceData = InitialAdjustmentArray.Concat(SentenceData).ToArray
+                    End If
+                    If FinalAdjustment > 0 Then
+                        Dim FinalAdjustmentArray(FinalAdjustment - 1) As Single
+                        SentenceData = SentenceData.Concat(FinalAdjustmentArray).ToArray
+                    End If
+
+                    Dim SentenceSound = New Sound(ParentSound.WaveFormat)
+                    SentenceSound.WaveData.SampleData(CurrentChannel) = SentenceData
+
+                    'Fading the margins
+                    If FadeInterval = True Then
+                        Audio.DSP.Fade(SentenceSound,, 0, CurrentChannel, 0, FadedMarginLength, FadeType, CosinePower)
+                        Audio.DSP.Fade(SentenceSound,, 0, CurrentChannel, SentenceData.Length - FadedMarginLength, FadedMarginLength, FadeType, CosinePower)
+                    End If
+
+                    'Adding the sentence sound
+                    SentenceSoundSections.Add(SentenceSound)
+
+                    'Adding silence between sentnces (not adding after the last sentence
+                    If s < ChannelData(CurrentChannel).Count - 1 Then
+                        'Adding a silent sound with the length of IntervalLength - 2 * FadedMarginLength
+                        Dim SilenceLength As Integer = IntervalLength - 2 * FadedMarginLength
+                        Dim SilentSound = Audio.GenerateSound.CreateSilence(ParentSound.WaveFormat, CurrentChannel, SilenceLength, TimeUnits.samples)
+                        SentenceSoundSections.Add(SilentSound)
+                    End If
+
+                Next
+
+                'Concatenates the sounds
+                Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(SentenceSoundSections)
+
+                'Storing the concatenated sound array in Me.ParentSound
+                Me.ParentSound.WaveData.SampleData(CurrentChannel) = ConcatenatedSound.WaveData.SampleData(CurrentChannel)
+
+                'Adjusts the SMA data
+                'N.B. the first sentnce should be in place, therefore this one is skipped
+                For s = 1 To ChannelData(CurrentChannel).Count - 1
+                    Dim Sentence = ChannelData(CurrentChannel)(s)
+                    Dim PrecedingSentence = ChannelData(CurrentChannel)(s - 1)
+
+                    Dim OldSentenceStart As Integer = Sentence.StartSample
+                    Dim NewSentenceStart As Integer = PrecedingSentence.StartSample + PrecedingSentence.Length + IntervalLength
+                    Dim Shift As Integer = NewSentenceStart - OldSentenceStart
+
+                    'Shifts the StartSamples after 
+                    Me.ShiftSegmentationData(Shift, OldSentenceStart)
+
+                Next
 
             End Sub
 

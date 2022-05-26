@@ -108,6 +108,7 @@ Namespace Audio
             Private CurrentWordIndex As Integer = 0
             Private CurrentPhonemeIndex As Integer
             Private PaddingTime As Single        'padding time should be in seconds
+            Private InterSentenceTime As Single
             Private SetSegmentationToZeroCrossings As Boolean
 
             Private CurrentSegmentationItem As Audio.Sound.SpeechMaterialAnnotation.SmaComponent = Nothing
@@ -158,6 +159,7 @@ Namespace Audio
                 Me.ShowSpectrogram = ShowSpectrogram
                 Me.SpectrogramFormat = SpectrogramFormat
                 Me.PaddingTime = PaddingTime
+                Me.InterSentenceTime = InterSentenceTime
                 Me.DrawNormalizedWave = DrawNormalizedWave
                 Me.SoundPlayer = SoundPlayer
                 Me.SetSegmentationToZeroCrossings = SetSegmentationToZeroCrossings
@@ -2254,7 +2256,20 @@ Namespace Audio
 
             Private Sub FixIntervals()
 
-                MsgBox("Fixing the inter-sentence intervals has not yet been implemented!")
+                If CurrentSound IsNot Nothing Then
+                    If CurrentSound.SMA IsNot Nothing Then
+                        If CurrentSound.SMA.AllSegmentationsCompleted(CurrentChannel) = True Then
+                            CurrentSound.SMA.ApplyInterSentenceInterval(InterSentenceTime, True, CurrentChannel)
+                        Else
+                            MsgBox("Unable to fix the inter-sentence intervals due to incomplete boundary segmentation.")
+                        End If
+                    End If
+                End If
+
+                'Recalculates spectrogram data, since the waveform have been changed
+                If ShowSpectrogram = True Then UpdateSpectrogramData()
+
+                UpdateLayout()
 
             End Sub
 
