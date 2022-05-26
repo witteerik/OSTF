@@ -7334,7 +7334,7 @@ Namespace Audio
 
             Public Function Resample_UsingResampAudio(ByVal InputSound As Sound,
                                                   ByVal TargetWaveFormat As Formats.WaveFormat,
-                                                  Optional ByVal ResampAudioPath As String = "C:\Gamla D\EriksDokument\AudioProgrammingCode\AFsp_Win\ResampAudio.exe",
+                                                  Optional ByVal ResampAudioPath As String = "C:\AFsp_Win\ResampAudio.exe",
                                                   Optional ByVal WorkFolder As String = "",
                                                   Optional ByVal CopyPTWFObjectToOutput As Boolean = False) As Sound
 

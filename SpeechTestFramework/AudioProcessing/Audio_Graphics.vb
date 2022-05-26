@@ -593,75 +593,82 @@ Namespace Audio
                     ZoomFull()
                 End If
 
-                Dim CurrentFont = New Font("Arial", 12.0F, FontStyle.Regular)
+                Dim CurrentFont = Button.DefaultFont ' New Font("Arial", 9.0F, FontStyle.Regular)
+                Dim CurrentMargin = New Windows.Forms.Padding(2, 3, 2, 0)
+                Dim ButtonHeight As Single = 22
+                Dim SmallButtonWidth As Single = 58
+                Dim WideButtonWidth As Single = 120
+                SegmentationItemsPanel.Padding = New Padding(0)
 
                 SegmentationItemsPanel.Controls.Clear()
 
-                Dim NextItemButton As New Button With {.Text = "Next", .TextAlign = ContentAlignment.MiddleCenter,
-                        .AutoSize = True, .Font = CurrentFont}
-                AddHandler NextItemButton.Click, AddressOf GotoNextItem
-                SegmentationItemsPanel.Controls.Add(NextItemButton)
-
                 Dim PreviousItemButton As New Button With {.Text = "Previous", .TextAlign = ContentAlignment.MiddleCenter,
-                        .AutoSize = True, .Font = CurrentFont}
+                        .AutoSize = False, .Font = CurrentFont, .Width = SmallButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                 AddHandler PreviousItemButton.Click, AddressOf GotoPreviuosItem
                 SegmentationItemsPanel.Controls.Add(PreviousItemButton)
 
+                Dim NextItemButton As New Button With {.Text = "Next", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = False, .Font = CurrentFont, .Width = SmallButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
+                AddHandler NextItemButton.Click, AddressOf GotoNextItem
+                SegmentationItemsPanel.Controls.Add(NextItemButton)
+
                 Dim SegmentationItemStartButton As New Button With {.Text = "Set start", .TextAlign = ContentAlignment.MiddleCenter,
-                    .AutoSize = True, .Font = CurrentFont, .BackColor = Color.FromArgb(50, Color.LightGreen)}
+                    .AutoSize = False, .Font = CurrentFont, .BackColor = Color.FromArgb(50, Color.LightGreen), .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                 AddHandler SegmentationItemStartButton.Click, AddressOf SegmentationItemStartButton_Click
                 SegmentationItemsPanel.Controls.Add(SegmentationItemStartButton)
 
                 Dim SegmentationItemEndButton As New Button With {.Text = "Set end", .TextAlign = ContentAlignment.MiddleCenter,
-                    .AutoSize = True, .Font = CurrentFont, .BackColor = Color.FromArgb(50, Color.LightCoral)}
+                    .AutoSize = False, .Font = CurrentFont, .BackColor = Color.FromArgb(50, Color.LightCoral), .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                 AddHandler SegmentationItemEndButton.Click, AddressOf SegmentationItemEndButton_Click
                 SegmentationItemsPanel.Controls.Add(SegmentationItemEndButton)
 
 
                 'Adding a play button
                 If ShowPlaySoundButton = True Then
-                    Dim PlaySectionButton As New Button With {.Text = "Play section", .TextAlign = ContentAlignment.MiddleCenter,
-                        .AutoSize = True, .Font = CurrentFont}
+                    Dim PlaySectionButton As New WinFormControls.AudioButton With {.Enabled = True, .ViewMode = WinFormControls.AudioButton.ViewModes.Play,
+                        .AutoSize = False, .Width = SmallButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                     AddHandler PlaySectionButton.Click, AddressOf SegmentationItemPlay
                     SegmentationItemsPanel.Controls.Add(PlaySectionButton)
                 End If
 
                 If ShowInferEndsButton = True Then
                     Dim SyncEndsButton As New Button With {.Text = "Sync ends", .TextAlign = ContentAlignment.MiddleCenter,
-                        .AutoSize = True, .Font = CurrentFont}
+                        .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                     AddHandler SyncEndsButton.Click, AddressOf InferSiblingLengths
                     SegmentationItemsPanel.Controls.Add(SyncEndsButton)
                 End If
 
                 If ShowNextUnvalidatedItemButtons = True Then
+
+                    Dim PreviousUnvalidatedItemButton As New Button With {.Text = "Previous unvalidated", .TextAlign = ContentAlignment.MiddleCenter,
+                            .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
+                    AddHandler PreviousUnvalidatedItemButton.Click, AddressOf GotoPreviousUnvalidatedItem
+                    SegmentationItemsPanel.Controls.Add(PreviousUnvalidatedItemButton)
+
                     Dim NextUnvalidatedItemButton As New Button With {.Text = "Next unvalidated", .TextAlign = ContentAlignment.MiddleCenter,
-                            .AutoSize = True, .Font = CurrentFont}
+                            .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                     AddHandler NextUnvalidatedItemButton.Click, AddressOf GotoNextUnvalidatedItem
                     SegmentationItemsPanel.Controls.Add(NextUnvalidatedItemButton)
 
-                    Dim PreviousUnvalidatedItemButton As New Button With {.Text = "Previous unvalidated", .TextAlign = ContentAlignment.MiddleCenter,
-                            .AutoSize = True, .Font = CurrentFont}
-                    AddHandler PreviousUnvalidatedItemButton.Click, AddressOf GotoPreviousUnvalidatedItem
-                    SegmentationItemsPanel.Controls.Add(PreviousUnvalidatedItemButton)
                 End If
 
                 If ShowValidateSegmentationButton = True Then
                     Dim ValidateSegmentationButton As New Button With {.Text = "Validate", .TextAlign = ContentAlignment.MiddleCenter,
-                        .AutoSize = True, .Font = CurrentFont}
+                        .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                     AddHandler ValidateSegmentationButton.Click, AddressOf ValidateSegmentation
                     SegmentationItemsPanel.Controls.Add(ValidateSegmentationButton)
                 End If
 
                 If ShowFadeIntervalsButton = True Then
                     Dim FixIntervalsButton As New Button With {.Text = "Fix intervals", .TextAlign = ContentAlignment.MiddleCenter,
-                        .AutoSize = True, .Font = CurrentFont}
+                        .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                     AddHandler FixIntervalsButton.Click, AddressOf FixIntervals
                     SegmentationItemsPanel.Controls.Add(FixIntervalsButton)
                 End If
 
                 If ShowFadeIntervalsButton = True Then
                     Dim FixPaddingButton As New Button With {.Text = "Fix padding", .TextAlign = ContentAlignment.MiddleCenter,
-                        .AutoSize = True, .Font = CurrentFont}
+                        .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                     AddHandler FixPaddingButton.Click, AddressOf FixPadding
                     SegmentationItemsPanel.Controls.Add(FixPaddingButton)
                 End If
@@ -1329,8 +1336,14 @@ Namespace Audio
 
                 If e.Button = MouseButtons.Right Then
 
-                    'Displaying the context menu
-                    SoundDisplayContextMenu.Location = e.Location 'Cursor.Position
+                    Dim CastSender As Control = TryCast(sender, Control)
+                    If CastSender IsNot Nothing Then
+                        'Displaying the context menu
+                        SoundDisplayContextMenu.Location = CastSender.PointToScreen(e.Location)  'Cursor.Position
+                    Else
+                        'Putting the control top left on the screen if for some reason the sender could not be cast to a Control
+                        SoundDisplayContextMenu.Location = New Point(0, 0)
+                    End If
                     SoundDisplayContextMenu.Show()
 
                 End If

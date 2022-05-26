@@ -5,13 +5,11 @@ Imports SpeechTestFramework.Audio.Graphics
 
 Public Class SpeechMaterialRecorder
 
-    Private EditItems As New List(Of Tuple(Of String, SpeechMaterialComponent))
+    Private SoundFilesForEditing As New List(Of Tuple(Of String, SpeechMaterialComponent))
 
-    Private CurrentlyLoadedSound As Audio.Sound = Nothing
+    Private CurrentlyLoadedSoundFile As Audio.Sound = Nothing
+    Private CurrentSoundFileIndex As Integer = -1
 
-    Private CurrentItemIndex As Integer = 0
-    Public MinSelectionIndex As Integer = -1
-    Public MaxSelectionIndex As Integer = -1
 
     Private RecordingWaveFormat As Audio.Formats.WaveFormat
 
@@ -48,7 +46,7 @@ Public Class SpeechMaterialRecorder
         Me.RecordingWaveFormat = RecordingWaveFormat
 
         ' Add any initialization after the InitializeComponent() call.
-        Me.EditItems = EditItems
+        Me.SoundFilesForEditing = EditItems
 
         SetupAudioIO()
 
@@ -57,37 +55,136 @@ Public Class SpeechMaterialRecorder
 
     Private Sub TestWordRecorder_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
+        FileName_Label.Text = "No file loaded"
+        SoundFilePathStatusLabel.Text = "No file loaded"
+
         MainTabControl.SelectedIndex = 0
 
         RecordingTabMainSplitContainer.SplitterDistance = 2 * (Me.Width / 3)
 
         ' Adding items into the ItemComboBox
-        For n = 1 To EditItems.Count
-            ItemComboBox.Items.Add(n)
+        For n = 1 To SoundFilesForEditing.Count
+            FileComboBox.Items.Add(n)
         Next
 
-        If EditItems.Count > 0 Then SelectSoundFileIndex(0)
+        If SoundFilesForEditing.Count > 0 Then SelectSoundFileIndex(0)
+
+    End Sub
+
+#Region "IO"
+
+    Private Sub SpeechMaterialRecorder_FormClosing(sender As Object, e As Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
+        'Checks if the user wants to save the sound before closing
+        CheckIfSaveSound()
+    End Sub
+
+    Private Function LoadSoundFile(ByVal FilePath As String) As Boolean
+
+        Dim Succeeded As Boolean = False
+
+        If IO.File.Exists(FilePath) = True Then
+            Dim TempSound = Audio.Sound.LoadWaveFile(FilePath,,,,, True)
+            If TempSound IsNot Nothing Then
+                CheckIfSaveSound()
+                CurrentlyLoadedSoundFile = TempSound
+                Succeeded = True
+            End If
+        End If
+
+        If Succeeded = True Then
+            FileName_Label.Text = IO.Path.GetFileName(FilePath)
+            SoundFilePathStatusLabel.Text = FilePath
+        End If
+
+        Return Succeeded
+
+    End Function
+
+
+    ''' <summary>
+    ''' Stores a user selected sound file path in the SoundFilesForEditing object
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub LoadWaveFileSMAIXMLChunkRequiredToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LoadWaveFileSMAIXMLChunkRequiredToolStripMenuItem.Click
+
+        Dim FilePath As String = Utils.GetOpenFilePath("",, {".wav"}, "Open wave file (SMA iXML chunk required)", True)
+        If FilePath <> "" Then
+            SoundFilesForEditing.Add(New Tuple(Of String, SpeechMaterialComponent)(FilePath, Nothing))
+            FileComboBox.Items.Add(SoundFilesForEditing.Count)
+            SelectSoundFileIndex(SoundFilesForEditing.Count - 1)
+        Else
+            MsgBox("Unable to load the sound file from " & FilePath)
+        End If
+
+    End Sub
+
+    ''' <summary>
+    ''' Checks for changes in the CurrentlyLoadedSoundFile and if changes are found ask the user to save or discard those changes.
+    ''' </summary>
+    Private Sub CheckIfSaveSound()
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.IsChanged = True Then
+
+                Dim Res = MsgBox("The current sound has unsaved changes. Do you want to save the changes? (This will overwrite the old loaded sound file!)", MsgBoxStyle.YesNo, "Save file?")
+
+                If Res = MsgBoxResult.Yes Then
+                    If CurrentlyLoadedSoundFile.WriteWaveFile(SoundFilesForEditing(CurrentSoundFileIndex).Item1) = False Then
+                        MsgBox("Unable to save the current sound (" & SoundFilesForEditing(CurrentSoundFileIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
+                        Exit Sub
+                    End If
+                End If
+            End If
+        End If
+
+    End Sub
+
+    ''' <summary>
+    ''' Saves the CurrentlyLoadedSoundFile object to file, overwriting the original file.
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub SaveWaveFileToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWaveFileToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.WriteWaveFile(SoundFilesForEditing(CurrentSoundFileIndex).Item1) = False Then
+                MsgBox("Unable to save the current sound (" & SoundFilesForEditing(CurrentSoundFileIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
+            End If
+        End If
+
+    End Sub
+
+    ''' <summary>
+    ''' Saves the CurrentlyLoadedSoundFile object to a user selected location.
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub SaveWaveFileAsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWaveFileAsToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+
+            Dim FilePath As String = Utils.GetSaveFilePath(,, {".wav"}, "Save wave file as...")
+            If FilePath <> "" Then
+                If CurrentlyLoadedSoundFile.WriteWaveFile(FilePath) = False Then
+                    MsgBox("Unable to save the current sound to " & FilePath & ". Unknown reason. Is the file open in another application?")
+                End If
+            Else
+                MsgBox("No file path was supplied.", MsgBoxStyle.Exclamation, "Save wave file as...")
+            End If
+        Else
+            MsgBox("No sound to save.", MsgBoxStyle.Information, "Save as...")
+        End If
 
     End Sub
 
 
-    Private Sub MainTabControl_Selected(sender As Object, e As Windows.Forms.TabControlEventArgs) Handles MainTabControl.Selected
+#End Region
 
-        Select Case e.TabPage.Text
-            Case RecordingTab.Text
-                Me.RecordingSettingsMenu.Visible = True
-                Me.SegmentationSettingsMenu.Visible = False
-                Me.SegmentationToolStripMenuItem.Visible = False
-                DisplayRecordedSound()
+#Region "Setup audio"
 
-            Case SegmentationTab.Text
-                Me.RecordingSettingsMenu.Visible = False
-                Me.SegmentationSettingsMenu.Visible = True
-                Me.SegmentationToolStripMenuItem.Visible = True
-                PresentSegmentationItem()
-
-        End Select
-
+    Private Sub IOSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles IOSettingsToolStripMenuItem.Click
+        SetupAudioIO()
     End Sub
 
     ''' <summary>
@@ -133,6 +230,220 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
+#End Region
+
+
+#Region "Select currently loaded sound file"
+
+    Public Function MinSoundFileSelectionIndex() As Integer
+        If SoundFilesForEditing Is Nothing Then
+            Return -1
+        Else
+            Return 0
+        End If
+    End Function
+
+    Public Function MaxSoundFileSelectionIndex() As Integer
+        If SoundFilesForEditing Is Nothing Then
+            Return -1
+        Else
+            Return SoundFilesForEditing.Count - 1
+        End If
+    End Function
+
+    Private Sub Top_PreviousFileButton_Click(sender As Object, e As EventArgs) Handles Top_PreviousFileButton.Click
+        SelectSoundFileIndex(CurrentSoundFileIndex - 1)
+    End Sub
+
+    Private Sub Top_NextFileButton_Click(sender As Object, e As EventArgs) Handles Top_NextFileButton.Click
+        SelectSoundFileIndex(CurrentSoundFileIndex + 1)
+    End Sub
+
+    Private Sub FileComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles FileComboBox.SelectedIndexChanged
+        SelectSoundFileIndex(FileComboBox.SelectedIndex)
+    End Sub
+
+    Private Sub SelectSoundFileIndex(ByVal NewIndex As Integer)
+
+        CheckIfSaveSound()
+
+        Select Case NewIndex
+            Case < MinSoundFileSelectionIndex()
+
+                MsgBox("Selected sound file index too low (you've already at the first file)")
+
+            Case > MaxSoundFileSelectionIndex()
+
+                MsgBox("Selected sound file index too high (you've already at the last file)")
+
+            Case Else
+                CurrentSoundFileIndex = NewIndex
+
+                FileComboBox.SelectedIndex = CurrentSoundFileIndex
+
+                Select Case MainTabControl.SelectedTab.Text
+                    Case RecordingTab.Text
+
+                        LoadSoundForRecording()
+
+                    Case SegmentationTab.Text
+
+                        LoadSoundForSegmentation()
+
+                End Select
+
+        End Select
+
+        UpdateProgressBar()
+
+    End Sub
+
+    Private Sub UpdateProgressBar()
+
+        If SoundFilesForEditing IsNot Nothing Then
+            ItemProgressBar.Minimum = 0
+            ItemProgressBar.Maximum = SoundFilesForEditing.Count
+            If CurrentSoundFileIndex >= 0 Then
+                ItemProgressBar.Value = CurrentSoundFileIndex
+            End If
+        End If
+
+    End Sub
+
+#End Region
+
+#Region "Select view"
+
+    Private Sub MainTabControl_Selected(sender As Object, e As Windows.Forms.TabControlEventArgs) Handles MainTabControl.Selected
+
+        CheckIfSaveSound()
+
+        Select Case e.TabPage.Text
+            Case RecordingTab.Text
+                Me.RecordingSettingsMenu.Visible = True
+                Me.SegmentationSettingsMenu.Visible = False
+                Me.SegmentationToolStripMenuItem.Visible = False
+                LoadSoundForRecording()
+
+            Case SegmentationTab.Text
+                Me.RecordingSettingsMenu.Visible = False
+                Me.SegmentationSettingsMenu.Visible = True
+                Me.SegmentationToolStripMenuItem.Visible = True
+                LoadSoundForSegmentation()
+
+        End Select
+
+    End Sub
+
+    Public Sub LoadSoundForRecording()
+
+        Try
+
+            If CurrentSoundFileIndex >= 0 Then
+
+                Dim SoundPath = SoundFilesForEditing(CurrentSoundFileIndex).Item1
+
+                If LoadSoundFile(SoundPath) = True Then
+
+                    'Resetting sound display
+                    If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
+
+                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,,,,,,, , MyGeneralSoundPlayer)
+                    waveDrawer.Dock = Windows.Forms.DockStyle.Fill
+
+                    RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
+
+                    ListenButton.Enabled = True
+
+                Else
+
+                    CurrentlyLoadedSoundFile = Nothing
+
+                    RecordingTabMainSplitContainer.Controls.Clear()
+
+                    Dim noSoundLabel As New Windows.Forms.Label
+                    noSoundLabel.Dock = Windows.Forms.DockStyle.Fill
+                    noSoundLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+                    noSoundLabel.Text = "No sound is yet recorded for this item."
+                    RecordingTabMainSplitContainer.Panel2.Controls.Add(noSoundLabel)
+
+                    ListenButton.Enabled = False
+
+                End If
+            Else
+                RecordingTabMainSplitContainer.Controls.Clear()
+            End If
+
+        Catch ex As Exception
+            MsgBox("The following exception occurred: " & ex.ToString)
+        End Try
+
+    End Sub
+
+
+    Public Sub LoadSoundForSegmentation()
+
+        Try
+            If CurrentSoundFileIndex >= 0 Then
+
+                Dim SoundPath = SoundFilesForEditing(CurrentSoundFileIndex).Item1
+
+                If LoadSoundFile(SoundPath) = True Then
+
+                    'Diplays the sound if there is any
+                    If CurrentlyLoadedSoundFile.WaveData.ShortestChannelSampleCount > 0 = True Then
+
+                        'Resetting sound display
+                        If SegmentationPanel.Controls.Count > 0 Then SegmentationPanel.Controls.RemoveAt(0)
+
+                        'Dim newSoundPanel As New Windows.Forms.SplitContainer
+                        'newSoundPanel.Dock = Windows.Forms.DockStyle.Fill
+
+                        If CurrentSpectrogramFormat Is Nothing Then
+                            Dim SpectrogramSettingsResult As New SpectrogramSettingsDialog
+                            If SpectrogramSettingsResult.ShowDialog = Windows.Forms.DialogResult.OK Then
+                                CurrentSpectrogramFormat = SpectrogramSettingsResult.NewSpectrogramFormat
+                            Else
+                                CurrentSpectrogramFormat = New Audio.Formats.SpectrogramFormat(, 1024,, 512,, True,,,, True)
+                            End If
+                        End If
+
+                        'SoundEditor
+                        Dim TestSound = Audio.Sound.GetTestSound
+                        'Dim waveDrawer As New Audio.Graphics.SoundEditor(TestSound,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
+                        Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, , MyGeneralSoundPlayer)
+                        waveDrawer.Dock = Windows.Forms.DockStyle.Fill
+                        SegmentationPanel.Controls.Add(waveDrawer)
+
+                    Else
+                        'Resets the sound display, and adds a message that no sound is recorded
+                        If SegmentationPanel.Controls.Count > 0 Then SegmentationPanel.Controls.RemoveAt(0)
+
+                        Dim noSoundLabel As New Windows.Forms.Label
+                        noSoundLabel.Dock = Windows.Forms.DockStyle.Fill
+                        noSoundLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+                        noSoundLabel.Text = "No sound is yet recorded for this item."
+                        SegmentationPanel.Controls.Add(noSoundLabel)
+
+                    End If
+
+                Else
+                    CurrentlyLoadedSoundFile = Nothing
+                End If
+            Else
+                SegmentationPanel.Controls.Clear()
+            End If
+
+        Catch ex As Exception
+            MsgBox("The following exception occurred: " & ex.ToString)
+        End Try
+
+    End Sub
+
+#End Region
+
+#Region "RecordingView"
+
 
     Private Sub UpdateSoundLevelMeter(ByRef NewBuffer As Audio.Sound)
 
@@ -155,178 +466,11 @@ Public Class SpeechMaterialRecorder
     End Sub
 
 
-
-
-    Private Sub SelectSoundFileIndex(ByVal NewIndex As Integer)
-
-        CheckIfSaveSound()
-
-        ' Setting MinSelectionIndex
-        If EditItems.Count > 0 Then
-            MinSelectionIndex = 0
-            MaxSelectionIndex = EditItems.Count - 1
-        Else
-            MinSelectionIndex = -1
-            MaxSelectionIndex = -1
-        End If
-
-        Select Case NewIndex
-            Case < MinSelectionIndex
-
-                MsgBox("Index too low")
-
-            Case > MaxSelectionIndex
-
-                MsgBox("Index too high")
-
-            Case Else
-                CurrentItemIndex = NewIndex
-
-                ItemComboBox.SelectedIndex = CurrentItemIndex
-
-                Select Case MainTabControl.SelectedTab.Text
-                    Case RecordingTab.Text
-
-                        DisplayRecordedSound()
-
-                    Case SegmentationTab.Text
-
-                        PresentSegmentationItem()
-
-                End Select
-
-        End Select
-
-    End Sub
-
-
-    Public Sub DisplayRecordedSound()
-
-        Try
-
-            If CurrentItemIndex >= 0 Then
-
-                Dim SoundPath = EditItems(CurrentItemIndex).Item1
-
-                If IO.File.Exists(SoundPath) = True Then
-
-                    CurrentlyLoadedSound = Audio.Sound.LoadWaveFile(SoundPath,,,,, True)
-
-                    'Resetting sound display
-                    If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
-
-                    'Dim soundPanel As New Windows.Forms.SplitContainer
-                    'soundPanel.Dock = Windows.Forms.DockStyle.Fill
-
-                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSound,,,,,,,,, , MyGeneralSoundPlayer)
-                    waveDrawer.Dock = Windows.Forms.DockStyle.Fill
-
-                    RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
-
-                    ListenButton.Enabled = True
-
-                Else
-
-                    CurrentlyLoadedSound = Nothing
-
-                    RecordingTabMainSplitContainer.Controls.Clear()
-
-                    Dim noSoundLabel As New Windows.Forms.Label
-                    noSoundLabel.Dock = Windows.Forms.DockStyle.Fill
-                    noSoundLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-                    noSoundLabel.Text = "No sound is yet recorded for this item."
-                    RecordingTabMainSplitContainer.Panel2.Controls.Add(noSoundLabel)
-
-                    ListenButton.Enabled = False
-
-                End If
-
-            Else
-
-                RecordingTabMainSplitContainer.Controls.Clear()
-
-            End If
-
-        Catch ex As Exception
-
-            MsgBox("No sound to show!")
-
-        End Try
-
-
-    End Sub
-
-
-    Public Sub PresentSegmentationItem()
-
-
-        Try
-
-            Dim SoundPath = EditItems(CurrentItemIndex).Item1
-
-            If IO.File.Exists(SoundPath) = True Then
-
-                CurrentlyLoadedSound = Audio.Sound.LoadWaveFile(SoundPath,,,,, True)
-
-                'Diplays the sound if there is any
-                If CurrentlyLoadedSound.WaveData.ShortestChannelSampleCount > 0 = True Then
-
-                    'Resetting sound display
-                    If SegmentationPanel.Controls.Count > 0 Then SegmentationPanel.Controls.RemoveAt(0)
-
-                    'Dim newSoundPanel As New Windows.Forms.SplitContainer
-                    'newSoundPanel.Dock = Windows.Forms.DockStyle.Fill
-
-                    If CurrentSpectrogramFormat Is Nothing Then
-                        Dim SpectrogramSettingsResult As New SpectrogramSettingsDialog
-                        If SpectrogramSettingsResult.ShowDialog = Windows.Forms.DialogResult.OK Then
-                            CurrentSpectrogramFormat = SpectrogramSettingsResult.NewSpectrogramFormat
-                        Else
-                            CurrentSpectrogramFormat = New Audio.Formats.SpectrogramFormat(, 1024,, 512,, True,,,, True)
-                        End If
-                    End If
-
-                    'SoundEditor
-                    Dim TestSound = Audio.Sound.GetTestSound
-                    'Dim waveDrawer As New Audio.Graphics.SoundEditor(TestSound,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
-                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSound,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, , MyGeneralSoundPlayer)
-                    waveDrawer.Dock = Windows.Forms.DockStyle.Fill
-                    SegmentationPanel.Controls.Add(waveDrawer)
-
-                Else
-                    'Resets the sound display, and adds a message that no sound is recorded
-                    If SegmentationPanel.Controls.Count > 0 Then SegmentationPanel.Controls.RemoveAt(0)
-
-                    Dim noSoundLabel As New Windows.Forms.Label
-                    noSoundLabel.Dock = Windows.Forms.DockStyle.Fill
-                    noSoundLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-                    noSoundLabel.Text = "No sound is yet recorded for this item."
-                    SegmentationPanel.Controls.Add(noSoundLabel)
-
-                End If
-
-            Else
-                CurrentlyLoadedSound = Nothing
-
-            End If
-
-        Catch ex As Exception
-            MsgBox("The following exception occurred: " & ex.ToString)
-        End Try
-
-    End Sub
-
-    Private Sub IOSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles IOSettingsToolStripMenuItem.Click
-
-        SetupAudioIO()
-
-    End Sub
-
     Private Sub ListenButton_Click(sender As Object, e As EventArgs) Handles ListenButton.Click
 
-        DisplayRecordedSound()
 
     End Sub
+
 
     Private Sub IncreaseFontSizeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles IncreaseFontSizeToolStripMenuItem.Click
 
@@ -360,46 +504,9 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub SpectrogramSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SpectrogramSettingsToolStripMenuItem.Click
-
-    End Sub
-
     Private Sub CalibrateOutputLevelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CalibrateOutputLevelToolStripMenuItem.Click
 
     End Sub
-
-    Private Sub SelectTransducerTypeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SelectTransducerTypeToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub AutoDetectBoundariesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AutoDetectBoundariesToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub BoundaryDetectionSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles BoundaryDetectionSettingsToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub UpdateAllSegmentationsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UpdateAllSegmentationsToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub ValidateAllSegmentationsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ValidateAllSegmentationsToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub FadeAllPaddingSectionsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FadeAllPaddingSectionsToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub MoveSegmentationsToZeroCrossingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles MoveSegmentationsToZeroCrossingsToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub ResetAllSegmentationDataToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ResetAllSegmentationDataToolStripMenuItem.Click
-
-    End Sub
-
 
     Private Sub StartRecordingButton_Click(sender As Object, e As EventArgs) Handles StartRecordingButton.Click
 
@@ -409,84 +516,57 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub Top_PreviousItemButton_Click(sender As Object, e As EventArgs) Handles Top_PreviousItemButton.Click, Rec_PreviousItemButton.Click
 
-        SelectSoundFileIndex(CurrentItemIndex - 1)
 
-    End Sub
+    Private Sub Rec_PreviousItemButton_Click(sender As Object, e As EventArgs) Handles Rec_PreviousItemButton.Click
 
-    Private Sub Top_NextItemButton_Click(sender As Object, e As EventArgs) Handles Top_NextItemButton.Click, Rec_NextItemButton.Click
-
-        SelectSoundFileIndex(CurrentItemIndex + 1)
 
     End Sub
 
-    Private Sub ItemComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ItemComboBox.SelectedIndexChanged
+    Private Sub Rec_NextItemButton_Click(sender As Object, e As EventArgs) Handles Rec_NextItemButton.Click
+
 
     End Sub
 
-    Private Sub LoadWaveFileSMAIXMLChunkRequiredToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LoadWaveFileSMAIXMLChunkRequiredToolStripMenuItem.Click
 
-        Dim FilePath As String = Utils.GetOpenFilePath("",, {".wav"}, "Open wave file (SMA iXML chunk required)", True)
-        If FilePath <> "" Then
-            EditItems.Add(New Tuple(Of String, SpeechMaterialComponent)(FilePath, Nothing))
-            ItemComboBox.Items.Add(EditItems.Count)
-            SelectSoundFileIndex(EditItems.Count - 1)
-        Else
-            MsgBox("Unable to load the sound file from " & FilePath)
-        End If
+#End Region
 
-    End Sub
 
-    Private Sub SaveWaveFileToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWaveFileToolStripMenuItem.Click
 
-        If CurrentlyLoadedSound IsNot Nothing Then
-            If CurrentlyLoadedSound.WriteWaveFile(EditItems(CurrentItemIndex).Item1) = False Then
-                MsgBox("Unable to save the current sound (" & EditItems(CurrentItemIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
-            End If
-        End If
 
-    End Sub
-    Private Sub SaveWaveFileAsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWaveFileAsToolStripMenuItem.Click
+#Region "SegmentationView"
 
-        If CurrentlyLoadedSound IsNot Nothing Then
-
-            Dim FilePath As String = Utils.GetSaveFilePath(,, {".wav"}, "Save wave file as...")
-            If FilePath <> "" Then
-                If CurrentlyLoadedSound.WriteWaveFile(FilePath) = False Then
-                    MsgBox("Unable to save the current sound to " & FilePath & ". Unknown reason. Is the file open in another application?")
-                End If
-            Else
-                MsgBox("No file path was supplied.", MsgBoxStyle.Exclamation, "Save wave file as...")
-            End If
-        Else
-            MsgBox("No sound to save.", MsgBoxStyle.Information, "Save as...")
-        End If
+    Private Sub SpectrogramSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SpectrogramSettingsToolStripMenuItem.Click
 
     End Sub
 
-    Private Sub CheckIfSaveSound()
-
-        If CurrentlyLoadedSound IsNot Nothing Then
-            If CurrentlyLoadedSound.IsChanged = True Then
-
-                Dim Res = MsgBox("The current sound has unsaved changes. Do you want to save the changes? (This will overwrite the old loaded sound file!)", MsgBoxStyle.YesNo, "Save file?")
-
-                If Res = MsgBoxResult.Yes Then
-                    If CurrentlyLoadedSound.WriteWaveFile(EditItems(CurrentItemIndex).Item1) = False Then
-                        MsgBox("Unable to save the current sound (" & EditItems(CurrentItemIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
-                        Exit Sub
-                    End If
-                End If
-            End If
-        End If
+    Private Sub MoveSegmentationsToZeroCrossingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles MoveSegmentationsToZeroCrossingsToolStripMenuItem.Click
 
     End Sub
+
+
+
+#End Region
+
+
+
 
     Private Sub CloseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CloseToolStripMenuItem.Click
-        CheckIfSaveSound()
         Me.Close()
     End Sub
 
+
+
+
+
+
+
+    ''Global exception handler, could be placed in the application that imports the library, but does not work direcly in the Library
+    'Sub MyGlobalExceptionHandler(sender As Object, args As UnhandledExceptionEventArgs) Handles My.MyApplication.UnhandledException
+    '    Dim e As Exception = DirectCast(args.ExceptionObject, Exception)
+    '    MsgBox("An unexpected error occurred (see below), and the program must close! Click OK to save any unsaved changes and then close the program." & vbCrLf & vbCrLf & e.ToString)
+    '    CheckIfSaveSound()
+    '    Me.Close()
+    'End Sub
 
 End Class
