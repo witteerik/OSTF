@@ -1,7 +1,6 @@
-﻿Imports SpeechTestFramework
-Imports SpeechTestFramework.SpeechMaterialComponent
-Imports SpeechTestFramework.Audio
-Imports SpeechTestFramework.Audio.Graphics
+﻿Imports System.Windows.Forms
+Imports System.Windows.Forms.Control
+
 
 Public Class SpeechMaterialRecorder
 
@@ -10,20 +9,35 @@ Public Class SpeechMaterialRecorder
     Private CurrentlyLoadedSoundFile As Audio.Sound = Nothing
     Private CurrentSoundFileIndex As Integer = -1
 
-
-    Private RecordingWaveFormat As Audio.Formats.WaveFormat
-
     'SoundPlayers
-    Public MyGeneralSoundPlayer As Audio.PortAudioVB.SoundPlayer
+    Private MyGeneralSoundPlayer As Audio.PortAudioVB.SoundPlayer
 
     'Sound output settings
-    Public CurrentAudioApiSettings As Audio.AudioApiSettings = Nothing
+    Private CurrentAudioApiSettings As Audio.AudioApiSettings = Nothing
 
-    'Spectrogram settings
-    Public CurrentSpectrogramFormat As Audio.Formats.SpectrogramFormat
 
-    'TODO: This should be a setting somewhere!!!
-    Public paddingTime As Double = 0.5
+#Region "Recording variables"
+
+    Private RecordingWaveFormat As Audio.Formats.WaveFormat
+    Private UseAuditoryPrequeing As Boolean = False
+    Private AutoStartRecording As Boolean = False
+    Private UseRecordingNoise As Boolean = False
+    Private ShowSoundLevelMeter As Boolean = False
+
+#End Region
+
+
+#Region "Segmentation variables"
+
+    Private CurrentSpectrogramFormat As Audio.Formats.SpectrogramFormat
+    Private SetSegmentationToZeroCrossings As Boolean
+    Private ShowSpectrogram As Boolean = False
+    Private PaddingTime As Single = 0.5
+    Private InterSentenceTime As Single = 4
+    Private DrawNormalizedWave As Boolean = False
+
+#End Region
+
 
     Public Sub New()
 
@@ -230,6 +244,15 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
+    Public Sub SetSpectrogramFormatInDialog()
+        Dim SpectrogramSettingsResult As New SpectrogramSettingsDialog
+        If SpectrogramSettingsResult.ShowDialog = Windows.Forms.DialogResult.OK Then
+            CurrentSpectrogramFormat = SpectrogramSettingsResult.NewSpectrogramFormat
+        Else
+            CurrentSpectrogramFormat = New Audio.Formats.SpectrogramFormat(, 1024,, 512,, True,,,, True)
+        End If
+    End Sub
+
 #End Region
 
 
@@ -321,13 +344,11 @@ Public Class SpeechMaterialRecorder
         Select Case e.TabPage.Text
             Case RecordingTab.Text
                 Me.RecordingSettingsMenu.Visible = True
-                Me.SegmentationSettingsMenu.Visible = False
                 Me.SegmentationToolStripMenuItem.Visible = False
                 LoadSoundForRecording()
 
             Case SegmentationTab.Text
                 Me.RecordingSettingsMenu.Visible = False
-                Me.SegmentationSettingsMenu.Visible = True
                 Me.SegmentationToolStripMenuItem.Visible = True
                 LoadSoundForSegmentation()
 
@@ -348,7 +369,7 @@ Public Class SpeechMaterialRecorder
                     'Resetting sound display
                     If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
 
-                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,,,,,,, , MyGeneralSoundPlayer)
+                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,,,,,,,, MyGeneralSoundPlayer)
                     waveDrawer.Dock = Windows.Forms.DockStyle.Fill
 
                     RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
@@ -400,18 +421,15 @@ Public Class SpeechMaterialRecorder
                         'newSoundPanel.Dock = Windows.Forms.DockStyle.Fill
 
                         If CurrentSpectrogramFormat Is Nothing Then
-                            Dim SpectrogramSettingsResult As New SpectrogramSettingsDialog
-                            If SpectrogramSettingsResult.ShowDialog = Windows.Forms.DialogResult.OK Then
-                                CurrentSpectrogramFormat = SpectrogramSettingsResult.NewSpectrogramFormat
-                            Else
-                                CurrentSpectrogramFormat = New Audio.Formats.SpectrogramFormat(, 1024,, 512,, True,,,, True)
-                            End If
+                            SetSpectrogramFormatInDialog()
                         End If
 
                         'SoundEditor
                         Dim TestSound = Audio.Sound.GetTestSound
                         'Dim waveDrawer As New Audio.Graphics.SoundEditor(TestSound,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
-                        Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, , MyGeneralSoundPlayer)
+                        Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,, True, ShowSpectrogram, CurrentSpectrogramFormat, PaddingTime,
+                                                                         InterSentenceTime, DrawNormalizedWave, MyGeneralSoundPlayer, SetSegmentationToZeroCrossings)
+
                         waveDrawer.Dock = Windows.Forms.DockStyle.Fill
                         SegmentationPanel.Controls.Add(waveDrawer)
 
@@ -465,46 +483,17 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
+    Private Sub Rec_PreviousItemButton_Click(sender As Object, e As EventArgs) Handles Rec_PreviousItemButton.Click
+
+    End Sub
+
+    Private Sub Rec_NextItemButton_Click(sender As Object, e As EventArgs) Handles Rec_NextItemButton.Click
+
+    End Sub
+
 
     Private Sub ListenButton_Click(sender As Object, e As EventArgs) Handles ListenButton.Click
 
-
-    End Sub
-
-
-    Private Sub IncreaseFontSizeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles IncreaseFontSizeToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub DecreaseFontSizeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DecreaseFontSizeToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub SetFontOfSpellingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SetFontOfSpellingsToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub SetFontOfPhoneticTranscriptionsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SetFontOfPhoneticTranscriptionsToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub AuditoryPrequeingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AuditoryPrequeingToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub ToggleSoundLevelMeteronoffToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ToggleSoundLevelMeteronoffToolStripMenuItem.Click
-
-    End Sub
-
-    Private Sub CalibrateOutputLevelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CalibrateOutputLevelToolStripMenuItem.Click
 
     End Sub
 
@@ -516,17 +505,111 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
+#Region "Font change"
 
 
-    Private Sub Rec_PreviousItemButton_Click(sender As Object, e As EventArgs) Handles Rec_PreviousItemButton.Click
+    Private Sub IncreaseFontSizeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles IncreaseFontSizeToolStripMenuItem.Click
+        Rec_PresentationLabelFontSizeChange(SizeChangeDirection.Increase)
+    End Sub
 
+    Private Sub DecreaseFontSizeToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DecreaseFontSizeToolStripMenuItem.Click
+        Rec_PresentationLabelFontSizeChange(SizeChangeDirection.Decrease)
+    End Sub
+
+    Public Enum SizeChangeDirection
+        Increase
+        Decrease
+    End Enum
+
+    Public Sub Rec_PresentationLabelFontSizeChange(ByVal direction As SizeChangeDirection)
+
+        Select Case direction
+            Case SizeChangeDirection.Increase
+
+                Dim currentFontSize As Single = Spelling_AutoHeightTextBox.Font.Size
+                Spelling_AutoHeightTextBox.Font = New Drawing.Font(Spelling_AutoHeightTextBox.Font.Name, currentFontSize + 2, Spelling_AutoHeightTextBox.Font.Style, Spelling_AutoHeightTextBox.Font.Unit)
+                Transcription_AutoHeightTextBox.Font = New Drawing.Font(Transcription_AutoHeightTextBox.Font.Name, currentFontSize + 2, Transcription_AutoHeightTextBox.Font.Style, Transcription_AutoHeightTextBox.Font.Unit)
+            Case SizeChangeDirection.Decrease
+                Dim currentFontSize As Single = Spelling_AutoHeightTextBox.Font.Size
+                Spelling_AutoHeightTextBox.Font = New Drawing.Font(Spelling_AutoHeightTextBox.Font.Name, currentFontSize - 2, Spelling_AutoHeightTextBox.Font.Style, Spelling_AutoHeightTextBox.Font.Unit)
+                Transcription_AutoHeightTextBox.Font = New Drawing.Font(Transcription_AutoHeightTextBox.Font.Name, currentFontSize - 2, Transcription_AutoHeightTextBox.Font.Style, Transcription_AutoHeightTextBox.Font.Unit)
+        End Select
+    End Sub
+
+    Private Sub SetFontOfSpellingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SetFontOfSpellingsToolStripMenuItem.Click
+        OrthographicFontChange()
+    End Sub
+    Public Sub OrthographicFontChange()
+        Dim newFont As Drawing.Font = Spelling_AutoHeightTextBox.Font
+        Dim fdb As New FontDialog
+        If fdb.ShowDialog = DialogResult.OK Then
+            newFont = fdb.Font
+        End If
+        Spelling_AutoHeightTextBox.Font = newFont
+    End Sub
+
+
+    Private Sub SetFontOfPhoneticTranscriptionsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SetFontOfPhoneticTranscriptionsToolStripMenuItem.Click
+        PhoneticFontChange()
+    End Sub
+
+    Public Sub PhoneticFontChange()
+        Dim newFont As Drawing.Font = Transcription_AutoHeightTextBox.Font
+        Dim fdb As New FontDialog
+        If fdb.ShowDialog = DialogResult.OK Then
+            newFont = fdb.Font
+        End If
+        Transcription_AutoHeightTextBox.Font = newFont
+    End Sub
+
+#End Region
+
+
+    Private Sub AuditoryPrequeingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AuditoryPrequeingToolStripMenuItem.Click
+        UseAuditoryPrequeing = Not UseAuditoryPrequeing
+        AuditoryPrequeingToolStripMenuItem.Checked = UseAuditoryPrequeing
+        If UseAuditoryPrequeing = True Then
+            preQueLabel.Text = "Pre-queing: On"
+        Else
+            preQueLabel.Text = "Pre-queing: Off"
+        End If
 
     End Sub
 
-    Private Sub Rec_NextItemButton_Click(sender As Object, e As EventArgs) Handles Rec_NextItemButton.Click
+    Private Sub StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Click
+        AutoStartRecording = Not AutoStartRecording
+        StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Checked = AutoStartRecording
 
+        If AutoStartRecording = True Then
+            AutoRecordingStatusLabel.Text = "Auto-recording: On"
+        Else
+            AutoRecordingStatusLabel.Text = "Auto-recording: Off"
+        End If
 
     End Sub
+
+    Private Sub ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Click
+        UseRecordingNoise = Not UseRecordingNoise
+        ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Checked = UseRecordingNoise
+
+        If UseRecordingNoise = True Then
+            BackgroundSoundStatusLabel.Text = "Background sound: On"
+        Else
+            BackgroundSoundStatusLabel.Text = "Background sound: Off"
+        End If
+
+    End Sub
+
+    Private Sub ToggleSoundLevelMeteronoffToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ToggleSoundLevelMeteronoffToolStripMenuItem.Click
+        ShowSoundLevelMeter = Not ShowSoundLevelMeter
+        ToggleSoundLevelMeteronoffToolStripMenuItem.Checked = ShowSoundLevelMeter
+    End Sub
+
+
+    Private Sub CalibrateOutputLevelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CalibrateOutputLevelToolStripMenuItem.Click
+
+    End Sub
+
 
 
 #End Region
@@ -536,13 +619,52 @@ Public Class SpeechMaterialRecorder
 
 #Region "SegmentationView"
 
-    Private Sub SpectrogramSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SpectrogramSettingsToolStripMenuItem.Click
-
+    Private Sub SpectrogramSettingsToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles SpectrogramSettingsToolStripMenuItem1.Click
+        SetSpectrogramFormatInDialog()
     End Sub
+
 
     Private Sub MoveSegmentationsToZeroCrossingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles MoveSegmentationsToZeroCrossingsToolStripMenuItem.Click
+        'Toggling value
+        SetSegmentationToZeroCrossings = Not SetSegmentationToZeroCrossings
+        MoveSegmentationsToZeroCrossingsToolStripMenuItem.Checked = SetSegmentationToZeroCrossings
+    End Sub
+
+    Private Sub ShowSpectrogramToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ShowSpectrogramToolStripMenuItem.Click
+        'Toggling value
+        ShowSpectrogram = Not ShowSpectrogram
+        ShowSpectrogramToolStripMenuItem.Checked = ShowSpectrogram
+    End Sub
+
+    Private Sub DrawNormalizedWaveToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DrawNormalizedWaveToolStripMenuItem.Click
+        'Toggling value
+        DrawNormalizedWave = Not DrawNormalizedWave
+        DrawNormalizedWaveToolStripMenuItem.Checked = DrawNormalizedWave
 
     End Sub
+
+    Private Sub PaddingTimeComboBox_Click(sender As Object, e As EventArgs) Handles PaddingTimeComboBox.Click
+
+        Dim TempValue As Single
+        If Single.TryParse(PaddingTimeComboBox.SelectedText, TempValue) = True Then
+            PaddingTime = TempValue
+        Else
+            MsgBox("Unable to set the padding time!", MsgBoxStyle.Information, "Set padding time")
+        End If
+
+    End Sub
+
+    Private Sub InterSentenceTimeComboBox_Click(sender As Object, e As EventArgs) Handles InterSentenceTimeComboBox.Click
+
+        Dim TempValue As Single
+        If Single.TryParse(InterSentenceTimeComboBox.SelectedText, TempValue) = True Then
+            InterSentenceTime = TempValue
+        Else
+            MsgBox("Unable to set the inter-sentence time!", MsgBoxStyle.Information, "Set inter-sentence time")
+        End If
+
+    End Sub
+
 
 
 
@@ -554,6 +676,9 @@ Public Class SpeechMaterialRecorder
     Private Sub CloseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CloseToolStripMenuItem.Click
         Me.Close()
     End Sub
+
+
+
 
 
 

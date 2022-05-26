@@ -2,16 +2,6 @@
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         'ResponseGuiItemTable1.AdjustControls()
 
-        Dim Sound1 = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SpeechTestFrameworkLog\M_000_003_charm.wav")
-        Dim Sound2 = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SpeechTestFrameworkLog\M_000_003_kil.wav")
-
-        SpeechTestFramework.Audio.DSP.AddSoundToEnd(Sound1, Sound2)
-
-        Dim WaveViewer = New SpeechTestFramework.Audio.Graphics.SoundEditor(Sound1)
-        WaveViewer.Dock = DockStyle.Fill
-        Me.Controls.Add(WaveViewer)
-
-        Exit Sub
 
         Dim settings = New SpeechTestFramework.OstfSettings 'TODO: these should be read from text file!
 
@@ -34,6 +24,18 @@
         s.WriteWaveFile(IO.Path.Combine(SpeechTestFramework.Utils.logFilePath, "Test2.wav"))
 
         Dim X = 1
+
+        Dim Sound1 = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SpeechTestFrameworkLog\M_000_003_charm.wav")
+        Dim Sound2 = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SpeechTestFrameworkLog\M_000_003_kil.wav")
+
+        SpeechTestFramework.Audio.DSP.AddSoundToEnd(Sound1, Sound2)
+
+        Dim WaveViewer = New SpeechTestFramework.Audio.Graphics.SoundEditor(Sound1)
+        WaveViewer.Dock = DockStyle.Fill
+        Me.Controls.Add(WaveViewer)
+
+        Exit Sub
+
 
     End Sub
 

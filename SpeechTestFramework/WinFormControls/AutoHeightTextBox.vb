@@ -20,4 +20,14 @@ Public Class AutoHeightTextBox
 
     End Sub
 
+    Protected Overrides Sub OnFontChanged(e As EventArgs)
+        MyBase.OnFontChanged(e)
+
+        'Rezising
+        Dim PreferredSize = Me.GetPreferredSize(Me.Size)
+        Me.Height = PreferredSize.Height
+
+    End Sub
+
+
 End Class
