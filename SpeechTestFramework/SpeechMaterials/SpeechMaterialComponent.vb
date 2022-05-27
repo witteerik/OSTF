@@ -35,6 +35,7 @@ Public Class SpeechMaterialComponent
 
     ' This variable should contain a subpath to a custom variables database file in the test situation folder in which test situation specific data for the component are stored. 
     ' Once these data are loaded/created, they are stored in the objects NumericTestSituationVariables and CategoricalTestSituationVariables.
+    ' Only the filename is saved to and read from the speech material component file
     Private TestSituationDatabaseSubPath As String = ""
 
     ''' <summary>
@@ -493,8 +494,11 @@ Public Class SpeechMaterialComponent
             index += 1
 
             ' Getting the custom variables path
-            Dim CustomVariablesDatabasePath As String = IO.Path.Combine(CurrentTestRootPath, "CustomVariables", InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False))
-            NewComponent.CustomVariablesDatabasePath = CustomVariablesDatabasePath
+            Dim CustomVariablesDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
+            Dim CustomVariablesDatabasePath As String = IO.Path.Combine(CurrentTestRootPath, "CustomVariables", CustomVariablesDatabaseSubPath)
+            If CustomVariablesDatabaseSubPath.Trim <> "" Then
+                NewComponent.CustomVariablesDatabasePath = CustomVariablesDatabasePath
+            End If
             index += 1
 
             ' Adding the test situation database subpath
@@ -508,24 +512,26 @@ Public Class SpeechMaterialComponent
             index += 1
 
             ' Adding the custom variables
-            If CustomVariablesDatabases.ContainsKey(CustomVariablesDatabasePath) = False Then
-                'Loading the database
-                Dim NewDatabase As New CustomVariablesDatabase
-                NewDatabase.LoadTabDelimitedFile(CustomVariablesDatabasePath)
-                CustomVariablesDatabases.Add(CustomVariablesDatabasePath, NewDatabase)
-            End If
-
-            'Adding the variables
-            For n = 0 To CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames.Count - 1
-                Dim VariableName = CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames(n)
-                If CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Categorical Then
-                    NewComponent.CategoricalVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
-                ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Numeric Then
-                    NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
-                Else
-                    Throw New NotImplementedException("Variable type not implemented!")
+            If CustomVariablesDatabaseSubPath.Trim <> "" Then
+                If CustomVariablesDatabases.ContainsKey(CustomVariablesDatabasePath) = False Then
+                    'Loading the database
+                    Dim NewDatabase As New CustomVariablesDatabase
+                    NewDatabase.LoadTabDelimitedFile(CustomVariablesDatabasePath)
+                    CustomVariablesDatabases.Add(CustomVariablesDatabasePath, NewDatabase)
                 End If
-            Next
+
+                'Adding the variables
+                For n = 0 To CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames.Count - 1
+                    Dim VariableName = CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames(n)
+                    If CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Categorical Then
+                        NewComponent.CategoricalVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
+                    ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Numeric Then
+                        NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
+                    Else
+                        Throw New NotImplementedException("Variable type not implemented!")
+                    End If
+                Next
+            End If
 
             'Adds further component data
             Dim OrderedChildren = InputFileSupport.InputFileBooleanValueParsing(SplitRow(index), False, FilePath)
@@ -691,6 +697,141 @@ Public Class SpeechMaterialComponent
 
     End Sub
 
+    Public Sub WriteSpeechMaterialComponenFile(Optional ByVal FilePath As String = "")
+
+        If FilePath = "" Then
+            FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save speech material component file as.")
+        End If
+
+        WriteSpeechMaterialComponenFile(FilePath, True)
+
+    End Sub
+
+
+    Private Sub WriteSpeechMaterialComponenFile(ByVal FilePath As String, ByVal ExportCustomVariablesAtThisLevel As Boolean, Optional ByRef CustomVariablesExportList As SortedList(Of String, List(Of String)) = Nothing)
+
+        If CustomVariablesExportList Is Nothing Then CustomVariablesExportList = New SortedList(Of String, List(Of String))
+
+        Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab & "TestSituationDatabase" & vbTab & "DbId" & vbTab &
+                "OrderedChildren" & vbTab & "MediaFolder" & vbTab &
+                "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
+
+        Dim Main_List As New List(Of String)
+
+        'Linguistic Level
+        Main_List.Add(LinguisticLevel.ToString)
+
+        'Id
+        Main_List.Add(Id)
+
+        'ParentId 
+        If ParentComponent IsNot Nothing Then
+            Main_List.Add(ParentComponent.Id)
+        Else
+            Main_List.Add("")
+        End If
+
+        'PrimaryStringRepresentation
+        Main_List.Add(PrimaryStringRepresentation)
+
+        'CustomVariablesDatabase 
+        If CustomVariablesDatabasePath <> "" Then
+            Dim CurrentDataBasePath = IO.Path.GetFileName(CustomVariablesDatabasePath)
+            Main_List.Add(CurrentDataBasePath)
+        Else
+            Main_List.Add("")
+        End If
+
+        'TestSituationDatabase
+        If TestSituationDatabaseSubPath <> "" Then
+            Dim CurrentDataBasePath = IO.Path.GetFileName(TestSituationDatabaseSubPath)
+            Main_List.Add(CurrentDataBasePath)
+            'TODO: If this functionality is going to be used, then we need to add code for exporting these variables here
+        Else
+            Main_List.Add("")
+        End If
+
+        'DbId 
+        Main_List.Add(DbId)
+
+        'OrderedChildren 
+        Main_List.Add(OrderedChildren.ToString)
+
+        'MediaFolder 
+        Main_List.Add(MediaFolder)
+
+        'MaskerFolder 
+        Main_List.Add(MaskerFolder)
+
+        'BackgroundNonspeechFolder 
+        Main_List.Add(BackgroundNonspeechFolder)
+
+        'BackgroundSpeechFolder 
+        Main_List.Add(BackgroundSpeechFolder)
+
+        Dim OutputList As New List(Of String)
+        OutputList.Add(HeadingString)
+        OutputList.Add(String.Join(vbTab, Main_List))
+        OutputList.Add("") 'Adding an empty line between components
+
+        'Writing to file
+        Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
+
+
+        'Custom variables
+        If CustomVariablesDatabasePath <> "" Then
+
+            Dim CurrentCustomVariablesOutputList As New List(Of String)
+            If CustomVariablesExportList.ContainsKey(CustomVariablesDatabasePath) = False Then
+                CustomVariablesExportList.Add(CustomVariablesDatabasePath, CurrentCustomVariablesOutputList)
+            Else
+                CurrentCustomVariablesOutputList = CustomVariablesExportList(CustomVariablesDatabasePath)
+            End If
+
+            Dim CustomVariableNames As New List(Of String)
+            Dim CustomVariableTypes As New List(Of String)
+            Dim CustomVariablesValues As New List(Of String)
+
+            'Getting variable names, type and value
+            For Each CustomVariable In CategoricalVariables
+                CustomVariableNames.Add(CustomVariable.Key)
+                CustomVariableTypes.Add("C")
+                CustomVariablesValues.Add(CustomVariable.Value)
+            Next
+
+            For Each CustomVariable In NumericVariables
+                CustomVariableNames.Add(CustomVariable.Key)
+                CustomVariableTypes.Add("N")
+                CustomVariablesValues.Add(CustomVariable.Value)
+            Next
+
+            'Adding headings only if not already present
+            If CurrentCustomVariablesOutputList.Count = 0 Then
+                Dim VariableNames = String.Join(vbTab, CustomVariableNames).Trim
+                If VariableNames <> "" Then CurrentCustomVariablesOutputList.Add(String.Join(vbTab, CustomVariableNames))
+
+                Dim VariableTypes = String.Join(vbTab, CustomVariableTypes).Trim
+                If VariableTypes <> "" Then CurrentCustomVariablesOutputList.Add(VariableTypes)
+            End If
+            Dim VariableValues = String.Join(vbTab, CustomVariablesValues).Trim
+            If VariableValues <> "" Then CurrentCustomVariablesOutputList.Add(VariableValues)
+
+        End If
+
+        'Cascading to all child components
+        For Each ChildComponent In Me.ChildComponents
+            ChildComponent.WriteSpeechMaterialComponenFile(FilePath, False, CustomVariablesExportList)
+        Next
+
+        If ExportCustomVariablesAtThisLevel = True Then
+            'Exporting custom variables
+            For Each item In CustomVariablesExportList
+                Utils.SendInfoToLog(String.Join(vbCrLf, item.Value), IO.Path.GetFileNameWithoutExtension(item.Key), IO.Path.GetDirectoryName(item.Key), True, True)
+            Next
+        End If
+
+    End Sub
+
 
 End Class
 
@@ -791,6 +932,8 @@ Public Class CustomVariablesDatabase
             Return True
 
         Catch ex As Exception
+
+            MsgBox("The following exception occurred while reading a custom variables file: " & ex.ToString)
             'TODO What here?
             Return False
         End Try
