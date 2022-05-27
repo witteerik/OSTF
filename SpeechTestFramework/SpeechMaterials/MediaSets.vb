@@ -62,27 +62,53 @@ Public Class MediaSet
         NotSet
     End Enum
 
-    Public Sub SetSipValues()
+    Public Sub SetSipValues(ByVal Voice As Integer)
 
-        TestSituationName = "City-Talker1-RVE"
+        Select Case Voice
+            Case 1
+                TestSituationName = "City-Talker1-RVE"
 
-        TalkerName = "JE"
-        TalkerGender = Genders.Male
-        TalkerAge = 50
-        TalkerDialect = "Central Swedish"
-        VoiceType = "Raised vocal effort"
+                TalkerName = "JE"
+                TalkerGender = Genders.Male
+                TalkerAge = 50
+                TalkerDialect = "Central Swedish"
+                VoiceType = "Raised vocal effort"
 
-        BackgroundNonspeechRealisticLevel = 55
+                BackgroundNonspeechRealisticLevel = 55
 
-        MediaAudioItems = 5
-        MaskerAudioItems = 5
-        MediaImageItems = 0
-        MaskerImageItems = 0
+                MediaAudioItems = 5
+                MaskerAudioItems = 5
+                MediaImageItems = 0
+                MaskerImageItems = 0
 
-        MediaParentFolder = "Media\Unechoic-Talker1-RVE\TestWordRecordings"
-        MaskerParentFolder = "Media\City-Talker1-RVE\TWRB"
-        BackgroundNonspeechParentFolder = "Media\City-Talker1-RVE\BackgroundNonspeech"
-        BackgroundSpeechParentFolder = "Media\City-Talker1-RVE\BackgroundSpeech"
+                MediaParentFolder = "Media\Unechoic-Talker1-RVE\TestWordRecordings"
+                MaskerParentFolder = "Media\City-Talker1-RVE\TWRB"
+                BackgroundNonspeechParentFolder = "Media\City-Talker1-RVE\BackgroundNonspeech"
+                BackgroundSpeechParentFolder = "Media\City-Talker1-RVE\BackgroundSpeech"
+
+            Case 2
+
+                TestSituationName = "City-Talker2-RVE"
+
+                TalkerName = "EL"
+                TalkerGender = Genders.Female
+                TalkerAge = 40
+                TalkerDialect = "Central Swedish"
+                VoiceType = "Raised vocal effort"
+
+                BackgroundNonspeechRealisticLevel = 55
+
+                MediaAudioItems = 5
+                MaskerAudioItems = 5
+                MediaImageItems = 0
+                MaskerImageItems = 0
+
+                MediaParentFolder = "Media\Unechoic-Talker2-RVE\TestWordRecordings"
+                MaskerParentFolder = "Media\City-Talker2-RVE\TWRB"
+                BackgroundNonspeechParentFolder = "Media\City-Talker2-RVE\BackgroundNonspeech"
+                BackgroundSpeechParentFolder = "Media\City-Talker2-RVE\BackgroundSpeech"
+
+        End Select
 
     End Sub
 
@@ -336,6 +362,37 @@ Public Class MediaSet
 
 
     End Sub
+
+    ''' <summary>
+    ''' Copies all sound files to a folder structure which is based on the Id of the speech material component.
+    ''' </summary>
+    ''' <param name="SpeechMaterial"></param>
+    Public Sub CopySoundFiles(ByVal SpeechMaterial As SpeechMaterialComponent, ByVal OutputFolder As String)
+
+        Dim AllSoundPathTuples = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial, PrototypeRecordingOptions.None)
+
+        'Creates the OutputFolder 
+        If IO.Directory.Exists(OutputFolder) = False Then IO.Directory.CreateDirectory(OutputFolder)
+
+        'Moves sound files
+        For Each Item In AllSoundPathTuples.Item1
+
+            Dim InputSoundFilePath = Item.Item1
+            Dim SpeechMaterialComponent = Item.Item3
+
+            Dim TargetDirectory As String = IO.Path.Combine(OutputFolder, SpeechMaterialComponent.Id)
+            If IO.Directory.Exists(TargetDirectory) = False Then IO.Directory.CreateDirectory(TargetDirectory)
+
+            Dim OutputPath As String = IO.Path.Combine(TargetDirectory, IO.Path.GetFileName(InputSoundFilePath))
+
+            IO.File.Copy(InputSoundFilePath, OutputPath)
+
+        Next
+
+        MsgBox("Finished copying files.")
+
+    End Sub
+
 
     Public Function CreateRecordingWaveFormat() As Audio.Formats.WaveFormat
         Return New Audio.Formats.WaveFormat(Me.WaveFileSampleRate, Me.WaveFileBitDepth, 1,, Me.WaveFileEncoding)

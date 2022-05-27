@@ -7,10 +7,12 @@
 
         Dim CompleteSpeechMaterial = SpeechTestFramework.SpeechMaterialComponent.LoadSpeechMaterial(settings.SpeechMaterialComponentsPath)
 
-        CompleteSpeechMaterial.WriteSpeechMaterialComponenFile(SpeechTestFramework.Utils.logFilePath & "TestSMC.txt")
+        'CompleteSpeechMaterial.WriteSpeechMaterialComponenFile(SpeechTestFramework.Utils.logFilePath & "TestSMC.txt")
 
         Dim NewMediaSet = New SpeechTestFramework.MediaSet
-        NewMediaSet.SetSipValues()
+        NewMediaSet.SetSipValues(2)
+
+        'NewMediaSet.CopySoundFiles(CompleteSpeechMaterial, IO.Path.Combine(SpeechTestFramework.Utils.logFilePath, "MediaSet2"))
 
         NewMediaSet.RecordAndEditAudioMediaFiles(CompleteSpeechMaterial, SpeechTestFramework.MediaSet.SpeechMaterialRecorderLoadOptions.LoadAllSounds, SpeechTestFramework.MediaSet.PrototypeRecordingOptions.None)
 

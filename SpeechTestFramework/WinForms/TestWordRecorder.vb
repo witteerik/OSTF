@@ -18,7 +18,7 @@ Public Class SpeechMaterialRecorder
     ''' </summary>
     Private CurrentSentencesForRecording As New List(Of Tuple(Of Integer, Audio.Sound))
     Private CurrentSentenceIndex As Integer
-    Private CurrentRecordingSound = New Audio.Sound(RecordingWaveFormat)
+    Private CurrentRecordingSound As Audio.Sound = Nothing
 
     Private RandomItemOrder As Boolean = True
 
@@ -274,8 +274,6 @@ Public Class SpeechMaterialRecorder
             FileComboBox.Items.Add(n)
         Next
 
-        SetDefaultValues()
-
         If SoundFilesForEditing.Count > 0 Then SelectSoundFileIndex(0)
 
     End Sub
@@ -286,6 +284,26 @@ Public Class SpeechMaterialRecorder
         BackgroundSoundLevel = 65
 
         CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.HeadPhones
+
+        Dim AvailableInterSentenceTimes() As Single = {0.1, 0.2, 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 15}
+        For Each value In AvailableInterSentenceTimes
+            InterSentenceTimeComboBox.Items.Add(value)
+        Next
+
+        Dim AvailablePaddingTimes() As Single = {0.1, 0.2, 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 15}
+        For Each value In AvailablePaddingTimes
+            PaddingTimeComboBox.Items.Add(value)
+        Next
+
+        Dim AvailablePresentationLevels() As Double = {50, 55, 60, 62, 65, 68, 70, 75, 80, 85}
+        For Each value In AvailablePresentationLevels
+            PresentationLevel_ToolStripComboBox.Items.Add(value)
+        Next
+
+        Dim AvailableBackgroundSoundLevels() As Double = {50, 55, 60, 62, 65, 68, 70, 75, 80, 85}
+        For Each value In AvailableBackgroundSoundLevels
+            BackgroundSoundLevel_ToolStripComboBox.Items.Add(value)
+        Next
 
         IsRecording = False
 
@@ -882,7 +900,7 @@ Public Class SpeechMaterialRecorder
 
     Private Sub PresentationLevel_ToolStripComboBox_Click(sender As Object, e As EventArgs) Handles PresentationLevel_ToolStripComboBox.SelectedIndexChanged
 
-        If PresentationLevel_ToolStripComboBox.SelectedItem = "" Then Exit Sub
+        If PresentationLevel_ToolStripComboBox.SelectedItem = Nothing Then Exit Sub
 
         Dim TempValue As Single
         If Double.TryParse(PresentationLevel_ToolStripComboBox.SelectedItem, TempValue) = True Then
@@ -897,7 +915,7 @@ Public Class SpeechMaterialRecorder
 
     Private Sub BackgroundSoundLevel_ToolStripComboBox_Click(sender As Object, e As EventArgs) Handles BackgroundSoundLevel_ToolStripComboBox.SelectedIndexChanged
 
-        If BackgroundSoundLevel_ToolStripComboBox.SelectedItem = "" Then Exit Sub
+        If BackgroundSoundLevel_ToolStripComboBox.SelectedItem = Nothing Then Exit Sub
 
         Dim TempValue As Single
         If Double.TryParse(BackgroundSoundLevel_ToolStripComboBox.SelectedItem, TempValue) = True Then
@@ -1404,7 +1422,7 @@ Public Class SpeechMaterialRecorder
 
     Private Sub PaddingTimeComboBox_Click(sender As Object, e As EventArgs) Handles PaddingTimeComboBox.SelectedIndexChanged
 
-        If PaddingTimeComboBox.SelectedItem = "" Then Exit Sub
+        If PaddingTimeComboBox.SelectedItem = Nothing Then Exit Sub
 
         Dim TempValue As Single
         If Single.TryParse(PaddingTimeComboBox.SelectedItem, TempValue) = True Then
@@ -1419,7 +1437,7 @@ Public Class SpeechMaterialRecorder
 
     Private Sub InterSentenceTimeComboBox_Click(sender As Object, e As EventArgs) Handles InterSentenceTimeComboBox.SelectedIndexChanged
 
-        If InterSentenceTimeComboBox.SelectedItem = "" Then Exit Sub
+        If InterSentenceTimeComboBox.SelectedItem = Nothing Then Exit Sub
 
         Dim TempValue As Single
         If Single.TryParse(InterSentenceTimeComboBox.SelectedItem, TempValue) = True Then

@@ -1,0 +1,89 @@
+DbId	Spelling	SpellingAFC	Transcription	TranscriptionAFC
+C	C	C	C	C
+L01S01W01	Klas	klas	k l ˈ ɑː s	k l ˈ ɑː s
+L01S02W01	kläs	kläs	k l ˈ ɛː s	k l ˈ ɛː s
+L01S03W01	klös	klös	k l ˈ øː s	k l ˈ øː s
+L02S01W01	bland	bland	b l ˈ a nː d	b l ˈ a nː d
+L02S02W01	blond	blond	b l ˈ ɔ nː d	b l ˈ ɔ nː d
+L02S03W01	blund	blund	b l ˈ ɵ nː d	b l ˈ ɵ nː d
+L03S01W01	ed	ed	∅ ˈ eː d	ˈ eː d
+L03S02W01	led	led	l ˈ eː d	l ˈ eː d
+L03S03W01	ned	ned	n ˈ eː d	n ˈ eː d
+L04S01W01	pir	pir	p ˈ iː r	p ˈ iː r
+L04S02W01	pur	pur	p ˈ ʉː r	p ˈ ʉː r
+L04S03W01	pyr	pyr	p ˈ yː r	p ˈ yː r
+L05S01W01	sätt	sätt	s ˈ ɛ̝ tː	s ˈ ɛ̝ tː
+L05S02W01	sitt	sitt	s ˈ ɪ tː	s ˈ ɪ tː
+L05S03W01	sytt	sytt	s ˈ ʏ tː	s ˈ ʏ tː
+L06S01W01	sitt	sitt	s ˈ ɪ tː	s ˈ ɪ tː
+L06S02W01	sytt	sytt	s ˈ ʏ tː	s ˈ ʏ tː
+L06S03W01	sött	sött	s ˈ ø̞ tː	s ˈ ø̞ tː
+L07S01W01	hall	hall	h ˈ a lː	h ˈ a lː
+L07S02W01	pall	pall	p ˈ a lː	p ˈ a lː
+L07S03W01	tall	tall	t ˈ a lː	t ˈ a lː
+L08S01W01	res	res	r ˈ eː s	r ˈ eː s
+L08S02W01	ris	ris	r ˈ iː s	r ˈ iː s
+L08S03W01	rös	rös	r ˈ øː s	r ˈ øː s
+L09S01W01	satt	satt	s ˈ a tː	s ˈ a tː
+L09S02W01	sätt	sätt	s ˈ ɛ̝ tː	s ˈ ɛ̝ tː
+L09S03W01	sött	sött	s ˈ ø̞ tː	s ˈ ø̞ tː
+L10S01W01	mår	mår	m ˈ oː r	m ˈ oː r
+L10S02W01	mor	mor	m ˈ uː r	m ˈ uː r
+L10S03W01	mur	mur	m ˈ ʉː r	m ˈ ʉː r
+L11S01W01	mas	mas	m ˈ ɑː s	m ˈ ɑː s
+L11S02W01	mås	mås	m ˈ oː s	m ˈ oː s
+L11S03W01	mös	mös	m ˈ øː s	m ˈ øː s
+L12S01W01	paj	paj	p ˈ a ʝː	p ˈ a ʝː
+L12S02W01	pall	pall	p ˈ a lː	p ˈ a lː
+L12S03W01	pang	pang	p ˈ a ŋː	p ˈ a ŋː
+L13S01W01	bur	bur	b ˈ ʉː r	b ˈ ʉː r
+L13S02W01	dur	dur	d ˈ ʉː r	d ˈ ʉː r
+L13S03W01	mur	mur	m ˈ ʉː r	m ˈ ʉː r
+L14S01W01	tugg	tugg	t ˈ ɵ ɡː	t ˈ ɵ ɡː
+L14S02W01	tum	tum	t ˈ ɵ mː	t ˈ ɵ mː
+L14S03W01	tung	tung	t ˈ ɵ ŋː	t ˈ ɵ ŋː
+L15S01W01	kil	kil	ɕ ˈ iː l	ɕ ˈ iː l
+L15S02W01	fil	fil	f ˈ iː l	f ˈ iː l
+L15S03W01	sil	sil	s ˈ iː l	s ˈ iː l
+L16S01W01	kval	kval	k v ˈ ɑː l	k v ˈ ɑː l
+L16S02W01	kvarn	kvarn	k v ˈ ɑː ɳ	k v ˈ ɑː ɳ
+L16S03W01	kvav	kvav	k v ˈ ɑː v	k v ˈ ɑː v
+L17S01W01	mark	mark	m ˈ a rː k	m ˈ a rː k
+L17S02W01	märk	märk	m ˈ ɛ̝ rː k	m ˈ ɛ̝ rː k
+L17S03W01	mörk	mörk	m ˈ ø̞ rː k	m ˈ ø̞ rː k
+L18S01W01	farm	farm	f ˈ a rː m	f ˈ a rː m
+L18S02W01	charm	charm	ɧ ˈ a rː m	ɧ ˈ a rː m
+L18S03W01	larm	larm	l ˈ a rː m	l ˈ a rː m
+L19S01W01	kval	kval	k v ˈ ɑː l	k v ˈ ɑː l
+L19S02W01	kvarn	kvarn	k v ˈ ɑː ɳ	k v ˈ ɑː ɳ
+L19S03W01	kvar	kvar	k v ˈ ɑː r	k v ˈ ɑː r
+L20S01W01	red	red	r ˈ eː d	r ˈ eː d
+L20S02W01	räd	räd	r ˈ ɛː d	r ˈ ɛː d
+L20S03W01	Ryd	ryd	r ˈ yː d	r ˈ yː d
+L21S01W01	fyr	fyr	f ˈ yː r	f ˈ yː r
+L21S02W01	skyr	skyr	ɧ ˈ yː r	ɧ ˈ yː r
+L21S03W01	syr	syr	s ˈ yː r	s ˈ yː r
+L22S01W01	sopp	sopp	s ˈ ɔ pː	s ˈ ɔ pː
+L22S02W01	sått	sått	s ˈ ɔ tː	s ˈ ɔ tː
+L22S03W01	sort	sort	s ˈ ɔ ʈː	s ˈ ɔ ʈː
+L23S01W01	sarg	sarg	s ˈ a rː ʝ	s ˈ a rː ʝ
+L23S02W01	sorg	sorg	s ˈ ɔ rː ʝ	s ˈ ɔ rː ʝ
+L23S03W01	sörj	sörj	s ˈ ø̞ rː ʝ	s ˈ ø̞ rː ʝ
+L24S01W01	rått	rått	r ˈ ɔ tː	r ˈ ɔ tː
+L24S02W01	rott	rott	r ˈ ʊ tː	r ˈ ʊ tː
+L24S03W01	rött	rött	r ˈ ø̞ tː	r ˈ ø̞ tː
+L25S01W01	tuff	tuff	t ˈ ɵ fː	t ˈ ɵ fː
+L25S02W01	tuss	tuss	t ˈ ɵ sː	t ˈ ɵ sː
+L25S03W01	tusch	tusch	t ˈ ɵ ʂː	t ˈ ɵ ʂː
+L26S01W01	ko	ko	k ˈ uː ∅	k ˈ uː
+L26S02W01	kon	kon	k ˈ uː n	k ˈ uː n
+L26S03W01	korn	korn	k ˈ uː ɳ	k ˈ uː ɳ
+L27S01W01	sock	sock	s ˈ ɔ kː	s ˈ ɔ kː
+L27S02W01	sått	sått	s ˈ ɔ tː	s ˈ ɔ tː
+L27S03W01	sort	sort	s ˈ ɔ ʈː	s ˈ ɔ ʈː
+L28S01W01	å	å	∅ ˈ oː ∅	ˈ oː
+L28S02W01	få	få	f ˈ oː ∅	f ˈ oː
+L28S03W01	så	så	s ˈ oː ∅	s ˈ oː
+L29S01W01	hyf	hyf	h ˈ yː f	h ˈ yː f
+L29S02W01	hys	hys	h ˈ yː s	h ˈ yː s
+L29S03W01	hyrs	hyrs	h ˈ yː ʂ	h ˈ yː ʂ

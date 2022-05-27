@@ -759,6 +759,11 @@ Public Class SpeechMaterialComponent
 
         'MediaFolder 
         Main_List.Add(MediaFolder)
+        'If MediaFolder <> "" Then
+        '    Main_List.Add(Id)
+        'Else
+        '    Main_List.Add("")
+        'End If
 
         'MaskerFolder 
         Main_List.Add(MaskerFolder)
