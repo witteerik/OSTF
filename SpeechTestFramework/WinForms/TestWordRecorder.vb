@@ -4,10 +4,19 @@ Imports System.Windows.Forms.Control
 
 Public Class SpeechMaterialRecorder
 
-    Private SoundFilesForEditing As New List(Of Tuple(Of String, SpeechMaterialComponent))
+    Private MediaSet As MediaSet = Nothing
+
+    ''' <summary>
+    ''' Contains paths to the sound files that should be recorded as Item1, and optionally a path to a prototype recording
+    ''' </summary>
+    Private SoundFilesForEditing As New List(Of Tuple(Of String, String))
 
     'Used only in the Recorder
-    Private CurrentSoundSentences As New List(Of Tuple(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent, Audio.Sound))
+
+    ''' <summary>
+    ''' Contains a list of Tuples where Item1 indicates the original SMA object index of the sentence and the second Item holds the recorded sentnce sound, or Nothing if no sound has yet been recorded for the sentnce.
+    ''' </summary>
+    Private CurrentSentencesForRecording As New List(Of Tuple(Of Integer, Audio.Sound))
     Private CurrentSentenceIndex As Integer
     Private CurrentRecordingSound = New Audio.Sound(RecordingWaveFormat)
 
@@ -15,6 +24,9 @@ Public Class SpeechMaterialRecorder
 
     Private CurrentlyLoadedSoundFile As Audio.Sound = Nothing
     Private CurrentSoundFileIndex As Integer = -1
+
+    Private CurrentlyLoadedPrototypeRecordingSoundFile As Audio.Sound = Nothing
+
 
     Private BackgroundSound As Audio.Sound = Nothing
 
@@ -224,16 +236,20 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Public Sub New(ByRef EditItems As List(Of Tuple(Of String, SpeechMaterialComponent)), ByRef RecordingWaveFormat As Audio.Formats.WaveFormat, Optional ByRef RandomItemOrder As Boolean = True)
+    Public Sub New(ByRef MediaSet As MediaSet,
+                   ByRef EditItems As List(Of Tuple(Of String, String)),
+                   Optional ByVal RandomItemOrder As Boolean = True)
 
         ' This call is required by the designer.
         InitializeComponent()
+
+        Me.MediaSet = MediaSet
 
         Me.RandomItemOrder = RandomItemOrder
         If Me.RandomItemOrder = True Then RandomizeRecordingsOrder()
 
         'Setting the RecordingWaveFormat
-        Me.RecordingWaveFormat = RecordingWaveFormat
+        Me.RecordingWaveFormat = MediaSet.CreateRecordingWaveFormat
 
         ' Add any initialization after the InitializeComponent() call.
         Me.SoundFilesForEditing = EditItems
@@ -271,7 +287,7 @@ Public Class SpeechMaterialRecorder
 
         CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.HeadPhones
 
-        SetRecordLabelText(False)
+        IsRecording = False
 
     End Sub
 
@@ -285,9 +301,9 @@ Public Class SpeechMaterialRecorder
     Private Sub RandomizeRecordingsOrder()
 
         Dim rnd As New Random
-        Dim RndList As New List(Of Tuple(Of Double, Tuple(Of String, SpeechMaterialComponent)))
+        Dim RndList As New List(Of Tuple(Of Double, Tuple(Of String, String)))
         For Each item In Me.SoundFilesForEditing
-            RndList.Add(New Tuple(Of Double, Tuple(Of String, SpeechMaterialComponent))(rnd.NextDouble, item))
+            RndList.Add(New Tuple(Of Double, Tuple(Of String, String))(rnd.NextDouble, item))
             RndList.Sort(Function(x, y) x.Item1.CompareTo(y.Item1))
         Next
         Me.SoundFilesForEditing.Clear()
@@ -298,37 +314,56 @@ Public Class SpeechMaterialRecorder
     End Sub
 
 
-    Private Function LoadSoundFile(ByVal FilePath As String) As Boolean
-
-        Dim Succeeded As Boolean = False
+    Private Function LoadSoundFile(ByVal FilePath As String, Optional ByVal PrototypeRecordingFilePath As String = "") As Boolean
 
         If IO.File.Exists(FilePath) = True Then
             Dim TempSound = Audio.Sound.LoadWaveFile(FilePath,,,,, True)
             If TempSound IsNot Nothing Then
                 CheckIfSaveSound()
                 CurrentlyLoadedSoundFile = TempSound
-                Succeeded = True
+            Else
+                MsgBox("Could not load the file: " & FilePath)
+                Return False
             End If
         End If
 
-        If Succeeded = True Then
-            FileName_Label.Text = IO.Path.GetFileName(FilePath)
-            SoundFilePathStatusLabel.Text = FilePath
-        End If
-
-        If Succeeded = True Then
-            'Also loading the sentences for recording
-            CurrentSoundSentences = New List(Of Tuple(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent, Audio.Sound))
-            For Each SentenceSmaComponent In CurrentlyLoadedSoundFile.SMA.ChannelData(1)
-                CurrentSoundSentences.Add(New Tuple(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent, Audio.Sound)(SentenceSmaComponent, Nothing))
-            Next
-            'Randomizing the order of sentences
-            If RandomItemOrder = True Then
-                RandomizeSentenceOrder()
+        If PrototypeRecordingFilePath <> "" Then
+            'Loads the prototype recording
+            Dim TempSound = Audio.Sound.LoadWaveFile(PrototypeRecordingFilePath,,,,, False)
+            If TempSound IsNot Nothing Then
+                CurrentlyLoadedPrototypeRecordingSoundFile = TempSound
+            Else
+                MsgBox("Could not load the prototype recording file: " & PrototypeRecordingFilePath)
+                Return False
             End If
         End If
 
-        Return Succeeded
+        'Updates the loaded sound file GUI labels
+        FileName_Label.Text = IO.Path.GetFileName(FilePath)
+        SoundFilePathStatusLabel.Text = FilePath
+
+        'Also loading the sentences for recording
+        'Checking that the number of sentences agrees if prototype recording is used ( this could be improved by checking that all SMA levels agree
+        If PrototypeRecordingFilePath <> "" Then
+            If CurrentlyLoadedSoundFile.SMA.ChannelData(1).Count <> CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1).Count Then
+                MsgBox("The number of sentence level SMA components differs between recordings: " & vbCrLf & FilePath & vbCrLf & PrototypeRecordingFilePath)
+                Return False
+            End If
+        End If
+
+        'Original sentence order, Sentence sound
+        CurrentSentencesForRecording = New List(Of Tuple(Of Integer, Audio.Sound))
+        For s = 0 To CurrentlyLoadedSoundFile.SMA.ChannelData(1).Count - 1
+            Dim SentenceSmaComponent = CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s)
+            CurrentSentencesForRecording.Add(New Tuple(Of Integer, Audio.Sound)(s, Nothing))
+        Next
+
+        'Randomizing the order of sentences
+        If RandomItemOrder = True Then
+            RandomizeSentenceOrder()
+        End If
+
+        Return True
 
     End Function
 
@@ -342,7 +377,7 @@ Public Class SpeechMaterialRecorder
 
         Dim FilePath As String = Utils.GetOpenFilePath("",, {".wav"}, "Open wave file (SMA iXML chunk required)", True)
         If FilePath <> "" Then
-            SoundFilesForEditing.Add(New Tuple(Of String, SpeechMaterialComponent)(FilePath, Nothing))
+            SoundFilesForEditing.Add(New Tuple(Of String, String)(FilePath, Nothing))
             FileComboBox.Items.Add(SoundFilesForEditing.Count)
             SelectSoundFileIndex(SoundFilesForEditing.Count - 1)
         Else
@@ -593,8 +628,12 @@ Public Class SpeechMaterialRecorder
 
                 If LoadSoundFile(SoundPath) = True Then
 
+                    CurrentSentenceIndex = -1
+                    JumpToUnrecorded = False
+                    ChangeSentenceDirection = IndexChangeDirections.Next
+
                     'Resetting CurrentSentenceIndex 
-                    SelectSentenceForRecording(0)
+                    SelectNextSentenceForRecording()
 
                 Else
 
@@ -616,7 +655,7 @@ Public Class SpeechMaterialRecorder
 
 
     Public Function MinSoundSentenceSelectionIndex() As Integer
-        If CurrentSoundSentences Is Nothing Then
+        If CurrentSentencesForRecording Is Nothing Then
             Return -1
         Else
             Return 0
@@ -624,78 +663,157 @@ Public Class SpeechMaterialRecorder
     End Function
 
     Public Function MaxSoundSentenceSelectionIndex() As Integer
-        If CurrentSoundSentences Is Nothing Then
+        If CurrentSentencesForRecording Is Nothing Then
             Return -1
         Else
-            Return CurrentSoundSentences.Count - 1
+            Return CurrentSentencesForRecording.Count - 1
         End If
     End Function
 
-    Private Sub SelectSentenceForRecording(ByVal SelectionIndex As Integer)
 
-        If CurrentSoundSentences Is Nothing Then
+    ''' <summary>
+    ''' Selects the next sentnce for recording based on the values in the variables ChangeSentenceDirection and JumpToUnrecorded. Returns true if selection found an appropriate index or false if no index could be found (e.g. end of list etc.)
+    ''' </summary>
+    ''' <returns></returns>
+    Private Function SelectNextSentenceForRecording() As Boolean
+
+        If CurrentSentencesForRecording Is Nothing Then
             MsgBox("No SMA sentence level objects have been loaded from wave file!")
-            Exit Sub
+            Return False
         End If
 
-        If CurrentSoundSentences.Count = 0 Then
+        If CurrentSentencesForRecording.Count = 0 Then
             MsgBox("No sentence level SMA object exist in the loaded sound file!")
-            Exit Sub
+            Return False
         End If
 
-        'Checking SelectionIndex 
-        Select Case SelectionIndex
+        Dim TempIndex As Integer = CurrentSentenceIndex
+
+        If JumpToUnrecorded = False Then
+
+            'Simply jumps to the next or previous sentence
+            Select Case ChangeSentenceDirection
+                Case IndexChangeDirections.Next
+                    TempIndex += 1
+                Case IndexChangeDirections.Previous
+                    TempIndex -= 1
+            End Select
+
+        Else
+
+            Dim AnyIndexFound As Boolean = False
+            Select Case ChangeSentenceDirection
+                Case IndexChangeDirections.Next
+
+                    For i = TempIndex To CurrentSentencesForRecording.Count - 1
+                        If CurrentSentencesForRecording(i).Item2 Is Nothing Then
+                            TempIndex = i
+                            AnyIndexFound = True
+                            Exit For
+                        End If
+                    Next
+
+                Case IndexChangeDirections.Previous
+                    For i = TempIndex To 0 Step -1
+                        If CurrentSentencesForRecording(i).Item2 Is Nothing Then
+                            TempIndex = i
+                            AnyIndexFound = True
+                            Exit For
+                        End If
+                    Next
+
+            End Select
+
+            If AnyIndexFound = False Then
+
+                'Searches through all sentences
+                For i = 0 To CurrentSentencesForRecording.Count - 1
+                    If CurrentSentencesForRecording(i).Item2 Is Nothing Then
+                        TempIndex = i
+                        AnyIndexFound = True
+                        Exit For
+                    End If
+                Next
+
+                If AnyIndexFound = False Then
+                    MsgBox("No more unrecorded items/sentences can be found.")
+                    Return False
+                End If
+            End If
+        End If
+
+
+        'Checking TempIndex 
+        Select Case TempIndex
             Case < MinSoundSentenceSelectionIndex()
 
                 MsgBox("Selected sentence index too low (you've already at the first sentence)")
+                Return False
 
             Case > MaxSoundSentenceSelectionIndex()
 
                 MsgBox("Selected sentence file index too high (you've already at the last sentence)")
+                Return False
 
             Case Else
-                CurrentSentenceIndex = SelectionIndex
-
-                If CurrentSoundSentences(CurrentSentenceIndex).Item2 IsNot Nothing Then
-
-                    'Resetting sound display
-                    If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
-
-                    Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,,,,,,,, MyGeneralSoundPlayer)
-                    waveDrawer.Dock = Windows.Forms.DockStyle.Fill
-
-                    RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
-
-
-                Else
-
-                    'Resets the sound display, and adds a message that no sound is recorded
-                    If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
-
-                    Dim noSoundLabel As New Windows.Forms.Label
-                    noSoundLabel.Dock = Windows.Forms.DockStyle.Fill
-                    noSoundLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-                    noSoundLabel.Text = "No sound is yet recorded for this item/sentence."
-                    RecordingTabMainSplitContainer.Panel2.Controls.Add(noSoundLabel)
-
-                End If
+                CurrentSentenceIndex = TempIndex
+                Return True
 
         End Select
+
+        If AutoStartRecording = False Then
+            ViewSentenceForRecording()
+        Else
+            If CurrentSentencesForRecording(CurrentSentenceIndex).Item2 IsNot Nothing Then
+                'Not starting recording automatically if a recoring already exists
+                ViewSentenceForRecording()
+            Else
+                'Starts the recoring automatically if no recordings already exists
+                StartNewRecording()
+            End If
+        End If
+
+    End Function
+
+    Private Sub ViewSentenceForRecording()
+
+        If CurrentSentencesForRecording(CurrentSentenceIndex).Item2 IsNot Nothing Then
+
+            'Resetting sound display
+            If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
+
+            Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2,,,,,,,,,, MyGeneralSoundPlayer)
+            waveDrawer.Dock = Windows.Forms.DockStyle.Fill
+
+            RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
+
+        Else
+
+            'Resets the sound display, and adds a message that no sound is recorded
+            If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
+
+            Dim noSoundLabel As New Windows.Forms.Label
+            noSoundLabel.Dock = Windows.Forms.DockStyle.Fill
+            noSoundLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+            noSoundLabel.Text = "No sound is yet recorded for this item/sentence."
+            RecordingTabMainSplitContainer.Panel2.Controls.Add(noSoundLabel)
+
+        End If
 
     End Sub
 
     Private Sub RandomizeSentenceOrder()
 
-        If CurrentSoundSentences IsNot Nothing Then
+        If CurrentSentencesForRecording IsNot Nothing Then
             Dim rnd As New Random
-            Dim RndList As New List(Of Tuple(Of Double, Tuple(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent, Audio.Sound)))
-            For Each item In CurrentSoundSentences
-                RndList.Add(New Tuple(Of Double, Tuple(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent, Audio.Sound))(rnd.NextDouble, item))
+            Dim RndList As New List(Of Tuple(Of Double, Tuple(Of Integer, Audio.Sound)))
+            For Each item In CurrentSentencesForRecording
+                RndList.Add(New Tuple(Of Double, Tuple(Of Integer, Audio.Sound))(rnd.NextDouble, item))
                 RndList.Sort(Function(x, y) x.Item1.CompareTo(y.Item1))
             Next
-            CurrentSoundSentences.Clear()
+            CurrentSentencesForRecording.Clear()
             For Each item In RndList
-                CurrentSoundSentences.Add(item.Item2)
+                CurrentSentencesForRecording.Add(item.Item2)
             Next
         End If
 
@@ -762,7 +880,6 @@ Public Class SpeechMaterialRecorder
 
 #Region "RecordingView"
 
-
     Private Sub PresentationLevel_ToolStripComboBox_Click(sender As Object, e As EventArgs) Handles PresentationLevel_ToolStripComboBox.SelectedIndexChanged
 
         If PresentationLevel_ToolStripComboBox.SelectedItem = "" Then Exit Sub
@@ -823,7 +940,6 @@ Public Class SpeechMaterialRecorder
     End Sub
 
 
-
     Private Sub ListenButton_Click(sender As Object, e As EventArgs) Handles ListenButton.Click
 
         If CurrentlyLoadedSoundFile IsNot Nothing Then
@@ -841,49 +957,93 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub StartRecordingButton_Click(sender As Object, e As EventArgs) Handles StartRecordingButton.Click
 
-        If myRecordingStatus = RecordingStatus.NotRecorded Or myRecordingStatus = RecordingStatus.FinishedRecording Then
-            newRecording()
-        End If
-
-    End Sub
-
-    Private Sub StopRecordingButton_Click(sender As Object, e As EventArgs) Handles StopRecordingButton.Click
-
-        If myRecordingStatus = RecordingStatus.Recording Then stopRecording(sender)
-
-    End Sub
 
 #Region "Recording Loop"
 
     Private delayBeforeStoppingRecording As Integer = 500
 
-    Private myRecordingStatus As RecordingStatus = RecordingStatus.NotRecorded
+    Private Property _IsRecording As Boolean = False
+    Private Property IsRecording As Boolean
+        Get
+            Return _IsRecording
+        End Get
+        Set(value As Boolean)
+
+            _IsRecording = value
+
+            If IsRecording = False Then
+
+                RecordingLabel.ForeColor = Drawing.Color.Blue
+                RecordingLabel.BackColor = Drawing.Color.DarkGray
+                RecordingLabel.Text = "Not recording"
+
+
+                MainTabControl.TabPages(1).Enabled = True
+                MenuStrip1.Enabled = True
+
+                StartRecordingButton.Enabled = True
+                Rec_NextItemButton.Enabled = True
+                Rec_PreviousItemButton.Enabled = True
+                Rec_NextNRItemButton.Enabled = True
+                Rec_PreviousNRItemButton.Enabled = True
+                StopRecordingButton.Enabled = False
+
+                Top_PreviousFileButton.Enabled = True
+                Top_NextFileButton.Enabled = True
+                FileComboBox.Enabled = True
+            Else
+
+                RecordingLabel.ForeColor = Drawing.Color.White
+                RecordingLabel.BackColor = Drawing.Color.Red
+                RecordingLabel.Text = "Recording"
+                ListenButton.Enabled = False
+
+
+                MainTabControl.TabPages(1).Enabled = False
+                MenuStrip1.Enabled = False
+
+                StartRecordingButton.Enabled = False
+                Rec_NextItemButton.Enabled = True
+                Rec_PreviousItemButton.Enabled = True
+                Rec_NextNRItemButton.Enabled = True
+                Rec_PreviousNRItemButton.Enabled = True
+                StopRecordingButton.Enabled = True
+
+                Top_PreviousFileButton.Enabled = False
+                Top_NextFileButton.Enabled = False
+                FileComboBox.Enabled = False
+
+            End If
+
+            Me.Refresh()
+
+        End Set
+    End Property
+
     Private Enum RecordingStatus
-        NotRecorded
+        NotRecording
         Recording
         FinishedRecording
     End Enum
 
 
     Private WithEvents StartRecordingTimer As New Timer
-    Private Sub newRecording()
+    Private Sub StartNewRecording()
 
         'Plays the specified sound
         If UseAuditoryPrequeing = True Then
 
-            MsgBox("From where should we get the prototype recordings?")
-            Dim PreCueSound As Audio.Sound
+            Dim PrototypeSound As Audio.Sound = CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).GetSoundFileSection(1)
 
             If CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.SoundField Then
 
                 'Presenting a mono sound
-                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, PreCueSound,,,, Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
+                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, PrototypeSound,,,, Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
             Else
 
                 'Prestenting a stereo sound
-                Dim TempMultiChannelSound As Audio.Sound = PreCueSound.ConvertMonoToMultiChannel(2, True)
+                Dim TempMultiChannelSound As Audio.Sound = PrototypeSound.ConvertMonoToMultiChannel(2, True)
                 TempMultiChannelSound.SMA.SetTimeWeighting(PresentationSound_SoundLevelFormat.TemporalIntegrationDuration, True)
                 TempMultiChannelSound.SMA.SetFrequencyWeighting(PresentationSound_SoundLevelFormat.FrequencyWeighting, True)
 
@@ -894,7 +1054,7 @@ Public Class SpeechMaterialRecorder
 
             End If
 
-            StartRecordingTimer.Interval = 50 + (1000 * PreCueSound.SMA.ChannelData(1)(CurrentSentenceIndex).Length / PreCueSound.WaveFormat.SampleRate)
+            StartRecordingTimer.Interval = 50 + (1000 * PrototypeSound.SMA.ChannelData(1)(CurrentSentenceIndex).Length / PrototypeSound.WaveFormat.SampleRate)
             StartRecordingTimer.Start()
 
         Else
@@ -984,7 +1144,7 @@ Public Class SpeechMaterialRecorder
 
         Try
 
-            SetRecordLabelText(False)
+            IsRecording = True
 
             'Starts the recording
             If UseRecordingNoise = True Then
@@ -1006,19 +1166,19 @@ Public Class SpeechMaterialRecorder
     End Sub
 
 
-    Private Sub stopRecording(ByVal sender As Object) As Boolean
+    Private Sub stopRecording()
 
-        If myRecordingStatus = RecordingStatus.Recording Then
+        If IsRecording = True Then
 
+            'Stopping player
             MyGeneralSoundPlayer.Stop(0.2)
 
-            myRecordingStatus = RecordingStatus.FinishedRecording
-            SetRecordLabelText(False)
+            IsRecording = False
 
-            'Copying the sound from the recorded sound to the current index in mySounds (not just coying the sound sincePTWF info will be lost then)
+            'Copying the sound from the recorded sound
             Dim RecordedSound = MyGeneralSoundPlayer.GetRecordedSound
             If RecordedSound IsNot Nothing Then
-                CurrentSoundSentences(CurrentSentenceIndex) = New Tuple(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent, Audio.Sound)(CurrentSoundSentences(CurrentSentenceIndex).Item1, RecordedSound)
+                CurrentSentencesForRecording(CurrentSentenceIndex) = New Tuple(Of Integer, Audio.Sound)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1, RecordedSound)
             Else
                 MsgBox("Unable to retrieve any recorded sound data.")
             End If
@@ -1027,66 +1187,103 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Public Sub SetRecordLabelText(ByVal recording As Boolean)
 
-        If recording = True Then
-            RecordingLabel.ForeColor = Drawing.Color.White
-            RecordingLabel.BackColor = Drawing.Color.Red
-            RecordingLabel.Text = "Recording"
-            ListenButton.Enabled = False
-        Else
-            RecordingLabel.ForeColor = Drawing.Color.Blue
-            RecordingLabel.BackColor = Drawing.Color.DarkGray
-            RecordingLabel.Text = "Not recording"
+
+    Private WithEvents NextItemTimer As New Windows.Forms.Timer
+
+    Private Sub StartRecordingButton_Click(sender As Object, e As EventArgs) Handles StartRecordingButton.Click
+        If IsRecording = False Then
+            StartNewRecording()
         End If
-
     End Sub
 
+    Private ChangeSentenceDirection As IndexChangeDirections
+    Private Enum IndexChangeDirections
+        Previous
+        [Next]
+    End Enum
 
-    Private WithEvents nextItemTimer As New Timer
-
-    Private Sub Rec_PreviousItemButton_Click(sender As Object, e As EventArgs) Handles Rec_PreviousItemButton.Click
-
-        NextWordButton.Enabled = False
-        nextItemTimer.Interval = delayBeforeStoppingRecording
-        nextItemTimer.Start()
-
-        If RandomOrderOfSounds = True And sender Is NextUnrecordedWordButton Then
-            JumpToUnrecorded = True
-        Else
-            JumpToUnrecorded = False
-        End If
-
-
-    End Sub
+    Private JumpToUnrecorded As Boolean = False
 
     Private Sub Rec_NextItemButton_Click(sender As Object, e As EventArgs) Handles Rec_NextItemButton.Click
 
-    End Sub
+        ChangeSentenceDirection = IndexChangeDirections.Next
+        JumpToUnrecorded = False
 
-
-    Private Sub nextWordButton_Click(sender As Object, e As EventArgs) Handles NextWordButton.Click, NextUnrecordedWordButton.Click
-
-    End Sub
-    Public Sub nextWordKey_Pressed()
-        NextWordButton.Enabled = False
-        nextItemTimer.Interval = delayBeforeStoppingRecording
-
-        If RandomOrderOfSounds = True Then
-            JumpToUnrecorded = True
+        If IsRecording = True Then
+            NextItemTimer.Interval = delayBeforeStoppingRecording
+            NextItemTimer.Start()
         Else
-            JumpToUnrecorded = False
+            SelectNextSentenceForRecording()
         End If
 
-        nextItemTimer.Start()
+    End Sub
+
+    Private Sub Rec_PreviousItemButton_Click(sender As Object, e As EventArgs) Handles Rec_PreviousItemButton.Click
+
+        ChangeSentenceDirection = IndexChangeDirections.Previous
+        JumpToUnrecorded = False
+
+        If IsRecording = True Then
+            NextItemTimer.Interval = delayBeforeStoppingRecording
+            NextItemTimer.Start()
+        Else
+            SelectNextSentenceForRecording()
+        End If
 
     End Sub
-    Private Sub nextItem() Handles nextItemTimer.Tick
-        nextItemTimer.Stop()
 
-        stopRecording(NextWordButton)
+    Private Sub Rec_NextNRItemButton_Click(sender As Object, e As EventArgs) Handles Rec_NextNRItemButton.Click
+
+        ChangeSentenceDirection = IndexChangeDirections.Next
+        JumpToUnrecorded = True
+
+        If IsRecording = True Then
+            NextItemTimer.Interval = delayBeforeStoppingRecording
+            NextItemTimer.Start()
+        Else
+            SelectNextSentenceForRecording()
+        End If
 
     End Sub
+
+    Private Sub Rec_PreviousNRItemButton_Click(sender As Object, e As EventArgs) Handles Rec_PreviousNRItemButton.Click
+
+        ChangeSentenceDirection = IndexChangeDirections.Previous
+        JumpToUnrecorded = True
+
+        If IsRecording = True Then
+            NextItemTimer.Interval = delayBeforeStoppingRecording
+            NextItemTimer.Start()
+        Else
+            SelectNextSentenceForRecording()
+        End If
+
+    End Sub
+
+    Private Sub NextItemTimer_Tick() Handles NextItemTimer.Tick
+
+        If IsRecording = True Then
+            NextItemTimer.Stop()
+            stopRecording()
+        End If
+
+        'Select next Item
+        SelectNextSentenceForRecording()
+
+    End Sub
+
+    Private Sub StopRecordingButton_Click(sender As Object, e As EventArgs) Handles StopRecordingButton.Click
+
+        If IsRecording = RecordingStatus.Recording Then
+            stopRecording()
+
+            ViewSentenceForRecording()
+
+        End If
+
+    End Sub
+
 
 #End Region
 
@@ -1246,6 +1443,7 @@ Public Class SpeechMaterialRecorder
     Private Sub CloseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CloseToolStripMenuItem.Click
         Me.Close()
     End Sub
+
 
 
 

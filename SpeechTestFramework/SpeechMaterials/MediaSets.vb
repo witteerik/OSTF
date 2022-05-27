@@ -40,6 +40,18 @@ Public Class MediaSet
     Public Property BackgroundNonspeechParentFolder As String
     Public Property BackgroundSpeechParentFolder As String
 
+    ''' <summary>
+    ''' The folder containing the recordings used as prototype recordings during the recording od the MediaSet
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property PrototypeMediaParentFolder As String
+
+    ''' <summary>
+    ''' The path should point to a sound recording used as prototype when recording prototype recordings for a MediaSet
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property MasterPrototypeRecordingPath As String
+
     Public Property WaveFileSampleRate As Integer = 48000
     Public Property WaveFileBitDepth As Integer = 32
     Public Property WaveFileEncoding As Audio.Formats.WaveFormat.WaveFormatEncodings = Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
@@ -74,42 +86,89 @@ Public Class MediaSet
 
     End Sub
 
+    Public Enum PrototypeRecordingOptions
+        MasterPrototypeRecording
+        PrototypeRecordings
+        None
+    End Enum
+
     ''' <summary>
-    ''' Returns the full file paths to all existing and nonexisting sound recordings assumed to exist in the Media folder in Item1, along with the (first, if several) SpeechMaterialComponent using those paths. 
+    ''' Returns the full file paths to all existing and nonexisting sound recordings assumed to exist in the Media folder in Item1, along with the the path to a corresponding sound to be used as prototype recording as Item2 and a reference to the corresponding Component as Item3.
     ''' For lacking recordings a new paths are suggested. Existing file paths are returned in Item2, and nonexisting paths in Item3.
     ''' </summary>
     ''' <param name="SpeechMaterial"></param>
     ''' <returns></returns>
-    Public Function GetAllSpeechMaterialComponentAudioPaths(ByVal SpeechMaterial As SpeechMaterialComponent) As Tuple(Of
-        List(Of Tuple(Of String, SpeechMaterialComponent)),
-        List(Of Tuple(Of String, SpeechMaterialComponent)),
-        List(Of Tuple(Of String, SpeechMaterialComponent)))
+    Public Function GetAllSpeechMaterialComponentAudioPaths(ByVal SpeechMaterial As SpeechMaterialComponent, ByVal PrototypeRecordingOption As PrototypeRecordingOptions) As Tuple(Of
+        List(Of Tuple(Of String, String, SpeechMaterialComponent)),
+        List(Of Tuple(Of String, String, SpeechMaterialComponent)),
+        List(Of Tuple(Of String, String, SpeechMaterialComponent)))
 
         Dim CurrentTestRootPath As String = IO.Path.Combine(OstfSettings.RootPath, OstfSettings.CurrentTestSubPath)
 
         Dim AllComponents = SpeechMaterial.GetAllRelatives
 
-        Dim ExistingFilesList As New List(Of Tuple(Of String, SpeechMaterialComponent))
-        Dim LackingFilesList As New List(Of Tuple(Of String, SpeechMaterialComponent))
-        Dim AllPaths As New List(Of Tuple(Of String, SpeechMaterialComponent))
-
-        Dim AddedMediaFolders As New List(Of String)
+        Dim ExistingFilesList As New List(Of Tuple(Of String, String, SpeechMaterialComponent))
+        Dim LackingFilesList As New List(Of Tuple(Of String, String, SpeechMaterialComponent))
+        Dim AllPaths As New List(Of Tuple(Of String, String, SpeechMaterialComponent))
 
         For Each Component In AllComponents
 
-            'Skipd to next if no media items are expected
+            'Skips to next if no media items are expected
             If Component.MediaFolder = "" Then Continue For
 
             Dim FullMediaFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaParentFolder, Component.MediaFolder)
 
-            'Skipping the media folder if it has already been added (this will happen if several differen component share the same media folder)
-            If AddedMediaFolders.Contains(FullMediaFolderPath) Then
-                'The needed files will have already been added in a previous loop
-                Continue For
-            Else
-                'Notes the MediaFolder in AddedMediaFolders
-                AddedMediaFolders.Add(FullMediaFolderPath)
-            End If
+            'Selects the appropriate prototyp recording depending on the value of PrototypeRecordingOption
+            Dim PrototypeRecordingPath As String = ""
+            Select Case PrototypeRecordingOption
+                Case PrototypeRecordingOptions.MasterPrototypeRecording
+
+                    'Getting the file path
+                    PrototypeRecordingPath = IO.Path.Combine(CurrentTestRootPath, MasterPrototypeRecordingPath)
+
+                    'Ensuring that the master prototype recoding exist
+                    If IO.File.Exists(PrototypeRecordingPath) = False Then
+                        MsgBox("The master prototype recoding cannot be found at: " & PrototypeRecordingPath, MsgBoxStyle.Information, "Lacking master prototype recording")
+                        Return Nothing
+                    End If
+
+                Case PrototypeRecordingOptions.PrototypeRecordings
+
+                    'Getting the folder
+                    PrototypeRecordingPath = IO.Path.Combine(CurrentTestRootPath, PrototypeMediaParentFolder, Component.MediaFolder)
+
+                    'Using the first recording (if more than one exist) as the prototype recording
+                    If IO.Directory.Exists(PrototypeRecordingPath) = True Then
+
+                        'Getting the file path
+                        'Selecting the sound file paths present there 
+                        Dim PrototypeRecordingFound As Boolean = False
+                        Dim FilesPresent = IO.Directory.GetFiles(PrototypeRecordingPath)
+                        For Each filePath In FilesPresent
+                            If filePath.EndsWith(".wav") Then
+                                PrototypeRecordingPath = filePath
+                                PrototypeRecordingFound = True
+                                Exit For
+                            End If
+                        Next
+
+                        'Ensuring that a prototype recoding was found
+                        If PrototypeRecordingFound = False Then
+                            MsgBox("No wave file could be found in the prototype recoding folder: " & PrototypeRecordingPath, MsgBoxStyle.Information, "Lacking prototype recording")
+                            Return Nothing
+                        End If
+
+                    Else
+                        MsgBox("The following prototype recoding folder cannot be found: " & PrototypeRecordingPath, MsgBoxStyle.Information, "Lacking prototype recording folder")
+                        Return Nothing
+
+                    End If
+
+                Case PrototypeRecordingOptions.None
+                    'No prototype recoding  is to be used
+                    PrototypeRecordingPath = ""
+            End Select
+
 
             Dim ExistingFileCount As Integer = 0
 
@@ -120,7 +179,7 @@ Public Class MediaSet
                 Dim FilesPresent = IO.Directory.GetFiles(FullMediaFolderPath)
                 For Each filePath In FilesPresent
                     If filePath.EndsWith(".wav") Then
-                        ExistingFilesList.Add(New Tuple(Of String, SpeechMaterialComponent)(filePath, Component))
+                        ExistingFilesList.Add(New Tuple(Of String, String, SpeechMaterialComponent)(filePath, PrototypeRecordingPath, Component))
                         AllPaths.Add(ExistingFilesList.Last)
                     End If
                 Next
@@ -133,15 +192,15 @@ Public Class MediaSet
             'Creates file paths for files not present
             For n = ExistingFileCount To MediaAudioItems - 1
                 'Creating a file name (avoiding file name conflicts)
-                LackingFilesList.Add(New Tuple(Of String, SpeechMaterialComponent)(Utils.CheckFileNameConflict(IO.Path.Combine(FullMediaFolderPath, Component.MediaFolder & "_" & (n).ToString("000") & ".wav")), Component))
+                LackingFilesList.Add(New Tuple(Of String, String, SpeechMaterialComponent)(Utils.CheckFileNameConflict(IO.Path.Combine(FullMediaFolderPath, Component.MediaFolder & "_" & (n).ToString("000") & ".wav")), PrototypeRecordingPath, Component))
                 AllPaths.Add(LackingFilesList.Last)
             Next
 
         Next
 
-        Return New Tuple(Of List(Of Tuple(Of String, SpeechMaterialComponent)),
-            List(Of Tuple(Of String, SpeechMaterialComponent)),
-            List(Of Tuple(Of String, SpeechMaterialComponent)))(AllPaths, ExistingFilesList, LackingFilesList)
+        Return New Tuple(Of List(Of Tuple(Of String, String, SpeechMaterialComponent)),
+            List(Of Tuple(Of String, String, SpeechMaterialComponent)),
+            List(Of Tuple(Of String, String, SpeechMaterialComponent)))(AllPaths, ExistingFilesList, LackingFilesList)
 
     End Function
 
@@ -150,9 +209,10 @@ Public Class MediaSet
     ''' </summary>
     ''' <param name="SpeechMaterial"></param>
     ''' <returns>Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.</returns>
-    Public Function CreateLackingAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent, Optional SupressUnnecessaryMessages As Boolean = False) As Tuple(Of Integer, Integer)
+    Public Function CreateLackingAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent, ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
+                                                 Optional SupressUnnecessaryMessages As Boolean = False) As Tuple(Of Integer, Integer)
 
-        Dim ExpectedAudioPaths = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial)
+        Dim ExpectedAudioPaths = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial, PrototypeRecordingOption)
 
         Dim FilesCreated As Integer = 0
 
@@ -165,7 +225,8 @@ Public Class MediaSet
                 For Each item In ExpectedAudioPaths.Item3
 
                     Dim NewPath = item.Item1
-                    Dim Component = item.Item2
+                    '(N.B. Prototype recording paths are never directly created, but should instead be created as a separate MediaSet)
+                    Dim Component = item.Item3
 
                     Dim NewSound = New Audio.Sound(New Audio.Formats.WaveFormat(WaveFileSampleRate, WaveFileBitDepth, 1,, WaveFileEncoding))
 
@@ -205,7 +266,10 @@ Public Class MediaSet
     End Enum
 
 
-    Public Sub RecordAndEditAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent, ByVal SpeechMaterialRecorderLoadOption As SpeechMaterialRecorderLoadOptions)
+    Public Sub RecordAndEditAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent,
+                                            ByVal SpeechMaterialRecorderSoundFileLoadOption As SpeechMaterialRecorderLoadOptions,
+                                            ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
+                                            Optional ByRef RandomItemOrder As Boolean = True)
 
         'Checks first that all expected sound files exist
         Dim FilesStillLacking = CreateLackingAudioMediaFiles(SpeechMaterial, True).Item2
@@ -216,9 +280,9 @@ Public Class MediaSet
         End If
 
         'Getting all paths
-        Dim AudioPaths = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial)
+        Dim AudioPaths = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial, PrototypeRecordingOption)
 
-        Dim FilesForRecordAndEdit As New List(Of Tuple(Of String, SpeechMaterialComponent))
+        Dim FilesForRecordAndEdit As New List(Of Tuple(Of String, String))
 
         'Parsing through all sound files (without storing them in memory) and stores the paths to be included in the recorder GUI
         For Each soundFileTuple In AudioPaths.Item1
@@ -238,18 +302,18 @@ Public Class MediaSet
                 'TODO: Lets this through for now, but it may be good to offer a chioce to update the format???
             End If
 
-            Select Case SpeechMaterialRecorderLoadOption
+            Select Case SpeechMaterialRecorderSoundFileLoadOption
                 Case SpeechMaterialRecorderLoadOptions.LoadAllSounds
 
                     'Adds all files
-                    FilesForRecordAndEdit.Add(soundFileTuple)
+                    FilesForRecordAndEdit.Add(New Tuple(Of String, String)(soundFileTuple.Item1, soundFileTuple.Item2))
 
                 Case SpeechMaterialRecorderLoadOptions.LoadOnlyEmptySounds
 
                     'Checks if the sound is empty (N.B. Expects only mono sounds here!)
                     If LoadedSound.WaveData.SampleData(1).Length = 0 Then
                         'Adds the sound
-                        FilesForRecordAndEdit.Add(soundFileTuple)
+                        FilesForRecordAndEdit.Add(New Tuple(Of String, String)(soundFileTuple.Item1, soundFileTuple.Item2))
                     End If
 
                 Case SpeechMaterialRecorderLoadOptions.LoadOnlySoundsWithoutCompletedSegmentation
@@ -257,7 +321,7 @@ Public Class MediaSet
                     'Checks if segmentation if completed
                     If LoadedSound.SMA.SegmentationCompleted = False Then
                         'Adds the sound
-                        FilesForRecordAndEdit.Add(soundFileTuple)
+                        FilesForRecordAndEdit.Add(New Tuple(Of String, String)(soundFileTuple.Item1, soundFileTuple.Item2))
                     End If
 
             End Select
@@ -265,14 +329,17 @@ Public Class MediaSet
         Next
 
         'Launches the Recorder GUI
-        Dim RecordingWaveFormat As New Audio.Formats.WaveFormat(Me.WaveFileSampleRate, Me.WaveFileBitDepth, 1,, Me.WaveFileEncoding)
 
-        Dim RecorderGUI As New SpeechMaterialRecorder(FilesForRecordAndEdit, RecordingWaveFormat)
+        Dim RecorderGUI As New SpeechMaterialRecorder(Me, FilesForRecordAndEdit, RandomItemOrder)
 
         RecorderGUI.Show()
 
 
     End Sub
+
+    Public Function CreateRecordingWaveFormat() As Audio.Formats.WaveFormat
+        Return New Audio.Formats.WaveFormat(Me.WaveFileSampleRate, Me.WaveFileBitDepth, 1,, Me.WaveFileEncoding)
+    End Function
 
     Public Function CheckSoundFileFormat(ByRef Sound As Audio.Sound, Optional ByVal SoundFilePath As String = "") As Boolean
 
