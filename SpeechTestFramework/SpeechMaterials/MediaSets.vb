@@ -207,11 +207,12 @@ Public Class MediaSet
                     If filePath.EndsWith(".wav") Then
                         ExistingFilesList.Add(New Tuple(Of String, String, SpeechMaterialComponent)(filePath, PrototypeRecordingPath, Component))
                         AllPaths.Add(ExistingFilesList.Last)
+                        ExistingFileCount += 1
                     End If
                 Next
 
                 'Notes how many files are present
-                ExistingFileCount = ExistingFilesList.Count
+                ExistingFileCount = ExistingFileCount
 
             End If
 
@@ -298,7 +299,7 @@ Public Class MediaSet
                                             Optional ByRef RandomItemOrder As Boolean = True)
 
         'Checks first that all expected sound files exist
-        Dim FilesStillLacking = CreateLackingAudioMediaFiles(SpeechMaterial, True).Item2
+        Dim FilesStillLacking = CreateLackingAudioMediaFiles(SpeechMaterial, PrototypeRecordingOption, True).Item2
 
         If FilesStillLacking > 0 Then
             MsgBox("All audio files needed were not created. Exiting RecordAudioMediaFiles.")

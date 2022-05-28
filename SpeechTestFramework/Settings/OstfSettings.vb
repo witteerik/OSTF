@@ -2,7 +2,7 @@
 
 
     ' Program location
-    Public Shared Property RootPath As String = "C:\EriksDokument\source\repos\OSTF\Tests" 'Indicates the root path. Other paths given in the project setting files are relative (subpaths) to this path only if they begin with .\ otherwise they are taken as absolute paths.
+    Public Shared Property RootPath As String = "C:\OSTF\Tests" 'Indicates the root path. Other paths given in the project setting files are relative (subpaths) to this path only if they begin with .\ otherwise they are taken as absolute paths.
 
     ' Current test subpath
     Public Shared Property CurrentTestSubPath As String = "SwedishSiPTest" 'Indicates the subpath to the RootPath in which to look for test specific data

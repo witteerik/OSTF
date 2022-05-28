@@ -116,7 +116,9 @@ Namespace Audio
             Private AllSegmentationComponents As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
 
             'PaSoundPLayer
-            Private SoundPlayer As PortAudioVB.SoundPlayer
+            Private SoundPlayer As PortAudioVB.OverlappingSoundPlayer
+            Private AudioApiSettings As AudioApiSettings = Nothing
+
 
             'Buttons
             Public ShowPlaySoundButton As Boolean
@@ -128,8 +130,8 @@ Namespace Audio
 
             Private Sub CreateContextMenu()
 
-                Dim menuItemNameList As New List(Of String) From {"Play", "PlayAll", "StopSound", "ZoomOut", "ZoomIn", "ZoomToSelection", "ZoomFull", "SmoothFadeIn", "SmoothFadeOut", "LinearFadeIn", "LinearFadeOut", "SilenceSelection", "SilenceSelectionZeroCross", "Copy", "Cut", "Paste", "Delete", "Crop", "UndoAll"}
-                Dim menuItemTextList As New List(Of String) From {"Play", "Play all", "Stop", "Zoom out", "Zoom in", "Zoom to selection", "Zoom full", "Fade in selection (smooth)", "Fade out selection (smooth)", "Fade in selection (linear)", "Fade out selection (linear)", "Silence selection", "Silence selection (search zero crossings)", "Copy", "Cut", "Paste", "Delete", "Crop", "Undo all"}
+                Dim menuItemNameList As New List(Of String) From {"Play", "PlayAll", "StopSound", "ZoomOut", "ZoomIn", "ZoomToSelection", "ZoomFull", "SmoothFadeIn", "SmoothFadeOut", "LinearFadeIn", "LinearFadeOut", "SilenceSelection", "SilenceSelectionZeroCross", "Copy", "Cut", "Paste", "Delete", "Crop", "UndoAll", "SetAudioApiSettings"}
+                Dim menuItemTextList As New List(Of String) From {"Play", "Play all", "Stop", "Zoom out", "Zoom in", "Zoom to selection", "Zoom full", "Fade in selection (smooth)", "Fade out selection (smooth)", "Fade in selection (linear)", "Fade out selection (linear)", "Silence selection", "Silence selection (search zero crossings)", "Copy", "Cut", "Paste", "Delete", "Crop", "Undo all", "New audio settings"}
 
                 For item = 0 To menuItemNameList.Count - 1
                     Dim menuItem As New ToolStripMenuItem
@@ -147,7 +149,8 @@ Namespace Audio
             Public Sub New(ByRef InputSound As Sound, Optional ByVal StartSample As Integer = 0, Optional ByVal LengthInSamples As Integer? = Nothing, Optional ByVal ViewChannel As Integer = 1,
                            Optional ByVal UseItemSegmentation As Boolean = False, Optional ByVal ShowSpectrogram As Boolean = False,
                     Optional ByRef SpectrogramFormat As Formats.SpectrogramFormat = Nothing, Optional ByRef PaddingTime As Single = 0.5, Optional ByRef InterSentenceTime As Single = 4,
-                    Optional ByRef DrawNormalizedWave As Boolean = False, Optional ByRef SoundPlayer As PortAudioVB.SoundPlayer = Nothing,
+                    Optional ByRef DrawNormalizedWave As Boolean = False,
+                           Optional ByRef SoundPlayer As PortAudioVB.OverlappingSoundPlayer = Nothing, Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
                     Optional ByRef SetSegmentationToZeroCrossings As Boolean = True, Optional ByRef ShowPlaySoundButton As Boolean = True, Optional ShowInferLengthsButton As Boolean = True,
                     Optional ByRef ShowNextUnvalidatedItemButtons As Boolean = True, Optional ByRef ShowValidateSegmentationButton As Boolean = True,
                            Optional ByRef ShowFadePaddingButton As Boolean = True, Optional ByRef ShowFadeIntervalsButton As Boolean = True)
@@ -162,6 +165,7 @@ Namespace Audio
                 Me.InterSentenceTime = InterSentenceTime
                 Me.DrawNormalizedWave = DrawNormalizedWave
                 Me.SoundPlayer = SoundPlayer
+                Me.AudioApiSettings = AudioApiSettings
                 Me.SetSegmentationToZeroCrossings = SetSegmentationToZeroCrossings
 
                 Me.ShowPlaySoundButton = ShowPlaySoundButton
@@ -1645,6 +1649,8 @@ Namespace Audio
                         GraphicCrop()
                     Case "UndoAll"
                         GraphicUndoAll()
+                    Case "SetAudioApiSettings"
+                        SetAudioApiSettings()
                 End Select
 
             End Sub
@@ -1856,7 +1862,8 @@ Namespace Audio
                     If lengthToPlay < 0 Then lengthToPlay = 0
 
                     If SoundPlayer Is Nothing Then CreateNewPaSoundPLayer()
-                    PlayBack.PlayDuplexSoundStream(SoundPlayer, CurrentSound, startSample, lengthToPlay,, , 0, 0)
+                    Dim PlaySection = Audio.DSP.CopySection(CurrentSound, startSample, lengthToPlay)
+                    SoundPlayer.SwapOutputSounds(PlaySection)
 
                 End If
 
@@ -1903,19 +1910,32 @@ Namespace Audio
 
             End Sub
 
-            Public Sub CreateNewPaSoundPLayer()
 
+            Private Sub SetAudioApiSettings()
                 Dim newAudioSettingsDialog As New AudioSettingsDialog(CurrentSound.WaveFormat.SampleRate)
                 Dim DialogResult = newAudioSettingsDialog.ShowDialog()
-                Dim MyAudioApiSettings As AudioApiSettings = Nothing
                 If DialogResult = DialogResult.OK Then
-                    MyAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
+                    AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
                 Else
                     MsgBox("Default Setting is being used")
-                    MyAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
+                    AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
                 End If
 
-                SoundPlayer = New PortAudioVB.SoundPlayer(True, CurrentSound.WaveFormat, CurrentSound, MyAudioApiSettings, , )
+                CreateNewPaSoundPLayer()
+
+            End Sub
+
+
+            Public Sub CreateNewPaSoundPLayer()
+
+                If AudioApiSettings Is Nothing Then
+                    SetAudioApiSettings()
+                End If
+
+                SoundPlayer = New PortAudioVB.OverlappingSoundPlayer(Nothing, PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, AudioApiSettings,
+                                                                     CurrentSound.WaveFormat.Encoding, False, False, False, False, 0.1,, False)
+                SoundPlayer.OpenStream()
+                SoundPlayer.Start()
 
             End Sub
 
@@ -1930,8 +1950,8 @@ Namespace Audio
 
                 Else
                     UpdateSampleTimeScale()
-
-                    PlayBack.PlayDuplexSoundStream(SoundPlayer, CurrentSound, SelectionStart_Sample, SelectionLength_Sample,, , 0, 0)
+                    Dim PlaySection = Audio.DSP.CopySection(CurrentSound, SelectionStart_Sample, SelectionLength_Sample)
+                    SoundPlayer.SwapOutputSounds(PlaySection)
 
                 End If
 
@@ -1944,12 +1964,12 @@ Namespace Audio
 
                 UpdateSampleTimeScale()
                 If SoundPlayer Is Nothing Then CreateNewPaSoundPLayer()
-                PlayBack.PlayDuplexSoundStream(SoundPlayer, CurrentSound, Nothing, Nothing,, , 0, 0)
+                SoundPlayer.SwapOutputSounds(CurrentSound)
 
             End Sub
             Public Sub StopSound()
 
-                SoundPlayer.Stop(0.1)
+                SoundPlayer.FadeOutPlayback()
 
             End Sub
             Public Sub ZoomOut()

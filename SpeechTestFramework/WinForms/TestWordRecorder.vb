@@ -18,7 +18,11 @@ Public Class SpeechMaterialRecorder
     ''' </summary>
     Private CurrentSentencesForRecording As New List(Of Tuple(Of Integer, Audio.Sound))
     Private CurrentSentenceIndex As Integer
-    Private CurrentRecordingSound As Audio.Sound = Nothing
+
+    ''' <summary>
+    ''' The sound channel on which to record. Could be set in the menu!
+    ''' </summary>
+    Private RecordingChannel As Integer = 1
 
     Private RandomItemOrder As Boolean = True
 
@@ -30,10 +34,10 @@ Public Class SpeechMaterialRecorder
 
     Private BackgroundSound As Audio.Sound = Nothing
 
-    'SoundPlayers
-    Private MyGeneralSoundPlayer As Audio.PortAudioVB.SoundPlayer
+    'Sound player
+    Private SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
 
-    'Sound output settings
+    'Sound audio settings
     Private CurrentAudioApiSettings As Audio.AudioApiSettings = Nothing
 
     Private _CurrentSoundTransducerMode As Audio.SoundTransducerModes = Audio.GlobalAudioData.SoundTransducerModes.SoundField
@@ -314,6 +318,11 @@ Public Class SpeechMaterialRecorder
     Private Sub SpeechMaterialRecorder_FormClosing(sender As Object, e As Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
         'Checks if the user wants to save the sound before closing
         CheckIfSaveSound()
+
+        If SoundPlayer IsNot Nothing Then
+            SoundPlayer.Dispose()
+        End If
+
     End Sub
 
     Private Sub RandomizeRecordingsOrder()
@@ -418,6 +427,9 @@ Public Class SpeechMaterialRecorder
                     If CurrentlyLoadedSoundFile.WriteWaveFile(SoundFilesForEditing(CurrentSoundFileIndex).Item1) = False Then
                         MsgBox("Unable to save the current sound (" & SoundFilesForEditing(CurrentSoundFileIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
                         Exit Sub
+                    Else
+                        'Setting IsChanged manually to Nothing, to inactivate the overriding of IsChanged
+                        CurrentlyLoadedSoundFile.SetIsChangedManually(Nothing)
                     End If
                 End If
             End If
@@ -505,13 +517,52 @@ Public Class SpeechMaterialRecorder
 
     Public Sub CreateAudioPlayer()
 
-        If MyGeneralSoundPlayer IsNot Nothing Then
-            MyGeneralSoundPlayer.Dispose()
+        If SoundPlayer IsNot Nothing Then
+            SoundPlayer.Dispose()
         End If
 
         Dim TemporaryOutputSound As Audio.Sound = Audio.GenerateSound.CreateSilence(RecordingWaveFormat,, 1)
-        MyGeneralSoundPlayer = New Audio.PortAudioVB.SoundPlayer(False, RecordingWaveFormat, TemporaryOutputSound, CurrentAudioApiSettings,
-                                                                         False, False, False, True, True)
+        Dim PlayerMode As Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections
+
+        If CurrentAudioApiSettings.NumberOfInputChannels.HasValue = True And CurrentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
+            If CurrentAudioApiSettings.NumberOfInputChannels = 0 And CurrentAudioApiSettings.NumberOfOutputChannels = 0 Then
+                MsgBox("This software requires at least an output device sound to work.")
+                Exit Sub
+            ElseIf CurrentAudioApiSettings.NumberOfInputChannels = 0 Then
+                MsgBox("The selected sound device has no input channels! You will not be able to record any sound!")
+                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly
+            ElseIf CurrentAudioApiSettings.NumberOfOutputChannels = 0 Then
+                MsgBox("The selected sound device has no output channels! You will not be able to hear any sound!")
+                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.RecordingOnly
+            Else
+                'This is the preferred path! Both input and output channels present!
+                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.Duplex
+            End If
+        ElseIf CurrentAudioApiSettings.NumberOfInputChannels.HasValue = True Then
+            If CurrentAudioApiSettings.NumberOfInputChannels = 0 Then
+                MsgBox("The selected sound device has no input channels! You will not be able to record any sound!")
+                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly
+            End If
+        ElseIf CurrentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
+            If CurrentAudioApiSettings.NumberOfOutputChannels = 0 Then
+                MsgBox("The selected sound device has no output channels! You will not be able to hear any sound!")
+                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.RecordingOnly
+            End If
+        Else
+            MsgBox("No sound device has been selected. This software requires at least an output device sound to work.")
+            Exit Sub
+        End If
+
+
+        SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(Nothing, PlayerMode, CurrentAudioApiSettings,
+                                                                            TemporaryOutputSound.WaveFormat.Encoding, False, False, False, False, 0.1)
+
+        SoundPlayer.OpenStream()
+        SoundPlayer.Start()
+
+        'Dim TempPlayer = New Audio.PortAudioVB.SoundPlayer(False, RecordingWaveFormat, TemporaryOutputSound, CurrentAudioApiSettings, False, False, False, True, True)
+        'SoundPlayer = New Audio.PortAudioVB.SoundPlayer(False, RecordingWaveFormat, TemporaryOutputSound, CurrentAudioApiSettings,
+        '                                                                 False, False, False, True, True)
 
     End Sub
 
@@ -795,18 +846,26 @@ Public Class SpeechMaterialRecorder
 
     Private Sub ViewSentenceForRecording()
 
+        Dim HasSound As Boolean = False
+
         If CurrentSentencesForRecording(CurrentSentenceIndex).Item2 IsNot Nothing Then
 
-            'Resetting sound display
-            If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
+            If CurrentSentencesForRecording(CurrentSentenceIndex).Item2.WaveData.SampleData(RecordingChannel).Length > 0 Then
 
-            Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2,,,,,,,,,, MyGeneralSoundPlayer)
-            waveDrawer.Dock = Windows.Forms.DockStyle.Fill
+                'Resetting sound display
+                If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
 
-            RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
+                Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2,,,,,,,,,, SoundPlayer, CurrentAudioApiSettings)
+                waveDrawer.Dock = Windows.Forms.DockStyle.Fill
 
-        Else
+                RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
 
+                HasSound = True
+
+            End If
+        End If
+
+        If HasSound = False Then
             'Resets the sound display, and adds a message that no sound is recorded
             If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
 
@@ -815,7 +874,6 @@ Public Class SpeechMaterialRecorder
             noSoundLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
             noSoundLabel.Text = "No sound is yet recorded for this item/sentence."
             RecordingTabMainSplitContainer.Panel2.Controls.Add(noSoundLabel)
-
         End If
 
     End Sub
@@ -862,9 +920,11 @@ Public Class SpeechMaterialRecorder
 
                         'SoundEditor
                         Dim TestSound = Audio.Sound.GetTestSound
-                        'Dim waveDrawer As New Audio.Graphics.SoundEditor(TestSound,,,, True, True, CurrentSpectrogramFormat, paddingTime, True, MyGeneralSoundPlayer)
                         Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,, True, ShowSpectrogram, CurrentSpectrogramFormat, PaddingTime,
-                                                                         InterSentenceTime, DrawNormalizedWave, MyGeneralSoundPlayer, SetSegmentationToZeroCrossings)
+                                                                         InterSentenceTime, DrawNormalizedWave, SoundPlayer, CurrentAudioApiSettings, SetSegmentationToZeroCrossings)
+
+                        'Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,, True, ShowSpectrogram, CurrentSpectrogramFormat, PaddingTime,
+                        '                                                 InterSentenceTime, DrawNormalizedWave, SoundPlayer, SetSegmentationToZeroCrossings)
 
                         waveDrawer.Dock = Windows.Forms.DockStyle.Fill
                         SegmentationPanel.Controls.Add(waveDrawer)
@@ -962,14 +1022,11 @@ Public Class SpeechMaterialRecorder
 
         If CurrentlyLoadedSoundFile IsNot Nothing Then
 
-            If CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.SoundField Then
-                'Presenting a mono sound
-                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, CurrentlyLoadedSoundFile,,,, Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
-            Else
-                'Prestenting a stereo sound
-                Dim TempMultiChannelSound As Audio.Sound = CurrentlyLoadedSoundFile.ConvertMonoToMultiChannel(2, True)
-                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, TempMultiChannelSound,,,, Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
-            End If
+            'TODO Set level!
+
+            'Audio.Convert_dBSPL_To_dBFS(PresentationLevel)
+
+            SoundPlayer.SwapOutputSounds(CurrentlyLoadedSoundFile)
 
         End If
 
@@ -1054,23 +1111,10 @@ Public Class SpeechMaterialRecorder
 
             Dim PrototypeSound As Audio.Sound = CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).GetSoundFileSection(1)
 
-            If CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.SoundField Then
+            'Presenting a mono sound
 
-                'Presenting a mono sound
-                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, PrototypeSound,,,, Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
-            Else
-
-                'Prestenting a stereo sound
-                Dim TempMultiChannelSound As Audio.Sound = PrototypeSound.ConvertMonoToMultiChannel(2, True)
-                TempMultiChannelSound.SMA.SetTimeWeighting(PresentationSound_SoundLevelFormat.TemporalIntegrationDuration, True)
-                TempMultiChannelSound.SMA.SetFrequencyWeighting(PresentationSound_SoundLevelFormat.FrequencyWeighting, True)
-
-                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, TempMultiChannelSound,
-                                                     TempMultiChannelSound.SMA.ChannelData(1)(CurrentSentenceIndex).StartSample,
-                                                     TempMultiChannelSound.SMA.ChannelData(1)(CurrentSentenceIndex).Length,,
-                                                                Audio.Convert_dBSPL_To_dBFS(PresentationLevel), 0, 0)
-
-            End If
+            'TODO: Set level!
+            SoundPlayer.SwapOutputSounds(PrototypeSound)
 
             StartRecordingTimer.Interval = 50 + (1000 * PrototypeSound.SMA.ChannelData(1)(CurrentSentenceIndex).Length / PrototypeSound.WaveFormat.SampleRate)
             StartRecordingTimer.Start()
@@ -1168,11 +1212,11 @@ Public Class SpeechMaterialRecorder
             If UseRecordingNoise = True Then
 
                 'Starting to record with background sound
-                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, BackgroundSound,,,, , 0.2, 0.1)
+                SoundPlayer.SwapOutputSounds(BackgroundSound, True)
 
             Else
                 'Starting to record without background sound
-                Audio.PlayBack.PlayDuplexSoundStream(MyGeneralSoundPlayer, Nothing,,,, , 0, 0)
+                SoundPlayer.SwapOutputSounds(Nothing, True)
 
             End If
 
@@ -1184,19 +1228,34 @@ Public Class SpeechMaterialRecorder
     End Sub
 
 
-    Private Sub stopRecording()
+    Private Sub StopRecording()
 
         If IsRecording = True Then
 
             'Stopping player
-            MyGeneralSoundPlayer.Stop(0.2)
+            SoundPlayer.FadeOutPlayback()
 
             IsRecording = False
 
             'Copying the sound from the recorded sound
-            Dim RecordedSound = MyGeneralSoundPlayer.GetRecordedSound
+            Dim RecordedSound = SoundPlayer.GetRecordedSound(True)
             If RecordedSound IsNot Nothing Then
-                CurrentSentencesForRecording(CurrentSentenceIndex) = New Tuple(Of Integer, Audio.Sound)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1, RecordedSound)
+
+                Dim RecordedMonoSound = New Audio.Sound(RecordingWaveFormat)
+                RecordedMonoSound.WaveData.SampleData(1) = RecordedSound.WaveData.SampleData(RecordingChannel)
+
+                CurrentSentencesForRecording(CurrentSentenceIndex) = New Tuple(Of Integer, Audio.Sound)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1, RecordedMonoSound)
+
+                'Storing sounds recorded in CurrentSentencesForRecording in CurrentlyLoadedSoundFile in the correct order
+                Dim SortedSoundsList As New SortedList(Of Integer, Audio.Sound)
+                For Each sound In CurrentSentencesForRecording
+                    SortedSoundsList.Add(sound.Item1, sound.Item2)
+                Next
+                Dim SoundsList As List(Of Audio.Sound) = SortedSoundsList.Values.ToList
+                Dim CurrentlyRecordedSentences As Audio.Sound = Audio.DSP.ConcatenateSounds(SoundsList)
+                CurrentlyLoadedSoundFile = CurrentlyRecordedSentences
+                CurrentlyLoadedSoundFile.SetIsChangedManually(True)
+
             Else
                 MsgBox("Unable to retrieve any recorded sound data.")
             End If
@@ -1283,7 +1342,7 @@ Public Class SpeechMaterialRecorder
 
         If IsRecording = True Then
             NextItemTimer.Stop()
-            stopRecording()
+            StopRecording()
         End If
 
         'Select next Item
@@ -1293,8 +1352,8 @@ Public Class SpeechMaterialRecorder
 
     Private Sub StopRecordingButton_Click(sender As Object, e As EventArgs) Handles StopRecordingButton.Click
 
-        If IsRecording = RecordingStatus.Recording Then
-            stopRecording()
+        If IsRecording = True Then
+            StopRecording()
 
             ViewSentenceForRecording()
 

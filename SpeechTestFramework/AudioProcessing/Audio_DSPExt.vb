@@ -8964,9 +8964,6 @@ Namespace Audio
         Public Module SignalsExt
 
 
-
-
-
             ''' <summary>
             ''' Creates sound containing a frequency modulated (or more correctly phase moduated) sine wave.
             ''' </summary>
@@ -10783,8 +10780,6 @@ Namespace Audio
 
         End Module
 
-
-
     End Namespace
 
     Namespace PlayBack
@@ -10800,1722 +10795,11 @@ Namespace Audio
 
         End Interface
 
-
-        Public Module Play
-
-            ''' <summary>
-            ''' 
-            ''' </summary>
-            ''' <param name="Outputsound"></param>
-            ''' <param name="startSample"></param>
-            ''' <param name="length"></param>
-            ''' <param name="Level">If level (in dBFS) is set, a copy of the original sound is created, for which the level is adjusted to the intended level before playing the sound. If left to nothing, the original unmodified sound will be played. (Any value set for NormalizedLevel will override the value set for Level.)</param>
-            ''' <param name="NormalizedLevel">If level (in dBFS) is set, a copy of the original sound is created, for which the level is normalized so that the loudest 200 ms of the section is set to Level. If left to nothing, the original unmodified sound will be played.</param>
-            Public Sub PlayDuplexSoundStream(ByRef SoundPlayer As PortAudioVB.SoundPlayer,
-                                              ByRef Outputsound As Sound,
-                                              Optional ByRef startSample As Long = 0,
-                                              Optional ByRef length As Long = -1,
-                                              Optional Level As Double? = Nothing,
-                                              Optional NormalizedLevel As Double? = Nothing,
-                                              Optional ByVal OutputSoundFadeInTime As Double = 0.1,
-                                              Optional ByVal OutputSoundFadeOutTime As Double = 0.1)
-                Try
-
-                    If SoundPlayer Is Nothing Then
-                        Throw New ArgumentException("SoundPlayer is not initialized...")
-                    End If
-
-                    'Setting the sound player output sound
-                    SoundPlayer.SetNewOutputSound(Outputsound)
-
-                    'Makes sure that a sound stream is open
-                    If SoundPlayer.IsStreamOpen = True Then SoundPlayer.CloseStream()
-                    If SoundPlayer.IsStreamOpen = False Then SoundPlayer.OpenStream()
-
-                    'If no length is specified the file is played to the end
-                    If length < 1 Then length = Outputsound.WaveData.SampleData(1).Length - startSample
-
-                    'Setting level
-                    If NormalizedLevel IsNot Nothing Or Level IsNot Nothing Then
-
-                        'Copying th output sound
-                        Dim OutputSoundCopy As Sound = Outputsound.CreateCopy
-
-                        'Adjusting the sound level of the copy
-                        If NormalizedLevel IsNot Nothing Then 'Doing primarily NormalizedLevel adjustment, and only Level adjustment if NormalizedLevel is Nothing.
-                            If Not DSP.TimeAndFrequencyWeightedNormalization(OutputSoundCopy,,,, NormalizedLevel) = True Then ', OutputSoundCopy.SMA.SoundLevelFormat.TemporalIntegrationDuration, ) = True Then
-                                MsgBox("Distorsion")
-                            End If
-                        ElseIf Level IsNot Nothing Then
-                            DSP.MeasureAndAdjustSectionLevel(OutputSoundCopy, Level, , startSample, length)
-                        End If
-
-                        'Exchanging the sound to the copy
-                        SoundPlayer.SetNewOutputSound(OutputSoundCopy)
-
-                    End If
-
-                    'Plays the sound
-                    SoundPlayer.Start(startSample, length,, OutputSoundFadeInTime, OutputSoundFadeOutTime, True)
-
-                Catch ex As Exception
-                    MsgBox(ex.ToString)
-                End Try
-
-            End Sub
-
-        End Module
-
     End Namespace
     'End Namespace
 
 
     Namespace PortAudioVB
-
-        Public Class SoundPlayer
-            Implements IDisposable
-
-            Public ReadOnly UseBlockingIO As Boolean
-
-            'Declaration of BLOCKING STUFF
-            Private WithEvents BlockingTimer As New System.Windows.Forms.Timer With {.Interval = 1}
-            Dim BlockingReadWrite_Active As Boolean = False
-
-
-            'Declaration of CALLBACK STUFF
-            Private callbackBuffer As Single() = New Single(511) {}
-            Private SilentBuffer As Single() = New Single(511) {}
-            Private paStreamCallback As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
-
-                                                                                 'log("Callback called")
-                                                                                 'log("  time: " & timeInfo.currentTime)
-                                                                                 'log("  inputBufferAdcTime: " & timeInfo.inputBufferAdcTime)
-                                                                                 'log("  outputBufferDacTime:  " & timeInfo.outputBufferDacTime)
-                                                                                 'log("  statusFlags: " & statusFlags)
-                                                                                 'log("CurrentStartFrameIndex: " & _Position & " FrameCount: " & frameCount & " bufferSize: " & audioApiSettings.DatapointsPerBuffer)
-
-                                                                                 'INPUT SOUND
-
-                                                                                 If DoSoundRecording = True Then
-                                                                                     'Getting input sound
-                                                                                     Dim InputBuffer(AudioApiSettings.FramesPerBuffer * RecordingSoundFormat.Channels - 1) As Single
-                                                                                     Marshal.Copy(input, InputBuffer, 0, AudioApiSettings.FramesPerBuffer * RecordingSoundFormat.Channels)
-                                                                                     InputBufferHistory.Add(InputBuffer)
-                                                                                 End If
-
-
-                                                                                 'OUTPUT SOUND
-                                                                                 If DoSoundOutput = True Then
-
-                                                                                     If EndOfOutputSoundIsReached = True Then
-                                                                                         'Exporting Silence
-                                                                                         Marshal.Copy(SilentBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-                                                                                         Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                     End If
-
-                                                                                     For j As Integer = 0 To frameCount - 1
-
-                                                                                         'Reading the different channels
-                                                                                         For Ch = 0 To OutputSound.WaveFormat.Channels - 1
-
-                                                                                             'Checking if there is any more sound to be played
-                                                                                             If _Position + (j * OutputSound.WaveFormat.Channels) + Ch < _OutputSound.WaveData.SampleData(Ch + 1).Length Then ''SpeechAndHearingTools Audio channels indices are 1-based
-                                                                                                 callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = _OutputSound.WaveData.SampleData(Ch + 1)(_Position + j)
-                                                                                             Else
-                                                                                                 'Marks that the end of the output sound has been reached
-                                                                                                 EndOfOutputSoundIsReached = True
-
-                                                                                                 'Fills up the buffer with zeroes, if the end of the sound is reached
-                                                                                                 callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = 0
-                                                                                             End If
-                                                                                         Next
-
-                                                                                     Next
-
-                                                                                     'Increasing position
-                                                                                     _Position += frameCount
-
-                                                                                     Marshal.Copy(callbackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-
-                                                                                     If EndOfOutputSoundIsReached = True Then
-                                                                                         'log("End of sound is reached at sample position: " & _Position)
-
-                                                                                         If StopAtOutputSoundEnd = True Then
-
-                                                                                             Log("Sound was stopped at end of sound, at sample position: " & _Position)
-
-                                                                                             Return PortAudio.PaStreamCallbackResult.paComplete
-
-                                                                                         End If
-                                                                                     End If
-                                                                                 End If
-
-                                                                                 Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                             End Function
-
-            Private paStreamCallbackFadeEnabled As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
-
-                                                                                            'INPUT SOUND
-                                                                                            If DoSoundRecording = True Then
-                                                                                                'Getting input sound
-                                                                                                Dim InputBuffer(AudioApiSettings.FramesPerBuffer * RecordingSoundFormat.Channels - 1) As Single
-                                                                                                Marshal.Copy(input, InputBuffer, 0, AudioApiSettings.FramesPerBuffer * RecordingSoundFormat.Channels)
-                                                                                                InputBufferHistory.Add(InputBuffer)
-                                                                                            End If
-
-                                                                                            'OUTPUT SOUND
-                                                                                            If DoSoundOutput = True Then
-
-                                                                                                If EndOfOutputSoundIsReached = True Then
-                                                                                                    'Exporting Silence
-                                                                                                    Marshal.Copy(SilentBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-                                                                                                    Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                                End If
-
-
-                                                                                                'Exporting sound data from the OutputSound
-                                                                                                For j As Integer = 0 To frameCount - 1
-
-                                                                                                    'Calculating the fading factor for the current sample (fading factor is not channel specific)
-
-                                                                                                    'Setting a default non-fading factor
-                                                                                                    OutputSoundFadeFactor = 1
-
-                                                                                                    'Checking if fading in should be done
-                                                                                                    If OutputSoundFadeInCurrentSample < OutputSoundFadeInSamples Then
-
-                                                                                                        'Do fade in
-                                                                                                        'Calculating current fade in factor, and multiplying the default fade factor by it
-                                                                                                        OutputSoundFadeFactor *= OutputSoundFadeInCurrentSample / OutputSoundFadeInSamples
-                                                                                                        'Increasing current fade in sample index
-                                                                                                        OutputSoundFadeInCurrentSample += 1
-
-                                                                                                    End If
-
-                                                                                                    'Checking if fading out should be done
-                                                                                                    If OutputSoundFadeOutSamples > 0 Then
-
-                                                                                                        'Do fade out
-                                                                                                        'Calculating current fade out factor, and multiplying the current fade factor by it (the current fade factor could either be 1 or a fade in factor. This allowes both fade in and fade out being active at the same time point)
-                                                                                                        If _Position > OutputSoundFadeOutStartSample Then
-                                                                                                            OutputSoundFadeFactor *= (OutputSoundStopSample - _Position) / OutputSoundFadeOutSamples
-
-                                                                                                            If _Position > OutputSoundStopSample Then
-                                                                                                                OutputSoundFadeFactor = 0
-                                                                                                            End If
-
-                                                                                                        End If
-                                                                                                    End If
-
-
-                                                                                                    'Reading the different channels
-                                                                                                    For Ch = 0 To OutputSound.WaveFormat.Channels - 1
-
-                                                                                                        'Checking if there is any more sound to be played
-                                                                                                        If _Position < OutputSoundStopSample Then
-                                                                                                            callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = _OutputSound.WaveData.SampleData(Ch + 1)(_Position)
-                                                                                                        Else
-                                                                                                            'Marks that the end of the output sound has been reached
-                                                                                                            EndOfOutputSoundIsReached = True
-
-                                                                                                            'Fills up the buffer with zeroes, if the end of the sound is reached
-                                                                                                            callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = 0
-                                                                                                        End If
-                                                                                                    Next
-
-                                                                                                    'Increasing position
-                                                                                                    _Position += 1
-
-                                                                                                Next
-
-
-                                                                                                Marshal.Copy(callbackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-
-                                                                                                If EndOfOutputSoundIsReached = True Then
-                                                                                                    If StopAtOutputSoundEnd = True Then
-
-                                                                                                        'log("Sound was stopped at end of sound, at sample position: " & _Position)
-                                                                                                        Return PortAudio.PaStreamCallbackResult.paComplete
-
-                                                                                                    End If
-                                                                                                End If
-                                                                                            End If
-
-                                                                                            Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                        End Function
-
-            Private paStreamCallback_InputOnly As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
-
-                                                                                           'INPUT SOUND
-                                                                                           If DoSoundRecording = True Then
-                                                                                               'Getting input sound
-                                                                                               Dim InputBuffer(AudioApiSettings.FramesPerBuffer * RecordingSoundFormat.Channels - 1) As Single
-                                                                                               Marshal.Copy(input, InputBuffer, 0, AudioApiSettings.FramesPerBuffer * RecordingSoundFormat.Channels)
-                                                                                               InputBufferHistory.Add(InputBuffer)
-                                                                                           End If
-                                                                                           Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                       End Function
-
-            Private paStreamCallback_OutputOnly As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
-
-                                                                                            'OUTPUT SOUND
-                                                                                            If EndOfOutputSoundIsReached = True Then
-                                                                                                'Exporting Silence
-                                                                                                Marshal.Copy(SilentBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-                                                                                                Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                            End If
-
-                                                                                            For j As Integer = 0 To frameCount - 1
-
-                                                                                                'Reading the different channels
-                                                                                                For Ch = 0 To OutputSound.WaveFormat.Channels - 1
-
-                                                                                                    'Checking if there is any more sound to be played
-                                                                                                    If _Position + (j * OutputSound.WaveFormat.Channels) + Ch < _OutputSound.WaveData.SampleData(Ch + 1).Length Then ''SpeechAndHearingTools Audio channels indices are 1-based
-                                                                                                        callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = _OutputSound.WaveData.SampleData(Ch + 1)(_Position + j)
-                                                                                                    Else
-                                                                                                        'Marks that the end of the output sound has been reached
-                                                                                                        EndOfOutputSoundIsReached = True
-
-                                                                                                        'Fills up the buffer with zeroes, if the end of the sound is reached
-                                                                                                        callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = 0
-                                                                                                    End If
-                                                                                                Next
-
-                                                                                            Next
-
-                                                                                            'Increasing position
-                                                                                            _Position += frameCount
-
-                                                                                            Marshal.Copy(callbackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-
-                                                                                            If EndOfOutputSoundIsReached = True Then
-                                                                                                'log("End of sound is reached at sample position: " & _Position)
-
-                                                                                                If StopAtOutputSoundEnd = True Then
-
-                                                                                                    Log("Sound was stopped at end of sound, at sample position: " & _Position)
-
-                                                                                                    Return PortAudio.PaStreamCallbackResult.paComplete
-
-                                                                                                End If
-                                                                                            End If
-
-                                                                                            Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                        End Function
-
-
-            Private paStreamCallback_OutputOnly_FadeEnabled As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
-
-                                                                                                        'OUTPUT SOUND
-                                                                                                        If EndOfOutputSoundIsReached = True Then
-                                                                                                            'Exporting Silence
-                                                                                                            Marshal.Copy(SilentBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-                                                                                                            Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                                        End If
-
-
-                                                                                                        'Exporting sound data from the OutputSound
-                                                                                                        For j As Integer = 0 To frameCount - 1
-
-                                                                                                            'Calculating the fading factor for the current sample (fading factor is not channel specific)
-
-                                                                                                            'Setting a default non-fading factor
-                                                                                                            OutputSoundFadeFactor = 1
-
-                                                                                                            'Checking if fading in should be done
-                                                                                                            If OutputSoundFadeInCurrentSample < OutputSoundFadeInSamples Then
-
-                                                                                                                'Do fade in
-                                                                                                                'Calculating current fade in factor, and multiplying the default fade factor by it
-                                                                                                                OutputSoundFadeFactor *= OutputSoundFadeInCurrentSample / OutputSoundFadeInSamples
-                                                                                                                'Increasing current fade in sample index
-                                                                                                                OutputSoundFadeInCurrentSample += 1
-
-                                                                                                            End If
-
-                                                                                                            'Checking if fading out should be done
-                                                                                                            If OutputSoundFadeOutSamples > 0 Then
-
-                                                                                                                'Do fade out
-                                                                                                                'Calculating current fade out factor, and multiplying the current fade factor by it (the current fade factor could either be 1 or a fade in factor. This allowes both fade in and fade out being active at the same time point)
-                                                                                                                If _Position > OutputSoundFadeOutStartSample Then
-                                                                                                                    OutputSoundFadeFactor *= (OutputSoundStopSample - _Position) / OutputSoundFadeOutSamples
-
-                                                                                                                    If _Position > OutputSoundStopSample Then
-                                                                                                                        OutputSoundFadeFactor = 0
-                                                                                                                    End If
-
-                                                                                                                End If
-                                                                                                            End If
-
-
-                                                                                                            'Reading the different channels
-                                                                                                            For Ch = 0 To OutputSound.WaveFormat.Channels - 1
-
-                                                                                                                'Checking if there is any more sound to be played
-                                                                                                                If _Position < OutputSoundStopSample Then
-                                                                                                                    callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = _OutputSound.WaveData.SampleData(Ch + 1)(_Position)
-                                                                                                                Else
-                                                                                                                    'Marks that the end of the output sound has been reached
-                                                                                                                    EndOfOutputSoundIsReached = True
-
-                                                                                                                    'Fills up the buffer with zeroes, if the end of the sound is reached
-                                                                                                                    callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = 0
-                                                                                                                End If
-                                                                                                            Next
-
-                                                                                                            'Increasing position
-                                                                                                            _Position += 1
-
-                                                                                                        Next
-
-
-                                                                                                        Marshal.Copy(callbackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-
-                                                                                                        If EndOfOutputSoundIsReached = True Then
-                                                                                                            If StopAtOutputSoundEnd = True Then
-
-                                                                                                                'log("Sound was stopped at end of sound, at sample position: " & _Position)
-                                                                                                                Return PortAudio.PaStreamCallbackResult.paComplete
-
-                                                                                                            End If
-                                                                                                        End If
-
-                                                                                                        Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                                    End Function
-
-            Private paStreamCallback_OutputOnly_FadeEnabled_OLD As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
-
-                                                                                                            'OUTPUT SOUND
-                                                                                                            If EndOfOutputSoundIsReached = True Then
-                                                                                                                'Exporting Silence
-                                                                                                                Marshal.Copy(SilentBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-                                                                                                                Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                                            End If
-
-
-                                                                                                            'Exporting sound data from the OutputSound
-                                                                                                            For j As Integer = 0 To frameCount - 1
-
-                                                                                                                'Calculating the fading factor for the current sample (fading factor is not channel specific)
-
-                                                                                                                'Setting a default non-fading factor
-                                                                                                                OutputSoundFadeFactor = 1
-
-                                                                                                                'Checking if fading in should be done
-                                                                                                                If OutputSoundFadeInCurrentSample < OutputSoundFadeInSamples Then
-
-                                                                                                                    'Do fade in
-                                                                                                                    'Calculating current fade in factor, and multiplying the default fade factor by it
-                                                                                                                    OutputSoundFadeFactor *= OutputSoundFadeInCurrentSample / OutputSoundFadeInSamples
-                                                                                                                    'Increasing current fade in sample index
-                                                                                                                    OutputSoundFadeInCurrentSample += 1
-
-                                                                                                                End If
-
-                                                                                                                'Checking if fading out should be done
-                                                                                                                If OutputSoundFadeOutSamples > 0 Then
-
-                                                                                                                    'Do fade out
-                                                                                                                    'Calculating current fade out factor, and multiplying the current fade factor by it (the current fade factor could either be 1 or a fade in factor. This allowes both fade in and fade out being active at the same time point)
-                                                                                                                    If _Position > OutputSoundFadeOutStartSample Then
-                                                                                                                        OutputSoundFadeFactor *= (OutputSoundStopSample - _Position) / OutputSoundFadeOutSamples
-
-                                                                                                                        If _Position > OutputSoundStopSample Then
-                                                                                                                            OutputSoundFadeFactor = 0
-                                                                                                                        End If
-
-                                                                                                                    End If
-                                                                                                                End If
-
-
-                                                                                                                'Reading the different channels
-                                                                                                                For Ch = 0 To OutputSound.WaveFormat.Channels - 1
-
-                                                                                                                    'Checking if there is any more sound to be played
-                                                                                                                    If _Position < OutputSoundStopSample Then
-                                                                                                                        callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = _OutputSound.WaveData.SampleData(Ch + 1)(_Position)
-                                                                                                                    Else
-                                                                                                                        'Marks that the end of the output sound has been reached
-                                                                                                                        EndOfOutputSoundIsReached = True
-
-                                                                                                                        'Fills up the buffer with zeroes, if the end of the sound is reached
-                                                                                                                        callbackBuffer((j * OutputSound.WaveFormat.Channels) + Ch) = 0
-                                                                                                                    End If
-                                                                                                                Next
-
-                                                                                                                'Increasing position
-                                                                                                                _Position += 1
-
-                                                                                                            Next
-
-
-                                                                                                            Marshal.Copy(callbackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * OutputSound.WaveFormat.Channels)
-
-                                                                                                            If EndOfOutputSoundIsReached = True Then
-                                                                                                                If StopAtOutputSoundEnd = True Then
-
-                                                                                                                    'log("Sound was stopped at end of sound, at sample position: " & _Position)
-                                                                                                                    Return PortAudio.PaStreamCallbackResult.paComplete
-
-                                                                                                                End If
-                                                                                                            End If
-
-                                                                                                            Return PortAudio.PaStreamCallbackResult.paContinue
-                                                                                                        End Function
-
-            'OTHER DECLATATIONS
-
-            Property _Position As Long
-            Property Position As Long
-                Private Set(value As Long)
-                    _Position = value
-                End Set
-                Get
-                    Return _Position
-                End Get
-            End Property
-
-            Private _IsInitialized As Boolean = False
-            Public ReadOnly Property IsInitialized As Boolean
-                Get
-                    Return _IsInitialized
-                End Get
-            End Property
-
-            Private _OutputSound As Sound
-            Public ReadOnly Property OutputSound As Sound
-                Get
-                    Return _OutputSound
-                End Get
-            End Property
-
-            'Private CurrentInputSound As Sound
-            'Public ReadOnly Property InputSound As Sound
-            'Get
-            'Return CurrentInputSound
-            'End Get
-            'End Property
-
-            Private InputBufferHistory As New List(Of Single())
-
-            Property _RecordingSoundFormat As Formats.WaveFormat
-            Property RecordingSoundFormat As Formats.WaveFormat
-                Private Set(value As Formats.WaveFormat)
-                    _RecordingSoundFormat = value
-                End Set
-                Get
-                    Return _RecordingSoundFormat
-                End Get
-            End Property
-
-            Public StopAtOutputSoundEnd As Boolean
-            Public EndOfOutputSoundIsReached As Boolean = False
-
-            Private _AudioApiSettings As AudioApiSettings
-            Property AudioApiSettings As AudioApiSettings
-                Private Set(value As AudioApiSettings)
-                    _AudioApiSettings = value
-                End Set
-                Get
-                    Return _AudioApiSettings
-                End Get
-            End Property
-
-            Private stream As IntPtr
-            Private disposed As Boolean = False
-
-            Private Shared m_messagesEnabled As Boolean = False
-            Public Shared Property MessagesEnabled() As Boolean
-                Get
-                    Return m_messagesEnabled
-                End Get
-                Set
-                    m_messagesEnabled = Value
-                End Set
-            End Property
-
-            Private Shared m_loggingEnabled As Boolean = False
-            Public Shared Property LoggingEnabled() As Boolean
-                Get
-                    Return m_loggingEnabled
-                End Get
-                Set
-                    m_loggingEnabled = Value
-                End Set
-            End Property
-
-            Private _IsPlaying As Boolean = False
-            Public ReadOnly Property IsPlaying As Boolean
-                Get
-                    Return _IsPlaying
-                End Get
-            End Property
-
-            Private _IsStreamOpen As Boolean = False
-            Public ReadOnly Property IsStreamOpen As Boolean
-                Get
-                    Return _IsStreamOpen
-                End Get
-            End Property
-
-            Private _HasSoundOutput As Boolean = False
-            Public ReadOnly Property HasSoundOutput As Boolean
-                Get
-                    Return _HasSoundOutput
-                End Get
-            End Property
-
-            Private _HasSoundInput As Boolean = False
-            Public ReadOnly Property HasSoundInput As Boolean
-                Get
-                    Return _HasSoundInput
-                End Get
-            End Property
-
-            Private _IsClippingInactivated As Boolean = False
-            Public ReadOnly Property IsClippingInactivated As Boolean
-                Get
-                    Return _IsClippingInactivated
-                End Get
-            End Property
-
-            'Private _LongestRecordingDuration As Boolean = False
-            'Public ReadOnly Property LongestRecordingDuration As Boolean
-            'Get
-            'Return _LongestRecordingDuration
-            'End Get
-            'End Property
-
-
-            Private _AutoAdjustSampleRateToOutputSound As Boolean = False
-            Public ReadOnly Property AutoAdjustSampleRateToOutputSound As Boolean
-                Get
-                    Return _AutoAdjustSampleRateToOutputSound
-                End Get
-            End Property
-
-
-            'Fading and play length
-            Private OutputSoundFadeInSamples As Integer
-            Private OutputSoundFadeInCurrentSample As Integer
-            Private OutputSoundFadeFactor As Single = 0
-
-            Private OutputSoundStopSample As Long = 0
-            Private OutputSoundFadeOutSamples As Integer = 0
-            Private OutputSoundFadeOutStartSample As Long = 0
-
-            Private CloseStreamAfterPlayCompletion As Boolean = False
-
-            Public Property FadeEnabledCallback As Boolean
-
-
-            Public Sub New(ByVal UseBlockingIO As Boolean,
-                       Optional ByVal RecordingSoundFormat As Formats.WaveFormat = Nothing,
-                              Optional ByVal OutputSound As Sound = Nothing,
-                              Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
-                              Optional ByVal LoggingEnabled As Boolean = False,
-                       Optional ByVal MessagesEnabled As Boolean = False,
-                        Optional StopAtOutputSoundEnd As Boolean = True,
-                              Optional AutoAdjustSampleRateToOutputSound As Boolean = True,
-                       Optional InactivateClipping As Boolean = False,
-                       Optional FadeEnabledCallback As Boolean = True)
-
-                'Optional LongestRecordingDuration As Integer = 60 * 60)
-                '        ''' <param name="LongestRecordingDuration">Sets an upper limit on recording time (seconds) when callback function is used. Higher values will consume more memory.</param>
-
-                Me.FadeEnabledCallback = FadeEnabledCallback
-
-                'Setting _HasSoundOutput and _HasSoundInput
-                If RecordingSoundFormat IsNot Nothing Then _HasSoundInput = True
-                If OutputSound IsNot Nothing Then _HasSoundOutput = True
-
-                'Aborting if neither of _HasSoundOutput or _HasSoundInput is true
-                If _HasSoundOutput = False And _HasSoundInput = False Then
-                    Throw New ArgumentException("Both RecordingSoundFormat and OutputSound cannot be NULL.")
-                    Exit Sub
-                End If
-
-
-                'Creating default formats/sound
-                'Only playing, using the output sound format as recording sound format
-                If RecordingSoundFormat Is Nothing Then RecordingSoundFormat = OutputSound.WaveFormat
-
-                'Only recording, using a default very short silent sound as output sound (after that, also silence will be output)
-                'Also setting StopAtOutputSoundEnd to false so that recording will not be stopped in advance.
-                If OutputSound Is Nothing Then
-                    OutputSound = New Sound(RecordingSoundFormat)
-                    OutputSound = GenerateSound.CreateSilence(RecordingSoundFormat,, 0.01)
-                    StopAtOutputSoundEnd = False
-                End If
-
-                'Setting LongestRecordingDuration
-                'Me._LongestRecordingDuration = LongestRecordingDuration
-
-                'Setting clipping
-                Me._IsClippingInactivated = InactivateClipping
-
-                'Setting sample rate auto adjustment
-                Me._AutoAdjustSampleRateToOutputSound = AutoAdjustSampleRateToOutputSound
-
-                'Overriding any value set in InitializationSuccess
-                _IsInitialized = False
-
-                SoundPlayer.LoggingEnabled = LoggingEnabled
-                SoundPlayer.MessagesEnabled = MessagesEnabled
-                Log("Initializing...")
-
-                Try
-
-                    'Initializing PA
-                    If ErrorCheck("Initialize", PortAudio.Pa_Initialize(), True) = True Then
-                        Me.disposed = True
-                        ' if Pa_Initialize() returns an error code, 
-                        ' Pa_Terminate() should NOT be called.
-                        Throw New Exception("Can't initialize audio")
-                    End If
-
-                    Me.UseBlockingIO = UseBlockingIO
-                    Me.RecordingSoundFormat = RecordingSoundFormat
-                    _OutputSound = OutputSound
-                    Me.StopAtOutputSoundEnd = StopAtOutputSoundEnd
-
-                    'Setting API settings if not already done
-                    If AudioApiSettings Is Nothing Then
-                        'Dim FixedSampleRate As Integer? = Nothing
-                        'If OutputSound IsNot Nothing Then FixedSampleRate = OutputSound.WaveFormat.SampleRate
-                        Dim newAudioSettingsDialog As New AudioSettingsDialog() 'FixedSampleRate)
-                        Dim DialogResult = newAudioSettingsDialog.ShowDialog()
-                        If DialogResult = DialogResult.OK Then
-                            AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
-
-                        Else
-                            MsgBox("Did not initialize PaSoundPlayer due to missing audio settings.")
-                            Throw New Exception("Did not initialize PaSoundPlayer due to missing audio settings.")
-                            Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
-                            Exit Sub
-                        End If
-                    End If
-
-
-                    'Setting Me.audioApiSettings
-                    Me.AudioApiSettings = AudioApiSettings
-
-                    'Aborting if the output channel count is not supported.
-                    Dim TooManyChannels As Boolean = False
-                    If Not Me.AudioApiSettings.SelectedInputDeviceInfo Is Nothing Then
-                        If RecordingSoundFormat.Channels > Me.AudioApiSettings.SelectedInputDeviceInfo.Value.maxInputChannels Then
-                            TooManyChannels = True
-                        End If
-                    End If
-
-                    If Not Me.AudioApiSettings.SelectedOutputDeviceInfo Is Nothing Then
-                        If OutputSound.WaveFormat.Channels > Me.AudioApiSettings.SelectedOutputDeviceInfo.Value.maxOutputChannels Then
-                            TooManyChannels = True
-                        End If
-                    End If
-
-                    If Not Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo Is Nothing Then
-                        If RecordingSoundFormat.Channels > Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.maxInputChannels Then
-                            TooManyChannels = True
-                        End If
-                        If OutputSound.WaveFormat.Channels > Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.maxOutputChannels Then
-                            TooManyChannels = True
-                        End If
-                    End If
-
-                    If TooManyChannels = True Then
-                        Throw New Exception("Not enough avaliable channels on the input or output device. Disposing PaSoundPLayer.")
-                        MsgBox("Not enough avaliable channels on the input or output device. Disposing PaSoundPLayer.")
-                        Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
-                        Me.Dispose()
-                        Exit Sub
-                    End If
-
-
-                    Log("Selected HostAPI:" & vbLf & Me.AudioApiSettings.SelectedApiInfo.ToString())
-                    If Not Me.AudioApiSettings.SelectedInputDeviceInfo Is Nothing Then Log("Selected input device:" & vbLf & Me.AudioApiSettings.SelectedInputDeviceInfo.ToString())
-                    If Not Me.AudioApiSettings.SelectedOutputDeviceInfo Is Nothing Then Log("Selected output device:" & vbLf & Me.AudioApiSettings.SelectedOutputDeviceInfo.ToString())
-                    If Not Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo Is Nothing Then Log("Selected input and output device:" & vbLf & Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.ToString())
-
-                    _IsInitialized = True
-
-                Catch e As Exception
-                    Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
-                    Log(e.ToString())
-                End Try
-            End Sub
-
-
-            ''' <summary>
-            ''' Replaces the current output sound with a new sound. Replacement is only supported if the two sounds have the same format.
-            ''' </summary>
-            ''' <param name="OutputSound">The new output sound.</param>
-            Public Sub SetNewOutputSound(ByVal OutputSound As Sound)
-
-                'Checking that the new sound has the same SampleRate, BitDepth, and Channel count, and encoding as the old one
-                'If OutputSound.WaveFormat.SampleRate = Me.OutputSound.WaveFormat.SampleRate And
-                'OutputSound.WaveFormat.BitDepth = Me.OutputSound.WaveFormat.BitDepth And
-                'OutputSound.WaveFormat.Channels = Me.OutputSound.WaveFormat.Channels And
-                'OutputSound.WaveFormat.Encoding = Me.OutputSound.WaveFormat.Encoding Then
-
-                'Stopping any played sound
-                If IsPlaying = True Then [Stop]()
-
-                'Setting position to 0
-                _Position = 0
-
-                'Replacing output sound
-                Me._OutputSound = OutputSound
-
-                _HasSoundOutput = True
-
-                'Else
-                'Throw New ArgumentException("The new output sound must have the same format as the replaced sound.")
-                'End If
-
-            End Sub
-
-
-            ''' <summary>
-            ''' Allowes playback to jump to the indicated start position (in seconds). (Start time is adjusted to fit into the range of 0 through OutputSound duration)
-            ''' It may be used both during playback and paused playback.
-            ''' </summary>
-            Public Sub SeekTime(ByVal StartTime As Double)
-
-                If OutputSound IsNot Nothing Then
-                    Dim StartSample As Long = StartTime * OutputSound.WaveFormat.SampleRate
-                    SeekSample(StartSample)
-                Else
-                    _Position = 0
-                End If
-
-            End Sub
-
-            ''' <summary>
-            ''' Allowes playback to jump to the indicated sample position. (Startsample is adjusted to fit into the range of 0 through OutputSound.WaveData.ShortestChannelSampleCount)
-            ''' It may be used both during playback and paused playback.
-            ''' </summary>
-            Public Sub SeekSample(ByVal StartSample As Long)
-
-                If OutputSound IsNot Nothing Then
-                    If StartSample < OutputSound.WaveData.ShortestChannelSampleCount Then
-                        _Position = StartSample
-                        If StartSample < 0 Then _Position = 0
-                    Else
-                        _Position = OutputSound.WaveData.ShortestChannelSampleCount - 1
-                    End If
-                Else
-                    _Position = 0
-                End If
-
-            End Sub
-
-
-            Public Sub ClearRecordedSound()
-                InputBufferHistory.Clear()
-            End Sub
-
-            Public Sub OpenStream()
-
-                Log("Opening stream...")
-                Me.stream = StreamOpen()
-                Log("Stream pointer: " & stream.ToString())
-
-            End Sub
-
-
-            ''' <summary>
-            ''' Starts the sound stream.
-            ''' </summary>
-            '''<param name="StartTime">Start time (in seconds) from the beginning of the sound.</param>
-            '''<param name="PlayDuration">The length to play in seconds. If left out, the whole sound is played.</param>
-            ''' <param name="AppendRecordedSound">If set to True, the new recording will be appended any previously recorded sound. If set to False, a new recording will be started.</param>
-            ''' <param name="OutputSoundFadeInTime">Time in seconds during which the output sound will be faded in. (Only implemented for BlockingIO.)</param>
-            '''<param name="OutputSoundFadeOutTime">Can be used to fade out a preset play length, instead of using the fade parameter of the stop method.</param>
-            Public Sub StartSeconds(ByRef StartTime As Double,
-                         Optional ByRef PlayDuration As Double? = Nothing,
-                         Optional ByVal AppendRecordedSound As Boolean = False,
-                         Optional ByVal OutputSoundFadeInTime As Double = 0,
-                         Optional ByVal OutputSoundFadeOutTime As Double = 0,
-                         Optional ByVal CloseStreamAfterPlayCompletion As Boolean = True)
-
-                'Converting times to samples
-                Dim StartSample As Long? = Nothing
-                StartSample = StartTime * OutputSound.WaveFormat.SampleRate
-
-                Dim PlayLength As Long? = Nothing
-                If PlayDuration IsNot Nothing Then
-                    PlayLength = PlayDuration * OutputSound.WaveFormat.SampleRate
-                End If
-
-                'Calling Start
-                Start(StartSample, PlayLength, AppendRecordedSound, OutputSoundFadeInTime, OutputSoundFadeOutTime, CloseStreamAfterPlayCompletion)
-
-                'Converting the actual sample counts used back to Times, so that they can be retrieved by the calling code
-                StartTime = StartSample / OutputSound.WaveFormat.SampleRate
-                PlayDuration = PlayLength / OutputSound.WaveFormat.SampleRate
-
-            End Sub
-
-            Private DoSoundRecording As Boolean
-            Private DoSoundOutput As Boolean
-
-            ''' <summary>
-            ''' Starts the sound stream.
-            ''' </summary>
-            '''<param name="StartSample">Start position (in samples) from the beginning of the sound. If left out, the sound is played from the current position.</param>
-            '''<param name="PlayLength">The length to play in samples. If left out, the sound is played to the end of the sound.</param>
-            ''' <param name="AppendRecordedSound">If set to True, the new recording will be appended any previously recorded sound. If set to False, a new recording will be started.</param>
-            ''' <param name="OutputSoundFadeInTime">Time in seconds during which the output sound will be faded in. (Only implemented for BlockingIO.)</param>
-            '''<param name="OutputSoundFadeOutTime">Can be used to fade out a preset play length, instead of using the fade parameter of the stop method.</param>
-            '''<param name="CloseStreamAfterPlayCompletion">If set to true, the sound stream is automatically closed when the sound has finished playing.</param>
-            '''<param name="BlockingIOUpdateInterval">Sets the interval (in milliseconds) of the timer triggering the BlockingIO events. If left to nothing, the interval will be set to 80 % of the duration of the callback buffer specified in AudioApiSettings.</param>
-            Public Sub Start(Optional ByRef StartSample As Long = 0,
-                         Optional ByRef PlayLength As Long = -1,
-                         Optional ByVal AppendRecordedSound As Boolean = False,
-                         Optional ByVal OutputSoundFadeInTime As Double = 0,
-                         Optional ByVal OutputSoundFadeOutTime As Double = 0,
-                         Optional ByVal CloseStreamAfterPlayCompletion As Boolean = True,
-                         Optional ByVal BlockingIOUpdateInterval As Integer? = Nothing)
-
-                'Resetting DoSoundRecording and DoSoundOutput
-                DoSoundRecording = HasSoundInput
-                DoSoundOutput = HasSoundOutput
-
-                If BlockingIOUpdateInterval IsNot Nothing Then
-                    BlockingTimer.Interval = BlockingIOUpdateInterval
-                Else
-                    BlockingTimer.Interval = (AudioApiSettings.FramesPerBuffer / OutputSound.WaveFormat.SampleRate) * 800 'Setting the interval to 80 % of the buffer duration selected in the AudioApiSettings
-                End If
-
-                'Resetting EndOfOutputSoundIsReached
-                EndOfOutputSoundIsReached = False
-
-                Me.CloseStreamAfterPlayCompletion = CloseStreamAfterPlayCompletion
-
-                If AppendRecordedSound = False Then
-                    ClearRecordedSound()
-                End If
-
-
-                'Setting start position (by adjusting the current position)
-                SeekSample(StartSample)
-                StartSample = _Position
-
-                'Setting playing length
-                If PlayLength < 0 Then
-
-                    'Limiting the play length to fit within the range of 0 throught the length of the output sound
-                    'If _Position + PlayLength > OutputSound.WaveData.ShortestChannelSampleCount Then
-                    'PlayLength = Math.Max(0, PlayLength = OutputSound.WaveData.ShortestChannelSampleCount - _Position)
-                    'End If
-
-                    'Else
-                    'Simply playing the remaining sound length, after the current position 
-                    PlayLength = OutputSound.WaveData.ShortestChannelSampleCount - _Position
-                End If
-
-
-                'Setting which sample to stop at
-                OutputSoundStopSample = _Position + PlayLength
-
-                'Limiting the stop sample to fit within the remaining sound
-                If OutputSoundStopSample > OutputSound.WaveData.ShortestChannelSampleCount Then OutputSoundStopSample = OutputSound.WaveData.ShortestChannelSampleCount
-
-
-
-                'Settings fade in sample frame count and current fade in position
-                OutputSoundFadeInCurrentSample = 0
-                OutputSoundFadeInSamples = OutputSoundFadeInTime * OutputSound.WaveFormat.SampleRate
-                'Limiting the fade in region to the length of the output sound
-                If OutputSoundFadeInSamples > OutputSound.WaveData.ShortestChannelSampleCount Then OutputSoundFadeInSamples = OutputSound.WaveData.ShortestChannelSampleCount
-
-
-                'Settings fade out sample count
-                OutputSoundFadeOutSamples = OutputSoundFadeOutTime * OutputSound.WaveFormat.SampleRate
-
-                'Limiting the fade out sample count to fit within the sound (making sure fade out doesn't start before the first sample)
-                If OutputSoundFadeOutSamples < 0 Then OutputSoundFadeOutSamples = 0
-
-                'Updating fadeout time (this could be done in order to get the actual sample time)
-                'OutputSoundFadeOutTime = OutputSoundFadeOutSamples / OutputSound.WaveFormat.SampleRate
-
-                'Determining the fade out start point (sample) 
-                OutputSoundFadeOutStartSample = OutputSoundStopSample - OutputSoundFadeOutSamples
-
-
-                'If PortAudio.Pa_IsStreamActive(Me.stream) = 0 Then
-                Log("Starting stream")
-
-                If ErrorCheck("StartStream", PortAudio.Pa_StartStream(stream), True) = False Then
-
-                    If UseBlockingIO = True Then
-                        BlockingReadWrite_Active = True
-                        BlockingTimer.Start()
-                    End If
-
-                    _IsPlaying = True
-
-                End If
-
-            End Sub
-
-
-            ''' <summary>
-            ''' Stops the output sound.
-            ''' </summary>
-            ''' <param name="OutputSoundFadeOutTime">Time in seconds during which the output sound will be faded out before it is stopped. (Only implemented for BlockingIO.)</param>
-            ''' <returns>Returns the actual fade out time (in seconds) used.</returns>
-            Public Function [Stop](Optional ByVal OutputSoundFadeOutTime As Double = 0) As Double
-
-                'Stops recording directly
-                DoSoundRecording = False
-
-                'Calling stop right away if no fade out should be done
-                If OutputSoundFadeOutTime = 0 Then
-                    StopNow()
-                    Return 0
-                End If
-
-                Dim CurrentPosition As Long = _Position 'Creating a local variable to ensure that the position value is not alterred between the steps by the readerwriter thread
-
-                'Setting which sample to stop at
-                OutputSoundStopSample = CurrentPosition + (OutputSoundFadeOutTime * OutputSound.WaveFormat.SampleRate)
-
-                'Limiting the stop sample to fit within the remaining sound
-                If OutputSoundStopSample > OutputSound.WaveData.ShortestChannelSampleCount Then OutputSoundStopSample = OutputSound.WaveData.ShortestChannelSampleCount
-
-                'Setting the fade out start point (sample) to the current position 
-                OutputSoundFadeOutStartSample = CurrentPosition
-
-                'Settings fade out sample count
-                OutputSoundFadeOutSamples = OutputSoundStopSample - OutputSoundFadeOutStartSample
-
-                Return OutputSoundFadeOutSamples / OutputSound.WaveFormat.SampleRate
-
-            End Function
-
-            Private Sub StopNow()
-
-                'Resetting stop and fade out variables
-                OutputSoundStopSample = 0
-                OutputSoundFadeOutSamples = 0
-                OutputSoundFadeOutStartSample = 0
-
-                If UseBlockingIO = True Then
-
-                    BlockingReadWrite_Active = False
-                    BlockingTimer.Stop()
-
-                    _IsPlaying = False
-
-                End If
-
-                Log("Stopping stream...")
-
-                If ErrorCheck("StopStream", PortAudio.Pa_StopStream(stream), True) = False Then
-                    _IsPlaying = False
-                End If
-
-                'Storing recorded sound
-                'StoreRecordedSound()
-
-            End Sub
-
-
-            Public Sub AbortStream() 'Optional ByVal StoreInputSound As Boolean = True)
-
-                'Stops recording directly
-                DoSoundRecording = False
-
-
-                If UseBlockingIO = True Then
-
-                    BlockingReadWrite_Active = False
-                    BlockingTimer.Stop()
-
-                    _IsPlaying = False
-
-                End If
-
-                Log("Aborting stream...")
-
-                If ErrorCheck("AbortStream", PortAudio.Pa_AbortStream(stream), True) = False Then
-                    _IsPlaying = False
-                End If
-
-                'If StoreInputSound = True Then
-                'Storing recorded sound
-                'StoreRecordedSound()
-                'End If
-
-            End Sub
-
-
-
-            Public Sub CloseStream()
-
-                'Stopping the stream if it is running
-                If PortAudio.Pa_IsStreamStopped(Me.stream) < 1 Then
-                    [Stop]()
-                End If
-
-                'Cloing the stream
-                If ErrorCheck("CloseStream", PortAudio.Pa_CloseStream(stream), True) = False Then
-
-                    _IsStreamOpen = False
-
-                    'Resetting the stream
-                    Me.stream = New IntPtr(0)
-                End If
-
-            End Sub
-
-
-            Private Function StreamOpen() As IntPtr
-
-                'Setting buffer length data, and adjusting the length of the buffer arrays
-                Dim HighestChannelCount As Integer = Math.Max(RecordingSoundFormat.Channels, OutputSound.WaveFormat.Channels)
-
-                If Me.UseBlockingIO = False Then
-                    'Adjusting the length of the output buffer
-                    If callbackBuffer.Length < (Me.AudioApiSettings.FramesPerBuffer * HighestChannelCount) Then
-                        Log("Modified the callback buffer length. Old output buffer length: " & callbackBuffer.Length & " New length: " &
-                    Me.AudioApiSettings.FramesPerBuffer * HighestChannelCount)
-                        callbackBuffer = New Single((Me.AudioApiSettings.FramesPerBuffer * HighestChannelCount) - 1) {}
-                        SilentBuffer = New Single((Me.AudioApiSettings.FramesPerBuffer * HighestChannelCount) - 1) {}
-                    End If
-                End If
-
-                If AutoAdjustSampleRateToOutputSound = True Then
-                    If OutputSound IsNot Nothing Then
-                        If Me.AudioApiSettings.SampleRate <> OutputSound.WaveFormat.SampleRate Then
-                            'Overriding any previously sample rate stored in audioApiSettings if an output sound exists, and it's sample rate differs from that stored in the audioApiSettings (to ensure it will be played correctly).
-                            Log("Overriding previously set sample rate. Setting it to the sample rate of the out put sound: " & OutputSound.WaveFormat.SampleRate)
-                            Me.AudioApiSettings.SampleRate = OutputSound.WaveFormat.SampleRate
-                        End If
-                    End If
-                End If
-
-                'Checking that the sample rate matches the output sound sample rate
-                If AudioApiSettings.SampleRate <> OutputSound.WaveFormat.SampleRate Then
-                    MsgBox("Warning, non matching sample rate of output sound! Have you selected a different sample rate that the one in the sound you're playing?" & vbCr &
-                       "Press OK to continue anyway.")
-                End If
-
-                Dim stream As New IntPtr()
-                Dim data As New IntPtr(0)
-
-                Dim inputParams As New PortAudio.PaStreamParameters
-                If Me.AudioApiSettings.SelectedInputDevice IsNot Nothing Then
-
-                    inputParams.channelCount = RecordingSoundFormat.Channels
-                    inputParams.device = Me.AudioApiSettings.SelectedInputDevice
-                    Select Case RecordingSoundFormat.Encoding
-                        Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
-                            inputParams.sampleFormat = PortAudio.PaSampleFormat.paFloat32
-                        Case Formats.WaveFormat.WaveFormatEncodings.PCM
-                            inputParams.sampleFormat = PortAudio.PaSampleFormat.paInt16
-                        Case Else
-                            Throw New NotImplementedException("Wave data encoding " & RecordingSoundFormat.Encoding.ToString & " is presently not supported for recording.")
-                    End Select
-
-                    If Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.HasValue = True Then
-                        inputParams.suggestedLatency = Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.defaultLowInputLatency
-                    Else
-                        inputParams.suggestedLatency = Me.AudioApiSettings.SelectedInputDeviceInfo.Value.defaultLowInputLatency
-                    End If
-
-                End If
-
-                Dim outputParams As New PortAudio.PaStreamParameters
-                If Me.AudioApiSettings.SelectedOutputDevice IsNot Nothing Then
-                    outputParams.channelCount = OutputSound.WaveFormat.Channels
-                    outputParams.device = Me.AudioApiSettings.SelectedOutputDevice
-                    Select Case OutputSound.WaveFormat.Encoding
-                        Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
-                            outputParams.sampleFormat = PortAudio.PaSampleFormat.paFloat32
-                        Case Formats.WaveFormat.WaveFormatEncodings.PCM
-                            outputParams.sampleFormat = PortAudio.PaSampleFormat.paInt16
-                        Case Else
-                            Throw New NotImplementedException("Wave data encoding " & OutputSound.WaveFormat.Encoding.ToString & " is presently not supported for output sounds.")
-                    End Select
-                    If Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.HasValue = True Then
-                        outputParams.suggestedLatency = Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.defaultLowOutputLatency
-                    Else
-                        outputParams.suggestedLatency = Me.AudioApiSettings.SelectedOutputDeviceInfo.Value.defaultLowOutputLatency
-                    End If
-                End If
-
-                Log(inputParams.ToString)
-                Log(outputParams.ToString)
-
-                Dim Flag As PortAudio.PaStreamFlags
-                If IsClippingInactivated = True Then
-                    Flag = PortAudio.PaStreamFlags.paClipOff
-                Else
-                    Flag = PortAudio.PaStreamFlags.paNoFlag
-                End If
-
-
-                If UseBlockingIO = True Then
-
-                    ErrorCheck("OpenStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag,
-                Nothing, data), True)
-
-                Else
-                    If FadeEnabledCallback = True Then
-
-                        If _HasSoundInput = True And _HasSoundOutput = True Then
-                            ErrorCheck("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag,
-                Me.paStreamCallbackFadeEnabled, data), True)
-
-                        ElseIf _HasSoundOutput = True Then
-                            ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams, Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag,
-                Me.paStreamCallback_OutputOnly_FadeEnabled, data), True)
-
-                        Else
-                            ErrorCheck("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters), Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag,
-                Me.paStreamCallback_InputOnly, data), True)
-
-                        End If
-
-                    Else
-
-                        If _HasSoundInput = True And _HasSoundOutput = True Then
-                            ErrorCheck("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag,
-                Me.paStreamCallback, data), True)
-
-                        ElseIf _HasSoundOutput = True Then
-                            ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams, Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag,
-                Me.paStreamCallback_OutputOnly, data), True)
-
-                        Else
-                            ErrorCheck("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters), Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag,
-                Me.paStreamCallback_InputOnly, data), True)
-
-                        End If
-                    End If
-
-                End If
-
-                _IsStreamOpen = True
-
-                Return stream
-            End Function
-
-
-            'Public Structure ObjectHolder
-            'Dim o1 As Object
-            '<MarshalAs(UnmanagedType.IDispatch)> Public o2 As Object
-            'End Structure
-
-            ''' <summary>
-            ''' Gets the recorded sound so far.
-            ''' </summary>
-            ''' <returns></returns>
-            Public Function GetRecordedSound() As Sound
-
-                Log("Attemting to get recorded sound")
-
-                'Stopping sound if not already done
-                If _IsPlaying = True Then [Stop](0.1)
-
-                'Returning nothing if no input sound exists
-                If HasSoundInput = False Then Return Nothing
-                If InputBufferHistory Is Nothing Then Return Nothing
-
-                'Creating a new Sound
-                Dim RecordedSound As New Sound(RecordingSoundFormat)
-
-                If InputBufferHistory.Count = 0 Then Return RecordedSound
-
-                If InputBufferHistory.Count > 0 Then
-
-                    'Determining output sound length
-                    Dim OutputSoundSampleCount As Long = 0
-                    For Each Buffer In InputBufferHistory
-                        OutputSoundSampleCount += Buffer.Length / RecordingSoundFormat.Channels
-                    Next
-
-                    For ch = 0 To RecordingSoundFormat.Channels - 1
-                        Dim NewChannelArray(OutputSoundSampleCount - 1) As Single
-                        RecordedSound.WaveData.SampleData(ch + 1) = NewChannelArray
-                    Next
-
-                    'Sorting the interleaved samples to 
-                    Dim CurrentBufferStartSample As Long = 0
-                    For Each Buffer In InputBufferHistory
-                        Dim CurrentBufferSampleIndex As Long = 0
-                        For CurrentDataPoint = 0 To Buffer.Length - 1 Step RecordingSoundFormat.Channels
-
-                            For ch = 0 To RecordingSoundFormat.Channels - 1
-                                Try
-                                    RecordedSound.WaveData.SampleData(ch + 1)(CurrentBufferStartSample + CurrentBufferSampleIndex) = Buffer(CurrentDataPoint + ch)
-                                Catch ex As Exception
-                                    Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
-                                End Try
-                            Next
-                            'Increasing sample index
-                            CurrentBufferSampleIndex += 1
-                        Next
-                        CurrentBufferStartSample += CurrentBufferSampleIndex
-                    Next
-
-                End If
-                Return RecordedSound
-
-            End Function
-
-            ''' <summary>
-            ''' Returns the time delay (in seconds) caused by the call-back buffer size. (If UseBlockingIO is true, the time delay is only approximative.)
-            ''' </summary>
-            ''' <returns></returns>
-            Public Function GetCallBackTime() As Double
-
-                If UseBlockingIO = False Then
-                    Return AudioApiSettings.FramesPerBuffer / OutputSound.WaveFormat.SampleRate
-                Else
-                    Return BlockingTimer.Interval / 1000
-                End If
-
-            End Function
-
-            Private Sub Log(logString As String)
-                If m_loggingEnabled = True Then
-                    System.Console.WriteLine("PortAudio: " & logString)
-                End If
-            End Sub
-
-            Private Sub DisplayMessageInBox(Message As String)
-                If m_messagesEnabled = True Then
-                    MsgBox(Message)
-                End If
-            End Sub
-
-            Public Shared LogToFileEnabled As Boolean = True
-            Private Sub LogToFile(Message As String)
-                If LogToFileEnabled = True Then
-                    SendInfoToAudioLog(Message)
-                End If
-            End Sub
-
-            Private Function ErrorCheck(action As String, errorCode As PortAudio.PaError, Optional ShowErrorInMsgBox As Boolean = False) As Boolean
-                If errorCode <> PortAudio.PaError.paNoError Then
-                    Dim MessageA As String = action & " error: " & PortAudio.Pa_GetErrorText(errorCode)
-                    Log(MessageA)
-                    If ShowErrorInMsgBox = True Then DisplayMessageInBox(MessageA)
-
-                    LogToFile(MessageA)
-
-                    If errorCode = PortAudio.PaError.paUnanticipatedHostError Then
-                        Dim errorInfo As PortAudio.PaHostErrorInfo = PortAudio.Pa_GetLastHostErrorInfo()
-                        Dim MessageB As String = "- Host error API type: " & errorInfo.hostApiType
-                        Dim MessageC As String = "- Host error code: " & errorInfo.errorCode
-                        Dim MessageD As String = "- Host error text: " & errorInfo.errorText
-                        Log(MessageB)
-                        Log(MessageC)
-                        Log(MessageD)
-
-                        LogToFile(MessageB)
-                        LogToFile(MessageC)
-                        LogToFile(MessageD)
-
-                        If ShowErrorInMsgBox = True Then DisplayMessageInBox(MessageB & vbCrLf & MessageC & vbCrLf & MessageD)
-                    End If
-
-                    Return True
-                Else
-                    Log(action & " OK")
-                    LogToFile(action & " OK")
-                    Return False
-                End If
-            End Function
-
-            'BLOCKING FUNCTIONS
-            Private Sub BlockingUpdate() Handles BlockingTimer.Tick
-                If _HasSoundInput = True And _HasSoundOutput = True Then
-                    ReadAndWriteStream()
-                ElseIf _HasSoundOutput = True Then
-                    WriteStream()
-                Else
-                    ReadStream()
-                End If
-            End Sub
-
-
-            Private Sub ReadAndWriteStream()
-
-                'Do While StopReadWrite = False
-                If BlockingReadWrite_Active = True Then
-
-                    'INPUT SOUND
-                    If DoSoundRecording = True Then
-                        'Getting input sound
-                        Dim AvailableReadFrames As Integer = PortAudio.Pa_GetStreamReadAvailable(stream)
-
-                        Dim InputSoundArray(AvailableReadFrames * RecordingSoundFormat.Channels - 1) As Single
-                        PortAudio.Pa_ReadStream(stream, InputSoundArray, AvailableReadFrames)
-                        InputBufferHistory.Add(InputSoundArray)
-                    End If
-
-                    'OUTPUT SOUND
-                    If DoSoundOutput = True Then
-
-                        Dim AvailableWriteFrames As Integer = PortAudio.Pa_GetStreamWriteAvailable(stream)
-                        Dim OutputSoundArray(AvailableWriteFrames * OutputSound.WaveFormat.Channels - 1) As Single
-                        Dim HasReachedPlayLength As Boolean = False
-
-                        'Checking if end of sound is reached
-                        If EndOfOutputSoundIsReached = True Then
-                            'Exporting Silence
-                            PortAudio.Pa_WriteStream(stream, OutputSoundArray, AvailableWriteFrames)
-                        Else
-
-                            'Exporting sound data from the OutputSound
-                            For j As Integer = 0 To AvailableWriteFrames - 1
-
-                                'Calculating the fading factor for the current sample (fading factor is not channel specific)
-
-                                'Setting a default non-fading factor
-                                OutputSoundFadeFactor = 1
-
-                                'Checking if fading in should be done
-                                If OutputSoundFadeInCurrentSample < OutputSoundFadeInSamples Then
-
-                                    'Do fade in
-                                    'Calculating current fade in factor, and multiplying the default fade factor by it
-                                    OutputSoundFadeFactor *= OutputSoundFadeInCurrentSample / OutputSoundFadeInSamples
-                                    'Increasing current fade in sample index
-                                    OutputSoundFadeInCurrentSample += 1
-
-                                End If
-
-                                'Checking if fading out should be done
-                                If OutputSoundFadeOutSamples > 0 Then
-
-                                    'Do fade out
-                                    'Calculating current fade out factor, and multiplying the current fade factor by it (the current fade factor could either be 1 or a fade in factor. This allowes both fade in and fade out being active at the same time point)
-                                    If _Position > OutputSoundFadeOutStartSample Then
-                                        OutputSoundFadeFactor *= (OutputSoundStopSample - _Position) / OutputSoundFadeOutSamples
-
-                                        If _Position > OutputSoundStopSample Then
-                                            OutputSoundFadeFactor = 0
-                                        End If
-
-                                    End If
-                                End If
-
-
-                                'Reading the different channels
-                                For Ch = 0 To OutputSound.WaveFormat.Channels - 1
-
-                                    'Checking if there is any more sound to be played
-                                    If _Position < OutputSoundStopSample Then
-
-                                        OutputSoundArray((j * OutputSound.WaveFormat.Channels) + Ch) = OutputSoundFadeFactor * _OutputSound.WaveData.SampleData(Ch + 1)(_Position)
-
-                                    Else
-                                        'Marks that the end of the output sound has been reached
-                                        EndOfOutputSoundIsReached = True
-
-                                        'Fills up the buffer with zeroes, if the end of the sound is reached
-                                        OutputSoundArray((j * OutputSound.WaveFormat.Channels) + Ch) = 0
-                                        'log("Doing zero filling. Sample position: " & _Position)
-
-                                    End If
-
-                                Next
-
-                                'Increasing position
-                                _Position += 1
-
-                            Next
-
-                            PortAudio.Pa_WriteStream(stream, OutputSoundArray, AvailableWriteFrames)
-
-                            'Stopping sound if the end of sound was reached
-                            If EndOfOutputSoundIsReached = True Then
-                                If StopAtOutputSoundEnd = True Then
-                                    StopNow()
-                                    If CloseStreamAfterPlayCompletion = True Then
-                                        CloseStream()
-                                    End If
-                                End If
-                            End If
-                        End If
-                    End If
-                End If
-
-            End Sub
-
-
-            Private Sub ReadAndWriteStreamWithLogging()
-
-                'Do While StopReadWrite = False
-                If BlockingReadWrite_Active = True Then
-
-                    'INPUT SOUND
-                    If DoSoundRecording = True Then
-                        'Getting input sound
-                        Dim AvailableReadFrames As Integer = PortAudio.Pa_GetStreamReadAvailable(stream)
-
-                        Log("AvailableReadFrames: " & AvailableReadFrames)
-
-                        Dim InputSoundArray(AvailableReadFrames * RecordingSoundFormat.Channels - 1) As Single
-                        Log(ErrorCheck("ReadStream", PortAudio.Pa_ReadStream(stream, InputSoundArray, AvailableReadFrames), True))
-                        InputBufferHistory.Add(InputSoundArray)
-                    End If
-
-
-                    'OUTPUT SOUND
-                    If DoSoundOutput = True Then
-
-                        Dim AvailableWriteFrames As Integer = PortAudio.Pa_GetStreamWriteAvailable(stream)
-                        Dim OutputSoundArray(AvailableWriteFrames * OutputSound.WaveFormat.Channels - 1) As Single
-                        Dim HasReachedPlayLength As Boolean = False
-
-                        Log("AvailableWriteFrames: " & AvailableWriteFrames)
-
-                        'Checking if end of sound is reached
-                        If EndOfOutputSoundIsReached = True Then
-                            'Exporting Silence
-                            Log(ErrorCheck("WriteSilentStream", PortAudio.Pa_WriteStream(stream, OutputSoundArray, AvailableWriteFrames), True))
-                        Else
-
-                            'Exporting sound data from the OutputSound
-                            For j As Integer = 0 To AvailableWriteFrames - 1
-
-                                'Calculating the fading factor for the current sample (fading factor is not channel specific)
-
-                                'Setting a default non-fading factor
-                                OutputSoundFadeFactor = 1
-
-                                'Checking if fading in should be done
-                                If OutputSoundFadeInCurrentSample < OutputSoundFadeInSamples Then
-
-                                    'Do fade in
-                                    'Calculating current fade in factor, and multiplying the default fade factor by it
-                                    OutputSoundFadeFactor *= OutputSoundFadeInCurrentSample / OutputSoundFadeInSamples
-                                    'Increasing current fade in sample index
-                                    OutputSoundFadeInCurrentSample += 1
-
-                                End If
-
-                                'Checking if fading out should be done
-                                If OutputSoundFadeOutSamples > 0 Then
-
-                                    'Do fade out
-                                    'Calculating current fade out factor, and multiplying the current fade factor by it (the current fade factor could either be 1 or a fade in factor. This allowes both fade in and fade out being active at the same time point)
-                                    If _Position > OutputSoundFadeOutStartSample Then
-                                        OutputSoundFadeFactor *= (OutputSoundStopSample - _Position) / OutputSoundFadeOutSamples
-
-                                        If _Position > OutputSoundStopSample Then
-                                            OutputSoundFadeFactor = 0
-                                        End If
-
-                                        'log("FadingOut. " &
-                                        '    "FadeStartPos: " & OutputSoundFadeOutStartSample &
-                                        '    "OutputSoundStopSample" & OutputSoundStopSample &
-                                        '"CurrentPos: " & _Position &
-                                        '"OutputSoundFadeFactor: " & OutputSoundFadeFactor)
-
-                                    End If
-                                End If
-
-
-                                'Reading the different channels
-                                For Ch = 0 To OutputSound.WaveFormat.Channels - 1
-
-                                    'Checking if there is any more sound to be played
-                                    If _Position < OutputSoundStopSample Then
-
-                                        OutputSoundArray((j * OutputSound.WaveFormat.Channels) + Ch) = OutputSoundFadeFactor * _OutputSound.WaveData.SampleData(Ch + 1)(_Position)
-
-                                    Else
-                                        'Marks that the end of the output sound has been reached
-                                        EndOfOutputSoundIsReached = True
-
-                                        'Fills up the buffer with zeroes, if the end of the sound is reached
-                                        OutputSoundArray((j * OutputSound.WaveFormat.Channels) + Ch) = 0
-                                        'log("Doing zero filling. Sample position: " & _Position)
-
-                                    End If
-
-                                Next
-
-                                'Increasing position
-                                _Position += 1
-
-                            Next
-
-                            Log(ErrorCheck("WriteStream", PortAudio.Pa_WriteStream(stream, OutputSoundArray, AvailableWriteFrames), True))
-
-                            'Stopping sound if the end of sound was reached
-                            If EndOfOutputSoundIsReached = True Then
-                                Log("The end of the sound detected (sample position): " & _Position)
-
-                                If StopAtOutputSoundEnd = True Then
-
-                                    Log("Sound was stopped at sample position: " & _Position)
-                                    StopNow()
-                                    If CloseStreamAfterPlayCompletion = True Then
-                                        Log("Attempting to close the stream after completion of play. Sample position: " & _Position)
-                                        CloseStream()
-                                    End If
-                                End If
-                            End If
-                        End If
-                    End If
-                End If
-
-                'Loop
-
-            End Sub
-
-            Private Sub ReadStream()
-
-                'Do While StopReadWrite = False
-                If BlockingReadWrite_Active = True Then
-                    If DoSoundRecording = True Then
-                        'Getting input sound
-                        Dim AvailableReadFrames As Integer = PortAudio.Pa_GetStreamReadAvailable(stream)
-
-                        Dim InputSoundArray(AvailableReadFrames * RecordingSoundFormat.Channels - 1) As Single
-                        PortAudio.Pa_ReadStream(stream, InputSoundArray, AvailableReadFrames)
-                        InputBufferHistory.Add(InputSoundArray)
-                    End If
-                End If
-            End Sub
-
-            Private Sub WriteStream()
-
-                If BlockingReadWrite_Active = True Then
-
-                    Dim AvailableWriteFrames As Integer = PortAudio.Pa_GetStreamWriteAvailable(stream)
-                    Dim OutputSoundArray(AvailableWriteFrames * OutputSound.WaveFormat.Channels - 1) As Single
-                    Dim HasReachedPlayLength As Boolean = False
-
-                    'Checking if end of sound is reached
-                    If EndOfOutputSoundIsReached = True Then
-                        'Exporting Silence
-                        PortAudio.Pa_WriteStream(stream, OutputSoundArray, AvailableWriteFrames)
-                    Else
-
-                        'Exporting sound data from the OutputSound
-                        For j As Integer = 0 To AvailableWriteFrames - 1
-
-                            'Calculating the fading factor for the current sample (fading factor is not channel specific)
-
-                            'Setting a default non-fading factor
-                            OutputSoundFadeFactor = 1
-
-                            'Checking if fading in should be done
-                            If OutputSoundFadeInCurrentSample < OutputSoundFadeInSamples Then
-
-                                'Do fade in
-                                'Calculating current fade in factor, and multiplying the default fade factor by it
-                                OutputSoundFadeFactor *= OutputSoundFadeInCurrentSample / OutputSoundFadeInSamples
-                                'Increasing current fade in sample index
-                                OutputSoundFadeInCurrentSample += 1
-
-                            End If
-
-                            'Checking if fading out should be done
-                            If OutputSoundFadeOutSamples > 0 Then
-
-                                'Do fade out
-                                'Calculating current fade out factor, and multiplying the current fade factor by it (the current fade factor could either be 1 or a fade in factor. This allowes both fade in and fade out being active at the same time point)
-                                If _Position > OutputSoundFadeOutStartSample Then
-                                    OutputSoundFadeFactor *= (OutputSoundStopSample - _Position) / OutputSoundFadeOutSamples
-
-                                    If _Position > OutputSoundStopSample Then
-                                        OutputSoundFadeFactor = 0
-                                    End If
-
-                                End If
-                            End If
-
-                            'Reading the different channels
-                            For Ch = 0 To OutputSound.WaveFormat.Channels - 1
-
-                                'Checking if there is any more sound to be played
-                                If _Position < OutputSoundStopSample Then
-
-                                    OutputSoundArray((j * OutputSound.WaveFormat.Channels) + Ch) = OutputSoundFadeFactor * _OutputSound.WaveData.SampleData(Ch + 1)(_Position)
-
-                                Else
-                                    'Marks that the end of the output sound has been reached
-                                    EndOfOutputSoundIsReached = True
-
-                                    'Fills up the buffer with zeroes, if the end of the sound is reached
-                                    OutputSoundArray((j * OutputSound.WaveFormat.Channels) + Ch) = 0
-                                End If
-                            Next
-
-                            'Increasing position
-                            _Position += 1
-
-                        Next
-
-                        PortAudio.Pa_WriteStream(stream, OutputSoundArray, AvailableWriteFrames)
-
-                        'Stopping sound if the end of sound was reached
-                        If EndOfOutputSoundIsReached = True Then
-                            If StopAtOutputSoundEnd = True Then
-                                StopNow()
-                                If CloseStreamAfterPlayCompletion = True Then
-                                    CloseStream()
-                                End If
-                            End If
-                        End If
-                    End If
-                End If
-
-            End Sub
-
-
-
-#Region "IDisposable Support"
-            Private disposedValue As Boolean ' To detect redundant calls
-
-            ' IDisposable
-            Protected Overridable Sub Dispose(disposing As Boolean)
-                If Not disposedValue Then
-                    If disposing Then
-                        ' TODO: dispose managed state (managed objects).
-                    End If
-
-                    ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-                    ' TODO: set large fields to null.
-                    Log("Terminating...")
-                    ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True)
-
-                End If
-                disposedValue = True
-            End Sub
-
-            ' TODO: override Finalize() only if Dispose(disposing As Boolean) above has code to free unmanaged resources.
-            Protected Overrides Sub Finalize()
-                '    ' Do not change this code.  Put cleanup code in Dispose(disposing As Boolean) above.
-                Dispose(False)
-                MyBase.Finalize()
-            End Sub
-
-            ' This code added by Visual Basic to correctly implement the disposable pattern.
-            Public Sub Dispose() Implements IDisposable.Dispose
-                ' Do not change this code.  Put cleanup code in Dispose(disposing As Boolean) above.
-                Dispose(True)
-                ' TODO: uncomment the following line if Finalize() is overridden above.
-                GC.SuppressFinalize(Me)
-            End Sub
-#End Region
-
-        End Class
-
-
 
         Public Class OverlappingSoundPlayer
             Implements IDisposable
@@ -12534,9 +10818,7 @@ Namespace Audio
                                                                                  'SyncLock PlaybackBuffer
 
                                                                                  'Sending a buffer tick to the controller
-                                                                                 If IsBufferTickActive = True Then
-                                                                                     SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.NewBufferTick)
-                                                                                 End If
+                                                                                 SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.NewBufferTick)
 
                                                                                  Try
 
@@ -12547,7 +10829,7 @@ Namespace Audio
 
                                                                                          'This need to be changed for real time recording, the audio need to be converted to Sound format, or maybe it could be fixed after stoppong the recording?
                                                                                          Dim InputBuffer(RecordingBuffer.Length - 1) As Single
-                                                                                         Marshal.Copy(input, InputBuffer, 0, AudioApiSettings.FramesPerBuffer * RecordingSoundFormat.Channels)
+                                                                                         Marshal.Copy(input, InputBuffer, 0, AudioApiSettings.FramesPerBuffer * NumberOfInputChannels)
                                                                                          InputBufferHistory.Add(InputBuffer)
                                                                                      End If
 
@@ -12987,10 +11269,6 @@ Namespace Audio
                 ''' Holds the (0-based) index of the first sample in the current BufferHolder
                 ''' </summary>
                 Public StartSample As Integer
-                ''' <summary>
-                ''' Holds the start time (in seconds) of the first sample in the current BufferHolder
-                ''' </summary>
-                Public StartTime As Single
 
                 Public Sub New(ByVal ChannelCount As Integer, ByVal FrameCount As Integer)
                     Me.ChannelCount = ChannelCount
@@ -13047,6 +11325,17 @@ Namespace Audio
 
                 Public Sub DirectMonoSoundToOutputChannel(ByRef TargetOutputChannel As Integer)
                     If OutputRouting.ContainsKey(TargetOutputChannel) Then OutputRouting(TargetOutputChannel) = 1
+                End Sub
+
+                Public Sub SetLinearInput()
+                    For c = 1 To AvailableInputChannels
+                        InputRouting(c) = c
+                    Next
+                End Sub
+                Public Sub SetLinearOutput()
+                    For c = 1 To AvailableOutputChannels
+                        OutputRouting(c) = c
+                    Next
                 End Sub
 
                 Public Sub DirectMonoSoundToOutputChannels(ByRef TargetOutputChannels() As Integer)
@@ -13166,16 +11455,6 @@ Namespace Audio
 
             Private InputBufferHistory As New List(Of Single())
 
-            Property _RecordingSoundFormat As Formats.WaveFormat
-            Property RecordingSoundFormat As Formats.WaveFormat
-                Private Set(value As Formats.WaveFormat)
-                    _RecordingSoundFormat = value
-                End Set
-                Get
-                    Return _RecordingSoundFormat
-                End Get
-            End Property
-
             Public StopAtOutputSoundEnd As Boolean
             'Public EndOfOutputSound_A_IsReached As Boolean = False
             'Public EndOfOutputSound_B_IsReached As Boolean = False
@@ -13248,14 +11527,14 @@ Namespace Audio
             End Enum
 
             Public Sub New(ByRef SoundPlayerController As PlayBack.ISoundPlayerControl,
-                      Optional SoundDirection As SoundDirections = SoundDirections.PlaybackOnly,
+                      Optional ByVal SoundDirection As SoundDirections = SoundDirections.PlaybackOnly,
                        Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
                        Optional ByVal AudioEncoding As Formats.WaveFormat.WaveFormatEncodings = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints,
                        Optional ByVal LoggingEnabled As Boolean = False,
                        Optional ByVal MessagesEnabled As Boolean = False,
-                       Optional StopAtOutputSoundEnd As Boolean = False,
-                       Optional InactivateClipping As Boolean = False,
-                       Optional OverlapDuration As Double = 1,
+                       Optional ByVal StopAtOutputSoundEnd As Boolean = False,
+                       Optional ByVal InactivateClipping As Boolean = False,
+                       Optional ByVal OverlapDuration As Double = 1,
                        Optional ByVal ApproachingEndOfBufferAlert_BufferCount As Integer = 1,
                        Optional ByVal ActivateBufferTicks As Boolean = False)
 
@@ -13263,18 +11542,22 @@ Namespace Audio
                 Me.MyController = SoundPlayerController
                 Me.ApproachingEndOfBufferAlert_BufferCount = ApproachingEndOfBufferAlert_BufferCount
 
+                Me.StopAtOutputSoundEnd = StopAtOutputSoundEnd
+
                 Try
                     Me.SoundDirection = SoundDirection
+                    'Setting PlaybackIsActive depending on the SoundDirection
+                    'RecordingIsActive is set to False until playing starts
                     Select Case SoundDirection
                         Case SoundDirections.PlaybackOnly
                             PlaybackIsActive = True
                             RecordingIsActive = False
                         Case SoundDirections.RecordingOnly
                             PlaybackIsActive = False
-                            RecordingIsActive = True
+                            RecordingIsActive = False
                         Case SoundDirections.Duplex
                             PlaybackIsActive = True
-                            RecordingIsActive = True
+                            RecordingIsActive = False
                         Case Else
                             Throw New Exception("Invalid sound direction")
                     End Select
@@ -13297,8 +11580,8 @@ Namespace Audio
                     'Overriding any value set in InitializationSuccess
                     _IsInitialized = False
 
-                    SoundPlayer.LoggingEnabled = LoggingEnabled 'TODO: NB this is most likely a bug. It should be OverlappingSoundPlayer
-                    SoundPlayer.MessagesEnabled = MessagesEnabled 'TODO: NB this is most likely a bug. It should be OverlappingSoundPlayer
+                    OverlappingSoundPlayer.LoggingEnabled = LoggingEnabled 'TODO: NB this is most likely a bug. It should be OverlappingSoundPlayer
+                    OverlappingSoundPlayer.MessagesEnabled = MessagesEnabled 'TODO: NB this is most likely a bug. It should be OverlappingSoundPlayer
                     Log("Initializing...")
 
 
@@ -13353,6 +11636,7 @@ Namespace Audio
                         Me.Mixer = New DuplexMixer(NumberOfOutputChannels, NumberOfInputChannels)
                         'Me.Mixer.DirectMonoSoundToOutputChannel(1)
                         Me.Mixer.DirectMonoSoundToOutputChannels({1, 2})
+                        Me.Mixer.SetLinearInput()
 
                     Else
                         Me.Mixer = Mixer
@@ -13371,97 +11655,113 @@ Namespace Audio
             ''' Swaps the current output sound to a new, using crossfading between ths sounds.
             ''' </summary>
             ''' <param name="NewOutputSound"></param>
+            ''' <param name="Record">Activates recording if set to True in Duxplex and RecordingOnly modes.</param>
             ''' <returns>Returns True if successful, or False if unsuccessful.</returns>
-            Public Function SwapOutputSounds(ByRef NewOutputSound As Sound) As Boolean
+            Public Function SwapOutputSounds(ByRef NewOutputSound As Sound, Optional ByVal Record As Boolean = False, Optional ByVal AppendRecordedSound As Boolean = False) As Boolean
 
-                'Calling [Stop] with fade out to if the new output sound is Nothing
+                'Fading out playback if the new output sound is Nothing (but continues to record sound if recording is active)
                 If NewOutputSound Is Nothing Then
-                    [Stop](True)
-                    Return False
+                    FadeOutPlayback()
+                    'Return False
                 End If
+
+                ''Checks that sound is playing
+                'If _IsPlaying = False Then
+                '    Log("Error: SwapOutputSounds is only effective during active playback.")
+                '    Return False
+                'End If
 
                 'Checking that the new sound is at least 1 sample long
-                If NewOutputSound.WaveData.LongestChannelSampleCount = 0 Then
-                    Log("Error: New sound is contains no sample data (SwapOutputSounds).")
-                    Return False
+                If NewOutputSound IsNot Nothing Then
+                    If NewOutputSound.WaveData.LongestChannelSampleCount = 0 Then
+                        Log("Error: New sound contains no sample data (SwapOutputSounds).")
+                        Return False
+                    End If
+
+                    If NewOutputSound.WaveData.HasUnequalNonZeroChannelLength = True Then
+                        Log("Error: New sound have non-empty channels that differ in length. This is not allowed in SwapOutputSounds.")
+                        Return False
+                    End If
+
+                    'Checking that the format is the same format, and returns False if not
+                    If NewOutputSound.WaveFormat.SampleRate <> AudioApiSettings.SampleRate Or
+                                NewOutputSound.WaveFormat.BitDepth <> AudioBitDepth Or
+                                NewOutputSound.WaveFormat.Encoding <> AudioEncoding Then
+                        Log("Error: Different formats in SwapOutputSounds.")
+                        Return False
+                    End If
                 End If
 
-                If NewOutputSound.WaveData.HasUnequalNonZeroChannelLength = True Then
-                    Log("Error: New sound have non-empty channels that differ in length. This is not allowed in SwapOutputSounds.")
-                    Return False
-                End If
 
-                'Checks that sound is playing
-                If _IsPlaying = False Then
-                    Log("Error: SwapOutputSounds is only effective during active playback.")
-                    Return False
-                End If
+                'Activating recording (if not in PlaybackOnly mode)
+                If Record = True Then
 
-                'Checking that the format is the same format, and returns False if not
-                If NewOutputSound.WaveFormat.SampleRate <> AudioApiSettings.SampleRate Or
-                            NewOutputSound.WaveFormat.BitDepth <> AudioBitDepth Or
-                            NewOutputSound.WaveFormat.Encoding <> AudioEncoding Then
-                    Log("Error: Different formats in SwapOutputSounds.")
-                    Return False
-                End If
+                    'Resetting recorded sound
+                    If AppendRecordedSound = False Then
+                        ClearRecordedSound()
+                    End If
 
+                    ActivateRecording()
+                Else
+                    RecordingIsActive = False
+                End If
 
                 'Setting NewSound to the NewOutputSound to indicate that the output sound should be swapped by the callback
                 'NewSound = CreateBufferHolders(NewOutputSound)
-
-                NewSound = CreateBufferHoldersOnNewThread(NewOutputSound)
-
+                If NewOutputSound IsNot Nothing Then
+                    NewSound = CreateBufferHoldersOnNewThread(NewOutputSound)
+                End If
 
                 Return True
 
             End Function
 
 
-            Public Function CreateBufferHolders(ByRef InputSound As Sound) As BufferHolder()
+            'Public Function CreateBufferHolders(ByRef InputSound As Sound) As BufferHolder()
 
-                Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / AudioApiSettings.FramesPerBuffer) + 1
+            '    Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / AudioApiSettings.FramesPerBuffer) + 1
 
-                Dim Output(BufferCount - 1) As BufferHolder
+            '    Dim Output(BufferCount - 1) As BufferHolder
 
-                'Initializing the BufferHolders
-                For b = 0 To Output.Length - 1
-                    Output(b) = New BufferHolder(NumberOfOutputChannels, AudioApiSettings.FramesPerBuffer)
-                Next
+            '    'Initializing the BufferHolders
+            '    For b = 0 To Output.Length - 1
+            '        Output(b) = New BufferHolder(NumberOfOutputChannels, AudioApiSettings.FramesPerBuffer)
+            '    Next
 
-                Dim CurrentChannelInterleavedPosition As Integer
-                For Each OutputChannel In Mixer.OutputRouting
+            '    Dim CurrentChannelInterleavedPosition As Integer
+            '    For Each OutputChannel In Mixer.OutputRouting
 
-                    If OutputChannel.Value = 0 Then Continue For
+            '        If OutputChannel.Value = 0 Then Continue For
 
-                    If OutputChannel.Value > InputSound.WaveFormat.Channels Then Continue For
+            '        If OutputChannel.Value > InputSound.WaveFormat.Channels Then Continue For
 
-                    'Skipping if channel contains no data
-                    If InputSound.WaveData.SampleData(OutputChannel.Value).Length = 0 Then Continue For
+            '        'Skipping if channel contains no data
+            '        If InputSound.WaveData.SampleData(OutputChannel.Value).Length = 0 Then Continue For
 
-                    CurrentChannelInterleavedPosition = OutputChannel.Key - 1
+            '        CurrentChannelInterleavedPosition = OutputChannel.Key - 1
 
-                    'Reading samples
-                    For BufferIndex = 0 To Output.Length - 2
-                        Dim CurrentWriteSampleIndex As Integer = 0
-                        For Sample = BufferIndex * AudioApiSettings.FramesPerBuffer To (BufferIndex + 1) * AudioApiSettings.FramesPerBuffer - 1
+            '        'Reading samples
+            '        For BufferIndex = 0 To Output.Length - 2
+            '            Dim CurrentWriteSampleIndex As Integer = 0
+            '            For Sample = BufferIndex * AudioApiSettings.FramesPerBuffer To (BufferIndex + 1) * AudioApiSettings.FramesPerBuffer - 1
 
-                            Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
-                            CurrentWriteSampleIndex += 1
-                        Next
-                    Next
+            '                Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
+            '                CurrentWriteSampleIndex += 1
+            '            Next
+            '        Next
 
-                    'Reading the last bit
-                    Dim CurrentWriteSampleIndexB As Integer = 0
-                    For Sample = AudioApiSettings.FramesPerBuffer * Output.Length - 1 To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
+            '        'Reading the last bit
+            '        Dim CurrentWriteSampleIndexB As Integer = 0
+            '        For Sample = AudioApiSettings.FramesPerBuffer * Output.Length - 1 To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
 
-                        Output(Output.Length - 1).InterleavedSampleArray(CurrentWriteSampleIndexB * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
-                        CurrentWriteSampleIndexB += 1
-                    Next
-                Next
+            '            Output(Output.Length - 1).InterleavedSampleArray(CurrentWriteSampleIndexB * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
+            '            CurrentWriteSampleIndexB += 1
+            '        Next
+            '    Next
 
-                Return Output
+            '    Return Output
 
-            End Function
+            'End Function
 
 
             Public Function CreateBufferHoldersOnNewThread(ByRef InputSound As Sound, Optional ByVal BuffersOnMainThread As Integer = 10) As BufferHolder()
@@ -13477,7 +11777,7 @@ Namespace Audio
 
                 'Creating the BuffersOnMainThread first buffers
                 'Limiting the number of main thread buffers if the sound is very short
-                If BuffersOnMainThread < Output.Length - 2 Then
+                If (Output.Length - 1) < BuffersOnMainThread Then
                     BuffersOnMainThread = Math.Max(0, Output.Length - 1)
                 End If
 
@@ -13499,7 +11799,6 @@ Namespace Audio
 
                         'Setting start sample and time
                         Output(BufferIndex).StartSample = BufferIndex * AudioApiSettings.FramesPerBuffer
-                        Output(BufferIndex).StartTime = BufferIndex * AudioApiSettings.FramesPerBuffer / AudioApiSettings.SampleRate
 
                         'Shuffling samples from the input sound to the interleaved array
                         Dim CurrentWriteSampleIndex As Integer = 0
@@ -13558,9 +11857,8 @@ Namespace Audio
                         'Going through buffer by buffer
                         For BufferIndex = BuffersOnMainThread To Output.Length - 2
 
-                            'Setting start sample and time
+                            'Setting start sample 
                             Output(BufferIndex).StartSample = BufferIndex * AudioApiSettings.FramesPerBuffer
-                            Output(BufferIndex).StartTime = BufferIndex * AudioApiSettings.FramesPerBuffer / AudioApiSettings.SampleRate
 
                             'Shuffling samples from the input sound to the interleaved array
                             Dim CurrentWriteSampleIndex As Integer = 0
@@ -13572,13 +11870,12 @@ Namespace Audio
                         Next
 
                         'Reading the last bit
-                        'Setting start sample and time
+                        'Setting start sample 
                         Output(Output.Length - 1).StartSample = (Output.Length - 1) * AudioApiSettings.FramesPerBuffer
-                        Output(Output.Length - 1).StartTime = (Output.Length - 1) * AudioApiSettings.FramesPerBuffer / AudioApiSettings.SampleRate
 
                         'Shuffling samples from the input sound to the interleaved array
                         Dim CurrentWriteSampleIndexB As Integer = 0
-                        For Sample = AudioApiSettings.FramesPerBuffer * Output.Length - 1 To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
+                        For Sample = AudioApiSettings.FramesPerBuffer * (Output.Length - 1) To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
 
                             Output(Output.Length - 1).InterleavedSampleArray(CurrentWriteSampleIndexB * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
                             CurrentWriteSampleIndexB += 1
@@ -13628,58 +11925,9 @@ Namespace Audio
             ''' </summary>
             Public Function SeekTime(ByVal Time As Single) As Single
 
-                Dim SelectedTime As Single
+                Dim SelectedSample As Integer = SeekSample(Math.Floor(Time * GetSampleRate()))
 
-                Select Case CurrentOutputSound
-                    Case OutputSounds.OutputSoundA, OutputSounds.FadingToA
-
-                        'Locating the buffer containing the indicated start sample
-                        Dim NewStartPosition As Integer = 0
-                        For BufferIndex = 0 To OutputSoundA.Length - 1
-                            If Time < OutputSoundA(BufferIndex).StartTime Then
-                                NewStartPosition = BufferIndex
-                                Exit For
-                            End If
-                        Next
-
-                        'Limiting NewStartPosition to positive values, and values lower than the length of OutputSoundA, and then sets the new PositionA
-                        PositionA = Math.Min(Math.Max(0, NewStartPosition), OutputSoundA.Length - 1)
-
-                        'Stores the selected start time
-                        SelectedTime = OutputSoundA(PositionA).StartTime
-
-                        'Killing any fade process, and sets CurrentOutputSound to OutputSoundA
-                        If CurrentOutputSound = OutputSounds.FadingToA Then
-                            CurrentOutputSound = OutputSounds.OutputSoundA
-                            CrossFadeProgress = 0
-                        End If
-
-                    Case OutputSounds.OutputSoundB, OutputSounds.FadingToB
-
-                        'Locating the buffer containing the indicated start sample
-                        Dim NewStartPosition As Integer = 0
-                        For BufferIndex = 0 To OutputSoundB.Length - 1
-                            If Time < OutputSoundB(BufferIndex).StartTime Then
-                                NewStartPosition = BufferIndex
-                                Exit For
-                            End If
-                        Next
-
-                        'Limiting NewStartPosition to positive values, and values lower than the length of OutputSoundB, and then sets the new PositionB
-                        PositionB = Math.Min(Math.Max(0, NewStartPosition), OutputSoundB.Length - 1)
-
-                        'Stores the selected start time
-                        SelectedTime = OutputSoundB(PositionB).StartTime
-
-                        'Killing any fade process, and sets CurrentOutputSound to OutputSoundB
-                        If CurrentOutputSound = OutputSounds.FadingToB Then
-                            CurrentOutputSound = OutputSounds.OutputSoundB
-                            CrossFadeProgress = 0
-                        End If
-
-                    Case Else
-                        Throw New NotImplementedException
-                End Select
+                Dim SelectedTime As Single = SelectedSample / GetSampleRate()
 
                 Return SelectedTime
 
@@ -13766,18 +12014,27 @@ Namespace Audio
             ''' <summary>
             ''' Starts the sound stream.
             ''' </summary>
+            ''' <param name="Record">Activates recording if set to True in Duxplex and RecordingOnly modes.</param>
             ''' <param name="AppendRecordedSound">If set to True, the new recording will be appended any previously recorded sound. If set to False, a new recording will be started.</param>
-            Public Sub Start(Optional ByVal AppendRecordedSound As Boolean = False,
-                         Optional ByVal FadeInSound As Boolean = False)
+            Public Sub Start(Optional ByVal Record As Boolean = False, Optional ByVal AppendRecordedSound As Boolean = False)
+
+                'Activating recording (if not in PlaybackOnly mode)
+                If Record = True Then
+
+                    'Resetting recorded sound
+                    If AppendRecordedSound = False Then
+                        ClearRecordedSound()
+                    End If
+
+                    ActivateRecording()
+                Else
+                    RecordingIsActive = False
+                End If
 
                 'Setting both sounds to silent sound
                 SilentSound = {New BufferHolder(NumberOfOutputChannels, AudioApiSettings.FramesPerBuffer)}
                 OutputSoundA = SilentSound
                 OutputSoundB = SilentSound
-
-                If AppendRecordedSound = False Then
-                    ClearRecordedSound()
-                End If
 
                 Log("Starting stream")
                 If ErrorCheck("StartStream", PortAudio.Pa_StartStream(stream), True) = False Then
@@ -13788,25 +12045,46 @@ Namespace Audio
 
 
             ''' <summary>
-            ''' Stops the output sound.
+            ''' Fades out of the output sound (The fade out will occur during OverlapFadeLength +1 samples.
             ''' </summary>
-            ''' <param name="FadeOutSound">Set to true if fading out of the sound shold take place. (The fade out will occur during OverlapFadeLength +1 samples.)</param>
-            Public Sub [Stop](Optional ByVal FadeOutSound As Boolean = False)
-
-                'Stops recording directly
-                RecordingIsActive = False
-
-                'Calling stop right away if no fade out should be done
-                If FadeOutSound = False Then
-                    StopNow()
-                End If
+            Public Sub FadeOutPlayback()
 
                 'Doing fade out by swapping to SilentSound
                 NewSound = SilentSound
 
             End Sub
 
-            Private Sub StopNow()
+            ''' <summary>
+            ''' Activates (but do not start, nor stop, the player) the recording of the input stream (not effective in PlaybackOnly Mode).
+            ''' </summary>
+            Private Sub ActivateRecording()
+
+                If SoundDirection = SoundDirections.RecordingOnly Or SoundDirection = SoundDirections.Duplex Then
+                    RecordingIsActive = True
+                Else
+                    RecordingIsActive = False
+                End If
+
+            End Sub
+
+
+            ''' <summary>
+            ''' Stops the recording of the input stream (but leaves the player running)
+            ''' </summary>
+            Public Sub StopRecording()
+
+                RecordingIsActive = False
+
+            End Sub
+
+
+            ''' <summary>
+            ''' Stops the playback and/or recording stream
+            ''' </summary>
+            Public Sub StopStream()
+
+                'Stops recording
+                RecordingIsActive = False
 
                 Log("Stopping stream...")
 
@@ -13842,7 +12120,8 @@ Namespace Audio
 
                 'Stopping the stream if it is running
                 If PortAudio.Pa_IsStreamStopped(Me.stream) < 1 Then
-                    [Stop]()
+                    'Calls FadeOutPlayback to set the silent sound as output
+                    FadeOutPlayback()
                 End If
 
                 'Cloing the stream
@@ -13933,22 +12212,25 @@ Namespace Audio
 
 
             ''' <summary>
-            ''' Gets the recorded sound so far.
+            ''' Stops recording (but playback continues) and gets the sound recorded so far.
             ''' </summary>
+            ''' <param name="ClearRecordingBuffer">Set to True to clear the buffer of recorded sound after the sound has been retrieved. Set to False to keep the recorded sound in memory, whereby it at at later time using a repeated call to GetRecordedSound.</param>
             ''' <returns></returns>
-            Public Function GetRecordedSound() As Sound
+            Public Function GetRecordedSound(Optional ByVal ClearRecordingBuffer As Boolean = True) As Sound
 
                 Log("Attemting to get recorded sound")
 
-                'Stopping sound if not already done
-                If _IsPlaying = True Then [Stop](0.1)
+                'Stopping recording
+                StopRecording()
 
                 'Returning nothing if no input sound exists
-                If RecordingIsActive = False Then Return Nothing
                 If InputBufferHistory Is Nothing Then Return Nothing
 
+                'Creating a wave format for the recorded sound
+                Dim RecordingWaveFormat = New Audio.Formats.WaveFormat(GetSampleRate, AudioBitDepth, NumberOfInputChannels,, AudioEncoding)
+
                 'Creating a new Sound
-                Dim RecordedSound As New Sound(RecordingSoundFormat)
+                Dim RecordedSound As New Sound(RecordingWaveFormat)
 
                 If InputBufferHistory.Count = 0 Then Return RecordedSound
 
@@ -13957,10 +12239,10 @@ Namespace Audio
                     'Determining output sound length
                     Dim OutputSoundSampleCount As Long = 0
                     For Each Buffer In InputBufferHistory
-                        OutputSoundSampleCount += Buffer.Length / RecordingSoundFormat.Channels
+                        OutputSoundSampleCount += Buffer.Length / RecordingWaveFormat.Channels
                     Next
 
-                    For ch = 0 To RecordingSoundFormat.Channels - 1
+                    For ch = 0 To RecordingWaveFormat.Channels - 1
                         Dim NewChannelArray(OutputSoundSampleCount - 1) As Single
                         RecordedSound.WaveData.SampleData(ch + 1) = NewChannelArray
                     Next
@@ -13969,9 +12251,9 @@ Namespace Audio
                     Dim CurrentBufferStartSample As Long = 0
                     For Each Buffer In InputBufferHistory
                         Dim CurrentBufferSampleIndex As Long = 0
-                        For CurrentDataPoint = 0 To Buffer.Length - 1 Step RecordingSoundFormat.Channels
+                        For CurrentDataPoint = 0 To Buffer.Length - 1 Step RecordingWaveFormat.Channels
 
-                            For ch = 0 To RecordingSoundFormat.Channels - 1
+                            For ch = 0 To RecordingWaveFormat.Channels - 1
                                 Try
                                     RecordedSound.WaveData.SampleData(ch + 1)(CurrentBufferStartSample + CurrentBufferSampleIndex) = Buffer(CurrentDataPoint + ch)
                                 Catch ex As Exception
@@ -13986,6 +12268,8 @@ Namespace Audio
 
                 End If
                 Return RecordedSound
+
+                If ClearRecordingBuffer = True Then ClearRecordedSound()
 
             End Function
 
@@ -14054,14 +12338,16 @@ Namespace Audio
             Private Sub SendMessageToController(ByVal Message As PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer,
                                             Optional ByVal SendOnNewThread As Boolean = True)
 
-                If SendOnNewThread = False Then
-                    'Sending message on same thread (Should not be used when messages are sent from within the callback!)
-                    MyController.MessageFromPlayer(Message)
+                If IsBufferTickActive = True Then
+                    If SendOnNewThread = False Then
+                        'Sending message on same thread (Should not be used when messages are sent from within the callback!)
+                        MyController.MessageFromPlayer(Message)
 
-                Else
-                    'Sending message on a new thread, allowing the main thread to continue execution
-                    Dim NewthreadMessageSender As New MessageSenderOnNewThread(Message, MyController)
+                    Else
+                        'Sending message on a new thread, allowing the main thread to continue execution
+                        Dim NewthreadMessageSender As New MessageSenderOnNewThread(Message, MyController)
 
+                    End If
                 End If
 
                 'Dim NewThread As New Thread(AddressOf SendMessage)

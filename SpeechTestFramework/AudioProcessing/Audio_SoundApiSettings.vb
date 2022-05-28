@@ -73,7 +73,21 @@ Namespace Audio
             Return OutputString
         End Function
 
+        'Returns the number of input channels on the selected device, or Nothing if no input device has been selected
+        Public Function NumberOfInputChannels() As Integer?
 
+            If SelectedInputDeviceInfo.HasValue = True Then Return SelectedInputDeviceInfo.Value.maxInputChannels
+            If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxInputChannels
+
+        End Function
+
+        'Returns the number of output channels on the selected device, or Nothing if no output device has been selected
+        Public Function NumberOfOutputChannels() As Integer?
+
+            If SelectedOutputDeviceInfo.HasValue = True Then Return SelectedOutputDeviceInfo.Value.maxOutputChannels
+            If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxOutputChannels
+
+        End Function
 
         Public Function SetAsioSoundDevice(ByVal DeviceName As String) As Boolean
 

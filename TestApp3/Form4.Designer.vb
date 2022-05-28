@@ -23,12 +23,14 @@ Partial Class Form4
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.Button1 = New System.Windows.Forms.Button()
+        Me.Button2 = New System.Windows.Forms.Button()
         Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
         Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem2 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
+        Me.Button3 = New System.Windows.Forms.Button()
         Me.ResponseGuiItemTable1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -40,6 +42,15 @@ Partial Class Form4
         Me.Button1.TabIndex = 0
         Me.Button1.Text = "Button1"
         Me.Button1.UseVisualStyleBackColor = True
+        '
+        'Button2
+        '
+        Me.Button2.Location = New System.Drawing.Point(451, 15)
+        Me.Button2.Name = "Button2"
+        Me.Button2.Size = New System.Drawing.Size(75, 23)
+        Me.Button2.TabIndex = 3
+        Me.Button2.Text = "Button2"
+        Me.Button2.UseVisualStyleBackColor = True
         '
         'ResponseGuiItemTable1
         '
@@ -118,12 +129,23 @@ Partial Class Form4
         Me.ResponseGuiItem5.TabIndex = 4
         Me.ResponseGuiItem5.Text = "ResponseGuiItem5"
         '
+        'Button3
+        '
+        Me.Button3.Location = New System.Drawing.Point(370, 15)
+        Me.Button3.Name = "Button3"
+        Me.Button3.Size = New System.Drawing.Size(75, 23)
+        Me.Button3.TabIndex = 4
+        Me.Button3.Text = "Button3"
+        Me.Button3.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(983, 526)
+        Me.Controls.Add(Me.Button3)
+        Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.ResponseGuiItemTable1)
         Me.Controls.Add(Me.Button1)
         Me.Name = "Form4"
@@ -140,4 +162,6 @@ Partial Class Form4
     Friend WithEvents ResponseGuiItem3 As SpeechTestFramework.ResponseGuiItem
     Friend WithEvents ResponseGuiItem4 As SpeechTestFramework.ResponseGuiItem
     Friend WithEvents ResponseGuiItem5 As SpeechTestFramework.ResponseGuiItem
+    Friend WithEvents Button2 As Button
+    Friend WithEvents Button3 As Button
 End Class

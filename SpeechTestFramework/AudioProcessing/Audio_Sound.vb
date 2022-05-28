@@ -121,7 +121,21 @@ Namespace Audio
             If Me.WaveData IsNot Nothing Then Me.WaveData.StoreUnchangedState()
         End Sub
 
+        Private ManuallySetIsChangedValue As Boolean?
+
+        ''' <summary>
+        ''' The sub can be used to manually override the value returned by IsChanged
+        ''' </summary>
+        ''' <param name="Value"></param>
+        Public Sub SetIsChangedManually(ByVal Value As Boolean?)
+            ManuallySetIsChangedValue = Value
+        End Sub
+
         Public Function IsChanged() As Boolean?
+
+            If ManuallySetIsChangedValue.HasValue Then
+                Return ManuallySetIsChangedValue
+            End If
 
             Dim SmaIsChanged As Boolean? = Nothing
             Dim WaveDataIsChanged As Boolean? = Nothing
