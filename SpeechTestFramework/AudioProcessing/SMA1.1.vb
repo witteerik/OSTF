@@ -1008,6 +1008,42 @@ Namespace Audio
                 End Function
 
                 ''' <summary>
+                ''' Can be used to get the orthographic form, if no orthographic form is set, the orthographic form of the closest child in an unbroken line of single children.
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function FindOrthographicForm() As String
+
+                    If OrthographicForm <> "" Then
+                        Return OrthographicForm
+                    Else
+                        If Me.Count = 1 Then
+                            Return Me(0).FindOrthographicForm
+                        Else
+                            Return ""
+                        End If
+                    End If
+
+                End Function
+
+                ''' <summary>
+                ''' Can be used to get the phonetic form, if no orthographic form is set, the phonetic form of the closest child in an unbroken line of single children.
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function FindPhoneticForm() As String
+
+                    If PhoneticForm <> "" Then
+                        Return PhoneticForm
+                    Else
+                        If Me.Count = 1 Then
+                            Return Me(0).FindPhoneticForm
+                        Else
+                            Return ""
+                        End If
+                    End If
+
+                End Function
+
+                ''' <summary>
                 ''' Converts all instances of a specified phone to a new phone
                 ''' </summary>
                 ''' <param name="CurrentPhone"></param>

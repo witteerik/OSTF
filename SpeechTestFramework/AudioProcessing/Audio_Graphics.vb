@@ -1211,6 +1211,7 @@ Namespace Audio
 
                             Dim startPen As New System.Drawing.Pen(Color.FromArgb(150, Color.Green), 2)
                             Dim segmentBrush As New SolidBrush(Color.FromArgb(80, Color.LightGreen))
+                            Dim redSegmentBrush As New SolidBrush(Color.FromArgb(80, Color.LightCoral))
                             Dim segmentTextBrush As New SolidBrush(Color.FromArgb(200, Color.Green))
                             Dim endPen As New System.Drawing.Pen(System.Drawing.Color.LightCoral, 2)
 
@@ -1229,7 +1230,11 @@ Namespace Audio
                                             New PointF(SegmentationStartPixel, SoundBackgroundArea.Height - TimeArea.Height),
                                             New PointF(SegmentationStartPixel, SoundBackgroundArea.Top),
                                             New PointF(SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Height - TimeArea.Height)}
-                                g.FillPolygon(segmentBrush, SegmentationLayoutTriangle)
+                                If SegmentationWidthInPixels < 0 Then
+                                    g.FillPolygon(redSegmentBrush, SegmentationLayoutTriangle)
+                                Else
+                                    g.FillPolygon(segmentBrush, SegmentationLayoutTriangle)
+                                End If
 
                                 'Draws the segmentation end line first (as it may otherwise be overwrite the start line)
                                 g.DrawLine(endPen, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Top, SegmentationStartPixel + SegmentationWidthInPixels, SoundBackgroundArea.Height)

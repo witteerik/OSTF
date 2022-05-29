@@ -826,6 +826,7 @@ Public Class SpeechMaterialRecorder
 
             Case Else
                 CurrentSentenceIndex = TempIndex
+                ViewSentenceForRecording()
                 Return True
 
         End Select
@@ -846,26 +847,44 @@ Public Class SpeechMaterialRecorder
 
     Private Sub ViewSentenceForRecording()
 
+        'Setting labels
+        Dim LabelsLoaded As Boolean = False
+        If CurrentSentencesForRecording IsNot Nothing Then
+            If CurrentSentenceIndex < CurrentSentencesForRecording.Count Then
+                If CurrentSentencesForRecording(CurrentSentenceIndex).Item1 < CurrentlyLoadedSoundFile.SMA.ChannelData(1).Count Then
+                    If CurrentlyLoadedSoundFile IsNot Nothing Then
+                        Spelling_AutoHeightTextBox.Text = CurrentlyLoadedSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).FindOrthographicForm
+                        Transcription_AutoHeightTextBox.Text = CurrentlyLoadedSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).FindPhoneticForm
+                        LabelsLoaded = True
+                    End If
+                End If
+            End If
+        End If
+        If LabelsLoaded = False Then
+            MsgBox("No sound currently loaded!")
+            If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
+            Exit Sub
+        End If
+
+
         Dim HasSound As Boolean = False
-
         If CurrentSentencesForRecording(CurrentSentenceIndex).Item2 IsNot Nothing Then
-
             If CurrentSentencesForRecording(CurrentSentenceIndex).Item2.WaveData.SampleData(RecordingChannel).Length > 0 Then
 
+                'Shows the sound
                 'Resetting sound display
                 If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
 
                 Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2,,,,,,,,,, SoundPlayer, CurrentAudioApiSettings)
                 waveDrawer.Dock = Windows.Forms.DockStyle.Fill
-
                 RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
-
                 HasSound = True
 
             End If
         End If
 
         If HasSound = False Then
+            'Shows a no-sound message
             'Resets the sound display, and adds a message that no sound is recorded
             If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
 
@@ -1253,7 +1272,13 @@ Public Class SpeechMaterialRecorder
                 Next
                 Dim SoundsList As List(Of Audio.Sound) = SortedSoundsList.Values.ToList
                 Dim CurrentlyRecordedSentences As Audio.Sound = Audio.DSP.ConcatenateSounds(SoundsList)
+
+                'Keeps the SMA object
+                Dim CurrentSMA = CurrentlyLoadedSoundFile.SMA
+                'Sets the CurrentlyLoadedSoundFile to CurrentlyRecordedSentences, keeping the SMA object
+                CurrentSMA.ParentSound = CurrentlyRecordedSentences
                 CurrentlyLoadedSoundFile = CurrentlyRecordedSentences
+                CurrentlyLoadedSoundFile.SMA = CurrentSMA
                 CurrentlyLoadedSoundFile.SetIsChangedManually(True)
 
             Else
