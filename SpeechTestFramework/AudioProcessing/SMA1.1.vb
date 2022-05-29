@@ -1629,23 +1629,44 @@ Namespace Audio
                 ''' Creates new (mono) sound containing the portion of the ParentSound that the current instance of SmaComponent represent, based on the available segmentation data. (The output sound does not contain the SMA object.)
                 ''' </summary>
                 ''' <returns></returns>
-                Public Function GetSoundFileSection(ByVal CurrentChannel As Integer) As Audio.Sound
+                Public Function GetSoundFileSection(ByVal CurrentChannel As Integer, Optional ByVal SupressWarnings As Boolean = False) As Audio.Sound
 
                     'Checks that the needed instances exist
                     If ParentSMA Is Nothing Then
-                        MsgBox("GetSoundFileSection: The current instance of SmaComponent does not have a ParentSMA object.")
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The current instance of SmaComponent does not have a ParentSMA object.")
                         Return Nothing
                     End If
                     If ParentSMA.ParentSound Is Nothing Then
-                        MsgBox("GetSoundFileSection: The ParentSMA does not have a ParentSound object.")
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The ParentSMA does not have a ParentSound object.")
                         Return Nothing
                     End If
                     If CurrentChannel > ParentSMA.ParentSound.WaveFormat.Channels Then
-                        MsgBox("GetSoundFileSection: The ParentSMA.ParentSound object does not have " & CurrentChannel & " channels!")
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The ParentSMA.ParentSound object does not have " & CurrentChannel & " channels!")
                         Return Nothing
                     End If
                     If CurrentChannel > ParentSMA.ChannelCount Then
-                        MsgBox("GetSoundFileSection: The ParentSMA object does not have " & CurrentChannel & " channels!")
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The ParentSMA object does not have " & CurrentChannel & " channels!")
+                        Return Nothing
+                    End If
+
+                    'Checks that sound data exists at the indicated sampleindices
+                    If StartSample < 0 Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: Start sample cannot be lower than zero!")
+                        Return Nothing
+                    End If
+
+                    If Length < 0 Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: Length of a section cannot lower than zero!")
+                        Return Nothing
+                    End If
+
+                    If Length = 0 Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: Length of a section cannot be zero!")
+                        Return Nothing
+                    End If
+
+                    If StartSample + Length > ParentSMA.ParentSound.WaveData.SampleData(CurrentChannel).Length Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The requested data is outside the range of the sound parent sound!")
                         Return Nothing
                     End If
 

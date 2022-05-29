@@ -382,7 +382,16 @@ Public Class SpeechMaterialRecorder
         CurrentSentencesForRecording = New List(Of Tuple(Of Integer, Audio.Sound))
         For s = 0 To CurrentlyLoadedSoundFile.SMA.ChannelData(1).Count - 1
             Dim SentenceSmaComponent = CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s)
-            CurrentSentencesForRecording.Add(New Tuple(Of Integer, Audio.Sound)(s, Nothing))
+
+            'Adding Nothing as Sound if no sound is recorded, otherwise copies the sound
+            Dim SentenceSound = SentenceSmaComponent.GetSoundFileSection(1, True)
+            If SentenceSound Is Nothing Then
+                CurrentSentencesForRecording.Add(New Tuple(Of Integer, Audio.Sound)(s, Nothing))
+            ElseIf SentenceSound.WaveData.SampleData(1).Length = 0 Then
+                CurrentSentencesForRecording.Add(New Tuple(Of Integer, Audio.Sound)(s, Nothing))
+            Else
+                CurrentSentencesForRecording.Add(New Tuple(Of Integer, Audio.Sound)(s, SentenceSound))
+            End If
         Next
 
         'Randomizing the order of sentences
@@ -1266,20 +1275,24 @@ Public Class SpeechMaterialRecorder
                 CurrentSentencesForRecording(CurrentSentenceIndex) = New Tuple(Of Integer, Audio.Sound)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1, RecordedMonoSound)
 
                 'Storing sounds recorded in CurrentSentencesForRecording in CurrentlyLoadedSoundFile in the correct order
-                Dim SortedSoundsList As New SortedList(Of Integer, Audio.Sound)
+                Dim SortedSoundsList As New SortedList(Of Integer, Tuple(Of Audio.Sound, Integer, Integer)) ' Sound, StartsSample, Length
+                Dim CumulativeStartSample As Integer = 0
                 For Each sound In CurrentSentencesForRecording
-                    SortedSoundsList.Add(sound.Item1, sound.Item2)
+                    Dim SectionLength As Integer = sound.Item2.WaveData.SampleData(1).Length
+                    SortedSoundsList.Add(sound.Item1, New Tuple(Of Audio.Sound, Integer, Integer)(sound.Item2, CumulativeStartSample, SectionLength))
+                    CumulativeStartSample += SectionLength
                 Next
-                Dim SoundsList As List(Of Audio.Sound) = SortedSoundsList.Values.ToList
-                Dim CurrentlyRecordedSentences As Audio.Sound = Audio.DSP.ConcatenateSounds(SoundsList)
 
-                'Keeps the SMA object
-                Dim CurrentSMA = CurrentlyLoadedSoundFile.SMA
-                'Sets the CurrentlyLoadedSoundFile to CurrentlyRecordedSentences, keeping the SMA object
-                CurrentSMA.ParentSound = CurrentlyRecordedSentences
-                CurrentlyLoadedSoundFile = CurrentlyRecordedSentences
-                CurrentlyLoadedSoundFile.SMA = CurrentSMA
-                CurrentlyLoadedSoundFile.SetIsChangedManually(True)
+                Dim SoundsList As List(Of Audio.Sound) = SortedSoundsList.Values.ToList
+                    Dim CurrentlyRecordedSentences As Audio.Sound = Audio.DSP.ConcatenateSounds(SoundsList)
+
+                    'Keeps the SMA object
+                    Dim CurrentSMA = CurrentlyLoadedSoundFile.SMA
+                    'Sets the CurrentlyLoadedSoundFile to CurrentlyRecordedSentences, keeping the SMA object
+                    CurrentSMA.ParentSound = CurrentlyRecordedSentences
+                    CurrentlyLoadedSoundFile = CurrentlyRecordedSentences
+                    CurrentlyLoadedSoundFile.SMA = CurrentSMA
+                    CurrentlyLoadedSoundFile.SetIsChangedManually(True)
 
             Else
                 MsgBox("Unable to retrieve any recorded sound data.")
