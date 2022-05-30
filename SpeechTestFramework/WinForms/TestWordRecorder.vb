@@ -439,6 +439,10 @@ Public Class SpeechMaterialRecorder
                     Else
                         'Setting IsChanged manually to Nothing, to inactivate the overriding of IsChanged
                         CurrentlyLoadedSoundFile.SetIsChangedManually(Nothing)
+
+                        'And resets the SMA and Sound Change detection objects
+                        CurrentlyLoadedSoundFile.SMA.StoreUnchangedState()
+                        CurrentlyLoadedSoundFile.WaveData.StoreUnchangedState()
                     End If
                 End If
             End If
@@ -1275,24 +1279,77 @@ Public Class SpeechMaterialRecorder
                 CurrentSentencesForRecording(CurrentSentenceIndex) = New Tuple(Of Integer, Audio.Sound)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1, RecordedMonoSound)
 
                 'Storing sounds recorded in CurrentSentencesForRecording in CurrentlyLoadedSoundFile in the correct order
-                Dim SortedSoundsList As New SortedList(Of Integer, Tuple(Of Audio.Sound, Integer, Integer)) ' Sound, StartsSample, Length
+                Dim SortedSoundsList As New SortedList(Of Integer, Audio.Sound)
+                Dim SortedStartSamplesList As New SortedList(Of Integer, Integer)
+                Dim SortedSectionLengthsList As New SortedList(Of Integer, Integer)
+
+                'Creating a silent sound to use as margin around and between all recordings (in order to avoid direct juxtaposition, which may cause trouble in segmentation)
+                Dim PaddingSound = Audio.GenerateSound.CreateSilence(RecordedMonoSound.WaveFormat, 1, 0.5, Audio.BasicAudioEnums.TimeUnits.seconds)
+                Dim PaddingSoundLength As Integer = PaddingSound.WaveData.SampleData(1).Length
+
                 Dim CumulativeStartSample As Integer = 0
                 For Each sound In CurrentSentencesForRecording
                     Dim SectionLength As Integer = sound.Item2.WaveData.SampleData(1).Length
-                    SortedSoundsList.Add(sound.Item1, New Tuple(Of Audio.Sound, Integer, Integer)(sound.Item2, CumulativeStartSample, SectionLength))
-                    CumulativeStartSample += SectionLength
+
+                    'Adjusting the first start sample
+                    If sound.Item1 = 0 Then
+                        CumulativeStartSample = PaddingSoundLength
+                    End If
+
+                    'Storing the sound
+                    SortedSoundsList.Add(sound.Item1, sound.Item2)
+
+                    'Storing the start samples and (sentence level) section lengths
+                    SortedStartSamplesList.Add(sound.Item1, CumulativeStartSample)
+                    SortedSectionLengthsList.Add(sound.Item1, SectionLength)
+
+                    'Adjusting the CumulativeStartSample start sample of the next sound
+                    CumulativeStartSample += (SectionLength + PaddingSoundLength)
+
                 Next
 
-                Dim SoundsList As List(Of Audio.Sound) = SortedSoundsList.Values.ToList
-                    Dim CurrentlyRecordedSentences As Audio.Sound = Audio.DSP.ConcatenateSounds(SoundsList)
 
-                    'Keeps the SMA object
-                    Dim CurrentSMA = CurrentlyLoadedSoundFile.SMA
-                    'Sets the CurrentlyLoadedSoundFile to CurrentlyRecordedSentences, keeping the SMA object
-                    CurrentSMA.ParentSound = CurrentlyRecordedSentences
-                    CurrentlyLoadedSoundFile = CurrentlyRecordedSentences
-                    CurrentlyLoadedSoundFile.SMA = CurrentSMA
-                    CurrentlyLoadedSoundFile.SetIsChangedManually(True)
+                Dim SoundsList As List(Of Audio.Sound) = SortedSoundsList.Values.ToList
+
+                'Adding the silent 'padding' sounds
+                Dim SoundsListWithSilentSounds As New List(Of Audio.Sound)
+                For n = 0 To SoundsList.Count - 1
+
+                    SoundsListWithSilentSounds.Add(PaddingSound)
+
+                    SoundsListWithSilentSounds.Add(SoundsList(n))
+
+                    'Adding the PaddingSound also after the last sound
+                    If n = SoundsList.Count - 1 Then
+                        SoundsListWithSilentSounds.Add(PaddingSound)
+                    End If
+
+                Next
+
+                Dim CurrentlyRecordedSentences As Audio.Sound = Audio.DSP.ConcatenateSounds(SoundsListWithSilentSounds)
+
+                'Keeps the SMA object
+                Dim CurrentSMA = CurrentlyLoadedSoundFile.SMA
+
+                'Sets the CurrentlyLoadedSoundFile to CurrentlyRecordedSentences, keeping the SMA object
+                CurrentSMA.ParentSound = CurrentlyRecordedSentences
+                CurrentlyLoadedSoundFile = CurrentlyRecordedSentences
+                CurrentlyLoadedSoundFile.SMA = CurrentSMA
+
+                'Sets the SMA sentnce level StartSample and Length values
+                CurrentlyLoadedSoundFile.SMA = CurrentSMA
+                For s = 0 To CurrentlyLoadedSoundFile.SMA.ChannelData(1).Count - 1
+                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).StartSample = SortedStartSamplesList(s)
+                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).Length = SortedSectionLengthsList(s)
+
+                    'Aligns dependent segmentation data
+                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).AlignSegmentationStartsAcrossLevels(CurrentlyLoadedSoundFile.WaveData.SampleData(1).Length)
+                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).AlignSegmentationEndsAcrossLevels()
+
+                Next
+
+                'Manually sets IsChanged so that the sound gets saved when swapping sounds.
+                CurrentlyLoadedSoundFile.SetIsChangedManually(True)
 
             Else
                 MsgBox("Unable to retrieve any recorded sound data.")
