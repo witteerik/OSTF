@@ -117,4 +117,9 @@
 
     End Sub
 
+    Private Sub LoadFileControl1_LoadFile(FileToLoad As String) Handles LoadFileControl1.LoadFile
+
+        MsgBox("Now loading file:" & FileToLoad)
+
+    End Sub
 End Class

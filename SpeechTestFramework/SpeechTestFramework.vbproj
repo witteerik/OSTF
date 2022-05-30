@@ -128,7 +128,25 @@
     <Compile Include="WinFormControls\AutoHeightTextBox.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WinFormControls\DoubleParsingTextBox.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\FileNameTextBox.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="WinFormControls\GainDiagram.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\IntegerParsingTextBox.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\LoadFileControl.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\PathControl.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\PathTextBox.vb">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="WinFormControls\PlotBase.vb">
