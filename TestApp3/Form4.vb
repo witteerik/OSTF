@@ -5,7 +5,7 @@
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         'ResponseGuiItemTable1.AdjustControls()
 
-        Dim test As Integer = 1
+        Dim test As Integer = 3
         Select Case test
             Case 0
 
@@ -86,6 +86,12 @@
                 Me.Controls.Add(WaveViewer)
 
 
+            Case 3
+
+                Dim SM_Creator As New SpeechTestFramework.SpeechMaterialCreator
+
+                SM_Creator.Show()
+
 
         End Select
 
@@ -117,7 +123,7 @@
 
     End Sub
 
-    Private Sub LoadFileControl1_LoadFile(FileToLoad As String) Handles LoadFileControl1.LoadFile
+    Private Sub LoadFileControl1_LoadFile(FileToLoad As String)
 
         MsgBox("Now loading file:" & FileToLoad)
 

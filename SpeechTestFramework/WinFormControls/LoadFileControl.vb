@@ -18,6 +18,7 @@ Public Class LoadFileControl
         Me.PathTextBox.PathType = PathTextBox.PathTypes.File
 
         Me.Controls.Add(LoadButton, 2, 1)
+
         LoadButton.Dock = DockStyle.Fill
         LoadButton.Text = "Load"
 

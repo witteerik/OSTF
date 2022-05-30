@@ -110,6 +110,15 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
+    <Compile Include="WinFormControls\ExistingFilePathControl.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WinFormsComplexControls\SpeechMaterialComponentCreator.Designer.vb">
+      <DependentUpon>SpeechMaterialComponentCreator.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormsComplexControls\SpeechMaterialComponentCreator.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="SpeechMaterials\MediaSets.vb" />
     <Compile Include="SpeechMaterials\SpeechMaterialComponent.vb" />
     <Compile Include="Utils\Calculations.vb" />
@@ -191,6 +200,12 @@
     <Compile Include="WinFormDialogs\SpectrogramSettingsDialog.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="WinForms\SpeechMaterialCreator.Designer.vb">
+      <DependentUpon>SpeechMaterialCreator.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinForms\SpeechMaterialCreator.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WinForms\TestWordRecorder.designer.vb">
       <DependentUpon>TestWordRecorder.vb</DependentUpon>
     </Compile>
@@ -205,6 +220,9 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="WinFormsComplexControls\SpeechMaterialComponentCreator.resx">
+      <DependentUpon>SpeechMaterialComponentCreator.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WinFormDialogs\AudioSettingsDialog.resx">
       <DependentUpon>AudioSettingsDialog.vb</DependentUpon>
     </EmbeddedResource>
@@ -213,6 +231,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormDialogs\SpectrogramSettingsDialog.resx">
       <DependentUpon>SpectrogramSettingsDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinForms\SpeechMaterialCreator.resx">
+      <DependentUpon>SpeechMaterialCreator.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinForms\TestWordRecorder.resx">
       <DependentUpon>TestWordRecorder.vb</DependentUpon>
@@ -241,5 +262,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

@@ -25,13 +25,13 @@ Partial Class Form4
         Me.Button1 = New System.Windows.Forms.Button()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.Button3 = New System.Windows.Forms.Button()
-        Me.LoadFileControl1 = New SpeechTestFramework.LoadFileControl()
         Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
         Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem2 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
+        Me.LoadFileControl1 = New SpeechTestFramework.LoadFileControl()
         Me.ResponseGuiItemTable1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -61,23 +61,6 @@ Partial Class Form4
         Me.Button3.TabIndex = 4
         Me.Button3.Text = "Button3"
         Me.Button3.UseVisualStyleBackColor = True
-        '
-        'LoadFileControl1
-        '
-        Me.LoadFileControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.LoadFileControl1.ColumnCount = 2
-        Me.LoadFileControl1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadFileControl1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadFileControl1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadFileControl1.Description = ""
-        Me.LoadFileControl1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
-        Me.LoadFileControl1.Location = New System.Drawing.Point(163, 294)
-        Me.LoadFileControl1.Name = "LoadFileControl1"
-        Me.LoadFileControl1.RowCount = 2
-        Me.LoadFileControl1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadFileControl1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadFileControl1.Size = New System.Drawing.Size(200, 100)
-        Me.LoadFileControl1.TabIndex = 5
         '
         'ResponseGuiItemTable1
         '
@@ -155,6 +138,23 @@ Partial Class Form4
         Me.ResponseGuiItem5.Size = New System.Drawing.Size(75, 23)
         Me.ResponseGuiItem5.TabIndex = 4
         Me.ResponseGuiItem5.Text = "ResponseGuiItem5"
+        '
+        'LoadFileControl1
+        '
+        Me.LoadFileControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.LoadFileControl1.ColumnCount = 2
+        Me.LoadFileControl1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 72.01492!))
+        Me.LoadFileControl1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 27.98507!))
+        Me.LoadFileControl1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 134.0!))
+        Me.LoadFileControl1.Description = "TExt"
+        Me.LoadFileControl1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
+        Me.LoadFileControl1.Location = New System.Drawing.Point(370, 288)
+        Me.LoadFileControl1.Name = "LoadFileControl1"
+        Me.LoadFileControl1.RowCount = 2
+        Me.LoadFileControl1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 45.96273!))
+        Me.LoadFileControl1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 54.03727!))
+        Me.LoadFileControl1.Size = New System.Drawing.Size(405, 54)
+        Me.LoadFileControl1.TabIndex = 5
         '
         'Form4
         '

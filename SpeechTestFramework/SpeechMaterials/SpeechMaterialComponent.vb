@@ -27,7 +27,7 @@ Public Class SpeechMaterialComponent
 
     ' This variable is loaded from the speech material file and contains the full path to a custom variables database file for the component. The data is stored within the objects NumericVariables and CategoricalVariables.
     ' The path is stored to be able to write to the same file in order to update the variables.
-    Private CustomVariablesDatabasePath As String = ""
+    Public CustomVariablesDatabasePath As String = ""
 
     'These two should contain the data defined in the TestSituationDatabase associated to the component in the speech material file.
     Private NumericTestSituationVariables As New SortedList(Of String, SortedList(Of String, Double)) ' Test situation Id, Variable name, Variable Value
@@ -41,7 +41,7 @@ Public Class SpeechMaterialComponent
     ''' <summary>
     ''' The Id used to refer to the component in the LinguisticDatabase and/or the TestSituationDatabase
     ''' </summary>
-    Private DbId As String = ""
+    Public DbId As String = ""
 
     Public Function GetTestSituationVariableValue()
         'This function should somehow returns the requested variable values from the indicated test situation, or even offer an option to create/calculate that data if not present.
@@ -221,6 +221,32 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    ''' <summary>
+    ''' Adds the indicated Value to the indicated VariableName in the collection of CategoricalVariables. Adds the variable name if not already present.
+    ''' </summary>
+    ''' <param name="VariableName"></param>
+    ''' <param name="Value"></param>
+    Public Sub SetNumericWordMetricValue(ByVal VariableName As String, ByVal Value As Double)
+        If NumericVariables.Keys.Contains(VariableName) = True Then
+            NumericVariables(VariableName) = Value
+        Else
+            NumericVariables.Add(VariableName, Value)
+        End If
+    End Sub
+
+
+    ''' <summary>
+    ''' Adds the indicated Value to the indicated VariableName in the collection of CategoricalVariables. Adds the variable name if not already present.
+    ''' </summary>
+    ''' <param name="VariableName"></param>
+    ''' <param name="Value"></param>
+    Public Sub SetCategoricalWordMetricValue(ByVal VariableName As String, ByVal Value As String)
+        If CategoricalVariables.Keys.Contains(VariableName) = True Then
+            CategoricalVariables(VariableName) = Value
+        Else
+            CategoricalVariables.Add(VariableName, Value)
+        End If
+    End Sub
 
     Public Function GetChildren() As List(Of SpeechMaterialComponent)
         Return ChildComponents
@@ -831,7 +857,7 @@ Public Class SpeechMaterialComponent
         If ExportCustomVariablesAtThisLevel = True Then
             'Exporting custom variables
             For Each item In CustomVariablesExportList
-                Utils.SendInfoToLog(String.Join(vbCrLf, item.Value), IO.Path.GetFileNameWithoutExtension(item.Key), IO.Path.GetDirectoryName(item.Key), True, True)
+                Utils.SendInfoToLog(String.Join(vbCrLf, item.Value), IO.Path.GetFileNameWithoutExtension(item.Key), IO.Path.GetDirectoryName(FilePath), True, True)
             Next
         End If
 

@@ -38,13 +38,14 @@ Public Class PathControl
         Me.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 50))
         Me.ColumnStyles.Clear()
         Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 100))
-        Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Absolute, 60))
-        Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Absolute, 60))
+        Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Absolute, 30))
+        Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Absolute, 30))
 
         Me.Controls.Add(DescriptionLabel, 0, 0)
         Me.SetColumnSpan(DescriptionLabel, 3)
         DescriptionLabel.AutoSize = False
         DescriptionLabel.Dock = DockStyle.Fill
+        DescriptionLabel.TextAlign = Drawing.ContentAlignment.MiddleLeft
 
         Me.Controls.Add(PathTextBox, 0, 1)
         PathTextBox.Dock = DockStyle.Fill
@@ -52,6 +53,8 @@ Public Class PathControl
         Me.Controls.Add(BrowseButton, 1, 1)
         PathTextBox.Dock = DockStyle.Fill
         BrowseButton.Text = "Browse"
+
+        PathTextBox.Margin = BrowseButton.Margin
 
     End Sub
 
