@@ -86,6 +86,9 @@ Public Class MediaSet
                 BackgroundNonspeechParentFolder = "Media\City-Talker1-RVE\BackgroundNonspeech"
                 BackgroundSpeechParentFolder = "Media\City-Talker1-RVE\BackgroundSpeech"
 
+                PrototypeMediaParentFolder = ""
+
+                MasterPrototypeRecordingPath = ""
             Case 2
 
                 TestSituationName = "City-Talker2-RVE"
@@ -108,10 +111,40 @@ Public Class MediaSet
                 BackgroundNonspeechParentFolder = "Media\City-Talker2-RVE\BackgroundNonspeech"
                 BackgroundSpeechParentFolder = "Media\City-Talker2-RVE\BackgroundSpeech"
 
+                PrototypeMediaParentFolder = ""
+
+                MasterPrototypeRecordingPath = ""
         End Select
 
     End Sub
 
+    Public Sub SetHintDebugValues()
+
+        TestSituationName = "Unechoic-Talker1-RVE"
+
+        TalkerName = "EW"
+        TalkerGender = Genders.Male
+        TalkerAge = 42
+        TalkerDialect = "Western Swedish"
+        VoiceType = "Raised vocal effort"
+
+        BackgroundNonspeechRealisticLevel = 55
+
+        MediaAudioItems = 2
+        MaskerAudioItems = 5
+        MediaImageItems = 0
+        MaskerImageItems = 0
+
+        MediaParentFolder = "Media\Unechoic-Talker1-RVE\TestWordRecordings"
+        MaskerParentFolder = ""
+        BackgroundNonspeechParentFolder = ""
+        BackgroundSpeechParentFolder = ""
+
+        PrototypeMediaParentFolder = ""
+
+        MasterPrototypeRecordingPath = ""
+
+    End Sub
     Public Enum PrototypeRecordingOptions
         MasterPrototypeRecording
         PrototypeRecordings

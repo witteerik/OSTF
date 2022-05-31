@@ -25,6 +25,7 @@
 
         Dim SpellingVariableName As String = "Spelling"
         Dim TranscriptionVariableName As String = "Transcription"
+
         Dim SpeechMaterialLevelDatabaseName As String = "SmLevelDatabase.txt"
         Dim ListLevelDataBaseName As String = "ListLevelVariables.txt"
         Dim SentenceLevelDataBaseName As String = "SentenceLevelVariables.txt"
@@ -45,11 +46,13 @@
         Dim Input = EditRichTextBox.Lines
 
         'The whole input represent a ListCollection
-        Dim TempSMC As New SpeechMaterialComponent(rnd) With {
+        Dim CurrentListCollectionComponent As New SpeechMaterialComponent(rnd) With {
             .Id = NameTextBox.Text,
             .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.ListCollection,
             .PrimaryStringRepresentation = NameTextBox.Text,
             .CustomVariablesDatabasePath = SpeechMaterialLevelDatabaseName}
+
+        CurrentListCollectionComponent.SetCategoricalWordMetricValue("DbId", CurrentListCollectionComponent.Id)
 
         Dim CurrentListComponent As SpeechMaterialComponent = Nothing
         Dim CurrentSentenceComponent As SpeechMaterialComponent = Nothing
@@ -68,54 +71,54 @@
 
                 'A new List
                 CurrentListComponent = New SpeechMaterialComponent(rnd) With {
-                    .ParentComponent = TempSMC,
+                    .ParentComponent = CurrentListCollectionComponent,
                     .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.List,
                     .CustomVariablesDatabasePath = ListLevelDataBaseName}
 
-                TempSMC.ChildComponents.Add(CurrentListComponent)
+                CurrentListCollectionComponent.ChildComponents.Add(CurrentListComponent)
 
-                CurrentListComponent.SetCategoricalWordMetricValue("ListName", ListName)
-
-                CurrentListComponent.Id = "L" & i.ToString("00")
+                CurrentListComponent.Id = "L" & (CurrentListCollectionComponent.ChildComponents.Count - 1).ToString("00")
                 CurrentListComponent.DbId = CurrentListComponent.Id
                 CurrentListComponent.PrimaryStringRepresentation = ListName
                 If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.List Then CurrentListComponent.MediaFolder = CurrentListComponent.Id & "_" & CurrentListComponent.PrimaryStringRepresentation.Replace(" ", "_")
                 CurrentListComponent.OrderedChildren = OrderedSentencesCheckBox.Checked
 
+                CurrentListComponent.SetCategoricalWordMetricValue("DbId", CurrentListComponent.DbId)
+                CurrentListComponent.SetCategoricalWordMetricValue("ListName", ListName)
 
             ElseIf CurrentLine.StartsWith("[") Then
 
-                    'It should be the phonetic/phonemic transcription of the current sentence
-                    'Adds the transcriptions
-                    CurrentSentenceComponent.SetCategoricalWordMetricValue(TranscriptionVariableName, CurrentLine)
+                'It should be the phonetic/phonemic transcription of the current sentence
+                'Adds the transcriptions
+                CurrentSentenceComponent.SetCategoricalWordMetricValue(TranscriptionVariableName, CurrentLine)
 
-                    Dim WordTranscriptions = CurrentLine.Split(",")
-                    'Checks that the number of transcriptions and spellings agree
-                    If CurrentSentenceComponent.ChildComponents.Count <> WordTranscriptions.Length Then
-                        MsgBox("The number of transcriptions at line " & i + 1 & " do do agree with the number of speelings in the corresponding sentence: " & vbCrLf &
+                Dim WordTranscriptions = CurrentLine.Split(",")
+                'Checks that the number of transcriptions and spellings agree
+                If CurrentSentenceComponent.ChildComponents.Count <> WordTranscriptions.Length Then
+                    MsgBox("The number of transcriptions at line " & i + 1 & " do do agree with the number of speelings in the corresponding sentence: " & vbCrLf &
                    CurrentSentenceComponent.GetCategoricalWordMetricValue(SpellingVariableName) & vbCrLf & CurrentLine, MsgBoxStyle.Information, "Checking input data")
-                        Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
-                    End If
+                    Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
+                End If
 
-                    For w = 0 To WordTranscriptions.Length - 1
-                        CurrentSentenceComponent.ChildComponents(w).SetCategoricalWordMetricValue(TranscriptionVariableName, WordTranscriptions(w).Trim.TrimStart("[").TrimEnd("]".Trim))
+                For w = 0 To WordTranscriptions.Length - 1
+                    CurrentSentenceComponent.ChildComponents(w).SetCategoricalWordMetricValue(TranscriptionVariableName, WordTranscriptions(w).Trim.TrimStart("[").TrimEnd("]".Trim))
 
-                        'Adding phonetic transcription components, taken from the transcription (phonemes need to be separated by black spaces)
-                        Dim Phonemes = CurrentSentenceComponent.ChildComponents(w).GetCategoricalWordMetricValue(TranscriptionVariableName).Split(" ")
-                        For p = 0 To Phonemes.Length - 1
+                    'Adding phonetic transcription components, taken from the transcription (phonemes need to be separated by black spaces)
+                    Dim Phonemes = CurrentSentenceComponent.ChildComponents(w).GetCategoricalWordMetricValue(TranscriptionVariableName).Split(" ")
+                    For p = 0 To Phonemes.Length - 1
 
-                            Dim CurrentPhoneme = Phonemes(p)
+                        Dim CurrentPhoneme = Phonemes(p)
 
-                            'Removes non-phoneme characters (TODO: this could instead be set by a list of valid phonetic characters, optinally set by the user?!?)
-                            Dim IpaMainStress As String = "ˈ"
-                            Dim IpaMainSwedishAccent2 As String = "²"
-                            Dim IpaSecondaryStress As String = "ˌ"
-                            Dim IpaSyllableBoundary As String = "."
-                            Dim ReplacementList As New List(Of String) From {" ", ",", "", IpaMainStress, IpaSecondaryStress, IpaSyllableBoundary, IpaMainSwedishAccent2}
-                            For Each s In ReplacementList
-                                CurrentPhoneme = CurrentPhoneme.Replace(s, "")
-                            Next
-                            If CurrentPhoneme = "" Then Continue For
+                        'Removes non-phoneme characters (TODO: this could instead be set by a list of valid phonetic characters, optinally set by the user?!?)
+                        Dim IpaMainStress As String = "ˈ"
+                        Dim IpaMainSwedishAccent2 As String = "²"
+                        Dim IpaSecondaryStress As String = "ˌ"
+                        Dim IpaSyllableBoundary As String = "."
+                        Dim ReplacementList As New List(Of String) From {" ", ",", "", IpaMainStress, IpaSecondaryStress, IpaSyllableBoundary, IpaMainSwedishAccent2}
+                        For Each s In ReplacementList
+                            CurrentPhoneme = CurrentPhoneme.Replace(s, "")
+                        Next
+                        If CurrentPhoneme = "" Then Continue For
 
                         Dim NewPhonemeComponent = New SpeechMaterialComponent(rnd) With {
                             .ParentComponent = CurrentSentenceComponent.ChildComponents(w),
@@ -124,17 +127,18 @@
 
                         CurrentSentenceComponent.ChildComponents(w).ChildComponents.Add(NewPhonemeComponent)
 
-                        NewPhonemeComponent.SetCategoricalWordMetricValue(TranscriptionVariableName, CurrentPhoneme)
                         NewPhonemeComponent.Id = CurrentSentenceComponent.ChildComponents(w).Id & "P" & p.ToString("00")
-
                         NewPhonemeComponent.DbId = NewPhonemeComponent.Id
                         NewPhonemeComponent.PrimaryStringRepresentation = CurrentPhoneme
-                        If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then NewPhonemeComponent.MediaFolder = NewPhonemeComponent.Id & "_" & CurrentListComponent.PrimaryStringRepresentation.Replace(" ", "_")
+                        If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then NewPhonemeComponent.MediaFolder = NewPhonemeComponent.Id & "_" & NewPhonemeComponent.PrimaryStringRepresentation.Replace(" ", "_")
+
+                        NewPhonemeComponent.SetCategoricalWordMetricValue("DbId", NewPhonemeComponent.DbId)
+                        NewPhonemeComponent.SetCategoricalWordMetricValue(TranscriptionVariableName, CurrentPhoneme)
 
                     Next
-                    Next
+                Next
 
-                Else
+            Else
 
                 'It should be sentence
                 CurrentSentenceComponent = New SpeechMaterialComponent(rnd) With {
@@ -144,12 +148,14 @@
 
                 CurrentListComponent.ChildComponents.Add(CurrentSentenceComponent)
 
-                CurrentSentenceComponent.SetCategoricalWordMetricValue(SpellingVariableName, CurrentLine)
                 CurrentSentenceComponent.Id = CurrentListComponent.Id & "S" & (CurrentListComponent.ChildComponents.Count - 1).ToString("00")
 
                 CurrentSentenceComponent.DbId = CurrentSentenceComponent.Id
                 CurrentSentenceComponent.PrimaryStringRepresentation = "Sentence" & (CurrentListComponent.ChildComponents.Count - 1).ToString("00")
-                If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then CurrentSentenceComponent.MediaFolder = CurrentSentenceComponent.Id & "_" & CurrentListComponent.PrimaryStringRepresentation.Replace(" ", "_")
+                If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then CurrentSentenceComponent.MediaFolder = CurrentSentenceComponent.Id & "_" & CurrentSentenceComponent.PrimaryStringRepresentation.Replace(" ", "_")
+
+                CurrentSentenceComponent.SetCategoricalWordMetricValue("DbId", CurrentSentenceComponent.DbId)
+                CurrentSentenceComponent.SetCategoricalWordMetricValue(SpellingVariableName, CurrentLine)
 
                 'Adds the word components
                 Dim Words = CurrentLine.Split(" ")
@@ -161,12 +167,14 @@
 
                     CurrentSentenceComponent.ChildComponents.Add(NewWordComponent)
 
-                    NewWordComponent.SetCategoricalWordMetricValue(SpellingVariableName, Words(w))
                     NewWordComponent.Id = CurrentSentenceComponent.Id & "W" & w.ToString("00")
 
                     NewWordComponent.DbId = NewWordComponent.Id
                     NewWordComponent.PrimaryStringRepresentation = Words(w)
-                    If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Word Then NewWordComponent.MediaFolder = NewWordComponent.Id & "_" & CurrentListComponent.PrimaryStringRepresentation.Replace(" ", "_")
+                    If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Word Then NewWordComponent.MediaFolder = NewWordComponent.Id & "_" & NewWordComponent.PrimaryStringRepresentation.Replace(" ", "_")
+
+                    NewWordComponent.SetCategoricalWordMetricValue("DbId", NewWordComponent.DbId)
+                    NewWordComponent.SetCategoricalWordMetricValue(SpellingVariableName, Words(w))
 
                 Next
 
@@ -174,7 +182,7 @@
 
         Next
 
-        Return New Tuple(Of Boolean, SpeechMaterialComponent)(True, TempSMC)
+        Return New Tuple(Of Boolean, SpeechMaterialComponent)(True, CurrentListCollectionComponent)
 
 
     End Function

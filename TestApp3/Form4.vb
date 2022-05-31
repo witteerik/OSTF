@@ -5,7 +5,7 @@
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         'ResponseGuiItemTable1.AdjustControls()
 
-        Dim test As Integer = 3
+        Dim test As Integer = 1
         Select Case test
             Case 0
 
@@ -56,7 +56,8 @@
                 'CompleteSpeechMaterial.WriteSpeechMaterialComponenFile(SpeechTestFramework.Utils.logFilePath & "TestSMC.txt")
 
                 Dim NewMediaSet = New SpeechTestFramework.MediaSet
-                NewMediaSet.SetSipValues(1)
+                'NewMediaSet.SetSipValues(1)
+                NewMediaSet.SetHintDebugValues()
 
                 'NewMediaSet.CopySoundFiles(CompleteSpeechMaterial, IO.Path.Combine(SpeechTestFramework.Utils.logFilePath, "MediaSet2"))
 

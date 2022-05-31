@@ -630,9 +630,11 @@ Public Class SpeechMaterialComponent
     Public Function ConvertToSMA() As Audio.Sound.SpeechMaterialAnnotation
 
         If Me.LinguisticLevel = LinguisticLevels.ListCollection Then
-            MsgBox("Cannot convert a component at the ListCollection linguistic level to a SMA object. The highest level which can be stored in a SMA object is LinguisticLevels.ListCollection." & vbCrLf & "Aborting conversion!")
+            MsgBox("Cannot convert a component at the ListCollection linguistic level to a SMA object. The highest level which can be stored in a SMA object is LinguisticLevels.List." & vbCrLf & "Aborting conversion!")
             Return Nothing
         End If
+
+        MsgBox("This function is not working properly, it doesn't add data if more than one sentnce, etc....")
 
         Dim NewSMA = New Audio.Sound.SpeechMaterialAnnotation With {.SegmentationCompleted = False}
 
