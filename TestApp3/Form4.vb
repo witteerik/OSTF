@@ -5,7 +5,7 @@
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         'ResponseGuiItemTable1.AdjustControls()
 
-        Dim test As Integer = 1
+        Dim test As Integer = 3
         Select Case test
             Case 0
 

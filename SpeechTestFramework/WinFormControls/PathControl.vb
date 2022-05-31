@@ -26,6 +26,12 @@ Public Class PathControl
     <DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
     Private WithEvents BrowseButton As New Button
 
+    Public ReadOnly Property SelectedPath As String
+        Get
+            Return PathTextBox.SelectedPath
+        End Get
+    End Property
+
     Public Sub New()
 
         Me.BorderStyle = Windows.Forms.BorderStyle.FixedSingle

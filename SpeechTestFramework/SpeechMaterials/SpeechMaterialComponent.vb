@@ -423,6 +423,16 @@ Public Class SpeechMaterialComponent
         Return OutputList
     End Function
 
+    Public Function GetAllRelativesAtLevel(ByVal Level As SpeechMaterialComponent.LinguisticLevels) As List(Of SpeechMaterialComponent)
+        'Creates a list
+        Dim OutputList As New List(Of SpeechMaterialComponent)
+        Dim AllRelatives = GetAllRelatives()
+        For Each Component In AllRelatives
+            If Component.LinguisticLevel = Level Then OutputList.Add(Component)
+        Next
+        Return OutputList
+    End Function
+
 
     ''' <summary>
     ''' Recursively adds all descentents to the DescendentsList

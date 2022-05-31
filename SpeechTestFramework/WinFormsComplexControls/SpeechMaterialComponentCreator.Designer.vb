@@ -41,10 +41,10 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionDatabase_FilePathControl = New SpeechTestFramework.ExistingFilePathControl()
         Me.CaseInvariantLookupCheckBox = New System.Windows.Forms.CheckBox()
         Me.TranscriptionLookupButton = New System.Windows.Forms.Button()
+        Me.OrderedSentencesCheckBox = New System.Windows.Forms.CheckBox()
         Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
         Me.CheckInputButton = New System.Windows.Forms.Button()
         Me.CreateSpeechMaterialComponentFile_Button = New System.Windows.Forms.Button()
-        Me.OrderedSentencesCheckBox = New System.Windows.Forms.CheckBox()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
         Me.SplitContainer1.Panel2.SuspendLayout()
@@ -244,6 +244,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionVariableNameTextBox.Name = "TranscriptionVariableNameTextBox"
         Me.TranscriptionVariableNameTextBox.Size = New System.Drawing.Size(154, 20)
         Me.TranscriptionVariableNameTextBox.TabIndex = 5
+        Me.TranscriptionVariableNameTextBox.Text = "Transcription"
         '
         'Label5
         '
@@ -263,6 +264,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.SpellingVariableNameTextBox.Name = "SpellingVariableNameTextBox"
         Me.SpellingVariableNameTextBox.Size = New System.Drawing.Size(154, 20)
         Me.SpellingVariableNameTextBox.TabIndex = 2
+        Me.SpellingVariableNameTextBox.Text = "Spelling"
         '
         'Label4
         '
@@ -286,6 +288,9 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75.21368!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.78633!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 9.0!))
@@ -295,6 +300,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionDatabase_FilePathControl.Location = New System.Drawing.Point(3, 3)
         Me.TranscriptionDatabase_FilePathControl.Name = "TranscriptionDatabase_FilePathControl"
         Me.TranscriptionDatabase_FilePathControl.RowCount = 2
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -324,6 +330,17 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionLookupButton.Text = "Look up transcriptions"
         Me.TranscriptionLookupButton.UseVisualStyleBackColor = True
         '
+        'OrderedSentencesCheckBox
+        '
+        Me.OrderedSentencesCheckBox.AutoSize = True
+        Me.TableLayoutPanel1.SetColumnSpan(Me.OrderedSentencesCheckBox, 2)
+        Me.OrderedSentencesCheckBox.Location = New System.Drawing.Point(3, 53)
+        Me.OrderedSentencesCheckBox.Name = "OrderedSentencesCheckBox"
+        Me.OrderedSentencesCheckBox.Size = New System.Drawing.Size(173, 17)
+        Me.OrderedSentencesCheckBox.TabIndex = 5
+        Me.OrderedSentencesCheckBox.Text = "Lists have ordered constituents"
+        Me.OrderedSentencesCheckBox.UseVisualStyleBackColor = True
+        '
         'FlowLayoutPanel1
         '
         Me.FlowLayoutPanel1.Controls.Add(Me.CheckInputButton)
@@ -352,17 +369,6 @@ Partial Class SpeechMaterialComponentCreator
         Me.CreateSpeechMaterialComponentFile_Button.TabIndex = 1
         Me.CreateSpeechMaterialComponentFile_Button.Text = "Create speech-material component file"
         Me.CreateSpeechMaterialComponentFile_Button.UseVisualStyleBackColor = True
-        '
-        'OrderedSentencesCheckBox
-        '
-        Me.OrderedSentencesCheckBox.AutoSize = True
-        Me.TableLayoutPanel1.SetColumnSpan(Me.OrderedSentencesCheckBox, 2)
-        Me.OrderedSentencesCheckBox.Location = New System.Drawing.Point(3, 53)
-        Me.OrderedSentencesCheckBox.Name = "OrderedSentencesCheckBox"
-        Me.OrderedSentencesCheckBox.Size = New System.Drawing.Size(173, 17)
-        Me.OrderedSentencesCheckBox.TabIndex = 5
-        Me.OrderedSentencesCheckBox.Text = "Lists have ordered constituents"
-        Me.OrderedSentencesCheckBox.UseVisualStyleBackColor = True
         '
         'SpeechMaterialComponentCreator
         '
