@@ -495,8 +495,9 @@ Namespace Audio
                 'Setting the current segmentation item
                 CurrentSegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)
 
+                AddSegmentationControls()
+
                 If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 0 Then
-                    AddSegmentationControls()
                     AddWords()
                 End If
 
@@ -525,8 +526,9 @@ Namespace Audio
                 'Setting the current segmentation item
                 CurrentSegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)
 
+                AddSegmentationControls()
+
                 If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).Count > 0 Then
-                    AddSegmentationControls()
                     AddPhones()
                 End If
 
@@ -550,44 +552,43 @@ Namespace Audio
                 CurrentSegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(CurrentPhonemeIndex)
 
                 'Adding phone buttons
+                AddSegmentationControls()
+
                 If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex).Count > 0 Then
-                    AddSegmentationControls()
                 End If
 
                 InvalidateGraphics()
 
             End Sub
 
-            Private Sub AddSegmentationControls()
+            Private Sub ZoomToParent()
 
                 'Zooming to parent component (with margin)
                 Dim HasZoomed As Boolean = False
                 If CurrentSegmentationItem IsNot Nothing Then
                     Dim ParentComponent = CurrentSegmentationItem.ParentComponent
                     If ParentComponent IsNot Nothing Then
-                        If ParentComponent.SmaTag <> Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL Then
-                            'The parent should be either a sentence or a word 
-                            'Assuming that the parent component is segmented if its length has been set
-                            If ParentComponent.Length > 0 Then
+                        'The parent should be either a channel, a sentence or a word (phonemes do not have any child components)
+                        'Assuming that the parent component is segmented if its length has been set
+                        If ParentComponent.Length > 0 Then
 
-                                'Zooming to parent
-                                Dim ZoomMargin = ParentComponent.Length * 0.2
-                                Dim ZoomStart = Math.Max(0, ParentComponent.StartSample - ZoomMargin)
-                                Dim ZoomLength = ParentComponent.Length + ZoomMargin + (ParentComponent.StartSample - ZoomStart)
-                                ZoomTo(ZoomStart, ZoomLength)
-                                HasZoomed = True
-                            Else
-                                'Looks for a grandparent with length set
-                                If ParentComponent.ParentComponent IsNot Nothing Then
-                                    If ParentComponent.ParentComponent.Length > 0 Then
+                            'Zooming to parent
+                            Dim ZoomMargin = ParentComponent.Length * 0.2
+                            Dim ZoomStart = Math.Max(0, ParentComponent.StartSample - ZoomMargin)
+                            Dim ZoomLength = ParentComponent.Length + ZoomMargin + (ParentComponent.StartSample - ZoomStart)
+                            ZoomTo(ZoomStart, ZoomLength)
+                            HasZoomed = True
+                        Else
+                            'Looks for a grandparent with length set
+                            If ParentComponent.ParentComponent IsNot Nothing Then
+                                If ParentComponent.ParentComponent.Length > 0 Then
 
-                                        'Zooming to the grand parent
-                                        Dim ZoomMargin = ParentComponent.ParentComponent.Length * 0.2
-                                        Dim ZoomStart = Math.Max(0, ParentComponent.ParentComponent.StartSample - ZoomMargin)
-                                        Dim ZoomLength = ParentComponent.ParentComponent.Length + ZoomMargin + (ParentComponent.ParentComponent.StartSample - ZoomStart)
-                                        ZoomTo(ZoomStart, ZoomLength)
-                                        HasZoomed = True
-                                    End If
+                                    'Zooming to the grand parent
+                                    Dim ZoomMargin = ParentComponent.ParentComponent.Length * 0.2
+                                    Dim ZoomStart = Math.Max(0, ParentComponent.ParentComponent.StartSample - ZoomMargin)
+                                    Dim ZoomLength = ParentComponent.ParentComponent.Length + ZoomMargin + (ParentComponent.ParentComponent.StartSample - ZoomStart)
+                                    ZoomTo(ZoomStart, ZoomLength)
+                                    HasZoomed = True
                                 End If
                             End If
                         End If
@@ -598,6 +599,12 @@ Namespace Audio
                     'Zooms out to full sound if no other zoom has been made
                     ZoomFull()
                 End If
+
+            End Sub
+
+            Private Sub AddSegmentationControls()
+
+                ZoomToParent()
 
                 Dim CurrentFont = Button.DefaultFont ' New Font("Arial", 9.0F, FontStyle.Regular)
                 Dim CurrentMargin = New Windows.Forms.Padding(2, 3, 2, 0)
@@ -2283,7 +2290,8 @@ Namespace Audio
 
                 If CurrentSound IsNot Nothing Then
                     If CurrentSound.SMA IsNot Nothing Then
-                        If CurrentSound.SMA.AllSegmentationsCompleted(CurrentChannel) = True Then
+                        'Checks if the segmentations of all sentence level components are validated
+                        If CurrentSound.SMA.ChannelData(CurrentChannel).AllChildSegmentationsCompleted = True Then
                             CurrentSound.SMA.ApplyInterSentenceInterval(InterSentenceTime, True, CurrentChannel)
                         Else
                             MsgBox("Unable to fix the inter-sentence intervals due to incomplete boundary segmentation.")
@@ -2294,7 +2302,7 @@ Namespace Audio
                 'Recalculates spectrogram data, since the waveform have been changed
                 If ShowSpectrogram = True Then UpdateSpectrogramData()
 
-                UpdateLayout()
+                ZoomFull()
 
             End Sub
 

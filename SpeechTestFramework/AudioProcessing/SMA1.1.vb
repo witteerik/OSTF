@@ -275,6 +275,7 @@ Namespace Audio
 
             End Function
 
+
             ''' <summary>
             ''' Goes through all segmentation data and detects unset start values and zero lengths. The accumulated number of unset starts, and zero-lengths are returned in the parameters.
             ''' N.B. Presently, only multiple sentences are supported!
@@ -481,8 +482,6 @@ Namespace Audio
                                   Optional FadeType As DSP.FadeSlopeType = DSP.FadeSlopeType.PowerCosine_SkewedFromFadeDirection,
                                   Optional CosinePower As Double = 100, Optional ByVal FadedMarginTime As Single = 0.05)
 
-                MsgBox("This function really need to be checked, especially the SMA StartSample shifts!")
-
                 Dim FadedMarginLength As Integer = Math.Floor(ParentSound.WaveFormat.SampleRate * FadedMarginTime)
                 If FadedMarginLength Mod 2 = 1 Then FadedMarginLength -= 1 'Adjusts FadedMarginLength to an even value
                 Dim IntervalLength As Integer = Math.Floor(ParentSound.WaveFormat.SampleRate * Interval)
@@ -493,6 +492,10 @@ Namespace Audio
                     'Adjusting the FadedMarginLength to be half of the FadedMarginLength
                     FadedMarginLength = IntervalLength / 2
                 End If
+
+                'Creating a silent sound with the length of IntervalLength - 2 * FadedMarginLength to insert between the sentence level segments
+                Dim SilenceLength As Integer = IntervalLength - 2 * FadedMarginLength
+                Dim SilentSound = Audio.GenerateSound.CreateSilence(ParentSound.WaveFormat, CurrentChannel, SilenceLength, TimeUnits.samples)
 
                 Dim SentenceSoundSections As New List(Of Sound)
                 'Getting all sentence sound sections including a margin of FadedMarginTime
@@ -510,7 +513,7 @@ Namespace Audio
                     End If
                     StartReadSample = Math.Max(0, StartReadSample)
 
-                    Dim ReadLength = InitialAdjustment + sentence.Length + FadedMarginLength
+                    Dim ReadLength = InitialAdjustment + sentence.Length + (2 * FadedMarginLength)
                     Dim FinalAdjustment As Integer = 0
                     If StartReadSample + ReadLength > SoundChannelData.Count Then
                         FinalAdjustment = Math.Abs((StartReadSample + ReadLength) - SoundChannelData.Count)
@@ -535,7 +538,7 @@ Namespace Audio
                     'Fading the margins
                     If FadeInterval = True Then
                         Audio.DSP.Fade(SentenceSound,, 0, CurrentChannel, 0, FadedMarginLength, FadeType, CosinePower)
-                        Audio.DSP.Fade(SentenceSound,, 0, CurrentChannel, SentenceData.Length - FadedMarginLength, FadedMarginLength, FadeType, CosinePower)
+                        Audio.DSP.Fade(SentenceSound, 0, , CurrentChannel, SentenceData.Length - FadedMarginLength, FadedMarginLength, FadeType, CosinePower)
                     End If
 
                     'Adding the sentence sound
@@ -543,9 +546,6 @@ Namespace Audio
 
                     'Adding silence between sentnces (not adding after the last sentence
                     If s < ChannelData(CurrentChannel).Count - 1 Then
-                        'Adding a silent sound with the length of IntervalLength - 2 * FadedMarginLength
-                        Dim SilenceLength As Integer = IntervalLength - 2 * FadedMarginLength
-                        Dim SilentSound = Audio.GenerateSound.CreateSilence(ParentSound.WaveFormat, CurrentChannel, SilenceLength, TimeUnits.samples)
                         SentenceSoundSections.Add(SilentSound)
                     End If
 
@@ -557,20 +557,32 @@ Namespace Audio
                 'Storing the concatenated sound array in Me.ParentSound
                 Me.ParentSound.WaveData.SampleData(CurrentChannel) = ConcatenatedSound.WaveData.SampleData(CurrentChannel)
 
-                'Adjusts the SMA data
-                'N.B. the first sentnce should be in place, therefore this one is skipped
-                For s = 1 To ChannelData(CurrentChannel).Count - 1
-                    Dim Sentence = ChannelData(CurrentChannel)(s)
-                    Dim PrecedingSentence = ChannelData(CurrentChannel)(s - 1)
+                'Adjusts the SMA StartSample positions
+                'Fixing the first shift. The new startsample will be at FadedMarginLength
+                Dim AccumulativePostShiftStartSample As Integer = 0
+                For s = 0 To Math.Min(0, ChannelData(CurrentChannel).Count - 1)
 
-                    Dim OldSentenceStart As Integer = Sentence.StartSample
-                    Dim NewSentenceStart As Integer = PrecedingSentence.StartSample + PrecedingSentence.Length + IntervalLength
-                    Dim Shift As Integer = NewSentenceStart - OldSentenceStart
-
-                    'Shifts the StartSamples after 
-                    Me.ShiftSegmentationData(Shift, OldSentenceStart)
+                    Dim PreShiftStartSample = ChannelData(CurrentChannel)(s).StartSample
+                    AccumulativePostShiftStartSample = FadedMarginLength
+                    Dim Shift = AccumulativePostShiftStartSample - PreShiftStartSample
+                    Me.ShiftSegmentationData(Shift, PreShiftStartSample)
 
                 Next
+
+                For s = 1 To ChannelData(CurrentChannel).Count - 1
+
+                    Dim PreShiftStartSample = ChannelData(CurrentChannel)(s).StartSample
+                    AccumulativePostShiftStartSample += ChannelData(CurrentChannel)(s - 1).Length + IntervalLength
+                    Dim Shift = AccumulativePostShiftStartSample - PreShiftStartSample
+                    Me.ShiftSegmentationData(Shift, PreShiftStartSample)
+
+                Next
+
+                'Setting the channel length to the new sound data length. 'TODO: feeling intuitively that this should be done elsewhere in a more general way...???
+                For s = 0 To ChannelData(CurrentChannel).Count - 1
+                    ChannelData(CurrentChannel)(s).AlignSegmentationEndsAcrossLevels()
+                Next
+
 
             End Sub
 
@@ -1680,6 +1692,41 @@ Namespace Audio
                     Return OutputSound
 
                 End Function
+
+                ''' <summary>
+                ''' Checks the SegmentationCompleted value of all sibling SmaComponents is True. Otherwise returns False.
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function AllSiblingSegmentationsCompleted() As Boolean
+
+                    Dim MySiblings = GetSiblings()
+
+                    If MySiblings Is Nothing Then
+                        Return False
+                    Else
+                        For Each c In MySiblings
+                            If c.SegmentationCompleted = False Then Return False
+                        Next
+                    End If
+
+                    Return True
+
+                End Function
+
+                ''' <summary>
+                ''' Checks the SegmentationCompleted value of all child SmaComponents is True. Otherwise returns False.
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function AllChildSegmentationsCompleted() As Boolean
+
+                    For Each c In Me
+                        If c.SegmentationCompleted = False Then Return False
+                    Next
+
+                    Return True
+
+                End Function
+
 
             End Class
 

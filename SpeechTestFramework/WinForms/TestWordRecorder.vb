@@ -179,8 +179,8 @@ Public Class SpeechMaterialRecorder
 #Region "Segmentation variables"
 
     Private CurrentSpectrogramFormat As Audio.Formats.SpectrogramFormat
-    Private SetSegmentationToZeroCrossings As Boolean
-    Private ShowSpectrogram As Boolean = False
+    Private SetSegmentationToZeroCrossings As Boolean = True
+    Private ShowSpectrogram As Boolean = True
 
     Private _PaddingTime As Single = 0.5
     Private Property PaddingTime As Single
@@ -221,7 +221,7 @@ Public Class SpeechMaterialRecorder
         End Set
     End Property
 
-    Private DrawNormalizedWave As Boolean = False
+    Private DrawNormalizedWave As Boolean = True
 
 #End Region
 
@@ -1280,53 +1280,61 @@ Public Class SpeechMaterialRecorder
 
                 'Storing sounds recorded in CurrentSentencesForRecording in CurrentlyLoadedSoundFile in the correct order
                 Dim SortedSoundsList As New SortedList(Of Integer, Audio.Sound)
-                Dim SortedStartSamplesList As New SortedList(Of Integer, Integer)
-                Dim SortedSectionLengthsList As New SortedList(Of Integer, Integer)
 
                 'Creating a silent sound to use as margin around and between all recordings (in order to avoid direct juxtaposition, which may cause trouble in segmentation)
                 Dim PaddingSound = Audio.GenerateSound.CreateSilence(RecordedMonoSound.WaveFormat, 1, 0.5, Audio.BasicAudioEnums.TimeUnits.seconds)
                 Dim PaddingSoundLength As Integer = PaddingSound.WaveData.SampleData(1).Length
 
-                Dim CumulativeStartSample As Integer = 0
                 For Each sound In CurrentSentencesForRecording
-                    Dim SectionLength As Integer = sound.Item2.WaveData.SampleData(1).Length
-
-                    'Adjusting the first start sample
-                    If sound.Item1 = 0 Then
-                        CumulativeStartSample = PaddingSoundLength
-                    End If
-
-                    'Storing the sound
+                    'Storing the sound in order
                     SortedSoundsList.Add(sound.Item1, sound.Item2)
-
-                    'Storing the start samples and (sentence level) section lengths
-                    SortedStartSamplesList.Add(sound.Item1, CumulativeStartSample)
-                    SortedSectionLengthsList.Add(sound.Item1, SectionLength)
-
-                    'Adjusting the CumulativeStartSample start sample of the next sound
-                    CumulativeStartSample += (SectionLength + PaddingSoundLength)
-
                 Next
 
+                Dim SoundsList As New List(Of Audio.Sound)
+                Dim StartSamplesList As New List(Of Integer)
+                Dim SectionLengthsList As New List(Of Integer)
+                Dim SoundIsAdded As Boolean = False
+                Dim CumulativeStartSample As Integer = 0
+                For s = 0 To SortedSoundsList.Values.Count - 1
 
-                Dim SoundsList As List(Of Audio.Sound) = SortedSoundsList.Values.ToList
-
-                'Adding the silent 'padding' sounds
-                Dim SoundsListWithSilentSounds As New List(Of Audio.Sound)
-                For n = 0 To SoundsList.Count - 1
-
-                    SoundsListWithSilentSounds.Add(PaddingSound)
-
-                    SoundsListWithSilentSounds.Add(SoundsList(n))
-
-                    'Adding the PaddingSound also after the last sound
-                    If n = SoundsList.Count - 1 Then
-                        SoundsListWithSilentSounds.Add(PaddingSound)
+                    'Adjusting CumulativeStartSample to account for the first added padding section
+                    If SoundIsAdded = False Then
+                        If SortedSoundsList.Values(s) IsNot Nothing Then
+                            CumulativeStartSample += PaddingSoundLength
+                        End If
                     End If
 
+                    'Adds the current StartSample value
+                    StartSamplesList.Add(CumulativeStartSample)
+
+                    Dim SoundLength As Integer = 0
+
+                    If SortedSoundsList.Values(s) IsNot Nothing Then
+                        'Adds initial padding
+                        SoundsList.Add(PaddingSound)
+                        SoundsList.Add(SortedSoundsList.Values(s))
+                        SoundIsAdded = True
+
+                        SoundLength = SortedSoundsList.Values(s).WaveData.SampleData(1).Length
+
+                        'Adjusts the CumulativeStartSample for the next sound
+                        CumulativeStartSample += (PaddingSoundLength + SoundLength)
+                    End If
+
+                    'Adds the current sound section length
+                    SectionLengthsList.Add(SoundLength)
+
+                    'Adding the PaddingSound also after the last sound, but only if at least one sound has been added
+                    If SoundIsAdded = True Then
+                        If s = SortedSoundsList.Values.Count - 1 Then
+                            SoundsList.Add(PaddingSound)
+                        End If
+                    End If
                 Next
 
-                Dim CurrentlyRecordedSentences As Audio.Sound = Audio.DSP.ConcatenateSounds(SoundsListWithSilentSounds)
+
+                'Concatenates the sounds
+                Dim CurrentlyRecordedSentences As Audio.Sound = Audio.DSP.ConcatenateSounds(SoundsList)
 
                 'Keeps the SMA object
                 Dim CurrentSMA = CurrentlyLoadedSoundFile.SMA
@@ -1339,8 +1347,8 @@ Public Class SpeechMaterialRecorder
                 'Sets the SMA sentnce level StartSample and Length values
                 CurrentlyLoadedSoundFile.SMA = CurrentSMA
                 For s = 0 To CurrentlyLoadedSoundFile.SMA.ChannelData(1).Count - 1
-                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).StartSample = SortedStartSamplesList(s)
-                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).Length = SortedSectionLengthsList(s)
+                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).StartSample = StartSamplesList(s)
+                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).Length = SectionLengthsList(s)
 
                     'Aligns dependent segmentation data
                     CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).AlignSegmentationStartsAcrossLevels(CurrentlyLoadedSoundFile.WaveData.SampleData(1).Length)
