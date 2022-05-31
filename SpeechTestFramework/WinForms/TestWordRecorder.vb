@@ -14,7 +14,7 @@ Public Class SpeechMaterialRecorder
     'Used only in the Recorder
 
     ''' <summary>
-    ''' Contains a list of Tuples where Item1 indicates the original SMA object index of the sentence and the second Item holds the recorded sentnce sound, or Nothing if no sound has yet been recorded for the sentnce.
+    ''' Contains a list of Tuples where Item1 indicates the original SMA object index of the sentence and the second Item holds the recorded sentnce sound, or Nothing if no sound has yet been recorded for the sentence.
     ''' </summary>
     Private CurrentSentencesForRecording As New List(Of Tuple(Of Integer, Audio.Sound))
     Private CurrentSentenceIndex As Integer
@@ -433,17 +433,7 @@ Public Class SpeechMaterialRecorder
                 Dim Res = MsgBox("The current sound has unsaved changes. Do you want to save the changes? (This will overwrite the old loaded sound file!)", MsgBoxStyle.YesNo, "Save file?")
 
                 If Res = MsgBoxResult.Yes Then
-                    If CurrentlyLoadedSoundFile.WriteWaveFile(SoundFilesForEditing(CurrentSoundFileIndex).Item1) = False Then
-                        MsgBox("Unable to save the current sound (" & SoundFilesForEditing(CurrentSoundFileIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
-                        Exit Sub
-                    Else
-                        'Setting IsChanged manually to Nothing, to inactivate the overriding of IsChanged
-                        CurrentlyLoadedSoundFile.SetIsChangedManually(Nothing)
-
-                        'And resets the SMA and Sound Change detection objects
-                        CurrentlyLoadedSoundFile.SMA.StoreUnchangedState()
-                        CurrentlyLoadedSoundFile.WaveData.StoreUnchangedState()
-                    End If
+                    SaveRecordedSound()
                 End If
             End If
         End If
@@ -451,18 +441,31 @@ Public Class SpeechMaterialRecorder
     End Sub
 
     ''' <summary>
-    ''' Saves the CurrentlyLoadedSoundFile object to file, overwriting the original file.
+    ''' Handles the SaveWaveFileToolStripMenuItem Click event
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     Private Sub SaveWaveFileToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWaveFileToolStripMenuItem.Click
+        SaveRecordedSound()
+    End Sub
 
+    ''' <summary>
+    ''' Saves the CurrentlyLoadedSoundFile object to file, overwriting the original file.
+    ''' </summary>
+    Private Sub SaveRecordedSound()
         If CurrentlyLoadedSoundFile IsNot Nothing Then
             If CurrentlyLoadedSoundFile.WriteWaveFile(SoundFilesForEditing(CurrentSoundFileIndex).Item1) = False Then
                 MsgBox("Unable to save the current sound (" & SoundFilesForEditing(CurrentSoundFileIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
+                Exit Sub
+            Else
+                'Setting IsChanged manually to Nothing, to inactivate the overriding of IsChanged
+                CurrentlyLoadedSoundFile.SetIsChangedManually(Nothing)
+
+                'And resets the SMA and Sound Change detection objects
+                CurrentlyLoadedSoundFile.SMA.StoreUnchangedState()
+                CurrentlyLoadedSoundFile.WaveData.StoreUnchangedState()
             End If
         End If
-
     End Sub
 
     ''' <summary>
@@ -1052,15 +1055,24 @@ Public Class SpeechMaterialRecorder
 
     Private Sub ListenButton_Click(sender As Object, e As EventArgs) Handles ListenButton.Click
 
-        If CurrentlyLoadedSoundFile IsNot Nothing Then
+        Dim HasSound As Boolean = False
+        If CurrentSentencesForRecording IsNot Nothing Then
+                If CurrentSentenceIndex < CurrentSentencesForRecording.Count Then
+                    If CurrentSentencesForRecording(CurrentSentenceIndex).Item2 IsNot Nothing Then
+                        If CurrentSentencesForRecording(CurrentSentenceIndex).Item2.WaveData.SampleData(RecordingChannel).Length > 0 Then
 
-            'TODO Set level!
+                        'TODO Set level!
 
-            'Audio.Convert_dBSPL_To_dBFS(PresentationLevel)
+                        'Audio.Convert_dBSPL_To_dBFS(PresentationLevel)
+                        HasSound = True
+                        SoundPlayer.SwapOutputSounds(CurrentSentencesForRecording(CurrentSentenceIndex).Item2)
 
-            SoundPlayer.SwapOutputSounds(CurrentlyLoadedSoundFile)
+                    End If
+                    End If
+                End If
+            End If
 
-        End If
+        If HasSound = False Then MsgBox("No sound to play.", MsgBoxStyle.Information, "No sound to play")
 
     End Sub
 
@@ -1446,6 +1458,9 @@ Public Class SpeechMaterialRecorder
         If IsRecording = True Then
             NextItemTimer.Stop()
             StopRecording()
+
+            SaveRecordedSound()
+
         End If
 
         'Select next Item

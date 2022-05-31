@@ -2320,10 +2320,10 @@ Namespace Audio
 
                 If CurrentSound IsNot Nothing Then
                     If CurrentSound.SMA IsNot Nothing Then
-                        If CurrentSound.SMA.AllSegmentationsCompleted(CurrentChannel) = True Then
+                        If CurrentSound.SMA.ChannelData(CurrentChannel).AllChildSegmentationsCompleted = True Then
                             CurrentSound.SMA.ApplyPaddingSection(CurrentSound, CurrentChannel, PaddingTime)
                         Else
-                            MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
+                                MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
                             Return False
                         End If
                     End If
@@ -2346,7 +2346,7 @@ Namespace Audio
 
                 If CurrentSound IsNot Nothing Then
                     If CurrentSound.SMA IsNot Nothing Then
-                        If CurrentSound.SMA.AllSegmentationsCompleted(CurrentChannel) = True Then
+                        If CurrentSound.SMA.ChannelData(CurrentChannel).AllChildSegmentationsCompleted = True Then
                             CurrentSound.SMA.FadePaddingSection(CurrentSound, CurrentChannel)
                         Else
                             MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
