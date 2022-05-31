@@ -1624,6 +1624,9 @@ Namespace Audio
                                                                 If smaSentenceReader.Name = "SENTENCE" Then
                                                                     'Just ignores the head node
 
+                                                                    'Resets CurrentWord
+                                                                    CurrentWord = -1
+
                                                                 ElseIf smaSentenceReader.Name = "SEGMENTATION_COMPLETED" Then
                                                                     Dim value As Integer
                                                                     If smaSentenceReader.Read() Then
@@ -1744,6 +1747,9 @@ Namespace Audio
 
                                                                             If smaWordReader.Name = "WORD" Then
                                                                                 'Just ignores the head node
+
+                                                                                'Resets CurrentPhone
+                                                                                CurrentPhone = -1
 
                                                                             ElseIf smaWordReader.Name = "SEGMENTATION_COMPLETED" Then
                                                                                 Dim value As Integer

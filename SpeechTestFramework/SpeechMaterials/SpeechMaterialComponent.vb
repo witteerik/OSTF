@@ -623,6 +623,31 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    Public Function GetClosestAncestorComponent(ByVal RequestedParentComponentLevel As SpeechMaterialComponent.LinguisticLevels) As SpeechMaterialComponent
+
+        If ParentComponent Is Nothing Then Return Nothing
+
+        If ParentComponent.LinguisticLevel = RequestedParentComponentLevel Then
+            Return ParentComponent
+        Else
+            Return ParentComponent.GetClosestAncestorComponent(RequestedParentComponentLevel)
+        End If
+
+    End Function
+
+    Public Function GetClosestAncestorWithSoundMedia() As SpeechMaterialComponent
+
+        If ParentComponent Is Nothing Then Return Nothing
+
+        If ParentComponent.MediaFolder <> "" Then
+            Return ParentComponent
+        Else
+            Return ParentComponent.GetClosestAncestorWithSoundMedia()
+        End If
+
+    End Function
+
+
     ''' <summary>
     ''' Converts the speech material component to a new SpeechMaterialAnnotation object prepared for manual segmentation.
     ''' </summary>
@@ -633,8 +658,6 @@ Public Class SpeechMaterialComponent
             MsgBox("Cannot convert a component at the ListCollection linguistic level to a SMA object. The highest level which can be stored in a SMA object is LinguisticLevels.List." & vbCrLf & "Aborting conversion!")
             Return Nothing
         End If
-
-        MsgBox("This function is not working properly, it doesn't add data if more than one sentnce, etc....")
 
         Dim NewSMA = New Audio.Sound.SpeechMaterialAnnotation With {.SegmentationCompleted = False}
 
