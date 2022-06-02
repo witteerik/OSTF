@@ -1270,7 +1270,7 @@ Namespace Audio
                         writer.WriteElementString("BAND_LEVELS", SMA.ChannelData(channel).GetBandLevelsString)
                         writer.WriteElementString("CENTRE_FREQUENCIES", SMA.ChannelData(channel).GetCentreFrequenciesString)
                         writer.WriteElementString("BAND_WIDTHS", SMA.ChannelData(channel).GetBandWidthsString)
-
+                        writer.WriteElementString("BAND_INTEGRATION_TIMES", SMA.ChannelData(channel).GetBandIntegrationTimesString)
 
                         For sentence As Integer = 0 To SMA.ChannelData(channel).Count - 1
 
@@ -1308,6 +1308,7 @@ Namespace Audio
                             writer.WriteElementString("BAND_LEVELS", SMA.ChannelData(channel)(sentence).GetBandLevelsString)
                             writer.WriteElementString("CENTRE_FREQUENCIES", SMA.ChannelData(channel)(sentence).GetCentreFrequenciesString)
                             writer.WriteElementString("BAND_WIDTHS", SMA.ChannelData(channel)(sentence).GetBandWidthsString)
+                            writer.WriteElementString("BAND_INTEGRATION_TIMES", SMA.ChannelData(channel)(sentence).GetBandIntegrationTimesString)
 
 
                             For word = 0 To SMA.ChannelData(channel)(sentence).Count - 1
@@ -1347,6 +1348,7 @@ Namespace Audio
                                 writer.WriteElementString("BAND_LEVELS", SMA.ChannelData(channel)(sentence)(word).GetBandLevelsString)
                                 writer.WriteElementString("CENTRE_FREQUENCIES", SMA.ChannelData(channel)(sentence)(word).GetCentreFrequenciesString)
                                 writer.WriteElementString("BAND_WIDTHS", SMA.ChannelData(channel)(sentence)(word).GetBandWidthsString)
+                                writer.WriteElementString("BAND_INTEGRATION_TIMES", SMA.ChannelData(channel)(sentence)(word).GetBandIntegrationTimesString)
 
 
                                 'writing phone data
@@ -1386,6 +1388,8 @@ Namespace Audio
                                     writer.WriteElementString("BAND_LEVELS", SMA.ChannelData(channel)(sentence)(word)(phone).GetBandLevelsString)
                                     writer.WriteElementString("CENTRE_FREQUENCIES", SMA.ChannelData(channel)(sentence)(word)(phone).GetCentreFrequenciesString)
                                     writer.WriteElementString("BAND_WIDTHS", SMA.ChannelData(channel)(sentence)(word)(phone).GetBandWidthsString)
+                                    writer.WriteElementString("BAND_INTEGRATION_TIMES", SMA.ChannelData(channel)(sentence)(word)(phone).GetBandIntegrationTimesString)
+
 
                                     'End of phone
                                     writer.WriteEndElement()
@@ -1607,6 +1611,11 @@ Namespace Audio
                                                             NewSMA.ChannelData(CurrentChannel).SetBandWidthsFromString(smaChannelReader.Value.Trim())
                                                         End If
 
+                                                    ElseIf smaChannelReader.Name = "BAND_INTEGRATION_TIMES" Then
+                                                        If smaChannelReader.Read() Then
+                                                            NewSMA.ChannelData(CurrentChannel).SetBandIntegrationTimesFromString(smaChannelReader.Value.Trim())
+                                                        End If
+
 
                                                     ElseIf smaChannelReader.Name = "SENTENCE" Then
 
@@ -1732,6 +1741,12 @@ Namespace Audio
                                                                         NewSMA.ChannelData(CurrentChannel)(CurrentSentence).SetBandWidthsFromString(smaSentenceReader.Value.Trim())
                                                                     End If
 
+                                                                ElseIf smaSentenceReader.Name = "BAND_INTEGRATION_TIMES" Then
+                                                                    If smaSentenceReader.Read() Then
+                                                                        NewSMA.ChannelData(CurrentChannel)(CurrentSentence).SetBandIntegrationTimesFromString(smaSentenceReader.Value.Trim())
+                                                                    End If
+
+
                                                                 ElseIf smaSentenceReader.Name = "WORD" Then
 
                                                                     ' A new word
@@ -1856,6 +1871,11 @@ Namespace Audio
                                                                                     NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).SetBandWidthsFromString(smaWordReader.Value.Trim())
                                                                                 End If
 
+                                                                            ElseIf smaWordReader.Name = "BAND_INTEGRATION_TIMES" Then
+                                                                                If smaWordReader.Read() Then
+                                                                                    NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).SetBandIntegrationTimesFromString(smaWordReader.Value.Trim())
+                                                                                End If
+
 
                                                                             ElseIf smaWordReader.Name = "PHONE" Then
 
@@ -1976,6 +1996,11 @@ Namespace Audio
                                                                                         ElseIf smaPhoneReader.Name = "BAND_WIDTHS" Then
                                                                                             If smaPhoneReader.Read() Then
                                                                                                 NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord)(CurrentPhone).SetBandWidthsFromString(smaPhoneReader.Value.Trim())
+                                                                                            End If
+
+                                                                                        ElseIf smaPhoneReader.Name = "BAND_INTEGRATION_TIMES" Then
+                                                                                            If smaPhoneReader.Read() Then
+                                                                                                NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord)(CurrentPhone).SetBandIntegrationTimesFromString(smaPhoneReader.Value.Trim())
                                                                                             End If
 
 

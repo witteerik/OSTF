@@ -381,6 +381,7 @@ Namespace Audio
                         .Padding = New Padding(2)
                         .Font = New Font("Arial", 12.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(sentenceIndex)
+                        .TextAlign = ContentAlignment.TopLeft
                     End With
 
                     'Adding eventhandler
@@ -418,6 +419,7 @@ Namespace Audio
                         .Padding = New Padding(2)
                         .Font = New Font("Arial", 14.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(wordIndex)
+                        .TextAlign = ContentAlignment.TopLeft
                     End With
 
                     'Adding eventhandler
@@ -449,7 +451,7 @@ Namespace Audio
                     Dim PhoneLabel As New SegmentationItemLabel
 
                     With PhoneLabel
-                        .Text = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneIndex).GetStringRepresentation
+                        .Text = "[ " & CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneIndex).PhoneticForm & " ]"
                         .Name = phoneIndex.ToString 'storing the identity of the sentence as an index that can be used to set the CurrentSentenceIndex 
                         .TextAlign = ContentAlignment.MiddleCenter
                         .BackColor = Color.White
@@ -457,6 +459,7 @@ Namespace Audio
                         .Padding = New Padding(4)
                         .Font = New Font("Arial", 14.0F, FontStyle.Regular) 'TODO: It would be good to be able to change this font family, and size
                         .SegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)(CurrentWordIndex)(phoneIndex)
+                        .TextAlign = ContentAlignment.MiddleCenter
                     End With
 
                     'Adding eventhandler
@@ -1200,7 +1203,15 @@ Namespace Audio
                                         g.DrawLine(startPen, SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationStartPixel, SoundBackgroundArea.Height)
 
                                         'Getting an appropriate string to display
-                                        Dim SegmentationStartText As String = SiblingComponent.GetStringRepresentation
+                                        Dim SegmentationStartText As String = ""
+                                        Select Case SiblingComponent.SmaTag
+                                            Case Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE
+                                                SegmentationStartText = SiblingComponent.OrthographicForm
+                                            Case Sound.SpeechMaterialAnnotation.SmaTags.PHONE
+                                                SegmentationStartText = "[ " & SiblingComponent.PhoneticForm & " ]"
+                                            Case Else
+                                                SegmentationStartText = SiblingComponent.GetStringRepresentation
+                                        End Select
                                         If SegmentationStartText = "" Then SegmentationStartText = "Start"
 
                                         'Putting the string at the top of the background panel
@@ -1250,7 +1261,16 @@ Namespace Audio
                                 g.DrawLine(startPen, SegmentationStartPixel, SoundBackgroundArea.Top, SegmentationStartPixel, SoundBackgroundArea.Height)
 
                                 'Getting an appropriate string to display
-                                Dim SegmentationStartText As String = CurrentSegmentationItem.GetStringRepresentation
+                                Dim SegmentationStartText As String = ""
+                                Select Case CurrentSegmentationItem.SmaTag
+                                    Case Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE
+                                        SegmentationStartText = CurrentSegmentationItem.OrthographicForm
+                                    Case Sound.SpeechMaterialAnnotation.SmaTags.PHONE
+                                        SegmentationStartText = "[ " & CurrentSegmentationItem.PhoneticForm & " ]"
+                                    Case Else
+                                        SegmentationStartText = CurrentSegmentationItem.GetStringRepresentation
+                                End Select
+
                                 If SegmentationStartText = "" Then SegmentationStartText = "Start"
 
                                 'Putting the string at the top of the background panel
@@ -2295,6 +2315,7 @@ Namespace Audio
                             CurrentSound.SMA.ApplyInterSentenceInterval(InterSentenceTime, True, CurrentChannel)
                         Else
                             MsgBox("Unable to fix the inter-sentence intervals due to incomplete boundary segmentation.")
+                            Exit Sub
                         End If
                     End If
                 End If

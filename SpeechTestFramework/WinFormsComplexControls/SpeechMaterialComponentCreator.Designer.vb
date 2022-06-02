@@ -38,13 +38,19 @@ Partial Class SpeechMaterialComponentCreator
         Me.Label5 = New System.Windows.Forms.Label()
         Me.SpellingVariableNameTextBox = New System.Windows.Forms.TextBox()
         Me.Label4 = New System.Windows.Forms.Label()
-        Me.TranscriptionDatabase_FilePathControl = New SpeechTestFramework.ExistingFilePathControl()
         Me.CaseInvariantLookupCheckBox = New System.Windows.Forms.CheckBox()
         Me.TranscriptionLookupButton = New System.Windows.Forms.Button()
         Me.OrderedSentencesCheckBox = New System.Windows.Forms.CheckBox()
         Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
         Me.CheckInputButton = New System.Windows.Forms.Button()
         Me.CreateSpeechMaterialComponentFile_Button = New System.Windows.Forms.Button()
+        Me.Label6 = New System.Windows.Forms.Label()
+        Me.WordTrimChars_TextBox = New System.Windows.Forms.TextBox()
+        Me.Label7 = New System.Windows.Forms.Label()
+        Me.PhoneTrimChars_TextBox = New System.Windows.Forms.TextBox()
+        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
+        Me.SelectFontToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.TranscriptionDatabase_FilePathControl = New SpeechTestFramework.ExistingFilePathControl()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
         Me.SplitContainer1.Panel2.SuspendLayout()
@@ -61,6 +67,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.GroupBox1.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
         Me.FlowLayoutPanel1.SuspendLayout()
+        Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
         'SplitContainer1
@@ -84,6 +91,7 @@ Partial Class SpeechMaterialComponentCreator
         '
         'SplitContainer2
         '
+        Me.SplitContainer2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.SplitContainer2.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SplitContainer2.Location = New System.Drawing.Point(0, 0)
         Me.SplitContainer2.Name = "SplitContainer2"
@@ -114,7 +122,8 @@ Partial Class SpeechMaterialComponentCreator
         'SplitContainer3.Panel2
         '
         Me.SplitContainer3.Panel2.Controls.Add(Me.EditRichTextBox)
-        Me.SplitContainer3.Size = New System.Drawing.Size(484, 452)
+        Me.SplitContainer3.Panel2.Controls.Add(Me.MenuStrip1)
+        Me.SplitContainer3.Size = New System.Drawing.Size(482, 450)
         Me.SplitContainer3.SplitterDistance = 25
         Me.SplitContainer3.TabIndex = 0
         '
@@ -123,17 +132,18 @@ Partial Class SpeechMaterialComponentCreator
         Me.Label1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Label1.Location = New System.Drawing.Point(0, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(484, 25)
+        Me.Label1.Size = New System.Drawing.Size(482, 25)
         Me.Label1.TabIndex = 0
-        Me.Label1.Text = "Edit speech material"
+        Me.Label1.Text = "Speech material input box"
         Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'EditRichTextBox
         '
         Me.EditRichTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.EditRichTextBox.Location = New System.Drawing.Point(0, 0)
+        Me.EditRichTextBox.Font = New System.Drawing.Font("Arial", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.EditRichTextBox.Location = New System.Drawing.Point(0, 24)
         Me.EditRichTextBox.Name = "EditRichTextBox"
-        Me.EditRichTextBox.Size = New System.Drawing.Size(484, 423)
+        Me.EditRichTextBox.Size = New System.Drawing.Size(482, 397)
         Me.EditRichTextBox.TabIndex = 0
         Me.EditRichTextBox.Text = ""
         Me.EditRichTextBox.WordWrap = False
@@ -147,18 +157,21 @@ Partial Class SpeechMaterialComponentCreator
         Me.TableLayoutPanel1.Controls.Add(Me.Label2, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.NameTextBox, 1, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.SoundFileLevelComboBox, 1, 1)
-        Me.TableLayoutPanel1.Controls.Add(Me.GroupBox1, 0, 3)
+        Me.TableLayoutPanel1.Controls.Add(Me.GroupBox1, 0, 4)
+        Me.TableLayoutPanel1.Controls.Add(Me.Label6, 0, 3)
+        Me.TableLayoutPanel1.Controls.Add(Me.WordTrimChars_TextBox, 1, 3)
         Me.TableLayoutPanel1.Controls.Add(Me.OrderedSentencesCheckBox, 0, 2)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
-        Me.TableLayoutPanel1.RowCount = 5
+        Me.TableLayoutPanel1.RowCount = 6
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 194.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 220.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(331, 452)
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(329, 450)
         Me.TableLayoutPanel1.TabIndex = 0
         '
         'Label3
@@ -188,7 +201,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.NameTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.NameTextBox.Location = New System.Drawing.Point(152, 3)
         Me.NameTextBox.Name = "NameTextBox"
-        Me.NameTextBox.Size = New System.Drawing.Size(176, 20)
+        Me.NameTextBox.Size = New System.Drawing.Size(174, 20)
         Me.NameTextBox.TabIndex = 1
         '
         'SoundFileLevelComboBox
@@ -197,7 +210,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.SoundFileLevelComboBox.FormattingEnabled = True
         Me.SoundFileLevelComboBox.Location = New System.Drawing.Point(152, 28)
         Me.SoundFileLevelComboBox.Name = "SoundFileLevelComboBox"
-        Me.SoundFileLevelComboBox.Size = New System.Drawing.Size(176, 21)
+        Me.SoundFileLevelComboBox.Size = New System.Drawing.Size(174, 21)
         Me.SoundFileLevelComboBox.TabIndex = 3
         '
         'GroupBox1
@@ -205,9 +218,9 @@ Partial Class SpeechMaterialComponentCreator
         Me.TableLayoutPanel1.SetColumnSpan(Me.GroupBox1, 2)
         Me.GroupBox1.Controls.Add(Me.TableLayoutPanel2)
         Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox1.Location = New System.Drawing.Point(3, 78)
+        Me.GroupBox1.Location = New System.Drawing.Point(3, 106)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(325, 188)
+        Me.GroupBox1.Size = New System.Drawing.Size(323, 214)
         Me.GroupBox1.TabIndex = 4
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Transcription database"
@@ -223,26 +236,28 @@ Partial Class SpeechMaterialComponentCreator
         Me.TableLayoutPanel2.Controls.Add(Me.Label4, 0, 1)
         Me.TableLayoutPanel2.Controls.Add(Me.TranscriptionDatabase_FilePathControl, 0, 0)
         Me.TableLayoutPanel2.Controls.Add(Me.CaseInvariantLookupCheckBox, 0, 2)
-        Me.TableLayoutPanel2.Controls.Add(Me.TranscriptionLookupButton, 0, 4)
+        Me.TableLayoutPanel2.Controls.Add(Me.TranscriptionLookupButton, 0, 5)
+        Me.TableLayoutPanel2.Controls.Add(Me.Label7, 0, 4)
+        Me.TableLayoutPanel2.Controls.Add(Me.PhoneTrimChars_TextBox, 1, 4)
         Me.TableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel2.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel2.Name = "TableLayoutPanel2"
-        Me.TableLayoutPanel2.RowCount = 5
+        Me.TableLayoutPanel2.RowCount = 6
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 62.0!))
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28.0!))
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
-        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
-        Me.TableLayoutPanel2.Size = New System.Drawing.Size(319, 169)
+        Me.TableLayoutPanel2.Size = New System.Drawing.Size(317, 195)
         Me.TableLayoutPanel2.TabIndex = 0
         '
         'TranscriptionVariableNameTextBox
         '
         Me.TranscriptionVariableNameTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TranscriptionVariableNameTextBox.Location = New System.Drawing.Point(162, 116)
+        Me.TranscriptionVariableNameTextBox.Location = New System.Drawing.Point(161, 116)
         Me.TranscriptionVariableNameTextBox.Name = "TranscriptionVariableNameTextBox"
-        Me.TranscriptionVariableNameTextBox.Size = New System.Drawing.Size(154, 20)
+        Me.TranscriptionVariableNameTextBox.Size = New System.Drawing.Size(153, 20)
         Me.TranscriptionVariableNameTextBox.TabIndex = 5
         Me.TranscriptionVariableNameTextBox.Text = "Transcription"
         '
@@ -252,7 +267,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.Label5.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Label5.Location = New System.Drawing.Point(3, 113)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(153, 25)
+        Me.Label5.Size = New System.Drawing.Size(152, 25)
         Me.Label5.TabIndex = 4
         Me.Label5.Text = "Transcription variable name:"
         Me.Label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -260,9 +275,9 @@ Partial Class SpeechMaterialComponentCreator
         'SpellingVariableNameTextBox
         '
         Me.SpellingVariableNameTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SpellingVariableNameTextBox.Location = New System.Drawing.Point(162, 65)
+        Me.SpellingVariableNameTextBox.Location = New System.Drawing.Point(161, 65)
         Me.SpellingVariableNameTextBox.Name = "SpellingVariableNameTextBox"
-        Me.SpellingVariableNameTextBox.Size = New System.Drawing.Size(154, 20)
+        Me.SpellingVariableNameTextBox.Size = New System.Drawing.Size(153, 20)
         Me.SpellingVariableNameTextBox.TabIndex = 2
         Me.SpellingVariableNameTextBox.Text = "Spelling"
         '
@@ -272,41 +287,10 @@ Partial Class SpeechMaterialComponentCreator
         Me.Label4.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Label4.Location = New System.Drawing.Point(3, 62)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(153, 25)
+        Me.Label4.Size = New System.Drawing.Size(152, 25)
         Me.Label4.TabIndex = 1
         Me.Label4.Text = "Spelling variable name:"
         Me.Label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'TranscriptionDatabase_FilePathControl
-        '
-        Me.TranscriptionDatabase_FilePathControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.TranscriptionDatabase_FilePathControl.ColumnCount = 2
-        Me.TableLayoutPanel2.SetColumnSpan(Me.TranscriptionDatabase_FilePathControl, 2)
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75.21368!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.78633!))
-        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 9.0!))
-        Me.TranscriptionDatabase_FilePathControl.Description = "File path"
-        Me.TranscriptionDatabase_FilePathControl.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TranscriptionDatabase_FilePathControl.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
-        Me.TranscriptionDatabase_FilePathControl.Location = New System.Drawing.Point(3, 3)
-        Me.TranscriptionDatabase_FilePathControl.Name = "TranscriptionDatabase_FilePathControl"
-        Me.TranscriptionDatabase_FilePathControl.RowCount = 2
-        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TranscriptionDatabase_FilePathControl.Size = New System.Drawing.Size(313, 56)
-        Me.TranscriptionDatabase_FilePathControl.TabIndex = 0
         '
         'CaseInvariantLookupCheckBox
         '
@@ -323,9 +307,9 @@ Partial Class SpeechMaterialComponentCreator
         '
         Me.TableLayoutPanel2.SetColumnSpan(Me.TranscriptionLookupButton, 2)
         Me.TranscriptionLookupButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TranscriptionLookupButton.Location = New System.Drawing.Point(3, 141)
+        Me.TranscriptionLookupButton.Location = New System.Drawing.Point(3, 169)
         Me.TranscriptionLookupButton.Name = "TranscriptionLookupButton"
-        Me.TranscriptionLookupButton.Size = New System.Drawing.Size(313, 25)
+        Me.TranscriptionLookupButton.Size = New System.Drawing.Size(311, 24)
         Me.TranscriptionLookupButton.TabIndex = 6
         Me.TranscriptionLookupButton.Text = "Look up transcriptions"
         Me.TranscriptionLookupButton.UseVisualStyleBackColor = True
@@ -370,6 +354,97 @@ Partial Class SpeechMaterialComponentCreator
         Me.CreateSpeechMaterialComponentFile_Button.Text = "Create speech-material component file"
         Me.CreateSpeechMaterialComponentFile_Button.UseVisualStyleBackColor = True
         '
+        'Label6
+        '
+        Me.Label6.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label6.Location = New System.Drawing.Point(3, 75)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(143, 28)
+        Me.Label6.TabIndex = 6
+        Me.Label6.Text = "Word level trimmed chars:"
+        Me.Label6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'WordTrimChars_TextBox
+        '
+        Me.WordTrimChars_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.WordTrimChars_TextBox.Font = New System.Drawing.Font("Arial", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.WordTrimChars_TextBox.Location = New System.Drawing.Point(152, 78)
+        Me.WordTrimChars_TextBox.Name = "WordTrimChars_TextBox"
+        Me.WordTrimChars_TextBox.Size = New System.Drawing.Size(174, 22)
+        Me.WordTrimChars_TextBox.TabIndex = 7
+        '
+        'Label7
+        '
+        Me.Label7.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label7.Location = New System.Drawing.Point(3, 138)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(152, 28)
+        Me.Label7.TabIndex = 7
+        Me.Label7.Text = "Phoneme level trimmed chars:"
+        Me.Label7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'PhoneTrimChars_TextBox
+        '
+        Me.PhoneTrimChars_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.PhoneTrimChars_TextBox.Font = New System.Drawing.Font("Arial", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.PhoneTrimChars_TextBox.Location = New System.Drawing.Point(161, 141)
+        Me.PhoneTrimChars_TextBox.Name = "PhoneTrimChars_TextBox"
+        Me.PhoneTrimChars_TextBox.Size = New System.Drawing.Size(153, 22)
+        Me.PhoneTrimChars_TextBox.TabIndex = 8
+        '
+        'MenuStrip1
+        '
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SelectFontToolStripMenuItem})
+        Me.MenuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow
+        Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
+        Me.MenuStrip1.Name = "MenuStrip1"
+        Me.MenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System
+        Me.MenuStrip1.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.MenuStrip1.Size = New System.Drawing.Size(482, 24)
+        Me.MenuStrip1.TabIndex = 1
+        Me.MenuStrip1.Text = "MenuStrip1"
+        '
+        'SelectFontToolStripMenuItem
+        '
+        Me.SelectFontToolStripMenuItem.Name = "SelectFontToolStripMenuItem"
+        Me.SelectFontToolStripMenuItem.Size = New System.Drawing.Size(75, 20)
+        Me.SelectFontToolStripMenuItem.Text = "Select font"
+        '
+        'TranscriptionDatabase_FilePathControl
+        '
+        Me.TranscriptionDatabase_FilePathControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.TranscriptionDatabase_FilePathControl.ColumnCount = 2
+        Me.TableLayoutPanel2.SetColumnSpan(Me.TranscriptionDatabase_FilePathControl, 2)
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75.21368!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.78633!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 9.0!))
+        Me.TranscriptionDatabase_FilePathControl.Description = "File path"
+        Me.TranscriptionDatabase_FilePathControl.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TranscriptionDatabase_FilePathControl.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
+        Me.TranscriptionDatabase_FilePathControl.Location = New System.Drawing.Point(3, 3)
+        Me.TranscriptionDatabase_FilePathControl.Name = "TranscriptionDatabase_FilePathControl"
+        Me.TranscriptionDatabase_FilePathControl.RowCount = 2
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.Size = New System.Drawing.Size(311, 56)
+        Me.TranscriptionDatabase_FilePathControl.TabIndex = 0
+        '
         'SpeechMaterialComponentCreator
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -387,6 +462,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.SplitContainer2.ResumeLayout(False)
         Me.SplitContainer3.Panel1.ResumeLayout(False)
         Me.SplitContainer3.Panel2.ResumeLayout(False)
+        Me.SplitContainer3.Panel2.PerformLayout()
         CType(Me.SplitContainer3, System.ComponentModel.ISupportInitialize).EndInit()
         Me.SplitContainer3.ResumeLayout(False)
         Me.TableLayoutPanel1.ResumeLayout(False)
@@ -395,6 +471,8 @@ Partial Class SpeechMaterialComponentCreator
         Me.TableLayoutPanel2.ResumeLayout(False)
         Me.TableLayoutPanel2.PerformLayout()
         Me.FlowLayoutPanel1.ResumeLayout(False)
+        Me.MenuStrip1.ResumeLayout(False)
+        Me.MenuStrip1.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -422,4 +500,10 @@ Partial Class SpeechMaterialComponentCreator
     Friend WithEvents CheckInputButton As Windows.Forms.Button
     Friend WithEvents CreateSpeechMaterialComponentFile_Button As Windows.Forms.Button
     Friend WithEvents OrderedSentencesCheckBox As Windows.Forms.CheckBox
+    Friend WithEvents Label6 As Windows.Forms.Label
+    Friend WithEvents WordTrimChars_TextBox As Windows.Forms.TextBox
+    Friend WithEvents Label7 As Windows.Forms.Label
+    Friend WithEvents PhoneTrimChars_TextBox As Windows.Forms.TextBox
+    Friend WithEvents MenuStrip1 As Windows.Forms.MenuStrip
+    Friend WithEvents SelectFontToolStripMenuItem As Windows.Forms.ToolStripMenuItem
 End Class

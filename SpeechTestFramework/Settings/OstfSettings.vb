@@ -6,7 +6,7 @@
 
     ' Current test subpath
     'Public Shared Property CurrentTestSubPath As String = "SwedishSiPTest" 'Indicates the subpath to the RootPath in which to look for test specific data
-    Public Shared Property CurrentTestSubPath As String = "HINT" 'Indicates the subpath to the RootPath in which to look for test specific data
+    Public Shared Property CurrentTestSubPath As String = "HINT_Kort" 'Indicates the subpath to the RootPath in which to look for test specific data
 
     Public Property SpeechMaterialComponentsPath As String = ".\ProjectFiles\SpeechMaterialComponents.txt"
 

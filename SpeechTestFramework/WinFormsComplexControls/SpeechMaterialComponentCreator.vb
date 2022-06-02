@@ -5,13 +5,44 @@
     Private DefaultSpellingVariableName As String = "Spelling"
     Private DefaultTranscriptionVariableName As String = "Transcription"
     Private DefaultNotFoundTranscriptionString As String = "---"
+    Private DefaultAmbigousTranscriptionMarker As String = "/"
 
     Private Sub SpeechMaterialComponentCreator_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        'Setting the back color as this may otherwise be overridden by a parent control
+        Me.BackColor = System.Drawing.SystemColors.Control
+
+        'Setting also the borderstyle
+        Me.BorderStyle = Windows.Forms.BorderStyle.FixedSingle
 
         SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
         SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
         SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
         SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+
+        'Adding default characters into the word level spelling trim text box
+        Dim DefaultWordTrimChars As New List(Of Char) From {".", ",", "?", "!", ";", ":", Chr(34), Chr(39), Chr(60), Chr(62)}
+        For UnicodePoint = 8216 To 8223
+            DefaultWordTrimChars.Add(ChrW(UnicodePoint))
+        Next
+        DefaultWordTrimChars.Add(ChrW(8242))
+        DefaultWordTrimChars.Add(ChrW(8243))
+        DefaultWordTrimChars.Add(ChrW(8245))
+        DefaultWordTrimChars.Add(ChrW(8246))
+        DefaultWordTrimChars.Add(ChrW(8249))
+        DefaultWordTrimChars.Add(ChrW(8250))
+        WordTrimChars_TextBox.Text = String.Join(" ", DefaultWordTrimChars)
+
+        'Adding default characters into phone level transcription trim text box
+        Dim IpaMainStress As Char = "ˈ"
+        Dim IpaMainSwedishAccent2 As Char = "²"
+        Dim IpaSecondaryStress As Char = "ˌ"
+        Dim IpaSyllableBoundary As Char = "."
+        Dim IpaLinkingSymbol As Char = "‿"
+        Dim IpaMinorFootGroup As Char = "|"
+        Dim IpaMajorIntonationGroup As Char = "‖"
+        Dim DefaultPhoneTrimChars As New List(Of Char) From {",", IpaMainStress, IpaSecondaryStress, IpaSyllableBoundary, IpaMainSwedishAccent2, IpaLinkingSymbol, IpaMinorFootGroup, IpaMajorIntonationGroup}
+        PhoneTrimChars_TextBox.Text = String.Join(" ", DefaultPhoneTrimChars)
 
     End Sub
 
@@ -21,30 +52,53 @@
             'Updates the textbox with the new data
             MsgBox("All checks passed for creating a speech material component file.", MsgBoxStyle.Information, "Checking input data")
             CreateSpeechMaterialComponentFile_Button.Enabled = True
+            TranscriptionLookupButton.Enabled = True
+        Else
+            CreateSpeechMaterialComponentFile_Button.Enabled = False
+            TranscriptionLookupButton.Enabled = False
         End If
 
     End Sub
 
     Private Function CheckInput() As Tuple(Of Boolean, SpeechMaterialComponent)
 
+        'Parsing characters to trim off of word level spellings 
+        Dim WordTrimCharArray = WordTrimChars_TextBox.Text.Replace(" ", "").ToCharArray
+        Dim WordLevelTrimChars As New SortedSet(Of Char)
+        For Each c In WordTrimCharArray
+            If WordLevelTrimChars.Contains(c) = False Then WordLevelTrimChars.Add(c)
+        Next
 
+        'Parsing characters to trim off of phone level transcriptions
+        Dim PhoneTrimCharArray = PhoneTrimChars_TextBox.Text.Replace(" ", "").ToCharArray
+        Dim PhoneCharsToRemoveList As New SortedSet(Of Char)
+        For Each c In PhoneTrimCharArray
+            If PhoneCharsToRemoveList.Contains(c) = False Then PhoneCharsToRemoveList.Add(c)
+        Next
+        'Finally also adding the space character to the phoneme trim list (as this is not added manually)
+        PhoneCharsToRemoveList.Add(" ")
+
+        'Creating default names for database files
         Dim SpeechMaterialLevelDatabaseName As String = "SpeechMaterialLevelDatabase.txt"
         Dim ListLevelDataBaseName As String = "ListLevelVariables.txt"
         Dim SentenceLevelDataBaseName As String = "SentenceLevelVariables.txt"
         Dim WordLevelDataBaseName As String = "WordLevelVariables.txt"
         Dim PhonemeLevelDataBaseName As String = "PhonemeLevelVariables.txt"
 
+        'Parsing the info about which level sound recording should be used
         Dim SoundFilesAtLevel As SpeechMaterialComponent.LinguisticLevels
         If [Enum].TryParse(SoundFileLevelComboBox.SelectedItem, SoundFilesAtLevel) = False Then
             MsgBox("Select a value for 'Sound files at linguistic level'.", MsgBoxStyle.Information, "Checking input data")
             Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
         End If
 
+        'Checking that we have a name of the list collection speech material component
         If NameTextBox.Text = "" Then
             MsgBox("Add a name", MsgBoxStyle.Information, "Checking input data")
             Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
         End If
 
+        'Getting the input lines
         Dim Input = EditRichTextBox.Lines
 
         'The whole input represent a ListCollection
@@ -59,6 +113,11 @@
         Dim CurrentListComponent As SpeechMaterialComponent = Nothing
         Dim CurrentSentenceComponent As SpeechMaterialComponent = Nothing
 
+        Dim NumberOfSentenceLines As Integer = 0
+        Dim NumberOfTranscriptionLines As Integer = 0
+
+        Dim FirstListDetected As Boolean = False
+
         'Parsing input lines
         For i = 0 To Input.Length - 1
 
@@ -66,6 +125,17 @@
 
             'Skips empty lines
             If CurrentLine = "" Then Continue For
+
+            If FirstListDetected = False Then
+                If CurrentLine.Trim.StartsWith("{") = True Then
+                    FirstListDetected = True
+                Else
+                    MsgBox("The first input line must start with a list name within curly brackets, then followed by the test items, for example:" & vbCrLf & vbCrLf &
+                           "{Word list 1}" & vbCrLf & "The old man saw a bird" & vbCrLf & "The young girl found a lizard" & vbCrLf & "...", MsgBoxStyle.Information, "Missing initial list name")
+                    Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
+                End If
+            End If
+
 
             If CurrentLine.StartsWith("{") Then
 
@@ -91,16 +161,33 @@
             ElseIf CurrentLine.StartsWith("[") Then
 
                 'It should be the phonetic/phonemic transcription of the current sentence
+
+                'Checking if there are any non-transcribed or ambingously transcribed words before continuing
+                If CurrentLine.Contains(DefaultNotFoundTranscriptionString) = True Then
+                    MsgBox("The following input line (line " & i + 1 & ") lacks the transcription for at least one word. Transcribe it manually and then try again." & vbCrLf & vbCrLf &
+                           CurrentLine, MsgBoxStyle.Information, "Checking input data")
+                    Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
+                End If
+                If CurrentLine.Contains(DefaultAmbigousTranscriptionMarker) = True Then
+                    MsgBox("The following input line (line " & i + 1 & ") have more than one transcription (marked by the character " & DefaultAmbigousTranscriptionMarker &
+                           " ). Select one transcription by manually removing the others and also remove the character " & DefaultAmbigousTranscriptionMarker & ") and then try again." & vbCrLf & vbCrLf &
+                           CurrentLine, MsgBoxStyle.Information, "Checking input data")
+                    Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
+                End If
+
                 'Adds the transcriptions
                 CurrentSentenceComponent.SetCategoricalWordMetricValue(DefaultTranscriptionVariableName, CurrentLine)
 
                 Dim WordTranscriptions = CurrentLine.Split(",")
                 'Checks that the number of transcriptions and spellings agree
                 If CurrentSentenceComponent.ChildComponents.Count <> WordTranscriptions.Length Then
-                    MsgBox("The number of transcriptions at line " & i + 1 & " do do agree with the number of speelings in the corresponding sentence: " & vbCrLf &
+                    MsgBox("The number of transcriptions at the following line (line " & i + 1 & ") do do agree with the number of speelings in the corresponding sentence. Have you missed a comma between word transcriptions?" & vbCrLf & vbCrLf &
                    CurrentSentenceComponent.GetCategoricalWordMetricValue(DefaultSpellingVariableName) & vbCrLf & CurrentLine, MsgBoxStyle.Information, "Checking input data")
                     Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
                 End If
+
+                'Notes a new sentence transcription
+                NumberOfTranscriptionLines += 1
 
                 For w = 0 To WordTranscriptions.Length - 1
                     CurrentSentenceComponent.ChildComponents(w).SetCategoricalWordMetricValue(DefaultTranscriptionVariableName, WordTranscriptions(w).Trim.TrimStart("[").TrimEnd("]".Trim))
@@ -111,13 +198,8 @@
 
                         Dim CurrentPhoneme = Phonemes(p)
 
-                        'Removes non-phoneme characters (TODO: this could instead be set by a list of valid phonetic characters, optinally set by the user?!?)
-                        Dim IpaMainStress As String = "ˈ"
-                        Dim IpaMainSwedishAccent2 As String = "²"
-                        Dim IpaSecondaryStress As String = "ˌ"
-                        Dim IpaSyllableBoundary As String = "."
-                        Dim ReplacementList As New List(Of String) From {" ", ",", IpaMainStress, IpaSecondaryStress, IpaSyllableBoundary, IpaMainSwedishAccent2}
-                        For Each s In ReplacementList
+                        'Removes non-phoneme characters
+                        For Each s In PhoneCharsToRemoveList
                             CurrentPhoneme = CurrentPhoneme.Replace(s, "")
                         Next
                         If CurrentPhoneme = "" Then Continue For
@@ -159,9 +241,26 @@
                 CurrentSentenceComponent.SetCategoricalWordMetricValue("DbId", CurrentSentenceComponent.DbId)
                 CurrentSentenceComponent.SetCategoricalWordMetricValue(DefaultSpellingVariableName, CurrentLine)
 
+                'Notes a new sentence
+                NumberOfSentenceLines += 1
+
                 'Adds the word components
                 Dim Words = CurrentLine.Split(" ")
+                Dim AddedWordIndex As Integer = -1
                 For w = 0 To Words.Length - 1
+
+                    Dim WordSpelling As String = Words(w)
+                    'Trimming off characters
+                    For Each c In WordLevelTrimChars
+                        WordSpelling = WordSpelling.Replace(c, " ")
+                    Next
+                    'Skipping to next if all characters in the spelling were removed
+                    If WordSpelling.Trim = "" Then Continue For
+
+                    'Increasing the AddedWordIndex value
+                    AddedWordIndex += 1
+
+                    'Creating a new Word level component
                     Dim NewWordComponent = New SpeechMaterialComponent(rnd) With {
                         .ParentComponent = CurrentSentenceComponent,
                         .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Word,
@@ -169,20 +268,29 @@
 
                     CurrentSentenceComponent.ChildComponents.Add(NewWordComponent)
 
-                    NewWordComponent.Id = CurrentSentenceComponent.Id & "W" & w.ToString("00")
+                    NewWordComponent.Id = CurrentSentenceComponent.Id & "W" & AddedWordIndex.ToString("00")
 
                     NewWordComponent.DbId = NewWordComponent.Id
-                    NewWordComponent.PrimaryStringRepresentation = Words(w)
+                    NewWordComponent.PrimaryStringRepresentation = WordSpelling
                     If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Word Then NewWordComponent.MediaFolder = NewWordComponent.Id & "_" & NewWordComponent.PrimaryStringRepresentation.Replace(" ", "_")
 
                     NewWordComponent.SetCategoricalWordMetricValue("DbId", NewWordComponent.DbId)
-                    NewWordComponent.SetCategoricalWordMetricValue(DefaultSpellingVariableName, Words(w))
+                    NewWordComponent.SetCategoricalWordMetricValue(DefaultSpellingVariableName, WordSpelling)
 
                 Next
 
             End If
 
         Next
+
+        'Checking that all or no sentnces are transcribed
+        If NumberOfTranscriptionLines > 0 Then
+            If NumberOfSentenceLines <> NumberOfTranscriptionLines Then
+                MsgBox("The number of sentence level inputs lines (" & NumberOfSentenceLines & ") do not agree with the number of transcription lines (" & NumberOfTranscriptionLines &
+                       "). Have you missed to transcribe some lines, or mistakenly removed the [ characters from the beginning of a transcription line? ", MsgBoxStyle.Information, "Checking input data")
+                Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
+            End If
+        End If
 
         Return New Tuple(Of Boolean, SpeechMaterialComponent)(True, CurrentListCollectionComponent)
 
@@ -195,6 +303,8 @@
         'Re-checking the input and gets the SmaComponent 
         Dim NewSmaComponent = CheckInput()
         If NewSmaComponent.Item1 = False Then
+            CreateSpeechMaterialComponentFile_Button.Enabled = False
+            TranscriptionLookupButton.Enabled = False
             Exit Sub
         End If
 
@@ -212,9 +322,30 @@
 
     Private Sub TranscriptionLookupButton_Click(sender As Object, e As EventArgs) Handles TranscriptionLookupButton.Click
 
+        'Checks if transcriptions already exist
+        If EditRichTextBox.Text.Contains("[") Then
+
+            Dim Result = MsgBox("It looks like you have already looked up some transcriptions. In order to avoid errors, all lines containing the character [ will be removed from the input before attempting to lookup transcriptions. Press Ok to proceed or Cancel to modify the input manually.", MsgBoxStyle.OkCancel, "Found existing transription markers")
+            If Result = MsgBoxResult.Ok Then
+
+                Dim LinesToKeep As New List(Of String)
+                Dim CurrentInputLines = EditRichTextBox.Lines
+                For Each line In CurrentInputLines
+                    If line.Contains("[") = False Then LinesToKeep.Add(line)
+                Next
+                EditRichTextBox.Lines = LinesToKeep.ToArray
+                EditRichTextBox.Update()
+            Else
+                Exit Sub
+            End If
+        End If
+
+
         'Re-checking the input and gets the SmaComponent 
         Dim NewSmaComponent = CheckInput()
         If NewSmaComponent.Item1 = False Then
+            CreateSpeechMaterialComponentFile_Button.Enabled = False
+            TranscriptionLookupButton.Enabled = False
             Exit Sub
         End If
 
@@ -302,7 +433,7 @@
             Next
 
             'Creating a string which, if there are more than one possible transcription, the user will have to reduce to one manually. The / character denotes multiple transcriptions and will not be allowed when parsing the input again.
-            Dim TranscriptionString As String = String.Join(" / ", PossibleTranscriptions)
+            Dim TranscriptionString As String = String.Join(" " & DefaultAmbigousTranscriptionMarker & " ", PossibleTranscriptions)
 
             If TranscriptionString <> "" Then
                 Component.SetCategoricalWordMetricValue(DefaultTranscriptionVariableName, TranscriptionString)
@@ -341,5 +472,13 @@
 
     End Sub
 
+    Private Sub MenuStrip1_ItemClicked(sender As Object, e As Windows.Forms.ToolStripItemClickedEventArgs) Handles MenuStrip1.ItemClicked
 
+        Dim fd As New Windows.Forms.FontDialog
+        Dim Res = fd.ShowDialog
+        If Res = Windows.Forms.DialogResult.OK Then
+            EditRichTextBox.Font = fd.Font
+        End If
+
+    End Sub
 End Class

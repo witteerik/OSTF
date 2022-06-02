@@ -2,6 +2,11 @@
 
     Dim SoundPlayer As SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer
 
+    'Att göra:
+    'And calculate Lcp backwards from spectrum levels (Or just store the CPL in every SMA)
+    '
+    'Create MediaSet GUI
+
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         'ResponseGuiItemTable1.AdjustControls()
 

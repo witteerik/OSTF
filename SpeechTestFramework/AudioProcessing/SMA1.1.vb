@@ -895,6 +895,11 @@ Namespace Audio
                 ''' <returns></returns>
                 Public Property BandWidths As Double() = Nothing
 
+                ''' <summary>
+                ''' The integration times used for each band when calculating the levels given in BandLevels. (Introduced in SMA v 1.1)
+                ''' </summary>
+                ''' <returns></returns>
+                Public Property BandIntegrationTimes As Double() = Nothing
 
                 ''' <summary>
                 ''' Indicates the initial absolute peak amplitude, i.e. the absolute value of the most negative or the positive sample value, of the segment. The initial peak value should only be stored once for each segment, 
@@ -982,6 +987,16 @@ Namespace Audio
                     Return GetCommaSeparatedArray(BandWidths)
                 End Function
 
+
+                ''' <summary>
+                ''' Returns a comma separated string representing the BandIntegrationTimes
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function GetBandIntegrationTimesString() As String
+                    Return GetCommaSeparatedArray(BandIntegrationTimes)
+                End Function
+
+
                 Private Function GetCommaSeparatedArray(ByRef InputArray() As Double) As String
 
                     If InputArray Is Nothing Then Return ""
@@ -1005,6 +1020,11 @@ Namespace Audio
                 Public Sub SetBandWidthsFromString(ByVal CommaSeparatedValues As String)
                     BandWidths = GetValuesFromCommaSeparatedString(CommaSeparatedValues)
                 End Sub
+
+                Public Sub SetBandIntegrationTimesFromString(ByVal CommaSeparatedValues As String)
+                    BandIntegrationTimes = GetValuesFromCommaSeparatedString(CommaSeparatedValues)
+                End Sub
+
 
                 Private Function GetValuesFromCommaSeparatedString(ByVal CommaSeparatedValues As String) As Double()
 
@@ -1287,11 +1307,21 @@ Namespace Audio
                         Return ""
                     Else
                         If OrthographicForm <> "" And PhoneticForm <> "" Then
-                            Return OrthographicForm & vbCrLf & "[" & PhoneticForm & "]"
+                            If PhoneticForm.StartsWith("[") Then
+                                Return OrthographicForm & vbCrLf & PhoneticForm
+                            Else
+                                'Adds square brackets to phonetic forms that lacks them
+                                Return OrthographicForm & vbCrLf & "[" & PhoneticForm & "]"
+                            End If
                         ElseIf OrthographicForm <> "" Then
                             Return OrthographicForm
                         Else
-                            Return "[" & PhoneticForm & "]"
+                            If PhoneticForm.StartsWith("[") Then
+                                Return PhoneticForm
+                            Else
+                                'Adds square brackets to phonetic forms that lacks them
+                                Return "[" & PhoneticForm & "]"
+                            End If
                         End If
                     End If
 
