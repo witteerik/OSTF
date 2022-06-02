@@ -5,7 +5,7 @@ Imports System.ComponentModel
 Public Class LoadFileControl
     Inherits PathControl
 
-    <DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
+    '<DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
     Private WithEvents LoadButton As New Button
 
     Public Event LoadFile(ByVal FileToLoad As String)
@@ -17,10 +17,16 @@ Public Class LoadFileControl
         Me.PathTextBox.DirectionType = PathTextBox.DirectionTypes.Load
         Me.PathTextBox.PathType = PathTextBox.PathTypes.File
 
-        Me.Controls.Add(LoadButton, 2, 1)
+        Me.SetColumnSpan(MyBase.BrowseButton, 1)
 
-        LoadButton.Dock = DockStyle.Fill
         LoadButton.Text = "Load"
+        MyBase.Controls.Add(LoadButton, 2, 1)
+        LoadButton.Dock = DockStyle.Fill
+
+        Me.ColumnStyles.Clear()
+        Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 50))
+        Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Absolute, 60))
+        Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Absolute, 60))
 
     End Sub
 

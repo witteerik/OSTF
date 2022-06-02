@@ -113,6 +113,12 @@
     <Compile Include="WinFormControls\ExistingFilePathControl.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WinFormsComplexControls\LexicalVariablesEditor.Designer.vb">
+      <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormsComplexControls\LexicalVariablesEditor.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormsComplexControls\SpeechMaterialComponentCreator.Designer.vb">
       <DependentUpon>SpeechMaterialComponentCreator.vb</DependentUpon>
     </Compile>
@@ -219,6 +225,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormsComplexControls\LexicalVariablesEditor.resx">
+      <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormsComplexControls\SpeechMaterialComponentCreator.resx">
       <DependentUpon>SpeechMaterialComponentCreator.vb</DependentUpon>

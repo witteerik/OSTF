@@ -1,5 +1,4 @@
-﻿
-
+﻿Imports System.Globalization
 
 Public Class SpeechMaterialComponent
 
@@ -67,6 +66,18 @@ Public Class SpeechMaterialComponent
         LoadEveryTime
         LoadOnFirstUse
     End Enum
+
+    'Setting up some default strings
+    Public Shared DefaultSpellingVariableName As String = "Spelling"
+    Public Shared DefaultTranscriptionVariableName As String = "Transcription"
+
+    'Creating default names for database files
+    Public Shared SpeechMaterialLevelDatabaseName As String = "SpeechMaterialLevelDatabase.txt"
+    Public Shared ListLevelDataBaseName As String = "ListLevelVariables.txt"
+    Public Shared SentenceLevelDataBaseName As String = "SentenceLevelVariables.txt"
+    Public Shared WordLevelDataBaseName As String = "WordLevelVariables.txt"
+    Public Shared PhonemeLevelDataBaseName As String = "PhonemeLevelVariables.txt"
+
 
     Public Sub New(ByRef rnd As Random)
         Me.Randomizer = rnd
@@ -563,6 +574,8 @@ Public Class SpeechMaterialComponent
                         NewComponent.CategoricalVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
                     ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Numeric Then
                         NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
+                    ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Boolean Then
+                        NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
                     Else
                         Throw New NotImplementedException("Variable type not implemented!")
                     End If
@@ -937,26 +950,28 @@ Public Class CustomVariablesDatabase
             'Stores the file path used for loading the word metric data
             Me.FilePath = FilePath
 
-            'First line should be variable names
-            Dim FirstLineData() As String = InputLines(0).Split(vbTab)
-            For c = 0 To FirstLineData.Length - 1
-                If FirstLineData(c).Trim = "" Then
-                    'Assuming that there is no data, if the first line is empty!
-                    Return False
-                End If
+            'Assuming that there is no data, if the first line is empty!
+            If InputLines(0).Trim = "" Then
+                Return False
+            End If
 
+            'First line should be variable names
+            Dim FirstLineData() As String = InputLines(0).Trim(vbTab).Split(vbTab)
+            For c = 0 To FirstLineData.Length - 1
                 CustomVariableNames.Add(FirstLineData(c).Trim)
             Next
 
             'Second line should be variable types (N for Numeric or C for Categorical)
-            Dim SecondLineData() As String = InputLines(1).Split(vbTab)
+            Dim SecondLineData() As String = InputLines(1).Trim(vbTab).Split(vbTab)
             For c = 0 To SecondLineData.Length - 1
                 If SecondLineData(c).Trim.ToLower = "n" Then
                     CustomVariableTypes.Add(VariableTypes.Numeric)
                 ElseIf SecondLineData(c).Trim.ToLower = "c" Then
                     CustomVariableTypes.Add(VariableTypes.Categorical)
+                ElseIf SecondLineData(c).Trim.ToLower = "b" Then
+                    CustomVariableTypes.Add(VariableTypes.Boolean)
                 Else
-                    Throw New Exception("The type for the custom variable " & CustomVariableNames(c) & " in the file " & FilePath & " must be either N for numeric or C for categorical.")
+                    Throw New Exception("The type for the custom variable " & CustomVariableNames(c) & " in the file " & FilePath & " must be either N for numeric or C for categorical, or B for Boolean.")
                 End If
             Next
 
@@ -969,20 +984,258 @@ Public Class CustomVariablesDatabase
 
                 CustomVariablesData.Add(UniqueIdentifier, New SortedList(Of String, Object))
 
-                For c = 0 To LineSplit.Length - 1
+                'Adding variables (getting only as many as there are variables, or tabs)
+                For c = 0 To Math.Min(LineSplit.Length - 1, CustomVariableNames.Count - 1)
 
                     Dim ValueString As String = LineSplit(c).Trim
                     If CustomVariableTypes(c) = VariableTypes.Numeric Then
 
                         'Adding the data as a Double
                         Dim NumericValue As Double
-                        If Double.TryParse(ValueString.Replace(",", "."), NumericValue) Then
+                        If Double.TryParse(ValueString.Replace(",", "."), NumberStyles.Float, CultureInfo.InvariantCulture, NumericValue) Then
                             'Adds the variable and its data only if a value has been parsed
                             CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), NumericValue)
                         Else
                             'Throws an error if parsing failed even though the string was not empty
                             If ValueString.Trim <> "" Then
                                 Throw New Exception("Unable to parse the string " & NumericValue & " given for the variable " & CustomVariableNames(c) & " in the file: " & FilePath & " as a numeric value.")
+                            Else
+                                'Stores a NaN to mark that the input data was missing / NaN
+                                CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), Double.NaN)
+                            End If
+                        End If
+
+                    ElseIf CustomVariableTypes(c) = VariableTypes.Boolean Then
+
+                        'Adding the data as a boolean
+                        Dim BooleanValue As Boolean
+                        If Boolean.TryParse(ValueString, BooleanValue) Then
+                            'Adds the variable and its data only if a value has been parsed
+                            CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), BooleanValue)
+                        Else
+                            'Throws an error if parsing failed even though the string was not empty
+                            If ValueString.Trim <> "" Then
+                                Throw New Exception("Unable to parse the string " & BooleanValue & " given for the variable " & CustomVariableNames(c) & " in the file: " & FilePath & " as a boolean value (True or False).")
+                            End If
+                        End If
+
+                    Else
+                            'Adding the data as a String
+                            CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), ValueString)
+                    End If
+
+                Next
+
+            Next
+
+            Return True
+
+        Catch ex As Exception
+
+            MsgBox("The following exception occurred while reading a custom variables file: " & ex.ToString)
+            'TODO What here?
+            Return False
+        End Try
+
+
+    End Function
+
+
+    Public Enum LookupMathOptions
+        MatchBySpelling
+        MatchByTranscription
+        MatchBySpellingAndTranscription
+    End Enum
+
+    Public Function LoadTabDelimitedFile(ByVal FilePath As String, ByVal MatchBy As LookupMathOptions,
+                                         Optional ByVal SpellingVariableName As String = "", Optional ByVal TranscriptionVariableName As String = "",
+                                         Optional ByVal CaseInsensitiveSpellings As Boolean = True,
+                                         Optional ByVal IncludeItems As SortedSet(Of String) = Nothing) As Boolean
+
+
+        ''Gets a file path from the user if none is supplied
+        'If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a tab delimited word metrics .txt file.")
+        'If FilePath = "" Then
+        '    MsgBox("No file selected!")
+        '    Return Nothing
+        'End If
+
+
+        'Checking arguments
+        Select Case MatchBy
+            Case LookupMathOptions.MatchBySpellingAndTranscription
+                If SpellingVariableName = "" Then
+                    MsgBox("Missing spelling variable name", MsgBoxStyle.Information, "Loading custom variables file")
+                    Return False
+                End If
+
+                If TranscriptionVariableName = "" Then
+                    MsgBox("Missing transcription variable name", MsgBoxStyle.Information, "Loading custom variables file")
+                    Return False
+                End If
+
+            Case LookupMathOptions.MatchBySpelling
+                If SpellingVariableName = "" Then
+                    MsgBox("Missing spelling variable name", MsgBoxStyle.Information, "Loading custom variables file")
+                    Return False
+                End If
+
+            Case LookupMathOptions.MatchByTranscription
+                If TranscriptionVariableName = "" Then
+                    MsgBox("Missing transcription variable name", MsgBoxStyle.Information, "Loading custom variables file")
+                    Return False
+                End If
+
+        End Select
+
+        Try
+
+            CustomVariablesData.Clear()
+            CustomVariableNames.Clear()
+            CustomVariableTypes.Clear()
+
+            'Parses the input file
+            Dim InputLines() As String = System.IO.File.ReadAllLines(FilePath, Text.Encoding.UTF8)
+
+            'Stores the file path used for loading the word metric data
+            Me.FilePath = FilePath
+
+            'Assuming that there is no data, if the first line is empty!
+            If InputLines(0).Trim = "" Then
+                Return False
+            End If
+
+            'First line should be variable names
+            Dim FirstLineData() As String = InputLines(0).Trim(vbTab).Split(vbTab)
+            For c = 0 To FirstLineData.Length - 1
+                CustomVariableNames.Add(FirstLineData(c).Trim)
+            Next
+
+            'Looing for the column indices where the unique identifiers (spealling and/or transcription) are
+            Dim SpellingColumnIndex As Integer = -1
+            Dim TranscriptionColumnIndex As Integer = -1
+            For c = 0 To FirstLineData.Length - 1
+                If FirstLineData(c).Trim() = "" Then Continue For
+                If FirstLineData(c).Trim = SpellingVariableName Then SpellingColumnIndex = c
+                If FirstLineData(c).Trim = TranscriptionVariableName Then TranscriptionColumnIndex = c
+            Next
+
+            'Checking that the needed columns were found
+            Select Case MatchBy
+                Case LookupMathOptions.MatchBySpellingAndTranscription
+                    If SpellingColumnIndex = -1 Then
+                        MsgBox("No variable named " & SpellingVariableName & " could be found in the database file.", MsgBoxStyle.Information, "Missing variable")
+                        Return False
+                    End If
+                    If TranscriptionColumnIndex = -1 Then
+                        MsgBox("No variable named " & TranscriptionVariableName & " could be found in the database file.", MsgBoxStyle.Information, "Missing variable")
+                        Return False
+                    End If
+
+                Case LookupMathOptions.MatchBySpelling
+                    If SpellingColumnIndex = -1 Then
+                        MsgBox("No variable named " & SpellingVariableName & " could be found in the database file.", MsgBoxStyle.Information, "Missing variable")
+                        Return False
+                    End If
+
+                Case LookupMathOptions.MatchByTranscription
+                    If TranscriptionColumnIndex = -1 Then
+                        MsgBox("No variable named " & TranscriptionVariableName & " could be found in the database file.", MsgBoxStyle.Information, "Missing variable")
+                        Return False
+                    End If
+            End Select
+
+
+            'Second line should be variable types (N for Numeric or C for Categorical)
+            Dim SecondLineData() As String = InputLines(1).Trim(vbTab).Split(vbTab)
+            For c = 0 To SecondLineData.Length - 1
+                If SecondLineData(c).Trim.ToLower = "n" Then
+                    CustomVariableTypes.Add(VariableTypes.Numeric)
+                ElseIf SecondLineData(c).Trim.ToLower = "c" Then
+                    CustomVariableTypes.Add(VariableTypes.Categorical)
+                ElseIf SecondLineData(c).Trim.ToLower = "b" Then
+                    CustomVariableTypes.Add(VariableTypes.Boolean)
+                Else
+                    Throw New Exception("The type for the custom variable " & CustomVariableNames(c) & " in the file " & FilePath & " must be either N for numeric or C for categorical, or B for Boolean.")
+                End If
+            Next
+
+            'Reading data
+            For i = 2 To InputLines.Length - 1
+
+                Dim LineSplit() As String = InputLines(i).Split(vbTab)
+
+                'Gets the unique identifier
+                Dim UniqueIdentifier As String = ""
+                Select Case MatchBy
+                    Case LookupMathOptions.MatchBySpellingAndTranscription
+                        Dim Spelling As String = LineSplit(SpellingColumnIndex).Trim
+                        If CaseInsensitiveSpellings = True Then
+                            Spelling = Spelling.ToLower
+                        End If
+                        UniqueIdentifier = Spelling & vbTab & LineSplit(TranscriptionColumnIndex).Trim
+                    Case LookupMathOptions.MatchBySpelling
+                        Dim Spelling As String = LineSplit(SpellingColumnIndex).Trim
+                        If CaseInsensitiveSpellings = True Then
+                            Spelling = Spelling.ToLower
+                        End If
+                        UniqueIdentifier = Spelling
+                    Case LookupMathOptions.MatchByTranscription
+                        UniqueIdentifier = LineSplit(TranscriptionColumnIndex).Trim
+                End Select
+
+                'Skipping if IncludeItems has been set and the UniqueIdentifier is not in it (this is to save memory with very large databases!!!)
+                If IncludeItems IsNot Nothing Then
+                    If IncludeItems.Contains(UniqueIdentifier) = False Then Continue For
+                End If
+
+                If CustomVariablesData.ContainsKey(UniqueIdentifier) Then
+                    Select Case MatchBy
+                        Case LookupMathOptions.MatchBySpellingAndTranscription
+                            MsgBox("There exist more than one instance of the spelling-transcription combination " & UniqueIdentifier & " in the lexical database. Unable to select the one to use!", MsgBoxStyle.Information, "Duplicate look-up keys")
+                        Case LookupMathOptions.MatchBySpelling
+                            MsgBox("There exist more than one instance of the spellings " & UniqueIdentifier & " in the lexical database. Unable to select the one to use!", MsgBoxStyle.Information, "Duplicate look-up keys")
+                        Case LookupMathOptions.MatchByTranscription
+                            MsgBox("There exist more than one instance of the transcription " & UniqueIdentifier & " in the lexical database. Unable to select the one to use!", MsgBoxStyle.Information, "Duplicate look-up keys")
+                    End Select
+                    Return False
+                End If
+
+                'Adding the unique identifier
+                CustomVariablesData.Add(UniqueIdentifier, New SortedList(Of String, Object))
+
+                'Adding variables (getting only as many as there are variables, or tabs)
+                For c = 0 To Math.Min(LineSplit.Length - 1, CustomVariableNames.Count - 1)
+
+                    Dim ValueString As String = LineSplit(c).Trim
+                    If CustomVariableTypes(c) = VariableTypes.Numeric Then
+
+                        'Adding the data as a Double
+                        Dim NumericValue As Double
+                        If Double.TryParse(ValueString.Replace(",", "."), NumberStyles.Float, CultureInfo.InvariantCulture, NumericValue) Then
+                            'Adds the variable and its data only if a value has been parsed
+                            CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), NumericValue)
+                        Else
+                            'Throws an error if parsing failed even though the string was not empty
+                            If ValueString.Trim <> "" Then
+                                Throw New Exception("Unable to parse the string " & ValueString & " given for the variable " & CustomVariableNames(c) & " in the file: " & FilePath & " as a numeric value.")
+                            Else
+                                'Stores a NaN to mark that the input data was missing / NaN
+                                CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), Double.NaN)
+                            End If
+                        End If
+
+                    ElseIf CustomVariableTypes(c) = VariableTypes.Boolean Then
+
+                        'Adding the data as a boolean
+                        Dim BooleanValue As Boolean
+                        If Boolean.TryParse(ValueString, BooleanValue) Then
+                            'Adds the variable and its data only if a value has been parsed
+                            CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), BooleanValue)
+                        Else
+                            'Throws an error if parsing failed even though the string was not empty
+                            If ValueString.Trim <> "" Then
+                                Throw New Exception("Unable to parse the string " & BooleanValue & " given for the variable " & CustomVariableNames(c) & " in the file: " & FilePath & " as a boolean value (True or False).")
                             End If
                         End If
 
@@ -1020,7 +1273,13 @@ Public Class CustomVariablesDatabase
 
     End Function
 
-
+    Public Function UniqueIdentifierIsPresent(ByVal UniqueIdentifier As String) As Boolean
+        If CustomVariablesData.ContainsKey(UniqueIdentifier) Then
+            Return True
+        Else
+            Return False
+        End If
+    End Function
 
 End Class
 
@@ -1412,4 +1671,5 @@ End Class
 Public Enum VariableTypes
     Numeric
     Categorical
+    [Boolean]
 End Enum

@@ -10,47 +10,13 @@
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         'ResponseGuiItemTable1.AdjustControls()
 
-        Dim test As Integer = 3
+        Dim test As Integer = 0
         Select Case test
             Case 0
 
-                Dim Sound1 = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SpeechTestFrameworkLog\M_000_003_charm.wav")
+                Dim SM_Creator As New SpeechTestFramework.SpeechMaterialCreator
 
-                Dim RecordingWaveFormat As SpeechTestFramework.Audio.Formats.WaveFormat = Sound1.WaveFormat
-                Dim newAudioSettingsDialog As SpeechTestFramework.AudioSettingsDialog
-                If RecordingWaveFormat IsNot Nothing Then
-                    newAudioSettingsDialog = New SpeechTestFramework.AudioSettingsDialog(RecordingWaveFormat.SampleRate)
-                Else
-                    newAudioSettingsDialog = New SpeechTestFramework.AudioSettingsDialog()
-                    RecordingWaveFormat = New SpeechTestFramework.Audio.Formats.WaveFormat(newAudioSettingsDialog.CurrentAudioApiSettings.SampleRate, 32, 1, , SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
-                End If
-
-                Dim Result = newAudioSettingsDialog.ShowDialog()
-                Dim CurrentAudioApiSettings As New SpeechTestFramework.Audio.AudioApiSettings(RecordingWaveFormat.SampleRate)
-                If Result = Windows.Forms.DialogResult.OK Then
-                    CurrentAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
-                Else
-                    'Attempting to set default AudioApiSettings if the user pressed ok
-                    CurrentAudioApiSettings.SelectDefaultAudioDevice(RecordingWaveFormat.SampleRate)
-                End If
-
-                SoundPlayer = New SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer(Nothing, SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.Duplex, CurrentAudioApiSettings,,,,,, 0.1,, False)
-
-                'SoundPlayer.Mixer = NewMixer
-                SoundPlayer.OpenStream()
-                SoundPlayer.SwapOutputSounds(Sound1)
-
-
-        'SoundPlayer.SwapOutputSounds(Sound1)
-
-        'SoundPlayer.Stop(True)
-
-        'Sleeps during the fade out phase
-        'Threading.Thread.Sleep(SoundPlayer.GetOverlapDuration * 1000)
-
-        'SoundPlayer.CloseStream()
-        'SoundPlayer.Dispose()
-
+                SM_Creator.Show()
 
             Case 1
 
@@ -94,9 +60,45 @@
 
             Case 3
 
-                Dim SM_Creator As New SpeechTestFramework.SpeechMaterialCreator
 
-                SM_Creator.Show()
+                'Testing sound player
+                Dim Sound1 = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SpeechTestFrameworkLog\M_000_003_charm.wav")
+
+                Dim RecordingWaveFormat As SpeechTestFramework.Audio.Formats.WaveFormat = Sound1.WaveFormat
+                Dim newAudioSettingsDialog As SpeechTestFramework.AudioSettingsDialog
+                If RecordingWaveFormat IsNot Nothing Then
+                    newAudioSettingsDialog = New SpeechTestFramework.AudioSettingsDialog(RecordingWaveFormat.SampleRate)
+                Else
+                    newAudioSettingsDialog = New SpeechTestFramework.AudioSettingsDialog()
+                    RecordingWaveFormat = New SpeechTestFramework.Audio.Formats.WaveFormat(newAudioSettingsDialog.CurrentAudioApiSettings.SampleRate, 32, 1, , SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+                End If
+
+                Dim Result = newAudioSettingsDialog.ShowDialog()
+                Dim CurrentAudioApiSettings As New SpeechTestFramework.Audio.AudioApiSettings(RecordingWaveFormat.SampleRate)
+                If Result = Windows.Forms.DialogResult.OK Then
+                    CurrentAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
+                Else
+                    'Attempting to set default AudioApiSettings if the user pressed ok
+                    CurrentAudioApiSettings.SelectDefaultAudioDevice(RecordingWaveFormat.SampleRate)
+                End If
+
+                SoundPlayer = New SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer(Nothing, SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.Duplex, CurrentAudioApiSettings,,,,,, 0.1,, False)
+
+                'SoundPlayer.Mixer = NewMixer
+                SoundPlayer.OpenStream()
+                SoundPlayer.SwapOutputSounds(Sound1)
+
+
+                'SoundPlayer.SwapOutputSounds(Sound1)
+
+                'SoundPlayer.Stop(True)
+
+                'Sleeps during the fade out phase
+                'Threading.Thread.Sleep(SoundPlayer.GetOverlapDuration * 1000)
+
+                'SoundPlayer.CloseStream()
+                'SoundPlayer.Dispose()
+
 
 
         End Select

@@ -17,14 +17,14 @@ Public Class PathControl
         End Set
     End Property
 
-    <DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
+    '<DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
     Protected DescriptionLabel As New Label
 
-    <DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
+    '<DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
     Protected WithEvents PathTextBox As New PathTextBox
 
-    <DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
-    Private WithEvents BrowseButton As New Button
+    '<DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
+    Protected WithEvents BrowseButton As New Button
 
     Public ReadOnly Property SelectedPath As String
         Get
@@ -38,12 +38,12 @@ Public Class PathControl
 
         'Adding controls
         Me.RowCount = 2
-        Me.ColumnCount = 3
+        MyBase.ColumnCount = 3
         Me.GrowStyle = Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
         Me.RowStyles.Clear()
         Me.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Percent, 50))
         Me.ColumnStyles.Clear()
-        Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 100))
+        Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 50))
         Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Absolute, 30))
         Me.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Absolute, 30))
 
@@ -57,8 +57,9 @@ Public Class PathControl
         PathTextBox.Dock = DockStyle.Fill
 
         Me.Controls.Add(BrowseButton, 1, 1)
-        PathTextBox.Dock = DockStyle.Fill
+        BrowseButton.Dock = DockStyle.Fill
         BrowseButton.Text = "Browse"
+        Me.SetColumnSpan(BrowseButton, 2)
 
         PathTextBox.Margin = BrowseButton.Margin
 
