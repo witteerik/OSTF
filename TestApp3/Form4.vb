@@ -10,8 +10,10 @@
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         'ResponseGuiItemTable1.AdjustControls()
 
-        Dim test As Integer = 0
+        Dim test As Integer = -1
         Select Case test
+            Case -1
+
             Case 0
 
                 Dim SM_Creator As New SpeechTestFramework.SpeechMaterialCreator

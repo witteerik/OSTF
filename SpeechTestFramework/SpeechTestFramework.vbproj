@@ -110,6 +110,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
+    <Compile Include="WinFormControls\CustomVariableSelectionControl.Designer.vb">
+      <DependentUpon>CustomVariableSelectionControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\CustomVariableSelectionControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormControls\ExistingFilePathControl.vb">
       <SubType>Component</SubType>
     </Compile>
@@ -225,6 +231,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\CustomVariableSelectionControl.resx">
+      <DependentUpon>CustomVariableSelectionControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormsComplexControls\LexicalVariablesEditor.resx">
       <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>
