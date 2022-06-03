@@ -98,6 +98,9 @@
             .PrimaryStringRepresentation = NameTextBox.Text,
             .CustomVariablesDatabasePath = SpeechMaterialComponent.SpeechMaterialLevelDatabaseName}
 
+        CurrentListCollectionComponent.DbId = CurrentListCollectionComponent.Id
+        CurrentListCollectionComponent.PrimaryStringRepresentation = CurrentListCollectionComponent.Id
+
         CurrentListCollectionComponent.SetCategoricalWordMetricValue("DbId", CurrentListCollectionComponent.Id)
 
         Dim CurrentListComponent As SpeechMaterialComponent = Nothing

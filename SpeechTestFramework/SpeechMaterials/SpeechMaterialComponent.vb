@@ -984,8 +984,10 @@ Public Class SpeechMaterialComponent
 
 
             'Cascading calculations to lower levels
-            For Each d In Descendants
-                d.SummariseNumericVariables(SourceLevels, CustomVariableName, MetricType)
+            'Calling this from within the conditional statment, as no descendants should exist at more than one
+            'level, and if Me.LinguisticLevel >= SourceLevels no other descendants should be either, and thus the recursive calls can stop here.
+            For Each Child In ChildComponents
+                Child.SummariseNumericVariables(SourceLevels, CustomVariableName, MetricType)
             Next
 
         End If
