@@ -10,7 +10,8 @@
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         'ResponseGuiItemTable1.AdjustControls()
 
-        Dim test As Integer = -1
+
+        Dim test As Integer = 0
         Select Case test
             Case -1
 
@@ -101,6 +102,51 @@
                 'SoundPlayer.CloseStream()
                 'SoundPlayer.Dispose()
 
+            Case 10
+                'Creating audiogram
+                Dim MyAudiogram As New SpeechTestFramework.WinFormControls.Audiogram
+                MyAudiogram.AudiogramData = New SpeechTestFramework.AudiogramData
+
+                'Adding som custom data
+                Dim fs() As Single = {125, 250, 375, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000}
+                Dim NH() As Single = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+                Dim N3() As Single = {35, 35, 35, 35, 35, 40, 45, 50, 55, 60, 65, 65}
+                Dim N5() As Single = {65, 65, 67.5, 70, 72.5, 75, 80, 80, 80, 80, 80, 80}
+                Dim S3() As Single = {30, 30, 30, 35, 47.5, 60, 70, 75, 80, 80, 85, 85}
+
+                Dim lw As Single = 3
+                Dim ps As Single = 3
+
+                Dim MyColors As New List(Of Drawing.Color)
+                MyColors.Add(Drawing.Color.FromArgb(255, 98, 140, 190))
+                MyColors.Add(Drawing.Color.FromArgb(255, 131, 117, 78))
+                MyColors.Add(Drawing.Color.FromArgb(255, 208, 51, 44))
+                MyColors.Add(Drawing.Color.FromArgb(255, 0, 0, 0))
+
+                Dim Line1 As New SpeechTestFramework.WinFormControls.PlotBase.Line With {.XValues = fs, .YValues = NH, .Color = MyColors(0), .LineWidth = lw}
+                Dim Line2 As New SpeechTestFramework.WinFormControls.PlotBase.Line With {.XValues = fs, .YValues = N3, .Color = MyColors(1), .LineWidth = lw}
+                Dim Line3 As New SpeechTestFramework.WinFormControls.PlotBase.Line With {.XValues = fs, .YValues = N5, .Color = MyColors(2), .LineWidth = lw}
+                Dim Line4 As New SpeechTestFramework.WinFormControls.PlotBase.Line With {.XValues = fs, .YValues = S3, .Color = MyColors(3), .LineWidth = lw}
+                MyAudiogram.Lines.Add(Line4)
+                MyAudiogram.Lines.Add(Line1)
+                MyAudiogram.Lines.Add(Line2)
+                MyAudiogram.Lines.Add(Line3)
+
+                Dim Point1 As New SpeechTestFramework.WinFormControls.PlotBase.PointSerie With {.XValues = fs, .YValues = NH, .Color = MyColors(0), .PointSize = ps, .Type = SpeechTestFramework.WinFormControls.PlotBase.PointSerie.PointTypes.FilledCircle}
+                Dim Point2 As New SpeechTestFramework.WinFormControls.PlotBase.PointSerie With {.XValues = fs, .YValues = N3, .Color = MyColors(1), .PointSize = ps, .Type = SpeechTestFramework.WinFormControls.PlotBase.PointSerie.PointTypes.FilledCircle}
+                Dim Point3 As New SpeechTestFramework.WinFormControls.PlotBase.PointSerie With {.XValues = fs, .YValues = N5, .Color = MyColors(2), .PointSize = ps, .Type = SpeechTestFramework.WinFormControls.PlotBase.PointSerie.PointTypes.FilledCircle}
+                Dim Point4 As New SpeechTestFramework.WinFormControls.PlotBase.PointSerie With {.XValues = fs, .YValues = S3, .Color = MyColors(3), .PointSize = ps, .Type = SpeechTestFramework.WinFormControls.PlotBase.PointSerie.PointTypes.FilledCircle}
+                MyAudiogram.PointSeries.Add(Point4)
+                MyAudiogram.PointSeries.Add(Point1)
+                MyAudiogram.PointSeries.Add(Point2)
+                MyAudiogram.PointSeries.Add(Point3)
+
+                MyAudiogram.Update()
+                MyAudiogram.Dock = DockStyle.Fill
+
+                Dim NewForm = New Windows.Forms.Form
+                NewForm.Controls.Add(MyAudiogram)
+                NewForm.Show()
 
 
         End Select

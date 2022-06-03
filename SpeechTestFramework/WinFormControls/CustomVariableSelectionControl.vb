@@ -1,18 +1,25 @@
 ﻿Public Class CustomVariableSelectionControl
 
-    'Public ParentControl As Windows.Forms.Control
-    Public Property OriginalVariableName As String = ""
+
+    Private _OriginalVariableName As String = ""
+
+    Public Property OriginalVariableName As String
+        Get
+            Return _OriginalVariableName
+        End Get
+        Set(value As String)
+            _OriginalVariableName = value
+
+            'Also sets the text in the OriginalVariabelName_CheckBox
+            OriginalVariabelName_CheckBox.Text = _OriginalVariableName
+        End Set
+    End Property
+
+    Public Function IsSelected() As Boolean
+        Return OriginalVariabelName_CheckBox.Checked
+    End Function
 
     Public Property NewVariableName As String = ""
-
-    Public Property DefaultTextColor As Drawing.Color
-
-    'Public Sub New()
-
-    '    'Stores the default color
-    '    DefaultTextColor = Me.ForeColor
-
-    'End Sub
 
     Public Function GetUpdatedVariableName() As String
 
@@ -24,6 +31,8 @@
 
     End Function
 
+    Public IsNumericVariable As Boolean
+
     Private Sub RenameTo_TextBox_TextChanged(sender As Object, e As EventArgs) Handles RenameTo_TextBox.TextChanged
 
         Dim NewNameIsValid As Boolean = True
@@ -33,7 +42,12 @@
 
         If NewNameIsValid = True Then
             NewVariableName = RenameTo_TextBox.Text
-            RenameTo_TextBox.ForeColor = DefaultTextColor
+
+            If Me.Parent IsNot Nothing Then
+                RenameTo_TextBox.ForeColor = Me.Parent.ForeColor
+            Else
+                RenameTo_TextBox.ForeColor = Drawing.Color.Black
+            End If
         Else
             NewVariableName = ""
             RenameTo_TextBox.ForeColor = System.Drawing.Color.Red

@@ -658,6 +658,23 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    Public Function GetAllDescenentsAtLevel(ByVal RequestedDescendentComponentLevel As SpeechMaterialComponent.LinguisticLevels) As List(Of SpeechMaterialComponent)
+
+        Dim OutputList As New List(Of SpeechMaterialComponent)
+
+        For Each child In ChildComponents
+
+            If child.LinguisticLevel = RequestedDescendentComponentLevel Then
+                OutputList.Add(child)
+            Else
+                OutputList.AddRange(child.GetAllDescenentsAtLevel(RequestedDescendentComponentLevel))
+            End If
+        Next
+
+        Return OutputList
+
+    End Function
+
     Public Function GetClosestAncestorWithSoundMedia() As SpeechMaterialComponent
 
         If ParentComponent Is Nothing Then Return Nothing
@@ -911,6 +928,80 @@ Public Class SpeechMaterialComponent
 
     End Sub
 
+    Public Sub SummariseNumericVariables(ByVal SourceLevels As SpeechMaterialComponent.LinguisticLevels, ByVal CustomVariableName As String, ByRef MetricType As SummaryMetricTypes)
+
+        If Me.LinguisticLevel < SourceLevels Then
+
+            Dim Descendants = GetAllDescenentsAtLevel(SourceLevels)
+
+            Dim ValueList As New List(Of Double)
+            For Each d In Descendants
+                ValueList.Add(d.GetNumericVariableValue(CustomVariableName))
+            Next
+
+            Select Case MetricType
+                Case SummaryMetricTypes.ArithmeticMean
+
+                    'Storing the result
+                    Dim SummaryResult As Double = ValueList.Average
+                    Me.SetNumericWordMetricValue("Average_" & CustomVariableName, SummaryResult)
+
+                Case SummaryMetricTypes.StandardDeviation
+
+                    'Storing the result
+                    Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.StandardDeviation(ValueList)
+                    Me.SetNumericWordMetricValue("SD_" & CustomVariableName, SummaryResult)
+
+                Case SummaryMetricTypes.Maximum
+
+                    'Storing the result
+                    Dim SummaryResult As Double = ValueList.Max
+                    Me.SetNumericWordMetricValue("Max_" & CustomVariableName, SummaryResult)
+
+                Case SummaryMetricTypes.Minimum
+
+                    'Storing the result
+                    Dim SummaryResult As Double = ValueList.Min
+                    Me.SetNumericWordMetricValue("Min_" & CustomVariableName, SummaryResult)
+
+                Case SummaryMetricTypes.Median
+
+                    Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.Median(ValueList)
+                    Me.SetNumericWordMetricValue("Md_" & CustomVariableName, SummaryResult)
+
+                Case SummaryMetricTypes.InterquartileRange
+
+                    Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.InterquartileRange(ValueList)
+                    Me.SetNumericWordMetricValue("IQR_" & CustomVariableName, SummaryResult)
+
+                Case SummaryMetricTypes.CoefficientOfVariation
+
+                    'Storing the result
+                    Dim SummaryResult As Double = Utils.CoefficientOfVariation(ValueList)
+                    Me.SetNumericWordMetricValue("CV_" & CustomVariableName, SummaryResult)
+
+            End Select
+
+
+            'Cascading calculations to lower levels
+            For Each d In Descendants
+                d.SummariseNumericVariables(SourceLevels, CustomVariableName, MetricType)
+            Next
+
+        End If
+
+
+    End Sub
+
+    Public Enum SummaryMetricTypes
+        ArithmeticMean
+        StandardDeviation
+        Maximum
+        Minimum
+        Median
+        InterquartileRange
+        CoefficientOfVariation
+    End Enum
 
 End Class
 
@@ -924,6 +1015,8 @@ Public Class CustomVariablesDatabase
 
     Public CustomVariableNames As New List(Of String)
     Public CustomVariableTypes As New List(Of VariableTypes)
+
+    Public CaseInvariantSpellings As Boolean
 
     Public FilePath As String = ""
 
@@ -1049,7 +1142,6 @@ Public Class CustomVariablesDatabase
 
     Public Function LoadTabDelimitedFile(ByVal FilePath As String, ByVal MatchBy As LookupMathOptions,
                                          Optional ByVal SpellingVariableName As String = "", Optional ByVal TranscriptionVariableName As String = "",
-                                         Optional ByVal CaseInsensitiveSpellings As Boolean = True,
                                          Optional ByVal IncludeItems As SortedSet(Of String) = Nothing) As Boolean
 
 
@@ -1170,13 +1262,13 @@ Public Class CustomVariablesDatabase
                 Select Case MatchBy
                     Case LookupMathOptions.MatchBySpellingAndTranscription
                         Dim Spelling As String = LineSplit(SpellingColumnIndex).Trim
-                        If CaseInsensitiveSpellings = True Then
+                        If CaseInvariantSpellings = True Then
                             Spelling = Spelling.ToLower
                         End If
                         UniqueIdentifier = Spelling & vbTab & LineSplit(TranscriptionColumnIndex).Trim
                     Case LookupMathOptions.MatchBySpelling
                         Dim Spelling As String = LineSplit(SpellingColumnIndex).Trim
-                        If CaseInsensitiveSpellings = True Then
+                        If CaseInvariantSpellings = True Then
                             Spelling = Spelling.ToLower
                         End If
                         UniqueIdentifier = Spelling
