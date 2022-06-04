@@ -203,6 +203,53 @@ Public Class SpeechMaterialComponent
     End Function
 
     ''' <summary>
+    ''' Returns all variable names at any component at the indicated Linguistic level and their type (as a boolean IsNumeric), and checks that no variable name is used as both numeric and categorical.
+    ''' </summary>
+    ''' <param name="LinguisticLevel"></param>
+    ''' <returns></returns>
+    Public Function GetCustomVariableNameAndTypes(ByVal LinguisticLevel As SpeechMaterialComponent.LinguisticLevels) As SortedList(Of String, Boolean)
+
+        Dim AllCustomVariables As New SortedList(Of String, Boolean) ' Variable name, IsNumeric
+        Dim AllTargetLevelComponents = GetAllRelativesAtLevel(LinguisticLevel)
+
+        For Each Component In AllTargetLevelComponents
+
+            Dim CategoricalVariableNames = Component.GetCategoricalVariableNames
+            Dim NumericVariableNames = Component.GetNumericVariableNames
+
+            For Each CatName In CategoricalVariableNames
+
+                'Checking that the variable name is not used as both numeric and categorical.
+                If NumericVariableNames.Contains(CatName) Then
+                    MsgBox("The variable name " & CatName & " exist as both categorical and numeric at the linguistic level " & LinguisticLevel &
+                           " in the speech material component id: " & Component.Id & " ( " & Component.PrimaryStringRepresentation & " ). This is not allowed!", MsgBoxStyle.Information, "Getting custom variable names and types")
+                    Return Nothing
+                End If
+
+                'Stores the variable name, and the IsNumeric value of False
+                If AllCustomVariables.ContainsKey(CatName) = True Then AllCustomVariables.Add(CatName, False)
+            Next
+
+            For Each CatName In NumericVariableNames
+
+                'Checking that the variable name is not used as both numeric and categorical.
+                If CategoricalVariableNames.Contains(CatName) Then
+                    MsgBox("The variable name " & CatName & " exist as both numeric and categorical at the linguistic level " & LinguisticLevel &
+                           " in the speech material component id: " & Component.Id & " ( " & Component.PrimaryStringRepresentation & " ). This is not allowed!", MsgBoxStyle.Information, "Getting custom variable names and types")
+                    Return Nothing
+                End If
+
+                'Stores the variable name, and the IsNumeric value of False
+                If AllCustomVariables.ContainsKey(CatName) = True Then AllCustomVariables.Add(CatName, False)
+            Next
+
+        Next
+
+        Return AllCustomVariables
+
+    End Function
+
+    ''' <summary>
     ''' Searches among the numeric variable types for the indicated VariableName. If found returns word metric value, otherwise returns Nothing.
     ''' </summary>
     ''' <param name="VariableName"></param>
@@ -231,6 +278,24 @@ Public Class SpeechMaterialComponent
         Return ""
 
     End Function
+
+    ''' <summary>
+    ''' Returns the names of all categorical custom variabels
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetCategoricalVariableNames() As String()
+        Return CategoricalVariables.Keys
+    End Function
+
+
+    ''' <summary>
+    ''' Returns the names of all numeric custom variabels
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetNumericVariableNames() As String()
+        Return NumericVariables.Keys
+    End Function
+
 
     ''' <summary>
     ''' Adds the indicated Value to the indicated VariableName in the collection of CategoricalVariables. Adds the variable name if not already present.
@@ -928,7 +993,7 @@ Public Class SpeechMaterialComponent
 
     End Sub
 
-    Public Sub SummariseNumericVariables(ByVal SourceLevels As SpeechMaterialComponent.LinguisticLevels, ByVal CustomVariableName As String, ByRef MetricType As SummaryMetricTypes)
+    Public Sub SummariseNumericVariables(ByVal SourceLevels As SpeechMaterialComponent.LinguisticLevels, ByVal CustomVariableName As String, ByRef MetricType As NumericSummaryMetricTypes)
 
         If Me.LinguisticLevel < SourceLevels Then
 
@@ -940,41 +1005,41 @@ Public Class SpeechMaterialComponent
             Next
 
             Select Case MetricType
-                Case SummaryMetricTypes.ArithmeticMean
+                Case NumericSummaryMetricTypes.ArithmeticMean
 
                     'Storing the result
                     Dim SummaryResult As Double = ValueList.Average
                     Me.SetNumericWordMetricValue("Average_" & CustomVariableName, SummaryResult)
 
-                Case SummaryMetricTypes.StandardDeviation
+                Case NumericSummaryMetricTypes.StandardDeviation
 
                     'Storing the result
                     Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.StandardDeviation(ValueList)
                     Me.SetNumericWordMetricValue("SD_" & CustomVariableName, SummaryResult)
 
-                Case SummaryMetricTypes.Maximum
+                Case NumericSummaryMetricTypes.Maximum
 
                     'Storing the result
                     Dim SummaryResult As Double = ValueList.Max
                     Me.SetNumericWordMetricValue("Max_" & CustomVariableName, SummaryResult)
 
-                Case SummaryMetricTypes.Minimum
+                Case NumericSummaryMetricTypes.Minimum
 
                     'Storing the result
                     Dim SummaryResult As Double = ValueList.Min
                     Me.SetNumericWordMetricValue("Min_" & CustomVariableName, SummaryResult)
 
-                Case SummaryMetricTypes.Median
+                Case NumericSummaryMetricTypes.Median
 
                     Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.Median(ValueList)
                     Me.SetNumericWordMetricValue("Md_" & CustomVariableName, SummaryResult)
 
-                Case SummaryMetricTypes.InterquartileRange
+                Case NumericSummaryMetricTypes.InterquartileRange
 
                     Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.InterquartileRange(ValueList)
                     Me.SetNumericWordMetricValue("IQR_" & CustomVariableName, SummaryResult)
 
-                Case SummaryMetricTypes.CoefficientOfVariation
+                Case NumericSummaryMetricTypes.CoefficientOfVariation
 
                     'Storing the result
                     Dim SummaryResult As Double = Utils.CoefficientOfVariation(ValueList)
@@ -992,10 +1057,9 @@ Public Class SpeechMaterialComponent
 
         End If
 
-
     End Sub
 
-    Public Enum SummaryMetricTypes
+    Public Enum NumericSummaryMetricTypes
         ArithmeticMean
         StandardDeviation
         Maximum
@@ -1003,6 +1067,47 @@ Public Class SpeechMaterialComponent
         Median
         InterquartileRange
         CoefficientOfVariation
+    End Enum
+
+
+    Public Sub SummariseCategoricalVariables(ByVal SourceLevels As SpeechMaterialComponent.LinguisticLevels, ByVal CustomVariableName As String, ByRef MetricType As CategoricalSummaryMetricTypes)
+
+        If Me.LinguisticLevel < SourceLevels Then
+
+            Dim Descendants = GetAllDescenentsAtLevel(SourceLevels)
+
+            Dim ValueList As New List(Of Double)
+            For Each d In Descendants
+                ValueList.Add(d.GetNumericVariableValue(CustomVariableName))
+            Next
+
+            Select Case MetricType
+                Case CategoricalSummaryMetricTypes.Mode
+
+                    Throw New NotImplementedException
+
+                    'Storing the result
+                    Dim SummaryResult As Double = ValueList.Average
+                    Me.SetNumericWordMetricValue("Average_" & CustomVariableName, SummaryResult)
+
+                Case Else
+                    Throw New NotImplementedException
+
+            End Select
+
+            'Cascading calculations to lower levels
+            'Calling this from within the conditional statment, as no descendants should exist at more than one
+            'level, and if Me.LinguisticLevel >= SourceLevels no other descendants should be either, and thus the recursive calls can stop here.
+            For Each Child In ChildComponents
+                Child.SummariseCategoricalVariables(SourceLevels, CustomVariableName, MetricType)
+            Next
+
+        End If
+
+    End Sub
+
+    Public Enum CategoricalSummaryMetricTypes
+        Mode
     End Enum
 
 End Class
@@ -1115,8 +1220,8 @@ Public Class CustomVariablesDatabase
                         End If
 
                     Else
-                            'Adding the data as a String
-                            CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), ValueString)
+                        'Adding the data as a String
+                        CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), ValueString)
                     End If
 
                 Next

@@ -28,7 +28,9 @@ Partial Class StatisticalSummaryControl
         Me.Label1 = New System.Windows.Forms.Label()
         Me.LoadedSpeechMaterialName_TextBox = New System.Windows.Forms.TextBox()
         Me.Variables_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
-        Me.AddAndSave_Button = New System.Windows.Forms.Button()
+        Me.Calculate_Button = New System.Windows.Forms.Button()
+        Me.SaveButton = New System.Windows.Forms.Button()
+        Me.SourceLevel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.GroupBox2.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
         Me.SuspendLayout()
@@ -36,7 +38,7 @@ Partial Class StatisticalSummaryControl
         'GroupBox2
         '
         Me.GroupBox2.Controls.Add(Me.TableLayoutPanel3)
-        Me.GroupBox2.Location = New System.Drawing.Point(46, 73)
+        Me.GroupBox2.Location = New System.Drawing.Point(13, 14)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(344, 144)
         Me.GroupBox2.TabIndex = 7
@@ -90,6 +92,9 @@ Partial Class StatisticalSummaryControl
         Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
         Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
         Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
         Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
@@ -99,6 +104,7 @@ Partial Class StatisticalSummaryControl
         Me.LoadSpeechMaterial_LoadFileControl.Location = New System.Drawing.Point(3, 3)
         Me.LoadSpeechMaterial_LoadFileControl.Name = "LoadSpeechMaterial_LoadFileControl"
         Me.LoadSpeechMaterial_LoadFileControl.RowCount = 2
+        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -134,31 +140,48 @@ Partial Class StatisticalSummaryControl
         '
         'Variables_TableLayoutPanel
         '
-        Me.Variables_TableLayoutPanel.ColumnCount = 2
+        Me.Variables_TableLayoutPanel.ColumnCount = 1
         Me.Variables_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.Variables_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.Variables_TableLayoutPanel.Location = New System.Drawing.Point(173, 334)
+        Me.Variables_TableLayoutPanel.Location = New System.Drawing.Point(13, 200)
         Me.Variables_TableLayoutPanel.Name = "Variables_TableLayoutPanel"
-        Me.Variables_TableLayoutPanel.RowCount = 2
+        Me.Variables_TableLayoutPanel.RowCount = 1
         Me.Variables_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.Variables_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.Variables_TableLayoutPanel.Size = New System.Drawing.Size(200, 100)
+        Me.Variables_TableLayoutPanel.Size = New System.Drawing.Size(290, 193)
         Me.Variables_TableLayoutPanel.TabIndex = 8
         '
-        'AddAndSave_Button
+        'Calculate_Button
         '
-        Me.AddAndSave_Button.Location = New System.Drawing.Point(438, 277)
-        Me.AddAndSave_Button.Name = "AddAndSave_Button"
-        Me.AddAndSave_Button.Size = New System.Drawing.Size(75, 23)
-        Me.AddAndSave_Button.TabIndex = 9
-        Me.AddAndSave_Button.Text = "Button1"
-        Me.AddAndSave_Button.UseVisualStyleBackColor = True
+        Me.Calculate_Button.Location = New System.Drawing.Point(74, 411)
+        Me.Calculate_Button.Name = "Calculate_Button"
+        Me.Calculate_Button.Size = New System.Drawing.Size(203, 23)
+        Me.Calculate_Button.TabIndex = 9
+        Me.Calculate_Button.Text = "Run summary calculations"
+        Me.Calculate_Button.UseVisualStyleBackColor = True
+        '
+        'SaveButton
+        '
+        Me.SaveButton.Location = New System.Drawing.Point(297, 411)
+        Me.SaveButton.Name = "SaveButton"
+        Me.SaveButton.Size = New System.Drawing.Size(159, 23)
+        Me.SaveButton.TabIndex = 10
+        Me.SaveButton.Text = "Save"
+        Me.SaveButton.UseVisualStyleBackColor = True
+        '
+        'SourceLevel_ComboBox
+        '
+        Me.SourceLevel_ComboBox.FormattingEnabled = True
+        Me.SourceLevel_ComboBox.Location = New System.Drawing.Point(395, 59)
+        Me.SourceLevel_ComboBox.Name = "SourceLevel_ComboBox"
+        Me.SourceLevel_ComboBox.Size = New System.Drawing.Size(145, 21)
+        Me.SourceLevel_ComboBox.TabIndex = 11
         '
         'StatisticalSummaryControl
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.Controls.Add(Me.AddAndSave_Button)
+        Me.Controls.Add(Me.SourceLevel_ComboBox)
+        Me.Controls.Add(Me.SaveButton)
+        Me.Controls.Add(Me.Calculate_Button)
         Me.Controls.Add(Me.Variables_TableLayoutPanel)
         Me.Controls.Add(Me.GroupBox2)
         Me.Name = "StatisticalSummaryControl"
@@ -176,5 +199,7 @@ Partial Class StatisticalSummaryControl
     Friend WithEvents Label1 As Windows.Forms.Label
     Friend WithEvents LoadedSpeechMaterialName_TextBox As Windows.Forms.TextBox
     Friend WithEvents Variables_TableLayoutPanel As Windows.Forms.TableLayoutPanel
-    Friend WithEvents AddAndSave_Button As Windows.Forms.Button
+    Friend WithEvents Calculate_Button As Windows.Forms.Button
+    Friend WithEvents SaveButton As Windows.Forms.Button
+    Friend WithEvents SourceLevel_ComboBox As Windows.Forms.ComboBox
 End Class
