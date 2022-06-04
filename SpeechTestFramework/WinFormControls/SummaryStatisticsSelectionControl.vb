@@ -1,4 +1,4 @@
-﻿Public Class CustomVariableSelectControl
+﻿Public Class SummaryStatisticsSelectionControl
 
     Private _VariableName As String = ""
     Public Property VariableName As String

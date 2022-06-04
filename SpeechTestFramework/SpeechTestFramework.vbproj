@@ -110,10 +110,10 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
-    <Compile Include="WinFormControls\CustomVariableSelectControl.Designer.vb">
-      <DependentUpon>CustomVariableSelectControl.vb</DependentUpon>
+    <Compile Include="WinFormControls\SummaryStatisticsSelectionControl.Designer.vb">
+      <DependentUpon>SummaryStatisticsSelectionControl.vb</DependentUpon>
     </Compile>
-    <Compile Include="WinFormControls\CustomVariableSelectControl.vb">
+    <Compile Include="WinFormControls\SummaryStatisticsSelectionControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="WinFormControls\CustomVariableSelectionControl.Designer.vb">
@@ -244,8 +244,8 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinFormControls\CustomVariableSelectControl.resx">
-      <DependentUpon>CustomVariableSelectControl.vb</DependentUpon>
+    <EmbeddedResource Include="WinFormControls\SummaryStatisticsSelectionControl.resx">
+      <DependentUpon>SummaryStatisticsSelectionControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\CustomVariableSelectionControl.resx">
       <DependentUpon>CustomVariableSelectionControl.vb</DependentUpon>

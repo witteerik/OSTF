@@ -81,7 +81,7 @@
 
         For Each CustomVariable In AllCustomVariables
 
-            Dim NewVariableControl As New CustomVariableSelectControl
+            Dim NewVariableControl As New SummaryStatisticsSelectionControl
 
             'Setting the variable name in the variable selection control
             Dim VariableName = CustomVariable.Key
@@ -139,7 +139,7 @@
         Dim SourceLevel As SpeechMaterialComponent.LinguisticLevels = SourceLevel_ComboBox.SelectedItem
 
         'Calculating metrics on all higher levels
-        For Each VariableControl As CustomVariableSelectControl In Variables_TableLayoutPanel.Controls
+        For Each VariableControl As SummaryStatisticsSelectionControl In Variables_TableLayoutPanel.Controls
 
             'Only calculating summary statistics for selected numeric variables
             If VariableControl.IsSelected = True Then
