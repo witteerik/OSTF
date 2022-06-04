@@ -24,8 +24,8 @@ Partial Class SpeechMaterialCreator
     Private Sub InitializeComponent()
         Me.MainTabControl = New System.Windows.Forms.TabControl()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
-        Me.TabPage2 = New System.Windows.Forms.TabPage()
         Me.MySpeechMaterialComponentCreator = New SpeechTestFramework.SpeechMaterialComponentCreator()
+        Me.TabPage2 = New System.Windows.Forms.TabPage()
         Me.LexicalVariablesEditor1 = New SpeechTestFramework.LexicalVariablesEditor()
         Me.MainTabControl.SuspendLayout()
         Me.TabPage1.SuspendLayout()
@@ -51,19 +51,8 @@ Partial Class SpeechMaterialCreator
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
         Me.TabPage1.Size = New System.Drawing.Size(837, 424)
         Me.TabPage1.TabIndex = 0
-        Me.TabPage1.Text = "Speech material components"
+        Me.TabPage1.Text = "Speech material components (SMC)"
         Me.TabPage1.UseVisualStyleBackColor = True
-        '
-        'TabPage2
-        '
-        Me.TabPage2.Controls.Add(Me.LexicalVariablesEditor1)
-        Me.TabPage2.Location = New System.Drawing.Point(4, 22)
-        Me.TabPage2.Name = "TabPage2"
-        Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(837, 424)
-        Me.TabPage2.TabIndex = 1
-        Me.TabPage2.Text = "TabPage2"
-        Me.TabPage2.UseVisualStyleBackColor = True
         '
         'MySpeechMaterialComponentCreator
         '
@@ -74,6 +63,17 @@ Partial Class SpeechMaterialCreator
         Me.MySpeechMaterialComponentCreator.Name = "MySpeechMaterialComponentCreator"
         Me.MySpeechMaterialComponentCreator.Size = New System.Drawing.Size(831, 418)
         Me.MySpeechMaterialComponentCreator.TabIndex = 0
+        '
+        'TabPage2
+        '
+        Me.TabPage2.Controls.Add(Me.LexicalVariablesEditor1)
+        Me.TabPage2.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage2.Name = "TabPage2"
+        Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage2.Size = New System.Drawing.Size(837, 424)
+        Me.TabPage2.TabIndex = 1
+        Me.TabPage2.Text = "Add lexical variables to SMC"
+        Me.TabPage2.UseVisualStyleBackColor = True
         '
         'LexicalVariablesEditor1
         '

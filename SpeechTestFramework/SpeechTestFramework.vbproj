@@ -110,6 +110,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
+    <Compile Include="WinFormControls\CustomVariableSelectControl.Designer.vb">
+      <DependentUpon>CustomVariableSelectControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\CustomVariableSelectControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormControls\CustomVariableSelectionControl.Designer.vb">
       <DependentUpon>CustomVariableSelectionControl.vb</DependentUpon>
     </Compile>
@@ -212,6 +218,12 @@
     <Compile Include="WinFormDialogs\SpectrogramSettingsDialog.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="WinFormsComplexControls\StatisticalSummaryControl.Designer.vb">
+      <DependentUpon>StatisticalSummaryControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormsComplexControls\StatisticalSummaryControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinForms\SpeechMaterialCreator.Designer.vb">
       <DependentUpon>SpeechMaterialCreator.vb</DependentUpon>
     </Compile>
@@ -232,6 +244,9 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\CustomVariableSelectControl.resx">
+      <DependentUpon>CustomVariableSelectControl.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\CustomVariableSelectionControl.resx">
       <DependentUpon>CustomVariableSelectionControl.vb</DependentUpon>
     </EmbeddedResource>
@@ -249,6 +264,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormDialogs\SpectrogramSettingsDialog.resx">
       <DependentUpon>SpectrogramSettingsDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormsComplexControls\StatisticalSummaryControl.resx">
+      <DependentUpon>StatisticalSummaryControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinForms\SpeechMaterialCreator.resx">
       <DependentUpon>SpeechMaterialCreator.vb</DependentUpon>

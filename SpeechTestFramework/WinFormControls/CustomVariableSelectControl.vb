@@ -1,5 +1,4 @@
-﻿Public Class CustomVariableSelectionControl
-
+﻿Public Class CustomVariableSelectControl
 
     Private _OriginalVariableName As String = ""
 
@@ -30,7 +29,6 @@
         End If
 
     End Function
-
     Private _IsNumericVariable As Boolean = True
     Public Property IsNumericVariable As Boolean
         Get
@@ -40,14 +38,15 @@
             _IsNumericVariable = value
 
             If _IsNumericVariable = True Then
-                TypeLabel.Text = "(Numeric)"
+                NumericSummaryMethodsBox.Visible = True
+                CategorialSummaryMethodsBox.Visible = False
             Else
-                TypeLabel.Text = "(Categorical)"
+                NumericSummaryMethodsBox.Visible = False
+                CategorialSummaryMethodsBox.Visible = True
             End If
 
         End Set
     End Property
-
 
 
     Private Sub RenameTo_TextBox_TextChanged(sender As Object, e As EventArgs) Handles RenameTo_TextBox.TextChanged
@@ -82,10 +81,10 @@
         'Returns true as there is nothing to compare to
         If Parent Is Nothing Then Return True
 
-        Dim SiblingControls As New List(Of CustomVariableSelectionControl)
+        Dim SiblingControls As New List(Of CustomVariableSelectControl)
         For Each c In Parent.Controls
 
-            Dim CastControl = TryCast(c, CustomVariableSelectionControl)
+            Dim CastControl = TryCast(c, CustomVariableSelectControl)
             If CastControl IsNot Nothing Then
                 If CastControl.GetUpdatedVariableName = NewVariableName Then Return False
             End If
@@ -94,5 +93,6 @@
         Return True
 
     End Function
+
 
 End Class

@@ -39,14 +39,14 @@ Partial Class LexicalVariablesEditor
         Me.Label5 = New System.Windows.Forms.Label()
         Me.SpellingVariableNameTextBox = New System.Windows.Forms.TextBox()
         Me.Label4 = New System.Windows.Forms.Label()
+        Me.LoadDatabase_LoadFileControl = New SpeechTestFramework.LoadFileControl()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
+        Me.LoadSpeechMaterial_LoadFileControl = New SpeechTestFramework.LoadFileControl()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.LoadedSpeechMaterialName_TextBox = New System.Windows.Forms.TextBox()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.CaseInvariantLookupCheckBox = New System.Windows.Forms.CheckBox()
-        Me.LoadDatabase_LoadFileControl = New SpeechTestFramework.LoadFileControl()
-        Me.LoadSpeechMaterial_LoadFileControl = New SpeechTestFramework.LoadFileControl()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.ProcessingGroupBox.SuspendLayout()
         Me.TableLayoutPanel4.SuspendLayout()
@@ -69,8 +69,8 @@ Partial Class LexicalVariablesEditor
         Me.TableLayoutPanel1.Controls.Add(Me.ProcessingGroupBox, 0, 2)
         Me.TableLayoutPanel1.Controls.Add(Me.GroupBox4, 1, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.LoadDatabase_GroupBox, 2, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.GroupBox2, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.GroupBox3, 1, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.GroupBox2, 0, 0)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
@@ -275,6 +275,58 @@ Partial Class LexicalVariablesEditor
         Me.Label4.Text = "Spelling variable name:"
         Me.Label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'LoadDatabase_LoadFileControl
+        '
+        Me.LoadDatabase_LoadFileControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.LoadDatabase_LoadFileControl.ColumnCount = 2
+        Me.TableLayoutPanel2.SetColumnSpan(Me.LoadDatabase_LoadFileControl, 2)
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 71.62791!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.37209!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 96.0!))
+        Me.LoadDatabase_LoadFileControl.Description = "Select file and press Load"
+        Me.LoadDatabase_LoadFileControl.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LoadDatabase_LoadFileControl.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
+        Me.LoadDatabase_LoadFileControl.Location = New System.Drawing.Point(3, 53)
+        Me.LoadDatabase_LoadFileControl.Name = "LoadDatabase_LoadFileControl"
+        Me.LoadDatabase_LoadFileControl.RowCount = 2
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.Size = New System.Drawing.Size(332, 57)
+        Me.LoadDatabase_LoadFileControl.TabIndex = 6
+        '
         'GroupBox2
         '
         Me.GroupBox2.Controls.Add(Me.TableLayoutPanel3)
@@ -304,6 +356,49 @@ Partial Class LexicalVariablesEditor
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel3.Size = New System.Drawing.Size(338, 125)
         Me.TableLayoutPanel3.TabIndex = 0
+        '
+        'LoadSpeechMaterial_LoadFileControl
+        '
+        Me.LoadSpeechMaterial_LoadFileControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnCount = 2
+        Me.TableLayoutPanel3.SetColumnSpan(Me.LoadSpeechMaterial_LoadFileControl, 2)
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.Description = "Select file and press Load"
+        Me.LoadSpeechMaterial_LoadFileControl.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LoadSpeechMaterial_LoadFileControl.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
+        Me.LoadSpeechMaterial_LoadFileControl.Location = New System.Drawing.Point(3, 3)
+        Me.LoadSpeechMaterial_LoadFileControl.Name = "LoadSpeechMaterial_LoadFileControl"
+        Me.LoadSpeechMaterial_LoadFileControl.RowCount = 2
+        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadSpeechMaterial_LoadFileControl.Size = New System.Drawing.Size(332, 57)
+        Me.LoadSpeechMaterial_LoadFileControl.TabIndex = 0
         '
         'Label1
         '
@@ -347,93 +442,6 @@ Partial Class LexicalVariablesEditor
         Me.CaseInvariantLookupCheckBox.TabIndex = 3
         Me.CaseInvariantLookupCheckBox.Text = "Case-invariant look up"
         Me.CaseInvariantLookupCheckBox.UseVisualStyleBackColor = True
-        '
-        'LoadDatabase_LoadFileControl
-        '
-        Me.LoadDatabase_LoadFileControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.LoadDatabase_LoadFileControl.ColumnCount = 2
-        Me.TableLayoutPanel2.SetColumnSpan(Me.LoadDatabase_LoadFileControl, 2)
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 71.62791!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.37209!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
-        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 96.0!))
-        Me.LoadDatabase_LoadFileControl.Description = "Select file and press Load"
-        Me.LoadDatabase_LoadFileControl.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LoadDatabase_LoadFileControl.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
-        Me.LoadDatabase_LoadFileControl.Location = New System.Drawing.Point(3, 53)
-        Me.LoadDatabase_LoadFileControl.Name = "LoadDatabase_LoadFileControl"
-        Me.LoadDatabase_LoadFileControl.RowCount = 2
-        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadDatabase_LoadFileControl.Size = New System.Drawing.Size(332, 57)
-        Me.LoadDatabase_LoadFileControl.TabIndex = 6
-        '
-        'LoadSpeechMaterial_LoadFileControl
-        '
-        Me.LoadSpeechMaterial_LoadFileControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnCount = 2
-        Me.TableLayoutPanel3.SetColumnSpan(Me.LoadSpeechMaterial_LoadFileControl, 2)
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.Description = "Select file and press Load"
-        Me.LoadSpeechMaterial_LoadFileControl.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LoadSpeechMaterial_LoadFileControl.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
-        Me.LoadSpeechMaterial_LoadFileControl.Location = New System.Drawing.Point(3, 3)
-        Me.LoadSpeechMaterial_LoadFileControl.Name = "LoadSpeechMaterial_LoadFileControl"
-        Me.LoadSpeechMaterial_LoadFileControl.RowCount = 2
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.Size = New System.Drawing.Size(332, 57)
-        Me.LoadSpeechMaterial_LoadFileControl.TabIndex = 0
         '
         'LexicalVariablesEditor
         '

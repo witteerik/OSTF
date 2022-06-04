@@ -1,7 +1,6 @@
 ﻿Public Class LexicalVariablesEditor
 
     ' Looks up word level (lexical) variables from a user specified tab delimited text file and adds that data to the word level custom variables file that belong to the loaded speech material.
-    ' Optinally also calculates variables on other levels ...
 
     Private LoadedSpeechMaterial As SpeechMaterialComponent
     Private LoadedLexicalDatabase As CustomVariablesDatabase
@@ -167,32 +166,57 @@
             Return False
         End If
 
-        For Each VariableName In LoadedLexicalDatabase.CustomVariableNames
+        Dim rnd As New Random(30)
+
+        Variables_TableLayoutPanel.SuspendLayout()
+
+        For v = 0 To LoadedLexicalDatabase.CustomVariableNames.Count - 1
 
             Dim NewVariableControl As New CustomVariableSelectionControl
 
+            'Setting the variable name in the variable selection control
+            Dim VariableName = LoadedLexicalDatabase.CustomVariableNames(v)
             NewVariableControl.OriginalVariableName = VariableName
 
+            'Determining if the variable is numeric or not, and setting the corresponding variable selection control value
+            Dim IsNumericVariable As Boolean = True
+            If LoadedLexicalDatabase.CustomVariableTypes(v) = VariableTypes.Categorical Then
+                IsNumericVariable = False
+            End If
+            NewVariableControl.IsNumericVariable = IsNumericVariable
+
+            'Setting a random background color on the control
+            NewVariableControl.BackColor = Drawing.Color.FromArgb(20, CSng(rnd.Next(10, 255)), CSng(rnd.Next(10, 255)), CSng(rnd.Next(10, 255)))
+
+            'Adding the variable selection control
+            NewVariableControl.Dock = Windows.Forms.DockStyle.Fill
             Variables_TableLayoutPanel.Controls.Add(NewVariableControl)
 
         Next
 
-        'Fixes the row and column styles
-        Variables_TableLayoutPanel.ColumnStyles.Clear()
-        Variables_TableLayoutPanel.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 100))
+        FormatVariableSelectionControl()
 
-        Variables_TableLayoutPanel.RowStyles.Clear()
-        For i = 0 To Variables_TableLayoutPanel.RowCount
-            Variables_TableLayoutPanel.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Absolute, 100))
-        Next
+        Variables_TableLayoutPanel.ResumeLayout()
 
         Return True
 
     End Function
 
 
-    Private Sub AddAndSave_Button_Click(sender As Object, e As EventArgs) Handles AddAndSave_Button.Click
+    Private Sub FormatVariableSelectionControl() Handles Me.Resize
 
+        'Fixes the row and column styles
+        Variables_TableLayoutPanel.ColumnStyles.Clear()
+        Variables_TableLayoutPanel.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 100))
+
+        Variables_TableLayoutPanel.RowStyles.Clear()
+        For i = 0 To Variables_TableLayoutPanel.Controls.Count - 1
+            Variables_TableLayoutPanel.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Absolute, 36))
+        Next
+
+    End Sub
+
+    Private Sub AddAndSave_Button_Click(sender As Object, e As EventArgs) Handles AddAndSave_Button.Click
 
         If LoadedSpeechMaterial Is Nothing Or LoadedLexicalDatabase Is Nothing Then
             UpdateControlEnabledStatuses()
@@ -235,62 +259,17 @@
                     'Using the updated name (which may be the original name or a different name set manually by the user)
                     Dim CurrentUpdatedVariableName As String = VariableControl.GetUpdatedVariableName
 
-                    'Selects variable type
-                    Select Case CurrentVariableValue.GetType
-                        Case GetType(Double), GetType(Boolean)
-                            'Storing Double and Boolean as numeric variables 
-                            WordComponent.SetNumericWordMetricValue(CurrentUpdatedVariableName, CurrentVariableValue)
-                            VariableControl.IsNumericVariable = True
-                        Case GetType(String)
-                            'Storing String as categorical
-                            WordComponent.SetCategoricalWordMetricValue(CurrentUpdatedVariableName, CurrentVariableValue)
-                            VariableControl.IsNumericVariable = False
-                        Case Else
-                            Throw New Exception("Unexpected variable type. Only Double, Boolean and String, should have been read into the CustomVariablesDatabase.")
-                    End Select
+                    'Selects variable type, and saves the variable value
+                    If VariableControl.IsNumericVariable = True Then
+                        WordComponent.SetNumericWordMetricValue(CurrentUpdatedVariableName, CurrentVariableValue)
+                    Else
+                        WordComponent.SetCategoricalWordMetricValue(CurrentUpdatedVariableName, CurrentVariableValue)
+                    End If
                 End If
             Next
         Next
 
-        'Calculating metrics on all higher levels
-        For Each VariableControl As CustomVariableSelectionControl In Variables_TableLayoutPanel.Controls
 
-            'Only calculating summary statistics for selected numeric variables
-            If VariableControl.IsSelected = True And VariableControl.IsNumericVariable = True Then
-
-                Dim TopLevelControl = LoadedSpeechMaterial.GetToplevelAncestor
-
-                If VariableControl.ArithmeticMean_CheckBox.Checked = True Then
-                    TopLevelControl.SummariseNumericVariables(SpeechMaterialComponent.LinguisticLevels.Word, VariableControl.GetUpdatedVariableName, SpeechMaterialComponent.SummaryMetricTypes.ArithmeticMean)
-                End If
-
-                If VariableControl.SD_CheckBox.Checked = True Then
-                    TopLevelControl.SummariseNumericVariables(SpeechMaterialComponent.LinguisticLevels.Word, VariableControl.GetUpdatedVariableName, SpeechMaterialComponent.SummaryMetricTypes.StandardDeviation)
-                End If
-
-                If VariableControl.Max_CheckBox.Checked = True Then
-                    TopLevelControl.SummariseNumericVariables(SpeechMaterialComponent.LinguisticLevels.Word, VariableControl.GetUpdatedVariableName, SpeechMaterialComponent.SummaryMetricTypes.Maximum)
-                End If
-
-                If VariableControl.Min_CheckBox.Checked = True Then
-                    TopLevelControl.SummariseNumericVariables(SpeechMaterialComponent.LinguisticLevels.Word, VariableControl.GetUpdatedVariableName, SpeechMaterialComponent.SummaryMetricTypes.Minimum)
-                End If
-
-                If VariableControl.Median_CheckBox.Checked = True Then
-                    TopLevelControl.SummariseNumericVariables(SpeechMaterialComponent.LinguisticLevels.Word, VariableControl.GetUpdatedVariableName, SpeechMaterialComponent.SummaryMetricTypes.Median)
-                End If
-
-                If VariableControl.IQR_CheckBox.Checked = True Then
-                    TopLevelControl.SummariseNumericVariables(SpeechMaterialComponent.LinguisticLevels.Word, VariableControl.GetUpdatedVariableName, SpeechMaterialComponent.SummaryMetricTypes.InterquartileRange)
-                End If
-
-                If VariableControl.CV_CheckBox.Checked = True Then
-                    TopLevelControl.SummariseNumericVariables(SpeechMaterialComponent.LinguisticLevels.Word, VariableControl.GetUpdatedVariableName, SpeechMaterialComponent.SummaryMetricTypes.CoefficientOfVariation)
-                End If
-
-            End If
-
-        Next
 
         'Saving updated files
         LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialComponenFile()
