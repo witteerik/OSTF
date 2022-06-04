@@ -23,9 +23,7 @@ Partial Class CustomVariableSelectControl
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
-        Me.OriginalVariabelName_CheckBox = New System.Windows.Forms.CheckBox()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.RenameTo_TextBox = New System.Windows.Forms.TextBox()
+        Me.VariabelName_CheckBox = New System.Windows.Forms.CheckBox()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
         Me.NumericSummaryMethodsBox = New System.Windows.Forms.FlowLayoutPanel()
@@ -38,6 +36,7 @@ Partial Class CustomVariableSelectControl
         Me.CV_CheckBox = New System.Windows.Forms.CheckBox()
         Me.CategorialSummaryMethodsBox = New System.Windows.Forms.FlowLayoutPanel()
         Me.Mode_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.Distribution_CheckBox = New System.Windows.Forms.CheckBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.FlowLayoutPanel1.SuspendLayout()
@@ -47,66 +46,45 @@ Partial Class CustomVariableSelectControl
         '
         'TableLayoutPanel1
         '
-        Me.TableLayoutPanel1.ColumnCount = 4
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.022556!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 43.5955!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 14.49438!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.03371!))
-        Me.TableLayoutPanel1.Controls.Add(Me.OriginalVariabelName_CheckBox, 0, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.Label1, 2, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.RenameTo_TextBox, 3, 0)
+        Me.TableLayoutPanel1.ColumnCount = 2
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 6.292135!))
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 93.70786!))
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.TableLayoutPanel1.Controls.Add(Me.VariabelName_CheckBox, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.GroupBox1, 1, 1)
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(10, 26)
+        Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 2
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(890, 98)
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(818, 102)
         Me.TableLayoutPanel1.TabIndex = 1
         '
-        'OriginalVariabelName_CheckBox
+        'VariabelName_CheckBox
         '
-        Me.OriginalVariabelName_CheckBox.BackColor = System.Drawing.Color.Transparent
-        Me.TableLayoutPanel1.SetColumnSpan(Me.OriginalVariabelName_CheckBox, 2)
-        Me.OriginalVariabelName_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.OriginalVariabelName_CheckBox.Location = New System.Drawing.Point(3, 3)
-        Me.OriginalVariabelName_CheckBox.Name = "OriginalVariabelName_CheckBox"
-        Me.OriginalVariabelName_CheckBox.Size = New System.Drawing.Size(461, 19)
-        Me.OriginalVariabelName_CheckBox.TabIndex = 0
-        Me.OriginalVariabelName_CheckBox.Text = "CheckBox1"
-        Me.OriginalVariabelName_CheckBox.UseVisualStyleBackColor = False
-        '
-        'Label1
-        '
-        Me.Label1.BackColor = System.Drawing.Color.Transparent
-        Me.Label1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label1.Location = New System.Drawing.Point(470, 0)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(122, 25)
-        Me.Label1.TabIndex = 1
-        Me.Label1.Text = "(Optionally) Rename to:"
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'RenameTo_TextBox
-        '
-        Me.RenameTo_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.RenameTo_TextBox.Location = New System.Drawing.Point(598, 3)
-        Me.RenameTo_TextBox.Name = "RenameTo_TextBox"
-        Me.RenameTo_TextBox.Size = New System.Drawing.Size(289, 20)
-        Me.RenameTo_TextBox.TabIndex = 2
+        Me.VariabelName_CheckBox.BackColor = System.Drawing.Color.Transparent
+        Me.TableLayoutPanel1.SetColumnSpan(Me.VariabelName_CheckBox, 2)
+        Me.VariabelName_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.VariabelName_CheckBox.Location = New System.Drawing.Point(3, 3)
+        Me.VariabelName_CheckBox.Name = "VariabelName_CheckBox"
+        Me.VariabelName_CheckBox.Size = New System.Drawing.Size(812, 19)
+        Me.VariabelName_CheckBox.TabIndex = 0
+        Me.VariabelName_CheckBox.Text = "CheckBox1"
+        Me.VariabelName_CheckBox.UseVisualStyleBackColor = False
         '
         'GroupBox1
         '
         Me.GroupBox1.BackColor = System.Drawing.Color.Transparent
-        Me.TableLayoutPanel1.SetColumnSpan(Me.GroupBox1, 3)
         Me.GroupBox1.Controls.Add(Me.FlowLayoutPanel1)
         Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox1.Location = New System.Drawing.Point(83, 28)
+        Me.GroupBox1.Location = New System.Drawing.Point(54, 28)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(804, 67)
+        Me.GroupBox1.Size = New System.Drawing.Size(761, 71)
         Me.GroupBox1.TabIndex = 3
         Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "Calculate at higher levels"
+        Me.GroupBox1.Text = "Select summary metrics"
         '
         'FlowLayoutPanel1
         '
@@ -116,7 +94,7 @@ Partial Class CustomVariableSelectControl
         Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.FlowLayoutPanel1.Location = New System.Drawing.Point(3, 16)
         Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
-        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(798, 48)
+        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(755, 52)
         Me.FlowLayoutPanel1.TabIndex = 0
         '
         'NumericSummaryMethodsBox
@@ -208,9 +186,10 @@ Partial Class CustomVariableSelectControl
         '
         Me.CategorialSummaryMethodsBox.AutoSize = True
         Me.CategorialSummaryMethodsBox.Controls.Add(Me.Mode_CheckBox)
-        Me.CategorialSummaryMethodsBox.Location = New System.Drawing.Point(707, 3)
+        Me.CategorialSummaryMethodsBox.Controls.Add(Me.Distribution_CheckBox)
+        Me.CategorialSummaryMethodsBox.Location = New System.Drawing.Point(3, 32)
         Me.CategorialSummaryMethodsBox.Name = "CategorialSummaryMethodsBox"
-        Me.CategorialSummaryMethodsBox.Size = New System.Drawing.Size(59, 23)
+        Me.CategorialSummaryMethodsBox.Size = New System.Drawing.Size(143, 23)
         Me.CategorialSummaryMethodsBox.TabIndex = 8
         '
         'Mode_CheckBox
@@ -223,15 +202,24 @@ Partial Class CustomVariableSelectControl
         Me.Mode_CheckBox.Text = "Mode"
         Me.Mode_CheckBox.UseVisualStyleBackColor = True
         '
+        'Distribution_CheckBox
+        '
+        Me.Distribution_CheckBox.AutoSize = True
+        Me.Distribution_CheckBox.Location = New System.Drawing.Point(62, 3)
+        Me.Distribution_CheckBox.Name = "Distribution_CheckBox"
+        Me.Distribution_CheckBox.Size = New System.Drawing.Size(78, 17)
+        Me.Distribution_CheckBox.TabIndex = 9
+        Me.Distribution_CheckBox.Text = "Distribution"
+        Me.Distribution_CheckBox.UseVisualStyleBackColor = True
+        '
         'CustomVariableSelectControl
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.Controls.Add(Me.TableLayoutPanel1)
         Me.Name = "CustomVariableSelectControl"
-        Me.Size = New System.Drawing.Size(747, 150)
+        Me.Size = New System.Drawing.Size(818, 102)
         Me.TableLayoutPanel1.ResumeLayout(False)
-        Me.TableLayoutPanel1.PerformLayout()
         Me.GroupBox1.ResumeLayout(False)
         Me.FlowLayoutPanel1.ResumeLayout(False)
         Me.FlowLayoutPanel1.PerformLayout()
@@ -244,9 +232,7 @@ Partial Class CustomVariableSelectControl
     End Sub
 
     Friend WithEvents TableLayoutPanel1 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents OriginalVariabelName_CheckBox As Windows.Forms.CheckBox
-    Friend WithEvents Label1 As Windows.Forms.Label
-    Friend WithEvents RenameTo_TextBox As Windows.Forms.TextBox
+    Friend WithEvents VariabelName_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents GroupBox1 As Windows.Forms.GroupBox
     Friend WithEvents FlowLayoutPanel1 As Windows.Forms.FlowLayoutPanel
     Friend WithEvents NumericSummaryMethodsBox As Windows.Forms.FlowLayoutPanel
@@ -259,4 +245,5 @@ Partial Class CustomVariableSelectControl
     Friend WithEvents CV_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents CategorialSummaryMethodsBox As Windows.Forms.FlowLayoutPanel
     Friend WithEvents Mode_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents Distribution_CheckBox As Windows.Forms.CheckBox
 End Class

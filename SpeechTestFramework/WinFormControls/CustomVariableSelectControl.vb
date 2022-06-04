@@ -1,34 +1,23 @@
 ﻿Public Class CustomVariableSelectControl
 
-    Private _OriginalVariableName As String = ""
-
-    Public Property OriginalVariableName As String
+    Private _VariableName As String = ""
+    Public Property VariableName As String
         Get
-            Return _OriginalVariableName
+            Return _VariableName
         End Get
         Set(value As String)
-            _OriginalVariableName = value
+            _VariableName = value
 
-            'Also sets the text in the OriginalVariabelName_CheckBox
-            OriginalVariabelName_CheckBox.Text = _OriginalVariableName
+            'Also sets the text in the VariabelName_CheckBox
+            VariabelName_CheckBox.Text = _VariableName
         End Set
     End Property
 
     Public Function IsSelected() As Boolean
-        Return OriginalVariabelName_CheckBox.Checked
+        Return VariabelName_CheckBox.Checked
     End Function
 
-    Public Property NewVariableName As String = ""
 
-    Public Function GetUpdatedVariableName() As String
-
-        If NewVariableName <> "" Then
-            Return NewVariableName
-        Else
-            Return OriginalVariableName
-        End If
-
-    End Function
     Private _IsNumericVariable As Boolean = True
     Public Property IsNumericVariable As Boolean
         Get
@@ -48,51 +37,58 @@
         End Set
     End Property
 
+    Private Sub CustomVariableSelectControl_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-    Private Sub RenameTo_TextBox_TextChanged(sender As Object, e As EventArgs) Handles RenameTo_TextBox.TextChanged
+        For Each c As Windows.Forms.CheckBox In NumericSummaryMethodsBox.Controls
+            AddHandler c.CheckedChanged, AddressOf NumericSummaryMethodsBox_CheckedChanged
+        Next
 
-        Dim NewNameIsValid As Boolean = True
+        For Each c As Windows.Forms.CheckBox In CategorialSummaryMethodsBox.Controls
+            AddHandler c.CheckedChanged, AddressOf CategorialSummaryMethodsBox_CheckedChanged
+        Next
 
-        If RenameTo_TextBox.Text.Trim = "" Then NewNameIsValid = False
-        If ValidateNewVariableName(RenameTo_TextBox.Text) = False Then NewNameIsValid = False
+    End Sub
 
-        If NewNameIsValid = True Then
-            NewVariableName = RenameTo_TextBox.Text
 
-            If Me.Parent IsNot Nothing Then
-                RenameTo_TextBox.ForeColor = Me.Parent.ForeColor
+    Private Sub VariabelName_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles VariabelName_CheckBox.CheckedChanged
+
+        'Selecting a default CheckBox
+        If VariabelName_CheckBox.Checked = True Then
+            If IsNumericVariable = True Then
+                'Checking the ArithmeticMean_CheckBox if no other checkbox is selected
+                If IsAnyNumericCheckBoxChecked() = False Then ArithmeticMean_CheckBox.Checked = True
             Else
-                RenameTo_TextBox.ForeColor = Drawing.Color.Black
+                'Checking the Mode_CheckBox if no other checkbox is selected
+                If IsAnyCategoricalCheckBoxChecked() = False Then Mode_CheckBox.Checked = True
             End If
-        Else
-            NewVariableName = ""
-            RenameTo_TextBox.ForeColor = System.Drawing.Color.Red
         End If
 
     End Sub
 
-    ''' <summary>
-    ''' Checks that no other sibling control has the same name
-    ''' </summary>
-    ''' <param name="NewVariableName"></param>
-    ''' <returns>Returns true if the new variable name is free to use</returns>
-    Private Function ValidateNewVariableName(ByVal NewVariableName As String)
-
-        'Returns true as there is nothing to compare to
-        If Parent Is Nothing Then Return True
-
-        Dim SiblingControls As New List(Of CustomVariableSelectControl)
-        For Each c In Parent.Controls
-
-            Dim CastControl = TryCast(c, CustomVariableSelectControl)
-            If CastControl IsNot Nothing Then
-                If CastControl.GetUpdatedVariableName = NewVariableName Then Return False
-            End If
+    Private Function IsAnyNumericCheckBoxChecked() As Boolean
+        For Each c As Windows.Forms.CheckBox In NumericSummaryMethodsBox.Controls
+            If c.Checked = True Then Return True
         Next
-
-        Return True
-
+        Return False
     End Function
+
+    Private Function IsAnyCategoricalCheckBoxChecked() As Boolean
+        For Each c As Windows.Forms.CheckBox In CategorialSummaryMethodsBox.Controls
+            If c.Checked = True Then Return True
+        Next
+        Return False
+    End Function
+
+    Private Sub CategorialSummaryMethodsBox_CheckedChanged()
+        'De-selecting the variable, if no checkboxes are checked, and selecting it if at least one is
+        VariabelName_CheckBox.Checked = IsAnyCategoricalCheckBoxChecked()
+    End Sub
+
+    Private Sub NumericSummaryMethodsBox_CheckedChanged()
+        'De-selecting the variable, if no checkboxes are checked, and selecting it if at least one is
+        VariabelName_CheckBox.Checked = IsAnyNumericCheckBoxChecked()
+
+    End Sub
 
 
 End Class

@@ -101,7 +101,7 @@
         CurrentListCollectionComponent.DbId = CurrentListCollectionComponent.Id
         CurrentListCollectionComponent.PrimaryStringRepresentation = CurrentListCollectionComponent.Id
 
-        CurrentListCollectionComponent.SetCategoricalWordMetricValue("DbId", CurrentListCollectionComponent.Id)
+        CurrentListCollectionComponent.SetCategoricalVariableValue("DbId", CurrentListCollectionComponent.Id)
 
         Dim CurrentListComponent As SpeechMaterialComponent = Nothing
         Dim CurrentSentenceComponent As SpeechMaterialComponent = Nothing
@@ -148,8 +148,8 @@
                 If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.List Then CurrentListComponent.MediaFolder = CurrentListComponent.Id & "_" & CurrentListComponent.PrimaryStringRepresentation.Replace(" ", "_")
                 CurrentListComponent.OrderedChildren = OrderedSentencesCheckBox.Checked
 
-                CurrentListComponent.SetCategoricalWordMetricValue("DbId", CurrentListComponent.DbId)
-                CurrentListComponent.SetCategoricalWordMetricValue("ListName", ListName)
+                CurrentListComponent.SetCategoricalVariableValue("DbId", CurrentListComponent.DbId)
+                CurrentListComponent.SetCategoricalVariableValue("ListName", ListName)
 
             ElseIf CurrentLine.StartsWith("[") Then
 
@@ -169,13 +169,13 @@
                 End If
 
                 'Adds the transcriptions
-                CurrentSentenceComponent.SetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, CurrentLine)
+                CurrentSentenceComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, CurrentLine)
 
                 Dim WordTranscriptions = CurrentLine.Split(",")
                 'Checks that the number of transcriptions and spellings agree
                 If CurrentSentenceComponent.ChildComponents.Count <> WordTranscriptions.Length Then
                     MsgBox("The number of transcriptions at the following line (line " & i + 1 & ") do do agree with the number of speelings in the corresponding sentence. Have you missed a comma between word transcriptions?" & vbCrLf & vbCrLf &
-                   CurrentSentenceComponent.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultSpellingVariableName) & vbCrLf & CurrentLine, MsgBoxStyle.Information, "Checking input data")
+                   CurrentSentenceComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName) & vbCrLf & CurrentLine, MsgBoxStyle.Information, "Checking input data")
                     Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
                 End If
 
@@ -183,10 +183,10 @@
                 NumberOfTranscriptionLines += 1
 
                 For w = 0 To WordTranscriptions.Length - 1
-                    CurrentSentenceComponent.ChildComponents(w).SetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, WordTranscriptions(w).Trim.TrimStart("[").TrimEnd("]".Trim))
+                    CurrentSentenceComponent.ChildComponents(w).SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, WordTranscriptions(w).Trim.TrimStart("[").TrimEnd("]".Trim))
 
                     'Adding phonetic transcription components, taken from the transcription (phonemes need to be separated by black spaces)
-                    Dim Phonemes = CurrentSentenceComponent.ChildComponents(w).GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Split(" ")
+                    Dim Phonemes = CurrentSentenceComponent.ChildComponents(w).GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Split(" ")
                     For p = 0 To Phonemes.Length - 1
 
                         Dim CurrentPhoneme = Phonemes(p)
@@ -209,8 +209,8 @@
                         NewPhonemeComponent.PrimaryStringRepresentation = CurrentPhoneme
                         If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then NewPhonemeComponent.MediaFolder = NewPhonemeComponent.Id & "_" & NewPhonemeComponent.PrimaryStringRepresentation.Replace(" ", "_")
 
-                        NewPhonemeComponent.SetCategoricalWordMetricValue("DbId", NewPhonemeComponent.DbId)
-                        NewPhonemeComponent.SetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, CurrentPhoneme)
+                        NewPhonemeComponent.SetCategoricalVariableValue("DbId", NewPhonemeComponent.DbId)
+                        NewPhonemeComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, CurrentPhoneme)
 
                     Next
                 Next
@@ -231,8 +231,8 @@
                 CurrentSentenceComponent.PrimaryStringRepresentation = "Sentence" & (CurrentListComponent.ChildComponents.Count - 1).ToString("00")
                 If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then CurrentSentenceComponent.MediaFolder = CurrentSentenceComponent.Id & "_" & CurrentSentenceComponent.PrimaryStringRepresentation.Replace(" ", "_")
 
-                CurrentSentenceComponent.SetCategoricalWordMetricValue("DbId", CurrentSentenceComponent.DbId)
-                CurrentSentenceComponent.SetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultSpellingVariableName, CurrentLine)
+                CurrentSentenceComponent.SetCategoricalVariableValue("DbId", CurrentSentenceComponent.DbId)
+                CurrentSentenceComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName, CurrentLine)
 
                 'Notes a new sentence
                 NumberOfSentenceLines += 1
@@ -267,8 +267,8 @@
                     NewWordComponent.PrimaryStringRepresentation = WordSpelling
                     If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Word Then NewWordComponent.MediaFolder = NewWordComponent.Id & "_" & NewWordComponent.PrimaryStringRepresentation.Replace(" ", "_")
 
-                    NewWordComponent.SetCategoricalWordMetricValue("DbId", NewWordComponent.DbId)
-                    NewWordComponent.SetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultSpellingVariableName, WordSpelling)
+                    NewWordComponent.SetCategoricalVariableValue("DbId", NewWordComponent.DbId)
+                    NewWordComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName, WordSpelling)
 
                 Next
 
@@ -340,7 +340,7 @@
         Dim ExistingSpellingsList As New SortedSet(Of String)
         Dim WordLevelComponents = NewSmaComponent.Item2.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Word)
         For Each Component In WordLevelComponents
-            Dim Spelling = Component.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultSpellingVariableName)
+            Dim Spelling = Component.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName)
             If CaseInvariantLookupCheckBox.Checked = True Then
                 Spelling = Spelling.ToLower
             End If
@@ -408,7 +408,7 @@
 
         'Looks up the transcriptions of all word level components in the LookupList
         For Each Component In WordLevelComponents
-            Dim Spelling = Component.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultSpellingVariableName)
+            Dim Spelling = Component.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName)
 
             If CaseInvariantLookupCheckBox.Checked = True Then
                 Spelling = Spelling.ToLower
@@ -423,10 +423,10 @@
             Dim TranscriptionString As String = String.Join(" " & DefaultAmbigousTranscriptionMarker & " ", PossibleTranscriptions)
 
             If TranscriptionString <> "" Then
-                Component.SetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, TranscriptionString)
+                Component.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, TranscriptionString)
             Else
                 'The spelling (and transcription) was not found. Outputting a the DefaultNotFoundTranscriptionString, which should be replaced manually by the user, and should be not be allowed when parsing the input again.
-                Component.SetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, DefaultNotFoundTranscriptionString)
+                Component.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, DefaultNotFoundTranscriptionString)
             End If
         Next
 
@@ -438,11 +438,11 @@
             OutputList.Add("{" & ListComponent.PrimaryStringRepresentation & "}")
 
             For Each SentenceComponent In ListComponent.ChildComponents
-                OutputList.Add(SentenceComponent.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultSpellingVariableName))
+                OutputList.Add(SentenceComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName))
 
                 Dim SentenceWordTranscriptions As New List(Of String)
                 For Each WordComponent In SentenceComponent.ChildComponents
-                    SentenceWordTranscriptions.Add("[ " & WordComponent.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName) & " ]")
+                    SentenceWordTranscriptions.Add("[ " & WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName) & " ]")
                 Next
 
                 Dim SentenceTranscription = String.Join(", ", SentenceWordTranscriptions)

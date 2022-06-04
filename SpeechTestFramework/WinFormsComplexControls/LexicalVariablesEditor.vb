@@ -74,7 +74,7 @@
 
             For Each WordComponent In AllWordLevelComponents
 
-                Dim Spelling As String = WordComponent.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultSpellingVariableName).Trim
+                Dim Spelling As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName).Trim
                 If CaseInsensitiveSpellings = True Then
                     Spelling = Spelling.ToLower
                 End If
@@ -82,12 +82,12 @@
                 Dim UniqueIdentifier As String = ""
                 Select Case LookupMatchBy
                     Case CustomVariablesDatabase.LookupMathOptions.MatchBySpellingAndTranscription
-                        Dim Transcription As String = WordComponent.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                        Dim Transcription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
                         UniqueIdentifier = Spelling & vbTab & Transcription
                     Case CustomVariablesDatabase.LookupMathOptions.MatchBySpelling
                         UniqueIdentifier = Spelling
                     Case CustomVariablesDatabase.LookupMathOptions.MatchByTranscription
-                        Dim Transcription As String = WordComponent.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                        Dim Transcription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
                         UniqueIdentifier = Transcription
                 End Select
 
@@ -228,7 +228,7 @@
 
         For Each WordComponent In AllWordLevelComponents
 
-            Dim Spelling As String = WordComponent.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultSpellingVariableName).Trim
+            Dim Spelling As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName).Trim
             If LoadedLexicalDatabase.CaseInvariantSpellings = True Then
                 Spelling = Spelling.ToLower
             End If
@@ -236,12 +236,12 @@
             Dim UniqueIdentifier As String = ""
             Select Case LookupMatchBy
                 Case CustomVariablesDatabase.LookupMathOptions.MatchBySpellingAndTranscription
-                    Dim Transcription As String = WordComponent.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                    Dim Transcription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
                     UniqueIdentifier = Spelling & vbTab & Transcription
                 Case CustomVariablesDatabase.LookupMathOptions.MatchBySpelling
                     UniqueIdentifier = Spelling
                 Case CustomVariablesDatabase.LookupMathOptions.MatchByTranscription
-                    Dim Transcription As String = WordComponent.GetCategoricalWordMetricValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                    Dim Transcription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
                     UniqueIdentifier = Transcription
             End Select
 
@@ -263,7 +263,7 @@
                     If VariableControl.IsNumericVariable = True Then
                         WordComponent.SetNumericWordMetricValue(CurrentUpdatedVariableName, CurrentVariableValue)
                     Else
-                        WordComponent.SetCategoricalWordMetricValue(CurrentUpdatedVariableName, CurrentVariableValue)
+                        WordComponent.SetCategoricalVariableValue(CurrentUpdatedVariableName, CurrentVariableValue)
                     End If
                 End If
             Next

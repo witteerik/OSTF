@@ -227,7 +227,7 @@ Public Class SpeechMaterialComponent
                 End If
 
                 'Stores the variable name, and the IsNumeric value of False
-                If AllCustomVariables.ContainsKey(CatName) = True Then AllCustomVariables.Add(CatName, False)
+                If AllCustomVariables.ContainsKey(CatName) = False Then AllCustomVariables.Add(CatName, False)
             Next
 
             For Each CatName In NumericVariableNames
@@ -240,7 +240,7 @@ Public Class SpeechMaterialComponent
                 End If
 
                 'Stores the variable name, and the IsNumeric value of False
-                If AllCustomVariables.ContainsKey(CatName) = True Then AllCustomVariables.Add(CatName, False)
+                If AllCustomVariables.ContainsKey(CatName) = False Then AllCustomVariables.Add(CatName, True)
             Next
 
         Next
@@ -269,7 +269,7 @@ Public Class SpeechMaterialComponent
     ''' </summary>
     ''' <param name="VariableName"></param>
     ''' <returns></returns>
-    Public Function GetCategoricalWordMetricValue(ByVal VariableName As String) As String
+    Public Function GetCategoricalVariableValue(ByVal VariableName As String) As String
 
         If CategoricalVariables.Keys.Contains(VariableName) Then
             Return CategoricalVariables(VariableName)
@@ -283,8 +283,8 @@ Public Class SpeechMaterialComponent
     ''' Returns the names of all categorical custom variabels
     ''' </summary>
     ''' <returns></returns>
-    Public Function GetCategoricalVariableNames() As String()
-        Return CategoricalVariables.Keys
+    Public Function GetCategoricalVariableNames() As List(Of String)
+        Return CategoricalVariables.Keys.ToList
     End Function
 
 
@@ -292,8 +292,8 @@ Public Class SpeechMaterialComponent
     ''' Returns the names of all numeric custom variabels
     ''' </summary>
     ''' <returns></returns>
-    Public Function GetNumericVariableNames() As String()
-        Return NumericVariables.Keys
+    Public Function GetNumericVariableNames() As List(Of String)
+        Return NumericVariables.Keys.ToList
     End Function
 
 
@@ -316,7 +316,7 @@ Public Class SpeechMaterialComponent
     ''' </summary>
     ''' <param name="VariableName"></param>
     ''' <param name="Value"></param>
-    Public Sub SetCategoricalWordMetricValue(ByVal VariableName As String, ByVal Value As String)
+    Public Sub SetCategoricalVariableValue(ByVal VariableName As String, ByVal Value As String)
         If CategoricalVariables.Keys.Contains(VariableName) = True Then
             CategoricalVariables(VariableName) = Value
         Else
@@ -817,7 +817,7 @@ Public Class SpeechMaterialComponent
         Dim MySpelling As String = ""
         Dim SpellingCandidateVariableNames As New List(Of String) From {"Spelling", "OrthographicForm"}
         For Each vn In SpellingCandidateVariableNames
-            Dim SpellingCandidate = GetCategoricalWordMetricValue(vn)
+            Dim SpellingCandidate = GetCategoricalVariableValue(vn)
             If SpellingCandidate.Trim <> "" Then
                 MySpelling = SpellingCandidate
                 Exit For
@@ -827,7 +827,7 @@ Public Class SpeechMaterialComponent
         Dim MyTranscription As String = ""
         Dim TranscriptionCandidateVariableNames As New List(Of String) From {"Transcription", "PhonemicForm", "PhoneticForm", "PhoneticTranscription", "PhonemicTranscription"}
         For Each vn In TranscriptionCandidateVariableNames
-            Dim TranscriptionCandidate = GetCategoricalWordMetricValue(vn)
+            Dim TranscriptionCandidate = GetCategoricalVariableValue(vn)
             If TranscriptionCandidate.Trim <> "" Then
                 MyTranscription = TranscriptionCandidate
                 Exit For
@@ -1076,22 +1076,64 @@ Public Class SpeechMaterialComponent
 
             Dim Descendants = GetAllDescenentsAtLevel(SourceLevels)
 
-            Dim ValueList As New List(Of Double)
+            Dim ValueList As New SortedList(Of String, Integer)
             For Each d In Descendants
-                ValueList.Add(d.GetNumericVariableValue(CustomVariableName))
+                Dim VariableValue As String = d.GetCategoricalVariableValue(CustomVariableName)
+
+                'Adding missing variable values
+                If ValueList.ContainsKey(VariableValue) = False Then ValueList.Add(d.GetCategoricalVariableValue(CustomVariableName), 0)
+
+                'Counting the occurence of the specific variable value
+                ValueList(d.GetCategoricalVariableValue(CustomVariableName)) += 1
             Next
 
             Select Case MetricType
                 Case CategoricalSummaryMetricTypes.Mode
 
-                    Throw New NotImplementedException
+                    If ValueList.Count > 0 Then
 
-                    'Storing the result
-                    Dim SummaryResult As Double = ValueList.Average
-                    Me.SetNumericWordMetricValue("Average_" & CustomVariableName, SummaryResult)
+                        'Getting the most common value (TODO: the following lines are probably rather inefficient way and could possibly need opimization with larger datasets...)
+                        Dim MaxOccurences = ValueList.Values.Max
+                        Dim ModeList As New List(Of String)
+                        For Each CurrentValue In ValueList
+                            If CurrentValue.Value = MaxOccurences Then ModeList.Add(CurrentValue.Key)
+                        Next
 
-                Case Else
-                    Throw New NotImplementedException
+                        'If there are more than one mode value (i.e. equal number of occurences) they are returned as comma separated strings
+                        Dim ModeValuesString As String = String.Join(",", ModeList)
+
+                        'Storing the result
+                        Me.SetCategoricalVariableValue("Mode_" & CustomVariableName, ModeValuesString)
+                    Else
+
+                        'Storing the an empty string as result, as there was no item in ValueList
+                        Me.SetCategoricalVariableValue("Mode_" & CustomVariableName, "")
+                    End If
+
+                Case CategoricalSummaryMetricTypes.Distribution
+
+                    If ValueList.Count > 0 Then
+
+                        'Getting the most common value
+                        Dim DistributionList As New List(Of String)
+                        For Each CurrentValue In ValueList
+                            DistributionList.Add(CurrentValue.Key & "," & CurrentValue.Value)
+                        Next
+
+                        'The distribution are returned as vertical bar (|) separatered key value pairs of value and number of occurences
+                        '(this rather akward format choice is selected in order to be able to use tab delimited files. In this way, the whole
+                        'distribution may be put in a single cell, for instance in Excel (given that the maximum number of cell characters in not reached...)) 
+                        Dim DistributionString As String = String.Join("|", DistributionList)
+
+                        'TODO: This should really be sorted in freuency!
+
+                        'Storing the result
+                        Me.SetCategoricalVariableValue("Distribution_" & CustomVariableName, DistributionString)
+                    Else
+
+                        'Storing the an empty string as result, as there was no item in ValueList
+                        Me.SetCategoricalVariableValue("Distribution_" & CustomVariableName, "")
+                    End If
 
             End Select
 
@@ -1108,6 +1150,7 @@ Public Class SpeechMaterialComponent
 
     Public Enum CategoricalSummaryMetricTypes
         Mode
+        Distribution
     End Enum
 
 End Class
