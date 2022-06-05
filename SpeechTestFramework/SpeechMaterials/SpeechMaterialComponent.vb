@@ -999,6 +999,8 @@ Public Class SpeechMaterialComponent
 
             Dim Descendants = GetAllDescenentsAtLevel(SourceLevels)
 
+            Dim VariableNameSourceLevelPrefix = SourceLevels.ToString & "_Level_"
+
             Dim ValueList As New List(Of Double)
             For Each d In Descendants
                 ValueList.Add(d.GetNumericVariableValue(CustomVariableName))
@@ -1009,41 +1011,41 @@ Public Class SpeechMaterialComponent
 
                     'Storing the result
                     Dim SummaryResult As Double = ValueList.Average
-                    Me.SetNumericWordMetricValue("Average_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "Mean_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.StandardDeviation
 
                     'Storing the result
                     Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.StandardDeviation(ValueList)
-                    Me.SetNumericWordMetricValue("SD_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "SD_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.Maximum
 
                     'Storing the result
                     Dim SummaryResult As Double = ValueList.Max
-                    Me.SetNumericWordMetricValue("Max_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "Max_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.Minimum
 
                     'Storing the result
                     Dim SummaryResult As Double = ValueList.Min
-                    Me.SetNumericWordMetricValue("Min_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "Min_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.Median
 
                     Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.Median(ValueList)
-                    Me.SetNumericWordMetricValue("Md_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "MD_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.InterquartileRange
 
                     Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.InterquartileRange(ValueList)
-                    Me.SetNumericWordMetricValue("IQR_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "IQR_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.CoefficientOfVariation
 
                     'Storing the result
                     Dim SummaryResult As Double = Utils.CoefficientOfVariation(ValueList)
-                    Me.SetNumericWordMetricValue("CV_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "CV_" & CustomVariableName, SummaryResult)
 
             End Select
 
@@ -1076,6 +1078,8 @@ Public Class SpeechMaterialComponent
 
             Dim Descendants = GetAllDescenentsAtLevel(SourceLevels)
 
+            Dim VariableNameSourceLevelPrefix = SourceLevels.ToString & "_Level_"
+
             Dim ValueList As New SortedList(Of String, Integer)
             For Each d In Descendants
                 Dim VariableValue As String = d.GetCategoricalVariableValue(CustomVariableName)
@@ -1103,11 +1107,11 @@ Public Class SpeechMaterialComponent
                         Dim ModeValuesString As String = String.Join(",", ModeList)
 
                         'Storing the result
-                        Me.SetCategoricalVariableValue("Mode_" & CustomVariableName, ModeValuesString)
+                        Me.SetCategoricalVariableValue(VariableNameSourceLevelPrefix & "Mode_" & CustomVariableName, ModeValuesString)
                     Else
 
                         'Storing the an empty string as result, as there was no item in ValueList
-                        Me.SetCategoricalVariableValue("Mode_" & CustomVariableName, "")
+                        Me.SetCategoricalVariableValue(VariableNameSourceLevelPrefix & "Mode_" & CustomVariableName, "")
                     End If
 
                 Case CategoricalSummaryMetricTypes.Distribution
@@ -1128,11 +1132,11 @@ Public Class SpeechMaterialComponent
                         'TODO: This should really be sorted in freuency!
 
                         'Storing the result
-                        Me.SetCategoricalVariableValue("Distribution_" & CustomVariableName, DistributionString)
+                        Me.SetCategoricalVariableValue(VariableNameSourceLevelPrefix & "Distribution_" & CustomVariableName, DistributionString)
                     Else
 
                         'Storing the an empty string as result, as there was no item in ValueList
-                        Me.SetCategoricalVariableValue("Distribution_" & CustomVariableName, "")
+                        Me.SetCategoricalVariableValue(VariableNameSourceLevelPrefix & "Distribution_" & CustomVariableName, "")
                     End If
 
             End Select

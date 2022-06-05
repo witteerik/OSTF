@@ -187,6 +187,8 @@
 
                     'Adding phonetic transcription components, taken from the transcription (phonemes need to be separated by black spaces)
                     Dim Phonemes = CurrentSentenceComponent.ChildComponents(w).GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Split(" ")
+                    Dim PhonemesToAdd As New List(Of String)
+
                     For p = 0 To Phonemes.Length - 1
 
                         Dim CurrentPhoneme = Phonemes(p)
@@ -197,22 +199,45 @@
                         Next
                         If CurrentPhoneme = "" Then Continue For
 
-                        Dim NewPhonemeComponent = New SpeechMaterialComponent(rnd) With {
-                            .ParentComponent = CurrentSentenceComponent.ChildComponents(w),
-                            .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme,
-                            .CustomVariablesDatabasePath = SpeechMaterialComponent.PhonemeLevelDataBaseName}
-
-                        CurrentSentenceComponent.ChildComponents(w).ChildComponents.Add(NewPhonemeComponent)
-
-                        NewPhonemeComponent.Id = CurrentSentenceComponent.ChildComponents(w).Id & "P" & p.ToString("00")
-                        NewPhonemeComponent.DbId = NewPhonemeComponent.Id
-                        NewPhonemeComponent.PrimaryStringRepresentation = CurrentPhoneme
-                        If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then NewPhonemeComponent.MediaFolder = NewPhonemeComponent.Id & "_" & NewPhonemeComponent.PrimaryStringRepresentation.Replace(" ", "_")
-
-                        NewPhonemeComponent.SetCategoricalVariableValue("DbId", NewPhonemeComponent.DbId)
-                        NewPhonemeComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, CurrentPhoneme)
+                        PhonemesToAdd.Add(CurrentPhoneme)
 
                     Next
+
+                    If PhonemesToAdd.Count > 0 Then
+
+                        'Adds zero phones (markers of empty word-initial syllable onsets and word-final syllable codas)
+                        If AddZeroPhoneme_CheckBox.Checked = True Then
+                            'Adds a ZeroPhoneme to word final empty syllable codas
+                            If IPA.Vowels.Contains(IPA.RemoveLengthMarkers(PhonemesToAdd(PhonemesToAdd.Count - 1))) Then PhonemesToAdd.Add(IPA.ZeroPhoneme)
+
+                            'Adds a ZeroPhoneme to word initial empty syllable onsets
+                            If IPA.Vowels.Contains(IPA.RemoveLengthMarkers(PhonemesToAdd(0))) Then PhonemesToAdd.Insert(0, IPA.ZeroPhoneme)
+                        End If
+
+                        'Adds the phoneme level components
+                        For p = 0 To PhonemesToAdd.Count - 1
+
+                                Dim CurrentPhoneme As String = PhonemesToAdd(p)
+
+                                Dim NewPhonemeComponent = New SpeechMaterialComponent(rnd) With {
+                                    .ParentComponent = CurrentSentenceComponent.ChildComponents(w),
+                                    .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme,
+                                    .CustomVariablesDatabasePath = SpeechMaterialComponent.PhonemeLevelDataBaseName}
+
+                                CurrentSentenceComponent.ChildComponents(w).ChildComponents.Add(NewPhonemeComponent)
+
+                                NewPhonemeComponent.Id = CurrentSentenceComponent.ChildComponents(w).Id & "P" & p.ToString("00")
+                                NewPhonemeComponent.DbId = NewPhonemeComponent.Id
+                                NewPhonemeComponent.PrimaryStringRepresentation = CurrentPhoneme
+                                If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then NewPhonemeComponent.MediaFolder = NewPhonemeComponent.Id & "_" & NewPhonemeComponent.PrimaryStringRepresentation.Replace(" ", "_")
+
+                                NewPhonemeComponent.SetCategoricalVariableValue("DbId", NewPhonemeComponent.DbId)
+                                NewPhonemeComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, CurrentPhoneme)
+
+                            Next
+
+                        End If
+
                 Next
 
             Else

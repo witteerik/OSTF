@@ -12,16 +12,28 @@
         'Selecting a default level
         SourceLevel_ComboBox.SelectedItem = SpeechMaterialComponent.LinguisticLevels.Word
 
+        UpdateControlEnabledStatuses()
+
     End Sub
 
     Private Sub UpdateControlEnabledStatuses()
 
         If LoadedSpeechMaterial IsNot Nothing Then
-            'LoadDatabase_GroupBox.Enabled = True
-        Else
-            'LoadDatabase_GroupBox.Enabled = False
-        End If
+            LevelSelection_GroupBox.Enabled = True
 
+            If Variables_TableLayoutPanel.Controls.Count > 0 Then
+                Calculate_Button.Enabled = True
+                SaveButton.Enabled = True
+            Else
+                Calculate_Button.Enabled = False
+                SaveButton.Enabled = False
+            End If
+
+        Else
+            LevelSelection_GroupBox.Enabled = False
+            Calculate_Button.Enabled = False
+            SaveButton.Enabled = False
+        End If
 
     End Sub
 
@@ -47,6 +59,9 @@
 
     Private Sub ViewVariables_Button_Click(sender As Object, e As EventArgs) Handles ViewVariables_Button.Click
         ViewSourceLevelVariables()
+
+        UpdateControlEnabledStatuses()
+
     End Sub
 
 
@@ -77,7 +92,7 @@
 
         Variables_TableLayoutPanel.SuspendLayout()
 
-        Dim rnd As New Random(30)
+        Dim rnd As New Random(CInt(SourceLevel))
 
         For Each CustomVariable In AllCustomVariables
 
@@ -191,6 +206,7 @@
 
         Next
 
+        MsgBox("Finished calculating summary statistics", MsgBoxStyle.Information, "Run calculations")
 
     End Sub
 
@@ -204,6 +220,8 @@
 
         'Saving updated files
         LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialComponenFile()
+
+        MsgBox("Your speech material file and corresponding custom variable files should now have been saved to the indicated folder. Click OK to continue.", MsgBoxStyle.Information, "Files saved")
 
     End Sub
 
