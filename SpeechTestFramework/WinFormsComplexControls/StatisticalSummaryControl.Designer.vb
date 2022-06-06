@@ -35,7 +35,7 @@ Partial Class StatisticalSummaryControl
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.LevelSelection_GroupBox = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
-        Me.LoadSpeechMaterial_LoadFileControl = New SpeechTestFramework.LoadFileControl()
+        Me.LoadOstaTestSpecificationControl1 = New SpeechTestFramework.LoadOstaTestSpecificationControl()
         Me.GroupBox2.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
@@ -52,16 +52,16 @@ Partial Class StatisticalSummaryControl
         Me.GroupBox2.Size = New System.Drawing.Size(362, 109)
         Me.GroupBox2.TabIndex = 7
         Me.GroupBox2.TabStop = False
-        Me.GroupBox2.Text = "Load a speech material component file"
+        Me.GroupBox2.Text = "Search for and then load a speech test"
         '
         'TableLayoutPanel3
         '
         Me.TableLayoutPanel3.ColumnCount = 2
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 38.64307!))
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 61.35693!))
-        Me.TableLayoutPanel3.Controls.Add(Me.LoadSpeechMaterial_LoadFileControl, 0, 0)
         Me.TableLayoutPanel3.Controls.Add(Me.Label1, 0, 1)
         Me.TableLayoutPanel3.Controls.Add(Me.LoadedSpeechMaterialName_TextBox, 1, 1)
+        Me.TableLayoutPanel3.Controls.Add(Me.LoadOstaTestSpecificationControl1, 0, 0)
         Me.TableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel3.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
@@ -205,72 +205,15 @@ Partial Class StatisticalSummaryControl
         Me.TableLayoutPanel2.Size = New System.Drawing.Size(357, 90)
         Me.TableLayoutPanel2.TabIndex = 0
         '
-        'LoadSpeechMaterial_LoadFileControl
+        'LoadOstaTestSpecificationControl1
         '
-        Me.LoadSpeechMaterial_LoadFileControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnCount = 2
-        Me.TableLayoutPanel3.SetColumnSpan(Me.LoadSpeechMaterial_LoadFileControl, 2)
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.Description = "Select file and press Load"
-        Me.LoadSpeechMaterial_LoadFileControl.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LoadSpeechMaterial_LoadFileControl.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
-        Me.LoadSpeechMaterial_LoadFileControl.Location = New System.Drawing.Point(3, 3)
-        Me.LoadSpeechMaterial_LoadFileControl.Name = "LoadSpeechMaterial_LoadFileControl"
-        Me.LoadSpeechMaterial_LoadFileControl.RowCount = 2
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.LoadSpeechMaterial_LoadFileControl.Size = New System.Drawing.Size(350, 57)
-        Me.LoadSpeechMaterial_LoadFileControl.TabIndex = 0
+        Me.TableLayoutPanel3.SetColumnSpan(Me.LoadOstaTestSpecificationControl1, 2)
+        Me.LoadOstaTestSpecificationControl1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LoadOstaTestSpecificationControl1.Location = New System.Drawing.Point(3, 3)
+        Me.LoadOstaTestSpecificationControl1.Name = "LoadOstaTestSpecificationControl1"
+        Me.LoadOstaTestSpecificationControl1.SelectedTestSpecification = Nothing
+        Me.LoadOstaTestSpecificationControl1.Size = New System.Drawing.Size(350, 57)
+        Me.LoadOstaTestSpecificationControl1.TabIndex = 3
         '
         'StatisticalSummaryControl
         '
@@ -291,7 +234,6 @@ Partial Class StatisticalSummaryControl
 
     Friend WithEvents GroupBox2 As Windows.Forms.GroupBox
     Friend WithEvents TableLayoutPanel3 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents LoadSpeechMaterial_LoadFileControl As LoadFileControl
     Friend WithEvents Label1 As Windows.Forms.Label
     Friend WithEvents LoadedSpeechMaterialName_TextBox As Windows.Forms.TextBox
     Friend WithEvents Variables_TableLayoutPanel As Windows.Forms.TableLayoutPanel
@@ -303,4 +245,5 @@ Partial Class StatisticalSummaryControl
     Friend WithEvents LevelSelection_GroupBox As Windows.Forms.GroupBox
     Friend WithEvents TableLayoutPanel2 As Windows.Forms.TableLayoutPanel
     Friend WithEvents Label2 As Windows.Forms.Label
+    Friend WithEvents LoadOstaTestSpecificationControl1 As LoadOstaTestSpecificationControl
 End Class

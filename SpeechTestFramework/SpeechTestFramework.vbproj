@@ -111,6 +111,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
+    <Compile Include="WinFormControls\LoadOstaTestSpecificationControl.Designer.vb">
+      <DependentUpon>LoadOstaTestSpecificationControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\LoadOstaTestSpecificationControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormControls\SummaryStatisticsSelectionControl.Designer.vb">
       <DependentUpon>SummaryStatisticsSelectionControl.vb</DependentUpon>
     </Compile>
@@ -244,6 +250,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\LoadOstaTestSpecificationControl.resx">
+      <DependentUpon>LoadOstaTestSpecificationControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\SummaryStatisticsSelectionControl.resx">
       <DependentUpon>SummaryStatisticsSelectionControl.vb</DependentUpon>

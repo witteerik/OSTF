@@ -6,6 +6,8 @@ End Class
 
 Public Class MediaSet
 
+    Public ParentTestSpecification As TestSpecification
+
     ''' <summary>
     ''' Describes the test situaton in which the trial is situated
     ''' </summary>
@@ -162,7 +164,7 @@ Public Class MediaSet
         List(Of Tuple(Of String, String, SpeechMaterialComponent)),
         List(Of Tuple(Of String, String, SpeechMaterialComponent)))
 
-        Dim CurrentTestRootPath As String = IO.Path.Combine(OstfSettings.RootPath, OstfSettings.CurrentTestSubPath)
+        Dim CurrentTestRootPath As String = ParentTestSpecification.TestRootPath
 
         Dim AllComponents = SpeechMaterial.GetAllRelatives
 

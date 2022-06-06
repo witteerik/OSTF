@@ -37,10 +37,14 @@
 
     End Sub
 
-    Private Sub LoadSpeechMaterial_LoadFileControl_LoadFile(FileToLoad As String) Handles LoadSpeechMaterial_LoadFileControl.LoadFile
+
+    Private Sub LoadOstaTestSpecificationControl1_SpeechTestSpecificationSelected() Handles LoadOstaTestSpecificationControl1.SpeechTestSpecificationSelected
+
         Try
 
-            LoadedSpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(FileToLoad)
+            LoadOstaTestSpecificationControl1.SelectedTestSpecification.LoadSpeechMaterialComponentsFile()
+
+            LoadedSpeechMaterial = LoadOstaTestSpecificationControl1.SelectedTestSpecification.SpeechMaterial
 
             If LoadedSpeechMaterial IsNot Nothing Then
                 LoadedSpeechMaterialName_TextBox.Text = LoadedSpeechMaterial.PrimaryStringRepresentation

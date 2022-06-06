@@ -330,6 +330,12 @@
         Dim FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save speech material components file")
         NewSmaComponent.Item2.WriteSpeechMaterialComponenFile(FilePath)
 
+        'Also creating a  saving a new test specification file
+        MsgBox("Debug the following lines, they've not been tested!")
+        Dim NewTestSpecification As New TestSpecification(NewSmaComponent.Item2.Id, "", "")
+        Dim TsFilePath = IO.Path.Combine(IO.Path.GetDirectoryName(FilePath), NewSmaComponent.Item2.Id & "_TestSpecificationFile(Put this in the " & OstfSettings.TestSpecificationSubFolder & " folder).txt")
+        NewTestSpecification.WriteTextFile()
+
     End Sub
 
     Private Sub TranscriptionLookupButton_Click(sender As Object, e As EventArgs) Handles TranscriptionLookupButton.Click

@@ -21,10 +21,13 @@
     End Sub
 
 
-    Private Sub LoadSpeechMaterial_LoadFileControl_LoadFile(FileToLoad As String) Handles LoadSpeechMaterial_LoadFileControl.LoadFile
+    Private Sub LoadOstaTestSpecificationControl1_SpeechTestSpecificationSelected() Handles LoadOstaTestSpecificationControl1.SpeechTestSpecificationSelected
+
         Try
 
-            LoadedSpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(FileToLoad)
+            LoadOstaTestSpecificationControl1.SelectedTestSpecification.LoadSpeechMaterialComponentsFile()
+
+            LoadedSpeechMaterial = LoadOstaTestSpecificationControl1.SelectedTestSpecification.SpeechMaterial
 
             If LoadedSpeechMaterial IsNot Nothing Then
                 LoadedSpeechMaterialName_TextBox.Text = LoadedSpeechMaterial.PrimaryStringRepresentation
@@ -39,6 +42,25 @@
         UpdateControlEnabledStatuses()
 
     End Sub
+
+    'Private Sub LoadSpeechMaterial_LoadFileControl_LoadFile(FileToLoad As String) Handles LoadSpeechMaterial_LoadFileControl.LoadFile
+    '    Try
+
+    '        LoadedSpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(FileToLoad, "")
+
+    '        If LoadedSpeechMaterial IsNot Nothing Then
+    '            LoadedSpeechMaterialName_TextBox.Text = LoadedSpeechMaterial.PrimaryStringRepresentation
+    '        Else
+    '            LoadedSpeechMaterialName_TextBox.Text = "No speech material loaded"
+    '            MsgBox("Unable to load the speech material file.", MsgBoxStyle.Information, "File reading error")
+    '        End If
+    '    Catch ex As Exception
+    '        MsgBox("The following error occured: " & vbCrLf & vbCrLf & ex.ToString)
+    '    End Try
+
+    '    UpdateControlEnabledStatuses()
+
+    'End Sub
 
     Private Sub LoadDatabase_LoadFileControl_LoadFile(FileToLoad As String) Handles LoadDatabase_LoadFileControl.LoadFile
 

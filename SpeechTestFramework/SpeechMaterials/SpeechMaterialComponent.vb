@@ -2,6 +2,8 @@
 
 Public Class SpeechMaterialComponent
 
+    Public Property ParentTestSpecification As TestSpecification
+
     Public Property LinguisticLevel As LinguisticLevels
 
     Public Enum LinguisticLevels
@@ -536,13 +538,11 @@ Public Class SpeechMaterialComponent
 
     End Function
 
-    Public Shared Function LoadSpeechMaterial(ByVal FilePath As String) As SpeechMaterialComponent
-
-        Dim CurrentTestRootPath As String = IO.Path.Combine(OstfSettings.RootPath, OstfSettings.CurrentTestSubPath)
+    Public Shared Function LoadSpeechMaterial(ByVal SpeechMaterialComponentFilePath As String, ByVal TestRootPath As String) As SpeechMaterialComponent
 
         'Gets a file path from the user if none is supplied
-        If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured speech material component .txt file.")
-        If FilePath = "" Then
+        If SpeechMaterialComponentFilePath = "" Then SpeechMaterialComponentFilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured speech material component .txt file.")
+        If SpeechMaterialComponentFilePath = "" Then
             MsgBox("No file selected!")
             Return Nothing
         End If
@@ -553,7 +553,7 @@ Public Class SpeechMaterialComponent
         Dim Output As SpeechMaterialComponent = Nothing
 
         'Parses the input file
-        Dim InputLines() As String = System.IO.File.ReadAllLines(InputFileSupport.InputFilePathValueParsing(FilePath, CurrentTestRootPath, False), Text.Encoding.UTF8)
+        Dim InputLines() As String = System.IO.File.ReadAllLines(InputFileSupport.InputFilePathValueParsing(SpeechMaterialComponentFilePath, TestRootPath, False), Text.Encoding.UTF8)
 
         Dim CustomVariablesDatabases As New SortedList(Of String, CustomVariablesDatabase)
 
@@ -569,7 +569,7 @@ Public Class SpeechMaterialComponent
 
             Dim SplitRow = Line.Split(vbTab)
 
-            If SplitRow.Length < 12 Then Throw New ArgumentException("Not enough data columns in the file " & FilePath & vbCrLf & "At the line: " & Line)
+            If SplitRow.Length < 12 Then Throw New ArgumentException("Not enough data columns in the file " & SpeechMaterialComponentFilePath & vbCrLf & "At the line: " & Line)
 
             Dim NewComponent As New SpeechMaterialComponent(rnd)
 
@@ -577,7 +577,7 @@ Public Class SpeechMaterialComponent
             Dim index As Integer = 0
 
             'Linguistic Level
-            Dim LinguisticLevel = InputFileSupport.InputFileEnumValueParsing(SplitRow(index), GetType(LinguisticLevels), FilePath, False)
+            Dim LinguisticLevel = InputFileSupport.InputFileEnumValueParsing(SplitRow(index), GetType(LinguisticLevels), SpeechMaterialComponentFilePath, False)
             If LinguisticLevel IsNot Nothing Then
                 NewComponent.LinguisticLevel = LinguisticLevel
             Else
@@ -606,15 +606,15 @@ Public Class SpeechMaterialComponent
             index += 1
 
             ' Getting the custom variables path
-            Dim CustomVariablesDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
-            Dim CustomVariablesDatabasePath As String = IO.Path.Combine(CurrentTestRootPath, "CustomVariables", CustomVariablesDatabaseSubPath)
+            Dim CustomVariablesDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
+            Dim CustomVariablesDatabasePath As String = IO.Path.Combine(TestRootPath, "CustomVariables", CustomVariablesDatabaseSubPath)
             If CustomVariablesDatabaseSubPath.Trim <> "" Then
                 NewComponent.CustomVariablesDatabasePath = CustomVariablesDatabasePath
             End If
             index += 1
 
             ' Adding the test situation database subpath
-            Dim TestSituationDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
+            Dim TestSituationDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
             NewComponent.TestSituationDatabaseSubPath = TestSituationDatabaseSubPath
             index += 1
 
@@ -648,20 +648,20 @@ Public Class SpeechMaterialComponent
             End If
 
             'Adds further component data
-            Dim OrderedChildren = InputFileSupport.InputFileBooleanValueParsing(SplitRow(index), False, FilePath)
+            Dim OrderedChildren = InputFileSupport.InputFileBooleanValueParsing(SplitRow(index), False, SpeechMaterialComponentFilePath)
             If OrderedChildren IsNot Nothing Then NewComponent.OrderedChildren = OrderedChildren
             index += 1
 
-            NewComponent.MediaFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
+            NewComponent.MediaFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
             index += 1
 
-            NewComponent.MaskerFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
+            NewComponent.MaskerFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
             index += 1
 
-            NewComponent.BackgroundNonspeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
+            NewComponent.BackgroundNonspeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
             index += 1
 
-            NewComponent.BackgroundSpeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), CurrentTestRootPath, False)
+            NewComponent.BackgroundSpeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
             index += 1
 
             'Adds the component
@@ -669,7 +669,7 @@ Public Class SpeechMaterialComponent
                 Output = NewComponent
             Else
                 If Output.AddComponent(NewComponent, ParentId) = False Then
-                    Throw New ArgumentException("Failed to add speech material component defined by the following line in the file : " & FilePath & vbCrLf & Line)
+                    Throw New ArgumentException("Failed to add speech material component defined by the following line in the file : " & SpeechMaterialComponentFilePath & vbCrLf & Line)
                 End If
             End If
 

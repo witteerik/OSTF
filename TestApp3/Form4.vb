@@ -23,9 +23,15 @@
 
             Case 1
 
-                Dim settings = New SpeechTestFramework.OstfSettings 'TODO: these should be read from text file!
+                SpeechTestFramework.OstfSettings.LoadAvailableTestSpecifications()
 
-                Dim CompleteSpeechMaterial = SpeechTestFramework.SpeechMaterialComponent.LoadSpeechMaterial(settings.SpeechMaterialComponentsPath)
+                Dim SelectedTestIndex As Integer = 0
+
+                SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
+
+                Dim CompleteSpeechMaterial = SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).SpeechMaterial
+
+                'Dim CompleteSpeechMaterial = SpeechTestFramework.SpeechMaterialComponent.LoadSpeechMaterial(SpeechTestFramework.OstfSettings.CurrentlySelectedTest.SpeechMaterialComponentsSubFilePath)
 
                 'CompleteSpeechMaterial.WriteSpeechMaterialComponenFile(SpeechTestFramework.Utils.logFilePath & "TestSMC.txt")
 
