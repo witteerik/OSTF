@@ -69,6 +69,9 @@ Public Class SpeechMaterialComponent
         LoadOnFirstUse
     End Enum
 
+    'Declares a constans sub-folder name, under which the speech material component file and the correcponding custom variables files should be put.
+    Public Const SpeechMaterialFolderName As String = "SpeechMaterial"
+
     'Setting up some default strings
     Public Shared DefaultSpellingVariableName As String = "Spelling"
     Public Shared DefaultTranscriptionVariableName As String = "Transcription"
@@ -607,7 +610,7 @@ Public Class SpeechMaterialComponent
 
             ' Getting the custom variables path
             Dim CustomVariablesDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
-            Dim CustomVariablesDatabasePath As String = IO.Path.Combine(TestRootPath, "CustomVariables", CustomVariablesDatabaseSubPath)
+            Dim CustomVariablesDatabasePath As String = IO.Path.Combine(TestRootPath, SpeechMaterialComponent.SpeechMaterialFolderName, CustomVariablesDatabaseSubPath)
             If CustomVariablesDatabaseSubPath.Trim <> "" Then
                 NewComponent.CustomVariablesDatabasePath = CustomVariablesDatabasePath
             End If
@@ -853,13 +856,13 @@ Public Class SpeechMaterialComponent
 
     End Sub
 
-    Public Sub WriteSpeechMaterialComponenFile(Optional ByVal FilePath As String = "")
+    Public Sub WriteSpeechMaterialToFile(Optional ByVal ' Change this to a folder, and use a constant  SpeechMaterialComponent filename SpeechMaterialComponentFilePath As String = "")
 
-        If FilePath = "" Then
-            FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save speech material component file as.")
+        If SpeechMaterialComponentFilePath = "" Then
+            SpeechMaterialComponentFilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save speech material component file as.")
         End If
 
-        WriteSpeechMaterialComponenFile(FilePath, True)
+        WriteSpeechMaterialComponenFile(SpeechMaterialComponentFilePath, True)
 
     End Sub
 

@@ -327,14 +327,27 @@
         End If
 
         'Saving to file
-        Dim FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save speech material components file")
-        NewSmaComponent.Item2.WriteSpeechMaterialComponenFile(FilePath)
+        Dim fbd As New Windows.Forms.FolderBrowserDialog
+        fbd.Description = "Select a folder in which to save the output files"
+        If fbd.ShowDialog() = Windows.Forms.DialogResult.OK Then
 
-        'Also creating a  saving a new test specification file
-        MsgBox("Debug the following lines, they've not been tested!")
-        Dim NewTestSpecification As New TestSpecification(NewSmaComponent.Item2.Id, "", "")
-        Dim TsFilePath = IO.Path.Combine(IO.Path.GetDirectoryName(FilePath), NewSmaComponent.Item2.Id & "_TestSpecificationFile(Put this in the " & OstfSettings.TestSpecificationSubFolder & " folder).txt")
-        NewTestSpecification.WriteTextFile()
+            Dim SaveFolder = fbd.SelectedPath
+            Dim SpeechMaterialSaveFolder = IO.Path.Combine(SaveFolder, TestSpecification.TestsDirectory, SpeechMaterialComponent.SpeechMaterialFolderName)
+            Dim TestId As String = NewSmaComponent.Item2.Id
+            Dim SMCFileName As String = "SpeechMaterialComponents_" & TestId & ".txt"
+            Dim SMC_FilePath = IO.Path.Combine(SpeechMaterialSaveFolder, SMCFileName)
+
+            NewSmaComponent.Item2.WriteSpeechMaterialToFile(SMC_FilePath)
+
+            'Also creating and saving a new test specification file
+            Dim TestSpecificationSaveFolder = IO.Path.Combine(SaveFolder, "TestSpecification")
+            Dim NewTestSpecification As New TestSpecification(TestId, "", SMCFileName)
+            Dim TsFilePath = IO.Path.Combine(TestSpecificationSaveFolder, TestId & "_TestSpecificationFile (Put this in the " & OstfSettings.TestSpecificationSubFolder & " folder).txt")
+            NewTestSpecification.WriteTextFile(TsFilePath)
+
+            MsgBox("Your files should now have been created and save to the folder: " & SaveFolder, MsgBoxStyle.Information, "Creating files")
+
+        End If
 
     End Sub
 

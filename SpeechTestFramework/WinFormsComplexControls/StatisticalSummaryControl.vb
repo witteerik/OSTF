@@ -130,6 +130,8 @@
 
     Private Sub FormatVariableSelectionControl() Handles Me.Resize
 
+        Variables_TableLayoutPanel.SuspendLayout()
+
         'Fixes the row and column styles
         Variables_TableLayoutPanel.ColumnStyles.Clear()
         Variables_TableLayoutPanel.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 100))
@@ -138,6 +140,9 @@
         For i = 0 To Variables_TableLayoutPanel.Controls.Count - 1
             Variables_TableLayoutPanel.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Absolute, 100))
         Next
+
+        Variables_TableLayoutPanel.ResumeLayout()
+
 
     End Sub
 
@@ -223,7 +228,7 @@
         End If
 
         'Saving updated files
-        LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialComponenFile()
+        LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile()
 
         MsgBox("Your speech material file and corresponding custom variable files should now have been saved to the indicated folder. Click OK to continue.", MsgBoxStyle.Information, "Files saved")
 

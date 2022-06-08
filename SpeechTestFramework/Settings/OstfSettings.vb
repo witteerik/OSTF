@@ -50,11 +50,13 @@ Public Class TestSpecification
 
     Public Const FormatFlag As String = "{OSTF_TEST_SPECIFICATION_FILE}"
 
+    Public Const TestsDirectory As String = "Tests"
+
     Public ReadOnly Property Name As String = ""
 
-    Public ReadOnly Property SubDirectory As String = ""
+    Public ReadOnly Property DirectoryName As String = ""
 
-    Public ReadOnly Property SpeechMaterialComponentsSubFilePath As String = ""
+    Public ReadOnly Property SpeechMaterialComponentsFileName As String = ""
 
     Public Property AvailableTestSituationsSubDirectory As String = ""
 
@@ -72,19 +74,26 @@ Public Class TestSpecification
 
     Public Property AvailableTestSituationNames As New List(Of String)
 
+    Public Function GetTestsDirectory() As String
+        Return IO.Path.Combine(OstfSettings.RootDirectory, TestsDirectory)
+    End Function
 
-    Public Function TestRootPath() As String
-        Return IO.Path.Combine(OstfSettings.RootDirectory, SubDirectory)
+    Public Function GetTestRootPath() As String
+        Return IO.Path.Combine(GetTestsDirectory, DirectoryName)
+    End Function
+
+    Public Function GetSpeechMaterialFolder() As String
+        Return IO.Path.Combine(GetTestRootPath, SpeechMaterialComponent.SpeechMaterialFolderName)
     End Function
 
     Public Function GetSpeechMaterialFilePath() As String
-        Return IO.Path.Combine(TestRootPath, SpeechMaterialComponentsSubFilePath)
+        Return IO.Path.Combine(GetSpeechMaterialFolder, SpeechMaterialComponentsFileName)
     End Function
 
-    Public Sub New(ByVal Name As String, ByVal SubDirectory As String, ByVal SpeechMaterialComponentsSubFilePath As String)
+    Public Sub New(ByVal Name As String, ByVal SubDirectory As String, ByVal SpeechMaterialComponentsFileName As String)
         Me.Name = Name
-        Me.SubDirectory = SubDirectory
-        Me.SpeechMaterialComponentsSubFilePath = SpeechMaterialComponentsSubFilePath
+        Me.DirectoryName = SubDirectory
+        Me.SpeechMaterialComponentsFileName = SpeechMaterialComponentsFileName
     End Sub
 
     Public Shared Function LoadTestSpecificationFile(ByVal TextFileName As String) As TestSpecification
@@ -101,8 +110,8 @@ Public Class TestSpecification
         Dim FormatFlagDetected As Boolean = False
 
         Dim Name As String = ""
-        Dim SubDirectory As String = ""
-        Dim SpeechMaterialComponentsSubFilePath As String = ""
+        Dim DirectoryName As String = ""
+        Dim SpeechMaterialComponentsFileName As String = ""
         Dim AvailableTestSituationsSubDirectory As String = ""
         Dim TestPresetsSubFilePath As String = ""
 
@@ -128,12 +137,12 @@ Public Class TestSpecification
                 Name = InputFileSupport.GetInputFileValue(Input(line).Trim, True)
             End If
 
-            If Input(line).Trim.StartsWith("SubDirectory") Then
-                SubDirectory = InputFileSupport.GetInputFileValue(Input(line).Trim, True)
+            If Input(line).Trim.StartsWith("DirectoryName") Then
+                DirectoryName = InputFileSupport.GetInputFileValue(Input(line).Trim, True)
             End If
 
-            If Input(line).Trim.StartsWith("SpeechMaterialComponentsSubFilePath") Then
-                SpeechMaterialComponentsSubFilePath = InputFileSupport.GetInputFileValue(Input(line).Trim, True)
+            If Input(line).Trim.StartsWith("SpeechMaterialComponentsFileName") Then
+                SpeechMaterialComponentsFileName = InputFileSupport.GetInputFileValue(Input(line).Trim, True)
             End If
 
             If Input(line).Trim.StartsWith("AvailableTestSituationsSubDirectory") Then
@@ -146,7 +155,7 @@ Public Class TestSpecification
 
         Next
 
-        Dim Output As New TestSpecification(Name, SubDirectory, SpeechMaterialComponentsSubFilePath)
+        Dim Output As New TestSpecification(Name, DirectoryName, SpeechMaterialComponentsFileName)
         Output.AvailableTestSituationsSubDirectory = AvailableTestSituationsSubDirectory
         Output.TestPresetsSubFilePath = TestPresetsSubFilePath
 
@@ -159,7 +168,7 @@ Public Class TestSpecification
     Public Sub LoadSpeechMaterialComponentsFile()
 
         Try
-            SpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(GetSpeechMaterialFilePath, TestRootPath)
+            SpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(GetSpeechMaterialFilePath, GetTestRootPath)
         Catch ex As Exception
             MsgBox("Failed to load speech material file: " & GetSpeechMaterialFilePath())
         End Try
@@ -186,11 +195,15 @@ Public Class TestSpecification
     Public Sub WriteTextFile(Optional FilePath As String = "")
 
         If FilePath = "" Then
-            FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save speech material component file as.")
+            FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save OSFT test specification file as")
         End If
 
         Dim OutputList As New List(Of String)
-        OutputList.Add("// This file is a OSTF test specification file. Its first non-empty line which is not commented out (using double slashes) must be exacly " & FormatFlag)
+        OutputList.Add("// This file is an OSTF test specification file. Its first non-empty line which is not commented out (using double slashes) must be exacly " & FormatFlag)
+        OutputList.Add("// In order to make the test that this file specifies available in OSTF, put this file in the OSTF sub folder named: " & OstfSettings.TestSpecificationSubFolder & ", and the restart the OSTF software.")
+        OutputList.Add("")
+        OutputList.Add(FormatFlag)
+        OutputList.Add("")
 
         If Name.Trim = "" Then
             OutputList.Add("// Name = [Add name here, and remove the double slashes]")
@@ -198,16 +211,16 @@ Public Class TestSpecification
             OutputList.Add("Name = " & Name)
         End If
 
-        If SubDirectory.Trim = "" Then
+        If DirectoryName.Trim = "" Then
             OutputList.Add("// SubDirectory = Tests\ [Add the subdirectory here, and remove the double slashes]")
         Else
-            OutputList.Add("SubDirectory = " & SubDirectory)
+            OutputList.Add("SubDirectory = " & DirectoryName)
         End If
 
-        If SpeechMaterialComponentsSubFilePath.Trim = "" Then
-            OutputList.Add("// SpeechMaterialComponentsSubFilePath = [Add the file path to the SpeechMaterialComponents file here, and remove the double slashes]")
+        If SpeechMaterialComponentsFileName.Trim = "" Then
+            OutputList.Add("// SpeechMaterialComponentsFileName = [Add the file name of the SpeechMaterialComponents file here, and remove the double slashes]")
         Else
-            OutputList.Add("SpeechMaterialComponentsSubFilePath = " & SpeechMaterialComponentsSubFilePath)
+            OutputList.Add("SpeechMaterialComponentsFileName = " & SpeechMaterialComponentsFileName)
         End If
 
         If AvailableTestSituationsSubDirectory.Trim = "" Then

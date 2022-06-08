@@ -164,7 +164,7 @@ Public Class MediaSet
         List(Of Tuple(Of String, String, SpeechMaterialComponent)),
         List(Of Tuple(Of String, String, SpeechMaterialComponent)))
 
-        Dim CurrentTestRootPath As String = ParentTestSpecification.TestRootPath
+        Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
 
         Dim AllComponents = SpeechMaterial.GetAllRelatives
 

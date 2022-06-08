@@ -227,6 +227,8 @@
 
     Private Sub FormatVariableSelectionControl() Handles Me.Resize
 
+        Variables_TableLayoutPanel.SuspendLayout()
+
         'Fixes the row and column styles
         Variables_TableLayoutPanel.ColumnStyles.Clear()
         Variables_TableLayoutPanel.ColumnStyles.Add(New Windows.Forms.ColumnStyle(Windows.Forms.SizeType.Percent, 100))
@@ -235,6 +237,8 @@
         For i = 0 To Variables_TableLayoutPanel.Controls.Count - 1
             Variables_TableLayoutPanel.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Absolute, 36))
         Next
+
+        Variables_TableLayoutPanel.ResumeLayout()
 
     End Sub
 
@@ -291,10 +295,21 @@
             Next
         Next
 
+        'Ask if overwrite or save to new location
+        Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
+        If res = MsgBoxResult.Yes Then
+
+            'Saving updated files
+            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile()
+
+        Else
 
 
-        'Saving updated files
-        LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialComponenFile()
+            'Saving updated files
+            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile()
+
+        End If
+
 
     End Sub
 
