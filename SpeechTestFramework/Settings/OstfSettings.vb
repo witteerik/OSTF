@@ -8,15 +8,6 @@
     Public Property AvailableTests As New List(Of TestSpecification)
 
 
-    'Public Sub New()
-
-    '    'AvailableTests.Add(New TestSpecification("HINT_Kort", "HINT_Kort", "ProjectFiles\SpeechMaterialComponents.txt"))
-    '    'AvailableTests.Add(New TestSpecification("SwedishSiPTest", "SwedishSiPTest", "ProjectFiles\SpeechMaterialComponents.txt"))
-
-    '    'CurrentlySelectedTest = AvailableTests(0)
-
-    'End Sub
-
     Public Sub LoadAvailableTestSpecifications()
 
         Dim TestSpecificationFolder As String = IO.Path.Combine(RootDirectory, TestSpecificationSubFolder)
@@ -56,8 +47,6 @@ Public Class TestSpecification
 
     Public ReadOnly Property DirectoryName As String = ""
 
-    Public ReadOnly Property SpeechMaterialComponentsFileName As String = ""
-
     Public Property AvailableTestSituationsSubDirectory As String = ""
 
     Public Property TestPresetsSubFilePath As String = ""
@@ -87,13 +76,12 @@ Public Class TestSpecification
     End Function
 
     Public Function GetSpeechMaterialFilePath() As String
-        Return IO.Path.Combine(GetSpeechMaterialFolder, SpeechMaterialComponentsFileName)
+        Return IO.Path.Combine(GetSpeechMaterialFolder, SpeechMaterialComponent.SpeechMaterialComponentFileName)
     End Function
 
-    Public Sub New(ByVal Name As String, ByVal SubDirectory As String, ByVal SpeechMaterialComponentsFileName As String)
+    Public Sub New(ByVal Name As String, ByVal DirectoryName As String)
         Me.Name = Name
-        Me.DirectoryName = SubDirectory
-        Me.SpeechMaterialComponentsFileName = SpeechMaterialComponentsFileName
+        Me.DirectoryName = DirectoryName
     End Sub
 
     Public Shared Function LoadTestSpecificationFile(ByVal TextFileName As String) As TestSpecification
@@ -155,7 +143,7 @@ Public Class TestSpecification
 
         Next
 
-        Dim Output As New TestSpecification(Name, DirectoryName, SpeechMaterialComponentsFileName)
+        Dim Output As New TestSpecification(Name, DirectoryName)
         Output.AvailableTestSituationsSubDirectory = AvailableTestSituationsSubDirectory
         Output.TestPresetsSubFilePath = TestPresetsSubFilePath
 
@@ -212,15 +200,9 @@ Public Class TestSpecification
         End If
 
         If DirectoryName.Trim = "" Then
-            OutputList.Add("// SubDirectory = Tests\ [Add the subdirectory here, and remove the double slashes]")
+            OutputList.Add("// DirectoryName = Tests\ [Add the DirectoryName here, and remove the double slashes]")
         Else
-            OutputList.Add("SubDirectory = " & DirectoryName)
-        End If
-
-        If SpeechMaterialComponentsFileName.Trim = "" Then
-            OutputList.Add("// SpeechMaterialComponentsFileName = [Add the file name of the SpeechMaterialComponents file here, and remove the double slashes]")
-        Else
-            OutputList.Add("SpeechMaterialComponentsFileName = " & SpeechMaterialComponentsFileName)
+            OutputList.Add("DirectoryName = " & DirectoryName)
         End If
 
         If AvailableTestSituationsSubDirectory.Trim = "" Then

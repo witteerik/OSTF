@@ -332,16 +332,14 @@
         If fbd.ShowDialog() = Windows.Forms.DialogResult.OK Then
 
             Dim SaveFolder = fbd.SelectedPath
-            Dim SpeechMaterialSaveFolder = IO.Path.Combine(SaveFolder, TestSpecification.TestsDirectory, SpeechMaterialComponent.SpeechMaterialFolderName)
-            Dim TestId As String = NewSmaComponent.Item2.Id
-            Dim SMCFileName As String = "SpeechMaterialComponents_" & TestId & ".txt"
-            Dim SMC_FilePath = IO.Path.Combine(SpeechMaterialSaveFolder, SMCFileName)
 
-            NewSmaComponent.Item2.WriteSpeechMaterialToFile(SMC_FilePath)
+            Dim SpeechMaterialSaveFolder = IO.Path.Combine(SaveFolder, TestSpecification.TestsDirectory, SpeechMaterialComponent.SpeechMaterialFolderName)
+            NewSmaComponent.Item2.WriteSpeechMaterialToFile(SpeechMaterialSaveFolder)
 
             'Also creating and saving a new test specification file
+            Dim TestId As String = NewSmaComponent.Item2.Id
             Dim TestSpecificationSaveFolder = IO.Path.Combine(SaveFolder, "TestSpecification")
-            Dim NewTestSpecification As New TestSpecification(TestId, "", SMCFileName)
+            Dim NewTestSpecification As New TestSpecification(TestId, "")
             Dim TsFilePath = IO.Path.Combine(TestSpecificationSaveFolder, TestId & "_TestSpecificationFile (Put this in the " & OstfSettings.TestSpecificationSubFolder & " folder).txt")
             NewTestSpecification.WriteTextFile(TsFilePath)
 

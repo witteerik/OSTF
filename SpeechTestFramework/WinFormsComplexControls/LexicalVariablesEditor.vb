@@ -300,7 +300,7 @@
         If res = MsgBoxResult.Yes Then
 
             'Saving updated files
-            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile()
+            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile(LoadedSpeechMaterial.ParentTestSpecification.GetSpeechMaterialFolder)
 
         Else
 
