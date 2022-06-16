@@ -40,11 +40,11 @@ Namespace Utils
         Public LoggingSpinLock As New Threading.SpinLock
 
         Public Sub SendInfoToLog(ByVal message As String,
-                             Optional ByVal LogFileNameWithoutExtension As String = "",
-                             Optional LogFileTemporaryPath As String = "",
-                             Optional ByVal OmitDateInsideLog As Boolean = False,
-                             Optional ByVal OmitDateInFileName As Boolean = False)
-            'Optional ByRef SpinLock As Threading.SpinLock = Nothing)
+                                 Optional ByVal LogFileNameWithoutExtension As String = "",
+                                 Optional LogFileTemporaryPath As String = "",
+                                 Optional ByVal OmitDateInsideLog As Boolean = False,
+                                 Optional ByVal OmitDateInFileName As Boolean = False,
+                                 Optional ByVal OverWrite As Boolean = False)
 
             Dim SpinLockTaken As Boolean = False
 
@@ -89,13 +89,19 @@ Namespace Utils
                 Try
                     'If File.Exists(logFilePathway) Then File.Delete(logFilePathway)
                     If Not Directory.Exists(LogFileTemporaryPath) Then Directory.CreateDirectory(LogFileTemporaryPath)
-                    Dim samplewriter As New StreamWriter(OutputFilePath, FileMode.Append)
-                    If OmitDateInsideLog = False Then
-                        samplewriter.WriteLine(DateTime.Now.ToString & vbCrLf & message)
-                    Else
-                        samplewriter.WriteLine(message)
+
+                    If OverWrite = True Then
+                        'Deleting the files before writing if overwrite is true
+                        If IO.File.Exists(OutputFilePath) Then IO.File.Delete(OutputFilePath)
                     End If
-                    samplewriter.Close()
+
+                    Dim Writer As New StreamWriter(OutputFilePath, FileMode.Append)
+                    If OmitDateInsideLog = False Then
+                        Writer.WriteLine(DateTime.Now.ToString & vbCrLf & message)
+                    Else
+                        Writer.WriteLine(message)
+                    End If
+                    Writer.Close()
 
                 Catch ex As Exception
                     Errors(ex.ToString, "Error saving to log file!")

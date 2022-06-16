@@ -326,26 +326,52 @@
             Exit Sub
         End If
 
-        'Saving to file
+        'Creating and saving a new test specification file
+        'Getting a save folder if not supplied by the calling code
+        Dim OutputParentFolder As String = ""
         Dim fbd As New Windows.Forms.FolderBrowserDialog
-        fbd.Description = "Select a folder in which to save the output files"
+        fbd.Description = "Select a folder in which to save/create the exported directories and files"
         If fbd.ShowDialog() = Windows.Forms.DialogResult.OK Then
-
-            Dim SaveFolder = fbd.SelectedPath
-
-            Dim SpeechMaterialSaveFolder = IO.Path.Combine(SaveFolder, TestSpecification.TestsDirectory, SpeechMaterialComponent.SpeechMaterialFolderName)
-            NewSmaComponent.Item2.WriteSpeechMaterialToFile(SpeechMaterialSaveFolder)
-
-            'Also creating and saving a new test specification file
-            Dim TestId As String = NewSmaComponent.Item2.Id
-            Dim TestSpecificationSaveFolder = IO.Path.Combine(SaveFolder, "TestSpecification")
-            Dim NewTestSpecification As New TestSpecification(TestId, "")
-            Dim TsFilePath = IO.Path.Combine(TestSpecificationSaveFolder, TestId & "_TestSpecificationFile (Put this in the " & OstfSettings.TestSpecificationSubFolder & " folder).txt")
-            NewTestSpecification.WriteTextFile(TsFilePath)
-
-            MsgBox("Your files should now have been created and save to the folder: " & SaveFolder, MsgBoxStyle.Information, "Creating files")
-
+            OutputParentFolder = fbd.SelectedPath
+        Else
+            MsgBox("No output folder selected!", MsgBoxStyle.Exclamation, "Saving speech material files")
+            Exit Sub
         End If
+
+        If OutputParentFolder.Trim = "" Then
+            MsgBox("No output folder selected!", MsgBoxStyle.Exclamation, "Saving speech material files")
+            Exit Sub
+        End If
+
+        'Getting the test Id
+        Dim TestId As String = NewSmaComponent.Item2.Id
+
+        'Creating a test folder folder name based on the test Id (with allowed characters)
+        Dim NewTestSpecificationDirectoryNameCharArray() As Char = TestId.Replace(" ", "_").ToCharArray
+        Dim NewTestSpecificationDirectoryNameList As New List(Of Char)
+        For Each character In NewTestSpecificationDirectoryNameCharArray
+            If IO.Path.GetInvalidPathChars.Contains(character) = False Then
+                NewTestSpecificationDirectoryNameList.Add(character)
+            Else
+                NewTestSpecificationDirectoryNameList.Add("_")
+            End If
+        Next
+        Dim NewTestSpecificationDirectoryName As String = String.Concat(NewTestSpecificationDirectoryNameList)
+
+        'Creates the new TestSpecification
+        Dim NewTestSpecification As New TestSpecification(TestId, NewTestSpecificationDirectoryName)
+
+        'Noting where to save the test specification
+        Dim TestSpecificationFullPath = IO.Path.Combine(OutputParentFolder, TestSpecification.TestSpecificationDirectory, TestId & "_TestSpecificationFile (Put this in the " & OstfSettings.AvailableTestsSubFolder & " folder).txt")
+        'Saving the test specification file
+        NewTestSpecification.WriteTextFile(TestSpecificationFullPath)
+
+        'Saving the speech material files
+        NewSmaComponent.Item2.WriteSpeechMaterialToFile(NewTestSpecification, OutputParentFolder)
+
+
+        MsgBox("Your files should now have been created and save to the folder: " & OutputParentFolder, MsgBoxStyle.Information, "Creating files")
+
 
     End Sub
 

@@ -228,9 +228,25 @@
         End If
 
         'Saving updated files
-        LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile()
+        'Ask if overwrite or save to new location
+        Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
+        If res = MsgBoxResult.Yes Then
 
-        MsgBox("Your speech material file and corresponding custom variable files should now have been saved to the indicated folder. Click OK to continue.", MsgBoxStyle.Information, "Files saved")
+            'Saving updated files
+            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile(LoadedSpeechMaterial.ParentTestSpecification, LoadedSpeechMaterial.ParentTestSpecification.GetTestRootPath)
+
+            MsgBox("Your speech material file and corresponding custom variable files should now have been saved to " & vbCrLf & LoadedSpeechMaterial.ParentTestSpecification.GetSpeechMaterialFolder & vbCrLf & vbCrLf & "Click OK to continue.",
+                   MsgBoxStyle.Information, "Files saved")
+
+        Else
+
+
+            'Saving updated files
+            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile(LoadedSpeechMaterial.ParentTestSpecification)
+            MsgBox("Your speech material file and corresponding custom variable files should now have been saved to the selected folder." & vbCrLf & vbCrLf & "Click OK to continue.", MsgBoxStyle.Information, "Files saved")
+
+        End If
+
 
     End Sub
 

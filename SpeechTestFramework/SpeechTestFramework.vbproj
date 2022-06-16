@@ -111,10 +111,23 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
+    <Compile Include="TestSupport\TestSpecification.vb" />
+    <Compile Include="WinFormControls\LoadOstaTestSituationsControl.Designer.vb">
+      <DependentUpon>LoadOstaTestSituationsControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\LoadOstaTestSituationsControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormControls\LoadOstaTestSpecificationControl.Designer.vb">
       <DependentUpon>LoadOstaTestSpecificationControl.vb</DependentUpon>
     </Compile>
     <Compile Include="WinFormControls\LoadOstaTestSpecificationControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\NewTestSituatuionControl.Designer.vb">
+      <DependentUpon>NewTestSituatuionControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\NewTestSituatuionControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="WinFormControls\SummaryStatisticsSelectionControl.Designer.vb">
@@ -132,6 +145,12 @@
     <Compile Include="WinFormControls\ExistingFilePathControl.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WinFormsComplexControls\EnvironmentCreatorControl.Designer.vb">
+      <DependentUpon>EnvironmentCreatorControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormsComplexControls\EnvironmentCreatorControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormsComplexControls\LexicalVariablesEditor.Designer.vb">
       <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>
     </Compile>
@@ -144,8 +163,8 @@
     <Compile Include="WinFormsComplexControls\SpeechMaterialComponentCreator.vb">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SpeechMaterials\MediaSets.vb" />
-    <Compile Include="SpeechMaterials\SpeechMaterialComponent.vb" />
+    <Compile Include="TestSupport\MediaSets.vb" />
+    <Compile Include="TestSupport\SpeechMaterialComponent.vb" />
     <Compile Include="Utils\Calculations.vb" />
     <Compile Include="Utils\Enums.vb" />
     <Compile Include="Utils\GeneralIO.vb" />
@@ -251,14 +270,23 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\LoadOstaTestSituationsControl.resx">
+      <DependentUpon>LoadOstaTestSituationsControl.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\LoadOstaTestSpecificationControl.resx">
       <DependentUpon>LoadOstaTestSpecificationControl.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\NewTestSituatuionControl.resx">
+      <DependentUpon>NewTestSituatuionControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\SummaryStatisticsSelectionControl.resx">
       <DependentUpon>SummaryStatisticsSelectionControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\CustomVariableSelectionControl.resx">
       <DependentUpon>CustomVariableSelectionControl.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormsComplexControls\EnvironmentCreatorControl.resx">
+      <DependentUpon>EnvironmentCreatorControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormsComplexControls\LexicalVariablesEditor.resx">
       <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>

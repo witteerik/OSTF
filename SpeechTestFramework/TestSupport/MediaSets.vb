@@ -6,6 +6,8 @@ End Class
 
 Public Class MediaSet
 
+    Public Const DefaultMediaFolderName As String = "Media"
+
     Public ParentTestSpecification As TestSpecification
 
     ''' <summary>
@@ -15,30 +17,30 @@ Public Class MediaSet
     Public Property TestSituationName As String
 
     'Information about the talker in the recordings
-    Public TalkerName As String
-    Public TalkerGender As Genders
-    Public TalkerAge As Integer
-    Public TalkerDialect As String
-    Public VoiceType As String
+    Public Property TalkerName As String
+    Public Property TalkerGender As Genders
+    Public Property TalkerAge As Integer
+    Public Property TalkerDialect As String
+    Public Property VoiceType As String
 
-    'Information about the background nonspeech media
-    ''' <summary>
-    ''' Should store the approximate sound pressure level (SPL) of the audio recorded in the auditory non-speech background sounds stored in BackgroundNonspeechParentFolder, and should represent an ecologically feasible situation
-    ''' </summary>
-    Public BackgroundNonspeechRealisticLevel As Double
 
     'The following 6 variables are used to ensure that there is an appropriate number of media files stored in the locations:
     'OstaRootPath + MediaSet.MediaParentFolder + SpeechMaterialComponent.MediaFolder
     'and
     'OstaRootPath + MediaSet.MaskerParentFolder + SpeechMaterialComponent.MaskerFolder
     'As well as to determine the number of recordings to create for a speech test if the inbuilt recording and segmentation tool is used.
-    Public MediaAudioItems As Integer = 5
-    Public MaskerAudioItems As Integer = 5
-    Public MediaImageItems As Integer = 0
-    Public MaskerImageItems As Integer = 0
+    Public Property MediaAudioItems As Integer = 5
+    Public Property MaskerAudioItems As Integer = 5
+    Public Property MediaImageItems As Integer = 0
+    Public Property MaskerImageItems As Integer = 0
 
     Public Property MediaParentFolder As String
     Public Property MaskerParentFolder As String
+
+    ''' <summary>
+    ''' Should store the approximate sound pressure level (SPL) of the audio recorded in the auditory non-speech background sounds stored in BackgroundNonspeechParentFolder, and should represent an ecologically feasible situation
+    ''' </summary>
+    Public Property BackgroundNonspeechRealisticLevel As Double
     Public Property BackgroundNonspeechParentFolder As String
     Public Property BackgroundSpeechParentFolder As String
 
@@ -47,12 +49,15 @@ Public Class MediaSet
     ''' </summary>
     ''' <returns></returns>
     Public Property PrototypeMediaParentFolder As String
-
     ''' <summary>
     ''' The path should point to a sound recording used as prototype when recording prototype recordings for a MediaSet
     ''' </summary>
     ''' <returns></returns>
     Public Property MasterPrototypeRecordingPath As String
+    Public Property PrototypeRecordingLevel As Double
+
+    Public Property LombardNoisePath As String
+    Public Property LombardNoiseLevel As Double
 
     Public Property WaveFileSampleRate As Integer = 48000
     Public Property WaveFileBitDepth As Integer = 32
@@ -63,6 +68,7 @@ Public Class MediaSet
         Female
         NotSet
     End Enum
+
 
     Public Sub SetSipValues(ByVal Voice As Integer)
 

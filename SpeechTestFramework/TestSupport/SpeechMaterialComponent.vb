@@ -861,28 +861,53 @@ Public Class SpeechMaterialComponent
 
     End Sub
 
-    Public Sub WriteSpeechMaterialToFile(Optional OutputSpeechMaterialFolder As String = "")
+    ''' <summary>
+    ''' Writes the speech material components file and associated custom variables files to the indicated OutputSpeechMaterialFolder.
+    ''' </summary>
+    ''' <param name="OutputParentFolder"></param>
+    Public Sub WriteSpeechMaterialToFile(ByRef CurrentTestSpecification As TestSpecification, Optional ByVal OutputParentFolder As String = "")
 
-        If OutputSpeechMaterialFolder = "" Then
+        Dim OutputSpeechMaterialFolder As String
 
+        'Getting a save folder if not supplied by the calling code
+        If OutputParentFolder = "" Then
             Dim fbd As New Windows.Forms.FolderBrowserDialog
             fbd.Description = "Select a folder in which to save the output files"
             If fbd.ShowDialog() = Windows.Forms.DialogResult.OK Then
-                OutputSpeechMaterialFolder = IO.Path.Combine(fbd.SelectedPath, TestSpecification.TestsDirectory, SpeechMaterialComponent.SpeechMaterialFolderName)
+                OutputParentFolder = fbd.SelectedPath
             Else
+                MsgBox("No output folder selected.", MsgBoxStyle.Exclamation, "Saving speech material")
                 Exit Sub
             End If
+
+            If OutputParentFolder.Trim = "" Then
+                MsgBox("No output folder selected.", MsgBoxStyle.Exclamation, "Saving speech material")
+                Exit Sub
+            End If
+
+            'Getting the subdirectory in which to store the speech material components files and the custom variables files
+            OutputSpeechMaterialFolder = IO.Path.Combine(OutputParentFolder, TestSpecification.TestsDirectory, CurrentTestSpecification.DirectoryName, SpeechMaterialComponent.SpeechMaterialFolderName)
+
+        Else
+
+            If OutputParentFolder.Trim = "" Then
+                MsgBox("No output folder selected.", MsgBoxStyle.Exclamation, "Saving speech material")
+                Exit Sub
+            End If
+
+            'Getting the subdirectory in which to store the speech material components files and the custom variables files
+            OutputSpeechMaterialFolder = IO.Path.Combine(OutputParentFolder, SpeechMaterialComponent.SpeechMaterialFolderName)
+
         End If
 
-        'Creating paths
-        Dim SMC_FilePath = IO.Path.Combine(OutputSpeechMaterialFolder, SpeechMaterialComponentFileName)
+        'Calls WriteSpeechMaterialComponenFile shich saves the files
+        WriteSpeechMaterialComponenFile(OutputSpeechMaterialFolder, True)
 
-        WriteSpeechMaterialComponenFile(SMC_FilePath, True)
 
     End Sub
 
 
-    Private Sub WriteSpeechMaterialComponenFile(ByVal SpeechMaterialComponentFilePath As String, ByVal ExportCustomVariablesAtThisLevel As Boolean, Optional ByRef CustomVariablesExportList As SortedList(Of String, List(Of String)) = Nothing)
+    Private Sub WriteSpeechMaterialComponenFile(ByVal OutputSpeechMaterialFolder As String, ByVal ExportAtThisLevel As Boolean, Optional ByRef CustomVariablesExportList As SortedList(Of String, List(Of String)) = Nothing)
 
         If CustomVariablesExportList Is Nothing Then CustomVariablesExportList = New SortedList(Of String, List(Of String))
 
@@ -954,8 +979,7 @@ Public Class SpeechMaterialComponent
         OutputList.Add("") 'Adding an empty line between components
 
         'Writing to file
-        Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(SpeechMaterialComponentFilePath), IO.Path.GetDirectoryName(SpeechMaterialComponentFilePath), True, True)
-
+        Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(SpeechMaterialComponentFileName), OutputSpeechMaterialFolder, True, True, ExportAtThisLevel)
 
         'Custom variables
         If CustomVariablesDatabasePath <> "" Then
@@ -999,13 +1023,13 @@ Public Class SpeechMaterialComponent
 
         'Cascading to all child components
         For Each ChildComponent In Me.ChildComponents
-            ChildComponent.WriteSpeechMaterialComponenFile(SpeechMaterialComponentFilePath, False, CustomVariablesExportList)
+            ChildComponent.WriteSpeechMaterialComponenFile(OutputSpeechMaterialFolder, False, CustomVariablesExportList)
         Next
 
-        If ExportCustomVariablesAtThisLevel = True Then
+        If ExportAtThisLevel = True Then
             'Exporting custom variables
             For Each item In CustomVariablesExportList
-                Utils.SendInfoToLog(String.Join(vbCrLf, item.Value), IO.Path.GetFileNameWithoutExtension(item.Key), IO.Path.GetDirectoryName(SpeechMaterialComponentFilePath), True, True)
+                Utils.SendInfoToLog(String.Join(vbCrLf, item.Value), IO.Path.GetFileNameWithoutExtension(item.Key), OutputSpeechMaterialFolder, True, True, ExportAtThisLevel)
             Next
         End If
 

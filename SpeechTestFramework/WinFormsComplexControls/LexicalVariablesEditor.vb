@@ -300,13 +300,18 @@
         If res = MsgBoxResult.Yes Then
 
             'Saving updated files
-            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile(LoadedSpeechMaterial.ParentTestSpecification.GetSpeechMaterialFolder)
+            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile(LoadedSpeechMaterial.ParentTestSpecification, LoadedSpeechMaterial.ParentTestSpecification.GetTestRootPath)
+
+            MsgBox("Your speech material file and corresponding custom variable files should now have been saved to " & LoadedSpeechMaterial.ParentTestSpecification.GetSpeechMaterialFolder & vbCrLf & "Click OK to continue.",
+                   MsgBoxStyle.Information, "Files saved")
 
         Else
 
 
             'Saving updated files
-            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile()
+            LoadedSpeechMaterial.GetToplevelAncestor.WriteSpeechMaterialToFile(LoadedSpeechMaterial.ParentTestSpecification)
+
+            MsgBox("Your speech material file and corresponding custom variable files should now have been saved to the selected folder. Click OK to continue.", MsgBoxStyle.Information, "Files saved")
 
         End If
 
