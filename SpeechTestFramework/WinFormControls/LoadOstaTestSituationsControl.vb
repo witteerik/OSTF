@@ -15,60 +15,60 @@
 
     End Sub
 
-    Private Sub SearchForTests_Button_Click(sender As Object, e As EventArgs) Handles SearchForTests_Button.Click
-        LoadTestSpecifications()
+    Private Sub SearchForTests_Button_Click(sender As Object, e As EventArgs) Handles SearchForTestSituations_Button.Click
+        LoadTestSituationSpecifications()
     End Sub
 
-    Private Sub LoadTestSpecifications()
+    Private Sub LoadTestSituationSpecifications()
 
         If SelectedTestSpecification Is Nothing Then
-            MsgBox("No test specification / speech material loaded!")
+            MsgBox("No test specification loaded!")
             Exit Sub
         End If
 
         SelectedTestSpecification.LoadAvailableTestSituationSpecifications()
 
-        TestSelection_ComboBox.Items.Clear()
+        TestSituationSelection_ComboBox.Items.Clear()
 
-        If OstfSettings.AvailableTests.Count > 0 Then
-            For Each AvailableTest In OstfSettings.AvailableTests
-                TestSelection_ComboBox.Items.Add(AvailableTest)
+        If SelectedTestSpecification.TestSituations.Count > 0 Then
+            For Each TestSituation In SelectedTestSpecification.TestSituations
+                TestSituationSelection_ComboBox.Items.Add(TestSituation)
             Next
-            SelectTest_Button.Enabled = True
-            TestSelection_ComboBox.Enabled = True
+            SelectTestSituation_Button.Enabled = True
+            TestSituationSelection_ComboBox.Enabled = True
         Else
-            MsgBox("No tests specifications are available", MsgBoxStyle.Information, "Loading test specifications")
+            MsgBox("No test situation specifications are available", MsgBoxStyle.Information, "Loading test situation specifications")
             SelectedTestSituation = Nothing
-            SelectTest_Button.Enabled = False
-            TestSelection_ComboBox.Enabled = False
+            SelectTestSituation_Button.Enabled = False
+            TestSituationSelection_ComboBox.Enabled = False
         End If
 
         'Selecting the first item
-        If TestSelection_ComboBox.Items.Count > 0 Then
-            TestSelection_ComboBox.SelectedIndex = 0
+        If TestSituationSelection_ComboBox.Items.Count > 0 Then
+            TestSituationSelection_ComboBox.SelectedIndex = 0
         End If
 
     End Sub
 
 
-    Private Sub SelectTest_Button_Click(sender As Object, e As EventArgs) Handles SelectTest_Button.Click
+    Private Sub SelectTestSituation_Button_Click(sender As Object, e As EventArgs) Handles SelectTestSituation_Button.Click
 
-        If TestSelection_ComboBox.Items.Count > 0 Then
+        If TestSituationSelection_ComboBox.Items.Count > 0 Then
 
-            TestSelection_ComboBox.Enabled = True
+            TestSituationSelection_ComboBox.Enabled = True
 
-            If TestSelection_ComboBox.SelectedItem IsNot Nothing Then
-                SelectedTestSituation = TestSelection_ComboBox.SelectedItem
+            If TestSituationSelection_ComboBox.SelectedItem IsNot Nothing Then
+                SelectedTestSituation = TestSituationSelection_ComboBox.SelectedItem
             Else
                 SelectedTestSituation = Nothing
-                MsgBox("Select a test!", MsgBoxStyle.Information, "Selecting test specification")
+                MsgBox("Select a test situation!", MsgBoxStyle.Information, "Selecting test situation specification")
             End If
 
         Else
-            MsgBox("No tests specifications are available", MsgBoxStyle.Information, "Selecting test specification")
+            MsgBox("No test situation specifications are available", MsgBoxStyle.Information, "Selecting test situation specification")
             SelectedTestSituation = Nothing
-            SelectTest_Button.Enabled = False
-            TestSelection_ComboBox.Enabled = False
+            SelectTestSituation_Button.Enabled = False
+            TestSituationSelection_ComboBox.Enabled = False
         End If
 
         'Trigger the TestSituationSelected event

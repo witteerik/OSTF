@@ -24,9 +24,9 @@ Partial Class LoadOstaTestSituationsControl
     Private Sub InitializeComponent()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.DescriptionLabel = New System.Windows.Forms.Label()
-        Me.SelectTest_Button = New System.Windows.Forms.Button()
-        Me.TestSelection_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.SearchForTests_Button = New System.Windows.Forms.Button()
+        Me.SelectTestSituation_Button = New System.Windows.Forms.Button()
+        Me.TestSituationSelection_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.SearchForTestSituations_Button = New System.Windows.Forms.Button()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -37,9 +37,9 @@ Partial Class LoadOstaTestSituationsControl
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 98.0!))
         Me.TableLayoutPanel1.Controls.Add(Me.DescriptionLabel, 0, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.SelectTest_Button, 2, 1)
-        Me.TableLayoutPanel1.Controls.Add(Me.TestSelection_ComboBox, 1, 1)
-        Me.TableLayoutPanel1.Controls.Add(Me.SearchForTests_Button, 0, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.SelectTestSituation_Button, 2, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.TestSituationSelection_ComboBox, 1, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.SearchForTestSituations_Button, 0, 1)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
@@ -60,34 +60,34 @@ Partial Class LoadOstaTestSituationsControl
         Me.DescriptionLabel.Text = "Select and load test situation"
         Me.DescriptionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'SelectTest_Button
+        'SelectTestSituation_Button
         '
-        Me.SelectTest_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SelectTest_Button.Location = New System.Drawing.Point(312, 28)
-        Me.SelectTest_Button.Name = "SelectTest_Button"
-        Me.SelectTest_Button.Size = New System.Drawing.Size(92, 23)
-        Me.SelectTest_Button.TabIndex = 2
-        Me.SelectTest_Button.Text = "Load situation"
-        Me.SelectTest_Button.UseVisualStyleBackColor = True
+        Me.SelectTestSituation_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SelectTestSituation_Button.Location = New System.Drawing.Point(312, 28)
+        Me.SelectTestSituation_Button.Name = "SelectTestSituation_Button"
+        Me.SelectTestSituation_Button.Size = New System.Drawing.Size(92, 23)
+        Me.SelectTestSituation_Button.TabIndex = 2
+        Me.SelectTestSituation_Button.Text = "Load situation"
+        Me.SelectTestSituation_Button.UseVisualStyleBackColor = True
         '
-        'TestSelection_ComboBox
+        'TestSituationSelection_ComboBox
         '
-        Me.TestSelection_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TestSelection_ComboBox.FormattingEnabled = True
-        Me.TestSelection_ComboBox.Location = New System.Drawing.Point(73, 28)
-        Me.TestSelection_ComboBox.Name = "TestSelection_ComboBox"
-        Me.TestSelection_ComboBox.Size = New System.Drawing.Size(233, 21)
-        Me.TestSelection_ComboBox.TabIndex = 0
+        Me.TestSituationSelection_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TestSituationSelection_ComboBox.FormattingEnabled = True
+        Me.TestSituationSelection_ComboBox.Location = New System.Drawing.Point(73, 28)
+        Me.TestSituationSelection_ComboBox.Name = "TestSituationSelection_ComboBox"
+        Me.TestSituationSelection_ComboBox.Size = New System.Drawing.Size(233, 21)
+        Me.TestSituationSelection_ComboBox.TabIndex = 0
         '
-        'SearchForTests_Button
+        'SearchForTestSituations_Button
         '
-        Me.SearchForTests_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SearchForTests_Button.Location = New System.Drawing.Point(3, 28)
-        Me.SearchForTests_Button.Name = "SearchForTests_Button"
-        Me.SearchForTests_Button.Size = New System.Drawing.Size(64, 23)
-        Me.SearchForTests_Button.TabIndex = 1
-        Me.SearchForTests_Button.Text = "Search"
-        Me.SearchForTests_Button.UseVisualStyleBackColor = True
+        Me.SearchForTestSituations_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SearchForTestSituations_Button.Location = New System.Drawing.Point(3, 28)
+        Me.SearchForTestSituations_Button.Name = "SearchForTestSituations_Button"
+        Me.SearchForTestSituations_Button.Size = New System.Drawing.Size(64, 23)
+        Me.SearchForTestSituations_Button.TabIndex = 1
+        Me.SearchForTestSituations_Button.Text = "Search"
+        Me.SearchForTestSituations_Button.UseVisualStyleBackColor = True
         '
         'LoadOstaTestSituationsControl
         '
@@ -103,7 +103,7 @@ Partial Class LoadOstaTestSituationsControl
 
     Friend WithEvents TableLayoutPanel1 As Windows.Forms.TableLayoutPanel
     Friend WithEvents DescriptionLabel As Windows.Forms.Label
-    Friend WithEvents SelectTest_Button As Windows.Forms.Button
-    Friend WithEvents TestSelection_ComboBox As Windows.Forms.ComboBox
-    Friend WithEvents SearchForTests_Button As Windows.Forms.Button
+    Friend WithEvents SelectTestSituation_Button As Windows.Forms.Button
+    Friend WithEvents TestSituationSelection_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents SearchForTestSituations_Button As Windows.Forms.Button
 End Class

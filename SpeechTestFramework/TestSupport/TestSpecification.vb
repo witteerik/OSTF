@@ -23,7 +23,14 @@ Public Class TestSpecification
 
     Public Property TestSituations As New MediaSetLibrary
 
-    Public Property AvailableTestSituationNames As New List(Of String)
+    Public Function GetAvailableTestSituationNames() As List(Of String)
+        Dim OutputList As New List(Of String)
+        For Each TestSituation In TestSituations
+            OutputList.Add(TestSituation.ToString)
+        Next
+        Return OutputList
+    End Function
+
 
     Public Function GetTestsDirectory() As String
         Return IO.Path.Combine(OstfSettings.RootDirectory, TestsDirectory)
@@ -40,6 +47,11 @@ Public Class TestSpecification
     Public Function GetSpeechMaterialFilePath() As String
         Return IO.Path.Combine(GetSpeechMaterialFolder, SpeechMaterialComponent.SpeechMaterialComponentFileName)
     End Function
+
+    Public Function GetAvailableTestSituationsDirectory() As String
+        Return IO.Path.Combine(GetTestRootPath, Me.AvailableTestSituationsSubDirectory)
+    End Function
+
 
     Public Sub New(ByVal Name As String, ByVal DirectoryName As String)
         Me.Name = Name
@@ -128,20 +140,38 @@ Public Class TestSpecification
 
     Public Sub LoadAvailableTestSituationSpecifications()
 
-        TestSituations = New MediaSetLibrary()
+        'Looks in the appropriate folder for test situation specification files
 
-        TestSituations.Add("test1", New MediaSet)
+        Dim TestSituationSpecificationFolder As String = GetAvailableTestSituationsDirectory()
+
+        'Getting .txt files in that folder
+        Dim ExistingFiles = IO.Directory.GetFiles(TestSituationSpecificationFolder)
+        Dim TextFileNames As New List(Of String)
+        For Each FullFilePath In ExistingFiles
+            If FullFilePath.EndsWith(".txt") Then
+                'Adds only the file name
+                TextFileNames.Add(IO.Path.GetFileName(FullFilePath))
+            End If
+        Next
+
+        'Clears any test situations previously loaded before adding new ones
+        TestSituations.Clear()
+
+        For Each TextFileName In TextFileNames
+            'Tries to use the text file in order to create a new test specification object, and just skipps it if unsuccessful
+            Dim NewSituationTestSpecification = MediaSet.LoadMediaSet(TextFileName, GetTestRootPath)
+            If NewSituationTestSpecification IsNot Nothing Then
+
+                'Setting the parent
+                NewSituationTestSpecification.ParentTestSpecification = Me
+
+                'Adding the test situation
+                TestSituations.Add(NewSituationTestSpecification)
+            End If
+        Next
 
     End Sub
 
-
-
-    Public Sub LoadTestSituation(ByVal TestSituationName As String)
-
-        'Store new test situation as MediaSet in TestSituations
-        'LoadAvailableTestSituations
-
-    End Sub
 
     ''' <summary>
     ''' Overrides the default ToString method and returns the name of the test specification
@@ -156,7 +186,7 @@ Public Class TestSpecification
     Public Sub WriteTextFile(Optional FilePath As String = "")
 
         If FilePath = "" Then
-            FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save OSFT test specification file as")
+            FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save OSTF test specification file as")
         End If
 
         Dim OutputList As New List(Of String)

@@ -4,6 +4,8 @@
 
     Private Sub EnvironmentCreatorControl_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
+        UpdateControlEnabledStatuses()
+
     End Sub
 
 
@@ -25,12 +27,19 @@
             MsgBox("The following error occured: " & vbCrLf & vbCrLf & ex.ToString)
         End Try
 
+        NewTestSituationControl1.SetTestSpecification(SelectedTestSpecification)
+
         UpdateControlEnabledStatuses()
 
     End Sub
 
     Private Sub UpdateControlEnabledStatuses()
 
+        If SelectedTestSpecification IsNot Nothing Then
+            NewTestSituationControl1.Enabled = True
+        Else
+            NewTestSituationControl1.Enabled = False
+        End If
 
     End Sub
 
