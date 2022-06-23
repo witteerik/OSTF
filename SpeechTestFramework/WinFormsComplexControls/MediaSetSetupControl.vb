@@ -1,9 +1,12 @@
-﻿Public Class EditTestSituationControl
+﻿Public Class MediaSetSetupControl
 
 
-    Public Property SelectedTestSituation As MediaSet = Nothing
+    Private SelectedTestSpecification As TestSpecification = Nothing
 
-    Private Sub NewTestSituatuionControl_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private SelectedTestSituation As MediaSet = Nothing
+
+
+    Private Sub MediaSetSetupControl_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Adding genders
         TalkerGender_ComboBox.Items.AddRange([Enum].GetNames(GetType(MediaSet.Genders)))
@@ -19,9 +22,32 @@
 
     End Sub
 
-    Public Sub SetTestSpecification(ByRef SelectedTestSpecification As TestSpecification)
-        Me.LoadOstaTestSituationsControl1.SelectedTestSpecification = SelectedTestSpecification
+    Private Sub LoadOstaTestSpecificationControl1_SpeechTestSpecificationSelected() Handles LoadOstaTestSpecificationControl1.SpeechTestSpecificationSelected
+
+        Try
+
+            LoadOstaTestSpecificationControl1.SelectedTestSpecification.LoadSpeechMaterialComponentsFile()
+
+            SelectedTestSpecification = LoadOstaTestSpecificationControl1.SelectedTestSpecification
+
+            If SelectedTestSpecification IsNot Nothing Then
+                LoadedSpeechMaterialName_TextBox.Text = SelectedTestSpecification.SpeechMaterial.PrimaryStringRepresentation
+
+                'Also referencing the selected test situation in the LoadOstaTestSituationsControl1
+                LoadOstaTestSituationsControl1.SelectedTestSpecification = SelectedTestSpecification
+
+            Else
+                LoadedSpeechMaterialName_TextBox.Text = "No speech material loaded"
+                MsgBox("Unable to load the speech material file.", MsgBoxStyle.Information, "File reading error")
+            End If
+        Catch ex As Exception
+            MsgBox("The following error occured: " & vbCrLf & vbCrLf & ex.ToString)
+        End Try
+
+        UpdateControlEnabledStatuses()
+
     End Sub
+
 
     Private Sub LoadOstaTestSituationsControl1_TestSituationSelected() Handles LoadOstaTestSituationsControl1.TestSituationSelected
 
@@ -38,19 +64,28 @@
 
     Private Sub UpdateControlEnabledStatuses()
 
-        If SelectedTestSituation IsNot Nothing Then
-            Edit_TableLayoutPanel.Enabled = True
-            Save_Button.Enabled = True
+        If SelectedTestSpecification IsNot Nothing Then
+            LoadOstaTestSituationsControl1.Enabled = True
+            NewTestSituation_Button.Enabled = True
+
+            If SelectedTestSituation IsNot Nothing Then
+                Edit_TableLayoutPanel.Enabled = True
+                Save_Button.Enabled = True
+            End If
+
         Else
+            LoadOstaTestSituationsControl1.Enabled = False
+            NewTestSituation_Button.Enabled = False
             Edit_TableLayoutPanel.Enabled = False
             Save_Button.Enabled = False
         End If
 
     End Sub
 
+
     Private Sub NewTestSituation_Button_Click(sender As Object, e As EventArgs) Handles NewTestSituation_Button.Click
 
-        Me.SelectedTestSituation = New MediaSet With {.ParentTestSpecification = LoadOstaTestSituationsControl1.SelectedTestSpecification}
+        Me.SelectedTestSituation = New MediaSet With {.ParentTestSpecification = SelectedTestSpecification}
 
         ViewTestSituationData()
 
@@ -70,7 +105,9 @@
 
         TestSituationName_TextBox.Text = SelectedTestSituation.TestSituationName
         TalkerName_TextBox.Text = SelectedTestSituation.TalkerName
-        TalkerGender_ComboBox.SelectedItem = SelectedTestSituation.TalkerGender
+
+        TalkerGender_ComboBox.SelectedItem = SelectedTestSituation.TalkerGender.ToString
+
         TalkerAge_IntegerParsingTextBox.Text = SelectedTestSituation.TalkerAge
         TalkerDialect_TextBox.Text = SelectedTestSituation.TalkerDialect
         VoiceType_TextBox.Text = SelectedTestSituation.VoiceType
@@ -89,7 +126,8 @@
         LombardNoiseLevel_DoubleParsingTextBox.Text = SelectedTestSituation.LombardNoiseLevel
         WaveFileSampleRate_IntegerParsingTextBox.Text = SelectedTestSituation.WaveFileSampleRate
         WaveFileBitDepth_ComboBox.SelectedItem = SelectedTestSituation.WaveFileBitDepth
-        WaveFileEncoding_ComboBox.SelectedItem = SelectedTestSituation.WaveFileEncoding
+
+        WaveFileEncoding_ComboBox.SelectedItem = SelectedTestSituation.WaveFileEncoding.ToString
 
     End Sub
 
@@ -206,10 +244,14 @@
 
         Me.SelectedTestSituation = TempTestSituation
 
+        Me.SelectedTestSituation.ParentTestSpecification = SelectedTestSpecification
+
         Me.SelectedTestSituation.WriteToFile()
 
         UpdateControlEnabledStatuses()
 
     End Sub
+
+
 
 End Class

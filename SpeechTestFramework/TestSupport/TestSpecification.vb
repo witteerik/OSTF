@@ -4,12 +4,12 @@ Public Class TestSpecification
     Public Const FormatFlag As String = "{OSTF_TEST_SPECIFICATION_FILE}"
     Public Const TestsDirectory As String = "Tests"
     Public Const TestSpecificationDirectory As String = "AvailableTests"
+    Public Const MediaSetSpecificationDirectory As String = "AvailableMediaSets"
 
     Public ReadOnly Property Name As String = ""
 
     Public ReadOnly Property DirectoryName As String = ""
 
-    Public Property AvailableTestSituationsSubDirectory As String = ""
 
     Public Property TestPresetsSubFilePath As String = ""
 
@@ -49,7 +49,7 @@ Public Class TestSpecification
     End Function
 
     Public Function GetAvailableTestSituationsDirectory() As String
-        Return IO.Path.Combine(GetTestRootPath, Me.AvailableTestSituationsSubDirectory)
+        Return IO.Path.Combine(GetTestRootPath, MediaSetSpecificationDirectory)
     End Function
 
 
@@ -102,10 +102,6 @@ Public Class TestSpecification
                 DirectoryName = InputFileSupport.GetInputFileValue(Input(line).Trim, True)
             End If
 
-            If Input(line).Trim.StartsWith("AvailableTestSituationsSubDirectory") Then
-                AvailableTestSituationsSubDirectory = InputFileSupport.GetInputFileValue(Input(line).Trim, True)
-            End If
-
             If Input(line).Trim.StartsWith("TestPresetsSubFilePath") Then
                 TestPresetsSubFilePath = InputFileSupport.GetInputFileValue(Input(line).Trim, True)
             End If
@@ -113,7 +109,6 @@ Public Class TestSpecification
         Next
 
         Dim Output As New TestSpecification(Name, DirectoryName)
-        Output.AvailableTestSituationsSubDirectory = AvailableTestSituationsSubDirectory
         Output.TestPresetsSubFilePath = TestPresetsSubFilePath
 
         Output.TestSpecificationFileName = TextFileName
@@ -140,29 +135,30 @@ Public Class TestSpecification
 
     Public Sub LoadAvailableTestSituationSpecifications()
 
-        'Looks in the appropriate folder for test situation specification files
-
-        Dim TestSituationSpecificationFolder As String = GetAvailableTestSituationsDirectory()
-
-        'Getting .txt files in that folder
-        Dim ExistingFiles = IO.Directory.GetFiles(TestSituationSpecificationFolder)
-        Dim TextFileNames As New List(Of String)
-        For Each FullFilePath In ExistingFiles
-            If FullFilePath.EndsWith(".txt") Then
-                'Adds only the file name
-                TextFileNames.Add(IO.Path.GetFileName(FullFilePath))
-            End If
-        Next
-
         'Clears any test situations previously loaded before adding new ones
         TestSituations.Clear()
 
-        For Each TextFileName In TextFileNames
+        'Looks in the appropriate folder for test situation specification files
+        Dim TestSituationSpecificationFolder As String = GetAvailableTestSituationsDirectory()
+
+        'Siliently exits if the TestSituationSpecificationFolder doesn't exist (which will happen when no TestSituationSpecifications have been created)
+        If IO.Directory.Exists(TestSituationSpecificationFolder) = False Then Exit Sub
+
+        'Getting .txt files in that folder
+        Dim ExistingFiles = IO.Directory.GetFiles(TestSituationSpecificationFolder)
+        Dim TextFiles As New List(Of String)
+        For Each FullFilePath In ExistingFiles
+            If FullFilePath.EndsWith(".txt") Then
+                TextFiles.Add(FullFilePath)
+            End If
+        Next
+
+        For Each TextFilePath In TextFiles
             'Tries to use the text file in order to create a new test specification object, and just skipps it if unsuccessful
-            Dim NewSituationTestSpecification = MediaSet.LoadMediaSet(TextFileName, GetTestRootPath)
+            Dim NewSituationTestSpecification = MediaSet.LoadMediaSet(TextFilePath)
             If NewSituationTestSpecification IsNot Nothing Then
 
-                'Setting the parent
+                'Setting the ParentTestSpecification
                 NewSituationTestSpecification.ParentTestSpecification = Me
 
                 'Adding the test situation
@@ -206,13 +202,6 @@ Public Class TestSpecification
             OutputList.Add("// DirectoryName = Tests\ [Add the DirectoryName here, and remove the double slashes]")
         Else
             OutputList.Add("DirectoryName = " & DirectoryName)
-        End If
-
-        If AvailableTestSituationsSubDirectory.Trim = "" Then
-            OutputList.Add("// AvailableTestSituationsSubDirectory = [Add the AvailableTestSituationsSubDirectory here, and remove the double slashes]")
-
-        Else
-            OutputList.Add("AvailableTestSituationsSubDirectory = " & AvailableTestSituationsSubDirectory)
         End If
 
         If TestPresetsSubFilePath.Trim = "" Then

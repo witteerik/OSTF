@@ -75,6 +75,11 @@ Public Class MediaSet
 
         Dim OutputList As New List(Of String)
 
+        Dim DefaultOutputDirectory As String = ParentTestSpecification.GetAvailableTestSituationsDirectory()
+
+        'Creates the diurectory if it doesn't exist
+        If IO.Directory.Exists(DefaultOutputDirectory) = False Then IO.Directory.CreateDirectory(DefaultOutputDirectory)
+
         Dim OutputPath As String = Utils.GetSaveFilePath(ParentTestSpecification.GetAvailableTestSituationsDirectory(), "NewTestSituation", {".txt"}, "Supply a test situation specification file name")
 
         If OutputPath = "" Then
@@ -111,7 +116,7 @@ Public Class MediaSet
 
     End Sub
 
-    Public Shared Function LoadMediaSet(ByVal FilePath As String, ByVal TestRootPath As String) As MediaSet
+    Public Shared Function LoadMediaSet(ByVal FilePath As String) As MediaSet
 
         'Gets a file path from the user if none is supplied
         If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured test situation .txt file.")
@@ -126,7 +131,7 @@ Public Class MediaSet
         Dim Output As New MediaSet
 
         'Parses the input file
-        Dim InputLines() As String = System.IO.File.ReadAllLines(InputFileSupport.InputFilePathValueParsing(FilePath, TestRootPath, False), Text.Encoding.UTF8)
+        Dim InputLines() As String = System.IO.File.ReadAllLines(FilePath, Text.Encoding.UTF8)
 
         For Each Line In InputLines
 

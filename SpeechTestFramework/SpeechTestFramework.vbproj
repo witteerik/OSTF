@@ -124,12 +124,6 @@
     <Compile Include="WinFormControls\LoadOstaTestSpecificationControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="WinFormControls\NewTestSituatuionControl.Designer.vb">
-      <DependentUpon>NewTestSituatuionControl.vb</DependentUpon>
-    </Compile>
-    <Compile Include="WinFormControls\NewTestSituatuionControl.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="WinFormControls\SummaryStatisticsSelectionControl.Designer.vb">
       <DependentUpon>SummaryStatisticsSelectionControl.vb</DependentUpon>
     </Compile>
@@ -145,16 +139,16 @@
     <Compile Include="WinFormControls\ExistingFilePathControl.vb">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="WinFormsComplexControls\EnvironmentCreatorControl.Designer.vb">
-      <DependentUpon>EnvironmentCreatorControl.vb</DependentUpon>
-    </Compile>
-    <Compile Include="WinFormsComplexControls\EnvironmentCreatorControl.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="WinFormsComplexControls\LexicalVariablesEditor.Designer.vb">
       <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>
     </Compile>
     <Compile Include="WinFormsComplexControls\LexicalVariablesEditor.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WinFormsComplexControls\MediaSetSetupControl.Designer.vb">
+      <DependentUpon>MediaSetSetupControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormsComplexControls\MediaSetSetupControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="WinFormsComplexControls\SpeechMaterialComponentCreator.Designer.vb">
@@ -276,20 +270,17 @@
     <EmbeddedResource Include="WinFormControls\LoadOstaTestSpecificationControl.resx">
       <DependentUpon>LoadOstaTestSpecificationControl.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinFormControls\NewTestSituatuionControl.resx">
-      <DependentUpon>NewTestSituatuionControl.vb</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\SummaryStatisticsSelectionControl.resx">
       <DependentUpon>SummaryStatisticsSelectionControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\CustomVariableSelectionControl.resx">
       <DependentUpon>CustomVariableSelectionControl.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinFormsComplexControls\EnvironmentCreatorControl.resx">
-      <DependentUpon>EnvironmentCreatorControl.vb</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="WinFormsComplexControls\LexicalVariablesEditor.resx">
       <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormsComplexControls\MediaSetSetupControl.resx">
+      <DependentUpon>MediaSetSetupControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormsComplexControls\SpeechMaterialComponentCreator.resx">
       <DependentUpon>SpeechMaterialComponentCreator.vb</DependentUpon>
