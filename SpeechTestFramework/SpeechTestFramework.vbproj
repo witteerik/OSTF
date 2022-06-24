@@ -112,10 +112,10 @@
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
     <Compile Include="TestSupport\TestSpecification.vb" />
-    <Compile Include="WinFormControls\LoadOstaTestSituationsControl.Designer.vb">
-      <DependentUpon>LoadOstaTestSituationsControl.vb</DependentUpon>
+    <Compile Include="WinFormControls\LoadOstaMediaSetControl.Designer.vb">
+      <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>
     </Compile>
-    <Compile Include="WinFormControls\LoadOstaTestSituationsControl.vb">
+    <Compile Include="WinFormControls\LoadOstaMediaSetControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="WinFormControls\LoadOstaTestSpecificationControl.Designer.vb">
@@ -264,8 +264,8 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinFormControls\LoadOstaTestSituationsControl.resx">
-      <DependentUpon>LoadOstaTestSituationsControl.vb</DependentUpon>
+    <EmbeddedResource Include="WinFormControls\LoadOstaMediaSetControl.resx">
+      <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\LoadOstaTestSpecificationControl.resx">
       <DependentUpon>LoadOstaTestSpecificationControl.vb</DependentUpon>

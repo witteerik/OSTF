@@ -78,7 +78,7 @@
         End If
 
         'Trigger the SpeechTestSpecificationSelected event
-        RaiseEvent SpeechTestSpecificationSelected()
+        If SelectedTestSpecification IsNot Nothing Then RaiseEvent SpeechTestSpecificationSelected()
 
     End Sub
 End Class

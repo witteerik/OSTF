@@ -11,14 +11,14 @@ Public Class MediaSet
     Public ParentTestSpecification As TestSpecification
 
     ''' <summary>
-    ''' Describes the test situaton in which the trial is situated
+    ''' Describes the media set used in the test situaton in which a test trial is situated
     ''' </summary>
     ''' <returns></returns>
-    Public Property TestSituationName As String = "New test situation"
+    Public Property MediaSetName As String = "New media set"
 
     'Information about the talker in the recordings
     Public Property TalkerName As String = ""
-    Public Property TalkerGender As Genders
+    Public Property TalkerGender As Genders = Genders.NotSet
     Public Property TalkerAge As Integer = -1
     Public Property TalkerDialect As String = ""
     Public Property VoiceType As String = ""
@@ -80,16 +80,16 @@ Public Class MediaSet
         'Creates the diurectory if it doesn't exist
         If IO.Directory.Exists(DefaultOutputDirectory) = False Then IO.Directory.CreateDirectory(DefaultOutputDirectory)
 
-        Dim OutputPath As String = Utils.GetSaveFilePath(ParentTestSpecification.GetAvailableTestSituationsDirectory(), "NewTestSituation", {".txt"}, "Supply a test situation specification file name")
+        Dim OutputPath As String = Utils.GetSaveFilePath(ParentTestSpecification.GetAvailableTestSituationsDirectory(), "NewMediaSet", {".txt"}, "Supply a media set specification file name")
 
         If OutputPath = "" Then
-            MsgBox("No filename supplied.", MsgBoxStyle.Information, "Saving test situation specification")
+            MsgBox("No filename supplied.", MsgBoxStyle.Information, "Saving media set specification")
             Exit Sub
         End If
 
-        OutputList.Add("// This is an OSTA test situation specification file")
+        OutputList.Add("// This is an OSTA media set specification file")
 
-        OutputList.Add("TestSituationName = " & TestSituationName)
+        OutputList.Add("MediaSetName = " & MediaSetName)
         OutputList.Add("TalkerName = " & TalkerName)
         OutputList.Add("TalkerGender = " & TalkerGender.ToString)
         OutputList.Add("TalkerAge = " & TalkerAge)
@@ -119,7 +119,7 @@ Public Class MediaSet
     Public Shared Function LoadMediaSet(ByVal FilePath As String) As MediaSet
 
         'Gets a file path from the user if none is supplied
-        If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured test situation .txt file.")
+        If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured media set .txt file.")
         If FilePath = "" Then
             MsgBox("No file selected!")
             Return Nothing
@@ -141,7 +141,7 @@ Public Class MediaSet
             'Also skipping commentary only lines 
             If Line.Trim.StartsWith("//") Then Continue For
 
-            If Line.StartsWith("TestSituationName") Then Output.TestSituationName = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("MediaSetName") Then Output.MediaSetName = InputFileSupport.GetInputFileValue(Line, True)
 
             If Line.StartsWith("TalkerName") Then Output.TalkerName = InputFileSupport.GetInputFileValue(Line, True)
 
@@ -150,7 +150,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.TalkerGender = Value
                 Else
-                    MsgBox("Failed to read the TalkerGender value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the TalkerGender value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -160,7 +160,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.TalkerAge = Value
                 Else
-                    MsgBox("Failed to read the TalkerAge value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the TalkerAge value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -174,7 +174,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.MediaAudioItems = Value
                 Else
-                    MsgBox("Failed to read the MediaAudioItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the MediaAudioItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -184,7 +184,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.MaskerAudioItems = Value
                 Else
-                    MsgBox("Failed to read the MaskerAudioItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the MaskerAudioItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -194,7 +194,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.MediaImageItems = Value
                 Else
-                    MsgBox("Failed to read the MediaImageItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the MediaImageItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -204,7 +204,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.MaskerImageItems = Value
                 Else
-                    MsgBox("Failed to read the MaskerImageItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the MaskerImageItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -226,7 +226,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.PrototypeRecordingLevel = Value
                 Else
-                    MsgBox("Failed to read the PrototypeRecordingLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the PrototypeRecordingLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -238,7 +238,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.LombardNoiseLevel = Value
                 Else
-                    MsgBox("Failed to read the LombardNoiseLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the LombardNoiseLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -248,7 +248,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.WaveFileSampleRate = Value
                 Else
-                    MsgBox("Failed to read the WaveFileSampleRate value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the WaveFileSampleRate value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -258,7 +258,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.WaveFileBitDepth = Value
                 Else
-                    MsgBox("Failed to read the WaveFileBitDepth value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the WaveFileBitDepth value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -268,7 +268,7 @@ Public Class MediaSet
                 If Value.HasValue Then
                     Output.WaveFileEncoding = Value
                 Else
-                    MsgBox("Failed to read the WaveFileEncoding value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading test situation specification file")
+                    MsgBox("Failed to read the WaveFileEncoding value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -284,7 +284,7 @@ Public Class MediaSet
 
         Select Case Voice
             Case 1
-                TestSituationName = "City-Talker1-RVE"
+                MediaSetName = "City-Talker1-RVE"
 
                 TalkerName = "JE"
                 TalkerGender = Genders.Male
@@ -309,7 +309,7 @@ Public Class MediaSet
                 MasterPrototypeRecordingPath = ""
             Case 2
 
-                TestSituationName = "City-Talker2-RVE"
+                MediaSetName = "City-Talker2-RVE"
 
                 TalkerName = "EL"
                 TalkerGender = Genders.Female
@@ -338,7 +338,7 @@ Public Class MediaSet
 
     Public Sub SetHintDebugValues()
 
-        TestSituationName = "Unechoic-Talker1-RVE"
+        MediaSetName = "Unechoic-Talker1-RVE"
 
         TalkerName = "EW"
         TalkerGender = Genders.Male
@@ -373,16 +373,16 @@ Public Class MediaSet
     ''' Returns the full file paths to all existing and nonexisting sound recordings assumed to exist in the Media folder in Item1, along with the the path to a corresponding sound to be used as prototype recording as Item2 and a reference to the corresponding Component as Item3.
     ''' For lacking recordings a new paths are suggested. Existing file paths are returned in Item2, and nonexisting paths in Item3.
     ''' </summary>
-    ''' <param name="SpeechMaterial"></param>
     ''' <returns></returns>
-    Public Function GetAllSpeechMaterialComponentAudioPaths(ByVal SpeechMaterial As SpeechMaterialComponent, ByVal PrototypeRecordingOption As PrototypeRecordingOptions) As Tuple(Of
+    Public Function GetAllSpeechMaterialComponentAudioPaths(ByVal PrototypeRecordingOption As PrototypeRecordingOptions) As Tuple(Of
         List(Of Tuple(Of String, String, SpeechMaterialComponent)),
         List(Of Tuple(Of String, String, SpeechMaterialComponent)),
         List(Of Tuple(Of String, String, SpeechMaterialComponent)))
 
+
         Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
 
-        Dim AllComponents = SpeechMaterial.GetAllRelatives
+        Dim AllComponents = ParentTestSpecification.SpeechMaterial.GetAllRelatives
 
         Dim ExistingFilesList As New List(Of Tuple(Of String, String, SpeechMaterialComponent))
         Dim LackingFilesList As New List(Of Tuple(Of String, String, SpeechMaterialComponent))
@@ -395,7 +395,7 @@ Public Class MediaSet
 
             Dim FullMediaFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaParentFolder, Component.MediaFolder)
 
-            'Selects the appropriate prototyp recording depending on the value of PrototypeRecordingOption
+            'Selects the appropriate prototype recording depending on the value of PrototypeRecordingOption
             Dim PrototypeRecordingPath As String = ""
             Select Case PrototypeRecordingOption
                 Case PrototypeRecordingOptions.MasterPrototypeRecording
@@ -485,18 +485,17 @@ Public Class MediaSet
     ''' <summary>
     ''' Checks whether there are missing audio media files, and offers an option to create the files needed. Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.
     ''' </summary>
-    ''' <param name="SpeechMaterial"></param>
     ''' <returns>Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.</returns>
-    Public Function CreateLackingAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent, ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
+    Public Function CreateLackingAudioMediaFiles(ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
                                                  Optional SupressUnnecessaryMessages As Boolean = False) As Tuple(Of Integer, Integer)
 
-        Dim ExpectedAudioPaths = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial, PrototypeRecordingOption)
+        Dim ExpectedAudioPaths = GetAllSpeechMaterialComponentAudioPaths(PrototypeRecordingOption)
 
         Dim FilesCreated As Integer = 0
 
         If ExpectedAudioPaths.Item3.Count > 0 Then
 
-            Dim MsgResult = MsgBox(ExpectedAudioPaths.Item3.Count & " audio files are missing from test situation " & TestSituationName & ". Do you want to prepare new wave files for these components?", MsgBoxStyle.YesNo)
+            Dim MsgResult = MsgBox(ExpectedAudioPaths.Item3.Count & " audio files are missing from media set " & MediaSetName & ". Do you want to prepare new wave files for these components?", MsgBoxStyle.YesNo)
             If MsgResult = MsgBoxResult.Yes Then
 
 
@@ -544,13 +543,12 @@ Public Class MediaSet
     End Enum
 
 
-    Public Sub RecordAndEditAudioMediaFiles(ByVal SpeechMaterial As SpeechMaterialComponent,
-                                            ByVal SpeechMaterialRecorderSoundFileLoadOption As SpeechMaterialRecorderLoadOptions,
+    Public Sub RecordAndEditAudioMediaFiles(ByVal SpeechMaterialRecorderSoundFileLoadOption As SpeechMaterialRecorderLoadOptions,
                                             ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
                                             Optional ByRef RandomItemOrder As Boolean = True)
 
         'Checks first that all expected sound files exist
-        Dim FilesStillLacking = CreateLackingAudioMediaFiles(SpeechMaterial, PrototypeRecordingOption, True).Item2
+        Dim FilesStillLacking = CreateLackingAudioMediaFiles(PrototypeRecordingOption, True).Item2
 
         If FilesStillLacking > 0 Then
             MsgBox("All audio files needed were not created. Exiting RecordAudioMediaFiles.")
@@ -558,7 +556,7 @@ Public Class MediaSet
         End If
 
         'Getting all paths
-        Dim AudioPaths = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial, PrototypeRecordingOption)
+        Dim AudioPaths = GetAllSpeechMaterialComponentAudioPaths(PrototypeRecordingOption)
 
         Dim FilesForRecordAndEdit As New List(Of Tuple(Of String, String))
 
@@ -618,10 +616,9 @@ Public Class MediaSet
     ''' <summary>
     ''' Copies all sound files to a folder structure which is based on the Id of the speech material component.
     ''' </summary>
-    ''' <param name="SpeechMaterial"></param>
-    Public Sub CopySoundFiles(ByVal SpeechMaterial As SpeechMaterialComponent, ByVal OutputFolder As String)
+    Public Sub CopySoundFiles(ByVal OutputFolder As String)
 
-        Dim AllSoundPathTuples = GetAllSpeechMaterialComponentAudioPaths(SpeechMaterial, PrototypeRecordingOptions.None)
+        Dim AllSoundPathTuples = GetAllSpeechMaterialComponentAudioPaths(PrototypeRecordingOptions.None)
 
         'Creates the OutputFolder 
         If IO.Directory.Exists(OutputFolder) = False Then IO.Directory.CreateDirectory(OutputFolder)
@@ -672,7 +669,7 @@ Public Class MediaSet
     End Function
 
     Public Overrides Function ToString() As String
-        Return Me.TestSituationName
+        Return Me.MediaSetName
     End Function
 
 End Class

@@ -323,6 +323,8 @@ Public Class SpeechMaterialRecorder
             SoundPlayer.Dispose()
         End If
 
+        SoundPlayer = Nothing
+
     End Sub
 
     Private Sub RandomizeRecordingsOrder()

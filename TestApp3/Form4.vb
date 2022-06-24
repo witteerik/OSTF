@@ -41,7 +41,7 @@
 
                 'NewMediaSet.CopySoundFiles(CompleteSpeechMaterial, IO.Path.Combine(SpeechTestFramework.Utils.logFilePath, "MediaSet2"))
 
-                NewMediaSet.RecordAndEditAudioMediaFiles(CompleteSpeechMaterial, SpeechTestFramework.MediaSet.SpeechMaterialRecorderLoadOptions.LoadAllSounds, SpeechTestFramework.MediaSet.PrototypeRecordingOptions.None)
+                NewMediaSet.RecordAndEditAudioMediaFiles(SpeechTestFramework.MediaSet.SpeechMaterialRecorderLoadOptions.LoadAllSounds, SpeechTestFramework.MediaSet.PrototypeRecordingOptions.None)
 
                 'NewMediaSet.CreateLackingAudioMediaFiles(CompleteSpeechMaterial)
 

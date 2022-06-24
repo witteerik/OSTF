@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class LoadOstaTestSituationsControl
+Partial Class LoadOstaMediaSetControl
     Inherits System.Windows.Forms.UserControl
 
     'UserControl overrides dispose to clean up the component list.
@@ -24,9 +24,9 @@ Partial Class LoadOstaTestSituationsControl
     Private Sub InitializeComponent()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.DescriptionLabel = New System.Windows.Forms.Label()
-        Me.SelectTestSituation_Button = New System.Windows.Forms.Button()
-        Me.TestSituationSelection_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.SearchForTestSituations_Button = New System.Windows.Forms.Button()
+        Me.SelectMediaSet_Button = New System.Windows.Forms.Button()
+        Me.MediaSetSelection_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.SearchForMediaSets_Button = New System.Windows.Forms.Button()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -37,9 +37,9 @@ Partial Class LoadOstaTestSituationsControl
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 98.0!))
         Me.TableLayoutPanel1.Controls.Add(Me.DescriptionLabel, 0, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.SelectTestSituation_Button, 2, 1)
-        Me.TableLayoutPanel1.Controls.Add(Me.TestSituationSelection_ComboBox, 1, 1)
-        Me.TableLayoutPanel1.Controls.Add(Me.SearchForTestSituations_Button, 0, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.SelectMediaSet_Button, 2, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.MediaSetSelection_ComboBox, 1, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.SearchForMediaSets_Button, 0, 1)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
@@ -57,44 +57,44 @@ Partial Class LoadOstaTestSituationsControl
         Me.DescriptionLabel.Name = "DescriptionLabel"
         Me.DescriptionLabel.Size = New System.Drawing.Size(401, 25)
         Me.DescriptionLabel.TabIndex = 3
-        Me.DescriptionLabel.Text = "Select and load test situation"
+        Me.DescriptionLabel.Text = "Select and load media set"
         Me.DescriptionLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'SelectTestSituation_Button
+        'SelectMediaSet_Button
         '
-        Me.SelectTestSituation_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SelectTestSituation_Button.Location = New System.Drawing.Point(312, 28)
-        Me.SelectTestSituation_Button.Name = "SelectTestSituation_Button"
-        Me.SelectTestSituation_Button.Size = New System.Drawing.Size(92, 23)
-        Me.SelectTestSituation_Button.TabIndex = 2
-        Me.SelectTestSituation_Button.Text = "Load situation"
-        Me.SelectTestSituation_Button.UseVisualStyleBackColor = True
+        Me.SelectMediaSet_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SelectMediaSet_Button.Location = New System.Drawing.Point(312, 28)
+        Me.SelectMediaSet_Button.Name = "SelectMediaSet_Button"
+        Me.SelectMediaSet_Button.Size = New System.Drawing.Size(92, 23)
+        Me.SelectMediaSet_Button.TabIndex = 2
+        Me.SelectMediaSet_Button.Text = "Load media set"
+        Me.SelectMediaSet_Button.UseVisualStyleBackColor = True
         '
-        'TestSituationSelection_ComboBox
+        'MediaSetSelection_ComboBox
         '
-        Me.TestSituationSelection_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TestSituationSelection_ComboBox.FormattingEnabled = True
-        Me.TestSituationSelection_ComboBox.Location = New System.Drawing.Point(73, 28)
-        Me.TestSituationSelection_ComboBox.Name = "TestSituationSelection_ComboBox"
-        Me.TestSituationSelection_ComboBox.Size = New System.Drawing.Size(233, 21)
-        Me.TestSituationSelection_ComboBox.TabIndex = 0
+        Me.MediaSetSelection_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MediaSetSelection_ComboBox.FormattingEnabled = True
+        Me.MediaSetSelection_ComboBox.Location = New System.Drawing.Point(73, 28)
+        Me.MediaSetSelection_ComboBox.Name = "MediaSetSelection_ComboBox"
+        Me.MediaSetSelection_ComboBox.Size = New System.Drawing.Size(233, 21)
+        Me.MediaSetSelection_ComboBox.TabIndex = 0
         '
-        'SearchForTestSituations_Button
+        'SearchForMediaSets_Button
         '
-        Me.SearchForTestSituations_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SearchForTestSituations_Button.Location = New System.Drawing.Point(3, 28)
-        Me.SearchForTestSituations_Button.Name = "SearchForTestSituations_Button"
-        Me.SearchForTestSituations_Button.Size = New System.Drawing.Size(64, 23)
-        Me.SearchForTestSituations_Button.TabIndex = 1
-        Me.SearchForTestSituations_Button.Text = "Search"
-        Me.SearchForTestSituations_Button.UseVisualStyleBackColor = True
+        Me.SearchForMediaSets_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SearchForMediaSets_Button.Location = New System.Drawing.Point(3, 28)
+        Me.SearchForMediaSets_Button.Name = "SearchForMediaSets_Button"
+        Me.SearchForMediaSets_Button.Size = New System.Drawing.Size(64, 23)
+        Me.SearchForMediaSets_Button.TabIndex = 1
+        Me.SearchForMediaSets_Button.Text = "Search"
+        Me.SearchForMediaSets_Button.UseVisualStyleBackColor = True
         '
-        'LoadOstaTestSituationsControl
+        'LoadOstaMediaSetControl
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.Controls.Add(Me.TableLayoutPanel1)
-        Me.Name = "LoadOstaTestSituationsControl"
+        Me.Name = "LoadOstaMediaSetControl"
         Me.Size = New System.Drawing.Size(407, 54)
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.ResumeLayout(False)
@@ -103,7 +103,7 @@ Partial Class LoadOstaTestSituationsControl
 
     Friend WithEvents TableLayoutPanel1 As Windows.Forms.TableLayoutPanel
     Friend WithEvents DescriptionLabel As Windows.Forms.Label
-    Friend WithEvents SelectTestSituation_Button As Windows.Forms.Button
-    Friend WithEvents TestSituationSelection_ComboBox As Windows.Forms.ComboBox
-    Friend WithEvents SearchForTestSituations_Button As Windows.Forms.Button
+    Friend WithEvents SelectMediaSet_Button As Windows.Forms.Button
+    Friend WithEvents MediaSetSelection_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents SearchForMediaSets_Button As Windows.Forms.Button
 End Class

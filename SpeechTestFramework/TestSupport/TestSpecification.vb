@@ -21,11 +21,11 @@ Public Class TestSpecification
 
     Public Property SpeechMaterial As SpeechMaterialComponent
 
-    Public Property TestSituations As New MediaSetLibrary
+    Public Property MediaSets As New MediaSetLibrary
 
     Public Function GetAvailableTestSituationNames() As List(Of String)
         Dim OutputList As New List(Of String)
-        For Each TestSituation In TestSituations
+        For Each TestSituation In MediaSets
             OutputList.Add(TestSituation.ToString)
         Next
         Return OutputList
@@ -73,7 +73,6 @@ Public Class TestSpecification
 
         Dim Name As String = ""
         Dim DirectoryName As String = ""
-        Dim AvailableTestSituationsSubDirectory As String = ""
         Dim TestPresetsSubFilePath As String = ""
 
         For line = 0 To Input.Length - 1
@@ -133,10 +132,10 @@ Public Class TestSpecification
 
     End Sub
 
-    Public Sub LoadAvailableTestSituationSpecifications()
+    Public Sub LoadAvailableMediaSetSpecifications()
 
         'Clears any test situations previously loaded before adding new ones
-        TestSituations.Clear()
+        MediaSets.Clear()
 
         'Looks in the appropriate folder for test situation specification files
         Dim TestSituationSpecificationFolder As String = GetAvailableTestSituationsDirectory()
@@ -162,7 +161,7 @@ Public Class TestSpecification
                 NewSituationTestSpecification.ParentTestSpecification = Me
 
                 'Adding the test situation
-                TestSituations.Add(NewSituationTestSpecification)
+                MediaSets.Add(NewSituationTestSpecification)
             End If
         Next
 

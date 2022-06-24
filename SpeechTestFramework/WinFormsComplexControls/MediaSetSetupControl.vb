@@ -3,7 +3,7 @@
 
     Private SelectedTestSpecification As TestSpecification = Nothing
 
-    Private SelectedTestSituation As MediaSet = Nothing
+    Private SelectedMediaSet As MediaSet = Nothing
 
 
     Private Sub MediaSetSetupControl_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -33,8 +33,8 @@
             If SelectedTestSpecification IsNot Nothing Then
                 LoadedSpeechMaterialName_TextBox.Text = SelectedTestSpecification.SpeechMaterial.PrimaryStringRepresentation
 
-                'Also referencing the selected test situation in the LoadOstaTestSituationsControl1
-                LoadOstaTestSituationsControl1.SelectedTestSpecification = SelectedTestSpecification
+                'Also referencing the selected test situation in the LoadOstaMediaSetControl1
+                LoadOstaMediaSetControl1.SelectedTestSpecification = SelectedTestSpecification
 
             Else
                 LoadedSpeechMaterialName_TextBox.Text = "No speech material loaded"
@@ -49,13 +49,13 @@
     End Sub
 
 
-    Private Sub LoadOstaTestSituationsControl1_TestSituationSelected() Handles LoadOstaTestSituationsControl1.TestSituationSelected
+    Private Sub LoadOstaMediaSetControl1_TestSituationSelected() Handles LoadOstaMediaSetControl1.MediaSetSelected
 
-        If LoadOstaTestSituationsControl1.SelectedTestSituation IsNot Nothing Then
-            SelectedTestSituation = LoadOstaTestSituationsControl1.SelectedTestSituation
+        If LoadOstaMediaSetControl1.SelectedMediaSet IsNot Nothing Then
+            SelectedMediaSet = LoadOstaMediaSetControl1.SelectedMediaSet
         End If
 
-        ViewTestSituationData()
+        ViewMediaSetData()
 
         UpdateControlEnabledStatuses()
 
@@ -65,193 +65,216 @@
     Private Sub UpdateControlEnabledStatuses()
 
         If SelectedTestSpecification IsNot Nothing Then
-            LoadOstaTestSituationsControl1.Enabled = True
-            NewTestSituation_Button.Enabled = True
+            LoadOstaMediaSetControl1.Enabled = True
+            NewMediaSet_Button.Enabled = True
 
-            If SelectedTestSituation IsNot Nothing Then
+            If SelectedMediaSet IsNot Nothing Then
                 Edit_TableLayoutPanel.Enabled = True
-                Save_Button.Enabled = True
+                SaveMediaSetSpecification_Button.Enabled = True
             End If
 
         Else
-            LoadOstaTestSituationsControl1.Enabled = False
-            NewTestSituation_Button.Enabled = False
+            LoadOstaMediaSetControl1.Enabled = False
+            NewMediaSet_Button.Enabled = False
             Edit_TableLayoutPanel.Enabled = False
-            Save_Button.Enabled = False
+            SaveMediaSetSpecification_Button.Enabled = False
         End If
 
     End Sub
 
 
-    Private Sub NewTestSituation_Button_Click(sender As Object, e As EventArgs) Handles NewTestSituation_Button.Click
+    Private Sub NewMediaSet_Button_Click(sender As Object, e As EventArgs) Handles NewMediaSet_Button.Click
 
-        Me.SelectedTestSituation = New MediaSet With {.ParentTestSpecification = SelectedTestSpecification}
+        Me.SelectedMediaSet = New MediaSet With {.ParentTestSpecification = SelectedTestSpecification}
 
-        ViewTestSituationData()
+        ViewMediaSetData()
 
         UpdateControlEnabledStatuses()
 
     End Sub
 
 
-    Private Sub ViewTestSituationData()
+    Private Sub ViewMediaSetData()
 
-        'Exits if no test situation is selected
-        If Me.SelectedTestSituation Is Nothing Then
-            MsgBox("No test situation selected!", MsgBoxStyle.Information, "Viewing test situation data")
+        'Exits if no media set is selected
+        If Me.SelectedMediaSet Is Nothing Then
+            MsgBox("No media set selected!", MsgBoxStyle.Information, "Viewing media set specification data")
             UpdateControlEnabledStatuses()
             Exit Sub
         End If
 
-        TestSituationName_TextBox.Text = SelectedTestSituation.TestSituationName
-        TalkerName_TextBox.Text = SelectedTestSituation.TalkerName
+        MediaSetName_TextBox.Text = SelectedMediaSet.MediaSetName
+        TalkerName_TextBox.Text = SelectedMediaSet.TalkerName
 
-        TalkerGender_ComboBox.SelectedItem = SelectedTestSituation.TalkerGender.ToString
+        TalkerGender_ComboBox.SelectedItem = SelectedMediaSet.TalkerGender.ToString
 
-        TalkerAge_IntegerParsingTextBox.Text = SelectedTestSituation.TalkerAge
-        TalkerDialect_TextBox.Text = SelectedTestSituation.TalkerDialect
-        VoiceType_TextBox.Text = SelectedTestSituation.VoiceType
-        MediaAudioItems_IntegerParsingTextBox.Text = SelectedTestSituation.MediaAudioItems
-        MaskerAudioItems_IntegerParsingTextBox.Text = SelectedTestSituation.MaskerAudioItems
-        MediaImageItems_IntegerParsingTextBox.Text = SelectedTestSituation.MediaImageItems
-        MaskerImageItems_IntegerParsingTextBox.Text = SelectedTestSituation.MaskerImageItems
-        MediaParentFolder_TextBox.Text = SelectedTestSituation.MediaParentFolder
-        MaskerParentFolder_TextBox.Text = SelectedTestSituation.MaskerParentFolder
-        BackgroundNonspeechParentFolder_TextBox.Text = SelectedTestSituation.BackgroundNonspeechParentFolder
-        BackgroundSpeechParentFolder_TextBox.Text = SelectedTestSituation.BackgroundSpeechParentFolder
-        PrototypeMediaParentFolder_TextBox.Text = SelectedTestSituation.PrototypeMediaParentFolder
-        MasterPrototypeRecordingPath_TextBox.Text = SelectedTestSituation.MasterPrototypeRecordingPath
-        PrototypeRecordingLevel_DoubleParsingTextBox.Text = SelectedTestSituation.PrototypeRecordingLevel
-        LombardNoisePath_TextBox.Text = SelectedTestSituation.LombardNoisePath
-        LombardNoiseLevel_DoubleParsingTextBox.Text = SelectedTestSituation.LombardNoiseLevel
-        WaveFileSampleRate_IntegerParsingTextBox.Text = SelectedTestSituation.WaveFileSampleRate
-        WaveFileBitDepth_ComboBox.SelectedItem = SelectedTestSituation.WaveFileBitDepth
+        TalkerAge_IntegerParsingTextBox.Text = SelectedMediaSet.TalkerAge
+        TalkerDialect_TextBox.Text = SelectedMediaSet.TalkerDialect
+        VoiceType_TextBox.Text = SelectedMediaSet.VoiceType
+        MediaAudioItems_IntegerParsingTextBox.Text = SelectedMediaSet.MediaAudioItems
+        MaskerAudioItems_IntegerParsingTextBox.Text = SelectedMediaSet.MaskerAudioItems
+        MediaImageItems_IntegerParsingTextBox.Text = SelectedMediaSet.MediaImageItems
+        MaskerImageItems_IntegerParsingTextBox.Text = SelectedMediaSet.MaskerImageItems
+        MediaParentFolder_TextBox.Text = SelectedMediaSet.MediaParentFolder
+        MaskerParentFolder_TextBox.Text = SelectedMediaSet.MaskerParentFolder
+        BackgroundNonspeechParentFolder_TextBox.Text = SelectedMediaSet.BackgroundNonspeechParentFolder
+        BackgroundSpeechParentFolder_TextBox.Text = SelectedMediaSet.BackgroundSpeechParentFolder
+        PrototypeMediaParentFolder_TextBox.Text = SelectedMediaSet.PrototypeMediaParentFolder
+        MasterPrototypeRecordingPath_TextBox.Text = SelectedMediaSet.MasterPrototypeRecordingPath
+        PrototypeRecordingLevel_DoubleParsingTextBox.Text = SelectedMediaSet.PrototypeRecordingLevel
+        LombardNoisePath_TextBox.Text = SelectedMediaSet.LombardNoisePath
+        LombardNoiseLevel_DoubleParsingTextBox.Text = SelectedMediaSet.LombardNoiseLevel
+        WaveFileSampleRate_IntegerParsingTextBox.Text = SelectedMediaSet.WaveFileSampleRate
+        WaveFileBitDepth_ComboBox.SelectedItem = SelectedMediaSet.WaveFileBitDepth
 
-        WaveFileEncoding_ComboBox.SelectedItem = SelectedTestSituation.WaveFileEncoding.ToString
+        WaveFileEncoding_ComboBox.SelectedItem = SelectedMediaSet.WaveFileEncoding.ToString
 
     End Sub
 
-    Private Sub SaveTestSituation(sender As Object, e As EventArgs) Handles Save_Button.Click
+    Private Sub SaveMediaSetSpecification_Button_Click(sender As Object, e As EventArgs) Handles SaveMediaSetSpecification_Button.Click
 
-        Dim TempTestSituation = New MediaSet
+        Dim TempMediaSet = New MediaSet
 
         'Checking and adding values
-        If TestSituationName_TextBox.Text.Trim = "" Then
-            MsgBox("Supply a test situation name")
+        If MediaSetName_TextBox.Text.Trim = "" Then
+            MsgBox("Supply a media set name")
             Exit Sub
         Else
-            TempTestSituation.TestSituationName = TestSituationName_TextBox.Text.Trim
+            TempMediaSet.MediaSetName = MediaSetName_TextBox.Text.Trim
         End If
 
         If TalkerName_TextBox.Text.Trim = "" Then
             MsgBox("Supply a talker name")
             Exit Sub
         Else
-            TempTestSituation.TalkerName = TalkerName_TextBox.Text.Trim
+            TempMediaSet.TalkerName = TalkerName_TextBox.Text.Trim
         End If
 
         If TalkerGender_ComboBox.SelectedItem IsNot Nothing Then
-            TempTestSituation.TalkerGender = [Enum].Parse(GetType(MediaSet.Genders), TalkerGender_ComboBox.SelectedItem.ToString)
+            TempMediaSet.TalkerGender = [Enum].Parse(GetType(MediaSet.Genders), TalkerGender_ComboBox.SelectedItem.ToString)
         End If
 
         If TalkerAge_IntegerParsingTextBox.Value IsNot Nothing Then
-            TempTestSituation.TalkerAge = TalkerAge_IntegerParsingTextBox.Value
+            TempMediaSet.TalkerAge = TalkerAge_IntegerParsingTextBox.Value
         End If
 
-        TempTestSituation.TalkerDialect = TalkerDialect_TextBox.Text.Trim
-        TempTestSituation.VoiceType = VoiceType_TextBox.Text.Trim
+        TempMediaSet.TalkerDialect = TalkerDialect_TextBox.Text.Trim
+        TempMediaSet.VoiceType = VoiceType_TextBox.Text.Trim
 
         If MediaAudioItems_IntegerParsingTextBox.Value IsNot Nothing Then
-            TempTestSituation.MediaAudioItems = MediaAudioItems_IntegerParsingTextBox.Value
+            TempMediaSet.MediaAudioItems = MediaAudioItems_IntegerParsingTextBox.Value
         Else
             MsgBox("Supply a value for number of duplicate audio targets")
             Exit Sub
         End If
 
         If MaskerAudioItems_IntegerParsingTextBox.Value IsNot Nothing Then
-            TempTestSituation.MaskerAudioItems = MaskerAudioItems_IntegerParsingTextBox.Value
+            TempMediaSet.MaskerAudioItems = MaskerAudioItems_IntegerParsingTextBox.Value
         Else
             MsgBox("Supply a value for number of duplicate audio maskers")
             Exit Sub
         End If
 
         If MediaImageItems_IntegerParsingTextBox.Value IsNot Nothing Then
-            TempTestSituation.MediaImageItems = MediaImageItems_IntegerParsingTextBox.Value
+            TempMediaSet.MediaImageItems = MediaImageItems_IntegerParsingTextBox.Value
         Else
             MsgBox("Supply a value for number of duplicate image targets")
             Exit Sub
         End If
 
         If MaskerImageItems_IntegerParsingTextBox.Value IsNot Nothing Then
-            TempTestSituation.MaskerImageItems = MaskerImageItems_IntegerParsingTextBox.Value
+            TempMediaSet.MaskerImageItems = MaskerImageItems_IntegerParsingTextBox.Value
         Else
             MsgBox("Supply a value for number of duplicate image maskers")
             Exit Sub
         End If
 
-        TempTestSituation.MediaParentFolder = MediaParentFolder_TextBox.Text.Trim
-        If TempTestSituation.MediaAudioItems + TempTestSituation.MediaImageItems = 0 And TempTestSituation.MediaParentFolder = "" Then
+        TempMediaSet.MediaParentFolder = MediaParentFolder_TextBox.Text.Trim
+        If TempMediaSet.MediaAudioItems + TempMediaSet.MediaImageItems = 0 And TempMediaSet.MediaParentFolder = "" Then
             MsgBox("You must supply a subfolder containing target files")
             Exit Sub
         End If
 
-        TempTestSituation.MaskerParentFolder = MaskerParentFolder_TextBox.Text.Trim
-        If TempTestSituation.MaskerAudioItems + TempTestSituation.MaskerImageItems = 0 And TempTestSituation.MaskerParentFolder = "" Then
+        TempMediaSet.MaskerParentFolder = MaskerParentFolder_TextBox.Text.Trim
+        If TempMediaSet.MaskerAudioItems + TempMediaSet.MaskerImageItems = 0 And TempMediaSet.MaskerParentFolder = "" Then
             MsgBox("You must supply a subfolder containing masker files")
             Exit Sub
         End If
 
-        TempTestSituation.BackgroundNonspeechParentFolder = BackgroundNonspeechParentFolder_TextBox.Text.Trim
+        TempMediaSet.BackgroundNonspeechParentFolder = BackgroundNonspeechParentFolder_TextBox.Text.Trim
         If BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Value IsNot Nothing Then
-            TempTestSituation.BackgroundNonspeechRealisticLevel = BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Value
+            TempMediaSet.BackgroundNonspeechRealisticLevel = BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Value
         End If
 
-        TempTestSituation.BackgroundSpeechParentFolder = BackgroundSpeechParentFolder_TextBox.Text.Trim
+        TempMediaSet.BackgroundSpeechParentFolder = BackgroundSpeechParentFolder_TextBox.Text.Trim
 
-        TempTestSituation.PrototypeMediaParentFolder = PrototypeMediaParentFolder_TextBox.Text.Trim
-        TempTestSituation.MasterPrototypeRecordingPath = MasterPrototypeRecordingPath_TextBox.Text.Trim
+        TempMediaSet.PrototypeMediaParentFolder = PrototypeMediaParentFolder_TextBox.Text.Trim
+        TempMediaSet.MasterPrototypeRecordingPath = MasterPrototypeRecordingPath_TextBox.Text.Trim
 
         If PrototypeRecordingLevel_DoubleParsingTextBox.Value IsNot Nothing Then
-            TempTestSituation.PrototypeRecordingLevel = PrototypeRecordingLevel_DoubleParsingTextBox.Value
+            TempMediaSet.PrototypeRecordingLevel = PrototypeRecordingLevel_DoubleParsingTextBox.Value
         End If
 
-        TempTestSituation.LombardNoisePath = LombardNoisePath_TextBox.Text.Trim
+        TempMediaSet.LombardNoisePath = LombardNoisePath_TextBox.Text.Trim
 
         If LombardNoiseLevel_DoubleParsingTextBox.Value IsNot Nothing Then
-            TempTestSituation.LombardNoiseLevel = LombardNoiseLevel_DoubleParsingTextBox.Value
+            TempMediaSet.LombardNoiseLevel = LombardNoiseLevel_DoubleParsingTextBox.Value
         End If
 
         If WaveFileSampleRate_IntegerParsingTextBox.Value IsNot Nothing Then
-            TempTestSituation.WaveFileSampleRate = WaveFileSampleRate_IntegerParsingTextBox.Value
+            TempMediaSet.WaveFileSampleRate = WaveFileSampleRate_IntegerParsingTextBox.Value
         Else
             MsgBox("You must supply a sample rate (48000 is recommended)")
             Exit Sub
         End If
 
         If WaveFileBitDepth_ComboBox.SelectedItem IsNot Nothing Then
-            TempTestSituation.WaveFileBitDepth = WaveFileBitDepth_ComboBox.SelectedItem
+            TempMediaSet.WaveFileBitDepth = WaveFileBitDepth_ComboBox.SelectedItem
         Else
             MsgBox("You must supply a bit depth (32 is recommended)")
             Exit Sub
         End If
 
         If WaveFileEncoding_ComboBox.SelectedItem IsNot Nothing Then
-            TempTestSituation.WaveFileEncoding = [Enum].Parse(GetType(Audio.Formats.WaveFormat.WaveFormatEncodings), WaveFileEncoding_ComboBox.SelectedItem.ToString)
+            TempMediaSet.WaveFileEncoding = [Enum].Parse(GetType(Audio.Formats.WaveFormat.WaveFormatEncodings), WaveFileEncoding_ComboBox.SelectedItem.ToString)
         Else
             MsgBox("You must supply a wave file encoding (IEEE float is recommended)")
             Exit Sub
         End If
 
-        Me.SelectedTestSituation = TempTestSituation
+        Me.SelectedMediaSet = TempMediaSet
 
-        Me.SelectedTestSituation.ParentTestSpecification = SelectedTestSpecification
+        Me.SelectedMediaSet.ParentTestSpecification = SelectedTestSpecification
 
-        Me.SelectedTestSituation.WriteToFile()
+        Me.SelectedMediaSet.WriteToFile()
 
         UpdateControlEnabledStatuses()
 
     End Sub
 
+    Private Sub LaunchRecorder_Button_Click(sender As Object, e As EventArgs) Handles LaunchRecorder_Button.Click
 
+        'Checking first that needed folders are specified
+        If SelectedMediaSet.MediaParentFolder = "" Then
+            MsgBox("The subfolder for target media files must be specified before launching the recording and segmentation tool.", MsgBoxStyle.Exclamation, "Launching the recording and segmentation tool")
+        End If
+
+        'Here we could also check for other things such as Lombard recordings folder etc, but skipps this for now...
+
+        'Parsing user input settings
+        Dim PrototypeRecordingOptions As SpeechTestFramework.MediaSet.PrototypeRecordingOptions
+        If MasterPrototypeRecording_RadioButton.Checked = True Then
+            PrototypeRecordingOptions = MediaSet.PrototypeRecordingOptions.MasterPrototypeRecording
+        ElseIf SpecificPrototypeRecording_RadioButton.Checked = True Then
+            PrototypeRecordingOptions = MediaSet.PrototypeRecordingOptions.PrototypeRecordings
+        Else
+            PrototypeRecordingOptions = MediaSet.PrototypeRecordingOptions.None
+        End If
+
+
+        SelectedMediaSet.RecordAndEditAudioMediaFiles(SpeechTestFramework.MediaSet.SpeechMaterialRecorderLoadOptions.LoadAllSounds, PrototypeRecordingOptions, RandomOrder_CheckBox.Checked)
+
+
+    End Sub
 
 End Class
