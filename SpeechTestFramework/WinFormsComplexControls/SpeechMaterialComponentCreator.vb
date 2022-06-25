@@ -12,11 +12,6 @@
 
     Private Sub SpeechMaterialComponentCreator_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
-        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
-        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
-        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
-
         'Adding default characters into the word level spelling trim text box
         Dim DefaultWordTrimChars As New List(Of Char) From {".", ",", "?", "!", ";", ":", Chr(34), Chr(39), Chr(60), Chr(62)}
         For UnicodePoint = 8216 To 8223
@@ -74,13 +69,6 @@
         Next
         'Finally also adding the space character to the phoneme trim list (as this is not added manually)
         PhoneCharsToRemoveList.Add(" ")
-
-        'Parsing the info about which level sound recording should be used
-        Dim SoundFilesAtLevel As SpeechMaterialComponent.LinguisticLevels
-        If [Enum].TryParse(SoundFileLevelComboBox.SelectedItem, SoundFilesAtLevel) = False Then
-            MsgBox("Select a value for 'Sound files at linguistic level'.", MsgBoxStyle.Information, "Checking input data")
-            Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
-        End If
 
         'Checking that we have a name of the list collection speech material component
         If NameTextBox.Text = "" Then
@@ -145,7 +133,6 @@
                 CurrentListComponent.Id = "L" & (CurrentListCollectionComponent.ChildComponents.Count - 1).ToString("00")
                 CurrentListComponent.DbId = CurrentListComponent.Id
                 CurrentListComponent.PrimaryStringRepresentation = ListName
-                If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.List Then CurrentListComponent.MediaFolder = CurrentListComponent.Id & "_" & CurrentListComponent.PrimaryStringRepresentation.Replace(" ", "_")
                 CurrentListComponent.OrderedChildren = OrderedSentencesCheckBox.Checked
 
                 CurrentListComponent.SetCategoricalVariableValue("DbId", CurrentListComponent.DbId)
@@ -217,26 +204,25 @@
                         'Adds the phoneme level components
                         For p = 0 To PhonemesToAdd.Count - 1
 
-                                Dim CurrentPhoneme As String = PhonemesToAdd(p)
+                            Dim CurrentPhoneme As String = PhonemesToAdd(p)
 
-                                Dim NewPhonemeComponent = New SpeechMaterialComponent(rnd) With {
+                            Dim NewPhonemeComponent = New SpeechMaterialComponent(rnd) With {
                                     .ParentComponent = CurrentSentenceComponent.ChildComponents(w),
                                     .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme,
                                     .CustomVariablesDatabasePath = SpeechMaterialComponent.PhonemeLevelDataBaseName}
 
-                                CurrentSentenceComponent.ChildComponents(w).ChildComponents.Add(NewPhonemeComponent)
+                            CurrentSentenceComponent.ChildComponents(w).ChildComponents.Add(NewPhonemeComponent)
 
-                                NewPhonemeComponent.Id = CurrentSentenceComponent.ChildComponents(w).Id & "P" & p.ToString("00")
-                                NewPhonemeComponent.DbId = NewPhonemeComponent.Id
-                                NewPhonemeComponent.PrimaryStringRepresentation = CurrentPhoneme
-                                If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then NewPhonemeComponent.MediaFolder = NewPhonemeComponent.Id & "_" & NewPhonemeComponent.PrimaryStringRepresentation.Replace(" ", "_")
+                            NewPhonemeComponent.Id = CurrentSentenceComponent.ChildComponents(w).Id & "P" & p.ToString("00")
+                            NewPhonemeComponent.DbId = NewPhonemeComponent.Id
+                            NewPhonemeComponent.PrimaryStringRepresentation = CurrentPhoneme
 
-                                NewPhonemeComponent.SetCategoricalVariableValue("DbId", NewPhonemeComponent.DbId)
-                                NewPhonemeComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, CurrentPhoneme)
+                            NewPhonemeComponent.SetCategoricalVariableValue("DbId", NewPhonemeComponent.DbId)
+                            NewPhonemeComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, CurrentPhoneme)
 
-                            Next
+                        Next
 
-                        End If
+                    End If
 
                 Next
 
@@ -254,7 +240,6 @@
 
                 CurrentSentenceComponent.DbId = CurrentSentenceComponent.Id
                 CurrentSentenceComponent.PrimaryStringRepresentation = "Sentence" & (CurrentListComponent.ChildComponents.Count - 1).ToString("00")
-                If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then CurrentSentenceComponent.MediaFolder = CurrentSentenceComponent.Id & "_" & CurrentSentenceComponent.PrimaryStringRepresentation.Replace(" ", "_")
 
                 CurrentSentenceComponent.SetCategoricalVariableValue("DbId", CurrentSentenceComponent.DbId)
                 CurrentSentenceComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName, CurrentLine)
@@ -290,7 +275,6 @@
 
                     NewWordComponent.DbId = NewWordComponent.Id
                     NewWordComponent.PrimaryStringRepresentation = WordSpelling
-                    If SoundFilesAtLevel = SpeechMaterialComponent.LinguisticLevels.Word Then NewWordComponent.MediaFolder = NewWordComponent.Id & "_" & NewWordComponent.PrimaryStringRepresentation.Replace(" ", "_")
 
                     NewWordComponent.SetCategoricalVariableValue("DbId", NewWordComponent.DbId)
                     NewWordComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName, WordSpelling)

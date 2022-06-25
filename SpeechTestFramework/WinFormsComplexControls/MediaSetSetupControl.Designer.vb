@@ -87,6 +87,8 @@ Partial Class MediaSetSetupControl
         Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.PrototypeRecordingLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.LombardNoiseLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.Label26 = New System.Windows.Forms.Label()
+        Me.SoundFileLevelComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -206,58 +208,61 @@ Partial Class MediaSetSetupControl
         Me.Edit_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 300.0!))
         Me.Edit_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.Edit_TableLayoutPanel.Controls.Add(Me.TalkerName_TextBox, 1, 2)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.WaveFileEncoding_ComboBox, 1, 23)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.SaveMediaSetSpecification_Button, 0, 24)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.WaveFileEncoding_ComboBox, 1, 24)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.SaveMediaSetSpecification_Button, 0, 25)
         Me.Edit_TableLayoutPanel.Controls.Add(Me.Label1, 0, 0)
         Me.Edit_TableLayoutPanel.Controls.Add(Me.Label2, 0, 1)
         Me.Edit_TableLayoutPanel.Controls.Add(Me.Label3, 0, 2)
         Me.Edit_TableLayoutPanel.Controls.Add(Me.Label4, 0, 3)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label13, 0, 11)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label12, 0, 10)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label11, 0, 9)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label10, 0, 8)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label9, 0, 7)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label13, 0, 12)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label12, 0, 11)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label11, 0, 10)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label10, 0, 9)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label9, 0, 8)
         Me.Edit_TableLayoutPanel.Controls.Add(Me.Label5, 0, 4)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label6, 0, 5)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label7, 0, 6)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label14, 0, 12)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label15, 0, 13)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label16, 0, 15)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label17, 0, 16)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label18, 0, 17)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label19, 0, 21)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label20, 0, 22)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label21, 0, 23)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label6, 0, 6)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label7, 0, 7)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label14, 0, 13)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label15, 0, 14)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label16, 0, 16)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label17, 0, 17)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label18, 0, 18)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label19, 0, 22)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label20, 0, 23)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label21, 0, 24)
         Me.Edit_TableLayoutPanel.Controls.Add(Me.TalkerAge_IntegerParsingTextBox, 1, 4)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaAudioItems_IntegerParsingTextBox, 1, 7)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MaskerAudioItems_IntegerParsingTextBox, 1, 8)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaImageItems_IntegerParsingTextBox, 1, 9)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MaskerImageItems_IntegerParsingTextBox, 1, 10)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.WaveFileSampleRate_IntegerParsingTextBox, 1, 21)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaAudioItems_IntegerParsingTextBox, 1, 8)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.MaskerAudioItems_IntegerParsingTextBox, 1, 9)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaImageItems_IntegerParsingTextBox, 1, 10)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.MaskerImageItems_IntegerParsingTextBox, 1, 11)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.WaveFileSampleRate_IntegerParsingTextBox, 1, 22)
         Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaSetName_TextBox, 1, 1)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.TalkerDialect_TextBox, 1, 5)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.VoiceType_TextBox, 1, 6)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaParentFolder_TextBox, 1, 11)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MaskerParentFolder_TextBox, 1, 12)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.BackgroundNonspeechParentFolder_TextBox, 1, 13)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.BackgroundSpeechParentFolder_TextBox, 1, 15)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.PrototypeMediaParentFolder_TextBox, 1, 16)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MasterPrototypeRecordingPath_TextBox, 1, 17)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.TalkerDialect_TextBox, 1, 6)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.VoiceType_TextBox, 1, 7)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaParentFolder_TextBox, 1, 12)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.MaskerParentFolder_TextBox, 1, 13)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.BackgroundNonspeechParentFolder_TextBox, 1, 14)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.BackgroundSpeechParentFolder_TextBox, 1, 16)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.PrototypeMediaParentFolder_TextBox, 1, 17)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.MasterPrototypeRecordingPath_TextBox, 1, 18)
         Me.Edit_TableLayoutPanel.Controls.Add(Me.TalkerGender_ComboBox, 1, 3)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.WaveFileBitDepth_ComboBox, 1, 22)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label8, 0, 14)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox, 1, 14)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label23, 0, 18)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.PrototypeRecordingLevel_DoubleParsingTextBox, 1, 18)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label22, 0, 19)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label24, 0, 20)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.LombardNoiseLevel_DoubleParsingTextBox, 1, 20)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.LombardNoisePath_TextBox, 1, 19)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.WaveFileBitDepth_ComboBox, 1, 23)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label8, 0, 15)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox, 1, 15)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label23, 0, 19)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.PrototypeRecordingLevel_DoubleParsingTextBox, 1, 19)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label22, 0, 20)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label24, 0, 21)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.LombardNoiseLevel_DoubleParsingTextBox, 1, 21)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.LombardNoisePath_TextBox, 1, 20)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label26, 0, 5)
+        Me.Edit_TableLayoutPanel.Controls.Add(Me.SoundFileLevelComboBox, 1, 5)
         Me.Edit_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Edit_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
         Me.Edit_TableLayoutPanel.Name = "Edit_TableLayoutPanel"
-        Me.Edit_TableLayoutPanel.RowCount = 25
+        Me.Edit_TableLayoutPanel.RowCount = 26
         Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23.0!))
+        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
@@ -297,7 +302,7 @@ Partial Class MediaSetSetupControl
         '
         Me.WaveFileEncoding_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.WaveFileEncoding_ComboBox.FormattingEnabled = True
-        Me.WaveFileEncoding_ComboBox.Location = New System.Drawing.Point(303, 576)
+        Me.WaveFileEncoding_ComboBox.Location = New System.Drawing.Point(303, 601)
         Me.WaveFileEncoding_ComboBox.Name = "WaveFileEncoding_ComboBox"
         Me.WaveFileEncoding_ComboBox.Size = New System.Drawing.Size(129, 21)
         Me.WaveFileEncoding_ComboBox.TabIndex = 41
@@ -306,7 +311,7 @@ Partial Class MediaSetSetupControl
         '
         Me.Edit_TableLayoutPanel.SetColumnSpan(Me.SaveMediaSetSpecification_Button, 2)
         Me.SaveMediaSetSpecification_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SaveMediaSetSpecification_Button.Location = New System.Drawing.Point(3, 601)
+        Me.SaveMediaSetSpecification_Button.Location = New System.Drawing.Point(3, 626)
         Me.SaveMediaSetSpecification_Button.Name = "SaveMediaSetSpecification_Button"
         Me.SaveMediaSetSpecification_Button.Size = New System.Drawing.Size(429, 34)
         Me.SaveMediaSetSpecification_Button.TabIndex = 0
@@ -360,7 +365,7 @@ Partial Class MediaSetSetupControl
         'Label13
         '
         Me.Label13.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label13.Location = New System.Drawing.Point(3, 273)
+        Me.Label13.Location = New System.Drawing.Point(3, 298)
         Me.Label13.Name = "Label13"
         Me.Label13.Size = New System.Drawing.Size(294, 25)
         Me.Label13.TabIndex = 13
@@ -370,7 +375,7 @@ Partial Class MediaSetSetupControl
         'Label12
         '
         Me.Label12.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label12.Location = New System.Drawing.Point(3, 248)
+        Me.Label12.Location = New System.Drawing.Point(3, 273)
         Me.Label12.Name = "Label12"
         Me.Label12.Size = New System.Drawing.Size(294, 25)
         Me.Label12.TabIndex = 12
@@ -380,7 +385,7 @@ Partial Class MediaSetSetupControl
         'Label11
         '
         Me.Label11.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label11.Location = New System.Drawing.Point(3, 223)
+        Me.Label11.Location = New System.Drawing.Point(3, 248)
         Me.Label11.Name = "Label11"
         Me.Label11.Size = New System.Drawing.Size(294, 25)
         Me.Label11.TabIndex = 11
@@ -390,7 +395,7 @@ Partial Class MediaSetSetupControl
         'Label10
         '
         Me.Label10.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label10.Location = New System.Drawing.Point(3, 198)
+        Me.Label10.Location = New System.Drawing.Point(3, 223)
         Me.Label10.Name = "Label10"
         Me.Label10.Size = New System.Drawing.Size(294, 25)
         Me.Label10.TabIndex = 10
@@ -400,7 +405,7 @@ Partial Class MediaSetSetupControl
         'Label9
         '
         Me.Label9.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label9.Location = New System.Drawing.Point(3, 173)
+        Me.Label9.Location = New System.Drawing.Point(3, 198)
         Me.Label9.Name = "Label9"
         Me.Label9.Size = New System.Drawing.Size(294, 25)
         Me.Label9.TabIndex = 9
@@ -420,7 +425,7 @@ Partial Class MediaSetSetupControl
         'Label6
         '
         Me.Label6.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label6.Location = New System.Drawing.Point(3, 123)
+        Me.Label6.Location = New System.Drawing.Point(3, 148)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(294, 25)
         Me.Label6.TabIndex = 6
@@ -430,7 +435,7 @@ Partial Class MediaSetSetupControl
         'Label7
         '
         Me.Label7.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label7.Location = New System.Drawing.Point(3, 148)
+        Me.Label7.Location = New System.Drawing.Point(3, 173)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(294, 25)
         Me.Label7.TabIndex = 7
@@ -440,7 +445,7 @@ Partial Class MediaSetSetupControl
         'Label14
         '
         Me.Label14.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label14.Location = New System.Drawing.Point(3, 298)
+        Me.Label14.Location = New System.Drawing.Point(3, 323)
         Me.Label14.Name = "Label14"
         Me.Label14.Size = New System.Drawing.Size(294, 25)
         Me.Label14.TabIndex = 14
@@ -450,7 +455,7 @@ Partial Class MediaSetSetupControl
         'Label15
         '
         Me.Label15.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label15.Location = New System.Drawing.Point(3, 323)
+        Me.Label15.Location = New System.Drawing.Point(3, 348)
         Me.Label15.Name = "Label15"
         Me.Label15.Size = New System.Drawing.Size(294, 25)
         Me.Label15.TabIndex = 15
@@ -460,7 +465,7 @@ Partial Class MediaSetSetupControl
         'Label16
         '
         Me.Label16.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label16.Location = New System.Drawing.Point(3, 373)
+        Me.Label16.Location = New System.Drawing.Point(3, 398)
         Me.Label16.Name = "Label16"
         Me.Label16.Size = New System.Drawing.Size(294, 25)
         Me.Label16.TabIndex = 16
@@ -470,7 +475,7 @@ Partial Class MediaSetSetupControl
         'Label17
         '
         Me.Label17.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label17.Location = New System.Drawing.Point(3, 398)
+        Me.Label17.Location = New System.Drawing.Point(3, 423)
         Me.Label17.Name = "Label17"
         Me.Label17.Size = New System.Drawing.Size(294, 25)
         Me.Label17.TabIndex = 17
@@ -480,7 +485,7 @@ Partial Class MediaSetSetupControl
         'Label18
         '
         Me.Label18.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label18.Location = New System.Drawing.Point(3, 423)
+        Me.Label18.Location = New System.Drawing.Point(3, 448)
         Me.Label18.Name = "Label18"
         Me.Label18.Size = New System.Drawing.Size(294, 25)
         Me.Label18.TabIndex = 18
@@ -491,7 +496,7 @@ Partial Class MediaSetSetupControl
         '
         Me.Label19.AutoSize = True
         Me.Label19.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label19.Location = New System.Drawing.Point(3, 523)
+        Me.Label19.Location = New System.Drawing.Point(3, 548)
         Me.Label19.Name = "Label19"
         Me.Label19.Size = New System.Drawing.Size(294, 25)
         Me.Label19.TabIndex = 19
@@ -501,7 +506,7 @@ Partial Class MediaSetSetupControl
         'Label20
         '
         Me.Label20.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label20.Location = New System.Drawing.Point(3, 548)
+        Me.Label20.Location = New System.Drawing.Point(3, 573)
         Me.Label20.Name = "Label20"
         Me.Label20.Size = New System.Drawing.Size(294, 25)
         Me.Label20.TabIndex = 20
@@ -511,7 +516,7 @@ Partial Class MediaSetSetupControl
         'Label21
         '
         Me.Label21.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label21.Location = New System.Drawing.Point(3, 573)
+        Me.Label21.Location = New System.Drawing.Point(3, 598)
         Me.Label21.Name = "Label21"
         Me.Label21.Size = New System.Drawing.Size(294, 25)
         Me.Label21.TabIndex = 21
@@ -529,7 +534,7 @@ Partial Class MediaSetSetupControl
         'TalkerDialect_TextBox
         '
         Me.TalkerDialect_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TalkerDialect_TextBox.Location = New System.Drawing.Point(303, 126)
+        Me.TalkerDialect_TextBox.Location = New System.Drawing.Point(303, 151)
         Me.TalkerDialect_TextBox.Name = "TalkerDialect_TextBox"
         Me.TalkerDialect_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.TalkerDialect_TextBox.TabIndex = 31
@@ -537,7 +542,7 @@ Partial Class MediaSetSetupControl
         'VoiceType_TextBox
         '
         Me.VoiceType_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.VoiceType_TextBox.Location = New System.Drawing.Point(303, 151)
+        Me.VoiceType_TextBox.Location = New System.Drawing.Point(303, 176)
         Me.VoiceType_TextBox.Name = "VoiceType_TextBox"
         Me.VoiceType_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.VoiceType_TextBox.TabIndex = 32
@@ -545,7 +550,7 @@ Partial Class MediaSetSetupControl
         'MediaParentFolder_TextBox
         '
         Me.MediaParentFolder_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MediaParentFolder_TextBox.Location = New System.Drawing.Point(303, 276)
+        Me.MediaParentFolder_TextBox.Location = New System.Drawing.Point(303, 301)
         Me.MediaParentFolder_TextBox.Name = "MediaParentFolder_TextBox"
         Me.MediaParentFolder_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.MediaParentFolder_TextBox.TabIndex = 33
@@ -553,7 +558,7 @@ Partial Class MediaSetSetupControl
         'MaskerParentFolder_TextBox
         '
         Me.MaskerParentFolder_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MaskerParentFolder_TextBox.Location = New System.Drawing.Point(303, 301)
+        Me.MaskerParentFolder_TextBox.Location = New System.Drawing.Point(303, 326)
         Me.MaskerParentFolder_TextBox.Name = "MaskerParentFolder_TextBox"
         Me.MaskerParentFolder_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.MaskerParentFolder_TextBox.TabIndex = 34
@@ -561,7 +566,7 @@ Partial Class MediaSetSetupControl
         'BackgroundNonspeechParentFolder_TextBox
         '
         Me.BackgroundNonspeechParentFolder_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BackgroundNonspeechParentFolder_TextBox.Location = New System.Drawing.Point(303, 326)
+        Me.BackgroundNonspeechParentFolder_TextBox.Location = New System.Drawing.Point(303, 351)
         Me.BackgroundNonspeechParentFolder_TextBox.Name = "BackgroundNonspeechParentFolder_TextBox"
         Me.BackgroundNonspeechParentFolder_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.BackgroundNonspeechParentFolder_TextBox.TabIndex = 35
@@ -569,7 +574,7 @@ Partial Class MediaSetSetupControl
         'BackgroundSpeechParentFolder_TextBox
         '
         Me.BackgroundSpeechParentFolder_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BackgroundSpeechParentFolder_TextBox.Location = New System.Drawing.Point(303, 376)
+        Me.BackgroundSpeechParentFolder_TextBox.Location = New System.Drawing.Point(303, 401)
         Me.BackgroundSpeechParentFolder_TextBox.Name = "BackgroundSpeechParentFolder_TextBox"
         Me.BackgroundSpeechParentFolder_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.BackgroundSpeechParentFolder_TextBox.TabIndex = 36
@@ -577,7 +582,7 @@ Partial Class MediaSetSetupControl
         'PrototypeMediaParentFolder_TextBox
         '
         Me.PrototypeMediaParentFolder_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PrototypeMediaParentFolder_TextBox.Location = New System.Drawing.Point(303, 401)
+        Me.PrototypeMediaParentFolder_TextBox.Location = New System.Drawing.Point(303, 426)
         Me.PrototypeMediaParentFolder_TextBox.Name = "PrototypeMediaParentFolder_TextBox"
         Me.PrototypeMediaParentFolder_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.PrototypeMediaParentFolder_TextBox.TabIndex = 37
@@ -585,7 +590,7 @@ Partial Class MediaSetSetupControl
         'MasterPrototypeRecordingPath_TextBox
         '
         Me.MasterPrototypeRecordingPath_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MasterPrototypeRecordingPath_TextBox.Location = New System.Drawing.Point(303, 426)
+        Me.MasterPrototypeRecordingPath_TextBox.Location = New System.Drawing.Point(303, 451)
         Me.MasterPrototypeRecordingPath_TextBox.Name = "MasterPrototypeRecordingPath_TextBox"
         Me.MasterPrototypeRecordingPath_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.MasterPrototypeRecordingPath_TextBox.TabIndex = 38
@@ -603,7 +608,7 @@ Partial Class MediaSetSetupControl
         '
         Me.WaveFileBitDepth_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.WaveFileBitDepth_ComboBox.FormattingEnabled = True
-        Me.WaveFileBitDepth_ComboBox.Location = New System.Drawing.Point(303, 551)
+        Me.WaveFileBitDepth_ComboBox.Location = New System.Drawing.Point(303, 576)
         Me.WaveFileBitDepth_ComboBox.Name = "WaveFileBitDepth_ComboBox"
         Me.WaveFileBitDepth_ComboBox.Size = New System.Drawing.Size(129, 21)
         Me.WaveFileBitDepth_ComboBox.TabIndex = 40
@@ -611,7 +616,7 @@ Partial Class MediaSetSetupControl
         'Label8
         '
         Me.Label8.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label8.Location = New System.Drawing.Point(3, 348)
+        Me.Label8.Location = New System.Drawing.Point(3, 373)
         Me.Label8.Name = "Label8"
         Me.Label8.Size = New System.Drawing.Size(294, 25)
         Me.Label8.TabIndex = 8
@@ -621,7 +626,7 @@ Partial Class MediaSetSetupControl
         'Label23
         '
         Me.Label23.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label23.Location = New System.Drawing.Point(3, 448)
+        Me.Label23.Location = New System.Drawing.Point(3, 473)
         Me.Label23.Name = "Label23"
         Me.Label23.Size = New System.Drawing.Size(294, 25)
         Me.Label23.TabIndex = 44
@@ -631,7 +636,7 @@ Partial Class MediaSetSetupControl
         'Label22
         '
         Me.Label22.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label22.Location = New System.Drawing.Point(3, 473)
+        Me.Label22.Location = New System.Drawing.Point(3, 498)
         Me.Label22.Name = "Label22"
         Me.Label22.Size = New System.Drawing.Size(294, 25)
         Me.Label22.TabIndex = 46
@@ -641,7 +646,7 @@ Partial Class MediaSetSetupControl
         'Label24
         '
         Me.Label24.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label24.Location = New System.Drawing.Point(3, 498)
+        Me.Label24.Location = New System.Drawing.Point(3, 523)
         Me.Label24.Name = "Label24"
         Me.Label24.Size = New System.Drawing.Size(294, 25)
         Me.Label24.TabIndex = 47
@@ -651,7 +656,7 @@ Partial Class MediaSetSetupControl
         'LombardNoisePath_TextBox
         '
         Me.LombardNoisePath_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LombardNoisePath_TextBox.Location = New System.Drawing.Point(303, 476)
+        Me.LombardNoisePath_TextBox.Location = New System.Drawing.Point(303, 501)
         Me.LombardNoisePath_TextBox.Name = "LombardNoisePath_TextBox"
         Me.LombardNoisePath_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.LombardNoisePath_TextBox.TabIndex = 49
@@ -780,7 +785,7 @@ Partial Class MediaSetSetupControl
         '
         Me.MediaAudioItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.MediaAudioItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.MediaAudioItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 176)
+        Me.MediaAudioItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 201)
         Me.MediaAudioItems_IntegerParsingTextBox.Name = "MediaAudioItems_IntegerParsingTextBox"
         Me.MediaAudioItems_IntegerParsingTextBox.Size = New System.Drawing.Size(129, 20)
         Me.MediaAudioItems_IntegerParsingTextBox.TabIndex = 24
@@ -789,7 +794,7 @@ Partial Class MediaSetSetupControl
         '
         Me.MaskerAudioItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.MaskerAudioItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.MaskerAudioItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 201)
+        Me.MaskerAudioItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 226)
         Me.MaskerAudioItems_IntegerParsingTextBox.Name = "MaskerAudioItems_IntegerParsingTextBox"
         Me.MaskerAudioItems_IntegerParsingTextBox.Size = New System.Drawing.Size(129, 20)
         Me.MaskerAudioItems_IntegerParsingTextBox.TabIndex = 25
@@ -798,7 +803,7 @@ Partial Class MediaSetSetupControl
         '
         Me.MediaImageItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.MediaImageItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.MediaImageItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 226)
+        Me.MediaImageItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 251)
         Me.MediaImageItems_IntegerParsingTextBox.Name = "MediaImageItems_IntegerParsingTextBox"
         Me.MediaImageItems_IntegerParsingTextBox.Size = New System.Drawing.Size(129, 20)
         Me.MediaImageItems_IntegerParsingTextBox.TabIndex = 26
@@ -807,7 +812,7 @@ Partial Class MediaSetSetupControl
         '
         Me.MaskerImageItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.MaskerImageItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.MaskerImageItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 251)
+        Me.MaskerImageItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 276)
         Me.MaskerImageItems_IntegerParsingTextBox.Name = "MaskerImageItems_IntegerParsingTextBox"
         Me.MaskerImageItems_IntegerParsingTextBox.Size = New System.Drawing.Size(129, 20)
         Me.MaskerImageItems_IntegerParsingTextBox.TabIndex = 27
@@ -816,7 +821,7 @@ Partial Class MediaSetSetupControl
         '
         Me.WaveFileSampleRate_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.WaveFileSampleRate_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.WaveFileSampleRate_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 526)
+        Me.WaveFileSampleRate_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 551)
         Me.WaveFileSampleRate_IntegerParsingTextBox.Name = "WaveFileSampleRate_IntegerParsingTextBox"
         Me.WaveFileSampleRate_IntegerParsingTextBox.Size = New System.Drawing.Size(129, 20)
         Me.WaveFileSampleRate_IntegerParsingTextBox.TabIndex = 28
@@ -825,7 +830,7 @@ Partial Class MediaSetSetupControl
         '
         Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 351)
+        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 376)
         Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Name = "BackgroundNonspeechRealisticLevel_DoubleParsingTextBox"
         Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(129, 20)
         Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.TabIndex = 23
@@ -834,7 +839,7 @@ Partial Class MediaSetSetupControl
         '
         Me.PrototypeRecordingLevel_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.PrototypeRecordingLevel_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 451)
+        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 476)
         Me.PrototypeRecordingLevel_DoubleParsingTextBox.Name = "PrototypeRecordingLevel_DoubleParsingTextBox"
         Me.PrototypeRecordingLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(129, 20)
         Me.PrototypeRecordingLevel_DoubleParsingTextBox.TabIndex = 45
@@ -843,10 +848,29 @@ Partial Class MediaSetSetupControl
         '
         Me.LombardNoiseLevel_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.LombardNoiseLevel_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.LombardNoiseLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 501)
+        Me.LombardNoiseLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 526)
         Me.LombardNoiseLevel_DoubleParsingTextBox.Name = "LombardNoiseLevel_DoubleParsingTextBox"
         Me.LombardNoiseLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(129, 20)
         Me.LombardNoiseLevel_DoubleParsingTextBox.TabIndex = 48
+        '
+        'Label26
+        '
+        Me.Label26.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label26.Location = New System.Drawing.Point(3, 123)
+        Me.Label26.Name = "Label26"
+        Me.Label26.Size = New System.Drawing.Size(294, 25)
+        Me.Label26.TabIndex = 50
+        Me.Label26.Text = "Linguistic level of sound files"
+        Me.Label26.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'SoundFileLevelComboBox
+        '
+        Me.SoundFileLevelComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SoundFileLevelComboBox.FormattingEnabled = True
+        Me.SoundFileLevelComboBox.Location = New System.Drawing.Point(303, 126)
+        Me.SoundFileLevelComboBox.Name = "SoundFileLevelComboBox"
+        Me.SoundFileLevelComboBox.Size = New System.Drawing.Size(129, 21)
+        Me.SoundFileLevelComboBox.TabIndex = 51
         '
         'MediaSetSetupControl
         '
@@ -936,4 +960,6 @@ Partial Class MediaSetSetupControl
     Friend WithEvents SpecificPrototypeRecording_RadioButton As Windows.Forms.RadioButton
     Friend WithEvents NoPrototypeRecording_RadioButton As Windows.Forms.RadioButton
     Friend WithEvents MasterPrototypeRecording_RadioButton As Windows.Forms.RadioButton
+    Friend WithEvents Label26 As Windows.Forms.Label
+    Friend WithEvents SoundFileLevelComboBox As Windows.Forms.ComboBox
 End Class

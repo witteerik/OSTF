@@ -11,6 +11,12 @@
         'Adding genders
         TalkerGender_ComboBox.Items.AddRange([Enum].GetNames(GetType(MediaSet.Genders)))
 
+        'Adding sound file linguistic levels
+        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
+        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
+        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
+        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+
         'Adding supported bit depths
         WaveFileBitDepth_ComboBox.Items.Add(16)
         WaveFileBitDepth_ComboBox.Items.Add(32)
@@ -160,6 +166,14 @@
 
         TempMediaSet.TalkerDialect = TalkerDialect_TextBox.Text.Trim
         TempMediaSet.VoiceType = VoiceType_TextBox.Text.Trim
+
+        'Parsing the info about which linguistic level sound recording should be used
+        If WaveFileEncoding_ComboBox.SelectedItem IsNot Nothing Then
+            TempMediaSet.AudioItemLinguisticLevel = [Enum].Parse(GetType(SpeechMaterialComponent.LinguisticLevels), SoundFileLevelComboBox.SelectedItem.ToString)
+        Else
+            MsgBox("You must select a value for 'Linguistic level of sound files'.", MsgBoxStyle.Information, "Checking input data")
+            Exit Sub
+        End If
 
         If MediaAudioItems_IntegerParsingTextBox.Value IsNot Nothing Then
             TempMediaSet.MediaAudioItems = MediaAudioItems_IntegerParsingTextBox.Value

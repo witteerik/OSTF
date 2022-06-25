@@ -24,11 +24,12 @@ Public Class MediaSet
     Public Property VoiceType As String = ""
 
 
-    'The following 6 variables are used to ensure that there is an appropriate number of media files stored in the locations:
+    'The following variables are used to ensure that there is an appropriate number of media files stored in the locations:
     'OstaRootPath + MediaSet.MediaParentFolder + SpeechMaterialComponent.MediaFolder
     'and
     'OstaRootPath + MediaSet.MaskerParentFolder + SpeechMaterialComponent.MaskerFolder
     'As well as to determine the number of recordings to create for a speech test if the inbuilt recording and segmentation tool is used.
+    Public Property AudioItemLinguisticLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
     Public Property MediaAudioItems As Integer = 5
     Public Property MaskerAudioItems As Integer = 5
     Public Property MediaImageItems As Integer = 0
@@ -95,6 +96,7 @@ Public Class MediaSet
         OutputList.Add("TalkerAge = " & TalkerAge)
         OutputList.Add("TalkerDialect = " & TalkerDialect)
         OutputList.Add("VoiceType = " & VoiceType)
+        OutputList.Add("AudioItemLinguisticLevel = " & AudioItemLinguisticLevel)
         OutputList.Add("MediaAudioItems = " & MediaAudioItems)
         OutputList.Add("MaskerAudioItems = " & MaskerAudioItems)
         OutputList.Add("MediaImageItems = " & MediaImageItems)
@@ -168,6 +170,16 @@ Public Class MediaSet
             If Line.StartsWith("TalkerDialect") Then Output.TalkerDialect = InputFileSupport.GetInputFileValue(Line, True)
 
             If Line.StartsWith("VoiceType") Then Output.VoiceType = InputFileSupport.GetInputFileValue(Line, True)
+
+            If Line.StartsWith("AudioItemLinguisticLevel") Then
+                Dim Value = InputFileSupport.InputFileEnumValueParsing(Line, GetType(SpeechMaterialComponent.LinguisticLevels), FilePath, True)
+                If Value.HasValue Then
+                    Output.AudioItemLinguisticLevel = Value
+                Else
+                    MsgBox("Failed to read the AudioItemLinguisticLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    Return Nothing
+                End If
+            End If
 
             If Line.StartsWith("MediaAudioItems") Then
                 Dim Value = InputFileSupport.InputFileIntegerValueParsing(Line, True, FilePath)
@@ -391,9 +403,9 @@ Public Class MediaSet
         For Each Component In AllComponents
 
             'Skips to next if no media items are expected
-            If Component.MediaFolder = "" Then Continue For
+            If Component.LinguisticLevel <> AudioItemLinguisticLevel Then Continue For
 
-            Dim FullMediaFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaParentFolder, Component.MediaFolder)
+            Dim FullMediaFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaParentFolder, Component.GetMediaFolderName)
 
             'Selects the appropriate prototype recording depending on the value of PrototypeRecordingOption
             Dim PrototypeRecordingPath As String = ""
@@ -412,7 +424,7 @@ Public Class MediaSet
                 Case PrototypeRecordingOptions.PrototypeRecordings
 
                     'Getting the folder
-                    PrototypeRecordingPath = IO.Path.Combine(CurrentTestRootPath, PrototypeMediaParentFolder, Component.MediaFolder)
+                    PrototypeRecordingPath = IO.Path.Combine(CurrentTestRootPath, PrototypeMediaParentFolder, Component.GetMediaFolderName)
 
                     'Using the first recording (if more than one exist) as the prototype recording
                     If IO.Directory.Exists(PrototypeRecordingPath) = True Then
@@ -470,7 +482,7 @@ Public Class MediaSet
             'Creates file paths for files not present
             For n = ExistingFileCount To MediaAudioItems - 1
                 'Creating a file name (avoiding file name conflicts)
-                LackingFilesList.Add(New Tuple(Of String, String, SpeechMaterialComponent)(Utils.CheckFileNameConflict(IO.Path.Combine(FullMediaFolderPath, Component.MediaFolder & "_" & (n).ToString("000") & ".wav")), PrototypeRecordingPath, Component))
+                LackingFilesList.Add(New Tuple(Of String, String, SpeechMaterialComponent)(Utils.CheckFileNameConflict(IO.Path.Combine(FullMediaFolderPath, Component.GetMediaFolderName & "_" & (n).ToString("000") & ".wav")), PrototypeRecordingPath, Component))
                 AllPaths.Add(LackingFilesList.Last)
             Next
 

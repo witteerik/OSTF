@@ -36,13 +36,13 @@ Public Class SpeechMaterialComponent
     Public CustomVariablesDatabasePath As String = ""
 
     'These two should contain the data defined in the TestSituationDatabase associated to the component in the speech material file.
-    Private NumericTestSituationVariables As New SortedList(Of String, SortedList(Of String, Double)) ' Test situation Id, Variable name, Variable Value
-    Private CategoricalTestSituationVariables As New SortedList(Of String, SortedList(Of String, String)) ' Test situation Id, Variable name, Variable Value
+    Private NumericMediaSetVariables As New SortedList(Of String, SortedList(Of String, Double)) ' MediaSet Id, Variable name, Variable Value
+    Private CategoricalMediaSetVariables As New SortedList(Of String, SortedList(Of String, String)) ' MediaSet Id, Variable name, Variable Value
 
-    ' This variable should contain a subpath to a custom variables database file in the test situation folder in which test situation specific data for the component are stored. 
-    ' Once these data are loaded/created, they are stored in the objects NumericTestSituationVariables and CategoricalTestSituationVariables.
+    ' This variable should contain a subpath to a custom variables database file in the media set folder in which data related to the component and specific for a media set are stored. 
+    ' Once these data are loaded/created, they are stored in the objects NumericMediaSetVariables and CategoricalMediaSetVariables.
     ' Only the filename is saved to and read from the speech material component file
-    Private TestSituationDatabaseSubPath As String = ""
+    Private MediaSetDatabaseSubPath As String = ""
 
     ''' <summary>
     ''' The Id used to refer to the component in the LinguisticDatabase and/or the TestSituationDatabase
@@ -56,10 +56,20 @@ Public Class SpeechMaterialComponent
 
     Public Property OrderedChildren As Boolean = False
 
-    Public Property MediaFolder As String
-    Public Property MaskerFolder As String
-    Public Property BackgroundNonspeechFolder As String
-    Public Property BackgroundSpeechFolder As String
+    ''' <summary>
+    ''' Returns the expected name of the media folder of the current component
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetMediaFolderName() As String
+
+        If LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.ListCollection Then
+            Throw New ArgumentException("The linguistic level " & SpeechMaterialComponent.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterialComponent.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
+        End If
+
+        Return Id & "_" & PrimaryStringRepresentation.Replace(" ", "_")
+
+    End Function
+
 
 
     Private Randomizer As Random
@@ -104,7 +114,7 @@ Public Class SpeechMaterialComponent
 
     Public Function GetMaskerPaths(ByVal RootPath As String, ByRef MediaSet As MediaSet, ByVal MediaType As MediaTypes) As String()
 
-        Dim MaskerFolder As String = IO.Path.Combine(RootPath, MediaSet.MediaParentFolder, Me.MediaFolder)
+        Dim MaskerFolder As String = IO.Path.Combine(RootPath, MediaSet.MediaParentFolder, Me.GetMediaFolderName)
 
         Return GetAvailableFiles(MaskerFolder, MediaType)
 
@@ -577,7 +587,7 @@ Public Class SpeechMaterialComponent
 
             Dim SplitRow = Line.Split(vbTab)
 
-            If SplitRow.Length < 12 Then Throw New ArgumentException("Not enough data columns in the file " & SpeechMaterialComponentFilePath & vbCrLf & "At the line: " & Line)
+            If SplitRow.Length < 8 Then Throw New ArgumentException("Not enough data columns in the file " & SpeechMaterialComponentFilePath & vbCrLf & "At the line: " & Line)
 
             Dim NewComponent As New SpeechMaterialComponent(rnd)
 
@@ -622,8 +632,8 @@ Public Class SpeechMaterialComponent
             index += 1
 
             ' Adding the test situation database subpath
-            Dim TestSituationDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
-            NewComponent.TestSituationDatabaseSubPath = TestSituationDatabaseSubPath
+            Dim MediaSetDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
+            NewComponent.MediaSetDatabaseSubPath = MediaSetDatabaseSubPath
             index += 1
 
             ' Adding the DbId
@@ -660,17 +670,21 @@ Public Class SpeechMaterialComponent
             If OrderedChildren IsNot Nothing Then NewComponent.OrderedChildren = OrderedChildren
             index += 1
 
-            NewComponent.MediaFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
-            index += 1
+            ' The MediaFolder column has been removed and the same info is instead retrived from the MediaSet
+            'NewComponent.GetMediaFolderName = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
+            'index += 1
 
-            NewComponent.MaskerFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
-            index += 1
+            ' The MaskerFolder column has been removed and the same info is instead retrived from the MediaSet
+            'NewComponent.MaskerFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
+            'index += 1
 
-            NewComponent.BackgroundNonspeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
-            index += 1
+            ' The BackgroundNonspeechFolder column has been removed and the same info is instead retrived from the MediaSet
+            'NewComponent.BackgroundNonspeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
+            'index += 1
 
-            NewComponent.BackgroundSpeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
-            index += 1
+            ' The BackgroundSpeechFolder column has been removed and the same info is instead retrived from the MediaSet
+            'NewComponent.BackgroundSpeechFolder = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
+            'index += 1
 
             'Adds the component
             If Output Is Nothing Then
@@ -750,9 +764,12 @@ Public Class SpeechMaterialComponent
 
     Public Function GetClosestAncestorWithSoundMedia() As SpeechMaterialComponent
 
+        Throw New NotImplementedException
+
         If ParentComponent Is Nothing Then Return Nothing
 
-        If ParentComponent.MediaFolder <> "" Then
+        ' NB !!! The logic in the following line doesn't work after removal of SpeechMaterialComponent.MediaFolder
+        If ParentComponent.GetMediaFolderName <> "" Then
             Return ParentComponent
         Else
             Return ParentComponent.GetClosestAncestorWithSoundMedia()
@@ -911,9 +928,8 @@ Public Class SpeechMaterialComponent
 
         If CustomVariablesExportList Is Nothing Then CustomVariablesExportList = New SortedList(Of String, List(Of String))
 
-        Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab & "TestSituationDatabase" & vbTab & "DbId" & vbTab &
-                "OrderedChildren" & vbTab & "MediaFolder" & vbTab &
-                "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
+        Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab & "MediaSetDatabase" & vbTab & "DbId" & vbTab &
+                "OrderedChildren" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
 
         Dim Main_List As New List(Of String)
 
@@ -942,8 +958,8 @@ Public Class SpeechMaterialComponent
         End If
 
         'TestSituationDatabase
-        If TestSituationDatabaseSubPath <> "" Then
-            Dim CurrentDataBasePath = IO.Path.GetFileName(TestSituationDatabaseSubPath)
+        If MediaSetDatabaseSubPath <> "" Then
+            Dim CurrentDataBasePath = IO.Path.GetFileName(MediaSetDatabaseSubPath)
             Main_List.Add(CurrentDataBasePath)
             'TODO: If this functionality is going to be used, then we need to add code for exporting these variables here
         Else
@@ -956,22 +972,15 @@ Public Class SpeechMaterialComponent
         'OrderedChildren 
         Main_List.Add(OrderedChildren.ToString)
 
+        'The media folders are removed and moved to the MediaSet class
         'MediaFolder 
-        Main_List.Add(MediaFolder)
-        'If MediaFolder <> "" Then
-        '    Main_List.Add(Id)
-        'Else
-        '    Main_List.Add("")
-        'End If
-
+        'Main_List.Add(GetMediaFolderName)
         'MaskerFolder 
-        Main_List.Add(MaskerFolder)
-
+        'Main_List.Add(MaskerFolder)
         'BackgroundNonspeechFolder 
-        Main_List.Add(BackgroundNonspeechFolder)
-
+        'Main_List.Add(BackgroundNonspeechFolder)
         'BackgroundSpeechFolder 
-        Main_List.Add(BackgroundSpeechFolder)
+        'Main_List.Add(BackgroundSpeechFolder)
 
         Dim OutputList As New List(Of String)
         OutputList.Add(HeadingString)
