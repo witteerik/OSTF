@@ -29,7 +29,7 @@ Partial Class MediaSetSetupControl
         Me.Splitter2 = New System.Windows.Forms.Splitter()
         Me.NewMediaSet_Button = New System.Windows.Forms.Button()
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
-        Me.Edit_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
+        Me.EditSpecification_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.TalkerName_TextBox = New System.Windows.Forms.TextBox()
         Me.WaveFileEncoding_ComboBox = New System.Windows.Forms.ComboBox()
         Me.SaveMediaSetSpecification_Button = New System.Windows.Forms.Button()
@@ -69,13 +69,15 @@ Partial Class MediaSetSetupControl
         Me.Label22 = New System.Windows.Forms.Label()
         Me.Label24 = New System.Windows.Forms.Label()
         Me.LombardNoisePath_TextBox = New System.Windows.Forms.TextBox()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.RecordingTool_GroupBox = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.LaunchRecorder_Button = New System.Windows.Forms.Button()
         Me.RandomOrder_CheckBox = New System.Windows.Forms.CheckBox()
         Me.SpecificPrototypeRecording_RadioButton = New System.Windows.Forms.RadioButton()
         Me.NoPrototypeRecording_RadioButton = New System.Windows.Forms.RadioButton()
         Me.MasterPrototypeRecording_RadioButton = New System.Windows.Forms.RadioButton()
+        Me.Label26 = New System.Windows.Forms.Label()
+        Me.SoundFileLevelComboBox = New System.Windows.Forms.ComboBox()
         Me.LoadOstaMediaSetControl1 = New SpeechTestFramework.LoadOstaMediaSetControl()
         Me.LoadOstaTestSpecificationControl1 = New SpeechTestFramework.LoadOstaTestSpecificationControl()
         Me.TalkerAge_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
@@ -87,16 +89,18 @@ Partial Class MediaSetSetupControl
         Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.PrototypeRecordingLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.LombardNoiseLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
-        Me.Label26 = New System.Windows.Forms.Label()
-        Me.SoundFileLevelComboBox = New System.Windows.Forms.ComboBox()
+        Me.Masker_GroupBox = New System.Windows.Forms.GroupBox()
+        Me.EditRecordings_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
+        Me.SpeechLevel_GroupBox = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
         Me.SplitContainer1.Panel2.SuspendLayout()
         Me.SplitContainer1.SuspendLayout()
-        Me.Edit_TableLayoutPanel.SuspendLayout()
-        Me.GroupBox1.SuspendLayout()
+        Me.EditSpecification_TableLayoutPanel.SuspendLayout()
+        Me.RecordingTool_GroupBox.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
+        Me.EditRecordings_TableLayoutPanel.SuspendLayout()
         Me.SuspendLayout()
         '
         'TableLayoutPanel2
@@ -191,104 +195,104 @@ Partial Class MediaSetSetupControl
         '
         'SplitContainer1.Panel1
         '
-        Me.SplitContainer1.Panel1.Controls.Add(Me.Edit_TableLayoutPanel)
+        Me.SplitContainer1.Panel1.Controls.Add(Me.EditSpecification_TableLayoutPanel)
         '
         'SplitContainer1.Panel2
         '
-        Me.SplitContainer1.Panel2.Controls.Add(Me.GroupBox1)
+        Me.SplitContainer1.Panel2.Controls.Add(Me.EditRecordings_TableLayoutPanel)
         Me.SplitContainer1.Size = New System.Drawing.Size(835, 613)
         Me.SplitContainer1.SplitterDistance = 435
         Me.SplitContainer1.TabIndex = 58
         '
-        'Edit_TableLayoutPanel
+        'EditSpecification_TableLayoutPanel
         '
-        Me.Edit_TableLayoutPanel.AutoScroll = True
-        Me.Edit_TableLayoutPanel.AutoSize = True
-        Me.Edit_TableLayoutPanel.ColumnCount = 2
-        Me.Edit_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 300.0!))
-        Me.Edit_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.TalkerName_TextBox, 1, 2)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.WaveFileEncoding_ComboBox, 1, 24)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.SaveMediaSetSpecification_Button, 0, 25)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label1, 0, 0)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label2, 0, 1)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label3, 0, 2)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label4, 0, 3)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label13, 0, 12)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label12, 0, 11)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label11, 0, 10)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label10, 0, 9)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label9, 0, 8)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label5, 0, 4)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label6, 0, 6)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label7, 0, 7)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label14, 0, 13)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label15, 0, 14)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label16, 0, 16)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label17, 0, 17)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label18, 0, 18)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label19, 0, 22)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label20, 0, 23)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label21, 0, 24)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.TalkerAge_IntegerParsingTextBox, 1, 4)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaAudioItems_IntegerParsingTextBox, 1, 8)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MaskerAudioItems_IntegerParsingTextBox, 1, 9)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaImageItems_IntegerParsingTextBox, 1, 10)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MaskerImageItems_IntegerParsingTextBox, 1, 11)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.WaveFileSampleRate_IntegerParsingTextBox, 1, 22)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaSetName_TextBox, 1, 1)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.TalkerDialect_TextBox, 1, 6)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.VoiceType_TextBox, 1, 7)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MediaParentFolder_TextBox, 1, 12)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MaskerParentFolder_TextBox, 1, 13)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.BackgroundNonspeechParentFolder_TextBox, 1, 14)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.BackgroundSpeechParentFolder_TextBox, 1, 16)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.PrototypeMediaParentFolder_TextBox, 1, 17)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.MasterPrototypeRecordingPath_TextBox, 1, 18)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.TalkerGender_ComboBox, 1, 3)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.WaveFileBitDepth_ComboBox, 1, 23)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label8, 0, 15)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox, 1, 15)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label23, 0, 19)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.PrototypeRecordingLevel_DoubleParsingTextBox, 1, 19)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label22, 0, 20)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label24, 0, 21)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.LombardNoiseLevel_DoubleParsingTextBox, 1, 21)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.LombardNoisePath_TextBox, 1, 20)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.Label26, 0, 5)
-        Me.Edit_TableLayoutPanel.Controls.Add(Me.SoundFileLevelComboBox, 1, 5)
-        Me.Edit_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Edit_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
-        Me.Edit_TableLayoutPanel.Name = "Edit_TableLayoutPanel"
-        Me.Edit_TableLayoutPanel.RowCount = 26
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.Edit_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
-        Me.Edit_TableLayoutPanel.Size = New System.Drawing.Size(435, 613)
-        Me.Edit_TableLayoutPanel.TabIndex = 0
+        Me.EditSpecification_TableLayoutPanel.AutoScroll = True
+        Me.EditSpecification_TableLayoutPanel.AutoSize = True
+        Me.EditSpecification_TableLayoutPanel.ColumnCount = 2
+        Me.EditSpecification_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 300.0!))
+        Me.EditSpecification_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.TalkerName_TextBox, 1, 2)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.WaveFileEncoding_ComboBox, 1, 24)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.SaveMediaSetSpecification_Button, 0, 25)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label1, 0, 0)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label2, 0, 1)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label3, 0, 2)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label4, 0, 3)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label13, 0, 12)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label12, 0, 11)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label11, 0, 10)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label10, 0, 9)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label9, 0, 8)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label5, 0, 4)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label6, 0, 6)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label7, 0, 7)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label14, 0, 13)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label15, 0, 14)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label16, 0, 16)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label17, 0, 17)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label18, 0, 18)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label19, 0, 22)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label20, 0, 23)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label21, 0, 24)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.TalkerAge_IntegerParsingTextBox, 1, 4)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.MediaAudioItems_IntegerParsingTextBox, 1, 8)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.MaskerAudioItems_IntegerParsingTextBox, 1, 9)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.MediaImageItems_IntegerParsingTextBox, 1, 10)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.MaskerImageItems_IntegerParsingTextBox, 1, 11)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.WaveFileSampleRate_IntegerParsingTextBox, 1, 22)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.MediaSetName_TextBox, 1, 1)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.TalkerDialect_TextBox, 1, 6)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.VoiceType_TextBox, 1, 7)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.MediaParentFolder_TextBox, 1, 12)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.MaskerParentFolder_TextBox, 1, 13)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.BackgroundNonspeechParentFolder_TextBox, 1, 14)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.BackgroundSpeechParentFolder_TextBox, 1, 16)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.PrototypeMediaParentFolder_TextBox, 1, 17)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.MasterPrototypeRecordingPath_TextBox, 1, 18)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.TalkerGender_ComboBox, 1, 3)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.WaveFileBitDepth_ComboBox, 1, 23)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label8, 0, 15)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox, 1, 15)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label23, 0, 19)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.PrototypeRecordingLevel_DoubleParsingTextBox, 1, 19)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label22, 0, 20)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label24, 0, 21)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.LombardNoiseLevel_DoubleParsingTextBox, 1, 21)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.LombardNoisePath_TextBox, 1, 20)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.Label26, 0, 5)
+        Me.EditSpecification_TableLayoutPanel.Controls.Add(Me.SoundFileLevelComboBox, 1, 5)
+        Me.EditSpecification_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.EditSpecification_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
+        Me.EditSpecification_TableLayoutPanel.Name = "EditSpecification_TableLayoutPanel"
+        Me.EditSpecification_TableLayoutPanel.RowCount = 26
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 23.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.EditSpecification_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
+        Me.EditSpecification_TableLayoutPanel.Size = New System.Drawing.Size(435, 613)
+        Me.EditSpecification_TableLayoutPanel.TabIndex = 0
         '
         'TalkerName_TextBox
         '
@@ -309,7 +313,7 @@ Partial Class MediaSetSetupControl
         '
         'SaveMediaSetSpecification_Button
         '
-        Me.Edit_TableLayoutPanel.SetColumnSpan(Me.SaveMediaSetSpecification_Button, 2)
+        Me.EditSpecification_TableLayoutPanel.SetColumnSpan(Me.SaveMediaSetSpecification_Button, 2)
         Me.SaveMediaSetSpecification_Button.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SaveMediaSetSpecification_Button.Location = New System.Drawing.Point(3, 626)
         Me.SaveMediaSetSpecification_Button.Name = "SaveMediaSetSpecification_Button"
@@ -322,7 +326,7 @@ Partial Class MediaSetSetupControl
         '
         Me.Label1.AutoSize = True
         Me.Label1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.Edit_TableLayoutPanel.SetColumnSpan(Me.Label1, 2)
+        Me.EditSpecification_TableLayoutPanel.SetColumnSpan(Me.Label1, 2)
         Me.Label1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Label1.Location = New System.Drawing.Point(3, 0)
         Me.Label1.Name = "Label1"
@@ -661,16 +665,15 @@ Partial Class MediaSetSetupControl
         Me.LombardNoisePath_TextBox.Size = New System.Drawing.Size(129, 20)
         Me.LombardNoisePath_TextBox.TabIndex = 49
         '
-        'GroupBox1
+        'RecordingTool_GroupBox
         '
-        Me.GroupBox1.Controls.Add(Me.TableLayoutPanel1)
-        Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox1.Location = New System.Drawing.Point(0, 0)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(396, 613)
-        Me.GroupBox1.TabIndex = 0
-        Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "Recording and segmentation tool"
+        Me.RecordingTool_GroupBox.Controls.Add(Me.TableLayoutPanel1)
+        Me.RecordingTool_GroupBox.Location = New System.Drawing.Point(3, 3)
+        Me.RecordingTool_GroupBox.Name = "RecordingTool_GroupBox"
+        Me.RecordingTool_GroupBox.Size = New System.Drawing.Size(390, 154)
+        Me.RecordingTool_GroupBox.TabIndex = 0
+        Me.RecordingTool_GroupBox.TabStop = False
+        Me.RecordingTool_GroupBox.Text = "Recording and segmentation tool"
         '
         'TableLayoutPanel1
         '
@@ -684,14 +687,14 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
-        Me.TableLayoutPanel1.RowCount = 6
+        Me.TableLayoutPanel1.RowCount = 5
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(390, 594)
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(384, 135)
         Me.TableLayoutPanel1.TabIndex = 0
         '
         'LaunchRecorder_Button
@@ -699,7 +702,7 @@ Partial Class MediaSetSetupControl
         Me.LaunchRecorder_Button.Dock = System.Windows.Forms.DockStyle.Fill
         Me.LaunchRecorder_Button.Location = New System.Drawing.Point(3, 103)
         Me.LaunchRecorder_Button.Name = "LaunchRecorder_Button"
-        Me.LaunchRecorder_Button.Size = New System.Drawing.Size(384, 24)
+        Me.LaunchRecorder_Button.Size = New System.Drawing.Size(378, 29)
         Me.LaunchRecorder_Button.TabIndex = 0
         Me.LaunchRecorder_Button.Text = "Launch recording and segmentation tool"
         Me.LaunchRecorder_Button.UseVisualStyleBackColor = True
@@ -748,6 +751,25 @@ Partial Class MediaSetSetupControl
         Me.MasterPrototypeRecording_RadioButton.TabStop = True
         Me.MasterPrototypeRecording_RadioButton.Text = "Use master prototype recording"
         Me.MasterPrototypeRecording_RadioButton.UseVisualStyleBackColor = True
+        '
+        'Label26
+        '
+        Me.Label26.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label26.Location = New System.Drawing.Point(3, 123)
+        Me.Label26.Name = "Label26"
+        Me.Label26.Size = New System.Drawing.Size(294, 25)
+        Me.Label26.TabIndex = 50
+        Me.Label26.Text = "Linguistic level of sound files"
+        Me.Label26.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'SoundFileLevelComboBox
+        '
+        Me.SoundFileLevelComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SoundFileLevelComboBox.FormattingEnabled = True
+        Me.SoundFileLevelComboBox.Location = New System.Drawing.Point(303, 126)
+        Me.SoundFileLevelComboBox.Name = "SoundFileLevelComboBox"
+        Me.SoundFileLevelComboBox.Size = New System.Drawing.Size(129, 21)
+        Me.SoundFileLevelComboBox.TabIndex = 51
         '
         'LoadOstaMediaSetControl1
         '
@@ -853,24 +875,43 @@ Partial Class MediaSetSetupControl
         Me.LombardNoiseLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(129, 20)
         Me.LombardNoiseLevel_DoubleParsingTextBox.TabIndex = 48
         '
-        'Label26
+        'Masker_GroupBox
         '
-        Me.Label26.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label26.Location = New System.Drawing.Point(3, 123)
-        Me.Label26.Name = "Label26"
-        Me.Label26.Size = New System.Drawing.Size(294, 25)
-        Me.Label26.TabIndex = 50
-        Me.Label26.Text = "Linguistic level of sound files"
-        Me.Label26.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.Masker_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Masker_GroupBox.Location = New System.Drawing.Point(3, 357)
+        Me.Masker_GroupBox.Name = "Masker_GroupBox"
+        Me.Masker_GroupBox.Size = New System.Drawing.Size(390, 194)
+        Me.Masker_GroupBox.TabIndex = 1
+        Me.Masker_GroupBox.TabStop = False
+        Me.Masker_GroupBox.Text = "Create maskers"
         '
-        'SoundFileLevelComboBox
+        'EditRecordings_TableLayoutPanel
         '
-        Me.SoundFileLevelComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SoundFileLevelComboBox.FormattingEnabled = True
-        Me.SoundFileLevelComboBox.Location = New System.Drawing.Point(303, 126)
-        Me.SoundFileLevelComboBox.Name = "SoundFileLevelComboBox"
-        Me.SoundFileLevelComboBox.Size = New System.Drawing.Size(129, 21)
-        Me.SoundFileLevelComboBox.TabIndex = 51
+        Me.EditRecordings_TableLayoutPanel.ColumnCount = 1
+        Me.EditRecordings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.EditRecordings_TableLayoutPanel.Controls.Add(Me.RecordingTool_GroupBox, 0, 0)
+        Me.EditRecordings_TableLayoutPanel.Controls.Add(Me.Masker_GroupBox, 0, 2)
+        Me.EditRecordings_TableLayoutPanel.Controls.Add(Me.SpeechLevel_GroupBox, 0, 1)
+        Me.EditRecordings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.EditRecordings_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
+        Me.EditRecordings_TableLayoutPanel.Name = "EditRecordings_TableLayoutPanel"
+        Me.EditRecordings_TableLayoutPanel.RowCount = 4
+        Me.EditRecordings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 161.0!))
+        Me.EditRecordings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 193.0!))
+        Me.EditRecordings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 200.0!))
+        Me.EditRecordings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.EditRecordings_TableLayoutPanel.Size = New System.Drawing.Size(396, 613)
+        Me.EditRecordings_TableLayoutPanel.TabIndex = 2
+        '
+        'SpeechLevel_GroupBox
+        '
+        Me.SpeechLevel_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SpeechLevel_GroupBox.Location = New System.Drawing.Point(3, 164)
+        Me.SpeechLevel_GroupBox.Name = "SpeechLevel_GroupBox"
+        Me.SpeechLevel_GroupBox.Size = New System.Drawing.Size(390, 187)
+        Me.SpeechLevel_GroupBox.TabIndex = 2
+        Me.SpeechLevel_GroupBox.TabStop = False
+        Me.SpeechLevel_GroupBox.Text = "Speech levels"
         '
         'MediaSetSetupControl
         '
@@ -886,17 +927,18 @@ Partial Class MediaSetSetupControl
         Me.SplitContainer1.Panel2.ResumeLayout(False)
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.SplitContainer1.ResumeLayout(False)
-        Me.Edit_TableLayoutPanel.ResumeLayout(False)
-        Me.Edit_TableLayoutPanel.PerformLayout()
-        Me.GroupBox1.ResumeLayout(False)
+        Me.EditSpecification_TableLayoutPanel.ResumeLayout(False)
+        Me.EditSpecification_TableLayoutPanel.PerformLayout()
+        Me.RecordingTool_GroupBox.ResumeLayout(False)
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.TableLayoutPanel1.PerformLayout()
+        Me.EditRecordings_TableLayoutPanel.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
 
     Friend WithEvents TableLayoutPanel2 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents Edit_TableLayoutPanel As Windows.Forms.TableLayoutPanel
+    Friend WithEvents EditSpecification_TableLayoutPanel As Windows.Forms.TableLayoutPanel
     Friend WithEvents TalkerName_TextBox As Windows.Forms.TextBox
     Friend WithEvents WaveFileEncoding_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents Label1 As Windows.Forms.Label
@@ -953,7 +995,7 @@ Partial Class MediaSetSetupControl
     Friend WithEvents Splitter1 As Windows.Forms.Splitter
     Friend WithEvents Splitter2 As Windows.Forms.Splitter
     Friend WithEvents SplitContainer1 As Windows.Forms.SplitContainer
-    Friend WithEvents GroupBox1 As Windows.Forms.GroupBox
+    Friend WithEvents RecordingTool_GroupBox As Windows.Forms.GroupBox
     Friend WithEvents TableLayoutPanel1 As Windows.Forms.TableLayoutPanel
     Friend WithEvents LaunchRecorder_Button As Windows.Forms.Button
     Friend WithEvents RandomOrder_CheckBox As Windows.Forms.CheckBox
@@ -962,4 +1004,7 @@ Partial Class MediaSetSetupControl
     Friend WithEvents MasterPrototypeRecording_RadioButton As Windows.Forms.RadioButton
     Friend WithEvents Label26 As Windows.Forms.Label
     Friend WithEvents SoundFileLevelComboBox As Windows.Forms.ComboBox
+    Friend WithEvents EditRecordings_TableLayoutPanel As Windows.Forms.TableLayoutPanel
+    Friend WithEvents Masker_GroupBox As Windows.Forms.GroupBox
+    Friend WithEvents SpeechLevel_GroupBox As Windows.Forms.GroupBox
 End Class

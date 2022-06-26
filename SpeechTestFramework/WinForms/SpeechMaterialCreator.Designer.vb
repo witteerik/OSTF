@@ -24,12 +24,12 @@ Partial Class SpeechMaterialCreator
     Private Sub InitializeComponent()
         Me.MainTabControl = New System.Windows.Forms.TabControl()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
-        Me.TabPage2 = New System.Windows.Forms.TabPage()
-        Me.TabPage3 = New System.Windows.Forms.TabPage()
-        Me.TabPage4 = New System.Windows.Forms.TabPage()
         Me.MySpeechMaterialComponentCreator = New SpeechTestFramework.SpeechMaterialComponentCreator()
+        Me.TabPage2 = New System.Windows.Forms.TabPage()
         Me.LexicalVariablesEditor1 = New SpeechTestFramework.LexicalVariablesEditor()
+        Me.TabPage3 = New System.Windows.Forms.TabPage()
         Me.StatisticalSummaryControl1 = New SpeechTestFramework.StatisticalSummaryControl()
+        Me.TabPage4 = New System.Windows.Forms.TabPage()
         Me.MediaSetSetupControl1 = New SpeechTestFramework.MediaSetSetupControl()
         Me.MainTabControl.SuspendLayout()
         Me.TabPage1.SuspendLayout()
@@ -62,6 +62,16 @@ Partial Class SpeechMaterialCreator
         Me.TabPage1.Text = "Speech material components (SMC)"
         Me.TabPage1.UseVisualStyleBackColor = True
         '
+        'MySpeechMaterialComponentCreator
+        '
+        Me.MySpeechMaterialComponentCreator.BackColor = System.Drawing.SystemColors.Control
+        Me.MySpeechMaterialComponentCreator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.MySpeechMaterialComponentCreator.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MySpeechMaterialComponentCreator.Location = New System.Drawing.Point(3, 3)
+        Me.MySpeechMaterialComponentCreator.Name = "MySpeechMaterialComponentCreator"
+        Me.MySpeechMaterialComponentCreator.Size = New System.Drawing.Size(831, 418)
+        Me.MySpeechMaterialComponentCreator.TabIndex = 0
+        '
         'TabPage2
         '
         Me.TabPage2.Controls.Add(Me.LexicalVariablesEditor1)
@@ -72,6 +82,16 @@ Partial Class SpeechMaterialCreator
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "Add lexical variables to SMC"
         Me.TabPage2.UseVisualStyleBackColor = True
+        '
+        'LexicalVariablesEditor1
+        '
+        Me.LexicalVariablesEditor1.BackColor = System.Drawing.SystemColors.Control
+        Me.LexicalVariablesEditor1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.LexicalVariablesEditor1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LexicalVariablesEditor1.Location = New System.Drawing.Point(3, 3)
+        Me.LexicalVariablesEditor1.Name = "LexicalVariablesEditor1"
+        Me.LexicalVariablesEditor1.Size = New System.Drawing.Size(831, 418)
+        Me.LexicalVariablesEditor1.TabIndex = 0
         '
         'TabPage3
         '
@@ -84,37 +104,6 @@ Partial Class SpeechMaterialCreator
         Me.TabPage3.Text = "Summary statistics"
         Me.TabPage3.UseVisualStyleBackColor = True
         '
-        'TabPage4
-        '
-        Me.TabPage4.Controls.Add(Me.MediaSetSetupControl1)
-        Me.TabPage4.Location = New System.Drawing.Point(4, 22)
-        Me.TabPage4.Name = "TabPage4"
-        Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(837, 424)
-        Me.TabPage4.TabIndex = 3
-        Me.TabPage4.Text = "Add/edit test situation"
-        Me.TabPage4.UseVisualStyleBackColor = True
-        '
-        'MySpeechMaterialComponentCreator
-        '
-        Me.MySpeechMaterialComponentCreator.BackColor = System.Drawing.SystemColors.Control
-        Me.MySpeechMaterialComponentCreator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.MySpeechMaterialComponentCreator.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MySpeechMaterialComponentCreator.Location = New System.Drawing.Point(3, 3)
-        Me.MySpeechMaterialComponentCreator.Name = "MySpeechMaterialComponentCreator"
-        Me.MySpeechMaterialComponentCreator.Size = New System.Drawing.Size(831, 418)
-        Me.MySpeechMaterialComponentCreator.TabIndex = 0
-        '
-        'LexicalVariablesEditor1
-        '
-        Me.LexicalVariablesEditor1.BackColor = System.Drawing.SystemColors.Control
-        Me.LexicalVariablesEditor1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.LexicalVariablesEditor1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LexicalVariablesEditor1.Location = New System.Drawing.Point(3, 3)
-        Me.LexicalVariablesEditor1.Name = "LexicalVariablesEditor1"
-        Me.LexicalVariablesEditor1.Size = New System.Drawing.Size(831, 418)
-        Me.LexicalVariablesEditor1.TabIndex = 0
-        '
         'StatisticalSummaryControl1
         '
         Me.StatisticalSummaryControl1.BackColor = System.Drawing.SystemColors.Control
@@ -124,6 +113,17 @@ Partial Class SpeechMaterialCreator
         Me.StatisticalSummaryControl1.Name = "StatisticalSummaryControl1"
         Me.StatisticalSummaryControl1.Size = New System.Drawing.Size(831, 418)
         Me.StatisticalSummaryControl1.TabIndex = 0
+        '
+        'TabPage4
+        '
+        Me.TabPage4.Controls.Add(Me.MediaSetSetupControl1)
+        Me.TabPage4.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage4.Name = "TabPage4"
+        Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage4.Size = New System.Drawing.Size(837, 424)
+        Me.TabPage4.TabIndex = 3
+        Me.TabPage4.Text = "Add/edit media set"
+        Me.TabPage4.UseVisualStyleBackColor = True
         '
         'MediaSetSetupControl1
         '

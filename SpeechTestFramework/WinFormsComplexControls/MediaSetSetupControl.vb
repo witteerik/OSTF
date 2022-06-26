@@ -75,14 +75,14 @@
             NewMediaSet_Button.Enabled = True
 
             If SelectedMediaSet IsNot Nothing Then
-                Edit_TableLayoutPanel.Enabled = True
+                EditSpecification_TableLayoutPanel.Enabled = True
                 SaveMediaSetSpecification_Button.Enabled = True
             End If
 
         Else
             LoadOstaMediaSetControl1.Enabled = False
             NewMediaSet_Button.Enabled = False
-            Edit_TableLayoutPanel.Enabled = False
+            EditSpecification_TableLayoutPanel.Enabled = False
             SaveMediaSetSpecification_Button.Enabled = False
         End If
 
@@ -292,3 +292,39 @@
     End Sub
 
 End Class
+
+
+'Speech level group box
+'Speech level __
+'Frequency weighting: C, Z, RLB, K
+'(CB) Temporal integration: __
+'(CB) Apply 'natural levels' algorithm
+'
+'Button: Apply levels
+'
+'
+'Create maskers group box
+'
+'Common maskers at linguistic level: ListCollection, List, Sentence, Word, Phoneme
+'
+'Spectral match type: Everything, Contrasting unit
+'
+'Masker source type:
+'- (RB) Random Noise
+'- (RB) Speech material
+'- (RB) Best match of external sound files 
+'
+'Settings:
+'-Fade in duration __
+'-Masking duration (*auto, __
+'-Fade out duration __
+'
+'(Settings not for Speech Material)
+'Frequency weighting: C, Z
+'(CB) Temporal integration: 50 ms
+'	
+'(Settings for external sound file matching only)
+'-(Sound file folder: ...) ____
+'-Spectral fine-tuning (max (dB)) __
+
+
