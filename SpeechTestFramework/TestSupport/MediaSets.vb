@@ -684,5 +684,21 @@ Public Class MediaSet
         Return Me.MediaSetName
     End Function
 
+    'Sound levels
+    Public Sub SetNaturalLevels(ByVal TargetLevel As Double, ByVal FrequencyWeighting As Audio.FrequencyWeightings, ByVal TemporalIntegration As Double?)
+
+        'N.B. Should TargetLevel com in as FS or as a dB_FS to SPL corrected value???
+
+
+    End Sub
+
+    Public Sub SetSpeechLevels(ByVal TargetLevel As Double, ByVal FrequencyWeighting As Audio.FrequencyWeightings, ByVal TemporalIntegration As Double?)
+
+
+
+    End Sub
+
+
+
 End Class
 

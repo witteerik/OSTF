@@ -24,6 +24,15 @@
         'Adding encodings
         WaveFileEncoding_ComboBox.Items.AddRange([Enum].GetNames(GetType(Audio.Formats.WaveFormat.WaveFormatEncodings)))
 
+        'Adding speech level frequency weightings
+        SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
+        SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.C)
+        SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.K)
+        SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.RLB)
+
+        'Pre-selecting Z weighting
+        SpeechLevelFrequencyWeighting_ComboBox.SelectedIndex = 0
+
         UpdateControlEnabledStatuses()
 
     End Sub
@@ -291,6 +300,46 @@
 
     End Sub
 
+    Private Sub TemporalIntegration_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles TemporalIntegration_CheckBox.CheckedChanged
+        TemporalIntegration_DoubleParsingTextBox.Enabled = TemporalIntegration_CheckBox.Checked
+    End Sub
+
+    Private Sub ApplySpeechLevels_Button_Click(sender As Object, e As EventArgs) Handles ApplySpeechLevels_Button.Click
+
+        'Checking input data
+        If SpeechLevel_DoubleParsingTextBox.Value Is Nothing Then
+            MsgBox("You must specify a speech level.", MsgBoxStyle.Information, "Checking input data")
+            Exit Sub
+        End If
+
+        Dim SpeechLevelFrequencyWeighting As Audio.FrequencyWeightings = Audio.BasicAudioEnums.FrequencyWeightings.Z
+        If SpeechLevelFrequencyWeighting_ComboBox.SelectedItem IsNot Nothing Then
+            SpeechLevelFrequencyWeighting = [Enum].Parse(GetType(Audio.FrequencyWeightings), SpeechLevelFrequencyWeighting_ComboBox.SelectedItem.ToString)
+        Else
+            MsgBox("You must specify a speech level frequency weighting.", MsgBoxStyle.Information, "Checking input data")
+            Exit Sub
+        End If
+
+        Dim TemporalIntegration As Double? = Nothing
+        If TemporalIntegration_CheckBox.Checked Then
+            If TemporalIntegration_DoubleParsingTextBox.Value Is Nothing Then
+                MsgBox("You must specify a temporal Integration time.", MsgBoxStyle.Information, "Checking input data")
+                Exit Sub
+            Else
+                TemporalIntegration = TemporalIntegration_DoubleParsingTextBox.Value
+            End If
+        End If
+
+        'Launching sound level adjustment algoritms
+        If NaturalLevelsAlgorithm_Checkbox.Checked = True Then
+            SelectedMediaSet.SetNaturalLevels(SpeechLevel_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration) ' N.B. 'TemporalIntegration is Nothing for long-time average
+        Else
+            SelectedMediaSet.SetSpeechLevels(SpeechLevel_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration)
+        End If
+
+        MsgBox("Finished adjusting the speech sound levels.", MsgBoxStyle.Information, "Speech level ")
+
+    End Sub
 End Class
 
 
