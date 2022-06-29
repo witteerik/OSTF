@@ -33,6 +33,10 @@
         'Pre-selecting Z weighting
         SpeechLevelFrequencyWeighting_ComboBox.SelectedIndex = 0
 
+        'Showing the value of Simulated_dBFS_dBSPL_Difference in the Speech level SPL lable
+
+        SpeechLevelSPL_Label.Text = "Speech level (dB SPL, [SPL - FS = " & Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference & " dB])"
+
         UpdateControlEnabledStatuses()
 
     End Sub
@@ -178,7 +182,7 @@
 
         'Parsing the info about which linguistic level sound recording should be used
         If WaveFileEncoding_ComboBox.SelectedItem IsNot Nothing Then
-            TempMediaSet.AudioItemLinguisticLevel = [Enum].Parse(GetType(SpeechMaterialComponent.LinguisticLevels), SoundFileLevelComboBox.SelectedItem.ToString)
+            TempMediaSet.AudioFileLinguisticLevel = [Enum].Parse(GetType(SpeechMaterialComponent.LinguisticLevels), SoundFileLevelComboBox.SelectedItem.ToString)
         Else
             MsgBox("You must select a value for 'Linguistic level of sound files'.", MsgBoxStyle.Information, "Checking input data")
             Exit Sub
@@ -307,7 +311,7 @@
     Private Sub ApplySpeechLevels_Button_Click(sender As Object, e As EventArgs) Handles ApplySpeechLevels_Button.Click
 
         'Checking input data
-        If SpeechLevel_DoubleParsingTextBox.Value Is Nothing Then
+        If SpeechLevelSPL_DoubleParsingTextBox.Value Is Nothing Then
             MsgBox("You must specify a speech level.", MsgBoxStyle.Information, "Checking input data")
             Exit Sub
         End If
@@ -332,12 +336,34 @@
 
         'Launching sound level adjustment algoritms
         If NaturalLevelsAlgorithm_Checkbox.Checked = True Then
-            SelectedMediaSet.SetNaturalLevels(SpeechLevel_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration) ' N.B. 'TemporalIntegration is Nothing for long-time average
+            SelectedMediaSet.SetNaturalLevels(SpeechLevelSPL_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration) ' N.B. 'TemporalIntegration is Nothing for long-time average
         Else
-            SelectedMediaSet.SetSpeechLevels(SpeechLevel_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration)
+            SelectedMediaSet.SetSpeechLevels(SpeechLevelSPL_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration)
         End If
 
         MsgBox("Finished adjusting the speech sound levels.", MsgBoxStyle.Information, "Speech level ")
+
+    End Sub
+
+    Private Sub SpeechLevelSPL_DoubleParsingTextBox_ValueUpdated() Handles SpeechLevelSPL_DoubleParsingTextBox.ValueUpdated
+
+        If SpeechLevelSPL_DoubleParsingTextBox.Value IsNot Nothing Then
+            SpeechLevelFS_DoubleParsingTextBox.Text = Audio.PortAudioVB.DuplexMixer.Simulated_dBSPL_To_dBFS(SpeechLevelSPL_DoubleParsingTextBox.Value)
+        Else
+            SpeechLevelFS_DoubleParsingTextBox.Text = ""
+        End If
+
+    End Sub
+
+
+
+    Private Sub SpeechLevelFS_DoubleParsingTextBox_ValueUpdated() Handles SpeechLevelFS_DoubleParsingTextBox.ValueUpdated
+
+        If SpeechLevelFS_DoubleParsingTextBox.Value IsNot Nothing Then
+            SpeechLevelSPL_DoubleParsingTextBox.Text = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_To_dBSPL(SpeechLevelFS_DoubleParsingTextBox.Value)
+        Else
+            SpeechLevelSPL_DoubleParsingTextBox.Text = ""
+        End If
 
     End Sub
 End Class

@@ -17,6 +17,8 @@ Public Class IntegerParsingTextBox
 
     Private DefaultTextColor As Drawing.Color
 
+    Public Event ValueUpdated()
+
     Public Sub New()
 
         'Stores the default color
@@ -37,6 +39,8 @@ Public Class IntegerParsingTextBox
             Me._Value = Nothing
             Me.ForeColor = Drawing.Color.Red
         End If
+
+        RaiseEvent ValueUpdated()
 
     End Sub
 

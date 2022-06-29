@@ -29,7 +29,7 @@ Public Class MediaSet
     'and
     'OstaRootPath + MediaSet.MaskerParentFolder + SpeechMaterialComponent.MaskerFolder
     'As well as to determine the number of recordings to create for a speech test if the inbuilt recording and segmentation tool is used.
-    Public Property AudioItemLinguisticLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
+    Public Property AudioFileLinguisticLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
     Public Property MediaAudioItems As Integer = 5
     Public Property MaskerAudioItems As Integer = 5
     Public Property MediaImageItems As Integer = 0
@@ -72,6 +72,8 @@ Public Class MediaSet
         NotSet
     End Enum
 
+
+
     Public Sub WriteToFile()
 
         Dim OutputList As New List(Of String)
@@ -96,7 +98,7 @@ Public Class MediaSet
         OutputList.Add("TalkerAge = " & TalkerAge)
         OutputList.Add("TalkerDialect = " & TalkerDialect)
         OutputList.Add("VoiceType = " & VoiceType)
-        OutputList.Add("AudioItemLinguisticLevel = " & AudioItemLinguisticLevel)
+        OutputList.Add("AudioFileLinguisticLevel = " & AudioFileLinguisticLevel)
         OutputList.Add("MediaAudioItems = " & MediaAudioItems)
         OutputList.Add("MaskerAudioItems = " & MaskerAudioItems)
         OutputList.Add("MediaImageItems = " & MediaImageItems)
@@ -118,10 +120,10 @@ Public Class MediaSet
 
     End Sub
 
-    Public Shared Function LoadMediaSet(ByVal FilePath As String) As MediaSet
+    Public Shared Function LoadMediaSetSpecification(ByVal FilePath As String) As MediaSet
 
         'Gets a file path from the user if none is supplied
-        If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured media set .txt file.")
+        If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a media set specification .txt file.")
         If FilePath = "" Then
             MsgBox("No file selected!")
             Return Nothing
@@ -171,12 +173,12 @@ Public Class MediaSet
 
             If Line.StartsWith("VoiceType") Then Output.VoiceType = InputFileSupport.GetInputFileValue(Line, True)
 
-            If Line.StartsWith("AudioItemLinguisticLevel") Then
+            If Line.StartsWith("AudioFileLinguisticLevel") Then
                 Dim Value = InputFileSupport.InputFileEnumValueParsing(Line, GetType(SpeechMaterialComponent.LinguisticLevels), FilePath, True)
                 If Value.HasValue Then
-                    Output.AudioItemLinguisticLevel = Value
+                    Output.AudioFileLinguisticLevel = Value
                 Else
-                    MsgBox("Failed to read the AudioItemLinguisticLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    MsgBox("Failed to read the AudioFileLinguisticLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -292,89 +294,91 @@ Public Class MediaSet
     End Function
 
 
-    Public Sub SetSipValues(ByVal Voice As Integer)
+    'Public Sub SetSipValues(ByVal Voice As Integer)
 
-        Select Case Voice
-            Case 1
-                MediaSetName = "City-Talker1-RVE"
+    '    Select Case Voice
+    '        Case 1
+    '            MediaSetName = "City-Talker1-RVE"
 
-                TalkerName = "JE"
-                TalkerGender = Genders.Male
-                TalkerAge = 50
-                TalkerDialect = "Central Swedish"
-                VoiceType = "Raised vocal effort"
+    '            TalkerName = "JE"
+    '            TalkerGender = Genders.Male
+    '            TalkerAge = 50
+    '            TalkerDialect = "Central Swedish"
+    '            VoiceType = "Raised vocal effort"
 
-                BackgroundNonspeechRealisticLevel = 55
+    '            BackgroundNonspeechRealisticLevel = 55
 
-                MediaAudioItems = 5
-                MaskerAudioItems = 5
-                MediaImageItems = 0
-                MaskerImageItems = 0
+    '            MediaAudioItems = 5
+    '            MaskerAudioItems = 5
+    '            MediaImageItems = 0
+    '            MaskerImageItems = 0
 
-                MediaParentFolder = "Media\Unechoic-Talker1-RVE\TestWordRecordings"
-                MaskerParentFolder = "Media\City-Talker1-RVE\TWRB"
-                BackgroundNonspeechParentFolder = "Media\City-Talker1-RVE\BackgroundNonspeech"
-                BackgroundSpeechParentFolder = "Media\City-Talker1-RVE\BackgroundSpeech"
+    '            MediaParentFolder = "Media\Unechoic-Talker1-RVE\TestWordRecordings"
+    '            MaskerParentFolder = "Media\City-Talker1-RVE\TWRB"
+    '            BackgroundNonspeechParentFolder = "Media\City-Talker1-RVE\BackgroundNonspeech"
+    '            BackgroundSpeechParentFolder = "Media\City-Talker1-RVE\BackgroundSpeech"
 
-                PrototypeMediaParentFolder = ""
+    '            PrototypeMediaParentFolder = ""
 
-                MasterPrototypeRecordingPath = ""
-            Case 2
+    '            MasterPrototypeRecordingPath = ""
+    '        Case 2
 
-                MediaSetName = "City-Talker2-RVE"
+    '            MediaSetName = "City-Talker2-RVE"
 
-                TalkerName = "EL"
-                TalkerGender = Genders.Female
-                TalkerAge = 40
-                TalkerDialect = "Central Swedish"
-                VoiceType = "Raised vocal effort"
+    '            TalkerName = "EL"
+    '            TalkerGender = Genders.Female
+    '            TalkerAge = 40
+    '            TalkerDialect = "Central Swedish"
+    '            VoiceType = "Raised vocal effort"
 
-                BackgroundNonspeechRealisticLevel = 55
+    '            BackgroundNonspeechRealisticLevel = 55
 
-                MediaAudioItems = 5
-                MaskerAudioItems = 5
-                MediaImageItems = 0
-                MaskerImageItems = 0
+    '            MediaAudioItems = 5
+    '            MaskerAudioItems = 5
+    '            MediaImageItems = 0
+    '            MaskerImageItems = 0
 
-                MediaParentFolder = "Media\Unechoic-Talker2-RVE\TestWordRecordings"
-                MaskerParentFolder = "Media\City-Talker2-RVE\TWRB"
-                BackgroundNonspeechParentFolder = "Media\City-Talker2-RVE\BackgroundNonspeech"
-                BackgroundSpeechParentFolder = "Media\City-Talker2-RVE\BackgroundSpeech"
+    '            MediaParentFolder = "Media\Unechoic-Talker2-RVE\TestWordRecordings"
+    '            MaskerParentFolder = "Media\City-Talker2-RVE\TWRB"
+    '            BackgroundNonspeechParentFolder = "Media\City-Talker2-RVE\BackgroundNonspeech"
+    '            BackgroundSpeechParentFolder = "Media\City-Talker2-RVE\BackgroundSpeech"
 
-                PrototypeMediaParentFolder = ""
+    '            PrototypeMediaParentFolder = ""
 
-                MasterPrototypeRecordingPath = ""
-        End Select
+    '            MasterPrototypeRecordingPath = ""
+    '    End Select
 
-    End Sub
+    'End Sub
 
-    Public Sub SetHintDebugValues()
+    'Public Sub SetHintDebugValues()
 
-        MediaSetName = "Unechoic-Talker1-RVE"
+    '    MediaSetName = "Unechoic-Talker1-RVE"
 
-        TalkerName = "EW"
-        TalkerGender = Genders.Male
-        TalkerAge = 42
-        TalkerDialect = "Western Swedish"
-        VoiceType = "Raised vocal effort"
+    '    TalkerName = "EW"
+    '    TalkerGender = Genders.Male
+    '    TalkerAge = 42
+    '    TalkerDialect = "Western Swedish"
+    '    VoiceType = "Raised vocal effort"
 
-        BackgroundNonspeechRealisticLevel = 55
+    '    BackgroundNonspeechRealisticLevel = 55
 
-        MediaAudioItems = 2
-        MaskerAudioItems = 5
-        MediaImageItems = 0
-        MaskerImageItems = 0
+    '    MediaAudioItems = 2
+    '    MaskerAudioItems = 5
+    '    MediaImageItems = 0
+    '    MaskerImageItems = 0
 
-        MediaParentFolder = "Media\Unechoic-Talker1-RVE\TestWordRecordings"
-        MaskerParentFolder = ""
-        BackgroundNonspeechParentFolder = ""
-        BackgroundSpeechParentFolder = ""
+    '    MediaParentFolder = "Media\Unechoic-Talker1-RVE\TestWordRecordings"
+    '    MaskerParentFolder = ""
+    '    BackgroundNonspeechParentFolder = ""
+    '    BackgroundSpeechParentFolder = ""
 
-        PrototypeMediaParentFolder = ""
+    '    PrototypeMediaParentFolder = ""
 
-        MasterPrototypeRecordingPath = ""
+    '    MasterPrototypeRecordingPath = ""
 
-    End Sub
+    'End Sub
+
+
     Public Enum PrototypeRecordingOptions
         MasterPrototypeRecording
         PrototypeRecordings
@@ -403,7 +407,7 @@ Public Class MediaSet
         For Each Component In AllComponents
 
             'Skips to next if no media items are expected
-            If Component.LinguisticLevel <> AudioItemLinguisticLevel Then Continue For
+            If Component.LinguisticLevel <> AudioFileLinguisticLevel Then Continue For
 
             Dim FullMediaFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaParentFolder, Component.GetMediaFolderName)
 
@@ -448,7 +452,7 @@ Public Class MediaSet
                         End If
 
                     Else
-                        MsgBox("The following prototype recoding folder cannot be found: " & PrototypeRecordingPath, MsgBoxStyle.Information, "Lacking prototype recording folder")
+                        MsgBox("The following prototype recording folder cannot be found: " & PrototypeRecordingPath, MsgBoxStyle.Information, "Lacking prototype recording folder")
                         Return Nothing
 
                     End If
@@ -687,13 +691,334 @@ Public Class MediaSet
     'Sound levels
     Public Sub SetNaturalLevels(ByVal TargetLevel As Double, ByVal FrequencyWeighting As Audio.FrequencyWeightings, ByVal TemporalIntegration As Double?)
 
-        'N.B. Should TargetLevel com in as FS or as a dB_FS to SPL corrected value???
-
+        'N.B. Should TargetLevel come in as FS or as a dB_FS to SPL corrected value???
+        'Audio.Convert_dBFS_To_dBSPL()
 
     End Sub
 
-    Public Sub SetSpeechLevels(ByVal TargetLevel As Double, ByVal FrequencyWeighting As Audio.FrequencyWeightings, ByVal TemporalIntegration As Double?)
+#Region "Natural levels"
 
+
+    ''' <summary>
+    ''' Adjusts the average level of all sentence level SMA components to AverageTestWordOutputlevel, while at the same time retaining some of the natural level variations between SMA components referring to different speech material components.
+    ''' </summary>
+    ''' <param name="AverageTestWordOutputlevel"></param>
+    ''' <param name="FrequencyWeighting"></param>
+    ''' <param name="ExportFolder"></param>
+    ''' <param name="UpdateSoundLevelFormat"></param>
+    ''' <param name="NewSoundLevelFormat"></param>
+    Public Sub CreateNaturalLevelSounds(Optional ByVal AverageTestWordOutputlevel As Double = 68.34,
+                                    Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
+                                    Optional ByVal ExportFolder As String = "",
+                                    Optional ByVal UpdateSoundLevelFormat As Boolean = True,
+                                    Optional ByRef NewSoundLevelFormat As Audio.Formats.SoundLevelFormat = Nothing,
+                                        Optional ByVal ExportOriginalLevelSounds As Boolean = False,
+                                        Optional ByVal SpeechFilterSounds As Boolean = True)
+
+        Dim sentence As Integer = 0 'This must be changed to support multiple sentences
+
+        Try
+
+
+            'This sub does the following:
+            ' -Resets the sound levels of all recordings to the initial sound level
+
+
+            'Setting up a new sound level format
+            If UpdateSoundLevelFormat = True Then
+                If NewSoundLevelFormat Is Nothing Then
+                    NewSoundLevelFormat = New Audio.Formats.SoundLevelFormat(Audio.SoundMeasurementTypes.LoudestSection_Z_Weighted, 0.05)
+                End If
+            End If
+
+            'Setting a default export folder
+            If ExportFolder = "" Then ExportFolder = Utils.logFilePath
+
+            'Creating a structure to hold sound files
+            Dim TempSoundLib As New SortedList(Of Integer, SortedList(Of String, List(Of Audio.Sound))) 'SpeakerID, Spelling, Recordings
+
+            'A list that holds spellings of words that occur as sharp test words
+            Dim IsSharpTestingWordSpellings As New SortedSet(Of String)
+
+            'Resetting the sound
+            Dim AddedTestWords As New SortedSet(Of String) 'Holds added test words so that duplicates do not get added twice
+            For Each TestWordList In TestWordLists
+                For Each TestWord In TestWordList.MemberWords
+
+                    'Adding recordings
+                    For Each Stimulus In TestWord.TestStimuli
+
+                        'Adding recordings
+                        TempSoundLib(SpeakerKey)(TestWord.Spelling).Add(Stimulus.SoundRecording)
+
+                    Next
+                Next
+            Next
+
+            'Getting the sentence level components to adjust
+            Dim SentenceComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+
+            'Should these components reside in MediaSet or SpeechMaterialComponent???
+
+            CreateLackingAudioMediaFiles()
+
+            SentenceComponents(0).gets
+
+            'Resetting all sounds to the original sound level, (as well as getting the current wave format)
+            Dim CurrentWaveFormat As Audio.Formats.WaveFormat = Nothing
+            For Each Speaker In TempSoundLib
+                For Each TestWord In Speaker.Value
+                    For Each Recording In TestWord.Value
+
+                        If CurrentWaveFormat Is Nothing Then CurrentWaveFormat = Recording.WaveFormat
+
+                        Dim AppliedGain = Recording.SMA.ChannelData(1)(sentence).GetCurrentGain(Recording, 1)
+
+                        If AppliedGain IsNot Nothing Then
+
+                            'Reverting to the original level by amplifying by minus AppliedGain
+                            Audio.DSP.AmplifySection(Recording, -AppliedGain, 1, ,, Audio.AudioManagement.SoundDataUnit.dB)
+                        Else
+                            Throw New Exception("Unexpected error in SmaComponent.GetCurrentGain. Are all segmenations at the sentence level SMA components properly validated?")
+                        End If
+                    Next
+                Next
+            Next
+
+            'Exporting all sounds with their original levels
+            If ExportOriginalLevelSounds = True Then
+                For Each Speaker In TempSoundLib
+                    For Each TestWord In Speaker.Value
+                        For Each Recording In TestWord.Value
+                            Audio.AudioIOs.SaveToWaveFile(Recording, IO.Path.Combine(ExportFolder, "OriginalLevels", Recording.FileName))
+                        Next
+                    Next
+                Next
+            End If
+
+            'Filters all sounds using the filter kernel produced by CreateSpeechFilterKernel
+            If SpeechFilterSounds = True Then
+                Dim SpeechFilterKernel = CreateSpeechFilterKernel(CurrentWaveFormat,)
+                For Each Speaker In TempSoundLib
+                    For Each TestWord In Speaker.Value
+                        For r = 0 To TestWord.Value.Count - 1
+                            'Copying the SMA object and file name
+                            Dim LocalPtwfRef = TestWord.Value(r).SMA
+                            Dim LocalFilename = TestWord.Value(r).FileName
+
+                            'Filtering
+                            TestWord.Value(r) = Audio.DSP.FIRFilter(TestWord.Value(r), SpeechFilterKernel, New Audio.Formats.FftFormat, 1,,,,, True, True)
+
+                            'Re-referencing the SMA object
+                            TestWord.Value(r).SMA = LocalPtwfRef
+
+                            'And copying the file name
+                            TestWord.Value(r).FileName = LocalFilename
+                        Next
+                    Next
+                Next
+            End If
+            '
+            For Each Speaker In TempSoundLib
+
+                For Each TestWord In Speaker.Value
+
+                    'Calculating average sound levels for all recordings of the same test word for the same speaker (but trimming the lowest and highest values)
+                    Dim SpeakerAverageLevelList As New List(Of Double)
+
+                    For r = 0 To TestWord.Value.Count - 1
+
+                        Dim Recording = TestWord.Value(r)
+                        SpeakerAverageLevelList.Add(Audio.DSP.MeasureSectionLevel(Recording, 1,
+                                                                          Recording.SMA.ChannelData(1)(sentence)(0).StartSample,
+                                                                          Recording.SMA.ChannelData(1)(sentence)(0).Length,
+                                                                            Audio.AudioManagement.SoundDataUnit.dB,
+                                                                            Audio.SoundMeasurementType.RMS,
+                                                                                    FrequencyWeighting))
+                    Next
+
+                    'Trimming the lowest and highest values, and calculating average of the remaining values (trimming is skipped if there is less than 3 recorings of each speaker and word)
+                    Dim TrimmedAverageList As New List(Of Double)
+                    For n = 0 To SpeakerAverageLevelList.Count - 1
+                        TrimmedAverageList.Add(SpeakerAverageLevelList(n))
+                    Next
+                    If TrimmedAverageList.Count > 2 Then
+                        TrimmedAverageList.Sort()
+                        TrimmedAverageList.RemoveAt(0)
+                        TrimmedAverageList.RemoveAt(TrimmedAverageList.Count - 1)
+                    End If
+                    Dim SpeakerAverageLevel As Double = TrimmedAverageList.Average
+
+
+                    'Setting all recordings to the average sound level
+                    For r = 0 To TestWord.Value.Count - 1
+                        Dim Recording = TestWord.Value(r)
+
+                        'Getting the current sound level from the averaging list measured above (instead of calculating it again)
+                        Dim CurrentSoundLevel As Double = SpeakerAverageLevelList(r)
+
+                        'CurrentSoundLevel + NeededGain = SpeakerAverageLevel
+                        Dim NeededGain As Double = SpeakerAverageLevel - CurrentSoundLevel
+
+                        'Applying gain to set all recordings of the same word by the same speaker to the same average level
+                        Audio.DSP.AmplifySection(Recording, NeededGain)
+
+                    Next
+                Next
+
+
+
+                'Applying (the same amount of) gain to all test words by the same speaker so that the average unweighted sound level of all test word recordings by the same speaker is the level form raised vocal effort.
+                'Getting the current sound level of all test word recordings as if they were concatenated
+
+                Dim SharpTestingSoundList As New List(Of Audio.Sound)
+                For Each TestWord In Speaker.Value
+                    'Skips if the test word is not included in the sharp testing words list (i.e. It's a practise word)
+                    If IsSharpTestingWordSpellings.Contains(TestWord.Key) Then
+
+                        For Each Recording In TestWord.Value
+                            'Adds the test word recording
+                            SharpTestingSoundList.Add(Recording)
+                        Next
+                    End If
+                Next
+
+                'Measuring the level of all test words concatenated
+                Dim ConcatenatedSoundLevel As Double = GetSoundLevelOfConcatenatedTestWordRecordings(SharpTestingSoundList, FrequencyWeighting)
+
+                'Adjusting each recording with the same gain to attain the correct average sound level
+                Dim NeededGainForOutputLevel = Audio.PortAudioVB.DuplexMixer.Simulated_dBSPL_To_dBFS(AverageTestWordOutputlevel) - ConcatenatedSoundLevel
+
+                Utils.SendInfoToLog("Applying gain to test word recordings by speaker " & Speaker.Key & " : " & NeededGainForOutputLevel & " dB",, ExportFolder)
+
+                For Each TestWord In Speaker.Value
+                    For Each TestWordRecording In TestWord.Value
+                        Audio.DSP.AmplifySection(TestWordRecording, NeededGainForOutputLevel)
+                    Next
+                Next
+
+                'Verifying that the test words by the current speaker have the desired average sound level
+                'Getting the current sound level of all test word recordings as if they were concatenated
+                Dim SpeakerVerificationLevel As Double = GetSoundLevelOfConcatenatedTestWordRecordings(SharpTestingSoundList, FrequencyWeighting)
+
+                Utils.SendInfoToLog("Verification: Level of recordings by speaker " & Speaker.Key & " : " & SpeakerVerificationLevel & " dB",, ExportFolder)
+
+            Next
+
+
+            'Measuring all other levels that should be stored in the SMA objects
+            For Each Speaker In TempSoundLib
+                For Each TestWord In Speaker.Value
+                    For Each Recording In TestWord.Value
+
+                        If UpdateSoundLevelFormat = True Then
+                            'Adding the new sound level format to all test word recordings, sample recordings masker sounds, as well as to the current SiBTestdata
+                            Recording.SMA.SetFrequencyWeighting(NewSoundLevelFormat.FrequencyWeighting, True)
+                            Recording.SMA.SetTimeWeighting(NewSoundLevelFormat.TemporalIntegrationDuration, True)
+                        End If
+
+                        'Measures sound levels
+                        Recording.SMA.MeasureSoundLevels(True, ExportFolder)
+                    Next
+                Next
+            Next
+
+
+            'Exporting all adjusted sounds to ExportFolder
+            For Each Speaker In TempSoundLib
+                For Each TestWord In Speaker.Value
+                    For Each Recording In TestWord.Value
+                        Audio.AudioIOs.SaveToWaveFile(Recording, IO.Path.Combine(ExportFolder, Recording.FileName))
+                    Next
+                Next
+            Next
+
+        Catch ex As Exception
+            MsgBox("An error occured in CreateNaturalLevels." & vbCrLf & ex.ToString)
+        End Try
+
+    End Sub
+
+
+    Public Shared Function CreateSpeechFilterKernel(ByVal WaveFormat As Audio.Formats.WaveFormat,
+                                                   Optional ExportToFile As Boolean = False,
+                                                   Optional LogFolder As String = "") As Audio.Sound
+
+        Try
+            Dim KernelFrequencyResponse As New List(Of Tuple(Of Single, Single))
+            KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(0, 0))
+            KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(75, 0))
+            KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(80, 1))
+            KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(13000, 1))
+            KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(15000, 0))
+            KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(24000, 0))
+
+            Dim FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(KernelFrequencyResponse, Nothing, WaveFormat, New Audio.Formats.FftFormat, 8000,, True, True)
+
+            If ExportToFile = True Then
+                If LogFolder = "" Then
+                    Audio.AudioIOs.SaveToWaveFile(FilterKernel,,,,, "GeneralSoundFilterKernel")
+                Else
+                    Audio.AudioIOs.SaveToWaveFile(FilterKernel, IO.Path.Combine(LogFolder, "GeneralSoundFilterKernel"))
+                End If
+            End If
+
+            Return FilterKernel
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+            Return Nothing
+        End Try
+
+    End Function
+
+    ''Returns the sound level (RMS, dbFS) of all test words recordings as if they were concatenated (without any margins between the words)
+    Public Function GetSoundLevelOfConcatenatedSounds(ByVal InputSounds As List(Of Audio.Sound),
+                                                                  ByVal FrequencyWeighting As Audio.FrequencyWeightings,
+                                                      ByVal MeasurementChannel As Integer) As Double
+
+        'Measuring the average sound level in all input sounds (as if they were one long sound)
+
+        'Measuring the mean-square of the of each sound file
+        Dim SumOfSquaresList As New List(Of Tuple(Of Double, Integer))
+
+        For Each CurrentSound In InputSounds
+
+            'Measures the test word region of each sound
+            Dim SumOfSquareData As Tuple(Of Double, Integer) = Nothing
+            Audio.DSP.MeasureSectionLevel(CurrentSound, MeasurementChannel,,,,, FrequencyWeighting, True, SumOfSquareData)
+
+            'Adds the sum-of-square data
+            SumOfSquaresList.Add(SumOfSquareData)
+
+        Next
+
+        'Calculating a weighted average sum of squares. (N.B. If fed with very many, or loud files, this calculation may crash due to overflowing the max values of Long or Double.) 
+        Dim SumOfSquares As Double = 0
+        Dim TotalLength As Long = 0
+        For n = 0 To SumOfSquaresList.Count - 1
+            SumOfSquares += SumOfSquaresList(n).Item1
+            TotalLength += CULng(SumOfSquaresList(n).Item2)
+        Next
+
+        'Calculating mean square
+        Dim MeanSquare As Double = SumOfSquares / TotalLength
+
+        'Calculating RMS by taking the root of the MeanSquare
+        Dim RMS As Double = MeanSquare ^ (1 / 2)
+
+        'Converting to dB
+        Dim RMSLevel As Double = Audio.dBConversion(RMS, Audio.dBConversionDirection.to_dB, InputSounds(0).WaveFormat)
+
+        Return RMSLevel
+
+    End Function
+
+#End Region
+
+
+
+    Public Sub SetSpeechLevels(ByVal TargetLevel As Double, ByVal FrequencyWeighting As Audio.FrequencyWeightings, ByVal TemporalIntegration As Double?)
 
 
     End Sub

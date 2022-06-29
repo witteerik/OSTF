@@ -1247,6 +1247,7 @@ Namespace Audio
                                 'Measures UnWeightedPeakLevel of each word using Z-weighting
                                 Dim UnWeightedPeakLevel As Double?
                                 UnWeightedPeakLevel = DSP.MeasureSectionLevel(MeasurementSound, c, StartSample, Length, SoundDataUnit.linear, SoundMeasurementType.AbsolutePeakAmplitude)
+
                                 AttemptedMeasurementCount += 1
                                 If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
@@ -1754,6 +1755,41 @@ Namespace Audio
                     Next
 
                     Return True
+
+                End Function
+
+                ''' <summary>
+                ''' Compares the current peak amplitude with the InitialPeak of the word segments in the current channel of the audio recording 
+                ''' and returns the gain that has been applied to the audio since the initial recording.
+                ''' </summary>
+                ''' <returns>Returns the gain applied since recoring, or Nothing if measurements failed.</returns>
+                Public Function GetCurrentGain(ByVal MeasurementSound As Sound, ByVal MeasurementChannel As Integer) As Double?
+
+                    If Me.CheckStartAndLength() = False Then
+                        Return Nothing
+                    End If
+
+                    Dim soundLength As Integer = MeasurementSound.WaveData.ShortestChannelSampleCount
+                    If Me.StartSample + Me.Length > soundLength Then
+                        Return Nothing
+                    End If
+
+                    'Getting the current peak amplitude
+                    'Meaures UnWeightedPeakLevel
+                    Dim CurrentPeakAmplitude As Double? = DSP.MeasureSectionLevel(MeasurementSound, MeasurementChannel, Me.StartSample, Me.Length, SoundDataUnit.dB, SoundMeasurementType.AbsolutePeakAmplitude)
+
+                    'Returns nothing if measurement failed 
+                    If CurrentPeakAmplitude Is Nothing Then
+                        Return Nothing
+                    End If
+
+                    'Converting the initial peak amplitude to dB
+                    Dim InitialPeakLevel As Double = dBConversion(Me.InitialPeak, dBConversionDirection.to_dB, MeasurementSound.WaveFormat)
+
+                    'Getting the currently applied gain
+                    Dim Gain As Double = CurrentPeakAmplitude - InitialPeakLevel
+
+                    Return Gain
 
                 End Function
 

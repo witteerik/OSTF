@@ -154,7 +154,7 @@ Public Class TestSpecification
 
         For Each TextFilePath In TextFiles
             'Tries to use the text file in order to create a new test specification object, and just skipps it if unsuccessful
-            Dim NewSituationTestSpecification = MediaSet.LoadMediaSet(TextFilePath)
+            Dim NewSituationTestSpecification = MediaSet.LoadMediaSetSpecification(TextFilePath)
             If NewSituationTestSpecification IsNot Nothing Then
 
                 'Setting the ParentTestSpecification
