@@ -112,7 +112,7 @@ Public Class SpeechMaterialComponent
         Image
     End Enum
 
-    Public Function GetMaskerPaths(ByVal RootPath As String, ByRef MediaSet As MediaSet, ByVal MediaType As MediaTypes) As String()
+    Public Function GetMaskerPaths(ByVal RootPath As String, ByRef MediaSet As MediaSet, ByVal MediaType As MediaTypes) As List(Of String)
 
         Dim MaskerFolder As String = IO.Path.Combine(RootPath, MediaSet.MediaParentFolder, Me.GetMediaFolderName)
 
@@ -120,7 +120,7 @@ Public Class SpeechMaterialComponent
 
     End Function
 
-    Private Function GetAvailableFiles(ByVal Folder As String, ByVal MediaType As MediaTypes) As String()
+    Private Function GetAvailableFiles(ByVal Folder As String, ByVal MediaType As MediaTypes) As List(Of String)
 
         'Getting files in that folder
         Dim AvailableFiles = IO.Directory.GetFiles(Folder)
@@ -150,11 +150,148 @@ Public Class SpeechMaterialComponent
             Next
         Next
 
-        Return AvailableFiles
+        Return IncludedFiles
 
     End Function
 
-    Public Function GetSound(ByVal Path) As Audio.Sound
+
+    Public Function GetSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer) As Audio.Sound
+
+        Return GetCorrespondingSmaComponent(MediaSet, Index, SoundChannel).GetSoundFileSection(SoundChannel)
+
+    End Function
+
+    Public Function FindSelfIndices(Optional ByRef ComponentIndices As ComponentIndices = Nothing) As ComponentIndices
+
+        If ComponentIndices Is Nothing Then ComponentIndices = New ComponentIndices
+
+        'Determining the component level self index and then the self indices at all higher linguistic levels
+        Select Case Me.LinguisticLevel
+            Case LinguisticLevels.Phoneme
+                ComponentIndices.PhoneIndex = Me.GetSelfIndex
+            Case LinguisticLevels.Word
+                ComponentIndices.WordIndex = Me.GetSelfIndex
+            Case LinguisticLevels.Sentence
+                ComponentIndices.SentenceIndex = Me.GetSelfIndex
+            Case LinguisticLevels.List
+                ComponentIndices.ListIndex = Me.GetSelfIndex
+            Case Else
+                'If it's a ListCollection, the ComponentIndices are simply returned as it will have neither an index nor a parent
+                Return ComponentIndices
+        End Select
+
+        'Calls FindSelfIndices on the parent
+        Me.ParentComponent.FindSelfIndices(ComponentIndices)
+
+        Return ComponentIndices
+
+    End Function
+
+    Public Class ComponentIndices
+        Public ListIndex As Integer = -1
+        Public SentenceIndex As Integer = -1
+        Public WordIndex As Integer = -1
+        Public PhoneIndex As Integer = -1
+
+        Public Function HasPhoneIndex() As Boolean
+            If ListIndex > -1 And SentenceIndex > -1 And WordIndex > -1 And PhoneIndex > -1 Then
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        Public Function HasWordIndex() As Boolean
+            If ListIndex > -1 And SentenceIndex > -1 And WordIndex > -1 Then
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        Public Function HasSentenceIndex() As Boolean
+            If ListIndex > -1 And SentenceIndex > -1 Then
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+        Public Function HasListIndex() As Boolean
+            If ListIndex > -1 Then
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+    End Class
+
+
+    Public Function GetCorrespondingSmaComponent(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer) As Audio.Sound.SpeechMaterialAnnotation.SmaComponent
+
+        Dim SelfIndices = FindSelfIndices()
+
+        If Me.LinguisticLevel < MediaSet.AudioFileLinguisticLevel Then
+
+            Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
+
+        Else
+
+            'The sound file containing the SMA component should be found at this level
+            Dim SoundPath = GetSoundPath(MediaSet, Index)
+            Dim SoundFileObject As Audio.Sound = GetSoundFile(SoundPath)
+
+            'Getting the SMA object corresponding to the current speech component based on the SelfIndices object info
+            If SelfIndices.HasPhoneIndex Then
+                Return SoundFileObject.SMA.ChannelData(SoundChannel)(SelfIndices.SentenceIndex)(SelfIndices.WordIndex)(SelfIndices.PhoneIndex)
+
+            ElseIf SelfIndices.HasWordIndex Then
+                Return SoundFileObject.SMA.ChannelData(SoundChannel)(SelfIndices.SentenceIndex)(SelfIndices.WordIndex)
+
+            ElseIf SelfIndices.HasSentenceIndex Then
+                Return SoundFileObject.SMA.ChannelData(SoundChannel)(SelfIndices.SentenceIndex)
+
+            ElseIf SelfIndices.HasListIndex Then
+                Return SoundFileObject.SMA.ChannelData(SoundChannel)
+
+            Else
+                Return Nothing
+            End If
+        End If
+
+
+    End Function
+
+
+    Public Function GetSoundPath(ByRef MediaSet As MediaSet, ByVal Index As Integer, Optional ByVal SearchAncestors As Boolean = True) As String
+
+
+        If MediaSet.MediaAudioItems = 0 And SearchAncestors = True Then
+
+            If ParentComponent IsNot Nothing Then
+                Return ParentComponent.GetSoundPath(MediaSet, Index, SearchAncestors)
+            Else
+                Return ""
+            End If
+
+        Else
+
+            If Index > MediaSet.MediaAudioItems - 1 Then
+                Throw New ArgumentException("Requested (zero-based) sound index (" & Index & " ) is higher than the number of available sound recordings of the current speech material component (" & Me.PrimaryStringRepresentation & ").")
+            End If
+
+            Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+            Dim FullMediaFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.MediaParentFolder, GetMediaFolderName)
+
+            Return GetAvailableFiles(FullMediaFolderPath, MediaTypes.Audio)(Index)
+
+        End If
+
+    End Function
+
+
+    Public Function GetSoundFile(ByVal Path) As Audio.Sound
 
         Select Case AudioFileLoadMode
             Case MediaFileLoadModes.LoadEveryTime
@@ -174,6 +311,14 @@ Public Class SpeechMaterialComponent
                 Throw New NotImplementedException
         End Select
 
+    End Function
+
+    Public Sub ClearAllLoadedSounds()
+        SoundLibrary.Clear()
+    End Sub
+
+    Public Function GetAllLoadedSounds() As SortedList(Of String, Audio.Sound)
+        Return SoundLibrary
     End Function
 
     Public Function GetImage(ByVal Path) As Drawing.Bitmap
@@ -242,7 +387,7 @@ Public Class SpeechMaterialComponent
                 'Checking that the variable name is not used as both numeric and categorical.
                 If NumericVariableNames.Contains(CatName) Then
                     MsgBox("The variable name " & CatName & " exist as both categorical and numeric at the linguistic level " & LinguisticLevel &
-                           " in the speech material component id: " & Component.Id & " ( " & Component.PrimaryStringRepresentation & " ). This is not allowed!", MsgBoxStyle.Information, "Getting custom variable names and types")
+                               " in the speech material component id: " & Component.Id & " ( " & Component.PrimaryStringRepresentation & " ). This is not allowed!", MsgBoxStyle.Information, "Getting custom variable names and types")
                     Return Nothing
                 End If
 
@@ -255,7 +400,7 @@ Public Class SpeechMaterialComponent
                 'Checking that the variable name is not used as both numeric and categorical.
                 If CategoricalVariableNames.Contains(CatName) Then
                     MsgBox("The variable name " & CatName & " exist as both numeric and categorical at the linguistic level " & LinguisticLevel &
-                           " in the speech material component id: " & Component.Id & " ( " & Component.PrimaryStringRepresentation & " ). This is not allowed!", MsgBoxStyle.Information, "Getting custom variable names and types")
+                               " in the speech material component id: " & Component.Id & " ( " & Component.PrimaryStringRepresentation & " ). This is not allowed!", MsgBoxStyle.Information, "Getting custom variable names and types")
                     Return Nothing
                 End If
 
@@ -600,7 +745,7 @@ Public Class SpeechMaterialComponent
                 NewComponent.LinguisticLevel = LinguisticLevel
             Else
                 Throw New Exception("Missing value for LinguisticLevel detected in the speech material file. A value for LinguisticLevel is obligatory for all speech material components. Line: " & vbCrLf & Line & vbCrLf &
-                                    "Possible values are:" & vbCrLf & String.Join(" ", [Enum].GetNames(GetType(LinguisticLevels))))
+                                        "Possible values are:" & vbCrLf & String.Join(" ", [Enum].GetNames(GetType(LinguisticLevels))))
             End If
             index += 1
 
@@ -762,20 +907,6 @@ Public Class SpeechMaterialComponent
 
     End Function
 
-    Public Function GetClosestAncestorWithSoundMedia() As SpeechMaterialComponent
-
-        Throw New NotImplementedException
-
-        If ParentComponent Is Nothing Then Return Nothing
-
-        ' NB !!! The logic in the following line doesn't work after removal of SpeechMaterialComponent.MediaFolder
-        If ParentComponent.GetMediaFolderName <> "" Then
-            Return ParentComponent
-        Else
-            Return ParentComponent.GetClosestAncestorWithSoundMedia()
-        End If
-
-    End Function
 
 
     ''' <summary>
@@ -929,7 +1060,7 @@ Public Class SpeechMaterialComponent
         If CustomVariablesExportList Is Nothing Then CustomVariablesExportList = New SortedList(Of String, List(Of String))
 
         Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab & "MediaSetDatabase" & vbTab & "DbId" & vbTab &
-                "OrderedChildren" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
+                    "OrderedChildren" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
 
         Dim Main_List As New List(Of String)
 

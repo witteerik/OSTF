@@ -37,7 +37,7 @@
 
                 Dim NewMediaSet = New SpeechTestFramework.MediaSet
                 'NewMediaSet.SetSipValues(1)
-                NewMediaSet.SetHintDebugValues()
+                'NewMediaSet.SetHintDebugValues()
 
                 'NewMediaSet.CopySoundFiles(CompleteSpeechMaterial, IO.Path.Combine(SpeechTestFramework.Utils.logFilePath, "MediaSet2"))
 

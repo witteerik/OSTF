@@ -1348,6 +1348,47 @@ Namespace Audio
 
                 End Function
 
+                Public Function GetTargetFromLineOfInitialComponents(ByVal TargetLevel As SpeechMaterialComponent.LinguisticLevels) As SmaComponent
+
+                    If GetCorrespondingSpeechMaterialComponentLinguisticLevel() = TargetLevel Then
+
+                        'Returning Me
+                        Return Me
+
+                    Else
+
+                        'Not the right level, tries to call GetTargetFromLineOfInitialComponents on the first child
+                        If Me.Count > 0 Then
+
+                            Return Me(0).GetTargetFromLineOfInitialComponents(TargetLevel)
+
+                        Else
+                            'There are no child components
+                            Return Nothing
+
+                        End If
+
+                    End If
+
+                End Function
+
+                Public Function GetCorrespondingSpeechMaterialComponentLinguisticLevel() As SpeechMaterialComponent.LinguisticLevels
+
+                    Select Case Me.SmaTag
+                        Case SmaTags.CHANNEL
+                            Return SpeechMaterialComponent.LinguisticLevels.List
+                        Case SmaTags.SENTENCE
+                            Return SpeechMaterialComponent.LinguisticLevels.Sentence
+                        Case SmaTags.WORD
+                            Return SpeechMaterialComponent.LinguisticLevels.Word
+                        Case SmaTags.PHONE
+                            Return SpeechMaterialComponent.LinguisticLevels.Phoneme
+                        Case Else
+                            Throw New Exception("Unable to convert the SmaTag value " & Me.SmaTag & " to SpeechMaterialComponent.LinguisticLevels.")
+                    End Select
+
+                End Function
+
                 Public Function GetClosestAncestorComponent(ByVal RequestedParentComponentType As Sound.SpeechMaterialAnnotation.SmaTags) As SmaComponent
 
                     If ParentComponent Is Nothing Then Return Nothing
