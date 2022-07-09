@@ -56,6 +56,8 @@ Public Class SpeechMaterialComponent
 
     Public Property OrderedChildren As Boolean = False
 
+    Public Property IsPractiseComponent As Boolean = False
+
     ''' <summary>
     ''' Returns the expected name of the media folder of the current component
     ''' </summary>
@@ -234,9 +236,33 @@ Public Class SpeechMaterialComponent
 
         If Me.LinguisticLevel < MediaSet.AudioFileLinguisticLevel Then
 
-            Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
+            If Math.Abs(Me.LinguisticLevel - MediaSet.AudioFileLinguisticLevel) > 0 Then
+                If Me.ChildComponents.Count <> 1 Then
+                    Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
+                End If
+            End If
 
-        Else
+            If Math.Abs(Me.LinguisticLevel - MediaSet.AudioFileLinguisticLevel) > 1 Then
+                If Me.ChildComponents(0).ChildComponents.Count <> 1 Then
+                    Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
+                End If
+            End If
+
+            If Math.Abs(Me.LinguisticLevel - MediaSet.AudioFileLinguisticLevel) > 2 Then
+                If Me.ChildComponents(0).ChildComponents(0).ChildComponents.Count <> 1 Then
+                    Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
+                End If
+            End If
+
+            If Math.Abs(Me.LinguisticLevel - MediaSet.AudioFileLinguisticLevel) > 3 Then
+                If Me.ChildComponents(0).ChildComponents(0).ChildComponents(0).ChildComponents.Count <> 1 Then
+                    Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
+                End If
+            End If
+
+
+        End If
+
 
             'The sound file containing the SMA component should be found at this level
             Dim SoundPath = GetSoundPath(MediaSet, Index)
@@ -258,7 +284,6 @@ Public Class SpeechMaterialComponent
             Else
                 Return Nothing
             End If
-        End If
 
 
     End Function
@@ -815,6 +840,10 @@ Public Class SpeechMaterialComponent
             If OrderedChildren IsNot Nothing Then NewComponent.OrderedChildren = OrderedChildren
             index += 1
 
+            Dim IsPractiseComponent = InputFileSupport.InputFileBooleanValueParsing(SplitRow(index), False, SpeechMaterialComponentFilePath)
+            If IsPractiseComponent IsNot Nothing Then NewComponent.IsPractiseComponent = IsPractiseComponent
+            index += 1
+
             ' The MediaFolder column has been removed and the same info is instead retrived from the MediaSet
             'NewComponent.GetMediaFolderName = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
             'index += 1
@@ -1060,7 +1089,7 @@ Public Class SpeechMaterialComponent
         If CustomVariablesExportList Is Nothing Then CustomVariablesExportList = New SortedList(Of String, List(Of String))
 
         Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab & "MediaSetDatabase" & vbTab & "DbId" & vbTab &
-                    "OrderedChildren" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
+                    "OrderedChildren" & vbTab & "IsPractiseComponent" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
 
         Dim Main_List As New List(Of String)
 
@@ -1102,6 +1131,9 @@ Public Class SpeechMaterialComponent
 
         'OrderedChildren 
         Main_List.Add(OrderedChildren.ToString)
+
+        'IsPractiseComponent
+        Main_List.Add(IsPractiseComponent.ToString)
 
         'The media folders are removed and moved to the MediaSet class
         'MediaFolder 

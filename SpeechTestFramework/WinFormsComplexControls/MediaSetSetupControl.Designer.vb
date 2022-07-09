@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class MediaSetSetupControl
     Inherits System.Windows.Forms.UserControl
 
     'UserControl overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class MediaSetSetupControl
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
         Me.LoadOstaMediaSetControl1 = New SpeechTestFramework.LoadOstaMediaSetControl()
@@ -91,17 +91,26 @@ Partial Class MediaSetSetupControl
         Me.NoPrototypeRecording_RadioButton = New System.Windows.Forms.RadioButton()
         Me.MasterPrototypeRecording_RadioButton = New System.Windows.Forms.RadioButton()
         Me.SpeechLevels_TabPage = New System.Windows.Forms.TabPage()
+        Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.SpeechLevelFS_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.Label29 = New System.Windows.Forms.Label()
         Me.ApplySpeechLevels_Button = New System.Windows.Forms.Button()
         Me.SpeechLevelSPL_Label = New System.Windows.Forms.Label()
         Me.Label28 = New System.Windows.Forms.Label()
-        Me.TemporalIntegration_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.SpeechLevelTemporalIntegration_CheckBox = New System.Windows.Forms.CheckBox()
         Me.NaturalLevelsAlgorithm_Checkbox = New System.Windows.Forms.CheckBox()
         Me.SpeechLevelSPL_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.SpeechLevelFrequencyWeighting_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.TemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.TableLayoutPanel6 = New System.Windows.Forms.TableLayoutPanel()
+        Me.MeasureSmaLevels_Button = New System.Windows.Forms.Button()
+        Me.Label27 = New System.Windows.Forms.Label()
+        Me.SmaTemporalIntegration_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.SmaFrequencyWeighting_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.SmaTemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.CreateMaskers_TabPage = New System.Windows.Forms.TabPage()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel2.SuspendLayout()
@@ -114,7 +123,11 @@ Partial Class MediaSetSetupControl
         Me.StartRecorder_TabPage.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.SpeechLevels_TabPage.SuspendLayout()
+        Me.TableLayoutPanel5.SuspendLayout()
+        Me.GroupBox1.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
+        Me.GroupBox2.SuspendLayout()
+        Me.TableLayoutPanel6.SuspendLayout()
         Me.CreateMaskers_TabPage.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -909,13 +922,41 @@ Partial Class MediaSetSetupControl
         '
         Me.SpeechLevels_TabPage.BackColor = System.Drawing.Color.PaleGreen
         Me.SpeechLevels_TabPage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.SpeechLevels_TabPage.Controls.Add(Me.TableLayoutPanel3)
+        Me.SpeechLevels_TabPage.Controls.Add(Me.TableLayoutPanel5)
         Me.SpeechLevels_TabPage.Location = New System.Drawing.Point(4, 22)
         Me.SpeechLevels_TabPage.Name = "SpeechLevels_TabPage"
         Me.SpeechLevels_TabPage.Padding = New System.Windows.Forms.Padding(3)
         Me.SpeechLevels_TabPage.Size = New System.Drawing.Size(388, 587)
         Me.SpeechLevels_TabPage.TabIndex = 1
         Me.SpeechLevels_TabPage.Text = "Speech levels"
+        '
+        'TableLayoutPanel5
+        '
+        Me.TableLayoutPanel5.BackColor = System.Drawing.SystemColors.Control
+        Me.TableLayoutPanel5.ColumnCount = 1
+        Me.TableLayoutPanel5.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel5.Controls.Add(Me.GroupBox1, 0, 0)
+        Me.TableLayoutPanel5.Controls.Add(Me.GroupBox2, 0, 1)
+        Me.TableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel5.Location = New System.Drawing.Point(3, 3)
+        Me.TableLayoutPanel5.Name = "TableLayoutPanel5"
+        Me.TableLayoutPanel5.RowCount = 3
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 210.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 197.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel5.Size = New System.Drawing.Size(380, 579)
+        Me.TableLayoutPanel5.TabIndex = 1
+        '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.TableLayoutPanel3)
+        Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.GroupBox1.Location = New System.Drawing.Point(3, 3)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(374, 204)
+        Me.GroupBox1.TabIndex = 12
+        Me.GroupBox1.TabStop = False
+        Me.GroupBox1.Text = "Set speech level"
         '
         'TableLayoutPanel3
         '
@@ -928,13 +969,13 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel3.Controls.Add(Me.ApplySpeechLevels_Button, 0, 5)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelSPL_Label, 0, 0)
         Me.TableLayoutPanel3.Controls.Add(Me.Label28, 0, 2)
-        Me.TableLayoutPanel3.Controls.Add(Me.TemporalIntegration_CheckBox, 0, 3)
+        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelTemporalIntegration_CheckBox, 0, 3)
         Me.TableLayoutPanel3.Controls.Add(Me.NaturalLevelsAlgorithm_Checkbox, 0, 4)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelSPL_DoubleParsingTextBox, 1, 0)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelFrequencyWeighting_ComboBox, 1, 2)
-        Me.TableLayoutPanel3.Controls.Add(Me.TemporalIntegration_DoubleParsingTextBox, 1, 3)
+        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox, 1, 3)
         Me.TableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel3.Location = New System.Drawing.Point(3, 3)
+        Me.TableLayoutPanel3.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
         Me.TableLayoutPanel3.RowCount = 7
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
@@ -944,16 +985,17 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel3.Size = New System.Drawing.Size(380, 579)
+        Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.TableLayoutPanel3.Size = New System.Drawing.Size(368, 185)
         Me.TableLayoutPanel3.TabIndex = 0
         '
         'SpeechLevelFS_DoubleParsingTextBox
         '
         Me.SpeechLevelFS_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SpeechLevelFS_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.SpeechLevelFS_DoubleParsingTextBox.Location = New System.Drawing.Point(193, 28)
+        Me.SpeechLevelFS_DoubleParsingTextBox.Location = New System.Drawing.Point(187, 28)
         Me.SpeechLevelFS_DoubleParsingTextBox.Name = "SpeechLevelFS_DoubleParsingTextBox"
-        Me.SpeechLevelFS_DoubleParsingTextBox.Size = New System.Drawing.Size(184, 20)
+        Me.SpeechLevelFS_DoubleParsingTextBox.Size = New System.Drawing.Size(178, 20)
         Me.SpeechLevelFS_DoubleParsingTextBox.TabIndex = 10
         '
         'Label29
@@ -961,7 +1003,7 @@ Partial Class MediaSetSetupControl
         Me.Label29.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Label29.Location = New System.Drawing.Point(3, 25)
         Me.Label29.Name = "Label29"
-        Me.Label29.Size = New System.Drawing.Size(184, 25)
+        Me.Label29.Size = New System.Drawing.Size(178, 25)
         Me.Label29.TabIndex = 9
         Me.Label29.Text = "Speech level (dB FS)"
         Me.Label29.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -972,7 +1014,7 @@ Partial Class MediaSetSetupControl
         Me.ApplySpeechLevels_Button.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ApplySpeechLevels_Button.Location = New System.Drawing.Point(3, 128)
         Me.ApplySpeechLevels_Button.Name = "ApplySpeechLevels_Button"
-        Me.ApplySpeechLevels_Button.Size = New System.Drawing.Size(374, 29)
+        Me.ApplySpeechLevels_Button.Size = New System.Drawing.Size(362, 29)
         Me.ApplySpeechLevels_Button.TabIndex = 0
         Me.ApplySpeechLevels_Button.Text = "Apply speech levels"
         Me.ApplySpeechLevels_Button.UseVisualStyleBackColor = True
@@ -982,7 +1024,7 @@ Partial Class MediaSetSetupControl
         Me.SpeechLevelSPL_Label.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SpeechLevelSPL_Label.Location = New System.Drawing.Point(3, 0)
         Me.SpeechLevelSPL_Label.Name = "SpeechLevelSPL_Label"
-        Me.SpeechLevelSPL_Label.Size = New System.Drawing.Size(184, 25)
+        Me.SpeechLevelSPL_Label.Size = New System.Drawing.Size(178, 25)
         Me.SpeechLevelSPL_Label.TabIndex = 1
         Me.SpeechLevelSPL_Label.Text = "Speech level (dB SPL)"
         Me.SpeechLevelSPL_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -992,21 +1034,21 @@ Partial Class MediaSetSetupControl
         Me.Label28.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Label28.Location = New System.Drawing.Point(3, 50)
         Me.Label28.Name = "Label28"
-        Me.Label28.Size = New System.Drawing.Size(184, 25)
+        Me.Label28.Size = New System.Drawing.Size(178, 25)
         Me.Label28.TabIndex = 2
         Me.Label28.Text = "Frequency weighting"
         Me.Label28.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'TemporalIntegration_CheckBox
+        'SpeechLevelTemporalIntegration_CheckBox
         '
-        Me.TemporalIntegration_CheckBox.AutoSize = True
-        Me.TemporalIntegration_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TemporalIntegration_CheckBox.Location = New System.Drawing.Point(3, 78)
-        Me.TemporalIntegration_CheckBox.Name = "TemporalIntegration_CheckBox"
-        Me.TemporalIntegration_CheckBox.Size = New System.Drawing.Size(184, 19)
-        Me.TemporalIntegration_CheckBox.TabIndex = 3
-        Me.TemporalIntegration_CheckBox.Text = "Temporal integration (ms)"
-        Me.TemporalIntegration_CheckBox.UseVisualStyleBackColor = True
+        Me.SpeechLevelTemporalIntegration_CheckBox.AutoSize = True
+        Me.SpeechLevelTemporalIntegration_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SpeechLevelTemporalIntegration_CheckBox.Location = New System.Drawing.Point(3, 78)
+        Me.SpeechLevelTemporalIntegration_CheckBox.Name = "SpeechLevelTemporalIntegration_CheckBox"
+        Me.SpeechLevelTemporalIntegration_CheckBox.Size = New System.Drawing.Size(178, 19)
+        Me.SpeechLevelTemporalIntegration_CheckBox.TabIndex = 3
+        Me.SpeechLevelTemporalIntegration_CheckBox.Text = "Temporal integration (ms)"
+        Me.SpeechLevelTemporalIntegration_CheckBox.UseVisualStyleBackColor = True
         '
         'NaturalLevelsAlgorithm_Checkbox
         '
@@ -1015,7 +1057,7 @@ Partial Class MediaSetSetupControl
         Me.NaturalLevelsAlgorithm_Checkbox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.NaturalLevelsAlgorithm_Checkbox.Location = New System.Drawing.Point(3, 103)
         Me.NaturalLevelsAlgorithm_Checkbox.Name = "NaturalLevelsAlgorithm_Checkbox"
-        Me.NaturalLevelsAlgorithm_Checkbox.Size = New System.Drawing.Size(374, 19)
+        Me.NaturalLevelsAlgorithm_Checkbox.Size = New System.Drawing.Size(362, 19)
         Me.NaturalLevelsAlgorithm_Checkbox.TabIndex = 4
         Me.NaturalLevelsAlgorithm_Checkbox.Text = "Apply 'natural levels' algorithm"
         Me.NaturalLevelsAlgorithm_Checkbox.UseVisualStyleBackColor = True
@@ -1024,9 +1066,9 @@ Partial Class MediaSetSetupControl
         '
         Me.SpeechLevelSPL_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SpeechLevelSPL_DoubleParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.SpeechLevelSPL_DoubleParsingTextBox.Location = New System.Drawing.Point(193, 3)
+        Me.SpeechLevelSPL_DoubleParsingTextBox.Location = New System.Drawing.Point(187, 3)
         Me.SpeechLevelSPL_DoubleParsingTextBox.Name = "SpeechLevelSPL_DoubleParsingTextBox"
-        Me.SpeechLevelSPL_DoubleParsingTextBox.Size = New System.Drawing.Size(184, 20)
+        Me.SpeechLevelSPL_DoubleParsingTextBox.Size = New System.Drawing.Size(178, 20)
         Me.SpeechLevelSPL_DoubleParsingTextBox.TabIndex = 5
         Me.SpeechLevelSPL_DoubleParsingTextBox.Text = "65"
         '
@@ -1034,20 +1076,100 @@ Partial Class MediaSetSetupControl
         '
         Me.SpeechLevelFrequencyWeighting_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SpeechLevelFrequencyWeighting_ComboBox.FormattingEnabled = True
-        Me.SpeechLevelFrequencyWeighting_ComboBox.Location = New System.Drawing.Point(193, 53)
+        Me.SpeechLevelFrequencyWeighting_ComboBox.Location = New System.Drawing.Point(187, 53)
         Me.SpeechLevelFrequencyWeighting_ComboBox.Name = "SpeechLevelFrequencyWeighting_ComboBox"
-        Me.SpeechLevelFrequencyWeighting_ComboBox.Size = New System.Drawing.Size(184, 21)
+        Me.SpeechLevelFrequencyWeighting_ComboBox.Size = New System.Drawing.Size(178, 21)
         Me.SpeechLevelFrequencyWeighting_ComboBox.TabIndex = 7
         '
-        'TemporalIntegration_DoubleParsingTextBox
+        'SpeechLevelTemporalIntegration_DoubleParsingTextBox
         '
-        Me.TemporalIntegration_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TemporalIntegration_DoubleParsingTextBox.Enabled = False
-        Me.TemporalIntegration_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.TemporalIntegration_DoubleParsingTextBox.Location = New System.Drawing.Point(193, 78)
-        Me.TemporalIntegration_DoubleParsingTextBox.Name = "TemporalIntegration_DoubleParsingTextBox"
-        Me.TemporalIntegration_DoubleParsingTextBox.Size = New System.Drawing.Size(184, 20)
-        Me.TemporalIntegration_DoubleParsingTextBox.TabIndex = 8
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Enabled = False
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Location = New System.Drawing.Point(187, 78)
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Name = "SpeechLevelTemporalIntegration_DoubleParsingTextBox"
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Size = New System.Drawing.Size(178, 20)
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.TabIndex = 8
+        '
+        'GroupBox2
+        '
+        Me.GroupBox2.Controls.Add(Me.TableLayoutPanel6)
+        Me.GroupBox2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.GroupBox2.Location = New System.Drawing.Point(3, 213)
+        Me.GroupBox2.Name = "GroupBox2"
+        Me.GroupBox2.Size = New System.Drawing.Size(374, 191)
+        Me.GroupBox2.TabIndex = 13
+        Me.GroupBox2.TabStop = False
+        Me.GroupBox2.Text = "Measure speech material annotation (SMA) levels "
+        '
+        'TableLayoutPanel6
+        '
+        Me.TableLayoutPanel6.ColumnCount = 2
+        Me.TableLayoutPanel6.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel6.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel6.Controls.Add(Me.Label27, 0, 0)
+        Me.TableLayoutPanel6.Controls.Add(Me.MeasureSmaLevels_Button, 0, 3)
+        Me.TableLayoutPanel6.Controls.Add(Me.SmaTemporalIntegration_CheckBox, 0, 1)
+        Me.TableLayoutPanel6.Controls.Add(Me.SmaFrequencyWeighting_ComboBox, 1, 0)
+        Me.TableLayoutPanel6.Controls.Add(Me.SmaTemporalIntegration_DoubleParsingTextBox, 1, 1)
+        Me.TableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel6.Location = New System.Drawing.Point(3, 16)
+        Me.TableLayoutPanel6.Name = "TableLayoutPanel6"
+        Me.TableLayoutPanel6.RowCount = 5
+        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
+        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
+        Me.TableLayoutPanel6.Size = New System.Drawing.Size(368, 172)
+        Me.TableLayoutPanel6.TabIndex = 0
+        '
+        'MeasureSmaLevels_Button
+        '
+        Me.TableLayoutPanel6.SetColumnSpan(Me.MeasureSmaLevels_Button, 2)
+        Me.MeasureSmaLevels_Button.Location = New System.Drawing.Point(3, 78)
+        Me.MeasureSmaLevels_Button.Name = "MeasureSmaLevels_Button"
+        Me.MeasureSmaLevels_Button.Size = New System.Drawing.Size(362, 29)
+        Me.MeasureSmaLevels_Button.TabIndex = 11
+        Me.MeasureSmaLevels_Button.Text = "Measure and store SMA component sound levels"
+        Me.MeasureSmaLevels_Button.UseVisualStyleBackColor = True
+        '
+        'Label27
+        '
+        Me.Label27.Location = New System.Drawing.Point(3, 0)
+        Me.Label27.Name = "Label27"
+        Me.Label27.Size = New System.Drawing.Size(178, 25)
+        Me.Label27.TabIndex = 3
+        Me.Label27.Text = "Frequency weighting"
+        Me.Label27.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'SmaTemporalIntegration_CheckBox
+        '
+        Me.SmaTemporalIntegration_CheckBox.AutoSize = True
+        Me.SmaTemporalIntegration_CheckBox.Location = New System.Drawing.Point(3, 28)
+        Me.SmaTemporalIntegration_CheckBox.Name = "SmaTemporalIntegration_CheckBox"
+        Me.SmaTemporalIntegration_CheckBox.Size = New System.Drawing.Size(144, 17)
+        Me.SmaTemporalIntegration_CheckBox.TabIndex = 9
+        Me.SmaTemporalIntegration_CheckBox.Text = "Temporal integration (ms)"
+        Me.SmaTemporalIntegration_CheckBox.UseVisualStyleBackColor = True
+        '
+        'SmaFrequencyWeighting_ComboBox
+        '
+        Me.SmaFrequencyWeighting_ComboBox.FormattingEnabled = True
+        Me.SmaFrequencyWeighting_ComboBox.Location = New System.Drawing.Point(187, 3)
+        Me.SmaFrequencyWeighting_ComboBox.Name = "SmaFrequencyWeighting_ComboBox"
+        Me.SmaFrequencyWeighting_ComboBox.Size = New System.Drawing.Size(178, 21)
+        Me.SmaFrequencyWeighting_ComboBox.TabIndex = 8
+        '
+        'SmaTemporalIntegration_DoubleParsingTextBox
+        '
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.Enabled = False
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.Location = New System.Drawing.Point(187, 28)
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.Name = "SmaTemporalIntegration_DoubleParsingTextBox"
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.Size = New System.Drawing.Size(178, 20)
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.TabIndex = 10
         '
         'CreateMaskers_TabPage
         '
@@ -1097,8 +1219,13 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.TableLayoutPanel1.PerformLayout()
         Me.SpeechLevels_TabPage.ResumeLayout(False)
+        Me.TableLayoutPanel5.ResumeLayout(False)
+        Me.GroupBox1.ResumeLayout(False)
         Me.TableLayoutPanel3.ResumeLayout(False)
         Me.TableLayoutPanel3.PerformLayout()
+        Me.GroupBox2.ResumeLayout(False)
+        Me.TableLayoutPanel6.ResumeLayout(False)
+        Me.TableLayoutPanel6.PerformLayout()
         Me.CreateMaskers_TabPage.ResumeLayout(False)
         Me.ResumeLayout(False)
 
@@ -1179,11 +1306,20 @@ Partial Class MediaSetSetupControl
     Friend WithEvents ApplySpeechLevels_Button As Windows.Forms.Button
     Friend WithEvents SpeechLevelSPL_Label As Windows.Forms.Label
     Friend WithEvents Label28 As Windows.Forms.Label
-    Friend WithEvents TemporalIntegration_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents SpeechLevelTemporalIntegration_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents NaturalLevelsAlgorithm_Checkbox As Windows.Forms.CheckBox
     Friend WithEvents SpeechLevelSPL_DoubleParsingTextBox As DoubleParsingTextBox
     Friend WithEvents SpeechLevelFrequencyWeighting_ComboBox As Windows.Forms.ComboBox
-    Friend WithEvents TemporalIntegration_DoubleParsingTextBox As DoubleParsingTextBox
+    Friend WithEvents SpeechLevelTemporalIntegration_DoubleParsingTextBox As DoubleParsingTextBox
     Friend WithEvents SpeechLevelFS_DoubleParsingTextBox As DoubleParsingTextBox
     Friend WithEvents Label29 As Windows.Forms.Label
+    Friend WithEvents MeasureSmaLevels_Button As Windows.Forms.Button
+    Friend WithEvents TableLayoutPanel5 As Windows.Forms.TableLayoutPanel
+    Friend WithEvents GroupBox1 As Windows.Forms.GroupBox
+    Friend WithEvents GroupBox2 As Windows.Forms.GroupBox
+    Friend WithEvents TableLayoutPanel6 As Windows.Forms.TableLayoutPanel
+    Friend WithEvents SmaTemporalIntegration_DoubleParsingTextBox As DoubleParsingTextBox
+    Friend WithEvents Label27 As Windows.Forms.Label
+    Friend WithEvents SmaFrequencyWeighting_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents SmaTemporalIntegration_CheckBox As Windows.Forms.CheckBox
 End Class

@@ -98,7 +98,7 @@ Public Class MediaSet
         OutputList.Add("TalkerAge = " & TalkerAge)
         OutputList.Add("TalkerDialect = " & TalkerDialect)
         OutputList.Add("VoiceType = " & VoiceType)
-        OutputList.Add("AudioFileLinguisticLevel = " & AudioFileLinguisticLevel)
+        OutputList.Add("AudioFileLinguisticLevel = " & AudioFileLinguisticLevel.ToString)
         OutputList.Add("MediaAudioItems = " & MediaAudioItems)
         OutputList.Add("MaskerAudioItems = " & MaskerAudioItems)
         OutputList.Add("MediaImageItems = " & MediaImageItems)
@@ -633,7 +633,7 @@ Public Class MediaSet
     ''' <summary>
     ''' Copies all sound files to a folder structure which is based on the Id of the speech material component.
     ''' </summary>
-    Public Sub CopySoundFiles(ByVal OutputFolder As String)
+    Public Sub TemporaryFunction_CopySoundFiles(ByVal OutputFolder As String)
 
         Dim AllSoundPathTuples = GetAllSpeechMaterialComponentAudioPaths(PrototypeRecordingOptions.None)
 
@@ -656,6 +656,62 @@ Public Class MediaSet
         Next
 
         MsgBox("Finished copying files.")
+
+    End Sub
+
+    Public Sub TemporaryFunction_CopySoundFIles2(ByVal OutputFolder As String)
+
+        Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+
+        Dim AllComponents = ParentTestSpecification.SpeechMaterial.GetAllRelatives
+
+        For Each Component In AllComponents
+
+            'Skips to next if no media items are expected
+            If Component.LinguisticLevel <> AudioFileLinguisticLevel Then Continue For
+
+            Dim NewMediaFolderPath = IO.Path.Combine(OutputFolder, MediaParentFolder, Component.GetMediaFolderName)
+
+            Dim OldMediaFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaParentFolder, Component.GetMediaFolderName.Split("_")(0))
+
+            'Creates the OutputFolder 
+            If IO.Directory.Exists(NewMediaFolderPath) = False Then IO.Directory.CreateDirectory(NewMediaFolderPath)
+
+            Dim FilesInPlace = IO.Directory.GetFiles(OldMediaFolderPath)
+
+            For Each f In FilesInPlace
+                IO.File.Copy(f, IO.Path.Combine(NewMediaFolderPath, IO.Path.GetFileName(f)))
+            Next
+
+        Next
+
+        MsgBox("Finished copying files")
+
+    End Sub
+
+    Public Sub TemporaryFunction_CopySoundFIles3(ByVal OutputFolder As String)
+
+        Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+
+        Dim AllComponents = ParentTestSpecification.SpeechMaterial.GetAllRelatives
+
+        For Each Component In AllComponents
+
+            'Skips to next if no media items are expected
+            If Component.LinguisticLevel <> AudioFileLinguisticLevel Then Continue For
+
+            Dim PrototypeMediaFolderPath = IO.Path.Combine(OutputFolder, MediaParentFolder, Component.GetMediaFolderName)
+
+            Dim PrototypeSoundPath = IO.Path.Combine("C:\OSTF\Tests\SwedishSiPTest\Media\PreQueTalker1-RVE\TestWordRecordings", "SampleRec_" & Component.GetCategoricalVariableValue("Spelling") & ".wav")
+
+            'Creates the OutputFolder 
+            If IO.Directory.Exists(PrototypeMediaFolderPath) = False Then IO.Directory.CreateDirectory(PrototypeMediaFolderPath)
+
+            IO.File.Copy(PrototypeSoundPath, IO.Path.Combine(PrototypeMediaFolderPath, Component.GetMediaFolderName & ".wav"))
+
+        Next
+
+        MsgBox("Finished copying files")
 
     End Sub
 
@@ -695,6 +751,20 @@ Public Class MediaSet
         'N.B. Should TargetLevel come in as FS or as a dB_FS to SPL corrected value???
         'Audio.Convert_dBFS_To_dBSPL()
 
+        Dim fbd As New Windows.Forms.FolderBrowserDialog
+        fbd.Description = "Select folder to store the new sound files"
+        If fbd.ShowDialog() <> Windows.Forms.DialogResult.OK Then
+            Exit Sub
+        End If
+
+        Dim ExportFolder = fbd.SelectedPath
+        If ExportFolder = "" Then Exit Sub
+
+        If TemporalIntegration.HasValue = False Then TemporalIntegration = 0
+
+
+        CreateNaturalLevelSounds(TargetLevel, FrequencyWeighting, TemporalIntegration, ExportFolder)
+
     End Sub
 
 #Region "Natural levels"
@@ -706,13 +776,10 @@ Public Class MediaSet
     ''' <param name="AverageTestWordOutputlevel"></param>
     ''' <param name="FrequencyWeighting"></param>
     ''' <param name="ExportFolder"></param>
-    ''' <param name="UpdateSoundLevelFormat"></param>
-    ''' <param name="NewSoundLevelFormat"></param>
     Public Sub CreateNaturalLevelSounds(Optional ByVal AverageTestWordOutputlevel As Double = 68.34,
-                                    Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
-                                    Optional ByVal ExportFolder As String = "",
-                                    Optional ByVal UpdateSoundLevelFormat As Boolean = True,
-                                    Optional ByRef NewSoundLevelFormat As Audio.Formats.SoundLevelFormat = Nothing,
+                                        Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
+                                        Optional ByVal TemporalIntegration As Decimal = 0,
+                                        Optional ByVal ExportFolder As String = "",
                                         Optional ByVal SpeechFilterSounds As Boolean = True)
 
         Dim SoundChannel As Integer = 1
@@ -729,18 +796,11 @@ Public Class MediaSet
             'Clears previously loaded sounds
             ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
 
-            'Setting up a new sound level format
-            If UpdateSoundLevelFormat = True Then
-                If NewSoundLevelFormat Is Nothing Then
-                    NewSoundLevelFormat = New Audio.Formats.SoundLevelFormat(Audio.SoundMeasurementTypes.LoudestSection_Z_Weighted, 0.05)
-                End If
-            End If
-
             'Setting a default export folder
             If ExportFolder = "" Then ExportFolder = Utils.logFilePath
 
             'Creating a structure to hold sound files
-            Dim TempSoundLib As New SortedList(Of String, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)) 'SpeechMaterialComponent ID, SmaComponent
+            Dim TempSoundLib As New SortedList(Of String, Tuple(Of Boolean, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))) 'SpeechMaterialComponent ID, IsPractiseComponent, SmaComponent
 
             'Resetting the sound
 
@@ -750,18 +810,18 @@ Public Class MediaSet
                 For i = 0 To MediaAudioItems - 1
 
                     If TempSoundLib.ContainsKey(SentenceComponents(c).Id) = False Then
-                        TempSoundLib.Add(SentenceComponents(c).Id, New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))
+                        TempSoundLib.Add(SentenceComponents(c).Id, New Tuple(Of Boolean, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(SentenceComponents(c).IsPractiseComponent, New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)))
                     End If
-                    TempSoundLib(SentenceComponents(c).Id).Add(SentenceComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
+                    TempSoundLib(SentenceComponents(c).Id).Item2.Add(SentenceComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
 
                 Next
             Next
 
 
-            'Resetting all sentnce level components to their original sound level, (as well as getting the current wave format)
+            'Resetting all sentence level components to their original sound level, (as well as getting the current wave format)
             Dim CurrentWaveFormat As Audio.Formats.WaveFormat = Nothing
             For Each ComponentId In TempSoundLib
-                For Each SmaComponent In ComponentId.Value
+                For Each SmaComponent In ComponentId.Value.Item2
 
                     If CurrentWaveFormat Is Nothing Then CurrentWaveFormat = SmaComponent.ParentSMA.ParentSound.WaveFormat
 
@@ -805,17 +865,28 @@ Public Class MediaSet
                 'Calculating average sound levels for all recordings of the same speech material component (but trimming the lowest and highest values)
                 Dim SmcAverageLevelList As New List(Of Double)
 
-                For r = 0 To SmcID.Value.Count - 1
+                For r = 0 To SmcID.Value.Item2.Count - 1
 
-                    Dim SmaComponent = SmcID.Value(r)
+                    Dim SmaComponent = SmcID.Value.Item2(r)
                     Dim Recording = SmaComponent.ParentSMA.ParentSound
 
-                    SmcAverageLevelList.Add(Audio.DSP.MeasureSectionLevel(Recording, SoundChannel,
+                    If TemporalIntegration = 0 Then
+
+                        SmcAverageLevelList.Add(Audio.DSP.MeasureSectionLevel(Recording, SoundChannel,
                                                                           SmaComponent.StartSample,
                                                                           SmaComponent.Length,
                                                                             Audio.AudioManagement.SoundDataUnit.dB,
                                                                             Audio.SoundMeasurementType.RMS,
                                                                                     FrequencyWeighting))
+
+                    Else
+
+                        SmcAverageLevelList.Add(Audio.DSP.GetLevelOfLoudestWindow(Recording, SoundChannel,
+                                                                          TemporalIntegration * Recording.WaveFormat.SampleRate, SmaComponent.StartSample,
+                                                                          SmaComponent.Length,, FrequencyWeighting))
+
+                    End If
+
                 Next
 
                 'Trimming the lowest and highest values, and calculating average of the remaining values (trimming is skipped if there is less than 3 recorings of speech material component)
@@ -832,8 +903,8 @@ Public Class MediaSet
 
 
                 'Setting all speech material components to the average sound level
-                For r = 0 To SmcID.Value.Count - 1
-                    Dim SmaComponent = SmcID.Value(r)
+                For r = 0 To SmcID.Value.Item2.Count - 1
+                    Dim SmaComponent = SmcID.Value.Item2(r)
                     Dim Recording = SmaComponent.ParentSMA.ParentSound
 
                     'Getting the current sound level from the averaging list measured above (instead of calculating it again)
@@ -855,10 +926,12 @@ Public Class MediaSet
 
             For Each SmcID In TempSoundLib
 
-                'TODO: N.B. here we should exclude components marked as practise items! And also below!! This is skipped for now.
-                For r = 0 To SmcID.Value.Count - 1
+                'Excluding practise components from the overall sound level adjustment.
+                If SmcID.Value.Item1 = True Then Continue For
 
-                    Dim SmaComponent = SmcID.Value(r)
+                For r = 0 To SmcID.Value.Item2.Count - 1
+
+                    Dim SmaComponent = SmcID.Value.Item2(r)
 
                     'Adds a copy of the sound recording
                     SharpTestingSoundList.Add(SmaComponent.GetSoundFileSection(SoundChannel))
@@ -875,9 +948,9 @@ Public Class MediaSet
             Utils.SendInfoToLog("Applying gain to test word recordings: " & NeededGainForOutputLevel & " dB",, ExportFolder)
 
             For Each SmcID In TempSoundLib
-                For r = 0 To SmcID.Value.Count - 1
+                For r = 0 To SmcID.Value.Item2.Count - 1
 
-                    Dim SmaComponent = SmcID.Value(r)
+                    Dim SmaComponent = SmcID.Value.Item2(r)
                     Dim Recording = SmaComponent.ParentSMA.ParentSound
 
                     Audio.DSP.AmplifySection(Recording, NeededGainForOutputLevel, SoundChannel, SmaComponent.StartSample, SmaComponent.Length)
@@ -892,10 +965,12 @@ Public Class MediaSet
 
             For Each SmcID In TempSoundLib
 
-                'TODO: N.B. here we should exclude components marked as practise items! And also above!! This is skipped for now.
-                For r = 0 To SmcID.Value.Count - 1
+                'Excluding practise components from the overall sound level adjustment.
+                If SmcID.Value.Item1 = True Then Continue For
 
-                    Dim SmaComponent = SmcID.Value(r)
+                For r = 0 To SmcID.Value.Item2.Count - 1
+
+                    Dim SmaComponent = SmcID.Value.Item2(r)
 
                     'Adds a copy of the sound recording
                     LevelVerificationList.Add(SmaComponent.GetSoundFileSection(SoundChannel))
@@ -906,25 +981,6 @@ Public Class MediaSet
             'Measuring the level of all components concatenated
             Dim VerificationLevel As Double = GetSoundLevelOfConcatenatedSounds(LevelVerificationList, FrequencyWeighting, SoundChannel)
             Utils.SendInfoToLog("Verification: Level of recordings: " & VerificationLevel & " dB",, ExportFolder)
-
-
-            'Measuring all other levels that should be stored in the SMA objects
-            If SpeechFilterSounds = True Then
-                For Each RecordingKpv In LoadedSounds
-                    'Copying the SMA object and file name
-                    Dim Recording = RecordingKpv.Value
-
-                    If UpdateSoundLevelFormat = True Then
-                        'Adding the new sound level format to all test word recordings, sample recordings masker sounds, as well as to the current SiBTestdata
-                        Recording.SMA.SetFrequencyWeighting(NewSoundLevelFormat.FrequencyWeighting, True)
-                        Recording.SMA.SetTimeWeighting(NewSoundLevelFormat.TemporalIntegrationDuration, True)
-                    End If
-
-                    'Measures sound levels
-                    Recording.SMA.MeasureSoundLevels(True, ExportFolder)
-
-                Next
-            End If
 
             'Exporting all adjusted sounds to ExportFolder
             For Each RecordingKpv In LoadedSounds
@@ -945,6 +1001,70 @@ Public Class MediaSet
 
     End Sub
 
+    Public Sub MeasureSmaObjectSoundLevels(ByVal FrequencyWeighting As Audio.FrequencyWeightings,
+                                           ByVal TemporalIntegrationDuration As Decimal,
+                                           Optional ByVal ExportFolder As String = "")
+
+        'Temporarily sets the load type of sound files
+        Dim AudioFileLoadMode_StartValue = SpeechMaterialComponent.AudioFileLoadMode
+        SpeechMaterialComponent.AudioFileLoadMode = SpeechMaterialComponent.MediaFileLoadModes.LoadOnFirstUse
+
+        Try
+
+            'Setting a default export folder
+            If ExportFolder = "" Then
+                Dim fbd As New Windows.Forms.FolderBrowserDialog
+                fbd.Description = "Select folder to store the new sound files"
+                If fbd.ShowDialog() <> Windows.Forms.DialogResult.OK Then
+                    Exit Try
+                End If
+
+                ExportFolder = fbd.SelectedPath
+                If ExportFolder = "" Then
+                    Exit Try
+                End If
+            End If
+
+            'Clears previously loaded sounds
+            ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+            'Getting the loaded sounds
+            Dim LoadedSounds = ParentTestSpecification.SpeechMaterial.GetAllLoadedSounds()
+
+            'Measuring all other levels that should be stored in the SMA objects
+            For Each RecordingKpv In LoadedSounds
+                'Copying the SMA object and file name
+                Dim Recording = RecordingKpv.Value
+
+                'Adding the new sound level format to all test word recordings, sample recordings masker sounds, as well as to the current SiBTestdata
+                Recording.SMA.SetFrequencyWeighting(FrequencyWeighting, True)
+                Recording.SMA.SetTimeWeighting(TemporalIntegrationDuration, True)
+
+                'Measures sound levels
+                Recording.SMA.MeasureSoundLevels(True, ExportFolder)
+
+            Next
+
+            'Exporting all adjusted sounds to ExportFolder
+            For Each RecordingKpv In LoadedSounds
+                'Copying the SMA object and file name
+                Dim Recording = RecordingKpv.Value
+                Dim LoadFilePath = RecordingKpv.Key
+
+                Dim SaveFilePath = IO.Path.Combine(ExportFolder, LoadFilePath.Replace(ParentTestSpecification.SpeechMaterial.GetMediaFolderName, ""))
+                Audio.AudioIOs.SaveToWaveFile(Recording, SaveFilePath)
+            Next
+
+
+        Catch ex As Exception
+            MsgBox("An error occured in MeasureSmaObjectSoundLevels." & vbCrLf & ex.ToString)
+        End Try
+
+        'Resets the load type of sound files to the same type as when the sub was called
+        SpeechMaterialComponent.AudioFileLoadMode = AudioFileLoadMode_StartValue
+
+
+    End Sub
 
     Public Shared Function CreateSpeechFilterKernel(ByVal WaveFormat As Audio.Formats.WaveFormat,
                                                    Optional ExportToFile As Boolean = False,
