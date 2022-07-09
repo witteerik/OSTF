@@ -138,6 +138,7 @@
         TalkerGender_ComboBox.SelectedItem = SelectedMediaSet.TalkerGender.ToString
 
         TalkerAge_IntegerParsingTextBox.Text = SelectedMediaSet.TalkerAge
+        SoundFileLevelComboBox.Text = SelectedMediaSet.AudioFileLinguisticLevel.ToString
         TalkerDialect_TextBox.Text = SelectedMediaSet.TalkerDialect
         VoiceType_TextBox.Text = SelectedMediaSet.VoiceType
         MediaAudioItems_IntegerParsingTextBox.Text = SelectedMediaSet.MediaAudioItems

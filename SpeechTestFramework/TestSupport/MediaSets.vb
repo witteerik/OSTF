@@ -889,7 +889,7 @@ Public Class MediaSet
 
                 Next
 
-                'Trimming the lowest and highest values, and calculating average of the remaining values (trimming is skipped if there is less than 3 recorings of speech material component)
+                'Trimming the lowest and highest values, and calculating average of the remaining values (trimming is skipped if there is less than 3 recorings of a speech material component)
                 Dim TrimmedAverageList As New List(Of Double)
                 For n = 0 To SmcAverageLevelList.Count - 1
                     TrimmedAverageList.Add(SmcAverageLevelList(n))
@@ -902,7 +902,7 @@ Public Class MediaSet
                 Dim SmcAverageLevel As Double = TrimmedAverageList.Average
 
 
-                'Setting all speech material components to the average sound level
+                'Setting all speech material component recordings to the average sound level
                 For r = 0 To SmcID.Value.Item2.Count - 1
                     Dim SmaComponent = SmcID.Value.Item2(r)
                     Dim Recording = SmaComponent.ParentSMA.ParentSound
@@ -987,8 +987,9 @@ Public Class MediaSet
                 'Copying the SMA object and file name
                 Dim Recording = RecordingKpv.Value
                 Dim LoadFilePath = RecordingKpv.Key
-
-                Dim SaveFilePath = IO.Path.Combine(ExportFolder, LoadFilePath.Replace(ParentTestSpecification.SpeechMaterial.GetMediaFolderName, ""))
+                Dim x = IO.Path.Combine(ParentTestSpecification.GetTestRootPath, MediaParentFolder)
+                Dim TrimmedLoadFIlePath = LoadFilePath.Replace(x, "")
+                Dim SaveFilePath = IO.Path.Combine(ExportFolder, TrimmedLoadFIlePath.Trim(IO.Path.DirectorySeparatorChar))
                 Audio.AudioIOs.SaveToWaveFile(Recording, SaveFilePath)
             Next
 

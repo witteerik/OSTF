@@ -7,7 +7,25 @@ Public Class SpeechMaterialComponent
     ''' </summary>
     Public Const SpeechMaterialComponentFileName As String = "SpeechMaterialComponents.txt"
 
+    Private _ParentTestSpecification As TestSpecification
     Public Property ParentTestSpecification As TestSpecification
+        Get
+            'Recursively redirects to the speech material component at the highest level, so that the ParentTestSpecification only exists at one single place in each speech material component hierarchy.
+            If Me.ParentComponent Is Nothing Then
+                Return _ParentTestSpecification
+            Else
+                Return Me.ParentComponent.ParentTestSpecification
+            End If
+        End Get
+        Set(value As TestSpecification)
+            'Recursively redirects to the speech material component at the highest level, so that the ParentTestSpecification only exists at one single place in each speech material component hierarchy.
+            If Me.ParentComponent Is Nothing Then
+                _ParentTestSpecification = value
+            Else
+                Me.ParentComponent.ParentTestSpecification = value
+            End If
+        End Set
+    End Property
 
     Public Property LinguisticLevel As LinguisticLevels
 
@@ -190,10 +208,53 @@ Public Class SpeechMaterialComponent
     End Function
 
     Public Class ComponentIndices
-        Public ListIndex As Integer = -1
-        Public SentenceIndex As Integer = -1
-        Public WordIndex As Integer = -1
-        Public PhoneIndex As Integer = -1
+        Public Property ListIndex As Integer
+            Get
+                Return IndexList(LinguisticLevels.List)
+            End Get
+            Set(value As Integer)
+                IndexList(LinguisticLevels.List) = value
+            End Set
+        End Property
+
+        Public Property SentenceIndex As Integer
+            Get
+                Return IndexList(LinguisticLevels.Sentence)
+            End Get
+            Set(value As Integer)
+                IndexList(LinguisticLevels.Sentence) = value
+            End Set
+        End Property
+
+        Public Property WordIndex As Integer
+            Get
+                Return IndexList(LinguisticLevels.Word)
+            End Get
+            Set(value As Integer)
+                IndexList(LinguisticLevels.Word) = value
+            End Set
+        End Property
+
+        Public Property PhoneIndex As Integer
+            Get
+                Return IndexList(LinguisticLevels.Phoneme)
+            End Get
+            Set(value As Integer)
+                IndexList(LinguisticLevels.Phoneme) = value
+            End Set
+        End Property
+
+        Public IndexList As New SortedList(Of SpeechMaterialComponent.LinguisticLevels, Integer)
+
+        Public Sub New()
+
+            'IndexList.Add(LinguisticLevels.ListCollection, -1)
+            IndexList.Add(LinguisticLevels.List, -1)
+            IndexList.Add(LinguisticLevels.Sentence, -1)
+            IndexList.Add(LinguisticLevels.Word, -1)
+            IndexList.Add(LinguisticLevels.Phoneme, -1)
+
+        End Sub
 
         Public Function HasPhoneIndex() As Boolean
             If ListIndex > -1 And SentenceIndex > -1 And WordIndex > -1 And PhoneIndex > -1 Then
@@ -234,56 +295,91 @@ Public Class SpeechMaterialComponent
 
         Dim SelfIndices = FindSelfIndices()
 
-        If Me.LinguisticLevel < MediaSet.AudioFileLinguisticLevel Then
+        Dim SmcWithSoundFile As SpeechMaterialComponent = Nothing
+        If Me.LinguisticLevel = MediaSet.AudioFileLinguisticLevel Then
+            SmcWithSoundFile = Me
+
+        ElseIf Me.LinguisticLevel < MediaSet.AudioFileLinguisticLevel Then
+
+            'TODO: If the code below is appropriate/correct it can be simplified a lot. Leaving it as it is for now, to enable easier debugging
 
             If Math.Abs(Me.LinguisticLevel - MediaSet.AudioFileLinguisticLevel) > 0 Then
-                If Me.ChildComponents.Count <> 1 Then
+                If Me.ChildComponents.Count = 1 Then
+                    SmcWithSoundFile = Me.ChildComponents(0)
+
+                    'Correcting the self index value, as the sound file will only contain one component at the Me.LinguisticLevel
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel) Then SelfIndices.IndexList(Me.LinguisticLevel) = 0
+
+                Else
                     Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
                 End If
             End If
 
             If Math.Abs(Me.LinguisticLevel - MediaSet.AudioFileLinguisticLevel) > 1 Then
-                If Me.ChildComponents(0).ChildComponents.Count <> 1 Then
+                If Me.ChildComponents(0).ChildComponents.Count = 1 Then
+                    SmcWithSoundFile = Me.ChildComponents(0).ChildComponents(0)
+
+                    'Correcting the self index value, as the sound file will only contain one component at the Me.LinguisticLevel
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel) Then SelfIndices.IndexList(Me.LinguisticLevel) = 0
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel + 1) Then SelfIndices.IndexList(Me.LinguisticLevel + 1) = 0
+
+                Else
                     Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
                 End If
             End If
 
             If Math.Abs(Me.LinguisticLevel - MediaSet.AudioFileLinguisticLevel) > 2 Then
-                If Me.ChildComponents(0).ChildComponents(0).ChildComponents.Count <> 1 Then
+                If Me.ChildComponents(0).ChildComponents(0).ChildComponents.Count = 1 Then
+                    SmcWithSoundFile = Me.ChildComponents(0).ChildComponents(0).ChildComponents(0)
+
+                    'Correcting the self index value, as the sound file will only contain one component at the Me.LinguisticLevel
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel) Then SelfIndices.IndexList(Me.LinguisticLevel) = 0
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel + 1) Then SelfIndices.IndexList(Me.LinguisticLevel + 1) = 0
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel + 2) Then SelfIndices.IndexList(Me.LinguisticLevel + 2) = 0
+
+                Else
                     Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
                 End If
             End If
 
             If Math.Abs(Me.LinguisticLevel - MediaSet.AudioFileLinguisticLevel) > 3 Then
-                If Me.ChildComponents(0).ChildComponents(0).ChildComponents(0).ChildComponents.Count <> 1 Then
+                If Me.ChildComponents(0).ChildComponents(0).ChildComponents(0).ChildComponents.Count = 1 Then
+                    SmcWithSoundFile = Me.ChildComponents(0).ChildComponents(0).ChildComponents(0).ChildComponents(0)
+
+                    'Correcting the self index value, as the sound file will only contain one component at the Me.LinguisticLevel
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel) Then SelfIndices.IndexList(Me.LinguisticLevel) = 0
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel + 1) Then SelfIndices.IndexList(Me.LinguisticLevel + 1) = 0
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel + 2) Then SelfIndices.IndexList(Me.LinguisticLevel + 2) = 0
+                    If SelfIndices.IndexList.ContainsKey(Me.LinguisticLevel + 3) Then SelfIndices.IndexList(Me.LinguisticLevel + 3) = 0
+
+                Else
                     Throw New Exception("Corresponding SMA objects can not be returned if the SMA data is scattered across different sound files.")
                 End If
             End If
 
-
         End If
 
 
-            'The sound file containing the SMA component should be found at this level
-            Dim SoundPath = GetSoundPath(MediaSet, Index)
-            Dim SoundFileObject As Audio.Sound = GetSoundFile(SoundPath)
+        'The sound file containing the SMA component should be found at this level
+        Dim SoundPath = SmcWithSoundFile.GetSoundPath(MediaSet, Index)
+        Dim SoundFileObject As Audio.Sound = SmcWithSoundFile.GetSoundFile(SoundPath)
 
-            'Getting the SMA object corresponding to the current speech component based on the SelfIndices object info
-            If SelfIndices.HasPhoneIndex Then
-                Return SoundFileObject.SMA.ChannelData(SoundChannel)(SelfIndices.SentenceIndex)(SelfIndices.WordIndex)(SelfIndices.PhoneIndex)
+        'Getting the SMA object corresponding to the current speech component based on the SelfIndices object info
+        If SelfIndices.HasPhoneIndex Then
+            Return SoundFileObject.SMA.ChannelData(SoundChannel)(SelfIndices.SentenceIndex)(SelfIndices.WordIndex)(SelfIndices.PhoneIndex)
 
-            ElseIf SelfIndices.HasWordIndex Then
-                Return SoundFileObject.SMA.ChannelData(SoundChannel)(SelfIndices.SentenceIndex)(SelfIndices.WordIndex)
+        ElseIf SelfIndices.HasWordIndex Then
+            Return SoundFileObject.SMA.ChannelData(SoundChannel)(SelfIndices.SentenceIndex)(SelfIndices.WordIndex)
 
-            ElseIf SelfIndices.HasSentenceIndex Then
-                Return SoundFileObject.SMA.ChannelData(SoundChannel)(SelfIndices.SentenceIndex)
+        ElseIf SelfIndices.HasSentenceIndex Then
+            Return SoundFileObject.SMA.ChannelData(SoundChannel)(SelfIndices.SentenceIndex)
 
-            ElseIf SelfIndices.HasListIndex Then
-                Return SoundFileObject.SMA.ChannelData(SoundChannel)
+        ElseIf SelfIndices.HasListIndex Then
+            Return SoundFileObject.SMA.ChannelData(SoundChannel)
 
-            Else
-                Return Nothing
-            End If
+        Else
+            Return Nothing
+        End If
 
 
     End Function
