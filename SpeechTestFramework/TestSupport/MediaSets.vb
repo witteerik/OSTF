@@ -780,9 +780,9 @@ Public Class MediaSet
                                         Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
                                         Optional ByVal TemporalIntegration As Decimal = 0,
                                         Optional ByVal ExportFolder As String = "",
-                                        Optional ByVal SpeechFilterSounds As Boolean = True)
+                                        Optional ByVal SpeechFilterSounds As Boolean = True,
+                                        Optional ByVal SoundChannel As Integer = 1)
 
-        Dim SoundChannel As Integer = 1
 
         'Temporarily sets the load type of sound files
         Dim AudioFileLoadMode_StartValue = SpeechMaterialComponent.AudioFileLoadMode
@@ -984,12 +984,10 @@ Public Class MediaSet
 
             'Exporting all adjusted sounds to ExportFolder
             For Each RecordingKpv In LoadedSounds
-                'Copying the SMA object and file name
                 Dim Recording = RecordingKpv.Value
                 Dim LoadFilePath = RecordingKpv.Key
-                Dim x = IO.Path.Combine(ParentTestSpecification.GetTestRootPath, MediaParentFolder)
-                Dim TrimmedLoadFIlePath = LoadFilePath.Replace(x, "")
-                Dim SaveFilePath = IO.Path.Combine(ExportFolder, TrimmedLoadFIlePath.Trim(IO.Path.DirectorySeparatorChar))
+                Dim ExportSubPath = LoadFilePath.Replace(IO.Path.Combine(ParentTestSpecification.GetTestRootPath, MediaParentFolder), "")
+                Dim SaveFilePath = IO.Path.Combine(ExportFolder, ExportSubPath.Trim(IO.Path.DirectorySeparatorChar))
                 Audio.AudioIOs.SaveToWaveFile(Recording, SaveFilePath)
             Next
 
@@ -1004,7 +1002,8 @@ Public Class MediaSet
 
     Public Sub MeasureSmaObjectSoundLevels(ByVal FrequencyWeighting As Audio.FrequencyWeightings,
                                            ByVal TemporalIntegrationDuration As Decimal,
-                                           Optional ByVal ExportFolder As String = "")
+                                           Optional ByVal ExportFolder As String = "",
+                                           Optional ByVal SoundChannel As Integer = 1)
 
         'Temporarily sets the load type of sound files
         Dim AudioFileLoadMode_StartValue = SpeechMaterialComponent.AudioFileLoadMode
@@ -1029,6 +1028,9 @@ Public Class MediaSet
             'Clears previously loaded sounds
             ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
 
+            '(Re-) Loads sound files
+            LoadAllSoundFIles(SoundChannel, True)
+
             'Getting the loaded sounds
             Dim LoadedSounds = ParentTestSpecification.SpeechMaterial.GetAllLoadedSounds()
 
@@ -1048,14 +1050,12 @@ Public Class MediaSet
 
             'Exporting all adjusted sounds to ExportFolder
             For Each RecordingKpv In LoadedSounds
-                'Copying the SMA object and file name
                 Dim Recording = RecordingKpv.Value
                 Dim LoadFilePath = RecordingKpv.Key
-
-                Dim SaveFilePath = IO.Path.Combine(ExportFolder, LoadFilePath.Replace(ParentTestSpecification.SpeechMaterial.GetMediaFolderName, ""))
+                Dim ExportSubPath = LoadFilePath.Replace(IO.Path.Combine(ParentTestSpecification.GetTestRootPath, MediaParentFolder), "")
+                Dim SaveFilePath = IO.Path.Combine(ExportFolder, ExportSubPath.Trim(IO.Path.DirectorySeparatorChar))
                 Audio.AudioIOs.SaveToWaveFile(Recording, SaveFilePath)
             Next
-
 
         Catch ex As Exception
             MsgBox("An error occured in MeasureSmaObjectSoundLevels." & vbCrLf & ex.ToString)
@@ -1064,8 +1064,36 @@ Public Class MediaSet
         'Resets the load type of sound files to the same type as when the sub was called
         SpeechMaterialComponent.AudioFileLoadMode = AudioFileLoadMode_StartValue
 
+    End Sub
+
+    Private Sub LoadAllSoundFIles(ByVal SoundChannel As Integer, ByVal IncludePracticeComponents As Boolean)
+
+        'Loading sound files (storing them in the shared Speech Material Component sound library
+        Dim AllComponentsWithSound = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(Me.AudioFileLinguisticLevel)
+        Dim MissingSoundIds As New List(Of String)
+        For c = 0 To AllComponentsWithSound.Count - 1
+
+            If IncludePracticeComponents = False Then
+                If AllComponentsWithSound(c).IsPractiseComponent = True Then Continue For
+            End If
+
+            For i = 0 To MediaAudioItems - 1
+
+                Dim CurrentSmaComponent = AllComponentsWithSound(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)
+
+                If CurrentSmaComponent.GetSoundFileSection(SoundChannel) Is Nothing Then
+                    MissingSoundIds.Add(AllComponentsWithSound(c).Id & ("(" & i & ")"))
+                End If
+
+            Next
+        Next
+
+        If MissingSoundIds.Count > 0 Then
+            MsgBox("No sound could be loaded for the following " & MissingSoundIds.Count & " components ids (recording number in parentheses):" & vbCrLf & String.Join(" ", MissingSoundIds))
+        End If
 
     End Sub
+
 
     Public Shared Function CreateSpeechFilterKernel(ByVal WaveFormat As Audio.Formats.WaveFormat,
                                                    Optional ExportToFile As Boolean = False,

@@ -295,6 +295,12 @@ Public Class SpeechMaterialComponent
 
         Dim SelfIndices = FindSelfIndices()
 
+        'Correcting self index values, as SMA objects may residse in different sound files
+        For level = 1 To MediaSet.AudioFileLinguisticLevel
+            SelfIndices.IndexList(level) = 0
+        Next
+
+
         Dim SmcWithSoundFile As SpeechMaterialComponent = Nothing
         If Me.LinguisticLevel = MediaSet.AudioFileLinguisticLevel Then
             SmcWithSoundFile = Me
@@ -441,6 +447,7 @@ Public Class SpeechMaterialComponent
     Public Function GetAllLoadedSounds() As SortedList(Of String, Audio.Sound)
         Return SoundLibrary
     End Function
+
 
     Public Function GetImage(ByVal Path) As Drawing.Bitmap
 

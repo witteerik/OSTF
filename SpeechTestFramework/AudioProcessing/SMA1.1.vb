@@ -84,7 +84,7 @@ Namespace Audio
             Public Sub SetFrequencyWeighting(ByVal FrequencyWeighting As FrequencyWeightings, ByVal EnforceOnAllDescendents As Boolean)
 
                 'Setting only SMA top level frequency weighting
-                FrequencyWeighting = FrequencyWeighting
+                Me.FrequencyWeighting = FrequencyWeighting
 
                 If EnforceOnAllDescendents = True Then
                     'Enforcing the same frequency weighting on all descendant channels, sentences, words, and phones
@@ -102,7 +102,7 @@ Namespace Audio
             Public Sub SetTimeWeighting(ByVal TimeWeighting As Double, ByVal EnforceOnAllDescendents As Boolean)
 
                 'Setting only SMA top level Time weighting
-                TimeWeighting = TimeWeighting
+                Me.TimeWeighting = TimeWeighting
 
                 If EnforceOnAllDescendents = True Then
                     'Enforcing the same Time weighting on all descendant channels, sentences, words, and phones
@@ -125,7 +125,7 @@ Namespace Audio
                     OutputList.Add(Sound.SpeechMaterialAnnotation.CurrentVersion) 'I.e. SMA version number
                 End If
 
-                For c = 0 To _ChannelData.Count
+                For c = 0 To _ChannelData.Count - 1
 
                     HeadingList.Add("CHANNEL")
                     OutputList.Add(c + 1)
@@ -934,8 +934,8 @@ Namespace Audio
 
                 Public Sub SetFrequencyWeighting(ByVal FrequencyWeighting As FrequencyWeightings, ByVal EnforceOnAllDescendents As Boolean)
 
-                    'Setting only SMA top level frequency weighting
-                    FrequencyWeighting = FrequencyWeighting
+                    'Setting the frequency weighting
+                    Me.FrequencyWeighting = FrequencyWeighting
 
                     If EnforceOnAllDescendents = True Then
                         'Enforcing the same frequency weighting on all descendant phones
@@ -951,8 +951,8 @@ Namespace Audio
 
                 Public Sub SetTimeWeighting(ByVal TimeWeighting As Double, ByVal EnforceOnAllDescendents As Boolean)
 
-                    'Setting only SMA top level Time weighting
-                    TimeWeighting = TimeWeighting
+                    'Setting the time weighting
+                    Me.TimeWeighting = TimeWeighting
 
                     If EnforceOnAllDescendents = True Then
 
@@ -1185,13 +1185,13 @@ Namespace Audio
 
                             'Measuring UnWeightedLevel
                             UnWeightedLevel = Nothing
-                            UnWeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, Nothing, SoundDataUnit.dB)
+                            UnWeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB)
                             AttemptedMeasurementCount += 1
                             If UnWeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
                             'Meaures UnWeightedPeakLevel
                             UnWeightedPeakLevel = Nothing
-                            UnWeightedPeakLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, , SoundDataUnit.dB, SoundMeasurementType.AbsolutePeakAmplitude)
+                            UnWeightedPeakLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.AbsolutePeakAmplitude)
                             AttemptedMeasurementCount += 1
                             If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
@@ -1200,9 +1200,9 @@ Namespace Audio
                             If GetTimeWeighting() <> 0 Then
                                 WeightedLevel = DSP.GetLevelOfLoudestWindow(ParentSound, c,
                                                                                      GetTimeWeighting() * ParentSound.WaveFormat.SampleRate,
-                                                                                      0, Nothing, , GetFrequencyWeighting, True)
+                                                                                      StartSample, Length, , GetFrequencyWeighting, True)
                             Else
-                                WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, 0, Nothing, SoundDataUnit.dB, SoundMeasurementType.RMS, GetFrequencyWeighting)
+                                WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.RMS, GetFrequencyWeighting)
                             End If
                             AttemptedMeasurementCount += 1
                             If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
