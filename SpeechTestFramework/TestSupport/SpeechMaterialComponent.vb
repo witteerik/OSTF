@@ -657,7 +657,7 @@ Public Class SpeechMaterialComponent
     End Function
 
 
-    Public Function SamePlaceCousins() As List(Of SpeechMaterialComponent)
+    Public Function GetSamePlaceCousins() As List(Of SpeechMaterialComponent)
 
         Dim SelfIndex = GetSelfIndex()
 
@@ -698,7 +698,7 @@ Public Class SpeechMaterialComponent
     ''' Returns the second cousin components that are stored at the same hierachical index orders.
     ''' </summary>
     ''' <returns></returns>
-    Public Function SamePlaceSecondCousins() As List(Of SpeechMaterialComponent)
+    Public Function GetSamePlaceSecondCousins() As List(Of SpeechMaterialComponent)
 
         Dim SelfIndex = GetSelfIndex()
 
@@ -749,6 +749,71 @@ Public Class SpeechMaterialComponent
         Next
 
         Return OutputList
+
+    End Function
+
+    Public Function IsContrastingComponent(Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
+                                           Optional ByVal SecondaryComparisonVariableName As String = "Spelling") As Boolean
+
+        'Determines if the component contrasts to other same order components
+
+        If Me.ParentComponent Is Nothing Then
+            'Returns false if no parent exist (then it could hardly contrast to anything)
+            Return False
+        End If
+
+        Dim SamePlaceCousins = GetSamePlaceCousins()
+        If SamePlaceCousins.Count > 0 Then
+
+            For Each SamePlaceCousin In SamePlaceCousins
+                If IsEqualComponent(SamePlaceCousin, PrimaryComparisonVariableName, SecondaryComparisonVariableName) = False Then
+                    Return True
+                End If
+            Next
+        Else
+
+            Dim SamePlaceSecondCousins = GetSamePlaceSecondCousins()
+            If SamePlaceSecondCousins.Count > 0 Then
+
+                For Each SamePlaceSecondCousin In SamePlaceSecondCousins
+                    If IsEqualComponent(SamePlaceSecondCousin, PrimaryComparisonVariableName, SecondaryComparisonVariableName) = False Then
+                        Return True
+                    End If
+                Next
+            End If
+
+        End If
+
+        'Returns false if no contrats were found.
+        Return False
+
+    End Function
+
+    Public Function IsEqualComponent(ByRef ComparisonComponent As SpeechMaterialComponent,
+                                    Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
+                                    Optional ByVal SecondaryComparisonVariableName As String = "Spelling") As Boolean
+
+        If PrimaryComparisonVariableName <> "" Then
+            If Me.CategoricalVariables.ContainsKey(PrimaryComparisonVariableName) And ComparisonComponent.CategoricalVariables.ContainsKey(PrimaryComparisonVariableName) Then
+                If Me.GetCategoricalVariableValue(PrimaryComparisonVariableName) <> ComparisonComponent.GetCategoricalVariableValue(PrimaryComparisonVariableName) Then
+                    Return False
+                End If
+                MsgBox("Cannot compare speech material components " & Me.PrimaryStringRepresentation & " " & ComparisonComponent.PrimaryStringRepresentation & " since the variable named " & PrimaryComparisonVariableName & " must exist for both components.")
+            End If
+        End If
+
+
+        If SecondaryComparisonVariableName <> "" Then
+            If Me.CategoricalVariables.ContainsKey(SecondaryComparisonVariableName) And ComparisonComponent.CategoricalVariables.ContainsKey(SecondaryComparisonVariableName) Then
+                If Me.GetCategoricalVariableValue(SecondaryComparisonVariableName) <> ComparisonComponent.GetCategoricalVariableValue(SecondaryComparisonVariableName) Then
+                    Return False
+                End If
+                MsgBox("Cannot compare speech material components " & ComparisonComponent.PrimaryStringRepresentation & " " & ComparisonComponent.PrimaryStringRepresentation) & " since the variable named " &  SecondaryComparisonVariableName & " must exist for both components." )
+            End If
+        End If
+
+
+        Return True
 
     End Function
 

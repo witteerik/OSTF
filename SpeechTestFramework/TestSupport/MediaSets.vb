@@ -800,7 +800,7 @@ Public Class MediaSet
             If ExportFolder = "" Then ExportFolder = Utils.logFilePath
 
             'Creating a structure to hold sound files
-            Dim TempSoundLib As New SortedList(Of String, Tuple(Of Boolean, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))) 'SpeechMaterialComponent ID, IsPractiseComponent, SmaComponent
+            Dim TempSoundLib As New SortedList(Of String, Tuple(Of Boolean, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))) 'SpeechMaterialComponent ID, IsPractiseComponent, SmaComponents
 
             'Resetting the sound
 
@@ -1065,6 +1065,358 @@ Public Class MediaSet
         SpeechMaterialComponent.AudioFileLoadMode = AudioFileLoadMode_StartValue
 
     End Sub
+
+
+    Public Sub MeasureSmaCbLevels(ByVal MeasurementLinguisticLevel As SpeechMaterialComponent.LinguisticLevels,
+                                  ByVal MeasureOnlyConstrastingComponents As Boolean,
+                                  ByVal AverageAcrossExemplars As Boolean,
+                                  ByVal SoundChannel As Integer,
+                                  ByVal SkipPractiseComponents As Boolean)
+
+
+        'Clears previously loaded sounds
+        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        Dim MeasurementComponents As New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)))
+
+        Dim TargetComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(MeasurementLinguisticLevel)
+
+        For c = 0 To TargetComponents.Count - 1
+
+            If SkipPractiseComponents = True Then
+                If TargetComponents(c).IsPractiseComponent = True Then Continue For
+            End If
+
+            If MeasureOnlyConstrastingComponents = True Then
+                'Determine if is contraisting component??
+                If TargetComponents(c).IsContrastingComponent = False Then Continue For
+                'If TargetComponents(c).SamePlaceCousins.Count = 0 Then
+                '    If TargetComponents(c).SamePlaceSecondCousins.Count = 0 Then
+                '        Continue For
+                '    End If
+                'End If
+            End If
+
+            For i = 0 To MediaAudioItems - 1
+
+                MeasurementComponents.Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(TargetComponents(c), TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)))
+
+            Next
+        Next
+
+
+
+    End Sub
+
+    Public Sub CalculateCbSpectrumLevels(Optional ByVal BandInfo As BandBank = Nothing,
+                                         Optional FftFormat As Audio.Formats.FftFormat = Nothing,
+                                         Optional ByVal dBSPL_FSdifference As Double? = Nothing)
+
+        'Temporarily sets the load type of sound files
+        Dim AudioFileLoadMode_StartValue = SpeechMaterialComponent.AudioFileLoadMode
+        SpeechMaterialComponent.AudioFileLoadMode = SpeechMaterialComponent.MediaFileLoadModes.LoadOnFirstUse
+
+        If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+
+        If BandInfo Is Nothing Then
+            'Setting default audiogram frequencies
+            BandInfo = BandBank.GetSiiCriticalRatioBandBank
+
+        End If
+
+        'Setting up FFT formats
+        If FftFormat Is Nothing Then FftFormat = New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
+        Dim MeasurementWindowOverlapLength As Integer = FftFormat.OverlapSize
+
+        Try
+
+            'Setting a default export folder
+            Dim ExportFolder As String = ""
+            If ExportFolder = "" Then
+                Dim fbd As New Windows.Forms.FolderBrowserDialog
+                fbd.Description = "Select folder to store the new sound files"
+                If fbd.ShowDialog() <> Windows.Forms.DialogResult.OK Then
+                    Exit Try
+                End If
+
+                ExportFolder = fbd.SelectedPath
+                If ExportFolder = "" Then
+                    Exit Try
+                End If
+            End If
+
+
+
+            Dim BandLevelExportList As New List(Of String)
+            Dim CentreFrequencies As New List(Of String)
+            For Each band In BandInfo
+                CentreFrequencies.Add("PBL_" & band.CentreFrequency)
+            Next
+            BandLevelExportList.Add("TW_TWG_V" & vbTab & String.Join(vbTab, CentreFrequencies) & vbTab & "AverageTotalBandLevel" & vbTab & "OverallLevel")
+
+            Dim SpectrumLevelExportList As New List(Of String)
+            CentreFrequencies.Clear()
+            For Each band In BandInfo
+                CentreFrequencies.Add("PSL_" & band.CentreFrequency)
+            Next
+            SpectrumLevelExportList.Add("TW_TWG_V" & vbTab & String.Join(vbTab, CentreFrequencies) & vbTab & "OverallLevel")
+
+            'Getting the concatenated phonemes
+            Dim MasterConcatPhonemesList As New SortedList(Of String, SortedList(Of Integer, Tuple(Of Audio.Sound, List(Of Audio.Sound))))
+            For Each TestWordList In TestWordLists
+                For Each TestWord In TestWordList.MemberWords
+                    'The ConcatPhonemesList contains concatenates test phonemes (as values), for each speaker (indicated by key)
+                    MasterConcatPhonemesList.Add(TestWordList.ListName & "_" & TestWord.Spelling, GetConcatenatedTestPhonemes_Word(TestWord, True, Audio.FrequencyWeightings.Z, False, False, ""))
+                Next
+            Next
+
+            'Starting a progress window
+            Dim Progress As Integer = 0
+            Dim myProgressDisplay As New ProgressDisplay
+            myProgressDisplay.Initialize(TestWordLists.Count - 1, 0, "Calculating sound levels...")
+            myProgressDisplay.Show()
+            Progress = 0
+
+
+            Utils.SendInfoToLog("TW_TWG_V" & vbTab &
+                      "AverageBandLevel" & vbTab &
+                      "SpectrumLevel" & vbTab &
+                      "CentreFrequency" & vbTab &
+                      "LowerFrequencyLimit (actual)" & vbTab &
+                      "UpperFrequencyLimit (actual)", "MeasurementLog", ExportFolder, True, True)
+
+            Dim FilterInfoIsExported As Boolean = False
+            Dim FilterExportList As New List(Of String)
+            FilterExportList.Add("Critical band filter info")
+            FilterExportList.Add("CentreFrequency" & vbTab & "LowerFrequencyLimit" &
+                                                 vbTab & "ActualLowerLimitFrequency" &
+                                                 vbTab & "UpperFrequencyLimit" &
+                                                 vbTab & "ActualUpperLimitFrequency")
+
+            For Each TestWordList In TestWordLists
+
+                'Updating progress
+                myProgressDisplay.UpdateProgress(Progress)
+                Progress += 1
+
+                For Each TestWord In TestWordList.MemberWords
+
+                    'The ConcatPhonemesList contains concatenates test phonemes (as values), for each speaker (indicated by key)
+                    Dim ConcatPhonemesList = MasterConcatPhonemesList(TestWordList.ListName & "_" & TestWord.Spelling)
+
+                    For Each Speaker In ConcatPhonemesList
+
+                        Dim SpeakerID As Integer = Speaker.Key
+                        Dim TW_TWG_V As String = SpeakerID & "_" & TestWord.Spelling.ToLower & " (" & TestWordList.ListName & ")"
+
+                        Dim ConcatPhonemesSound As Audio.Sound = Speaker.Value.Item1
+                        Dim SampleRate As Integer = ConcatPhonemesSound.WaveFormat.SampleRate
+
+                        'ConcatPhonemesSound = Sound.LoadWaveFile("C:\SpeechAndHearingToolsLog\CB_TP2\testsound.wav") ' Just a sound to check calculations with, with energy at 100-9500 Hz
+                        'ConcatPhonemesSound = Sound.LoadWaveFile("C:\SpeechAndHearingToolsLog\CB_Data\Measured ISTS\CBG_Stad.ptwf") ' Just a sound to check calculations with, with energy at 100-9500 Hz
+
+                        'Calculating spectra
+                        ConcatPhonemesSound.FFT = Audio.DSP.SpectralAnalysis(ConcatPhonemesSound, FftFormat))
+                    ConcatPhonemesSound.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
+
+                        Dim TempBandLevelList As New List(Of String)
+                        TempBandLevelList.Add(TW_TWG_V)
+
+                        Dim TempSpectrumLevelList As New List(Of String)
+                        TempSpectrumLevelList.Add(TW_TWG_V)
+
+                        Dim TotalPower As Double = 0 'A variable used for checking the correctness of the spectral level calculations (See below)
+                        For Each band In BandInfo
+
+                            Dim ActualLowerLimitFrequency As Double
+                            Dim ActualUpperLimitFrequency As Double
+
+                            Dim WindowLevelArray = Audio.DSP.AcousticDistance_ModelA.CalculateWindowLevels(ConcatPhonemesSound,,,
+                                                                          band.LowerFrequencyLimit,
+                                                                          band.UpperFrequencyLimit,
+                                                                          Audio.FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
+                                                                          False, False,
+                                                                          ActualLowerLimitFrequency,
+                                                                          ActualUpperLimitFrequency)
+
+                            Dim AverageBandLevel_FS As Double = WindowLevelArray.Average
+
+                            Dim AverageBandLevel As Double = AverageBandLevel_FS + dBSPL_FSdifference
+                            TempBandLevelList.Add(AverageBandLevel)
+
+                            'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+                            Dim SpectrumLevel As Double = AverageBandLevel - 10 * Math.Log10(band.Bandwidth / 1)
+                            TempSpectrumLevelList.Add(SpectrumLevel)
+
+                            'Logging
+                            Utils.SendInfoToLog(TW_TWG_V & vbTab &
+                                      AverageBandLevel & vbTab &
+                                      SpectrumLevel & vbTab &
+                                      band.CentreFrequency & vbTab &
+                                      band.LowerFrequencyLimit & "(" & ActualLowerLimitFrequency & ")" & vbTab &
+                                      band.UpperFrequencyLimit & "(" & ActualUpperLimitFrequency & ")",
+                                      "MeasurementLog", ExportFolder, True, True)
+
+                            'Summing the band power 
+                            'Converting to linear scale
+                            Dim BandPower As Double = Audio.dBConversion(AverageBandLevel_FS, Audio.dBConversionDirection.from_dB,
+                                                               ConcatPhonemesSound.WaveFormat,
+                                                               Audio.dBTypes.SoundPower)
+                            'Summing the sound power
+                            TotalPower += BandPower
+
+
+                            'Storing filter info for export
+                            If FilterInfoIsExported = False Then
+                                FilterExportList.Add(band.CentreFrequency & vbTab &
+                                                 band.LowerFrequencyLimit & vbTab &
+                                                 ActualLowerLimitFrequency & vbTab &
+                                                 band.UpperFrequencyLimit & vbTab &
+                                                 ActualUpperLimitFrequency & vbTab)
+                            End If
+                        Next
+
+                        'Converting summed spectral power back to dB scale 
+                        Dim AverageTotalSpectrumLevel As Double = Audio.dBConversion(TotalPower, Audio.dBConversionDirection.to_dB,
+                                                                           ConcatPhonemesSound.WaveFormat,
+                                                                           Audio.dBTypes.SoundPower) + dBSPL_FSdifference
+                        TempBandLevelList.Add(AverageTotalSpectrumLevel)
+
+                        'Also measuring the average total level directly in the time domain, to ensure accuracy of the spectral calculations (i.e. AverageTotalSpectrumLevel should largely agree with OverallLevel, especially for a signal with the majority of level within 100 - 9500 Hz, all sound outside this band is ignored in AverageTotalSpectrumLevel)
+                        Dim OverallLevel As Double = Audio.DSP.MeasureSectionLevel(ConcatPhonemesSound, 1) + dBSPL_FSdifference
+                        TempBandLevelList.Add(OverallLevel)
+                        TempSpectrumLevelList.Add(OverallLevel)
+
+                        BandLevelExportList.Add(String.Join(vbTab, TempBandLevelList))
+                        SpectrumLevelExportList.Add(String.Join(vbTab, TempSpectrumLevelList))
+
+                        If FilterInfoIsExported = False Then
+                            Utils.SendInfoToLog(String.Join(vbCrLf, FilterExportList), "CriticalBandFilterInfo", ExportFolder)
+                            FilterInfoIsExported = True
+                        End If
+                    Next
+                Next
+            Next
+
+            Utils.SendInfoToLog(String.Join(vbCrLf, BandLevelExportList), "TestPhonemeBandLevels", ExportFolder, True, True)
+            Utils.SendInfoToLog(String.Join(vbCrLf, SpectrumLevelExportList), "TestPhonemeSpectrumLevels", ExportFolder, True, True)
+
+            'Closing the progress display
+            myProgressDisplay.Close()
+
+        Catch ex As Exception
+            MsgBox("An error occured in MeasureSmaObjectSoundLevels." & vbCrLf & ex.ToString)
+        End Try
+
+        'Resets the load type of sound files to the same type as when the sub was called
+        SpeechMaterialComponent.AudioFileLoadMode = AudioFileLoadMode_StartValue
+
+    End Sub
+
+    Public Function GetConcatenatedTestPhonemes_Word(ByRef TestWord As SpeechMaterialLibrary.TestWord,
+                                                  Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
+                                                  Optional ByVal ExportConcatenatedTestPhonemeFile As Boolean = False,
+                                                Optional ExportFolder As String = "") As Tuple(Of Audio.Sound, List(Of Audio.Sound)) ' Concatenated Sound, Sounds prior to concatenation
+
+
+        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+        'Getting a list of sound containing the test phoneme
+
+        Dim TestPhonemeSoundList As New List(Of Audio.Sound)
+
+        For Each Stimulus In TestWord.TestStimuli
+
+            Dim StimulusSound As Audio.Sound = Stimulus.SoundRecording
+
+            'Getting the WaveFormat from the first available sound
+            If WaveFormat Is Nothing Then WaveFormat = StimulusSound.WaveFormat
+
+            Dim TestPhonemeStartSample As Integer = StimulusSound.SMA.ChannelData(1)(sentence)(0).PhoneData(TestWord.ParentTestWordList.ContrastedPhonemeIndex).StartSample
+            Dim TestPhonemeLength As Integer = StimulusSound.SMA.ChannelData(1)(sentence)(0).PhoneData(TestWord.ParentTestWordList.ContrastedPhonemeIndex).Length
+
+            Dim TestPhonemeSound = Audio.DSP.CopySection(StimulusSound, TestPhonemeStartSample, TestPhonemeLength)
+
+            TestPhonemeSoundList.Add(TestPhonemeSound)
+
+        Next
+
+        'Concatenating the sounds
+        Dim CrossPhonemeDuration As Double = 0.001 'Note that this should not be longer than the average test phoneme length of the analysed phonemes
+        Dim AllPhonemesSound As Audio.Sound = Audio.DSP.ConcatenateSounds(TestPhonemeSoundList,,,,,, CrossPhonemeDuration * WaveFormat.SampleRate, False, 10, True)
+
+        'Fading very slightly to avoid initial and final impulses
+        Audio.DSP.Fade(AllPhonemesSound, Nothing, 0,,, AllPhonemesSound.WaveFormat.SampleRate * 0.01, Audio..DSP.FadeSlopeType.Linear)
+        Audio.DSP.Fade(AllPhonemesSound, 0, Nothing,, AllPhonemesSound.WaveData.SampleData(1).Length - AllPhonemesSound.WaveFormat.SampleRate * 0.01,, Audio..DSP.FadeSlopeType.Linear)
+
+        'Removing DC-component
+        Audio.DSP.RemoveDcComponent(AllPhonemesSound)
+
+        If ExportConcatenatedTestPhonemeFile = True Then
+
+            Audio.AudioIOs.SaveToWaveFile(AllPhonemesSound, IO.Path.Combine(ExportFolder, "ConcatTestPhoneme_TW_" & TestWord.ParentTestWordList.ListName & "_" & TestWord.Spelling))
+
+        End If
+
+        Return New Tuple(Of Audio.Sound, List(Of Audio.Sound))(AllPhonemesSound, TestPhonemeSoundList)
+
+    End Function
+
+
+    Public Class BandBank
+        Inherits List(Of BandInfo)
+
+        Public Class BandInfo
+            Public CentreFrequency As Double
+            Public LowerFrequencyLimit As Double
+            Public UpperFrequencyLimit As Double
+
+            Public Sub New(ByVal CentreFrequency As Double, ByVal LowerFrequencyLimit As Double,
+                           ByVal UpperFrequencyLimit As Double)
+
+                Me.CentreFrequency = CentreFrequency
+                Me.LowerFrequencyLimit = LowerFrequencyLimit
+                Me.UpperFrequencyLimit = UpperFrequencyLimit
+            End Sub
+
+            Public Function Bandwidth() As Double
+                Return UpperFrequencyLimit - LowerFrequencyLimit
+            End Function
+        End Class
+
+        Public Shared Function GetSiiCriticalRatioBandBank() As BandBank
+
+            Dim OutputBankBank As New BandBank
+
+            'Adding critical band specifications
+            OutputBankBank.Add(New BandInfo(150, 100, 200))
+            OutputBankBank.Add(New BandInfo(250, 200, 300))
+            OutputBankBank.Add(New BandInfo(350, 300, 400))
+            OutputBankBank.Add(New BandInfo(450, 400, 510))
+            OutputBankBank.Add(New BandInfo(570, 510, 630))
+            OutputBankBank.Add(New BandInfo(700, 630, 770))
+            OutputBankBank.Add(New BandInfo(840, 770, 920))
+            OutputBankBank.Add(New BandInfo(1000, 920, 1080))
+            OutputBankBank.Add(New BandInfo(1170, 1080, 1270))
+            OutputBankBank.Add(New BandInfo(1370, 1270, 1480))
+            OutputBankBank.Add(New BandInfo(1600, 1480, 1720))
+            OutputBankBank.Add(New BandInfo(1850, 1720, 2000))
+            OutputBankBank.Add(New BandInfo(2150, 2000, 2320))
+            OutputBankBank.Add(New BandInfo(2500, 2320, 2700))
+            OutputBankBank.Add(New BandInfo(2900, 2700, 3150))
+            OutputBankBank.Add(New BandInfo(3400, 3150, 3700))
+            OutputBankBank.Add(New BandInfo(4000, 3700, 4400))
+            OutputBankBank.Add(New BandInfo(4800, 4400, 5300))
+            OutputBankBank.Add(New BandInfo(5800, 5300, 6400))
+            OutputBankBank.Add(New BandInfo(7000, 6400, 7700))
+            OutputBankBank.Add(New BandInfo(8500, 7700, 9500))
+
+            Return OutputBankBank
+
+        End Function
+
+    End Class
+
 
     Private Sub LoadAllSoundFIles(ByVal SoundChannel As Integer, ByVal IncludePracticeComponents As Boolean)
 
