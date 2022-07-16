@@ -217,6 +217,34 @@ Public Class MediaSet
 
     End Sub
 
+    Public Sub LoadCustomVariables()
+
+        c
+        'Load using CustomVariablesDatabase class ?
+
+        Dim ComponentLevels As New List(Of SpeechMaterialComponent.LinguisticLevels) From {0, 1, 2, 3, 4}
+
+        For Each ComponentLevel In ComponentLevels
+
+            Dim FilePath = IO.Path.Combine(GetCustomVariablesDirectory(), SpeechMaterialComponent.GetDatabaseFileName(ComponentLevel))
+
+            If IO.File.Exists(FilePath) = False Then
+                MsgBox("Missing custom variable file for the media set " & Me.MediaSetName & ". Expected a file at the location: " & FilePath)
+                Continue For
+            End If
+
+            'Load the data straight into the  ??
+            '    Public NumericVariables As New SortedList(Of String, SortedList(Of String, Double)) ' SpeechMaterialComponent Id, Variable name, Variable Value
+            '    Public CategoricalVariables As New SortedList(Of String, SortedList(Of String, String)) ' SpeechMaterialComponent Id, Variable name, Variable Value
+
+
+        Next
+
+
+
+
+    End Sub
+
     Public Shared Function LoadMediaSetSpecification(ByVal FilePath As String) As MediaSet
 
         'Gets a file path from the user if none is supplied
