@@ -84,12 +84,9 @@
             .Id = NameTextBox.Text,
             .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.ListCollection,
             .PrimaryStringRepresentation = NameTextBox.Text,
-            .CustomVariablesDatabasePath = SpeechMaterialComponent.SpeechMaterialLevelDatabaseName}
+            .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.ListCollection)}
 
-        CurrentListCollectionComponent.DbId = CurrentListCollectionComponent.Id
         CurrentListCollectionComponent.PrimaryStringRepresentation = CurrentListCollectionComponent.Id
-
-        CurrentListCollectionComponent.SetCategoricalVariableValue("DbId", CurrentListCollectionComponent.Id)
 
         Dim CurrentListComponent As SpeechMaterialComponent = Nothing
         Dim CurrentSentenceComponent As SpeechMaterialComponent = Nothing
@@ -126,16 +123,14 @@
                 CurrentListComponent = New SpeechMaterialComponent(rnd) With {
                     .ParentComponent = CurrentListCollectionComponent,
                     .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.List,
-                    .CustomVariablesDatabasePath = SpeechMaterialComponent.ListLevelDataBaseName}
+                    .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.List)}
 
                 CurrentListCollectionComponent.ChildComponents.Add(CurrentListComponent)
 
                 CurrentListComponent.Id = "L" & (CurrentListCollectionComponent.ChildComponents.Count - 1).ToString("00")
-                CurrentListComponent.DbId = CurrentListComponent.Id
                 CurrentListComponent.PrimaryStringRepresentation = ListName
                 CurrentListComponent.OrderedChildren = OrderedSentencesCheckBox.Checked
 
-                CurrentListComponent.SetCategoricalVariableValue("DbId", CurrentListComponent.DbId)
                 CurrentListComponent.SetCategoricalVariableValue("ListName", ListName)
 
             ElseIf CurrentLine.StartsWith("[") Then
@@ -209,15 +204,13 @@
                             Dim NewPhonemeComponent = New SpeechMaterialComponent(rnd) With {
                                     .ParentComponent = CurrentSentenceComponent.ChildComponents(w),
                                     .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme,
-                                    .CustomVariablesDatabasePath = SpeechMaterialComponent.PhonemeLevelDataBaseName}
+                                    .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.Phoneme)}
 
                             CurrentSentenceComponent.ChildComponents(w).ChildComponents.Add(NewPhonemeComponent)
 
                             NewPhonemeComponent.Id = CurrentSentenceComponent.ChildComponents(w).Id & "P" & p.ToString("00")
-                            NewPhonemeComponent.DbId = NewPhonemeComponent.Id
                             NewPhonemeComponent.PrimaryStringRepresentation = CurrentPhoneme
 
-                            NewPhonemeComponent.SetCategoricalVariableValue("DbId", NewPhonemeComponent.DbId)
                             NewPhonemeComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName, CurrentPhoneme)
 
                         Next
@@ -232,16 +225,14 @@
                 CurrentSentenceComponent = New SpeechMaterialComponent(rnd) With {
                     .ParentComponent = CurrentListComponent,
                     .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence,
-                            .CustomVariablesDatabasePath = SpeechMaterialComponent.SentenceLevelDataBaseName}
+                            .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.Sentence)}
 
                 CurrentListComponent.ChildComponents.Add(CurrentSentenceComponent)
 
                 CurrentSentenceComponent.Id = CurrentListComponent.Id & "S" & (CurrentListComponent.ChildComponents.Count - 1).ToString("00")
 
-                CurrentSentenceComponent.DbId = CurrentSentenceComponent.Id
                 CurrentSentenceComponent.PrimaryStringRepresentation = "Sentence" & (CurrentListComponent.ChildComponents.Count - 1).ToString("00")
 
-                CurrentSentenceComponent.SetCategoricalVariableValue("DbId", CurrentSentenceComponent.DbId)
                 CurrentSentenceComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName, CurrentLine)
 
                 'Notes a new sentence
@@ -267,16 +258,14 @@
                     Dim NewWordComponent = New SpeechMaterialComponent(rnd) With {
                         .ParentComponent = CurrentSentenceComponent,
                         .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Word,
-                        .CustomVariablesDatabasePath = SpeechMaterialComponent.WordLevelDataBaseName}
+                        .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.Word)}
 
                     CurrentSentenceComponent.ChildComponents.Add(NewWordComponent)
 
                     NewWordComponent.Id = CurrentSentenceComponent.Id & "W" & AddedWordIndex.ToString("00")
 
-                    NewWordComponent.DbId = NewWordComponent.Id
                     NewWordComponent.PrimaryStringRepresentation = WordSpelling
 
-                    NewWordComponent.SetCategoricalVariableValue("DbId", NewWordComponent.DbId)
                     NewWordComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName, WordSpelling)
 
                 Next

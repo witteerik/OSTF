@@ -6,7 +6,8 @@ End Class
 
 Public Class MediaSet
 
-    Public Const DefaultMediaFolderName As String = "Media"
+    'Public Const DefaultMediaFolderName As String = "Media"
+    Public Const DefaultVariablesSubFolderName As String = "Variables"
 
     Public ParentTestSpecification As TestSpecification
 
@@ -72,6 +73,9 @@ Public Class MediaSet
         NotSet
     End Enum
 
+    'These two should contain the data defined in the TestSituationDatabase associated to the component in the speech material file.
+    Public NumericVariables As New SortedList(Of String, SortedList(Of String, Double)) ' SpeechMaterialComponent Id, Variable name, Variable Value
+    Public CategoricalVariables As New SortedList(Of String, SortedList(Of String, String)) ' SpeechMaterialComponent Id, Variable name, Variable Value
 
 
     Public Sub WriteToFile()
@@ -117,6 +121,99 @@ Public Class MediaSet
         OutputList.Add("WaveFileEncoding = " & WaveFileEncoding.ToString)
 
         Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(OutputPath), IO.Path.GetDirectoryName(OutputPath), True, True, True)
+
+        WriteCustomVariables
+
+    End Sub
+
+    Public Function GetCustomVariablesDirectory()
+        Return IO.Path.Combine(Me.MediaParentFolder, MediaSet.DefaultVariablesSubFolderName)
+    End Function
+
+
+    Public Sub WriteCustomVariables()
+
+        Dim OutputDirectory As String = ""
+
+
+        'Ask if overwrite or save to new location
+        Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
+        If res = MsgBoxResult.Yes Then
+
+            OutputDirectory = GetCustomVariablesDirectory()
+
+        Else
+
+            Dim fbd As New Windows.Forms.FolderBrowserDialog
+            fbd.Description = "Select a folder in which to save the output files"
+            If fbd.ShowDialog() = Windows.Forms.DialogResult.OK Then
+                OutputDirectory = fbd.SelectedPath
+            Else
+                MsgBox("No output folder selected.", MsgBoxStyle.Exclamation, "Saving custom media set variables to file")
+                Exit Sub
+            End If
+
+            If OutputDirectory.Trim = "" Then
+                MsgBox("No output folder selected.", MsgBoxStyle.Exclamation, "Saving custom media set variables to file")
+                Exit Sub
+            End If
+
+        End If
+
+        Dim ComponentLevels As New List(Of SpeechMaterialComponent.LinguisticLevels) From {0, 1, 2, 3, 4}
+
+        For Each ComponentLevel In ComponentLevels
+
+            Dim Components = ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(ComponentLevel)
+
+            Dim NumericHeadings As New SortedSet(Of String)
+            For Each Component In Components
+                Dim Headings = Component.GetNumericMediaSetVariableNames(Me)
+                For Each Heading In Headings
+                    NumericHeadings.Add(Heading)
+                Next
+            Next
+
+            Dim CategoricalHeadings As New SortedSet(Of String)
+            For Each Component In Components
+                Dim Headings = Component.GetCategoricalMediaSetVariableNames(Me)
+                For Each Heading In Headings
+                    CategoricalHeadings.Add(Heading)
+                Next
+            Next
+
+            Dim OutputList As New List(Of String)
+
+            'Headings
+            OutputList.Add(vbTab & String.Join("Id" & vbTab, CategoricalHeadings) & vbTab & String.Join(vbTab, NumericHeadings))
+
+            'Variable types
+            OutputList.Add("C" & vbTab & String.Join(vbTab, Utils.Repeat("C", CategoricalHeadings.Count)) & vbTab & String.Join(vbTab, Utils.Repeat("N", NumericHeadings.Count)))
+
+            'Data lines
+            For Each Component In Components
+                Dim DataLine As New List(Of String)
+                DataLine.Add(Component.Id)
+                For Each CategoricalHeading In CategoricalHeadings
+                    DataLine.Add(Component.GetCategoricalMediaSetVariableValue(Me, CategoricalHeading))
+                Next
+                For Each NumericHeading In NumericHeadings
+                    DataLine.Add(Component.GetNumericMediaSetVariableValue(Me, NumericHeading))
+                Next
+                OutputList.Add(String.Join(vbTab, DataLine))
+            Next
+
+            'Saving to file
+            Dim OutputPath As String = IO.Path.Combine(OutputDirectory, SpeechMaterialComponent.GetDatabaseFileName(ComponentLevel))
+
+            'Creates the diurectory if it doesn't exist
+            If IO.Directory.Exists(OutputPath) = False Then IO.Directory.CreateDirectory(OutputPath)
+
+            Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(OutputPath), IO.Path.GetDirectoryName(OutputPath), True, True, True)
+
+        Next
+
+        MsgBox("Finished saving the custom media set variables to: " & OutputDirectory, MsgBoxStyle.Information, "Saving custom media set variables to file")
 
     End Sub
 

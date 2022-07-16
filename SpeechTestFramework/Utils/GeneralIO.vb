@@ -723,7 +723,7 @@ SavingFile: Dim ofd As New OpenFileDialog
 
                     Dim NumberOfFilesToCopy As Integer = ReadPaths.Count
                     If MaxNumberOfFilesPerSubFolder IsNot Nothing Then
-                        NumberOfFilesToCopy = Math.Min(MaxNumberOfFilesPerSubFolder.Value, ReadPaths.Count)
+                        NumberOfFilesToCopy = System.Math.Min(MaxNumberOfFilesPerSubFolder.Value, ReadPaths.Count)
                     End If
 
                     For n = 0 To NumberOfFilesToCopy - 1

@@ -53,20 +53,6 @@ Public Class SpeechMaterialComponent
     ' The path is stored to be able to write to the same file in order to update the variables.
     Public CustomVariablesDatabasePath As String = ""
 
-    'These two should contain the data defined in the TestSituationDatabase associated to the component in the speech material file.
-    Private NumericMediaSetVariables As New SortedList(Of String, SortedList(Of String, Double)) ' MediaSet Id, Variable name, Variable Value
-    Private CategoricalMediaSetVariables As New SortedList(Of String, SortedList(Of String, String)) ' MediaSet Id, Variable name, Variable Value
-
-    ' This variable should contain a subpath to a custom variables database file in the media set folder in which data related to the component and specific for a media set are stored. 
-    ' Once these data are loaded/created, they are stored in the objects NumericMediaSetVariables and CategoricalMediaSetVariables.
-    ' Only the filename is saved to and read from the speech material component file
-    Private MediaSetDatabaseSubPath As String = ""
-
-    ''' <summary>
-    ''' The Id used to refer to the component in the LinguisticDatabase and/or the TestSituationDatabase
-    ''' </summary>
-    Public DbId As String = ""
-
     Public Function GetTestSituationVariableValue()
         'This function should somehow returns the requested variable values from the indicated test situation, or even offer an option to create/calculate that data if not present.
         Throw New NotImplementedException
@@ -111,13 +97,28 @@ Public Class SpeechMaterialComponent
     Public Shared DefaultSpellingVariableName As String = "Spelling"
     Public Shared DefaultTranscriptionVariableName As String = "Transcription"
 
-    'Creating default names for database files
-    Public Shared SpeechMaterialLevelDatabaseName As String = "SpeechMaterialLevelDatabase.txt"
-    Public Shared ListLevelDataBaseName As String = "ListLevelVariables.txt"
-    Public Shared SentenceLevelDataBaseName As String = "SentenceLevelVariables.txt"
-    Public Shared WordLevelDataBaseName As String = "WordLevelVariables.txt"
-    Public Shared PhonemeLevelDataBaseName As String = "PhonemeLevelVariables.txt"
 
+    Public Function GetDatabaseFileName()
+        Return GetDatabaseFileName(Me.LinguisticLevel)
+    End Function
+
+    Public Shared Function GetDatabaseFileName(ByVal LinguisticLevel As SpeechMaterialComponent.LinguisticLevels)
+        'Defining default names for database files
+        Select Case LinguisticLevel
+            Case LinguisticLevels.ListCollection
+                Return "SpeechMaterialLevelDatabase.txt"
+            Case LinguisticLevels.List
+                Return "ListLevelVariables.txt"
+            Case LinguisticLevels.Sentence
+                Return "SentenceLevelVariables.txt"
+            Case LinguisticLevels.Word
+                Return "WordLevelVariables.txt"
+            Case LinguisticLevels.Phoneme
+                Return "PhonemeLevelVariables.txt"
+            Case Else
+                Throw New ArgumentException("Unkown SpeechMaterialComponent.LinguisticLevel")
+        End Select
+    End Function
 
     Public Sub New(ByRef rnd As Random)
         Me.Randomizer = rnd
@@ -474,7 +475,7 @@ Public Class SpeechMaterialComponent
 
 
     ''' <summary>
-    ''' Searches first among the variable types and then among the categorical for the indicated VariableName. If found, returns the value. 
+    ''' Searches first among the numeric variable types and then among the categorical for the indicated VariableName. If found, returns the value. 
     ''' The calling codes need to parse the value as it is returned as an object. If the variable type is known, it is better to use either GetNumericWordMetricValue or GetCategoricalWordMetricValue instead.
     ''' </summary>
     ''' <param name="VariableName"></param>
@@ -494,6 +495,8 @@ Public Class SpeechMaterialComponent
         Return Nothing
 
     End Function
+
+
 
     ''' <summary>
     ''' Returns all variable names at any component at the indicated Linguistic level and their type (as a boolean IsNumeric), and checks that no variable name is used as both numeric and categorical.
@@ -589,7 +592,6 @@ Public Class SpeechMaterialComponent
         Return NumericVariables.Keys.ToList
     End Function
 
-
     ''' <summary>
     ''' Adds the indicated Value to the indicated VariableName in the collection of CategoricalVariables. Adds the variable name if not already present.
     ''' </summary>
@@ -616,6 +618,138 @@ Public Class SpeechMaterialComponent
             CategoricalVariables.Add(VariableName, Value)
         End If
     End Sub
+
+
+    ''' <summary>
+    ''' Searches first among the numeric media set variable types and then among the categorical for the indicated VariableName. If found, returns the value. 
+    ''' The calling codes need to parse the value as it is returned as an object. If the variable type is known, it is better to use either GetNumericMediaSetVariableValue or GetCategoricalMediaSetVariableValue instead.
+    ''' </summary>
+    ''' <param name="VariableName"></param>
+    ''' <returns></returns>
+    Public Function GetMediaSetVariableValue(ByRef MediaSet As MediaSet, ByVal VariableName As String) As Object
+
+        'Looks first among the numeric metrics
+        If MediaSet.NumericVariables.Keys.Contains(Me.Id) Then
+            If MediaSet.NumericVariables(Me.Id).Keys.Contains(VariableName) Then
+                Return MediaSet.NumericVariables(Me.Id)(VariableName)
+            End If
+        End If
+
+        'If not found, looks among the categorical metrics
+        If MediaSet.CategoricalVariables.Keys.Contains(Me.Id) Then
+            If MediaSet.CategoricalVariables(Me.Id).Keys.Contains(VariableName) Then
+                Return MediaSet.CategoricalVariables(Me.Id)(VariableName)
+            End If
+        End If
+
+        Return Nothing
+
+    End Function
+
+    ''' <summary>
+    ''' Searches among the numeric media set variable types for the indicated VariableName. If found returns word metric value, otherwise returns Nothing.
+    ''' </summary>
+    ''' <param name="VariableName"></param>
+    ''' <returns></returns>
+    Public Function GetNumericMediaSetVariableValue(ByRef MediaSet As MediaSet, ByVal VariableName As String) As Double?
+
+        If MediaSet.NumericVariables.Keys.Contains(Me.Id) Then
+            If MediaSet.NumericVariables(Me.Id).Keys.Contains(VariableName) Then
+                Return MediaSet.NumericVariables(Me.Id)(VariableName)
+            End If
+        End If
+
+        Return Nothing
+
+    End Function
+
+    ''' <summary>
+    ''' Searches among the categorical media set variable types for the indicated VariableName. If found returns word metric value, otherwise returns Nothing.
+    ''' </summary>
+    ''' <param name="VariableName"></param>
+    ''' <returns></returns>
+    Public Function GetCategoricalMediaSetVariableValue(ByRef MediaSet As MediaSet, ByVal VariableName As String) As String
+
+        If MediaSet.CategoricalVariables.Keys.Contains(Me.Id) Then
+            If MediaSet.CategoricalVariables(Me.Id).Keys.Contains(VariableName) Then
+                Return MediaSet.CategoricalVariables(Me.Id)(VariableName)
+            End If
+        End If
+
+        Return Nothing
+
+    End Function
+
+    ''' <summary>
+    ''' Returns the names of all numeric custom media set variabels
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetNumericMediaSetVariableNames(ByRef MediaSet As MediaSet) As List(Of String)
+
+        If MediaSet.NumericVariables.Keys.Contains(Me.Id) Then
+            Return MediaSet.NumericVariables(Me.Id).Keys.ToList
+        End If
+
+        Return Nothing
+
+    End Function
+
+
+    ''' <summary>
+    ''' Returns the names of all numeric custom media set variabels
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetCategoricalMediaSetVariableNames(ByRef MediaSet As MediaSet) As List(Of String)
+
+        If MediaSet.CategoricalVariables.Keys.Contains(Me.Id) Then
+            Return MediaSet.CategoricalVariables(Me.Id).Keys.ToList
+        End If
+
+        Return Nothing
+
+    End Function
+
+
+    ''' <summary>
+    ''' Adds the indicated Value to the indicated VariableName in the collection of media set NumericVariables. Adds the variable name if not already present.
+    ''' </summary>
+    ''' <param name="VariableName"></param>
+    ''' <param name="Value"></param>
+    Public Sub SetNumericMediaSetVariableValue(ByRef MediaSet As MediaSet, ByVal VariableName As String, ByVal Value As String)
+
+        If MediaSet.NumericVariables.Keys.Contains(Me.Id) = False Then
+            MediaSet.NumericVariables.Add(Me.Id, New SortedList(Of String, Double))
+        End If
+
+        If MediaSet.NumericVariables(Me.Id).Keys.Contains(VariableName) = True Then
+            MediaSet.NumericVariables(Me.Id)(VariableName) = Value
+        Else
+            MediaSet.NumericVariables(Me.Id).Add(VariableName, Value)
+        End If
+
+    End Sub
+
+
+    ''' <summary>
+    ''' Adds the indicated Value to the indicated VariableName in the collection of media set CategoricalVariables. Adds the variable name if not already present.
+    ''' </summary>
+    ''' <param name="VariableName"></param>
+    ''' <param name="Value"></param>
+    Public Sub SetCategoricalMediaSetVariableValue(ByRef MediaSet As MediaSet, ByVal VariableName As String, ByVal Value As Double)
+
+        If MediaSet.CategoricalVariables.Keys.Contains(Me.Id) = False Then
+            MediaSet.CategoricalVariables.Add(Me.Id, New SortedList(Of String, String))
+        End If
+
+        If MediaSet.CategoricalVariables(Me.Id).Keys.Contains(VariableName) = True Then
+            MediaSet.CategoricalVariables(Me.Id)(VariableName) = Value
+        Else
+            MediaSet.CategoricalVariables(Me.Id).Add(VariableName, Value)
+        End If
+    End Sub
+
+
+
 
     Public Function GetChildren() As List(Of SpeechMaterialComponent)
         Return ChildComponents
@@ -754,6 +888,8 @@ Public Class SpeechMaterialComponent
 
     Public Function IsContrastingComponent(Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
                                            Optional ByVal SecondaryComparisonVariableName As String = "Spelling") As Boolean
+
+        d
 
         'Determines if the component contrasts to other same order components
 
@@ -969,16 +1105,6 @@ Public Class SpeechMaterialComponent
             End If
             index += 1
 
-            ' Adding the test situation database subpath
-            Dim MediaSetDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
-            NewComponent.MediaSetDatabaseSubPath = MediaSetDatabaseSubPath
-            index += 1
-
-            ' Adding the DbId
-            Dim DbId As String = InputFileSupport.GetInputFileValue(SplitRow(index), False)
-            NewComponent.DbId = DbId
-            index += 1
-
             ' Adding the custom variables
             If CustomVariablesDatabaseSubPath.Trim <> "" Then
                 If CustomVariablesDatabases.ContainsKey(CustomVariablesDatabasePath) = False Then
@@ -992,11 +1118,11 @@ Public Class SpeechMaterialComponent
                 For n = 0 To CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames.Count - 1
                     Dim VariableName = CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames(n)
                     If CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Categorical Then
-                        NewComponent.CategoricalVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
+                        NewComponent.CategoricalVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(NewComponent.Id, VariableName))
                     ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Numeric Then
-                        NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
+                        NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(NewComponent.Id, VariableName))
                     ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Boolean Then
-                        NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(DbId, VariableName))
+                        NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(NewComponent.Id, VariableName))
                     Else
                         Throw New NotImplementedException("Variable type not implemented!")
                     End If
@@ -1256,7 +1382,7 @@ Public Class SpeechMaterialComponent
 
         If CustomVariablesExportList Is Nothing Then CustomVariablesExportList = New SortedList(Of String, List(Of String))
 
-        Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab & "MediaSetDatabase" & vbTab & "DbId" & vbTab &
+        Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab &
                     "OrderedChildren" & vbTab & "IsPractiseComponent" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
 
         Dim Main_List As New List(Of String)
@@ -1284,18 +1410,6 @@ Public Class SpeechMaterialComponent
         Else
             Main_List.Add("")
         End If
-
-        'TestSituationDatabase
-        If MediaSetDatabaseSubPath <> "" Then
-            Dim CurrentDataBasePath = IO.Path.GetFileName(MediaSetDatabaseSubPath)
-            Main_List.Add(CurrentDataBasePath)
-            'TODO: If this functionality is going to be used, then we need to add code for exporting these variables here
-        Else
-            Main_List.Add("")
-        End If
-
-        'DbId 
-        Main_List.Add(DbId)
 
         'OrderedChildren 
         Main_List.Add(OrderedChildren.ToString)

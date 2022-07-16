@@ -160,7 +160,7 @@
     </Compile>
     <Compile Include="TestSupport\MediaSets.vb" />
     <Compile Include="TestSupport\SpeechMaterialComponent.vb" />
-    <Compile Include="Utils\Calculations.vb" />
+    <Compile Include="Utils\Math.vb" />
     <Compile Include="Utils\Enums.vb" />
     <Compile Include="Utils\GeneralIO.vb" />
     <Compile Include="Utils\GlobalUtilsData.vb" />

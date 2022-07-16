@@ -1820,9 +1820,9 @@ Namespace Audio
                     Dim Distance As Double
                     If SkipDistanceCalculation = False Then
                         If IrrelevantDifferenceThreshold Is Nothing Then
-                            Distance = Utils.Calculations.GetEuclideanDistance(Sound1.FFT.TemporaryData(0).WindowData, Sound2.FFT.TemporaryData(0).WindowData)
+                            Distance = Utils.Math.GetEuclideanDistance(Sound1.FFT.TemporaryData(0).WindowData, Sound2.FFT.TemporaryData(0).WindowData)
                         Else
-                            Distance = Utils.Calculations.GetEuclideanDistance(Sound1.FFT.TemporaryData(0).WindowData, Sound2.FFT.TemporaryData(0).WindowData, IrrelevantDifferenceThreshold)
+                            Distance = Utils.Math.GetEuclideanDistance(Sound1.FFT.TemporaryData(0).WindowData, Sound2.FFT.TemporaryData(0).WindowData, IrrelevantDifferenceThreshold)
                         End If
                     End If
 
@@ -10211,7 +10211,7 @@ Namespace Audio
                     'Performing an inverse dft on the magnitudes
                     'FFT_Bourke(-1, getBaseTwoLog(fftFormat.FftWindowSize), averageMagnitudes, temporaryIMX)
 
-                    DSP.FFT_Bourke(-1, Utils.Calculations.getBase_n_Log(fftFormat.FftWindowSize, 2), averageMagnitudes, temporaryIMX)
+                    DSP.FFT_Bourke(-1, Utils.Math.getBase_n_Log(fftFormat.FftWindowSize, 2), averageMagnitudes, temporaryIMX)
 
                     'Shifting + truncate
                     Dim kernelArray(kernelSize - 1) As Single

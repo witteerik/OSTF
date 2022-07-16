@@ -22,7 +22,32 @@
 'SOFTWARE.
 
 Namespace Utils
-    Public Module Calculations
+    Public Module Math
+
+        Public Function Repeat(ByVal Value As Integer, ByVal Length As Integer) As Integer()
+            Dim Output As New List(Of Integer)
+            For i = 1 To Length
+                Output.Add(Value)
+            Next
+            Return Output.ToArray
+        End Function
+
+        Public Function Repeat(ByVal Value As Double, ByVal Length As Integer) As Double()
+            Dim Output As New List(Of Double)
+            For i = 1 To Length
+                Output.Add(Value)
+            Next
+            Return Output.ToArray
+        End Function
+
+        Public Function Repeat(ByVal Value As String, ByVal Length As Integer) As String()
+            Dim Output As New List(Of String)
+            For i = 1 To Length
+                Output.Add(Value)
+            Next
+            Return Output.ToArray
+        End Function
+
 
         ''' <summary>
         ''' Returns a vector of length n, with random integers sampled in from the range of min (includive) to max (exclusive).
@@ -54,7 +79,7 @@ Namespace Utils
 
         Public Function getBase_n_Log(ByVal value As Double, Optional ByVal n As Double = 2) As Double
 
-            Return Math.Log10(value) / Math.Log10(n)
+            Return System.Math.Log10(value) / System.Math.Log10(n)
 
         End Function
 
@@ -69,7 +94,7 @@ Namespace Utils
             For Each Item In InputArray
                 If Item.HasValue = True Then
                     If CurrentMax.HasValue Then
-                        CurrentMax = Math.Max(Item.Value, CurrentMax.Value)
+                        CurrentMax = System.Math.Max(Item.Value, CurrentMax.Value)
                     Else
                         CurrentMax = Item.Value
                     End If
@@ -122,7 +147,7 @@ Namespace Utils
                     Case roundingMethods.getClosestValue
 
                         If DecimalsInReturnsString Is Nothing Then
-                            ReturnValue = (Math.Round(ReturnValue))
+                            ReturnValue = (System.Math.Round(ReturnValue))
                             'If not midpoint rounding is done below
                         End If
 
@@ -226,14 +251,14 @@ Namespace Utils
         ''' <param name="PositionTerm"></param>
         Public Function CalculateZipfValue(ByRef RawWordTypeFrequency As Long, ByVal CorpusTotalTokenCount As Long, ByVal CorpusTotalWordTypeCount As Integer, Optional ByVal PositionTerm As Integer = 3)
 
-            Return Math.Log10((RawWordTypeFrequency + 1) / ((CorpusTotalTokenCount + CorpusTotalWordTypeCount) / 1000000)) + PositionTerm
+            Return System.Math.Log10((RawWordTypeFrequency + 1) / ((CorpusTotalTokenCount + CorpusTotalWordTypeCount) / 1000000)) + PositionTerm
 
         End Function
 
         Public Function ConvertZipfValueToRawFrequency(ByRef ZipfValue As Double, ByVal CorpusTotalTokenCount As Long, ByVal CorpusTotalWordTypeCount As Integer, Optional ByVal PositionTerm As Integer = 3) As Integer
 
             Try
-                Return Math.Round(10 ^ (ZipfValue - PositionTerm) * ((CorpusTotalTokenCount + CorpusTotalWordTypeCount) / 1000000) - 1)
+                Return System.Math.Round(10 ^ (ZipfValue - PositionTerm) * ((CorpusTotalTokenCount + CorpusTotalWordTypeCount) / 1000000) - 1)
             Catch ex As Exception
                 Return 0
             End Try
@@ -251,7 +276,7 @@ Namespace Utils
         ''' <returns></returns>
         Public Function CalculateZipfValueFromRelativeFrequency(ByRef RelativeWordTypeFrequency As Double, ByVal CorpusTotalTokenCount As Long, ByVal CorpusTotalWordTypeCount As Long, Optional ByVal PositionTerm As Integer = 3)
 
-            Return Math.Log10(((RelativeWordTypeFrequency * 1000000) + 1) / (((CorpusTotalTokenCount + CorpusTotalWordTypeCount) / 1000000))) + PositionTerm
+            Return System.Math.Log10(((RelativeWordTypeFrequency * 1000000) + 1) / (((CorpusTotalTokenCount + CorpusTotalWordTypeCount) / 1000000))) + PositionTerm
 
         End Function
 
@@ -318,10 +343,10 @@ Namespace Utils
 
                     Dim SummedLogs As Double = 0
                     For i = 0 To InputArray.Length - 1
-                        SummedLogs += Math.Log(InputArray(i))
+                        SummedLogs += System.Math.Log(InputArray(i))
                     Next
 
-                    Return Math.Exp(SummedLogs / n)
+                    Return System.Math.Exp(SummedLogs / n)
 
                 Else
 
@@ -332,11 +357,11 @@ Namespace Utils
 
                         If InputArray(i) = 0 Then Continue For
 
-                        SummedLogs += Math.Log(InputArray(i))
+                        SummedLogs += System.Math.Log(InputArray(i))
                         n += 1
                     Next
 
-                    Return Math.Exp(SummedLogs / n)
+                    Return System.Math.Exp(SummedLogs / n)
 
                 End If
 
@@ -392,7 +417,7 @@ Namespace Utils
                 End Select
 
                 'Calculates, the standard deviation of the values in the input list
-                StandardDeviation = Math.Sqrt(Variance)
+                StandardDeviation = System.Math.Sqrt(Variance)
 
                 'Calculates and returns the coefficient of variation
                 Return StandardDeviation / ArithmetricMean
@@ -474,7 +499,7 @@ Namespace Utils
             End If
 
             'Calculates, the standard deviation of the values in the input list
-            Dim StandardDeviation As Double = Math.Sqrt(Variance)
+            Dim StandardDeviation As Double = System.Math.Sqrt(Variance)
 
             'Standardizes the values in the input list
             For n = 0 To InputListOfDouble.Count - 1
@@ -543,7 +568,7 @@ Namespace Utils
             'Dim r2 As Double = A / B
 
             Dim r As Double = (SumXY - ((x.Sum * y.Sum) / n)) /
-        Math.Sqrt((SumXSq - ((x.Sum * x.Sum) / n)) * (SumYSq - ((y.Sum * y.Sum) / n)))
+        System.Math.Sqrt((SumXSq - ((x.Sum * x.Sum) / n)) * (SumYSq - ((y.Sum * y.Sum) / n)))
             Return r
 
 
@@ -562,7 +587,7 @@ Namespace Utils
                 Sum += (Array1(n) - Array2(n)) ^ 2
             Next
 
-            Return Math.Sqrt(Sum)
+            Return System.Math.Sqrt(Sum)
 
         End Function
 
@@ -581,10 +606,10 @@ Namespace Utils
 
             Dim Sum As Double = 0
             For n = 0 To Array1.Length - 1
-                Sum += (Math.Min(MaximumDifferenceThreshold, Array1(n) - Array2(n))) ^ 2
+                Sum += (System.Math.Min(MaximumDifferenceThreshold, Array1(n) - Array2(n))) ^ 2
             Next
 
-            Return Math.Sqrt(Sum)
+            Return System.Math.Sqrt(Sum)
 
         End Function
 
@@ -597,7 +622,7 @@ Namespace Utils
             'Subtracting the arrays
             Dim SubtractionArray(Array1.Length - 1) As Single
             For k = 0 To SubtractionArray.Length - 1
-                SubtractionArray(k) = Math.Abs(Array1(k) - Array2(k))
+                SubtractionArray(k) = System.Math.Abs(Array1(k) - Array2(k))
             Next
 
             Dim TotalSubtractionValue As Double = SubtractionArray.Average
@@ -622,7 +647,7 @@ Namespace Utils
 
             'Getting the value farthest from zero
             DetectedMaxValue = InputListOfDouble.Max
-            If Math.Abs(InputListOfDouble.Min) > Math.Abs(DetectedMaxValue) Then DetectedMaxValue = InputListOfDouble.Min
+            If System.Math.Abs(InputListOfDouble.Min) > System.Math.Abs(DetectedMaxValue) Then DetectedMaxValue = InputListOfDouble.Min
 
             'Calculating the normalization factor
             NormalizationFactor = 1 / DetectedMaxValue
@@ -781,8 +806,8 @@ Namespace Utils
                         Dim LowerValue = TempValues(n - 1)
                         Dim HigherValue = TempValues(n)
 
-                        Dim DistToLowerValue = Math.Abs(InputValue - LowerValue)
-                        Dim DistToHigherValue = Math.Abs(InputValue - HigherValue)
+                        Dim DistToLowerValue = System.Math.Abs(InputValue - LowerValue)
+                        Dim DistToHigherValue = System.Math.Abs(InputValue - HigherValue)
 
                         If MidpointUpwardsRounding = True Then
                             If DistToLowerValue < DistToHigherValue Then
@@ -1068,7 +1093,7 @@ Namespace Utils
                             End If
 
                             'Getting the distance 
-                            DtwMatrix(Column_x, Row_y).X_Y_Distance = Math.Abs(X(Column_x) - Y(Row_y))
+                            DtwMatrix(Column_x, Row_y).X_Y_Distance = System.Math.Abs(X(Column_x) - Y(Row_y))
 
                         Next
                     Next
