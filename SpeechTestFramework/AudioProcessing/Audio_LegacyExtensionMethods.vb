@@ -492,7 +492,7 @@ Namespace Audio
 
                         If UpdateSmaLevels = True Then
                             CurrentSound.SMA.ResetSoundLevels()
-                            CurrentSound.SMA.MeasureSoundLevels()
+                            CurrentSound.SMA.MeasureSoundLevels(False)
                         End If
 
                         If ChangePhoneticNameToOrthographic = True Then

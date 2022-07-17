@@ -122,7 +122,7 @@ Public Class MediaSet
 
         Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(OutputPath), IO.Path.GetDirectoryName(OutputPath), True, True, True)
 
-        WriteCustomVariables
+        WriteCustomVariables()
 
     End Sub
 
@@ -219,9 +219,6 @@ Public Class MediaSet
 
     Public Sub LoadCustomVariables()
 
-        c
-        'Load using CustomVariablesDatabase class ?
-
         Dim ComponentLevels As New List(Of SpeechMaterialComponent.LinguisticLevels) From {0, 1, 2, 3, 4}
 
         For Each ComponentLevel In ComponentLevels
@@ -233,14 +230,55 @@ Public Class MediaSet
                 Continue For
             End If
 
-            'Load the data straight into the  ??
-            '    Public NumericVariables As New SortedList(Of String, SortedList(Of String, Double)) ' SpeechMaterialComponent Id, Variable name, Variable Value
-            '    Public CategoricalVariables As New SortedList(Of String, SortedList(Of String, String)) ' SpeechMaterialComponent Id, Variable name, Variable Value
+            ' Adding the custom variables
+            If FilePath.Trim <> "" Then
+                Dim NewDatabase As New CustomVariablesDatabase
+                NewDatabase.LoadTabDelimitedFile(FilePath)
 
+                Dim Components = ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(ComponentLevel)
+
+                For Each Component In Components
+
+                    'Adding the variables
+                    For n = 0 To NewDatabase.CustomVariableNames.Count - 1
+
+                        Dim VariableName = NewDatabase.CustomVariableNames(n)
+                        If NewDatabase.CustomVariableTypes(n) = VariableTypes.Categorical Then
+
+                            If Me.CategoricalVariables.ContainsKey(Component.Id) = False Then Me.CategoricalVariables.Add(Component.Id, New SortedList(Of String, String))
+                            If Me.CategoricalVariables(Component.Id).ContainsKey(VariableName) Then Me.CategoricalVariables(Component.Id).Add(VariableName, "")
+                            Me.CategoricalVariables(Component.Id).Add(VariableName, NewDatabase.GetVariableValue(Component.Id, VariableName))
+
+                            'Alternatively the following code could be used
+                            'Component.SetCategoricalMediaSetVariableValue(Me, VariableName, NewDatabase.GetVariableValue(Component.Id, VariableName))
+
+                        ElseIf NewDatabase.CustomVariableTypes(n) = VariableTypes.Numeric Then
+
+                            If Me.NumericVariables.ContainsKey(Component.Id) = False Then Me.NumericVariables.Add(Component.Id, New SortedList(Of String, Double))
+                            If Me.NumericVariables(Component.Id).ContainsKey(VariableName) Then Me.NumericVariables(Component.Id).Add(VariableName, "")
+                            Me.NumericVariables(Component.Id).Add(VariableName, NewDatabase.GetVariableValue(Component.Id, VariableName))
+
+                            'Alternatively the following code could be used
+                            Component.SetNumericMediaSetVariableValue(Me, VariableName, NewDatabase.GetVariableValue(Component.Id, VariableName))
+
+                        ElseIf NewDatabase.CustomVariableTypes(n) = VariableTypes.Boolean Then
+
+                            If Me.NumericVariables.ContainsKey(Component.Id) = False Then Me.NumericVariables.Add(Component.Id, New SortedList(Of String, Double))
+                            If Me.NumericVariables(Component.Id).ContainsKey(VariableName) Then Me.NumericVariables(Component.Id).Add(VariableName, "")
+                            Me.NumericVariables(Component.Id).Add(VariableName, NewDatabase.GetVariableValue(Component.Id, VariableName))
+
+                            'Alternatively the following code could be used
+                            Component.SetNumericMediaSetVariableValue(Me, VariableName, NewDatabase.GetVariableValue(Component.Id, VariableName))
+
+                        Else
+                            Throw New NotImplementedException("Variable type not implemented!")
+                        End If
+
+                    Next
+                Next
+            End If
 
         Next
-
-
 
 
     End Sub
@@ -1125,7 +1163,8 @@ Public Class MediaSet
 
     End Sub
 
-    Public Sub MeasureSmaObjectSoundLevels(ByVal FrequencyWeighting As Audio.FrequencyWeightings,
+    Public Sub MeasureSmaObjectSoundLevels(ByVal IncludeCriticalBandLevels As Boolean,
+                                           ByVal FrequencyWeighting As Audio.FrequencyWeightings,
                                            ByVal TemporalIntegrationDuration As Decimal,
                                            Optional ByVal ExportFolder As String = "",
                                            Optional ByVal SoundChannel As Integer = 1)
@@ -1169,7 +1208,7 @@ Public Class MediaSet
                 Recording.SMA.SetTimeWeighting(TemporalIntegrationDuration, True)
 
                 'Measures sound levels
-                Recording.SMA.MeasureSoundLevels(True, ExportFolder)
+                Recording.SMA.MeasureSoundLevels(IncludeCriticalBandLevels, True, ExportFolder)
 
             Next
 
@@ -1192,11 +1231,10 @@ Public Class MediaSet
     End Sub
 
 
-    Public Sub MeasureSmaCbLevels(ByVal MeasurementLinguisticLevel As SpeechMaterialComponent.LinguisticLevels,
-                                  ByVal MeasureOnlyConstrastingComponents As Boolean,
-                                  ByVal AverageAcrossExemplars As Boolean,
-                                  ByVal SoundChannel As Integer,
-                                  ByVal SkipPractiseComponents As Boolean)
+    Public Sub MeasureContrastingPhonemeSpectrumLevels(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                       ByVal ObjectsLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                       ByVal SoundChannel As Integer,
+                                                       ByVal SkipPractiseComponents As Boolean)
 
 
         'Clears previously loaded sounds
@@ -1204,36 +1242,42 @@ Public Class MediaSet
 
         Dim MeasurementComponents As New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)))
 
-        Dim TargetComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(MeasurementLinguisticLevel)
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SummaryLevel)
 
-        For c = 0 To TargetComponents.Count - 1
+        For Each SummaryComponent In SummaryComponents
 
-            If SkipPractiseComponents = True Then
-                If TargetComponents(c).IsPractiseComponent = True Then Continue For
-            End If
+            Dim TargetComponents = SummaryComponent.GetAllDescenentsAtLevel(ObjectsLevel)
 
-            If MeasureOnlyConstrastingComponents = True Then
-                'Determine if is contraisting component??
-                If TargetComponents(c).IsContrastingComponent = False Then Continue For
-                'If TargetComponents(c).SamePlaceCousins.Count = 0 Then
-                '    If TargetComponents(c).SamePlaceSecondCousins.Count = 0 Then
-                '        Continue For
-                '    End If
-                'End If
-            End If
+            'Get the contrasting sound section of
+            For c = 0 To TargetComponents.Count - 1
 
-            For i = 0 To MediaAudioItems - 1
+                If SkipPractiseComponents = True Then
+                    If TargetComponents(c).IsPractiseComponent = True Then Continue For
+                End If
 
-                MeasurementComponents.Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(TargetComponents(c), TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)))
+                If MeasureOnlyConstrastingComponents = True Then
+                    'Determine if is contraisting component??
+                    If TargetComponents(c).IsContrastingComponent = False Then Continue For
+                    'If TargetComponents(c).SamePlaceCousins.Count = 0 Then
+                    '    If TargetComponents(c).SamePlaceSecondCousins.Count = 0 Then
+                    '        Continue For
+                    '    End If
+                    'End If
+                End If
 
+                For i = 0 To MediaAudioItems - 1
+
+                    MeasurementComponents.Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(TargetComponents(c), TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)))
+
+                Next
             Next
-        Next
 
+        Next
 
 
     End Sub
 
-    Public Sub CalculateCbSpectrumLevels(Optional ByVal BandInfo As BandBank = Nothing,
+    Public Sub CalculateCbSpectrumLevels(Optional ByVal BandInfo As Audio.DSP.BandBank = Nothing,
                                          Optional FftFormat As Audio.Formats.FftFormat = Nothing,
                                          Optional ByVal dBSPL_FSdifference As Double? = Nothing)
 
@@ -1245,13 +1289,12 @@ Public Class MediaSet
 
         If BandInfo Is Nothing Then
             'Setting default audiogram frequencies
-            BandInfo = BandBank.GetSiiCriticalRatioBandBank
+            BandInfo = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
 
         End If
 
         'Setting up FFT formats
         If FftFormat Is Nothing Then FftFormat = New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
-        Dim MeasurementWindowOverlapLength As Integer = FftFormat.OverlapSize
 
         Try
 
@@ -1341,8 +1384,8 @@ Public Class MediaSet
                         'ConcatPhonemesSound = Sound.LoadWaveFile("C:\SpeechAndHearingToolsLog\CB_Data\Measured ISTS\CBG_Stad.ptwf") ' Just a sound to check calculations with, with energy at 100-9500 Hz
 
                         'Calculating spectra
-                        ConcatPhonemesSound.FFT = Audio.DSP.SpectralAnalysis(ConcatPhonemesSound, FftFormat))
-                    ConcatPhonemesSound.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
+                        ConcatPhonemesSound.FFT = Audio.DSP.SpectralAnalysis(ConcatPhonemesSound, FftFormat)
+                        ConcatPhonemesSound.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
 
                         Dim TempBandLevelList As New List(Of String)
                         TempBandLevelList.Add(TW_TWG_V)
@@ -1487,60 +1530,6 @@ Public Class MediaSet
 
     End Function
 
-
-    Public Class BandBank
-        Inherits List(Of BandInfo)
-
-        Public Class BandInfo
-            Public CentreFrequency As Double
-            Public LowerFrequencyLimit As Double
-            Public UpperFrequencyLimit As Double
-
-            Public Sub New(ByVal CentreFrequency As Double, ByVal LowerFrequencyLimit As Double,
-                           ByVal UpperFrequencyLimit As Double)
-
-                Me.CentreFrequency = CentreFrequency
-                Me.LowerFrequencyLimit = LowerFrequencyLimit
-                Me.UpperFrequencyLimit = UpperFrequencyLimit
-            End Sub
-
-            Public Function Bandwidth() As Double
-                Return UpperFrequencyLimit - LowerFrequencyLimit
-            End Function
-        End Class
-
-        Public Shared Function GetSiiCriticalRatioBandBank() As BandBank
-
-            Dim OutputBankBank As New BandBank
-
-            'Adding critical band specifications
-            OutputBankBank.Add(New BandInfo(150, 100, 200))
-            OutputBankBank.Add(New BandInfo(250, 200, 300))
-            OutputBankBank.Add(New BandInfo(350, 300, 400))
-            OutputBankBank.Add(New BandInfo(450, 400, 510))
-            OutputBankBank.Add(New BandInfo(570, 510, 630))
-            OutputBankBank.Add(New BandInfo(700, 630, 770))
-            OutputBankBank.Add(New BandInfo(840, 770, 920))
-            OutputBankBank.Add(New BandInfo(1000, 920, 1080))
-            OutputBankBank.Add(New BandInfo(1170, 1080, 1270))
-            OutputBankBank.Add(New BandInfo(1370, 1270, 1480))
-            OutputBankBank.Add(New BandInfo(1600, 1480, 1720))
-            OutputBankBank.Add(New BandInfo(1850, 1720, 2000))
-            OutputBankBank.Add(New BandInfo(2150, 2000, 2320))
-            OutputBankBank.Add(New BandInfo(2500, 2320, 2700))
-            OutputBankBank.Add(New BandInfo(2900, 2700, 3150))
-            OutputBankBank.Add(New BandInfo(3400, 3150, 3700))
-            OutputBankBank.Add(New BandInfo(4000, 3700, 4400))
-            OutputBankBank.Add(New BandInfo(4800, 4400, 5300))
-            OutputBankBank.Add(New BandInfo(5800, 5300, 6400))
-            OutputBankBank.Add(New BandInfo(7000, 6400, 7700))
-            OutputBankBank.Add(New BandInfo(8500, 7700, 9500))
-
-            Return OutputBankBank
-
-        End Function
-
-    End Class
 
 
     Private Sub LoadAllSoundFIles(ByVal SoundChannel As Integer, ByVal IncludePracticeComponents As Boolean)

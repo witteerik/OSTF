@@ -552,7 +552,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
                         InputSound.SMA.SetTimeWeighting(SoundLevelFormat.TemporalIntegrationDuration, True)
 
                         'Measures sound levels
-                        InputSound.SMA.MeasureSoundLevels(LogMeasurentResults)
+                        InputSound.SMA.MeasureSoundLevels(False, LogMeasurentResults)
 
                         'Saves the file with the original file name, but always in .ptwf format
                         AudioIOs.SaveToWaveFile(InputSound, Path.Combine(Path.GetDirectoryName(FilePath), Path.GetFileNameWithoutExtension(FilePath)))
@@ -749,7 +749,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
                     InputSoundFile.SMA.SetTimeWeighting(SoundLevelFormat.TemporalIntegrationDuration, True)
 
                     'Measures the levels
-                    InputSoundFile.SMA.MeasureSoundLevels(LogResults, Utils.logFilePath)
+                    InputSoundFile.SMA.MeasureSoundLevels(False, LogResults, Utils.logFilePath)
 
                     If UpdateFiles = True Then
                         SaveToWaveFile(InputSoundFile, FilePaths(n))

@@ -8657,6 +8657,62 @@ Namespace Audio
 
         End Module
 
+
+        Public Class BandBank
+            Inherits List(Of BandInfo)
+
+            Public Class BandInfo
+                Public CentreFrequency As Double
+                Public LowerFrequencyLimit As Double
+                Public UpperFrequencyLimit As Double
+
+                Public Sub New(ByVal CentreFrequency As Double, ByVal LowerFrequencyLimit As Double,
+                           ByVal UpperFrequencyLimit As Double)
+
+                    Me.CentreFrequency = CentreFrequency
+                    Me.LowerFrequencyLimit = LowerFrequencyLimit
+                    Me.UpperFrequencyLimit = UpperFrequencyLimit
+                End Sub
+
+                Public Function Bandwidth() As Double
+                    Return UpperFrequencyLimit - LowerFrequencyLimit
+                End Function
+            End Class
+
+            Public Shared Function GetSiiCriticalRatioBandBank() As BandBank
+
+                Dim OutputBankBank As New BandBank
+
+                'Adding critical band specifications
+                OutputBankBank.Add(New BandInfo(150, 100, 200))
+                OutputBankBank.Add(New BandInfo(250, 200, 300))
+                OutputBankBank.Add(New BandInfo(350, 300, 400))
+                OutputBankBank.Add(New BandInfo(450, 400, 510))
+                OutputBankBank.Add(New BandInfo(570, 510, 630))
+                OutputBankBank.Add(New BandInfo(700, 630, 770))
+                OutputBankBank.Add(New BandInfo(840, 770, 920))
+                OutputBankBank.Add(New BandInfo(1000, 920, 1080))
+                OutputBankBank.Add(New BandInfo(1170, 1080, 1270))
+                OutputBankBank.Add(New BandInfo(1370, 1270, 1480))
+                OutputBankBank.Add(New BandInfo(1600, 1480, 1720))
+                OutputBankBank.Add(New BandInfo(1850, 1720, 2000))
+                OutputBankBank.Add(New BandInfo(2150, 2000, 2320))
+                OutputBankBank.Add(New BandInfo(2500, 2320, 2700))
+                OutputBankBank.Add(New BandInfo(2900, 2700, 3150))
+                OutputBankBank.Add(New BandInfo(3400, 3150, 3700))
+                OutputBankBank.Add(New BandInfo(4000, 3700, 4400))
+                OutputBankBank.Add(New BandInfo(4800, 4400, 5300))
+                OutputBankBank.Add(New BandInfo(5800, 5300, 6400))
+                OutputBankBank.Add(New BandInfo(7000, 6400, 7700))
+                OutputBankBank.Add(New BandInfo(8500, 7700, 9500))
+
+                Return OutputBankBank
+
+            End Function
+
+        End Class
+
+
         Public Class GammatoneFirFilterBank
 
             Public ReadOnly FilterKernels As List(Of Sound)

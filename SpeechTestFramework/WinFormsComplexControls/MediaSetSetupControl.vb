@@ -408,7 +408,9 @@
             Exit Sub
         End If
 
-        SelectedMediaSet.MeasureSmaObjectSoundLevels(SmaFrequencyWeighting, SmaTemporalIntegration)
+        Dim IncludeCriticalBandLevels As Boolean = IncludeCriticalBandLevels_CheckBox.Checked
+
+        SelectedMediaSet.MeasureSmaObjectSoundLevels(IncludeCriticalBandLevels, SmaFrequencyWeighting, SmaTemporalIntegration)
 
     End Sub
 

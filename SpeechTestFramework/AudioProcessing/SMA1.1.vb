@@ -164,7 +164,7 @@ Namespace Audio
             ''' Measures sound levels for each channel, sentence, word and phone of the current SMA object.
             ''' </summary>
             ''' <returns>Returns True if all measurements were successful, and False if one or more measurements failed.</returns>
-            Public Function MeasureSoundLevels(Optional ByVal LogMeasurementResults As Boolean = False, Optional ByVal LogFolder As String = "") As Boolean
+            Public Function MeasureSoundLevels(Optional ByVal IncludeCriticalBandLevels As Boolean = False, Optional ByVal LogMeasurementResults As Boolean = False, Optional ByVal LogFolder As String = "") As Boolean
 
                 If ParentSound Is Nothing Then
                     Throw New Exception("The parent sound if the current instance of SpeechMaterialAnnotation cannot be Nothing!")
@@ -175,7 +175,7 @@ Namespace Audio
 
                 'Measuring each channel 
                 For c As Integer = 1 To ChannelCount
-                    ChannelData(c).MeasureSoundLevels(c, AttemptedMeasurementCount, SuccesfullMeasurementsCount)
+                    ChannelData(c).MeasureSoundLevels(IncludeCriticalBandLevels, c, AttemptedMeasurementCount, SuccesfullMeasurementsCount)
                 Next
 
                 'Logging results
@@ -1171,7 +1171,9 @@ Namespace Audio
                 ''' <param name="c">The channel index (1-based)</param>
                 ''' <param name="AttemptedMeasurementCount">The number of attempted measurements</param>
                 ''' <param name="SuccesfullMeasurementsCount">The number of successful measurements</param>
-                Public Sub MeasureSoundLevels(ByVal c As Integer, ByRef AttemptedMeasurementCount As Integer, ByRef SuccesfullMeasurementsCount As Integer)
+                Public Sub MeasureSoundLevels(ByVal IncludeCriticalBandLevels As Boolean, ByVal c As Integer, ByRef AttemptedMeasurementCount As Integer, ByRef SuccesfullMeasurementsCount As Integer,
+                                              Optional BandInfo As Audio.DSP.BandBank = Nothing,
+                                         Optional FftFormat As Audio.Formats.FftFormat = Nothing)
 
                     Dim ParentSound = ParentSMA.ParentSound
 
@@ -1205,6 +1207,54 @@ Namespace Audio
                                 WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.RMS, GetFrequencyWeighting)
                             End If
                             AttemptedMeasurementCount += 1
+
+                            'Measures critical band levels
+                            If IncludeCriticalBandLevels = True Then
+
+                                'Setting default band frequencies
+                                If BandInfo Is Nothing Then BandInfo = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+
+                                'Setting up FFT format
+                                If FftFormat Is Nothing Then FftFormat = New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
+
+                                'Creating temporary lists to hold levels, etc
+                                Dim TempBandLevelList As New List(Of Double)
+                                Dim TempCentreFrequenciesList As New List(Of Double)
+                                Dim TempBandWidthsList As New List(Of Double)
+
+                                'Calculating spectra
+                                Dim SoundFileSection = Me.GetSoundFileSection(c)
+                                SoundFileSection.FFT = Audio.DSP.SpectralAnalysis(SoundFileSection, FftFormat)
+                                SoundFileSection.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
+
+                                For Each band In BandInfo
+
+                                    Dim ActualLowerLimitFrequency As Double
+                                    Dim ActualUpperLimitFrequency As Double
+
+                                    Dim WindowLevelArray = Audio.DSP.AcousticDistance_ModelA.CalculateWindowLevels(SoundFileSection,,,
+                                                                          band.LowerFrequencyLimit,
+                                                                          band.UpperFrequencyLimit,
+                                                                          Audio.FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
+                                                                          False, False,
+                                                                          ActualLowerLimitFrequency,
+                                                                          ActualUpperLimitFrequency)
+
+                                    Dim AverageBandLevel_FS As Double = WindowLevelArray.Average
+                                    TempBandLevelList.Add(AverageBandLevel_FS)
+
+                                    TempCentreFrequenciesList.Add(band.CentreFrequency)
+                                    TempBandWidthsList.Add(band.Bandwidth)
+
+                                Next
+
+                                Me.BandLevels = TempBandLevelList.ToArray
+                                Me.CentreFrequencies = TempCentreFrequenciesList.ToArray
+                                Me.BandWidths = TempBandWidthsList.ToArray
+
+                            End If
+
+
                             If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
 
@@ -1219,11 +1269,37 @@ Namespace Audio
 
                     'Cascading to lower levels
                     For Each childComponent In Me
-                        childComponent.MeasureSoundLevels(c, AttemptedMeasurementCount, SuccesfullMeasurementsCount)
+                        childComponent.MeasureSoundLevels(IncludeCriticalBandLevels, c, AttemptedMeasurementCount, SuccesfullMeasurementsCount, BandInfo, FftFormat)
                     Next
 
                 End Sub
 
+                ''' <summary>
+                ''' Calculates the SII spectrum levels based on the band levels stored in BandLevels (N.B. requires precalculation of band levels)
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function GetSpectrumLevels(Optional ByVal dBSPL_FSdifference As Double? = Nothing) As Double()
+
+                    'Setting default dBSPL_FSdifference 
+                    If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+
+                    Dim SpectrumLevelList As New List(Of Double)
+                    If BandLevels.Length = BandWidths.Length Then
+                        'Calculating the levels only if the lengths of the level and centre frequency vectors agree
+                        For i = 0 To BandLevels.Length - 1
+
+                            'Converting dB FS to dB SPL
+                            Dim BandLevel_SPL As Double = BandLevels(i) + dBSPL_FSdifference
+
+                            'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+                            Dim SpectrumLevel As Double = BandLevel_SPL - 10 * Math.Log10(BandWidths(i) / 1)
+                            SpectrumLevelList.Add(SpectrumLevel)
+                        Next
+                    End If
+
+                    Return SpectrumLevelList.ToArray
+
+                End Function
 
 
                 ''' <summary>
