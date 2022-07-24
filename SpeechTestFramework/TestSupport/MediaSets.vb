@@ -1231,10 +1231,11 @@ Public Class MediaSet
     End Sub
 
 
-    Public Sub MeasureContrastingPhonemeSpectrumLevels(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                       ByVal ObjectsLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                       ByVal SoundChannel As Integer,
-                                                       ByVal SkipPractiseComponents As Boolean)
+    Public Sub ConcatenatedComponentSpectrumLevels(ByVal ConcatenationLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                   ByVal SectionsLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                   ByVal OnlyContrastingComponents As Boolean,
+                                                   ByVal SoundChannel As Integer,
+                                                   ByVal SkipPractiseComponents As Boolean)
 
 
         'Clears previously loaded sounds
@@ -1242,11 +1243,11 @@ Public Class MediaSet
 
         Dim MeasurementComponents As New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)))
 
-        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SummaryLevel)
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(ConcatenationLevel)
 
         For Each SummaryComponent In SummaryComponents
 
-            Dim TargetComponents = SummaryComponent.GetAllDescenentsAtLevel(ObjectsLevel)
+            Dim TargetComponents = SummaryComponent.GetAllDescenentsAtLevel(SectionsLevel)
 
             'Get the contrasting sound section of
             For c = 0 To TargetComponents.Count - 1
@@ -1255,7 +1256,7 @@ Public Class MediaSet
                     If TargetComponents(c).IsPractiseComponent = True Then Continue For
                 End If
 
-                If MeasureOnlyConstrastingComponents = True Then
+                If OnlyContrastingComponents = True Then
                     'Determine if is contraisting component??
                     If TargetComponents(c).IsContrastingComponent = False Then Continue For
                     'If TargetComponents(c).SamePlaceCousins.Count = 0 Then

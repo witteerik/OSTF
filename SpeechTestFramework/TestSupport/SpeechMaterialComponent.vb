@@ -58,7 +58,109 @@ Public Class SpeechMaterialComponent
         Throw New NotImplementedException
     End Function
 
-    Public Property OrderedChildren As Boolean = False
+    <Obsolete>
+    Public Function OrderedChildren() As Boolean
+
+        'This function is to be removed!
+
+        If ChildComponents Is Nothing Then
+            Return False
+        Else
+            Return ChildComponents(0).IsSequentiallyOrdered
+        End If
+    End Function
+
+    Public Function IsSequentiallyOrdered() As Boolean
+        Select Case Me.LinguisticLevel
+            Case LinguisticLevels.ListCollection
+                'Always returns false for list collections as they do not support sequential ordering
+                Return False
+            Case LinguisticLevels.List
+                Return Me.SequentiallyOrderedLists
+            Case LinguisticLevels.Sentence
+                Return Me.SequentiallyOrderedSentences
+            Case LinguisticLevels.Word
+                Return Me.SequentiallyOrderedWords
+            Case LinguisticLevels.Phoneme
+                Return Me.SequentiallyOrderedPhonemes
+            Case Else
+                Throw New Exception("Unknown Linguistic level of component " & Me.PrimaryStringRepresentation)
+        End Select
+    End Function
+
+    Private _SequentiallyOrderedLists As Boolean
+    Private _SequentiallyOrderedSentences As Boolean
+    Private _SequentiallyOrderedWords As Boolean
+    Private _SequentiallyOrderedPhonemes As Boolean
+
+    Public Property SequentiallyOrderedLists As Boolean
+        Get
+            If Me.ParentComponent IsNot Nothing Then
+                Return Me.ParentComponent.SequentiallyOrderedLists
+            Else
+                Return Me._SequentiallyOrderedLists
+            End If
+        End Get
+        Set(value As Boolean)
+            If Me.ParentComponent IsNot Nothing Then
+                Me.ParentComponent.SequentiallyOrderedLists = value
+            Else
+                Me._SequentiallyOrderedLists = value
+            End If
+        End Set
+    End Property
+
+    Public Property SequentiallyOrderedSentences As Boolean
+        Get
+            If Me.ParentComponent IsNot Nothing Then
+                Return Me.ParentComponent.SequentiallyOrderedSentences
+            Else
+                Return Me._SequentiallyOrderedSentences
+            End If
+        End Get
+        Set(value As Boolean)
+            If Me.ParentComponent IsNot Nothing Then
+                Me.ParentComponent.SequentiallyOrderedSentences = value
+            Else
+                Me._SequentiallyOrderedSentences = value
+            End If
+        End Set
+    End Property
+
+    Public Property SequentiallyOrderedWords As Boolean
+        Get
+            If Me.ParentComponent IsNot Nothing Then
+                Return Me.ParentComponent.SequentiallyOrderedWords
+            Else
+                Return Me._SequentiallyOrderedWords
+            End If
+        End Get
+        Set(value As Boolean)
+            If Me.ParentComponent IsNot Nothing Then
+                Me.ParentComponent.SequentiallyOrderedWords = value
+            Else
+                Me._SequentiallyOrderedWords = value
+            End If
+        End Set
+    End Property
+
+    Public Property SequentiallyOrderedPhonemes As Boolean
+        Get
+            If Me.ParentComponent IsNot Nothing Then
+                Return Me.ParentComponent.SequentiallyOrderedPhonemes
+            Else
+                Return Me._SequentiallyOrderedPhonemes
+            End If
+        End Get
+        Set(value As Boolean)
+            If Me.ParentComponent IsNot Nothing Then
+                Me.ParentComponent.SequentiallyOrderedPhonemes = value
+            Else
+                Me._SequentiallyOrderedPhonemes = value
+            End If
+        End Set
+    End Property
+
 
     Public Property IsPractiseComponent As Boolean = False
 
@@ -886,17 +988,59 @@ Public Class SpeechMaterialComponent
 
     End Function
 
-    Public Function IsContrastingComponent(Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
+    Public Function GetDescendantAtIndexSeries(ByVal HierachicalSelftIndices As SortedList(Of SpeechMaterialComponent.LinguisticLevels, Integer))
+
+
+        If HierachicalSelftIndices(Me.LinguisticLevel) > ChildComponents.Count - 1 Then
+
+                'Returns Nothing if there is no component at the specified index
+                Return Nothing
+            Else
+
+
+            If HierachicalSelftIndices.Keys.Max = Me.LinguisticLevel Then
+
+                Return ChildComponents(HierachicalSelftIndices(Me.LinguisticLevel))
+
+            Else
+
+                Return GetDescendantAtIndexSeries(HierachicalSelftIndices)
+
+            End If
+
+        End If
+
+    End Function
+
+
+    Public Function IsContrastingComponent(ByVal ViewPointLevel As SpeechMaterialComponent.LinguisticLevels,
+                                           Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
                                            Optional ByVal SecondaryComparisonVariableName As String = "Spelling") As Boolean
 
-        d
+        'Determines if the component contrasts to other same order components within the 
 
-        'Determines if the component contrasts to other same order components
-
-        If Me.ParentComponent Is Nothing Then
-            'Returns false if no parent exist (then it could hardly contrast to anything)
+        If ViewPointLevel < Me.LinguisticLevel Then
+            'Returns false if the level from which the data is compared is linguistically higher than the level of the current component
             Return False
         End If
+
+        'Gets the ancestor component at the level from which the data is supposed to be compared
+        Dim ViewPointComponent = Me.GetAncestorAlLevel(ViewPointLevel)
+
+        If ViewPointComponent Is Nothing Then
+            'Returns false if there is no component at the level from which the data is supposed to be compared
+            Return False
+        End If
+
+
+        Dim ComparisonComponentLists As New List(Of List(Of SpeechMaterialComponent))
+
+        ViewPointComponent.AddContrastingComponents(ComparisonComponentLists)
+
+
+        e
+
+
 
         Dim SamePlaceCousins = GetSamePlaceCousins()
         If SamePlaceCousins.Count > 0 Then
@@ -920,10 +1064,53 @@ Public Class SpeechMaterialComponent
 
         End If
 
-        'Returns false if no contrats were found.
+        'Returns false if no contrasts were found.
         Return False
 
     End Function
+
+    Public Sub AddContrastingComponents(ByRef ComparisonComponentLists As List(Of List(Of SpeechMaterialComponent)))
+
+        Dim TempList As New SortedList(Of Integer, List(Of SpeechMaterialComponent))
+        For i = 0 To Me.ChildComponents.Count - 1
+            TempList.Add(i, New List(Of SpeechMaterialComponent))
+        Next
+
+        For c = 0 To Me.ChildComponents.Count - 1
+            For gc = 0 To Me.ChildComponents(c).ChildComponents.Count - 1
+                TempList(c).Add(ChildComponents(c).ChildComponents(gc))
+            Next
+        Next
+
+        'NB !!! This is most probably not correct !!!
+
+        For i = 0 To TempList.Count - 1
+            If ContainsContrastingComponent(TempList(i)) = True Then
+
+                ComparisonComponentLists.Add(TempList(i))
+
+                For Each component In TempList(i)
+                    component.AddContrastingComponents(ComparisonComponentLists)
+                Next
+            End If
+        Next
+
+    End Sub
+
+    Private Shared Function ContainsContrastingComponent(ByRef ComparisonList As List(Of SpeechMaterialComponent),
+                                           Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
+                                           Optional ByVal SecondaryComparisonVariableName As String = "Spelling") As Boolean
+
+        For i = 1 To ComparisonList.Count - 1
+            If ComparisonList(i - 1).IsEqualComponent(ComparisonList(i), PrimaryComparisonVariableName, SecondaryComparisonVariableName) = False Then
+                Return True
+            End If
+        Next
+
+        Return False
+
+    End Function
+
 
     Public Function IsEqualComponent(ByRef ComparisonComponent As SpeechMaterialComponent,
                                     Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
@@ -944,7 +1131,7 @@ Public Class SpeechMaterialComponent
                 If Me.GetCategoricalVariableValue(SecondaryComparisonVariableName) <> ComparisonComponent.GetCategoricalVariableValue(SecondaryComparisonVariableName) Then
                     Return False
                 End If
-                MsgBox("Cannot compare speech material components " & ComparisonComponent.PrimaryStringRepresentation & " " & ComparisonComponent.PrimaryStringRepresentation) & " since the variable named " &  SecondaryComparisonVariableName & " must exist for both components." )
+                MsgBox("Cannot compare speech material components " & ComparisonComponent.PrimaryStringRepresentation & " " & ComparisonComponent.PrimaryStringRepresentation & " since the variable named " & SecondaryComparisonVariableName & " must exist for both components.")
             End If
         End If
 
@@ -1051,6 +1238,11 @@ Public Class SpeechMaterialComponent
 
         Dim IdsUsed As New SortedSet(Of String)
 
+        Dim SequentiallyOrderedLists As Boolean = False
+        Dim SequentiallyOrderedSentences As Boolean = False
+        Dim SequentiallyOrderedWords As Boolean = True
+        Dim SequentiallyOrderedPhonemes As Boolean = True
+
         For Each Line In InputLines
 
             'Skipping blank lines
@@ -1059,6 +1251,22 @@ Public Class SpeechMaterialComponent
             'Also skipping commentary only lines 
             If Line.Trim.StartsWith("//") Then Continue For
 
+            'Checking for and reading setup commands
+            If Line.Trim.StartsWith("SequentiallyOrderedLists") Then
+                SequentiallyOrderedLists = InputFileSupport.InputFileBooleanValueParsing(Line, True, SpeechMaterialComponentFilePath)
+                Continue For
+            ElseIf Line.Trim.StartsWith("SequentiallyOrderedSentences") Then
+                SequentiallyOrderedSentences = InputFileSupport.InputFileBooleanValueParsing(Line, True, SpeechMaterialComponentFilePath)
+                Continue For
+            ElseIf Line.Trim.StartsWith("SequentiallyOrderedWords") Then
+                SequentiallyOrderedWords = InputFileSupport.InputFileBooleanValueParsing(Line, True, SpeechMaterialComponentFilePath)
+                Continue For
+            ElseIf Line.Trim.StartsWith("SequentiallyOrderedPhonemes") Then
+                SequentiallyOrderedPhonemes = InputFileSupport.InputFileBooleanValueParsing(Line, True, SpeechMaterialComponentFilePath)
+                Continue For
+            End If
+
+            'Reading components
             Dim SplitRow = Line.Split(vbTab)
 
             If SplitRow.Length < 8 Then Throw New ArgumentException("Not enough data columns in the file " & SpeechMaterialComponentFilePath & vbCrLf & "At the line: " & Line)
@@ -1165,6 +1373,13 @@ Public Class SpeechMaterialComponent
 
         Next
 
+        'Storing the setup variables
+        Output.SequentiallyOrderedLists = SequentiallyOrderedLists
+        Output.SequentiallyOrderedSentences = SequentiallyOrderedSentences
+        Output.SequentiallyOrderedWords = SequentiallyOrderedWords
+        Output.SequentiallyOrderedPhonemes = SequentiallyOrderedPhonemes
+
+
         ''Writing the loaded data to UpdatedOutputFilePath if supplied and valid
         'If UpdatedOutputFilePath <> "" Then
         '    Output.WriteSpeechMaterialFile(UpdatedOutputFilePath)
@@ -1201,14 +1416,14 @@ Public Class SpeechMaterialComponent
 
     End Function
 
-    Public Function GetClosestAncestorComponent(ByVal RequestedParentComponentLevel As SpeechMaterialComponent.LinguisticLevels) As SpeechMaterialComponent
+    Public Function GetAncestorAlLevel(ByVal RequestedParentComponentLevel As SpeechMaterialComponent.LinguisticLevels) As SpeechMaterialComponent
 
         If ParentComponent Is Nothing Then Return Nothing
 
         If ParentComponent.LinguisticLevel = RequestedParentComponentLevel Then
             Return ParentComponent
         Else
-            Return ParentComponent.GetClosestAncestorComponent(RequestedParentComponentLevel)
+            Return ParentComponent.GetAncestorAlLevel(RequestedParentComponentLevel)
         End If
 
     End Function
@@ -1382,6 +1597,18 @@ Public Class SpeechMaterialComponent
 
         If CustomVariablesExportList Is Nothing Then CustomVariablesExportList = New SortedList(Of String, List(Of String))
 
+        Dim OutputList As New List(Of String)
+        OutputList.Add("// Setup")
+
+        'Writing Setup values
+        OutputList.Add("SequentiallyOrderedLists = " & SequentiallyOrderedLists.ToString)
+        OutputList.Add("SequentiallyOrderedSentences = " & SequentiallyOrderedSentences.ToString)
+        OutputList.Add("SequentiallyOrderedWords = " & SequentiallyOrderedWords.ToString)
+        OutputList.Add("SequentiallyOrderedPhonemes = " & SequentiallyOrderedPhonemes.ToString)
+
+        'Writing components
+        OutputList.Add("// Components")
+
         Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab &
                     "OrderedChildren" & vbTab & "IsPractiseComponent" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
 
@@ -1427,7 +1654,6 @@ Public Class SpeechMaterialComponent
         'BackgroundSpeechFolder 
         'Main_List.Add(BackgroundSpeechFolder)
 
-        Dim OutputList As New List(Of String)
         OutputList.Add(HeadingString)
         OutputList.Add(String.Join(vbTab, Main_List))
         OutputList.Add("") 'Adding an empty line between components

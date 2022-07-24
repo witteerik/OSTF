@@ -46,10 +46,13 @@ Partial Class SpeechMaterialComponentCreator
         Me.AddZeroPhoneme_CheckBox = New System.Windows.Forms.CheckBox()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.WordTrimChars_TextBox = New System.Windows.Forms.TextBox()
-        Me.OrderedSentencesCheckBox = New System.Windows.Forms.CheckBox()
         Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
         Me.CheckInputButton = New System.Windows.Forms.Button()
         Me.CreateSpeechMaterialComponentFile_Button = New System.Windows.Forms.Button()
+        Me.SequentialLists_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.SequentialSentences_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.SequentialWords_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.SequentialPhonemes_CheckBox = New System.Windows.Forms.CheckBox()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
         Me.SplitContainer1.Panel2.SuspendLayout()
@@ -172,20 +175,25 @@ Partial Class SpeechMaterialComponentCreator
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 54.68278!))
         Me.TableLayoutPanel1.Controls.Add(Me.Label2, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.NameTextBox, 1, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.GroupBox1, 0, 3)
-        Me.TableLayoutPanel1.Controls.Add(Me.Label6, 0, 2)
-        Me.TableLayoutPanel1.Controls.Add(Me.WordTrimChars_TextBox, 1, 2)
-        Me.TableLayoutPanel1.Controls.Add(Me.OrderedSentencesCheckBox, 0, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.GroupBox1, 0, 6)
+        Me.TableLayoutPanel1.Controls.Add(Me.Label6, 0, 5)
+        Me.TableLayoutPanel1.Controls.Add(Me.WordTrimChars_TextBox, 1, 5)
+        Me.TableLayoutPanel1.Controls.Add(Me.SequentialLists_CheckBox, 0, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.SequentialSentences_CheckBox, 0, 2)
+        Me.TableLayoutPanel1.Controls.Add(Me.SequentialWords_CheckBox, 0, 3)
+        Me.TableLayoutPanel1.Controls.Add(Me.SequentialPhonemes_CheckBox, 0, 4)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
-        Me.TableLayoutPanel1.RowCount = 5
+        Me.TableLayoutPanel1.RowCount = 8
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 236.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
         Me.TableLayoutPanel1.Size = New System.Drawing.Size(329, 450)
         Me.TableLayoutPanel1.TabIndex = 0
         '
@@ -213,7 +221,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.TableLayoutPanel1.SetColumnSpan(Me.GroupBox1, 2)
         Me.GroupBox1.Controls.Add(Me.TableLayoutPanel2)
         Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox1.Location = New System.Drawing.Point(3, 81)
+        Me.GroupBox1.Location = New System.Drawing.Point(3, 156)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Size = New System.Drawing.Size(323, 230)
         Me.GroupBox1.TabIndex = 4
@@ -288,6 +296,9 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
@@ -312,6 +323,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionDatabase_FilePathControl.Location = New System.Drawing.Point(3, 3)
         Me.TranscriptionDatabase_FilePathControl.Name = "TranscriptionDatabase_FilePathControl"
         Me.TranscriptionDatabase_FilePathControl.RowCount = 2
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -406,7 +418,7 @@ Partial Class SpeechMaterialComponentCreator
         'Label6
         '
         Me.Label6.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label6.Location = New System.Drawing.Point(3, 50)
+        Me.Label6.Location = New System.Drawing.Point(3, 125)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(143, 28)
         Me.Label6.TabIndex = 6
@@ -417,21 +429,10 @@ Partial Class SpeechMaterialComponentCreator
         '
         Me.WordTrimChars_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.WordTrimChars_TextBox.Font = New System.Drawing.Font("Arial", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.WordTrimChars_TextBox.Location = New System.Drawing.Point(152, 53)
+        Me.WordTrimChars_TextBox.Location = New System.Drawing.Point(152, 128)
         Me.WordTrimChars_TextBox.Name = "WordTrimChars_TextBox"
         Me.WordTrimChars_TextBox.Size = New System.Drawing.Size(174, 22)
         Me.WordTrimChars_TextBox.TabIndex = 7
-        '
-        'OrderedSentencesCheckBox
-        '
-        Me.OrderedSentencesCheckBox.AutoSize = True
-        Me.TableLayoutPanel1.SetColumnSpan(Me.OrderedSentencesCheckBox, 2)
-        Me.OrderedSentencesCheckBox.Location = New System.Drawing.Point(3, 28)
-        Me.OrderedSentencesCheckBox.Name = "OrderedSentencesCheckBox"
-        Me.OrderedSentencesCheckBox.Size = New System.Drawing.Size(173, 17)
-        Me.OrderedSentencesCheckBox.TabIndex = 5
-        Me.OrderedSentencesCheckBox.Text = "Lists have ordered constituents"
-        Me.OrderedSentencesCheckBox.UseVisualStyleBackColor = True
         '
         'FlowLayoutPanel1
         '
@@ -461,6 +462,54 @@ Partial Class SpeechMaterialComponentCreator
         Me.CreateSpeechMaterialComponentFile_Button.TabIndex = 1
         Me.CreateSpeechMaterialComponentFile_Button.Text = "Create speech-material component file"
         Me.CreateSpeechMaterialComponentFile_Button.UseVisualStyleBackColor = True
+        '
+        'SequentialLists_CheckBox
+        '
+        Me.SequentialLists_CheckBox.AutoSize = True
+        Me.TableLayoutPanel1.SetColumnSpan(Me.SequentialLists_CheckBox, 2)
+        Me.SequentialLists_CheckBox.Location = New System.Drawing.Point(3, 28)
+        Me.SequentialLists_CheckBox.Name = "SequentialLists_CheckBox"
+        Me.SequentialLists_CheckBox.Size = New System.Drawing.Size(142, 17)
+        Me.SequentialLists_CheckBox.TabIndex = 8
+        Me.SequentialLists_CheckBox.Text = "Sequentially ordered lists"
+        Me.SequentialLists_CheckBox.UseVisualStyleBackColor = True
+        '
+        'SequentialSentences_CheckBox
+        '
+        Me.SequentialSentences_CheckBox.AutoSize = True
+        Me.TableLayoutPanel1.SetColumnSpan(Me.SequentialSentences_CheckBox, 2)
+        Me.SequentialSentences_CheckBox.Location = New System.Drawing.Point(3, 53)
+        Me.SequentialSentences_CheckBox.Name = "SequentialSentences_CheckBox"
+        Me.SequentialSentences_CheckBox.Size = New System.Drawing.Size(174, 17)
+        Me.SequentialSentences_CheckBox.TabIndex = 9
+        Me.SequentialSentences_CheckBox.Text = "Sequentially ordered sentences"
+        Me.SequentialSentences_CheckBox.UseVisualStyleBackColor = True
+        '
+        'SequentialWords_CheckBox
+        '
+        Me.SequentialWords_CheckBox.AutoSize = True
+        Me.SequentialWords_CheckBox.Checked = True
+        Me.SequentialWords_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.TableLayoutPanel1.SetColumnSpan(Me.SequentialWords_CheckBox, 2)
+        Me.SequentialWords_CheckBox.Location = New System.Drawing.Point(3, 78)
+        Me.SequentialWords_CheckBox.Name = "SequentialWords_CheckBox"
+        Me.SequentialWords_CheckBox.Size = New System.Drawing.Size(153, 17)
+        Me.SequentialWords_CheckBox.TabIndex = 10
+        Me.SequentialWords_CheckBox.Text = "Sequentially ordered words"
+        Me.SequentialWords_CheckBox.UseVisualStyleBackColor = True
+        '
+        'SequentialPhonemes_CheckBox
+        '
+        Me.SequentialPhonemes_CheckBox.AutoSize = True
+        Me.SequentialPhonemes_CheckBox.Checked = True
+        Me.SequentialPhonemes_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.TableLayoutPanel1.SetColumnSpan(Me.SequentialPhonemes_CheckBox, 2)
+        Me.SequentialPhonemes_CheckBox.Location = New System.Drawing.Point(3, 103)
+        Me.SequentialPhonemes_CheckBox.Name = "SequentialPhonemes_CheckBox"
+        Me.SequentialPhonemes_CheckBox.Size = New System.Drawing.Size(174, 17)
+        Me.SequentialPhonemes_CheckBox.TabIndex = 11
+        Me.SequentialPhonemes_CheckBox.Text = "Sequentially ordered phonemes"
+        Me.SequentialPhonemes_CheckBox.UseVisualStyleBackColor = True
         '
         'SpeechMaterialComponentCreator
         '
@@ -514,7 +563,6 @@ Partial Class SpeechMaterialComponentCreator
     Friend WithEvents FlowLayoutPanel1 As Windows.Forms.FlowLayoutPanel
     Friend WithEvents CheckInputButton As Windows.Forms.Button
     Friend WithEvents CreateSpeechMaterialComponentFile_Button As Windows.Forms.Button
-    Friend WithEvents OrderedSentencesCheckBox As Windows.Forms.CheckBox
     Friend WithEvents Label6 As Windows.Forms.Label
     Friend WithEvents WordTrimChars_TextBox As Windows.Forms.TextBox
     Friend WithEvents Label7 As Windows.Forms.Label
@@ -522,4 +570,8 @@ Partial Class SpeechMaterialComponentCreator
     Friend WithEvents MenuStrip1 As Windows.Forms.MenuStrip
     Friend WithEvents SelectFontToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents AddZeroPhoneme_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents SequentialLists_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents SequentialSentences_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents SequentialWords_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents SequentialPhonemes_CheckBox As Windows.Forms.CheckBox
 End Class

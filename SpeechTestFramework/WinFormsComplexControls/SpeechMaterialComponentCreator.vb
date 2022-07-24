@@ -129,7 +129,6 @@
 
                 CurrentListComponent.Id = "L" & (CurrentListCollectionComponent.ChildComponents.Count - 1).ToString("00")
                 CurrentListComponent.PrimaryStringRepresentation = ListName
-                CurrentListComponent.OrderedChildren = OrderedSentencesCheckBox.Checked
 
                 CurrentListComponent.SetCategoricalVariableValue("ListName", ListName)
 
@@ -283,6 +282,12 @@
             End If
         End If
 
+        'Storing setup values (these are only stored at the very top level component!)
+        CurrentListCollectionComponent.SequentiallyOrderedLists = SequentialLists_CheckBox.Checked
+        CurrentListCollectionComponent.SequentiallyOrderedSentences = SequentialSentences_CheckBox.Checked
+        CurrentListCollectionComponent.SequentiallyOrderedWords = SequentialWords_CheckBox.Checked
+        CurrentListCollectionComponent.SequentiallyOrderedPhonemes = SequentialPhonemes_CheckBox.Checked
+
         Return New Tuple(Of Boolean, SpeechMaterialComponent)(True, CurrentListCollectionComponent)
 
 
@@ -291,9 +296,9 @@
 
     Public Sub CreateSpeechMaterialComponents() Handles CreateSpeechMaterialComponentFile_Button.Click
 
-        'Re-checking the input and gets the SmaComponent 
-        Dim NewSmaComponent = CheckInput()
-        If NewSmaComponent.Item1 = False Then
+        'Re-checking the input and gets the Speech material Component 
+        Dim NewSMComponent = CheckInput()
+        If NewSMComponent.Item1 = False Then
             CreateSpeechMaterialComponentFile_Button.Enabled = False
             TranscriptionLookupButton.Enabled = False
             Exit Sub
@@ -317,7 +322,7 @@
         End If
 
         'Getting the test Id
-        Dim TestId As String = NewSmaComponent.Item2.Id
+        Dim TestId As String = NewSMComponent.Item2.Id
 
         'Creating a test folder folder name based on the test Id (with allowed characters)
         Dim NewTestSpecificationDirectoryNameCharArray() As Char = TestId.Replace(" ", "_").ToCharArray
@@ -340,7 +345,7 @@
         NewTestSpecification.WriteTextFile(TestSpecificationFullPath)
 
         'Saving the speech material files
-        NewSmaComponent.Item2.WriteSpeechMaterialToFile(NewTestSpecification, OutputParentFolder)
+        NewSMComponent.Item2.WriteSpeechMaterialToFile(NewTestSpecification, OutputParentFolder)
 
 
         MsgBox("Your files should now have been created and save to the folder: " & OutputParentFolder, MsgBoxStyle.Information, "Creating files")
