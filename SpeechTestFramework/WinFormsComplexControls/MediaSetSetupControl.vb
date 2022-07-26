@@ -417,6 +417,13 @@
     Private Sub SmaTemporalIntegration_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles SmaTemporalIntegration_CheckBox.CheckedChanged
         SmaTemporalIntegration_DoubleParsingTextBox.Enabled = SmaTemporalIntegration_CheckBox.Checked
     End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+
+        SelectedMediaSet.ConcatenatedComponentSpectrumLevels(SpeechMaterialComponent.LinguisticLevels.Word, SpeechMaterialComponent.LinguisticLevels.Phoneme, True, 1, True)
+
+
+    End Sub
 End Class
 
 

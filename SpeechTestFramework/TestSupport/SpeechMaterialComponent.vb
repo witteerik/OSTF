@@ -1013,89 +1013,129 @@ Public Class SpeechMaterialComponent
     End Function
 
 
-    Public Function IsContrastingComponent(ByVal ViewPointLevel As SpeechMaterialComponent.LinguisticLevels,
-                                           Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
-                                           Optional ByVal SecondaryComparisonVariableName As String = "Spelling") As Boolean
+    Public Function GetParentOfFirstNonSequentialAncestorWithSiblings() As SpeechMaterialComponent
 
-        'Determines if the component contrasts to other same order components within the 
+        'Returns the parent component of the first detected anscestor component which is both non-sequential and has siblings
 
-        If ViewPointLevel < Me.LinguisticLevel Then
-            'Returns false if the level from which the data is compared is linguistically higher than the level of the current component
-            Return False
-        End If
+        If ParentComponent Is Nothing Then
 
-        'Gets the ancestor component at the level from which the data is supposed to be compared
-        Dim ViewPointComponent = Me.GetAncestorAlLevel(ViewPointLevel)
+            'Returns nothing if there is no parent
+            Return Nothing
 
-        If ViewPointComponent Is Nothing Then
-            'Returns false if there is no component at the level from which the data is supposed to be compared
-            Return False
-        End If
-
-
-        Dim ComparisonComponentLists As New List(Of List(Of SpeechMaterialComponent))
-
-        ViewPointComponent.AddContrastingComponents(ComparisonComponentLists)
-
-
-        e
-
-
-
-        Dim SamePlaceCousins = GetSamePlaceCousins()
-        If SamePlaceCousins.Count > 0 Then
-
-            For Each SamePlaceCousin In SamePlaceCousins
-                If IsEqualComponent(SamePlaceCousin, PrimaryComparisonVariableName, SecondaryComparisonVariableName) = False Then
-                    Return True
-                End If
-            Next
         Else
 
-            Dim SamePlaceSecondCousins = GetSamePlaceSecondCousins()
-            If SamePlaceSecondCousins.Count > 0 Then
+            If Me.IsSequentiallyOrdered = True Then
 
-                For Each SamePlaceSecondCousin In SamePlaceSecondCousins
-                    If IsEqualComponent(SamePlaceSecondCousin, PrimaryComparisonVariableName, SecondaryComparisonVariableName) = False Then
-                        Return True
-                    End If
-                Next
+                'Sequentially ordered, calling the parent instead
+                Return ParentComponent.GetParentOfFirstNonSequentialAncestorWithSiblings
+
+            Else
+
+                'Not sequentially ordered
+
+                'Determines if there are siblings
+                If ParentComponent.ChildComponents.Count > 1 Then
+
+                    'Returns the parent component
+                    Return ParentComponent
+                Else
+
+                    'Calling the parent instead
+                    Return ParentComponent.GetParentOfFirstNonSequentialAncestorWithSiblings
+
+                End If
             End If
-
         End If
-
-        'Returns false if no contrasts were found.
-        Return False
 
     End Function
 
-    Public Sub AddContrastingComponents(ByRef ComparisonComponentLists As List(Of List(Of SpeechMaterialComponent)))
+    Public Function FindDescendantIndexSerie(ByRef TargetDescendant As SpeechMaterialComponent, Optional ByRef IndexList As List(Of Integer) = Nothing) As List(Of Integer)
 
-        Dim TempList As New SortedList(Of Integer, List(Of SpeechMaterialComponent))
-        For i = 0 To Me.ChildComponents.Count - 1
-            TempList.Add(i, New List(Of SpeechMaterialComponent))
-        Next
+        If IndexList Is Nothing Then IndexList = New List(Of Integer)
 
-        For c = 0 To Me.ChildComponents.Count - 1
-            For gc = 0 To Me.ChildComponents(c).ChildComponents.Count - 1
-                TempList(c).Add(ChildComponents(c).ChildComponents(gc))
+        'Determines if the TargetDescendant is a descendant
+        Dim AllDescendants = Me.GetAllDescenents
+
+        'Checks if the TargetDescendant is a descendant of me
+        If AllDescendants.Contains(TargetDescendant) Then
+
+            'If so, adds the self index of Me
+            IndexList.Add(Me.GetSelfIndex)
+
+            'Goes through each child and calls FindDescendantIndex recursicely on each child to determines the hiearachical index serie of the TargetDescendant
+            For Each child In Me.ChildComponents
+                child.FindDescendantIndexSerie(TargetDescendant, IndexList)
             Next
+
+        End If
+
+        Return IndexList
+
+    End Function
+
+    Public Function GetDescendantByIndexSerie(ByVal IndexSerie As List(Of Integer), Optional ByVal i As Integer = 0) As SpeechMaterialComponent
+
+        'Checks that does not go outside the IndexSerie array
+        If i > IndexSerie.Count - 1 Then Return Nothing
+
+        'Checks that IndexSerie(i) does not go beyond the lengths of Me.ChildComponents
+        If IndexSerie(i) > Me.ChildComponents.Count - 1 Then Return Nothing
+
+        'Determines if we're at the last index. If so, the child component at the last
+        If i = IndexSerie.Count - 1 Then
+
+            'Return the component
+            Return Me.ChildComponents(IndexSerie(i))
+
+        Else
+
+            'Calls descendants recursively
+            Return Me.ChildComponents(IndexSerie(i)).GetDescendantByIndexSerie(IndexSerie, i + 1)
+
+        End If
+
+    End Function
+
+    Public Function IsContrastingComponent(Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
+                                           Optional ByVal SecondaryComparisonVariableName As String = "Spelling") As Boolean
+
+        'Gets the ancestor component at the level from which the data is supposed to be compared
+        Dim ViewPointComponent = Me.GetParentOfFirstNonSequentialAncestorWithSiblings()
+
+        'Returns false if there is no component at the level from which the data is supposed to be compared
+        If ViewPointComponent Is Nothing Then
+            Return False
+        End If
+
+        Dim MyIndexSeries = ViewPointComponent.FindDescendantIndexSerie(Me)
+
+        'Returns false if no indices were found (i.e. nothing to compare with)
+        If MyIndexSeries.Count = 0 Then Return False
+
+        'Removes the first index from MyIndexSeries as it refers to the self index of ViewPointComponent
+        If MyIndexSeries.Count > 0 Then
+            MyIndexSeries.RemoveAt(0)
+        End If
+
+        'Returns false if no indices were found (i.e. nothing to compare with)
+        If MyIndexSeries.Count = 0 Then Return False
+
+        Dim ComparisonCousins As New List(Of SpeechMaterialComponent)
+        For c = 0 To ViewPointComponent.ChildComponents.Count - 1
+
+            'Adjusting the first index to get all different comparison components
+            MyIndexSeries(0) = c
+
+            'Getting the component
+            ComparisonCousins.Add(ViewPointComponent.ChildComponents(c).GetDescendantByIndexSerie(MyIndexSeries))
+
         Next
 
-        'NB !!! This is most probably not correct !!!
+        'Comparing the components
+        Return ContainsOnlyContrastingComponents(ComparisonCousins, PrimaryComparisonVariableName, SecondaryComparisonVariableName)
 
-        For i = 0 To TempList.Count - 1
-            If ContainsContrastingComponent(TempList(i)) = True Then
+    End Function
 
-                ComparisonComponentLists.Add(TempList(i))
-
-                For Each component In TempList(i)
-                    component.AddContrastingComponents(ComparisonComponentLists)
-                Next
-            End If
-        Next
-
-    End Sub
 
     Private Shared Function ContainsContrastingComponent(ByRef ComparisonList As List(Of SpeechMaterialComponent),
                                            Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
@@ -1108,6 +1148,26 @@ Public Class SpeechMaterialComponent
         Next
 
         Return False
+
+    End Function
+
+    Private Shared Function ContainsOnlyContrastingComponents(ByRef ComparisonList As List(Of SpeechMaterialComponent),
+                                           Optional ByVal PrimaryComparisonVariableName As String = "PhoneticForm",
+                                           Optional ByVal SecondaryComparisonVariableName As String = "Spelling") As Boolean
+
+        For i = 1 To ComparisonList.Count - 1
+            For j = 1 To ComparisonList.Count - 1
+
+                'Skips comparison when i = j 
+                If i = j Then Continue For
+
+                If ComparisonList(i).IsEqualComponent(ComparisonList(j), PrimaryComparisonVariableName, SecondaryComparisonVariableName) = True Then
+                    Return False
+                End If
+            Next
+        Next
+
+        Return True
 
     End Function
 
@@ -1269,7 +1329,7 @@ Public Class SpeechMaterialComponent
             'Reading components
             Dim SplitRow = Line.Split(vbTab)
 
-            If SplitRow.Length < 8 Then Throw New ArgumentException("Not enough data columns in the file " & SpeechMaterialComponentFilePath & vbCrLf & "At the line: " & Line)
+            If SplitRow.Length < 6 Then Throw New ArgumentException("Not enough data columns in the file " & SpeechMaterialComponentFilePath & vbCrLf & "At the line: " & Line)
 
             Dim NewComponent As New SpeechMaterialComponent(rnd)
 
@@ -1338,9 +1398,9 @@ Public Class SpeechMaterialComponent
             End If
 
             'Adds further component data
-            Dim OrderedChildren = InputFileSupport.InputFileBooleanValueParsing(SplitRow(index), False, SpeechMaterialComponentFilePath)
-            If OrderedChildren IsNot Nothing Then NewComponent.OrderedChildren = OrderedChildren
-            index += 1
+            'Dim OrderedChildren = InputFileSupport.InputFileBooleanValueParsing(SplitRow(index), False, SpeechMaterialComponentFilePath)
+            'If OrderedChildren IsNot Nothing Then NewComponent.OrderedChildren = OrderedChildren
+            'index += 1
 
             Dim IsPractiseComponent = InputFileSupport.InputFileBooleanValueParsing(SplitRow(index), False, SpeechMaterialComponentFilePath)
             If IsPractiseComponent IsNot Nothing Then NewComponent.IsPractiseComponent = IsPractiseComponent
@@ -1439,6 +1499,24 @@ Public Class SpeechMaterialComponent
             Else
                 OutputList.AddRange(child.GetAllDescenentsAtLevel(RequestedDescendentComponentLevel))
             End If
+        Next
+
+        Return OutputList
+
+    End Function
+
+    Public Function GetAllDescenents(Optional ByRef OutputList As List(Of SpeechMaterialComponent) = Nothing) As List(Of SpeechMaterialComponent)
+
+        If OutputList Is Nothing Then OutputList = New List(Of SpeechMaterialComponent)
+
+        For Each child In ChildComponents
+
+            'Adds the child
+            OutputList.Add(child)
+
+            'Calls GetAllDescenents on the child
+            child.GetAllDescenents(OutputList)
+
         Next
 
         Return OutputList
@@ -1610,7 +1688,7 @@ Public Class SpeechMaterialComponent
         OutputList.Add("// Components")
 
         Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab &
-                    "OrderedChildren" & vbTab & "IsPractiseComponent" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
+                    "IsPractiseComponent" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
 
         Dim Main_List As New List(Of String)
 
@@ -1639,7 +1717,7 @@ Public Class SpeechMaterialComponent
         End If
 
         'OrderedChildren 
-        Main_List.Add(OrderedChildren.ToString)
+        'Main_List.Add(OrderedChildren.ToString) 'Removed!
 
         'IsPractiseComponent
         Main_List.Add(IsPractiseComponent.ToString)

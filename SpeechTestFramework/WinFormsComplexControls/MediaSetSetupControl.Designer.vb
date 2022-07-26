@@ -114,6 +114,7 @@ Partial Class MediaSetSetupControl
         Me.IncludeCriticalBandLevels_CheckBox = New System.Windows.Forms.CheckBox()
         Me.CreateMaskers_TabPage = New System.Windows.Forms.TabPage()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Button1 = New System.Windows.Forms.Button()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -938,6 +939,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel5.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel5.Controls.Add(Me.GroupBox1, 0, 0)
         Me.TableLayoutPanel5.Controls.Add(Me.GroupBox2, 0, 1)
+        Me.TableLayoutPanel5.Controls.Add(Me.Button1, 0, 2)
         Me.TableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel5.Location = New System.Drawing.Point(3, 3)
         Me.TableLayoutPanel5.Name = "TableLayoutPanel5"
@@ -1210,6 +1212,15 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel4.Size = New System.Drawing.Size(380, 579)
         Me.TableLayoutPanel4.TabIndex = 0
         '
+        'Button1
+        '
+        Me.Button1.Location = New System.Drawing.Point(3, 410)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(75, 23)
+        Me.Button1.TabIndex = 13
+        Me.Button1.Text = "Button1"
+        Me.Button1.UseVisualStyleBackColor = True
+        '
         'MediaSetSetupControl
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1335,4 +1346,5 @@ Partial Class MediaSetSetupControl
     Friend WithEvents SmaFrequencyWeighting_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents SmaTemporalIntegration_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents IncludeCriticalBandLevels_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents Button1 As Windows.Forms.Button
 End Class
