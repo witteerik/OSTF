@@ -11,9 +11,24 @@
         'ResponseGuiItemTable1.AdjustControls()
 
 
-        Dim test As Integer = 0
+        Dim test As Integer = -1
         Select Case test
             Case -1
+
+                SpeechTestFramework.OstfSettings.LoadAvailableTestSpecifications()
+                Dim SelectedTestIndex As Integer = 1
+                SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
+                Dim MySpeechMaterial = SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).SpeechMaterial
+                SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).LoadAvailableMediaSetSpecifications()
+                Dim MyMediaSet = SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).MediaSets(0)
+
+                Dim TestComponent = MySpeechMaterial.GetAllDescenentsAtLevel(SpeechTestFramework.SpeechMaterialComponent.LinguisticLevels.Phoneme)(1)
+
+                Dim TestSma = TestComponent.GetCorrespondingSmaComponent(MyMediaSet, 0, 1)
+
+                Dim TestSound = TestSma.GetSoundFileSection(1)
+
+                TestSound.WriteWaveFile("C:\SpeechTestFrameworkLog\Temp2\Test3.wav")
 
             Case 0
 

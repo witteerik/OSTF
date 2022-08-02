@@ -1913,6 +1913,39 @@ Namespace Audio
 
             End Class
 
+            Public Function GetSmaComponentByIndexSeries(ByVal IndexSeries As SpeechMaterialComponent.ComponentIndices, ByVal SoundChannel As Integer) As SmaComponent
+
+                If SoundChannel > Me.ChannelCount Then
+                    Return Nothing
+                End If
+
+                If IndexSeries.ListIndex <> 0 Then Return Nothing
+
+                If IndexSeries.SentenceIndex > Me.ChannelData(SoundChannel).Count - 1 Then
+                    Return Nothing
+                ElseIf IndexSeries.SentenceIndex < 0 Then
+                    Return Me.ChannelData(SoundChannel)
+                End If
+
+                If IndexSeries.WordIndex > Me.ChannelData(SoundChannel)(IndexSeries.SentenceIndex).Count - 1 Then
+                    Return Nothing
+                ElseIf IndexSeries.WordIndex < 0 Then
+                    Return Me.ChannelData(SoundChannel)(IndexSeries.SentenceIndex)
+                End If
+
+                If IndexSeries.PhoneIndex > Me.ChannelData(SoundChannel)(IndexSeries.SentenceIndex)(IndexSeries.WordIndex).Count - 1 Then
+                    Return Nothing
+                ElseIf IndexSeries.PhoneIndex < 0 Then
+                    Return Me.ChannelData(SoundChannel)(IndexSeries.SentenceIndex)(IndexSeries.WordIndex)
+                Else
+                    Return Me.ChannelData(SoundChannel)(IndexSeries.SentenceIndex)(IndexSeries.WordIndex)(IndexSeries.PhoneIndex)
+                End If
+
+
+            End Function
+
+
+
         End Class
 
     End Class
