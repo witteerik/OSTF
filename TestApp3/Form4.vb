@@ -22,13 +22,17 @@
                 SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).LoadAvailableMediaSetSpecifications()
                 Dim MyMediaSet = SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).MediaSets(0)
 
-                Dim TestComponent = MySpeechMaterial.GetAllDescenentsAtLevel(SpeechTestFramework.SpeechMaterialComponent.LinguisticLevels.Phoneme)(1)
+                Dim TestComponent = MySpeechMaterial.GetAllDescenentsAtLevel(SpeechTestFramework.SpeechMaterialComponent.LinguisticLevels.List)(0)
 
-                Dim TestSma = TestComponent.GetCorrespondingSmaComponent(MyMediaSet, 0, 1)
+                'Dim TestSmaList = TestComponent.GetCorrespondingSmaComponent(MyMediaSet, 0, 1)
 
-                Dim TestSound = TestSma.GetSoundFileSection(1)
+                'Dim TestSound = TestSmaList(0).GetSoundFileSection(1)
 
-                TestSound.WriteWaveFile("C:\SpeechTestFrameworkLog\Temp2\Test3.wav")
+                ' TestSound.WriteWaveFile("C:\SpeechTestFrameworkLog\Temp2\Test4.wav")
+
+                Dim ComponentSound = TestComponent.GetSound(MyMediaSet, 0, 1, 60000)
+
+                ComponentSound.WriteWaveFile("C:\SpeechTestFrameworkLog\Temp2\Test6.wav")
 
             Case 0
 

@@ -934,7 +934,7 @@ Public Class MediaSet
 
 
     ''' <summary>
-    ''' Adjusts the average level of all sentence level SMA components to AverageTestWordOutputlevel, while at the same time retaining some of the natural level variations between SMA components referring to different speech material components.
+    ''' Adjusts the average level of all AudioFileLinguisticLevel SMA components to AverageTestWordOutputlevel, while at the same time retaining some of the natural level variations between SMA components referring to different speech material components.
     ''' </summary>
     ''' <param name="AverageTestWordOutputlevel"></param>
     ''' <param name="FrequencyWeighting"></param>
@@ -967,21 +967,21 @@ Public Class MediaSet
 
             'Resetting the sound
 
-            'Getting the sentence level components to adjust
-            Dim SentenceComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
-            For c = 0 To SentenceComponents.Count - 1
+            'Getting the recording components to adjust
+            Dim RecordingComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(Me.AudioFileLinguisticLevel)
+            For c = 0 To RecordingComponents.Count - 1
                 For i = 0 To MediaAudioItems - 1
 
-                    If TempSoundLib.ContainsKey(SentenceComponents(c).Id) = False Then
-                        TempSoundLib.Add(SentenceComponents(c).Id, New Tuple(Of Boolean, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(SentenceComponents(c).IsPractiseComponent, New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)))
+                    If TempSoundLib.ContainsKey(RecordingComponents(c).Id) = False Then
+                        TempSoundLib.Add(RecordingComponents(c).Id, New Tuple(Of Boolean, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(RecordingComponents(c).IsPractiseComponent, New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)))
                     End If
-                    TempSoundLib(SentenceComponents(c).Id).Item2.Add(SentenceComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
+                    TempSoundLib(RecordingComponents(c).Id).Item2.Add(RecordingComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
 
                 Next
             Next
 
 
-            'Resetting all sentence level components to their original sound level, (as well as getting the current wave format)
+            'Resetting all recording level components to their original sound level, (as well as getting the current wave format)
             Dim CurrentWaveFormat As Audio.Formats.WaveFormat = Nothing
             For Each ComponentId In TempSoundLib
                 For Each SmaComponent In ComponentId.Value.Item2
@@ -995,7 +995,7 @@ Public Class MediaSet
                         'Reverting to the original level by amplifying by minus AppliedGain
                         Audio.DSP.AmplifySection(SmaComponent.ParentSMA.ParentSound, -AppliedGain, 1, SmaComponent.StartSample, SmaComponent.Length, Audio.AudioManagement.SoundDataUnit.dB)
                     Else
-                        Throw New Exception("Unexpected error in SmaComponent.GetCurrentGain. Are all segmenations at the sentence level SMA components properly validated?")
+                        Throw New Exception("Unexpected error in SmaComponent.GetCurrentGain. Are all segmenations in the SMA components properly validated?")
                     End If
                 Next
             Next
@@ -1082,7 +1082,7 @@ Public Class MediaSet
                 Next
             Next
 
-            'Applying (the same amount of) gain to all components so that the average unweighted sound level of all sentence level component recordings is the AverageTestWordOutputlevel.
+            'Applying (the same amount of) gain to all components so that the average unweighted sound level of all recording level component recordings is the AverageTestWordOutputlevel.
             'Getting the current sound level of all component recordings as if they were concatenated
 
             Dim SharpTestingSoundList As New List(Of Audio.Sound)
@@ -1263,7 +1263,20 @@ Public Class MediaSet
 
                 For i = 0 To MediaAudioItems - 1
 
-                    MeasurementComponents.Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(TargetComponents(c), TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)))
+                    Dim CurrentSmaComponents = TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)
+                    If CurrentSmaComponents.Count = 1 Then
+                        MeasurementComponents.Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(TargetComponents(c), CurrentSmaComponents))
+
+                    ElseIf CurrentSmaComponents.Count > 1 Then
+
+                        MsgBox("!")
+                        'Continue working here!
+
+                    Else
+                        MsgBox("!")
+                        'Continue working here!
+
+                    End If
 
                     'Continue working here!
 
@@ -1543,17 +1556,24 @@ Public Class MediaSet
 
             For i = 0 To MediaAudioItems - 1
 
-                Dim CurrentSmaComponent = AllComponentsWithSound(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)
+                Dim CurrentSmaComponentList = AllComponentsWithSound(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)
 
-                If CurrentSmaComponent.GetSoundFileSection(SoundChannel) Is Nothing Then
+                If CurrentSmaComponentList.Count = 1 Then
+                    If CurrentSmaComponentList(0).GetSoundFileSection(SoundChannel) Is Nothing Then
+                        MissingSoundIds.Add(AllComponentsWithSound(c).Id & ("(" & i & ")"))
+                    End If
+                ElseIf CurrentSmaComponentList.Count > 1 Then
+                    MsgBox("Detected inconsistent specifications of AudioFileLinguisticLevel (" & Me.AudioFileLinguisticLevel.ToString & ") for the speech material component " &
+                           AllComponentsWithSound(c).Id & " ( " & AllComponentsWithSound(c).PrimaryStringRepresentation & "). Cannot continue loading sounds!")
+                    Exit Sub
+                Else
                     MissingSoundIds.Add(AllComponentsWithSound(c).Id & ("(" & i & ")"))
                 End If
-
             Next
         Next
 
         If MissingSoundIds.Count > 0 Then
-            MsgBox("No sound could be loaded for the following " & MissingSoundIds.Count & " components ids (recording number in parentheses):" & vbCrLf & String.Join(" ", MissingSoundIds))
+            MsgBox("No sound (or sound containing SMA components) could be loaded for the following " & MissingSoundIds.Count & " components ids (recording number in parentheses):" & vbCrLf & String.Join(" ", MissingSoundIds))
         End If
 
     End Sub
