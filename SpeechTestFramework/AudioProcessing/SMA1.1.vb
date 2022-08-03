@@ -1913,7 +1913,13 @@ Namespace Audio
 
             End Class
 
-            Public Function GetSmaComponentByIndexSeries(ByVal IndexSeries As SpeechMaterialComponent.ComponentIndices, ByVal SoundChannel As Integer) As SmaComponent
+            Public Function GetSmaComponentByIndexSeries(ByVal IndexSeries As SpeechMaterialComponent.ComponentIndices, ByVal AudioFileLinguisticLevel As SpeechMaterialComponent.LinguisticLevels, ByVal SoundChannel As Integer) As SmaComponent
+
+                'Correcting the indices below AudioFileLinguisticLevel
+                If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.List Then IndexSeries.ListIndex = 0 'There is only list per recording
+                If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Sentence Then IndexSeries.SentenceIndex = 0 'There is only one sentence per recording
+                If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Word Then IndexSeries.WordIndex = 0 'There is only list per recording
+                If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Phoneme Then IndexSeries.PhoneIndex = 0 'There is only list per recording
 
                 If SoundChannel > Me.ChannelCount Then
                     Return Nothing

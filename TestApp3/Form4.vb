@@ -11,7 +11,7 @@
         'ResponseGuiItemTable1.AdjustControls()
 
 
-        Dim test As Integer = -1
+        Dim test As Integer = 0
         Select Case test
             Case -1
 

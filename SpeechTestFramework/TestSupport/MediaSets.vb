@@ -1237,7 +1237,6 @@ Public Class MediaSet
                                                    ByVal SoundChannel As Integer,
                                                    ByVal SkipPractiseComponents As Boolean)
 
-
         'Clears previously loaded sounds
         ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
 
@@ -1261,30 +1260,17 @@ Public Class MediaSet
                     If TargetComponents(c).IsContrastingComponent = False Then Continue For
                 End If
 
+                Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+
                 For i = 0 To MediaAudioItems - 1
-
-                    Dim CurrentSmaComponents = TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)
-                    If CurrentSmaComponents.Count = 1 Then
-                        MeasurementComponents.Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(TargetComponents(c), CurrentSmaComponents))
-
-                    ElseIf CurrentSmaComponents.Count > 1 Then
-
-                        MsgBox("!")
-                        'Continue working here!
-
-                    Else
-                        MsgBox("!")
-                        'Continue working here!
-
-                    End If
-
-                    'Continue working here!
-
+                    CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
                 Next
-            Next
 
+                MeasurementComponents.Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(TargetComponents(c), CurrentSmaComponentList))
+            Next
         Next
 
+        c ' Continue here
 
     End Sub
 

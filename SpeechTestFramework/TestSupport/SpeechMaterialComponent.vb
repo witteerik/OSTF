@@ -424,8 +424,6 @@ Public Class SpeechMaterialComponent
 
         Dim SelfIndices = FindSelfIndices()
 
-        'c ' Debug this function! Then contunue with ConcatenatedComponentSpectrumLevels
-
         Dim SmcsWithSoundFile As New List(Of SpeechMaterialComponent)
 
         If Me.LinguisticLevel = MediaSet.AudioFileLinguisticLevel Then
@@ -450,7 +448,7 @@ Public Class SpeechMaterialComponent
 
             Dim SoundPath = SmcWithSoundFile.GetSoundPath(MediaSet, Index)
             Dim SoundFileObject As Audio.Sound = SmcWithSoundFile.GetSoundFile(SoundPath)
-            Dim CurrentSmaComponent = SoundFileObject.SMA.GetSmaComponentByIndexSeries(SelfIndices, SoundChannel)
+            Dim CurrentSmaComponent = SoundFileObject.SMA.GetSmaComponentByIndexSeries(SelfIndices, MediaSet.AudioFileLinguisticLevel, SoundChannel)
             Output.Add(CurrentSmaComponent)
 
         Next
