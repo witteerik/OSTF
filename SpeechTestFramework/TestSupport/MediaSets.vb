@@ -1270,6 +1270,11 @@ Public Class MediaSet
             Next
         Next
 
+
+        ' Move Band level calculation from SMA to Audio.SDP, and also Critical band conversion.
+
+        SMA.MeasureSoundLevels
+
         c ' Continue here
 
     End Sub
@@ -1597,7 +1602,7 @@ Public Class MediaSet
 
     End Function
 
-    ''Returns the sound level (RMS, dbFS) of all test words recordings as if they were concatenated (without any margins between the words)
+    ''Returns the sound level (RMS, dbFS) of all input sounds as if they were concatenated (without any margins between the words)
     Public Function GetSoundLevelOfConcatenatedSounds(ByVal InputSounds As List(Of Audio.Sound),
                                                                   ByVal FrequencyWeighting As Audio.FrequencyWeightings,
                                                       ByVal MeasurementChannel As Integer) As Double
@@ -1609,7 +1614,7 @@ Public Class MediaSet
 
         For Each CurrentSound In InputSounds
 
-            'Measures the test word region of each sound
+            'Measures level of each input sound
             Dim SumOfSquareData As Tuple(Of Double, Integer) = Nothing
             Audio.DSP.MeasureSectionLevel(CurrentSound, MeasurementChannel,,,,, FrequencyWeighting, True, SumOfSquareData)
 

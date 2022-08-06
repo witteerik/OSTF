@@ -1211,6 +1211,7 @@ Namespace Audio
                             'Measures critical band levels
                             If IncludeCriticalBandLevels = True Then
 
+
                                 'Setting default band frequencies
                                 If BandInfo Is Nothing Then BandInfo = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
 
@@ -1247,6 +1248,7 @@ Namespace Audio
                                     TempBandWidthsList.Add(band.Bandwidth)
 
                                 Next
+                                AttemptedMeasurementCount += 1
 
                                 Me.BandLevels = TempBandLevelList.ToArray
                                 Me.CentreFrequencies = TempCentreFrequenciesList.ToArray
