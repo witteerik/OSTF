@@ -1231,7 +1231,7 @@ Public Class MediaSet
     End Sub
 
 
-    Public Sub ConcatenatedComponentSpectrumLevels(ByVal ConcatenationLevel As SpeechMaterialComponent.LinguisticLevels,
+    Public Sub CalculateConcatenatedComponentSpectrumLevels(ByVal ConcatenationLevel As SpeechMaterialComponent.LinguisticLevels,
                                                    ByVal SectionsLevel As SpeechMaterialComponent.LinguisticLevels,
                                                    ByVal OnlyContrastingComponents As Boolean,
                                                    ByVal SoundChannel As Integer,
@@ -1268,14 +1268,35 @@ Public Class MediaSet
 
                 MeasurementComponents.Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(TargetComponents(c), CurrentSmaComponentList))
             Next
+
+
+            c ' actually no need to have a collection MeasurementComponents ?? just treat each component at a time ?
+
+            'Concatenartes the sounds
+            Dim ConcatSound As Audio.Sound
+            s
+
+            Dim BandBank As Audio.DSP.BandBank = Nothing
+            'FFT format and aother re-used objects... 
+            s
+
+            'Calculates spectrum levels
+            Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatSound,, BandBank)
+            s
+
+            'Stores the value as a custom media set variable
+            For b = 0 To SpectrumLevels.Count - 1
+
+                'Creates a variable name (How on earth is are calling functions going to figure out this name???) Perhaps better to use band 1,2,3... instead of centre frequencies?
+                Dim VariableName As String = "Lcb_" & Math.Round(BandBank(b).CentreFrequency).ToString
+
+                SummaryComponent.SetCategoricalMediaSetVariableValue(Me, VariableName, SpectrumLevels(b))
+
+            Next
+
         Next
 
 
-        ' Move Band level calculation from SMA to Audio.SDP, and also Critical band conversion.
-
-        SMA.MeasureSoundLevels
-
-        c ' Continue here
 
     End Sub
 

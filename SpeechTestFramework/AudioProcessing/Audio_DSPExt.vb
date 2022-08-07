@@ -8661,6 +8661,23 @@ Namespace Audio
         Public Class BandBank
             Inherits List(Of BandInfo)
 
+            Public Function GetCentreFrequencies() As Double()
+                Dim Output As New List(Of Double)
+                For Each band In Me
+                    Output.Add(band.CentreFrequency)
+                Next
+                Return Output.ToArray
+            End Function
+
+            Public Function GetBandWidths() As Double()
+                Dim Output As New List(Of Double)
+                For Each band In Me
+                    Output.Add(band.Bandwidth)
+                Next
+                Return Output.ToArray
+            End Function
+
+
             Public Class BandInfo
                 Public CentreFrequency As Double
                 Public LowerFrequencyLimit As Double

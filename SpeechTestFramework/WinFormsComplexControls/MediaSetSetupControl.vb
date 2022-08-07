@@ -420,7 +420,7 @@
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
 
-        SelectedMediaSet.ConcatenatedComponentSpectrumLevels(SpeechMaterialComponent.LinguisticLevels.Word, SpeechMaterialComponent.LinguisticLevels.Phoneme, True, 1, True)
+        SelectedMediaSet.CalculateConcatenatedComponentSpectrumLevels(SpeechMaterialComponent.LinguisticLevels.Word, SpeechMaterialComponent.LinguisticLevels.Phoneme, True, 1, True)
 
 
     End Sub

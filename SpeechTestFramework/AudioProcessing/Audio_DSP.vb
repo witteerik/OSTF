@@ -187,6 +187,129 @@ Namespace Audio
             End Function
 
             ''' <summary>
+            ''' Calculates band levels of the specified channel in the input sound. .
+            ''' </summary>
+            ''' <param name="InputSound"></param>
+            ''' <param name="Channel"></param>
+            ''' <param name="BandInfo">If left as Nothing a default SII Critical Band bank will be created, used and referenced upon return.</param>
+            ''' <param name="FftFormat"></param>
+            ''' <param name="ActualLowerLimitFrequencyList ">Upon return, contains the actual lower band limits used.</param>
+            ''' <param name="ActualUpperLimitFrequencyList">Upon return, contains the actual upper band limits used.</param>
+            ''' <returns></returns>
+            Public Function CalculateBandLevels(ByRef InputSound As Sound, ByVal Channel As Integer,
+                                                Optional ByRef BandInfo As Audio.DSP.BandBank = Nothing,
+                                                Optional ByRef FftFormat As Audio.Formats.FftFormat = Nothing,
+                                                Optional ByRef ActualLowerLimitFrequencyList As List(Of Double) = Nothing,
+                                                Optional ByRef ActualUpperLimitFrequencyList As List(Of Double) = Nothing) As List(Of Double)
+
+                Try
+
+                    'Setting default band frequencies
+                    If BandInfo Is Nothing Then BandInfo = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+
+                    'Setting up FFT format
+                    If FftFormat Is Nothing Then FftFormat = New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
+
+                    'Creating an output list
+                    Dim BandLevelList As New List(Of Double)
+
+                    'Creating a list to hold actual band limits
+                    ActualLowerLimitFrequencyList = New List(Of Double)
+                    ActualUpperLimitFrequencyList = New List(Of Double)
+
+                    'Calculating spectra
+                    InputSound.FFT = Audio.DSP.SpectralAnalysis(InputSound, FftFormat)
+                    InputSound.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
+
+                    For Each band In BandInfo
+
+                        Dim ActualLowerLimitFrequency As Double
+                        Dim ActualUpperLimitFrequency As Double
+
+                        Dim WindowLevelArray = Audio.DSP.AcousticDistance_ModelA.CalculateWindowLevels(InputSound,,,
+                                                                          band.LowerFrequencyLimit,
+                                                                          band.UpperFrequencyLimit,
+                                                                          Audio.FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
+                                                                          False, False,
+                                                                          ActualLowerLimitFrequency,
+                                                                          ActualUpperLimitFrequency)
+
+                        Dim AverageBandLevel_FS As Double = WindowLevelArray.Average
+                        BandLevelList.Add(AverageBandLevel_FS)
+
+                        ActualLowerLimitFrequencyList.Add(ActualLowerLimitFrequency)
+                        ActualUpperLimitFrequencyList.Add(ActualUpperLimitFrequency)
+
+                    Next
+
+                    Return BandLevelList
+
+                Catch ex As Exception
+                    AudioError(ex.ToString)
+                    Return Nothing
+                End Try
+
+            End Function
+
+            ''' <summary>
+            ''' Calculates the SII spectrum levels based on the band levels stored in BandLevels (N.B. requires precalculation of band levels)
+            ''' </summary>
+            ''' <param name="InputSound"></param>
+            ''' <param name="Channel"></param>
+            ''' <param name="BandInfo">If left as Nothing a default SII Critical Band bank will be created, used and referenced upon return.</param>
+            ''' <param name="FftFormat"></param>
+            ''' <param name="ActualLowerLimitFrequencyList ">Upon return, contains the actual lower band limits used.</param>
+            ''' <param name="ActualUpperLimitFrequencyList">Upon return, contains the actual upper band limits used.</param>
+            ''' <param name="dBSPL_FSdifference"></param>
+            ''' <returns></returns>
+            Public Function CalculateSpectrumLevels(ByRef InputSound As Sound, ByVal Channel As Integer,
+                                                    Optional ByRef BandInfo As Audio.DSP.BandBank = Nothing,
+                                                    Optional ByRef FftFormat As Audio.Formats.FftFormat = Nothing,
+                                                    Optional ByRef ActualLowerLimitFrequencyList As List(Of Double) = Nothing,
+                                                    Optional ByRef ActualUpperLimitFrequencyList As List(Of Double) = Nothing,
+                                                    Optional ByRef dBSPL_FSdifference As Double? = Nothing) As List(Of Double)
+
+
+                'Setting default dBSPL_FSdifference 
+                If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+
+                'Calculates band levels
+                Dim BandLevels = CalculateBandLevels(InputSound, Channel, BandInfo, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList)
+
+                'Getting the band widths
+                Dim BandWidths = BandInfo.GetBandWidths
+
+                'Creating a list to store the spectrum levels
+                Dim SpectrumLevelList As New List(Of Double)
+
+                For i = 0 To BandLevels.Count - 1
+
+                    'Converting dB FS to dB SPL
+                    Dim BandLevel_SPL As Double = BandLevels(i) + dBSPL_FSdifference
+
+                    'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+                    Dim SpectrumLevel As Double = BandLevel2SpectrumLevel(BandLevel_SPL, BandWidths(i))
+                    SpectrumLevelList.Add(SpectrumLevel)
+                Next
+
+                Return SpectrumLevelList
+
+            End Function
+
+            ''' <summary>
+            ''' Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+            ''' </summary>
+            ''' <param name="BandLevel_SPL"></param>
+            ''' <param name="BandWidth"></param>
+            ''' <returns></returns>
+            Public Function BandLevel2SpectrumLevel(ByVal BandLevel_SPL As Double, ByVal BandWidth As Double) As Double
+
+                'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+                Return BandLevel_SPL - 10 * Math.Log10(BandWidth / 1)
+
+            End Function
+
+            ''' <summary>
             ''' Returns the RMS of the window with the highest RMS value.
             ''' </summary>
             ''' <param name="InputSound">The sound to measure.</param>
@@ -1234,7 +1357,7 @@ Namespace Audio
                         End If
                         If distorsion = True Then AudioError("Distorsion occurred for " & distorsionSampleCount & " samples in channel " & c & " in Fade")
 
-                        Next
+                    Next
 
                 Catch ex As Exception
                     AudioError(ex.ToString)

@@ -1207,58 +1207,29 @@ Namespace Audio
                                 WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.RMS, GetFrequencyWeighting)
                             End If
                             AttemptedMeasurementCount += 1
+                            If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
                             'Measures critical band levels
                             If IncludeCriticalBandLevels = True Then
 
-
-                                'Setting default band frequencies
-                                If BandInfo Is Nothing Then BandInfo = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
-
-                                'Setting up FFT format
-                                If FftFormat Is Nothing Then FftFormat = New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
-
-                                'Creating temporary lists to hold levels, etc
-                                Dim TempBandLevelList As New List(Of Double)
-                                Dim TempCentreFrequenciesList As New List(Of Double)
-                                Dim TempBandWidthsList As New List(Of Double)
-
-                                'Calculating spectra
+                                'Gets the sound section
                                 Dim SoundFileSection = Me.GetSoundFileSection(c)
-                                SoundFileSection.FFT = Audio.DSP.SpectralAnalysis(SoundFileSection, FftFormat)
-                                SoundFileSection.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
 
-                                For Each band In BandInfo
-
-                                    Dim ActualLowerLimitFrequency As Double
-                                    Dim ActualUpperLimitFrequency As Double
-
-                                    Dim WindowLevelArray = Audio.DSP.AcousticDistance_ModelA.CalculateWindowLevels(SoundFileSection,,,
-                                                                          band.LowerFrequencyLimit,
-                                                                          band.UpperFrequencyLimit,
-                                                                          Audio.FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
-                                                                          False, False,
-                                                                          ActualLowerLimitFrequency,
-                                                                          ActualUpperLimitFrequency)
-
-                                    Dim AverageBandLevel_FS As Double = WindowLevelArray.Average
-                                    TempBandLevelList.Add(AverageBandLevel_FS)
-
-                                    TempCentreFrequenciesList.Add(band.CentreFrequency)
-                                    TempBandWidthsList.Add(band.Bandwidth)
-
-                                Next
+                                'Calculating and storing the band levels
+                                Dim TempBandLevelList = Audio.DSP.CalculateBandLevels(SoundFileSection, 1, BandInfo)
                                 AttemptedMeasurementCount += 1
-
-                                Me.BandLevels = TempBandLevelList.ToArray
-                                Me.CentreFrequencies = TempCentreFrequenciesList.ToArray
-                                Me.BandWidths = TempBandWidthsList.ToArray
+                                If TempBandLevelList IsNot Nothing Then
+                                    SuccesfullMeasurementsCount += 1
+                                    Me.BandLevels = TempBandLevelList.ToArray
+                                    Me.CentreFrequencies = BandInfo.GetCentreFrequencies
+                                    Me.BandWidths = BandInfo.GetBandWidths
+                                Else
+                                    Me.BandLevels = {}
+                                    Me.CentreFrequencies = {}
+                                    Me.BandWidths = {}
+                                End If
 
                             End If
-
-
-                            If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
-
 
                         Else
                             'Notes a missing measurement
@@ -1294,7 +1265,8 @@ Namespace Audio
                             Dim BandLevel_SPL As Double = BandLevels(i) + dBSPL_FSdifference
 
                             'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
-                            Dim SpectrumLevel As Double = BandLevel_SPL - 10 * Math.Log10(BandWidths(i) / 1)
+                            'Dim SpectrumLevel As Double = BandLevel_SPL - 10 * Math.Log10(BandWidths(i) / 1)
+                            Dim SpectrumLevel As Double = Audio.DSP.BandLevel2SpectrumLevel(BandLevel_SPL, BandWidths(i))
                             SpectrumLevelList.Add(SpectrumLevel)
                         Next
                     End If
