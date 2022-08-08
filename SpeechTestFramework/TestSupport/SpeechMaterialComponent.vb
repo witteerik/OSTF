@@ -756,7 +756,7 @@ Public Class SpeechMaterialComponent
             Return MediaSet.NumericVariables(Me.Id).Keys.ToList
         End If
 
-        Return Nothing
+        Return New List(Of String)
 
     End Function
 
@@ -771,7 +771,7 @@ Public Class SpeechMaterialComponent
             Return MediaSet.CategoricalVariables(Me.Id).Keys.ToList
         End If
 
-        Return Nothing
+        Return New List(Of String)
 
     End Function
 
