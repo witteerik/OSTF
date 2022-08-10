@@ -1,0 +1,520 @@
+// LinguisticLevel	Id	ParentId	PrimaryStringRepresentation	CustomVariablesDatabase	TestSituationDatabase	DbId	OrderedChildren	IsPractiseComponent
+
+ListCollection	SipTest		The Swedish SiP-test	SiPTestMetrics.txt		SipTest	False	False
+
+List	L01	SipTest	Klas_kläs_klös	MVGMetrics.txt	MVGData.txt	L01	False	False
+Sentence	L01S01	L01	Klas			L01S01	True	False
+Word	L01S01W01	L01S01	Klas	WordMetrics.txt	WordData.txt	L01S01W01	True	False
+Phoneme	L01S01W01P01	L01S01W01	k	PhonemeMetrics.txt		L01S01W01P01	False	False
+Phoneme	L01S01W01P02	L01S01W01	l	PhonemeMetrics.txt		L01S01W01P02	False	False
+Phoneme	L01S01W01P03	L01S01W01	ɑː	PhonemeMetrics.txt		L01S01W01P03	False	False
+Phoneme	L01S01W01P04	L01S01W01	s	PhonemeMetrics.txt		L01S01W01P04	False	False
+Sentence	L01S02	L01	kläs			L01S02	True	False
+Word	L01S02W01	L01S02	kläs	WordMetrics.txt	WordData.txt	L01S02W01	True	False
+Phoneme	L01S02W01P01	L01S02W01	k	PhonemeMetrics.txt		L01S02W01P01	False	False
+Phoneme	L01S02W01P02	L01S02W01	l	PhonemeMetrics.txt		L01S02W01P02	False	False
+Phoneme	L01S02W01P03	L01S02W01	ɛː	PhonemeMetrics.txt		L01S02W01P03	False	False
+Phoneme	L01S02W01P04	L01S02W01	s	PhonemeMetrics.txt		L01S02W01P04	False	False
+Sentence	L01S03	L01	klös			L01S03	True	False
+Word	L01S03W01	L01S03	klös	WordMetrics.txt	WordData.txt	L01S03W01	True	False
+Phoneme	L01S03W01P01	L01S03W01	k	PhonemeMetrics.txt		L01S03W01P01	False	False
+Phoneme	L01S03W01P02	L01S03W01	l	PhonemeMetrics.txt		L01S03W01P02	False	False
+Phoneme	L01S03W01P03	L01S03W01	øː	PhonemeMetrics.txt		L01S03W01P03	False	False
+Phoneme	L01S03W01P04	L01S03W01	s	PhonemeMetrics.txt		L01S03W01P04	False	False
+
+List	L02	SipTest	bland_blond_blund	MVGMetrics.txt	MVGData.txt	L02	False	False
+Sentence	L02S01	L02	bland			L02S01	True	False
+Word	L02S01W01	L02S01	bland	WordMetrics.txt	WordData.txt	L02S01W01	True	False
+Phoneme	L02S01W01P01	L02S01W01	b	PhonemeMetrics.txt		L02S01W01P01	False	False
+Phoneme	L02S01W01P02	L02S01W01	l	PhonemeMetrics.txt		L02S01W01P02	False	False
+Phoneme	L02S01W01P03	L02S01W01	a	PhonemeMetrics.txt		L02S01W01P03	False	False
+Phoneme	L02S01W01P04	L02S01W01	nː	PhonemeMetrics.txt		L02S01W01P04	False	False
+Phoneme	L02S01W01P05	L02S01W01	d	PhonemeMetrics.txt		L02S01W01P05	False	False
+Sentence	L02S02	L02	blond			L02S02	True	False
+Word	L02S02W01	L02S02	blond	WordMetrics.txt	WordData.txt	L02S02W01	True	False
+Phoneme	L02S02W01P01	L02S02W01	b	PhonemeMetrics.txt		L02S02W01P01	False	False
+Phoneme	L02S02W01P02	L02S02W01	l	PhonemeMetrics.txt		L02S02W01P02	False	False
+Phoneme	L02S02W01P03	L02S02W01	ɔ	PhonemeMetrics.txt		L02S02W01P03	False	False
+Phoneme	L02S02W01P04	L02S02W01	nː	PhonemeMetrics.txt		L02S02W01P04	False	False
+Phoneme	L02S02W01P05	L02S02W01	d	PhonemeMetrics.txt		L02S02W01P05	False	False
+Sentence	L02S03	L02	blund			L02S03	True	False
+Word	L02S03W01	L02S03	blund	WordMetrics.txt	WordData.txt	L02S03W01	True	False
+Phoneme	L02S03W01P01	L02S03W01	b	PhonemeMetrics.txt		L02S03W01P01	False	False
+Phoneme	L02S03W01P02	L02S03W01	l	PhonemeMetrics.txt		L02S03W01P02	False	False
+Phoneme	L02S03W01P03	L02S03W01	ɵ	PhonemeMetrics.txt		L02S03W01P03	False	False
+Phoneme	L02S03W01P04	L02S03W01	nː	PhonemeMetrics.txt		L02S03W01P04	False	False
+Phoneme	L02S03W01P05	L02S03W01	d	PhonemeMetrics.txt		L02S03W01P05	False	False
+
+List	L03	SipTest	ed_led_ned	MVGMetrics.txt	MVGData.txt	L03	False	False
+Sentence	L03S01	L03	ed			L03S01	True	False
+Word	L03S01W01	L03S01	ed	WordMetrics.txt	WordData.txt	L03S01W01	True	False
+Phoneme	L03S01W01P01	L03S01W01	∅	PhonemeMetrics.txt		L03S01W01P01	False	False
+Phoneme	L03S01W01P02	L03S01W01	eː	PhonemeMetrics.txt		L03S01W01P02	False	False
+Phoneme	L03S01W01P03	L03S01W01	d	PhonemeMetrics.txt		L03S01W01P03	False	False
+Sentence	L03S02	L03	led			L03S02	True	False
+Word	L03S02W01	L03S02	led	WordMetrics.txt	WordData.txt	L03S02W01	True	False
+Phoneme	L03S02W01P01	L03S02W01	l	PhonemeMetrics.txt		L03S02W01P01	False	False
+Phoneme	L03S02W01P02	L03S02W01	eː	PhonemeMetrics.txt		L03S02W01P02	False	False
+Phoneme	L03S02W01P03	L03S02W01	d	PhonemeMetrics.txt		L03S02W01P03	False	False
+Sentence	L03S03	L03	ned			L03S03	True	False
+Word	L03S03W01	L03S03	ned	WordMetrics.txt	WordData.txt	L03S03W01	True	False
+Phoneme	L03S03W01P01	L03S03W01	n	PhonemeMetrics.txt		L03S03W01P01	False	False
+Phoneme	L03S03W01P02	L03S03W01	eː	PhonemeMetrics.txt		L03S03W01P02	False	False
+Phoneme	L03S03W01P03	L03S03W01	d	PhonemeMetrics.txt		L03S03W01P03	False	False
+
+List	L04	SipTest	pir_pur_pyr	MVGMetrics.txt	MVGData.txt	L04	False	False
+Sentence	L04S01	L04	pir			L04S01	True	False
+Word	L04S01W01	L04S01	pir	WordMetrics.txt	WordData.txt	L04S01W01	True	False
+Phoneme	L04S01W01P01	L04S01W01	p	PhonemeMetrics.txt		L04S01W01P01	False	False
+Phoneme	L04S01W01P02	L04S01W01	iː	PhonemeMetrics.txt		L04S01W01P02	False	False
+Phoneme	L04S01W01P03	L04S01W01	r	PhonemeMetrics.txt		L04S01W01P03	False	False
+Sentence	L04S02	L04	pur			L04S02	True	False
+Word	L04S02W01	L04S02	pur	WordMetrics.txt	WordData.txt	L04S02W01	True	False
+Phoneme	L04S02W01P01	L04S02W01	p	PhonemeMetrics.txt		L04S02W01P01	False	False
+Phoneme	L04S02W01P02	L04S02W01	ʉː	PhonemeMetrics.txt		L04S02W01P02	False	False
+Phoneme	L04S02W01P03	L04S02W01	r	PhonemeMetrics.txt		L04S02W01P03	False	False
+Sentence	L04S03	L04	pyr			L04S03	True	False
+Word	L04S03W01	L04S03	pyr	WordMetrics.txt	WordData.txt	L04S03W01	True	False
+Phoneme	L04S03W01P01	L04S03W01	p	PhonemeMetrics.txt		L04S03W01P01	False	False
+Phoneme	L04S03W01P02	L04S03W01	yː	PhonemeMetrics.txt		L04S03W01P02	False	False
+Phoneme	L04S03W01P03	L04S03W01	r	PhonemeMetrics.txt		L04S03W01P03	False	False
+
+List	L05	SipTest	sätt_sitt_sytt	MVGMetrics.txt	MVGData.txt	L05	False	False
+Sentence	L05S01	L05	sätt			L05S01	True	False
+Word	L05S01W01	L05S01	sätt	WordMetrics.txt	WordData.txt	L05S01W01	True	False
+Phoneme	L05S01W01P01	L05S01W01	s	PhonemeMetrics.txt		L05S01W01P01	False	False
+Phoneme	L05S01W01P02	L05S01W01	ɛ̝	PhonemeMetrics.txt		L05S01W01P02	False	False
+Phoneme	L05S01W01P03	L05S01W01	tː	PhonemeMetrics.txt		L05S01W01P03	False	False
+Sentence	L05S02	L05	sitt			L05S02	True	False
+Word	L05S02W01	L05S02	sitt	WordMetrics.txt	WordData.txt	L05S02W01	True	False
+Phoneme	L05S02W01P01	L05S02W01	s	PhonemeMetrics.txt		L05S02W01P01	False	False
+Phoneme	L05S02W01P02	L05S02W01	ɪ	PhonemeMetrics.txt		L05S02W01P02	False	False
+Phoneme	L05S02W01P03	L05S02W01	tː	PhonemeMetrics.txt		L05S02W01P03	False	False
+Sentence	L05S03	L05	sytt			L05S03	True	False
+Word	L05S03W01	L05S03	sytt	WordMetrics.txt	WordData.txt	L05S03W01	True	False
+Phoneme	L05S03W01P01	L05S03W01	s	PhonemeMetrics.txt		L05S03W01P01	False	False
+Phoneme	L05S03W01P02	L05S03W01	ʏ	PhonemeMetrics.txt		L05S03W01P02	False	False
+Phoneme	L05S03W01P03	L05S03W01	tː	PhonemeMetrics.txt		L05S03W01P03	False	False
+
+List	L06	SipTest	sitt_sytt_sött	MVGMetrics.txt	MVGData.txt	L06	False	False
+Sentence	L06S01	L06	sitt			L06S01	True	False
+Word	L06S01W01	L06S01	sitt	WordMetrics.txt	WordData.txt	L06S01W01	True	False
+Phoneme	L06S01W01P01	L06S01W01	s	PhonemeMetrics.txt		L06S01W01P01	False	False
+Phoneme	L06S01W01P02	L06S01W01	ɪ	PhonemeMetrics.txt		L06S01W01P02	False	False
+Phoneme	L06S01W01P03	L06S01W01	tː	PhonemeMetrics.txt		L06S01W01P03	False	False
+Sentence	L06S02	L06	sytt			L06S02	True	False
+Word	L06S02W01	L06S02	sytt	WordMetrics.txt	WordData.txt	L06S02W01	True	False
+Phoneme	L06S02W01P01	L06S02W01	s	PhonemeMetrics.txt		L06S02W01P01	False	False
+Phoneme	L06S02W01P02	L06S02W01	ʏ	PhonemeMetrics.txt		L06S02W01P02	False	False
+Phoneme	L06S02W01P03	L06S02W01	tː	PhonemeMetrics.txt		L06S02W01P03	False	False
+Sentence	L06S03	L06	sött			L06S03	True	False
+Word	L06S03W01	L06S03	sött	WordMetrics.txt	WordData.txt	L06S03W01	True	False
+Phoneme	L06S03W01P01	L06S03W01	s	PhonemeMetrics.txt		L06S03W01P01	False	False
+Phoneme	L06S03W01P02	L06S03W01	ø̞	PhonemeMetrics.txt		L06S03W01P02	False	False
+Phoneme	L06S03W01P03	L06S03W01	tː	PhonemeMetrics.txt		L06S03W01P03	False	False
+
+List	L07	SipTest	hall_pall_tall	MVGMetrics.txt	MVGData.txt	L07	False	False
+Sentence	L07S01	L07	hall			L07S01	True	False
+Word	L07S01W01	L07S01	hall	WordMetrics.txt	WordData.txt	L07S01W01	True	False
+Phoneme	L07S01W01P01	L07S01W01	h	PhonemeMetrics.txt		L07S01W01P01	False	False
+Phoneme	L07S01W01P02	L07S01W01	a	PhonemeMetrics.txt		L07S01W01P02	False	False
+Phoneme	L07S01W01P03	L07S01W01	lː	PhonemeMetrics.txt		L07S01W01P03	False	False
+Sentence	L07S02	L07	pall			L07S02	True	False
+Word	L07S02W01	L07S02	pall	WordMetrics.txt	WordData.txt	L07S02W01	True	False
+Phoneme	L07S02W01P01	L07S02W01	p	PhonemeMetrics.txt		L07S02W01P01	False	False
+Phoneme	L07S02W01P02	L07S02W01	a	PhonemeMetrics.txt		L07S02W01P02	False	False
+Phoneme	L07S02W01P03	L07S02W01	lː	PhonemeMetrics.txt		L07S02W01P03	False	False
+Sentence	L07S03	L07	tall			L07S03	True	False
+Word	L07S03W01	L07S03	tall	WordMetrics.txt	WordData.txt	L07S03W01	True	False
+Phoneme	L07S03W01P01	L07S03W01	t	PhonemeMetrics.txt		L07S03W01P01	False	False
+Phoneme	L07S03W01P02	L07S03W01	a	PhonemeMetrics.txt		L07S03W01P02	False	False
+Phoneme	L07S03W01P03	L07S03W01	lː	PhonemeMetrics.txt		L07S03W01P03	False	False
+
+List	L08	SipTest	res_ris_rös	MVGMetrics.txt	MVGData.txt	L08	False	True
+Sentence	L08S01	L08	res			L08S01	True	True
+Word	L08S01W01	L08S01	res	WordMetrics.txt	WordData.txt	L08S01W01	True	True
+Phoneme	L08S01W01P01	L08S01W01	r	PhonemeMetrics.txt		L08S01W01P01	False	True
+Phoneme	L08S01W01P02	L08S01W01	eː	PhonemeMetrics.txt		L08S01W01P02	False	True
+Phoneme	L08S01W01P03	L08S01W01	s	PhonemeMetrics.txt		L08S01W01P03	False	True
+Sentence	L08S02	L08	ris			L08S02	True	True
+Word	L08S02W01	L08S02	ris	WordMetrics.txt	WordData.txt	L08S02W01	True	True
+Phoneme	L08S02W01P01	L08S02W01	r	PhonemeMetrics.txt		L08S02W01P01	False	True
+Phoneme	L08S02W01P02	L08S02W01	iː	PhonemeMetrics.txt		L08S02W01P02	False	True
+Phoneme	L08S02W01P03	L08S02W01	s	PhonemeMetrics.txt		L08S02W01P03	False	True
+Sentence	L08S03	L08	rös			L08S03	True	True
+Word	L08S03W01	L08S03	rös	WordMetrics.txt	WordData.txt	L08S03W01	True	True
+Phoneme	L08S03W01P01	L08S03W01	r	PhonemeMetrics.txt		L08S03W01P01	False	True
+Phoneme	L08S03W01P02	L08S03W01	øː	PhonemeMetrics.txt		L08S03W01P02	False	True
+Phoneme	L08S03W01P03	L08S03W01	s	PhonemeMetrics.txt		L08S03W01P03	False	True
+
+List	L09	SipTest	satt_sätt_sött	MVGMetrics.txt	MVGData.txt	L09	False	False
+Sentence	L09S01	L09	satt			L09S01	True	False
+Word	L09S01W01	L09S01	satt	WordMetrics.txt	WordData.txt	L09S01W01	True	False
+Phoneme	L09S01W01P01	L09S01W01	s	PhonemeMetrics.txt		L09S01W01P01	False	False
+Phoneme	L09S01W01P02	L09S01W01	a	PhonemeMetrics.txt		L09S01W01P02	False	False
+Phoneme	L09S01W01P03	L09S01W01	tː	PhonemeMetrics.txt		L09S01W01P03	False	False
+Sentence	L09S02	L09	sätt			L09S02	True	False
+Word	L09S02W01	L09S02	sätt	WordMetrics.txt	WordData.txt	L09S02W01	True	False
+Phoneme	L09S02W01P01	L09S02W01	s	PhonemeMetrics.txt		L09S02W01P01	False	False
+Phoneme	L09S02W01P02	L09S02W01	ɛ̝	PhonemeMetrics.txt		L09S02W01P02	False	False
+Phoneme	L09S02W01P03	L09S02W01	tː	PhonemeMetrics.txt		L09S02W01P03	False	False
+Sentence	L09S03	L09	sött			L09S03	True	False
+Word	L09S03W01	L09S03	sött	WordMetrics.txt	WordData.txt	L09S03W01	True	False
+Phoneme	L09S03W01P01	L09S03W01	s	PhonemeMetrics.txt		L09S03W01P01	False	False
+Phoneme	L09S03W01P02	L09S03W01	ø̞	PhonemeMetrics.txt		L09S03W01P02	False	False
+Phoneme	L09S03W01P03	L09S03W01	tː	PhonemeMetrics.txt		L09S03W01P03	False	False
+
+List	L10	SipTest	mår_mor_mur	MVGMetrics.txt	MVGData.txt	L10	False	False
+Sentence	L10S01	L10	mår			L10S01	True	False
+Word	L10S01W01	L10S01	mår	WordMetrics.txt	WordData.txt	L10S01W01	True	False
+Phoneme	L10S01W01P01	L10S01W01	m	PhonemeMetrics.txt		L10S01W01P01	False	False
+Phoneme	L10S01W01P02	L10S01W01	oː	PhonemeMetrics.txt		L10S01W01P02	False	False
+Phoneme	L10S01W01P03	L10S01W01	r	PhonemeMetrics.txt		L10S01W01P03	False	False
+Sentence	L10S02	L10	mor			L10S02	True	False
+Word	L10S02W01	L10S02	mor	WordMetrics.txt	WordData.txt	L10S02W01	True	False
+Phoneme	L10S02W01P01	L10S02W01	m	PhonemeMetrics.txt		L10S02W01P01	False	False
+Phoneme	L10S02W01P02	L10S02W01	uː	PhonemeMetrics.txt		L10S02W01P02	False	False
+Phoneme	L10S02W01P03	L10S02W01	r	PhonemeMetrics.txt		L10S02W01P03	False	False
+Sentence	L10S03	L10	mur			L10S03	True	False
+Word	L10S03W01	L10S03	mur	WordMetrics.txt	WordData.txt	L10S03W01	True	False
+Phoneme	L10S03W01P01	L10S03W01	m	PhonemeMetrics.txt		L10S03W01P01	False	False
+Phoneme	L10S03W01P02	L10S03W01	ʉː	PhonemeMetrics.txt		L10S03W01P02	False	False
+Phoneme	L10S03W01P03	L10S03W01	r	PhonemeMetrics.txt		L10S03W01P03	False	False
+
+List	L11	SipTest	mas_mås_mös	MVGMetrics.txt	MVGData.txt	L11	False	False
+Sentence	L11S01	L11	mas			L11S01	True	False
+Word	L11S01W01	L11S01	mas	WordMetrics.txt	WordData.txt	L11S01W01	True	False
+Phoneme	L11S01W01P01	L11S01W01	m	PhonemeMetrics.txt		L11S01W01P01	False	False
+Phoneme	L11S01W01P02	L11S01W01	ɑː	PhonemeMetrics.txt		L11S01W01P02	False	False
+Phoneme	L11S01W01P03	L11S01W01	s	PhonemeMetrics.txt		L11S01W01P03	False	False
+Sentence	L11S02	L11	mås			L11S02	True	False
+Word	L11S02W01	L11S02	mås	WordMetrics.txt	WordData.txt	L11S02W01	True	False
+Phoneme	L11S02W01P01	L11S02W01	m	PhonemeMetrics.txt		L11S02W01P01	False	False
+Phoneme	L11S02W01P02	L11S02W01	oː	PhonemeMetrics.txt		L11S02W01P02	False	False
+Phoneme	L11S02W01P03	L11S02W01	s	PhonemeMetrics.txt		L11S02W01P03	False	False
+Sentence	L11S03	L11	mös			L11S03	True	False
+Word	L11S03W01	L11S03	mös	WordMetrics.txt	WordData.txt	L11S03W01	True	False
+Phoneme	L11S03W01P01	L11S03W01	m	PhonemeMetrics.txt		L11S03W01P01	False	False
+Phoneme	L11S03W01P02	L11S03W01	øː	PhonemeMetrics.txt		L11S03W01P02	False	False
+Phoneme	L11S03W01P03	L11S03W01	s	PhonemeMetrics.txt		L11S03W01P03	False	False
+
+List	L12	SipTest	paj_pall_pang	MVGMetrics.txt	MVGData.txt	L12	False	False
+Sentence	L12S01	L12	paj			L12S01	True	False
+Word	L12S01W01	L12S01	paj	WordMetrics.txt	WordData.txt	L12S01W01	True	False
+Phoneme	L12S01W01P01	L12S01W01	p	PhonemeMetrics.txt		L12S01W01P01	False	False
+Phoneme	L12S01W01P02	L12S01W01	a	PhonemeMetrics.txt		L12S01W01P02	False	False
+Phoneme	L12S01W01P03	L12S01W01	ʝː	PhonemeMetrics.txt		L12S01W01P03	False	False
+Sentence	L12S02	L12	pall			L12S02	True	False
+Word	L12S02W01	L12S02	pall	WordMetrics.txt	WordData.txt	L12S02W01	True	False
+Phoneme	L12S02W01P01	L12S02W01	p	PhonemeMetrics.txt		L12S02W01P01	False	False
+Phoneme	L12S02W01P02	L12S02W01	a	PhonemeMetrics.txt		L12S02W01P02	False	False
+Phoneme	L12S02W01P03	L12S02W01	lː	PhonemeMetrics.txt		L12S02W01P03	False	False
+Sentence	L12S03	L12	pang			L12S03	True	False
+Word	L12S03W01	L12S03	pang	WordMetrics.txt	WordData.txt	L12S03W01	True	False
+Phoneme	L12S03W01P01	L12S03W01	p	PhonemeMetrics.txt		L12S03W01P01	False	False
+Phoneme	L12S03W01P02	L12S03W01	a	PhonemeMetrics.txt		L12S03W01P02	False	False
+Phoneme	L12S03W01P03	L12S03W01	ŋː	PhonemeMetrics.txt		L12S03W01P03	False	False
+
+List	L13	SipTest	bur_dur_mur	MVGMetrics.txt	MVGData.txt	L13	False	False
+Sentence	L13S01	L13	bur			L13S01	True	False
+Word	L13S01W01	L13S01	bur	WordMetrics.txt	WordData.txt	L13S01W01	True	False
+Phoneme	L13S01W01P01	L13S01W01	b	PhonemeMetrics.txt		L13S01W01P01	False	False
+Phoneme	L13S01W01P02	L13S01W01	ʉː	PhonemeMetrics.txt		L13S01W01P02	False	False
+Phoneme	L13S01W01P03	L13S01W01	r	PhonemeMetrics.txt		L13S01W01P03	False	False
+Sentence	L13S02	L13	dur			L13S02	True	False
+Word	L13S02W01	L13S02	dur	WordMetrics.txt	WordData.txt	L13S02W01	True	False
+Phoneme	L13S02W01P01	L13S02W01	d	PhonemeMetrics.txt		L13S02W01P01	False	False
+Phoneme	L13S02W01P02	L13S02W01	ʉː	PhonemeMetrics.txt		L13S02W01P02	False	False
+Phoneme	L13S02W01P03	L13S02W01	r	PhonemeMetrics.txt		L13S02W01P03	False	False
+Sentence	L13S03	L13	mur			L13S03	True	False
+Word	L13S03W01	L13S03	mur	WordMetrics.txt	WordData.txt	L13S03W01	True	False
+Phoneme	L13S03W01P01	L13S03W01	m	PhonemeMetrics.txt		L13S03W01P01	False	False
+Phoneme	L13S03W01P02	L13S03W01	ʉː	PhonemeMetrics.txt		L13S03W01P02	False	False
+Phoneme	L13S03W01P03	L13S03W01	r	PhonemeMetrics.txt		L13S03W01P03	False	False
+
+List	L14	SipTest	tugg_tum_tung	MVGMetrics.txt	MVGData.txt	L14	False	False
+Sentence	L14S01	L14	tugg			L14S01	True	False
+Word	L14S01W01	L14S01	tugg	WordMetrics.txt	WordData.txt	L14S01W01	True	False
+Phoneme	L14S01W01P01	L14S01W01	t	PhonemeMetrics.txt		L14S01W01P01	False	False
+Phoneme	L14S01W01P02	L14S01W01	ɵ	PhonemeMetrics.txt		L14S01W01P02	False	False
+Phoneme	L14S01W01P03	L14S01W01	ɡː	PhonemeMetrics.txt		L14S01W01P03	False	False
+Sentence	L14S02	L14	tum			L14S02	True	False
+Word	L14S02W01	L14S02	tum	WordMetrics.txt	WordData.txt	L14S02W01	True	False
+Phoneme	L14S02W01P01	L14S02W01	t	PhonemeMetrics.txt		L14S02W01P01	False	False
+Phoneme	L14S02W01P02	L14S02W01	ɵ	PhonemeMetrics.txt		L14S02W01P02	False	False
+Phoneme	L14S02W01P03	L14S02W01	mː	PhonemeMetrics.txt		L14S02W01P03	False	False
+Sentence	L14S03	L14	tung			L14S03	True	False
+Word	L14S03W01	L14S03	tung	WordMetrics.txt	WordData.txt	L14S03W01	True	False
+Phoneme	L14S03W01P01	L14S03W01	t	PhonemeMetrics.txt		L14S03W01P01	False	False
+Phoneme	L14S03W01P02	L14S03W01	ɵ	PhonemeMetrics.txt		L14S03W01P02	False	False
+Phoneme	L14S03W01P03	L14S03W01	ŋː	PhonemeMetrics.txt		L14S03W01P03	False	False
+
+List	L15	SipTest	kil_fil_sil	MVGMetrics.txt	MVGData.txt	L15	False	False
+Sentence	L15S01	L15	kil			L15S01	True	False
+Word	L15S01W01	L15S01	kil	WordMetrics.txt	WordData.txt	L15S01W01	True	False
+Phoneme	L15S01W01P01	L15S01W01	ɕ	PhonemeMetrics.txt		L15S01W01P01	False	False
+Phoneme	L15S01W01P02	L15S01W01	iː	PhonemeMetrics.txt		L15S01W01P02	False	False
+Phoneme	L15S01W01P03	L15S01W01	l	PhonemeMetrics.txt		L15S01W01P03	False	False
+Sentence	L15S02	L15	fil			L15S02	True	False
+Word	L15S02W01	L15S02	fil	WordMetrics.txt	WordData.txt	L15S02W01	True	False
+Phoneme	L15S02W01P01	L15S02W01	f	PhonemeMetrics.txt		L15S02W01P01	False	False
+Phoneme	L15S02W01P02	L15S02W01	iː	PhonemeMetrics.txt		L15S02W01P02	False	False
+Phoneme	L15S02W01P03	L15S02W01	l	PhonemeMetrics.txt		L15S02W01P03	False	False
+Sentence	L15S03	L15	sil			L15S03	True	False
+Word	L15S03W01	L15S03	sil	WordMetrics.txt	WordData.txt	L15S03W01	True	False
+Phoneme	L15S03W01P01	L15S03W01	s	PhonemeMetrics.txt		L15S03W01P01	False	False
+Phoneme	L15S03W01P02	L15S03W01	iː	PhonemeMetrics.txt		L15S03W01P02	False	False
+Phoneme	L15S03W01P03	L15S03W01	l	PhonemeMetrics.txt		L15S03W01P03	False	False
+
+List	L16	SipTest	kval_kvarn_kvav	MVGMetrics.txt	MVGData.txt	L16	False	False
+Sentence	L16S01	L16	kval			L16S01	True	False
+Word	L16S01W01	L16S01	kval	WordMetrics.txt	WordData.txt	L16S01W01	True	False
+Phoneme	L16S01W01P01	L16S01W01	k	PhonemeMetrics.txt		L16S01W01P01	False	False
+Phoneme	L16S01W01P02	L16S01W01	v	PhonemeMetrics.txt		L16S01W01P02	False	False
+Phoneme	L16S01W01P03	L16S01W01	ɑː	PhonemeMetrics.txt		L16S01W01P03	False	False
+Phoneme	L16S01W01P04	L16S01W01	l	PhonemeMetrics.txt		L16S01W01P04	False	False
+Sentence	L16S02	L16	kvarn			L16S02	True	False
+Word	L16S02W01	L16S02	kvarn	WordMetrics.txt	WordData.txt	L16S02W01	True	False
+Phoneme	L16S02W01P01	L16S02W01	k	PhonemeMetrics.txt		L16S02W01P01	False	False
+Phoneme	L16S02W01P02	L16S02W01	v	PhonemeMetrics.txt		L16S02W01P02	False	False
+Phoneme	L16S02W01P03	L16S02W01	ɑː	PhonemeMetrics.txt		L16S02W01P03	False	False
+Phoneme	L16S02W01P04	L16S02W01	ɳ	PhonemeMetrics.txt		L16S02W01P04	False	False
+Sentence	L16S03	L16	kvav			L16S03	True	False
+Word	L16S03W01	L16S03	kvav	WordMetrics.txt	WordData.txt	L16S03W01	True	False
+Phoneme	L16S03W01P01	L16S03W01	k	PhonemeMetrics.txt		L16S03W01P01	False	False
+Phoneme	L16S03W01P02	L16S03W01	v	PhonemeMetrics.txt		L16S03W01P02	False	False
+Phoneme	L16S03W01P03	L16S03W01	ɑː	PhonemeMetrics.txt		L16S03W01P03	False	False
+Phoneme	L16S03W01P04	L16S03W01	v	PhonemeMetrics.txt		L16S03W01P04	False	False
+
+List	L17	SipTest	mark_märk_mörk	MVGMetrics.txt	MVGData.txt	L17	False	False
+Sentence	L17S01	L17	mark			L17S01	True	False
+Word	L17S01W01	L17S01	mark	WordMetrics.txt	WordData.txt	L17S01W01	True	False
+Phoneme	L17S01W01P01	L17S01W01	m	PhonemeMetrics.txt		L17S01W01P01	False	False
+Phoneme	L17S01W01P02	L17S01W01	a	PhonemeMetrics.txt		L17S01W01P02	False	False
+Phoneme	L17S01W01P03	L17S01W01	rː	PhonemeMetrics.txt		L17S01W01P03	False	False
+Phoneme	L17S01W01P04	L17S01W01	k	PhonemeMetrics.txt		L17S01W01P04	False	False
+Sentence	L17S02	L17	märk			L17S02	True	False
+Word	L17S02W01	L17S02	märk	WordMetrics.txt	WordData.txt	L17S02W01	True	False
+Phoneme	L17S02W01P01	L17S02W01	m	PhonemeMetrics.txt		L17S02W01P01	False	False
+Phoneme	L17S02W01P02	L17S02W01	æ	PhonemeMetrics.txt		L17S02W01P02	False	False
+Phoneme	L17S02W01P03	L17S02W01	rː	PhonemeMetrics.txt		L17S02W01P03	False	False
+Phoneme	L17S02W01P04	L17S02W01	k	PhonemeMetrics.txt		L17S02W01P04	False	False
+Sentence	L17S03	L17	mörk			L17S03	True	False
+Word	L17S03W01	L17S03	mörk	WordMetrics.txt	WordData.txt	L17S03W01	True	False
+Phoneme	L17S03W01P01	L17S03W01	m	PhonemeMetrics.txt		L17S03W01P01	False	False
+Phoneme	L17S03W01P02	L17S03W01	œ	PhonemeMetrics.txt		L17S03W01P02	False	False
+Phoneme	L17S03W01P03	L17S03W01	rː	PhonemeMetrics.txt		L17S03W01P03	False	False
+Phoneme	L17S03W01P04	L17S03W01	k	PhonemeMetrics.txt		L17S03W01P04	False	False
+
+List	L18	SipTest	farm_charm_larm	MVGMetrics.txt	MVGData.txt	L18	False	False
+Sentence	L18S01	L18	farm			L18S01	True	False
+Word	L18S01W01	L18S01	farm	WordMetrics.txt	WordData.txt	L18S01W01	True	False
+Phoneme	L18S01W01P01	L18S01W01	f	PhonemeMetrics.txt		L18S01W01P01	False	False
+Phoneme	L18S01W01P02	L18S01W01	a	PhonemeMetrics.txt		L18S01W01P02	False	False
+Phoneme	L18S01W01P03	L18S01W01	rː	PhonemeMetrics.txt		L18S01W01P03	False	False
+Phoneme	L18S01W01P04	L18S01W01	m	PhonemeMetrics.txt		L18S01W01P04	False	False
+Sentence	L18S02	L18	charm			L18S02	True	False
+Word	L18S02W01	L18S02	charm	WordMetrics.txt	WordData.txt	L18S02W01	True	False
+Phoneme	L18S02W01P01	L18S02W01	ɧ	PhonemeMetrics.txt		L18S02W01P01	False	False
+Phoneme	L18S02W01P02	L18S02W01	a	PhonemeMetrics.txt		L18S02W01P02	False	False
+Phoneme	L18S02W01P03	L18S02W01	rː	PhonemeMetrics.txt		L18S02W01P03	False	False
+Phoneme	L18S02W01P04	L18S02W01	m	PhonemeMetrics.txt		L18S02W01P04	False	False
+Sentence	L18S03	L18	larm			L18S03	True	False
+Word	L18S03W01	L18S03	larm	WordMetrics.txt	WordData.txt	L18S03W01	True	False
+Phoneme	L18S03W01P01	L18S03W01	l	PhonemeMetrics.txt		L18S03W01P01	False	False
+Phoneme	L18S03W01P02	L18S03W01	a	PhonemeMetrics.txt		L18S03W01P02	False	False
+Phoneme	L18S03W01P03	L18S03W01	rː	PhonemeMetrics.txt		L18S03W01P03	False	False
+Phoneme	L18S03W01P04	L18S03W01	m	PhonemeMetrics.txt		L18S03W01P04	False	False
+
+List	L19	SipTest	kval_kvarn_kvar	MVGMetrics.txt	MVGData.txt	L19	False	False
+Sentence	L19S01	L19	kval			L19S01	True	False
+Word	L19S01W01	L19S01	kval	WordMetrics.txt	WordData.txt	L19S01W01	True	False
+Phoneme	L19S01W01P01	L19S01W01	k	PhonemeMetrics.txt		L19S01W01P01	False	False
+Phoneme	L19S01W01P02	L19S01W01	v	PhonemeMetrics.txt		L19S01W01P02	False	False
+Phoneme	L19S01W01P03	L19S01W01	ɑː	PhonemeMetrics.txt		L19S01W01P03	False	False
+Phoneme	L19S01W01P04	L19S01W01	l	PhonemeMetrics.txt		L19S01W01P04	False	False
+Sentence	L19S02	L19	kvarn			L19S02	True	False
+Word	L19S02W01	L19S02	kvarn	WordMetrics.txt	WordData.txt	L19S02W01	True	False
+Phoneme	L19S02W01P01	L19S02W01	k	PhonemeMetrics.txt		L19S02W01P01	False	False
+Phoneme	L19S02W01P02	L19S02W01	v	PhonemeMetrics.txt		L19S02W01P02	False	False
+Phoneme	L19S02W01P03	L19S02W01	ɑː	PhonemeMetrics.txt		L19S02W01P03	False	False
+Phoneme	L19S02W01P04	L19S02W01	ɳ	PhonemeMetrics.txt		L19S02W01P04	False	False
+Sentence	L19S03	L19	kvar			L19S03	True	False
+Word	L19S03W01	L19S03	kvar	WordMetrics.txt	WordData.txt	L19S03W01	True	False
+Phoneme	L19S03W01P01	L19S03W01	k	PhonemeMetrics.txt		L19S03W01P01	False	False
+Phoneme	L19S03W01P02	L19S03W01	v	PhonemeMetrics.txt		L19S03W01P02	False	False
+Phoneme	L19S03W01P03	L19S03W01	ɑː	PhonemeMetrics.txt		L19S03W01P03	False	False
+Phoneme	L19S03W01P04	L19S03W01	r	PhonemeMetrics.txt		L19S03W01P04	False	False
+
+List	L20	SipTest	red_räd_Ryd	MVGMetrics.txt	MVGData.txt	L20	False	False
+Sentence	L20S01	L20	red			L20S01	True	False
+Word	L20S01W01	L20S01	red	WordMetrics.txt	WordData.txt	L20S01W01	True	False
+Phoneme	L20S01W01P01	L20S01W01	r	PhonemeMetrics.txt		L20S01W01P01	False	False
+Phoneme	L20S01W01P02	L20S01W01	eː	PhonemeMetrics.txt		L20S01W01P02	False	False
+Phoneme	L20S01W01P03	L20S01W01	d	PhonemeMetrics.txt		L20S01W01P03	False	False
+Sentence	L20S02	L20	räd			L20S02	True	False
+Word	L20S02W01	L20S02	räd	WordMetrics.txt	WordData.txt	L20S02W01	True	False
+Phoneme	L20S02W01P01	L20S02W01	r	PhonemeMetrics.txt		L20S02W01P01	False	False
+Phoneme	L20S02W01P02	L20S02W01	ɛː	PhonemeMetrics.txt		L20S02W01P02	False	False
+Phoneme	L20S02W01P03	L20S02W01	d	PhonemeMetrics.txt		L20S02W01P03	False	False
+Sentence	L20S03	L20	Ryd			L20S03	True	False
+Word	L20S03W01	L20S03	Ryd	WordMetrics.txt	WordData.txt	L20S03W01	True	False
+Phoneme	L20S03W01P01	L20S03W01	r	PhonemeMetrics.txt		L20S03W01P01	False	False
+Phoneme	L20S03W01P02	L20S03W01	yː	PhonemeMetrics.txt		L20S03W01P02	False	False
+Phoneme	L20S03W01P03	L20S03W01	d	PhonemeMetrics.txt		L20S03W01P03	False	False
+
+List	L21	SipTest	fyr_skyr_syr	MVGMetrics.txt	MVGData.txt	L21	False	False
+Sentence	L21S01	L21	fyr			L21S01	True	False
+Word	L21S01W01	L21S01	fyr	WordMetrics.txt	WordData.txt	L21S01W01	True	False
+Phoneme	L21S01W01P01	L21S01W01	f	PhonemeMetrics.txt		L21S01W01P01	False	False
+Phoneme	L21S01W01P02	L21S01W01	yː	PhonemeMetrics.txt		L21S01W01P02	False	False
+Phoneme	L21S01W01P03	L21S01W01	r	PhonemeMetrics.txt		L21S01W01P03	False	False
+Sentence	L21S02	L21	skyr			L21S02	True	False
+Word	L21S02W01	L21S02	skyr	WordMetrics.txt	WordData.txt	L21S02W01	True	False
+Phoneme	L21S02W01P01	L21S02W01	ɧ	PhonemeMetrics.txt		L21S02W01P01	False	False
+Phoneme	L21S02W01P02	L21S02W01	yː	PhonemeMetrics.txt		L21S02W01P02	False	False
+Phoneme	L21S02W01P03	L21S02W01	r	PhonemeMetrics.txt		L21S02W01P03	False	False
+Sentence	L21S03	L21	syr			L21S03	True	False
+Word	L21S03W01	L21S03	syr	WordMetrics.txt	WordData.txt	L21S03W01	True	False
+Phoneme	L21S03W01P01	L21S03W01	s	PhonemeMetrics.txt		L21S03W01P01	False	False
+Phoneme	L21S03W01P02	L21S03W01	yː	PhonemeMetrics.txt		L21S03W01P02	False	False
+Phoneme	L21S03W01P03	L21S03W01	r	PhonemeMetrics.txt		L21S03W01P03	False	False
+
+List	L22	SipTest	sopp_sått_sort	MVGMetrics.txt	MVGData.txt	L22	False	False
+Sentence	L22S01	L22	sopp			L22S01	True	False
+Word	L22S01W01	L22S01	sopp	WordMetrics.txt	WordData.txt	L22S01W01	True	False
+Phoneme	L22S01W01P01	L22S01W01	s	PhonemeMetrics.txt		L22S01W01P01	False	False
+Phoneme	L22S01W01P02	L22S01W01	ɔ	PhonemeMetrics.txt		L22S01W01P02	False	False
+Phoneme	L22S01W01P03	L22S01W01	pː	PhonemeMetrics.txt		L22S01W01P03	False	False
+Sentence	L22S02	L22	sått			L22S02	True	False
+Word	L22S02W01	L22S02	sått	WordMetrics.txt	WordData.txt	L22S02W01	True	False
+Phoneme	L22S02W01P01	L22S02W01	s	PhonemeMetrics.txt		L22S02W01P01	False	False
+Phoneme	L22S02W01P02	L22S02W01	ɔ	PhonemeMetrics.txt		L22S02W01P02	False	False
+Phoneme	L22S02W01P03	L22S02W01	tː	PhonemeMetrics.txt		L22S02W01P03	False	False
+Sentence	L22S03	L22	sort			L22S03	True	False
+Word	L22S03W01	L22S03	sort	WordMetrics.txt	WordData.txt	L22S03W01	True	False
+Phoneme	L22S03W01P01	L22S03W01	s	PhonemeMetrics.txt		L22S03W01P01	False	False
+Phoneme	L22S03W01P02	L22S03W01	ɔ	PhonemeMetrics.txt		L22S03W01P02	False	False
+Phoneme	L22S03W01P03	L22S03W01	ʈː	PhonemeMetrics.txt		L22S03W01P03	False	False
+
+List	L23	SipTest	sarg_sorg_sörj	MVGMetrics.txt	MVGData.txt	L23	False	False
+Sentence	L23S01	L23	sarg			L23S01	True	False
+Word	L23S01W01	L23S01	sarg	WordMetrics.txt	WordData.txt	L23S01W01	True	False
+Phoneme	L23S01W01P01	L23S01W01	s	PhonemeMetrics.txt		L23S01W01P01	False	False
+Phoneme	L23S01W01P02	L23S01W01	a	PhonemeMetrics.txt		L23S01W01P02	False	False
+Phoneme	L23S01W01P03	L23S01W01	rː	PhonemeMetrics.txt		L23S01W01P03	False	False
+Phoneme	L23S01W01P04	L23S01W01	ʝ	PhonemeMetrics.txt		L23S01W01P04	False	False
+Sentence	L23S02	L23	sorg			L23S02	True	False
+Word	L23S02W01	L23S02	sorg	WordMetrics.txt	WordData.txt	L23S02W01	True	False
+Phoneme	L23S02W01P01	L23S02W01	s	PhonemeMetrics.txt		L23S02W01P01	False	False
+Phoneme	L23S02W01P02	L23S02W01	ɔ	PhonemeMetrics.txt		L23S02W01P02	False	False
+Phoneme	L23S02W01P03	L23S02W01	rː	PhonemeMetrics.txt		L23S02W01P03	False	False
+Phoneme	L23S02W01P04	L23S02W01	ʝ	PhonemeMetrics.txt		L23S02W01P04	False	False
+Sentence	L23S03	L23	sörj			L23S03	True	False
+Word	L23S03W01	L23S03	sörj	WordMetrics.txt	WordData.txt	L23S03W01	True	False
+Phoneme	L23S03W01P01	L23S03W01	s	PhonemeMetrics.txt		L23S03W01P01	False	False
+Phoneme	L23S03W01P02	L23S03W01	œ	PhonemeMetrics.txt		L23S03W01P02	False	False
+Phoneme	L23S03W01P03	L23S03W01	rː	PhonemeMetrics.txt		L23S03W01P03	False	False
+Phoneme	L23S03W01P04	L23S03W01	ʝ	PhonemeMetrics.txt		L23S03W01P04	False	False
+
+List	L24	SipTest	rått_rott_rött	MVGMetrics.txt	MVGData.txt	L24	False	False
+Sentence	L24S01	L24	rått			L24S01	True	False
+Word	L24S01W01	L24S01	rått	WordMetrics.txt	WordData.txt	L24S01W01	True	False
+Phoneme	L24S01W01P01	L24S01W01	r	PhonemeMetrics.txt		L24S01W01P01	False	False
+Phoneme	L24S01W01P02	L24S01W01	ɔ	PhonemeMetrics.txt		L24S01W01P02	False	False
+Phoneme	L24S01W01P03	L24S01W01	tː	PhonemeMetrics.txt		L24S01W01P03	False	False
+Sentence	L24S02	L24	rott			L24S02	True	False
+Word	L24S02W01	L24S02	rott	WordMetrics.txt	WordData.txt	L24S02W01	True	False
+Phoneme	L24S02W01P01	L24S02W01	r	PhonemeMetrics.txt		L24S02W01P01	False	False
+Phoneme	L24S02W01P02	L24S02W01	ʊ	PhonemeMetrics.txt		L24S02W01P02	False	False
+Phoneme	L24S02W01P03	L24S02W01	tː	PhonemeMetrics.txt		L24S02W01P03	False	False
+Sentence	L24S03	L24	rött			L24S03	True	False
+Word	L24S03W01	L24S03	rött	WordMetrics.txt	WordData.txt	L24S03W01	True	False
+Phoneme	L24S03W01P01	L24S03W01	r	PhonemeMetrics.txt		L24S03W01P01	False	False
+Phoneme	L24S03W01P02	L24S03W01	ø̞	PhonemeMetrics.txt		L24S03W01P02	False	False
+Phoneme	L24S03W01P03	L24S03W01	tː	PhonemeMetrics.txt		L24S03W01P03	False	False
+
+List	L25	SipTest	tuff_tuss_tusch	MVGMetrics.txt	MVGData.txt	L25	False	False
+Sentence	L25S01	L25	tuff			L25S01	True	False
+Word	L25S01W01	L25S01	tuff	WordMetrics.txt	WordData.txt	L25S01W01	True	False
+Phoneme	L25S01W01P01	L25S01W01	t	PhonemeMetrics.txt		L25S01W01P01	False	False
+Phoneme	L25S01W01P02	L25S01W01	ɵ	PhonemeMetrics.txt		L25S01W01P02	False	False
+Phoneme	L25S01W01P03	L25S01W01	fː	PhonemeMetrics.txt		L25S01W01P03	False	False
+Sentence	L25S02	L25	tuss			L25S02	True	False
+Word	L25S02W01	L25S02	tuss	WordMetrics.txt	WordData.txt	L25S02W01	True	False
+Phoneme	L25S02W01P01	L25S02W01	t	PhonemeMetrics.txt		L25S02W01P01	False	False
+Phoneme	L25S02W01P02	L25S02W01	ɵ	PhonemeMetrics.txt		L25S02W01P02	False	False
+Phoneme	L25S02W01P03	L25S02W01	sː	PhonemeMetrics.txt		L25S02W01P03	False	False
+Sentence	L25S03	L25	tusch			L25S03	True	False
+Word	L25S03W01	L25S03	tusch	WordMetrics.txt	WordData.txt	L25S03W01	True	False
+Phoneme	L25S03W01P01	L25S03W01	t	PhonemeMetrics.txt		L25S03W01P01	False	False
+Phoneme	L25S03W01P02	L25S03W01	ɵ	PhonemeMetrics.txt		L25S03W01P02	False	False
+Phoneme	L25S03W01P03	L25S03W01	ʂː	PhonemeMetrics.txt		L25S03W01P03	False	False
+
+List	L26	SipTest	ko_kon_korn	MVGMetrics.txt	MVGData.txt	L26	False	False
+Sentence	L26S01	L26	ko			L26S01	True	False
+Word	L26S01W01	L26S01	ko	WordMetrics.txt	WordData.txt	L26S01W01	True	False
+Phoneme	L26S01W01P01	L26S01W01	k	PhonemeMetrics.txt		L26S01W01P01	False	False
+Phoneme	L26S01W01P02	L26S01W01	uː	PhonemeMetrics.txt		L26S01W01P02	False	False
+Phoneme	L26S01W01P03	L26S01W01	∅	PhonemeMetrics.txt		L26S01W01P03	False	False
+Sentence	L26S02	L26	kon			L26S02	True	False
+Word	L26S02W01	L26S02	kon	WordMetrics.txt	WordData.txt	L26S02W01	True	False
+Phoneme	L26S02W01P01	L26S02W01	k	PhonemeMetrics.txt		L26S02W01P01	False	False
+Phoneme	L26S02W01P02	L26S02W01	uː	PhonemeMetrics.txt		L26S02W01P02	False	False
+Phoneme	L26S02W01P03	L26S02W01	n	PhonemeMetrics.txt		L26S02W01P03	False	False
+Sentence	L26S03	L26	korn			L26S03	True	False
+Word	L26S03W01	L26S03	korn	WordMetrics.txt	WordData.txt	L26S03W01	True	False
+Phoneme	L26S03W01P01	L26S03W01	k	PhonemeMetrics.txt		L26S03W01P01	False	False
+Phoneme	L26S03W01P02	L26S03W01	uː	PhonemeMetrics.txt		L26S03W01P02	False	False
+Phoneme	L26S03W01P03	L26S03W01	ɳ	PhonemeMetrics.txt		L26S03W01P03	False	False
+
+List	L27	SipTest	sock_sått_sort	MVGMetrics.txt	MVGData.txt	L27	False	False
+Sentence	L27S01	L27	sock			L27S01	True	False
+Word	L27S01W01	L27S01	sock	WordMetrics.txt	WordData.txt	L27S01W01	True	False
+Phoneme	L27S01W01P01	L27S01W01	s	PhonemeMetrics.txt		L27S01W01P01	False	False
+Phoneme	L27S01W01P02	L27S01W01	ɔ	PhonemeMetrics.txt		L27S01W01P02	False	False
+Phoneme	L27S01W01P03	L27S01W01	kː	PhonemeMetrics.txt		L27S01W01P03	False	False
+Sentence	L27S02	L27	sått			L27S02	True	False
+Word	L27S02W01	L27S02	sått	WordMetrics.txt	WordData.txt	L27S02W01	True	False
+Phoneme	L27S02W01P01	L27S02W01	s	PhonemeMetrics.txt		L27S02W01P01	False	False
+Phoneme	L27S02W01P02	L27S02W01	ɔ	PhonemeMetrics.txt		L27S02W01P02	False	False
+Phoneme	L27S02W01P03	L27S02W01	tː	PhonemeMetrics.txt		L27S02W01P03	False	False
+Sentence	L27S03	L27	sort			L27S03	True	False
+Word	L27S03W01	L27S03	sort	WordMetrics.txt	WordData.txt	L27S03W01	True	False
+Phoneme	L27S03W01P01	L27S03W01	s	PhonemeMetrics.txt		L27S03W01P01	False	False
+Phoneme	L27S03W01P02	L27S03W01	ɔ	PhonemeMetrics.txt		L27S03W01P02	False	False
+Phoneme	L27S03W01P03	L27S03W01	ʈː	PhonemeMetrics.txt		L27S03W01P03	False	False
+
+List	L28	SipTest	å_få_så	MVGMetrics.txt	MVGData.txt	L28	False	False
+Sentence	L28S01	L28	å			L28S01	True	False
+Word	L28S01W01	L28S01	å	WordMetrics.txt	WordData.txt	L28S01W01	True	False
+Phoneme	L28S01W01P01	L28S01W01	∅	PhonemeMetrics.txt		L28S01W01P01	False	False
+Phoneme	L28S01W01P02	L28S01W01	oː	PhonemeMetrics.txt		L28S01W01P02	False	False
+Phoneme	L28S01W01P03	L28S01W01	∅	PhonemeMetrics.txt		L28S01W01P03	False	False
+Sentence	L28S02	L28	få			L28S02	True	False
+Word	L28S02W01	L28S02	få	WordMetrics.txt	WordData.txt	L28S02W01	True	False
+Phoneme	L28S02W01P01	L28S02W01	f	PhonemeMetrics.txt		L28S02W01P01	False	False
+Phoneme	L28S02W01P02	L28S02W01	oː	PhonemeMetrics.txt		L28S02W01P02	False	False
+Phoneme	L28S02W01P03	L28S02W01	∅	PhonemeMetrics.txt		L28S02W01P03	False	False
+Sentence	L28S03	L28	så			L28S03	True	False
+Word	L28S03W01	L28S03	så	WordMetrics.txt	WordData.txt	L28S03W01	True	False
+Phoneme	L28S03W01P01	L28S03W01	s	PhonemeMetrics.txt		L28S03W01P01	False	False
+Phoneme	L28S03W01P02	L28S03W01	oː	PhonemeMetrics.txt		L28S03W01P02	False	False
+Phoneme	L28S03W01P03	L28S03W01	∅	PhonemeMetrics.txt		L28S03W01P03	False	False
+
+List	L29	SipTest	hyf_hys_hyrs	MVGMetrics.txt	MVGData.txt	L29	False	False
+Sentence	L29S01	L29	hyf			L29S01	True	False
+Word	L29S01W01	L29S01	hyf	WordMetrics.txt	WordData.txt	L29S01W01	True	False
+Phoneme	L29S01W01P01	L29S01W01	h	PhonemeMetrics.txt		L29S01W01P01	False	False
+Phoneme	L29S01W01P02	L29S01W01	yː	PhonemeMetrics.txt		L29S01W01P02	False	False
+Phoneme	L29S01W01P03	L29S01W01	f	PhonemeMetrics.txt		L29S01W01P03	False	False
+Sentence	L29S02	L29	hys			L29S02	True	False
+Word	L29S02W01	L29S02	hys	WordMetrics.txt	WordData.txt	L29S02W01	True	False
+Phoneme	L29S02W01P01	L29S02W01	h	PhonemeMetrics.txt		L29S02W01P01	False	False
+Phoneme	L29S02W01P02	L29S02W01	yː	PhonemeMetrics.txt		L29S02W01P02	False	False
+Phoneme	L29S02W01P03	L29S02W01	s	PhonemeMetrics.txt		L29S02W01P03	False	False
+Sentence	L29S03	L29	hyrs			L29S03	True	False
+Word	L29S03W01	L29S03	hyrs	WordMetrics.txt	WordData.txt	L29S03W01	True	False
+Phoneme	L29S03W01P01	L29S03W01	h	PhonemeMetrics.txt		L29S03W01P01	False	False
+Phoneme	L29S03W01P02	L29S03W01	yː	PhonemeMetrics.txt		L29S03W01P02	False	False
+Phoneme	L29S03W01P03	L29S03W01	ʂ	PhonemeMetrics.txt		L29S03W01P03	False	False

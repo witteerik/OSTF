@@ -191,13 +191,13 @@ Namespace Audio
             ''' </summary>
             ''' <param name="InputSound"></param>
             ''' <param name="Channel"></param>
-            ''' <param name="BandInfo">If left as Nothing a default SII Critical Band bank will be created, used and referenced upon return.</param>
+            ''' <param name="BandBank">If left as Nothing a default SII Critical Band bank will be created, used and referenced upon return.</param>
             ''' <param name="FftFormat"></param>
             ''' <param name="ActualLowerLimitFrequencyList ">Upon return, contains the actual lower band limits used.</param>
             ''' <param name="ActualUpperLimitFrequencyList">Upon return, contains the actual upper band limits used.</param>
             ''' <returns></returns>
             Public Function CalculateBandLevels(ByRef InputSound As Sound, ByVal Channel As Integer,
-                                                Optional ByRef BandInfo As Audio.DSP.BandBank = Nothing,
+                                                Optional ByRef BandBank As Audio.DSP.BandBank = Nothing,
                                                 Optional ByRef FftFormat As Audio.Formats.FftFormat = Nothing,
                                                 Optional ByRef ActualLowerLimitFrequencyList As List(Of Double) = Nothing,
                                                 Optional ByRef ActualUpperLimitFrequencyList As List(Of Double) = Nothing) As List(Of Double)
@@ -205,7 +205,7 @@ Namespace Audio
                 Try
 
                     'Setting default band frequencies
-                    If BandInfo Is Nothing Then BandInfo = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+                    If BandBank Is Nothing Then BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
 
                     'Setting up FFT format
                     If FftFormat Is Nothing Then FftFormat = New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
@@ -221,7 +221,7 @@ Namespace Audio
                     InputSound.FFT = Audio.DSP.SpectralAnalysis(InputSound, FftFormat)
                     InputSound.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
 
-                    For Each band In BandInfo
+                    For Each band In BandBank
 
                         Dim ActualLowerLimitFrequency As Double
                         Dim ActualUpperLimitFrequency As Double
@@ -256,14 +256,14 @@ Namespace Audio
             ''' </summary>
             ''' <param name="InputSound"></param>
             ''' <param name="Channel"></param>
-            ''' <param name="BandInfo">If left as Nothing a default SII Critical Band bank will be created, used and referenced upon return.</param>
+            ''' <param name="BandBank">If left as Nothing a default SII Critical Band bank will be created, used and referenced upon return.</param>
             ''' <param name="FftFormat"></param>
             ''' <param name="ActualLowerLimitFrequencyList ">Upon return, contains the actual lower band limits used.</param>
             ''' <param name="ActualUpperLimitFrequencyList">Upon return, contains the actual upper band limits used.</param>
             ''' <param name="dBSPL_FSdifference"></param>
             ''' <returns></returns>
             Public Function CalculateSpectrumLevels(ByRef InputSound As Sound, ByVal Channel As Integer,
-                                                    Optional ByRef BandInfo As Audio.DSP.BandBank = Nothing,
+                                                    Optional ByRef BandBank As Audio.DSP.BandBank = Nothing,
                                                     Optional ByRef FftFormat As Audio.Formats.FftFormat = Nothing,
                                                     Optional ByRef ActualLowerLimitFrequencyList As List(Of Double) = Nothing,
                                                     Optional ByRef ActualUpperLimitFrequencyList As List(Of Double) = Nothing,
@@ -274,10 +274,10 @@ Namespace Audio
                 If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
 
                 'Calculates band levels
-                Dim BandLevels = CalculateBandLevels(InputSound, Channel, BandInfo, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList)
+                Dim BandLevels = CalculateBandLevels(InputSound, Channel, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList)
 
                 'Getting the band widths
-                Dim BandWidths = BandInfo.GetBandWidths
+                Dim BandWidths = BandBank.GetBandWidths
 
                 'Creating a list to store the spectrum levels
                 Dim SpectrumLevelList As New List(Of Double)

@@ -131,7 +131,10 @@ Public Class MediaSet
     End Function
 
 
-    Public Sub WriteCustomVariables()
+    ''' <summary>
+    ''' Writes custom variable files for the current media set, and returns the output directory.
+    ''' </summary>
+    Public Function WriteCustomVariables() As String
 
         Dim OutputDirectory As String = ""
 
@@ -150,12 +153,12 @@ Public Class MediaSet
                 OutputDirectory = fbd.SelectedPath
             Else
                 MsgBox("No output folder selected.", MsgBoxStyle.Exclamation, "Saving custom media set variables to file")
-                Exit Sub
+                Return ""
             End If
 
             If OutputDirectory.Trim = "" Then
                 MsgBox("No output folder selected.", MsgBoxStyle.Exclamation, "Saving custom media set variables to file")
-                Exit Sub
+                Return ""
             End If
 
         End If
@@ -185,7 +188,7 @@ Public Class MediaSet
             Dim OutputList As New List(Of String)
 
             'Headings
-            OutputList.Add(vbTab & String.Join("Id" & vbTab, CategoricalHeadings) & vbTab & String.Join(vbTab, NumericHeadings))
+            OutputList.Add("Id" & vbTab & String.Join(vbTab, CategoricalHeadings) & vbTab & String.Join(vbTab, NumericHeadings))
 
             'Variable types
             OutputList.Add("C" & vbTab & String.Join(vbTab, Utils.Repeat("C", CategoricalHeadings.Count)) & vbTab & String.Join(vbTab, Utils.Repeat("N", NumericHeadings.Count)))
@@ -220,7 +223,9 @@ Public Class MediaSet
 
         MsgBox("Finished saving the custom media set variables to: " & OutputDirectory, MsgBoxStyle.Information, "Saving custom media set variables to file")
 
-    End Sub
+        Return OutputDirectory
+
+    End Function
 
     Public Sub LoadCustomVariables()
 
@@ -1256,11 +1261,15 @@ Public Class MediaSet
                                                             Optional ByVal RemoveDcComponent As Boolean = True)
 
         'Sets of some objects which are reused between the loops in the code below
-        Dim BandBank As Audio.DSP.BandBank = Nothing
-        Dim FftFormat As Audio.Formats.FftFormat = Nothing
-        Dim dBSPL_FSdifference As Double? = Nothing
+        Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+        Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
+        Dim dBSPL_FSdifference As Double? = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+        'And these are only used to be able to export the values used
+        Dim ActualLowerLimitFrequencyList As List(Of Double) = Nothing
+        Dim ActualUpperLimitFrequencyList As List(Of Double) = Nothing
 
         'Clears previously loaded sounds
         ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
@@ -1326,13 +1335,13 @@ Public Class MediaSet
             If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(ConcatenatedSound)
 
             'Calculates spectrum levels
-            Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatenatedSound, 1, BandBank, FftFormat,,, dBSPL_FSdifference)
+            Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatenatedSound, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
 
             'Stores the value as a custom media set variable
             For b = 0 To SpectrumLevels.Count - 1
 
                 'Creates a variable name (How on earth is are calling functions going to figure out this name???) Perhaps better to use band 1,2,3... instead of centre frequencies?
-                Dim VariableName As String = "Lcc_" & Math.Round(BandBank(b).CentreFrequency).ToString("0000")
+                Dim VariableName As String = "Lcc_" & Math.Round(BandBank(b).CentreFrequency).ToString("00000")
 
                 SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, SpectrumLevels(b))
 
@@ -1340,7 +1349,20 @@ Public Class MediaSet
         Next
 
         'Finally writes the results to file
-        Me.WriteCustomVariables()
+        Dim OutputDirectory = Me.WriteCustomVariables()
+
+        'Send info about calculation to log (only if WriteCustomVariables returned an output folder)
+        If OutputDirectory <> "" Then
+            Dim LogList As New List(Of String)
+            LogList.Add("Method name: " & System.Reflection.MethodInfo.GetCurrentMethod.Name)
+            LogList.Add("dBSPL to  FS difference used :" & dBSPL_FSdifference.ToString)
+            LogList.Add("Filter specifications (Critical bands based on the SII standard):")
+            LogList.Add(String.Join(vbTab, New List(Of String) From {"Band", "CentreFrequency", "LowerFrequencyLimit", "UpperFrequencyLimit", "Bandwidth", "ActualLowerLimitFrequency", "ActualUpperLimitFrequency"}))
+            For b = 0 To BandBank.Count - 1
+                LogList.Add(String.Join(vbTab, New List(Of String) From {CDbl((b + 1)), BandBank(b).CentreFrequency, BandBank(b).LowerFrequencyLimit, BandBank(b).UpperFrequencyLimit, BandBank(b).Bandwidth, ActualLowerLimitFrequencyList(b), ActualUpperLimitFrequencyList(b)}))
+            Next
+            Utils.SendInfoToLog(String.Join(vbCrLf, LogList), "Log_for_function_" & System.Reflection.MethodInfo.GetCurrentMethod.Name, OutputDirectory, False)
+        End If
 
 
     End Sub
