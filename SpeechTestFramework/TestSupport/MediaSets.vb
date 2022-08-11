@@ -1173,6 +1173,7 @@ Public Class MediaSet
 
     End Sub
 
+
     Public Sub MeasureSmaObjectSoundLevels(ByVal IncludeCriticalBandLevels As Boolean,
                                            ByVal FrequencyWeighting As Audio.FrequencyWeightings,
                                            ByVal TemporalIntegrationDuration As Decimal,
@@ -1242,14 +1243,17 @@ Public Class MediaSet
 
 
     ''' <summary>
-    ''' 
+    ''' Calculates (SII critical bands) spectrum levels of the sound recordings of concatenated speech material components.
     ''' </summary>
-    ''' <param name="ConcatenationLevel"></param>
-    ''' <param name="SectionsLevel"></param>
-    ''' <param name="OnlyContrastingComponents"></param>
-    ''' <param name="SoundChannel"></param>
-    ''' <param name="SkipPractiseComponents"></param>
+    ''' <param name="ConcatenationLevel">The higher linguistic level (summary level) for which the resulting spectrum levels are calculated.</param>
+    ''' <param name="SectionsLevel">The (lower) linguistic level from which the sections to be concatenaded are taken.</param>
+    ''' <param name="OnlyContrastingComponents">If set to true, only contrasting speech material components (e.g. contrasting phonemes in minimal pairs) will be included in the spectrum level calculations.</param>
+    ''' <param name="SoundChannel">The audio / wave file channel in which the speech is recorded (channel 1, for mono sounds).</param>
+    ''' <param name="SkipPractiseComponents">If set to true, speech material components marksed as practise components will be skipped in the spectrum level calculations.</param>
     ''' <param name="MinimumComponentDuration">An optional minimum duration (in seconds) of each included component. If the recorded sound of a component is shorter, it will be zero-padded to the indicated duration.</param>
+    ''' <param name="ComponentCrossFadeDuration">A duration by which the sections for concatenations will be cross-faded prior to spectrum level calculations.</param>
+    ''' <param name="FadeConcatenatedSound">If set to true, the concatenated sounds will be slightly faded initially and finally (in order to avoid impulse-like onsets and offsets) prior to spectrum level calculations.</param>
+    ''' <param name="RemoveDcComponent">If set to true, the DC component of the concatenated sounds will be set to zero prior to spectrum level calculations.</param>
     Public Sub CalculateConcatenatedComponentSpectrumLevels(ByVal ConcatenationLevel As SpeechMaterialComponent.LinguisticLevels,
                                                    ByVal SectionsLevel As SpeechMaterialComponent.LinguisticLevels,
                                                    ByVal OnlyContrastingComponents As Boolean,
@@ -1341,7 +1345,7 @@ Public Class MediaSet
             For b = 0 To SpectrumLevels.Count - 1
 
                 'Creates a variable name (How on earth is are calling functions going to figure out this name???) Perhaps better to use band 1,2,3... instead of centre frequencies?
-                Dim VariableName As String = "Lcc_" & Math.Round(BandBank(b).CentreFrequency).ToString("00000")
+                Dim VariableName As String = "Lrcs_" & Math.Round(BandBank(b).CentreFrequency).ToString("00000")
 
                 SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, SpectrumLevels(b))
 
@@ -1364,6 +1368,107 @@ Public Class MediaSet
             Utils.SendInfoToLog(String.Join(vbCrLf, LogList), "Log_for_function_" & System.Reflection.MethodInfo.GetCurrentMethod.Name, OutputDirectory, False)
         End If
 
+
+    End Sub
+
+    Public Sub CalculateAverageMaxLevelOfContrastingComponents(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                   ByVal ContrastLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                   ByVal SoundChannel As Integer,
+                                                   ByVal SkipPractiseComponents As Boolean,
+                                                                    Optional ByVal IntegrationTime As Double = 0.05,
+                                                  Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z)
+
+
+        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+        'Clears previously loaded sounds
+        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SummaryLevel)
+
+        For Each SummaryComponent In SummaryComponents
+
+            Dim TargetComponents = SummaryComponent.GetAllDescenentsAtLevel(ContrastLevel)
+
+            'Get the SMA components representing the sound sections of all target components
+            Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+
+            For c = 0 To TargetComponents.Count - 1
+
+                If SkipPractiseComponents = True Then
+                    If TargetComponents(c).IsPractiseComponent = True Then
+                        Continue For
+                    End If
+                End If
+
+                'Determine if is contraisting component??
+                If TargetComponents(c).IsContrastingComponent = False Then
+                    Continue For
+                End If
+
+                For i = 0 To MediaAudioItems - 1
+                    CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
+                Next
+
+            Next
+
+            'Skipping to next Summary component if no
+            If CurrentSmaComponentList.Count = 0 Then Continue For
+
+            'Getting the actual sound sections and measures their max levels
+            Dim MaxLevelList As New List(Of Double)
+            For Each SmaComponent In CurrentSmaComponentList
+
+                Dim CurrentSoundSection = (SmaComponent.GetSoundFileSection(SoundChannel))
+
+                'Getting the WaveFormat from the first available sound
+                If WaveFormat Is Nothing Then WaveFormat = CurrentSoundSection.WaveFormat
+
+                MaxLevelList.Add(Audio.DSP.GetLevelOfLoudestWindow(CurrentSoundSection, 1,
+                                                                                        CurrentSoundSection.WaveFormat.SampleRate * IntegrationTime,,,, FrequencyWeighting, True))
+
+            Next
+
+
+            'Storing the max level
+            Dim AverageLevel As Double
+            If MaxLevelList.Count > 0 Then
+
+                'Calculating the average level (not average dB, but instead average RMS, as if the sounds were concatenated)
+
+                'Converting to linear RMS
+                Dim RMSList As New List(Of Double)
+                For Each Level In MaxLevelList
+                    RMSList.Add(Audio.dBConversion(Level, Audio.dBConversionDirection.from_dB, WaveFormat))
+                Next
+
+                'Inverting to the root by taking the square
+                'We get mean squares
+                Dim MeanSquareList As New List(Of Double)
+                For Each RMS In RMSList
+                    MeanSquareList.Add(RMS * RMS)
+                Next
+
+                'Calculating the grand mean square of all sounds (this assumes all sections being of equal length, which they are here (i.e. IntegrationTime))
+                Dim GrandMeanSquare As Double = MeanSquareList.Average
+
+                'Takning the root to get the garnd RMS value
+                Dim GrandRMS As Double = Math.Sqrt(GrandMeanSquare)
+
+                'Converting to dB
+                AverageLevel = Audio.dBConversion(GrandRMS, Audio.dBConversionDirection.to_dB, WaveFormat)
+            Else
+                AverageLevel = Double.NegativeInfinity
+            End If
+
+            'Stores the value as a custom media set variable
+            Dim VariableName As String = "Lrmc"
+            SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, AverageLevel)
+
+        Next
+
+        'Finally writes the results to file
+        Me.WriteCustomVariables()
 
     End Sub
 

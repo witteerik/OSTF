@@ -112,9 +112,11 @@ Partial Class MediaSetSetupControl
         Me.SmaFrequencyWeighting_ComboBox = New System.Windows.Forms.ComboBox()
         Me.SmaTemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.IncludeCriticalBandLevels_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.GroupBox3 = New System.Windows.Forms.GroupBox()
+        Me.TableLayoutPanel7 = New System.Windows.Forms.TableLayoutPanel()
+        Me.SipTestLevels_Button = New System.Windows.Forms.Button()
         Me.CreateMaskers_TabPage = New System.Windows.Forms.TabPage()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
-        Me.Button1 = New System.Windows.Forms.Button()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -130,6 +132,8 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel3.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.TableLayoutPanel6.SuspendLayout()
+        Me.GroupBox3.SuspendLayout()
+        Me.TableLayoutPanel7.SuspendLayout()
         Me.CreateMaskers_TabPage.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -939,13 +943,14 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel5.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel5.Controls.Add(Me.GroupBox1, 0, 0)
         Me.TableLayoutPanel5.Controls.Add(Me.GroupBox2, 0, 1)
-        Me.TableLayoutPanel5.Controls.Add(Me.Button1, 0, 2)
+        Me.TableLayoutPanel5.Controls.Add(Me.GroupBox3, 0, 2)
         Me.TableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel5.Location = New System.Drawing.Point(3, 3)
         Me.TableLayoutPanel5.Name = "TableLayoutPanel5"
-        Me.TableLayoutPanel5.RowCount = 3
+        Me.TableLayoutPanel5.RowCount = 4
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 210.0!))
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 197.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 160.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 137.0!))
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel5.Size = New System.Drawing.Size(380, 579)
         Me.TableLayoutPanel5.TabIndex = 1
@@ -1100,7 +1105,7 @@ Partial Class MediaSetSetupControl
         Me.GroupBox2.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox2.Location = New System.Drawing.Point(3, 213)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(374, 191)
+        Me.GroupBox2.Size = New System.Drawing.Size(374, 154)
         Me.GroupBox2.TabIndex = 13
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Measure speech material annotation (SMA) levels "
@@ -1126,7 +1131,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
-        Me.TableLayoutPanel6.Size = New System.Drawing.Size(368, 172)
+        Me.TableLayoutPanel6.Size = New System.Drawing.Size(368, 135)
         Me.TableLayoutPanel6.TabIndex = 0
         '
         'Label27
@@ -1185,6 +1190,41 @@ Partial Class MediaSetSetupControl
         Me.IncludeCriticalBandLevels_CheckBox.Text = "Include critical band levels"
         Me.IncludeCriticalBandLevels_CheckBox.UseVisualStyleBackColor = True
         '
+        'GroupBox3
+        '
+        Me.GroupBox3.Controls.Add(Me.TableLayoutPanel7)
+        Me.GroupBox3.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.GroupBox3.Location = New System.Drawing.Point(3, 373)
+        Me.GroupBox3.Name = "GroupBox3"
+        Me.GroupBox3.Size = New System.Drawing.Size(374, 131)
+        Me.GroupBox3.TabIndex = 14
+        Me.GroupBox3.TabStop = False
+        Me.GroupBox3.Text = "Custom functions"
+        '
+        'TableLayoutPanel7
+        '
+        Me.TableLayoutPanel7.ColumnCount = 1
+        Me.TableLayoutPanel7.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel7.Controls.Add(Me.SipTestLevels_Button, 0, 0)
+        Me.TableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel7.Location = New System.Drawing.Point(3, 16)
+        Me.TableLayoutPanel7.Name = "TableLayoutPanel7"
+        Me.TableLayoutPanel7.RowCount = 2
+        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel7.Size = New System.Drawing.Size(368, 112)
+        Me.TableLayoutPanel7.TabIndex = 0
+        '
+        'SipTestLevels_Button
+        '
+        Me.SipTestLevels_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SipTestLevels_Button.Location = New System.Drawing.Point(3, 3)
+        Me.SipTestLevels_Button.Name = "SipTestLevels_Button"
+        Me.SipTestLevels_Button.Size = New System.Drawing.Size(362, 50)
+        Me.SipTestLevels_Button.TabIndex = 0
+        Me.SipTestLevels_Button.Text = "Calculate SiP-test sounds levels"
+        Me.SipTestLevels_Button.UseVisualStyleBackColor = True
+        '
         'CreateMaskers_TabPage
         '
         Me.CreateMaskers_TabPage.BackColor = System.Drawing.Color.LightPink
@@ -1211,15 +1251,6 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel4.Size = New System.Drawing.Size(380, 579)
         Me.TableLayoutPanel4.TabIndex = 0
-        '
-        'Button1
-        '
-        Me.Button1.Location = New System.Drawing.Point(3, 410)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(75, 23)
-        Me.Button1.TabIndex = 13
-        Me.Button1.Text = "Button1"
-        Me.Button1.UseVisualStyleBackColor = True
         '
         'MediaSetSetupControl
         '
@@ -1249,6 +1280,8 @@ Partial Class MediaSetSetupControl
         Me.GroupBox2.ResumeLayout(False)
         Me.TableLayoutPanel6.ResumeLayout(False)
         Me.TableLayoutPanel6.PerformLayout()
+        Me.GroupBox3.ResumeLayout(False)
+        Me.TableLayoutPanel7.ResumeLayout(False)
         Me.CreateMaskers_TabPage.ResumeLayout(False)
         Me.ResumeLayout(False)
 
@@ -1346,5 +1379,7 @@ Partial Class MediaSetSetupControl
     Friend WithEvents SmaFrequencyWeighting_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents SmaTemporalIntegration_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents IncludeCriticalBandLevels_CheckBox As Windows.Forms.CheckBox
-    Friend WithEvents Button1 As Windows.Forms.Button
+    Friend WithEvents GroupBox3 As Windows.Forms.GroupBox
+    Friend WithEvents TableLayoutPanel7 As Windows.Forms.TableLayoutPanel
+    Friend WithEvents SipTestLevels_Button As Windows.Forms.Button
 End Class

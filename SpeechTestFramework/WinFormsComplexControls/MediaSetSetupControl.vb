@@ -418,9 +418,11 @@
         SmaTemporalIntegration_DoubleParsingTextBox.Enabled = SmaTemporalIntegration_CheckBox.Checked
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+    Private Sub SipTestLevels_Button_Click(sender As Object, e As EventArgs) Handles SipTestLevels_Button.Click
 
         SelectedMediaSet.CalculateConcatenatedComponentSpectrumLevels(SpeechMaterialComponent.LinguisticLevels.Sentence, SpeechMaterialComponent.LinguisticLevels.Phoneme, True, 1, False)
+
+        SelectedMediaSet.CalculateAverageMaxLevelOfContrastingComponents(SpeechMaterialComponent.LinguisticLevels.List, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, False)
 
 
     End Sub
