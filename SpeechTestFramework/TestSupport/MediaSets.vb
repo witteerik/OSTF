@@ -236,6 +236,7 @@ Public Class MediaSet
             Dim FilePath = IO.Path.Combine(GetCustomVariablesDirectory(), SpeechMaterialComponent.GetDatabaseFileName(ComponentLevel))
 
             If IO.File.Exists(FilePath) = False Then
+                'TODO, this happens if no media set variables exist! Probably we should create these files (empty) when creating the mediaset specification??? Or something like it??
                 MsgBox("Missing custom variable file for the media set " & Me.MediaSetName & ". Expected a file at the location: " & FilePath)
                 Continue For
             End If
@@ -462,9 +463,15 @@ Public Class MediaSet
 
         Next
 
+        'Also loading custom variables
+        If Output IsNot Nothing Then
+            Output.LoadCustomVariables()
+        End If
+
         Return Output
 
     End Function
+
 
 
     'Public Sub SetSipValues(ByVal Voice As Integer)
@@ -1372,11 +1379,11 @@ Public Class MediaSet
     End Sub
 
     Public Sub CalculateAverageMaxLevelOfContrastingComponents(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                   ByVal ContrastLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                   ByVal SoundChannel As Integer,
-                                                   ByVal SkipPractiseComponents As Boolean,
-                                                                    Optional ByVal IntegrationTime As Double = 0.05,
-                                                  Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z)
+                                                               ByVal ContrastLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                               ByVal SoundChannel As Integer,
+                                                               ByVal SkipPractiseComponents As Boolean,
+                                                               Optional ByVal IntegrationTime As Double = 0.05,
+                                                               Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z)
 
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
@@ -1471,6 +1478,9 @@ Public Class MediaSet
         Me.WriteCustomVariables()
 
     End Sub
+
+
+
 
     'Public Sub CalculateCbSpectrumLevels(Optional ByVal BandInfo As Audio.DSP.BandBank = Nothing,
     '                                     Optional FftFormat As Audio.Formats.FftFormat = Nothing,

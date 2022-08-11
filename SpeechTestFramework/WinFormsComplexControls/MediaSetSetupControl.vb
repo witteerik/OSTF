@@ -424,8 +424,8 @@
 
         SelectedMediaSet.CalculateAverageMaxLevelOfContrastingComponents(SpeechMaterialComponent.LinguisticLevels.List, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, False)
 
-
     End Sub
+
 End Class
 
 

@@ -295,6 +295,27 @@
             Next
         Next
 
+        'Calculates logically derived variables
+        If HasVowelContrast_CheckBox.Checked = True Then
+            Try
+                'TODO, we could add an option for the user to specify transcription variable name below
+                LoadedSpeechMaterial.CreateVariable_HasVowelContrast(SpeechMaterialComponent.LinguisticLevels.List,, "HasVowelContrast")
+            Catch ex As Exception
+                MsgBox("Unable to calculate variable HasVowelContrast.")
+            End Try
+        End If
+
+
+        If ContrastedPhonemeIndex_CheckBox.Checked = True Then
+            Try
+                'TODO, we could add an option for the user to specify transcription variable name below
+                LoadedSpeechMaterial.CreateVariable_ContrastedPhonemeIndex(SpeechMaterialComponent.LinguisticLevels.List,, "ContrastedPhonemeIndex")
+            Catch ex As Exception
+                MsgBox("Unable to calculate variable ContrastedPhonemeIndex.")
+            End Try
+        End If
+
+
         'Ask if overwrite or save to new location
         Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
         If res = MsgBoxResult.Yes Then

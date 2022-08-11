@@ -815,6 +815,140 @@ Public Class SpeechMaterialComponent
     End Sub
 
 
+    Public Sub CreateVariable_HasVowelContrast(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                Optional ByVal PhoneticTranscriptionVariableName As String = "Transcription",
+                                                Optional VariableName As String = "HasVowelContrast")
+
+        If SummaryLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Or SummaryLevel = SpeechMaterialComponent.LinguisticLevels.List Then
+            'These are supported
+        Else
+            Throw New ArgumentException("Only 'Sentence' and 'List' are supported as values for SummaryLevel.")
+        End If
+
+        'Gets all summarty components into which the new variable should be stored
+        Dim SummaryComponents = Me.GetToplevelAncestor.GetAllRelativesAtLevel(SummaryLevel)
+
+        'Determine varoable value for each of the summary components
+        For Each SummaryComponent In SummaryComponents
+
+            'Gets the target components which to evaluate
+            Dim TargetComponents = SummaryComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+
+            For c = 0 To TargetComponents.Count - 1
+
+                'Determine if it is a (phonetically/phonemically) contrasting component
+                If TargetComponents(c).IsContrastingComponent = False Then
+                    'Skips to next if not
+                    Continue For
+                End If
+
+                'Determines if the transciption of the contrasting component is a vowel, based on the IPA transcription standard  (otherwise is should logically be a consonant)
+                Dim TranscriptionVariableValue = TargetComponents(c).GetCategoricalVariableValue(PhoneticTranscriptionVariableName)
+                If TranscriptionVariableValue = "" Then
+                    'Skips without checking if a transcription could not be retrieved
+                    Continue For
+                Else
+
+                    'Determine if the transcription string contains an IPA vowel symbol. (Essentially this trims everything else, such as length markings and other vowel modifiers)
+                    Dim ContainsVowel As Boolean = False
+                    For Each ch In TranscriptionVariableValue.ToCharArray
+                        If IPA.Vowels.Contains(ch) Then
+                            ContainsVowel = True
+                            Exit For
+                        End If
+                    Next
+
+                    'Stortes the value
+                    If ContainsVowel = True Then
+                        SummaryComponent.SetNumericWordMetricValue(VariableName, 1)
+                    Else
+                        SummaryComponent.SetNumericWordMetricValue(VariableName, 0)
+                    End If
+
+                End If
+
+                'Skips directly to the next SummaryComponent (the remaining TargetComponents should have the same value for Consonant / Vowel)
+                Exit For
+
+            Next
+        Next
+
+        'Finally writes the results to file
+        'Ask if overwrite or save to new location
+        Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
+        If res = MsgBoxResult.Yes Then
+
+            'Saving updated files
+            Me.GetToplevelAncestor.WriteSpeechMaterialToFile(Me.ParentTestSpecification, Me.ParentTestSpecification.GetTestRootPath)
+            MsgBox("Your speech material file and corresponding custom variable files should now have been saved to " & Me.ParentTestSpecification.GetSpeechMaterialFolder & vbCrLf & "Click OK to continue.",
+                   MsgBoxStyle.Information, "Files saved")
+
+        Else
+
+            'Saving updated files
+            Me.GetToplevelAncestor.WriteSpeechMaterialToFile(Me.ParentTestSpecification)
+            MsgBox("Your speech material file and corresponding custom variable files should now have been saved to the selected folder. Click OK to continue.", MsgBoxStyle.Information, "Files saved")
+
+        End If
+
+    End Sub
+
+    Public Sub CreateVariable_ContrastedPhonemeIndex(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                Optional ByVal PhoneticTranscriptionVariableName As String = "Transcription",
+                                                Optional VariableName As String = "ContrastedPhonemeIndex")
+
+        If SummaryLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Or SummaryLevel = SpeechMaterialComponent.LinguisticLevels.List Then
+            'These are supported
+        Else
+            Throw New ArgumentException("Only 'Sentence' and 'List' are supported as values for SummaryLevel.")
+        End If
+
+        'Gets all summarty components into which the new variable should be stored
+        Dim SummaryComponents = Me.GetToplevelAncestor.GetAllRelativesAtLevel(SummaryLevel)
+
+        'Determine varoable value for each of the summary components
+        For Each SummaryComponent In SummaryComponents
+
+            'Gets the target components which to evaluate
+            Dim TargetComponents = SummaryComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+
+            For c = 0 To TargetComponents.Count - 1
+
+                'Determine if it is a (phonetically/phonemically) contrasting component
+                If TargetComponents(c).IsContrastingComponent = False Then
+                    'Skips to next if not
+                    Continue For
+                End If
+
+                'Gets and stores the self index of the first contrasting phoneme (the rest should have the same self index value), and then continues directly to the next SummaryComponent
+                Dim ContrastingPhonemeIndex As Integer = TargetComponents(c).GetSelfIndex
+                SummaryComponent.SetNumericWordMetricValue(VariableName, ContrastingPhonemeIndex)
+
+                Exit For
+
+            Next
+        Next
+
+        'Finally writes the results to file
+        'Ask if overwrite or save to new location
+        Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
+        If res = MsgBoxResult.Yes Then
+
+            'Saving updated files
+            Me.GetToplevelAncestor.WriteSpeechMaterialToFile(Me.ParentTestSpecification, Me.ParentTestSpecification.GetTestRootPath)
+            MsgBox("Your speech material file and corresponding custom variable files should now have been saved to " & Me.ParentTestSpecification.GetSpeechMaterialFolder & vbCrLf & "Click OK to continue.",
+                   MsgBoxStyle.Information, "Files saved")
+
+        Else
+
+            'Saving updated files
+            Me.GetToplevelAncestor.WriteSpeechMaterialToFile(Me.ParentTestSpecification)
+            MsgBox("Your speech material file and corresponding custom variable files should now have been saved to the selected folder. Click OK to continue.", MsgBoxStyle.Information, "Files saved")
+
+        End If
+
+    End Sub
+
 
 
     Public Function GetChildren() As List(Of SpeechMaterialComponent)
@@ -957,9 +1091,9 @@ Public Class SpeechMaterialComponent
 
         If HierachicalSelftIndices(Me.LinguisticLevel) > ChildComponents.Count - 1 Then
 
-                'Returns Nothing if there is no component at the specified index
-                Return Nothing
-            Else
+            'Returns Nothing if there is no component at the specified index
+            Return Nothing
+        Else
 
 
             If HierachicalSelftIndices.Keys.Max = Me.LinguisticLevel Then
@@ -1708,6 +1842,7 @@ Public Class SpeechMaterialComponent
             Next
 
             'Adding headings only if not already present
+            'TODO: Possibly headings should be used for every data row, in order to avoid mistakes caused if components differ in variable scope (i.e. if they have different variables). N.B. Also the read function needs to be updated if this is changed.
             If CurrentCustomVariablesOutputList.Count = 0 Then
                 Dim VariableNames = String.Join(vbTab, CustomVariableNames).Trim
                 If VariableNames <> "" Then CurrentCustomVariablesOutputList.Add(String.Join(vbTab, CustomVariableNames))
