@@ -659,6 +659,43 @@ Public Class SpeechMaterialComponent
     End Function
 
     ''' <summary>
+    ''' Returns all numeric custom variable names separately at different linguistic levels for the current instance of SpeechMaterialComponent and all its descendants.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetNumericCustomVariableNamesByLinguicticLevel() As SortedList(Of SpeechMaterialComponent.LinguisticLevels, SortedSet(Of String))
+
+        Dim Output As New SortedList(Of SpeechMaterialComponent.LinguisticLevels, SortedSet(Of String))
+        Dim TargetComponents = GetAllDescenents()
+        'Also adding me
+        TargetComponents.Add(Me)
+        For Each Component In TargetComponents
+            If Output.ContainsKey(Component.LinguisticLevel) = False Then Output.Add(Component.LinguisticLevel, New SortedSet(Of String))
+            For Each VarNam In Component.GetNumericVariableNames
+                If Output(Component.LinguisticLevel).Contains(VarNam) = False Then Output(Component.LinguisticLevel).Add(VarNam)
+            Next
+        Next
+        Return Output
+
+    End Function
+
+    Public Function GetCategoricalCustomVariableNamesByLinguicticLevel() As SortedList(Of SpeechMaterialComponent.LinguisticLevels, SortedSet(Of String))
+
+        Dim Output As New SortedList(Of SpeechMaterialComponent.LinguisticLevels, SortedSet(Of String))
+        Dim TargetComponents = GetAllDescenents()
+        'Also adding me
+        TargetComponents.Add(Me)
+        For Each Component In TargetComponents
+            If Output.ContainsKey(Component.LinguisticLevel) = False Then Output.Add(Component.LinguisticLevel, New SortedSet(Of String))
+            For Each VarNam In Component.GetCategoricalVariableNames
+                If Output(Component.LinguisticLevel).Contains(VarNam) = False Then Output(Component.LinguisticLevel).Add(VarNam)
+            Next
+        Next
+        Return Output
+
+    End Function
+
+
+    ''' <summary>
     ''' Adds the indicated Value to the indicated VariableName in the collection of CategoricalVariables. Adds the variable name if not already present.
     ''' </summary>
     ''' <param name="VariableName"></param>
@@ -1460,14 +1497,18 @@ Public Class SpeechMaterialComponent
                 'Adding the variables
                 For n = 0 To CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames.Count - 1
                     Dim VariableName = CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableNames(n)
-                    If CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Categorical Then
-                        NewComponent.CategoricalVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(NewComponent.Id, VariableName))
-                    ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Numeric Then
-                        NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(NewComponent.Id, VariableName))
-                    ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Boolean Then
-                        NewComponent.NumericVariables.Add(VariableName, CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(NewComponent.Id, VariableName))
-                    Else
-                        Throw New NotImplementedException("Variable type not implemented!")
+                    Dim VariableValue = CustomVariablesDatabases(CustomVariablesDatabasePath).GetVariableValue(NewComponent.Id, VariableName)
+                    'Stores the value only if it was not nothing.
+                    If VariableValue IsNot Nothing Then
+                        If CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Categorical Then
+                            NewComponent.CategoricalVariables.Add(VariableName, VariableValue)
+                        ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Numeric Then
+                            NewComponent.NumericVariables.Add(VariableName, VariableValue)
+                        ElseIf CustomVariablesDatabases(CustomVariablesDatabasePath).CustomVariableTypes(n) = VariableTypes.Boolean Then
+                            NewComponent.NumericVariables.Add(VariableName, VariableValue)
+                        Else
+                            Throw New NotImplementedException("Variable type not implemented!")
+                        End If
                     End If
                 Next
             End If
@@ -1746,9 +1787,14 @@ Public Class SpeechMaterialComponent
     End Sub
 
 
-    Private Sub WriteSpeechMaterialComponenFile(ByVal OutputSpeechMaterialFolder As String, ByVal ExportAtThisLevel As Boolean, Optional ByRef CustomVariablesExportList As SortedList(Of String, List(Of String)) = Nothing)
+    Private Sub WriteSpeechMaterialComponenFile(ByVal OutputSpeechMaterialFolder As String, ByVal ExportAtThisLevel As Boolean, Optional ByRef CustomVariablesExportList As SortedList(Of String, List(Of String)) = Nothing,
+                                             Optional ByRef NumericCustomVariableNames As SortedList(Of SpeechMaterialComponent.LinguisticLevels, SortedSet(Of String)) = Nothing,
+                                                Optional ByRef CategoricalCustomVariableNames As SortedList(Of SpeechMaterialComponent.LinguisticLevels, SortedSet(Of String)) = Nothing)
 
         If CustomVariablesExportList Is Nothing Then CustomVariablesExportList = New SortedList(Of String, List(Of String))
+        If NumericCustomVariableNames Is Nothing Then NumericCustomVariableNames = Me.GetToplevelAncestor.GetNumericCustomVariableNamesByLinguicticLevel()
+        If CategoricalCustomVariableNames Is Nothing Then CategoricalCustomVariableNames = Me.GetToplevelAncestor.GetCategoricalCustomVariableNamesByLinguicticLevel()
+
 
         Dim OutputList As New List(Of String)
         OutputList.Add("// Setup")
@@ -1817,6 +1863,7 @@ Public Class SpeechMaterialComponent
         'Custom variables
         If CustomVariablesDatabasePath <> "" Then
 
+            'Getting the right collection into which to store custom variable values
             Dim CurrentCustomVariablesOutputList As New List(Of String)
             If CustomVariablesExportList.ContainsKey(CustomVariablesDatabasePath) = False Then
                 CustomVariablesExportList.Add(CustomVariablesDatabasePath, CurrentCustomVariablesOutputList)
@@ -1824,34 +1871,52 @@ Public Class SpeechMaterialComponent
                 CurrentCustomVariablesOutputList = CustomVariablesExportList(CustomVariablesDatabasePath)
             End If
 
-            Dim CustomVariableNames As New List(Of String)
-            Dim CustomVariableTypes As New List(Of String)
-            Dim CustomVariablesValues As New List(Of String)
+            'Getting the variable names and types
+            Dim CategoricalVariableNames = CategoricalCustomVariableNames(Me.LinguisticLevel).ToList
+            Dim NumericVariableNames = NumericCustomVariableNames(Me.LinguisticLevel).ToList
 
-            'Getting variable names, type and value
-            For Each CustomVariable In CategoricalVariables
-                CustomVariableNames.Add(CustomVariable.Key)
-                CustomVariableTypes.Add("C")
-                CustomVariablesValues.Add(CustomVariable.Value)
-            Next
-
-            For Each CustomVariable In NumericVariables
-                CustomVariableNames.Add(CustomVariable.Key)
-                CustomVariableTypes.Add("N")
-                CustomVariablesValues.Add(CustomVariable.Value)
-            Next
-
-            'Adding headings only if not already present
-            'TODO: Possibly headings should be used for every data row, in order to avoid mistakes caused if components differ in variable scope (i.e. if they have different variables). N.B. Also the read function needs to be updated if this is changed.
+            'Writing headings only on the first line
             If CurrentCustomVariablesOutputList.Count = 0 Then
-                Dim VariableNames = String.Join(vbTab, CustomVariableNames).Trim
-                If VariableNames <> "" Then CurrentCustomVariablesOutputList.Add(String.Join(vbTab, CustomVariableNames))
+                Dim CustomVariableNamesList As New List(Of String)
+                CustomVariableNamesList.AddRange(CategoricalVariableNames)
+                CustomVariableNamesList.AddRange(NumericVariableNames)
+                Dim CustomVariableNames = String.Join(vbTab, CustomVariableNamesList)
 
-                Dim VariableTypes = String.Join(vbTab, CustomVariableTypes).Trim
-                If VariableTypes <> "" Then CurrentCustomVariablesOutputList.Add(VariableTypes)
+                'Writing types only if there are any headings
+                If CustomVariableNames.Trim <> "" Then
+                    CurrentCustomVariablesOutputList.Add(CustomVariableNames)
+
+                    Dim CategoricalVariableTypes = Utils.Repeat("C", CategoricalVariableNames.Count).ToList
+                    Dim NumericVariableTypes = Utils.Repeat("N", NumericVariableNames.Count).ToList
+                    Dim CustomVariableTypesList As New List(Of String)
+                    CustomVariableTypesList.AddRange(CategoricalVariableTypes)
+                    CustomVariableTypesList.AddRange(NumericVariableTypes)
+                    Dim VariableTypes = String.Join(vbTab, CustomVariableTypesList)
+                    If VariableTypes.Trim <> "" Then CurrentCustomVariablesOutputList.Add(VariableTypes)
+
+                End If
             End If
-            Dim VariableValues = String.Join(vbTab, CustomVariablesValues).Trim
-            If VariableValues <> "" Then CurrentCustomVariablesOutputList.Add(VariableValues)
+
+            'Looking up values
+            'First categorical values
+            Dim CustomVariableValues As New List(Of String)
+            For Each VarName In CategoricalVariableNames
+                Dim CurrentValue = Me.GetCategoricalVariableValue(VarName)
+                CustomVariableValues.Add(CurrentValue)
+            Next
+            'Then numeric values
+            For Each VarName In NumericCustomVariableNames(Me.LinguisticLevel)
+                Dim CurrentValue = Me.GetNumericVariableValue(VarName)
+                If CurrentValue IsNot Nothing Then
+                    CustomVariableValues.Add(CurrentValue)
+                Else
+                    'Adds an empty string for missing value
+                    CustomVariableValues.Add("")
+                End If
+            Next
+            'Storing the value string
+            Dim CustomVariableValuesString = String.Join(vbTab, CustomVariableValues)
+            If CustomVariableValuesString.Trim <> "" Then CurrentCustomVariablesOutputList.Add(CustomVariableValuesString)
 
         End If
 
@@ -1868,6 +1933,7 @@ Public Class SpeechMaterialComponent
         End If
 
     End Sub
+
 
     Public Sub SummariseNumericVariables(ByVal SourceLevels As SpeechMaterialComponent.LinguisticLevels, ByVal CustomVariableName As String, ByRef MetricType As NumericSummaryMetricTypes)
 
@@ -2123,8 +2189,8 @@ Public Class CustomVariablesDatabase
                             If ValueString.Trim <> "" Then
                                 Throw New Exception("Unable to parse the string " & NumericValue & " given for the variable " & CustomVariableNames(c) & " in the file: " & FilePath & " as a numeric value.")
                             Else
-                                'Stores a NaN to mark that the input data was missing / NaN
-                                CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), Double.NaN)
+                                'Stores as Nothing to signal that the input data was missing
+                                CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), Nothing)
                             End If
                         End If
 

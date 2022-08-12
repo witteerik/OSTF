@@ -237,7 +237,8 @@ Public Class MediaSet
 
             If IO.File.Exists(FilePath) = False Then
                 'TODO, this happens if no media set variables exist! Probably we should create these files (empty) when creating the mediaset specification??? Or something like it??
-                MsgBox("Missing custom variable file for the media set " & Me.MediaSetName & ". Expected a file at the location: " & FilePath)
+                'MsgBox("Missing custom variable file for the media set " & Me.MediaSetName & ". Expected a file at the location: " & FilePath)
+                'For now, simply ignoes missing custom media set variable files (as such may never have been created.
                 Continue For
             End If
 
