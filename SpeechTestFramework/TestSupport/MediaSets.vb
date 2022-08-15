@@ -1254,8 +1254,8 @@ Public Class MediaSet
     ''' Calculates (SII critical bands) spectrum levels of the sound recordings of concatenated speech material components.
     ''' </summary>
     ''' <param name="ConcatenationLevel">The higher linguistic level (summary level) for which the resulting spectrum levels are calculated.</param>
-    ''' <param name="SectionsLevel">The (lower) linguistic level from which the sections to be concatenaded are taken.</param>
-    ''' <param name="OnlyContrastingComponents">If set to true, only contrasting speech material components (e.g. contrasting phonemes in minimal pairs) will be included in the spectrum level calculations.</param>
+    ''' <param name="SegmentsLevel">The (lower) linguistic level from which the sections to be concatenaded are taken.</param>
+    ''' <param name="OnlyContrastingSegments">If set to true, only contrasting speech material components (e.g. contrasting phonemes in minimal pairs) will be included in the spectrum level calculations.</param>
     ''' <param name="SoundChannel">The audio / wave file channel in which the speech is recorded (channel 1, for mono sounds).</param>
     ''' <param name="SkipPractiseComponents">If set to true, speech material components marksed as practise components will be skipped in the spectrum level calculations.</param>
     ''' <param name="MinimumComponentDuration">An optional minimum duration (in seconds) of each included component. If the recorded sound of a component is shorter, it will be zero-padded to the indicated duration.</param>
@@ -1263,8 +1263,8 @@ Public Class MediaSet
     ''' <param name="FadeConcatenatedSound">If set to true, the concatenated sounds will be slightly faded initially and finally (in order to avoid impulse-like onsets and offsets) prior to spectrum level calculations.</param>
     ''' <param name="RemoveDcComponent">If set to true, the DC component of the concatenated sounds will be set to zero prior to spectrum level calculations.</param>
     Public Sub CalculateConcatenatedComponentSpectrumLevels(ByVal ConcatenationLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                   ByVal SectionsLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                   ByVal OnlyContrastingComponents As Boolean,
+                                                   ByVal SegmentsLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                   ByVal OnlyContrastingSegments As Boolean,
                                                    ByVal SoundChannel As Integer,
                                                    ByVal SkipPractiseComponents As Boolean,
                                                             Optional ByVal MinimumComponentDuration As Double = 0,
@@ -1290,61 +1290,9 @@ Public Class MediaSet
 
         For Each SummaryComponent In SummaryComponents
 
-            Dim TargetComponents = SummaryComponent.GetAllDescenentsAtLevel(SectionsLevel)
-
-            'Get the SMA components representing the sound sections of all target components
-            Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
-
-            For c = 0 To TargetComponents.Count - 1
-
-                If SkipPractiseComponents = True Then
-                    If TargetComponents(c).IsPractiseComponent = True Then
-                        Continue For
-                    End If
-                End If
-
-                If OnlyContrastingComponents = True Then
-                    'Determine if is contraisting component??
-                    If TargetComponents(c).IsContrastingComponent = False Then
-                        Continue For
-                    End If
-                End If
-
-                For i = 0 To MediaAudioItems - 1
-                    CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
-                Next
-
-            Next
-
-            'Skipping to next Summary component if no
-            If CurrentSmaComponentList.Count = 0 Then Continue For
-
-            'Getting the actual sound sections
-            Dim SoundSectionList As New List(Of Audio.Sound)
-            For Each SmaComponent In CurrentSmaComponentList
-
-                Dim SoundSegment = SmaComponent.GetSoundFileSection(SoundChannel)
-                If MinimumComponentDuration > 0 Then
-                    SoundSegment.ZeroPad(MinimumComponentDuration, True)
-                End If
-                SoundSectionList.Add(SoundSegment)
-
-                'Getting the WaveFormat from the first available sound
-                If WaveFormat Is Nothing Then WaveFormat = SoundSegment.WaveFormat
-
-            Next
-
-            'Concatenates the sounds
-            Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(SoundSectionList, False,,,,, ComponentCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
-
-            'Fading very slightly to avoid initial and final impulses
-            If FadeConcatenatedSound = True Then
-                Audio.DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, Audio.DSP.FadeSlopeType.Linear)
-                Audio.DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, Audio.DSP.FadeSlopeType.Linear)
-            End If
-
-            'Removing DC-component
-            If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(ConcatenatedSound)
+            'Getting concatenated sounds
+            Dim ConcatenatedSound = SummaryComponent.GetConcatenatedComponentsSound(Me, SegmentsLevel, OnlyContrastingSegments, SoundChannel, SkipPractiseComponents, MinimumComponentDuration, ComponentCrossFadeDuration,
+                                                            FadeConcatenatedSound, RemoveDcComponent)
 
             'Calculates spectrum levels
             Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatenatedSound, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
@@ -1485,7 +1433,15 @@ Public Class MediaSet
     ''' <summary>
     ''' Creates masker sound files for a new testing situation
     ''' </summary>
-    Public Sub CreateNewTestSituationMaskers(ByRef TestWordLists As List(Of SpeechMaterialLibrary.TestWordList))
+    Public Sub CreateNewTestSituationMaskers(ByRef TestWordLists As List(Of SpeechMaterialLibrary.TestWordList),
+                                                   ByVal SegmentsLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                   ByVal OnlyContrastingSegments As Boolean,
+                                                   ByVal SoundChannel As Integer,
+                                                   ByVal SkipPractiseComponents As Boolean,
+                                                            Optional ByVal MinimumComponentDuration As Double = 0,
+                                                            Optional ByVal ComponentCrossFadeDuration As Double = 0.001,
+                                                            Optional ByVal FadeConcatenatedSound As Boolean = True,
+                                                            Optional ByVal RemoveDcComponent As Boolean = True)
 
         Dim SmaHighjackedSentenceIndex As Integer = 0
 
@@ -1576,7 +1532,7 @@ Public Class MediaSet
             ExportFolder = Utils.logFilePath
         End If
 
-
+        ' Section I - masker sounds
         Dim InputSounds As New Audio.Sounds
         Audio.AudioIOs.ReadMultipleWaveFiles(InputSounds,, InputFolder)
 
@@ -1701,7 +1657,7 @@ Public Class MediaSet
         End If
 
 
-        'Analysing the bark spectra of the input sounds
+        'Analying bark spectra of the input sounds
         'Starting a progress window
         myProgressDisplay = New ProgressDisplay
         myProgressDisplay.Initialize(InputSounds.Count - 1, 0, "Analysing Bark spectra...")
@@ -1711,7 +1667,7 @@ Public Class MediaSet
         For Each InputSound In InputSounds
             'Updating progress
             myProgressDisplay.UpdateProgress(Progress)
-            Audio.DSP.AcousticDistance_ModelA.CalculateBarkSpectrum(InputSound, BarkFilterOverlapRatio,
+            Audio.DSP.CalculateBarkSpectrum(InputSound, BarkFilterOverlapRatio,
                                                                     LowestIncludedCentreFrequency, HighestIncludedCentreFrequency,
                                                                     ReusableCentreFrequencies, FftFormat)
             Progress += 1
@@ -1720,11 +1676,19 @@ Public Class MediaSet
         myProgressDisplay.Close()
 
 
-        'Getting the concatenated phonemes
-        Dim MasterConcatPhonemesList As New SortedList(Of String, SortedList(Of Integer, Audio.Sound))
-        For Each TestWordList In TestWordLists
-            'The ConcatPhonemesList contains concatenates test phonemes (as values), for each speaker (indicated by key)
-            MasterConcatPhonemesList.Add(TestWordList.ListName, GetConcatenatedTestPhonemes(TestWordList, True, Audio.FrequencyWeightings.Z, False, False, ""))
+        ' Section II - speech recordings
+        Dim SummaryLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
+        Dim SummaryLevelComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllDescenentsAtLevel(SummaryLevel)
+
+        'Getting a concatenation of the sound segments to match (e.g test phonemes in a minimal variation group)
+        Dim MasterConcatList As New List(Of Tuple(Of SpeechMaterialComponent, Audio.Sound))
+
+        For Each SummaryComponent In SummaryLevelComponents
+            'Getting the concatenated sounds
+            Dim ConcatenatedSound = SummaryComponent.GetConcatenatedComponentsSound(Me, SegmentsLevel, OnlyContrastingSegments, SoundChannel, SkipPractiseComponents, MinimumComponentDuration, ComponentCrossFadeDuration,
+                                                            FadeConcatenatedSound, RemoveDcComponent)
+            'Storing it along with its speech material component
+            MasterConcatList.Add(New Tuple(Of SpeechMaterialComponent, Audio.Sound)(SummaryComponent, ConcatenatedSound))
         Next
 
         'Starting a progress window
@@ -1734,232 +1698,229 @@ Public Class MediaSet
         Progress = 0
 
         'Comparing sound files, and selecting the most suiting for each test word list and speaker. The sounds are not stored, but only their locations in the input masker sounds
-        Dim MasterSoundData As New SortedList(Of Integer, SortedList(Of String, List(Of MaskerSoundCategoryData))) 'SpeakerID, TestWordList.ListName 
+        Dim MasterSoundData_OLD As New SortedList(Of Integer, SortedList(Of String, List(Of MaskerSoundCategoryData))) 'SpeakerID, TestWordList.ListName 
 
-        For Each TestWordList In TestWordLists
+        Dim MasterSoundData As New List(Of Tuple(Of SpeechMaterialComponent, Audio.Sound, List(Of MaskerSoundCategoryData)))
+
+        For Each SummaryComponentTuple In MasterConcatList
 
             'Updating progress
             myProgressDisplay.UpdateProgress(Progress)
 
-            'The ConcatPhonemesList contains concatenates test phonemes (as values), for each speaker (indicated by key)
-            Dim ConcatPhonemesList = MasterConcatPhonemesList(TestWordList.ListName)
+            Dim SummaryComponent = SummaryComponentTuple.Item1
+            Dim ConcatPhonemesSound As Audio.Sound = SummaryComponentTuple.Item2
 
-            For Each Speaker In ConcatPhonemesList
+            Dim LongestMemberDuration As Double = SummaryComponent.GetLongestMemberDuration()
 
-                Dim SpeakerID As Integer = Speaker.Key
-                Dim ConcatPhonemesSound As Audio.Sound = Speaker.Value
-                'Dim LongestTestPhonemeDuration As Double = TestWordList.GetLongestTestPhonemeDuration(SpeakerID)
-                Dim LongestTestWordDuration As Double = TestWordList.GetLongestTestWordDuration(SpeakerID)
-                Dim MaskingDuration As Double = Math.Min(MaskerSoundDuration, LongestTestWordDuration + 2 * CoarticulationMargin) 'Setting MaskingLength, the central region of the sound
+            Dim MaskingDuration As Double = Math.Min(MaskerSoundDuration, LongestMemberDuration + 2 * CoarticulationMargin) 'Setting MaskingLength, the central region of the sound
 
-                Utils.SendInfoToLog("Voice: " & vbTab & Speaker.Key & vbTab &
-                              "TWL: " & vbTab & TestWordList.ListName & vbTab &
-                              "LongestTestWordDuration: " & vbTab & LongestTestWordDuration & vbTab &
+            Utils.SendInfoToLog("SummaryComponent: " & vbTab & SummaryComponent.PrimaryStringRepresentation & vbTab &
+                              "LongestMemberDuration: " & vbTab & LongestMemberDuration & vbTab &
                               "MaskingDuration: " & vbTab & MaskingDuration,
                               "MaskerTimes", IO.Path.Combine(ExportFolder, "TWRB", "Log"), True, True)
 
-                Dim SoundCategoryList As New SortedList(Of String, MaskerSoundCategoryData)
+            Dim SoundCategoryList As New SortedList(Of String, MaskerSoundCategoryData)
 
-                'Calculating the bark spectrum of the ConcatPhonemesSound
-                Audio.DSP.AcousticDistance_ModelA.CalculateBarkSpectrum(ConcatPhonemesSound, BarkFilterOverlapRatio,
+            'Calculating the bark spectrum of the ConcatPhonemesSound
+            Audio.DSP.AcousticDistance_ModelA.CalculateBarkSpectrum(ConcatPhonemesSound, BarkFilterOverlapRatio,
                                                                     LowestIncludedCentreFrequency, HighestIncludedCentreFrequency,
                                                                     ReusableCentreFrequencies, FftFormat)
 
-                'Calculating the average Bark spectrum of the concatenated phonemes
-                Dim AverageSpectralLevel_ConcatPhonemes As Double
-                Dim ConcatAverageBarkSpectrum = Audio.DSP.AcousticDistance_ModelA.GetAverageBarkSpectrum(ConcatPhonemesSound,,, AverageSpectralLevel_ConcatPhonemes)
-                'Dim AverageSpectralLevel_ConcatPhonemes = ConcatAverageBarkSpectrum.WindowData.Average
+            'Calculating the average Bark spectrum of the concatenated phonemes
+            Dim AverageSpectralLevel_ConcatPhonemes As Double
+            Dim ConcatAverageBarkSpectrum = Audio.DSP.AcousticDistance_ModelA.GetAverageBarkSpectrum(ConcatPhonemesSound,,, AverageSpectralLevel_ConcatPhonemes)
+            'Dim AverageSpectralLevel_ConcatPhonemes = ConcatAverageBarkSpectrum.WindowData.Average
 
-                'Getting the average Bark spectrum section by section in the InputSounds
-                For InputSoundIndex = 0 To InputSounds.Count - 1
+            'Getting the average Bark spectrum section by section in the InputSounds
+            For InputSoundIndex = 0 To InputSounds.Count - 1
 
-                    Dim InputSound = InputSounds(InputSoundIndex)
+                Dim InputSound = InputSounds(InputSoundIndex)
 
-                    'Creating a SoundCategory  name
-                    Dim SoundCategory As String = ""
-                    If CompareSoundCategories = True Then
+                'Creating a SoundCategory  name
+                Dim SoundCategory As String = ""
+                If CompareSoundCategories = True Then
 
-                        'Reading input file letters until the first numeric character is detected
-                        Dim LastnonNumericIndex As Integer = -1
-                        For CharPos = 0 To InputSound.FileName.Length - 1
-                            If IsNumeric(InputSound.FileName(CharPos)) = False Then
-                                LastnonNumericIndex = CharPos
-                            Else
-                                'Numeric detected, exits loop
-                                Exit For
-                            End If
-                        Next
-
-                        If LastnonNumericIndex > -1 Then
-                            'Storing the SoundCategory as the initial non numeric letters
-                            SoundCategory = InputSound.FileName.Substring(0, LastnonNumericIndex + 1)
+                    'Reading input file letters until the first numeric character is detected
+                    Dim LastnonNumericIndex As Integer = -1
+                    For CharPos = 0 To InputSound.FileName.Length - 1
+                        If IsNumeric(InputSound.FileName(CharPos)) = False Then
+                            LastnonNumericIndex = CharPos
                         Else
-                            'Overriding any empty SoundCategory assignment, which occurs with filenames that start on a numeral
-                            If SoundCategory = "" Then SoundCategory = "NumericFileName"
+                            'Numeric detected, exits loop
+                            Exit For
                         End If
+                    Next
+
+                    If LastnonNumericIndex > -1 Then
+                        'Storing the SoundCategory as the initial non numeric letters
+                        SoundCategory = InputSound.FileName.Substring(0, LastnonNumericIndex + 1)
                     Else
-                        SoundCategory = "Default"
+                        'Overriding any empty SoundCategory assignment, which occurs with filenames that start on a numeral
+                        If SoundCategory = "" Then SoundCategory = "NumericFileName"
                     End If
+                Else
+                    SoundCategory = "Default"
+                End If
 
-                    'Calculating the max window level
-                    Dim MaskerSoundWindowLevels = Audio.DSP.AcousticDistance_ModelA.CalculateWindowLevels(InputSound)
-                    Dim MaskerSoundWindowMaxLevel = MaskerSoundWindowLevels.Max
+                'Calculating the max window level
+                Dim MaskerSoundWindowLevels = Audio.DSP.AcousticDistance_ModelA.CalculateWindowLevels(InputSound)
+                Dim MaskerSoundWindowMaxLevel = MaskerSoundWindowLevels.Max
 
-                    Dim StepLength As Integer = FFT_AnalysisWindowLength - FFT_OverlapLength
-                    Dim MaskingLength As Integer = MaskingDuration * InputSound.WaveFormat.SampleRate
-                    Dim MaskerRegionLengthInWindows As Integer = Math.Ceiling((MaskingLength - FFT_AnalysisWindowLength) / StepLength)
-                    Dim AvailableWindowsCount As Integer = Math.Max(1, Math.Floor(InputSound.WaveData.SampleData(1).Length - FFT_AnalysisWindowLength) / StepLength)
+                Dim StepLength As Integer = FFT_AnalysisWindowLength - FFT_OverlapLength
+                Dim MaskingLength As Integer = MaskingDuration * InputSound.WaveFormat.SampleRate
+                Dim MaskerRegionLengthInWindows As Integer = Math.Ceiling((MaskingLength - FFT_AnalysisWindowLength) / StepLength)
+                Dim AvailableWindowsCount As Integer = Math.Max(1, Math.Floor(InputSound.WaveData.SampleData(1).Length - FFT_AnalysisWindowLength) / StepLength)
 
-                    For w = 0 To AvailableWindowsCount - MaskerRegionLengthInWindows - 1 Step MaskerRegionLengthInWindows
+                For w = 0 To AvailableWindowsCount - MaskerRegionLengthInWindows - 1 Step MaskerRegionLengthInWindows
 
-                        'Comparing section w of the input file, with the concatenated phoneme Bark spectrum
+                    'Comparing section w of the input file, with the concatenated phoneme Bark spectrum
 
-                        'Getting the current window levels
-                        Dim MaskerWindowLevels(MaskerRegionLengthInWindows - 1) As Double
-                        For c = 0 To MaskerWindowLevels.Length - 1
-                            MaskerWindowLevels(c) = MaskerSoundWindowLevels(c + w)
-                        Next
+                    'Getting the current window levels
+                    Dim MaskerWindowLevels(MaskerRegionLengthInWindows - 1) As Double
+                    For c = 0 To MaskerWindowLevels.Length - 1
+                        MaskerWindowLevels(c) = MaskerSoundWindowLevels(c + w)
+                    Next
 
-                        'Calculating the current comparison Bark spectrum
-                        Dim AverageSpectralLevel_Masker As Double
-                        Dim CurrentMaskerBarkSpectrum = Audio.DSP.AcousticDistance_ModelA.GetAverageBarkSpectrum(InputSound, w, MaskerRegionLengthInWindows, AverageSpectralLevel_Masker)
+                    'Calculating the current comparison Bark spectrum
+                    Dim AverageSpectralLevel_Masker As Double
+                    Dim CurrentMaskerBarkSpectrum = Audio.DSP.AcousticDistance_ModelA.GetAverageBarkSpectrum(InputSound, w, MaskerRegionLengthInWindows, AverageSpectralLevel_Masker)
 
-                        'Evaluating and modifying the current CurrentComparisonBarkSpectrum
-                        If MaxSoundLevelRange.HasValue Then
-                            Dim SoundLevelRange = MaskerWindowLevels.Max - MaskerWindowLevels.Min
-                            If SoundLevelRange > MaxSoundLevelRange Then
-                                Continue For
-                            End If
-                        End If
-
-                        If MaximumAcceptedSoundLevelVariation.HasValue Then
-                            'Calculating SD of the window levels
-                            Dim SoundLevelVariation As Double
-                            Utils.Math.CoefficientOfVariation(MaskerWindowLevels.ToList,,,,, SoundLevelVariation)
-                            If SoundLevelVariation > MaximumAcceptedSoundLevelVariation Then
-                                Continue For
-                            End If
-                        End If
-
-
-                        If MinimumIncludedRelativeMaxLevel.HasValue Then
-                            'Comparing the current max level to the max level of the whole sound
-                            If MaskerWindowLevels.Max < (MaskerSoundWindowMaxLevel - MinimumIncludedRelativeMaxLevel) Then
-                                Continue For
-                            End If
-                        End If
-
-
-                        'Equalizing the average spectral levels, by changing CurrentComparisonBarkSpectrum
-                        Dim CurrentGain = AverageSpectralLevel_ConcatPhonemes - AverageSpectralLevel_Masker
-
-                        'Limiting the gain
-                        If MaxMaskerSpectralGain.HasValue = True Then
-                            CurrentGain = Math.Min(MaxMaskerSpectralGain.Value, CurrentGain)
-                        End If
-                        If MaxMaskerSpectralAttenuation.HasValue = True Then
-                            CurrentGain = Math.Max(-MaxMaskerSpectralAttenuation.Value, CurrentGain)
-                        End If
-
-                        'Applying gain
-                        If CurrentGain <> 0F Then
-                            For i = 0 To CurrentMaskerBarkSpectrum.WindowData.Length - 1
-                                CurrentMaskerBarkSpectrum.WindowData(i) += CurrentGain
-                            Next
-                        End If
-
-
-                        'Calculating distance
-                        Dim AcousticDistance As Double
-                        If IrrelevantDifferenceThreshold Is Nothing Then
-                            AcousticDistance = Utils.Math.GetEuclideanDistance(ConcatAverageBarkSpectrum.WindowData, CurrentMaskerBarkSpectrum.WindowData)
-                        Else
-                            AcousticDistance = Utils.Math.GetEuclideanDistance(ConcatAverageBarkSpectrum.WindowData, CurrentMaskerBarkSpectrum.WindowData, IrrelevantDifferenceThreshold)
-                        End If
-
-                        'Skipping if acoustic distance is 0
-                        If AcousticDistance = 0 Then Continue For
-
-                        'Calculating input sound times
-                        Dim InputSound_CentralRegionStartSample As Integer = w * (FFT_AnalysisWindowLength - FFT_OverlapLength)
-                        Dim InputSound_CentralRegionLength As Integer = MaskingDuration * InputSound.WaveFormat.SampleRate
-                        Dim InputSoundLength As Integer = MaskerSoundDuration * InputSound.WaveFormat.SampleRate
-                        Dim InputSoundStartSample As Integer = InputSound_CentralRegionStartSample - ((InputSoundLength - InputSound_CentralRegionLength) / 2)
-
-                        'Checking that all margins are inside the input file
-                        If InputSound_CentralRegionStartSample < 0 Then Continue For
-                        If InputSound_CentralRegionLength > InputSoundLength Then Continue For
-                        If InputSoundStartSample < 0 Then Continue For
-                        If InputSound_CentralRegionStartSample - InputSoundStartSample < 0 Then Continue For
-                        If InputSoundStartSample + InputSoundLength > InputSound.WaveData.SampleData(1).Length Then
+                    'Evaluating and modifying the current CurrentComparisonBarkSpectrum
+                    If MaxSoundLevelRange.HasValue Then
+                        Dim SoundLevelRange = MaskerWindowLevels.Max - MaskerWindowLevels.Min
+                        If SoundLevelRange > MaxSoundLevelRange Then
                             Continue For
                         End If
+                    End If
 
-                        'Adding the sound category to DistanceList
-                        If Not SoundCategoryList.ContainsKey(SoundCategory) Then SoundCategoryList.Add(SoundCategory, New MaskerSoundCategoryData(SoundCategory))
+                    If MaximumAcceptedSoundLevelVariation.HasValue Then
+                        'Calculating SD of the window levels
+                        Dim SoundLevelVariation As Double
+                        Utils.Math.CoefficientOfVariation(MaskerWindowLevels.ToList,,,,, SoundLevelVariation)
+                        If SoundLevelVariation > MaximumAcceptedSoundLevelVariation Then
+                            Continue For
+                        End If
+                    End If
 
-                        'Adding the distance to DistanceList, along with data on where the sound was collected
-                        SoundCategoryList(SoundCategory).MaskerSoundList.Add(
+
+                    If MinimumIncludedRelativeMaxLevel.HasValue Then
+                        'Comparing the current max level to the max level of the whole sound
+                        If MaskerWindowLevels.Max < (MaskerSoundWindowMaxLevel - MinimumIncludedRelativeMaxLevel) Then
+                            Continue For
+                        End If
+                    End If
+
+
+                    'Equalizing the average spectral levels, by changing CurrentComparisonBarkSpectrum
+                    Dim CurrentGain = AverageSpectralLevel_ConcatPhonemes - AverageSpectralLevel_Masker
+
+                    'Limiting the gain
+                    If MaxMaskerSpectralGain.HasValue = True Then
+                        CurrentGain = Math.Min(MaxMaskerSpectralGain.Value, CurrentGain)
+                    End If
+                    If MaxMaskerSpectralAttenuation.HasValue = True Then
+                        CurrentGain = Math.Max(-MaxMaskerSpectralAttenuation.Value, CurrentGain)
+                    End If
+
+                    'Applying gain
+                    If CurrentGain <> 0F Then
+                        For i = 0 To CurrentMaskerBarkSpectrum.WindowData.Length - 1
+                            CurrentMaskerBarkSpectrum.WindowData(i) += CurrentGain
+                        Next
+                    End If
+
+
+                    'Calculating distance
+                    Dim AcousticDistance As Double
+                    If IrrelevantDifferenceThreshold Is Nothing Then
+                        AcousticDistance = Utils.Math.GetEuclideanDistance(ConcatAverageBarkSpectrum.WindowData, CurrentMaskerBarkSpectrum.WindowData)
+                    Else
+                        AcousticDistance = Utils.Math.GetEuclideanDistance(ConcatAverageBarkSpectrum.WindowData, CurrentMaskerBarkSpectrum.WindowData, IrrelevantDifferenceThreshold)
+                    End If
+
+                    'Skipping if acoustic distance is 0
+                    If AcousticDistance = 0 Then Continue For
+
+                    'Calculating input sound times
+                    Dim InputSound_CentralRegionStartSample As Integer = w * (FFT_AnalysisWindowLength - FFT_OverlapLength)
+                    Dim InputSound_CentralRegionLength As Integer = MaskingDuration * InputSound.WaveFormat.SampleRate
+                    Dim InputSoundLength As Integer = MaskerSoundDuration * InputSound.WaveFormat.SampleRate
+                    Dim InputSoundStartSample As Integer = InputSound_CentralRegionStartSample - ((InputSoundLength - InputSound_CentralRegionLength) / 2)
+
+                    'Checking that all margins are inside the input file
+                    If InputSound_CentralRegionStartSample < 0 Then Continue For
+                    If InputSound_CentralRegionLength > InputSoundLength Then Continue For
+                    If InputSoundStartSample < 0 Then Continue For
+                    If InputSound_CentralRegionStartSample - InputSoundStartSample < 0 Then Continue For
+                    If InputSoundStartSample + InputSoundLength > InputSound.WaveData.SampleData(1).Length Then
+                        Continue For
+                    End If
+
+                    'Adding the sound category to DistanceList
+                    If Not SoundCategoryList.ContainsKey(SoundCategory) Then SoundCategoryList.Add(SoundCategory, New MaskerSoundCategoryData(SoundCategory))
+
+                    'Adding the distance to DistanceList, along with data on where the sound was collected
+                    SoundCategoryList(SoundCategory).MaskerSoundList.Add(
                             New MaskerSoundCategoryData.MaskerSoundData(InputSoundIndex, InputSoundStartSample, InputSoundLength,
                                                                         InputSound_CentralRegionStartSample - InputSoundStartSample,
                                                                         InputSound_CentralRegionLength, AcousticDistance))
-                    Next
                 Next
+            Next
 
 
-                'Sorting each list in the DistanceList according to distance, and calculating the average distance in each category
-                For Each SoundCategory In SoundCategoryList
+            'Sorting each list in the DistanceList according to distance, and calculating the average distance in each category
+            For Each SoundCategory In SoundCategoryList
 
-                    Dim Query1 = SoundCategory.Value.MaskerSoundList.OrderBy(Function(Distance) Distance.AcousticDistance)
-                    Dim mySortedList As New List(Of MaskerSoundCategoryData.MaskerSoundData)
-
-                    'Adding in sorted order
-                    For Each CurrentList In Query1
-                        mySortedList.Add(CurrentList)
-                    Next
-
-                    'Selecting the best sounds
-                    SoundCategory.Value.MaskerSoundList.Clear()
-                    Dim SummedDistance As Double = 0
-                    Dim AddedSoundsCount As Integer = 0
-                    For n = 0 To Math.Min(mySortedList.Count, OutputSoundCount + ExtraSoundCount) - 1
-                        SoundCategory.Value.MaskerSoundList.Add(mySortedList(n))
-
-                        'Calculating average only for the original output sounds
-                        If n < OutputSoundCount Then
-                            SummedDistance += mySortedList(n).AcousticDistance
-                            AddedSoundsCount += 1
-                        End If
-                    Next
-
-                    'Adding the average distance of the selected sounds
-                    If AddedSoundsCount > 0 Then
-                        SoundCategory.Value.AverageSoundDistance = SummedDistance / AddedSoundsCount
-                    End If
-
-                Next
-
-                'Selecting the most appropriate sound category, beginning by sorting the list according to rising average sound distance
-                Dim SortedSoundCategoryList As New List(Of MaskerSoundCategoryData)
-                Dim Query2 = SoundCategoryList.OrderBy(Function(Distance) Distance.Value.AverageSoundDistance)
+                Dim Query1 = SoundCategory.Value.MaskerSoundList.OrderBy(Function(Distance) Distance.AcousticDistance)
+                Dim mySortedList As New List(Of MaskerSoundCategoryData.MaskerSoundData)
 
                 'Adding in sorted order
-                Dim CurrentlyAdded As Integer = 0
-                For Each CurrentList In Query2
+                For Each CurrentList In Query1
+                    mySortedList.Add(CurrentList)
+                Next
 
-                    'Including only if there are enough sounds avaliable
-                    If CurrentList.Value.MaskerSoundList.Count >= OutputSoundCount Then
-                        SortedSoundCategoryList.Add(CurrentList.Value)
-                        CurrentlyAdded += 1
-                        If CurrentlyAdded = SoundCategoriesToCompareCount Then Exit For
+                'Selecting the best sounds
+                SoundCategory.Value.MaskerSoundList.Clear()
+                Dim SummedDistance As Double = 0
+                Dim AddedSoundsCount As Integer = 0
+                For n = 0 To Math.Min(mySortedList.Count, OutputSoundCount + ExtraSoundCount) - 1
+                    SoundCategory.Value.MaskerSoundList.Add(mySortedList(n))
+
+                    'Calculating average only for the original output sounds
+                    If n < OutputSoundCount Then
+                        SummedDistance += mySortedList(n).AcousticDistance
+                        AddedSoundsCount += 1
                     End If
                 Next
 
-                'Adding the data to MasterSoundData
-                If Not MasterSoundData.ContainsKey(SpeakerID) Then MasterSoundData.Add(SpeakerID, New SortedList(Of String, List(Of MaskerSoundCategoryData)))
-                MasterSoundData(SpeakerID).Add(TestWordList.ListName, SortedSoundCategoryList)
+                'Adding the average distance of the selected sounds
+                If AddedSoundsCount > 0 Then
+                    SoundCategory.Value.AverageSoundDistance = SummedDistance / AddedSoundsCount
+                End If
 
             Next
+
+            'Selecting the most appropriate sound category, beginning by sorting the list according to rising average sound distance
+            Dim SortedSoundCategoryList As New List(Of MaskerSoundCategoryData)
+            Dim Query2 = SoundCategoryList.OrderBy(Function(Distance) Distance.Value.AverageSoundDistance)
+
+            'Adding in sorted order
+            Dim CurrentlyAdded As Integer = 0
+            For Each CurrentList In Query2
+
+                'Including only if there are enough sounds avaliable
+                If CurrentList.Value.MaskerSoundList.Count >= OutputSoundCount Then
+                    SortedSoundCategoryList.Add(CurrentList.Value)
+                    CurrentlyAdded += 1
+                    If CurrentlyAdded = SoundCategoriesToCompareCount Then Exit For
+                End If
+            Next
+
+            'Adding the data to MasterSoundData
+            MasterSoundData.Add(New Tuple(Of SpeechMaterialComponent, Audio.Sound, List(Of MaskerSoundCategoryData))(SummaryComponent, ConcatPhonemesSound, SortedSoundCategoryList))
+
+            'If Not MasterSoundData.ContainsKey(SpeakerID) Then MasterSoundData.Add(SpeakerID, New SortedList(Of String, List(Of MaskerSoundCategoryData)))
+            'MasterSoundData(SpeakerID).Add(TestWordList.ListName, SortedSoundCategoryList)
 
             Progress += 1
         Next
