@@ -1433,16 +1433,23 @@ Public Class MediaSet
     ''' <summary>
     ''' Creates masker sound files for a new testing situation
     ''' </summary>
-    Public Sub CreateNewTestSituationMaskers(ByVal SegmentsLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                   ByVal OnlyContrastingSegments As Boolean,
-                                                   ByVal SoundChannel As Integer,
-                                                   ByVal SkipPractiseComponents As Boolean,
+    Public Sub CreateNewTestSituationMaskers(Optional ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List,
+                                             Optional ByVal SegmentsLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.Phoneme,
+                                             Optional ByVal MaskerCoverageLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.Sentence,
+                                                   Optional ByVal OnlyContrastingSegments As Boolean = True,
+                                                   Optional ByVal SoundChannel As Integer = 1,
+                                                   Optional ByVal SkipPractiseComponents As Boolean = False,
                                                             Optional ByVal MinimumComponentDuration As Double = 0,
                                                             Optional ByVal ComponentCrossFadeDuration As Double = 0.001,
                                                             Optional ByVal FadeConcatenatedSound As Boolean = True,
                                                             Optional ByVal RemoveDcComponent As Boolean = True)
 
         Dim SmaHighjackedSentenceIndex As Integer = 0
+
+        If SegmentsLevel < SummaryLevel Then
+            MsgBox("SummaryLevel must be a linguistically more detailed level than SegmentsLevel.")
+            Exit Sub
+        End If
 
         Dim myProgressDisplay As New ProgressDisplay
 
@@ -1526,7 +1533,7 @@ Public Class MediaSet
         End If
 
         ' Section I - masker sounds
-        Dim InputSounds As New Audio.Sounds
+        Dim InputSounds As New List(Of Audio.Sound)
         Audio.AudioIOs.ReadMultipleWaveFiles(InputSounds,, InputFolder)
 
         'Replacing the input sounds by mono-sounds by skipping any channel about channel 1
@@ -1670,7 +1677,6 @@ Public Class MediaSet
 
 
         ' Section II - speech recordings
-        Dim SummaryLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
         Dim SummaryLevelComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllDescenentsAtLevel(SummaryLevel)
 
         'Getting a concatenation of the sound segments to match (e.g test phonemes in a minimal variation group)
@@ -1690,9 +1696,7 @@ Public Class MediaSet
         myProgressDisplay.Show()
         Progress = 0
 
-        'Comparing sound files, and selecting the most suiting for each test word list and speaker. The sounds are not stored, but only their locations in the input masker sounds
-        Dim MasterSoundData_OLD As New SortedList(Of Integer, SortedList(Of String, List(Of MaskerSoundCategoryData))) 'SpeakerID, TestWordList.ListName 
-
+        'Comparing sound files, and selecting the most suiting for each test word list and speaker. The masker sounds are not stored, but only their locations in the input masker sounds
         Dim MasterSoundData As New SortedList(Of String, Tuple(Of SpeechMaterialComponent, Audio.Sound, List(Of MaskerSoundCategoryData)))
 
         For Each SummaryComponentTuple In MasterConcatList
@@ -1704,21 +1708,21 @@ Public Class MediaSet
             Dim ConcatPhonemesSound As Audio.Sound = SummaryComponentTuple.Item2
 
             'Getting the longest sibling
-            Dim Siblings = SummaryComponent.GetSiblings
-            Dim LongestSiblingDuration As Double = 0
-            For Each Sibling In Siblings
+            Dim MaskerCoverageComponents = SummaryComponent.GetAllDescenentsAtLevel(MaskerCoverageLevel)
+            Dim LongestMaskerCoverageDuration As Double = 0
+            For Each MCC In MaskerCoverageComponents
                 For i = 0 To Me.MediaAudioItems - 1
-                    Dim SiblingSound = Sibling.GetSound(Me, i, SoundChannel)
-                    Dim SiblingLength = SiblingSound.WaveData.SampleData(SoundChannel).Length
-                    Dim SiblingDuration As Double = SiblingLength * SiblingSound.WaveFormat.SampleRate
-                    LongestSiblingDuration = Math.Max(LongestSiblingDuration, SiblingDuration)
+                    Dim MccSound = MCC.GetSound(Me, i, SoundChannel)
+                    Dim MccLength = MccSound.WaveData.SampleData(SoundChannel).Length
+                    Dim MccDuration As Double = MccLength / MccSound.WaveFormat.SampleRate
+                    LongestMaskerCoverageDuration = Math.Max(LongestMaskerCoverageDuration, MccDuration)
                 Next
             Next
 
-            Dim MaskingDuration As Double = Math.Min(MaskerSoundDuration, LongestSiblingDuration + 2 * CoarticulationMargin) 'Setting MaskingLength, the central region of the sound
+            Dim MaskingDuration As Double = Math.Min(MaskerSoundDuration, LongestMaskerCoverageDuration + 2 * CoarticulationMargin) 'Setting MaskingLength, the central region of the sound
 
             Utils.SendInfoToLog("SummaryComponent: " & vbTab & SummaryComponent.Id & "(" & SummaryComponent.PrimaryStringRepresentation & ")" & vbTab &
-                              "LongestMemberDuration: " & vbTab & LongestSiblingDuration & vbTab &
+                              "LongestMemberDuration: " & vbTab & LongestMaskerCoverageDuration & vbTab &
                               "MaskingDuration: " & vbTab & MaskingDuration,
                               "MaskerTimes", IO.Path.Combine(ExportFolder, "TWRB", "Log"), True, True)
 
@@ -2117,9 +2121,13 @@ Public Class MediaSet
                 MaskerSound.SMA = New Audio.Sound.SpeechMaterialAnnotation
                 MaskerSound.SMA.ParentSound = MaskerSound
                 'Adding channel level data
-                MaskerSound.SMA.ChannelData(1) = New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(MaskerSound.SMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL, Nothing)
+                MaskerSound.SMA.AddChannelData(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(MaskerSound.SMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.CHANNEL, Nothing))
+
                 'Adding sentence level data
                 MaskerSound.SMA.ChannelData(1).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(MaskerSound.SMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE, MaskerSound.SMA.ChannelData(1)))
+                MaskerSound.SMA.ChannelData(1).StartSample = 0
+                MaskerSound.SMA.ChannelData(1).Length = MaskerSound.WaveData.SampleData(1).Length
+
                 MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex).StartSample = 0
                 MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex).Length = MaskerSound.WaveData.SampleData(1).Length
 
@@ -2395,7 +2403,7 @@ Public Class MediaSet
         'Closing the progress display
         myProgressDisplay.Close()
 
-        MsgBox("Finished createing masker sounds!")
+        MsgBox("Finished creating masker sounds!")
 
     End Sub
 

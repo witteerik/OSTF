@@ -1028,12 +1028,21 @@ Namespace Audio
 
                 Private Function GetValuesFromCommaSeparatedString(ByVal CommaSeparatedValues As String) As Double()
 
+                    Dim CDS = System.Threading.Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator
+
                     If CommaSeparatedValues Is Nothing Then Return {}
-                    If CommaSeparatedValues.Count = 0 Then Return {}
+                    If CommaSeparatedValues.Length = 0 Then Return {}
                     Dim OutputList As New List(Of Double)
                     Dim SplitList() As String = CommaSeparatedValues.Trim.Split(",")
                     For Each v In SplitList
-                        OutputList.Add(CDbl(v.Trim))
+
+                        Dim value As Double
+                        If Double.TryParse(v.Trim().Replace(",", CDS).Replace(".", CDS), value) = True Then
+                            OutputList.Add(value)
+                        Else
+                            Throw New Exception("Unable to parse the following string as a list of double: " & CommaSeparatedValues & " (This error may be cause by corrupt SMA specifications in iXML wave file chunks.)")
+                        End If
+
                     Next
                     Return OutputList.ToArray
 

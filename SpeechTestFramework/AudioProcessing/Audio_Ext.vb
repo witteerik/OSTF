@@ -166,7 +166,7 @@ SavingFile:     Dim sfd As New SaveFileDialog
             End Function
 
 
-            Public Function SaveMultipleSoundsToOneSoundFile(ByVal inputSounds As Sounds, Optional ByVal IncludedSounds As List(Of Integer) = Nothing,
+            Public Function SaveMultipleSoundsToOneSoundFile(ByVal inputSounds As List(Of Sound), Optional ByVal IncludedSounds As List(Of Integer) = Nothing,
                                                         Optional ByVal TargetLevel As Double? = Nothing,
                                                          Optional ByVal TargetLevelFrequencyweighting As FrequencyWeightings = FrequencyWeightings.Z,
                                                          Optional ByVal filePath As String = "", Optional ByVal startSample As Integer = Nothing,
@@ -317,15 +317,15 @@ SavingFile:             Dim sfd As New SaveFileDialog
 
 
             ''' <summary>
-            ''' Reads multiple sound files and stores them As Sound in the specified Sounds.
+            ''' Reads multiple sound files and stores them As Sound in the referenced list targetSounds.
             ''' </summary>
-            ''' <param name="targetSounds">The instance of Sounds that the read files should be stored in.</param>
+            ''' <param name="targetSounds">The list of Sound that the read files should be stored in.</param>
             ''' <param name="startIndex">The start index in targetSounds where the first Sound should be stored. If startindex is set to a number higher than the number of sounds in targetSounds, startIndex modified to add the first
             ''' sound read directly after the last Sound in targetSounds.</param>
             ''' <param name="soundFolder">The folder to look for sound files to read. Contains the selected folder upon return.</param>
             ''' <param name=" specifyFormat">The format of the sound file to read. If left empty all supported formats will be read.</param>
             ''' <returns>Returns the number of sound files that were read, or -1 if none was read.</returns>
-            Public Function ReadMultipleWaveFiles(ByRef targetSounds As Sounds, Optional ByVal startIndex As Integer = 0, Optional ByRef soundFolder As String = Nothing, Optional specifyFormat As SoundFileFormats = Nothing) As Integer
+            Public Function ReadMultipleWaveFiles(ByRef targetSounds As List(Of Sound), Optional ByVal startIndex As Integer = 0, Optional ByRef soundFolder As String = Nothing, Optional specifyFormat As SoundFileFormats = Nothing) As Integer
 
                 'Correcting the startindex (if it is set too high)
                 If startIndex > targetSounds.Count Then startIndex = targetSounds.Count

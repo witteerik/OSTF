@@ -426,6 +426,12 @@
 
     End Sub
 
+    Private Sub CreateMaskersButton_Click(sender As Object, e As EventArgs) Handles CreateMaskersButton.Click
+
+
+        SelectedMediaSet.CreateNewTestSituationMaskers()
+
+    End Sub
 End Class
 
 

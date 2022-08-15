@@ -5474,7 +5474,7 @@ Namespace Audio
                     End If
 
                     'Reading input sounds
-                    Dim InputSounds As New Sounds
+                    Dim InputSounds As New List(Of Sound)
                     AudioIOs.ReadMultipleWaveFiles(InputSounds,, InputFolder)
 
                     'Analysing and modifying to a list of tuple
@@ -5760,7 +5760,7 @@ Namespace Audio
                     End If
 
                     'Reading input sounds
-                    Dim InputSounds As New Sounds
+                    Dim InputSounds As New List(Of Sound)
                     AudioIOs.ReadMultipleWaveFiles(InputSounds,, InputFolder)
 
                     'Analysing and modifying to a list of tuple
