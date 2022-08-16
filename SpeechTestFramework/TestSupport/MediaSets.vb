@@ -1436,35 +1436,33 @@ Public Class MediaSet
     Public Sub CreateNewTestSituationMaskers(Optional ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List,
                                              Optional ByVal SegmentsLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.Phoneme,
                                              Optional ByVal MaskerCoverageLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.Sentence,
-                                                   Optional ByVal OnlyContrastingSegments As Boolean = True,
-                                                   Optional ByVal SoundChannel As Integer = 1,
-                                                   Optional ByVal SkipPractiseComponents As Boolean = False,
-                                                            Optional ByVal MinimumComponentDuration As Double = 0,
-                                                            Optional ByVal ComponentCrossFadeDuration As Double = 0.001,
-                                                            Optional ByVal FadeConcatenatedSound As Boolean = True,
-                                                            Optional ByVal RemoveDcComponent As Boolean = True)
+                                             Optional ByVal OnlyContrastingSegments As Boolean = True,
+                                             Optional ByVal SoundChannel As Integer = 1,
+                                             Optional ByVal SkipPractiseComponents As Boolean = False,
+                                             Optional ByVal MinimumComponentDuration As Double = 0,
+                                             Optional ByVal ComponentCrossFadeDuration As Double = 0.001,
+                                             Optional ByVal FadeConcatenatedSound As Boolean = True,
+                                             Optional ByVal RemoveDcComponent As Boolean = True)
 
         Dim SmaHighjackedSentenceIndex As Integer = 0
 
         If SegmentsLevel < SummaryLevel Then
-            MsgBox("SummaryLevel must be a linguistically more detailed level than SegmentsLevel.")
+            MsgBox("Function " & System.Reflection.MethodInfo.GetCurrentMethod.Name & " says: SummaryLevel must be a linguistically more detailed level than SegmentsLevel.")
             Exit Sub
         End If
 
         Dim myProgressDisplay As New ProgressDisplay
 
+        'Settings options that are fixed but could possibly be made available to the calling code
         Dim PerformInitialCorrelation As Boolean = True
-
         Dim FilterInputSounds As Boolean = True
         Dim RemoveInputSoundDcComponent As Boolean = True
-
-        Dim CompareSoundCategories As Boolean = True ' Sound coategories are defined by the initial letter characters in each input files name. Thus, if CompareSoundCategories is True, input sound files cannot start by numeric characters.
+        Dim CompareSoundCategories As Boolean = True ' Sound categories are defined by the initial letter characters in each input files name. Thus, if CompareSoundCategories is True, input sound files cannot start by numeric characters.
         Dim DistributeSoundCategoriesBetweenTestWordLists As Boolean = True
         Dim SoundCategoriesToCompareCount As Integer = 3
         If CompareSoundCategories = False Then DistributeSoundCategoriesBetweenTestWordLists = False 'Overriding DistributeTypesBetweenGroups, since it is not meaningful if sound categories are not used.
 
         Dim MaskerSoundDuration As Double = 3 'seconds
-        Dim InputSoundOverlapDuration As Double = 2 'seconds
         Dim CoarticulationMargin As Double = 0 ' A time period which will be added on each side of the longest test phoneme in each list, to set the duration of the central masker region
         Dim OutputSoundCount As Integer = 5 ' Exported sound files per test word list and speaker
         Dim ExtraSoundCount As Integer = 10 ' Extra exported sound files per test word list and speaker, exported to log folder. These can be used if some of the ordinary output sounds need to be replaced
@@ -1719,24 +1717,23 @@ Public Class MediaSet
                 Next
             Next
 
-            Dim MaskingDuration As Double = Math.Min(MaskerSoundDuration, LongestMaskerCoverageDuration + 2 * CoarticulationMargin) 'Setting MaskingLength, the central region of the sound
+            Dim MaskingRegionDuration As Double = Math.Min(MaskerSoundDuration, LongestMaskerCoverageDuration + 2 * CoarticulationMargin) 'Setting MaskingLength, the central region of the sound
 
-            Utils.SendInfoToLog("SummaryComponent: " & vbTab & SummaryComponent.Id & "(" & SummaryComponent.PrimaryStringRepresentation & ")" & vbTab &
+            Utils.SendInfoToLog("SummaryComponent: " & vbTab & SummaryComponent.Id & " (" & SummaryComponent.PrimaryStringRepresentation & ")" & vbTab &
                               "LongestMemberDuration: " & vbTab & LongestMaskerCoverageDuration & vbTab &
-                              "MaskingDuration: " & vbTab & MaskingDuration,
+                              "MaskingRegionDuration: " & vbTab & MaskingRegionDuration,
                               "MaskerTimes", IO.Path.Combine(ExportFolder, "TWRB", "Log"), True, True)
 
             Dim SoundCategoryList As New SortedList(Of String, MaskerSoundCategoryData)
 
             'Calculating the bark spectrum of the ConcatPhonemesSound
-            Audio.DSP.AcousticDistance_ModelA.CalculateBarkSpectrum(ConcatPhonemesSound, BarkFilterOverlapRatio,
+            Audio.DSP.CalculateBarkSpectrum(ConcatPhonemesSound, BarkFilterOverlapRatio,
                                                                     LowestIncludedCentreFrequency, HighestIncludedCentreFrequency,
                                                                     ReusableCentreFrequencies, FftFormat)
 
             'Calculating the average Bark spectrum of the concatenated phonemes
             Dim AverageSpectralLevel_ConcatPhonemes As Double
-            Dim ConcatAverageBarkSpectrum = Audio.DSP.AcousticDistance_ModelA.GetAverageBarkSpectrum(ConcatPhonemesSound,,, AverageSpectralLevel_ConcatPhonemes)
-            'Dim AverageSpectralLevel_ConcatPhonemes = ConcatAverageBarkSpectrum.WindowData.Average
+            Dim ConcatAverageBarkSpectrum = Audio.DSP.GetAverageBarkSpectrum(ConcatPhonemesSound,,, AverageSpectralLevel_ConcatPhonemes)
 
             'Getting the average Bark spectrum section by section in the InputSounds
             For InputSoundIndex = 0 To InputSounds.Count - 1
@@ -1774,7 +1771,7 @@ Public Class MediaSet
                 Dim MaskerSoundWindowMaxLevel = MaskerSoundWindowLevels.Max
 
                 Dim StepLength As Integer = FFT_AnalysisWindowLength - FFT_OverlapLength
-                Dim MaskingLength As Integer = MaskingDuration * InputSound.WaveFormat.SampleRate
+                Dim MaskingLength As Integer = MaskingRegionDuration * InputSound.WaveFormat.SampleRate
                 Dim MaskerRegionLengthInWindows As Integer = Math.Ceiling((MaskingLength - FFT_AnalysisWindowLength) / StepLength)
                 Dim AvailableWindowsCount As Integer = Math.Max(1, Math.Floor(InputSound.WaveData.SampleData(1).Length - FFT_AnalysisWindowLength) / StepLength)
 
@@ -1850,7 +1847,7 @@ Public Class MediaSet
 
                     'Calculating input sound times
                     Dim InputSound_CentralRegionStartSample As Integer = w * (FFT_AnalysisWindowLength - FFT_OverlapLength)
-                    Dim InputSound_CentralRegionLength As Integer = MaskingDuration * InputSound.WaveFormat.SampleRate
+                    Dim InputSound_CentralRegionLength As Integer = MaskingRegionDuration * InputSound.WaveFormat.SampleRate
                     Dim InputSoundLength As Integer = MaskerSoundDuration * InputSound.WaveFormat.SampleRate
                     Dim InputSoundStartSample As Integer = InputSound_CentralRegionStartSample - ((InputSoundLength - InputSound_CentralRegionLength) / 2)
 
@@ -1925,9 +1922,6 @@ Public Class MediaSet
 
             'Adding the data to MasterSoundData
             MasterSoundData.Add(SummaryComponent.Id, New Tuple(Of SpeechMaterialComponent, Audio.Sound, List(Of MaskerSoundCategoryData))(SummaryComponent, ConcatPhonemesSound, SortedSoundCategoryList))
-
-            'If Not MasterSoundData.ContainsKey(SpeakerID) Then MasterSoundData.Add(SpeakerID, New SortedList(Of String, List(Of MaskerSoundCategoryData)))
-            'MasterSoundData(SpeakerID).Add(TestWordList.ListName, SortedSoundCategoryList)
 
             Progress += 1
         Next
@@ -2070,16 +2064,15 @@ Public Class MediaSet
 
         For Each TestWordList In MasterSoundData
 
-            Dim TestWordListName As String = TestWordList.Key
-            Dim SoundCategoryData = TestWordList.Value.Item3(0) 'Always using the first index, as this should always contain the data on sounds from the most suitable soundcategory
+            Dim TestWordListName As String = TestWordList.Key & "_" & TestWordList.Value.Item1.PrimaryStringRepresentation
 
+            Dim SoundCategoryData = TestWordList.Value.Item3(0) 'Always using the first index, as this should always contain the data on sounds from the most suitable soundcategory
 
             'Creates a copy of the current concatenated phonemes to be used to calculate a low resolution spectrum only.
             Dim ConcatPhonemes_LowRes = TestWordList.Value.Item2.CreateCopy()
 
             'Export the spectra of the test concatenated phonemes - High resolution 
             Dim ConcatPhonemes = TestWordList.Value.Item2
-            'ConcatPhonemes.SetFFT(Audio.DSP.SpectralAnalysis(ConcatPhonemes, HighRes_OutputSpectra_FftFormat, 1,,))
             ConcatPhonemes.FFT = Audio.DSP.SpectralAnalysis(ConcatPhonemes, HighRes_OutputSpectra_FftFormat, 1,,)
             ConcatPhonemes.FFT.CalculateAmplitudeSpectrum()
             Dim ConcatSpectrum = ConcatPhonemes.FFT.GetAverageSpectrum(1, Audio.FftData.SpectrumTypes.AmplitudeSpectrum,
@@ -2088,7 +2081,6 @@ Public Class MediaSet
             HighRes_ExtraSoundSpectra.Add(New Tuple(Of String, SortedList(Of Double, Double))(TestWordListName & vbTab & "ConcatSpectrum", ConcatSpectrum))
 
             'Export the spectra of the test concatenated phonemes - Low resolution 
-            'ConcatPhonemes_LowRes.SetFFT(Audio.DSP.SpectralAnalysis(ConcatPhonemes_LowRes, LowRes_OutputSpectra_FftFormat, 1,,))
             ConcatPhonemes_LowRes.FFT = Audio.DSP.SpectralAnalysis(ConcatPhonemes_LowRes, LowRes_OutputSpectra_FftFormat, 1,,)
             ConcatPhonemes_LowRes.FFT.CalculateAmplitudeSpectrum()
             Dim ConcatSpectrum_LowRes = ConcatPhonemes_LowRes.FFT.GetAverageSpectrum(1, Audio.FftData.SpectrumTypes.AmplitudeSpectrum,
@@ -2098,9 +2090,6 @@ Public Class MediaSet
 
             'Measuring the RMS-level of the concatenated phonemes sound
             Dim ConcatSoundLevel As Double = Audio.DSP.MeasureSectionLevel(ConcatPhonemes, 1,,,,, Audio.FrequencyWeightings.Z)
-
-            'Measuring the C-weighted level of the concatenated phonemes sound
-            'Dim ConcatSoundLevel_C As Double = Audio.DSP.MeasureSectionLevel(ConcatPhonemes, 1,,,,, FrequencyWeightings.C_Weighting)
 
             'Copying the file sections into sounds
             For MaskerSoundIndex = 0 To SoundCategoryData.MaskerSoundList.Count - 1
@@ -2143,21 +2132,6 @@ Public Class MediaSet
                 MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(MaskerSound.SMA, Audio.Sound.SpeechMaterialAnnotation.SmaTags.WORD,
                                                                                                                                      MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex)) With {
                                                                                                                                      .StartSample = CentralRegionStartSample + CentralRegionLength, .Length = MaskerSound.WaveData.SampleData(1).Length - (CentralRegionStartSample + CentralRegionLength), .OrthographicForm = "FadeOutRegion", .PhoneticForm = ""})
-
-                'Clearing any previous data
-                'MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex).Clear()
-
-                'Dim CentralRegionStartSample As Integer = MaskerData.CentralRegionFileStartSample
-                'Dim CentralRegionLength As Integer = MaskerData.CentralRegionLength
-
-                ''Supplying the SoundSection sound with segmentation data, on sentence level, as well as a the following word level segmentations 
-                ''(word1: pre-measurement section, word2: measurement section, word 3: post measurement section)
-                'MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex).StartSample = 0
-                'MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex).Length = MaskerSound.WaveData.SampleData(1).Length
-                'MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaWordData(MaskerSound.SMA) With {.StartSample = 0, .Length = Math.Max(0, CentralRegionStartSample), .OrthographicForm = "FadeInRegion", .PhoneticForm = ""})
-                'MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaWordData(MaskerSound.SMA) With {.StartSample = CentralRegionStartSample, .Length = CentralRegionLength, .OrthographicForm = "MaskerRegion", .PhoneticForm = ""})
-                'MaskerSound.SMA.ChannelData(1)(SmaHighjackedSentenceIndex).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaWordData(MaskerSound.SMA) With {.StartSample = CentralRegionStartSample + CentralRegionLength, .Length = MaskerSound.WaveData.SampleData(1).Length - (CentralRegionStartSample + CentralRegionLength), .OrthographicForm = "FadeOutRegion", .PhoneticForm = ""})
-
 
 
                 If UseSpectralUseFineTuning = True Then
@@ -2284,7 +2258,6 @@ Public Class MediaSet
                 Dim MaskerRegionSound_LowResCopy = MaskerRegionSound.CreateCopy
 
                 'Calculating spectrum - high resolution
-                'MaskerRegionSound.SetFFT(Audio.DSP.SpectralAnalysis(MaskerRegionSound, HighRes_OutputSpectra_FftFormat, 1,,))
                 MaskerRegionSound.FFT = Audio.DSP.SpectralAnalysis(MaskerRegionSound, HighRes_OutputSpectra_FftFormat, 1,,)
                 MaskerRegionSound.FFT.CalculateAmplitudeSpectrum()
                 Dim FilteredMaskerSpectrum_HighRes = MaskerRegionSound.FFT.GetAverageSpectrum(1, Audio.FftData.SpectrumTypes.AmplitudeSpectrum,
@@ -2298,7 +2271,6 @@ Public Class MediaSet
                 End If
 
                 'Calculating spectrum - Low resolution
-                'MaskerRegionSound_LowResCopy.SetFFT(Audio.DSP.SpectralAnalysis(MaskerRegionSound_LowResCopy, LowRes_OutputSpectra_FftFormat, 1,,))
                 MaskerRegionSound_LowResCopy.FFT = Audio.DSP.SpectralAnalysis(MaskerRegionSound_LowResCopy, LowRes_OutputSpectra_FftFormat, 1,,)
                 MaskerRegionSound_LowResCopy.FFT.CalculateAmplitudeSpectrum()
                 Dim FilteredMaskerSpectrum_LowRes = MaskerRegionSound_LowResCopy.FFT.GetAverageSpectrum(1, Audio.FftData.SpectrumTypes.AmplitudeSpectrum,
