@@ -428,8 +428,9 @@
 
     Private Sub CreateMaskersButton_Click(sender As Object, e As EventArgs) Handles CreateMaskersButton.Click
 
-
-        SelectedMediaSet.CreateNewTestSituationMaskers()
+        SelectedMediaSet.CreateNewTestSituationMaskers(SpeechMaterialComponent.LinguisticLevels.ListCollection,
+                                                        SpeechMaterialComponent.LinguisticLevels.Sentence,
+                                                        Nothing, False, , True,,,,, 5,, 1, 1)
 
     End Sub
 End Class

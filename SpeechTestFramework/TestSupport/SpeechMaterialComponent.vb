@@ -465,7 +465,7 @@ Public Class SpeechMaterialComponent
     ''' <param name="OnlyContrastingSegments">If set to true, only contrasting speech material components (e.g. contrasting phonemes in minimal pairs) will be included in the spectrum level calculations.</param>
     ''' <param name="SoundChannel">The audio / wave file channel in which the speech is recorded (channel 1, for mono sounds).</param>
     ''' <param name="SkipPractiseComponents">If set to true, speech material components marksed as practise components will be skipped in the spectrum level calculations.</param>
-    ''' <param name="MinimumComponentDuration">An optional minimum duration (in seconds) of each included component. If the recorded sound of a component is shorter, it will be zero-padded to the indicated duration.</param>
+    ''' <param name="MinimumSegmentDuration">An optional minimum duration (in seconds) of each included component. If the recorded sound of a component is shorter, it will be zero-padded to the indicated duration.</param>
     ''' <param name="ComponentCrossFadeDuration">A duration by which the sections for concatenations will be cross-faded prior to spectrum level calculations.</param>
     ''' <param name="FadeConcatenatedSound">If set to true, the concatenated sounds will be slightly faded initially and finally (in order to avoid impulse-like onsets and offsets) prior to spectrum level calculations.</param>
     ''' <param name="RemoveDcComponent">If set to true, the DC component of the concatenated sounds will be set to zero prior to spectrum level calculations.</param>
@@ -474,7 +474,7 @@ Public Class SpeechMaterialComponent
                                                    ByVal OnlyContrastingSegments As Boolean,
                                                    ByVal SoundChannel As Integer,
                                                    ByVal SkipPractiseComponents As Boolean,
-                                                   Optional ByVal MinimumComponentDuration As Double = 0,
+                                                   Optional ByVal MinimumSegmentDuration As Double = 0,
                                                    Optional ByVal ComponentCrossFadeDuration As Double = 0.001,
                                                    Optional ByVal FadeConcatenatedSound As Boolean = True,
                                                    Optional ByVal RemoveDcComponent As Boolean = True) As Audio.Sound
@@ -515,8 +515,8 @@ Public Class SpeechMaterialComponent
         For Each SmaComponent In CurrentSmaComponentList
 
             Dim SoundSegment = SmaComponent.GetSoundFileSection(SoundChannel)
-            If MinimumComponentDuration > 0 Then
-                SoundSegment.ZeroPad(MinimumComponentDuration, True)
+            If MinimumSegmentDuration > 0 Then
+                SoundSegment.ZeroPad(MinimumSegmentDuration, True)
             End If
             SoundSectionList.Add(SoundSegment)
 
@@ -1688,16 +1688,26 @@ Public Class SpeechMaterialComponent
 
     End Function
 
-    Public Function GetAllDescenentsAtLevel(ByVal RequestedDescendentComponentLevel As SpeechMaterialComponent.LinguisticLevels) As List(Of SpeechMaterialComponent)
+    ''' <summary>
+    ''' Gets all descendants at the specified linguistic level.
+    ''' </summary>
+    ''' <param name="RequestedDescendentComponentLevel">The specified linguistic level.</param>
+    ''' <param name="IncludeSelf">Set to true, in order to also include the current instance of SpeechMaterialComponent, in case its LinguisticLevel equals the specified linguistic level.</param>
+    ''' <returns></returns>
+    Public Function GetAllDescenentsAtLevel(ByVal RequestedDescendentComponentLevel As SpeechMaterialComponent.LinguisticLevels, Optional IncludeSelf As Boolean = False) As List(Of SpeechMaterialComponent)
 
         Dim OutputList As New List(Of SpeechMaterialComponent)
+
+        If IncludeSelf = True Then
+            If Me.LinguisticLevel = RequestedDescendentComponentLevel Then OutputList.Add(Me)
+        End If
 
         For Each child In ChildComponents
 
             If child.LinguisticLevel = RequestedDescendentComponentLevel Then
                 OutputList.Add(child)
             Else
-                OutputList.AddRange(child.GetAllDescenentsAtLevel(RequestedDescendentComponentLevel))
+                OutputList.AddRange(child.GetAllDescenentsAtLevel(RequestedDescendentComponentLevel, False))
             End If
         Next
 
