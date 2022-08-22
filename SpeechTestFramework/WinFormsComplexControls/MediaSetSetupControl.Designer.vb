@@ -117,7 +117,7 @@ Partial Class MediaSetSetupControl
         Me.SipTestLevels_Button = New System.Windows.Forms.Button()
         Me.CreateMaskers_TabPage = New System.Windows.Forms.TabPage()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
-        Me.CreateMaskersButton = New System.Windows.Forms.Button()
+        Me.CreateSipTestMaskersButton = New System.Windows.Forms.Button()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -1245,7 +1245,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel4.ColumnCount = 2
         Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel4.Controls.Add(Me.CreateMaskersButton, 0, 0)
+        Me.TableLayoutPanel4.Controls.Add(Me.CreateSipTestMaskersButton, 0, 0)
         Me.TableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel4.Location = New System.Drawing.Point(3, 3)
         Me.TableLayoutPanel4.Name = "TableLayoutPanel4"
@@ -1255,14 +1255,14 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel4.Size = New System.Drawing.Size(380, 579)
         Me.TableLayoutPanel4.TabIndex = 0
         '
-        'CreateMaskersButton
+        'CreateSipTestMaskersButton
         '
-        Me.CreateMaskersButton.Location = New System.Drawing.Point(3, 3)
-        Me.CreateMaskersButton.Name = "CreateMaskersButton"
-        Me.CreateMaskersButton.Size = New System.Drawing.Size(180, 23)
-        Me.CreateMaskersButton.TabIndex = 0
-        Me.CreateMaskersButton.Text = "Create masker sounds"
-        Me.CreateMaskersButton.UseVisualStyleBackColor = True
+        Me.CreateSipTestMaskersButton.Location = New System.Drawing.Point(3, 3)
+        Me.CreateSipTestMaskersButton.Name = "CreateSipTestMaskersButton"
+        Me.CreateSipTestMaskersButton.Size = New System.Drawing.Size(180, 23)
+        Me.CreateSipTestMaskersButton.TabIndex = 0
+        Me.CreateSipTestMaskersButton.Text = "Create SiP-test masker sounds"
+        Me.CreateSipTestMaskersButton.UseVisualStyleBackColor = True
         '
         'MediaSetSetupControl
         '
@@ -1395,5 +1395,5 @@ Partial Class MediaSetSetupControl
     Friend WithEvents GroupBox3 As Windows.Forms.GroupBox
     Friend WithEvents TableLayoutPanel7 As Windows.Forms.TableLayoutPanel
     Friend WithEvents SipTestLevels_Button As Windows.Forms.Button
-    Friend WithEvents CreateMaskersButton As Windows.Forms.Button
+    Friend WithEvents CreateSipTestMaskersButton As Windows.Forms.Button
 End Class

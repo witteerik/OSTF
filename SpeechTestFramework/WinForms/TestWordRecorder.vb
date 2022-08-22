@@ -32,7 +32,8 @@ Public Class SpeechMaterialRecorder
     Private CurrentlyLoadedPrototypeRecordingSoundFile As Audio.Sound = Nothing
 
 
-    Private BackgroundSound As Audio.Sound = Nothing
+    Private BackgroundSound As Audio.Sound = Nothing ' This sound holds the full background sound
+    Private CurrentMasker As Audio.Sound = Nothing ' This sound holds the shortened random section of the background sound which is actually played
 
     'Sound player
     Private SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
@@ -284,29 +285,42 @@ Public Class SpeechMaterialRecorder
 
     Private Sub SetDefaultValues()
 
-        PresentationLevel = 65
-        BackgroundSoundLevel = 65
-
         CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.HeadPhones
 
         Dim AvailableInterSentenceTimes() As Single = {0.1, 0.2, 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 15}
         For Each value In AvailableInterSentenceTimes
             InterSentenceTimeComboBox.Items.Add(value)
+            'Selecting Dafault value
+            If value = AvailableInterSentenceTimes(8) Then
+                InterSentenceTimeComboBox.SelectedItem = InterSentenceTimeComboBox.Items(InterSentenceTimeComboBox.Items.Count - 1)
+            End If
         Next
 
         Dim AvailablePaddingTimes() As Single = {0.1, 0.2, 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 15}
         For Each value In AvailablePaddingTimes
             PaddingTimeComboBox.Items.Add(value)
+            'Selecting Dafault value
+            If value = AvailablePaddingTimes(0) Then
+                PaddingTimeComboBox.SelectedItem = PaddingTimeComboBox.Items(PaddingTimeComboBox.Items.Count - 1)
+            End If
         Next
 
         Dim AvailablePresentationLevels() As Double = {50, 55, 60, 62, 65, 68, 70, 75, 80, 85}
         For Each value In AvailablePresentationLevels
             PresentationLevel_ToolStripComboBox.Items.Add(value)
+            'Selecting Dafault value
+            If value = AvailablePresentationLevels(4) Then
+                PresentationLevel_ToolStripComboBox.SelectedItem = PresentationLevel_ToolStripComboBox.Items(PresentationLevel_ToolStripComboBox.Items.Count - 1)
+            End If
         Next
 
         Dim AvailableBackgroundSoundLevels() As Double = {50, 55, 60, 62, 65, 68, 70, 75, 80, 85}
         For Each value In AvailableBackgroundSoundLevels
             BackgroundSoundLevel_ToolStripComboBox.Items.Add(value)
+            'Selecting Dafault value
+            If value = AvailableBackgroundSoundLevels(4) Then
+                BackgroundSoundLevel_ToolStripComboBox.SelectedItem = BackgroundSoundLevel_ToolStripComboBox.Items(BackgroundSoundLevel_ToolStripComboBox.Items.Count - 1)
+            End If
         Next
 
         IsRecording = False
@@ -712,8 +726,9 @@ Public Class SpeechMaterialRecorder
             If CurrentSoundFileIndex >= 0 Then
 
                 Dim SoundPath = SoundFilesForEditing(CurrentSoundFileIndex).Item1
+                Dim PrototypeSoundPath = SoundFilesForEditing(CurrentSoundFileIndex).Item2
 
-                If LoadSoundFile(SoundPath) = True Then
+                If LoadSoundFile(SoundPath, PrototypeSoundPath) = True Then
 
                     CurrentSentenceIndex = -1
                     JumpToUnrecorded = False
@@ -725,7 +740,11 @@ Public Class SpeechMaterialRecorder
                 Else
 
                     RecordingTabMainSplitContainer.Panel2.Controls.Clear()
-                    MsgBox("Cannot load the sound file: " & SoundPath)
+                    If PrototypeSoundPath = "" Then
+                        MsgBox("Cannot load the sound file: " & SoundPath)
+                    Else
+                        MsgBox("Cannot load the sound file: " & SoundPath & " or the prototype recording: " & PrototypeSoundPath)
+                    End If
 
                 End If
 
@@ -1059,9 +1078,9 @@ Public Class SpeechMaterialRecorder
 
         Dim HasSound As Boolean = False
         If CurrentSentencesForRecording IsNot Nothing Then
-                If CurrentSentenceIndex < CurrentSentencesForRecording.Count Then
-                    If CurrentSentencesForRecording(CurrentSentenceIndex).Item2 IsNot Nothing Then
-                        If CurrentSentencesForRecording(CurrentSentenceIndex).Item2.WaveData.SampleData(RecordingChannel).Length > 0 Then
+            If CurrentSentenceIndex < CurrentSentencesForRecording.Count Then
+                If CurrentSentencesForRecording(CurrentSentenceIndex).Item2 IsNot Nothing Then
+                    If CurrentSentencesForRecording(CurrentSentenceIndex).Item2.WaveData.SampleData(RecordingChannel).Length > 0 Then
 
                         'TODO Set level!
 
@@ -1070,9 +1089,9 @@ Public Class SpeechMaterialRecorder
                         SoundPlayer.SwapOutputSounds(CurrentSentencesForRecording(CurrentSentenceIndex).Item2)
 
                     End If
-                    End If
                 End If
             End If
+        End If
 
         If HasSound = False Then MsgBox("No sound to play.", MsgBoxStyle.Information, "No sound to play")
 
@@ -1152,17 +1171,138 @@ Public Class SpeechMaterialRecorder
     Private WithEvents StartRecordingTimer As New Timer
     Private Sub StartNewRecording()
 
+        'Prepares the background noise
+        Dim rnd As New Random
+
+        If UseRecordingNoise = True Then
+
+            If BackgroundSound Is Nothing Then
+
+                Dim LombardNoisePath As String = ""
+                If MediaSet.LombardNoisePath = "" Then
+                    'Asks the user for a file path
+                    Dim BoxResult = MsgBox("Please press OK select a background sound file, or Cancel to abort.", MsgBoxStyle.OkCancel)
+                    If BoxResult = MsgBoxResult.Ok Then
+                        LombardNoisePath = Utils.GetOpenFilePath(,,, "Select background sound file", True)
+                        If LombardNoisePath <> "" Then
+                            MediaSet.LombardNoisePath = LombardNoisePath
+                        Else
+                            Exit Sub
+                        End If
+                    Else
+                        Exit Sub
+                    End If
+                Else
+                    Dim CurrentTestRootPath As String = MediaSet.ParentTestSpecification.GetTestRootPath
+                    LombardNoisePath = IO.Path.Combine(CurrentTestRootPath, MediaSet.LombardNoisePath)
+                End If
+
+                'Loading the background sound
+                BackgroundSound = Audio.AudioIOs.ReadWaveFile(LombardNoisePath)
+
+                'Checking that the length is enough
+                Dim BackgroundSoundLength As Integer = BackgroundSound.WaveData.SampleData(1).Length
+
+                'It should be at least 60 seconds
+                If BackgroundSoundLength < BackgroundSound.WaveFormat.SampleRate * 60 Then
+                    MsgBox("The background sound should be at least 100 seconds long!")
+                    BackgroundSound = Nothing
+                    Exit Sub
+                End If
+
+                If BackgroundSound.WaveFormat.Channels = 1 Then
+                    'Creating a stereo sound with uncorrelated channels by copying from random sections 
+                    Dim NewBackgroundSound As New Audio.Sound(New Audio.Formats.WaveFormat(BackgroundSound.WaveFormat.SampleRate, BackgroundSound.WaveFormat.BitDepth, 2, , BackgroundSound.WaveFormat.Encoding))
+                    Dim Chl1Rnd = rnd.Next(0, BackgroundSoundLength / 4)
+                    Dim Chl2Rnd = rnd.Next(BackgroundSoundLength / 4, (2 * BackgroundSoundLength) / 4)
+                    Dim FinalLength = (BackgroundSoundLength / 4)
+                    NewBackgroundSound.WaveData.SampleData(1) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl1Rnd, FinalLength).ToArray
+                    NewBackgroundSound.WaveData.SampleData(2) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl2Rnd, FinalLength).ToArray
+                    BackgroundSound = NewBackgroundSound
+                End If
+
+                'Setting ReMeasureBackgroundSoundLevel to True to ensure that masker has the correct sound level
+                ReMeasureBackgroundSoundLevel = True
+
+            End If
+
+            If ReMeasureBackgroundSoundLevel = True Then
+
+                For c = 1 To 2
+
+                    'Setting the background sound level
+                    'Measures weighted level
+                    Dim PreLevel As Double
+                    If BackgroundSound_SoundLevelFormat.LoudestSectionMeasurement = True Then
+                        PreLevel = Audio.DSP.GetLevelOfLoudestWindow(BackgroundSound, c,
+                                                                                 BackgroundSound_SoundLevelFormat.TemporalIntegrationDuration * BackgroundSound.WaveFormat.SampleRate,
+                                                                                  0, Nothing, , BackgroundSound_SoundLevelFormat.FrequencyWeighting, True)
+                    Else
+                        PreLevel = Audio.DSP.MeasureSectionLevel(BackgroundSound, c, 0, Nothing, Audio.AudioManagement.SoundDataUnit.dB, Audio.AudioManagement.SoundMeasurementType.RMS, BackgroundSound_SoundLevelFormat.FrequencyWeighting)
+                    End If
+
+                    'Adjusting the level
+                    Dim BackgroundSoundLevel_FS = BackgroundSoundLevel - Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+                    Dim UncalibratedGain = BackgroundSoundLevel_FS - PreLevel
+                    Dim CalibratedGain = UncalibratedGain + SoundPlayer.Mixer.GetCalibrationGain(c)
+                    Audio.DSP.AmplifySection(BackgroundSound, CalibratedGain, c)
+                Next
+
+                ReMeasureBackgroundSoundLevel = False
+            End If
+
+            'Taking a random section of the sound
+            Dim MaskerDuration As Single = 15
+            Dim MaskerLength As Integer = MaskerDuration * BackgroundSound.WaveFormat.SampleRate
+
+            Dim Chl1_2Rnd = rnd.Next(0, BackgroundSound.WaveData.SampleData(1).Length - MaskerLength - 50)
+            CurrentMasker = New Audio.Sound(BackgroundSound.WaveFormat)
+            CurrentMasker.WaveData.SampleData(1) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl1_2Rnd, MaskerLength).ToArray
+            CurrentMasker.WaveData.SampleData(2) = BackgroundSound.WaveData.SampleData(2).ToList.GetRange(Chl1_2Rnd, MaskerLength).ToArray
+
+            'Fading in the masker
+            Audio.DSP.Fade(CurrentMasker,, 1,,, 2000)
+
+        End If
+
+
         'Plays the specified sound
         If UseAuditoryPrequeing = True Then
 
-            Dim PrototypeSound As Audio.Sound = CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).GetSoundFileSection(1)
+            Dim PrototypeSoundCopy As Audio.Sound = CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).GetSoundFileSection(1)
 
-            'Presenting a mono sound
+            'Duplicating channels into stereo
+            Dim PrototypeSoundCopy_Stereo = New Audio.Sound(New Audio.Formats.WaveFormat(PrototypeSoundCopy.WaveFormat.SampleRate,
+                                                                                     PrototypeSoundCopy.WaveFormat.BitDepth, 2, , PrototypeSoundCopy.WaveFormat.Encoding))
 
-            'TODO: Set level!
-            SoundPlayer.SwapOutputSounds(PrototypeSound)
+            PrototypeSoundCopy_Stereo.WaveData.SampleData(1) = PrototypeSoundCopy.WaveData.SampleData(1)
+            Dim Channel2Array(PrototypeSoundCopy_Stereo.WaveData.SampleData(1).Length - 1) As Single
+            PrototypeSoundCopy_Stereo.WaveData.SampleData(2) = Channel2Array
+            PrototypeSoundCopy.WaveData.SampleData(1).CopyTo(Channel2Array, 0)
 
-            StartRecordingTimer.Interval = 50 + (1000 * PrototypeSound.SMA.ChannelData(1)(CurrentSentenceIndex).Length / PrototypeSound.WaveFormat.SampleRate)
+            'Adjusting the level
+            For c = 1 To 2
+
+                Dim PreLevel As Double
+                If PresentationSound_SoundLevelFormat.LoudestSectionMeasurement = True Then
+                    PreLevel = Audio.DSP.GetLevelOfLoudestWindow(PrototypeSoundCopy_Stereo, c,
+                                                                                     PresentationSound_SoundLevelFormat.TemporalIntegrationDuration * PrototypeSoundCopy_Stereo.WaveFormat.SampleRate,
+                                                                                      0, Nothing, , PresentationSound_SoundLevelFormat.FrequencyWeighting, True)
+                Else
+                    PreLevel = Audio.DSP.MeasureSectionLevel(PrototypeSoundCopy_Stereo, c, 0, Nothing, Audio.AudioManagement.SoundDataUnit.dB, Audio.AudioManagement.SoundMeasurementType.RMS, PresentationSound_SoundLevelFormat.FrequencyWeighting)
+                End If
+
+
+                Dim PresentationLevel_FS = PresentationLevel - Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+                Dim UncalibratedGain = PresentationLevel_FS - PreLevel
+                Dim CalibratedGain = UncalibratedGain + SoundPlayer.Mixer.GetCalibrationGain(c)
+                Audio.DSP.AmplifySection(PrototypeSoundCopy_Stereo, CalibratedGain, c)
+            Next
+
+
+            SoundPlayer.SwapOutputSounds(PrototypeSoundCopy_Stereo)
+
+            StartRecordingTimer.Interval = 50 + 1000 * CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(CurrentSentenceIndex).Length / CurrentlyLoadedPrototypeRecordingSoundFile.WaveFormat.SampleRate
             StartRecordingTimer.Start()
 
         Else
@@ -1178,78 +1318,6 @@ Public Class SpeechMaterialRecorder
 
         StartRecordingTimer.Stop()
 
-        Dim rnd As New Random
-
-        'Prepares the background noise
-        If UseRecordingNoise = True Then
-
-            If BackgroundSound Is Nothing Then
-                Dim BoxResult = MsgBox("Please press OK select a background sound file.", MsgBoxStyle.OkCancel)
-
-                If BoxResult = MsgBoxResult.Ok Then
-                    BackgroundSound = Audio.AudioIOs.ReadWaveFile(,,,,,)
-
-                    'Checking that the length is enough
-                    Dim BackgroundSoundLength As Integer = BackgroundSound.WaveData.SampleData(1).Length
-
-                    'It should be at least 100 seconds
-                    If BackgroundSoundLength / BackgroundSound.WaveFormat.SampleRate < 100 Then
-                        MsgBox("The background sound should be at least 100 seconds long!")
-                        Exit Sub
-                    End If
-
-                    If BackgroundSound.WaveFormat.Channels = 1 Then
-                        'Creating a stereo sound with uncorrelated channels by copying from random sections 
-                        Dim NewBackgroundSound As New Audio.Sound(New Audio.Formats.WaveFormat(BackgroundSound.WaveFormat.SampleRate, BackgroundSound.WaveFormat.BitDepth, 2, , BackgroundSound.WaveFormat.Encoding))
-                        Dim Chl1Rnd = rnd.Next(0, BackgroundSoundLength / 4)
-                        Dim Chl2Rnd = rnd.Next((1 * BackgroundSoundLength) / 4, (3 * BackgroundSoundLength) / 4)
-                        Dim FinalLength = (BackgroundSoundLength / 4) - 50
-                        NewBackgroundSound.WaveData.SampleData(1) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl1Rnd, FinalLength).ToArray
-                        NewBackgroundSound.WaveData.SampleData(2) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl2Rnd, FinalLength).ToArray
-                        BackgroundSound = NewBackgroundSound
-                    End If
-                Else
-                    Exit Sub
-                End If
-            Else
-
-                If ReMeasureBackgroundSoundLevel = True Then
-
-                    For c = 1 To 2
-
-                        'Setting the background sound level
-                        'Measures weighted level
-                        Dim PreLevel As Double
-                        If BackgroundSound_SoundLevelFormat.LoudestSectionMeasurement = True Then
-                            PreLevel = Audio.DSP.GetLevelOfLoudestWindow(BackgroundSound, c,
-                                                                                     BackgroundSound_SoundLevelFormat.TemporalIntegrationDuration * BackgroundSound.WaveFormat.SampleRate,
-                                                                                      0, Nothing, , BackgroundSound_SoundLevelFormat.FrequencyWeighting, True)
-                        Else
-                            PreLevel = Audio.DSP.MeasureSectionLevel(BackgroundSound, c, 0, Nothing, Audio.AudioManagement.SoundDataUnit.dB, Audio.AudioManagement.SoundMeasurementType.RMS, BackgroundSound_SoundLevelFormat.FrequencyWeighting)
-                        End If
-
-                        'Adjusting the level
-                        Audio.DSP.AmplifySection(BackgroundSound, PreLevel - BackgroundSoundLevel, c)
-                    Next
-
-                    ReMeasureBackgroundSoundLevel = False
-                End If
-
-                'Taking a random section of the sound
-                Dim MaskerDuration As Single = 15
-                Dim MaskerLength As Integer = MaskerDuration * BackgroundSound.WaveFormat.SampleRate
-
-                Dim Chl1_2Rnd = rnd.Next(0, BackgroundSound.WaveData.SampleData(1).Length - MaskerLength - 50)
-                Dim CurrentMasker As New Audio.Sound(BackgroundSound.WaveFormat)
-                CurrentMasker.WaveData.SampleData(1) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl1_2Rnd, MaskerLength).ToArray
-                CurrentMasker.WaveData.SampleData(2) = BackgroundSound.WaveData.SampleData(2).ToList.GetRange(Chl1_2Rnd, MaskerLength).ToArray
-
-                'Fading in the masker
-                Audio.DSP.Fade(CurrentMasker,, 1,,, 2000)
-
-            End If
-        End If
-
         Try
 
             IsRecording = True
@@ -1258,7 +1326,7 @@ Public Class SpeechMaterialRecorder
             If UseRecordingNoise = True Then
 
                 'Starting to record with background sound
-                SoundPlayer.SwapOutputSounds(BackgroundSound, True)
+                SoundPlayer.SwapOutputSounds(CurrentMasker, True)
 
             Else
                 'Starting to record without background sound

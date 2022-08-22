@@ -295,6 +295,7 @@
         'Checking first that needed folders are specified
         If SelectedMediaSet.MediaParentFolder = "" Then
             MsgBox("The subfolder for target media files must be specified before launching the recording and segmentation tool.", MsgBoxStyle.Exclamation, "Launching the recording and segmentation tool")
+            Exit Sub
         End If
 
         'Here we could also check for other things such as Lombard recordings folder etc, but skipps this for now...
@@ -426,11 +427,13 @@
 
     End Sub
 
-    Private Sub CreateMaskersButton_Click(sender As Object, e As EventArgs) Handles CreateMaskersButton.Click
+    Private Sub CreateSipTestMaskersButton_Click(sender As Object, e As EventArgs) Handles CreateSipTestMaskersButton.Click
 
-        SelectedMediaSet.CreateNewTestSituationMaskers(SpeechMaterialComponent.LinguisticLevels.ListCollection,
+        'Creating SiP-test type masker sounds
+        SelectedMediaSet.CreateNewTestSituationMaskers(MediaSet.MaskerSourceTypes.ExternalSoundFilesBestMatch,
+                                                        SpeechMaterialComponent.LinguisticLevels.List,
                                                         SpeechMaterialComponent.LinguisticLevels.Sentence,
-                                                        Nothing, False, , True,,,,, 5,, 1, 1)
+                                                          SpeechMaterialComponent.LinguisticLevels.Word, True, , False,,,,, 3,, 1, 10)
 
     End Sub
 End Class

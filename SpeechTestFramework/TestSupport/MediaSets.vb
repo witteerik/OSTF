@@ -1485,29 +1485,17 @@ Public Class MediaSet
 
         Dim SoundLevelFormat As New Audio.Formats.SoundLevelFormat(Audio.SoundMeasurementTypes.Average_C_Weighted)
 
-        c 'Mayby we should write differnt functions instead of implememting everyting here???!!!
+        'TODO: Mayby we should simply write different functions for the different MaskerSourceTypes instead of implememting everyting here???!!!
         Select Case MaskerSourceType
             Case MaskerSourceTypes.ExternalSoundFilesBestMatch
-
+                'This is the type implemented in this function
             Case MaskerSourceTypes.SpeechMaterial
-
+                Throw New NotImplementedException
             Case MaskerSourceTypes.RandomNoise
-
+                Throw New NotImplementedException
             Case MaskerSourceTypes.ExternalSoundFileShroeder
-
+                Throw New NotImplementedException
         End Select
-
-        Select Case MaskerSourceType
-            Case MaskerSourceTypes.ExternalSoundFilesBestMatch
-
-            Case MaskerSourceTypes.SpeechMaterial
-
-            Case MaskerSourceTypes.RandomNoise
-
-            Case MaskerSourceTypes.ExternalSoundFileShroeder
-
-        End Select
-
 
         'Settings options that are fixed but could possibly be made available to the calling code
         Dim PerformInitialCorrelation As Boolean = True
@@ -1759,7 +1747,7 @@ Public Class MediaSet
             Dim SummaryComponent = SummaryComponentTuple.Item1
             Dim ConcatSoundsSound As Audio.Sound = SummaryComponentTuple.Item2
 
-            'Getting the longest sibling
+            'Getting the longest component to mask
             Dim MaskingRegionDuration As Double
             If MaskerCoverageLevel IsNot Nothing Then
 

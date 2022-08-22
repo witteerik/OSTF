@@ -349,7 +349,7 @@ Namespace Audio
 
                 'Filtering the TempSound 
                 If Frequencyweighting <> FrequencyWeightings.Z Then
-                    TempSound = DSP.IIRFilter(TempSound, Frequencyweighting, Channel)
+                    TempSound = DSP.IIRFilter(TempSound, Frequencyweighting, 1)
                     If TempSound Is Nothing Then
                         Throw New Exception("Something went wrong during IIR-filterring")
                         Return Nothing 'Aborting and returning Nothing if something went wrong here
