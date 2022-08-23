@@ -94,7 +94,6 @@
     <Compile Include="AudioProcessing\PortAudioVB.vb" />
     <Compile Include="AudioProcessing\SMA1.0.vb" />
     <Compile Include="AudioProcessing\SMA1.1.vb" />
-    <Compile Include="Class1.vb" />
     <Compile Include="IPA\IPA.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
@@ -113,6 +112,8 @@
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
     <Compile Include="TestSupport\TestSpecification.vb" />
+    <Compile Include="Tests\SipTest\PDL.vb" />
+    <Compile Include="Tests\SipTest\SipTest.vb" />
     <Compile Include="WinFormControls\LoadOstaMediaSetControl.Designer.vb">
       <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>
     </Compile>

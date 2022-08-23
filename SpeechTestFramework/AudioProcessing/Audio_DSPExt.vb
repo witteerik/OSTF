@@ -8657,6 +8657,15 @@ Namespace Audio
 
         End Module
 
+        Public Module PsychoAcoustics
+            Public Structure SiiCriticalBands
+                Public Shared CentreFrequencies As Double() = {150, 250, 350, 450, 570, 700, 840, 1000, 1170, 1370, 1600, 1850, 2150, 2500, 2900, 3400, 4000, 4800, 5800, 7000, 8500}
+                Public Shared LowerCutoffFrequencies As Double() = {100, 200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000, 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700}
+                Public Shared UpperCutoffFrequencies As Double() = {200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000, 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700, 9500}
+            End Structure
+
+        End Module
+
 
         Public Class BandBank
             Inherits List(Of BandInfo)
@@ -8701,27 +8710,34 @@ Namespace Audio
                 Dim OutputBankBank As New BandBank
 
                 'Adding critical band specifications
-                OutputBankBank.Add(New BandInfo(150, 100, 200))
-                OutputBankBank.Add(New BandInfo(250, 200, 300))
-                OutputBankBank.Add(New BandInfo(350, 300, 400))
-                OutputBankBank.Add(New BandInfo(450, 400, 510))
-                OutputBankBank.Add(New BandInfo(570, 510, 630))
-                OutputBankBank.Add(New BandInfo(700, 630, 770))
-                OutputBankBank.Add(New BandInfo(840, 770, 920))
-                OutputBankBank.Add(New BandInfo(1000, 920, 1080))
-                OutputBankBank.Add(New BandInfo(1170, 1080, 1270))
-                OutputBankBank.Add(New BandInfo(1370, 1270, 1480))
-                OutputBankBank.Add(New BandInfo(1600, 1480, 1720))
-                OutputBankBank.Add(New BandInfo(1850, 1720, 2000))
-                OutputBankBank.Add(New BandInfo(2150, 2000, 2320))
-                OutputBankBank.Add(New BandInfo(2500, 2320, 2700))
-                OutputBankBank.Add(New BandInfo(2900, 2700, 3150))
-                OutputBankBank.Add(New BandInfo(3400, 3150, 3700))
-                OutputBankBank.Add(New BandInfo(4000, 3700, 4400))
-                OutputBankBank.Add(New BandInfo(4800, 4400, 5300))
-                OutputBankBank.Add(New BandInfo(5800, 5300, 6400))
-                OutputBankBank.Add(New BandInfo(7000, 6400, 7700))
-                OutputBankBank.Add(New BandInfo(8500, 7700, 9500))
+                For n = 0 To PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+                    OutputBankBank.Add(New BandInfo(PsychoAcoustics.SiiCriticalBands.CentreFrequencies(n),
+                                                    PsychoAcoustics.SiiCriticalBands.LowerCutoffFrequencies(n),
+                                                    PsychoAcoustics.SiiCriticalBands.UpperCutoffFrequencies(n)))
+                Next
+
+                ''Adding critical band specifications
+                'OutputBankBank.Add(New BandInfo(150, 100, 200))
+                'OutputBankBank.Add(New BandInfo(250, 200, 300))
+                'OutputBankBank.Add(New BandInfo(350, 300, 400))
+                'OutputBankBank.Add(New BandInfo(450, 400, 510))
+                'OutputBankBank.Add(New BandInfo(570, 510, 630))
+                'OutputBankBank.Add(New BandInfo(700, 630, 770))
+                'OutputBankBank.Add(New BandInfo(840, 770, 920))
+                'OutputBankBank.Add(New BandInfo(1000, 920, 1080))
+                'OutputBankBank.Add(New BandInfo(1170, 1080, 1270))
+                'OutputBankBank.Add(New BandInfo(1370, 1270, 1480))
+                'OutputBankBank.Add(New BandInfo(1600, 1480, 1720))
+                'OutputBankBank.Add(New BandInfo(1850, 1720, 2000))
+                'OutputBankBank.Add(New BandInfo(2150, 2000, 2320))
+                'OutputBankBank.Add(New BandInfo(2500, 2320, 2700))
+                'OutputBankBank.Add(New BandInfo(2900, 2700, 3150))
+                'OutputBankBank.Add(New BandInfo(3400, 3150, 3700))
+                'OutputBankBank.Add(New BandInfo(4000, 3700, 4400))
+                'OutputBankBank.Add(New BandInfo(4800, 4400, 5300))
+                'OutputBankBank.Add(New BandInfo(5800, 5300, 6400))
+                'OutputBankBank.Add(New BandInfo(7000, 6400, 7700))
+                'OutputBankBank.Add(New BandInfo(8500, 7700, 9500))
 
                 Return OutputBankBank
 

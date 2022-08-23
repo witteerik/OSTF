@@ -139,12 +139,14 @@
 
         TalkerAge_IntegerParsingTextBox.Text = SelectedMediaSet.TalkerAge
         SoundFileLevelComboBox.Text = SelectedMediaSet.AudioFileLinguisticLevel.ToString
+        SharedMaskersLevelComboBox.Text = SelectedMediaSet.SharedMaskersLevel.ToString
         TalkerDialect_TextBox.Text = SelectedMediaSet.TalkerDialect
         VoiceType_TextBox.Text = SelectedMediaSet.VoiceType
         MediaAudioItems_IntegerParsingTextBox.Text = SelectedMediaSet.MediaAudioItems
         MaskerAudioItems_IntegerParsingTextBox.Text = SelectedMediaSet.MaskerAudioItems
         MediaImageItems_IntegerParsingTextBox.Text = SelectedMediaSet.MediaImageItems
         MaskerImageItems_IntegerParsingTextBox.Text = SelectedMediaSet.MaskerImageItems
+        CustomVariablesFolder_TextBox.Text = SelectedMediaSet.CustomVariablesFolder
         MediaParentFolder_TextBox.Text = SelectedMediaSet.MediaParentFolder
         MaskerParentFolder_TextBox.Text = SelectedMediaSet.MaskerParentFolder
         BackgroundNonspeechParentFolder_TextBox.Text = SelectedMediaSet.BackgroundNonspeechParentFolder
@@ -199,6 +201,14 @@
             Exit Sub
         End If
 
+        If SharedMaskersLevelComboBox.SelectedItem IsNot Nothing Then
+            TempMediaSet.SharedMaskersLevel = [Enum].Parse(GetType(SpeechMaterialComponent.LinguisticLevels), SharedMaskersLevelComboBox.SelectedItem.ToString)
+        Else
+            MsgBox("You must select a value for 'Linguistic level on which to share maskers sound files'.", MsgBoxStyle.Information, "Checking input data")
+            Exit Sub
+        End If
+
+
         If MediaAudioItems_IntegerParsingTextBox.Value IsNot Nothing Then
             TempMediaSet.MediaAudioItems = MediaAudioItems_IntegerParsingTextBox.Value
         Else
@@ -224,6 +234,12 @@
             TempMediaSet.MaskerImageItems = MaskerImageItems_IntegerParsingTextBox.Value
         Else
             MsgBox("Supply a value for number of duplicate image maskers")
+            Exit Sub
+        End If
+
+        TempMediaSet.CustomVariablesFolder = CustomVariablesFolder_TextBox.Text.Trim
+        If TempMediaSet.CustomVariablesFolder = "" Then
+            MsgBox("You must supply a subfolder for custom media set variable files")
             Exit Sub
         End If
 
@@ -431,9 +447,20 @@
 
         'Creating SiP-test type masker sounds
         SelectedMediaSet.CreateNewTestSituationMaskers(MediaSet.MaskerSourceTypes.ExternalSoundFilesBestMatch,
-                                                        SpeechMaterialComponent.LinguisticLevels.List,
                                                         SpeechMaterialComponent.LinguisticLevels.Sentence,
                                                           SpeechMaterialComponent.LinguisticLevels.Word, True, , False,,,,, 3,, 1, 10)
+
+    End Sub
+
+    Private Sub CalculateSipTestMaskerSpectrumLevels_Button_Click(sender As Object, e As EventArgs) Handles CalculateSipTestMaskerSpectrumLevels_Button.Click
+
+        SelectedMediaSet.CalculateMaskerSpectrumLevels()
+
+    End Sub
+
+    Private Sub TempButton_Click(sender As Object, e As EventArgs) Handles TempButton.Click
+
+        'SelectedMediaSet.TemporaryFunction_RenameMaskerFolder()
 
     End Sub
 End Class

@@ -170,14 +170,13 @@ Public Class SpeechMaterialComponent
     ''' <returns></returns>
     Public Function GetMediaFolderName() As String
 
-        If LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.ListCollection Then
-            Throw New ArgumentException("The linguistic level " & SpeechMaterialComponent.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterialComponent.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
-        End If
+        'If LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.ListCollection Then
+        '    Throw New ArgumentException("The linguistic level " & SpeechMaterialComponent.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterialComponent.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
+        'End If
 
         Return Id & "_" & PrimaryStringRepresentation.Replace(" ", "_")
 
     End Function
-
 
 
     Private Randomizer As Random
@@ -541,6 +540,30 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    Public Function GetMaskerPath(ByRef MediaSet As MediaSet, ByVal Index As Integer, Optional ByVal SearchAncestors As Boolean = True) As String
+
+        If MediaSet.MaskerAudioItems = 0 And SearchAncestors = True Then
+
+            If ParentComponent IsNot Nothing Then
+                Return ParentComponent.GetMaskerPath(MediaSet, Index, SearchAncestors)
+            Else
+                Return ""
+            End If
+
+        Else
+
+            If Index > MediaSet.MaskerAudioItems - 1 Then
+                Throw New ArgumentException("Requested (zero-based) sound index (" & Index & " ) is higher than the number of available masker sound recordings of the current speech material component (" & Me.PrimaryStringRepresentation & ").")
+            End If
+
+            Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+            Dim FullMaskerFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.MaskerParentFolder, GetMediaFolderName)
+
+            Return GetAvailableFiles(FullMaskerFolderPath, MediaTypes.Audio)(Index)
+
+        End If
+
+    End Function
 
     Public Function GetSoundPath(ByRef MediaSet As MediaSet, ByVal Index As Integer, Optional ByVal SearchAncestors As Boolean = True) As String
 
@@ -569,7 +592,7 @@ Public Class SpeechMaterialComponent
     End Function
 
 
-    Public Function GetSoundFile(ByVal Path) As Audio.Sound
+    Public Function GetSoundFile(ByVal Path As String) As Audio.Sound
 
         Select Case AudioFileLoadMode
             Case MediaFileLoadModes.LoadEveryTime
@@ -902,7 +925,7 @@ Public Class SpeechMaterialComponent
     ''' </summary>
     ''' <param name="VariableName"></param>
     ''' <param name="Value"></param>
-    Public Sub SetNumericMediaSetVariableValue(ByRef MediaSet As MediaSet, ByVal VariableName As String, ByVal Value As String)
+    Public Sub SetNumericMediaSetVariableValue(ByRef MediaSet As MediaSet, ByVal VariableName As String, ByVal Value As Double)
 
         If MediaSet.NumericVariables.Keys.Contains(Me.Id) = False Then
             MediaSet.NumericVariables.Add(Me.Id, New SortedList(Of String, Double))
@@ -922,7 +945,7 @@ Public Class SpeechMaterialComponent
     ''' </summary>
     ''' <param name="VariableName"></param>
     ''' <param name="Value"></param>
-    Public Sub SetCategoricalMediaSetVariableValue(ByRef MediaSet As MediaSet, ByVal VariableName As String, ByVal Value As Double)
+    Public Sub SetCategoricalMediaSetVariableValue(ByRef MediaSet As MediaSet, ByVal VariableName As String, ByVal Value As String)
 
         If MediaSet.CategoricalVariables.Keys.Contains(Me.Id) = False Then
             MediaSet.CategoricalVariables.Add(Me.Id, New SortedList(Of String, String))

@@ -7,7 +7,7 @@ End Class
 Public Class MediaSet
 
     'Public Const DefaultMediaFolderName As String = "Media"
-    Public Const DefaultVariablesSubFolderName As String = "Variables"
+    'Public Const DefaultVariablesSubFolderName As String = "Variables"
 
     Public ParentTestSpecification As TestSpecification
 
@@ -31,10 +31,19 @@ Public Class MediaSet
     'OstaRootPath + MediaSet.MaskerParentFolder + SpeechMaterialComponent.MaskerFolder
     'As well as to determine the number of recordings to create for a speech test if the inbuilt recording and segmentation tool is used.
     Public Property AudioFileLinguisticLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
+
+    ''' <summary>
+    ''' The linguistic level at which masker sound files is to be shared.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property SharedMaskersLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
+
     Public Property MediaAudioItems As Integer = 5
     Public Property MaskerAudioItems As Integer = 5
     Public Property MediaImageItems As Integer = 0
     Public Property MaskerImageItems As Integer = 0
+
+    Public Property CustomVariablesFolder As String = ""
 
     Public Property MediaParentFolder As String = ""
     Public Property MaskerParentFolder As String = ""
@@ -103,10 +112,12 @@ Public Class MediaSet
         OutputList.Add("TalkerDialect = " & TalkerDialect)
         OutputList.Add("VoiceType = " & VoiceType)
         OutputList.Add("AudioFileLinguisticLevel = " & AudioFileLinguisticLevel.ToString)
+        OutputList.Add("SharedMaskersLevel = " & SharedMaskersLevel.ToString)
         OutputList.Add("MediaAudioItems = " & MediaAudioItems)
         OutputList.Add("MaskerAudioItems = " & MaskerAudioItems)
         OutputList.Add("MediaImageItems = " & MediaImageItems)
         OutputList.Add("MaskerImageItems = " & MaskerImageItems)
+        OutputList.Add("CustomVariablesFolder = " & CustomVariablesFolder)
         OutputList.Add("MediaParentFolder = " & MediaParentFolder)
         OutputList.Add("MaskerParentFolder = " & MaskerParentFolder)
         OutputList.Add("BackgroundNonspeechParentFolder = " & BackgroundNonspeechParentFolder)
@@ -127,7 +138,7 @@ Public Class MediaSet
     End Sub
 
     Public Function GetCustomVariablesDirectory()
-        Return IO.Path.Combine(Me.MediaParentFolder, MediaSet.DefaultVariablesSubFolderName)
+        Return IO.Path.Combine(Me.CustomVariablesFolder)
     End Function
 
 
@@ -143,7 +154,7 @@ Public Class MediaSet
         Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
         If res = MsgBoxResult.Yes Then
 
-            OutputDirectory = GetCustomVariablesDirectory()
+            OutputDirectory = IO.Path.Combine(ParentTestSpecification.GetTestRootPath, GetCustomVariablesDirectory())
 
         Else
 
@@ -169,6 +180,27 @@ Public Class MediaSet
 
             Dim Components = ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(ComponentLevel)
 
+            Dim CategoricalHeadings As New SortedSet(Of String)
+            Dim AddId As Boolean = False
+            For Each Component In Components
+                Dim Headings = Component.GetCategoricalMediaSetVariableNames(Me)
+                'Adds the Id as a categorical variable only if it has not previously been added
+                If Headings.Count = 0 Then
+                    Headings.Add("Id")
+                    AddId = True
+                End If
+                For Each Heading In Headings
+                    CategoricalHeadings.Add(Heading)
+                Next
+            Next
+
+            'Adds the Id as a custom categorical variable if not already present
+            If AddId = True Then
+                For Each Component In Components
+                    Component.SetCategoricalMediaSetVariableValue(Me, "Id", Component.Id)
+                Next
+            End If
+
             Dim NumericHeadings As New SortedSet(Of String)
             For Each Component In Components
                 Dim Headings = Component.GetNumericMediaSetVariableNames(Me)
@@ -177,26 +209,25 @@ Public Class MediaSet
                 Next
             Next
 
-            Dim CategoricalHeadings As New SortedSet(Of String)
-            For Each Component In Components
-                Dim Headings = Component.GetCategoricalMediaSetVariableNames(Me)
-                For Each Heading In Headings
-                    CategoricalHeadings.Add(Heading)
-                Next
-            Next
-
             Dim OutputList As New List(Of String)
 
-            'Headings
-            OutputList.Add("Id" & vbTab & String.Join(vbTab, CategoricalHeadings) & vbTab & String.Join(vbTab, NumericHeadings))
-
-            'Variable types
-            OutputList.Add("C" & vbTab & String.Join(vbTab, Utils.Repeat("C", CategoricalHeadings.Count)) & vbTab & String.Join(vbTab, Utils.Repeat("N", NumericHeadings.Count)))
+            'Adding headings and types
+            If NumericHeadings.Count > 0 Then
+                'Headings
+                OutputList.Add(String.Join(vbTab, CategoricalHeadings) & vbTab & String.Join(vbTab, NumericHeadings))
+                'Variable types
+                OutputList.Add(String.Join(vbTab, Utils.Repeat("C", CategoricalHeadings.Count)) & vbTab & String.Join(vbTab, Utils.Repeat("N", NumericHeadings.Count)))
+            Else
+                'Only categorical headings (which should never be empty, as the Id is always added!)
+                'Headings
+                OutputList.Add(String.Join(vbTab, CategoricalHeadings))
+                'Variable types
+                OutputList.Add(String.Join(vbTab, Utils.Repeat("C", CategoricalHeadings.Count)))
+            End If
 
             'Data lines
             For Each Component In Components
                 Dim DataLine As New List(Of String)
-                DataLine.Add(Component.Id)
                 For Each CategoricalHeading In CategoricalHeadings
                     DataLine.Add(Component.GetCategoricalMediaSetVariableValue(Me, CategoricalHeading))
                 Next
@@ -233,7 +264,7 @@ Public Class MediaSet
 
         For Each ComponentLevel In ComponentLevels
 
-            Dim FilePath = IO.Path.Combine(GetCustomVariablesDirectory(), SpeechMaterialComponent.GetDatabaseFileName(ComponentLevel))
+            Dim FilePath = IO.Path.Combine(ParentTestSpecification.GetTestRootPath, GetCustomVariablesDirectory(), SpeechMaterialComponent.GetDatabaseFileName(ComponentLevel))
 
             If IO.File.Exists(FilePath) = False Then
                 'TODO, this happens if no media set variables exist! Probably we should create these files (empty) when creating the mediaset specification??? Or something like it??
@@ -295,7 +326,7 @@ Public Class MediaSet
 
     End Sub
 
-    Public Shared Function LoadMediaSetSpecification(ByVal FilePath As String) As MediaSet
+    Public Shared Function LoadMediaSetSpecification(ByRef ParentTestSpecification As TestSpecification, ByVal FilePath As String) As MediaSet
 
         'Gets a file path from the user if none is supplied
         If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a media set specification .txt file.")
@@ -308,6 +339,8 @@ Public Class MediaSet
         Dim rnd As New Random
 
         Dim Output As New MediaSet
+
+        Output.ParentTestSpecification = ParentTestSpecification
 
         'Parses the input file
         Dim InputLines() As String = System.IO.File.ReadAllLines(FilePath, Text.Encoding.UTF8)
@@ -358,6 +391,16 @@ Public Class MediaSet
                 End If
             End If
 
+            If Line.StartsWith("SharedMaskersLevel") Then
+                Dim Value = InputFileSupport.InputFileEnumValueParsing(Line, GetType(SpeechMaterialComponent.LinguisticLevels), FilePath, True)
+                If Value.HasValue Then
+                    Output.SharedMaskersLevel = Value
+                Else
+                    MsgBox("Failed to read the SharedMaskersLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    Return Nothing
+                End If
+            End If
+
             If Line.StartsWith("MediaAudioItems") Then
                 Dim Value = InputFileSupport.InputFileIntegerValueParsing(Line, True, FilePath)
                 If Value.HasValue Then
@@ -397,6 +440,8 @@ Public Class MediaSet
                     Return Nothing
                 End If
             End If
+
+            If Line.StartsWith("CustomVariablesFolder") Then Output.CustomVariablesFolder = InputFileSupport.GetInputFileValue(Line, True)
 
             If Line.StartsWith("MediaParentFolder") Then Output.MediaParentFolder = InputFileSupport.GetInputFileValue(Line, True)
 
@@ -896,6 +941,26 @@ Public Class MediaSet
 
     End Sub
 
+    Public Sub TemporaryFunction_RenameMaskerFolder()
+
+        'Clears previously loaded sounds
+        Dim MaskerComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(Me.SharedMaskersLevel)
+
+        For Each MaskerComponent In MaskerComponents
+
+            Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+
+            Dim OldMaskerFolderPath = IO.Path.Combine(CurrentTestRootPath, MaskerParentFolder, MaskerComponent.PrimaryStringRepresentation)
+            Dim NewMaskerFolderPath = IO.Path.Combine(CurrentTestRootPath, MaskerParentFolder, MaskerComponent.GetMediaFolderName)
+
+            IO.Directory.Move(OldMaskerFolderPath, NewMaskerFolderPath)
+
+        Next
+
+        MsgBox("Folder renaming is completed.")
+
+    End Sub
+
 
     Public Function CreateRecordingWaveFormat() As Audio.Formats.WaveFormat
         Return New Audio.Formats.WaveFormat(Me.WaveFileSampleRate, Me.WaveFileBitDepth, 1,, Me.WaveFileEncoding)
@@ -1270,7 +1335,8 @@ Public Class MediaSet
                                                             Optional ByVal MinimumComponentDuration As Double = 0,
                                                             Optional ByVal ComponentCrossFadeDuration As Double = 0.001,
                                                             Optional ByVal FadeConcatenatedSound As Boolean = True,
-                                                            Optional ByVal RemoveDcComponent As Boolean = True)
+                                                            Optional ByVal RemoveDcComponent As Boolean = True,
+                                                            Optional ByVal VariableNamePrefix As String = "SLs")
 
         'Sets of some objects which are reused between the loops in the code below
         Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
@@ -1301,7 +1367,7 @@ Public Class MediaSet
             For b = 0 To SpectrumLevels.Count - 1
 
                 'Creates a variable name (How on earth is are calling functions going to figure out this name???) Perhaps better to use band 1,2,3... instead of centre frequencies?
-                Dim VariableName As String = "Lrcs_" & Math.Round(BandBank(b).CentreFrequency).ToString("00000")
+                Dim VariableName As String = VariableNamePrefix & "_" & Math.Round(BandBank(b).CentreFrequency).ToString("00000")
 
                 SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, SpectrumLevels(b))
 
@@ -1327,12 +1393,128 @@ Public Class MediaSet
 
     End Sub
 
+
+    ''' <summary>
+    ''' Calculates (SII critical bands) spectrum levels of the sound recordings of maskers ... .
+    ''' </summary>
+    ''' <param name="SoundChannel">The audio / wave file channel in which the speech is recorded (channel 1, for mono sounds).</param>
+    ''' <param name="MaskerCrossFadeDuration">A duration by which the masker sound sections for concatenations will be cross-faded prior to spectrum level calculations.</param>
+    ''' <param name="FadeConcatenatedSound">If set to true, the concatenated sounds will be slightly faded initially and finally (in order to avoid impulse-like onsets and offsets) prior to spectrum level calculations.</param>
+    ''' <param name="RemoveDcComponent">If set to true, the DC component of the concatenated sounds will be set to zero prior to spectrum level calculations.</param>
+    Public Sub CalculateMaskerSpectrumLevels(Optional ByVal SoundChannel As Integer = 1,
+                                             Optional ByVal MaskerCrossFadeDuration As Double = 0.001,
+                                             Optional ByVal FadeConcatenatedSound As Boolean = True,
+                                             Optional ByVal RemoveDcComponent As Boolean = True,
+                                             Optional ByVal VariableNamePrefix As String = "SLm",
+                                             Optional ByVal AdjustToMaxLevelOfContrastingComponents As Boolean = True,
+                                             Optional ByVal ContrastingComponentRefMaxLevel_VariableName As String = "RLxs")
+
+        Dim SmaHighjackedSentenceIndex As Integer = 0
+
+        'Sets of some objects which are reused between the loops in the code below
+        Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+        Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
+        Dim dBSPL_FSdifference As Double? = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+
+        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+        'And these are only used to be able to export the values used
+        Dim ActualLowerLimitFrequencyList As List(Of Double) = Nothing
+        Dim ActualUpperLimitFrequencyList As List(Of Double) = Nothing
+
+        'Clears previously loaded sounds
+        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(Me.SharedMaskersLevel)
+
+        For Each SummaryComponent In SummaryComponents
+
+            Dim MaskerList As New List(Of Audio.Sound)
+            For m = 0 To Me.MaskerAudioItems - 1
+                Dim MaskerPath = SummaryComponent.GetMaskerPath(Me, m, False)
+
+                Dim LoadedMasker = Audio.Sound.LoadWaveFile(MaskerPath)
+
+                'Stores the wave format
+                If WaveFormat Is Nothing Then WaveFormat = LoadedMasker.WaveFormat
+
+                'Getting the central masking region, encoded as sentence: SmaHighjackedSentenceIndex, word: 1 (i.e. the second word)
+                Dim CentralMaskerRegion = LoadedMasker.SMA.ChannelData(SoundChannel)(SmaHighjackedSentenceIndex)(1).GetSoundFileSection(SoundChannel)
+                MaskerList.Add(CentralMaskerRegion)
+
+            Next
+
+            If AdjustToMaxLevelOfContrastingComponents = True Then
+                'New 2020-12-30
+                'Getting the contrasting phonemes level (RLxs)
+                'Dim ContrastedPhonemesLevel_FS = SoundLibrary.GetAverageTestPhonemeMaxLevel_FS(TestWordList, SpeakerId)
+                Dim ContrastedPhonemesLevel_FS = SummaryComponent.GetNumericMediaSetVariableValue(Me, ContrastingComponentRefMaxLevel_VariableName)
+                If ContrastedPhonemesLevel_FS Is Nothing Then
+                    MsgBox("Missing value for the numeric media set variable ")
+                    Exit Sub
+                End If
+
+                'Setting each masker to the ContrastedPhonemesLevel_FS
+                For n = 0 To MaskerList.Count - 1
+                    Audio.DSP.MeasureAndAdjustSectionLevel(MaskerList(n), ContrastedPhonemesLevel_FS, 1)
+                Next
+                'End new 2020-12-30
+            End If
+
+
+            'Getting concatenated sounds
+            Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(MaskerList, False,,,,, MaskerCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
+
+            'Fading very slightly to avoid initial and final impulses
+            If FadeConcatenatedSound = True Then
+                Audio.DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, Audio.DSP.FadeSlopeType.Linear)
+                Audio.DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, Audio.DSP.FadeSlopeType.Linear)
+            End If
+
+            'Removing DC-component
+            If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(ConcatenatedSound)
+
+            'Calculates spectrum levels
+            Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatenatedSound, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
+
+            'Stores the value as a custom media set variable
+            For b = 0 To SpectrumLevels.Count - 1
+
+                'Creates a variable name (How on earth is are calling functions going to figure out this name???) Perhaps better to use band 1,2,3... instead of centre frequencies?
+                Dim VariableName As String = VariableNamePrefix & "_" & Math.Round(BandBank(b).CentreFrequency).ToString("00000")
+
+                SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, SpectrumLevels(b))
+
+            Next
+        Next
+
+        'Finally writes the results to file
+        Dim OutputDirectory = Me.WriteCustomVariables()
+
+        'Send info about calculation to log (only if WriteCustomVariables returned an output folder)
+        If OutputDirectory <> "" Then
+            Dim LogList As New List(Of String)
+            LogList.Add("Method name: " & System.Reflection.MethodInfo.GetCurrentMethod.Name)
+            LogList.Add("dBSPL to  FS difference used :" & dBSPL_FSdifference.ToString)
+            LogList.Add("Filter specifications (Critical bands based on the SII standard):")
+            LogList.Add(String.Join(vbTab, New List(Of String) From {"Band", "CentreFrequency", "LowerFrequencyLimit", "UpperFrequencyLimit", "Bandwidth", "ActualLowerLimitFrequency", "ActualUpperLimitFrequency"}))
+            For b = 0 To BandBank.Count - 1
+                LogList.Add(String.Join(vbTab, New List(Of String) From {CDbl((b + 1)), BandBank(b).CentreFrequency, BandBank(b).LowerFrequencyLimit, BandBank(b).UpperFrequencyLimit, BandBank(b).Bandwidth, ActualLowerLimitFrequencyList(b), ActualUpperLimitFrequencyList(b)}))
+            Next
+            Utils.SendInfoToLog(String.Join(vbCrLf, LogList), "Log_for_function_" & System.Reflection.MethodInfo.GetCurrentMethod.Name, OutputDirectory, False)
+        End If
+
+
+    End Sub
+
+
     Public Sub CalculateAverageMaxLevelOfContrastingComponents(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
                                                                ByVal ContrastLevel As SpeechMaterialComponent.LinguisticLevels,
                                                                ByVal SoundChannel As Integer,
                                                                ByVal SkipPractiseComponents As Boolean,
                                                                Optional ByVal IntegrationTime As Double = 0.05,
-                                                               Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z)
+                                                               Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
+                                                               Optional ByVal VariableName As String = "RLxs")
 
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
@@ -1418,7 +1600,6 @@ Public Class MediaSet
             End If
 
             'Stores the value as a custom media set variable
-            Dim VariableName As String = "Lrmc"
             SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, AverageLevel)
 
         Next
@@ -1440,7 +1621,6 @@ Public Class MediaSet
     ''' <summary>
     ''' Creates masker sound files for a new testing situation.
     ''' </summary>
-    ''' <param name="SummaryLevel">The linguistic level at which the spectra of the resulting masker sounds is to be shared.</param>
     ''' <param name="SegmentsLevel">The linguistic level from which segments that form the spectrum templates for the new masker sounds are taken.</param>
     ''' <param name="MaskerCoverageLevel">The linguistic level on which the masker sounds should be used. This is only used to set the duration of the central / masking region of the output sound files. 
     ''' If left to Nothing the parameter MaskerSoundDuration, instead, determines the duration of the central / masking regions of the output sound files.</param>
@@ -1458,7 +1638,6 @@ Public Class MediaSet
     ''' <param name="ExtraSoundCount">The number of extra masker sounds that will be created and exported (to the log folder) for each summary level component. These can be used if some of the ordinary output sounds need to be replaced</param>
     ''' <param name="OutputLevel_FS">The average (unweighted) RMS sound level (in dB FS) in each each resulting masker sound.</param>
     Public Sub CreateNewTestSituationMaskers(ByVal MaskerSourceType As MaskerSourceTypes,
-                                            Optional ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List,
                                              Optional ByVal SegmentsLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.Phoneme,
                                              Optional ByVal MaskerCoverageLevel As Nullable(Of SpeechMaterialComponent.LinguisticLevels) = Nothing,
                                              Optional ByVal OnlyContrastingSegments As Boolean = True,
@@ -1476,7 +1655,7 @@ Public Class MediaSet
 
         Dim SmaHighjackedSentenceIndex As Integer = 0
 
-        If SegmentsLevel < SummaryLevel Then
+        If SegmentsLevel < Me.SharedMaskersLevel Then
             MsgBox("Function " & System.Reflection.MethodInfo.GetCurrentMethod.Name & " says: SummaryLevel must be a linguistically more detailed level than SegmentsLevel.")
             Exit Sub
         End If
@@ -1717,7 +1896,7 @@ Public Class MediaSet
 
 
         ' Section II - speech recordings
-        Dim SummaryLevelComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllDescenentsAtLevel(SummaryLevel, True)
+        Dim SummaryLevelComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllDescenentsAtLevel(Me.SharedMaskersLevel, True)
 
         'Getting a concatenation of the sound segments to match (e.g test phonemes in a minimal variation group)
         Dim MasterConcatList As New List(Of Tuple(Of SpeechMaterialComponent, Audio.Sound))
@@ -2113,7 +2292,7 @@ Public Class MediaSet
 
         For Each SummaryComponentKvp In MasterSoundData
 
-            Dim SummaryComponentString As String = SummaryComponentKvp.Key & "_" & SummaryComponentKvp.Value.Item1.PrimaryStringRepresentation
+            Dim SummaryComponentString As String = SummaryComponentKvp.Key & "_" & SummaryComponentKvp.Value.Item1.GetMediaFolderName
 
             If SummaryComponentKvp.Value.Item3.Count = 0 Then
                 MsgBox("Unable to create noise for speech material component: " & SummaryComponentString & vbCrLf &
