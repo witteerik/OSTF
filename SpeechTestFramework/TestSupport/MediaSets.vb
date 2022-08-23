@@ -1609,6 +1609,63 @@ Public Class MediaSet
 
     End Sub
 
+
+    Public Sub CalculateAverageComponentLevel(ByVal TargetComponentsLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                               ByVal SoundChannel As Integer,
+                                                               Optional ByVal IntegrationTime As Double = 0,
+                                                               Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
+                                                               Optional ByVal VariableName As String = "Lc")
+
+
+        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+        'Clears previously loaded sounds
+        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLevel)
+
+        For Each SummaryComponent In SummaryComponents
+
+            'Get the SMA components representing the sound sections of all target components
+            Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+            For i = 0 To MediaAudioItems - 1
+                CurrentSmaComponentList.AddRange(SummaryComponent.GetCorrespondingSmaComponent(Me, i, SoundChannel))
+            Next
+
+            'Skipping to next Summary component if no
+            If CurrentSmaComponentList.Count = 0 Then Continue For
+
+            'Getting the actual sound sections and measures their levels
+            Dim SoundLevelList As New List(Of Double)
+            For Each SmaComponent In CurrentSmaComponentList
+
+                Dim CurrentSoundSection = (SmaComponent.GetSoundFileSection(SoundChannel))
+
+                'Getting the WaveFormat from the first available sound
+                If WaveFormat Is Nothing Then WaveFormat = CurrentSoundSection.WaveFormat
+
+                If IntegrationTime = 0 Then
+                    SoundLevelList.Add(Audio.DSP.MeasureSectionLevel(CurrentSoundSection, 1, ,,,, FrequencyWeighting))
+                Else
+                    SoundLevelList.Add(Audio.DSP.GetLevelOfLoudestWindow(CurrentSoundSection, 1, CurrentSoundSection.WaveFormat.SampleRate * IntegrationTime,,,, FrequencyWeighting, True))
+                End If
+
+            Next
+
+            'Storing the average level
+            Dim AverageLevel As Double = SoundLevelList.Average
+
+            'Stores the value as a custom media set variable
+            SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, AverageLevel)
+
+        Next
+
+        'Finally writes the results to file
+        Me.WriteCustomVariables()
+
+    End Sub
+
+
     Public Enum MaskerSourceTypes
         RandomNoise
         SpeechMaterial

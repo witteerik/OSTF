@@ -112,8 +112,18 @@
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
     <Compile Include="TestSupport\TestSpecification.vb" />
+    <Compile Include="Tests\SipTest\IModuleBackend.vb" />
+    <Compile Include="Tests\SipTest\ISipGui.vb" />
+    <Compile Include="Tests\SipTest\ModuleBackend.vb" />
+    <Compile Include="Tests\SipTest\Patient.vb" />
     <Compile Include="Tests\SipTest\PDL.vb" />
     <Compile Include="Tests\SipTest\SipTest.vb" />
+    <Compile Include="Tests\SipTest\SipTestGui.designer.vb">
+      <DependentUpon>SipTestGui.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Tests\SipTest\SipTestGui.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WinFormControls\LoadOstaMediaSetControl.Designer.vb">
       <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>
     </Compile>
@@ -266,6 +276,9 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Tests\SipTest\SipTestGui.resx">
+      <DependentUpon>SipTestGui.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\LoadOstaMediaSetControl.resx">
       <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>
     </EmbeddedResource>
@@ -328,6 +341,15 @@
     <Content Include="portaudio_x86.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\TrialNotPresentedImage.bmp" />
+    <None Include="Resources\StopImage.png" />
+    <None Include="Resources\StopDisabledImage.png" />
+    <None Include="Resources\PlayImage.png" />
+    <None Include="Resources\PlayDisabledImage.png" />
+    <None Include="Resources\PauseImage.png" />
+    <None Include="Resources\PauseDisabledImage.png" />
+    <None Include="Resources\IncorrectResponseImage.bmp" />
+    <None Include="Resources\CorrectResponseImage.bmp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />

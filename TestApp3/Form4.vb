@@ -209,4 +209,11 @@
         MsgBox("Now loading file:" & FileToLoad)
 
     End Sub
+
+    Private Sub SiP_Button_Click(sender As Object, e As EventArgs) Handles SiP_Button.Click
+
+        Dim SipTest = New SpeechTestFramework.SipTestGui
+        SipTest.Show()
+
+    End Sub
 End Class
