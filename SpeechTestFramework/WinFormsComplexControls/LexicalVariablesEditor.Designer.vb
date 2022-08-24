@@ -28,6 +28,10 @@ Partial Class LexicalVariablesEditor
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
         Me.Variables_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.AddAndSave_Button = New System.Windows.Forms.Button()
+        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.TableLayoutPanel6 = New System.Windows.Forms.TableLayoutPanel()
+        Me.HasVowelContrast_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.ContrastedPhonemeIndex_CheckBox = New System.Windows.Forms.CheckBox()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
         Me.MatchBoth_RadioButton = New System.Windows.Forms.RadioButton()
@@ -47,14 +51,13 @@ Partial Class LexicalVariablesEditor
         Me.Label1 = New System.Windows.Forms.Label()
         Me.LoadedSpeechMaterialName_TextBox = New System.Windows.Forms.TextBox()
         Me.LoadOstaTestSpecificationControl1 = New SpeechTestFramework.LoadOstaTestSpecificationControl()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.TableLayoutPanel6 = New System.Windows.Forms.TableLayoutPanel()
-        Me.HasVowelContrast_CheckBox = New System.Windows.Forms.CheckBox()
-        Me.ContrastedPhonemeIndex_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.IgnoreZeroPhonemesCheckBox = New System.Windows.Forms.CheckBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.ProcessingGroupBox.SuspendLayout()
         Me.TableLayoutPanel4.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
+        Me.GroupBox1.SuspendLayout()
+        Me.TableLayoutPanel6.SuspendLayout()
         Me.GroupBox4.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
         Me.LoadDatabase_GroupBox.SuspendLayout()
@@ -62,8 +65,6 @@ Partial Class LexicalVariablesEditor
         Me.GroupBox3.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
-        Me.GroupBox1.SuspendLayout()
-        Me.TableLayoutPanel6.SuspendLayout()
         Me.SuspendLayout()
         '
         'TableLayoutPanel1
@@ -82,7 +83,7 @@ Partial Class LexicalVariablesEditor
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 3
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 107.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 43.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 79.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
@@ -94,9 +95,9 @@ Partial Class LexicalVariablesEditor
         Me.TableLayoutPanel1.SetColumnSpan(Me.ProcessingGroupBox, 3)
         Me.ProcessingGroupBox.Controls.Add(Me.TableLayoutPanel4)
         Me.ProcessingGroupBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ProcessingGroupBox.Location = New System.Drawing.Point(3, 153)
+        Me.ProcessingGroupBox.Location = New System.Drawing.Point(3, 189)
         Me.ProcessingGroupBox.Name = "ProcessingGroupBox"
-        Me.ProcessingGroupBox.Size = New System.Drawing.Size(874, 494)
+        Me.ProcessingGroupBox.Size = New System.Drawing.Size(874, 458)
         Me.ProcessingGroupBox.TabIndex = 7
         Me.ProcessingGroupBox.TabStop = False
         '
@@ -114,7 +115,7 @@ Partial Class LexicalVariablesEditor
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
-        Me.TableLayoutPanel4.Size = New System.Drawing.Size(868, 475)
+        Me.TableLayoutPanel4.Size = New System.Drawing.Size(868, 439)
         Me.TableLayoutPanel4.TabIndex = 0
         '
         'GroupBox5
@@ -123,7 +124,7 @@ Partial Class LexicalVariablesEditor
         Me.GroupBox5.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox5.Location = New System.Drawing.Point(3, 3)
         Me.GroupBox5.Name = "GroupBox5"
-        Me.GroupBox5.Size = New System.Drawing.Size(862, 329)
+        Me.GroupBox5.Size = New System.Drawing.Size(862, 293)
         Me.GroupBox5.TabIndex = 6
         Me.GroupBox5.TabStop = False
         Me.GroupBox5.Text = "Select lexical variables to add"
@@ -138,18 +139,70 @@ Partial Class LexicalVariablesEditor
         Me.Variables_TableLayoutPanel.Name = "Variables_TableLayoutPanel"
         Me.Variables_TableLayoutPanel.RowCount = 1
         Me.Variables_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.Variables_TableLayoutPanel.Size = New System.Drawing.Size(856, 310)
+        Me.Variables_TableLayoutPanel.Size = New System.Drawing.Size(856, 274)
         Me.Variables_TableLayoutPanel.TabIndex = 0
         '
         'AddAndSave_Button
         '
         Me.AddAndSave_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.AddAndSave_Button.Location = New System.Drawing.Point(3, 438)
+        Me.AddAndSave_Button.Location = New System.Drawing.Point(3, 402)
         Me.AddAndSave_Button.Name = "AddAndSave_Button"
         Me.AddAndSave_Button.Size = New System.Drawing.Size(862, 34)
         Me.AddAndSave_Button.TabIndex = 7
         Me.AddAndSave_Button.Text = "Add lexical data and save to files"
         Me.AddAndSave_Button.UseVisualStyleBackColor = True
+        '
+        'GroupBox1
+        '
+        Me.GroupBox1.Controls.Add(Me.TableLayoutPanel6)
+        Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.GroupBox1.Location = New System.Drawing.Point(3, 302)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(862, 94)
+        Me.GroupBox1.TabIndex = 8
+        Me.GroupBox1.TabStop = False
+        Me.GroupBox1.Text = "Add logically derived variables"
+        '
+        'TableLayoutPanel6
+        '
+        Me.TableLayoutPanel6.ColumnCount = 1
+        Me.TableLayoutPanel6.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel6.Controls.Add(Me.HasVowelContrast_CheckBox, 0, 0)
+        Me.TableLayoutPanel6.Controls.Add(Me.ContrastedPhonemeIndex_CheckBox, 0, 1)
+        Me.TableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel6.Location = New System.Drawing.Point(3, 16)
+        Me.TableLayoutPanel6.Name = "TableLayoutPanel6"
+        Me.TableLayoutPanel6.RowCount = 2
+        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel6.Size = New System.Drawing.Size(856, 75)
+        Me.TableLayoutPanel6.TabIndex = 0
+        '
+        'HasVowelContrast_CheckBox
+        '
+        Me.HasVowelContrast_CheckBox.AutoSize = True
+        Me.HasVowelContrast_CheckBox.Checked = True
+        Me.HasVowelContrast_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.HasVowelContrast_CheckBox.Location = New System.Drawing.Point(3, 3)
+        Me.HasVowelContrast_CheckBox.Name = "HasVowelContrast_CheckBox"
+        Me.HasVowelContrast_CheckBox.Size = New System.Drawing.Size(537, 17)
+        Me.HasVowelContrast_CheckBox.TabIndex = 0
+        Me.HasVowelContrast_CheckBox.Text = "Create variable HasVowelContrast (For one word sentences containing minimal phone" &
+    "tic/phonemic variation)"
+        Me.HasVowelContrast_CheckBox.UseVisualStyleBackColor = True
+        '
+        'ContrastedPhonemeIndex_CheckBox
+        '
+        Me.ContrastedPhonemeIndex_CheckBox.AutoSize = True
+        Me.ContrastedPhonemeIndex_CheckBox.Checked = True
+        Me.ContrastedPhonemeIndex_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.ContrastedPhonemeIndex_CheckBox.Location = New System.Drawing.Point(3, 40)
+        Me.ContrastedPhonemeIndex_CheckBox.Name = "ContrastedPhonemeIndex_CheckBox"
+        Me.ContrastedPhonemeIndex_CheckBox.Size = New System.Drawing.Size(574, 17)
+        Me.ContrastedPhonemeIndex_CheckBox.TabIndex = 1
+        Me.ContrastedPhonemeIndex_CheckBox.Text = "Create variable ContrastingPhonemeIndex (For one word sentences containing minima" &
+    "l phonetic/phonemic variation)"
+        Me.ContrastedPhonemeIndex_CheckBox.UseVisualStyleBackColor = True
         '
         'GroupBox4
         '
@@ -218,7 +271,7 @@ Partial Class LexicalVariablesEditor
         Me.LoadDatabase_GroupBox.Location = New System.Drawing.Point(533, 3)
         Me.LoadDatabase_GroupBox.Name = "LoadDatabase_GroupBox"
         Me.TableLayoutPanel1.SetRowSpan(Me.LoadDatabase_GroupBox, 2)
-        Me.LoadDatabase_GroupBox.Size = New System.Drawing.Size(344, 144)
+        Me.LoadDatabase_GroupBox.Size = New System.Drawing.Size(344, 180)
         Me.LoadDatabase_GroupBox.TabIndex = 5
         Me.LoadDatabase_GroupBox.TabStop = False
         Me.LoadDatabase_GroupBox.Text = "Load a lexical database"
@@ -241,7 +294,7 @@ Partial Class LexicalVariablesEditor
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 63.0!))
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel2.Size = New System.Drawing.Size(338, 125)
+        Me.TableLayoutPanel2.Size = New System.Drawing.Size(338, 161)
         Me.TableLayoutPanel2.TabIndex = 0
         '
         'TranscriptionVariableNameTextBox
@@ -343,6 +396,9 @@ Partial Class LexicalVariablesEditor
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 71.62791!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.37209!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
@@ -373,17 +429,19 @@ Partial Class LexicalVariablesEditor
         Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.Size = New System.Drawing.Size(332, 57)
         Me.LoadDatabase_LoadFileControl.TabIndex = 6
         '
         'GroupBox3
         '
+        Me.GroupBox3.Controls.Add(Me.IgnoreZeroPhonemesCheckBox)
         Me.GroupBox3.Controls.Add(Me.CaseInvariantLookupCheckBox)
         Me.GroupBox3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox3.Location = New System.Drawing.Point(353, 110)
         Me.GroupBox3.Name = "GroupBox3"
         Me.GroupBox3.Padding = New System.Windows.Forms.Padding(3, 1, 3, 3)
-        Me.GroupBox3.Size = New System.Drawing.Size(174, 37)
+        Me.GroupBox3.Size = New System.Drawing.Size(174, 73)
         Me.GroupBox3.TabIndex = 5
         Me.GroupBox3.TabStop = False
         '
@@ -458,57 +516,15 @@ Partial Class LexicalVariablesEditor
         Me.LoadOstaTestSpecificationControl1.Size = New System.Drawing.Size(332, 54)
         Me.LoadOstaTestSpecificationControl1.TabIndex = 8
         '
-        'GroupBox1
+        'IgnoreZeroPhonemesCheckBox
         '
-        Me.GroupBox1.Controls.Add(Me.TableLayoutPanel6)
-        Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox1.Location = New System.Drawing.Point(3, 338)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(862, 94)
-        Me.GroupBox1.TabIndex = 8
-        Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "Add logically derived variables"
-        '
-        'TableLayoutPanel6
-        '
-        Me.TableLayoutPanel6.ColumnCount = 1
-        Me.TableLayoutPanel6.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel6.Controls.Add(Me.HasVowelContrast_CheckBox, 0, 0)
-        Me.TableLayoutPanel6.Controls.Add(Me.ContrastedPhonemeIndex_CheckBox, 0, 1)
-        Me.TableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel6.Location = New System.Drawing.Point(3, 16)
-        Me.TableLayoutPanel6.Name = "TableLayoutPanel6"
-        Me.TableLayoutPanel6.RowCount = 2
-        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel6.Size = New System.Drawing.Size(856, 75)
-        Me.TableLayoutPanel6.TabIndex = 0
-        '
-        'HasVowelContrast_CheckBox
-        '
-        Me.HasVowelContrast_CheckBox.AutoSize = True
-        Me.HasVowelContrast_CheckBox.Checked = True
-        Me.HasVowelContrast_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.HasVowelContrast_CheckBox.Location = New System.Drawing.Point(3, 3)
-        Me.HasVowelContrast_CheckBox.Name = "HasVowelContrast_CheckBox"
-        Me.HasVowelContrast_CheckBox.Size = New System.Drawing.Size(537, 17)
-        Me.HasVowelContrast_CheckBox.TabIndex = 0
-        Me.HasVowelContrast_CheckBox.Text = "Create variable HasVowelContrast (For one word sentences containing minimal phone" &
-    "tic/phonemic variation)"
-        Me.HasVowelContrast_CheckBox.UseVisualStyleBackColor = True
-        '
-        'ContrastedPhonemeIndex_CheckBox
-        '
-        Me.ContrastedPhonemeIndex_CheckBox.AutoSize = True
-        Me.ContrastedPhonemeIndex_CheckBox.Checked = True
-        Me.ContrastedPhonemeIndex_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.ContrastedPhonemeIndex_CheckBox.Location = New System.Drawing.Point(3, 40)
-        Me.ContrastedPhonemeIndex_CheckBox.Name = "ContrastedPhonemeIndex_CheckBox"
-        Me.ContrastedPhonemeIndex_CheckBox.Size = New System.Drawing.Size(574, 17)
-        Me.ContrastedPhonemeIndex_CheckBox.TabIndex = 1
-        Me.ContrastedPhonemeIndex_CheckBox.Text = "Create variable ContrastingPhonemeIndex (For one word sentences containing minima" &
-    "l phonetic/phonemic variation)"
-        Me.ContrastedPhonemeIndex_CheckBox.UseVisualStyleBackColor = True
+        Me.IgnoreZeroPhonemesCheckBox.AutoSize = True
+        Me.IgnoreZeroPhonemesCheckBox.Location = New System.Drawing.Point(6, 39)
+        Me.IgnoreZeroPhonemesCheckBox.Name = "IgnoreZeroPhonemesCheckBox"
+        Me.IgnoreZeroPhonemesCheckBox.Size = New System.Drawing.Size(162, 17)
+        Me.IgnoreZeroPhonemesCheckBox.TabIndex = 4
+        Me.IgnoreZeroPhonemesCheckBox.Text = "Ignore phonetic character ∅"
+        Me.IgnoreZeroPhonemesCheckBox.UseVisualStyleBackColor = True
         '
         'LexicalVariablesEditor
         '
@@ -521,6 +537,9 @@ Partial Class LexicalVariablesEditor
         Me.ProcessingGroupBox.ResumeLayout(False)
         Me.TableLayoutPanel4.ResumeLayout(False)
         Me.GroupBox5.ResumeLayout(False)
+        Me.GroupBox1.ResumeLayout(False)
+        Me.TableLayoutPanel6.ResumeLayout(False)
+        Me.TableLayoutPanel6.PerformLayout()
         Me.GroupBox4.ResumeLayout(False)
         Me.TableLayoutPanel5.ResumeLayout(False)
         Me.TableLayoutPanel5.PerformLayout()
@@ -532,9 +551,6 @@ Partial Class LexicalVariablesEditor
         Me.GroupBox2.ResumeLayout(False)
         Me.TableLayoutPanel3.ResumeLayout(False)
         Me.TableLayoutPanel3.PerformLayout()
-        Me.GroupBox1.ResumeLayout(False)
-        Me.TableLayoutPanel6.ResumeLayout(False)
-        Me.TableLayoutPanel6.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -568,4 +584,5 @@ Partial Class LexicalVariablesEditor
     Friend WithEvents TableLayoutPanel6 As Windows.Forms.TableLayoutPanel
     Friend WithEvents HasVowelContrast_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents ContrastedPhonemeIndex_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents IgnoreZeroPhonemesCheckBox As Windows.Forms.CheckBox
 End Class

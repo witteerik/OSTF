@@ -91,6 +91,7 @@
             End Select
 
             Dim CaseInsensitiveSpellings As Boolean = CaseInvariantLookupCheckBox.Checked
+            Dim IgnoreZeroPhonemes As Boolean = IgnoreZeroPhonemesCheckBox.Checked
             Dim AllWordLevelComponents = LoadedSpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Word)
             Dim SpeechMaterialLookupKeys As New SortedSet(Of String)
 
@@ -105,11 +106,23 @@
                 Select Case LookupMatchBy
                     Case CustomVariablesDatabase.LookupMathOptions.MatchBySpellingAndTranscription
                         Dim Transcription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                        If IgnoreZeroPhonemes = True Then
+                            Transcription = Transcription.Replace(IPA.ZeroPhoneme, "")
+                            Transcription = Transcription.Trim
+                            Transcription = Transcription.Replace("  ", " ")
+                            Transcription = Transcription.Trim
+                        End If
                         UniqueIdentifier = Spelling & vbTab & Transcription
                     Case CustomVariablesDatabase.LookupMathOptions.MatchBySpelling
                         UniqueIdentifier = Spelling
                     Case CustomVariablesDatabase.LookupMathOptions.MatchByTranscription
                         Dim Transcription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                        If IgnoreZeroPhonemes = True Then
+                            Transcription = Transcription.Replace(IPA.ZeroPhoneme, "")
+                            Transcription = Transcription.Trim
+                            Transcription = Transcription.Replace("  ", " ")
+                            Transcription = Transcription.Trim
+                        End If
                         UniqueIdentifier = Transcription
                 End Select
 

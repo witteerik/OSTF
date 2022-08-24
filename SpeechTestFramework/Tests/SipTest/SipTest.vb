@@ -1,6 +1,12 @@
 ﻿
 Namespace SipTest
 
+    'N.B. Variable name abbreviations used:
+    ' RLxs = ReferenceContrastingPhonemesLevel (dB FS)
+    ' SLs = Phoneme Spectrum Levels (PSL, dB SPL)
+    ' SLm = Environment / Masker Spectrum Levels (ESL, dB SPL)
+    ' Lc = Component Level (TestWord_ReferenceSPL, dB SPL), The average sound level of all recordings of the speech material component
+    ' Tc = Component temporal duration (in seconds)
 
     Public Class TestSession
 
@@ -375,27 +381,31 @@ Namespace SipTest
 
         Public Sub UpdateEstimatedSuccessProbability()
 
-            'Getting PDL
-            Dim PDL As Double = Me.PhonemeDiscriminabilityLevel
+            'Select Case Me.ParentTestUnit.ParentTestSession.Prediction.Models.SelectedModel.GetSwedishSipTestA
 
-            'Getting BPTAH
-            Dim BPTAH As Double = Me.ParentTestUnit.ParentTestSession.SelectedAudiogramData.BPTAH
+            'Getting predictors
+            Dim PDL As Double = Me.PhonemeDiscriminabilityLevel
+            Dim TPD As Double = Me.SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Tc")
+            Dim Z As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("Z")
+            Dim iPNDP As Double = 1 / Me.SpeechMaterialComponent.GetNumericVariableValue("PNDP")
+            Dim PP As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("PP")
+            Dim PT As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("Z")
+
+
 
             'Calculating centred and scaled values for PDL and PBTAH
             Dim PDL_gmc_div = (PDL - 3.917) / 50
-            Dim BPTAH_gmc_div = (BPTAH - 39.82) / 100
 
             'Calculating model eta
             Dim Eta = 0.019 +
-                9.996 * PDL_gmc_div +
-                -1.758 * BPTAH_gmc_div +
-                -5.34 * PDL_gmc_div * BPTAH_gmc_div
+                9.996 * PDL_gmc_div
 
             'Calculating estimated success probability
-            Dim Output As Double = 1 / 3 + (2 / 3) * (1 / (1 + Math.Exp(-Eta)))
+            Dim p As Double = 1 / 3 + (2 / 3) * (1 / (1 + Math.Exp(-Eta)))
 
             'Stores the result in PredictedSuccessProbability
-            _EstimatedSuccessProbability = Output
+            _EstimatedSuccessProbability = p
+
 
 
         End Sub
@@ -404,16 +414,10 @@ Namespace SipTest
         Private _PhonemeDiscriminabilityLevel As Double
         Private UpdatePdlOnNextCall As Boolean = True
 
-        Public ReadOnly Property PhonemeDiscriminabilityLevel(Optional ByVal PhonemeSpectrumLevelsVariableNamePrefix As String = "SLs",
+        Public ReadOnly Property PhonemeDiscriminabilityLevel(Optional ByVal SpeechSpectrumLevelsVariableNamePrefix As String = "SLs",
                                                               Optional ByVal MaskerSpectrumLevelsVariableNamePrefix As String = "SLm") As Double
             Get
                 If UpdatePdlOnNextCall = True Then
-
-                    'N.B. Variable name abbreviations used:
-                    ' RLxs = ReferenceContrastingPhonemesLevel (dB FS)
-                    ' SLs = Phoneme Spectrum Levels (PSL, dB SPL)
-                    ' SLm = Environment / Masker Spectrum Levels (ESL, dB SPL)
-                    ' Lc = Component Level (TestWord_ReferenceSPL, dB SPL), The average sound level of all recordings of the speech material component
 
                     'Using thresholds and gain data from the side with the best aided thresholds (selecting side separately for each critical band)
                     Dim Thresholds(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
@@ -434,11 +438,14 @@ Namespace SipTest
                     Next
 
                     'Getting spectral levels
-                    Dim TestPhonemeSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-                    Dim IncorrectResponse1TestPhonemeSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-                    Dim IncorrectResponse2TestPhonemeSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+                    Dim CorrectResponseSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
                     Dim MaskerSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
                     Dim Siblings = Me.SpeechMaterialComponent.GetSiblingsExcludingSelf
+                    Dim IncorrectResponsesSpectralLevels As New List(Of Double())
+                    For Each Sibling In Siblings
+                        Dim IncorrectResponseSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+                        IncorrectResponsesSpectralLevels.Add(IncorrectResponseSpectralLevels)
+                    Next
 
                     'Getting the current gain, compared to the reference test-word and masker levels
                     Dim CurrentSpeechGain As Double = GetCurrentSpeechGain()
@@ -446,23 +453,27 @@ Namespace SipTest
 
                     For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
                         Dim VariableNameSuffix = Math.Round(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(i)).ToString("00000")
-                        Dim SLsName As String = PhonemeSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
+                        Dim SLsName As String = SpeechSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
                         Dim SLmName As String = MaskerSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
 
                         'Retreiving the reference levels and adjusts them by the CurrentSpeechGain and CurrentMaskerGain
-                        TestPhonemeSpectralLevels(i) = Me.SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
-                        IncorrectResponse1TestPhonemeSpectralLevels(i) = Siblings(0).GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
-                        IncorrectResponse2TestPhonemeSpectralLevels(i) = Siblings(0).GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
+                        CorrectResponseSpectralLevels(i) = Me.SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
                         MaskerSpectralLevels(i) = Me.SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, SLmName) + CurrentMaskerGain
+                        For s = 0 To Siblings.Count - 1
+                            IncorrectResponsesSpectralLevels(s)(i) = Siblings(s).GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
+                        Next
                     Next
 
                     'Calculating SDRs
-                    Dim SDRt = PDL.CalculateSDR(TestPhonemeSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True)
-                    Dim SDRc1 = PDL.CalculateSDR(IncorrectResponse1TestPhonemeSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True)
-                    Dim SDRc2 = PDL.CalculateSDR(IncorrectResponse2TestPhonemeSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True)
+                    Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True)
+                    Dim SDRcs As New List(Of Double())
+                    For s = 0 To Siblings.Count - 1
+                        Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s), MaskerSpectralLevels, Thresholds, Gain, True, True)
+                        SDRcs.Add(SDRc)
+                    Next
 
                     'Calculating PDL
-                    _PhonemeDiscriminabilityLevel = PDL.CalculatePDL(SDRt, SDRc1, SDRc2)
+                    _PhonemeDiscriminabilityLevel = PDL.CalculatePDL(SDRt, SDRcs)
 
                     UpdatePdlOnNextCall = False
                 End If

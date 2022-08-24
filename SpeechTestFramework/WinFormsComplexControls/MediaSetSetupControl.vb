@@ -445,6 +445,9 @@
 
         SelectedMediaSet.CalculateAverageComponentLevel(SpeechMaterialComponent.LinguisticLevels.Sentence, 1)
 
+        SelectedMediaSet.CalculateAverageDurationOfContrastingComponents(SpeechMaterialComponent.LinguisticLevels.Sentence, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1)
+
+
     End Sub
 
     Private Sub CreateSipTestMaskersButton_Click(sender As Object, e As EventArgs) Handles CreateSipTestMaskersButton.Click

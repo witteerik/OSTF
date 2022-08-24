@@ -2,20 +2,34 @@
 
     Public Module PDL
 
-        Public Function CalculatePDL(ByVal SDRt As Double(), ByVal SDRc1 As Double(), ByVal SDRc2 As Double())
+        ''' <summary>
+        ''' Calculates PDL
+        ''' </summary>
+        ''' <param name="SDRt">The Speech-to-Disturbance ratio of the correct response alternative.</param>
+        ''' <param name="SDRcs">A list of Speech-to-Disturbance ratios of incorrect response alternatives.</param>
+        ''' <returns></returns>
+        Public Function CalculatePDL(ByVal SDRt As Double(), ByVal SDRcs As List(Of Double()))
 
             Dim antilogSDRrdiv10 As Double() = GetAntilogSDRdiv10(SDRt)
-            Dim antilogSDRc1div10 As Double() = GetAntilogSDRdiv10(SDRc1)
-            Dim antilogSDRc2div10 As Double() = GetAntilogSDRdiv10(SDRc2)
 
-            'Calculating abs differences
-            Dim AbsDiff1 As Double() = GetAbsoluteSdrDifferences(antilogSDRrdiv10, antilogSDRc1div10)
-            Dim AbsDiff2 As Double() = GetAbsoluteSdrDifferences(antilogSDRrdiv10, antilogSDRc2div10)
+            Dim InvSumsList As New List(Of Double)
+            For Each SDRc In SDRcs
 
-            Dim InvSum1 As Double = 1 / AbsDiff1.Sum
-            Dim InvSum2 As Double = 1 / AbsDiff2.Sum
+                Dim antilogSDRcdiv10 As Double() = GetAntilogSDRdiv10(SDRc)
 
-            Dim PDL As Double = 10 * Math.Log10(2 / (InvSum1 + InvSum2))
+                'Calculating abs differences
+                Dim AbsDiff As Double() = GetAbsoluteSdrDifferences(antilogSDRrdiv10, antilogSDRcdiv10)
+
+                'Calculating the inverted sum
+                Dim InvSum As Double = 1 / AbsDiff.Sum
+
+                'Adding to the inverted sum to InvSumsList
+                InvSumsList.Add(InvSum)
+
+            Next
+
+            'Calculating PDL
+            Dim PDL As Double = 10 * Math.Log10(InvSumsList.Count / InvSumsList.Sum)
 
             Return PDL
 

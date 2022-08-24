@@ -1610,11 +1610,71 @@ Public Class MediaSet
     End Sub
 
 
+    Public Sub CalculateAverageDurationOfContrastingComponents(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                               ByVal ContrastLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                               ByVal SoundChannel As Integer,
+                                                               Optional ByVal VariableName As String = "Tc")
+
+
+        'Clears previously loaded sounds
+        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SummaryLevel)
+
+        For Each SummaryComponent In SummaryComponents
+
+            Dim TargetComponents = SummaryComponent.GetAllDescenentsAtLevel(ContrastLevel)
+
+            'Get the SMA components representing the sound sections of all target components
+            Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+
+            For c = 0 To TargetComponents.Count - 1
+
+                'Determine if is contraisting component??
+                If TargetComponents(c).IsContrastingComponent = False Then
+                    Continue For
+                End If
+
+                For i = 0 To MediaAudioItems - 1
+                    CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
+                Next
+
+            Next
+
+            'Skipping to next Summary component if no
+            If CurrentSmaComponentList.Count = 0 Then Continue For
+
+            'Getting the actual sound sections and measures their durations
+            Dim DurationList As New List(Of Double)
+            For Each SmaComponent In CurrentSmaComponentList
+                DurationList.Add(SmaComponent.Length / SmaComponent.ParentSMA.ParentSound.WaveFormat.SampleRate)
+            Next
+
+            'Storing the average duration
+            Dim AverageDuration As Double
+            If DurationList.Count > 0 Then
+                AverageDuration = DurationList.Average
+            Else
+                AverageDuration = 0
+            End If
+
+            'Stores the value as a custom media set variable
+            SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, AverageDuration)
+
+        Next
+
+        'Finally writes the results to file
+        Me.WriteCustomVariables()
+
+    End Sub
+
+
     Public Sub CalculateAverageComponentLevel(ByVal TargetComponentsLevel As SpeechMaterialComponent.LinguisticLevels,
                                                                ByVal SoundChannel As Integer,
                                                                Optional ByVal IntegrationTime As Double = 0,
                                                                Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
-                                                               Optional ByVal VariableName As String = "Lc")
+                                                               Optional ByVal VariableName As String = "Lc",
+                                              Optional ByVal AverageDecibelValues As Boolean = False)
 
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
@@ -1653,7 +1713,42 @@ Public Class MediaSet
             Next
 
             'Storing the average level
-            Dim AverageLevel As Double = SoundLevelList.Average
+            Dim AverageLevel As Double
+            If SoundLevelList.Count > 0 Then
+
+                If AverageDecibelValues = True Then
+                    'Averaging the decibel values
+                    AverageLevel = SoundLevelList.Average
+
+                Else
+
+                    'Calculating the average level (not average dB, but instead average RMS, as if the sounds were concatenated)
+                    'Converting to linear RMS
+                    Dim RMSList As New List(Of Double)
+                    For Each Level In SoundLevelList
+                        RMSList.Add(Audio.dBConversion(Level, Audio.dBConversionDirection.from_dB, WaveFormat))
+                    Next
+
+                    'Inverting to the root by taking the square
+                    'We get mean squares
+                    Dim MeanSquareList As New List(Of Double)
+                    For Each RMS In RMSList
+                        MeanSquareList.Add(RMS * RMS)
+                    Next
+
+                    'Calculating the grand mean square of all sounds (this assumes all sections being of equal length, which they are here (i.e. IntegrationTime))
+                    Dim GrandMeanSquare As Double = MeanSquareList.Average
+
+                    'Takning the root to get the garnd RMS value
+                    Dim GrandRMS As Double = Math.Sqrt(GrandMeanSquare)
+
+                    'Converting to dB
+                    AverageLevel = Audio.dBConversion(GrandRMS, Audio.dBConversionDirection.to_dB, WaveFormat)
+                End If
+
+            Else
+                AverageLevel = Double.NegativeInfinity
+            End If
 
             'Stores the value as a custom media set variable
             SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, AverageLevel)
