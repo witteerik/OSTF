@@ -7,6 +7,7 @@ Namespace SipTest
     ' SLm = Environment / Masker Spectrum Levels (ESL, dB SPL)
     ' Lc = Component Level (TestWord_ReferenceSPL, dB SPL), The average sound level of all recordings of the speech material component
     ' Tc = Component temporal duration (in seconds)
+    ' V = HasVowelContrast (1 = Yes, 0 = No)
 
     Public Class TestSession
 
@@ -389,24 +390,30 @@ Namespace SipTest
             Dim Z As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("Z")
             Dim iPNDP As Double = 1 / Me.SpeechMaterialComponent.GetNumericVariableValue("PNDP")
             Dim PP As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("PP")
-            Dim PT As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("Z")
-
-
+            Dim PT As Double = Me.SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericVariableValue("V")
 
             'Calculating centred and scaled values for PDL and PBTAH
-            Dim PDL_gmc_div = (PDL - 3.917) / 50
+            Dim PDL_gmc_div = (PDL - 10.46) / 50
+            Dim Z_gmc_div = (Z - 3.7) / 10
+            Dim iPNDP_gmc_div = (iPNDP - 20.6) / 50
 
             'Calculating model eta
-            Dim Eta = 0.019 +
-                9.996 * PDL_gmc_div
+            Dim Eta = 0.73 +
+                8.22 * PDL_gmc_div +
+                5.11 * (TPD - 0.33) +
+                4.24 * Z_gmc_div -
+                1.44 * iPNDP_gmc_div +
+                4.58 * (PP - 0.92) -
+                1.1 * (PT - 0.43) -
+                7.25 * PDL_gmc_div * Z_gmc_div +
+                7.47 * PDL_gmc_div * iPNDP_gmc_div +
+                3.32 * PDL_gmc_div * (PT - 0.43)
 
             'Calculating estimated success probability
             Dim p As Double = 1 / 3 + (2 / 3) * (1 / (1 + Math.Exp(-Eta)))
 
             'Stores the result in PredictedSuccessProbability
             _EstimatedSuccessProbability = p
-
-
 
         End Sub
 

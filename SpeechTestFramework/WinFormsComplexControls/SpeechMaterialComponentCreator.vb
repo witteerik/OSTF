@@ -83,8 +83,7 @@
         Dim CurrentListCollectionComponent As New SpeechMaterialComponent(rnd) With {
             .Id = NameTextBox.Text,
             .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.ListCollection,
-            .PrimaryStringRepresentation = NameTextBox.Text,
-            .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.ListCollection)}
+            .PrimaryStringRepresentation = NameTextBox.Text}
 
         CurrentListCollectionComponent.PrimaryStringRepresentation = CurrentListCollectionComponent.Id
 
@@ -122,8 +121,7 @@
                 'A new List
                 CurrentListComponent = New SpeechMaterialComponent(rnd) With {
                     .ParentComponent = CurrentListCollectionComponent,
-                    .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.List,
-                    .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.List)}
+                    .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.List}
 
                 CurrentListCollectionComponent.ChildComponents.Add(CurrentListComponent)
 
@@ -202,8 +200,7 @@
 
                             Dim NewPhonemeComponent = New SpeechMaterialComponent(rnd) With {
                                     .ParentComponent = CurrentSentenceComponent.ChildComponents(w),
-                                    .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme,
-                                    .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.Phoneme)}
+                                    .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme}
 
                             CurrentSentenceComponent.ChildComponents(w).ChildComponents.Add(NewPhonemeComponent)
 
@@ -223,8 +220,7 @@
                 'It should be sentence
                 CurrentSentenceComponent = New SpeechMaterialComponent(rnd) With {
                     .ParentComponent = CurrentListComponent,
-                    .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence,
-                            .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.Sentence)}
+                    .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence}
 
                 CurrentListComponent.ChildComponents.Add(CurrentSentenceComponent)
 
@@ -256,8 +252,7 @@
                     'Creating a new Word level component
                     Dim NewWordComponent = New SpeechMaterialComponent(rnd) With {
                         .ParentComponent = CurrentSentenceComponent,
-                        .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Word,
-                        .CustomVariablesDatabasePath = SpeechMaterialComponent.GetDatabaseFileName(SpeechMaterialComponent.LinguisticLevels.Word)}
+                        .LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Word}
 
                     CurrentSentenceComponent.ChildComponents.Add(NewWordComponent)
 

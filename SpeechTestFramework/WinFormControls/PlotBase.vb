@@ -410,11 +410,13 @@ Namespace WinFormControls
                 'Creating a path around the area
                 'Adding the upper limit
                 For n = 0 To DrawLength - 1
+                    If Single.IsNaN(Area.YValuesUpper(n)) = True Then Continue For
                     NewPoints.Add(New Point(XValueToCoordinate(Area.XValues(n)), YValueToCoordinate(Area.YValuesUpper(n))))
                 Next
 
                 'Adding the lower limit in descending x-axis order
                 For n = DrawLength - 1 To 0 Step -1
+                    If Single.IsNaN(Area.YValuesLower(n)) = True Then Continue For
                     NewPoints.Add(New Point(XValueToCoordinate(Area.XValues(n)), YValueToCoordinate(Area.YValuesLower(n))))
                 Next
 
@@ -446,6 +448,7 @@ Namespace WinFormControls
                     Select Case PS.Type
                         Case PointSerie.PointTypes.Cross
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 Dim CurrentX = XValueToCoordinate(PS.XValues(n))
                                 Dim CurrentY = YValueToCoordinate(PS.YValues(n))
                                 e.Graphics.DrawLine(CurrentPen, CurrentX - HalfCurrentSize, CurrentY - HalfCurrentSize, CurrentX + HalfCurrentSize, CurrentY + HalfCurrentSize)
@@ -453,18 +456,22 @@ Namespace WinFormControls
                             Next
                         Case PointSerie.PointTypes.FilledCircle
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 e.Graphics.FillEllipse(CurrentBrush, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) + HalfCurrentSize, CurrentSize, CurrentSize)
                             Next
                         Case PointSerie.PointTypes.OpenCircle
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 e.Graphics.DrawArc(CurrentPen, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) + HalfCurrentSize, CurrentSize, CurrentSize, 0, 360)
                             Next
                         Case PointSerie.PointTypes.Rectangle
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 e.Graphics.DrawRectangle(CurrentPen, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) + HalfCurrentSize, CurrentSize, CurrentSize)
                             Next
                         Case PointSerie.PointTypes.FilledRectangle
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 e.Graphics.FillRectangle(CurrentBrush, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) + HalfCurrentSize, CurrentSize, CurrentSize)
                             Next
 
@@ -475,6 +482,7 @@ Namespace WinFormControls
                     Select Case PS.Type
                         Case PointSerie.PointTypes.Cross
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 Dim CurrentX = XValueToCoordinate(PS.XValues(n))
                                 Dim CurrentY = YValueToCoordinate(PS.YValues(n))
                                 e.Graphics.DrawLine(CurrentPen, CurrentX - HalfCurrentSize, CurrentY + HalfCurrentSize, CurrentX + HalfCurrentSize, CurrentY - HalfCurrentSize)
@@ -482,18 +490,22 @@ Namespace WinFormControls
                             Next
                         Case PointSerie.PointTypes.FilledCircle
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 e.Graphics.FillEllipse(CurrentBrush, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) - HalfCurrentSize, CurrentSize, CurrentSize)
                             Next
                         Case PointSerie.PointTypes.OpenCircle
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 e.Graphics.DrawArc(CurrentPen, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) - HalfCurrentSize, CurrentSize, CurrentSize, 0, 360)
                             Next
                         Case PointSerie.PointTypes.Rectangle
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 e.Graphics.DrawRectangle(CurrentPen, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) - HalfCurrentSize, CurrentSize, CurrentSize)
                             Next
                         Case PointSerie.PointTypes.FilledRectangle
                             For n = 0 To DrawLength - 1
+                                If Single.IsNaN(PS.YValues(n)) = True Then Continue For
                                 e.Graphics.FillRectangle(CurrentBrush, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) - HalfCurrentSize, CurrentSize, CurrentSize)
                             Next
                     End Select
@@ -521,6 +533,7 @@ Namespace WinFormControls
                 End If
 
                 For n = 0 To DrawLength - 2
+                    If Single.IsNaN(Line.YValues(n)) = True Then Continue For
                     e.Graphics.DrawLine(CurrentPen, XValueToCoordinate(Line.XValues(n)), YValueToCoordinate(Line.YValues(n)),
                                     XValueToCoordinate(Line.XValues(n + 1)), YValueToCoordinate(Line.YValues(n + 1)))
                 Next

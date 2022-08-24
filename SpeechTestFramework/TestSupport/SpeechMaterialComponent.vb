@@ -49,10 +49,6 @@ Public Class SpeechMaterialComponent
     Private NumericVariables As New SortedList(Of String, Double)
     Private CategoricalVariables As New SortedList(Of String, String)
 
-    ' This variable is loaded from the speech material file and contains the full path to a custom variables database file for the component. The data is stored within the objects NumericVariables and CategoricalVariables.
-    ' The path is stored to be able to write to the same file in order to update the variables.
-    Public CustomVariablesDatabasePath As String = ""
-
     Public Function GetTestSituationVariableValue()
         'This function should somehow returns the requested variable values from the indicated test situation, or even offer an option to create/calculate that data if not present.
         Throw New NotImplementedException
@@ -92,6 +88,9 @@ Public Class SpeechMaterialComponent
     Private _SequentiallyOrderedSentences As Boolean
     Private _SequentiallyOrderedWords As Boolean
     Private _SequentiallyOrderedPhonemes As Boolean
+    Private _PresetLevel As LinguisticLevels
+    Private _PresetSpecifications As New List(Of Tuple(Of String, Boolean, List(Of String)))
+    Private _Presets As SortedList(Of String, List(Of SpeechMaterialComponent))
 
     Public Property SequentiallyOrderedLists As Boolean
         Get
@@ -161,6 +160,57 @@ Public Class SpeechMaterialComponent
         End Set
     End Property
 
+    Public Property PresetLevel As LinguisticLevels
+        Get
+            If Me.ParentComponent IsNot Nothing Then
+                Return Me.ParentComponent.PresetLevel
+            Else
+                Return Me._PresetLevel
+            End If
+        End Get
+        Set(value As LinguisticLevels)
+            If Me.ParentComponent IsNot Nothing Then
+                Me.ParentComponent.PresetLevel = value
+            Else
+                Me._PresetLevel = value
+            End If
+        End Set
+    End Property
+
+    Public Property PresetSpecifications As List(Of Tuple(Of String, Boolean, List(Of String)))
+        Get
+            If Me.ParentComponent IsNot Nothing Then
+                Return Me.ParentComponent.PresetSpecifications
+            Else
+                Return Me._PresetSpecifications
+            End If
+        End Get
+        Set(value As List(Of Tuple(Of String, Boolean, List(Of String))))
+            If Me.ParentComponent IsNot Nothing Then
+                Me.ParentComponent.PresetSpecifications = value
+            Else
+                Me._PresetSpecifications = value
+            End If
+        End Set
+    End Property
+
+    Public Property Presets As SortedList(Of String, List(Of SpeechMaterialComponent))
+        Get
+            If Me.ParentComponent IsNot Nothing Then
+                Return Me.ParentComponent.Presets
+            Else
+                Return Me._Presets
+            End If
+        End Get
+        Set(value As SortedList(Of String, List(Of SpeechMaterialComponent)))
+            If Me.ParentComponent IsNot Nothing Then
+                Me.ParentComponent.Presets = value
+            Else
+                Me._Presets = value
+            End If
+        End Set
+    End Property
+
 
     Public Property IsPractiseComponent As Boolean = False
 
@@ -207,7 +257,7 @@ Public Class SpeechMaterialComponent
         'Defining default names for database files
         Select Case LinguisticLevel
             Case LinguisticLevels.ListCollection
-                Return "SpeechMaterialLevelDatabase.txt"
+                Return "SpeechMaterialLevelVariables.txt"
             Case LinguisticLevels.List
                 Return "ListLevelVariables.txt"
             Case LinguisticLevels.Sentence
@@ -1521,6 +1571,9 @@ Public Class SpeechMaterialComponent
         Dim SequentiallyOrderedSentences As Boolean = False
         Dim SequentiallyOrderedWords As Boolean = True
         Dim SequentiallyOrderedPhonemes As Boolean = True
+        Dim PresetLevel As LinguisticLevels = LinguisticLevels.List
+
+        Dim PresetSpecifications As New List(Of Tuple(Of String, Boolean, List(Of String))) 'Preset name, IsContrasting, List Of PrimaryStringRepresentation
 
         For Each Line In InputLines
 
@@ -1543,12 +1596,39 @@ Public Class SpeechMaterialComponent
             ElseIf Line.Trim.StartsWith("SequentiallyOrderedPhonemes") Then
                 SequentiallyOrderedPhonemes = InputFileSupport.InputFileBooleanValueParsing(Line, True, SpeechMaterialComponentFilePath)
                 Continue For
+            ElseIf Line.Trim.StartsWith("PresetLevel") Then
+                Dim TempPresetLevel = InputFileSupport.InputFileEnumValueParsing(Line, GetType(LinguisticLevels), SpeechMaterialComponentFilePath, True)
+                If TempPresetLevel IsNot Nothing Then
+                    PresetLevel = TempPresetLevel
+                End If
+                Continue For
+            ElseIf Line.Trim.StartsWith("Preset ") Or Line.Trim.StartsWith("Preset=") Then ' The two alternatives here exist in order to distinguish the key 'Preset' from 'PresetLevel'
+                'Parsing and adding the preset
+                Dim PresetData = InputFileSupport.GetInputFileValue(Line, True)
+                Dim PresetDataSplit = PresetData.Split(":")
+                Dim PresetKey As String = PresetDataSplit(0).Trim
+                If PresetDataSplit.Length > 1 Then
+                    Dim PresetList = InputFileSupport.InputFileListOfStringParsing(PresetDataSplit(1).Trim, False, False)
+                    PresetSpecifications.Add(New Tuple(Of String, Boolean, List(Of String))(PresetKey, False, PresetList))
+                End If
+                Continue For
+            ElseIf Line.Trim.StartsWith("ContrastPreset") Then
+                'Parsing and adding the preset
+                Dim PresetData = InputFileSupport.GetInputFileValue(Line, True)
+                Dim PresetDataSplit = PresetData.Split(":")
+                Dim PresetKey As String = PresetDataSplit(0).Trim
+                If PresetDataSplit.Length > 1 Then
+                    Dim PresetList = InputFileSupport.InputFileListOfStringParsing(PresetDataSplit(1).Trim, False, False)
+                    PresetSpecifications.Add(New Tuple(Of String, Boolean, List(Of String))(PresetKey, True, PresetList))
+                End If
+                Continue For
             End If
+
 
             'Reading components
             Dim SplitRow = Line.Split(vbTab)
 
-            If SplitRow.Length < 6 Then Throw New ArgumentException("Not enough data columns in the file " & SpeechMaterialComponentFilePath & vbCrLf & "At the line: " & Line)
+            If SplitRow.Length < 5 Then Throw New ArgumentException("Not enough data columns in the file " & SpeechMaterialComponentFilePath & vbCrLf & "At the line: " & Line)
 
             Dim NewComponent As New SpeechMaterialComponent(rnd)
 
@@ -1585,12 +1665,9 @@ Public Class SpeechMaterialComponent
             index += 1
 
             ' Getting the custom variables path
-            Dim CustomVariablesDatabaseSubPath As String = InputFileSupport.InputFilePathValueParsing(SplitRow(index), TestRootPath, False)
+
+            Dim CustomVariablesDatabaseSubPath As String = SpeechMaterialComponent.GetDatabaseFileName(NewComponent.LinguisticLevel)
             Dim CustomVariablesDatabasePath As String = IO.Path.Combine(TestRootPath, SpeechMaterialComponent.SpeechMaterialFolderName, CustomVariablesDatabaseSubPath)
-            If CustomVariablesDatabaseSubPath.Trim <> "" Then
-                NewComponent.CustomVariablesDatabasePath = CustomVariablesDatabasePath
-            End If
-            index += 1
 
             ' Adding the custom variables
             If CustomVariablesDatabaseSubPath.Trim <> "" Then
@@ -1661,7 +1738,11 @@ Public Class SpeechMaterialComponent
         Output.SequentiallyOrderedSentences = SequentiallyOrderedSentences
         Output.SequentiallyOrderedWords = SequentiallyOrderedWords
         Output.SequentiallyOrderedPhonemes = SequentiallyOrderedPhonemes
+        Output.PresetLevel = PresetLevel
+        Output.PresetSpecifications = PresetSpecifications
 
+        'Creating actual presets
+        Output.InitializePresets()
 
         ''Writing the loaded data to UpdatedOutputFilePath if supplied and valid
         'If UpdatedOutputFilePath <> "" Then
@@ -1671,6 +1752,66 @@ Public Class SpeechMaterialComponent
         Return Output
 
     End Function
+
+    ''' <summary>
+    ''' Creates actual presents based on the data in PresetSpecifications
+    ''' </summary>
+    Public Sub InitializePresets()
+
+        Presets = New SortedList(Of String, List(Of SpeechMaterialComponent))
+
+        For Each PresetSpecification In PresetSpecifications
+            Dim SelectedComponentsList As New SortedList(Of String, SpeechMaterialComponent) ' Where String is SpeechMaterialComponent.Id
+
+            Dim AllRelatives = GetAllRelatives()
+
+            If PresetSpecification.Item3 IsNot Nothing Then
+
+                For Each Component In AllRelatives
+                    'Ignoring the component if its at the wrong level
+                    If PresetSpecification.Item3.Contains(Component.PrimaryStringRepresentation) Then
+
+                        If PresetSpecification.Item2 = True Then
+                            If Component.IsContrastingComponent = False Then Continue For
+                        End If
+
+                        'Getting related components at the PresetLevel 
+                        Dim RelatedPresetLevelComponents = Component.GetSelfOrAncestorOrDescendentsAtLevel(PresetLevel)
+                        If RelatedPresetLevelComponents IsNot Nothing Then
+
+                            'Adding the PresetLevelComponent if not already added
+                            For Each PresetLevelComponent In RelatedPresetLevelComponents
+                                If SelectedComponentsList.Keys.Contains(PresetLevelComponent.Id) = False Then
+                                    SelectedComponentsList.Add(PresetLevelComponent.Id, PresetLevelComponent)
+                                End If
+                            Next
+                        End If
+                    End If
+                Next
+
+            Else
+
+                'In case the preset component list is empty, all components (except practise components) at the PresetLevel should be added
+                For Each Component In AllRelatives
+                    'Skipping practise components
+                    If Component.IsPractiseComponent = True Then
+                        Continue For
+                    End If
+
+                    If Component.LinguisticLevel = PresetLevel Then
+                        If SelectedComponentsList.Keys.Contains(Component.Id) = False Then
+                            SelectedComponentsList.Add(Component.Id, Component)
+                        End If
+                    End If
+                Next
+
+            End If
+
+            Presets.Add(PresetSpecification.Item1, SelectedComponentsList.Values.ToList)
+
+        Next
+
+    End Sub
 
     Public Function GetComponentById(ByVal Id As String) As SpeechMaterialComponent
 
@@ -1735,6 +1876,22 @@ Public Class SpeechMaterialComponent
         Next
 
         Return OutputList
+
+    End Function
+
+    Public Function GetSelfOrAncestorOrDescendentsAtLevel(ByVal RequestedDescendentComponentLevel As SpeechMaterialComponent.LinguisticLevels) As List(Of SpeechMaterialComponent)
+
+        If LinguisticLevel = RequestedDescendentComponentLevel Then Return New List(Of SpeechMaterialComponent) From {Me}
+
+        Dim AncestorCandidate = GetAncestorAtLevel(RequestedDescendentComponentLevel)
+        If AncestorCandidate IsNot Nothing Then Return New List(Of SpeechMaterialComponent) From {AncestorCandidate}
+
+        Dim DescendantCandidates = GetAllDescenentsAtLevel(RequestedDescendentComponentLevel, False)
+        If DescendantCandidates.Count > 0 Then
+            Return DescendantCandidates
+        Else
+            Return Nothing
+        End If
 
     End Function
 
@@ -1914,19 +2071,25 @@ Public Class SpeechMaterialComponent
 
 
         Dim OutputList As New List(Of String)
-        OutputList.Add("// Setup")
+        If ExportAtThisLevel = True Then
+            OutputList.Add("// Setup")
 
-        'Writing Setup values
-        OutputList.Add("SequentiallyOrderedLists = " & SequentiallyOrderedLists.ToString)
-        OutputList.Add("SequentiallyOrderedSentences = " & SequentiallyOrderedSentences.ToString)
-        OutputList.Add("SequentiallyOrderedWords = " & SequentiallyOrderedWords.ToString)
-        OutputList.Add("SequentiallyOrderedPhonemes = " & SequentiallyOrderedPhonemes.ToString)
+            'Writing Setup values
+            OutputList.Add("SequentiallyOrderedLists = " & SequentiallyOrderedLists.ToString)
+            OutputList.Add("SequentiallyOrderedSentences = " & SequentiallyOrderedSentences.ToString)
+            OutputList.Add("SequentiallyOrderedWords = " & SequentiallyOrderedWords.ToString)
+            OutputList.Add("SequentiallyOrderedPhonemes = " & SequentiallyOrderedPhonemes.ToString)
+            OutputList.Add("PresetLevel = " & PresetLevel.ToString)
+            For Each Item In PresetSpecifications
+                OutputList.Add("Preset = " & Item.Item1.Trim & ": " & String.Join(", ", Item.Item2))
+            Next
 
-        'Writing components
-        OutputList.Add("// Components")
+            'Writing components
+            OutputList.Add("")
+            OutputList.Add("// Components")
+        End If
 
-        Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "CustomVariablesDatabase" & vbTab &
-                    "IsPractiseComponent" '& vbTab & "MediaFolder" & vbTab & "MaskerFolder" & vbTab & "BackgroundNonspeechFolder" & vbTab & "BackgroundSpeechFolder"
+        Dim HeadingString As String = "// LinguisticLevel" & vbTab & "Id" & vbTab & "ParentId" & vbTab & "PrimaryStringRepresentation" & vbTab & "IsPractiseComponent"
 
         Dim Main_List As New List(Of String)
 
@@ -1946,13 +2109,13 @@ Public Class SpeechMaterialComponent
         'PrimaryStringRepresentation
         Main_List.Add(PrimaryStringRepresentation)
 
-        'CustomVariablesDatabase 
-        If CustomVariablesDatabasePath <> "" Then
-            Dim CurrentDataBasePath = IO.Path.GetFileName(CustomVariablesDatabasePath)
-            Main_List.Add(CurrentDataBasePath)
-        Else
-            Main_List.Add("")
-        End If
+        ''CustomVariablesDatabase 
+        'If CustomVariablesDatabasePath <> "" Then
+        '    Dim CurrentDataBasePath = IO.Path.GetFileName(CustomVariablesDatabasePath)
+        '    Main_List.Add(CurrentDataBasePath)
+        'Else
+        '    Main_List.Add("")
+        'End If
 
         'OrderedChildren 
         'Main_List.Add(OrderedChildren.ToString) 'Removed!
@@ -1970,14 +2133,22 @@ Public Class SpeechMaterialComponent
         'BackgroundSpeechFolder 
         'Main_List.Add(BackgroundSpeechFolder)
 
-        OutputList.Add(HeadingString)
+        If ExportAtThisLevel = True Then
+            OutputList.Add(HeadingString)
+        End If
+        If Me.LinguisticLevel = LinguisticLevels.List Or Me.LinguisticLevel = LinguisticLevels.ListCollection Then
+            OutputList.Add("") 'Adding an empty line between list or list collection level components
+        End If
+
         OutputList.Add(String.Join(vbTab, Main_List))
-        OutputList.Add("") 'Adding an empty line between components
+
 
         'Writing to file
         Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(SpeechMaterialComponentFileName), OutputSpeechMaterialFolder, True, True, ExportAtThisLevel)
 
         'Custom variables
+        Dim CustomVariablesDatabasePath As String = SpeechMaterialComponent.GetDatabaseFileName(LinguisticLevel)
+
         If CustomVariablesDatabasePath <> "" Then
 
             'Getting the right collection into which to store custom variable values
@@ -2355,7 +2526,7 @@ Public Class CustomVariablesDatabase
 
     Public Function LoadTabDelimitedFile(ByVal FilePath As String, ByVal MatchBy As LookupMathOptions,
                                          Optional ByVal SpellingVariableName As String = "", Optional ByVal TranscriptionVariableName As String = "",
-                                         Optional ByVal IncludeItems As SortedSet(Of String) = Nothing) As Boolean
+                                         Optional ByVal IncludeItems As SortedList(Of String, String) = Nothing) As Boolean
 
 
         ''Gets a file path from the user if none is supplied
@@ -2491,8 +2662,11 @@ Public Class CustomVariablesDatabase
 
                 'Skipping if IncludeItems has been set and the UniqueIdentifier is not in it (this is to save memory with very large databases!!!)
                 If IncludeItems IsNot Nothing Then
-                    If IncludeItems.Contains(UniqueIdentifier) = False Then Continue For
+                    If IncludeItems.Keys.Contains(UniqueIdentifier) = False Then Continue For
                 End If
+
+                'Getting the original identifier if altered before lookup
+                Dim OriginalIdentifier As String = IncludeItems(UniqueIdentifier)
 
                 If CustomVariablesData.ContainsKey(UniqueIdentifier) Then
                     Select Case MatchBy
@@ -2507,7 +2681,7 @@ Public Class CustomVariablesDatabase
                 End If
 
                 'Adding the unique identifier
-                CustomVariablesData.Add(UniqueIdentifier, New SortedList(Of String, Object))
+                CustomVariablesData.Add(OriginalIdentifier, New SortedList(Of String, Object))
 
                 'Adding variables (getting only as many as there are variables, or tabs)
                 For c = 0 To Math.Min(LineSplit.Length - 1, CustomVariableNames.Count - 1)
@@ -2519,14 +2693,14 @@ Public Class CustomVariablesDatabase
                         Dim NumericValue As Double
                         If Double.TryParse(ValueString.Replace(",", "."), NumberStyles.Float, CultureInfo.InvariantCulture, NumericValue) Then
                             'Adds the variable and its data only if a value has been parsed
-                            CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), NumericValue)
+                            CustomVariablesData(OriginalIdentifier).Add(CustomVariableNames(c), NumericValue)
                         Else
                             'Throws an error if parsing failed even though the string was not empty
                             If ValueString.Trim <> "" Then
                                 Throw New Exception("Unable to parse the string " & ValueString & " given for the variable " & CustomVariableNames(c) & " in the file: " & FilePath & " as a numeric value.")
                             Else
                                 'Stores a NaN to mark that the input data was missing / NaN
-                                CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), Double.NaN)
+                                CustomVariablesData(OriginalIdentifier).Add(CustomVariableNames(c), Double.NaN)
                             End If
                         End If
 
@@ -2536,7 +2710,7 @@ Public Class CustomVariablesDatabase
                         Dim BooleanValue As Boolean
                         If Boolean.TryParse(ValueString, BooleanValue) Then
                             'Adds the variable and its data only if a value has been parsed
-                            CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), BooleanValue)
+                            CustomVariablesData(OriginalIdentifier).Add(CustomVariableNames(c), BooleanValue)
                         Else
                             'Throws an error if parsing failed even though the string was not empty
                             If ValueString.Trim <> "" Then
@@ -2546,7 +2720,7 @@ Public Class CustomVariablesDatabase
 
                     Else
                         'Adding the data as a String
-                        CustomVariablesData(UniqueIdentifier).Add(CustomVariableNames(c), ValueString)
+                        CustomVariablesData(OriginalIdentifier).Add(CustomVariableNames(c), ValueString)
                     End If
 
                 Next

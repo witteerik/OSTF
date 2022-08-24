@@ -93,7 +93,7 @@
             Dim CaseInsensitiveSpellings As Boolean = CaseInvariantLookupCheckBox.Checked
             Dim IgnoreZeroPhonemes As Boolean = IgnoreZeroPhonemesCheckBox.Checked
             Dim AllWordLevelComponents = LoadedSpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Word)
-            Dim SpeechMaterialLookupKeys As New SortedSet(Of String)
+            Dim SpeechMaterialLookupKeys As New SortedList(Of String, String)
 
             For Each WordComponent In AllWordLevelComponents
 
@@ -102,31 +102,37 @@
                     Spelling = Spelling.ToLower
                 End If
 
-                Dim UniqueIdentifier As String = ""
+                Dim OriginalUniqueIdentifier As String = ""
+                Dim PotentiallyModifiedUniqueIdentifier As String = ""
                 Select Case LookupMatchBy
                     Case CustomVariablesDatabase.LookupMathOptions.MatchBySpellingAndTranscription
-                        Dim Transcription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                        Dim OriginalTranscription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                        Dim Transcription As String = OriginalTranscription
                         If IgnoreZeroPhonemes = True Then
                             Transcription = Transcription.Replace(IPA.ZeroPhoneme, "")
                             Transcription = Transcription.Trim
                             Transcription = Transcription.Replace("  ", " ")
                             Transcription = Transcription.Trim
                         End If
-                        UniqueIdentifier = Spelling & vbTab & Transcription
+                        PotentiallyModifiedUniqueIdentifier = Spelling & vbTab & Transcription
+                        OriginalUniqueIdentifier = Spelling & vbTab & OriginalTranscription
                     Case CustomVariablesDatabase.LookupMathOptions.MatchBySpelling
-                        UniqueIdentifier = Spelling
+                        PotentiallyModifiedUniqueIdentifier = Spelling
+                        OriginalUniqueIdentifier = Spelling
                     Case CustomVariablesDatabase.LookupMathOptions.MatchByTranscription
-                        Dim Transcription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                        Dim OriginalTranscription As String = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName).Trim
+                        Dim Transcription As String = OriginalTranscription
                         If IgnoreZeroPhonemes = True Then
                             Transcription = Transcription.Replace(IPA.ZeroPhoneme, "")
                             Transcription = Transcription.Trim
                             Transcription = Transcription.Replace("  ", " ")
                             Transcription = Transcription.Trim
                         End If
-                        UniqueIdentifier = Transcription
+                        PotentiallyModifiedUniqueIdentifier = Transcription
+                        OriginalUniqueIdentifier = OriginalTranscription
                 End Select
 
-                If SpeechMaterialLookupKeys.Contains(UniqueIdentifier) = False Then SpeechMaterialLookupKeys.Add(UniqueIdentifier)
+                If SpeechMaterialLookupKeys.ContainsKey(PotentiallyModifiedUniqueIdentifier) = False Then SpeechMaterialLookupKeys.Add(PotentiallyModifiedUniqueIdentifier, OriginalUniqueIdentifier)
             Next
 
 
@@ -136,8 +142,8 @@
             'Checking that all needed words were found in the database
             Dim WordsNotFound As New List(Of String)
             For Each LookupKey In SpeechMaterialLookupKeys
-                If LoadedLexicalDatabase.UniqueIdentifierIsPresent(LookupKey) = False Then
-                    WordsNotFound.Add(LookupKey)
+                If LoadedLexicalDatabase.UniqueIdentifierIsPresent(LookupKey.Value) = False Then
+                    WordsNotFound.Add(LookupKey.Value)
                 End If
             Next
 
