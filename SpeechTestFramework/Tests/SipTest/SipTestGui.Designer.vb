@@ -62,6 +62,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel24 = New System.Windows.Forms.TableLayoutPanel()
         Me.GainPanel = New System.Windows.Forms.Panel()
+        Me.VerticalLabel5 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.TableLayoutPanel15 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label10 = New System.Windows.Forms.Label()
         Me.PnrComboBox = New System.Windows.Forms.ComboBox()
@@ -70,7 +71,7 @@ Partial Class SipTestGui
         Me.TestLengthComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel13 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label8 = New System.Windows.Forms.Label()
-        Me.VoiceComboBox = New System.Windows.Forms.ComboBox()
+        Me.TestSituationComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel12 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.PresetComboBox = New System.Windows.Forms.ComboBox()
@@ -80,8 +81,10 @@ Partial Class SipTestGui
         Me.AudiogramComboBox = New System.Windows.Forms.ComboBox()
         Me.GainTypeComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel10 = New System.Windows.Forms.TableLayoutPanel()
+        Me.VerticalLabel4 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.AudiogramPanel = New System.Windows.Forms.Panel()
         Me.TableLayoutPanel25 = New System.Windows.Forms.TableLayoutPanel()
+        Me.VerticalLabel6 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.ExpectedScorePanel = New System.Windows.Forms.Panel()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel26 = New System.Windows.Forms.TableLayoutPanel()
@@ -111,9 +114,6 @@ Partial Class SipTestGui
         Me.Label4 = New System.Windows.Forms.Label()
         Me.SSNumber1TextBox = New System.Windows.Forms.TextBox()
         Me.PatientSearchButton = New System.Windows.Forms.Button()
-        Me.VerticalLabel5 = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.VerticalLabel4 = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.VerticalLabel6 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -608,6 +608,16 @@ Partial Class SipTestGui
         Me.GainPanel.Size = New System.Drawing.Size(360, 124)
         Me.GainPanel.TabIndex = 0
         '
+        'VerticalLabel5
+        '
+        Me.VerticalLabel5.AutoSize = True
+        Me.VerticalLabel5.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.VerticalLabel5.Location = New System.Drawing.Point(3, 0)
+        Me.VerticalLabel5.Name = "VerticalLabel5"
+        Me.VerticalLabel5.Size = New System.Drawing.Size(15, 130)
+        Me.VerticalLabel5.TabIndex = 1
+        Me.VerticalLabel5.Text = "FÖRSTÄRKNING (dB)"
+        '
         'TableLayoutPanel15
         '
         Me.TableLayoutPanel15.ColumnCount = 2
@@ -686,7 +696,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel13.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100.0!))
         Me.TableLayoutPanel13.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel13.Controls.Add(Me.Label8, 0, 0)
-        Me.TableLayoutPanel13.Controls.Add(Me.VoiceComboBox, 1, 0)
+        Me.TableLayoutPanel13.Controls.Add(Me.TestSituationComboBox, 1, 0)
         Me.TableLayoutPanel13.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel13.Location = New System.Drawing.Point(0, 365)
         Me.TableLayoutPanel13.Margin = New System.Windows.Forms.Padding(0)
@@ -708,13 +718,13 @@ Partial Class SipTestGui
         '
         'VoiceComboBox
         '
-        Me.VoiceComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.VoiceComboBox.FormattingEnabled = True
-        Me.VoiceComboBox.Location = New System.Drawing.Point(100, 0)
-        Me.VoiceComboBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.VoiceComboBox.Name = "VoiceComboBox"
-        Me.VoiceComboBox.Size = New System.Drawing.Size(281, 21)
-        Me.VoiceComboBox.TabIndex = 5
+        Me.TestSituationComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TestSituationComboBox.FormattingEnabled = True
+        Me.TestSituationComboBox.Location = New System.Drawing.Point(100, 0)
+        Me.TestSituationComboBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.TestSituationComboBox.Name = "VoiceComboBox"
+        Me.TestSituationComboBox.Size = New System.Drawing.Size(281, 21)
+        Me.TestSituationComboBox.TabIndex = 5
         '
         'TableLayoutPanel12
         '
@@ -824,6 +834,16 @@ Partial Class SipTestGui
         Me.TableLayoutPanel10.Size = New System.Drawing.Size(381, 130)
         Me.TableLayoutPanel10.TabIndex = 6
         '
+        'VerticalLabel4
+        '
+        Me.VerticalLabel4.AutoSize = True
+        Me.VerticalLabel4.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.VerticalLabel4.Location = New System.Drawing.Point(3, 0)
+        Me.VerticalLabel4.Name = "VerticalLabel4"
+        Me.VerticalLabel4.Size = New System.Drawing.Size(15, 130)
+        Me.VerticalLabel4.TabIndex = 0
+        Me.VerticalLabel4.Text = "AUDIOGRAM (dB HL)"
+        '
         'AudiogramPanel
         '
         Me.AudiogramPanel.Dock = System.Windows.Forms.DockStyle.Fill
@@ -848,6 +868,16 @@ Partial Class SipTestGui
         Me.TableLayoutPanel25.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel25.Size = New System.Drawing.Size(381, 130)
         Me.TableLayoutPanel25.TabIndex = 8
+        '
+        'VerticalLabel6
+        '
+        Me.VerticalLabel6.AutoSize = True
+        Me.VerticalLabel6.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.VerticalLabel6.Location = New System.Drawing.Point(3, 0)
+        Me.VerticalLabel6.Name = "VerticalLabel6"
+        Me.VerticalLabel6.Size = New System.Drawing.Size(15, 130)
+        Me.VerticalLabel6.TabIndex = 0
+        Me.VerticalLabel6.Text = "FÖRV. RESULTAT (%)"
         '
         'ExpectedScorePanel
         '
@@ -973,7 +1003,7 @@ Partial Class SipTestGui
         '
         'StartButton
         '
-        Me.StartButton.BackgroundImage = My.Resources.Resources.PlayDisabledImage
+        Me.StartButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.PlayDisabledImage
         Me.StartButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
         Me.StartButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.StartButton.Location = New System.Drawing.Point(3, 3)
@@ -985,7 +1015,7 @@ Partial Class SipTestGui
         '
         'StopButton
         '
-        Me.StopButton.BackgroundImage = My.Resources.Resources.StopDisabledImage
+        Me.StopButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.StopDisabledImage
         Me.StopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
         Me.StopButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.StopButton.Location = New System.Drawing.Point(202, 3)
@@ -1237,36 +1267,6 @@ Partial Class SipTestGui
         Me.PatientSearchButton.Text = "Sök"
         Me.PatientSearchButton.UseVisualStyleBackColor = True
         '
-        'VerticalLabel5
-        '
-        Me.VerticalLabel5.AutoSize = True
-        Me.VerticalLabel5.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.VerticalLabel5.Location = New System.Drawing.Point(3, 0)
-        Me.VerticalLabel5.Name = "VerticalLabel5"
-        Me.VerticalLabel5.Size = New System.Drawing.Size(15, 130)
-        Me.VerticalLabel5.TabIndex = 1
-        Me.VerticalLabel5.Text = "FÖRSTÄRKNING (dB)"
-        '
-        'VerticalLabel4
-        '
-        Me.VerticalLabel4.AutoSize = True
-        Me.VerticalLabel4.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.VerticalLabel4.Location = New System.Drawing.Point(3, 0)
-        Me.VerticalLabel4.Name = "VerticalLabel4"
-        Me.VerticalLabel4.Size = New System.Drawing.Size(15, 130)
-        Me.VerticalLabel4.TabIndex = 0
-        Me.VerticalLabel4.Text = "AUDIOGRAM (dB HL)"
-        '
-        'VerticalLabel6
-        '
-        Me.VerticalLabel6.AutoSize = True
-        Me.VerticalLabel6.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.VerticalLabel6.Location = New System.Drawing.Point(3, 0)
-        Me.VerticalLabel6.Name = "VerticalLabel6"
-        Me.VerticalLabel6.Size = New System.Drawing.Size(15, 130)
-        Me.VerticalLabel6.TabIndex = 0
-        Me.VerticalLabel6.Text = "FÖRV. RESULTAT (%)"
-        '
         'SipTestGui
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1363,7 +1363,7 @@ Partial Class SipTestGui
     Friend WithEvents ProportionCorrect_Label As Windows.Forms.Label
     Friend WithEvents PnrComboBox As Windows.Forms.ComboBox
     Friend WithEvents TestLengthComboBox As Windows.Forms.ComboBox
-    Friend WithEvents VoiceComboBox As Windows.Forms.ComboBox
+    Friend WithEvents TestSituationComboBox As Windows.Forms.ComboBox
     Friend WithEvents PresetComboBox As Windows.Forms.ComboBox
     Friend WithEvents ReferenceLevelComboBox As Windows.Forms.ComboBox
     Friend WithEvents AudiogramComboBox As Windows.Forms.ComboBox

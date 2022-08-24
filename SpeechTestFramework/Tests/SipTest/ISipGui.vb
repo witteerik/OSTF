@@ -52,14 +52,14 @@
         ''' </summary>
         ''' <param name="AvailablePresets"></param>
         ''' <param name="SelectedIndex"></param>
-        Sub PopulatePresetList(ByVal AvailablePresets As List(Of SipTest.SipTestPresets), ByVal SelectedIndex As Integer)
+        Sub PopulatePresetList(ByVal AvailablePresets As List(Of String), ByVal SelectedIndex As Integer)
 
         ''' <summary>
-        ''' Should populate a list displaying the available SiP-test voices in AvailableVoices, and preselect the voice stored at index SelectedIndex. 
+        ''' Should populate a list displaying the available SiP-test test situations in AvailableSituations, and preselect the test situation stored at index SelectedIndex. 
         ''' </summary>
-        ''' <param name="AvailableVoices"></param>
+        ''' <param name="AvailableSituations"></param>
         ''' <param name="SelectedIndex"></param>
-        Sub PopulateVoiceList(ByVal AvailableVoices As List(Of String), ByVal SelectedIndex As Integer?)
+        Sub PopulateTestSituationList(ByVal AvailableSituations As List(Of String), ByVal SelectedIndex As Integer?)
 
         ''' <summary>
         ''' Should populate a list displaying the available SiP-test lengths (in number of trials) AvailableTestLengths, and preselect the test length stored at index SelectedIndex. 

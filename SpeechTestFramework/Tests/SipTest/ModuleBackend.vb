@@ -7,16 +7,11 @@ Namespace SipTest
         'Friend CurrentUser As User
         Friend CurrentPatient As Patient
         Friend AvailableAudiograms As New List(Of AudiogramData)
-        Friend AvailablePresets As New List(Of SipTest.SipTestPresets) From {
-            SipTest.SipTestPresets.Måttlig_A,
-            SipTest.SipTestPresets.Måttlig_B_Fallande,
-            SipTest.SipTestPresets.Grav_A,
-            SipTest.SipTestPresets.Grav_B_Fallande}
         Friend AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
+        Friend AvailableMediaSets As MediaSetLibrary
         Friend CurrentSipTestMeasurement As TestSession
         'Friend SoundPlayer As Audio.PaOverlappingSoundPlayerC
 
-        Friend MediaSetLibrary As MediaSetLibrary
         Friend CompleteSpeechMaterial As SpeechMaterialComponent
 
         'Friend BlueToothConnection As BlueToothConnection
@@ -70,6 +65,9 @@ Namespace SipTest
                 Exit Sub
             End If
 
+            'Loading media sets
+            CompleteSpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
+            AvailableMediaSets = CompleteSpeechMaterial.ParentTestSpecification.MediaSets
 
             'Me.TestStimulusLibrary = New TestStimulusLibrary(PlayBackWaveFormat, CalibrationData)
 
@@ -224,7 +222,7 @@ Namespace SipTest
             ReferenceLevel
             HearingAidGain
             TestPreset
-            TestVoice
+            TestSituation
             TestLength
             PNR
         End Enum
@@ -296,61 +294,48 @@ Namespace SipTest
 
 
                 'Updating the choice of preset
-                If CurrentSipTestMeasurement.SipTestPresetName IsNot Nothing Then
-
+                Dim AvailablePresetsNames = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.Keys.ToList
+                If CurrentSipTestMeasurement.SelectedPresetName IsNot Nothing Then
                     'Determining the index of any previously selected value, and then populating the list
-                    SipGui.PopulatePresetList(AvailablePresets, AvailablePresets.IndexOf(CurrentSipTestMeasurement.SipTestPresetName))
+                    SipGui.PopulatePresetList(AvailablePresetsNames.ToList, AvailablePresetsNames.IndexOf(CurrentSipTestMeasurement.SelectedPresetName))
                 Else
                     'Populating the list with the default value
-                    SipGui.PopulatePresetList(AvailablePresets, GetDefaultSiPTestPreset)
+                    SipGui.PopulatePresetList(AvailablePresetsNames.ToList, AvailablePresetsNames(0))
                 End If
 
             End If
 
             If Startpoint <= RecalculationStartpoints.TestPreset Then
 
-                ''TODO: If more than one environment is added, this need to be selected here.
-                'CurrentSipTestMeasurement.SelectedSipTestEnvironment = "Stad"
+                'The preset was updated. Updating the choice of TestSituation
+                Dim AvailableMediaSetNames = AvailableMediaSets.GetNames
+                If CurrentSipTestMeasurement.SelectedMediaSetName <> "" Then
 
-                ''The preset was updated. Updating the choice of voice
-                'Me.MediaSetLibrary = New MediaSetLibrary
-                'MediaSetLibrary.SetSipValues()
+                    'Determining the index of any previously selected value, and then populating the list
+                    SipGui.PopulateTestSituationList(AvailableMediaSetNames, AvailableMediaSetNames.IndexOf(CurrentSipTestMeasurement.SelectedMediaSetName))
+                Else
 
-                'Dim AvailableVoices = MediaSetLibrary.GetAvailableVoices
-                'If CurrentSipTestMeasurement.SelectedSipTestVoice <> "" Then
+                    SipGui.PopulateTestSituationList(AvailableMediaSetNames, Nothing)
 
-                '    'Determining the index of any previously selected value, and then populating the list
-                '    SipGui.PopulateVoiceList(AvailableVoices, AvailableVoices.IndexOf(CurrentSipTestMeasurement.SelectedSipTestVoice))
-                'Else
-
-                '    SipGui.PopulateVoiceList(AvailableVoices, Nothing)
-
-                '    'Halting the recalculation chain, since no voice is selected
-                '    Exit Sub
-                'End If
-
+                    'Halting the recalculation chain, since no media set is selected
+                    Exit Sub
+                End If
 
             End If
 
-            If Startpoint <= RecalculationStartpoints.TestVoice Then
+            If Startpoint <= RecalculationStartpoints.TestSituation Then
 
-                'The voice was updated. Updating the test lengths
+                'The media set was updated. Updating the test lengths
                 Dim AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-
-                Dim PresetLength As Integer = SipTest.GetPresetTestWordBaseCount(CurrentSipTestMeasurement.SipTestPresetName)
-
-                For n = 0 To AvailableLengthReduplications.Count - 1
-                    AvailableLengthReduplications(n) *= PresetLength
-                Next
 
                 If CurrentSipTestMeasurement.TestProcedure.LengthReduplications IsNot Nothing Then
 
                     'Determining the index of any previously selected value, and then populating the list
-                    SipGui.PopulateTestLengthList(AvailableLengthReduplications, AvailableLengthReduplications.IndexOf(PresetLength * CurrentSipTestMeasurement.TestProcedure.LengthReduplications))
+                    SipGui.PopulateTestLengthList(AvailableLengthReduplications, AvailableLengthReduplications.IndexOf(CurrentSipTestMeasurement.TestProcedure.LengthReduplications))
                 Else
 
-                    Dim DefaultLengthReduplication As Integer = 3 ' TODO: this should be customized in some way!
-                    SipGui.PopulateTestLengthList(AvailableLengthReduplications, AvailableLengthReduplications.IndexOf(PresetLength * DefaultLengthReduplication))
+                    Dim DefaultLengthReduplication As Integer = 0 ' TODO: this should be customized in some way!
+                    SipGui.PopulateTestLengthList(AvailableLengthReduplications, AvailableLengthReduplications.IndexOf(DefaultLengthReduplication))
 
                 End If
 
@@ -359,9 +344,7 @@ Namespace SipTest
             If Startpoint <= RecalculationStartpoints.TestLength Then
 
                 'Test length was updated, adds test trials to the measurement
-                CurrentSipTestMeasurement.ClearTrials
-
-                CurrentSipTestMeasurement.PlanTestTrials(Nothing) 'True, Me.MediaSetLibrary(CurrentSipTestMeasurement.SelectedSipTestVoice))
+                CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets)
 
                 'Calculates the psychometric function
                 Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction()
@@ -458,31 +441,28 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub SelectPreset(SelectedPreset As SipTest.SipTestPresets) Implements IModuleBackend.SelectPreset
+        Public Sub SelectPreset(SelectedPreset As String) Implements IModuleBackend.SelectPreset
 
             'Stores the selected preset
-            CurrentSipTestMeasurement.SipTestPresetName = SelectedPreset
+            CurrentSipTestMeasurement.SelectedPresetName = SelectedPreset
 
             TriggerRecalculationChain(RecalculationStartpoints.TestPreset)
 
         End Sub
 
-        Public Sub SelectVoice(SelectedVoice As String) Implements IModuleBackend.SelectVoice
+        Public Sub SelectSituation(SelectedSituation As String) Implements IModuleBackend.SelectSituation
 
             'Stores the selected preset
-            'CurrentSipTestMeasurement.SelectedSipTestVoice = SelectedVoice
+            CurrentSipTestMeasurement.SelectedMediaSetName = SelectedSituation
 
-            TriggerRecalculationChain(RecalculationStartpoints.TestVoice)
+            TriggerRecalculationChain(RecalculationStartpoints.TestSituation)
 
         End Sub
 
         Public Sub SelectTestLength(SelectedTestLength As Integer) Implements IModuleBackend.SelectTestLength
 
-
-            Dim CurrentPresetLength As Integer = SipTest.Presets.GetPresetTestWordBaseCount(CurrentSipTestMeasurement.SipTestPresetName)
-
             'Stores the selected preset
-            CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedTestLength / CurrentPresetLength
+            CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedTestLength
 
             TriggerRecalculationChain(RecalculationStartpoints.TestLength)
 
@@ -506,10 +486,10 @@ Namespace SipTest
 
         Public Sub InitiateNewMeasurement()
 
-            'Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
+            Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
 
-            'SipGui.UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResultResponseTypes.ToArray,
-            '                                GetGuiTableData.UpdateRow, GetGuiTableData.SelectionRow, GetGuiTableData.FirstRowToDisplayInScrollmode)
+            SipGui.UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResultResponseTypes.ToArray,
+                                            GetGuiTableData.UpdateRow, GetGuiTableData.SelectionRow, GetGuiTableData.FirstRowToDisplayInScrollmode)
 
             'SipGui.UpdateTestProgress(CurrentSipTestMeasurement.TestLength, CurrentSipTestMeasurement.NumberPresented, CurrentSipTestMeasurement.NumberCorrect, CurrentSipTestMeasurement.PercentCorrect)
 

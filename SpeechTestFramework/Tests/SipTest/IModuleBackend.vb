@@ -32,13 +32,13 @@
         ''' A method that should set the ModuleBackend.SelectedPreset to SelectedPreset and trigger a recalculation chain from the TestPreset start point, including calls to update the relevant data presented in the Gui.
         ''' </summary>
         ''' <param name="SelectedPreset"></param>
-        Sub SelectPreset(ByVal SelectedPreset As SipTest.SipTestPresets)
+        Sub SelectPreset(ByVal SelectedPreset As String)
 
         ''' <summary>
-        ''' A method that should set the ModuleBackend.SelectedVoice to SelectedVoice and trigger a recalculation chain from the TestVoice start point, including calls to update the relevant data presented in the Gui.
+        ''' A method that should set the ModuleBackend.SelectedSituation to SelectedSituation and trigger a recalculation chain from the SelectedSituation start point, including calls to update the relevant data presented in the Gui.
         ''' </summary>
-        ''' <param name="SelectedVoice"></param>
-        Sub SelectVoice(ByVal SelectedVoice As String)
+        ''' <param name="SelectedSituation"></param>
+        Sub SelectSituation(ByVal SelectedSituation As String)
 
         ''' <summary>
         ''' A method that should set the ModuleBackend.SelectedTestLengthFactor to SelectedTestLength divided by the number of items in the selected preset and trigger a 

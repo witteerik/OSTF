@@ -25,6 +25,9 @@ Namespace SipTest
         ''' <returns></returns>
         Public Property TestTrialHistory As New List(Of SipTrial)
 
+
+        Public Property PlannedTrials As New List(Of SipTrial)
+
         ''' <summary>
         ''' Holds settings that determine how the test should enfold.
         ''' </summary>
@@ -37,47 +40,82 @@ Namespace SipTest
         Public Property ReferenceLevel As Nullable(Of Double) = Nothing
         Public Property HearingAidGainType As Nullable(Of HearingAidGainData.GainTypes)
 
-        Public Property SipTestPresetName As Nullable(Of SipTestPresets) = Nothing
+        Public Property SelectedMediaSetName As String = "" ' If not selected random media sets can be assigned to different trials
+
+        Public Property SelectedPresetName As String = ""
 
         Public ReadOnly Property Patient As Patient
 
         Public Property SelectedPnr As Nullable(Of Double) = Nothing
 
+        Friend Randomizer As Random
 
-        Public Sub New(ByRef Patient As Patient, ByRef ParentTestSpecification As TestSpecification)
+        Public Sub New(ByRef Patient As Patient, ByRef ParentTestSpecification As TestSpecification, Optional RandomSeed As Integer? = Nothing)
+
+            If RandomSeed.HasValue = True Then
+                Randomizer = New Random(RandomSeed)
+            Else
+                Randomizer = New Random
+            End If
+
             Me.Patient = Patient
             Me.ParentTestSpecification = ParentTestSpecification
 
+            'Setting a default preset (the first in the preset list)
+            Me.SelectedPresetName = Me.ParentTestSpecification.SpeechMaterial.Presets.Keys(0)
+
         End Sub
 
-        Public Sub PlanTestTrials(ByRef MediaSet As MediaSet)
+        Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, Optional ByVal RandomSeed As Integer? = Nothing)
 
-            'MsgBox("N.B. Remove hard coded Loading and selecting of Media set")
-            ParentTestSpecification.LoadAvailableMediaSetSpecifications()
-            MediaSet = ParentTestSpecification.MediaSets(0)
+            ClearTrials()
 
-            Dim IdsToSelect = SipTest.Presets.SipTestPresetMembers(Me.SipTestPresetName)
+            If RandomSeed.HasValue Then Randomizer = New Random(RandomSeed)
 
-            Dim CandidateTestComponents = ParentTestSpecification.SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
-            For Each CandidateTestComponent In CandidateTestComponents
+            For r = 1 To TestProcedure.LengthReduplications
 
-                If IdsToSelect.Contains(CandidateTestComponent.PrimaryStringRepresentation) Then
+                For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(SelectedPresetName)
 
                     Dim NewTestUnit = New SiPTestUnit(Me)
 
-                    Dim TestWords = CandidateTestComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+                    Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
                     NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
-                    NewTestUnit.PlanTrials(MediaSet)
-                    TestUnits.Add(NewTestUnit)
 
-                End If
+                    If SelectedMediaSetName <> "" Then
+                        'Adding from the selected media set
+                        NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(SelectedMediaSetName))
+                        TestUnits.Add(NewTestUnit)
+                    Else
+                        'Adding from random media sets
+                        Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
+                        NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex))
+                        TestUnits.Add(NewTestUnit)
+                    End If
 
+                Next
             Next
+
+            For Each Unit In TestUnits
+                For Each Trial In Unit.PlannedTrials
+                    PlannedTrials.Add(Trial)
+                Next
+            Next
+
+            If TestProcedure.RandomizeOrder = True Then
+                Dim RandomList As New List(Of SipTrial)
+                Do Until PlannedTrials.Count = 0
+                    Dim RandomIndex As Integer = Randomizer.Next(0, PlannedTrials.Count)
+                    RandomList.Add(PlannedTrials(RandomIndex))
+                    PlannedTrials.RemoveAt(RandomIndex)
+                Loop
+                PlannedTrials = RandomList
+            End If
 
         End Sub
 
         Public Sub ClearTrials()
             TestUnits.Clear()
+            PlannedTrials.Clear()
         End Sub
 
         Public Function CalculateEstimatedPsychometricFunction(Optional ByVal PNRs As List(Of Double) = Nothing) As SortedList(Of Double, Tuple(Of Double, Double, Double))
@@ -143,7 +181,92 @@ Namespace SipTest
 
         End Function
 
+#Region "GUI"
+
+        Public Function GetGuiTableData() As GuiTableData
+
+            Dim Output As New GuiTableData
+
+            Dim LastPresentedTrialIndex As Integer = 0
+            For i = 0 To PlannedTrials.Count - 1
+
+                Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation)
+
+                If PlannedTrials(i).ObservedResponse IsNot Nothing Then
+                    Output.Responses.Add(PlannedTrials(i).ObservedResponse.ObservedResponseSpelling)
+                Else
+                    Output.Responses.Add("")
+                End If
+
+                Output.ResultResponseTypes.Add(PlannedTrials(i).GetResponseType)
+
+                If PlannedTrials(i).GetResponseType <> ResponseType.NotPresented Then
+                    LastPresentedTrialIndex = i
+                End If
+
+            Next
+
+            Output.SelectionRow = LastPresentedTrialIndex
+            Output.FirstRowToDisplayInScrollmode = Math.Max(0, LastPresentedTrialIndex - 7)
+
+            Return Output
+
+        End Function
+
+        Public Class GuiTableData
+            Public TestWords As New List(Of String)
+            Public Responses As New List(Of String)
+            Public ResultResponseTypes As New List(Of SipTest.ResultResponseType)
+            Public UpdateRow As Integer? = Nothing
+            Public SelectionRow As Integer? = Nothing
+            Public FirstRowToDisplayInScrollmode As Integer? = Nothing
+
+        End Class
+
+#End Region
+
+
     End Class
+
+    Public Class SipTestResponse
+
+        Public ReadOnly Property CreateDate As DateTime
+        Public ReadOnly Property Correct As Boolean
+        Public ReadOnly Property ObservedResponseSpelling As String
+        Public ReadOnly Property CorrectResponseSpelling As String
+
+        ''' <summary>
+        ''' Creates a new instance of a SipTestResponse.
+        ''' </summary>
+        ''' <param name="ObservedResponseSpelling">The spelling of the observed response. Pass an empty string for missing responses.</param>
+        ''' <param name="CorrectResponseSpelling">The spelling of the correct response. </param>
+        Public Sub New(ByVal ObservedResponseSpelling As String, ByVal CorrectResponseSpelling As String)
+            'Storing the date and time when the instance of this SipTestResult was created
+            CreateDate = DateTime.Now
+            Me.ObservedResponseSpelling = ObservedResponseSpelling
+            Me.CorrectResponseSpelling = CorrectResponseSpelling
+
+            'Setting the value of Correct
+            If ObservedResponseSpelling = CorrectResponseSpelling Then
+                Correct = True
+            End If
+
+        End Sub
+
+        ''' <summary>
+        ''' Determines if the observed response is a missing response
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function IsMissingResponse() As Boolean
+            If ObservedResponseSpelling = "" Then
+                Return True
+            Else
+                Return False
+            End If
+        End Function
+
+    End Class
+
 
 
     Public Class SiPTestUnit
@@ -168,12 +291,12 @@ Namespace SipTest
             Select Case ParentTestSession.TestProcedure.AdaptiveType
                 Case AdaptiveTypes.Fixed
 
-                    For n = 1 To ParentTestSession.TestProcedure.LengthReduplications
-                        For c = 0 To SpeechMaterialComponents.Count - 1
-                            Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet)
-                            PlannedTrials.Add(NewTrial)
-                        Next
+                    'For n = 1 To ParentTestSession.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
+                    For c = 0 To SpeechMaterialComponents.Count - 1
+                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet)
+                        PlannedTrials.Add(NewTrial)
                     Next
+                    'Next
 
             End Select
 
@@ -229,6 +352,8 @@ Namespace SipTest
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property MediaSet As MediaSet
+
+        Public Property ObservedResponse As SipTestResponse
 
         Public Property TrialResult As ResultResponseType
 
@@ -488,6 +613,41 @@ Namespace SipTest
             End Get
         End Property
 
+        ''' <summary>
+        ''' Returns the response type of a test trial, including Missing responses and NotPresented when the trial has not yet been presented in a SipTestMeasurement.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetResponseType() As ResponseType
+
+            If ObservedResponse Is Nothing Then Return ResponseType.NotPresented
+
+            If ObservedResponse.Correct = True Then Return ResponseType.Correct
+
+            If ObservedResponse.IsMissingResponse = True Then
+                Return ResponseType.Missing
+            Else
+                Return ResponseType.Incorrect
+            End If
+
+        End Function
+
+        ''' <summary>
+        ''' Returns the result-response type of a test trial, including NotPresented, but counting missing responses as randomized as either correct or incorrect results.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetResultResponseType() As ResultResponseType
+
+            If ObservedResponse Is Nothing Then Return ResultResponseType.NotPresented
+
+            If ObservedResponse.Correct = True Then
+                Return ResultResponseType.Correct
+            Else
+                Return ResultResponseType.Incorrect
+            End If
+
+        End Function
+
+
     End Class
 
     'Public Enum TestTrialResults
@@ -496,18 +656,18 @@ Namespace SipTest
     '    Missing
     'End Enum
 
-    Public Enum ResultResponseType
+    Public Enum ResponseType
         NotPresented
         Correct
         Incorrect
         Missing
     End Enum
 
-    'Public Enum ResultResponseType
-    '    NotPresented
-    '    Correct
-    '    Incorrect
-    'End Enum
+    Public Enum ResultResponseType
+        NotPresented
+        Correct
+        Incorrect
+    End Enum
 
     Public Enum SipTestPresets
         Måttlig_A
@@ -557,43 +717,5 @@ Namespace SipTest
 
         End Class
 
-    Public Module Presets
-
-        'TODO!!! These should not be hard coded!!!
-
-        Public Function SipTestPresetMembers(ByVal Preset As SipTest.SipTestPresets) As List(Of String)
-
-            Dim Output As List(Of String)
-
-            Select Case Preset
-                Case SipTest.SipTestPresets.Måttlig_A
-                    Output = New List(Of String) From {"sitt_sytt_sött", "hall_pall_tall", "paj_pall_pang", "kil_fil_sil"}
-
-                Case SipTest.SipTestPresets.Måttlig_B_Fallande
-                    Output = New List(Of String) From {"tuff_tuss_tusch", "sopp_sått_sort", "kval_kvarn_kvav", "fyr_skyr_syr"}
-
-                Case SipTest.SipTestPresets.Grav_A
-                    Output = New List(Of String) From {"sarg_sorg_sörj", "mår_mor_mur", "hyf_hys_hyrs", "kval_kvarn_kvar", "tugg_tum_tung"}
-
-                Case SipTest.SipTestPresets.Grav_B_Fallande
-                    Output = New List(Of String) From {"mark_märk_mörk", "farm_charm_larm", "red_räd_Ryd", "ed_led_ned", "sock_sått_sort"}
-                Case Else
-                    'Simply doesn't return anything 
-                    Output = New List(Of String)
-            End Select
-
-            Return Output
-        End Function
-
-        ''' <summary>
-        ''' Returns the total number of test words (3 words from every test-word list) in the specified Pretest
-        ''' </summary>
-        ''' <param name="Preset"></param>
-        ''' <returns></returns>
-        Public Function GetPresetTestWordBaseCount(ByVal Preset As SipTest.SipTestPresets) As Integer
-            Return SipTestPresetMembers(Preset).Count * 3
-        End Function
-
-    End Module
 
 End Namespace

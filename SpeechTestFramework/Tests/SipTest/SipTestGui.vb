@@ -238,7 +238,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub PopulatePresetList(AvailablePresets As List(Of SipTest.SipTestPresets), SelectedIndex As Integer) Implements ISipGui.PopulatePresetList
+    Public Sub PopulatePresetList(AvailablePresets As List(Of String), SelectedIndex As Integer) Implements ISipGui.PopulatePresetList
 
         PresetComboBox.Items.Clear()
         For Each Preset In AvailablePresets
@@ -248,14 +248,14 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub PopulateVoiceList(AvailableVoices As List(Of String), SelectedIndex As Integer?) Implements ISipGui.PopulateVoiceList
+    Public Sub PopulateTestSituationList(AvailableSituations As List(Of String), SelectedIndex As Integer?) Implements ISipGui.PopulateTestSituationList
 
-        VoiceComboBox.Items.Clear()
-        For Each RefLevel In AvailableVoices
-            VoiceComboBox.Items.Add(RefLevel)
+        TestSituationComboBox.Items.Clear()
+        For Each Value In AvailableSituations
+            TestSituationComboBox.Items.Add(Value)
         Next
         If SelectedIndex.HasValue Then
-            VoiceComboBox.SelectedIndex = SelectedIndex
+            TestSituationComboBox.SelectedIndex = SelectedIndex
         End If
 
     End Sub
@@ -339,9 +339,9 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub VoiceComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles VoiceComboBox.SelectedIndexChanged
+    Private Sub VoiceComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TestSituationComboBox.SelectedIndexChanged
 
-        SipTestBackend.SelectVoice(VoiceComboBox.SelectedItem)
+        SipTestBackend.SelectSituation(TestSituationComboBox.SelectedItem)
 
     End Sub
 

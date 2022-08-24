@@ -1571,7 +1571,7 @@ Public Class SpeechMaterialComponent
         Dim SequentiallyOrderedSentences As Boolean = False
         Dim SequentiallyOrderedWords As Boolean = True
         Dim SequentiallyOrderedPhonemes As Boolean = True
-        Dim PresetLevel As LinguisticLevels = LinguisticLevels.List
+        Dim PresetLevel As LinguisticLevels = LinguisticLevels.List ' Using List as default, as this work with the SiP-test, but it should preferably be specified in the SpeechMaterialComponents.txt file
 
         Dim PresetSpecifications As New List(Of Tuple(Of String, Boolean, List(Of String))) 'Preset name, IsContrasting, List Of PrimaryStringRepresentation
 
@@ -1760,56 +1760,79 @@ Public Class SpeechMaterialComponent
 
         Presets = New SortedList(Of String, List(Of SpeechMaterialComponent))
 
-        For Each PresetSpecification In PresetSpecifications
-            Dim SelectedComponentsList As New SortedList(Of String, SpeechMaterialComponent) ' Where String is SpeechMaterialComponent.Id
+        If PresetSpecifications.Count > 0 Then
 
+            For Each PresetSpecification In PresetSpecifications
+                Dim SelectedComponentsList As New SortedList(Of String, SpeechMaterialComponent) ' Where String is SpeechMaterialComponent.Id
+
+                Dim AllRelatives = GetAllRelatives()
+
+                If PresetSpecification.Item3 IsNot Nothing Then
+
+                    For Each Component In AllRelatives
+                        'Ignoring the component if its at the wrong level
+                        If PresetSpecification.Item3.Contains(Component.PrimaryStringRepresentation) Then
+
+                            If PresetSpecification.Item2 = True Then
+                                If Component.IsContrastingComponent = False Then Continue For
+                            End If
+
+                            'Getting related components at the PresetLevel 
+                            Dim RelatedPresetLevelComponents = Component.GetSelfOrAncestorOrDescendentsAtLevel(PresetLevel)
+                            If RelatedPresetLevelComponents IsNot Nothing Then
+
+                                'Adding the PresetLevelComponent if not already added
+                                For Each PresetLevelComponent In RelatedPresetLevelComponents
+                                    If SelectedComponentsList.Keys.Contains(PresetLevelComponent.Id) = False Then
+                                        SelectedComponentsList.Add(PresetLevelComponent.Id, PresetLevelComponent)
+                                    End If
+                                Next
+                            End If
+                        End If
+                    Next
+
+                Else
+
+                    'In case the preset component list is empty, all components (except practise components) at the PresetLevel should be added
+                    For Each Component In AllRelatives
+                        'Skipping practise components
+                        If Component.IsPractiseComponent = True Then
+                            Continue For
+                        End If
+
+                        If Component.LinguisticLevel = PresetLevel Then
+                            If SelectedComponentsList.Keys.Contains(Component.Id) = False Then
+                                SelectedComponentsList.Add(Component.Id, Component)
+                            End If
+                        End If
+                    Next
+
+                End If
+
+                Presets.Add(PresetSpecification.Item1, SelectedComponentsList.Values.ToList)
+
+            Next
+
+        Else
+
+            'If no presets have been defined, a default preset containing all components (except practise components) at the PresetLevel is added
+            Dim SelectedComponentsList As New SortedList(Of String, SpeechMaterialComponent) ' Where String is SpeechMaterialComponent.Id
             Dim AllRelatives = GetAllRelatives()
 
-            If PresetSpecification.Item3 IsNot Nothing Then
+            For Each Component In AllRelatives
+                'Skipping practise components
+                If Component.IsPractiseComponent = True Then
+                    Continue For
+                End If
 
-                For Each Component In AllRelatives
-                    'Ignoring the component if its at the wrong level
-                    If PresetSpecification.Item3.Contains(Component.PrimaryStringRepresentation) Then
-
-                        If PresetSpecification.Item2 = True Then
-                            If Component.IsContrastingComponent = False Then Continue For
-                        End If
-
-                        'Getting related components at the PresetLevel 
-                        Dim RelatedPresetLevelComponents = Component.GetSelfOrAncestorOrDescendentsAtLevel(PresetLevel)
-                        If RelatedPresetLevelComponents IsNot Nothing Then
-
-                            'Adding the PresetLevelComponent if not already added
-                            For Each PresetLevelComponent In RelatedPresetLevelComponents
-                                If SelectedComponentsList.Keys.Contains(PresetLevelComponent.Id) = False Then
-                                    SelectedComponentsList.Add(PresetLevelComponent.Id, PresetLevelComponent)
-                                End If
-                            Next
-                        End If
+                If Component.LinguisticLevel = PresetLevel Then
+                    If SelectedComponentsList.Keys.Contains(Component.Id) = False Then
+                        SelectedComponentsList.Add(Component.Id, Component)
                     End If
-                Next
-
-            Else
-
-                'In case the preset component list is empty, all components (except practise components) at the PresetLevel should be added
-                For Each Component In AllRelatives
-                    'Skipping practise components
-                    If Component.IsPractiseComponent = True Then
-                        Continue For
-                    End If
-
-                    If Component.LinguisticLevel = PresetLevel Then
-                        If SelectedComponentsList.Keys.Contains(Component.Id) = False Then
-                            SelectedComponentsList.Add(Component.Id, Component)
-                        End If
-                    End If
-                Next
-
-            End If
-
-            Presets.Add(PresetSpecification.Item1, SelectedComponentsList.Values.ToList)
-
-        Next
+                End If
+            Next
+            Presets.Add("All items", SelectedComponentsList.Values.ToList)
+        End If
 
     End Sub
 

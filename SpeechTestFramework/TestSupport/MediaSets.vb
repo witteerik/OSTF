@@ -2,6 +2,22 @@
 Public Class MediaSetLibrary
     Inherits List(Of MediaSet)
 
+    Public Function GetNames() As List(Of String)
+        Dim Output As New List(Of String)
+        For Each MediaSet In Me
+            Output.Add(MediaSet.MediaSetName)
+        Next
+        Return Output
+    End Function
+
+    Public Function GetMediaSet(ByVal MediaSetName As String) As MediaSet
+        For Each MediaSet In Me
+            If MediaSet.MediaSetName = MediaSetName Then Return MediaSet
+        Next
+        Return Nothing
+
+    End Function
+
 End Class
 
 Public Class MediaSet
