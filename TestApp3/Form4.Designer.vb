@@ -27,9 +27,9 @@ Partial Class Form4
         Me.Button2 = New System.Windows.Forms.Button()
         Me.Button3 = New System.Windows.Forms.Button()
         Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
-        Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
         Me.CustomVariableSelectionControl1 = New SpeechTestFramework.CustomVariableSelectionControl()
         Me.CustomVariableSelectionControl2 = New SpeechTestFramework.CustomVariableSelectionControl()
+        Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
         Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
         Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem2 = New SpeechTestFramework.ResponseGuiItem()
@@ -78,6 +78,28 @@ Partial Class Form4
         Me.FlowLayoutPanel1.Size = New System.Drawing.Size(342, 307)
         Me.FlowLayoutPanel1.TabIndex = 6
         '
+        'CustomVariableSelectionControl1
+        '
+        Me.CustomVariableSelectionControl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.CustomVariableSelectionControl1.IsNumericVariable = True
+        Me.CustomVariableSelectionControl1.Location = New System.Drawing.Point(3, 3)
+        Me.CustomVariableSelectionControl1.Name = "CustomVariableSelectionControl1"
+        Me.CustomVariableSelectionControl1.NewVariableName = ""
+        Me.CustomVariableSelectionControl1.OriginalVariableName = ""
+        Me.CustomVariableSelectionControl1.Size = New System.Drawing.Size(682, 122)
+        Me.CustomVariableSelectionControl1.TabIndex = 0
+        '
+        'CustomVariableSelectionControl2
+        '
+        Me.CustomVariableSelectionControl2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.CustomVariableSelectionControl2.IsNumericVariable = True
+        Me.CustomVariableSelectionControl2.Location = New System.Drawing.Point(3, 131)
+        Me.CustomVariableSelectionControl2.Name = "CustomVariableSelectionControl2"
+        Me.CustomVariableSelectionControl2.NewVariableName = ""
+        Me.CustomVariableSelectionControl2.OriginalVariableName = ""
+        Me.CustomVariableSelectionControl2.Size = New System.Drawing.Size(682, 122)
+        Me.CustomVariableSelectionControl2.TabIndex = 1
+        '
         'Audiogram1
         '
         Me.Audiogram1.AudiogramData = Nothing
@@ -123,28 +145,6 @@ Partial Class Form4
         Me.Audiogram1.Ylog = False
         Me.Audiogram1.YlogBase = 10.0!
         Me.Audiogram1.Yreversed = True
-        '
-        'CustomVariableSelectionControl1
-        '
-        Me.CustomVariableSelectionControl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.CustomVariableSelectionControl1.IsNumericVariable = True
-        Me.CustomVariableSelectionControl1.Location = New System.Drawing.Point(3, 3)
-        Me.CustomVariableSelectionControl1.Name = "CustomVariableSelectionControl1"
-        Me.CustomVariableSelectionControl1.NewVariableName = ""
-        Me.CustomVariableSelectionControl1.OriginalVariableName = ""
-        Me.CustomVariableSelectionControl1.Size = New System.Drawing.Size(682, 122)
-        Me.CustomVariableSelectionControl1.TabIndex = 0
-        '
-        'CustomVariableSelectionControl2
-        '
-        Me.CustomVariableSelectionControl2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.CustomVariableSelectionControl2.IsNumericVariable = True
-        Me.CustomVariableSelectionControl2.Location = New System.Drawing.Point(3, 131)
-        Me.CustomVariableSelectionControl2.Name = "CustomVariableSelectionControl2"
-        Me.CustomVariableSelectionControl2.NewVariableName = ""
-        Me.CustomVariableSelectionControl2.OriginalVariableName = ""
-        Me.CustomVariableSelectionControl2.Size = New System.Drawing.Size(682, 122)
-        Me.CustomVariableSelectionControl2.TabIndex = 1
         '
         'ResponseGuiItemTable1
         '

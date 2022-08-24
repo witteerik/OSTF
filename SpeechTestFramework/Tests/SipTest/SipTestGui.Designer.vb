@@ -62,7 +62,6 @@ Partial Class SipTestGui
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel24 = New System.Windows.Forms.TableLayoutPanel()
         Me.GainPanel = New System.Windows.Forms.Panel()
-        Me.VerticalLabel5 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.TableLayoutPanel15 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label10 = New System.Windows.Forms.Label()
         Me.PnrComboBox = New System.Windows.Forms.ComboBox()
@@ -81,10 +80,8 @@ Partial Class SipTestGui
         Me.AudiogramComboBox = New System.Windows.Forms.ComboBox()
         Me.GainTypeComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel10 = New System.Windows.Forms.TableLayoutPanel()
-        Me.VerticalLabel4 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.AudiogramPanel = New System.Windows.Forms.Panel()
         Me.TableLayoutPanel25 = New System.Windows.Forms.TableLayoutPanel()
-        Me.VerticalLabel6 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.ExpectedScorePanel = New System.Windows.Forms.Panel()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel26 = New System.Windows.Forms.TableLayoutPanel()
@@ -114,6 +111,9 @@ Partial Class SipTestGui
         Me.Label4 = New System.Windows.Forms.Label()
         Me.SSNumber1TextBox = New System.Windows.Forms.TextBox()
         Me.PatientSearchButton = New System.Windows.Forms.Button()
+        Me.VerticalLabel5 = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.VerticalLabel4 = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.VerticalLabel6 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -608,16 +608,6 @@ Partial Class SipTestGui
         Me.GainPanel.Size = New System.Drawing.Size(360, 124)
         Me.GainPanel.TabIndex = 0
         '
-        'VerticalLabel5
-        '
-        Me.VerticalLabel5.AutoSize = True
-        Me.VerticalLabel5.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.VerticalLabel5.Location = New System.Drawing.Point(3, 0)
-        Me.VerticalLabel5.Name = "VerticalLabel5"
-        Me.VerticalLabel5.Size = New System.Drawing.Size(15, 130)
-        Me.VerticalLabel5.TabIndex = 1
-        Me.VerticalLabel5.Text = "FÖRSTÄRKNING (dB)"
-        '
         'TableLayoutPanel15
         '
         Me.TableLayoutPanel15.ColumnCount = 2
@@ -834,16 +824,6 @@ Partial Class SipTestGui
         Me.TableLayoutPanel10.Size = New System.Drawing.Size(381, 130)
         Me.TableLayoutPanel10.TabIndex = 6
         '
-        'VerticalLabel4
-        '
-        Me.VerticalLabel4.AutoSize = True
-        Me.VerticalLabel4.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.VerticalLabel4.Location = New System.Drawing.Point(3, 0)
-        Me.VerticalLabel4.Name = "VerticalLabel4"
-        Me.VerticalLabel4.Size = New System.Drawing.Size(15, 130)
-        Me.VerticalLabel4.TabIndex = 0
-        Me.VerticalLabel4.Text = "AUDIOGRAM (dB HL)"
-        '
         'AudiogramPanel
         '
         Me.AudiogramPanel.Dock = System.Windows.Forms.DockStyle.Fill
@@ -868,16 +848,6 @@ Partial Class SipTestGui
         Me.TableLayoutPanel25.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel25.Size = New System.Drawing.Size(381, 130)
         Me.TableLayoutPanel25.TabIndex = 8
-        '
-        'VerticalLabel6
-        '
-        Me.VerticalLabel6.AutoSize = True
-        Me.VerticalLabel6.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.VerticalLabel6.Location = New System.Drawing.Point(3, 0)
-        Me.VerticalLabel6.Name = "VerticalLabel6"
-        Me.VerticalLabel6.Size = New System.Drawing.Size(15, 130)
-        Me.VerticalLabel6.TabIndex = 0
-        Me.VerticalLabel6.Text = "FÖRV. RESULTAT (%)"
         '
         'ExpectedScorePanel
         '
@@ -1266,6 +1236,36 @@ Partial Class SipTestGui
         Me.PatientSearchButton.TabIndex = 8
         Me.PatientSearchButton.Text = "Sök"
         Me.PatientSearchButton.UseVisualStyleBackColor = True
+        '
+        'VerticalLabel5
+        '
+        Me.VerticalLabel5.AutoSize = True
+        Me.VerticalLabel5.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.VerticalLabel5.Location = New System.Drawing.Point(3, 0)
+        Me.VerticalLabel5.Name = "VerticalLabel5"
+        Me.VerticalLabel5.Size = New System.Drawing.Size(15, 130)
+        Me.VerticalLabel5.TabIndex = 1
+        Me.VerticalLabel5.Text = "FÖRSTÄRKNING (dB)"
+        '
+        'VerticalLabel4
+        '
+        Me.VerticalLabel4.AutoSize = True
+        Me.VerticalLabel4.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.VerticalLabel4.Location = New System.Drawing.Point(3, 0)
+        Me.VerticalLabel4.Name = "VerticalLabel4"
+        Me.VerticalLabel4.Size = New System.Drawing.Size(15, 130)
+        Me.VerticalLabel4.TabIndex = 0
+        Me.VerticalLabel4.Text = "AUDIOGRAM (dB HL)"
+        '
+        'VerticalLabel6
+        '
+        Me.VerticalLabel6.AutoSize = True
+        Me.VerticalLabel6.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.VerticalLabel6.Location = New System.Drawing.Point(3, 0)
+        Me.VerticalLabel6.Name = "VerticalLabel6"
+        Me.VerticalLabel6.Size = New System.Drawing.Size(15, 130)
+        Me.VerticalLabel6.TabIndex = 0
+        Me.VerticalLabel6.Text = "FÖRV. RESULTAT (%)"
         '
         'SipTestGui
         '

@@ -101,6 +101,29 @@ Namespace WinFormControls
             End Get
         End Property
 
+        Public ReadOnly Property CoordinateToXValue(ByVal Coordinate As Single) As Single
+            Get
+                Dim x As Single
+
+                If Xlog = False Then
+
+                    x = XlimMin + ((Coordinate - PlotAreaLeft()) / PlotAreaWidth()) * Xrange()
+
+                Else
+                    'Overriding Xmin to avoid log of non-positive values
+                    Dim LimXmin As Single = getBase_n_Log(Math.Max(Single.Epsilon, XlimMin), XlogBase)
+                    Dim LimXmax As Single = getBase_n_Log(Math.Max(Single.Epsilon, XlimMax), XlogBase)
+                    Dim LimXrange As Single = LimXmax - LimXmin
+
+                    x = XlogBase ^ (LimXmin + ((Coordinate - PlotAreaLeft()) / PlotAreaWidth()) * LimXrange)
+
+                End If
+
+                Return x
+            End Get
+        End Property
+
+
         Public ReadOnly Property YValueToCoordinate(ByVal y As Single) As Single
             Get
                 Dim Output As Single
@@ -136,6 +159,48 @@ Namespace WinFormControls
                 End If
 
                 Return Output
+
+            End Get
+        End Property
+
+        Public ReadOnly Property CoordinateToYValue(ByVal Coordinate As Single) As Single
+            Get
+                Dim y As Single
+
+                If Yreversed = True Then
+
+                    If Ylog = False Then
+                        y = YlimMin + ((Coordinate - PlotAreaTop()) / PlotAreaHeight()) * Yrange()
+
+                    Else
+                        'Overriding Ymin to avoid log of non-positive values
+                        Dim LimYmin As Single = getBase_n_Log(Math.Max(Single.Epsilon, YlimMin), YlogBase)
+                        Dim LimYmax As Single = getBase_n_Log(Math.Max(Single.Epsilon, YlimMax), YlogBase)
+                        Dim LimYrange As Single = LimYmax - LimYmin
+
+                        y = YlogBase ^ (LimYmin + ((Coordinate - PlotAreaTop()) / PlotAreaHeight()) * LimYrange)
+
+                    End If
+
+                Else
+
+                    If Ylog = False Then
+
+                        y = YlimMin + ((PlotAreaBottom() - Coordinate) / PlotAreaHeight()) * Yrange()
+
+                    Else
+                        'Overriding Ymin to avoid log of non-positive values
+                        Dim LimYmin As Single = getBase_n_Log(Math.Max(Single.Epsilon, YlimMin), YlogBase)
+                        Dim LimYmax As Single = getBase_n_Log(Math.Max(Single.Epsilon, YlimMax), YlogBase)
+                        Dim LimYrange As Single = LimYmax - LimYmin
+
+                        y = YlogBase ^ (LimYmin + ((PlotAreaBottom() - Coordinate) / PlotAreaHeight()) * LimYrange)
+
+                    End If
+
+                End If
+
+                Return y
 
             End Get
         End Property

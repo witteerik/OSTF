@@ -764,7 +764,36 @@ Namespace WinFormControls
 
         End Sub
 
+        Private Sub Audiogram_MouseClick(sender As Object, e As MouseEventArgs) Handles Me.MouseClick
 
+            Select Case e.Button
+                Case MouseButtons.Right
+
+                    Dim Position_X = CoordinateToXValue(e.X)
+                    Dim Position_Y = CoordinateToYValue(e.Y)
+
+                    ' RoundToAudiogramFrequency 
+                    Dim AudFs As New SortedSet(Of Double) From {125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000}
+                    Dim AudFsLog2 As New SortedSet(Of Double)
+                    For Each f In AudFs
+                        AudFsLog2.Add(Utils.getBase_n_Log(f, 2))
+                    Next
+                    Dim NearestIndex = Utils.GetNearestIndex(Utils.getBase_n_Log(Position_X, 2), AudFsLog2, True)
+                    Dim RoundedValue = AudFs(NearestIndex)
+
+                    'Round to nearest 5
+                    Dim RoundedYValue = Utils.RoundToNearestIntegerMultiple(Position_Y, 5)
+                    RoundedYValue = Math.Max(-10, RoundedYValue)
+                    RoundedYValue = Math.Min(110, RoundedYValue)
+
+                    MsgBox(RoundedValue & " Hz " & RoundedYValue & " dB")
+
+
+                Case MouseButtons.Left
+
+            End Select
+
+        End Sub
 
     End Class
 
