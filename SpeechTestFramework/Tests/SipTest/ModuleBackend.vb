@@ -2,7 +2,6 @@
 Namespace SipTest
 
     Public Class ModuleBackend
-        Implements IModuleBackend
 
         'Friend CurrentUser As User
         Friend CurrentPatient As Patient
@@ -15,7 +14,7 @@ Namespace SipTest
         Friend CompleteSpeechMaterial As SpeechMaterialComponent
 
         'Friend BlueToothConnection As BlueToothConnection
-        Friend SipGui As ISipGui
+        Friend WithEvents SipGui As ISipGui
 
         Public Language As Languages = Languages.Swedish
         Private NumberSpeakerChannels As Integer = 3
@@ -37,7 +36,7 @@ Namespace SipTest
         ''' <summary>
         ''' Initializing all ModuleBackend components
         ''' </summary>
-        Public Sub InitializeComponents() Implements IModuleBackend.InitializeModuleBackendComponents
+        Public Sub InitializeComponents() Handles SipGui.InitiateBackend
 
             'Initializing all components
 
@@ -113,7 +112,7 @@ Namespace SipTest
 #Region "ImportExport"
 
 
-        Public Sub SearchPatient(SocialSecurityNumber As String) Implements IModuleBackend.SearchPatient
+        Public Sub SearchPatient(SocialSecurityNumber As String) Handles SipGui.SearchPatient
 
             'Then look up a patient in a file or database, create a patient from it and reference that patient into the CurrentPatient property
 
@@ -177,15 +176,15 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub SaveFileButtonPressed() Implements IModuleBackend.SaveFileButtonPressed
+        Public Sub SaveFileButtonPressed() Handles SipGui.SaveFileButtonPressed
             Throw New NotImplementedException()
         End Sub
 
-        Public Sub OpenFileButtonPressed() Implements IModuleBackend.OpenFileButtonPressed
+        Public Sub OpenFileButtonPressed() Handles SipGui.OpenFileButtonPressed
             Throw New NotImplementedException()
         End Sub
 
-        Public Sub ExportDataButtonPressed() Implements IModuleBackend.ExportDataButtonPressed
+        Public Sub ExportDataButtonPressed() Handles SipGui.ExportDataButtonPressed
             Throw New NotImplementedException()
         End Sub
 
@@ -411,7 +410,7 @@ Namespace SipTest
         End Function
 
 
-        Public Sub SelectAudiogram(ByRef SelectedAudiogramData As AudiogramData) Implements IModuleBackend.SelectAudiogram
+        Public Sub SelectAudiogram(ByRef SelectedAudiogramData As AudiogramData) Handles SipGui.SelectAudiogram
 
             'Stores the selected audiogram data
             CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
@@ -423,7 +422,7 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub SelectReferenceLevel(SelectedReferenceLevel As Double) Implements IModuleBackend.SelectReferenceLevel
+        Public Sub SelectReferenceLevel(SelectedReferenceLevel As Double) Handles SipGui.SelectReferenceLevel
 
             'Stores the selected reference level
             CurrentSipTestMeasurement.ReferenceLevel = SelectedReferenceLevel
@@ -432,7 +431,7 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub SelectHearingAidGainType(SelectedHearingAidGainType As String) Implements IModuleBackend.SelectHearingAidGainType
+        Public Sub SelectHearingAidGainType(SelectedHearingAidGainType As String) Handles SipGui.SelectHearingAidGainType
 
             'Stores the selected hearing-aid gain type
             CurrentSipTestMeasurement.HearingAidGainType = SelectedHearingAidGainType
@@ -441,7 +440,7 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub SelectPreset(SelectedPreset As String) Implements IModuleBackend.SelectPreset
+        Public Sub SelectPreset(SelectedPreset As String) Handles SipGui.SelectPreset
 
             'Stores the selected preset
             CurrentSipTestMeasurement.SelectedPresetName = SelectedPreset
@@ -450,7 +449,7 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub SelectSituation(SelectedSituation As String) Implements IModuleBackend.SelectSituation
+        Public Sub SelectSituation(SelectedSituation As String) Handles SipGui.SelectSituation
 
             'Stores the selected preset
             CurrentSipTestMeasurement.SelectedMediaSetName = SelectedSituation
@@ -459,7 +458,7 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub SelectTestLength(SelectedTestLength As Integer) Implements IModuleBackend.SelectTestLength
+        Public Sub SelectTestLength(SelectedTestLength As Integer) Handles SipGui.SelectTestLength
 
             'Stores the selected preset
             CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedTestLength
@@ -468,7 +467,7 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub SelectPNR(SelectedPNR As Double) Implements IModuleBackend.SelectPNR
+        Public Sub SelectPNR(SelectedPNR As Double) Handles SipGui.SelectPNR
 
             'Stores the selected selected PNR
             CurrentSipTestMeasurement.SelectedPnr = SelectedPNR
@@ -499,11 +498,11 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub StartButtonPressed() Implements IModuleBackend.StartButtonPressed
+        Public Sub StartButtonPressed() Handles SipGui.StartButtonPressed
             StartTest()
         End Sub
 
-        Public Sub StopButtonPressed() Implements IModuleBackend.StopButtonPressed
+        Public Sub StopButtonPressed() Handles SipGui.StopButtonPressed
             Throw New NotImplementedException()
         End Sub
 
@@ -551,7 +550,7 @@ Namespace SipTest
         ''' Performs a statistical analysis of the score difference between the SiP-testet refered to in ComparedMeasurementGuiDescriptions by their GuiDescription strings
         ''' </summary>
         ''' <param name="ComparedMeasurementGuiDescriptions"></param>
-        Sub CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String)) Implements IModuleBackend.CompareTwoSipTestScores
+        Sub CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String)) Handles SipGui.CompareTwoSipTestScores
 
             'Clears the Gui significance test result box if not exaclty two measurements descriptions are recieved. And the exits the sub
             If ComparedMeasurementGuiDescriptions.Count <> 2 Then
@@ -645,11 +644,11 @@ Namespace SipTest
 #Region "BlueToothConnection"
 
 
-        Public Sub SearchForBluetoothDevices() Implements IModuleBackend.SearchForBluetoothDevices
+        Public Sub SearchForBluetoothDevices() Handles SipGui.SearchForBluetoothDevices
             Throw New NotImplementedException()
         End Sub
 
-        Public Sub SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String) Implements IModuleBackend.SelectBluetoothDevice
+        Public Sub SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String) Handles SipGui.SelectBluetoothDevice
             Throw New NotImplementedException()
         End Sub
 
@@ -657,11 +656,11 @@ Namespace SipTest
 
 #Region "SoundDevice"
 
-        Public Sub SearchForSoundDevices() Implements IModuleBackend.SearchForSoundDevices
+        Public Sub SearchForSoundDevices() Handles SipGui.SearchForSoundDevices
             Throw New NotImplementedException()
         End Sub
 
-        Public Sub SelectSoundDevice(SelectedSoundDeviceDescription As String) Implements IModuleBackend.SelectSoundDevice
+        Public Sub SelectSoundDevice(SelectedSoundDeviceDescription As String) Handles SipGui.SelectSoundDevice
             Throw New NotImplementedException()
         End Sub
 

@@ -112,7 +112,6 @@
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
     <Compile Include="TestSupport\TestSpecification.vb" />
-    <Compile Include="Tests\SipTest\IModuleBackend.vb" />
     <Compile Include="Tests\SipTest\ISipGui.vb" />
     <Compile Include="Tests\SipTest\ModuleBackend.vb" />
     <Compile Include="Tests\SipTest\Patient.vb" />

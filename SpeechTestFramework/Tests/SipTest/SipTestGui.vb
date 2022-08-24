@@ -11,17 +11,25 @@ Public Class SipTestGui
     Private GainDiagram As GainDiagram
     Private ExpectedScoreDiagram As PsychometricFunctionDiagram
 
-    Private _SipTestBackend As New ModuleBackend(Me)
-
-    Property SipTestBackend As IModuleBackend Implements ISipGui.SipTestBackend
-        Get
-            Return _SipTestBackend
-        End Get
-        Set(value As IModuleBackend)
-            _SipTestBackend = value
-        End Set
-    End Property
-
+    Public Event InitiateBackend(ByRef ISipGui As ISipGui) Implements ISipGui.InitiateBackend
+    Public Event SearchPatient(SocialSecurityNumber As String) Implements ISipGui.SearchPatient
+    Public Event SelectAudiogram(ByRef SelectedAudiogramData As AudiogramData) Implements ISipGui.SelectAudiogram
+    Public Event SelectReferenceLevel(SelectedReferenceLevel As Double) Implements ISipGui.SelectReferenceLevel
+    Public Event SelectHearingAidGainType(SelectedHearingAidGainType As String) Implements ISipGui.SelectHearingAidGainType
+    Public Event SelectPreset(SelectedPreset As String) Implements ISipGui.SelectPreset
+    Public Event SelectSituation(SelectedSituation As String) Implements ISipGui.SelectSituation
+    Public Event SelectTestLength(SelectedTestLength As Integer) Implements ISipGui.SelectTestLength
+    Public Event SelectPNR(SelectedPNR As Double) Implements ISipGui.SelectPNR
+    Public Event StartButtonPressed() Implements ISipGui.StartButtonPressed
+    Public Event StopButtonPressed() Implements ISipGui.StopButtonPressed
+    Public Event CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String)) Implements ISipGui.CompareTwoSipTestScores
+    Public Event SearchForBluetoothDevices() Implements ISipGui.SearchForBluetoothDevices
+    Public Event SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String) Implements ISipGui.SelectBluetoothDevice
+    Public Event SearchForSoundDevices() Implements ISipGui.SearchForSoundDevices
+    Public Event SelectSoundDevice(SelectedSoundDeviceDescription As String) Implements ISipGui.SelectSoundDevice
+    Public Event SaveFileButtonPressed() Implements ISipGui.SaveFileButtonPressed
+    Public Event OpenFileButtonPressed() Implements ISipGui.OpenFileButtonPressed
+    Public Event ExportDataButtonPressed() Implements ISipGui.ExportDataButtonPressed
 
     Public Sub New()
 
@@ -29,12 +37,14 @@ Public Class SipTestGui
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
+        'Creating a Backend
+        Dim Backend As New ModuleBackend(Me)
 
     End Sub
 
     Private Sub SipTestGui_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        SipTestBackend.InitializeModuleBackendComponents()
+        RaiseEvent InitiateBackend(Me)
 
         'Hiding things that should not be visible from the start
         StatAnalysisLabel.Visible = False
@@ -190,7 +200,7 @@ Public Class SipTestGui
 
 #Region "ImportExport: Handling of local events"
     Private Sub PatientSearchButton_Click(sender As Object, e As EventArgs) Handles PatientSearchButton.Click
-        SipTestBackend.SearchPatient(SSNumber1TextBox.Text & SSNumber2TextBox.Text)
+        RaiseEvent SearchPatient(SSNumber1TextBox.Text & SSNumber2TextBox.Text)
     End Sub
 
 
@@ -318,42 +328,42 @@ Public Class SipTestGui
 
     Private Sub AudiogramComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles AudiogramComboBox.SelectedIndexChanged
 
-        SipTestBackend.SelectAudiogram(AudiogramComboBox.SelectedItem)
+        RaiseEvent SelectAudiogram(AudiogramComboBox.SelectedItem)
     End Sub
 
     Private Sub ReferenceLevelComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ReferenceLevelComboBox.SelectedIndexChanged
 
-        SipTestBackend.SelectReferenceLevel(ReferenceLevelComboBox.SelectedItem)
+        RaiseEvent SelectReferenceLevel(ReferenceLevelComboBox.SelectedItem)
 
     End Sub
 
     Private Sub GainTypeComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GainTypeComboBox.SelectedIndexChanged
 
-        SipTestBackend.SelectHearingAidGainType(GainTypeComboBox.SelectedItem)
+        RaiseEvent SelectHearingAidGainType(GainTypeComboBox.SelectedItem)
 
     End Sub
 
     Private Sub PresetComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PresetComboBox.SelectedIndexChanged
 
-        SipTestBackend.SelectPreset(PresetComboBox.SelectedItem)
+        RaiseEvent SelectPreset(PresetComboBox.SelectedItem)
 
     End Sub
 
     Private Sub VoiceComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TestSituationComboBox.SelectedIndexChanged
 
-        SipTestBackend.SelectSituation(TestSituationComboBox.SelectedItem)
+        RaiseEvent SelectSituation(TestSituationComboBox.SelectedItem)
 
     End Sub
 
     Private Sub TestLengthComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TestLengthComboBox.SelectedIndexChanged
 
-        SipTestBackend.SelectTestLength(TestLengthComboBox.SelectedItem)
+        RaiseEvent SelectTestLength(TestLengthComboBox.SelectedItem)
 
     End Sub
 
     Private Sub PnrComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PnrComboBox.SelectedIndexChanged
 
-        SipTestBackend.SelectPNR(PnrComboBox.SelectedItem)
+        RaiseEvent SelectPNR(PnrComboBox.SelectedItem)
 
     End Sub
 
@@ -512,11 +522,11 @@ Public Class SipTestGui
 
 #Region "Active measurement: Handling of local events"
     Private Sub StartButton_Click(sender As Object, e As EventArgs) Handles StartButton.Click
-        SipTestBackend.StartButtonPressed()
+        RaiseEvent StartButtonPressed()
     End Sub
 
     Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
-        SipTestBackend.StopButtonPressed()
+        RaiseEvent StopButtonPressed()
     End Sub
 
 
@@ -636,7 +646,7 @@ Public Class SipTestGui
         End If
 
         'Sending a call for statistical analysis to the backend. 
-        SipTestBackend.CompareTwoSipTestScores(TestComparisonHistory)
+        RaiseEvent CompareTwoSipTestScores(TestComparisonHistory)
 
     End Sub
 

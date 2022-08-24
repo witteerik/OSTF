@@ -99,6 +99,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="TestCodeFile.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Form4.resx">

@@ -713,16 +713,16 @@ Partial Class SipTestGui
         Me.Label8.Name = "Label8"
         Me.Label8.Size = New System.Drawing.Size(94, 21)
         Me.Label8.TabIndex = 0
-        Me.Label8.Text = "Röst"
+        Me.Label8.Text = "Situation"
         Me.Label8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'VoiceComboBox
+        'TestSituationComboBox
         '
         Me.TestSituationComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestSituationComboBox.FormattingEnabled = True
         Me.TestSituationComboBox.Location = New System.Drawing.Point(100, 0)
         Me.TestSituationComboBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.TestSituationComboBox.Name = "VoiceComboBox"
+        Me.TestSituationComboBox.Name = "TestSituationComboBox"
         Me.TestSituationComboBox.Size = New System.Drawing.Size(281, 21)
         Me.TestSituationComboBox.TabIndex = 5
         '
