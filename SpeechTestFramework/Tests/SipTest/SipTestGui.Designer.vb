@@ -22,9 +22,17 @@ Partial Class SipTestGui
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle7 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle10 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle11 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle8 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle9 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
@@ -60,28 +68,23 @@ Partial Class SipTestGui
         Me.ResultColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.CompareColumnSession = New System.Windows.Forms.DataGridViewCheckBoxColumn()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
-        Me.TableLayoutPanel24 = New System.Windows.Forms.TableLayoutPanel()
         Me.GainPanel = New System.Windows.Forms.Panel()
-        Me.TableLayoutPanel15 = New System.Windows.Forms.TableLayoutPanel()
+        Me.VerticalLabel5 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.Label10 = New System.Windows.Forms.Label()
         Me.PnrComboBox = New System.Windows.Forms.ComboBox()
-        Me.TableLayoutPanel14 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label9 = New System.Windows.Forms.Label()
         Me.TestLengthComboBox = New System.Windows.Forms.ComboBox()
-        Me.TableLayoutPanel13 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.TestSituationComboBox = New System.Windows.Forms.ComboBox()
-        Me.TableLayoutPanel12 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.PresetComboBox = New System.Windows.Forms.ComboBox()
-        Me.TableLayoutPanel11 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.ReferenceLevelComboBox = New System.Windows.Forms.ComboBox()
         Me.AudiogramComboBox = New System.Windows.Forms.ComboBox()
         Me.GainTypeComboBox = New System.Windows.Forms.ComboBox()
-        Me.TableLayoutPanel10 = New System.Windows.Forms.TableLayoutPanel()
+        Me.VerticalLabel4 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.AudiogramPanel = New System.Windows.Forms.Panel()
-        Me.TableLayoutPanel25 = New System.Windows.Forms.TableLayoutPanel()
+        Me.VerticalLabel6 = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.ExpectedScorePanel = New System.Windows.Forms.Panel()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel26 = New System.Windows.Forms.TableLayoutPanel()
@@ -111,9 +114,9 @@ Partial Class SipTestGui
         Me.Label4 = New System.Windows.Forms.Label()
         Me.SSNumber1TextBox = New System.Windows.Forms.TextBox()
         Me.PatientSearchButton = New System.Windows.Forms.Button()
-        Me.VerticalLabel5 = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.VerticalLabel4 = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.VerticalLabel6 = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Label11 = New System.Windows.Forms.Label()
+        Me.Label12 = New System.Windows.Forms.Label()
+        Me.NewAudiogram_Button = New System.Windows.Forms.Button()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -128,14 +131,6 @@ Partial Class SipTestGui
         Me.TableLayoutPanel9.SuspendLayout()
         CType(Me.CurrentSessionResults_DataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TableLayoutPanel3.SuspendLayout()
-        Me.TableLayoutPanel24.SuspendLayout()
-        Me.TableLayoutPanel15.SuspendLayout()
-        Me.TableLayoutPanel14.SuspendLayout()
-        Me.TableLayoutPanel13.SuspendLayout()
-        Me.TableLayoutPanel12.SuspendLayout()
-        Me.TableLayoutPanel11.SuspendLayout()
-        Me.TableLayoutPanel10.SuspendLayout()
-        Me.TableLayoutPanel25.SuspendLayout()
         Me.TableLayoutPanel4.SuspendLayout()
         Me.TableLayoutPanel26.SuspendLayout()
         Me.TableLayoutPanel19.SuspendLayout()
@@ -212,13 +207,37 @@ Partial Class SipTestGui
         Me.PreviousSessionsResults_DataGridView.AllowUserToResizeRows = False
         Me.PreviousSessionsResults_DataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.PreviousSessionsResults_DataGridView.BackgroundColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.PreviousSessionsResults_DataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.PreviousSessionsResults_DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.PreviousSessionsResults_DataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.TestDescriptionColumnPreviousSessions, Me.TestLengthColumnPreviousSessions, Me.ResultsColumnPreviousSessions, Me.CompareColumnPreviousSessions})
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.PreviousSessionsResults_DataGridView.DefaultCellStyle = DataGridViewCellStyle2
         Me.PreviousSessionsResults_DataGridView.Dock = System.Windows.Forms.DockStyle.Fill
         Me.PreviousSessionsResults_DataGridView.Location = New System.Drawing.Point(3, 213)
         Me.PreviousSessionsResults_DataGridView.MultiSelect = False
         Me.PreviousSessionsResults_DataGridView.Name = "PreviousSessionsResults_DataGridView"
         Me.PreviousSessionsResults_DataGridView.ReadOnly = True
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.PreviousSessionsResults_DataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
         Me.PreviousSessionsResults_DataGridView.RowHeadersVisible = False
         Me.PreviousSessionsResults_DataGridView.Size = New System.Drawing.Size(506, 162)
         Me.PreviousSessionsResults_DataGridView.TabIndex = 7
@@ -517,12 +536,36 @@ Partial Class SipTestGui
         Me.CurrentSessionResults_DataGridView.AllowUserToResizeRows = False
         Me.CurrentSessionResults_DataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.CurrentSessionResults_DataGridView.BackgroundColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.CurrentSessionResults_DataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle4
         Me.CurrentSessionResults_DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.CurrentSessionResults_DataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.TestDescriptionColumnSession, Me.TestLengthColumnSession, Me.ResultColumnSession, Me.CompareColumnSession})
+        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.CurrentSessionResults_DataGridView.DefaultCellStyle = DataGridViewCellStyle5
         Me.CurrentSessionResults_DataGridView.Dock = System.Windows.Forms.DockStyle.Fill
         Me.CurrentSessionResults_DataGridView.Location = New System.Drawing.Point(3, 24)
         Me.CurrentSessionResults_DataGridView.MultiSelect = False
         Me.CurrentSessionResults_DataGridView.Name = "CurrentSessionResults_DataGridView"
+        DataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle6.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.CurrentSessionResults_DataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle6
         Me.CurrentSessionResults_DataGridView.RowHeadersVisible = False
         Me.CurrentSessionResults_DataGridView.Size = New System.Drawing.Size(506, 162)
         Me.CurrentSessionResults_DataGridView.TabIndex = 6
@@ -553,18 +596,32 @@ Partial Class SipTestGui
         '
         'TableLayoutPanel3
         '
-        Me.TableLayoutPanel3.ColumnCount = 1
+        Me.TableLayoutPanel3.ColumnCount = 4
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 73.0!))
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel3.Controls.Add(Me.TableLayoutPanel24, 0, 4)
-        Me.TableLayoutPanel3.Controls.Add(Me.TableLayoutPanel15, 0, 10)
-        Me.TableLayoutPanel3.Controls.Add(Me.TableLayoutPanel14, 0, 8)
-        Me.TableLayoutPanel3.Controls.Add(Me.TableLayoutPanel13, 0, 7)
-        Me.TableLayoutPanel3.Controls.Add(Me.TableLayoutPanel12, 0, 6)
-        Me.TableLayoutPanel3.Controls.Add(Me.TableLayoutPanel11, 0, 2)
-        Me.TableLayoutPanel3.Controls.Add(Me.AudiogramComboBox, 0, 0)
-        Me.TableLayoutPanel3.Controls.Add(Me.GainTypeComboBox, 0, 3)
-        Me.TableLayoutPanel3.Controls.Add(Me.TableLayoutPanel10, 0, 1)
-        Me.TableLayoutPanel3.Controls.Add(Me.TableLayoutPanel25, 0, 9)
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 67.0!))
+        Me.TableLayoutPanel3.Controls.Add(Me.Label12, 0, 3)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label11, 0, 0)
+        Me.TableLayoutPanel3.Controls.Add(Me.ExpectedScorePanel, 1, 9)
+        Me.TableLayoutPanel3.Controls.Add(Me.GainPanel, 1, 4)
+        Me.TableLayoutPanel3.Controls.Add(Me.AudiogramPanel, 1, 1)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label10, 0, 10)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label9, 0, 8)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label8, 0, 7)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label7, 0, 6)
+        Me.TableLayoutPanel3.Controls.Add(Me.VerticalLabel6, 0, 9)
+        Me.TableLayoutPanel3.Controls.Add(Me.VerticalLabel4, 0, 1)
+        Me.TableLayoutPanel3.Controls.Add(Me.VerticalLabel5, 0, 4)
+        Me.TableLayoutPanel3.Controls.Add(Me.AudiogramComboBox, 2, 0)
+        Me.TableLayoutPanel3.Controls.Add(Me.GainTypeComboBox, 2, 3)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label6, 0, 2)
+        Me.TableLayoutPanel3.Controls.Add(Me.ReferenceLevelComboBox, 2, 2)
+        Me.TableLayoutPanel3.Controls.Add(Me.PresetComboBox, 2, 6)
+        Me.TableLayoutPanel3.Controls.Add(Me.TestSituationComboBox, 2, 7)
+        Me.TableLayoutPanel3.Controls.Add(Me.TestLengthComboBox, 2, 8)
+        Me.TableLayoutPanel3.Controls.Add(Me.PnrComboBox, 2, 10)
+        Me.TableLayoutPanel3.Controls.Add(Me.NewAudiogram_Button, 3, 0)
         Me.TableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel3.Location = New System.Drawing.Point(3, 3)
         Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
@@ -583,279 +640,191 @@ Partial Class SipTestGui
         Me.TableLayoutPanel3.Size = New System.Drawing.Size(381, 558)
         Me.TableLayoutPanel3.TabIndex = 0
         '
-        'TableLayoutPanel24
-        '
-        Me.TableLayoutPanel24.ColumnCount = 2
-        Me.TableLayoutPanel24.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
-        Me.TableLayoutPanel24.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel24.Controls.Add(Me.GainPanel, 1, 0)
-        Me.TableLayoutPanel24.Controls.Add(Me.VerticalLabel5, 0, 0)
-        Me.TableLayoutPanel24.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel24.Location = New System.Drawing.Point(0, 193)
-        Me.TableLayoutPanel24.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel24.Name = "TableLayoutPanel24"
-        Me.TableLayoutPanel24.RowCount = 1
-        Me.TableLayoutPanel24.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel24.Size = New System.Drawing.Size(381, 130)
-        Me.TableLayoutPanel24.TabIndex = 7
-        '
         'GainPanel
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.GainPanel, 3)
         Me.GainPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GainPanel.Location = New System.Drawing.Point(21, 3)
+        Me.GainPanel.Location = New System.Drawing.Point(25, 196)
         Me.GainPanel.Margin = New System.Windows.Forms.Padding(0, 3, 0, 3)
         Me.GainPanel.Name = "GainPanel"
-        Me.GainPanel.Size = New System.Drawing.Size(360, 124)
+        Me.GainPanel.Size = New System.Drawing.Size(356, 124)
         Me.GainPanel.TabIndex = 0
         '
-        'TableLayoutPanel15
+        'VerticalLabel5
         '
-        Me.TableLayoutPanel15.ColumnCount = 2
-        Me.TableLayoutPanel15.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100.0!))
-        Me.TableLayoutPanel15.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel15.Controls.Add(Me.Label10, 0, 0)
-        Me.TableLayoutPanel15.Controls.Add(Me.PnrComboBox, 1, 0)
-        Me.TableLayoutPanel15.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel15.Location = New System.Drawing.Point(0, 537)
-        Me.TableLayoutPanel15.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel15.Name = "TableLayoutPanel15"
-        Me.TableLayoutPanel15.RowCount = 1
-        Me.TableLayoutPanel15.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel15.Size = New System.Drawing.Size(381, 21)
-        Me.TableLayoutPanel15.TabIndex = 3
+        Me.VerticalLabel5.AutoSize = True
+        Me.VerticalLabel5.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.VerticalLabel5.Location = New System.Drawing.Point(3, 193)
+        Me.VerticalLabel5.Name = "VerticalLabel5"
+        Me.VerticalLabel5.Size = New System.Drawing.Size(19, 130)
+        Me.VerticalLabel5.TabIndex = 1
+        Me.VerticalLabel5.Text = "FÖRSTÄRKNING (dB)"
         '
         'Label10
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.Label10, 2)
         Me.Label10.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label10.Location = New System.Drawing.Point(3, 0)
+        Me.Label10.Location = New System.Drawing.Point(3, 537)
         Me.Label10.Name = "Label10"
-        Me.Label10.Size = New System.Drawing.Size(94, 21)
+        Me.Label10.Size = New System.Drawing.Size(92, 21)
         Me.Label10.TabIndex = 0
         Me.Label10.Text = "PNR (dB)"
         Me.Label10.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'PnrComboBox
         '
-        Me.PnrComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel3.SetColumnSpan(Me.PnrComboBox, 2)
         Me.PnrComboBox.FormattingEnabled = True
-        Me.PnrComboBox.Location = New System.Drawing.Point(100, 0)
+        Me.PnrComboBox.Location = New System.Drawing.Point(98, 537)
         Me.PnrComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.PnrComboBox.Name = "PnrComboBox"
         Me.PnrComboBox.Size = New System.Drawing.Size(281, 21)
         Me.PnrComboBox.TabIndex = 7
         '
-        'TableLayoutPanel14
-        '
-        Me.TableLayoutPanel14.ColumnCount = 2
-        Me.TableLayoutPanel14.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100.0!))
-        Me.TableLayoutPanel14.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel14.Controls.Add(Me.Label9, 0, 0)
-        Me.TableLayoutPanel14.Controls.Add(Me.TestLengthComboBox, 1, 0)
-        Me.TableLayoutPanel14.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel14.Location = New System.Drawing.Point(0, 386)
-        Me.TableLayoutPanel14.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel14.Name = "TableLayoutPanel14"
-        Me.TableLayoutPanel14.RowCount = 1
-        Me.TableLayoutPanel14.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel14.Size = New System.Drawing.Size(381, 21)
-        Me.TableLayoutPanel14.TabIndex = 3
-        '
         'Label9
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.Label9, 2)
         Me.Label9.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label9.Location = New System.Drawing.Point(3, 0)
+        Me.Label9.Location = New System.Drawing.Point(3, 386)
         Me.Label9.Name = "Label9"
-        Me.Label9.Size = New System.Drawing.Size(94, 21)
+        Me.Label9.Size = New System.Drawing.Size(92, 21)
         Me.Label9.TabIndex = 0
         Me.Label9.Text = "Längd"
         Me.Label9.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'TestLengthComboBox
         '
-        Me.TestLengthComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel3.SetColumnSpan(Me.TestLengthComboBox, 2)
         Me.TestLengthComboBox.FormattingEnabled = True
-        Me.TestLengthComboBox.Location = New System.Drawing.Point(100, 0)
+        Me.TestLengthComboBox.Location = New System.Drawing.Point(98, 386)
         Me.TestLengthComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.TestLengthComboBox.Name = "TestLengthComboBox"
         Me.TestLengthComboBox.Size = New System.Drawing.Size(281, 21)
         Me.TestLengthComboBox.TabIndex = 6
         '
-        'TableLayoutPanel13
-        '
-        Me.TableLayoutPanel13.ColumnCount = 2
-        Me.TableLayoutPanel13.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100.0!))
-        Me.TableLayoutPanel13.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel13.Controls.Add(Me.Label8, 0, 0)
-        Me.TableLayoutPanel13.Controls.Add(Me.TestSituationComboBox, 1, 0)
-        Me.TableLayoutPanel13.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel13.Location = New System.Drawing.Point(0, 365)
-        Me.TableLayoutPanel13.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel13.Name = "TableLayoutPanel13"
-        Me.TableLayoutPanel13.RowCount = 1
-        Me.TableLayoutPanel13.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel13.Size = New System.Drawing.Size(381, 21)
-        Me.TableLayoutPanel13.TabIndex = 3
-        '
         'Label8
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.Label8, 2)
         Me.Label8.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label8.Location = New System.Drawing.Point(3, 0)
+        Me.Label8.Location = New System.Drawing.Point(3, 365)
         Me.Label8.Name = "Label8"
-        Me.Label8.Size = New System.Drawing.Size(94, 21)
+        Me.Label8.Size = New System.Drawing.Size(92, 21)
         Me.Label8.TabIndex = 0
         Me.Label8.Text = "Situation"
         Me.Label8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'TestSituationComboBox
         '
-        Me.TestSituationComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel3.SetColumnSpan(Me.TestSituationComboBox, 2)
         Me.TestSituationComboBox.FormattingEnabled = True
-        Me.TestSituationComboBox.Location = New System.Drawing.Point(100, 0)
+        Me.TestSituationComboBox.Location = New System.Drawing.Point(98, 365)
         Me.TestSituationComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.TestSituationComboBox.Name = "TestSituationComboBox"
         Me.TestSituationComboBox.Size = New System.Drawing.Size(281, 21)
         Me.TestSituationComboBox.TabIndex = 5
         '
-        'TableLayoutPanel12
-        '
-        Me.TableLayoutPanel12.ColumnCount = 2
-        Me.TableLayoutPanel12.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100.0!))
-        Me.TableLayoutPanel12.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel12.Controls.Add(Me.Label7, 0, 0)
-        Me.TableLayoutPanel12.Controls.Add(Me.PresetComboBox, 1, 0)
-        Me.TableLayoutPanel12.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel12.Location = New System.Drawing.Point(0, 344)
-        Me.TableLayoutPanel12.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel12.Name = "TableLayoutPanel12"
-        Me.TableLayoutPanel12.RowCount = 1
-        Me.TableLayoutPanel12.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel12.Size = New System.Drawing.Size(381, 21)
-        Me.TableLayoutPanel12.TabIndex = 3
-        '
         'Label7
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.Label7, 2)
         Me.Label7.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label7.Location = New System.Drawing.Point(3, 0)
+        Me.Label7.Location = New System.Drawing.Point(3, 344)
         Me.Label7.Name = "Label7"
-        Me.Label7.Size = New System.Drawing.Size(94, 21)
+        Me.Label7.Size = New System.Drawing.Size(92, 21)
         Me.Label7.TabIndex = 0
         Me.Label7.Text = "Test"
         Me.Label7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'PresetComboBox
         '
-        Me.PresetComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel3.SetColumnSpan(Me.PresetComboBox, 2)
         Me.PresetComboBox.FormattingEnabled = True
-        Me.PresetComboBox.Location = New System.Drawing.Point(100, 0)
+        Me.PresetComboBox.Location = New System.Drawing.Point(98, 344)
         Me.PresetComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.PresetComboBox.Name = "PresetComboBox"
         Me.PresetComboBox.Size = New System.Drawing.Size(281, 21)
         Me.PresetComboBox.TabIndex = 4
         '
-        'TableLayoutPanel11
-        '
-        Me.TableLayoutPanel11.ColumnCount = 2
-        Me.TableLayoutPanel11.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100.0!))
-        Me.TableLayoutPanel11.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel11.Controls.Add(Me.Label6, 0, 0)
-        Me.TableLayoutPanel11.Controls.Add(Me.ReferenceLevelComboBox, 1, 0)
-        Me.TableLayoutPanel11.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel11.Location = New System.Drawing.Point(0, 151)
-        Me.TableLayoutPanel11.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel11.Name = "TableLayoutPanel11"
-        Me.TableLayoutPanel11.RowCount = 1
-        Me.TableLayoutPanel11.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel11.Size = New System.Drawing.Size(381, 21)
-        Me.TableLayoutPanel11.TabIndex = 3
-        '
         'Label6
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.Label6, 2)
         Me.Label6.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label6.Location = New System.Drawing.Point(3, 0)
+        Me.Label6.Location = New System.Drawing.Point(3, 151)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(94, 21)
+        Me.Label6.Size = New System.Drawing.Size(92, 21)
         Me.Label6.TabIndex = 0
         Me.Label6.Text = "Referensnivå (dB)"
         Me.Label6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'ReferenceLevelComboBox
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.ReferenceLevelComboBox, 2)
         Me.ReferenceLevelComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ReferenceLevelComboBox.FormattingEnabled = True
-        Me.ReferenceLevelComboBox.Location = New System.Drawing.Point(100, 0)
+        Me.ReferenceLevelComboBox.Location = New System.Drawing.Point(98, 151)
         Me.ReferenceLevelComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.ReferenceLevelComboBox.Name = "ReferenceLevelComboBox"
-        Me.ReferenceLevelComboBox.Size = New System.Drawing.Size(281, 21)
+        Me.ReferenceLevelComboBox.Size = New System.Drawing.Size(283, 21)
         Me.ReferenceLevelComboBox.TabIndex = 2
         '
         'AudiogramComboBox
         '
         Me.AudiogramComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.AudiogramComboBox.FormattingEnabled = True
-        Me.AudiogramComboBox.Location = New System.Drawing.Point(0, 0)
+        Me.AudiogramComboBox.Location = New System.Drawing.Point(98, 0)
         Me.AudiogramComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.AudiogramComboBox.Name = "AudiogramComboBox"
-        Me.AudiogramComboBox.Size = New System.Drawing.Size(381, 21)
+        Me.AudiogramComboBox.Size = New System.Drawing.Size(216, 21)
         Me.AudiogramComboBox.TabIndex = 1
         '
         'GainTypeComboBox
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.GainTypeComboBox, 2)
         Me.GainTypeComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GainTypeComboBox.FormattingEnabled = True
-        Me.GainTypeComboBox.Location = New System.Drawing.Point(0, 172)
+        Me.GainTypeComboBox.Location = New System.Drawing.Point(98, 172)
         Me.GainTypeComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.GainTypeComboBox.Name = "GainTypeComboBox"
-        Me.GainTypeComboBox.Size = New System.Drawing.Size(381, 21)
+        Me.GainTypeComboBox.Size = New System.Drawing.Size(283, 21)
         Me.GainTypeComboBox.TabIndex = 3
         '
-        'TableLayoutPanel10
+        'VerticalLabel4
         '
-        Me.TableLayoutPanel10.ColumnCount = 2
-        Me.TableLayoutPanel10.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
-        Me.TableLayoutPanel10.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel10.Controls.Add(Me.VerticalLabel4, 0, 0)
-        Me.TableLayoutPanel10.Controls.Add(Me.AudiogramPanel, 1, 0)
-        Me.TableLayoutPanel10.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel10.Location = New System.Drawing.Point(0, 21)
-        Me.TableLayoutPanel10.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel10.Name = "TableLayoutPanel10"
-        Me.TableLayoutPanel10.RowCount = 1
-        Me.TableLayoutPanel10.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel10.Size = New System.Drawing.Size(381, 130)
-        Me.TableLayoutPanel10.TabIndex = 6
+        Me.VerticalLabel4.AutoSize = True
+        Me.VerticalLabel4.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.VerticalLabel4.Location = New System.Drawing.Point(3, 21)
+        Me.VerticalLabel4.Name = "VerticalLabel4"
+        Me.VerticalLabel4.Size = New System.Drawing.Size(19, 130)
+        Me.VerticalLabel4.TabIndex = 0
+        Me.VerticalLabel4.Text = "AUDIOGRAM (dB HL)"
         '
         'AudiogramPanel
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.AudiogramPanel, 3)
         Me.AudiogramPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.AudiogramPanel.Location = New System.Drawing.Point(21, 3)
+        Me.AudiogramPanel.Location = New System.Drawing.Point(25, 24)
         Me.AudiogramPanel.Margin = New System.Windows.Forms.Padding(0, 3, 0, 3)
         Me.AudiogramPanel.Name = "AudiogramPanel"
-        Me.AudiogramPanel.Size = New System.Drawing.Size(360, 124)
+        Me.AudiogramPanel.Size = New System.Drawing.Size(356, 124)
         Me.AudiogramPanel.TabIndex = 1
         '
-        'TableLayoutPanel25
+        'VerticalLabel6
         '
-        Me.TableLayoutPanel25.ColumnCount = 2
-        Me.TableLayoutPanel25.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
-        Me.TableLayoutPanel25.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel25.Controls.Add(Me.VerticalLabel6, 0, 0)
-        Me.TableLayoutPanel25.Controls.Add(Me.ExpectedScorePanel, 1, 0)
-        Me.TableLayoutPanel25.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel25.Location = New System.Drawing.Point(0, 407)
-        Me.TableLayoutPanel25.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel25.Name = "TableLayoutPanel25"
-        Me.TableLayoutPanel25.RowCount = 1
-        Me.TableLayoutPanel25.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel25.Size = New System.Drawing.Size(381, 130)
-        Me.TableLayoutPanel25.TabIndex = 8
+        Me.VerticalLabel6.AutoSize = True
+        Me.VerticalLabel6.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.VerticalLabel6.Location = New System.Drawing.Point(3, 407)
+        Me.VerticalLabel6.Name = "VerticalLabel6"
+        Me.VerticalLabel6.Size = New System.Drawing.Size(19, 130)
+        Me.VerticalLabel6.TabIndex = 0
+        Me.VerticalLabel6.Text = "FÖRV. RESULTAT (%)"
         '
         'ExpectedScorePanel
         '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.ExpectedScorePanel, 3)
         Me.ExpectedScorePanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ExpectedScorePanel.Location = New System.Drawing.Point(21, 3)
+        Me.ExpectedScorePanel.Location = New System.Drawing.Point(25, 410)
         Me.ExpectedScorePanel.Margin = New System.Windows.Forms.Padding(0, 3, 0, 3)
         Me.ExpectedScorePanel.Name = "ExpectedScorePanel"
-        Me.ExpectedScorePanel.Size = New System.Drawing.Size(360, 124)
+        Me.ExpectedScorePanel.Size = New System.Drawing.Size(356, 124)
         Me.ExpectedScorePanel.TabIndex = 1
         '
         'TableLayoutPanel4
@@ -1050,21 +1019,37 @@ Partial Class SipTestGui
         Me.TestTrialDataGridView.BackgroundColor = System.Drawing.SystemColors.Window
         Me.TestTrialDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TestTrialDataGridView.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None
+        DataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle7.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.TestTrialDataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle7
         Me.TestTrialDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.TestTrialDataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.TestWordColumn, Me.ResponseColumn, Me.ResultColumn})
-        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.GradientActiveCaption
-        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.TestTrialDataGridView.DefaultCellStyle = DataGridViewCellStyle3
+        DataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle10.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.GradientActiveCaption
+        DataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.TestTrialDataGridView.DefaultCellStyle = DataGridViewCellStyle10
         Me.TestTrialDataGridView.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestTrialDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.TestTrialDataGridView.Location = New System.Drawing.Point(3, 136)
         Me.TestTrialDataGridView.Name = "TestTrialDataGridView"
         Me.TestTrialDataGridView.ReadOnly = True
+        DataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle11.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.TestTrialDataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle11
         Me.TestTrialDataGridView.RowHeadersVisible = False
         Me.TestTrialDataGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.TestTrialDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect
@@ -1074,9 +1059,9 @@ Partial Class SipTestGui
         '
         'TestWordColumn
         '
-        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TestWordColumn.DefaultCellStyle = DataGridViewCellStyle1
+        DataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle8.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TestWordColumn.DefaultCellStyle = DataGridViewCellStyle8
         Me.TestWordColumn.HeaderText = "Testord"
         Me.TestWordColumn.Name = "TestWordColumn"
         Me.TestWordColumn.ReadOnly = True
@@ -1085,9 +1070,9 @@ Partial Class SipTestGui
         '
         'ResponseColumn
         '
-        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ResponseColumn.DefaultCellStyle = DataGridViewCellStyle2
+        DataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle9.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ResponseColumn.DefaultCellStyle = DataGridViewCellStyle9
         Me.ResponseColumn.HeaderText = "Svar"
         Me.ResponseColumn.Name = "ResponseColumn"
         Me.ResponseColumn.ReadOnly = True
@@ -1237,35 +1222,38 @@ Partial Class SipTestGui
         Me.PatientSearchButton.Text = "Sök"
         Me.PatientSearchButton.UseVisualStyleBackColor = True
         '
-        'VerticalLabel5
+        'Label11
         '
-        Me.VerticalLabel5.AutoSize = True
-        Me.VerticalLabel5.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.VerticalLabel5.Location = New System.Drawing.Point(3, 0)
-        Me.VerticalLabel5.Name = "VerticalLabel5"
-        Me.VerticalLabel5.Size = New System.Drawing.Size(15, 130)
-        Me.VerticalLabel5.TabIndex = 1
-        Me.VerticalLabel5.Text = "FÖRSTÄRKNING (dB)"
+        Me.TableLayoutPanel3.SetColumnSpan(Me.Label11, 2)
+        Me.Label11.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label11.Location = New System.Drawing.Point(3, 0)
+        Me.Label11.Name = "Label11"
+        Me.Label11.Size = New System.Drawing.Size(92, 21)
+        Me.Label11.TabIndex = 8
+        Me.Label11.Text = "Välj audiogram"
+        Me.Label11.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'VerticalLabel4
+        'Label12
         '
-        Me.VerticalLabel4.AutoSize = True
-        Me.VerticalLabel4.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.VerticalLabel4.Location = New System.Drawing.Point(3, 0)
-        Me.VerticalLabel4.Name = "VerticalLabel4"
-        Me.VerticalLabel4.Size = New System.Drawing.Size(15, 130)
-        Me.VerticalLabel4.TabIndex = 0
-        Me.VerticalLabel4.Text = "AUDIOGRAM (dB HL)"
+        Me.TableLayoutPanel3.SetColumnSpan(Me.Label12, 2)
+        Me.Label12.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label12.Location = New System.Drawing.Point(3, 172)
+        Me.Label12.Name = "Label12"
+        Me.Label12.Size = New System.Drawing.Size(92, 21)
+        Me.Label12.TabIndex = 9
+        Me.Label12.Text = "Förstärkning"
+        Me.Label12.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'VerticalLabel6
+        'NewAudiogram_Button
         '
-        Me.VerticalLabel6.AutoSize = True
-        Me.VerticalLabel6.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.VerticalLabel6.Location = New System.Drawing.Point(3, 0)
-        Me.VerticalLabel6.Name = "VerticalLabel6"
-        Me.VerticalLabel6.Size = New System.Drawing.Size(15, 130)
-        Me.VerticalLabel6.TabIndex = 0
-        Me.VerticalLabel6.Text = "FÖRV. RESULTAT (%)"
+        Me.NewAudiogram_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.NewAudiogram_Button.Location = New System.Drawing.Point(314, 0)
+        Me.NewAudiogram_Button.Margin = New System.Windows.Forms.Padding(0)
+        Me.NewAudiogram_Button.Name = "NewAudiogram_Button"
+        Me.NewAudiogram_Button.Size = New System.Drawing.Size(67, 21)
+        Me.NewAudiogram_Button.TabIndex = 10
+        Me.NewAudiogram_Button.Text = "Skapa nytt"
+        Me.NewAudiogram_Button.UseVisualStyleBackColor = True
         '
         'SipTestGui
         '
@@ -1290,17 +1278,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel9.ResumeLayout(False)
         CType(Me.CurrentSessionResults_DataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TableLayoutPanel3.ResumeLayout(False)
-        Me.TableLayoutPanel24.ResumeLayout(False)
-        Me.TableLayoutPanel24.PerformLayout()
-        Me.TableLayoutPanel15.ResumeLayout(False)
-        Me.TableLayoutPanel14.ResumeLayout(False)
-        Me.TableLayoutPanel13.ResumeLayout(False)
-        Me.TableLayoutPanel12.ResumeLayout(False)
-        Me.TableLayoutPanel11.ResumeLayout(False)
-        Me.TableLayoutPanel10.ResumeLayout(False)
-        Me.TableLayoutPanel10.PerformLayout()
-        Me.TableLayoutPanel25.ResumeLayout(False)
-        Me.TableLayoutPanel25.PerformLayout()
+        Me.TableLayoutPanel3.PerformLayout()
         Me.TableLayoutPanel4.ResumeLayout(False)
         Me.TableLayoutPanel26.ResumeLayout(False)
         Me.TableLayoutPanel26.PerformLayout()
@@ -1338,11 +1316,6 @@ Partial Class SipTestGui
     Friend WithEvents SaveButton As Windows.Forms.Button
     Friend WithEvents OpenButton As Windows.Forms.Button
     Friend WithEvents ExportButton As Windows.Forms.Button
-    Friend WithEvents TableLayoutPanel15 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel14 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel13 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel12 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel11 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel19 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel17 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel18 As Windows.Forms.TableLayoutPanel
@@ -1379,9 +1352,6 @@ Partial Class SipTestGui
     Friend WithEvents BluetoothSearchButton As Windows.Forms.Button
     Friend WithEvents ConnectBluetoothScreenButton As Windows.Forms.Button
     Friend WithEvents BluetoothDevicesComboBox As Windows.Forms.ComboBox
-    Friend WithEvents TableLayoutPanel24 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel10 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel25 As Windows.Forms.TableLayoutPanel
     Friend WithEvents VerticalLabel2 As SpeechTestFramework.WinFormControls.VerticalLabel
     Friend WithEvents VerticalLabel1 As SpeechTestFramework.WinFormControls.VerticalLabel
     Friend WithEvents VerticalLabel3 As SpeechTestFramework.WinFormControls.VerticalLabel
@@ -1408,4 +1378,7 @@ Partial Class SipTestGui
     Friend WithEvents TestWordColumn As Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents ResponseColumn As Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents ResultColumn As Windows.Forms.DataGridViewImageColumn
+    Friend WithEvents Label12 As Windows.Forms.Label
+    Friend WithEvents Label11 As Windows.Forms.Label
+    Friend WithEvents NewAudiogram_Button As Windows.Forms.Button
 End Class

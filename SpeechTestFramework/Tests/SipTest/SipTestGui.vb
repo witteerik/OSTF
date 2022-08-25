@@ -14,6 +14,7 @@ Public Class SipTestGui
     Public Event InitiateBackend(ByRef ISipGui As ISipGui) Implements ISipGui.InitiateBackend
     Public Event SearchPatient(SocialSecurityNumber As String) Implements ISipGui.SearchPatient
     Public Event SelectAudiogram(ByRef SelectedAudiogramData As AudiogramData) Implements ISipGui.SelectAudiogram
+    Public Event CreateNewAudiogram() Implements ISipGui.CreateNewAudiogram
     Public Event SelectReferenceLevel(SelectedReferenceLevel As Double) Implements ISipGui.SelectReferenceLevel
     Public Event SelectHearingAidGainType(SelectedHearingAidGainType As String) Implements ISipGui.SelectHearingAidGainType
     Public Event SelectPreset(SelectedPreset As String) Implements ISipGui.SelectPreset
@@ -330,6 +331,13 @@ Public Class SipTestGui
 
         RaiseEvent SelectAudiogram(AudiogramComboBox.SelectedItem)
     End Sub
+
+    Private Sub NewAudiogram_Button_Click(sender As Object, e As EventArgs) Handles NewAudiogram_Button.Click
+
+        RaiseEvent CreateNewAudiogram()
+
+    End Sub
+
 
     Private Sub ReferenceLevelComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ReferenceLevelComboBox.SelectedIndexChanged
 

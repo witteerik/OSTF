@@ -243,6 +243,37 @@ Namespace Utils
         End Function
 
         ''' <summary>
+        ''' Rounds the Frequency value to the nearest audiogram frequency.
+        ''' </summary>
+        ''' <param name="Frequency"></param>
+        ''' <returns></returns>
+        Public Function RoundToAudiogramFrequency(ByVal Frequency As Double, Optional ValidFrequencies As SortedSet(Of Double) = Nothing)
+
+            If ValidFrequencies Is Nothing Then
+                ValidFrequencies = New SortedSet(Of Double) From {125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000}
+            End If
+
+            Dim AudFsLog2 As New SortedSet(Of Double)
+            For Each f In ValidFrequencies
+                AudFsLog2.Add(Utils.getBase_n_Log(f, 2))
+            Next
+            Dim NearestIndex = Utils.GetNearestIndex(Utils.getBase_n_Log(Frequency, 2), AudFsLog2, True)
+            Dim RoundedValue = ValidFrequencies(NearestIndex)
+            Return RoundedValue
+
+        End Function
+
+        Public Function RoundToAudiogramLevel(ByVal Level As Double, Optional ByVal MaxLevel As Double = 110, Optional ByVal MinLevel As Double = -10)
+
+            Dim RoundedValue = Utils.RoundToNearestIntegerMultiple(Level, 5)
+            RoundedValue = System.Math.Max(MinLevel, RoundedValue)
+            RoundedValue = System.Math.Min(MaxLevel, RoundedValue)
+
+            Return RoundedValue
+
+        End Function
+
+        ''' <summary>
         ''' Calculates Zipf Value from raw word type frequency.
         ''' </summary>
         ''' <param name="RawWordTypeFrequency">The total number of times a tokens exists in the corpus used.</param>

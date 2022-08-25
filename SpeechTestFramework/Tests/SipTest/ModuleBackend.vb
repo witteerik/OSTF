@@ -208,15 +208,9 @@ Namespace SipTest
         Private DefaultHearingAidGainType As HearingAidGainData.GainTypes = HearingAidGainData.GainTypes.Fig6
 
 
-        Private Function GetDefaultSiPTestPreset() As SipTest.SipTestPresets
-
-            'TODO, default preset should be selected depending on the selected audiogram
-            Return SipTest.SipTestPresets.Måttlig_A
-
-        End Function
-
         Private Enum RecalculationStartpoints
             NewMeasurement
+            AudiogramAdded
             AudiogramData
             ReferenceLevel
             HearingAidGain
@@ -232,6 +226,7 @@ Namespace SipTest
         ''' <param name="Startpoint"></param>
         Private Sub TriggerRecalculationChain(ByVal Startpoint As RecalculationStartpoints)
 
+
             If Startpoint <= RecalculationStartpoints.NewMeasurement Then
                 CreateNewSipTestMeasurement()
 
@@ -244,6 +239,18 @@ Namespace SipTest
                 End If
 
             End If
+
+            If Startpoint <= RecalculationStartpoints.AudiogramAdded Then
+
+                ' Repopulates the audiogram list and selects the last audiogram
+                SipGui.PopulateAudiogramList(AvailableAudiograms, AvailableAudiograms.Count - 1)
+
+            End If
+
+            'Checks if the audiogram contains data, and stops if not
+            If CurrentSipTestMeasurement.SelectedAudiogramData.ContainsAcData = False Then Exit Sub
+            If CurrentSipTestMeasurement.SelectedAudiogramData.ContainsCbData = False Then CurrentSipTestMeasurement.SelectedAudiogramData.CalculateCriticalBandValues()
+
 
             If Startpoint <= RecalculationStartpoints.AudiogramData Then
 
@@ -409,6 +416,20 @@ Namespace SipTest
 
         End Function
 
+
+        Public Sub CreateNewAudiogram() Handles SipGui.CreateNewAudiogram
+
+            'Stores the selected audiogram data
+            Dim NewAudiogram = New AudiogramData
+            NewAudiogram.Name = DateTime.Now
+
+            AvailableAudiograms.Add(NewAudiogram)
+
+            CurrentSipTestMeasurement.SelectedAudiogramData = NewAudiogram
+
+            TriggerRecalculationChain(RecalculationStartpoints.AudiogramAdded)
+
+        End Sub
 
         Public Sub SelectAudiogram(ByRef SelectedAudiogramData As AudiogramData) Handles SipGui.SelectAudiogram
 

@@ -217,5 +217,11 @@
 
     End Sub
 
+    Private Sub Audiogram1_MouseClick(sender As Object, e As MouseEventArgs)
 
+    End Sub
+
+    Private Sub Audiogram1_MouseHover(sender As Object, e As EventArgs) Handles Audiogram1.MouseHover
+
+    End Sub
 End Class

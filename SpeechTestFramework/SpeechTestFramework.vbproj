@@ -123,6 +123,12 @@
     <Compile Include="Tests\SipTest\SipTestGui.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="WinFormControls\AudiogramSymbolDialog.Designer.vb">
+      <DependentUpon>AudiogramSymbolDialog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\AudiogramSymbolDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WinFormControls\LoadOstaMediaSetControl.Designer.vb">
       <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>
     </Compile>
@@ -277,6 +283,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Tests\SipTest\SipTestGui.resx">
       <DependentUpon>SipTestGui.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\AudiogramSymbolDialog.resx">
+      <DependentUpon>AudiogramSymbolDialog.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\LoadOstaMediaSetControl.resx">
       <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>

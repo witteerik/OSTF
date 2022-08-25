@@ -19,6 +19,11 @@
         Event SelectAudiogram(ByRef SelectedAudiogramData As AudiogramData)
 
         ''' <summary>
+        ''' A method that should set create a new empty audiogram and display/select in the GUI.
+        ''' </summary>
+        Event CreateNewAudiogram()
+
+        ''' <summary>
         ''' A method that should set the ModuleBackend.SelectedReferenceLevel to SelectedReferenceLevel and trigger a recalculation chain from the ReferenceLevel start point, including calls to update the relevant data presented in the Gui.
         ''' </summary>
         ''' <param name="SelectedReferenceLevel"></param>

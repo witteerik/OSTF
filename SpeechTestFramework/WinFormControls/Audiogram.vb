@@ -764,36 +764,178 @@ Namespace WinFormControls
 
         End Sub
 
+        Private AudiogramToolTip As New Windows.Forms.ToolTip() With {.AutoPopDelay = 50000, .InitialDelay = 10, .ReshowDelay = 10, .ShowAlways = True}
+
+        Private Sub Audiogram_MouseMove(sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles Me.MouseMove
+
+            ' Rounding to valid audiogram frequency and stimulus level
+            Dim Frequency = Utils.RoundToAudiogramFrequency(CoordinateToXValue(e.X))
+            Dim StimulusLevel = Utils.RoundToAudiogramLevel(CoordinateToYValue(e.Y))
+
+            AudiogramToolTip.SetToolTip(Me, Frequency & " Hz: " & StimulusLevel & " dB")
+
+        End Sub
+
+#Region "Audiogram editing"
+
+
+        Private Enum WriteModes
+            Write
+            Remove
+        End Enum
+
+        Private Enum PointTypes
+            RightAir
+            RightBone
+            RightMaskedAir
+            RightMaskedBone
+            LeftAir
+            LeftBone
+            LeftMaskedAir
+            LeftMaskedBone
+        End Enum
+
+        Private EnableEditing As Boolean
+        Private CurrentPointType As PointTypes
+        Private CurrentOverheard As Boolean
+        Private CurrentWriteNotHeard As Boolean
+        Private MyAudiogramSymbolDialog = New AudiogramSymbolDialog
+
         Private Sub Audiogram_MouseClick(sender As Object, e As MouseEventArgs) Handles Me.MouseClick
 
             Select Case e.Button
+                Case MouseButtons.Left
+
+                    If EnableEditing = False Then Exit Sub
+
+                    ' Rounding to valid audiogram frequency and stimulus level
+                    Dim Frequency = Utils.RoundToAudiogramFrequency(CoordinateToXValue(e.X))
+                    Dim StimulusLevel = Utils.RoundToAudiogramLevel(CoordinateToYValue(e.Y))
+
+                    'Setting the value
+                    EditAudiogramValue(CurrentPointType, Frequency, StimulusLevel, CurrentOverheard, CurrentWriteNotHeard)
+
+                    Me.Invalidate()
+                    Me.Update()
+
                 Case MouseButtons.Right
 
-                    Dim Position_X = CoordinateToXValue(e.X)
-                    Dim Position_Y = CoordinateToYValue(e.Y)
+                    MyAudiogramSymbolDialog.Location = e.Location
+                    Dim DialogResult = MyAudiogramSymbolDialog.ShowDialog()
+                    If DialogResult = DialogResult.OK Then
 
-                    ' RoundToAudiogramFrequency 
-                    Dim AudFs As New SortedSet(Of Double) From {125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000}
-                    Dim AudFsLog2 As New SortedSet(Of Double)
-                    For Each f In AudFs
-                        AudFsLog2.Add(Utils.getBase_n_Log(f, 2))
-                    Next
-                    Dim NearestIndex = Utils.GetNearestIndex(Utils.getBase_n_Log(Position_X, 2), AudFsLog2, True)
-                    Dim RoundedValue = AudFs(NearestIndex)
+                        EnableEditing = MyAudiogramSymbolDialog.EditEnabled
+                        CurrentOverheard = MyAudiogramSymbolDialog.Overheard
+                        CurrentWriteNotHeard = MyAudiogramSymbolDialog.NotHeard
 
-                    'Round to nearest 5
-                    Dim RoundedYValue = Utils.RoundToNearestIntegerMultiple(Position_Y, 5)
-                    RoundedYValue = Math.Max(-10, RoundedYValue)
-                    RoundedYValue = Math.Min(110, RoundedYValue)
-
-                    MsgBox(RoundedValue & " Hz " & RoundedYValue & " dB")
-
-
-                Case MouseButtons.Left
+                        If MyAudiogramSymbolDialog.Masked = False Then
+                            'Unmasked
+                            If MyAudiogramSymbolDialog.AirConduction = True Then
+                                'Air
+                                If MyAudiogramSymbolDialog.LeftSide = True Then
+                                    'Left side
+                                    CurrentPointType = PointTypes.LeftAir
+                                Else
+                                    'Right side
+                                    CurrentPointType = PointTypes.RightAir
+                                End If
+                            Else
+                                'Bone
+                                If MyAudiogramSymbolDialog.LeftSide = True Then
+                                    'Left side
+                                    CurrentPointType = PointTypes.LeftBone
+                                Else
+                                    'Right side
+                                    CurrentPointType = PointTypes.RightBone
+                                End If
+                            End If
+                        Else
+                            'Masked
+                            If MyAudiogramSymbolDialog.AirConduction = True Then
+                                'Air
+                                If MyAudiogramSymbolDialog.LeftSide = True Then
+                                    'Left side
+                                    CurrentPointType = PointTypes.LeftMaskedAir
+                                Else
+                                    'Right side
+                                    CurrentPointType = PointTypes.RightMaskedAir
+                                End If
+                            Else
+                                'Bone
+                                If MyAudiogramSymbolDialog.LeftSide = True Then
+                                    'Left side
+                                    CurrentPointType = PointTypes.LeftMaskedBone
+                                Else
+                                    'Right side
+                                    CurrentPointType = PointTypes.RightMaskedBone
+                                End If
+                            End If
+                        End If
+                    Else
+                        EnableEditing = False
+                    End If
 
             End Select
 
         End Sub
+
+        Private Sub EditAudiogramValue(ByVal PointType As PointTypes, ByVal Frequency As Integer, ByVal StimulusLevel As Integer, Optional ByVal Overheard As Boolean = False, Optional ByVal NoResponse As Boolean = False)
+
+            'Creating a new instance of audiogram data if none exists
+            If _AudiogramData Is Nothing Then _AudiogramData = New AudiogramData
+
+            'Finding the right array to change
+            Dim ModArray As New List(Of AudiogramData.TonePoint)
+            Select Case PointType
+                Case PointTypes.RightAir
+                    ModArray = _AudiogramData.AC_Right
+                Case PointTypes.RightBone
+                    ModArray = _AudiogramData.BC_Right
+                Case PointTypes.RightMaskedAir
+                    ModArray = _AudiogramData.AC_Right_Masked
+                Case PointTypes.RightMaskedBone
+                    ModArray = _AudiogramData.BC_Right_Masked
+                Case PointTypes.LeftAir
+                    ModArray = _AudiogramData.AC_Left
+                Case PointTypes.LeftBone
+                    ModArray = _AudiogramData.BC_Left
+                Case PointTypes.LeftMaskedAir
+                    ModArray = _AudiogramData.AC_Left_Masked
+                Case PointTypes.LeftMaskedBone
+                    ModArray = _AudiogramData.BC_Left_Masked
+            End Select
+
+            'Putting points into a SortedList to finding the right frequency
+            Dim ModTonePoint As AudiogramData.TonePoint
+            Dim FrequencyList As New SortedList(Of Integer, AudiogramData.TonePoint)
+            For Each tp In ModArray
+                FrequencyList.Add(tp.StimulusFrequency, tp)
+            Next
+
+            'Modifying the value
+            If FrequencyList.ContainsKey(Frequency) = False Then
+                ModTonePoint = New AudiogramData.TonePoint With {.StimulusFrequency = Frequency, .Overheard = Overheard, .NoResponse = NoResponse}
+                FrequencyList.Add(ModTonePoint.StimulusFrequency, ModTonePoint)
+                FrequencyList(Frequency).StimulusLevel = StimulusLevel
+            Else
+                'Contains the frequency. If the new StimulusLevel value is the same as the old (the user clicked an existing point), the point is removed, otherwise it's changed
+                If FrequencyList(Frequency).StimulusLevel <> StimulusLevel Then
+                    FrequencyList(Frequency).StimulusLevel = StimulusLevel
+                Else
+                    FrequencyList.Remove(Frequency)
+                End If
+            End If
+
+            'Storing the value (overwriting the ModArray, as the ModPoint may have been inserted or removed, via FrequencyList)
+            ModArray.Clear()
+            For Each Point In FrequencyList.Values
+                ModArray.Add(Point)
+            Next
+
+        End Sub
+
+#End Region
+
 
     End Class
 
