@@ -63,9 +63,10 @@
         ''' <param name="G">Hearing-aid insertion gain (in each critical band)</param>
         ''' <param name="Binaural"></param>
         ''' <param name="SF30"></param>
+        ''' <param name="SRFM"></param>
         ''' <returns></returns>
         Public Function CalculateSDR(ByVal E As Double(), ByVal N As Double(), ByVal T_ As Double(), ByVal G As Double(),
-                                 ByVal Binaural As Boolean, ByVal SF30 As Boolean) As Double()
+                                 ByVal Binaural As Boolean, ByVal SF30 As Boolean, ByVal SRFM As Double?()) As Double()
 
             '  Critical band specifications according to table 1 in ANSI S3.5-1997
             '   Centre frequencies
@@ -108,13 +109,33 @@
                 'The data below are taken straight from the Witte's thesis, and may be rounded. Todo: check the values directly in R!
                 Dim int_ds As Double() = {0.000, 0.000, 0.075, 0.2, 0.2, -0.2, -0.82, -1.2, -1.115, -0.94, -0.6, -0.475, -0.7, -1.1, -0.9, -1.3, -2.3, -1.42, -0.48, -0.6, -1.6}
 
-                'Adding the delta HRFT to N
+                'Step 4
+                '    Subtracting spectral release from masking To the noise
+                If SRFM IsNot Nothing Then
+                    If SRFM.Length = 1 Or SRFM.Length = 21 Then
+
+                        ' If the the length of SRFM Is 1, that value Is subtracted from all requency bands,
+                        ' And if the length Is 21, SRFM should contain the attenuation of each of the 21 critical frequency bands
+
+                        If SRFM.Length = 1 Then
+                            For i = 0 To int_ds.Length - 1
+                                int_ds(i) -= SRFM(0)
+                            Next
+                        Else
+                            For i = 0 To int_ds.Length - 1
+                                int_ds(i) -= SRFM(i)
+                            Next
+                        End If
+                    Else
+                        Throw New ArgumentException("SRFM must be a numeric vector of length 1 or 21, or NULL.")
+                    End If
+                End If
+
+                'Adding the delta HRFT, optionally modified  by the SRFM, to N
                 For i = 0 To 20
                     N(i) = N(i) + int_ds(i)
                 Next
             End If
-
-            'Step 4 is skipped (since it is not needed when specific model coefficients are used for the different test-word lists.
 
             'Step 5
             Dim N_(20) As Double
@@ -130,7 +151,6 @@
             End If
 
             'Step 7
-
 
             '  # Calculating Spectrum level for self-speech masking
             Dim V(20) As Double
@@ -190,6 +210,52 @@
 
         End Function
 
+        Public Function GetMLD(Optional ByVal Frequencies As Double?() = Nothing, Optional ByVal c_factor As Double = 1) As Double?()
+
+            '  Based on formula from Durlach 1963. Equalization and cancellation Theory...
+
+            If Frequencies Is Nothing Then
+                Frequencies = {150, 250, 350, 450, 570, 700, 840, 1000, 1170, 1370, 1600, 1850, 2150, 2500, 2900, 3400, 4000, 4800, 5800, 7000, 8500}
+            End If
+
+            Dim MLD(Frequencies.Length - 1) As Double?
+
+            Dim se = 0.25
+            Dim sd = 0.000105
+
+            For i = 0 To Frequencies.Length - 1
+                Dim w = Frequencies(i) * 2 * Math.PI
+                Dim z = 2 * Math.Exp(-w ^ 2 * sd ^ 2) / (1 + se ^ 2 - Math.Exp(-w ^ 2 * sd ^ 2))
+                MLD(i) = c_factor * 10 * Math.Log10(z + 1)
+            Next
+
+            Return MLD
+
+        End Function
+
+        'GetMLD <-  function(frequencies = NULL){
+        '  
+        '  # Based on formula from Durlach 1963. Equalization and cancellation Theory...
+        '  
+        '  if (is.null(frequencies)==TRUE) {
+        '    frequencies <-  c(150, 250, 350, 450, 570, 700, 840, 1000, 1170, 1370, 1600, 1850, 
+        '                      2150, 2500, 2900, 3400, 4000, 4800, 5800, 7000, 8500)
+        '  }
+        '  
+        '  w <- frequencies*2*pi
+        '  se <- 0.25
+        '  sd <- 0.000105
+        '  
+        '  z <- 2*exp(-w^2*sd^2)/(1+se^2-exp(-w^2*sd^2))
+        '  
+        '  MLD <- 10*log10(z+1)
+        '  
+        '  #plot(frequencies,MLD, ylim = c(0,30))
+        '  #lines(frequencies,GetInterpolatedDurlachData())
+        '  
+        '  return(MLD)
+        '  
+        '}
 
 
         'Translated from the following R-code

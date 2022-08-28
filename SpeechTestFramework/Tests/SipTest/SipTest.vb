@@ -70,46 +70,96 @@ Namespace SipTest
 
             ClearTrials()
 
-            If RandomSeed.HasValue Then Randomizer = New Random(RandomSeed)
+            Dim Adaptive As Boolean = True
+            If Adaptive = False Then
 
-            For r = 1 To TestProcedure.LengthReduplications
+                If RandomSeed.HasValue Then Randomizer = New Random(RandomSeed)
 
-                For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(SelectedPresetName)
+                For r = 1 To TestProcedure.LengthReduplications
 
-                    Dim NewTestUnit = New SiPTestUnit(Me)
+                    For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(SelectedPresetName)
 
-                    Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
-                    NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
+                        Dim NewTestUnit = New SiPTestUnit(Me)
 
-                    If SelectedMediaSetName <> "" Then
-                        'Adding from the selected media set
-                        NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(SelectedMediaSetName))
-                        TestUnits.Add(NewTestUnit)
-                    Else
-                        'Adding from random media sets
-                        Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
-                        NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex))
-                        TestUnits.Add(NewTestUnit)
-                    End If
+                        Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+                        NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
+                        If SelectedMediaSetName <> "" Then
+                            'Adding from the selected media set
+                            NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(SelectedMediaSetName))
+                            TestUnits.Add(NewTestUnit)
+                        Else
+                            'Adding from random media sets
+                            Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
+                            NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex))
+                            TestUnits.Add(NewTestUnit)
+                        End If
+
+                    Next
                 Next
-            Next
 
-            For Each Unit In TestUnits
-                For Each Trial In Unit.PlannedTrials
-                    PlannedTrials.Add(Trial)
+                For Each Unit In TestUnits
+                    For Each Trial In Unit.PlannedTrials
+                        PlannedTrials.Add(Trial)
+                    Next
                 Next
-            Next
 
-            If TestProcedure.RandomizeOrder = True Then
-                Dim RandomList As New List(Of SipTrial)
-                Do Until PlannedTrials.Count = 0
-                    Dim RandomIndex As Integer = Randomizer.Next(0, PlannedTrials.Count)
-                    RandomList.Add(PlannedTrials(RandomIndex))
-                    PlannedTrials.RemoveAt(RandomIndex)
-                Loop
-                PlannedTrials = RandomList
+                If TestProcedure.RandomizeOrder = True Then
+                    Dim RandomList As New List(Of SipTrial)
+                    Do Until PlannedTrials.Count = 0
+                        Dim RandomIndex As Integer = Randomizer.Next(0, PlannedTrials.Count)
+                        RandomList.Add(PlannedTrials(RandomIndex))
+                        PlannedTrials.RemoveAt(RandomIndex)
+                    Loop
+                    PlannedTrials = RandomList
+                End If
+
+
+            Else
+
+                If RandomSeed.HasValue Then Randomizer = New Random(RandomSeed)
+
+                For r = 1 To TestProcedure.LengthReduplications
+
+                    For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(SelectedPresetName)
+
+                        Dim NewTestUnit = New SiPTestUnit(Me)
+
+                        Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+                        NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
+
+                        If SelectedMediaSetName <> "" Then
+                            'Adding from the selected media set
+                            NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(SelectedMediaSetName))
+                            TestUnits.Add(NewTestUnit)
+                        Else
+                            'Adding from random media sets
+                            Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
+                            NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex))
+                            TestUnits.Add(NewTestUnit)
+                        End If
+
+                    Next
+                Next
+
+                For Each Unit In TestUnits
+                    For Each Trial In Unit.PlannedTrials
+                        PlannedTrials.Add(Trial)
+                    Next
+                Next
+
+                'If TestProcedure.RandomizeOrder = True Then
+                '    Dim RandomList As New List(Of SipTrial)
+                '    Do Until PlannedTrials.Count = 0
+                '        Dim RandomIndex As Integer = Randomizer.Next(0, PlannedTrials.Count)
+                '        RandomList.Add(PlannedTrials(RandomIndex))
+                '        PlannedTrials.RemoveAt(RandomIndex)
+                '    Loop
+                '    PlannedTrials = RandomList
+                'End If
+
             End If
+
 
         End Sub
 
@@ -279,6 +329,7 @@ Namespace SipTest
 
         Public Property TestTrialHistory As New List(Of SipTrial)
 
+        Public Property AdaptiveValue As Double
 
         Public Sub New(ByRef ParentTestSession As TestSession)
             Me.ParentTestSession = ParentTestSession
@@ -297,6 +348,16 @@ Namespace SipTest
                         PlannedTrials.Add(NewTrial)
                     Next
                     'Next
+
+                    'Case AdaptiveTypes.SimpleUpDown
+
+                    '    'For n = 1 To ParentTestSession.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
+                    '    For c = 0 To SpeechMaterialComponents.Count - 1
+                    '        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet)
+                    '        PlannedTrials.Add(NewTrial)
+                    '    Next
+                    '    'Next
+
 
             End Select
 
@@ -596,11 +657,15 @@ Namespace SipTest
                         Next
                     Next
 
+                    Dim SRFM As Double?() = GetMLD(Nothing, 1.01) ' Cf Witte's Thesis for the value of c_factor
+
+                    'N.B. SRFM and SF 30 need to change if presented in other speaker azimuths!
+
                     'Calculating SDRs
-                    Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True)
+                    Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
                     Dim SDRcs As New List(Of Double())
                     For s = 0 To Siblings.Count - 1
-                        Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s), MaskerSpectralLevels, Thresholds, Gain, True, True)
+                        Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s), MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
                         SDRcs.Add(SDRc)
                     Next
 
@@ -686,7 +751,7 @@ Namespace SipTest
 
         Public Property AdaptiveType As AdaptiveTypes
 
-        Public Property LengthReduplications As Integer? = 1
+        Public Property LengthReduplications As Integer?
 
         Public Property RandomizeOrder As Boolean = True
 

@@ -181,7 +181,7 @@
         ''' </summary>
         ''' <param name="AvailableTestLengths"></param>
         ''' <param name="SelectedIndex"></param>
-        Sub PopulateTestLengthList(ByVal AvailableTestLengths As List(Of Integer), ByVal SelectedIndex As Integer)
+        Sub PopulateTestLengthList(ByVal AvailableTestLengths As List(Of Integer), ByVal SelectedIndex As Integer?)
 
         ''' <summary>
         ''' Should show a visual display of a psychometric curve showing the predicted score for different PNRs, along with the critical interval of each predicted score.

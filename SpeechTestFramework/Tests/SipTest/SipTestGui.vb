@@ -271,13 +271,15 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub PopulateTestLengthList(AvailableTestLengths As List(Of Integer), SelectedIndex As Integer) Implements ISipGui.PopulateTestLengthList
+    Public Sub PopulateTestLengthList(AvailableTestLengths As List(Of Integer), SelectedIndex As Integer?) Implements ISipGui.PopulateTestLengthList
 
         TestLengthComboBox.Items.Clear()
         For Each TestLength In AvailableTestLengths
             TestLengthComboBox.Items.Add(TestLength)
         Next
-        TestLengthComboBox.SelectedIndex = SelectedIndex
+        If SelectedIndex.HasValue Then
+            TestLengthComboBox.SelectedIndex = SelectedIndex
+        End If
 
     End Sub
 

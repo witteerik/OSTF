@@ -340,9 +340,13 @@ Namespace SipTest
                     SipGui.PopulateTestLengthList(AvailableLengthReduplications, AvailableLengthReduplications.IndexOf(CurrentSipTestMeasurement.TestProcedure.LengthReduplications))
                 Else
 
-                    Dim DefaultLengthReduplication As Integer = 0 ' TODO: this should be customized in some way!
-                    SipGui.PopulateTestLengthList(AvailableLengthReduplications, AvailableLengthReduplications.IndexOf(DefaultLengthReduplication))
+                    'Dim DefaultLengthReduplication As Integer = 0 ' TODO: this should be customized in some way!
+                    'SipGui.PopulateTestLengthList(AvailableLengthReduplications, AvailableLengthReduplications.IndexOf(DefaultLengthReduplication))
 
+                    SipGui.PopulateTestLengthList(AvailableLengthReduplications, Nothing)
+
+                    'Halting the recalculation chain, since no LengthReduplications is selected
+                    Exit Sub
                 End If
 
             End If
@@ -513,11 +517,95 @@ Namespace SipTest
 
             'SipGui.UpdateTestProgress(CurrentSipTestMeasurement.TestLength, CurrentSipTestMeasurement.NumberPresented, CurrentSipTestMeasurement.NumberCorrect, CurrentSipTestMeasurement.PercentCorrect)
 
+            SimulateAdaptiveTests()
 
-            SipGui.SubEnablePlayButton()
+            'SipGui.SubEnablePlayButton()
 
 
         End Sub
+
+        Private Sub SimulateAdaptiveTests()
+
+            Dim Simulations As Integer = 1000
+
+            Dim Seed As Integer = 42
+            Dim Rnd As New Random(Seed)
+
+            Dim TestResults As New List(Of String)
+            Dim ProgressDisplay As New ProgressDisplay
+            ProgressDisplay.Initialize(Simulations, 0, "Simulating adaptive tests...", 1)
+            ProgressDisplay.Show()
+
+            For i = 1 To Simulations
+
+                ProgressDisplay.UpdateProgress(i)
+
+                Dim NewResult = SimulateAdaptiveTest(Rnd)
+
+                TestResults.Add(i.ToString() & vbTab & vbTab &
+                                NewResult.Item1.Last.ToString & vbTab & vbTab &
+                                NewResult.Item1.Average.ToString & vbTab & vbTab &
+                                String.Join(vbTab, NewResult.Item1) & vbTab & vbTab &
+                                String.Join(vbTab, NewResult.Item2))
+
+            Next
+
+            Utils.SendInfoToLog(String.Join(vbCrLf, TestResults), "SimulationResults")
+
+            ProgressDisplay.Close()
+
+        End Sub
+
+        Private Function SimulateAdaptiveTest(ByRef Rnd As Random) As Tuple(Of List(Of Double), List(Of String))
+
+            Dim CurrentPNR As Double = 0
+
+            Dim PNRList As New List(Of Double)
+            Dim ResponseList As New List(Of String)
+
+            Dim ResultList As New List(Of Integer)
+
+            For Each Trial In CurrentSipTestMeasurement.PlannedTrials
+
+                PNRList.Add(CurrentPNR)
+
+                Trial.SetLevels(CurrentSipTestMeasurement.ReferenceLevel, CurrentPNR)
+
+                Dim p = Trial.EstimatedSuccessProbability(True)
+
+                'Simulating a test trial response by sampling from a bernoulli distribution
+
+                Dim BernoulliTrialResult = MathNet.Numerics.Distributions.Bernoulli.Sample(Rnd, p)
+                Dim SimulatedResponse As String = ""
+
+                ResultList.Add(BernoulliTrialResult)
+
+                If ResultList.Count = 3 Then
+                    Select Case ResultList.Sum
+                        Case 0, 1
+                            CurrentPNR += 2
+                        Case 2
+                            'Do not change!
+                        Case 3
+                            CurrentPNR -= 2
+                    End Select
+                    ResultList.Clear()
+                End If
+
+                If BernoulliTrialResult = 1 Then
+                    SimulatedResponse = "Correct"
+                Else
+                    SimulatedResponse = "Incorrect"
+                End If
+
+                ResponseList.Add(SimulatedResponse)
+
+            Next
+
+            Return New Tuple(Of List(Of Double), List(Of String))(PNRList, ResponseList)
+
+        End Function
+
 
         Public Sub StartButtonPressed() Handles SipGui.StartButtonPressed
             StartTest()

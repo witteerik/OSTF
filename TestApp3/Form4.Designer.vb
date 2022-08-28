@@ -37,6 +37,7 @@ Partial Class Form4
         Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
         Me.SiP_Button = New System.Windows.Forms.Button()
+        Me.Button4 = New System.Windows.Forms.Button()
         Me.FlowLayoutPanel1.SuspendLayout()
         CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.ResponseGuiItemTable1.SuspendLayout()
@@ -232,12 +233,22 @@ Partial Class Form4
         Me.SiP_Button.Text = "SiP-test"
         Me.SiP_Button.UseVisualStyleBackColor = True
         '
+        'Button4
+        '
+        Me.Button4.Location = New System.Drawing.Point(289, 112)
+        Me.Button4.Name = "Button4"
+        Me.Button4.Size = New System.Drawing.Size(75, 23)
+        Me.Button4.TabIndex = 9
+        Me.Button4.Text = "Button4"
+        Me.Button4.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button4)
         Me.Controls.Add(Me.SiP_Button)
         Me.Controls.Add(Me.Audiogram1)
         Me.Controls.Add(Me.FlowLayoutPanel1)
@@ -268,4 +279,5 @@ Partial Class Form4
     Friend WithEvents CustomVariableSelectionControl2 As SpeechTestFramework.CustomVariableSelectionControl
     Friend WithEvents Audiogram1 As SpeechTestFramework.WinFormControls.Audiogram
     Friend WithEvents SiP_Button As Button
+    Friend WithEvents Button4 As Button
 End Class

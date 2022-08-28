@@ -224,4 +224,42 @@
     Private Sub Audiogram1_MouseHover(sender As Object, e As EventArgs) Handles Audiogram1.MouseHover
 
     End Sub
+
+    Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
+
+        'Just high-jacking this app to coy files for the SSL-project
+        Dim Folders = IO.Directory.EnumerateDirectories("C:\EriksDokument\SslVideosInSubfolders")
+        Dim OutputParentDir As String = "C:\VLDT\PilotExperiment1"
+
+        Dim f As Integer = 0
+
+        For b = 1 To 4
+
+            Dim BlockFolder = IO.Path.Combine(OutputParentDir, "Block" & b.ToString("00"))
+
+            For i = 0 To 49
+
+                Dim ReadFolder = IO.Path.Combine(Folders(f))
+                Dim ReadFile = IO.Directory.GetFiles(ReadFolder)(0)
+                Dim WriteFile = IO.Path.Combine(BlockFolder, "Real", IO.Path.GetFileName(ReadFile))
+                IO.File.Copy(ReadFile, WriteFile)
+                f += 1
+
+            Next
+
+            For i = 0 To 49
+
+                Dim ReadFolder = IO.Path.Combine(Folders(f))
+                Dim ReadFile = IO.Directory.GetFiles(ReadFolder)(0)
+                Dim WriteFile = IO.Path.Combine(BlockFolder, "Pseudo", IO.Path.GetFileName(ReadFile))
+                IO.File.Copy(ReadFile, WriteFile)
+                f += 1
+
+                f += 1
+            Next
+        Next
+
+        MsgBox("Finished copying files")
+
+    End Sub
 End Class
