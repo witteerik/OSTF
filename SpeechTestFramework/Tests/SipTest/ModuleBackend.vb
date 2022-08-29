@@ -332,7 +332,7 @@ Namespace SipTest
             If Startpoint <= RecalculationStartpoints.TestSituation Then
 
                 'The media set was updated. Updating the test lengths
-                Dim AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+                Dim AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 60}
 
                 If CurrentSipTestMeasurement.TestProcedure.LengthReduplications IsNot Nothing Then
 
@@ -526,40 +526,50 @@ Namespace SipTest
 
         Private Sub SimulateAdaptiveTests()
 
-            Dim Simulations As Integer = 1000
+            Dim Ms As New List(Of Integer) From {1, 2, 3}
 
-            Dim Seed As Integer = 42
-            Dim Rnd As New Random(Seed)
+            For Each M In Ms
 
-            Dim TestResults As New List(Of String)
-            Dim ProgressDisplay As New ProgressDisplay
-            ProgressDisplay.Initialize(Simulations, 0, "Simulating adaptive tests...", 1)
-            ProgressDisplay.Show()
 
-            For i = 1 To Simulations
+                Dim Simulations As Integer = 500
 
-                ProgressDisplay.UpdateProgress(i)
+                Dim Seed As Integer = 42
+                Dim Rnd As New Random(Seed)
 
-                Dim NewResult = SimulateAdaptiveTest(Rnd)
+                Dim TestResults As New List(Of String)
+                Dim ProgressDisplay As New ProgressDisplay
+                ProgressDisplay.Initialize(Simulations, 0, "Simulating adaptive tests...", 1)
+                ProgressDisplay.Show()
 
-                TestResults.Add(i.ToString() & vbTab & vbTab &
-                                NewResult.Item1.Last.ToString & vbTab & vbTab &
-                                NewResult.Item1.Average.ToString & vbTab & vbTab &
-                                String.Join(vbTab, NewResult.Item1) & vbTab & vbTab &
-                                String.Join(vbTab, NewResult.Item2))
+                For i = 1 To Simulations
+
+                    ProgressDisplay.UpdateProgress(i)
+
+                    Dim NewResult = SimulateAdaptiveTest(Rnd, M)
+
+                    TestResults.Add(i.ToString() & vbTab & vbTab &
+                                    NewResult.Item1.Last.ToString & vbTab & vbTab &
+                                    NewResult.Item1.Average.ToString & vbTab & vbTab &
+                                    String.Join(vbTab, NewResult.Item1) & vbTab & vbTab &
+                                    String.Join(vbTab, NewResult.Item2))
+
+                Next
+
+                Utils.SendInfoToLog(vbCrLf & vbCrLf & "Method: " & M & vbCrLf & String.Join(vbCrLf, TestResults), "SimulationResults")
+
+                ProgressDisplay.Close()
 
             Next
 
-            Utils.SendInfoToLog(String.Join(vbCrLf, TestResults), "SimulationResults")
-
-            ProgressDisplay.Close()
+            MsgBox("Simulation Complete")
 
         End Sub
 
-        Private Function SimulateAdaptiveTest(ByRef Rnd As Random) As Tuple(Of List(Of Double), List(Of String))
+
+        Private Function SimulateAdaptiveTest(ByRef Rnd As Random, ByVal Method As Integer) As Tuple(Of List(Of Double), List(Of String))
 
             Dim CurrentPNR As Double = 0
-
+            Dim Elapses As Integer = 0
             Dim PNRList As New List(Of Double)
             Dim ResponseList As New List(Of String)
 
@@ -580,23 +590,39 @@ Namespace SipTest
 
                 ResultList.Add(BernoulliTrialResult)
 
-                If ResultList.Count = 3 Then
-                    Select Case ResultList.Sum
-                        Case 0, 1
-                            CurrentPNR += 2
-                        Case 2
-                            'Do not change!
-                        Case 3
-                            CurrentPNR -= 2
-                    End Select
-                    ResultList.Clear()
+                Dim StepSize As Double
+                If Elapses >= 30 Then
+                    StepSize = 1
+                Else
+                    StepSize = 2
                 End If
+
+
+                Select Case Method
+                    Case 1
+                        If ResultList.Count = 3 Then
+                            ChangePNR(CurrentPNR, ResultList, StepSize)
+                            ResultList.Clear()
+                        End If
+                    Case 2
+                        If ResultList.Count = 6 Then
+                            ChangePNR(CurrentPNR, ResultList, StepSize)
+                            ResultList.Clear()
+                        End If
+                    Case 3
+                        If ResultList.Count = 12 Then
+                            ChangePNR(CurrentPNR, ResultList, StepSize)
+                            ResultList.Clear()
+                        End If
+                End Select
 
                 If BernoulliTrialResult = 1 Then
                     SimulatedResponse = "Correct"
                 Else
                     SimulatedResponse = "Incorrect"
                 End If
+
+                Elapses += 1
 
                 ResponseList.Add(SimulatedResponse)
 
@@ -606,6 +632,16 @@ Namespace SipTest
 
         End Function
 
+        Private Sub ChangePNR(ByRef CurrentPNR As Double, ResultList As List(Of Integer), ByVal StepSize As Double)
+            Select Case ResultList.Average
+                Case <= (2 / 3)
+                    CurrentPNR += StepSize
+                Case 1
+                    CurrentPNR -= StepSize
+                Case Else
+                    'Do not change!
+            End Select
+        End Sub
 
         Public Sub StartButtonPressed() Handles SipGui.StartButtonPressed
             StartTest()
