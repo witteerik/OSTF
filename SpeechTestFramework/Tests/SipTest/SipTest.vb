@@ -9,7 +9,7 @@ Namespace SipTest
     ' Tc = Component temporal duration (in seconds)
     ' V = HasVowelContrast (1 = Yes, 0 = No)
 
-    Public Class TestSession
+    Public Class Measurement
 
         Public Property ParentTestSpecification As TestSpecification
 
@@ -40,7 +40,7 @@ Namespace SipTest
         Public Property ReferenceLevel As Nullable(Of Double) = Nothing
         Public Property HearingAidGainType As Nullable(Of HearingAidGainData.GainTypes)
 
-        Public Property SelectedMediaSetName As String = "" ' If not selected random media sets can be assigned to different trials
+        Public Property SelectedMediaSetName As String = "" ' If not selected, random media sets can be assigned to different trials
 
         Public Property SelectedPresetName As String = ""
 
@@ -275,6 +275,18 @@ Namespace SipTest
 
 #End Region
 
+#Region "TestResultSummary"
+
+        Public Function GetMeasurementSummary() As MeasurementSummary
+
+            Dim NewMeasurementSummary As New MeasurementSummary()
+
+
+
+        End Function
+
+#End Region
+
 
     End Class
 
@@ -321,7 +333,7 @@ Namespace SipTest
 
     Public Class SiPTestUnit
 
-        Public Property ParentTestSession As TestSession
+        Public Property ParentMeasurement As Measurement
 
         Public Property SpeechMaterialComponents As New List(Of SpeechMaterialComponent)
 
@@ -331,18 +343,18 @@ Namespace SipTest
 
         Public Property AdaptiveValue As Double
 
-        Public Sub New(ByRef ParentTestSession As TestSession)
-            Me.ParentTestSession = ParentTestSession
+        Public Sub New(ByRef ParentMeasurement As Measurement)
+            Me.ParentMeasurement = ParentMeasurement
         End Sub
 
         Public Sub PlanTrials(ByRef MediaSet As MediaSet)
 
             PlannedTrials.Clear()
 
-            Select Case ParentTestSession.TestProcedure.AdaptiveType
+            Select Case ParentMeasurement.TestProcedure.AdaptiveType
                 Case AdaptiveTypes.Fixed
 
-                    'For n = 1 To ParentTestSession.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
+                    'For n = 1 To ParentMeasurement.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
                     For c = 0 To SpeechMaterialComponents.Count - 1
                         Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet)
                         PlannedTrials.Add(NewTrial)
@@ -351,7 +363,7 @@ Namespace SipTest
 
                     'Case AdaptiveTypes.SimpleUpDown
 
-                    '    'For n = 1 To ParentTestSession.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
+                    '    'For n = 1 To ParentMeasurement.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
                     '    For c = 0 To SpeechMaterialComponents.Count - 1
                     '        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet)
                     '        PlannedTrials.Add(NewTrial)
@@ -365,12 +377,12 @@ Namespace SipTest
 
         Public Function GetNextTrial(ByRef rnd As Random) As SipTrial
 
-            Select Case ParentTestSession.TestProcedure.AdaptiveType
+            Select Case ParentMeasurement.TestProcedure.AdaptiveType
                 Case AdaptiveTypes.Fixed
 
                     If PlannedTrials.Count = 0 Then Return Nothing
 
-                    If ParentTestSession.TestProcedure.RandomizeOrder = True Then
+                    If ParentMeasurement.TestProcedure.RandomizeOrder = True Then
                         Dim RandomIndex = rnd.Next(0, PlannedTrials.Count)
                         Dim NextTrial = PlannedTrials(RandomIndex)
                         'Removing the trial from PlannedTrials
@@ -568,7 +580,7 @@ Namespace SipTest
 
         Public Sub UpdateEstimatedSuccessProbability()
 
-            'Select Case Me.ParentTestUnit.ParentTestSession.Prediction.Models.SelectedModel.GetSwedishSipTestA
+            'Select Case Me.ParentTestUnit.ParentMeasurement.Prediction.Models.SelectedModel.GetSwedishSipTestA
 
             'Getting predictors
             Dim PDL As Double = Me.PhonemeDiscriminabilityLevel
@@ -618,15 +630,15 @@ Namespace SipTest
 
                     For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
                         'TODO: should we allow for the lack of gain data here, or should we always use a gain of zero when no hearing aid is used?
-                        Dim AidedThreshold_Left As Double = Me.ParentTestUnit.ParentTestSession.SelectedAudiogramData.Cb_Left_AC(i) - Me.ParentTestUnit.ParentTestSession.HearingAidGain.LeftSideGain(i)
-                        Dim AidedThreshold_Right As Double = Me.ParentTestUnit.ParentTestSession.SelectedAudiogramData.Cb_Right_AC(i) - Me.ParentTestUnit.ParentTestSession.HearingAidGain.RightSideGain(i)
+                        Dim AidedThreshold_Left As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i)
+                        Dim AidedThreshold_Right As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i)
 
                         If AidedThreshold_Left < AidedThreshold_Right Then
-                            Thresholds(i) = Me.ParentTestUnit.ParentTestSession.SelectedAudiogramData.Cb_Left_AC(i)
-                            Gain(i) = Me.ParentTestUnit.ParentTestSession.HearingAidGain.LeftSideGain(i)
+                            Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i)
+                            Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i)
                         Else
-                            Thresholds(i) = Me.ParentTestUnit.ParentTestSession.SelectedAudiogramData.Cb_Right_AC(i)
-                            Gain(i) = Me.ParentTestUnit.ParentTestSession.HearingAidGain.RightSideGain(i)
+                            Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i)
+                            Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i)
                         End If
                     Next
 
@@ -762,25 +774,114 @@ Namespace SipTest
     End Class
 
 
-    ''' <summary>
-    ''' A class that holds descriptions of each completed Sip-test measurement used in the Gui.
-    ''' </summary>
-    Public Class TestHistoryListData
-            Public Property CurrentTestSessionData As New List(Of SipTestMeasurementGuiDescription)
-            Public Property PreviousTestSessionData As New List(Of SipTestMeasurementGuiDescription)
 
-            Public Class SipTestMeasurementGuiDescription
-                Public ReadOnly Property GuiDescription As String
-                Public ReadOnly Property TestLength As String
-                Public ReadOnly Property PercentCorrect As String
-                Public Sub New(ByVal GuiDescription As String, ByVal TestLength As String, ByVal PercentCorrect As String)
-                    Me.GuiDescription = GuiDescription
-                    Me.TestLength = TestLength
-                    Me.PercentCorrect = PercentCorrect
-                End Sub
-            End Class
+    <Serializable>
+    Public Class TestHistorySummary
+
+        Public Property Measurements As List(Of MeasurementSummary)
+
+
+        ''' <summary>
+        ''' Stores the current instance of TestSessionSummary to an xml file.
+        ''' </summary>
+        ''' <param name="saveDirectory">The directory where the file is saved.</param>
+        ''' <param name="saveFileName">The filename the file to save.</param>
+        ''' <returns>Returns True if the save procedure completed, and False is saving failed.</returns>
+        Public Function SaveToXmlFile(Optional ByVal saveDirectory As String = "",
+                                              Optional ByVal saveFileName As String = "",
+                                              Optional ByVal BoxTitle As String = "") As Boolean
+            Try
+
+                Dim filepath As String = ""
+
+                'Ask the user for file path if not incomplete file path is given
+                If saveDirectory = "" Or saveFileName = "" Then
+                    filepath = Utils.GetSaveFilePath(saveDirectory, saveFileName, {"xml"}, BoxTitle)
+                Else
+                    filepath = IO.Path.Combine(saveDirectory, saveFileName & ".xml")
+                    If Not IO.Directory.Exists(IO.Path.GetDirectoryName(filepath)) Then IO.Directory.CreateDirectory(IO.Path.GetDirectoryName(filepath))
+                End If
+
+
+                Dim DataFileStream As System.Xml.Serialization.XmlSerializer = New System.Xml.Serialization.XmlSerializer(GetType(TestHistorySummary))
+                Dim writer As System.IO.TextWriter = New IO.StreamWriter(filepath)
+                DataFileStream.Serialize(writer, Me)
+                writer.Close()
+
+                Return True
+            Catch ex As Exception
+                MsgBox(ex.ToString)
+                Return False
+            End Try
+        End Function
+
+    End Class
+
+    <Serializable>
+    Public Class MeasurementSummary
+        Inherits List(Of SummarizedTrial)
+
+        Public ReadOnly Property Description As String
+        Public ReadOnly Property AverageScore As Double
+            Get
+                Return GetAverageScore()
+            End Get
+        End Property
+
+        Public ReadOnly Property TestLength As Integer
+            Get
+                Return Me.Count
+            End Get
+        End Property
+
+        Public Sub New(ByVal Description As String)
+            Me.Description = Description
+        End Sub
+
+        Public Function PercentCorrect() As String
+            Dim LocalAverageScore = AverageScore
+            If LocalAverageScore = -1 Then
+                Return ""
+            Else
+                Return Math.Round(100 * LocalAverageScore)
+            End If
+        End Function
+
+        ''' <summary>
+        ''' Returns the average score, counting missing responses as correct every ResponseAlternatives:th time. Returns -1 if no SummarizedTrials exist.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetAverageScore() As Double
+
+            If Me.Count = 0 Then Return -1
+
+            Dim Correct As Integer = 0
+            Dim Total As Integer = Me.Count
+            For n = 0 To Me.Count - 1
+                If Me(n).Result = 1 Then
+                    Correct += 1
+                ElseIf Me(n).Result = -1 Then
+                    If Me(n).ResponseAlternatives > 0 Then
+                        If n Mod Me(n).ResponseAlternatives = (Me(n).ResponseAlternatives - 1) Then
+                            Correct += 1
+                        End If
+                    End If
+                End If
+            Next
+            Return Correct / Total
+        End Function
+
+        <Serializable>
+        Public Class SummarizedTrial
+            Public Property Result As Integer '1=Correct, 0=Incorrect, -1= Missing
+            Public Property EstimatedSuccessProbability As Double
+            Public Property AdjustedSuccessProbability As Double
+            Public Property ResponseAlternatives As Integer
 
         End Class
+
+
+    End Class
 
 
 End Namespace

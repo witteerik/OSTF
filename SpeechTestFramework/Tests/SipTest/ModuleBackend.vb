@@ -8,7 +8,7 @@ Namespace SipTest
         Friend AvailableAudiograms As New List(Of AudiogramData)
         Friend AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
         Friend AvailableMediaSets As MediaSetLibrary
-        Friend CurrentSipTestMeasurement As TestSession
+        Friend CurrentSipTestMeasurement As Measurement
         'Friend SoundPlayer As Audio.PaOverlappingSoundPlayerC
 
         Friend CompleteSpeechMaterial As SpeechMaterialComponent
@@ -18,6 +18,8 @@ Namespace SipTest
 
         Public Language As Languages = Languages.Swedish
         Private NumberSpeakerChannels As Integer = 3
+
+        Private Property TestHistorySummary As New TestHistorySummary
 
         'Public Settings As SiPSettings
 
@@ -133,7 +135,7 @@ Namespace SipTest
             CurrentPatient = New Patient(SocialSecurityNumber)
 
             'Creating a new session
-            CurrentPatient.Sessions.Add(New TestSession(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification))
+            CurrentPatient.Sessions.Add(New Measurement(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification))
 
             'Looking up audiogram data
             'Temporarily just adding some data
@@ -411,7 +413,7 @@ Namespace SipTest
 
             End If
 
-            CurrentSipTestMeasurement = New TestSession(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification)
+            CurrentSipTestMeasurement = New Measurement(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification)
             'CurrentSipTestMeasurement = New SipTestMeasurement(CurrentPatient.Sessions(CurrentPatient.Sessions.Count - 1), Me)
 
 
@@ -517,12 +519,112 @@ Namespace SipTest
 
             'SipGui.UpdateTestProgress(CurrentSipTestMeasurement.TestLength, CurrentSipTestMeasurement.NumberPresented, CurrentSipTestMeasurement.NumberCorrect, CurrentSipTestMeasurement.PercentCorrect)
 
-            SimulateAdaptiveTests()
-
-            'SipGui.SubEnablePlayButton()
+            SipGui.SubEnablePlayButton()
 
 
         End Sub
+
+        Public Sub StartButtonPressed() Handles SipGui.StartButtonPressed
+            StartTest()
+        End Sub
+
+        Public Sub StopButtonPressed() Handles SipGui.StopButtonPressed
+            Throw New NotImplementedException()
+        End Sub
+
+
+        Public Sub StartTest()
+
+            'Should initiate a test-launch sequence
+
+            If CurrentSipTestMeasurement Is Nothing Then
+                SipGui.ShowMessageBox("Inget test är laddat.", "SiP-testet")
+            End If
+
+
+            'Tries to launch the next test trial
+            'Dim TrialLaunchResult = CurrentSipTestMeasurement.LaunchNextTrial()
+            'Select Case TrialLaunchResult
+            '    Case SipTestMeasurement.LaunchNextTrialReturnValues.TrialWasLaunched
+            '        'No need to send and message? Or send message to alter GUI-layout?
+
+            '    Case SipTestMeasurement.LaunchNextTrialReturnValues.TestingCompleted
+            '        SipGui.ShowMessageBox("Testet är klart.", "SiP-testet")
+
+            '    Case SipTestMeasurement.LaunchNextTrialReturnValues.NoTestTrials
+            '        SipGui.ShowMessageBox("Inget test är laddat.", "SiP-testet")
+            '    Case Else
+            '        Throw New NotImplementedException("Unsupported error" & TrialLaunchResult.ToString)
+            'End Select
+
+        End Sub
+
+
+        Public Sub TestCompleted()
+
+            Dim NewMeasurementSummary = CurrentSipTestMeasurement.GetMeasurementSummary
+            TestHistorySummary.Measurements.Add(NewMeasurementSummary)
+            SipGui.PopulateTestHistoryTables(TestHistorySummary)
+
+            MsgBox("Unlock stuff for new test!")
+
+        End Sub
+
+#End Region
+
+
+#Region "Test-result comparison"
+
+
+        ''' <summary>
+        ''' Performs a statistical analysis of the score difference between the SiP-testet refered to in ComparedMeasurementGuiDescriptions by their GuiDescription strings
+        ''' </summary>
+        ''' <param name="ComparedMeasurementGuiDescriptions"></param>
+        Sub CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String)) Handles SipGui.CompareTwoSipTestScores
+
+            'Clears the Gui significance test result box if not exaclty two measurements descriptions are recieved. And the exits the sub
+            If ComparedMeasurementGuiDescriptions.Count <> 2 Then
+
+                d
+
+                SipGui.UpdateSignificanceTestResult("")
+
+            End If
+
+        End Sub
+
+
+#End Region
+
+
+#Region "BlueToothConnection"
+
+
+        Public Sub SearchForBluetoothDevices() Handles SipGui.SearchForBluetoothDevices
+            Throw New NotImplementedException()
+        End Sub
+
+        Public Sub SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String) Handles SipGui.SelectBluetoothDevice
+            Throw New NotImplementedException()
+        End Sub
+
+#End Region
+
+#Region "SoundDevice"
+
+        Public Sub SearchForSoundDevices() Handles SipGui.SearchForSoundDevices
+            Throw New NotImplementedException()
+        End Sub
+
+        Public Sub SelectSoundDevice(SelectedSoundDeviceDescription As String) Handles SipGui.SelectSoundDevice
+            Throw New NotImplementedException()
+        End Sub
+
+#End Region
+
+
+
+#Region "ExperimentalStuff"
 
         Private Sub SimulateAdaptiveTests()
 
@@ -643,174 +745,7 @@ Namespace SipTest
             End Select
         End Sub
 
-        Public Sub StartButtonPressed() Handles SipGui.StartButtonPressed
-            StartTest()
-        End Sub
-
-        Public Sub StopButtonPressed() Handles SipGui.StopButtonPressed
-            Throw New NotImplementedException()
-        End Sub
-
-
-        Public Sub StartTest()
-
-            'Should initiate a test-launch sequence
-
-            If CurrentSipTestMeasurement Is Nothing Then
-                SipGui.ShowMessageBox("Inget test är laddat.", "SiP-testet")
-            End If
-
-
-            'Tries to launch the next test trial
-            'Dim TrialLaunchResult = CurrentSipTestMeasurement.LaunchNextTrial()
-            'Select Case TrialLaunchResult
-            '    Case SipTestMeasurement.LaunchNextTrialReturnValues.TrialWasLaunched
-            '        'No need to send and message? Or send message to alter GUI-layout?
-
-            '    Case SipTestMeasurement.LaunchNextTrialReturnValues.TestingCompleted
-            '        SipGui.ShowMessageBox("Testet är klart.", "SiP-testet")
-
-            '    Case SipTestMeasurement.LaunchNextTrialReturnValues.NoTestTrials
-            '        SipGui.ShowMessageBox("Inget test är laddat.", "SiP-testet")
-            '    Case Else
-            '        Throw New NotImplementedException("Unsupported error" & TrialLaunchResult.ToString)
-            'End Select
-
-        End Sub
-
-
-
 #End Region
-
-
-#Region "Test-result comparison"
-
-        Public Function GetTestHistoryListData() As TestHistoryListData
-
-            Return GetTestHistoryListAndComparisonData(Nothing).Item1
-
-        End Function
-
-        ''' <summary>
-        ''' Performs a statistical analysis of the score difference between the SiP-testet refered to in ComparedMeasurementGuiDescriptions by their GuiDescription strings
-        ''' </summary>
-        ''' <param name="ComparedMeasurementGuiDescriptions"></param>
-        Sub CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String)) Handles SipGui.CompareTwoSipTestScores
-
-            'Clears the Gui significance test result box if not exaclty two measurements descriptions are recieved. And the exits the sub
-            If ComparedMeasurementGuiDescriptions.Count <> 2 Then
-                SipGui.UpdateSignificanceTestResult("")
-                Exit Sub
-            End If
-
-            'We've got two measurements, runs the significance test
-            'TODO: Uncomment line below
-            MsgBox("Implement the Agresti-Caffo corrected PB-method of statistical significance testing between the two tests here!")
-            'Dim ComparisonScores = GetTestHistoryListAndComparisonData(ComparedMeasurementGuiDescriptions).Item2
-
-
-            SipGui.UpdateSignificanceTestResult("T.ex: Statistiskt signifikant skillnad")
-
-        End Sub
-
-        Public Function GetTestHistoryListAndComparisonData(ByRef ComparedMeasurementGuiDescriptions As List(Of String)) As Tuple(Of TestHistoryListData, List(Of TestSession))
-
-            'If ComparedMeasurementGuiDescriptions IsNot Nothing Then
-            '    If ComparedMeasurementGuiDescriptions.Count <> 2 Then Throw New ArgumentException("Only two SipTestMeasurements can be selected for comparison.")
-            'End If
-
-            'Dim OutputList As New Tuple(Of TestHistoryListData, List(Of TestSession))(New TestHistoryListData, New List(Of TestSession))
-
-            'If CurrentPatient Is Nothing Then Return OutputList
-
-            'If CurrentPatient.Sessions Is Nothing Then Return OutputList
-
-            'If CurrentPatient.Sessions.Count > 0 Then
-
-            '    'Adding the current session data (the current session should be the one added last to Sessions)
-            '    Dim CurrentSession = CurrentPatient.Sessions(CurrentPatient.Sessions.Count - 1)
-
-            '    For Each a In CurrentSession.Actions
-
-            '        'Checking that the action is a SipTestMeasurement
-            '        If a.GetType = GetType(TestSession) Then
-
-            '            MsgBox("Check this type comparison!")
-            '            Dim CastSipTestMeasurement = DirectCast(a, TestSession)
-            '            Dim GuiDescription As String = CastSipTestMeasurement.Description
-            '            OutputList.Item1.CurrentTestSessionData.Add(New TestHistoryListData.SipTestMeasurementGuiDescription(GuiDescription, CastSipTestMeasurement.TestLength.ToString, CastSipTestMeasurement.PercentCorrect))
-
-            '            'Checking if the session should be a compared session
-            '            If ComparedMeasurementGuiDescriptions IsNot Nothing Then
-            '                If ComparedMeasurementGuiDescriptions.Contains(GuiDescription) Then
-            '                    OutputList.Item2.Add(CastSipTestMeasurement)
-            '                End If
-            '            End If
-            '        End If
-            '    Next
-            'End If
-
-            'If CurrentPatient.Sessions.Count > 1 Then
-
-            '    'Adding the previous session data (all sessions before last one added to Sessions)
-            '    For s = 0 To CurrentPatient.Sessions.Count - 2
-            '        Dim CurrentSession = CurrentPatient.Sessions(CurrentPatient.Sessions.Count - 1)
-
-            '        For Each a In CurrentSession.Actions
-
-            '            'Checking that the action is a SipTestMeasurement
-            '            If a.GetType = GetType(TestSession) Then
-
-            '                MsgBox("Check this type comparison!")
-            '                Dim CastSipTestMeasurement = DirectCast(a, TestSession)
-            '                Dim GuiDescription As String = CastSipTestMeasurement.Description & " " & CastSipTestMeasurement.CreateDateFormatted
-            '                OutputList.Item1.CurrentTestSessionData.Add(New TestHistoryListData.SipTestMeasurementGuiDescription(GuiDescription, CastSipTestMeasurement.TestLength.ToString, CastSipTestMeasurement.PercentCorrect))
-
-            '                'Checking if the session should be a compared session
-            '                If ComparedMeasurementGuiDescriptions IsNot Nothing Then
-            '                    If ComparedMeasurementGuiDescriptions.Contains(GuiDescription) Then
-            '                        OutputList.Item2.Add(CastSipTestMeasurement)
-            '                    End If
-            '                End If
-
-            '            End If
-            '        Next
-
-            '    Next
-            'End If
-
-            'Return OutputList
-
-        End Function
-
-#End Region
-
-
-#Region "BlueToothConnection"
-
-
-        Public Sub SearchForBluetoothDevices() Handles SipGui.SearchForBluetoothDevices
-            Throw New NotImplementedException()
-        End Sub
-
-        Public Sub SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String) Handles SipGui.SelectBluetoothDevice
-            Throw New NotImplementedException()
-        End Sub
-
-#End Region
-
-#Region "SoundDevice"
-
-        Public Sub SearchForSoundDevices() Handles SipGui.SearchForSoundDevices
-            Throw New NotImplementedException()
-        End Sub
-
-        Public Sub SelectSoundDevice(SelectedSoundDeviceDescription As String) Handles SipGui.SelectSoundDevice
-            Throw New NotImplementedException()
-        End Sub
-
-#End Region
-
 
 
     End Class

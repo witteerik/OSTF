@@ -60,6 +60,11 @@
         ''' <param name="SelectedPNR"></param>
         Event SelectPNR(ByVal SelectedPNR As Double)
 
+        ''' <summary>
+        ''' A method that should handle the setting of a test description string supplied by the user.
+        ''' </summary>
+        ''' <param name="Description"></param>
+        Event SetTestDescription(ByVal Description As String)
 
         ''' <summary>
         ''' A method that should handle the event triggered when the user clicks the start button (which is also the pause button)
@@ -258,10 +263,10 @@
                                  Optional ByVal UpdateRow As Integer? = Nothing, Optional SelectionRow As Integer? = Nothing, Optional FirstRowToDisplayInScrollmode As Integer? = Nothing)
 
         ''' <summary>
-        ''' Should populate tables presenting the results of the SiP-test measurements in the current and previous sessions respectively. Each graphical object should be able to initialte an event that trigger a significance test between two selected tests by calling the function .
+        ''' Should populate a table presenting the results of the SiP-test measurements in the current and previous sessions. Each graphical object should be able to initialte an event that trigger a significance test between two selected tests by calling the function .
         ''' </summary>
-        ''' <param name="TestHistoryListData"></param>
-        Sub PopulateTestHistoryTables(ByRef TestHistoryListData As TestHistoryListData)
+        ''' <param name="TestHistorySummary"></param>
+        Sub PopulateTestHistoryTables(ByRef TestHistorySummary As TestHistorySummary)
 
         ''' <summary>
         ''' Should update a significance-test result box with the current result string.

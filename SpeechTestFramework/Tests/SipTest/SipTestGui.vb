@@ -31,6 +31,7 @@ Public Class SipTestGui
     Public Event SaveFileButtonPressed() Implements ISipGui.SaveFileButtonPressed
     Public Event OpenFileButtonPressed() Implements ISipGui.OpenFileButtonPressed
     Public Event ExportDataButtonPressed() Implements ISipGui.ExportDataButtonPressed
+    Public Event SetTestDescription(Description As String) Implements ISipGui.SetTestDescription
 
     Public Sub New()
 
@@ -76,14 +77,11 @@ Public Class SipTestGui
 
     Private Sub Test(sender As Object, e As EventArgs) Handles Label1.Click
 
-        Dim t = New TestHistoryListData
-        t.CurrentTestSessionData.Add(New TestHistoryListData.SipTestMeasurementGuiDescription("Test1", 30, "76%"))
-        t.CurrentTestSessionData.Add(New TestHistoryListData.SipTestMeasurementGuiDescription("Test2", 40, "77%"))
-        t.CurrentTestSessionData.Add(New TestHistoryListData.SipTestMeasurementGuiDescription("Test3", 50, "78%"))
+        Dim t = New TestHistorySummary
+        t.Measurements.Add(New MeasurementSummary("Test1"))
+        t.Measurements.Add(New MeasurementSummary("Test2"))
+        t.Measurements.Add(New MeasurementSummary("Test3"))
 
-        t.PreviousTestSessionData.Add(New TestHistoryListData.SipTestMeasurementGuiDescription("Test4", 20, "26%"))
-        t.PreviousTestSessionData.Add(New TestHistoryListData.SipTestMeasurementGuiDescription("Test5", 10, "27%"))
-        t.PreviousTestSessionData.Add(New TestHistoryListData.SipTestMeasurementGuiDescription("Test6", 3, "23%"))
 
         PopulateTestHistoryTables(t)
 
@@ -545,29 +543,20 @@ Public Class SipTestGui
 
 #Region "Test-result comparison: ISipGui implementations"
 
-    Public Sub PopulateTestHistoryTables(ByRef TestHistoryListData As TestHistoryListData) Implements ISipGui.PopulateTestHistoryTables
+    Public Sub PopulateTestHistoryTables(ByRef TestHistorySummary As TestHistorySummary) Implements ISipGui.PopulateTestHistoryTables
 
         'Clears all rows in the TestHistoryTables
         CurrentSessionResults_DataGridView.Rows.Clear()
-        PreviousSessionsResults_DataGridView.Rows.Clear()
 
         'Adds rows
-        CurrentSessionResults_DataGridView.Rows.Add(TestHistoryListData.CurrentTestSessionData.Count)
-        PreviousSessionsResults_DataGridView.Rows.Add(TestHistoryListData.PreviousTestSessionData.Count)
+        CurrentSessionResults_DataGridView.Rows.Add(TestHistorySummary.Measurements.Count)
 
         'Adds data
-        For r = 0 To TestHistoryListData.CurrentTestSessionData.Count - 1
-            CurrentSessionResults_DataGridView.Rows(r).Cells(0).Value = TestHistoryListData.CurrentTestSessionData(r).GuiDescription
-            CurrentSessionResults_DataGridView.Rows(r).Cells(1).Value = TestHistoryListData.CurrentTestSessionData(r).TestLength
-            CurrentSessionResults_DataGridView.Rows(r).Cells(2).Value = TestHistoryListData.CurrentTestSessionData(r).PercentCorrect
+        For r = 0 To TestHistorySummary.Measurements.Count - 1
+            CurrentSessionResults_DataGridView.Rows(r).Cells(0).Value = TestHistorySummary.Measurements(r).Description
+            CurrentSessionResults_DataGridView.Rows(r).Cells(1).Value = TestHistorySummary.Measurements(r).TestLength
+            CurrentSessionResults_DataGridView.Rows(r).Cells(2).Value = TestHistorySummary.Measurements(r).PercentCorrect
             CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = False 'Setting selected value to false by default
-        Next
-
-        For r = 0 To TestHistoryListData.PreviousTestSessionData.Count - 1
-            PreviousSessionsResults_DataGridView.Rows(r).Cells(0).Value = TestHistoryListData.PreviousTestSessionData(r).GuiDescription
-            PreviousSessionsResults_DataGridView.Rows(r).Cells(1).Value = TestHistoryListData.PreviousTestSessionData(r).TestLength
-            PreviousSessionsResults_DataGridView.Rows(r).Cells(2).Value = TestHistoryListData.PreviousTestSessionData(r).PercentCorrect
-            PreviousSessionsResults_DataGridView.Rows(r).Cells(3).Value = False 'Setting selected value to false by default
         Next
 
     End Sub
@@ -593,7 +582,7 @@ Public Class SipTestGui
 
     Private TestComparisonHistory As New List(Of String)
 
-    Private Sub CurrentSessionResults_DataGridView_CurrentCellDirtyStateChanged(sender As Object, e As EventArgs) Handles CurrentSessionResults_DataGridView.CurrentCellDirtyStateChanged, PreviousSessionsResults_DataGridView.CurrentCellDirtyStateChanged
+    Private Sub CurrentSessionResults_DataGridView_CurrentCellDirtyStateChanged(sender As Object, e As EventArgs) Handles CurrentSessionResults_DataGridView.CurrentCellDirtyStateChanged
 
         'This extra event handler is needed since the CellValueChanged event does not always trigger for DataGridViewCheckBoxCells. See https://stackoverflow.com/questions/11843488/how-to-detect-datagridview-checkbox-event-change for this solution
         Dim Result = TryCast(sender.CurrentCell, DataGridViewCheckBoxCell)
@@ -603,7 +592,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub SessionResults_DataGridView_CellValueChanged(sender As Object, e As DataGridViewCellEventArgs) Handles CurrentSessionResults_DataGridView.CellValueChanged, PreviousSessionsResults_DataGridView.CellValueChanged
+    Private Sub SessionResults_DataGridView_CellValueChanged(sender As Object, e As DataGridViewCellEventArgs) Handles CurrentSessionResults_DataGridView.CellValueChanged
 
         'Exits sub if invalid indices are sent
         If e.RowIndex < 0 Then Exit Sub
@@ -635,14 +624,6 @@ Public Class SipTestGui
                     CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = True
                 Else
                     CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = False
-                End If
-            Next
-
-            For r = 0 To PreviousSessionsResults_DataGridView.Rows.Count - 1
-                If TestComparisonHistory.Contains(PreviousSessionsResults_DataGridView.Rows(r).Cells(0).Value) Then
-                    PreviousSessionsResults_DataGridView.Rows(r).Cells(3).Value = True
-                Else
-                    PreviousSessionsResults_DataGridView.Rows(r).Cells(3).Value = False
                 End If
             Next
 
@@ -771,6 +752,7 @@ Public Class SipTestGui
         End If
 
     End Function
+
 
 
 
