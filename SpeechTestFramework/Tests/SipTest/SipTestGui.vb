@@ -5,33 +5,51 @@ Imports System.Windows.Forms
 Imports System.Drawing
 
 Public Class SipTestGui
-    Implements ISipGui
 
     Private Audiogram As Audiogram
     Private GainDiagram As GainDiagram
     Private ExpectedScoreDiagram As PsychometricFunctionDiagram
 
-    Public Event InitiateBackend(ByRef ISipGui As ISipGui) Implements ISipGui.InitiateBackend
-    Public Event SearchPatient(SocialSecurityNumber As String) Implements ISipGui.SearchPatient
-    Public Event SelectAudiogram(ByRef SelectedAudiogramData As AudiogramData) Implements ISipGui.SelectAudiogram
-    Public Event CreateNewAudiogram() Implements ISipGui.CreateNewAudiogram
-    Public Event SelectReferenceLevel(SelectedReferenceLevel As Double) Implements ISipGui.SelectReferenceLevel
-    Public Event SelectHearingAidGainType(SelectedHearingAidGainType As String) Implements ISipGui.SelectHearingAidGainType
-    Public Event SelectPreset(SelectedPreset As String) Implements ISipGui.SelectPreset
-    Public Event SelectSituation(SelectedSituation As String) Implements ISipGui.SelectSituation
-    Public Event SelectTestLength(SelectedTestLength As Integer) Implements ISipGui.SelectTestLength
-    Public Event SelectPNR(SelectedPNR As Double) Implements ISipGui.SelectPNR
-    Public Event StartButtonPressed() Implements ISipGui.StartButtonPressed
-    Public Event StopButtonPressed() Implements ISipGui.StopButtonPressed
-    Public Event CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String)) Implements ISipGui.CompareTwoSipTestScores
-    Public Event SearchForBluetoothDevices() Implements ISipGui.SearchForBluetoothDevices
-    Public Event SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String) Implements ISipGui.SelectBluetoothDevice
-    Public Event SearchForSoundDevices() Implements ISipGui.SearchForSoundDevices
-    Public Event SelectSoundDevice(SelectedSoundDeviceDescription As String) Implements ISipGui.SelectSoundDevice
-    Public Event SaveFileButtonPressed() Implements ISipGui.SaveFileButtonPressed
-    Public Event OpenFileButtonPressed() Implements ISipGui.OpenFileButtonPressed
-    Public Event ExportDataButtonPressed() Implements ISipGui.ExportDataButtonPressed
-    Public Event SetTestDescription(Description As String) Implements ISipGui.SetTestDescription
+
+    Friend CurrentPatient As Patient
+    Friend AvailableAudiograms As New List(Of AudiogramData)
+    Friend AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
+    Friend AvailableMediaSets As MediaSetLibrary
+    Friend CurrentSipTestMeasurement As Measurement
+    Friend CompleteSpeechMaterial As SpeechMaterialComponent
+
+    ''' <summary>
+    ''' The master reference levels, available for testing is hard coded here.
+    ''' </summary>
+    Private ReadOnly AvailableReferenceLevels As New List(Of Double) From {68 - 10, 68 - 5, 68, 68 + 5, 68 + 10}
+    ''' <summary>
+    ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
+    ''' </summary>
+    Private ReadOnly DefaultReferenceLevelIndex As Integer = 2
+
+    Private SelectedHearingAidGainType As Nullable(Of HearingAidGainData.GainTypes) = Nothing
+
+    Private DefaultHearingAidGainType As HearingAidGainData.GainTypes = HearingAidGainData.GainTypes.Fig6
+
+    Private Enum RecalculationStartpoints
+        NewMeasurement
+        AudiogramAdded
+        AudiogramData
+        ReferenceLevel
+        HearingAidGain
+        TestPreset
+        TestSituation
+        TestLength
+        PNR
+    End Enum
+
+
+    'Friend SoundPlayer As Audio.PaOverlappingSoundPlayerC
+    'Friend BlueToothConnection As BlueToothConnection
+
+    Private NumberSpeakerChannels As Integer = 3
+    Private Property TestHistorySummary As New TestHistorySummary
+
 
     Public Sub New()
 
@@ -39,14 +57,12 @@ Public Class SipTestGui
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
-        'Creating a Backend
-        Dim Backend As New ModuleBackend(Me)
+        SetUpTest()
 
     End Sub
 
-    Private Sub SipTestGui_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        RaiseEvent InitiateBackend(Me)
+    Private Sub SipTestGui_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Hiding things that should not be visible from the start
         StatAnalysisLabel.Visible = False
@@ -75,78 +91,80 @@ Public Class SipTestGui
     End Sub
 
 
-    Private Sub Test(sender As Object, e As EventArgs) Handles Label1.Click
 
-        Dim t = New TestHistorySummary
-        t.Measurements.Add(New MeasurementSummary("Test1"))
-        t.Measurements.Add(New MeasurementSummary("Test2"))
-        t.Measurements.Add(New MeasurementSummary("Test3"))
+#Region "ImportExport"
 
-
-        PopulateTestHistoryTables(t)
-
-        'Exit Sub
+    Private Sub PatientSearchButton_Click(sender As Object, e As EventArgs) Handles PatientSearchButton.Click
+        SearchPatient(SSNumber1TextBox.Text & SSNumber2TextBox.Text)
+    End Sub
 
 
-        Dim t1 As New List(Of String)
-        For n = 0 To 49
-            t1.Add("ord" & n + 1)
+    Public Sub SearchPatient(SocialSecurityNumber As String)
+
+        'Then look up a patient in a file or database, create a patient from it and reference that patient into the CurrentPatient property
+
+        'Checking SocialSecurityNumber
+        If SocialSecurityNumber = "" Or SocialSecurityNumber.Length <> 12 Then
+            ShowMessageBox("Du har fyllt i ett ogiltigt personnummer! Försök igen", "Ogiltigt personnummer")
+            Exit Sub
+        End If
+
+        'TODO: namsn should be also be looked up
+        Dim FirstName As String = "Erik"
+        Dim LastName As String = "Witte"
+
+        'Locking ID controls in the Gui
+        LockPatientDetails(SocialSecurityNumber, FirstName, LastName)
+
+        'Creating a new patient
+        CurrentPatient = New Patient(SocialSecurityNumber)
+
+        'Creating a new session
+        CurrentPatient.Sessions.Add(New Measurement(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification))
+
+        'Looking up audiogram data
+        'Temporarily just adding some data
+        MsgBox("Adding some standard audiograms")
+        AvailableAudiograms = New List(Of AudiogramData)
+
+        Dim AudiogramsToAdd As New List(Of AudiogramData.BisgaardAudiograms) From {
+                AudiogramData.BisgaardAudiograms.NH,
+                AudiogramData.BisgaardAudiograms.N1,
+                AudiogramData.BisgaardAudiograms.N2,
+                AudiogramData.BisgaardAudiograms.N3,
+                AudiogramData.BisgaardAudiograms.N4,
+                AudiogramData.BisgaardAudiograms.N5,
+                AudiogramData.BisgaardAudiograms.N6,
+                AudiogramData.BisgaardAudiograms.N7,
+                AudiogramData.BisgaardAudiograms.S1,
+                AudiogramData.BisgaardAudiograms.S2,
+                AudiogramData.BisgaardAudiograms.S3}
+
+        For Each AudiogramToAdd In AudiogramsToAdd
+            Dim NewAudiogram As New AudiogramData() 'CurrentPatient.GetCurrentSession())
+            NewAudiogram.CreateTypicalAudiogramData(AudiogramToAdd)
+            AvailableAudiograms.Add(NewAudiogram)
         Next
 
-        Dim t2(t1.Count - 1) As String
-        Dim t3(t1.Count - 1) As SipTest.ResultResponseType
+        ''Debugging code
+        'For Each AudiogramToAdd In AudiogramsToAdd
+        '    Dim NewAudiogram As New AudiogramData(CurrentPatient.GetCurrentSession())
 
-        For n = 0 To 49
-            If n < 5 Then
-                t2(n) = "ord" & n + 1
-            End If
-        Next
+        '    NewAudiogram.CreateIncompleteAudiogramData(AudiogramToAdd, 8)
 
-        t3(0) = SipTest.ResultResponseType.Correct
-        t3(1) = SipTest.ResultResponseType.Correct
-        t3(2) = SipTest.ResultResponseType.Incorrect
-        t2(2) = "ordX"
-        t3(3) = SipTest.ResultResponseType.Correct
-        t3(4) = SipTest.ResultResponseType.Correct
+        '    AvailableAudiograms.Add(NewAudiogram)
+        'Next
 
+        'Populating the audiogram data list and selecting the last audiogram added
+        PopulateAudiogramList(AvailableAudiograms)
 
-        UpdateTestTrialTable(t1.ToArray, t2, t3, , 5)
-
-        'UpdateTestTrialTable({"Hej", "Ord2", "Ord3"}, {"Då", "Ord2", ""}, {SipTestTrial.ResultResponseType.Correct, SipTestTrial.ResultResponseType.Incorrect, SipTestTrial.ResultResponseType.NotPresented})
-        'UpdateTestTrialTable({"Hej", "Ord2", "Ord3"}, {"Då", "Ord2", ""}, {SipTestTrial.ResultResponseType.Correct, SipTestTrial.ResultResponseType.Incorrect, SipTestTrial.ResultResponseType.NotPresented})
-
-        Me.Update()
-
-        'Threading.Thread.Sleep(2000)
-
-        'UpdateTestTrialTable(t1.ToArray, t2, t3, , 25, 20)
-
-
-        'UpdateTestTrialTable({"Hej", "Ord2", "Ord3"}, {"Då", "Ord2", ""}, {SipTestTrial.ResultResponseType.Correct, SipTestTrial.ResultResponseType.Incorrect, SipTestTrial.ResultResponseType.NotPresented})
-        'Me.Update()
-
-        'Threading.Thread.Sleep(2000)
-
-        'UpdateTestTrialTable({"Hej", "Ord6", "Ord3"}, {"Då", "Ord2", ""}, {SipTestTrial.ResultResponseType.Correct, SipTestTrial.ResultResponseType.Incorrect, SipTestTrial.ResultResponseType.NotPresented}, 1)
-
-        'Me.Update()
-
-        'Threading.Thread.Sleep(2000)
-
-        'UpdateTestTrialTable({"Hej", "Ord6", "Ord3"}, {"Då", "Ord2", ""}, {SipTestTrial.ResultResponseType.Correct, SipTestTrial.ResultResponseType.Incorrect, SipTestTrial.ResultResponseType.NotPresented}, 1, 0)
-
-        'Me.Update()
-
-        'Threading.Thread.Sleep(2000)
-
-        'UpdateTestTrialTable({"Hej", "Ord6", "Ord3"}, {"Då", "Ord2", ""}, {SipTestTrial.ResultResponseType.Correct, SipTestTrial.ResultResponseType.Incorrect, SipTestTrial.ResultResponseType.NotPresented}, 1, 2)
+        'Initiating a re-calculation chain
+        TriggerRecalculationChain(RecalculationStartpoints.NewMeasurement)
 
     End Sub
 
 
-#Region "ImportExport: ISipGui implementations"
-
-    Public Sub LockPatientDetails(SocialSecurityNumber As String, FirstName As String, LastName As String) Implements ISipGui.LockPatientDetails
+    Public Sub LockPatientDetails(SocialSecurityNumber As String, FirstName As String, LastName As String)
 
         SSNumber1TextBox.ReadOnly = True
         SSNumber2TextBox.ReadOnly = True
@@ -161,247 +179,47 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub EnableSaveButton() Implements ISipGui.EnableSaveButton
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub DisableSaveButton() Implements ISipGui.DisableSaveButton
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub EnableOpenButton() Implements ISipGui.EnableOpenButton
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub DisableOpenButton() Implements ISipGui.DisableOpenButton
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub EnableExportButton() Implements ISipGui.EnableExportButton
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub DisableExportButton() Implements ISipGui.DisableExportButton
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Function GetOpenFileDialogResult(Title As String, Optional Extension As String = "") As Object Implements ISipGui.GetOpenFileDialogResult
-        Throw New NotImplementedException()
-    End Function
-
-    Public Function GetSaveFileDialogResult(Title As String, Optional Extension As String = "") As String Implements ISipGui.GetSaveFileDialogResult
-        Throw New NotImplementedException()
-    End Function
-
-
 
 #End Region
 
-#Region "ImportExport: Handling of local events"
-    Private Sub PatientSearchButton_Click(sender As Object, e As EventArgs) Handles PatientSearchButton.Click
-        RaiseEvent SearchPatient(SSNumber1TextBox.Text & SSNumber2TextBox.Text)
-    End Sub
 
-
-#End Region
-
-#Region "Measurement settings: ISipGui implementations"
-
-    Public Sub PopulateAudiogramList(ByRef Audiograms As List(Of AudiogramData), Optional SelectedIndex As Integer = -1) Implements ISipGui.PopulateAudiogramList
-        AudiogramComboBox.Items.Clear()
-        AudiogramComboBox.Items.AddRange(Audiograms.ToArray)
-        If SelectedIndex <> -1 Then
-            AudiogramComboBox.SelectedIndex = SelectedIndex
-        End If
-    End Sub
-
-    Public Sub DisplaySelectedAudiogram(ByRef AudiogramData As AudiogramData) Implements ISipGui.DisplaySelectedAudiogram
-
-        Audiogram.AudiogramData = AudiogramData
-
-    End Sub
-
-    Public Sub PopulateReferenceLevelList(AvailableReferenceLevels As List(Of Double), SelectedIndex As Integer) Implements ISipGui.PopulateReferenceLevelList
-
-        ReferenceLevelComboBox.Items.Clear()
-        For Each RefLevel In AvailableReferenceLevels
-            ReferenceLevelComboBox.Items.Add(RefLevel)
-        Next
-        ReferenceLevelComboBox.SelectedIndex = SelectedIndex
-
-    End Sub
-
-    Public Sub PopulateHearingAidGainTypeList(AvailableGainTypes As List(Of HearingAidGainData.GainTypes), SelectedIndex As Integer) Implements ISipGui.PopulateHearingAidGainTypeList
-
-        GainTypeComboBox.Items.Clear()
-        For Each GainType In AvailableGainTypes
-            GainTypeComboBox.Items.Add(GainType)
-        Next
-        GainTypeComboBox.SelectedIndex = SelectedIndex
-
-    End Sub
-
-    Public Sub DisplayHearingAidGain(ByRef HearingAidGain As HearingAidGainData) Implements ISipGui.DisplayHearingAidGain
-
-        GainDiagram.UpdateGainValues(HearingAidGain)
-
-    End Sub
-
-    Public Sub PopulatePresetList(AvailablePresets As List(Of String), SelectedIndex As Integer) Implements ISipGui.PopulatePresetList
-
-        PresetComboBox.Items.Clear()
-        For Each Preset In AvailablePresets
-            PresetComboBox.Items.Add(Preset)
-        Next
-        PresetComboBox.SelectedIndex = SelectedIndex
-
-    End Sub
-
-    Public Sub PopulateTestSituationList(AvailableSituations As List(Of String), SelectedIndex As Integer?) Implements ISipGui.PopulateTestSituationList
-
-        TestSituationComboBox.Items.Clear()
-        For Each Value In AvailableSituations
-            TestSituationComboBox.Items.Add(Value)
-        Next
-        If SelectedIndex.HasValue Then
-            TestSituationComboBox.SelectedIndex = SelectedIndex
-        End If
-
-    End Sub
-
-    Public Sub PopulateTestLengthList(AvailableTestLengths As List(Of Integer), SelectedIndex As Integer?) Implements ISipGui.PopulateTestLengthList
-
-        TestLengthComboBox.Items.Clear()
-        For Each TestLength In AvailableTestLengths
-            TestLengthComboBox.Items.Add(TestLength)
-        Next
-        If SelectedIndex.HasValue Then
-            TestLengthComboBox.SelectedIndex = SelectedIndex
-        End If
-
-    End Sub
-
-    Public Sub DisplayPredictedPsychometricCurve(PNRs() As Single, PredictedScores() As Single, LowerCiLimits() As Single, UpperCiLimits() As Single) Implements ISipGui.DisplayPredictedPsychometricCurve
-
-        ExpectedScoreDiagram.Lines.Clear()
-        ExpectedScoreDiagram.Lines.Add(New PlotBase.Line With {.Color = Color.Black, .Dashed = False, .LineWidth = 3, .XValues = PNRs, .YValues = PredictedScores})
-
-        ExpectedScoreDiagram.Areas.Clear()
-
-        'High-jacking the values in PredictedScores for now
-        For n = 0 To PredictedScores.Length - 1
-            LowerCiLimits(n) = PredictedScores(n) - 0.1
-            UpperCiLimits(n) = PredictedScores(n) + 0.1
-        Next
-
-        ExpectedScoreDiagram.Areas.Add(New PlotBase.Area With {.Color = Color.Pink, .XValues = PNRs, .YValuesLower = LowerCiLimits, .YValuesUpper = UpperCiLimits})
-
-        ExpectedScoreDiagram.Invalidate()
-        ExpectedScoreDiagram.Update()
-
-    End Sub
-
-    Public Sub PopulatePnrList(AvailablePNRs As List(Of Double), SelectedIndex As Integer) Implements ISipGui.PopulatePnrList
-
-        PnrComboBox.Items.Clear()
-        For Each Pnr In AvailablePNRs
-            PnrComboBox.Items.Add(Pnr)
-        Next
-        PnrComboBox.SelectedIndex = SelectedIndex
-
-    End Sub
-
-    Public Sub ClearTestNameBox() Implements ISipGui.ClearTestNameBox
+    Public Sub ClearTestNameBox()
         TestDescriptionTextBox.Text = ""
     End Sub
 
-    Public Sub LockTestNameBox() Implements ISipGui.LockTestNameBox
+    Public Sub LockTestNameBox()
         TestDescriptionTextBox.ReadOnly = True
     End Sub
 
-    Public Sub UnlockTestNameBox() Implements ISipGui.UnlockTestNameBox
+    Public Sub UnlockTestNameBox()
         TestDescriptionTextBox.ReadOnly = False
     End Sub
 
-#End Region
-
-#Region "Measurement settings: Handling of local events"
-
-    Private Sub AudiogramComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles AudiogramComboBox.SelectedIndexChanged
-
-        RaiseEvent SelectAudiogram(AudiogramComboBox.SelectedItem)
-    End Sub
-
-    Private Sub NewAudiogram_Button_Click(sender As Object, e As EventArgs) Handles NewAudiogram_Button.Click
-
-        RaiseEvent CreateNewAudiogram()
-
-    End Sub
 
 
-    Private Sub ReferenceLevelComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ReferenceLevelComboBox.SelectedIndexChanged
+#Region "Active measurement"
 
-        RaiseEvent SelectReferenceLevel(ReferenceLevelComboBox.SelectedItem)
-
-    End Sub
-
-    Private Sub GainTypeComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GainTypeComboBox.SelectedIndexChanged
-
-        RaiseEvent SelectHearingAidGainType(GainTypeComboBox.SelectedItem)
-
-    End Sub
-
-    Private Sub PresetComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PresetComboBox.SelectedIndexChanged
-
-        RaiseEvent SelectPreset(PresetComboBox.SelectedItem)
-
-    End Sub
-
-    Private Sub VoiceComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TestSituationComboBox.SelectedIndexChanged
-
-        RaiseEvent SelectSituation(TestSituationComboBox.SelectedItem)
-
-    End Sub
-
-    Private Sub TestLengthComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TestLengthComboBox.SelectedIndexChanged
-
-        RaiseEvent SelectTestLength(TestLengthComboBox.SelectedItem)
-
-    End Sub
-
-    Private Sub PnrComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PnrComboBox.SelectedIndexChanged
-
-        RaiseEvent SelectPNR(PnrComboBox.SelectedItem)
-
-    End Sub
-
-
-#End Region
-
-#Region "Active measurement: ISipGui implementations"
-
-
-    Public Sub SubEnablePlayButton() Implements ISipGui.SubEnablePlayButton
+    Public Sub EnablePlayButton()
         StartButton.Enabled = True
         StartButton.BackgroundImage = My.Resources.PlayImage
     End Sub
 
-    Public Sub SubDisableStopButton() Implements ISipGui.SubDisableStopButton
+    Public Sub DisableStopButton()
         StopButton.Enabled = False
         StopButton.BackgroundImage = My.Resources.StopDisabledImage
     End Sub
 
-    Public Sub SubEnableStopButton() Implements ISipGui.SubEnableStopButton
+    Public Sub EnableStopButton()
         StopButton.Enabled = True
         StopButton.BackgroundImage = My.Resources.StopImage
     End Sub
 
-    Public Sub SubDisablePlayButton() Implements ISipGui.SubDisablePlayButton
+    Public Sub DisablePlayButton()
         StartButton.Enabled = False
         StartButton.BackgroundImage = My.Resources.PlayDisabledImage
     End Sub
 
-    Public Sub TogglePlayButton(PlayMode As Boolean) Implements ISipGui.TogglePlayButton
+    Public Sub TogglePlayButton(PlayMode As Boolean)
         If StartButton.Enabled = True Then
             If PlayMode = True Then
                 StartButton.BackgroundImage = My.Resources.PlayImage
@@ -417,7 +235,7 @@ Public Class SipTestGui
         End If
     End Sub
 
-    Public Sub UpdateTestProgress(Max As Integer, Progress As Integer, Correct As Integer, ProportionCorrect As String) Implements ISipGui.UpdateTestProgress
+    Public Sub UpdateTestProgress(Max As Integer, Progress As Integer, Correct As Integer, ProportionCorrect As String)
         MeasurementProgressBar.Minimum = 0
         MeasurementProgressBar.Maximum = Max
         MeasurementProgressBar.Value = Progress
@@ -427,7 +245,7 @@ Public Class SipTestGui
     End Sub
 
     Public Sub UpdateTestTrialTable(ByVal TestWords() As String, ByVal Responses() As String, ByVal ResultResponseTypes() As SipTest.ResultResponseType,
-                             Optional ByVal UpdateRow As Integer? = Nothing, Optional SelectionRow As Integer? = Nothing, Optional FirstRowToDisplayInScrollmode As Integer? = Nothing) Implements ISipGui.UpdateTestTrialTable
+                             Optional ByVal UpdateRow As Integer? = Nothing, Optional SelectionRow As Integer? = Nothing, Optional FirstRowToDisplayInScrollmode As Integer? = Nothing)
 
         'Checking input arguments
         If TestWords.Length <> Responses.Length Or TestWords.Length <> ResultResponseTypes.Length Then
@@ -528,22 +346,12 @@ Public Class SipTestGui
 
 #End Region
 
-#Region "Active measurement: Handling of local events"
-    Private Sub StartButton_Click(sender As Object, e As EventArgs) Handles StartButton.Click
-        RaiseEvent StartButtonPressed()
-    End Sub
-
-    Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
-        RaiseEvent StopButtonPressed()
-    End Sub
 
 
-#End Region
 
+#Region "Test-result comparison"
 
-#Region "Test-result comparison: ISipGui implementations"
-
-    Public Sub PopulateTestHistoryTables(ByRef TestHistorySummary As TestHistorySummary) Implements ISipGui.PopulateTestHistoryTables
+    Public Sub PopulateTestHistoryTables(ByRef TestHistorySummary As TestHistorySummary)
 
         'Clears all rows in the TestHistoryTables
         CurrentSessionResults_DataGridView.Rows.Clear()
@@ -561,7 +369,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub UpdateSignificanceTestResult(Result As String) Implements ISipGui.UpdateSignificanceTestResult
+    Public Sub UpdateSignificanceTestResult(Result As String)
 
         SignificanceTestResultLabel.Text = Result
 
@@ -637,7 +445,7 @@ Public Class SipTestGui
         End If
 
         'Sending a call for statistical analysis to the backend. 
-        RaiseEvent CompareTwoSipTestScores(TestComparisonHistory)
+        CompareTwoSipTestScores(TestComparisonHistory)
 
     End Sub
 
@@ -645,37 +453,37 @@ Public Class SipTestGui
 #End Region
 
 
-#Region "BlueToothConnection: ISipGui implementations"
+#Region "BlueToothConnection"
 
-    Public Sub UpdateBluetoothConnectionStatusIndicator(ConnectionOk As Boolean) Implements ISipGui.UpdateBluetoothConnectionStatusIndicator
+    Public Sub UpdateBluetoothConnectionStatusIndicator(ConnectionOk As Boolean)
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub PopulateBluetoothDevicesList(DeviceDescriptions As List(Of String)) Implements ISipGui.PopulateBluetoothDevicesList
+    Public Sub PopulateBluetoothDevicesList(DeviceDescriptions As List(Of String))
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub EnableBluetoothDevicesList() Implements ISipGui.EnableBluetoothDevicesList
+    Public Sub EnableBluetoothDevicesList()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub DisableBluetoothDevicesList() Implements ISipGui.DisableBluetoothDevicesList
+    Public Sub DisableBluetoothDevicesList()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub EnableBluetoothSearchButton() Implements ISipGui.EnableBluetoothSearchButton
+    Public Sub EnableBluetoothSearchButton()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub DisableBluetoothSearchButton() Implements ISipGui.DisableBluetoothSearchButton
+    Public Sub DisableBluetoothSearchButton()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub EnableBluetoothDeviceSelectionButton() Implements ISipGui.EnableBluetoothDeviceSelectionButton
+    Public Sub EnableBluetoothDeviceSelectionButton()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub DisableBluetoothDeviceSelectionButton() Implements ISipGui.DisableBluetoothDeviceSelectionButton
+    Public Sub DisableBluetoothDeviceSelectionButton()
         Throw New NotImplementedException()
     End Sub
 
@@ -686,37 +494,37 @@ Public Class SipTestGui
 
 #End Region
 
-#Region "SoundDevice: ISipGui implementations"
+#Region "SoundDevice"
 
-    Public Sub UpdateSoundDeviceConnectionStatusIndicator(ConnectionOk As Boolean) Implements ISipGui.UpdateSoundDeviceConnectionStatusIndicator
+    Public Sub UpdateSoundDeviceConnectionStatusIndicator(ConnectionOk As Boolean)
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub PopulateSoundDevicesList(DeviceDescriptions As List(Of String)) Implements ISipGui.PopulateSoundDevicesList
+    Public Sub PopulateSoundDevicesList(DeviceDescriptions As List(Of String))
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub EnableSoundDevicesList() Implements ISipGui.EnableSoundDevicesList
+    Public Sub EnableSoundDevicesList()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub DisableSoundDevicesList() Implements ISipGui.DisableSoundDevicesList
+    Public Sub DisableSoundDevicesList()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub EnableSoundDeviceSearchButton() Implements ISipGui.EnableSoundDeviceSearchButton
+    Public Sub EnableSoundDeviceSearchButton()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub DisableSoundDeviceSearchButton() Implements ISipGui.DisableSoundDeviceSearchButton
+    Public Sub DisableSoundDeviceSearchButton()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub EnableSoundDeviceSelectionButton() Implements ISipGui.EnableSoundDeviceSelectionButton
+    Public Sub EnableSoundDeviceSelectionButton()
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub DisableSoundDeviceSelectionButton() Implements ISipGui.DisableSoundDeviceSelectionButton
+    Public Sub DisableSoundDeviceSelectionButton()
         Throw New NotImplementedException()
     End Sub
 
@@ -728,20 +536,20 @@ Public Class SipTestGui
 #End Region
 
 
-#Region "MessageBoxes: ISipGui implementations"
+#Region "MessageBoxes"
 
 
     ''' <summary>
     ''' This method can be called by the backend in order to display a message box message to the user.
     ''' </summary>
     ''' <param name="Message"></param>
-    Public Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "SiP-testet") Implements ISipGui.ShowMessageBox
+    Public Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "SiP-testet")
 
         MsgBox(Message, MsgBoxStyle.Information, Title)
 
     End Sub
 
-    Public Function ShowYesNoMessageBox(Question As String, Optional Title As String = "SiP-testet") As Boolean Implements ISipGui.ShowYesNoMessageBox
+    Public Function ShowYesNoMessageBox(Question As String, Optional Title As String = "SiP-testet") As Boolean
 
         Dim Result = MsgBox(Question, MsgBoxStyle.YesNo, Title)
 
@@ -755,18 +563,707 @@ Public Class SipTestGui
 
 
 
+#End Region
 
 
 
 
+    ''' <summary>
+    ''' Initializing test components
+    ''' </summary>
+    Public Sub SetUpTest()
+
+        'Initializing all components
+
+        'Creating a sound format for the output sound (Same sample rate, bit depth and encoding as used in the SiP-test sound files)
+        Dim PlayBackWaveFormat = New Audio.Formats.WaveFormat(48000, 32, NumberSpeakerChannels,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+
+        Dim CalibrationData = LookForCalibrationData()
+
+        OstfSettings.LoadAvailableTestSpecifications()
+
+        Dim SelectedTest As TestSpecification = Nothing
+        For Each ts In OstfSettings.AvailableTests
+            If ts.Name = "Swedish SiP-test" Then
+                SelectedTest = ts
+                Exit For
+            End If
+        Next
+
+        If SelectedTest IsNot Nothing Then
+            CompleteSpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(SelectedTest.GetSpeechMaterialFilePath, SelectedTest.GetTestRootPath)
+            CompleteSpeechMaterial.ParentTestSpecification = SelectedTest
+            SelectedTest.SpeechMaterial = CompleteSpeechMaterial
+        Else
+            MsgBox("SiP-test not found. Exiting!")
+            Exit Sub
+        End If
+
+        'Loading media sets
+        CompleteSpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
+        AvailableMediaSets = CompleteSpeechMaterial.ParentTestSpecification.MediaSets
+
+        'Me.TestStimulusLibrary = New TestStimulusLibrary(PlayBackWaveFormat, CalibrationData)
+
+        'TODO: should probably send a message to the Gui if something went wrong!
+
+    End Sub
+
+    Private Function LookForCalibrationData() As SortedList(Of Integer, Double)
+
+        MsgBox("Here we should look for calibration data and offer some options...")
+
+        Dim CalibrationData As SortedList(Of Integer, Double) = Nothing
+
+        Return CalibrationData
+
+    End Function
+
+#Region "ImportExport"
+
+    Public Sub SaveFileButtonPressed() Handles SaveButton.Click
+        Throw New NotImplementedException()
+    End Sub
+
+    Public Sub OpenFileButtonPressed() Handles OpenButton.Click
+        Throw New NotImplementedException()
+    End Sub
+
+    Public Sub ExportDataButtonPressed() Handles ExportButton.Click
+        Throw New NotImplementedException()
+    End Sub
+
+#End Region
 
 
+    ''' <summary>
+    ''' Triggers a recalculation of data presented in the Gui, based on a recalculation start point indicating which type of data that was modified by the user.
+    ''' </summary>
+    ''' <param name="Startpoint"></param>
+    Private Sub TriggerRecalculationChain(ByVal Startpoint As RecalculationStartpoints)
 
+
+        If Startpoint <= RecalculationStartpoints.NewMeasurement Then
+            CreateNewSipTestMeasurement()
+
+            'If there is no audiogram selected
+            If CurrentSipTestMeasurement.SelectedAudiogramData Is Nothing Then
+
+                ' Repopulates the audiogram list and selects the last audiogram
+                PopulateAudiogramList(AvailableAudiograms, AvailableAudiograms.Count - 1)
+
+            End If
+
+        End If
+
+        If Startpoint <= RecalculationStartpoints.AudiogramAdded Then
+
+            ' Repopulates the audiogram list and selects the last audiogram
+            PopulateAudiogramList(AvailableAudiograms, AvailableAudiograms.Count - 1)
+
+        End If
+
+        'Checks if the audiogram contains data, and stops if not
+        If CurrentSipTestMeasurement.SelectedAudiogramData.ContainsAcData = False Then Exit Sub
+        If CurrentSipTestMeasurement.SelectedAudiogramData.ContainsCbData = False Then CurrentSipTestMeasurement.SelectedAudiogramData.CalculateCriticalBandValues()
+
+
+        If Startpoint <= RecalculationStartpoints.AudiogramData Then
+
+            'The audiogram data was updated. Updating the available reference levels in the Gui, and selecting any previously selected value
+            If CurrentSipTestMeasurement.ReferenceLevel IsNot Nothing Then
+
+                'Determining the index of any previously selected value, and then populating the list
+                PopulateReferenceLevelList(AvailableReferenceLevels, AvailableReferenceLevels.IndexOf(CurrentSipTestMeasurement.ReferenceLevel))
+            Else
+                'Populating the list with the default value
+                PopulateReferenceLevelList(AvailableReferenceLevels, DefaultReferenceLevelIndex)
+            End If
+
+        End If
+
+
+        If Startpoint <= RecalculationStartpoints.ReferenceLevel Then
+
+            'The reference level was updated. Updating the choice of hearing-aid gain type
+            Dim AvailableGainTypes = HearingAidGainData.GetAvailableGainTypes
+            If CurrentSipTestMeasurement.HearingAidGainType IsNot Nothing Then
+
+                'Determining the index of any previously selected value, and then populating the list
+                PopulateHearingAidGainTypeList(AvailableGainTypes, AvailableGainTypes.IndexOf(CurrentSipTestMeasurement.HearingAidGainType))
+            Else
+                'Populating the list with the default value
+                PopulateHearingAidGainTypeList(AvailableGainTypes, DefaultHearingAidGainType)
+            End If
+
+
+        End If
+
+        If Startpoint <= RecalculationStartpoints.HearingAidGain Then
+
+            'Hearing aid gain type was changed. Calculating the new gain, and then updates the gain plot
+            CurrentSipTestMeasurement.HearingAidGain = New HearingAidGainData(CurrentSipTestMeasurement.HearingAidGainType)
+            If CurrentSipTestMeasurement.HearingAidGainType = HearingAidGainData.GainTypes.Measured Then
+                'TODO: Here we must use measures real-ear data. It may require a re-structuring of the code!
+                MsgBox("Implement loading of Real-ear measurments!")
+                Dim TempREM As New HearingAidGainData.RealEarData
+                CurrentSipTestMeasurement.HearingAidGain.CalculateGain(TempREM)
+            Else
+                CurrentSipTestMeasurement.HearingAidGain.CalculateGain(CurrentSipTestMeasurement.SelectedAudiogramData, CurrentSipTestMeasurement.ReferenceLevel)
+            End If
+
+
+            GainDiagram.UpdateGainValues(CurrentSipTestMeasurement.HearingAidGain)
+
+            'Updating the choice of preset
+            Dim AvailablePresetsNames = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.Keys.ToList
+            If CurrentSipTestMeasurement.SelectedPresetName IsNot Nothing Then
+                'Determining the index of any previously selected value, and then populating the list
+                PopulatePresetList(AvailablePresetsNames.ToList, AvailablePresetsNames.IndexOf(CurrentSipTestMeasurement.SelectedPresetName))
+            Else
+                'Populating the list with the default value
+                PopulatePresetList(AvailablePresetsNames.ToList, AvailablePresetsNames(0))
+            End If
+
+        End If
+
+        If Startpoint <= RecalculationStartpoints.TestPreset Then
+
+            'The preset was updated. Updating the choice of TestSituation
+            Dim AvailableMediaSetNames = AvailableMediaSets.GetNames
+            If CurrentSipTestMeasurement.SelectedMediaSetName <> "" Then
+
+                'Determining the index of any previously selected value, and then populating the list
+                PopulateTestSituationList(AvailableMediaSetNames, AvailableMediaSetNames.IndexOf(CurrentSipTestMeasurement.SelectedMediaSetName))
+            Else
+
+                PopulateTestSituationList(AvailableMediaSetNames, Nothing)
+
+                'Halting the recalculation chain, since no media set is selected
+                Exit Sub
+            End If
+
+        End If
+
+        If Startpoint <= RecalculationStartpoints.TestSituation Then
+
+            'The media set was updated. Updating the test lengths
+            Dim AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 60}
+
+            If CurrentSipTestMeasurement.TestProcedure.LengthReduplications IsNot Nothing Then
+
+                'Determining the index of any previously selected value, and then populating the list
+                PopulateTestLengthList(AvailableLengthReduplications, AvailableLengthReduplications.IndexOf(CurrentSipTestMeasurement.TestProcedure.LengthReduplications))
+            Else
+
+                'Dim DefaultLengthReduplication As Integer = 0 ' TODO: this should be customized in some way!
+                'PopulateTestLengthList(AvailableLengthReduplications, AvailableLengthReduplications.IndexOf(DefaultLengthReduplication))
+
+                PopulateTestLengthList(AvailableLengthReduplications, Nothing)
+
+                'Halting the recalculation chain, since no LengthReduplications is selected
+                Exit Sub
+            End If
+
+        End If
+
+        If Startpoint <= RecalculationStartpoints.TestLength Then
+
+            'Test length was updated, adds test trials to the measurement
+            CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets)
+
+            'Calculates the psychometric function
+            Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction()
+
+            Dim PNRs(PsychoMetricFunction.Count - 1) As Single
+            Dim PredictedScores(PsychoMetricFunction.Count - 1) As Single
+            Dim LowerCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
+            Dim UpperCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
+
+            Dim n As Integer = 0
+            For Each kvp In PsychoMetricFunction
+                PNRs(n) = kvp.Key
+                PredictedScores(n) = kvp.Value.Item1
+                LowerCriticalBoundary(n) = kvp.Value.Item2
+                UpperCriticalBoundary(n) = kvp.Value.Item3
+                n += 1
+            Next
+
+            'Updates the psychometric function diagram
+            DisplayPredictedPsychometricCurve(PNRs, PredictedScores, LowerCriticalBoundary, UpperCriticalBoundary)
+
+
+            'Populates the PNR list
+            If CurrentSipTestMeasurement.SelectedPnr IsNot Nothing Then
+
+                'Determining the index of any previously selected value, and then populating the list
+                PopulatePnrList(AvailablePNRs, AvailablePNRs.IndexOf(CurrentSipTestMeasurement.SelectedPnr))
+            Else
+
+                Dim DefaultPnr As Integer = 4 ' TODO: this should be customized in some way!
+                PopulatePnrList(AvailablePNRs, AvailablePNRs.IndexOf(DefaultPnr))
+
+            End If
+
+        End If
+
+        If Startpoint <= RecalculationStartpoints.PNR Then
+
+            'PNR was set. Initiating testing.
+            InitiateNewMeasurement()
+
+        End If
+
+
+    End Sub
+
+#Region "Measurement settings"
+
+    Public Sub PopulateAudiogramList(ByRef Audiograms As List(Of AudiogramData), Optional SelectedIndex As Integer = -1)
+        AudiogramComboBox.Items.Clear()
+        AudiogramComboBox.Items.AddRange(Audiograms.ToArray)
+        If SelectedIndex <> -1 Then
+            AudiogramComboBox.SelectedIndex = SelectedIndex
+        End If
+    End Sub
+
+
+    Public Sub PopulateReferenceLevelList(AvailableReferenceLevels As List(Of Double), SelectedIndex As Integer)
+
+        ReferenceLevelComboBox.Items.Clear()
+        For Each RefLevel In AvailableReferenceLevels
+            ReferenceLevelComboBox.Items.Add(RefLevel)
+        Next
+        ReferenceLevelComboBox.SelectedIndex = SelectedIndex
+
+    End Sub
+
+    Public Sub PopulateHearingAidGainTypeList(AvailableGainTypes As List(Of HearingAidGainData.GainTypes), SelectedIndex As Integer)
+
+        GainTypeComboBox.Items.Clear()
+        For Each GainType In AvailableGainTypes
+            GainTypeComboBox.Items.Add(GainType)
+        Next
+        GainTypeComboBox.SelectedIndex = SelectedIndex
+
+    End Sub
+
+
+    Public Sub PopulatePresetList(AvailablePresets As List(Of String), SelectedIndex As Integer)
+
+        PresetComboBox.Items.Clear()
+        For Each Preset In AvailablePresets
+            PresetComboBox.Items.Add(Preset)
+        Next
+        PresetComboBox.SelectedIndex = SelectedIndex
+
+    End Sub
+
+    Public Sub PopulateTestSituationList(AvailableSituations As List(Of String), SelectedIndex As Integer?)
+
+        TestSituationComboBox.Items.Clear()
+        For Each Value In AvailableSituations
+            TestSituationComboBox.Items.Add(Value)
+        Next
+        If SelectedIndex.HasValue Then
+            TestSituationComboBox.SelectedIndex = SelectedIndex
+        End If
+
+    End Sub
+
+    Public Sub PopulateTestLengthList(AvailableTestLengths As List(Of Integer), SelectedIndex As Integer?)
+
+        TestLengthComboBox.Items.Clear()
+        For Each TestLength In AvailableTestLengths
+            TestLengthComboBox.Items.Add(TestLength)
+        Next
+        If SelectedIndex.HasValue Then
+            TestLengthComboBox.SelectedIndex = SelectedIndex
+        End If
+
+    End Sub
+
+    Public Sub DisplayPredictedPsychometricCurve(PNRs() As Single, PredictedScores() As Single, LowerCiLimits() As Single, UpperCiLimits() As Single)
+
+        ExpectedScoreDiagram.Lines.Clear()
+        ExpectedScoreDiagram.Lines.Add(New PlotBase.Line With {.Color = Color.Black, .Dashed = False, .LineWidth = 3, .XValues = PNRs, .YValues = PredictedScores})
+
+        ExpectedScoreDiagram.Areas.Clear()
+
+        'High-jacking the values in PredictedScores for now
+        For n = 0 To PredictedScores.Length - 1
+            LowerCiLimits(n) = PredictedScores(n) - 0.1
+            UpperCiLimits(n) = PredictedScores(n) + 0.1
+        Next
+
+        ExpectedScoreDiagram.Areas.Add(New PlotBase.Area With {.Color = Color.Pink, .XValues = PNRs, .YValuesLower = LowerCiLimits, .YValuesUpper = UpperCiLimits})
+
+        ExpectedScoreDiagram.Invalidate()
+        ExpectedScoreDiagram.Update()
+
+    End Sub
+
+    Public Sub PopulatePnrList(AvailablePNRs As List(Of Double), SelectedIndex As Integer)
+
+        PnrComboBox.Items.Clear()
+        For Each Pnr In AvailablePNRs
+            PnrComboBox.Items.Add(Pnr)
+        Next
+        PnrComboBox.SelectedIndex = SelectedIndex
+
+    End Sub
+
+
+    Public Function CreateNewSipTestMeasurement() As Tuple(Of Boolean, String)
+
+        'TODO: This should come earlier in the recalculation chain!
+        If CurrentSipTestMeasurement IsNot Nothing Then
+            MsgBox("A question should be sent to the GUI to save unsaved measurement or not")
+
+            'CurrentPatient.Sessions(CurrentPatient.Sessions.Count - 1).Actions.Add(CurrentSipTestMeasurement)
+
+        End If
+
+        CurrentSipTestMeasurement = New Measurement(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification)
+        'CurrentSipTestMeasurement = New SipTestMeasurement(CurrentPatient.Sessions(CurrentPatient.Sessions.Count - 1), Me)
+
+
+        'Probably this does not need any return, could anything go wrong?
+        Return New Tuple(Of Boolean, String)(True, "")
+
+    End Function
+
+
+    Public Sub CreateNewAudiogram(sender As Object, e As EventArgs) Handles NewAudiogram_Button.Click
+
+        'Stores the selected audiogram data
+        Dim NewAudiogram = New AudiogramData
+        NewAudiogram.Name = DateTime.Now
+
+        AvailableAudiograms.Add(NewAudiogram)
+
+        CurrentSipTestMeasurement.SelectedAudiogramData = NewAudiogram
+
+        TriggerRecalculationChain(RecalculationStartpoints.AudiogramAdded)
+
+    End Sub
+
+
+    Public Sub SelectAudiogram(sender As Object, e As EventArgs) Handles AudiogramComboBox.SelectedIndexChanged
+
+        'Stores the selected audiogram data
+        CurrentSipTestMeasurement.SelectedAudiogramData = AudiogramComboBox.SelectedItem
+
+        Audiogram.AudiogramData = CurrentSipTestMeasurement.SelectedAudiogramData
+
+        TriggerRecalculationChain(RecalculationStartpoints.AudiogramData)
+
+
+    End Sub
+
+
+    Public Sub SelectReferenceLevel(sender As Object, e As EventArgs) Handles ReferenceLevelComboBox.SelectedIndexChanged
+
+        'Stores the selected reference level
+        CurrentSipTestMeasurement.ReferenceLevel = ReferenceLevelComboBox.SelectedItem
+
+        TriggerRecalculationChain(RecalculationStartpoints.ReferenceLevel)
+
+    End Sub
+
+    Public Sub SelectHearingAidGainType(sender As Object, e As EventArgs) Handles GainTypeComboBox.SelectedIndexChanged
+
+        'Stores the selected hearing-aid gain type
+        CurrentSipTestMeasurement.HearingAidGainType = GainTypeComboBox.SelectedItem
+
+        TriggerRecalculationChain(RecalculationStartpoints.HearingAidGain)
+
+    End Sub
+
+
+    Public Sub SelectPreset(sender As Object, e As EventArgs) Handles PresetComboBox.SelectedIndexChanged
+
+        'Stores the selected preset
+        CurrentSipTestMeasurement.SelectedPresetName = PresetComboBox.SelectedItem
+
+        TriggerRecalculationChain(RecalculationStartpoints.TestPreset)
+
+    End Sub
+
+    Public Sub SelectSituation(sender As Object, e As EventArgs) Handles TestSituationComboBox.SelectedIndexChanged
+
+        'Stores the selected preset
+        CurrentSipTestMeasurement.SelectedMediaSetName = TestSituationComboBox.SelectedItem
+
+        TriggerRecalculationChain(RecalculationStartpoints.TestSituation)
+
+    End Sub
+
+
+    Public Sub SelectTestLength(sender As Object, e As EventArgs) Handles TestLengthComboBox.SelectedIndexChanged
+
+        'Stores the selected preset
+        CurrentSipTestMeasurement.TestProcedure.LengthReduplications = TestLengthComboBox.SelectedItem
+
+        TriggerRecalculationChain(RecalculationStartpoints.TestLength)
+
+    End Sub
+
+
+    Public Sub SelectPNR(sender As Object, e As EventArgs) Handles PnrComboBox.SelectedIndexChanged
+
+        'Stores the selected selected PNR
+        CurrentSipTestMeasurement.SelectedPnr = PnrComboBox.SelectedItem
+
+        TriggerRecalculationChain(RecalculationStartpoints.PNR)
+
+    End Sub
 
 
 
 
 #End Region
+
+#Region "Active measurement"
+
+    Public Sub InitiateNewMeasurement()
+
+        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
+
+        UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResultResponseTypes.ToArray,
+                                            GetGuiTableData.UpdateRow, GetGuiTableData.SelectionRow, GetGuiTableData.FirstRowToDisplayInScrollmode)
+
+        'SipGui.UpdateTestProgress(CurrentSipTestMeasurement.TestLength, CurrentSipTestMeasurement.NumberPresented, CurrentSipTestMeasurement.NumberCorrect, CurrentSipTestMeasurement.PercentCorrect)
+
+        EnablePlayButton()
+
+
+    End Sub
+
+
+
+    Public Sub StartTest() Handles StartButton.Click
+
+        'Should initiate a test-launch sequence
+
+        If CurrentSipTestMeasurement Is Nothing Then
+            ShowMessageBox("Inget test är laddat.", "SiP-testet")
+        End If
+
+
+        'Tries to launch the next test trial
+        'Dim TrialLaunchResult = CurrentSipTestMeasurement.LaunchNextTrial()
+        'Select Case TrialLaunchResult
+        '    Case SipTestMeasurement.LaunchNextTrialReturnValues.TrialWasLaunched
+        '        'No need to send and message? Or send message to alter GUI-layout?
+
+        '    Case SipTestMeasurement.LaunchNextTrialReturnValues.TestingCompleted
+        '        SipGui.ShowMessageBox("Testet är klart.", "SiP-testet")
+
+        '    Case SipTestMeasurement.LaunchNextTrialReturnValues.NoTestTrials
+        '        SipGui.ShowMessageBox("Inget test är laddat.", "SiP-testet")
+        '    Case Else
+        '        Throw New NotImplementedException("Unsupported error" & TrialLaunchResult.ToString)
+        'End Select
+
+    End Sub
+
+
+    Public Sub TestCompleted()
+
+        Dim NewMeasurementSummary = CurrentSipTestMeasurement.GetMeasurementSummary
+        TestHistorySummary.Measurements.Add(NewMeasurementSummary)
+        PopulateTestHistoryTables(TestHistorySummary)
+
+        MsgBox("Unlock stuff for new test!")
+
+    End Sub
+
+
+    Public Sub StopButton_Click() Handles StopButton.Click
+        Throw New NotImplementedException()
+    End Sub
+
+
+#End Region
+
+
+#Region "Test-result comparison"
+
+
+    ''' <summary>
+    ''' Performs a statistical analysis of the score difference between the SiP-testet refered to in ComparedMeasurementGuiDescriptions by their GuiDescription strings
+    ''' </summary>
+    ''' <param name="ComparedMeasurementGuiDescriptions"></param>
+    Sub CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String))
+
+        'Clears the Gui significance test result box if not exaclty two measurements descriptions are recieved. And the exits the sub
+        If ComparedMeasurementGuiDescriptions.Count <> 2 Then
+
+
+
+            UpdateSignificanceTestResult("")
+
+        End If
+
+    End Sub
+
+
+#End Region
+
+
+#Region "BlueToothConnection"
+
+
+    Public Sub SearchForBluetoothDevices()
+        Throw New NotImplementedException()
+    End Sub
+
+    Public Sub SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String)
+        Throw New NotImplementedException()
+    End Sub
+
+#End Region
+
+#Region "SoundDevice"
+
+    Public Sub SearchForSoundDevices()
+        Throw New NotImplementedException()
+    End Sub
+
+    Public Sub SelectSoundDevice(SelectedSoundDeviceDescription As String)
+        Throw New NotImplementedException()
+    End Sub
+
+#End Region
+
+
+
+#Region "ExperimentalStuff"
+
+    Private Sub SimulateAdaptiveTests()
+
+        Dim Ms As New List(Of Integer) From {1, 2, 3}
+
+        For Each M In Ms
+
+
+            Dim Simulations As Integer = 500
+
+            Dim Seed As Integer = 42
+            Dim Rnd As New Random(Seed)
+
+            Dim TestResults As New List(Of String)
+            Dim ProgressDisplay As New ProgressDisplay
+            ProgressDisplay.Initialize(Simulations, 0, "Simulating adaptive tests...", 1)
+            ProgressDisplay.Show()
+
+            For i = 1 To Simulations
+
+                ProgressDisplay.UpdateProgress(i)
+
+                Dim NewResult = SimulateAdaptiveTest(Rnd, M)
+
+                TestResults.Add(i.ToString() & vbTab & vbTab &
+                                    NewResult.Item1.Last.ToString & vbTab & vbTab &
+                                    NewResult.Item1.Average.ToString & vbTab & vbTab &
+                                    String.Join(vbTab, NewResult.Item1) & vbTab & vbTab &
+                                    String.Join(vbTab, NewResult.Item2))
+
+            Next
+
+            Utils.SendInfoToLog(vbCrLf & vbCrLf & "Method: " & M & vbCrLf & String.Join(vbCrLf, TestResults), "SimulationResults")
+
+            ProgressDisplay.Close()
+
+        Next
+
+        MsgBox("Simulation Complete")
+
+    End Sub
+
+
+    Private Function SimulateAdaptiveTest(ByRef Rnd As Random, ByVal Method As Integer) As Tuple(Of List(Of Double), List(Of String))
+
+        Dim CurrentPNR As Double = 0
+        Dim Elapses As Integer = 0
+        Dim PNRList As New List(Of Double)
+        Dim ResponseList As New List(Of String)
+
+        Dim ResultList As New List(Of Integer)
+
+        For Each Trial In CurrentSipTestMeasurement.PlannedTrials
+
+            PNRList.Add(CurrentPNR)
+
+            Trial.SetLevels(CurrentSipTestMeasurement.ReferenceLevel, CurrentPNR)
+
+            Dim p = Trial.EstimatedSuccessProbability(True)
+
+            'Simulating a test trial response by sampling from a bernoulli distribution
+
+            Dim BernoulliTrialResult = MathNet.Numerics.Distributions.Bernoulli.Sample(Rnd, p)
+            Dim SimulatedResponse As String = ""
+
+            ResultList.Add(BernoulliTrialResult)
+
+            Dim StepSize As Double
+            If Elapses >= 30 Then
+                StepSize = 1
+            Else
+                StepSize = 2
+            End If
+
+
+            Select Case Method
+                Case 1
+                    If ResultList.Count = 3 Then
+                        ChangePNR(CurrentPNR, ResultList, StepSize)
+                        ResultList.Clear()
+                    End If
+                Case 2
+                    If ResultList.Count = 6 Then
+                        ChangePNR(CurrentPNR, ResultList, StepSize)
+                        ResultList.Clear()
+                    End If
+                Case 3
+                    If ResultList.Count = 12 Then
+                        ChangePNR(CurrentPNR, ResultList, StepSize)
+                        ResultList.Clear()
+                    End If
+            End Select
+
+            If BernoulliTrialResult = 1 Then
+                SimulatedResponse = "Correct"
+            Else
+                SimulatedResponse = "Incorrect"
+            End If
+
+            Elapses += 1
+
+            ResponseList.Add(SimulatedResponse)
+
+        Next
+
+        Return New Tuple(Of List(Of Double), List(Of String))(PNRList, ResponseList)
+
+    End Function
+
+    Private Sub ChangePNR(ByRef CurrentPNR As Double, ResultList As List(Of Integer), ByVal StepSize As Double)
+        Select Case ResultList.Average
+            Case <= (2 / 3)
+                CurrentPNR += StepSize
+            Case 1
+                CurrentPNR -= StepSize
+            Case Else
+                'Do not change!
+        End Select
+    End Sub
+
+#End Region
+
+
+
 
 
 End Class

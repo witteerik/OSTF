@@ -279,7 +279,7 @@ Namespace SipTest
 
         Public Function GetMeasurementSummary() As MeasurementSummary
 
-            Dim NewMeasurementSummary As New MeasurementSummary()
+            Dim NewMeasurementSummary As New MeasurementSummary("")
 
 
 
