@@ -1,25 +1,24 @@
 ﻿Namespace SipTest
 
-    Public Class Patient
+    Public Class Participant
 
         'ID etc
         Public ReadOnly Property CreateDate As DateTime
 
         Property Sessions As New List(Of Measurement)
 
-        Public ReadOnly Property SSNumber As String
+        Public ReadOnly Property ID As String
 
         Public ReadOnly Property FirstName As String
 
         Public ReadOnly Property LastName As String
 
 
-        Public Sub New(ByVal SSNumber As String)
+        Public Sub New(ByVal ID As String)
             'Storing the date and time when the instance of this session was created
             CreateDate = DateTime.Now
 
-            'TODO: Somewhere SSNumber should be checked for validity, prior to creating the patient!
-            Me.SSNumber = SSNumber
+            Me.ID = ID
 
         End Sub
 

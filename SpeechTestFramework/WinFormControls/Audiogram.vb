@@ -21,6 +21,8 @@ Namespace WinFormControls
             End Set
         End Property
 
+        Public Event DataChanged()
+
         Private Enum Sides
             Left
             Right
@@ -814,6 +816,8 @@ Namespace WinFormControls
 
                     'Setting the value
                     EditAudiogramValue(CurrentPointType, Frequency, StimulusLevel, CurrentOverheard, CurrentWriteNotHeard)
+
+                    RaiseEvent DataChanged()
 
                     Me.Invalidate()
                     Me.Update()

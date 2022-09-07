@@ -112,7 +112,7 @@
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
     <Compile Include="TestSupport\TestSpecification.vb" />
-    <Compile Include="Tests\SipTest\Patient.vb" />
+    <Compile Include="Tests\SipTest\Participant.vb" />
     <Compile Include="Tests\SipTest\PDL.vb" />
     <Compile Include="Tests\SipTest\SipTest.vb" />
     <Compile Include="Tests\SipTest\SipTestGui.designer.vb">

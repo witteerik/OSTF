@@ -38,19 +38,18 @@ Namespace SipTest
         Public Property SelectedAudiogramData As AudiogramData = Nothing
         Public Property HearingAidGain As HearingAidGainData = Nothing
         Public Property ReferenceLevel As Nullable(Of Double) = Nothing
-        Public Property HearingAidGainType As Nullable(Of HearingAidGainData.GainTypes)
 
         Public Property SelectedMediaSetName As String = "" ' If not selected, random media sets can be assigned to different trials
 
         Public Property SelectedPresetName As String = ""
 
-        Public ReadOnly Property Patient As Patient
+        Public ReadOnly Property Patient As Participant
 
         Public Property SelectedPnr As Nullable(Of Double) = Nothing
 
         Friend Randomizer As Random
 
-        Public Sub New(ByRef Patient As Patient, ByRef ParentTestSpecification As TestSpecification, Optional RandomSeed As Integer? = Nothing)
+        Public Sub New(ByRef Patient As Participant, ByRef ParentTestSpecification As TestSpecification, Optional RandomSeed As Integer? = Nothing)
 
             If RandomSeed.HasValue = True Then
                 Randomizer = New Random(RandomSeed)

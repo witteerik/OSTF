@@ -402,12 +402,10 @@ Public Class AudiogramData
 
     Public Overrides Function ToString() As String
 
-        Dim NowTime = DateTime.Now
-
         If Name = "" Then
-            Return NowTime.ToShortDateString & ": " & NowTime.ToShortTimeString
+            Return DateTime.Now.ToShortDateString & ": " & DateTime.Now.ToShortTimeString
         Else
-            Return Name & " " & NowTime.ToShortDateString & ": " & NowTime.ToShortTimeString
+            Return Name
         End If
 
     End Function

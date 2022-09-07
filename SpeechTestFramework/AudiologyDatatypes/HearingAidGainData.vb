@@ -1,101 +1,52 @@
 ﻿
 Public Class HearingAidGainData
 
-    Public Enum GainTypes
-        NoGain
-        Fig6
-        Measured
-    End Enum
-
-    Public ReadOnly GainType As GainTypes
-
-    Public Enum Sides
-        Left
-        Right
-    End Enum
+    Public Property Name As String = ""
 
     Public LeftSideGain() As Single
     Public RightSideGain() As Single
+
     ''' <summary>
     ''' Critical band centre frequencies according to table 1 in ANSI S3.5-1997
     ''' </summary>
     Public Frequencies() As Single = {150, 250, 350, 450, 570, 700, 840, 1000, 1170, 1370, 1600, 1850, 2150, 2500, 2900, 3400, 4000, 4800, 5800, 7000, 8500}
 
-    ''' <summary>
-    ''' Returns a list of available gain types. As more types are implemented, this function should be modified!
-    ''' </summary>
-    ''' <returns></returns>
-    Public Shared Function GetAvailableGainTypes() As List(Of GainTypes)
 
-        Return New List(Of GainTypes) From {GainTypes.NoGain, GainTypes.Fig6}
+    Public Shared Function CreateNewNoGainData()
+
+        Dim Output = New HearingAidGainData
+
+        'Setting gain arrays to 0 for all frequencies
+        Output.LeftSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        Output.RightSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
+        Return Output
 
     End Function
 
-    ''' <summary>
-    ''' Creates a new instance of HearingAidGainData. Note that you have to call one of the overloads of CalculateGain() before gain values can be retreived!
-    ''' </summary>
-    ''' <param name="GainType"></param>
-    Public Sub New(ByVal GainType As GainTypes)
+    Public Shared Function CreateNewFig6GainData(ByRef AudiogramData As AudiogramData, ByVal ReferenceLevel As Double)
 
-        Me.GainType = GainType
+        Dim Output = New HearingAidGainData
 
-    End Sub
+        'Calculating critical band thresholds if not calculated
+        If AudiogramData.Cb_Left_AC.Length = 0 Or AudiogramData.Cb_Right_AC.Length = 0 Then
+            AudiogramData.CalculateCriticalBandValues()
+        End If
 
-    ''' <summary>
-    ''' Calculates hearing-aid gain for the SII critical band frequencies based on real-ear measurement data.
-    ''' </summary>
-    ''' <param name="MeasuresData"></param>
-    Public Sub CalculateGain(ByRef MeasuresData As RealEarData)
+        'Calculating Fig6 for each critical band
+        Output.LeftSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        For n = 0 To Output.LeftSideGain.Length - 1
+            Output.LeftSideGain(n) = Output.GetFig6Interpolation(AudiogramData.Cb_Left_AC(n), ReferenceLevel)
+        Next
 
-        If Me.GainType <> GainTypes.Measured Then Throw New Exception("You probably called the incorrect overlaod of CalculateGain")
+        Output.RightSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        For n = 0 To Output.LeftSideGain.Length - 1
+            Output.RightSideGain(n) = Output.GetFig6Interpolation(AudiogramData.Cb_Right_AC(n), ReferenceLevel)
+        Next
 
-        Throw New NotImplementedException("Real-ear gain in not yet supported.")
+        Return Output
 
-        'TODO, implement real-ear gain support!
-
-    End Sub
-
-    ''' <summary>
-    ''' Calculates hearing-aid gain for the SII critical band frequencies based on audiogram data.
-    ''' </summary>
-    ''' <param name="AudiogramData"></param>
-    ''' <param name="ReferenceLevel"></param>
-    Public Sub CalculateGain(ByRef AudiogramData As AudiogramData, ByVal ReferenceLevel As Double)
-
-        Select Case GainType
-            Case GainTypes.Measured
-                Throw New Exception("You probably called the incorrect overlaod of CalculateGain")
-            Case GainTypes.NoGain
-
-                'Setting gain arrays to 0 for all frequencies
-                LeftSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-                RightSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-            Case GainTypes.Fig6
-
-                'Calculating critical band thresholds if not calculated
-                If AudiogramData.Cb_Left_AC.Length = 0 Or AudiogramData.Cb_Right_AC.Length = 0 Then
-                    AudiogramData.CalculateCriticalBandValues()
-                End If
-
-                'Calculating Fig6 for each critical band
-                LeftSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-                For n = 0 To LeftSideGain.Length - 1
-                    LeftSideGain(n) = GetFig6Interpolation(AudiogramData.Cb_Left_AC(n), ReferenceLevel)
-                Next
-
-                RightSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-                For n = 0 To LeftSideGain.Length - 1
-                    RightSideGain(n) = GetFig6Interpolation(AudiogramData.Cb_Right_AC(n), ReferenceLevel)
-                Next
-
-            Case Else
-
-                Throw New NotImplementedException("Unimplemented gain type")
-
-        End Select
-
-    End Sub
+    End Function
 
 
     Private Enum Fig6LevelTypes
@@ -177,16 +128,15 @@ Public Class HearingAidGainData
 
     End Function
 
+    Public Overrides Function ToString() As String
 
-    ''' <summary>
-    ''' This class holds measurement data from a real-ear measurement
-    ''' </summary>
-    Public Class RealEarData
+        If Name = "" Then
+            Return DateTime.Now.ToShortDateString & ": " & DateTime.Now.ToShortTimeString
+        Else
+            Return Name
+        End If
 
-
-
-    End Class
-
+    End Function
 
 End Class
 
