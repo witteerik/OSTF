@@ -262,4 +262,16 @@
         MsgBox("Finished copying files")
 
     End Sub
+
+    Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
+
+        Dim X As Double() = {0.41, 0.42, 0.5, 0.44, 0.39, 0.4, 0.6, 0.8, 0.9, 0.99}
+
+        Dim Y = SpeechTestFramework.CriticalDifferences.getAdjustedSuccessProbabilities(X, 0.5)
+
+        Dim Z = X.Average
+        Dim z2 = Y.Average
+        Dim s = 1
+
+    End Sub
 End Class

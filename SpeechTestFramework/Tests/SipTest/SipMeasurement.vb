@@ -9,7 +9,9 @@ Namespace SipTest
     ' Tc = Component temporal duration (in seconds)
     ' V = HasVowelContrast (1 = Yes, 0 = No)
 
-    Public Class Measurement
+    Public Class SipMeasurement
+
+        Public Property TestDescription As String = ""
 
         Public Property ParentTestSpecification As TestSpecification
 
@@ -64,6 +66,11 @@ Namespace SipTest
             Me.SelectedPresetName = Me.ParentTestSpecification.SpeechMaterial.Presets.Keys(0)
 
         End Sub
+
+#Region "Preparation"
+
+
+
 
         Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, Optional ByVal RandomSeed As Integer? = Nothing)
 
@@ -167,36 +174,6 @@ Namespace SipTest
             PlannedTrials.Clear()
         End Sub
 
-        Public Function CalculateEstimatedPsychometricFunction(Optional ByVal PNRs As List(Of Double) = Nothing) As SortedList(Of Double, Tuple(Of Double, Double, Double))
-
-            If PNRs Is Nothing Then
-                PNRs = New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
-            End If
-
-            'Stores the original PNR
-            Dim OriginalPNR As Double? = Me.SelectedPnr
-
-            'Pnr, Estimate, lower critical boundary, upper critical boundary
-            Dim Output As New SortedList(Of Double, Tuple(Of Double, Double, Double))
-
-            For Each pnr In PNRs
-
-                Me.SetLevels(Me.ReferenceLevel, pnr)
-
-                Output.Add(pnr, New Tuple(Of Double, Double, Double)(Me.CalculateEstimatedMeanScore(), 0, 0))
-
-            Next
-
-
-            'Resets the PNR
-            If OriginalPNR.HasValue Then
-                Me.SetLevels(Me.ReferenceLevel, OriginalPNR)
-            End If
-
-            Return Output
-
-        End Function
-
         ''' <summary>
         ''' Sets all levels in all trials. (Levels should be set prior to mixing the sounds, or prior to success probability estimation.)
         ''' </summary>
@@ -210,27 +187,50 @@ Namespace SipTest
 
         End Sub
 
-        Public Property EstimatedMeanScore As Double
+#End Region
 
-        Public Function CalculateEstimatedMeanScore() As Double
 
-            Dim TrialSuccessProbabilityList As New List(Of Double)
+#Region "RunTest"
 
-            For Each TestUnit In Me.TestUnits
-                For Each PlannedTestTrial In TestUnit.PlannedTrials
-                    TrialSuccessProbabilityList.Add(PlannedTestTrial.EstimatedSuccessProbability(True))
-                Next
-            Next
+        Public Function GetNextTrial(ByRef rnd As Random) As SipTrial
 
-            If TrialSuccessProbabilityList.Count > 0 Then
-                Return TrialSuccessProbabilityList.Average()
-            Else
-                Return -1
-            End If
+            Dim NextTestUnit = GetNextTestUnit(rnd)
+
+            'Returns nothing if there are no more test units to present
+            If NextTestUnit Is Nothing Then Return Nothing
+
+            'Gets the next test trial
+            Dim NextTestTrial = NextTestUnit.GetNextTrial(rnd)
+
+            'Setting levels
+
+
+            Return NextTestTrial
 
         End Function
 
-#Region "GUI"
+        Public Function GetNextTestUnit(ByRef rnd As Random) As SiPTestUnit
+
+            Dim RemainingTestUnits As New List(Of SiPTestUnit)
+            For Each TestUnit In TestUnits
+                If TestUnit.IsCompleted = False Then
+                    RemainingTestUnits.Add(TestUnit)
+                    'Skips after adding the first remainig test unit (thus they get tested in order)
+                    If TestProcedure.RandomizeOrder = True Then Exit For
+                End If
+            Next
+
+            If RemainingTestUnits.Count = 0 Then
+                Return Nothing
+            ElseIf RemainingTestUnits.Count = 1 Then
+                Return RemainingTestUnits(0)
+            Else
+                'Randomizes among the remaining test units
+                Dim RandomIndex = rnd.Next(0, RemainingTestUnits.Count)
+                Return RemainingTestUnits(RandomIndex)
+            End If
+
+        End Function
 
         Public Function GetGuiTableData() As GuiTableData
 
@@ -269,18 +269,99 @@ Namespace SipTest
             Public UpdateRow As Integer? = Nothing
             Public SelectionRow As Integer? = Nothing
             Public FirstRowToDisplayInScrollmode As Integer? = Nothing
-
         End Class
+
 
 #End Region
 
+#Region "Estimation"
+
+        Public Property EstimatedMeanScore As Double
+
+        Public Function CalculateEstimatedPsychometricFunction(Optional ByVal PNRs As List(Of Double) = Nothing) As SortedList(Of Double, Tuple(Of Double, Double, Double))
+
+            If PNRs Is Nothing Then
+                PNRs = New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
+            End If
+
+            'Stores the original PNR
+            Dim OriginalPNR As Double? = Me.SelectedPnr
+
+            'Pnr, Estimate, lower critical boundary, upper critical boundary
+            Dim Output As New SortedList(Of Double, Tuple(Of Double, Double, Double))
+
+            For Each pnr In PNRs
+
+                Me.SetLevels(Me.ReferenceLevel, pnr)
+
+                Output.Add(pnr, New Tuple(Of Double, Double, Double)(Me.CalculateEstimatedMeanScore(), 0, 0))
+
+            Next
+
+            'Resets the PNR
+            If OriginalPNR.HasValue Then
+                Me.SetLevels(Me.ReferenceLevel, OriginalPNR)
+            End If
+
+            Return Output
+
+        End Function
+
+
+        Public Function CalculateEstimatedMeanScore() As Double
+
+            Dim TrialSuccessProbabilityList As New List(Of Double)
+
+            For Each TestUnit In Me.TestUnits
+                For Each PlannedTestTrial In TestUnit.PlannedTrials
+                    TrialSuccessProbabilityList.Add(PlannedTestTrial.EstimatedSuccessProbability(True))
+                Next
+            Next
+
+            If TrialSuccessProbabilityList.Count > 0 Then
+                Return TrialSuccessProbabilityList.Average()
+            Else
+                Return -1
+            End If
+
+        End Function
+
+#End Region
+
+
+
+
+
+
 #Region "TestResultSummary"
 
-        Public Function GetMeasurementSummary() As MeasurementSummary
+        Public Function GetMeasurementSummary() As SipTestSummary
 
-            Dim NewMeasurementSummary As New MeasurementSummary("")
+            Dim NewMeasurementSummary As New SipTestSummary(Me.TestDescription)
+
+            For Each TestTrial In TestTrialHistory
+
+                Dim TrialSummary = New SipTestSummary.SummarizedTrial
+
+                TrialSummary.EstimatedSuccessProbability = TestTrial.EstimatedSuccessProbability(True)
+
+                Select Case TestTrial.GetResponseType
+                    Case ResultResponseType.Correct
+                        TrialSummary.Result = 1
+                    Case ResultResponseType.Incorrect
+                        TrialSummary.Result = 0
+                    Case ResponseType.Missing
+                        TrialSummary.Result = -1
+                End Select
+
+                NewMeasurementSummary.Add(TrialSummary)
+
+            Next
+
+            NewMeasurementSummary.CalculateAdjustedSuccessProbabilities()
 
 
+            Return NewMeasurementSummary
 
         End Function
 
@@ -332,7 +413,7 @@ Namespace SipTest
 
     Public Class SiPTestUnit
 
-        Public Property ParentMeasurement As Measurement
+        Public Property ParentMeasurement As SipMeasurement
 
         Public Property SpeechMaterialComponents As New List(Of SpeechMaterialComponent)
 
@@ -342,7 +423,7 @@ Namespace SipTest
 
         Public Property AdaptiveValue As Double
 
-        Public Sub New(ByRef ParentMeasurement As Measurement)
+        Public Sub New(ByRef ParentMeasurement As SipMeasurement)
             Me.ParentMeasurement = ParentMeasurement
         End Sub
 
@@ -401,6 +482,26 @@ Namespace SipTest
             End Select
 
         End Function
+
+        Public Function IsCompleted() As Boolean
+
+            Select Case ParentMeasurement.TestProcedure.AdaptiveType
+                Case AdaptiveTypes.Fixed
+
+                    If PlannedTrials.Count = 0 Then
+                        Return True
+                    Else
+                        Return False
+                    End If
+
+                Case Else
+
+                    Throw New NotImplementedException
+
+            End Select
+
+        End Function
+
 
     End Class
 
@@ -777,7 +878,7 @@ Namespace SipTest
     <Serializable>
     Public Class TestHistorySummary
 
-        Public Property Measurements As List(Of MeasurementSummary)
+        Public Property Measurements As New List(Of SipTestSummary)
 
 
         ''' <summary>
@@ -813,72 +914,6 @@ Namespace SipTest
                 Return False
             End Try
         End Function
-
-    End Class
-
-    <Serializable>
-    Public Class MeasurementSummary
-        Inherits List(Of SummarizedTrial)
-
-        Public ReadOnly Property Description As String
-        Public ReadOnly Property AverageScore As Double
-            Get
-                Return GetAverageScore()
-            End Get
-        End Property
-
-        Public ReadOnly Property TestLength As Integer
-            Get
-                Return Me.Count
-            End Get
-        End Property
-
-        Public Sub New(ByVal Description As String)
-            Me.Description = Description
-        End Sub
-
-        Public Function PercentCorrect() As String
-            Dim LocalAverageScore = AverageScore
-            If LocalAverageScore = -1 Then
-                Return ""
-            Else
-                Return Math.Round(100 * LocalAverageScore)
-            End If
-        End Function
-
-        ''' <summary>
-        ''' Returns the average score, counting missing responses as correct every ResponseAlternatives:th time. Returns -1 if no SummarizedTrials exist.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function GetAverageScore() As Double
-
-            If Me.Count = 0 Then Return -1
-
-            Dim Correct As Integer = 0
-            Dim Total As Integer = Me.Count
-            For n = 0 To Me.Count - 1
-                If Me(n).Result = 1 Then
-                    Correct += 1
-                ElseIf Me(n).Result = -1 Then
-                    If Me(n).ResponseAlternatives > 0 Then
-                        If n Mod Me(n).ResponseAlternatives = (Me(n).ResponseAlternatives - 1) Then
-                            Correct += 1
-                        End If
-                    End If
-                End If
-            Next
-            Return Correct / Total
-        End Function
-
-        <Serializable>
-        Public Class SummarizedTrial
-            Public Property Result As Integer '1=Correct, 0=Incorrect, -1= Missing
-            Public Property EstimatedSuccessProbability As Double
-            Public Property AdjustedSuccessProbability As Double
-            Public Property ResponseAlternatives As Integer
-
-        End Class
-
 
     End Class
 

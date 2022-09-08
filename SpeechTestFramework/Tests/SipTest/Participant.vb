@@ -5,7 +5,7 @@
         'ID etc
         Public ReadOnly Property CreateDate As DateTime
 
-        Property Sessions As New List(Of Measurement)
+        Property Sessions As New List(Of SipMeasurement)
 
         Public ReadOnly Property ID As String
 
@@ -26,7 +26,7 @@
         ''' Returns a reference to the current session as the last one stored in the patient, or nothing if no sessions have been added
         ''' </summary>
         ''' <returns></returns>
-        Public Function GetCurrentSession() As Measurement
+        Public Function GetCurrentSession() As SipMeasurement
             If Sessions Is Nothing Then Return Nothing
 
             If Sessions.Count = 0 Then

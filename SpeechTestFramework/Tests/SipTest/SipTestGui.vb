@@ -23,7 +23,7 @@ Public Class SipTestGui
 
     Friend AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
 
-    Friend CurrentSipTestMeasurement As Measurement
+    Friend CurrentSipTestMeasurement As SipMeasurement
 
     ''' <summary>
     ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
@@ -396,7 +396,7 @@ Public Class SipTestGui
 
 
         'Creates a new test and updates the psychometric function diagram
-        CurrentSipTestMeasurement = New Measurement(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification)
+        CurrentSipTestMeasurement = New SipMeasurement(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification)
         CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
         CurrentSipTestMeasurement.ReferenceLevel = SelectedReferenceLevel
         CurrentSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
@@ -502,16 +502,47 @@ Public Class SipTestGui
             Exit Sub
         End If
 
+        'Storing the SelectedPnr and the SelectedTestDescription
+        CurrentSipTestMeasurement.SelectedPnr = SelectedPnr
+        CurrentSipTestMeasurement.TestDescription = SelectedTestDescription
+
         'Things seemed to be in order,
         'Starting the test
 
         LockSettingsPanels()
 
-        LaunchNextTrial()
+        'Creates a new randomizer before each test start
+        Dim Seed As Integer? = 42 'TODO: remove this seed value, and possible let the user specify one instead
+        If Seed.HasValue Then
+            SipMeasurementRandomizer = New Random(Seed)
+        Else
+            SipMeasurementRandomizer = New Random
+        End If
+
+        NewTrialTimer.Start()
 
     End Sub
 
-    Public Sub LaunchNextTrial()
+    Private SipMeasurementRandomizer As Random
+
+    Private CurrentSipTrial As SipTrial
+    Private WithEvents NewTrialTimer As New Windows.Forms.Timer With {.Interval = 500} ' TODO: Set this interval to the correct SiP-value!
+
+    Public Sub InitiateNextTrial() Handles NewTrialTimer.Tick
+        NewTrialTimer.Stop()
+
+        CurrentSipTrial = CurrentSipTestMeasurement.GetNextTrial(SipMeasurementRandomizer)
+
+        If CurrentSipTrial Is Nothing Then
+            TestCompleted()
+            Exit Sub
+        End If
+
+        MsgBox(CurrentSipTrial.SpeechMaterialComponent.PrimaryStringRepresentation)
+
+        CurrentSipTrial.TrialResult = ResultResponseType.Correct
+
+        NewTrialTimer.Start()
 
     End Sub
 

@@ -27,17 +27,18 @@ Partial Class Form4
         Me.Button2 = New System.Windows.Forms.Button()
         Me.Button3 = New System.Windows.Forms.Button()
         Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
+        Me.SiP_Button = New System.Windows.Forms.Button()
+        Me.Button4 = New System.Windows.Forms.Button()
+        Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
         Me.CustomVariableSelectionControl1 = New SpeechTestFramework.CustomVariableSelectionControl()
         Me.CustomVariableSelectionControl2 = New SpeechTestFramework.CustomVariableSelectionControl()
-        Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
         Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
         Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem2 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
-        Me.SiP_Button = New System.Windows.Forms.Button()
-        Me.Button4 = New System.Windows.Forms.Button()
+        Me.Button5 = New System.Windows.Forms.Button()
         Me.FlowLayoutPanel1.SuspendLayout()
         CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.ResponseGuiItemTable1.SuspendLayout()
@@ -79,27 +80,23 @@ Partial Class Form4
         Me.FlowLayoutPanel1.Size = New System.Drawing.Size(342, 307)
         Me.FlowLayoutPanel1.TabIndex = 6
         '
-        'CustomVariableSelectionControl1
+        'SiP_Button
         '
-        Me.CustomVariableSelectionControl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.CustomVariableSelectionControl1.IsNumericVariable = True
-        Me.CustomVariableSelectionControl1.Location = New System.Drawing.Point(3, 3)
-        Me.CustomVariableSelectionControl1.Name = "CustomVariableSelectionControl1"
-        Me.CustomVariableSelectionControl1.NewVariableName = ""
-        Me.CustomVariableSelectionControl1.OriginalVariableName = ""
-        Me.CustomVariableSelectionControl1.Size = New System.Drawing.Size(682, 122)
-        Me.CustomVariableSelectionControl1.TabIndex = 0
+        Me.SiP_Button.Location = New System.Drawing.Point(289, 70)
+        Me.SiP_Button.Name = "SiP_Button"
+        Me.SiP_Button.Size = New System.Drawing.Size(75, 23)
+        Me.SiP_Button.TabIndex = 8
+        Me.SiP_Button.Text = "SiP-test"
+        Me.SiP_Button.UseVisualStyleBackColor = True
         '
-        'CustomVariableSelectionControl2
+        'Button4
         '
-        Me.CustomVariableSelectionControl2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-        Me.CustomVariableSelectionControl2.IsNumericVariable = True
-        Me.CustomVariableSelectionControl2.Location = New System.Drawing.Point(3, 131)
-        Me.CustomVariableSelectionControl2.Name = "CustomVariableSelectionControl2"
-        Me.CustomVariableSelectionControl2.NewVariableName = ""
-        Me.CustomVariableSelectionControl2.OriginalVariableName = ""
-        Me.CustomVariableSelectionControl2.Size = New System.Drawing.Size(682, 122)
-        Me.CustomVariableSelectionControl2.TabIndex = 1
+        Me.Button4.Location = New System.Drawing.Point(289, 112)
+        Me.Button4.Name = "Button4"
+        Me.Button4.Size = New System.Drawing.Size(75, 23)
+        Me.Button4.TabIndex = 9
+        Me.Button4.Text = "Button4"
+        Me.Button4.UseVisualStyleBackColor = True
         '
         'Audiogram1
         '
@@ -146,6 +143,28 @@ Partial Class Form4
         Me.Audiogram1.Ylog = False
         Me.Audiogram1.YlogBase = 10.0!
         Me.Audiogram1.Yreversed = True
+        '
+        'CustomVariableSelectionControl1
+        '
+        Me.CustomVariableSelectionControl1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.CustomVariableSelectionControl1.IsNumericVariable = True
+        Me.CustomVariableSelectionControl1.Location = New System.Drawing.Point(3, 3)
+        Me.CustomVariableSelectionControl1.Name = "CustomVariableSelectionControl1"
+        Me.CustomVariableSelectionControl1.NewVariableName = ""
+        Me.CustomVariableSelectionControl1.OriginalVariableName = ""
+        Me.CustomVariableSelectionControl1.Size = New System.Drawing.Size(682, 122)
+        Me.CustomVariableSelectionControl1.TabIndex = 0
+        '
+        'CustomVariableSelectionControl2
+        '
+        Me.CustomVariableSelectionControl2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.CustomVariableSelectionControl2.IsNumericVariable = True
+        Me.CustomVariableSelectionControl2.Location = New System.Drawing.Point(3, 131)
+        Me.CustomVariableSelectionControl2.Name = "CustomVariableSelectionControl2"
+        Me.CustomVariableSelectionControl2.NewVariableName = ""
+        Me.CustomVariableSelectionControl2.OriginalVariableName = ""
+        Me.CustomVariableSelectionControl2.Size = New System.Drawing.Size(682, 122)
+        Me.CustomVariableSelectionControl2.TabIndex = 1
         '
         'ResponseGuiItemTable1
         '
@@ -224,23 +243,14 @@ Partial Class Form4
         Me.ResponseGuiItem5.TabIndex = 4
         Me.ResponseGuiItem5.Text = "ResponseGuiItem5"
         '
-        'SiP_Button
+        'Button5
         '
-        Me.SiP_Button.Location = New System.Drawing.Point(289, 70)
-        Me.SiP_Button.Name = "SiP_Button"
-        Me.SiP_Button.Size = New System.Drawing.Size(75, 23)
-        Me.SiP_Button.TabIndex = 8
-        Me.SiP_Button.Text = "SiP-test"
-        Me.SiP_Button.UseVisualStyleBackColor = True
-        '
-        'Button4
-        '
-        Me.Button4.Location = New System.Drawing.Point(289, 112)
-        Me.Button4.Name = "Button4"
-        Me.Button4.Size = New System.Drawing.Size(75, 23)
-        Me.Button4.TabIndex = 9
-        Me.Button4.Text = "Button4"
-        Me.Button4.UseVisualStyleBackColor = True
+        Me.Button5.Location = New System.Drawing.Point(289, 157)
+        Me.Button5.Name = "Button5"
+        Me.Button5.Size = New System.Drawing.Size(75, 23)
+        Me.Button5.TabIndex = 10
+        Me.Button5.Text = "Button5"
+        Me.Button5.UseVisualStyleBackColor = True
         '
         'Form4
         '
@@ -248,6 +258,7 @@ Partial Class Form4
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button5)
         Me.Controls.Add(Me.Button4)
         Me.Controls.Add(Me.SiP_Button)
         Me.Controls.Add(Me.Audiogram1)
@@ -280,4 +291,5 @@ Partial Class Form4
     Friend WithEvents Audiogram1 As SpeechTestFramework.WinFormControls.Audiogram
     Friend WithEvents SiP_Button As Button
     Friend WithEvents Button4 As Button
+    Friend WithEvents Button5 As Button
 End Class
