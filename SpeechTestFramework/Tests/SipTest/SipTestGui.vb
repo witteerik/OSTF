@@ -790,7 +790,7 @@ Public Class SipTestGui
 
     Public Sub UpdateSignificanceTestResult(Result As String)
 
-        SignificanceTestResultLabel.Text = Result
+        SignificanceTestResult_RichTextBox.Text = Result
 
         'Also showing/hiding the StatAnalysisLabel depending on the information in Result
         If Result = "" Then
@@ -1028,30 +1028,30 @@ Public Class SipTestGui
         'Clears the Gui significance test result box if not exaclty two measurements descriptions are recieved. And the exits the sub
         If ComparedMeasurementGuiDescriptions.Count = 2 Then
 
+            Dim SummaryNameString As New List(Of String)
+
             Dim SummariesToCompare As New List(Of SipTestSummary)
             For Each Summary In TestHistorySummary.Measurements
                 If ComparedMeasurementGuiDescriptions.Contains(Summary.Description) Then
                     SummariesToCompare.Add(Summary)
+                    SummaryNameString.Add(Summary.Description)
                 End If
             Next
 
-            MsgBox("Implement BPAC!")
-            Dim Result = CriticalDifferences.IsNotSignificantlyDifferent(SummariesToCompare(0).TestLength, SummariesToCompare(1).TestLength,
-                                                                         SummariesToCompare(0).AverageScore, SummariesToCompare(1).AverageScore,
-                                                                         0.95, True)
+            Dim Result = CriticalDifferences.IsNotSignificantlyDifferent_PBAC(SummariesToCompare(0).GetAdjustedSuccessProbabilities, SummariesToCompare(1).GetAdjustedSuccessProbabilities, 0.95)
 
-
-            Dim Result = CriticalDifferences.IsNotSignificantlyDifferent(SummariesToCompare(0).TestLength, SummariesToCompare(1).TestLength,
-                                                                         SummariesToCompare(0).AverageScore, SummariesToCompare(1).AverageScore,
-                                                                         0.95, True)
             If Result = False Then
                 'Significant
-                UpdateSignificanceTestResult("The difference is statistically significant (p < 0.05)")
+                UpdateSignificanceTestResult("The difference (" & 100 * Math.Abs(SummariesToCompare(0).GetAverageScore - SummariesToCompare(1).GetAverageScore) & " % points) between " &
+                                             SummaryNameString(0) & " and " & SummaryNameString(1) & " is statistically significant (p < 0.05).")
             Else
                 'Not significant
-                UpdateSignificanceTestResult("The difference is NOT statistically significant (p < 0.05)")
+                UpdateSignificanceTestResult("The difference (" & 100 * Math.Abs(SummariesToCompare(0).GetAverageScore - SummariesToCompare(1).GetAverageScore) & " % points) between " &
+                                             SummaryNameString(0) & " and " & SummaryNameString(1) & " is NOT statistically significant (p < 0.05).")
             End If
 
+        Else
+            UpdateSignificanceTestResult("")
         End If
 
     End Sub

@@ -330,24 +330,24 @@
             ' Using traditional normal approximation without any correction.
 
             ' Calculating proportion correct
-            Dim p1 = Score1 / n1
-            Dim p2 = Score2 / n2
+            Dim p1 As Double = Score1 / n1
+            Dim p2 As Double = Score2 / n2
 
             ' Approximating the standard deviation of the binomial difference distribution given n1, n2, p1 and p2
-            Dim sd = Math.Sqrt(((p1 * (1 - p1)) / n1) + ((p2 * (1 - p2)) / n2))
+            Dim sd As Double = Math.Sqrt(((p1 * (1 - p1)) / n1) + ((p2 * (1 - p2)) / n2))
 
             ' Getting the standard score divided by two (Za_div_2) appropriate for the current confidence level
-            Dim Za_div_2 = MathNet.Numerics.Distributions.Normal.InvCDF(0, 1, 1 - ((1 - ConfidenceLevel) / 2))
+            Dim Za_div_2 As Double = MathNet.Numerics.Distributions.Normal.InvCDF(0, 1, 1 - ((1 - ConfidenceLevel) / 2))
             ' Equivalent R command: Za_div_2 = qnorm(1 - ((1 - ConfidenceLevel) / 2))
 
             ' Calculating the test value
-            Dim CriticalValue = Za_div_2 * sd
+            Dim CriticalValue As Double = Za_div_2 * sd
 
             ' Calculating estimated proportion correct difference
-            Dim d_Est = p1 - p2
+            Dim d_Est As Double = p1 - p2
 
-            Dim lowerCiBoundary = d_Est - CriticalValue
-            Dim upperCiBoundary = d_Est + CriticalValue
+            Dim lowerCiBoundary As Double = d_Est - CriticalValue
+            Dim upperCiBoundary As Double = d_Est + CriticalValue
 
             If lowerCiBoundary > 0 Or upperCiBoundary < 0 Then
 
@@ -369,28 +369,28 @@
             ' Using the Agresti-Caffo approximative method, as presented in Fagerland et al. 2015.
 
             ' Calculating adjusted ns
-            Dim n1_br = n1 + 2
-            Dim n2_br = n2 + 2
+            Dim n1_br As Double = n1 + 2
+            Dim n2_br As Double = n2 + 2
 
             ' Calculating adjusted proportion correct
-            Dim p1_br = (Score1 + 1) / n1_br
-            Dim p2_br = (Score2 + 1) / n2_br
+            Dim p1_br As Double = (Score1 + 1) / n1_br
+            Dim p2_br As Double = (Score2 + 1) / n2_br
 
             ' Approximating the standard deviation of the adjusted binomial difference distribution given n1_br, n2_br, p1_br and p2_br
             Dim sd = Math.Sqrt(((p1_br * (1 - p1_br)) / n1_br) + ((p2_br * (1 - p2_br)) / n2_br))
 
             ' Getting the standard score divided by two (Za_div_2) appropriate for the current confidence level
-            Dim Za_div_2 = MathNet.Numerics.Distributions.Normal.InvCDF(0, 1, 1 - ((1 - ConfidenceLevel) / 2))
+            Dim Za_div_2 As Double = MathNet.Numerics.Distributions.Normal.InvCDF(0, 1, 1 - ((1 - ConfidenceLevel) / 2))
             ' Equivalent R command: Za_div_2 = qnorm(1 - ((1 - ConfidenceLevel) / 2))
 
             ' Calculating the test value
-            Dim CriticalValue = Za_div_2 * sd
+            Dim CriticalValue As Double = Za_div_2 * sd
 
             ' Calculating estimated proportion correct difference
-            Dim d_Est = p1_br - p2_br
+            Dim d_Est As Double = p1_br - p2_br
 
-            Dim lowerCiBoundary = d_Est - CriticalValue
-            Dim upperCiBoundary = d_Est + CriticalValue
+            Dim lowerCiBoundary As Double = d_Est - CriticalValue
+            Dim upperCiBoundary As Double = d_Est + CriticalValue
 
             If lowerCiBoundary > 0 Or upperCiBoundary < 0 Then
 
@@ -406,6 +406,105 @@
         End If
 
     End Function
+
+    Public Function IsNotSignificantlyDifferent_PBAC(ByVal SP1() As Double, ByVal SP2() As Double, Optional ByVal ConfidenceLevel As Double = 0.95)
+
+        '  Using the Agresti-Caffo approximative method, as presented in Fagerland et al. 2015, 
+        '  modified to account for inequalities in difficulty level among the test items.
+
+        '   Extending the each SP with two trials with difficulty levels of 0.5 
+        SP1.ToList.AddRange({0.5, 0.5})
+        SP1 = SP1.ToArray
+
+        SP2.ToList.AddRange({0.5, 0.5})
+        SP2 = SP2.ToArray
+
+        '   # Calculating adjusted ns
+        Dim n1_br As Double = SP1.Length
+        Dim n2_br As Double = SP2.Length
+
+        '   Calculating the adjusted difference distribution standard deviation
+        Dim sum1 As Double = 0
+        For i = 0 To n1_br - 1
+            sum1 += SP1(i) * (1 - SP1(i))
+        Next
+
+        Dim sum2 As Double = 0
+        For i = 0 To n2_br - 1
+            sum2 += SP2(i) * (1 - SP2(i))
+        Next
+
+        Dim sd As Double = Math.Sqrt(sum1 / (n1_br ^ 2) + sum2 / (n2_br ^ 2))
+
+        ' Getting the standard score divided by two (Za_div_2) appropriate for the current confidence level
+        '   Za_div_2 <-  qnorm(1-((1-ConfidenceLevel)/2))
+        Dim Za_div_2 As Double = MathNet.Numerics.Distributions.Normal.InvCDF(0, 1, 1 - ((1 - ConfidenceLevel) / 2))
+
+        '  Calculating the test value
+        Dim CriticalValue As Double = Za_div_2 * sd
+
+        '  Calculating the adjusted proportion correct
+        Dim p1_br As Double = SP1.Average
+        Dim p2_br As Double = SP2.Average
+
+        '  Calculating estimated proportion correct difference
+        Dim d_Est As Double = p1_br - p2_br
+
+        Dim lowerCiBoundary As Double = d_Est - CriticalValue
+        Dim upperCiBoundary As Double = d_Est + CriticalValue
+
+        If lowerCiBoundary > 0 Or upperCiBoundary < 0 Then
+            '  Returns FALSE to indicate a significant difference in proportion correct responses
+            Return False
+        Else
+            '  Returns TRUE to indicate no significant difference in proportion correct responses
+            Return True
+        End If
+
+    End Function
+
+
+    ' IsNotSignificantlyDifferent_PBAC <- function(SP1, SP2, ConfidenceLevel){
+    '  
+    '   # Using the Agresti-Caffo approximative method, as presented in Fagerland et al. 2015, 
+    '   # modified to account for inequalities in difficulty level among the test items.
+    '   
+    '   # Extending the each SP with two trials with difficulty levels of 0.5 
+    '   SP1 <- c(SP1, 0.5, 0.5)
+    '   SP2 <- c(SP2, 0.5, 0.5)
+    '   
+    '   # Calculating adjusted ns
+    '   n1_br <- length(SP1)
+    '   n2_br <- length(SP2)
+    '   
+    '   #Calculating the adjusted difference distribution standard deviation
+    '   sd <- sqrt( sum(SP1*(1-SP1))/(n1_br^2) + sum(SP2*(1-SP2))/(n2_br^2) )
+    '   
+    '   # Getting the standard score divided by two (Za_div_2) appropriate for the current confidence level
+    '   Za_div_2 <-  qnorm(1-((1-ConfidenceLevel)/2))
+    '   
+    '   # Calculating the test value
+    '   CriticalValue <- Za_div_2 * sd 
+    '   
+    '   # Calculating the adjusted proportion correct
+    '   p1_br <- mean(SP1)
+    '   p2_br <- mean(SP2)
+    '   
+    '   # Calculating estimated proportion correct difference
+    '   d_Est <- p1_br - p2_br
+    '   
+    '   lowerCiBoundary <-  d_Est - CriticalValue
+    '   upperCiBoundary <-  d_Est + CriticalValue
+    '   
+    '   if (lowerCiBoundary > 0 | upperCiBoundary < 0) {
+    '     # Returns FALSE to indicate a significant difference in proportion correct responses
+    '     return(FALSE)
+    '   }else{
+    '     # Returns TRUE to indicate no significant difference in proportion correct responses
+    '     return(TRUE)
+    '   }
+    '   
+    ' }
 
 
     Public Function pmax(ByVal X As Double(), ByVal Limit As Double) As Double()
@@ -432,7 +531,7 @@
         Return Y
     End Function
 
-    Public Function getAdjustedSuccessProbabilities(ByVal X As Double(), ByVal TargetScore As Double, Optional tol As Double = 10 ^ -14, Optional floor As Double = 1 / 3, Optional ByVal MaxIterations As Integer = 10000) As Double()
+    Public Function AdjustSuccessProbabilities(ByVal X As Double(), ByVal TargetScore As Double, Optional tol As Double = 10 ^ -14, Optional floor As Double = 1 / 3, Optional ByVal MaxIterations As Integer = 10000) As Double()
 
         If TargetScore < floor Then
             Return Utils.Repeat(TargetScore, X.Length)

@@ -55,17 +55,6 @@ Namespace SipTest
             Return Correct / Total
         End Function
 
-        Public Sub CalculateAdjustedSuccessProbabilities()
-
-            Dim LocalAverageScore = GetAverageScore()
-            Dim UnadjustedEstimates As Double() = GetEstimatedSuccessProbabilities()
-            Dim AdjustedEstimates = SpeechTestFramework.CriticalDifferences.getAdjustedSuccessProbabilities(UnadjustedEstimates, LocalAverageScore, , 1 / 3)
-            For n = 0 To Me.Count - 1
-                Me(n).AdjustedSuccessProbability = AdjustedEstimates(n)
-            Next
-
-        End Sub
-
         Public Function GetEstimatedSuccessProbabilities() As Double()
             Dim OutputList As New List(Of Double)
             For n = 0 To Me.Count - 1
@@ -73,6 +62,26 @@ Namespace SipTest
             Next
             Return OutputList.ToArray
         End Function
+
+        Public Sub CalculateAdjustedSuccessProbabilities()
+
+            Dim LocalAverageScore = GetAverageScore()
+            Dim UnadjustedEstimates As Double() = GetEstimatedSuccessProbabilities()
+            Dim AdjustedEstimates = SpeechTestFramework.CriticalDifferences.AdjustSuccessProbabilities(UnadjustedEstimates, LocalAverageScore, , 1 / 3)
+            For n = 0 To Me.Count - 1
+                Me(n).AdjustedSuccessProbability = AdjustedEstimates(n)
+            Next
+
+        End Sub
+
+        Public Function GetAdjustedSuccessProbabilities() As Double()
+            Dim OutputList As New List(Of Double)
+            For n = 0 To Me.Count - 1
+                OutputList.Add(Me(n).AdjustedSuccessProbability)
+            Next
+            Return OutputList.ToArray
+        End Function
+
 
         <Serializable>
         Public Class SummarizedTrial

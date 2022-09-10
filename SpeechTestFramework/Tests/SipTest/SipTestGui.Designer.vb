@@ -35,7 +35,6 @@ Partial Class SipTestGui
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel8 = New System.Windows.Forms.TableLayoutPanel()
         Me.StatAnalysisLabel = New System.Windows.Forms.Label()
-        Me.SignificanceTestResultLabel = New System.Windows.Forms.Label()
         Me.TableLayoutPanel9 = New System.Windows.Forms.TableLayoutPanel()
         Me.SaveButton = New System.Windows.Forms.Button()
         Me.OpenButton = New System.Windows.Forms.Button()
@@ -108,6 +107,7 @@ Partial Class SipTestGui
         Me.BluetoothDevicesComboBox = New System.Windows.Forms.ComboBox()
         Me.ParticipantLockButton = New System.Windows.Forms.Button()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.SignificanceTestResult_RichTextBox = New System.Windows.Forms.RichTextBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -180,7 +180,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel5.RowCount = 4
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 137.0!))
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50.0!))
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
@@ -189,16 +189,17 @@ Partial Class SipTestGui
         '
         'TableLayoutPanel8
         '
-        Me.TableLayoutPanel8.ColumnCount = 2
-        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22.35872!))
-        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 77.64128!))
+        Me.TableLayoutPanel8.ColumnCount = 1
+        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30.71253!))
         Me.TableLayoutPanel8.Controls.Add(Me.StatAnalysisLabel, 0, 0)
-        Me.TableLayoutPanel8.Controls.Add(Me.SignificanceTestResultLabel, 1, 0)
-        Me.TableLayoutPanel8.Location = New System.Drawing.Point(3, 474)
+        Me.TableLayoutPanel8.Controls.Add(Me.SignificanceTestResult_RichTextBox, 0, 1)
+        Me.TableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel8.Location = New System.Drawing.Point(3, 367)
         Me.TableLayoutPanel8.Name = "TableLayoutPanel8"
-        Me.TableLayoutPanel8.RowCount = 1
+        Me.TableLayoutPanel8.RowCount = 2
+        Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
         Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel8.Size = New System.Drawing.Size(407, 24)
+        Me.TableLayoutPanel8.Size = New System.Drawing.Size(407, 131)
         Me.TableLayoutPanel8.TabIndex = 2
         '
         'StatAnalysisLabel
@@ -206,20 +207,10 @@ Partial Class SipTestGui
         Me.StatAnalysisLabel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.StatAnalysisLabel.Location = New System.Drawing.Point(3, 0)
         Me.StatAnalysisLabel.Name = "StatAnalysisLabel"
-        Me.StatAnalysisLabel.Size = New System.Drawing.Size(85, 24)
+        Me.StatAnalysisLabel.Size = New System.Drawing.Size(401, 20)
         Me.StatAnalysisLabel.TabIndex = 0
         Me.StatAnalysisLabel.Text = "Statistik analys:"
-        Me.StatAnalysisLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        '
-        'SignificanceTestResultLabel
-        '
-        Me.SignificanceTestResultLabel.AutoSize = True
-        Me.SignificanceTestResultLabel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SignificanceTestResultLabel.Location = New System.Drawing.Point(94, 0)
-        Me.SignificanceTestResultLabel.Name = "SignificanceTestResultLabel"
-        Me.SignificanceTestResultLabel.Size = New System.Drawing.Size(310, 24)
-        Me.SignificanceTestResultLabel.TabIndex = 1
-        Me.SignificanceTestResultLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.StatAnalysisLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'TableLayoutPanel9
         '
@@ -319,7 +310,7 @@ Partial Class SipTestGui
         DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
         Me.CurrentSessionResults_DataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
         Me.CurrentSessionResults_DataGridView.RowHeadersVisible = False
-        Me.CurrentSessionResults_DataGridView.Size = New System.Drawing.Size(407, 444)
+        Me.CurrentSessionResults_DataGridView.Size = New System.Drawing.Size(407, 337)
         Me.CurrentSessionResults_DataGridView.TabIndex = 6
         '
         'TestDescriptionColumnSession
@@ -1165,6 +1156,16 @@ Partial Class SipTestGui
         Me.Panel1.Size = New System.Drawing.Size(1292, 14)
         Me.Panel1.TabIndex = 2
         '
+        'SignificanceTestResult_RichTextBox
+        '
+        Me.SignificanceTestResult_RichTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SignificanceTestResult_RichTextBox.Location = New System.Drawing.Point(3, 23)
+        Me.SignificanceTestResult_RichTextBox.Name = "SignificanceTestResult_RichTextBox"
+        Me.SignificanceTestResult_RichTextBox.ReadOnly = True
+        Me.SignificanceTestResult_RichTextBox.Size = New System.Drawing.Size(401, 105)
+        Me.SignificanceTestResult_RichTextBox.TabIndex = 1
+        Me.SignificanceTestResult_RichTextBox.Text = ""
+        '
         'SipTestGui
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1177,7 +1178,6 @@ Partial Class SipTestGui
         Me.TableLayoutPanel2.ResumeLayout(False)
         Me.TableLayoutPanel5.ResumeLayout(False)
         Me.TableLayoutPanel8.ResumeLayout(False)
-        Me.TableLayoutPanel8.PerformLayout()
         Me.TableLayoutPanel9.ResumeLayout(False)
         CType(Me.CurrentSessionResults_DataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TestSettings_TableLayoutPanel.ResumeLayout(False)
@@ -1227,7 +1227,6 @@ Partial Class SipTestGui
     Friend WithEvents TableLayoutPanel22 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel23 As Windows.Forms.TableLayoutPanel
     Friend WithEvents StatAnalysisLabel As Windows.Forms.Label
-    Friend WithEvents SignificanceTestResultLabel As Windows.Forms.Label
     Friend WithEvents TableLayoutPanel20 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel21 As Windows.Forms.TableLayoutPanel
     Friend WithEvents Label14 As Windows.Forms.Label
@@ -1286,4 +1285,5 @@ Partial Class SipTestGui
     Friend WithEvents TableLayoutPanel11 As Windows.Forms.TableLayoutPanel
     Friend WithEvents CreateNewGain_Button As Windows.Forms.Button
     Friend WithEvents AddFig6Gain_Button As Windows.Forms.Button
+    Friend WithEvents SignificanceTestResult_RichTextBox As Windows.Forms.RichTextBox
 End Class
