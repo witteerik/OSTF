@@ -1394,7 +1394,14 @@ Public Class SpeechMaterialComponent
 
     End Function
 
-    Public Function IsContrastingComponent(Optional ByVal ComparisonVariableName As String = "Transcription") As Boolean
+    ''' <summary>
+    ''' Determines if a component contrasts to all other cousin components (given some restictions).
+    ''' </summary>
+    ''' <param name="ComparisonVariableName"></param>
+    ''' <param name="NumberOfContrasts">Returns the number of contrasting component (including the component itself), given that the returns value is True.</param>
+    ''' <returns></returns>
+    Public Function IsContrastingComponent(Optional ByVal ComparisonVariableName As String = "Transcription",
+                                           Optional ByRef NumberOfContrasts As Integer? = Nothing) As Boolean
 
         'Gets the ancestor component at the level from which the data is supposed to be compared
         Dim ViewPointComponent = Me.GetParentOfFirstNonSequentialAncestorWithSiblings()
@@ -1429,7 +1436,13 @@ Public Class SpeechMaterialComponent
         Next
 
         'Comparing the components
-        Return ContainsOnlyContrastingComponents(ComparisonCousins, ComparisonVariableName)
+        Dim OnlyContrastingComponents = ContainsOnlyContrastingComponents(ComparisonCousins, ComparisonVariableName)
+
+        If OnlyContrastingComponents = True Then
+            NumberOfContrasts = ComparisonCousins.Count
+        End If
+
+        Return OnlyContrastingComponents
 
     End Function
 

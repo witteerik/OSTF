@@ -204,6 +204,8 @@ Namespace SipTest
 
             'Setting levels
 
+            'Adding the trial to the history
+            TestTrialHistory.Add(NextTestTrial)
 
             Return NextTestTrial
 
@@ -354,12 +356,15 @@ Namespace SipTest
                         TrialSummary.Result = -1
                 End Select
 
+                Dim ResponseAlternatives As Integer = 0
+                TestTrial.SpeechMaterialComponent.IsContrastingComponent(, ResponseAlternatives)
+                TrialSummary.ResponseAlternatives = ResponseAlternatives
+
                 NewMeasurementSummary.Add(TrialSummary)
 
             Next
 
             NewMeasurementSummary.CalculateAdjustedSuccessProbabilities()
-
 
             Return NewMeasurementSummary
 

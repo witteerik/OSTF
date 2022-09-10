@@ -58,10 +58,11 @@ Namespace SipTest
         Public Sub CalculateAdjustedSuccessProbabilities()
 
             Dim LocalAverageScore = GetAverageScore()
-
             Dim UnadjustedEstimates As Double() = GetEstimatedSuccessProbabilities()
-
-
+            Dim AdjustedEstimates = SpeechTestFramework.CriticalDifferences.getAdjustedSuccessProbabilities(UnadjustedEstimates, LocalAverageScore, , 1 / 3)
+            For n = 0 To Me.Count - 1
+                Me(n).AdjustedSuccessProbability = AdjustedEstimates(n)
+            Next
 
         End Sub
 

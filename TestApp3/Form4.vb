@@ -267,7 +267,7 @@
 
         Dim X As Double() = {0.41, 0.42, 0.5, 0.44, 0.39, 0.4, 0.6, 0.8, 0.9, 0.99}
 
-        Dim Y = SpeechTestFramework.CriticalDifferences.getAdjustedSuccessProbabilities(X, 0.5)
+        Dim Y = SpeechTestFramework.CriticalDifferences.getAdjustedSuccessProbabilities(X, 0.9999999999)
 
         Dim Z = X.Average
         Dim z2 = Y.Average

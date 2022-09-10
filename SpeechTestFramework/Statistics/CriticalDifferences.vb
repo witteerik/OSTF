@@ -432,7 +432,7 @@
         Return Y
     End Function
 
-    Public Function getAdjustedSuccessProbabilities(ByVal X As Double(), ByVal TargetScore As Double, Optional tol As Double = 10 ^ -14, Optional floor As Double = 1 / 3) As Double()
+    Public Function getAdjustedSuccessProbabilities(ByVal X As Double(), ByVal TargetScore As Double, Optional tol As Double = 10 ^ -14, Optional floor As Double = 1 / 3, Optional ByVal MaxIterations As Integer = 10000) As Double()
 
         If TargetScore < floor Then
             Return Utils.Repeat(TargetScore, X.Length)
@@ -448,19 +448,79 @@
         ' The code below implements equation 10
 
 
-        'Here we should use a REAL optimization algorithm (as in Witte's thesis)
-        'C.f.   a_optim <- optimize(AdjSP_OptimF, c(-100, 100), tol = tol, X = X, TargetScore = TargetScore)
+        '(Note that this is not the optimization used in the R-code of Witte's thesis: I.E.   a_optim <- optimize(AdjSP_OptimF, c(-100, 100), tol = tol, X = X, TargetScore = TargetScore) )
+        Dim CurrentStep As Double = 200
+        Dim CurrentSampleX As Double = -100
+        Dim CurrentSlopeWidth As Double = tol
+        Dim Point1X As Double
+        Dim Point2X As Double
 
-        Dim AList As New List(Of Double)
-        Dim ValueList As New List(Of Double)
-        For a As Double = -100 To 100 Step 0.001
-            AList.Add(a)
-            ValueList.Add(AdjSP_OptimF(a, X, TargetScore, floor))
-        Next
+        Dim Iterations As Integer = 0
 
-        Dim a_optim_minimum As Double = AList(ValueList.IndexOf(ValueList.Min))
+        Do
 
-        Dim Y = AdjSP_F(a_optim_minimum, X, floor)
+            Iterations += 1
+
+            If Iterations > MaxIterations Then Exit Do
+
+            Point1X = CurrentSampleX - CurrentSlopeWidth / 2
+            Point2X = CurrentSampleX + CurrentSlopeWidth / 2
+
+            Dim Point1Y As Double = AdjSP_OptimF(Point1X, X, TargetScore, floor)
+            Dim Point2Y As Double = AdjSP_OptimF(Point2X, X, TargetScore, floor)
+
+            'Dim AverageSampleValue As Double = (Point1Y + Point2Y) / 2
+            Dim DeltaX As Double = Point2X - Point1X
+            Dim DeltaY As Double = Point2Y - Point1Y
+
+            If DeltaY = 0 Then
+                CurrentSlopeWidth += CurrentStep / 10
+                Continue Do
+            End If
+
+            Dim SampleSlope As Double = DeltaY / DeltaX
+
+            If CurrentStep < tol Then
+                Exit Do
+            End If
+
+            If SampleSlope < 0 Then
+                CurrentSlopeWidth = tol
+                CurrentSampleX += CurrentStep
+                CurrentStep /= 2
+            ElseIf SampleSlope > 0 Then
+                CurrentSlopeWidth = tol
+                CurrentSampleX -= CurrentStep
+                CurrentStep /= 2
+            Else
+                'This point should never be reached, but it's kept here anyway just in case...
+                CurrentSlopeWidth += CurrentStep / 10
+            End If
+
+        Loop
+
+        Console.WriteLine(String.Concat("Detected function minimum of " & AdjSP_OptimF(CurrentSampleX, X, TargetScore, floor) &
+                                        " within the range " & Point1X & " to " & Point2X &
+                                        " in: ", Iterations & " iterations"))
+
+
+        Dim Y = AdjSP_F(CurrentSampleX, X, floor)
+
+        If Math.Abs(TargetScore - Y.Average) > tol Then
+            MsgBox("Warning! Optimization algorithm failure! Average adjusted score deviates from the target score by " & 100 * Math.Abs(TargetScore - Y.Average) & " percentage points.", MsgBoxStyle.Exclamation, "Critical difference calculations!")
+        End If
+
+
+        'Dim AList As New List(Of Double)
+        'Dim ValueList As New List(Of Double)
+        'For a As Double = -100 To 100 Step 0.001
+        '    AList.Add(a)
+        '    ValueList.Add(AdjSP_OptimF(a, X, TargetScore, floor))
+        'Next
+
+        'Dim a_optim_minimum As Double = AList(ValueList.IndexOf(ValueList.Min))
+
+        'Dim Y = AdjSP_F(a_optim_minimum, X, floor)
 
         ' Returns the adjusted probability vector
         Return Y
