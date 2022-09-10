@@ -190,8 +190,8 @@ Partial Class SipTestGui
         'TableLayoutPanel8
         '
         Me.TableLayoutPanel8.ColumnCount = 2
-        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22.35872!))
+        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 77.64128!))
         Me.TableLayoutPanel8.Controls.Add(Me.StatAnalysisLabel, 0, 0)
         Me.TableLayoutPanel8.Controls.Add(Me.SignificanceTestResultLabel, 1, 0)
         Me.TableLayoutPanel8.Location = New System.Drawing.Point(3, 474)
@@ -206,7 +206,7 @@ Partial Class SipTestGui
         Me.StatAnalysisLabel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.StatAnalysisLabel.Location = New System.Drawing.Point(3, 0)
         Me.StatAnalysisLabel.Name = "StatAnalysisLabel"
-        Me.StatAnalysisLabel.Size = New System.Drawing.Size(197, 24)
+        Me.StatAnalysisLabel.Size = New System.Drawing.Size(85, 24)
         Me.StatAnalysisLabel.TabIndex = 0
         Me.StatAnalysisLabel.Text = "Statistik analys:"
         Me.StatAnalysisLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight
@@ -215,9 +215,9 @@ Partial Class SipTestGui
         '
         Me.SignificanceTestResultLabel.AutoSize = True
         Me.SignificanceTestResultLabel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SignificanceTestResultLabel.Location = New System.Drawing.Point(206, 0)
+        Me.SignificanceTestResultLabel.Location = New System.Drawing.Point(94, 0)
         Me.SignificanceTestResultLabel.Name = "SignificanceTestResultLabel"
-        Me.SignificanceTestResultLabel.Size = New System.Drawing.Size(198, 24)
+        Me.SignificanceTestResultLabel.Size = New System.Drawing.Size(310, 24)
         Me.SignificanceTestResultLabel.TabIndex = 1
         Me.SignificanceTestResultLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '

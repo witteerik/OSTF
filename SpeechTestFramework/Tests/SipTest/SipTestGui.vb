@@ -1026,11 +1026,31 @@ Public Class SipTestGui
     Sub CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String))
 
         'Clears the Gui significance test result box if not exaclty two measurements descriptions are recieved. And the exits the sub
-        If ComparedMeasurementGuiDescriptions.Count <> 2 Then
+        If ComparedMeasurementGuiDescriptions.Count = 2 Then
+
+            Dim SummariesToCompare As New List(Of SipTestSummary)
+            For Each Summary In TestHistorySummary.Measurements
+                If ComparedMeasurementGuiDescriptions.Contains(Summary.Description) Then
+                    SummariesToCompare.Add(Summary)
+                End If
+            Next
+
+            MsgBox("Implement BPAC!")
+            Dim Result = CriticalDifferences.IsNotSignificantlyDifferent(SummariesToCompare(0).TestLength, SummariesToCompare(1).TestLength,
+                                                                         SummariesToCompare(0).AverageScore, SummariesToCompare(1).AverageScore,
+                                                                         0.95, True)
 
 
-
-            UpdateSignificanceTestResult("")
+            Dim Result = CriticalDifferences.IsNotSignificantlyDifferent(SummariesToCompare(0).TestLength, SummariesToCompare(1).TestLength,
+                                                                         SummariesToCompare(0).AverageScore, SummariesToCompare(1).AverageScore,
+                                                                         0.95, True)
+            If Result = False Then
+                'Significant
+                UpdateSignificanceTestResult("The difference is statistically significant (p < 0.05)")
+            Else
+                'Not significant
+                UpdateSignificanceTestResult("The difference is NOT statistically significant (p < 0.05)")
+            End If
 
         End If
 
