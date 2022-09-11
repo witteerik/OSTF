@@ -11,7 +11,12 @@ Namespace SipTest
 
     Public Class SipMeasurement
 
-        Public Property TestDescription As String = ""
+        Public Property Description As String = ""
+
+        Public Property ParticipantID As String
+
+        Public Property MeasurementDateTime As DateTime
+
 
         Public Property ParentTestSpecification As TestSpecification
 
@@ -25,7 +30,7 @@ Namespace SipTest
         ''' Stores references to SiP-test trials in the order that they were presented.
         ''' </summary>
         ''' <returns></returns>
-        Public Property TestTrialHistory As New List(Of SipTrial)
+        Public Property ObservedTrials As New List(Of SipTrial)
 
 
         Public Property PlannedTrials As New List(Of SipTrial)
@@ -39,19 +44,12 @@ Namespace SipTest
 
         Public Property SelectedAudiogramData As AudiogramData = Nothing
         Public Property HearingAidGain As HearingAidGainData = Nothing
-        Public Property ReferenceLevel As Nullable(Of Double) = Nothing
+        Public ReadOnly Property Participant As Participant
 
-        Public Property SelectedMediaSetName As String = "" ' If not selected, random media sets can be assigned to different trials
-
-        Public Property SelectedPresetName As String = ""
-
-        Public ReadOnly Property Patient As Participant
-
-        Public Property SelectedPnr As Nullable(Of Double) = Nothing
 
         Friend Randomizer As Random
 
-        Public Sub New(ByRef Patient As Participant, ByRef ParentTestSpecification As TestSpecification, Optional RandomSeed As Integer? = Nothing)
+        Public Sub New(ByRef Participant As Participant, ByRef ParentTestSpecification As TestSpecification, Optional RandomSeed As Integer? = Nothing)
 
             If RandomSeed.HasValue = True Then
                 Randomizer = New Random(RandomSeed)
@@ -59,11 +57,8 @@ Namespace SipTest
                 Randomizer = New Random
             End If
 
-            Me.Patient = Patient
+            Me.Participant = Participant
             Me.ParentTestSpecification = ParentTestSpecification
-
-            'Setting a default preset (the first in the preset list)
-            Me.SelectedPresetName = Me.ParentTestSpecification.SpeechMaterial.Presets.Keys(0)
 
         End Sub
 
@@ -72,9 +67,12 @@ Namespace SipTest
 
 
 
-        Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, Optional ByVal RandomSeed As Integer? = Nothing)
+        Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal PresetName As String, ByVal MediaSetName As String, Optional ByVal RandomSeed As Integer? = Nothing)
 
             ClearTrials()
+
+            'MediaSetName ' TODO: should we use the name or the mediaset in the GUI/Measurment?
+            'TODO: If media set in not selected we could ranomize between the available ones...
 
             Dim Adaptive As Boolean = True
             If Adaptive = False Then
@@ -83,16 +81,16 @@ Namespace SipTest
 
                 For r = 1 To TestProcedure.LengthReduplications
 
-                    For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(SelectedPresetName)
+                    For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(PresetName)
 
                         Dim NewTestUnit = New SiPTestUnit(Me)
 
                         Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
                         NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
-                        If SelectedMediaSetName <> "" Then
+                        If MediaSetName <> "" Then
                             'Adding from the selected media set
-                            NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(SelectedMediaSetName))
+                            NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName))
                             TestUnits.Add(NewTestUnit)
                         Else
                             'Adding from random media sets
@@ -127,16 +125,16 @@ Namespace SipTest
 
                 For r = 1 To TestProcedure.LengthReduplications
 
-                    For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(SelectedPresetName)
+                    For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(PresetName)
 
                         Dim NewTestUnit = New SiPTestUnit(Me)
 
                         Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
                         NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
-                        If SelectedMediaSetName <> "" Then
+                        If MediaSetName <> "" Then
                             'Adding from the selected media set
-                            NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(SelectedMediaSetName))
+                            NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName))
                             TestUnits.Add(NewTestUnit)
                         Else
                             'Adding from random media sets
@@ -179,11 +177,21 @@ Namespace SipTest
         ''' </summary>
         Public Sub SetLevels(ByVal ReferenceLevel As Double, ByVal PNR As Double)
 
-            For Each TestUnit In Me.TestUnits
-                For Each TestTrial In TestUnit.PlannedTrials
-                    TestTrial.SetLevels(ReferenceLevel, PNR)
-                Next
-            Next
+            Select Case TestProcedure.AdaptiveType
+                Case AdaptiveTypes.Fixed
+
+                    'Setting the same reference level and PNR to all test trials
+                    For Each TestUnit In Me.TestUnits
+                        For Each TestTrial In TestUnit.PlannedTrials
+                            TestTrial.SetLevels(ReferenceLevel, PNR)
+                        Next
+                    Next
+
+                Case Else
+                    Throw New NotImplementedException
+
+            End Select
+
 
         End Sub
 
@@ -205,7 +213,7 @@ Namespace SipTest
             'Setting levels
 
             'Adding the trial to the history
-            TestTrialHistory.Add(NextTestTrial)
+            ObservedTrials.Add(NextTestTrial)
 
             Return NextTestTrial
 
@@ -238,27 +246,31 @@ Namespace SipTest
 
             Dim Output As New GuiTableData
 
-            Dim LastPresentedTrialIndex As Integer = 0
-            For i = 0 To PlannedTrials.Count - 1
 
-                Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation)
-
-                If PlannedTrials(i).ObservedResponse IsNot Nothing Then
-                    Output.Responses.Add(PlannedTrials(i).ObservedResponse.ObservedResponseSpelling)
-                Else
-                    Output.Responses.Add("")
-                End If
-
-                Output.ResultResponseTypes.Add(PlannedTrials(i).GetResponseType)
-
-                If PlannedTrials(i).GetResponseType <> ResponseType.NotPresented Then
-                    LastPresentedTrialIndex = i
-                End If
-
+            'Adding already tested trials
+            For i = 0 To ObservedTrials.Count - 1
+                Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation)
+                Output.Responses.Add(ObservedTrials(i).Response)
+                Output.ResponseType.Add(ObservedTrials(i).Result)
             Next
 
-            Output.SelectionRow = LastPresentedTrialIndex
-            Output.FirstRowToDisplayInScrollmode = Math.Max(0, LastPresentedTrialIndex - 7)
+            'Adding trials yet to be tested
+            For i = 0 To PlannedTrials.Count - 1
+                Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation)
+                Output.Responses.Add("")
+                Output.ResponseType.Add(ResponseType.Missing)
+            Next
+
+            If ObservedTrials.Count > 0 Then
+                Dim LastPresentedTrialIndex As Integer = ObservedTrials.Count - 1
+                Output.SelectionRow = LastPresentedTrialIndex
+                Output.FirstRowToDisplayInScrollmode = Math.Max(0, LastPresentedTrialIndex - 7)
+
+            Else
+
+                Output.SelectionRow = Nothing
+                Output.FirstRowToDisplayInScrollmode = Nothing
+            End If
 
             Return Output
 
@@ -267,7 +279,7 @@ Namespace SipTest
         Public Class GuiTableData
             Public TestWords As New List(Of String)
             Public Responses As New List(Of String)
-            Public ResultResponseTypes As New List(Of SipTest.ResultResponseType)
+            Public ResponseType As New List(Of SipTest.ResponseType)
             Public UpdateRow As Integer? = Nothing
             Public SelectionRow As Integer? = Nothing
             Public FirstRowToDisplayInScrollmode As Integer? = Nothing
@@ -280,30 +292,22 @@ Namespace SipTest
 
         Public Property EstimatedMeanScore As Double
 
-        Public Function CalculateEstimatedPsychometricFunction(Optional ByVal PNRs As List(Of Double) = Nothing) As SortedList(Of Double, Tuple(Of Double, Double, Double))
+        Public Function CalculateEstimatedPsychometricFunction(ByVal ReferenceLevel As Double, Optional ByVal PNRs As List(Of Double) = Nothing) As SortedList(Of Double, Tuple(Of Double, Double, Double))
 
             If PNRs Is Nothing Then
                 PNRs = New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
             End If
-
-            'Stores the original PNR
-            Dim OriginalPNR As Double? = Me.SelectedPnr
 
             'Pnr, Estimate, lower critical boundary, upper critical boundary
             Dim Output As New SortedList(Of Double, Tuple(Of Double, Double, Double))
 
             For Each pnr In PNRs
 
-                Me.SetLevels(Me.ReferenceLevel, pnr)
+                Me.SetLevels(ReferenceLevel, pnr)
 
                 Output.Add(pnr, New Tuple(Of Double, Double, Double)(Me.CalculateEstimatedMeanScore(), 0, 0))
 
             Next
-
-            'Resets the PNR
-            If OriginalPNR.HasValue Then
-                Me.SetLevels(Me.ReferenceLevel, OriginalPNR)
-            End If
 
             Return Output
 
@@ -337,80 +341,228 @@ Namespace SipTest
 
 #Region "TestResultSummary"
 
-        Public Function GetMeasurementSummary() As SipTestSummary
+        Public ReadOnly Property ObservedTestLength As Integer
+            Get
+                Return Me.ObservedTrials.Count
+            End Get
+        End Property
 
-            Dim NewMeasurementSummary As New SipTestSummary(Me.TestDescription)
+        Public Function PercentCorrect() As String
+            Dim LocalAverageScore = GetAverageObservedScore()
 
-            For Each TestTrial In TestTrialHistory
-
-                Dim TrialSummary = New SipTestSummary.SummarizedTrial
-
-                TrialSummary.EstimatedSuccessProbability = TestTrial.EstimatedSuccessProbability(True)
-
-                Select Case TestTrial.GetResponseType
-                    Case ResultResponseType.Correct
-                        TrialSummary.Result = 1
-                    Case ResultResponseType.Incorrect
-                        TrialSummary.Result = 0
-                    Case ResponseType.Missing
-                        TrialSummary.Result = -1
-                End Select
-
-                Dim ResponseAlternatives As Integer = 0
-                TestTrial.SpeechMaterialComponent.IsContrastingComponent(, ResponseAlternatives)
-                TrialSummary.ResponseAlternatives = ResponseAlternatives
-
-                NewMeasurementSummary.Add(TrialSummary)
-
-            Next
-
-            NewMeasurementSummary.CalculateAdjustedSuccessProbabilities()
-
-            Return NewMeasurementSummary
-
+            If LocalAverageScore = -1 Then
+                Return ""
+            Else
+                Return Math.Round(100 * LocalAverageScore)
+            End If
         End Function
 
-#End Region
 
+        Public Sub SummarizeTestResults()
 
-    End Class
+            'Preparing for significance testing
+            Me.CalculateAdjustedSuccessProbabilities()
 
-    Public Class SipTestResponse
-
-        Public ReadOnly Property CreateDate As DateTime
-        Public ReadOnly Property Correct As Boolean
-        Public ReadOnly Property ObservedResponseSpelling As String
-        Public ReadOnly Property CorrectResponseSpelling As String
-
-        ''' <summary>
-        ''' Creates a new instance of a SipTestResponse.
-        ''' </summary>
-        ''' <param name="ObservedResponseSpelling">The spelling of the observed response. Pass an empty string for missing responses.</param>
-        ''' <param name="CorrectResponseSpelling">The spelling of the correct response. </param>
-        Public Sub New(ByVal ObservedResponseSpelling As String, ByVal CorrectResponseSpelling As String)
-            'Storing the date and time when the instance of this SipTestResult was created
-            CreateDate = DateTime.Now
-            Me.ObservedResponseSpelling = ObservedResponseSpelling
-            Me.CorrectResponseSpelling = CorrectResponseSpelling
-
-            'Setting the value of Correct
-            If ObservedResponseSpelling = CorrectResponseSpelling Then
-                Correct = True
-            End If
+            'TODO: Perhaps export/save data here?
 
         End Sub
 
+        Public Sub CalculateAdjustedSuccessProbabilities()
+
+            Dim UnadjustedEstimates As New List(Of Double)
+            Dim Floors(Me.ObservedTrials.Count - 1) As Double
+
+            For i = 0 To Me.ObservedTrials.Count - 1
+                'Get the unadjusted trial success probability estimates
+                UnadjustedEstimates.Add(Me.ObservedTrials(i).EstimatedSuccessProbability(True))
+
+                'Gets the number of response alternatives
+                Dim ResponseAlternativeCount As Integer = 0
+                Me.ObservedTrials(i).SpeechMaterialComponent.IsContrastingComponent(, ResponseAlternativeCount)
+                Me.ObservedTrials(i).ResponseAlternativeCount = ResponseAlternativeCount
+
+                'Calulates the floors of the psychometric functions (of each trial) based on the number of response alternatives
+                If ResponseAlternativeCount > 0 Then
+                    Floors(i) = 1 / ResponseAlternativeCount
+                Else
+                    Floors(i) = 0
+                End If
+            Next
+
+            'Gets the target average score to adjust the unadjusted estimates to
+            Dim LocalAverageScore = GetAverageObservedScore()
+
+            'Creates adjusted estimates
+            Dim AdjustedEstimates = SpeechTestFramework.CriticalDifferences.AdjustSuccessProbabilities(UnadjustedEstimates.ToArray, LocalAverageScore, Floors)
+            For n = 0 To Me.ObservedTrials.Count - 1
+                Me.ObservedTrials(n).AdjustedSuccessProbability = AdjustedEstimates(n)
+            Next
+
+        End Sub
+
+
         ''' <summary>
-        ''' Determines if the observed response is a missing response
+        ''' Returns the average score, counting missing responses as correct every ResponseAlternativeCount:th time. Returns -1 if no tested trials exist.
         ''' </summary>
         ''' <returns></returns>
-        Public Function IsMissingResponse() As Boolean
-            If ObservedResponseSpelling = "" Then
-                Return True
-            Else
-                Return False
-            End If
+        Public Function GetAverageObservedScore() As Double
+
+            If Me.ObservedTrials.Count = 0 Then Return -1
+
+            Dim Correct As Integer = 0
+            Dim Total As Integer = Me.ObservedTrials.Count
+            For n = 0 To Me.ObservedTrials.Count - 1
+
+                If Me.ObservedTrials(n).Result = ResponseType.Correct Then
+                    Correct += 1
+
+                ElseIf Me.ObservedTrials(n).Result = ResponseType.Missing Then
+
+                    If Me.ObservedTrials(n).ResponseAlternativeCount > 0 Then
+                        If n Mod Me.ObservedTrials(n).ResponseAlternativeCount = (Me.ObservedTrials(n).ResponseAlternativeCount - 1) Then
+                            Correct += 1
+                        End If
+
+                    End If
+                End If
+            Next
+
+            Return Correct / Total
+
         End Function
+
+        Public Function GetAdjustedSuccessProbabilities() As Double()
+            Dim OutputList As New List(Of Double)
+            For n = 0 To Me.ObservedTrials.Count - 1
+                OutputList.Add(Me.ObservedTrials(n).AdjustedSuccessProbability)
+            Next
+            Return OutputList.ToArray
+        End Function
+
+
+        Public Function CreateExportString() As String
+
+            Dim OutputLines As New List(Of String)
+
+            Dim Headings As New List(Of String)
+            Headings.Add("ParticipantID")
+            Headings.Add("MeasurementDateTime")
+            Headings.Add("Description")
+            Headings.Add("TestUnitIndex")
+            Headings.Add("SpeechMaterialComponentID")
+            Headings.Add("MediaSetName")
+            Headings.Add("PresentationOrder")
+            Headings.Add("Reference_SPL")
+            Headings.Add("PNR")
+            Headings.Add("EstimatedSuccessProbability")
+            Headings.Add("AdjustedSuccessProbability")
+            Headings.Add("Response")
+            Headings.Add("Result")
+            Headings.Add("ResponseTime")
+
+            'Plus write-only stuff
+            Headings.Add("ResponseAlternativeCount")
+            Headings.Add("PhonemeDiscriminabilityLevel")
+
+            OutputLines.Add(String.Join(vbTab, Headings))
+
+            For t = 0 To Me.ObservedTrials.Count - 1
+
+                Dim Trial As SipTrial = Me.ObservedTrials(t)
+
+                Dim TrialList As New List(Of String)
+                TrialList.Add(Me.ParticipantID)
+                TrialList.Add(Me.MeasurementDateTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                TrialList.Add(Me.Description)
+                TrialList.Add(GetParentTestUnitIndex(Trial))
+                TrialList.Add(Trial.SpeechMaterialComponent.Id)
+                TrialList.Add(Trial.MediaSet.MediaSetName)
+                TrialList.Add(t)
+                TrialList.Add(Trial.Reference_SPL)
+                TrialList.Add(Trial.PNR)
+                TrialList.Add(Trial.EstimatedSuccessProbability(True))
+                TrialList.Add(Trial.AdjustedSuccessProbability)
+                TrialList.Add(Trial.Response)
+                TrialList.Add(Trial.Result.ToString)
+                TrialList.Add(Trial.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
+
+                'Plus write-only stuff
+                TrialList.Add(Trial.ResponseAlternativeCount)
+                TrialList.Add(Trial.PhonemeDiscriminabilityLevel)
+                'TODO: ... add more
+
+                OutputLines.Add(String.Join(vbTab, TrialList))
+
+            Next
+
+            Return String.Join(vbCrLf, OutputLines)
+
+        End Function
+
+
+        ''' <summary>
+        ''' Returns the index at which the ParentTestUnit of the Referenced TestTrial is stored within the TestUnits list of the current instance of SiPMeasurement, or -1 if the test unit does not exist, or cannot be found.
+        ''' </summary>
+        ''' <param name="TestTrial"></param>
+        ''' <returns></returns>
+        Public Function GetParentTestUnitIndex(ByRef TestTrial As SipTrial) As Integer
+
+            If TestTrial Is Nothing Then Return -1
+            If TestTrial.ParentTestUnit Is Nothing Then Return -1
+
+            For i = 0 To TestUnits.Count - 1
+                If TestTrial.ParentTestUnit Is TestUnits(i) Then
+                    Return i
+                End If
+            Next
+
+            Return -1
+        End Function
+
+        Public Shared Function ParseImportLines(ByVal ImportLines() As String) As SipMeasurement
+
+
+        End Function
+
+        Public Sub ExportMeasurement(ByVal FilePath As String)
+
+            Dim ExportString = CreateExportString(FilePath)
+
+            Utils.SendInfoToLog(ExportString, IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
+
+        End Sub
+
+        Public Shared Function ImportSummary(ByVal FilePath As String) As SipMeasurement
+
+            'Gets a file path from the user if none is supplied
+            If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured test summary .txt file.")
+            If FilePath = "" Then
+                MsgBox("No file selected!")
+                Return Nothing
+            End If
+
+            'Parses the input file
+            Dim InputLines() As String = System.IO.File.ReadAllLines(FilePath, Text.Encoding.UTF8)
+
+            'Imports a summary
+            Return ParseImportLines(InputLines)
+
+        End Function
+
+
+        Public Function RecreateSiPMeasurement() As SipMeasurement
+
+            'After importing, SipMeasurement can be recreated:
+            'Create SiPmeasurement Object,
+            'Add Trials into their SpeechMaterial Components, into TestUnits (based on index). Add SpeechMaterialcomponent to each trial based on the SpeechMaterialComponentID
+
+
+        End Function
+
+
+
+#End Region
+
 
     End Class
 
@@ -531,11 +683,25 @@ Namespace SipTest
         ''' <returns></returns>
         Public ReadOnly Property MediaSet As MediaSet
 
-        Public Property ObservedResponse As SipTestResponse
+        ''' <summary>
+        ''' The response given in a test trial
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property Response As String = ""
 
-        Public Property TrialResult As ResultResponseType
+        'The result of a test trial
+        Public Property Result As ResponseType
 
-        Public Property TestTrialResponse As String = ""
+        ''' <summary>
+        ''' The response time in milliseconds
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property ResponseTime As Integer
+
+        Public Property ResponseMoment As DateTime
+
+        Public Property AdjustedSuccessProbability As Double
+        Public Property ResponseAlternativeCount As Integer
 
         'Sound Levels
 
@@ -795,61 +961,15 @@ Namespace SipTest
             End Get
         End Property
 
-        ''' <summary>
-        ''' Returns the response type of a test trial, including Missing responses and NotPresented when the trial has not yet been presented in a SipTestMeasurement.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function GetResponseType() As ResponseType
-
-            If ObservedResponse Is Nothing Then Return ResponseType.NotPresented
-
-            If ObservedResponse.Correct = True Then Return ResponseType.Correct
-
-            If ObservedResponse.IsMissingResponse = True Then
-                Return ResponseType.Missing
-            Else
-                Return ResponseType.Incorrect
-            End If
-
-        End Function
-
-        ''' <summary>
-        ''' Returns the result-response type of a test trial, including NotPresented, but counting missing responses as randomized as either correct or incorrect results.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function GetResultResponseType() As ResultResponseType
-
-            If ObservedResponse Is Nothing Then Return ResultResponseType.NotPresented
-
-            If ObservedResponse.Correct = True Then
-                Return ResultResponseType.Correct
-            Else
-                Return ResultResponseType.Incorrect
-            End If
-
-        End Function
-
 
     End Class
 
-    'Public Enum TestTrialResults
-    '    Correct
-    '    Incorrect
-    '    Missing
-    'End Enum
-
     Public Enum ResponseType
-        NotPresented
         Correct
         Incorrect
         Missing
     End Enum
 
-    Public Enum ResultResponseType
-        NotPresented
-        Correct
-        Incorrect
-    End Enum
 
     Public Enum SipTestPresets
         Måttlig_A
@@ -883,42 +1003,10 @@ Namespace SipTest
     <Serializable>
     Public Class TestHistorySummary
 
-        Public Property Measurements As New List(Of SipTestSummary)
+        Public Property Measurements As New List(Of SipMeasurement)
 
 
-        ''' <summary>
-        ''' Stores the current instance of TestSessionSummary to an xml file.
-        ''' </summary>
-        ''' <param name="saveDirectory">The directory where the file is saved.</param>
-        ''' <param name="saveFileName">The filename the file to save.</param>
-        ''' <returns>Returns True if the save procedure completed, and False is saving failed.</returns>
-        Public Function SaveToXmlFile(Optional ByVal saveDirectory As String = "",
-                                              Optional ByVal saveFileName As String = "",
-                                              Optional ByVal BoxTitle As String = "") As Boolean
-            Try
 
-                Dim filepath As String = ""
-
-                'Ask the user for file path if not incomplete file path is given
-                If saveDirectory = "" Or saveFileName = "" Then
-                    filepath = Utils.GetSaveFilePath(saveDirectory, saveFileName, {"xml"}, BoxTitle)
-                Else
-                    filepath = IO.Path.Combine(saveDirectory, saveFileName & ".xml")
-                    If Not IO.Directory.Exists(IO.Path.GetDirectoryName(filepath)) Then IO.Directory.CreateDirectory(IO.Path.GetDirectoryName(filepath))
-                End If
-
-
-                Dim DataFileStream As System.Xml.Serialization.XmlSerializer = New System.Xml.Serialization.XmlSerializer(GetType(TestHistorySummary))
-                Dim writer As System.IO.TextWriter = New IO.StreamWriter(filepath)
-                DataFileStream.Serialize(writer, Me)
-                writer.Close()
-
-                Return True
-            Catch ex As Exception
-                MsgBox(ex.ToString)
-                Return False
-            End Try
-        End Function
 
     End Class
 

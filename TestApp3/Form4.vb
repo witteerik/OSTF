@@ -266,8 +266,9 @@
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
 
         Dim X As Double() = {0.41, 0.42, 0.5, 0.44, 0.39, 0.4, 0.6, 0.8, 0.9, 0.99}
+        Dim Floor As Double() = {1 / 3}
 
-        Dim Y = SpeechTestFramework.CriticalDifferences.AdjustSuccessProbabilities(X, 0.9999999999)
+        Dim Y = SpeechTestFramework.CriticalDifferences.AdjustSuccessProbabilities(X, 0.9999999999, Floor)
 
         Dim Z = X.Average
         Dim z2 = Y.Average

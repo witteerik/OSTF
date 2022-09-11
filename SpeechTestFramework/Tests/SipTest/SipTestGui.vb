@@ -398,17 +398,14 @@ Public Class SipTestGui
         'Creates a new test and updates the psychometric function diagram
         CurrentSipTestMeasurement = New SipMeasurement(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification)
         CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
-        CurrentSipTestMeasurement.ReferenceLevel = SelectedReferenceLevel
         CurrentSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
-        CurrentSipTestMeasurement.SelectedPresetName = SelectedPresetName
-        CurrentSipTestMeasurement.SelectedMediaSetName = SelectedMediaSet.MediaSetName ' TODO: should we use the name or the mediaset in the GUI/Measurment?
         CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
 
         'Test length was updated, adds test trials to the measurement
-        CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets)
+        CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName)
 
         'Calculates the psychometric function
-        Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction()
+        Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction(SelectedReferenceLevel)
 
         Dim PNRs(PsychoMetricFunction.Count - 1) As Single
         Dim PredictedScores(PsychoMetricFunction.Count - 1) As Single
@@ -478,7 +475,7 @@ Public Class SipTestGui
 
         Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
 
-        UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResultResponseTypes.ToArray,
+        UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResponseType.ToArray,
                                             GetGuiTableData.UpdateRow, GetGuiTableData.SelectionRow, GetGuiTableData.FirstRowToDisplayInScrollmode)
 
         'SipGui.UpdateTestProgress(CurrentSipTestMeasurement.TestLength, CurrentSipTestMeasurement.NumberPresented, CurrentSipTestMeasurement.NumberCorrect, CurrentSipTestMeasurement.PercentCorrect)
@@ -502,9 +499,10 @@ Public Class SipTestGui
             Exit Sub
         End If
 
-        'Storing the SelectedPnr and the SelectedTestDescription
-        CurrentSipTestMeasurement.SelectedPnr = SelectedPnr
-        CurrentSipTestMeasurement.TestDescription = SelectedTestDescription
+        'Applying the SelectedReferenceLevel, SelectedPnr and the SelectedTestDescription
+        CurrentSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
+
+        CurrentSipTestMeasurement.Description = SelectedTestDescription
 
         'Things seemed to be in order,
         'Starting the test
@@ -540,7 +538,8 @@ Public Class SipTestGui
 
         MsgBox(CurrentSipTrial.SpeechMaterialComponent.PrimaryStringRepresentation)
 
-        CurrentSipTrial.TrialResult = ResultResponseType.Correct
+        CurrentSipTrial.Result = ResponseType.Correct
+        CurrentSipTrial.Response = "XXX"
 
         NewTrialTimer.Start()
 
@@ -551,11 +550,13 @@ Public Class SipTestGui
 
     Public Sub TestCompleted()
 
-        'Display results
-        Dim NewMeasurementSummary = CurrentSipTestMeasurement.GetMeasurementSummary
-        TestHistorySummary.Measurements.Add(NewMeasurementSummary)
-        PopulateTestHistoryTables()
 
+        'Summarizes the result
+        CurrentSipTestMeasurement.SummarizeTestResults
+        TestHistorySummary.Measurements.Add(CurrentSipTestMeasurement)
+
+        'Display results
+        PopulateTestHistoryTables()
 
         'Export data here?
 
@@ -638,7 +639,7 @@ Public Class SipTestGui
         ProportionCorrectTextBox.Text = ProportionCorrect
     End Sub
 
-    Public Sub UpdateTestTrialTable(ByVal TestWords() As String, ByVal Responses() As String, ByVal ResultResponseTypes() As SipTest.ResultResponseType,
+    Public Sub UpdateTestTrialTable(ByVal TestWords() As String, ByVal Responses() As String, ByVal ResultResponseTypes() As SipTest.ResponseType,
                              Optional ByVal UpdateRow As Integer? = Nothing, Optional SelectionRow As Integer? = Nothing, Optional FirstRowToDisplayInScrollmode As Integer? = Nothing)
 
         'Checking input arguments
@@ -677,17 +678,14 @@ Public Class SipTestGui
             TestTrialDataGridView.Rows(UpdateRow.Value).Cells(1).Value = Responses(UpdateRow.Value)
 
             Select Case ResultResponseTypes(UpdateRow.Value)
-                Case SipTest.ResultResponseType.Correct
+                Case SipTest.ResponseType.Correct
                     TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.CorrectResponseImage
 
-                Case SipTest.ResultResponseType.Incorrect
+                Case SipTest.ResponseType.Incorrect
                     TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.IncorrectResponseImage
 
-                Case SipTest.ResultResponseType.NotPresented
-                    TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.TrialNotPresentedImage
-
                 Case Else
-                    Throw New ArgumentException("Unknown SipTestTrial.ResultResponseType!")
+                    TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.IncorrectResponseImage
             End Select
 
         Else
@@ -705,17 +703,14 @@ Public Class SipTestGui
                 TestTrialDataGridView.Rows(r).Cells(1).Value = Responses(r)
 
                 Select Case ResultResponseTypes(r)
-                    Case SipTest.ResultResponseType.Correct
+                    Case SipTest.ResponseType.Correct
                         TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.CorrectResponseImage
 
-                    Case SipTest.ResultResponseType.Incorrect
+                    Case SipTest.ResponseType.Incorrect
                         TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.IncorrectResponseImage
 
-                    Case SipTest.ResultResponseType.NotPresented
-                        TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.TrialNotPresentedImage
-
                     Case Else
-                        Throw New ArgumentException("Unknown SipTestTrial.ResultResponseType!")
+                        TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.TrialNotPresentedImage
                 End Select
 
 
@@ -781,7 +776,7 @@ Public Class SipTestGui
         'Adds data
         For r = 0 To TestHistorySummary.Measurements.Count - 1
             CurrentSessionResults_DataGridView.Rows(r).Cells(0).Value = TestHistorySummary.Measurements(r).Description
-            CurrentSessionResults_DataGridView.Rows(r).Cells(1).Value = TestHistorySummary.Measurements(r).TestLength
+            CurrentSessionResults_DataGridView.Rows(r).Cells(1).Value = TestHistorySummary.Measurements(r).ObservedTestLength
             CurrentSessionResults_DataGridView.Rows(r).Cells(2).Value = TestHistorySummary.Measurements(r).PercentCorrect
             CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = False 'Setting selected value to false by default
         Next
@@ -1028,26 +1023,26 @@ Public Class SipTestGui
         'Clears the Gui significance test result box if not exaclty two measurements descriptions are recieved. And the exits the sub
         If ComparedMeasurementGuiDescriptions.Count = 2 Then
 
-            Dim SummaryNameString As New List(Of String)
+            Dim MeasurementDescription As New List(Of String)
 
-            Dim SummariesToCompare As New List(Of SipTestSummary)
-            For Each Summary In TestHistorySummary.Measurements
-                If ComparedMeasurementGuiDescriptions.Contains(Summary.Description) Then
-                    SummariesToCompare.Add(Summary)
-                    SummaryNameString.Add(Summary.Description)
+            Dim MeasurementsToCompare As New List(Of SipMeasurement)
+            For Each Measurement In TestHistorySummary.Measurements
+                If ComparedMeasurementGuiDescriptions.Contains(Measurement.Description) Then
+                    MeasurementsToCompare.Add(Measurement)
+                    MeasurementDescription.Add(Measurement.Description)
                 End If
             Next
 
-            Dim Result = CriticalDifferences.IsNotSignificantlyDifferent_PBAC(SummariesToCompare(0).GetAdjustedSuccessProbabilities, SummariesToCompare(1).GetAdjustedSuccessProbabilities, 0.95)
+            Dim Result = CriticalDifferences.IsNotSignificantlyDifferent_PBAC(MeasurementsToCompare(0).GetAdjustedSuccessProbabilities, MeasurementsToCompare(1).GetAdjustedSuccessProbabilities, 0.95)
 
             If Result = False Then
                 'Significant
-                UpdateSignificanceTestResult("The difference (" & 100 * Math.Abs(SummariesToCompare(0).GetAverageScore - SummariesToCompare(1).GetAverageScore) & " % points) between " &
-                                             SummaryNameString(0) & " and " & SummaryNameString(1) & " is statistically significant (p < 0.05).")
+                UpdateSignificanceTestResult("The difference (" & 100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore) & " % points) between " &
+                                             MeasurementDescription(0) & " and " & MeasurementDescription(1) & " is statistically significant (p < 0.05).")
             Else
                 'Not significant
-                UpdateSignificanceTestResult("The difference (" & 100 * Math.Abs(SummariesToCompare(0).GetAverageScore - SummariesToCompare(1).GetAverageScore) & " % points) between " &
-                                             SummaryNameString(0) & " and " & SummaryNameString(1) & " is NOT statistically significant (p < 0.05).")
+                UpdateSignificanceTestResult("The difference (" & 100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore) & " % points) between " &
+                                             MeasurementDescription(0) & " and " & MeasurementDescription(1) & " is NOT statistically significant (p < 0.05).")
             End If
 
         Else
@@ -1133,6 +1128,7 @@ Public Class SipTestGui
 
     Private Function SimulateAdaptiveTest(ByRef Rnd As Random, ByVal Method As Integer) As Tuple(Of List(Of Double), List(Of String))
 
+        Dim ReferenceLevel As Double = 68
         Dim CurrentPNR As Double = 0
         Dim Elapses As Integer = 0
         Dim PNRList As New List(Of Double)
@@ -1144,7 +1140,7 @@ Public Class SipTestGui
 
             PNRList.Add(CurrentPNR)
 
-            Trial.SetLevels(CurrentSipTestMeasurement.ReferenceLevel, CurrentPNR)
+            Trial.SetLevels(ReferenceLevel, CurrentPNR)
 
             Dim p = Trial.EstimatedSuccessProbability(True)
 

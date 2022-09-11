@@ -531,21 +531,40 @@
         Return Y
     End Function
 
-    Public Function AdjustSuccessProbabilities(ByVal X As Double(), ByVal TargetScore As Double, Optional tol As Double = 10 ^ -14, Optional floor As Double = 1 / 3, Optional ByVal MaxIterations As Integer = 10000) As Double()
+    Public Function AdjustSuccessProbabilities(ByVal X As Double(), ByVal TargetScore As Double, ByVal Floor As Double(), Optional tol As Double = 10 ^ -14, Optional ByVal MaxIterations As Integer = 10000) As Double()
 
-        If TargetScore < floor Then
-            Return Utils.Repeat(TargetScore, X.Length)
-        End If
+        'floor needs to be either length 0 (no floor), length 1 (same floor on every trial), or the same length as X (specific floor for each trial)
+        Select Case Floor.Length
+            Case 0
+                Dim CommonFloor As Double = 0
+                Floor = Utils.Repeat(CommonFloor, X.Length)
+            Case 1
+                Dim CommonFloor As Double = Floor(0)
+                Floor = Utils.Repeat(CommonFloor, X.Length)
+            Case X.Length
+                'Already correct length. No need to do anything.
+            Case Else
+                Throw New ArgumentException("Invalid length of the Floor array in function AdjustSuccessProbabilities.")
+        End Select
+
+        'The following section is skipped, in comparison with Witte's thesis, allowing various trials floors below the Target score (which is inferred by using varying number of response alternatives in the same test).
+        'If TargetScore < floor Then
+        '    Return Utils.Repeat(TargetScore, X.Length)
+        'End If
+
+        Dim xCopy(X.Length - 1) As Double
 
         ' Limiting the range of probabilities to 10^-12 through 1 - 10^-12, to avoid p = 0 and p = 1, which can never be increased by the equation 10
-        X = pmax(X, floor + 10 ^ (-12))
-        X = pmin(X, 1 - 10 ^ (-12))
+        For i = 0 To X.Length - 1
+            xCopy(i) = Math.Max(X(i), Floor(i) + 10 ^ (-12))
+        Next
 
-        ' Returning X if its mean is the target score
-        If TargetScore = X.Average Then Return X
+        xCopy = pmin(xCopy, 1 - 10 ^ (-12))
+
+        ' Returning xCopy if its mean is the target score
+        If TargetScore = xCopy.Average Then Return xCopy
 
         ' The code below implements equation 10
-
 
         '(Note that this is not the optimization used in the R-code of Witte's thesis: I.E.   a_optim <- optimize(AdjSP_OptimF, c(-100, 100), tol = tol, X = X, TargetScore = TargetScore) )
         Dim CurrentStep As Double = 200
@@ -565,8 +584,8 @@
             Point1X = CurrentSampleX - CurrentSlopeWidth / 2
             Point2X = CurrentSampleX + CurrentSlopeWidth / 2
 
-            Dim Point1Y As Double = AdjSP_OptimF(Point1X, X, TargetScore, floor)
-            Dim Point2Y As Double = AdjSP_OptimF(Point2X, X, TargetScore, floor)
+            Dim Point1Y As Double = AdjSP_OptimF(Point1X, xCopy, TargetScore, Floor)
+            Dim Point2Y As Double = AdjSP_OptimF(Point2X, xCopy, TargetScore, Floor)
 
             'Dim AverageSampleValue As Double = (Point1Y + Point2Y) / 2
             Dim DeltaX As Double = Point2X - Point1X
@@ -598,12 +617,12 @@
 
         Loop
 
-        Console.WriteLine(String.Concat("Detected function minimum of " & AdjSP_OptimF(CurrentSampleX, X, TargetScore, floor) &
+        Console.WriteLine(String.Concat("Detected function minimum of " & AdjSP_OptimF(CurrentSampleX, xCopy, TargetScore, Floor) &
                                         " within the range " & Point1X & " to " & Point2X &
                                         " in: ", Iterations & " iterations"))
 
 
-        Dim Y = AdjSP_F(CurrentSampleX, X, floor)
+        Dim Y = AdjSP_F(CurrentSampleX, xCopy, Floor)
 
         If Math.Abs(TargetScore - Y.Average) > tol Then
             MsgBox("Warning! Optimization algorithm failure! Average adjusted score deviates from the target score by " & 100 * Math.Abs(TargetScore - Y.Average) & " percentage points.", MsgBoxStyle.Exclamation, "Critical difference calculations!")
@@ -626,16 +645,17 @@
 
     End Function
 
-    Private Function AdjSP_OptimF(ByVal a As Double, ByVal X As Double(), ByVal TargetScore As Double, ByVal floor As Double) As Double
+    Private Function AdjSP_OptimF(ByVal a As Double, ByVal X As Double(), ByVal TargetScore As Double, ByVal floor As Double()) As Double
         Return Math.Abs(TargetScore - AdjSP_F(a, X, floor).Average)
     End Function
 
-    Private Function AdjSP_F(ByVal a As Double, ByVal X As Double(), ByVal floor As Double) As Double()
+    Private Function AdjSP_F(ByVal a As Double, ByVal X As Double(), ByVal floor As Double()) As Double()
         Dim Y(X.Length - 1) As Double
         For i = 0 To X.Length - 1
-            Y(i) = floor + (1 - floor) * (1 / (1 + ((1 / ((X(i) - floor) / (1 - floor))) - 1) * Math.Exp(a)))
+            Y(i) = floor(i) + (1 - floor(i)) * (1 / (1 + ((1 / ((X(i) - floor(i)) / (1 - floor(i)))) - 1) * Math.Exp(a)))
             '  Or simplified as:
-            '  Y(i) = floor + (1-floor) / ( 1 + ( ( (1-floor)/(X(i)-floor) )  -1 ) * exp(a)  )
+            '  Y(i) = floor(i) + (1-floor(i)) / ( 1 + ( ( (1-floor(i))/(X(i)-floor(i)) )  -1 ) * exp(a)  )
+
         Next
         Return Y
     End Function
