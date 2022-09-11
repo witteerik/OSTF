@@ -439,10 +439,13 @@ Namespace SipTest
             Return OutputList.ToArray
         End Function
 
+        Public Const NewMeasurementMarker As String = "<New OSFT measurement>"
 
         Public Function CreateExportString() As String
 
             Dim OutputLines As New List(Of String)
+
+            OutputLines.Add(NewMeasurementMarker)
 
             Dim Headings As New List(Of String)
             Headings.Add("ParticipantID")
@@ -521,21 +524,48 @@ Namespace SipTest
 
         Public Shared Function ParseImportLines(ByVal ImportLines() As String) As SipMeasurement
 
+            Dim Output As New SipMeasurement()
+
+            For i = 0 To ImportLines.Length - 1
+                Dim Line As String = ImportLines(i)
+
+                'Skips the heading line
+                If i = 0 Then Continue For
+
+                'Skips empty lines
+                If Line.Trim = "" Then Continue For
+
+                'Skips outcommented lines
+                If Line.Trim.StartsWith("//") Then Continue For
+
+                'Parses and adds trial
+
+
+
+            Next
+
 
         End Function
 
-        Public Sub ExportMeasurement(ByVal FilePath As String)
+        Public Sub ExportMeasurement(Optional ByVal FilePath As String = "")
 
-            Dim ExportString = CreateExportString(FilePath)
+            'Gets a file path from the user if none is supplied
+            If FilePath = "" Then FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save stuctured measurement history .txt file as...")
+            If FilePath = "" Then
+                MsgBox("No file selected!")
+                Exit Sub
+            End If
+
+            Dim ExportString = CreateExportString()
 
             Utils.SendInfoToLog(ExportString, IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
 
         End Sub
 
-        Public Shared Function ImportSummary(ByVal FilePath As String) As SipMeasurement
+        Public Shared Function ImportSummary(Optional ByVal FilePath As String = "") As SipMeasurement
 
             'Gets a file path from the user if none is supplied
-            If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured test summary .txt file.")
+            If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured measurement history .txt file.")
             If FilePath = "" Then
                 MsgBox("No file selected!")
                 Return Nothing
@@ -971,14 +1001,6 @@ Namespace SipTest
     End Enum
 
 
-    Public Enum SipTestPresets
-        Måttlig_A
-        Måttlig_B_Fallande
-        Grav_A
-        Grav_B_Fallande
-    End Enum
-
-
     Public Enum AdaptiveTypes
         SimpleUpDown
         Fixed
@@ -1001,12 +1023,71 @@ Namespace SipTest
 
 
     <Serializable>
-    Public Class TestHistorySummary
+    Public Class MeasurementHistory
 
         Public Property Measurements As New List(Of SipMeasurement)
 
+        Public Sub SaveToFile(Optional ByVal FilePath As String = "")
 
+            'Gets a file path from the user if none is supplied
+            If FilePath = "" Then FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save stuctured measurement history .txt file as...")
+            If FilePath = "" Then
+                MsgBox("No file selected!")
+                Exit Sub
+            End If
 
+            Dim Output As New List(Of String)
+
+            For Each Measurement In Measurements
+                Output.Add(Measurement.CreateExportString)
+            Next
+
+            Utils.SendInfoToLog(String.Join(vbCrLf, Output), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
+
+        End Sub
+
+        Public Function LoadMeasurements(Optional ByVal FilePath As String = "") As MeasurementHistory
+
+            Dim Output As New MeasurementHistory
+
+            'Gets a file path from the user if none is supplied
+            If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured measurement history .txt file.")
+            If FilePath = "" Then
+                MsgBox("No file selected!")
+                Return Nothing
+            End If
+
+            'Parses the input file
+            Dim InputLines() As String = System.IO.File.ReadAllLines(FilePath, Text.Encoding.UTF8)
+
+            'Splits InputLines into separate measurements based on the SipMeasurement.NewMeasurementMarker string
+            Dim ImportedMeasurementList As New List(Of String())
+            Dim CurrentlyImportedMeasurement As List(Of String) = Nothing
+            For Each Line In InputLines
+                If Line.Trim.StartsWith(SipMeasurement.NewMeasurementMarker) Then
+                    If CurrentlyImportedMeasurement Is Nothing Then
+                        CurrentlyImportedMeasurement = New List(Of String)
+                    Else
+                        ImportedMeasurementList.Add(CurrentlyImportedMeasurement.ToArray)
+                        CurrentlyImportedMeasurement.Clear()
+                    End If
+
+                    'Skips adding the NewMeasurementMarker
+                    Continue For
+                End If
+                'Adds the current line to the current measurement
+                CurrentlyImportedMeasurement.Add(Line)
+            Next
+
+            'Parsing each measurement
+            For Each Measurement In ImportedMeasurementList
+                Output.Measurements.Add(SipMeasurement.ParseImportLines(Measurement))
+            Next
+
+            'Returns thge loaded measurements
+            Return Output
+
+        End Function
 
     End Class
 

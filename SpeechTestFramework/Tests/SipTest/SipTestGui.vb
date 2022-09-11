@@ -167,7 +167,7 @@ Public Class SipTestGui
     Private SelectedPnr As Double?
     Private SelectedTestDescription As String = ""
 
-    Private TestHistorySummary As New TestHistorySummary
+    Private MeasurementHistory As New MeasurementHistory
 
 #Region "Participant"
 
@@ -552,8 +552,8 @@ Public Class SipTestGui
 
 
         'Summarizes the result
-        CurrentSipTestMeasurement.SummarizeTestResults
-        TestHistorySummary.Measurements.Add(CurrentSipTestMeasurement)
+        CurrentSipTestMeasurement.SummarizeTestResults()
+        MeasurementHistory.Measurements.Add(CurrentSipTestMeasurement)
 
         'Display results
         PopulateTestHistoryTables()
@@ -771,13 +771,13 @@ Public Class SipTestGui
         CurrentSessionResults_DataGridView.Rows.Clear()
 
         'Adds rows
-        CurrentSessionResults_DataGridView.Rows.Add(TestHistorySummary.Measurements.Count)
+        CurrentSessionResults_DataGridView.Rows.Add(MeasurementHistory.Measurements.Count)
 
         'Adds data
-        For r = 0 To TestHistorySummary.Measurements.Count - 1
-            CurrentSessionResults_DataGridView.Rows(r).Cells(0).Value = TestHistorySummary.Measurements(r).Description
-            CurrentSessionResults_DataGridView.Rows(r).Cells(1).Value = TestHistorySummary.Measurements(r).ObservedTestLength
-            CurrentSessionResults_DataGridView.Rows(r).Cells(2).Value = TestHistorySummary.Measurements(r).PercentCorrect
+        For r = 0 To MeasurementHistory.Measurements.Count - 1
+            CurrentSessionResults_DataGridView.Rows(r).Cells(0).Value = MeasurementHistory.Measurements(r).Description
+            CurrentSessionResults_DataGridView.Rows(r).Cells(1).Value = MeasurementHistory.Measurements(r).ObservedTestLength
+            CurrentSessionResults_DataGridView.Rows(r).Cells(2).Value = MeasurementHistory.Measurements(r).PercentCorrect
             CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = False 'Setting selected value to false by default
         Next
 
@@ -1026,7 +1026,7 @@ Public Class SipTestGui
             Dim MeasurementDescription As New List(Of String)
 
             Dim MeasurementsToCompare As New List(Of SipMeasurement)
-            For Each Measurement In TestHistorySummary.Measurements
+            For Each Measurement In MeasurementHistory.Measurements
                 If ComparedMeasurementGuiDescriptions.Contains(Measurement.Description) Then
                     MeasurementsToCompare.Add(Measurement)
                     MeasurementDescription.Add(Measurement.Description)
