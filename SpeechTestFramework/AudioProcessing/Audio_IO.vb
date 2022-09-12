@@ -59,7 +59,30 @@ Namespace Audio
 
             End Function
 
+            Public Sub RemoveWaveChunksBatch(ByVal Folder1 As String)
+
+                Dim Files1 = IO.Directory.GetFiles(Folder1)
+
+                For n = 0 To Files1.Length - 1
+
+                    'Loads the file
+                    Dim LoadedSound = Audio.Sound.LoadWaveFile(Files1(n))
+
+                    'Removes unparsed wave chunks and the SMA object
+                    LoadedSound.RemoveUnparsedWaveChunks()
+                    LoadedSound.SMA = Nothing
+
+                    'Overwrites the original file
+                    LoadedSound.WriteWaveFile(Files1(n))
+
+                Next
+
+
+            End Sub
+
+
         End Module
+
 
     End Namespace
 

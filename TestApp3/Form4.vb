@@ -275,4 +275,14 @@
         Dim s = 1
 
     End Sub
+
+    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
+
+        SpeechTestFramework.Audio.AudioIOs.RemoveWaveChunksBatch("C:\EriksDokument\SSHR\STA_rip1")
+
+        MsgBox(SpeechTestFramework.Utils.CompareBatchOfFiles("C:\EriksDokument\SSHR\STA_rip1", "C:\EriksDokument\SSHR\STA_rip1 - kopia", SpeechTestFramework.Utils.GeneralIO.FileComparisonMethods.CompareWaveFileData))
+
+        'MsgBox(SpeechTestFramework.Utils.CompareBatchOfFiles("C:\EriksDokument\SSHR\STA_rip1", "C:\EriksDokument\SSHR\STA_rip2", SpeechTestFramework.Utils.GeneralIO.FileComparisonMethods.CompareWaveFileData))
+
+    End Sub
 End Class

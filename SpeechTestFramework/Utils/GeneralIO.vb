@@ -652,11 +652,31 @@ SavingFile: Dim ofd As New OpenFileDialog
 
         End Sub
 
+        Public Function CompareBatchOfFiles(ByVal Folder1 As String, ByVal Folder2 As String, Optional Method As FileComparisonMethods = FileComparisonMethods.CompareWaveFileData, Optional ByVal ShowDifferences As Boolean = True) As Boolean
+
+            Dim Files1 = IO.Directory.GetFiles(Folder1)
+            Dim Files2 = IO.Directory.GetFiles(Folder2)
+
+            If Files1.Length <> Files2.Length Then Return False
+
+            For n = 0 To Files1.Length - 1
+                If IO.Path.GetFileName(Files1(n)) <> IO.Path.GetFileName(Files2(n)) Then Return False
+                If CompareFiles(Files1(n), Files2(n), Method, ShowDifferences) = False Then Return False
+
+                Console.WriteLine("Comparing file: " & n + 1 & " " & IO.Path.GetFileName(Files1(n)))
+
+            Next
+
+            Return True
+
+        End Function
+
         Public Enum FileComparisonMethods
             CompareBytes
+            CompareWaveFileData
         End Enum
 
-        Public Function CompareFiles(ByVal FilePath1 As String, ByVal FilePath2 As String, Optional Method As FileComparisonMethods = FileComparisonMethods.CompareBytes) As Boolean
+        Public Function CompareFiles(ByVal FilePath1 As String, ByVal FilePath2 As String, Optional Method As FileComparisonMethods = FileComparisonMethods.CompareBytes, Optional ByVal ShowDifferences As Boolean = False) As Boolean
 
             Select Case Method
                 Case FileComparisonMethods.CompareBytes
@@ -673,7 +693,33 @@ SavingFile: Dim ofd As New OpenFileDialog
 
                     'Checks that each byte in the stream are the same
                     For n = 0 To InputFileStream1.Length - 1
-                        If InputFileStream1.ReadByte() <> InputFileStream2.ReadByte() Then Return False
+                        If InputFileStream1.ReadByte() <> InputFileStream2.ReadByte() Then
+                            If ShowDifferences = True Then MsgBox("Detected difference at byte: " & n & " between the following files:" & vbCrLf & vbCrLf & FilePath1 & vbCrLf & FilePath2)
+                            Return False
+                        End If
+                    Next
+
+                    'Returns true if no differences were found
+                    Return True
+
+                Case FileComparisonMethods.CompareWaveFileData
+
+                    'Checks if its the same file, then they must be identical
+                    If FilePath1 = FilePath2 Then Return True
+
+                    Dim Sound1 = Audio.Sound.LoadWaveFile(FilePath1)
+                    Dim Sound2 = Audio.Sound.LoadWaveFile(FilePath2)
+
+                    If Sound1.WaveFormat.Channels <> Sound2.WaveFormat.Channels Then Return False
+
+                    For c = 1 To Sound1.WaveFormat.Channels
+
+                        If Sound1.WaveData.SampleData.Length <> Sound2.WaveData.SampleData.Length Then Return False
+                        For s = 0 To Sound1.WaveData.SampleData.Length - 1
+                            If Sound1.WaveData.SampleData(c)(s) <> Sound2.WaveData.SampleData(c)(s) Then
+                                Return False
+                            End If
+                        Next
                     Next
 
                     'Returns true if no differences were found
@@ -685,6 +731,7 @@ SavingFile: Dim ofd As New OpenFileDialog
 
 
         End Function
+
 
 
         Public Function CopySubFolderContent(ByVal SourceFolder As String, ByVal TargetFolder As String,

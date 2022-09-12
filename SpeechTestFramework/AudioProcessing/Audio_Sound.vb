@@ -74,7 +74,7 @@ Namespace Audio
             End Get
             Set(value As SpeechMaterialAnnotation)
                 _SMA = value
-                _SMA.ParentSound = Me
+                If _SMA IsNot Nothing Then _SMA.ParentSound = Me
             End Set
         End Property
 
@@ -160,6 +160,10 @@ Namespace Audio
             End If
 
         End Function
+
+        Public Sub RemoveUnparsedWaveChunks()
+            UnparsedWaveChunks.Clear()
+        End Sub
 
 
         ''' <summary>
@@ -642,6 +646,8 @@ Namespace Audio
                 Dim sound As Sound = Nothing
                 Dim FormatChunkIsRead As Boolean = False 'THis variable is used to ensure that the format chunk is read before the ptwf and the data chunks.
 
+                Dim UnparsedWaveChunks As New List(Of Byte())
+
                 'Chunks to ignore
                 Dim dataChunkFound As Boolean
                 While dataChunkFound = False
@@ -724,7 +730,7 @@ Namespace Audio
 
                             'Reads to the end of the chunk but does not save the data
                             'Stores the unknown chunk so that it can be retained upon save
-                            sound.UnparsedWaveChunks.Add(reader.ReadBytes(SizeOfUnknownChunk))
+                            UnparsedWaveChunks.Add(reader.ReadBytes(SizeOfUnknownChunk))
 
                             'Reads any padding bytes
                             If SizeOfUnknownChunk Mod 2 = 1 Then
@@ -735,7 +741,8 @@ Namespace Audio
 
                 End While
 
-
+                'Stores any detected UnparsedWaveChunks 
+                sound.UnparsedWaveChunks = UnparsedWaveChunks
 
                 Dim startReadDataPoint As Integer
                 Dim stopReadDataPoint As Integer
