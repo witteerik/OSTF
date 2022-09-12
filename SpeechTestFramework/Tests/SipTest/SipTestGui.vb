@@ -38,6 +38,7 @@ Public Class SipTestGui
     Private NumberSpeakerChannels As Integer = 3
 
 
+    Private SipMeasurementRandomizer As Random
 
 
 
@@ -501,6 +502,15 @@ Public Class SipTestGui
             Exit Sub
         End If
 
+        'Creates a new randomizer before each test start
+        Dim Seed As Integer? = 42 'TODO: remove this seed value, and possible let the user specify one instead
+        If Seed.HasValue Then
+            SipMeasurementRandomizer = New Random(Seed)
+        Else
+            SipMeasurementRandomizer = New Random
+        End If
+
+
         'Applying the SelectedReferenceLevel, SelectedPnr and the SelectedTestDescription
         CurrentSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
 
@@ -511,19 +521,10 @@ Public Class SipTestGui
 
         LockSettingsPanels()
 
-        'Creates a new randomizer before each test start
-        Dim Seed As Integer? = 42 'TODO: remove this seed value, and possible let the user specify one instead
-        If Seed.HasValue Then
-            SipMeasurementRandomizer = New Random(Seed)
-        Else
-            SipMeasurementRandomizer = New Random
-        End If
-
         NewTrialTimer.Start()
 
     End Sub
 
-    Private SipMeasurementRandomizer As Random
 
     Private CurrentSipTrial As SipTrial
     Private WithEvents NewTrialTimer As New Windows.Forms.Timer With {.Interval = 500} ' TODO: Set this interval to the correct SiP-value!
@@ -531,7 +532,7 @@ Public Class SipTestGui
     Public Sub InitiateNextTrial() Handles NewTrialTimer.Tick
         NewTrialTimer.Stop()
 
-        CurrentSipTrial = CurrentSipTestMeasurement.GetNextTrial(SipMeasurementRandomizer)
+        CurrentSipTrial = CurrentSipTestMeasurement.GetNextTrial()
 
         Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
         UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResponseType.ToArray,

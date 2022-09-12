@@ -205,27 +205,49 @@ Namespace SipTest
 
 #Region "RunTest"
 
-        Public Function GetNextTrial(ByRef rnd As Random) As SipTrial
+        Public Function GetNextTrial() As SipTrial
 
-            Dim NextTestUnit = GetNextTestUnit(rnd)
+            If PlannedTrials.Count = 0 Then
+                Return Nothing
+            Else
 
-            'Returns nothing if there are no more test units to present
-            If NextTestUnit Is Nothing Then Return Nothing
+                Dim NextTestTrial As SipTrial = PlannedTrials(0)
 
-            'Gets the next test trial
-            Dim NextTestTrial = NextTestUnit.GetNextTrial(rnd)
+                Dim NextTestUnit = NextTestTrial.ParentTestUnit
 
-            'Setting levels
+                'Adding the trial to the history
+                ObservedTrials.Add(NextTestTrial)
+                NextTestUnit.ObservedTrials.Add(NextTestTrial)
 
-            'Adding the trial to the history
-            ObservedTrials.Add(NextTestTrial)
-            NextTestUnit.ObservedTrials.Add(NextTestTrial)
+                'Removes the next trial from PlannedTrials
+                PlannedTrials.Remove(NextTestTrial)
+                NextTestUnit.PlannedTrials.Add(NextTestTrial)
 
-            'Removes the next trial from PlannedTrials
-            PlannedTrials.Remove(NextTestTrial)
-            NextTestUnit.PlannedTrials.Add(NextTestTrial)
 
-            Return NextTestTrial
+                'Returns the next planed trial
+                Return NextTestTrial
+            End If
+
+
+            'Dim NextTestUnit = GetNextTestUnit(rnd)
+
+            ''Returns nothing if there are no more test units to present
+            'If NextTestUnit Is Nothing Then Return Nothing
+
+            ''Gets the next test trial
+            'Dim NextTestTrial = NextTestUnit.GetNextTrial(rnd)
+
+            ''Setting levels
+
+            ''Adding the trial to the history
+            'ObservedTrials.Add(NextTestTrial)
+            'NextTestUnit.ObservedTrials.Add(NextTestTrial)
+
+            ''Removes the next trial from PlannedTrials
+            'PlannedTrials.Remove(NextTestTrial)
+            'NextTestUnit.PlannedTrials.Add(NextTestTrial)
+
+            'Return NextTestTrial
 
         End Function
 
@@ -271,11 +293,12 @@ Namespace SipTest
                 Output.ResponseType.Add(PossibleResults.Missing)
             Next
 
-            If ObservedTrials.Count > 0 Then
-                Dim LastPresentedTrialIndex As Integer = ObservedTrials.Count
-                Output.SelectionRow = LastPresentedTrialIndex
+            Dim LastPresentedTrialIndex As Integer = ObservedTrials.Count - 1
+            Output.SelectionRow = Math.Max(0, LastPresentedTrialIndex)
                 Output.FirstRowToDisplayInScrollmode = Math.Max(0, LastPresentedTrialIndex - 7)
-            Else
+
+            'Overriding values if no rows exist
+            If PlannedTrials.Count = 0 And ObservedTrials.Count = 0 Then
                 Output.SelectionRow = Nothing
                 Output.FirstRowToDisplayInScrollmode = Nothing
             End If
