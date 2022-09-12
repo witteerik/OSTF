@@ -35,10 +35,10 @@ Partial Class SipTestGui
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel8 = New System.Windows.Forms.TableLayoutPanel()
         Me.StatAnalysisLabel = New System.Windows.Forms.Label()
+        Me.SignificanceTestResult_RichTextBox = New System.Windows.Forms.RichTextBox()
         Me.TableLayoutPanel9 = New System.Windows.Forms.TableLayoutPanel()
-        Me.SaveButton = New System.Windows.Forms.Button()
-        Me.OpenButton = New System.Windows.Forms.Button()
-        Me.ExportButton = New System.Windows.Forms.Button()
+        Me.ExportDataButton = New System.Windows.Forms.Button()
+        Me.ImportButton = New System.Windows.Forms.Button()
         Me.Label14 = New System.Windows.Forms.Label()
         Me.CurrentSessionResults_DataGridView = New System.Windows.Forms.DataGridView()
         Me.TestDescriptionColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
@@ -107,7 +107,6 @@ Partial Class SipTestGui
         Me.BluetoothDevicesComboBox = New System.Windows.Forms.ComboBox()
         Me.ParticipantLockButton = New System.Windows.Forms.Button()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.SignificanceTestResult_RichTextBox = New System.Windows.Forms.RichTextBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -212,15 +211,24 @@ Partial Class SipTestGui
         Me.StatAnalysisLabel.Text = "Statistik analys:"
         Me.StatAnalysisLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'SignificanceTestResult_RichTextBox
+        '
+        Me.SignificanceTestResult_RichTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SignificanceTestResult_RichTextBox.Location = New System.Drawing.Point(3, 23)
+        Me.SignificanceTestResult_RichTextBox.Name = "SignificanceTestResult_RichTextBox"
+        Me.SignificanceTestResult_RichTextBox.ReadOnly = True
+        Me.SignificanceTestResult_RichTextBox.Size = New System.Drawing.Size(401, 105)
+        Me.SignificanceTestResult_RichTextBox.TabIndex = 1
+        Me.SignificanceTestResult_RichTextBox.Text = ""
+        '
         'TableLayoutPanel9
         '
         Me.TableLayoutPanel9.ColumnCount = 3
         Me.TableLayoutPanel9.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
         Me.TableLayoutPanel9.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
         Me.TableLayoutPanel9.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
-        Me.TableLayoutPanel9.Controls.Add(Me.SaveButton, 0, 0)
-        Me.TableLayoutPanel9.Controls.Add(Me.OpenButton, 1, 0)
-        Me.TableLayoutPanel9.Controls.Add(Me.ExportButton, 2, 0)
+        Me.TableLayoutPanel9.Controls.Add(Me.ExportDataButton, 0, 0)
+        Me.TableLayoutPanel9.Controls.Add(Me.ImportButton, 1, 0)
         Me.TableLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel9.Location = New System.Drawing.Point(3, 504)
         Me.TableLayoutPanel9.Name = "TableLayoutPanel9"
@@ -229,38 +237,27 @@ Partial Class SipTestGui
         Me.TableLayoutPanel9.Size = New System.Drawing.Size(407, 44)
         Me.TableLayoutPanel9.TabIndex = 3
         '
-        'SaveButton
+        'ExportDataButton
         '
-        Me.SaveButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SaveButton.Location = New System.Drawing.Point(9, 9)
-        Me.SaveButton.Margin = New System.Windows.Forms.Padding(9)
-        Me.SaveButton.Name = "SaveButton"
-        Me.SaveButton.Size = New System.Drawing.Size(117, 26)
-        Me.SaveButton.TabIndex = 0
-        Me.SaveButton.Text = "Spara"
-        Me.SaveButton.UseVisualStyleBackColor = True
+        Me.ExportDataButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ExportDataButton.Location = New System.Drawing.Point(9, 9)
+        Me.ExportDataButton.Margin = New System.Windows.Forms.Padding(9)
+        Me.ExportDataButton.Name = "ExportDataButton"
+        Me.ExportDataButton.Size = New System.Drawing.Size(117, 26)
+        Me.ExportDataButton.TabIndex = 0
+        Me.ExportDataButton.Text = "Export data"
+        Me.ExportDataButton.UseVisualStyleBackColor = True
         '
-        'OpenButton
+        'ImportButton
         '
-        Me.OpenButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.OpenButton.Location = New System.Drawing.Point(144, 9)
-        Me.OpenButton.Margin = New System.Windows.Forms.Padding(9)
-        Me.OpenButton.Name = "OpenButton"
-        Me.OpenButton.Size = New System.Drawing.Size(117, 26)
-        Me.OpenButton.TabIndex = 1
-        Me.OpenButton.Text = "Öppna"
-        Me.OpenButton.UseVisualStyleBackColor = True
-        '
-        'ExportButton
-        '
-        Me.ExportButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ExportButton.Location = New System.Drawing.Point(279, 9)
-        Me.ExportButton.Margin = New System.Windows.Forms.Padding(9)
-        Me.ExportButton.Name = "ExportButton"
-        Me.ExportButton.Size = New System.Drawing.Size(119, 26)
-        Me.ExportButton.TabIndex = 2
-        Me.ExportButton.Text = "Exportera alla test"
-        Me.ExportButton.UseVisualStyleBackColor = True
+        Me.ImportButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ImportButton.Location = New System.Drawing.Point(144, 9)
+        Me.ImportButton.Margin = New System.Windows.Forms.Padding(9)
+        Me.ImportButton.Name = "ImportButton"
+        Me.ImportButton.Size = New System.Drawing.Size(117, 26)
+        Me.ImportButton.TabIndex = 1
+        Me.ImportButton.Text = "Import data"
+        Me.ImportButton.UseVisualStyleBackColor = True
         '
         'Label14
         '
@@ -1156,16 +1153,6 @@ Partial Class SipTestGui
         Me.Panel1.Size = New System.Drawing.Size(1292, 14)
         Me.Panel1.TabIndex = 2
         '
-        'SignificanceTestResult_RichTextBox
-        '
-        Me.SignificanceTestResult_RichTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SignificanceTestResult_RichTextBox.Location = New System.Drawing.Point(3, 23)
-        Me.SignificanceTestResult_RichTextBox.Name = "SignificanceTestResult_RichTextBox"
-        Me.SignificanceTestResult_RichTextBox.ReadOnly = True
-        Me.SignificanceTestResult_RichTextBox.Size = New System.Drawing.Size(401, 105)
-        Me.SignificanceTestResult_RichTextBox.TabIndex = 1
-        Me.SignificanceTestResult_RichTextBox.Text = ""
-        '
         'SipTestGui
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1218,9 +1205,8 @@ Partial Class SipTestGui
     Friend WithEvents TableLayoutPanel8 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel7 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel9 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents SaveButton As Windows.Forms.Button
-    Friend WithEvents OpenButton As Windows.Forms.Button
-    Friend WithEvents ExportButton As Windows.Forms.Button
+    Friend WithEvents ExportDataButton As Windows.Forms.Button
+    Friend WithEvents ImportButton As Windows.Forms.Button
     Friend WithEvents TableLayoutPanel19 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel17 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel18 As Windows.Forms.TableLayoutPanel

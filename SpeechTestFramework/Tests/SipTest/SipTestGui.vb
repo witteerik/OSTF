@@ -157,7 +157,7 @@ Public Class SipTestGui
         TestLengthSelected
     End Enum
 
-    Private CurrentPatient As Participant = Nothing
+    Private CurrentParticipantID As String = ""
     Private SelectedAudiogramData As AudiogramData = Nothing
     Private SelectedReferenceLevel As Double?
     Private SelectedHearingAidGain As HearingAidGainData = Nothing
@@ -187,7 +187,7 @@ Public Class SipTestGui
         LockPatientDetails(ParticipantID)
 
         'Creating a new patient
-        CurrentPatient = New Participant(ParticipantID)
+        CurrentParticipantID = ParticipantID
 
     End Sub
 
@@ -207,7 +207,7 @@ Public Class SipTestGui
 
         'Stores the selected audiogram data
         Dim NewAudiogram = New AudiogramData
-        NewAudiogram.Name = CurrentPatient.ID & "_" & DateTime.Now
+        NewAudiogram.Name = CurrentParticipantID & "_" & DateTime.Now
         AvailableAudiograms.Add(NewAudiogram)
 
         UpdateAudiogramList()
@@ -301,7 +301,7 @@ Public Class SipTestGui
     Private Sub CreateNewGain_Button_Click(sender As Object, e As EventArgs) Handles CreateNewGain_Button.Click
 
         Dim NewGain = HearingAidGainData.CreateNewNoGainData
-        NewGain.Name = CurrentPatient.ID & "_" & DateTime.Now
+        NewGain.Name = CurrentParticipantID & "_" & DateTime.Now
         AvailableHaGains.Add(NewGain)
         UpdateGainList()
 
@@ -315,7 +315,7 @@ Public Class SipTestGui
         End If
 
         Dim NewGain = HearingAidGainData.CreateNewFig6GainData(SelectedAudiogramData, SelectedReferenceLevel)
-        NewGain.Name = CurrentPatient.ID & "_" & "Fig6" & "_" & SelectedAudiogramData.Name
+        NewGain.Name = CurrentParticipantID & "_" & "Fig6" & "_R" & SelectedReferenceLevel & "_" & SelectedAudiogramData.Name
         AvailableHaGains.Add(NewGain)
         UpdateGainList()
 
@@ -386,7 +386,7 @@ Public Class SipTestGui
 
     Private Sub TryCalculatePsychometricFunction()
 
-        If CurrentPatient Is Nothing Then Exit Sub
+        If CurrentParticipantID Is Nothing Then Exit Sub
         If SelectedAudiogramData Is Nothing Then Exit Sub
         If SelectedReferenceLevel.HasValue = False Then Exit Sub
         If SelectedHearingAidGain Is Nothing Then Exit Sub
@@ -396,7 +396,7 @@ Public Class SipTestGui
 
 
         'Creates a new test and updates the psychometric function diagram
-        CurrentSipTestMeasurement = New SipMeasurement(CurrentPatient, CompleteSpeechMaterial.ParentTestSpecification)
+        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification)
         CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
         CurrentSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
         CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
@@ -473,8 +473,10 @@ Public Class SipTestGui
             Exit Sub
         End If
 
-        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
+        'Sets the measurement datetime
+        CurrentSipTestMeasurement.MeasurementDateTime = DateTime.Now
 
+        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
         UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResponseType.ToArray,
                                             GetGuiTableData.UpdateRow, GetGuiTableData.SelectionRow, GetGuiTableData.FirstRowToDisplayInScrollmode)
 
@@ -531,6 +533,11 @@ Public Class SipTestGui
 
         CurrentSipTrial = CurrentSipTestMeasurement.GetNextTrial(SipMeasurementRandomizer)
 
+        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
+        UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResponseType.ToArray,
+                                            GetGuiTableData.UpdateRow, GetGuiTableData.SelectionRow, GetGuiTableData.FirstRowToDisplayInScrollmode)
+
+
         If CurrentSipTrial Is Nothing Then
             TestCompleted()
             Exit Sub
@@ -538,8 +545,14 @@ Public Class SipTestGui
 
         MsgBox(CurrentSipTrial.SpeechMaterialComponent.PrimaryStringRepresentation)
 
-        CurrentSipTrial.Result = ResponseType.Correct
-        CurrentSipTrial.Response = "XXX"
+        Dim rnd As New Random
+        CurrentSipTrial.Result = rnd.Next(0, 2) 'PossibleResults.Correct
+
+        If CurrentSipTrial.Result = PossibleResults.Correct Then
+            CurrentSipTrial.Response = CurrentSipTrial.SpeechMaterialComponent.PrimaryStringRepresentation
+        Else
+            CurrentSipTrial.Response = "XXX"
+        End If
 
         NewTrialTimer.Start()
 
@@ -639,7 +652,7 @@ Public Class SipTestGui
         ProportionCorrectTextBox.Text = ProportionCorrect
     End Sub
 
-    Public Sub UpdateTestTrialTable(ByVal TestWords() As String, ByVal Responses() As String, ByVal ResultResponseTypes() As SipTest.ResponseType,
+    Public Sub UpdateTestTrialTable(ByVal TestWords() As String, ByVal Responses() As String, ByVal ResultResponseTypes() As SipTest.PossibleResults,
                              Optional ByVal UpdateRow As Integer? = Nothing, Optional SelectionRow As Integer? = Nothing, Optional FirstRowToDisplayInScrollmode As Integer? = Nothing)
 
         'Checking input arguments
@@ -678,10 +691,10 @@ Public Class SipTestGui
             TestTrialDataGridView.Rows(UpdateRow.Value).Cells(1).Value = Responses(UpdateRow.Value)
 
             Select Case ResultResponseTypes(UpdateRow.Value)
-                Case SipTest.ResponseType.Correct
+                Case SipTest.PossibleResults.Correct
                     TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.CorrectResponseImage
 
-                Case SipTest.ResponseType.Incorrect
+                Case SipTest.PossibleResults.Incorrect
                     TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.IncorrectResponseImage
 
                 Case Else
@@ -703,10 +716,10 @@ Public Class SipTestGui
                 TestTrialDataGridView.Rows(r).Cells(1).Value = Responses(r)
 
                 Select Case ResultResponseTypes(r)
-                    Case SipTest.ResponseType.Correct
+                    Case SipTest.PossibleResults.Correct
                         TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.CorrectResponseImage
 
-                    Case SipTest.ResponseType.Incorrect
+                    Case SipTest.PossibleResults.Incorrect
                         TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.IncorrectResponseImage
 
                     Case Else
@@ -994,17 +1007,33 @@ Public Class SipTestGui
 
 #Region "ImportExport"
 
-    Public Sub SaveFileButtonPressed() Handles SaveButton.Click
-        Throw New NotImplementedException()
+    Public Sub SaveFileButtonPressed() Handles ExportDataButton.Click
+
+        If CurrentParticipantID Is Nothing Then
+            MsgBox("No participant selected!", MsgBoxStyle.Exclamation, "Exporting measurements")
+        End If
+
+        MeasurementHistory.SaveToFile()
+
     End Sub
 
-    Public Sub OpenFileButtonPressed() Handles OpenButton.Click
-        Throw New NotImplementedException()
+    Public Sub OpenFileButtonPressed() Handles ImportButton.Click
+
+        If CurrentParticipantID Is Nothing Then
+            MsgBox("No participant selected!", MsgBoxStyle.Exclamation, "Importing measurements")
+        End If
+
+        Dim ImportedMeasurements = MeasurementHistory.LoadMeasurements(CompleteSpeechMaterial.ParentTestSpecification,, CurrentParticipantID)
+
+        For Each LoadedMeasurement In ImportedMeasurements.Measurements
+            MeasurementHistory.Measurements.Insert(0, LoadedMeasurement)
+        Next
+
+        'Displaying the loded tests
+        PopulateTestHistoryTables()
+
     End Sub
 
-    Public Sub ExportDataButtonPressed() Handles ExportButton.Click
-        Throw New NotImplementedException()
-    End Sub
 
 #End Region
 
