@@ -336,4 +336,76 @@
 
 
     End Sub
+
+    Private Sub Button8_Click(sender As Object, e As EventArgs) Handles Button8.Click
+
+        Dim InputFolder As String = "C:\EriksDokument\SSHR\HagermanWholeLists"
+        Dim OutputFolder As String = "C:\EriksDokument\SSHR\ChannelSplit"
+
+        Dim LongestNoise As SpeechTestFramework.Audio.Sound = Nothing
+
+        Dim Files = IO.Directory.GetFiles(InputFolder)
+        For Each file In Files
+            If IO.Path.GetExtension(file) <> ".wav" Then Continue For
+
+            Dim FileName = IO.Path.GetFileName(file)
+
+            If FileName.StartsWith("CalibrationTrack") Then Continue For
+
+            Dim InputFile = SpeechTestFramework.Audio.Sound.LoadWaveFile(file)
+
+            Dim SpeechFile = New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(InputFile.WaveFormat.SampleRate, InputFile.WaveFormat.BitDepth, 1,, InputFile.WaveFormat.Encoding))
+
+            SpeechFile.WaveData.SampleData(1) = InputFile.WaveData.SampleData(1)
+
+            'Exporting the speech file
+            SpeechFile.SMA = Nothing
+            SpeechFile.WriteWaveFile(IO.Path.Combine(OutputFolder, FileName))
+
+            If LongestNoise Is Nothing Then LongestNoise = New SpeechTestFramework.Audio.Sound(SpeechFile.WaveFormat)
+
+            If InputFile.WaveData.SampleData(2).Length > LongestNoise.WaveData.SampleData(1).Length Then
+                LongestNoise = New SpeechTestFramework.Audio.Sound(SpeechFile.WaveFormat)
+                LongestNoise.WaveData.SampleData(1) = InputFile.WaveData.SampleData(2)
+                LongestNoise.FileName = InputFile.FileName
+            End If
+
+        Next
+
+        'Exportin the longest noise
+        LongestNoise.SMA = Nothing
+        LongestNoise.WriteWaveFile(IO.Path.Combine(OutputFolder, "Noise_" & LongestNoise.FileName))
+
+
+    End Sub
+
+    Private Sub Button9_Click(sender As Object, e As EventArgs) Handles Button9.Click
+        Dim InputFolder As String = "C:\EriksDokument\SSHR\HagermanWholeLists"
+        Dim OutputFolder As String = "C:\EriksDokument\SSHR\ChannelSplit"
+
+        Dim LongestNoise As SpeechTestFramework.Audio.Sound = Nothing
+
+        Dim Files = IO.Directory.GetFiles(InputFolder)
+        For Each file In Files
+            If IO.Path.GetExtension(file) <> ".wav" Then Continue For
+
+            Dim FileName = IO.Path.GetFileName(file)
+
+            If Not FileName.StartsWith("CalibrationTrack") Then Continue For
+
+            Dim InputFile = SpeechTestFramework.Audio.Sound.LoadWaveFile(file)
+
+            Dim Channel1File = New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(InputFile.WaveFormat.SampleRate, InputFile.WaveFormat.BitDepth, 1,, InputFile.WaveFormat.Encoding))
+
+            Channel1File.WaveData.SampleData(1) = InputFile.WaveData.SampleData(2)
+
+            'Exporting the speech file
+            Channel1File.SMA = Nothing
+            Channel1File.WriteWaveFile(IO.Path.Combine(OutputFolder, FileName))
+
+        Next
+
+
+    End Sub
+
 End Class

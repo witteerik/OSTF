@@ -1399,9 +1399,10 @@ Public Class SpeechMaterialComponent
     ''' </summary>
     ''' <param name="ComparisonVariableName"></param>
     ''' <param name="NumberOfContrasts">Returns the number of contrasting component (including the component itself), given that the returns value is True.</param>
+    ''' <param name="ContrastingComponents">If an initialized object is supplied by the calling code, the actual contrasting components (including the component itself) are returned. </param>
     ''' <returns></returns>
     Public Function IsContrastingComponent(Optional ByVal ComparisonVariableName As String = "Transcription",
-                                           Optional ByRef NumberOfContrasts As Integer? = Nothing) As Boolean
+                                           Optional ByRef NumberOfContrasts As Integer? = Nothing, Optional ByRef ContrastingComponents As List(Of SpeechMaterialComponent) = Nothing) As Boolean
 
         'Gets the ancestor component at the level from which the data is supposed to be compared
         Dim ViewPointComponent = Me.GetParentOfFirstNonSequentialAncestorWithSiblings()
@@ -1441,6 +1442,15 @@ Public Class SpeechMaterialComponent
         If OnlyContrastingComponents = True Then
             NumberOfContrasts = ComparisonCousins.Count
         End If
+
+        If OnlyContrastingComponents = True Then
+            If ContrastingComponents IsNot Nothing Then
+                For Each ComparisonCousin In ComparisonCousins
+                    ContrastingComponents.Add(ComparisonCousin)
+                Next
+            End If
+        End If
+
 
         Return OnlyContrastingComponents
 

@@ -110,6 +110,27 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ParticipantInterfaces\ForcedChoiceTesteeControl.designer.vb">
+      <DependentUpon>ForcedChoiceTesteeControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\ForcedChoiceTesteeControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\SpatializedStilmuliTesteeControl.designer.vb">
+      <DependentUpon>SpatializedStilmuliTesteeControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\SpatializedStilmuliTesteeControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\TesteeForm.designer.vb">
+      <DependentUpon>TesteeForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\TesteeForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\TestFormControls.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
     <Compile Include="Statistics\CriticalDifferences.vb" />
     <Compile Include="TestSupport\TestSpecification.vb" />
@@ -123,6 +144,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Tests\SipTest\SipTestSummary.vb" />
+    <Compile Include="Tests\SipTest\TestSession.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WinFormControls\AudiogramSymbolDialog.Designer.vb">
       <DependentUpon>AudiogramSymbolDialog.vb</DependentUpon>
     </Compile>
@@ -280,6 +304,15 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticipantInterfaces\ForcedChoiceTesteeControl.resx">
+      <DependentUpon>ForcedChoiceTesteeControl.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticipantInterfaces\SpatializedStilmuliTesteeControl.resx">
+      <DependentUpon>SpatializedStilmuliTesteeControl.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticipantInterfaces\TesteeForm.resx">
+      <DependentUpon>TesteeForm.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Tests\SipTest\SipTestGui.resx">
       <DependentUpon>SipTestGui.vb</DependentUpon>

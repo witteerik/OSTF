@@ -3,8 +3,10 @@ Imports SpeechTestFramework.SipTest
 Imports SpeechTestFramework.WinFormControls
 Imports System.Windows.Forms
 Imports System.Drawing
+Imports SpeechTestFramework.Audio.PlayBack
 
 Public Class SipTestGui
+    Implements Audio.PlayBack.ISoundPlayerControl
 
     Private CompleteSpeechMaterial As SpeechMaterialComponent
 
@@ -19,7 +21,6 @@ Public Class SipTestGui
     Private AvailablePresetsNames As List(Of String)
     Private AvailableMediaSets As MediaSetLibrary
     Private AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 60}
-
 
     Friend AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
 
@@ -38,7 +39,7 @@ Public Class SipTestGui
     Private NumberSpeakerChannels As Integer = 3
 
 
-    Private SipMeasurementRandomizer As Random
+    Private SipMeasurementRandomizer As New Random
 
 
     ''' <summary>
@@ -245,6 +246,12 @@ Public Class SipTestGui
 
         End Select
 
+
+    End Sub
+
+    Public Sub KeyDetection(sender As Object, e As KeyEventArgs) Handles Me.KeyUp, ParticipantForm.KeyUp
+
+        MsgBox("Key pressed: " & e.KeyData)
 
     End Sub
 
@@ -584,6 +591,12 @@ Public Class SipTestGui
 
         'SipGui.UpdateTestProgress(CurrentSipTestMeasurement.TestLength, CurrentSipTestMeasurement.NumberPresented, CurrentSipTestMeasurement.NumberCorrect, CurrentSipTestMeasurement.PercentCorrect)
 
+
+        'Creating a ParticipantForm
+        If ParticipantForm Is Nothing Then ParticipantForm = New TesteeForm(TesteeForm.TaskType.ForcedChoice)
+        ParticipantControl = ParticipantForm.ParticipantControl
+        ParticipantForm.Show()
+
         EnablePlayButton()
 
 
@@ -622,74 +635,12 @@ Public Class SipTestGui
 
         LockSettingsPanels()
 
-        NewTrialTimer.Start()
+
+        InitiateTest()
 
     End Sub
 
 
-    Private CurrentSipTrial As SipTrial
-    Private WithEvents NewTrialTimer As New Windows.Forms.Timer With {.Interval = 500} ' TODO: Set this interval to the correct SiP-value!
-
-    Public Sub InitiateNextTrial() Handles NewTrialTimer.Tick
-        NewTrialTimer.Stop()
-
-        CurrentSipTrial = CurrentSipTestMeasurement.GetNextTrial()
-
-        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
-        UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResponseType.ToArray,
-                                            GetGuiTableData.UpdateRow, GetGuiTableData.SelectionRow, GetGuiTableData.FirstRowToDisplayInScrollmode)
-
-
-        If CurrentSipTrial Is Nothing Then
-            TestCompleted()
-            Exit Sub
-        End If
-
-        MsgBox(CurrentSipTrial.SpeechMaterialComponent.PrimaryStringRepresentation)
-
-        Dim rnd As New Random
-        CurrentSipTrial.Result = rnd.Next(0, 2) 'PossibleResults.Correct
-
-        If CurrentSipTrial.Result = PossibleResults.Correct Then
-            CurrentSipTrial.Response = CurrentSipTrial.SpeechMaterialComponent.PrimaryStringRepresentation
-        Else
-            CurrentSipTrial.Response = "XXX"
-        End If
-
-        NewTrialTimer.Start()
-
-    End Sub
-
-
-
-
-    Public Sub TestCompleted()
-
-
-        'Summarizes the result
-        CurrentSipTestMeasurement.SummarizeTestResults()
-        MeasurementHistory.Measurements.Add(CurrentSipTestMeasurement)
-
-        'Display results
-        PopulateTestHistoryTables()
-
-        'Export data here?
-
-        'Resets values to prepare for next measurement
-        ResetValuesAfterMeasurement()
-
-    End Sub
-
-
-    Public Sub ResetValuesAfterMeasurement()
-
-        ClearTestNameBox()
-
-        UnlockSettingsPanels()
-
-        MsgBox("Unlock stuff for new test!")
-
-    End Sub
 
 
     Public Sub StopButton_Click() Handles StopButton.Click
@@ -1334,6 +1285,12 @@ Public Class SipTestGui
             Case Else
                 'Do not change!
         End Select
+    End Sub
+
+    Public Sub MessageFromPlayer(ByRef Message As ISoundPlayerControl.MessagesFromSoundPlayer) Implements ISoundPlayerControl.MessageFromPlayer
+
+        'Ignoes any messages
+
     End Sub
 
 

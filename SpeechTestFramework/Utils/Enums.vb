@@ -59,6 +59,10 @@ Namespace Utils
             Swedish
         End Enum
 
+        Public Enum ResponseModes
+            MouseClick
+            TabletTouch
+        End Enum
 
     End Module
 
