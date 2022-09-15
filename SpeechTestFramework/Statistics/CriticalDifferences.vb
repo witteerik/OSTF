@@ -276,7 +276,7 @@
 
 
     ' Returns the limits of the non-significant region in SignificanceList.
-    Private Function GetCriticalDifferenceLimits(ByVal n1 As Integer, ByVal n2 As Integer, ByVal Score1 As Integer, ByVal ConfidenceLevel As Double, Optional ByVal AgrestiCaffoCorrection As Boolean = False) As Tuple(Of Integer, Integer)
+    Public Function GetCriticalDifferenceLimits(ByVal n1 As Integer, ByVal n2 As Integer, ByVal Score1 As Integer, ByVal ConfidenceLevel As Double, Optional ByVal AgrestiCaffoCorrection As Boolean = False) As Tuple(Of Integer, Integer)
 
         Dim LowerBound As Integer = 0
         Dim UpperBound As Integer = n2
@@ -304,6 +304,55 @@
         Return (New Tuple(Of Integer, Integer)(LowerBound, UpperBound))
 
     End Function
+
+    ' Returns the limits of the non-significant region in SignificanceList.
+    Public Function GetCriticalDifferenceLimits_PBAC(ByVal SP1() As Double, ByVal SP2() As Double, Optional ByVal ConfidenceLevel As Double = 0.95) As Tuple(Of Double, Double)
+
+        Dim LowerBound As Double = 0
+        Dim UpperBound As Double = 1
+
+        Dim n2 As Integer = SP2.Length
+
+        'Getting the limits of the current score, given the current confidence level
+        Dim SignificanceList(n2) As Boolean
+
+        ' Searching for the lower bound of the critical interval
+        For Score2 = 0 To n2
+
+            Dim TargetScore As Double = Score2 / n2
+
+            Dim Floor() As Double = {1 / 3} 'TODO: This should have to be adjusted to each trial, if it differens between trials
+            If TargetScore < Floor.Average Then Continue For
+
+            Dim SP2_Adj = AdjustSuccessProbabilities(SP2, TargetScore, Floor)
+
+            If IsNotSignificantlyDifferent_PBAC(SP1, SP2_Adj, ConfidenceLevel) = True Then
+                LowerBound = SP2_Adj.Average
+                Exit For
+            End If
+        Next
+
+        ' Searching for the upper bound of the critical interval
+        For InvScore2 = 0 To n2
+            Dim Score2 As Integer = n2 - InvScore2
+
+            Dim TargetScore As Double = Score2 / n2
+
+            Dim Floor() As Double = {1 / 3} 'TODO: This should have to be adjusted to each trial, if it differens between trials
+            If TargetScore < Floor.Average Then Continue For
+
+            Dim SP2_Adj = AdjustSuccessProbabilities(SP2, TargetScore, Floor)
+
+            If IsNotSignificantlyDifferent_PBAC(SP1, SP2_Adj, ConfidenceLevel) = True Then
+                UpperBound = SP2_Adj.Average
+                Exit For
+            End If
+        Next
+
+        Return (New Tuple(Of Double, Double)(LowerBound, UpperBound))
+
+    End Function
+
 
     ''' <summary>
     ''' Using the method of normal appriximation to the binomial in oder to determines if Score 1 is NOT significantly different from Score 2, given n1, n2, and the indicated confidence level.

@@ -336,7 +336,11 @@ Namespace SipTest
 
                 Me.SetLevels(ReferenceLevel, pnr)
 
-                Output.Add(pnr, New Tuple(Of Double, Double, Double)(Me.CalculateEstimatedMeanScore(), 0, 0))
+                Dim EteimatedScore = Me.CalculateEstimatedMeanScore
+
+                If EteimatedScore IsNot Nothing Then
+                    Output.Add(pnr, EteimatedScore)
+                End If
 
             Next
 
@@ -345,7 +349,7 @@ Namespace SipTest
         End Function
 
 
-        Public Function CalculateEstimatedMeanScore() As Double
+        Public Function CalculateEstimatedMeanScore() As Tuple(Of Double, Double, Double)
 
             Dim TrialSuccessProbabilityList As New List(Of Double)
 
@@ -355,10 +359,12 @@ Namespace SipTest
                 Next
             Next
 
+            Dim CriticalDifferenceLimits = CriticalDifferences.GetCriticalDifferenceLimits_PBAC(TrialSuccessProbabilityList.ToArray, TrialSuccessProbabilityList.ToArray)
+
             If TrialSuccessProbabilityList.Count > 0 Then
-                Return TrialSuccessProbabilityList.Average()
+                Return New Tuple(Of Double, Double, Double)(TrialSuccessProbabilityList.Average(), CriticalDifferenceLimits.Item1, CriticalDifferenceLimits.Item2)
             Else
-                Return -1
+                Return Nothing
             End If
 
         End Function
@@ -433,12 +439,12 @@ Namespace SipTest
 
 
         ''' <summary>
-        ''' Returns the average score, counting missing responses as correct every ResponseAlternativeCount:th time. Returns -1 if no tested trials exist.
+        ''' Returns the number of observed correct trials as Item1, counting missing responses as correct every ResponseAlternativeCount:th time, and the total number of observed trials as Item2. Returns Nothing if no tested trials exist.
         ''' </summary>
         ''' <returns></returns>
-        Public Function GetAverageObservedScore() As Double
+        Public Function GetNumberObservedScore() As Tuple(Of Integer, Integer)
 
-            If Me.ObservedTrials.Count = 0 Then Return -1
+            If Me.ObservedTrials.Count = 0 Then Return Nothing
 
             Dim Correct As Integer = 0
             Dim Total As Integer = Me.ObservedTrials.Count
@@ -458,7 +464,21 @@ Namespace SipTest
                 End If
             Next
 
-            Return Correct / Total
+            Return New Tuple(Of Integer, Integer)(Correct, Total)
+
+        End Function
+
+
+        ''' <summary>
+        ''' Returns the average score, counting missing responses as correct every ResponseAlternativeCount:th time. Returns -1 if no tested trials exist.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetAverageObservedScore() As Double
+
+            If Me.ObservedTrials.Count = 0 Then Return -1
+
+            Dim ScoreSoFar = GetNumberObservedScore()
+            Return ScoreSoFar.Item1 / ScoreSoFar.Item2
 
         End Function
 

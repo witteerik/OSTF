@@ -145,6 +145,9 @@ Public Class SipTestGui
         Dim NoGainData = HearingAidGainData.CreateNewNoGainData
         NoGainData.Name = "No gain"
         AvailableHaGains.Add(NoGainData)
+        For Each HaGain In AvailableHaGains
+            HaGainComboBox.Items.Add(HaGain)
+        Next
 
         'Adding available preset names
         AvailablePresetsNames = CompleteSpeechMaterial.Presets.Keys.ToList
@@ -251,7 +254,7 @@ Public Class SipTestGui
 
     Public Sub KeyDetection(sender As Object, e As KeyEventArgs) Handles Me.KeyUp, ParticipantForm.KeyUp
 
-        MsgBox("Key pressed: " & e.KeyData)
+        'MsgBox("Key pressed: " & e.KeyData)
 
     End Sub
 
@@ -545,11 +548,11 @@ Public Class SipTestGui
 
         ExpectedScoreDiagram.Areas.Clear()
 
-        'High-jacking the values in PredictedScores for now
-        For n = 0 To PredictedScores.Length - 1
-            LowerCiLimits(n) = PredictedScores(n) - 0.1
-            UpperCiLimits(n) = PredictedScores(n) + 0.1
-        Next
+        ''High-jacking the values in PredictedScores for now
+        'For n = 0 To PredictedScores.Length - 1
+        '    LowerCiLimits(n) = PredictedScores(n) - 0.1
+        '    UpperCiLimits(n) = PredictedScores(n) + 0.1
+        'Next
 
         ExpectedScoreDiagram.Areas.Add(New PlotBase.Area With {.Color = Color.Pink, .XValues = PNRs, .YValuesLower = LowerCiLimits, .YValuesUpper = UpperCiLimits})
 
@@ -585,9 +588,8 @@ Public Class SipTestGui
         'Sets the measurement datetime
         CurrentSipTestMeasurement.MeasurementDateTime = DateTime.Now
 
-        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
-        UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResponseType.ToArray,
-                                            GetGuiTableData.UpdateRow, GetGuiTableData.SelectionRow, GetGuiTableData.FirstRowToDisplayInScrollmode)
+        UpdateTestTrialTable()
+        UpdateTestProgress()
 
         'SipGui.UpdateTestProgress(CurrentSipTestMeasurement.TestLength, CurrentSipTestMeasurement.NumberPresented, CurrentSipTestMeasurement.NumberCorrect, CurrentSipTestMeasurement.PercentCorrect)
 
@@ -696,17 +698,41 @@ Public Class SipTestGui
         End If
     End Sub
 
-    Public Sub UpdateTestProgress(Max As Integer, Progress As Integer, Correct As Integer, ProportionCorrect As String)
+    Public Sub UpdateTestProgress()
+
+        Dim Max As Integer = CurrentSipTestMeasurement.ObservedTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count
+        Dim Progress As Integer = CurrentSipTestMeasurement.ObservedTrials.Count
+        Dim NumberObservedScore = CurrentSipTestMeasurement.GetNumberObservedScore
+        Dim ProportionCorrect As String = CurrentSipTestMeasurement.PercentCorrect
+
         MeasurementProgressBar.Minimum = 0
         MeasurementProgressBar.Maximum = Max
         MeasurementProgressBar.Value = Progress
 
-        CorrectCountTextBox.Text = Correct & " / " & Progress
-        ProportionCorrectTextBox.Text = ProportionCorrect
+        If NumberObservedScore IsNot Nothing Then
+            CorrectCountTextBox.Text = NumberObservedScore.Item1 & " / " & Progress
+        Else
+            CorrectCountTextBox.Text = 0 & " / " & Progress
+        End If
+
+        If ProportionCorrect <> "" Then
+            ProportionCorrectTextBox.Text = ProportionCorrect
+        Else
+            ProportionCorrectTextBox.Text = ""
+        End If
     End Sub
 
-    Public Sub UpdateTestTrialTable(ByVal TestWords() As String, ByVal Responses() As String, ByVal ResultResponseTypes() As SipTest.PossibleResults,
-                             Optional ByVal UpdateRow As Integer? = Nothing, Optional SelectionRow As Integer? = Nothing, Optional FirstRowToDisplayInScrollmode As Integer? = Nothing)
+    Public Sub UpdateTestTrialTable()
+
+        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
+
+        Dim TestWords() As String = GetGuiTableData.TestWords.ToArray
+        Dim Responses() As String = GetGuiTableData.Responses.ToArray
+        Dim ResultResponseTypes() As SipTest.PossibleResults = GetGuiTableData.ResponseType.ToArray
+        Dim UpdateRow As Integer? = GetGuiTableData.UpdateRow
+        Dim SelectionRow As Integer? = GetGuiTableData.SelectionRow
+        Dim FirstRowToDisplayInScrollmode As Integer? = GetGuiTableData.FirstRowToDisplayInScrollmode
+
 
         'Checking input arguments
         If TestWords.Length <> Responses.Length Or TestWords.Length <> ResultResponseTypes.Length Then
@@ -1075,9 +1101,12 @@ Public Class SipTestGui
 
         If CurrentParticipantID Is Nothing Then
             MsgBox("No participant selected!", MsgBoxStyle.Exclamation, "Importing measurements")
+            Exit Sub
         End If
 
         Dim ImportedMeasurements = MeasurementHistory.LoadMeasurements(CompleteSpeechMaterial.ParentTestSpecification,, CurrentParticipantID)
+
+        If ImportedMeasurements Is Nothing Then Exit Sub
 
         For Each LoadedMeasurement In ImportedMeasurements.Measurements
             MeasurementHistory.Measurements.Insert(0, LoadedMeasurement)
@@ -1120,11 +1149,11 @@ Public Class SipTestGui
 
             If Result = False Then
                 'Significant
-                UpdateSignificanceTestResult("The difference (" & 100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore) & " % points) between " &
+                UpdateSignificanceTestResult("The difference (" & Math.Round(100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore)) & " % points) between " &
                                              MeasurementDescription(0) & " and " & MeasurementDescription(1) & " is statistically significant (p < 0.05).")
             Else
                 'Not significant
-                UpdateSignificanceTestResult("The difference (" & 100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore) & " % points) between " &
+                UpdateSignificanceTestResult("The difference (" & Math.Round(100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore)) & " % points) between " &
                                              MeasurementDescription(0) & " and " & MeasurementDescription(1) & " is NOT statistically significant (p < 0.05).")
             End If
 

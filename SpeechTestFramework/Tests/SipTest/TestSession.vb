@@ -41,6 +41,10 @@ Partial Class SipTestGui
 
     Private PretestSoundDuration As Double = 5
 
+    Private MinimumTestWordStartTime As Double = 1.5 '// If test word region background sound Is used, this needs to be longer than FadeInDuration_TestWordRegion, And longer than any of the fade-in region in specific test word masker sounds (If The environment variable UseListSpecificMaskers = True).
+    Private MaximumTestWordStartTime As Double = 2
+
+
     ''' <summary>
     ''' Holds the time of the presentation of the response alternatives
     ''' </summary>
@@ -66,6 +70,9 @@ Partial Class SipTestGui
     Dim CurrentTrialSoundIsReady As Boolean = False
     Dim CurrentTrialIsLaunched As Boolean = False ' A variable that holds a value indicating if the current trial was started by the StartTrialTimer, or if it should be started directly from prepare sound. (This construction is needed as the sound may not always be created before the next trial should start. If that happens the trial starts as soon as the sound is ready to be played.)
     Dim StartTrialTimerHasTicked As Boolean = False
+
+    Delegate Sub NoArgDelegate()
+    Delegate Sub StringArgReturningVoidDelegate([String] As String)
 
 
 #Region "ActiveTesting"
@@ -183,13 +190,24 @@ Partial Class SipTestGui
 
 
         'Preparing and launching the next trial
-        PrepareAndLaunchTrial()
+        PrepareAndLaunchTrial_ThreadSafe()
 
     End Sub
 
 
+    Private Sub PrepareAndLaunchTrial_ThreadSafe()
 
-    Private Sub PrepareAndLaunchTrial()
+        If Me.InvokeRequired = True Then
+            Dim d As New NoArgDelegate(AddressOf PrepareAndLaunchTrial_Unsafe)
+            Me.Invoke(d)
+        Else
+            PrepareAndLaunchTrial_Unsafe()
+        End If
+
+    End Sub
+
+
+    Private Sub PrepareAndLaunchTrial_Unsafe()
 
         'Resetting NextTrialIsReady and CurrentTrialIsStarted  
         CurrentTrialSoundIsReady = False
@@ -201,17 +219,18 @@ Partial Class SipTestGui
             Exit Sub
         End If
 
+        'Updates the GUI table
+        UpdateTestTrialTable()
+        UpdateTestProgress()
+
+
         'Starting the timer that will initiate the presentation of the trial, if the sound is is prepared in time.
         StartTrialTimer.Start()
 
         'Gets the next stimulus
         CurrentSipTrial = CurrentSipTestMeasurement.GetNextTrial()
 
-        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
-        UpdateTestTrialTable(GetGuiTableData.TestWords.ToArray, GetGuiTableData.Responses.ToArray, GetGuiTableData.ResponseType.ToArray,
-                                            GetGuiTableData.UpdateRow, GetGuiTableData.SelectionRow, GetGuiTableData.FirstRowToDisplayInScrollmode)
-
-
+        'Checks if test is finished
         If CurrentSipTrial Is Nothing Then
             FinalizeTesting()
             Exit Sub
@@ -285,14 +304,14 @@ Partial Class SipTestGui
             End If
 
 
-
-            Dim TestWordStartTime As Double
-            Dim TestWordCompletedTime As Double
+            Dim TestWordStartTime As Double = SipMeasurementRandomizer.Next(MinimumTestWordStartTime, MaximumTestWordStartTime)
+            Dim CurrentComponentSound = CurrentSipTrial.SpeechMaterialComponent.GetSound(CurrentSipTrial.MediaSet, 1, 1)
+            Dim TestWordCompletedTime As Double = TestWordStartTime + CurrentComponentSound.WaveData.SampleData(1).Length / CurrentComponentSound.WaveFormat.SampleRate
 
             If SimulationMode = False Then 'We don't need to prepare the test sound in simulation mode
 
-                'Loading a temporary sound
-                CurrentTestSound = Audio.Sound.LoadWaveFile("C:\OSTF\Tests\SwedishSiPTest\Media\Unechoic-Talker1-RVE\TestWordRecordings\L01S01_Klas\M_000_001_Klas.wav")
+                'Testing just with the unmixed sound
+                CurrentTestSound = CurrentComponentSound
 
                 'CurrentTestSound = CurrentSipTrial.CreateSoundStimulus(CurrentSipTrial,
                 '                                                            TestWordStartTime,
@@ -349,7 +368,7 @@ Partial Class SipTestGui
                 End If
 
                 'Calling the response sub
-                TestWordResponse(SimulatedResponse)
+                TestWordResponse_TreadSafe(SimulatedResponse)
 
             End If
 
@@ -436,7 +455,21 @@ Partial Class SipTestGui
         StoreResult("", ResponseTime)
     End Sub
 
-    Public Sub TestWordResponse(ByVal ResponseString As String) Handles ParticipantControl.TestWordResponse
+
+
+    Public Sub TestWordResponse_TreadSafe(ByVal ResponseString As String) Handles ParticipantControl.TestWordResponse
+
+        If Me.InvokeRequired = True Then
+            Dim d As New StringArgReturningVoidDelegate(AddressOf TestWordResponse_Unsafe)
+            Me.Invoke(d, New Object() {ResponseString})
+        Else
+            Me.TestWordResponse_Unsafe(ResponseString)
+        End If
+
+    End Sub
+
+
+    Public Sub TestWordResponse_Unsafe(ByVal ResponseString As String)
 
         'Stopping the max response time timer, as a response has been given in time.
         MaxResponseTimeTimer.Stop()
@@ -526,7 +559,7 @@ Partial Class SipTestGui
 
         'Starting the next trial
         If SimulationMode = False Then
-            PrepareAndLaunchTrial()
+            PrepareAndLaunchTrial_ThreadSafe()
         Else
             StartTrialTimerTick()
         End If
@@ -621,7 +654,7 @@ Partial Class SipTestGui
 
             ParticipantControl.ResetTestWordPanel()
 
-            PrepareAndLaunchTrial()
+            PrepareAndLaunchTrial_ThreadSafe()
 
         End If
 
