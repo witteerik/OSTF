@@ -285,4 +285,55 @@
         'MsgBox(SpeechTestFramework.Utils.CompareBatchOfFiles("C:\EriksDokument\SSHR\STA_rip1", "C:\EriksDokument\SSHR\STA_rip2", SpeechTestFramework.Utils.GeneralIO.FileComparisonMethods.CompareWaveFileData))
 
     End Sub
+
+    Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
+
+        'This function was used to reassemble the parts (1 and 2) of the Hagerman lists from the CD 'Svensk talaudiometri"
+
+        Dim InputFolder As String = "C:\EriksDokument\SSHR\Hagerman(fromSTA)"
+        Dim OutputFolder As String = "C:\EriksDokument\SSHR\HagermanWholeLists"
+
+        Dim Track As Integer = 22
+
+        For List As Integer = 2 To 11
+
+            Dim File1 As String
+            Dim File2 As String
+            If List = 8 Then
+                File1 = "PractiseList_part1(20).wav"
+                File2 = "PractiseList_part2(21).wav"
+            Else
+                File1 = "List" & List.ToString("00") & "_part1(" & Track & ").wav"
+                Track += 1
+                File2 = "List" & List.ToString("00") & "_part2(" & Track & ").wav"
+                Track += 1
+            End If
+
+            Dim Sound1 = SpeechTestFramework.Audio.Sound.LoadWaveFile(IO.Path.Combine(InputFolder, File1))
+            Dim Sound2 = SpeechTestFramework.Audio.Sound.LoadWaveFile(IO.Path.Combine(InputFolder, File2))
+
+            Dim Sound3 = SpeechTestFramework.Audio.DSP.ConcatenateSounds(New List(Of SpeechTestFramework.Audio.Sound) From {Sound1, Sound2})
+
+            'Removes the SMA object
+            Sound3.SMA = Nothing
+
+            MsgBox("List " & List & vbCrLf &
+                   "Channel 1 (juxtaposed samples): " & Sound1.WaveData.SampleData(1)(Sound1.WaveData.SampleData(1).Length - 1) & " - " & Sound2.WaveData.SampleData(1)(0) & vbCrLf &
+                   "Channel 2 (juxtaposed samples): " & Sound1.WaveData.SampleData(2)(Sound1.WaveData.SampleData(2).Length - 1) & " - " & Sound2.WaveData.SampleData(2)(0) & vbCrLf &
+                   "Channel 1, Post-Pre-length difference: " & Sound3.WaveData.SampleData(1).Length - (Sound1.WaveData.SampleData(1).Length + Sound2.WaveData.SampleData(1).Length) & vbCrLf &
+                   "Channel 2, Post-Pre-length difference:: " & Sound3.WaveData.SampleData(2).Length - (Sound1.WaveData.SampleData(2).Length + Sound2.WaveData.SampleData(2).Length))
+
+
+            If List = 8 Then
+                Sound3.WriteWaveFile(IO.Path.Combine(OutputFolder, "PractiseList.wav"))
+            Else
+                Sound3.WriteWaveFile(IO.Path.Combine(OutputFolder, "List" & List.ToString("00") & ".wav"))
+            End If
+
+
+        Next
+
+
+
+    End Sub
 End Class

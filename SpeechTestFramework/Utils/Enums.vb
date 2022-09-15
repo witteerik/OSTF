@@ -49,6 +49,17 @@ Namespace Utils
             None
         End Enum
 
+        Public Enum UserTypes
+            Research
+            Clinical
+        End Enum
+
+        Public Enum Language
+            English
+            Swedish
+        End Enum
+
+
     End Module
 
 End Namespace

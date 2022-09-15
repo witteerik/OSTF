@@ -689,17 +689,6 @@ Namespace SipTest
         End Function
 
 
-        Public Function RecreateSiPMeasurement() As SipMeasurement
-
-            'After importing, SipMeasurement can be recreated:
-            'Create SiPmeasurement Object,
-            'Add Trials into their SpeechMaterial Components, into TestUnits (based on index). Add SpeechMaterialcomponent to each trial based on the SpeechMaterialComponentID
-
-
-        End Function
-
-
-
 #End Region
 
 

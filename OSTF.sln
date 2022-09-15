@@ -7,6 +7,10 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SpeechTestFramework", "Spee
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestApp3", "TestApp3\TestApp3.vbproj", "{B85F2342-E475-474E-BFB2-3BCC51B40C89}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SiP_SE_R", "SiP_SE_R\SiP_SE_R.vbproj", "{C9F084E5-9B2E-4F9B-9D07-F52B4ABC44E7}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SpeechMaterialCreator", "SpeechMaterialCreator\SpeechMaterialCreator.vbproj", "{55AF4883-96DA-49EB-B4DD-878C667DA75A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{B85F2342-E475-474E-BFB2-3BCC51B40C89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B85F2342-E475-474E-BFB2-3BCC51B40C89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B85F2342-E475-474E-BFB2-3BCC51B40C89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9F084E5-9B2E-4F9B-9D07-F52B4ABC44E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9F084E5-9B2E-4F9B-9D07-F52B4ABC44E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9F084E5-9B2E-4F9B-9D07-F52B4ABC44E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9F084E5-9B2E-4F9B-9D07-F52B4ABC44E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55AF4883-96DA-49EB-B4DD-878C667DA75A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55AF4883-96DA-49EB-B4DD-878C667DA75A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55AF4883-96DA-49EB-B4DD-878C667DA75A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55AF4883-96DA-49EB-B4DD-878C667DA75A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

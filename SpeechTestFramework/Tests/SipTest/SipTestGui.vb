@@ -41,6 +41,37 @@ Public Class SipTestGui
     Private SipMeasurementRandomizer As Random
 
 
+    ''' <summary>
+    ''' Holds the name of the speech material to be loaded.
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property SpeechMaterialName As String
+
+    ''' <summary>
+    ''' Holds the type of layout / functionality. R=Reserach, C=Clinical
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property UserType As Utils.UserTypes
+
+    Public Property GuiLanguage As Utils.Language
+
+
+    Public Sub New()
+        MyClass.New("Swedish SiP-test", Utils.Constants.UserTypes.Research, Utils.Constants.Language.English)
+    End Sub
+
+    Public Sub New(ByVal SpeechMaterialName As String, ByVal UserType As Utils.UserTypes, ByVal GuiLanguage As Utils.Language)
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        Me.SpeechMaterialName = SpeechMaterialName
+        Me.UserType = UserType
+        Me.GuiLanguage = GuiLanguage
+
+    End Sub
+
 
     Private Sub SipTestGui_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
@@ -49,7 +80,7 @@ Public Class SipTestGui
 
         Dim SelectedTest As TestSpecification = Nothing
         For Each ts In OstfSettings.AvailableTests
-            If ts.Name = "Swedish SiP-test" Then
+            If ts.Name = SpeechMaterialName Then
                 SelectedTest = ts
                 Exit For
             End If
@@ -60,7 +91,7 @@ Public Class SipTestGui
             CompleteSpeechMaterial.ParentTestSpecification = SelectedTest
             SelectedTest.SpeechMaterial = CompleteSpeechMaterial
         Else
-            MsgBox("SiP-test not found. Exiting!")
+            MsgBox("Unable to locate or load the speech material '" & SpeechMaterialName & "'. Exiting the program!", MsgBoxStyle.Exclamation, "Speech material not found!")
             Exit Sub
         End If
 
@@ -143,9 +174,79 @@ Public Class SipTestGui
         Next
         'We don't yet select a default here...?? It could possibly be done automatically at a later stage...
 
+        SetLanguageStrings(GuiLanguage)
 
     End Sub
 
+    Private Sub SetLanguageStrings(ByVal Language As Utils.Language)
+
+        Select Case Language
+            Case Utils.Language.Swedish
+
+                ParticipantID_Label.Text = "P.Id."
+                ParticipantLock_Button.Text = "Lås"
+                BluetoothSearchButton.Text = "Sök BT-skärm"
+                ConnectBluetoothScreenButton.Text = "Anslut vald BT-skärm"
+                SoundDeviceSearchButton.Text = "Sök ljudenheter"
+                SelectSoundDeviceButton.Text = "Använd vald ljudenhet"
+                SelectAudiogram_Label.Text = "Välj audiogram"
+                TestDescription_Label.Text = "Test"
+                CompletedTests_Label.Text = "Genomförda test"
+                Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
+                NewAudiogram_Button.Text = "Skapa nytt"
+                AddTypicalAudiograms_Button.Text = "Skapa typiska"
+                ReferenceLevel_Label.Text = "Referensnivå (dB)"
+                Gain_Label.Text = "Förstärkning"
+                Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
+                CreateNewGain_Button.Text = "Skapa nytt"
+                AddFig6Gain_Button.Text = "Fig6"
+                Preset_Label.Text = "Test"
+                Situation_Label.Text = "Situation"
+                LengthReduplications_Label.Text = "Längd"
+                PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
+                PNR_Label.Text = "PNR (dB)"
+                CorrectCount_Label.Text = "Antal rätt"
+                ProportionCorrect_Label.Text = "Andel rätt"
+                StatAnalysisLabel.Text = "Statistisk analys"
+                ExportData_Button.Text = "Exportera resultat"
+                ImportData_Button.Text = "Importera resultat"
+
+            Case Else
+
+                'English is default
+
+                ParticipantID_Label.Text = "P.Id."
+                ParticipantLock_Button.Text = "Lock"
+                BluetoothSearchButton.Text = "Search BT screen"
+                ConnectBluetoothScreenButton.Text = "Connect selected BT screen"
+                SoundDeviceSearchButton.Text = "Search sound units"
+                SelectSoundDeviceButton.Text = "Use selected sound unit"
+                SelectAudiogram_Label.Text = "Select audiogram"
+                TestDescription_Label.Text = "Test"
+                CompletedTests_Label.Text = "Completed tests"
+                Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
+                NewAudiogram_Button.Text = "Create new"
+                AddTypicalAudiograms_Button.Text = "Add typical"
+                ReferenceLevel_Label.Text = "Reference level (dB)"
+                Gain_Label.Text = "Gain"
+                Gain_VerticalLabel.Text = "GAIN (dB)"
+                CreateNewGain_Button.Text = "Create new"
+                AddFig6Gain_Button.Text = "Fig6"
+                Preset_Label.Text = "Test"
+                Situation_Label.Text = "Situation"
+                LengthReduplications_Label.Text = "Length"
+                PsychmetricFunction_VerticalLabel.Text = "EST. SCORE (%)"
+                PNR_Label.Text = "PNR (dB)"
+                CorrectCount_Label.Text = "Number correct"
+                ProportionCorrect_Label.Text = "Percent correct"
+                StatAnalysisLabel.Text = "Statistical analysis"
+                ExportData_Button.Text = "Export data"
+                ImportData_Button.Text = "Import data"
+
+        End Select
+
+
+    End Sub
 
 
     Private Enum RecalculationStartpoints
@@ -172,7 +273,7 @@ Public Class SipTestGui
 
 #Region "Participant"
 
-    Public Sub LockParticipant(sender As Object, e As EventArgs) Handles ParticipantLockButton.Click
+    Public Sub LockParticipant(sender As Object, e As EventArgs) Handles ParticipantLock_Button.Click
 
         'Then look up a patient in a file or database, create a patient from it and reference that patient into the CurrentPatient property
 
@@ -196,7 +297,7 @@ Public Class SipTestGui
 
         ParticipantIdTextBox.ReadOnly = True
         ParticipantIdTextBox.Text = ID
-        ParticipantLockButton.Enabled = False
+        ParticipantLock_Button.Enabled = False
 
     End Sub
 
@@ -818,6 +919,7 @@ Public Class SipTestGui
 
     Private TestComparisonHistory As New List(Of String)
 
+
     Private Sub CurrentSessionResults_DataGridView_CurrentCellDirtyStateChanged(sender As Object, e As EventArgs) Handles CurrentSessionResults_DataGridView.CurrentCellDirtyStateChanged
 
         'This extra event handler is needed since the CellValueChanged event does not always trigger for DataGridViewCheckBoxCells. See https://stackoverflow.com/questions/11843488/how-to-detect-datagridview-checkbox-event-change for this solution
@@ -1008,7 +1110,7 @@ Public Class SipTestGui
 
 #Region "ImportExport"
 
-    Public Sub SaveFileButtonPressed() Handles ExportDataButton.Click
+    Public Sub SaveFileButtonPressed() Handles ExportData_Button.Click
 
         If CurrentParticipantID Is Nothing Then
             MsgBox("No participant selected!", MsgBoxStyle.Exclamation, "Exporting measurements")
@@ -1018,7 +1120,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub OpenFileButtonPressed() Handles ImportButton.Click
+    Public Sub OpenFileButtonPressed() Handles ImportData_Button.Click
 
         If CurrentParticipantID Is Nothing Then
             MsgBox("No participant selected!", MsgBoxStyle.Exclamation, "Importing measurements")
