@@ -190,6 +190,9 @@ Public Class SipTestGui
 
                 ParticipantID_Label.Text = "P.Id."
                 ParticipantLock_Button.Text = "Lås"
+                PcScreen_RadioButton.Text = "PC-skärm"
+                PcTouch_CheckBox.Text = "Touch"
+                BtScreen_RadioButton.Text = "BT-skärm"
                 BluetoothSearchButton.Text = "Sök BT-skärm"
                 ConnectBluetoothScreenButton.Text = "Anslut vald BT-skärm"
                 SoundDeviceSearchButton.Text = "Sök ljudenheter"
@@ -215,7 +218,7 @@ Public Class SipTestGui
                 StatAnalysisLabel.Text = "Statistisk analys"
                 ExportData_Button.Text = "Exportera resultat"
                 ImportData_Button.Text = "Importera resultat"
-                MostDifficultItems_Button.Text = "Skapa"
+                MostDifficultItems_Button.Text = "Anpassat"
                 TestLength_Label.Text = "Testlängd"
 
             Case Else
@@ -224,6 +227,9 @@ Public Class SipTestGui
 
                 ParticipantID_Label.Text = "P.Id."
                 ParticipantLock_Button.Text = "Lock"
+                PcScreen_RadioButton.Text = "PC screen"
+                PcTouch_CheckBox.Text = "Touch"
+                BtScreen_RadioButton.Text = "BT screen"
                 BluetoothSearchButton.Text = "Search BT screen"
                 ConnectBluetoothScreenButton.Text = "Connect selected BT screen"
                 SoundDeviceSearchButton.Text = "Search sound units"
@@ -249,7 +255,7 @@ Public Class SipTestGui
                 StatAnalysisLabel.Text = "Statistical analysis"
                 ExportData_Button.Text = "Export data"
                 ImportData_Button.Text = "Import data"
-                MostDifficultItems_Button.Text = "Create"
+                MostDifficultItems_Button.Text = "Custom"
                 TestLength_Label.Text = "Test length"
 
         End Select
@@ -569,7 +575,7 @@ Public Class SipTestGui
             SelectedComponentNames.Add(SelectedComponent.PrimaryStringRepresentation)
         Next
 
-        MsgBox("A new preset was created containing the groups: " & vbCrLf & vbCrLf & String.Join(vbCrLf, SelectedComponentNames), "New custom test preset created")
+        MsgBox("A new preset was created containing the groups: " & vbCrLf & vbCrLf & String.Join(vbCrLf, SelectedComponentNames), MsgBoxStyle.Information, "New custom test preset created")
 
     End Sub
 
@@ -691,13 +697,25 @@ Public Class SipTestGui
         UpdateTestTrialTable()
         UpdateTestProgress()
 
-        'SipGui.UpdateTestProgress(CurrentSipTestMeasurement.TestLength, CurrentSipTestMeasurement.NumberPresented, CurrentSipTestMeasurement.NumberCorrect, CurrentSipTestMeasurement.PercentCorrect)
-
-
         'Creating a ParticipantForm
-        If ParticipantForm Is Nothing Then ParticipantForm = New TesteeForm(TesteeForm.TaskType.ForcedChoice)
-        ParticipantControl = ParticipantForm.ParticipantControl
-        ParticipantForm.Show()
+        Select Case CurrentScreenType
+            Case ScreenType.Pc
+
+                'Creating a new participant form (and ParticipantControl) if none exist
+                If ParticipantForm Is Nothing Then
+                    ParticipantForm = New TesteeForm(TesteeForm.TaskType.ForcedChoice)
+                    ParticipantControl = ParticipantForm.ParticipantControl
+                End If
+
+                'Shows the ParticipantForm
+                ParticipantForm.Show()
+
+            Case ScreenType.Bluetooth
+
+                Throw New NotImplementedException
+
+        End Select
+
 
         EnablePlayButton()
 
@@ -1419,6 +1437,83 @@ Public Class SipTestGui
     Public Sub MessageFromPlayer(ByRef Message As ISoundPlayerControl.MessagesFromSoundPlayer) Implements ISoundPlayerControl.MessageFromPlayer
 
         'Ignoes any messages
+
+    End Sub
+
+    Public Enum ScreenType
+        Pc
+        Bluetooth
+    End Enum
+
+    Public CurrentScreenType As ScreenType
+    Public PcResponseMode As Utils.ResponseModes
+
+    Private Sub PcScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles PcScreen_RadioButton.CheckedChanged
+
+        'Sets the CurrentScreenType 
+        CurrentScreenType = ScreenType.Pc
+
+        'Disables the BT buttons
+        BluetoothSearchButton.Enabled = False
+        ConnectBluetoothScreenButton.Enabled = False
+
+        'Clearing items in the Screen_ComboBox
+        Screen_ComboBox.Items.Clear()
+
+        'Adding all screens into the Screen_ComboBox
+        Dim Screens() As Screen = Screen.AllScreens
+        For Each Screen In Screens
+            Screen_ComboBox.Items.Add(Screen.DeviceName)
+        Next
+
+    End Sub
+
+    Private Sub BtScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles BtScreen_RadioButton.CheckedChanged
+
+        'Sets the CurrentScreenType 
+        CurrentScreenType = ScreenType.Bluetooth
+
+        'Enables the BT buttons
+        BluetoothSearchButton.Enabled = True
+        ConnectBluetoothScreenButton.Enabled = True
+
+        'Clearing items in the Screen_ComboBox
+        Screen_ComboBox.Items.Clear()
+
+        'Prepares to connect to bluetooth screen
+        Throw New NotImplementedException
+
+    End Sub
+
+    Private Sub Screen_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Screen_ComboBox.SelectedIndexChanged
+
+        Select Case CurrentScreenType
+            Case ScreenType.Pc
+
+                'Creating a new participant form (and ParticipantControl) if none exist
+                If ParticipantForm Is Nothing Then
+                    ParticipantForm = New TesteeForm(TesteeForm.TaskType.ForcedChoice)
+                    ParticipantControl = ParticipantForm.ParticipantControl
+                End If
+                ParticipantForm.Show()
+
+                'Selects the screen that comes in the iterated order returned by Screen.AllScreens, which repressent the order screens are added into Screen_ComboBox, and also the order they are selectd in ChangeTestFormScreen
+                ParticipantForm.ChangeTestFormScreen(PcResponseMode, Screen_ComboBox.SelectedIndex)
+
+            Case ScreenType.Bluetooth
+
+                Throw New NotImplementedException
+
+        End Select
+
+    End Sub
+
+    Private Sub PcTouch_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles PcTouch_CheckBox.CheckedChanged
+        If PcTouch_CheckBox.Checked = True Then
+            PcResponseMode = Utils.Constants.ResponseModes.TabletTouch
+        Else
+            PcResponseMode = Utils.Constants.ResponseModes.MouseClick
+        End If
 
     End Sub
 

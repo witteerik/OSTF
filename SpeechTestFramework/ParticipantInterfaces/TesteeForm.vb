@@ -70,16 +70,17 @@ Public Class TesteeForm
 
                 'Hiding the cursor by swapping it to an invisible cursor loaded from file
                 'Dim InvisibleCursorPath As String = IO.Path.Combine(Application.StartupPath, "Resources", "InvisibleCursor.cur")
-                'Me.Cursor = New Cursor(InvisibleCursorPath)
+                Dim InvisibleCursorPath As String = "InvisibleCursor.cur"
+                Me.Cursor = New Cursor(InvisibleCursorPath)
 
-                Cursor.Hide()
+                'Cursor.Hide()
 
                 LockCursorToForm()
         End Select
 
     End Sub
 
-    Public Sub ChangeTestFormScreen(ByRef ResponseMode As Utils.ResponseModes, ByRef TestPresentationScreenIndex As Integer)
+    Public Sub ChangeTestFormScreen(ByVal ResponseMode As Utils.ResponseModes, ByVal TestPresentationScreenIndex As Integer)
 
         Me.WindowState = FormWindowState.Normal
 
