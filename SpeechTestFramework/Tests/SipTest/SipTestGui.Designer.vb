@@ -22,14 +22,14 @@ Partial Class SipTestGui
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle25 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle26 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle27 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle28 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle31 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle32 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle29 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle30 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle7 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle8 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
@@ -53,9 +53,6 @@ Partial Class SipTestGui
         Me.GainPanel = New System.Windows.Forms.Panel()
         Me.AudiogramPanel = New System.Windows.Forms.Panel()
         Me.LengthReduplications_Label = New System.Windows.Forms.Label()
-        Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.AudiogramComboBox = New System.Windows.Forms.ComboBox()
         Me.HaGainComboBox = New System.Windows.Forms.ComboBox()
         Me.ReferenceLevel_Label = New System.Windows.Forms.Label()
@@ -83,8 +80,6 @@ Partial Class SipTestGui
         Me.ProportionCorrectTextBox = New System.Windows.Forms.TextBox()
         Me.CorrectCountTextBox = New System.Windows.Forms.TextBox()
         Me.TableLayoutPanel17 = New System.Windows.Forms.TableLayoutPanel()
-        Me.StartButton = New System.Windows.Forms.Button()
-        Me.StopButton = New System.Windows.Forms.Button()
         Me.TableLayoutPanel18 = New System.Windows.Forms.TableLayoutPanel()
         Me.CorrectCount_Label = New System.Windows.Forms.Label()
         Me.ProportionCorrect_Label = New System.Windows.Forms.Label()
@@ -106,7 +101,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel20 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel21 = New System.Windows.Forms.TableLayoutPanel()
         Me.BluetoothSearchButton = New System.Windows.Forms.Button()
-        Me.ConnectBluetoothScreenButton = New System.Windows.Forms.Button()
+        Me.ConnectBluetoothScreen_Button = New System.Windows.Forms.Button()
         Me.Screen_ComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.PcScreen_RadioButton = New System.Windows.Forms.RadioButton()
@@ -114,6 +109,12 @@ Partial Class SipTestGui
         Me.ParticipantLock_Button = New System.Windows.Forms.Button()
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.PcTouch_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.DisconnectWirelessScreen_Button = New System.Windows.Forms.Button()
+        Me.StartButton = New System.Windows.Forms.Button()
+        Me.StopButton = New System.Windows.Forms.Button()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -284,36 +285,36 @@ Partial Class SipTestGui
         Me.CurrentSessionResults_DataGridView.AllowUserToResizeRows = False
         Me.CurrentSessionResults_DataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.CurrentSessionResults_DataGridView.BackgroundColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle25.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle25.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle25.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle25.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle25.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle25.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle25.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.CurrentSessionResults_DataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle25
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.CurrentSessionResults_DataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.CurrentSessionResults_DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.CurrentSessionResults_DataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.TestDescriptionColumnSession, Me.TestLengthColumnSession, Me.ResultColumnSession, Me.CompareColumnSession})
-        DataGridViewCellStyle26.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle26.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle26.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle26.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle26.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle26.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle26.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.CurrentSessionResults_DataGridView.DefaultCellStyle = DataGridViewCellStyle26
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.CurrentSessionResults_DataGridView.DefaultCellStyle = DataGridViewCellStyle2
         Me.CurrentSessionResults_DataGridView.Dock = System.Windows.Forms.DockStyle.Fill
         Me.CurrentSessionResults_DataGridView.Location = New System.Drawing.Point(3, 24)
         Me.CurrentSessionResults_DataGridView.MultiSelect = False
         Me.CurrentSessionResults_DataGridView.Name = "CurrentSessionResults_DataGridView"
-        DataGridViewCellStyle27.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle27.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle27.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle27.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle27.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle27.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle27.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.CurrentSessionResults_DataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle27
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.CurrentSessionResults_DataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
         Me.CurrentSessionResults_DataGridView.RowHeadersVisible = False
         Me.CurrentSessionResults_DataGridView.Size = New System.Drawing.Size(407, 337)
         Me.CurrentSessionResults_DataGridView.TabIndex = 6
@@ -466,36 +467,6 @@ Partial Class SipTestGui
         Me.LengthReduplications_Label.TabIndex = 0
         Me.LengthReduplications_Label.Text = "Repetitioner"
         Me.LengthReduplications_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'PsychmetricFunction_VerticalLabel
-        '
-        Me.PsychmetricFunction_VerticalLabel.AutoSize = True
-        Me.PsychmetricFunction_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PsychmetricFunction_VerticalLabel.Location = New System.Drawing.Point(3, 403)
-        Me.PsychmetricFunction_VerticalLabel.Name = "PsychmetricFunction_VerticalLabel"
-        Me.PsychmetricFunction_VerticalLabel.Size = New System.Drawing.Size(19, 128)
-        Me.PsychmetricFunction_VerticalLabel.TabIndex = 0
-        Me.PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
-        '
-        'Audiogram_VerticalLabel
-        '
-        Me.Audiogram_VerticalLabel.AutoSize = True
-        Me.Audiogram_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Audiogram_VerticalLabel.Location = New System.Drawing.Point(3, 21)
-        Me.Audiogram_VerticalLabel.Name = "Audiogram_VerticalLabel"
-        Me.Audiogram_VerticalLabel.Size = New System.Drawing.Size(19, 128)
-        Me.Audiogram_VerticalLabel.TabIndex = 0
-        Me.Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
-        '
-        'Gain_VerticalLabel
-        '
-        Me.Gain_VerticalLabel.AutoSize = True
-        Me.Gain_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Gain_VerticalLabel.Location = New System.Drawing.Point(3, 191)
-        Me.Gain_VerticalLabel.Name = "Gain_VerticalLabel"
-        Me.Gain_VerticalLabel.Size = New System.Drawing.Size(19, 128)
-        Me.Gain_VerticalLabel.TabIndex = 1
-        Me.Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
         '
         'AudiogramComboBox
         '
@@ -826,30 +797,6 @@ Partial Class SipTestGui
         Me.TableLayoutPanel17.Size = New System.Drawing.Size(387, 40)
         Me.TableLayoutPanel17.TabIndex = 3
         '
-        'StartButton
-        '
-        Me.StartButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.PlayDisabledImage
-        Me.StartButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.StartButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StartButton.Location = New System.Drawing.Point(3, 3)
-        Me.StartButton.Margin = New System.Windows.Forms.Padding(3, 3, 12, 3)
-        Me.StartButton.Name = "StartButton"
-        Me.StartButton.Size = New System.Drawing.Size(178, 34)
-        Me.StartButton.TabIndex = 0
-        Me.StartButton.UseVisualStyleBackColor = True
-        '
-        'StopButton
-        '
-        Me.StopButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.StopDisabledImage
-        Me.StopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.StopButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StopButton.Location = New System.Drawing.Point(205, 3)
-        Me.StopButton.Margin = New System.Windows.Forms.Padding(12, 3, 3, 3)
-        Me.StopButton.Name = "StopButton"
-        Me.StopButton.Size = New System.Drawing.Size(179, 34)
-        Me.StopButton.TabIndex = 1
-        Me.StopButton.UseVisualStyleBackColor = True
-        '
         'TableLayoutPanel18
         '
         Me.TableLayoutPanel18.ColumnCount = 2
@@ -905,37 +852,37 @@ Partial Class SipTestGui
         Me.TestTrialDataGridView.BackgroundColor = System.Drawing.SystemColors.Window
         Me.TestTrialDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TestTrialDataGridView.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None
-        DataGridViewCellStyle28.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle28.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle28.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle28.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle28.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle28.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle28.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.TestTrialDataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle28
+        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.TestTrialDataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle4
         Me.TestTrialDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.TestTrialDataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.TestWordColumn, Me.ResponseColumn, Me.ResultColumn})
-        DataGridViewCellStyle31.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle31.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle31.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle31.ForeColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle31.SelectionBackColor = System.Drawing.SystemColors.GradientActiveCaption
-        DataGridViewCellStyle31.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle31.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.TestTrialDataGridView.DefaultCellStyle = DataGridViewCellStyle31
+        DataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle7.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.GradientActiveCaption
+        DataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.TestTrialDataGridView.DefaultCellStyle = DataGridViewCellStyle7
         Me.TestTrialDataGridView.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestTrialDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.TestTrialDataGridView.Location = New System.Drawing.Point(3, 136)
         Me.TestTrialDataGridView.Name = "TestTrialDataGridView"
         Me.TestTrialDataGridView.ReadOnly = True
-        DataGridViewCellStyle32.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle32.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle32.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle32.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle32.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle32.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle32.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.TestTrialDataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle32
+        DataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle8.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.TestTrialDataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle8
         Me.TestTrialDataGridView.RowHeadersVisible = False
         Me.TestTrialDataGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.TestTrialDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect
@@ -945,9 +892,9 @@ Partial Class SipTestGui
         '
         'TestWordColumn
         '
-        DataGridViewCellStyle29.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle29.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TestWordColumn.DefaultCellStyle = DataGridViewCellStyle29
+        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TestWordColumn.DefaultCellStyle = DataGridViewCellStyle5
         Me.TestWordColumn.HeaderText = "Testord"
         Me.TestWordColumn.Name = "TestWordColumn"
         Me.TestWordColumn.ReadOnly = True
@@ -956,9 +903,9 @@ Partial Class SipTestGui
         '
         'ResponseColumn
         '
-        DataGridViewCellStyle30.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle30.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ResponseColumn.DefaultCellStyle = DataGridViewCellStyle30
+        DataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ResponseColumn.DefaultCellStyle = DataGridViewCellStyle6
         Me.ResponseColumn.HeaderText = "Svar"
         Me.ResponseColumn.Name = "ResponseColumn"
         Me.ResponseColumn.ReadOnly = True
@@ -1131,11 +1078,13 @@ Partial Class SipTestGui
         '
         'TableLayoutPanel21
         '
-        Me.TableLayoutPanel21.ColumnCount = 2
-        Me.TableLayoutPanel21.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel21.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel21.ColumnCount = 3
+        Me.TableLayoutPanel21.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40.61303!))
+        Me.TableLayoutPanel21.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 59.38697!))
+        Me.TableLayoutPanel21.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 89.0!))
         Me.TableLayoutPanel21.Controls.Add(Me.BluetoothSearchButton, 0, 0)
-        Me.TableLayoutPanel21.Controls.Add(Me.ConnectBluetoothScreenButton, 1, 0)
+        Me.TableLayoutPanel21.Controls.Add(Me.ConnectBluetoothScreen_Button, 1, 0)
+        Me.TableLayoutPanel21.Controls.Add(Me.DisconnectWirelessScreen_Button, 2, 0)
         Me.TableLayoutPanel21.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel21.Location = New System.Drawing.Point(0, 22)
         Me.TableLayoutPanel21.Margin = New System.Windows.Forms.Padding(0)
@@ -1152,21 +1101,20 @@ Partial Class SipTestGui
         Me.BluetoothSearchButton.Location = New System.Drawing.Point(0, 0)
         Me.BluetoothSearchButton.Margin = New System.Windows.Forms.Padding(0, 0, 12, 0)
         Me.BluetoothSearchButton.Name = "BluetoothSearchButton"
-        Me.BluetoothSearchButton.Size = New System.Drawing.Size(129, 23)
+        Me.BluetoothSearchButton.Size = New System.Drawing.Size(66, 23)
         Me.BluetoothSearchButton.TabIndex = 0
         Me.BluetoothSearchButton.Text = "Sök skärm"
         Me.BluetoothSearchButton.UseVisualStyleBackColor = True
         '
-        'ConnectBluetoothScreenButton
+        'ConnectBluetoothScreen_Button
         '
-        Me.ConnectBluetoothScreenButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ConnectBluetoothScreenButton.Location = New System.Drawing.Point(153, 0)
-        Me.ConnectBluetoothScreenButton.Margin = New System.Windows.Forms.Padding(12, 0, 0, 0)
-        Me.ConnectBluetoothScreenButton.Name = "ConnectBluetoothScreenButton"
-        Me.ConnectBluetoothScreenButton.Size = New System.Drawing.Size(129, 23)
-        Me.ConnectBluetoothScreenButton.TabIndex = 1
-        Me.ConnectBluetoothScreenButton.Text = "Anslut vald skärm"
-        Me.ConnectBluetoothScreenButton.UseVisualStyleBackColor = True
+        Me.ConnectBluetoothScreen_Button.Location = New System.Drawing.Point(90, 0)
+        Me.ConnectBluetoothScreen_Button.Margin = New System.Windows.Forms.Padding(12, 0, 0, 0)
+        Me.ConnectBluetoothScreen_Button.Name = "ConnectBluetoothScreen_Button"
+        Me.ConnectBluetoothScreen_Button.Size = New System.Drawing.Size(102, 23)
+        Me.ConnectBluetoothScreen_Button.TabIndex = 1
+        Me.ConnectBluetoothScreen_Button.Text = "Anslut vald skärm"
+        Me.ConnectBluetoothScreen_Button.UseVisualStyleBackColor = True
         '
         'Screen_ComboBox
         '
@@ -1248,6 +1196,70 @@ Partial Class SipTestGui
         Me.PcTouch_CheckBox.TabIndex = 2
         Me.PcTouch_CheckBox.Text = "Touch"
         Me.PcTouch_CheckBox.UseVisualStyleBackColor = True
+        '
+        'PsychmetricFunction_VerticalLabel
+        '
+        Me.PsychmetricFunction_VerticalLabel.AutoSize = True
+        Me.PsychmetricFunction_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.PsychmetricFunction_VerticalLabel.Location = New System.Drawing.Point(3, 403)
+        Me.PsychmetricFunction_VerticalLabel.Name = "PsychmetricFunction_VerticalLabel"
+        Me.PsychmetricFunction_VerticalLabel.Size = New System.Drawing.Size(19, 128)
+        Me.PsychmetricFunction_VerticalLabel.TabIndex = 0
+        Me.PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
+        '
+        'Audiogram_VerticalLabel
+        '
+        Me.Audiogram_VerticalLabel.AutoSize = True
+        Me.Audiogram_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Audiogram_VerticalLabel.Location = New System.Drawing.Point(3, 21)
+        Me.Audiogram_VerticalLabel.Name = "Audiogram_VerticalLabel"
+        Me.Audiogram_VerticalLabel.Size = New System.Drawing.Size(19, 128)
+        Me.Audiogram_VerticalLabel.TabIndex = 0
+        Me.Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
+        '
+        'Gain_VerticalLabel
+        '
+        Me.Gain_VerticalLabel.AutoSize = True
+        Me.Gain_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Gain_VerticalLabel.Location = New System.Drawing.Point(3, 191)
+        Me.Gain_VerticalLabel.Name = "Gain_VerticalLabel"
+        Me.Gain_VerticalLabel.Size = New System.Drawing.Size(19, 128)
+        Me.Gain_VerticalLabel.TabIndex = 1
+        Me.Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
+        '
+        'DisconnectWirelessScreen_Button
+        '
+        Me.DisconnectWirelessScreen_Button.Location = New System.Drawing.Point(204, 0)
+        Me.DisconnectWirelessScreen_Button.Margin = New System.Windows.Forms.Padding(12, 0, 0, 0)
+        Me.DisconnectWirelessScreen_Button.Name = "DisconnectWirelessScreen_Button"
+        Me.DisconnectWirelessScreen_Button.Size = New System.Drawing.Size(78, 23)
+        Me.DisconnectWirelessScreen_Button.TabIndex = 2
+        Me.DisconnectWirelessScreen_Button.Text = "Koppla från skärm"
+        Me.DisconnectWirelessScreen_Button.UseVisualStyleBackColor = True
+        '
+        'StartButton
+        '
+        Me.StartButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.PlayDisabledImage
+        Me.StartButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
+        Me.StartButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StartButton.Location = New System.Drawing.Point(3, 3)
+        Me.StartButton.Margin = New System.Windows.Forms.Padding(3, 3, 12, 3)
+        Me.StartButton.Name = "StartButton"
+        Me.StartButton.Size = New System.Drawing.Size(178, 34)
+        Me.StartButton.TabIndex = 0
+        Me.StartButton.UseVisualStyleBackColor = True
+        '
+        'StopButton
+        '
+        Me.StopButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.StopDisabledImage
+        Me.StopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
+        Me.StopButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StopButton.Location = New System.Drawing.Point(205, 3)
+        Me.StopButton.Margin = New System.Windows.Forms.Padding(12, 3, 3, 3)
+        Me.StopButton.Name = "StopButton"
+        Me.StopButton.Size = New System.Drawing.Size(179, 34)
+        Me.StopButton.TabIndex = 1
+        Me.StopButton.UseVisualStyleBackColor = True
         '
         'SipTestGui
         '
@@ -1337,7 +1349,7 @@ Partial Class SipTestGui
     Friend WithEvents SoundDeviceSearchButton As Windows.Forms.Button
     Friend WithEvents SoundDevicesComboBox As Windows.Forms.ComboBox
     Friend WithEvents BluetoothSearchButton As Windows.Forms.Button
-    Friend WithEvents ConnectBluetoothScreenButton As Windows.Forms.Button
+    Friend WithEvents ConnectBluetoothScreen_Button As Windows.Forms.Button
     Friend WithEvents Screen_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents VerticalLabel2 As SpeechTestFramework.WinFormControls.VerticalLabel
     Friend WithEvents VerticalLabel1 As SpeechTestFramework.WinFormControls.VerticalLabel
@@ -1377,4 +1389,5 @@ Partial Class SipTestGui
     Friend WithEvents PcScreen_RadioButton As Windows.Forms.RadioButton
     Friend WithEvents BtScreen_RadioButton As Windows.Forms.RadioButton
     Friend WithEvents PcTouch_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents DisconnectWirelessScreen_Button As Windows.Forms.Button
 End Class

@@ -54,7 +54,7 @@ Namespace Utils
             Clinical
         End Enum
 
-        Public Enum Language
+        Public Enum Languages
             English
             Swedish
         End Enum

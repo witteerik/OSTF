@@ -54,14 +54,14 @@ Public Class SipTestGui
     ''' <returns></returns>
     Public ReadOnly Property UserType As Utils.UserTypes
 
-    Public Property GuiLanguage As Utils.Language
+    Public Property GuiLanguage As Utils.Languages
 
 
     Public Sub New()
-        MyClass.New("Swedish SiP-test", Utils.Constants.UserTypes.Research, Utils.Constants.Language.English)
+        MyClass.New("Swedish SiP-test", Utils.Constants.UserTypes.Research, Utils.Constants.Languages.English)
     End Sub
 
-    Public Sub New(ByVal SpeechMaterialName As String, ByVal UserType As Utils.UserTypes, ByVal GuiLanguage As Utils.Language)
+    Public Sub New(ByVal SpeechMaterialName As String, ByVal UserType As Utils.UserTypes, ByVal GuiLanguage As Utils.Languages)
 
         ' This call is required by the designer.
         InitializeComponent()
@@ -183,10 +183,10 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub SetLanguageStrings(ByVal Language As Utils.Language)
+    Private Sub SetLanguageStrings(ByVal Language As Utils.Languages)
 
         Select Case Language
-            Case Utils.Language.Swedish
+            Case Utils.Languages.Swedish
 
                 ParticipantID_Label.Text = "P.Id."
                 ParticipantLock_Button.Text = "Lås"
@@ -194,7 +194,7 @@ Public Class SipTestGui
                 PcTouch_CheckBox.Text = "Touch"
                 BtScreen_RadioButton.Text = "BT-skärm"
                 BluetoothSearchButton.Text = "Sök BT-skärm"
-                ConnectBluetoothScreenButton.Text = "Anslut vald BT-skärm"
+                ConnectBluetoothScreen_Button.Text = "Anslut vald BT-skärm"
                 SoundDeviceSearchButton.Text = "Sök ljudenheter"
                 SelectSoundDeviceButton.Text = "Använd vald ljudenhet"
                 SelectAudiogram_Label.Text = "Välj audiogram"
@@ -231,7 +231,7 @@ Public Class SipTestGui
                 PcTouch_CheckBox.Text = "Touch"
                 BtScreen_RadioButton.Text = "BT screen"
                 BluetoothSearchButton.Text = "Search BT screen"
-                ConnectBluetoothScreenButton.Text = "Connect selected BT screen"
+                ConnectBluetoothScreen_Button.Text = "Connect selected BT screen"
                 SoundDeviceSearchButton.Text = "Search sound units"
                 SelectSoundDeviceButton.Text = "Use selected sound unit"
                 SelectAudiogram_Label.Text = "Select audiogram"
@@ -712,7 +712,7 @@ Public Class SipTestGui
 
             Case ScreenType.Bluetooth
 
-                Throw New NotImplementedException
+                MyBtTesteeControl.StartNewTestSession()
 
         End Select
 
@@ -1285,18 +1285,6 @@ Public Class SipTestGui
 #End Region
 
 
-#Region "BlueToothConnection"
-
-
-    Public Sub SearchForBluetoothDevices()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String)
-        Throw New NotImplementedException()
-    End Sub
-
-#End Region
 
 #Region "SoundDevice"
 
@@ -1307,6 +1295,13 @@ Public Class SipTestGui
     Public Sub SelectSoundDevice(SelectedSoundDeviceDescription As String)
         Throw New NotImplementedException()
     End Sub
+
+    Public Sub MessageFromPlayer(ByRef Message As ISoundPlayerControl.MessagesFromSoundPlayer) Implements ISoundPlayerControl.MessageFromPlayer
+
+        'Ignoes any messages
+
+    End Sub
+
 
 #End Region
 
@@ -1434,11 +1429,13 @@ Public Class SipTestGui
         End Select
     End Sub
 
-    Public Sub MessageFromPlayer(ByRef Message As ISoundPlayerControl.MessagesFromSoundPlayer) Implements ISoundPlayerControl.MessageFromPlayer
 
-        'Ignoes any messages
 
-    End Sub
+#End Region
+
+
+#Region "Screen"
+
 
     Public Enum ScreenType
         Pc
@@ -1455,7 +1452,7 @@ Public Class SipTestGui
 
         'Disables the BT buttons
         BluetoothSearchButton.Enabled = False
-        ConnectBluetoothScreenButton.Enabled = False
+        ConnectBluetoothScreen_Button.Enabled = False
 
         'Clearing items in the Screen_ComboBox
         Screen_ComboBox.Items.Clear()
@@ -1475,13 +1472,14 @@ Public Class SipTestGui
 
         'Enables the BT buttons
         BluetoothSearchButton.Enabled = True
-        ConnectBluetoothScreenButton.Enabled = True
+        ConnectBluetoothScreen_Button.Enabled = True
 
         'Clearing items in the Screen_ComboBox
         Screen_ComboBox.Items.Clear()
 
         'Prepares to connect to bluetooth screen
-        Throw New NotImplementedException
+        '???
+
 
     End Sub
 
@@ -1525,6 +1523,134 @@ Public Class SipTestGui
 #End Region
 
 
+#Region "BlueToothConnection"
+
+    Private ReadOnly Bt_UUID As String = "056435e9-cfdd-4fb3-8cc8-9a4eb21c439c" 'Created with https://www.uuidgenerator.net/
+    Private ReadOnly Bt_PIN As String = "1234"
+
+    Private MyBtTesteeControl As BtTesteeControl = Nothing
+
+
+    Public Sub SearchForBluetoothDevices()
+        Throw New NotImplementedException()
+    End Sub
+
+    Public Sub SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String)
+        Throw New NotImplementedException()
+    End Sub
+
+
+    Private Sub SendBTMessageToolStripMenuItem_Click(sender As Object, e As EventArgs) 'Handles SendBTMessageToolStripMenuItem.Click
+
+        If MyBtTesteeControl IsNot Nothing Then
+            MyBtTesteeControl.BtTabletTalker.SendBtMessage("ping")
+        End If
+
+    End Sub
+
+    Private Sub BluetoothSearchButton_Click(sender As Object, e As EventArgs) Handles BluetoothSearchButton.Click
+        '?
+    End Sub
+
+
+    Private Sub ConnectBluetoothScreenButton_Click(sender As Object, e As EventArgs) Handles ConnectBluetoothScreen_Button.Click
+
+        Dim Failed As Boolean = False
+        If MyBtTesteeControl Is Nothing Then
+
+            'MyBtTabletTalker = New BtTabletTalker(Me, Bt_UUID, Bt_PIN)
+            'If MyBtTabletTalker.EstablishBtConnection() = False Then Failed = True
+
+            'Creating a new BtTesteeControl (This should be reused as long as the connection is open!)
+            MyBtTesteeControl = New BtTesteeControl()
+
+            If MyBtTesteeControl.Initialize(Bt_UUID, Bt_PIN, Utils.Languages.Swedish) = False Then
+                Failed = True
+            End If
+
+        Else
+            If MyBtTesteeControl.BtTabletTalker.TrySendData() = False Then Failed = True
+        End If
+
+        If Failed = True Then
+            MsgBox("Ingen blåtandsenhet kunde anslutas, vänligen försök igen!")
+            ConnectBluetoothScreen_Button.Text = "Anslut trådlös pekskärm"
+            MyBtTesteeControl = Nothing
+            DisconnectWirelessScreen()
+            Exit Sub
+        Else
+            ConnectBluetoothScreen_Button.Text = "Trådlös pekskärm ansluten"
+        End If
+
+        ConnectBluetoothScreen_Button.Enabled = False
+
+        'Calling UseBtScreen to set things up
+        UseBtScreen()
+
+    End Sub
+
+    Private Sub DisconnectWirelessScreenButton_Click(sender As Object, e As EventArgs) Handles DisconnectWirelessScreen_Button.Click
+        DisconnectWirelessScreen()
+    End Sub
+
+    Private Sub DisconnectWirelessScreen()
+
+        If MyBtTesteeControl IsNot Nothing Then
+            Try
+                MyBtTesteeControl.BtTabletTalker.DisconnectBT()
+                MyBtTesteeControl.BtTabletTalker.Dispose()
+                MyBtTesteeControl.BtTabletTalker = Nothing
+                MyBtTesteeControl = Nothing
+            Catch ex As Exception
+                MyBtTesteeControl = Nothing
+            End Try
+        End If
+
+        ConnectBluetoothScreen_Button.Enabled = True
+        ConnectBluetoothScreen_Button.Text = "Anslut trådlös pekskärm"
+
+        PcScreen_RadioButton.Checked = True
+
+    End Sub
+
+    Private Sub UseBtScreen()
+
+
+        Dim Failed As Boolean = False
+        Try
+            If MyBtTesteeControl.BtTabletTalker.TrySendData = True Then
+                CurrentScreenType = ScreenType.Bluetooth
+
+                'Enabling the AvailableTestsComboBox if not already done
+                DisconnectWirelessScreen_Button.Enabled = True
+
+            Else
+                Failed = True
+            End If
+        Catch ex As Exception
+            Failed = True
+        End Try
+
+        If Failed = True Then
+            MsgBox("Anslutningen till blåtandsskärmen har gått förlorad.")
+
+            ' Calls DisconnectWirelessScreen to set correct enabled status of all controls
+            DisconnectWirelessScreen()
+
+        End If
+
+
+    End Sub
+
+    Private Sub StartTest(sender As Object, e As EventArgs) Handles StartButton.Click
+
+    End Sub
+
+    Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
+
+    End Sub
+
+#End Region
 
 
 

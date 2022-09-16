@@ -45,6 +45,9 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="InTheHand.Net.Bluetooth, Version=4.0.0.0, Culture=neutral, PublicKeyToken=ea38caa273134499, processorArchitecture=MSIL">
+      <HintPath>..\packages\InTheHand.Net.Bluetooth.4.0.14\lib\net461\InTheHand.Net.Bluetooth.dll</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.5.0.0\lib\net48\MathNet.Numerics.dll</HintPath>
     </Reference>
@@ -110,25 +113,35 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="ParticipantInterfaces\ForcedChoiceTesteeControl.designer.vb">
-      <DependentUpon>ForcedChoiceTesteeControl.vb</DependentUpon>
+    <Compile Include="ParticipantInterfaces\BT\BtSearchDialog.designer.vb">
+      <DependentUpon>BtSearchDialog.vb</DependentUpon>
     </Compile>
-    <Compile Include="ParticipantInterfaces\ForcedChoiceTesteeControl.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ParticipantInterfaces\SpatializedStilmuliTesteeControl.designer.vb">
-      <DependentUpon>SpatializedStilmuliTesteeControl.vb</DependentUpon>
-    </Compile>
-    <Compile Include="ParticipantInterfaces\SpatializedStilmuliTesteeControl.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ParticipantInterfaces\TesteeForm.designer.vb">
-      <DependentUpon>TesteeForm.vb</DependentUpon>
-    </Compile>
-    <Compile Include="ParticipantInterfaces\TesteeForm.vb">
+    <Compile Include="ParticipantInterfaces\BT\BtSearchDialog.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ParticipantInterfaces\TestFormControls.vb">
+    <Compile Include="ParticipantInterfaces\BT\BtTabletTalk.vb">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\BT\BtTesteeControl.vb" />
+    <Compile Include="ParticipantInterfaces\PC\ForcedChoiceTesteeControl.designer.vb">
+      <DependentUpon>ForcedChoiceTesteeControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\PC\ForcedChoiceTesteeControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\PC\SpatializedStilmuliTesteeControl.designer.vb">
+      <DependentUpon>SpatializedStilmuliTesteeControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\PC\SpatializedStilmuliTesteeControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\PC\TesteeForm.designer.vb">
+      <DependentUpon>TesteeForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\PC\TesteeForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\PC\TestFormControls.vb">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Settings\OstfSettings.vb" />
@@ -305,13 +318,16 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ParticipantInterfaces\ForcedChoiceTesteeControl.resx">
+    <EmbeddedResource Include="ParticipantInterfaces\BT\BtSearchDialog.resx">
+      <DependentUpon>BtSearchDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticipantInterfaces\PC\ForcedChoiceTesteeControl.resx">
       <DependentUpon>ForcedChoiceTesteeControl.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ParticipantInterfaces\SpatializedStilmuliTesteeControl.resx">
+    <EmbeddedResource Include="ParticipantInterfaces\PC\SpatializedStilmuliTesteeControl.resx">
       <DependentUpon>SpatializedStilmuliTesteeControl.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ParticipantInterfaces\TesteeForm.resx">
+    <EmbeddedResource Include="ParticipantInterfaces\PC\TesteeForm.resx">
       <DependentUpon>TesteeForm.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Tests\SipTest\SipTestGui.resx">
