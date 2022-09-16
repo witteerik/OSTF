@@ -64,9 +64,16 @@ Namespace SipTest
 #Region "Preparation"
 
 
-
-
         Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal PresetName As String, ByVal MediaSetName As String, Optional ByVal RandomSeed As Integer? = Nothing)
+
+            Dim Preset = ParentTestSpecification.SpeechMaterial.Presets(PresetName)
+
+            PlanTestTrials(AvailableMediaSet, Preset, MediaSetName, RandomSeed)
+
+        End Sub
+
+
+        Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal Preset As List(Of SpeechMaterialComponent), ByVal MediaSetName As String, Optional ByVal RandomSeed As Integer? = Nothing)
 
             ClearTrials()
 
@@ -80,7 +87,7 @@ Namespace SipTest
 
                     For r = 1 To TestProcedure.LengthReduplications
 
-                        For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(PresetName)
+                        For Each PresetComponent In Preset
 
                             Dim NewTestUnit = New SiPTestUnit(Me)
 
@@ -125,7 +132,7 @@ Namespace SipTest
 
                     For r = 1 To TestProcedure.LengthReduplications
 
-                        For Each PresetComponent In ParentTestSpecification.SpeechMaterial.Presets(PresetName)
+                        For Each PresetComponent In Preset
 
                             Dim NewTestUnit = New SiPTestUnit(Me)
 
@@ -171,6 +178,8 @@ Namespace SipTest
 
 
         End Sub
+
+
 
         Public Sub ClearTrials()
             TestUnits.Clear()
@@ -336,10 +345,10 @@ Namespace SipTest
 
                 Me.SetLevels(ReferenceLevel, pnr)
 
-                Dim EteimatedScore = Me.CalculateEstimatedMeanScore
+                Dim EstimatedScore = Me.CalculateEstimatedMeanScore
 
-                If EteimatedScore IsNot Nothing Then
-                    Output.Add(pnr, EteimatedScore)
+                If EstimatedScore IsNot Nothing Then
+                    Output.Add(pnr, EstimatedScore)
                 End If
 
             Next

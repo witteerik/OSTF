@@ -148,6 +148,7 @@ Public Class SipTestGui
         For Each HaGain In AvailableHaGains
             HaGainComboBox.Items.Add(HaGain)
         Next
+        HaGainComboBox.SelectedIndex = HaGainComboBox.Items.Count - 1
 
         'Adding available preset names
         AvailablePresetsNames = CompleteSpeechMaterial.Presets.Keys.ToList
@@ -206,7 +207,7 @@ Public Class SipTestGui
                 AddFig6Gain_Button.Text = "Fig6"
                 Preset_Label.Text = "Test"
                 Situation_Label.Text = "Situation"
-                LengthReduplications_Label.Text = "Längd"
+                LengthReduplications_Label.Text = "Repetitioner"
                 PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
                 PNR_Label.Text = "PNR (dB)"
                 CorrectCount_Label.Text = "Antal rätt"
@@ -214,6 +215,8 @@ Public Class SipTestGui
                 StatAnalysisLabel.Text = "Statistisk analys"
                 ExportData_Button.Text = "Exportera resultat"
                 ImportData_Button.Text = "Importera resultat"
+                MostDifficultItems_Button.Text = "Skapa"
+                TestLength_Label.Text = "Testlängd"
 
             Case Else
 
@@ -238,7 +241,7 @@ Public Class SipTestGui
                 AddFig6Gain_Button.Text = "Fig6"
                 Preset_Label.Text = "Test"
                 Situation_Label.Text = "Situation"
-                LengthReduplications_Label.Text = "Length"
+                LengthReduplications_Label.Text = "Repetitions"
                 PsychmetricFunction_VerticalLabel.Text = "EST. SCORE (%)"
                 PNR_Label.Text = "PNR (dB)"
                 CorrectCount_Label.Text = "Number correct"
@@ -246,6 +249,8 @@ Public Class SipTestGui
                 StatAnalysisLabel.Text = "Statistical analysis"
                 ExportData_Button.Text = "Export data"
                 ImportData_Button.Text = "Import data"
+                MostDifficultItems_Button.Text = "Create"
+                TestLength_Label.Text = "Test length"
 
         End Select
 
@@ -462,6 +467,15 @@ Public Class SipTestGui
 
 #End Region
 
+    Public Sub SelectSituation(sender As Object, e As EventArgs) Handles TestSituationComboBox.SelectedIndexChanged
+
+        'Stores the selected preset
+        SelectedMediaSet = TestSituationComboBox.SelectedItem
+
+        TryCalculatePsychometricFunction()
+
+    End Sub
+
     Public Sub SelectPreset(sender As Object, e As EventArgs) Handles PresetComboBox.SelectedIndexChanged
 
         'Stores the selected preset
@@ -471,14 +485,94 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub SelectSituation(sender As Object, e As EventArgs) Handles TestSituationComboBox.SelectedIndexChanged
+    Public Sub MostDifficultItems_Button_Click() Handles MostDifficultItems_Button.Click
+        SelectMostDifficultItems()
+    End Sub
 
-        'Stores the selected preset
-        SelectedMediaSet = TestSituationComboBox.SelectedItem
+    Private CustomPresetCount As Integer = 1
 
-        TryCalculatePsychometricFunction()
+    Public Sub SelectMostDifficultItems(Optional ByVal GroupCount As Integer = 7)
+
+        If SelectedPnr Is Nothing Then
+            ShowMessageBox("Please select a PNR value!", "SiP-test")
+            Exit Sub
+        End If
+        If CurrentParticipantID Is Nothing Then
+            ShowMessageBox("Please enter a participant ID!", "SiP-test")
+            Exit Sub
+        End If
+        If SelectedAudiogramData Is Nothing Then
+            ShowMessageBox("Please select an audiogram!", "SiP-test")
+            Exit Sub
+        End If
+        If SelectedReferenceLevel.HasValue = False Then
+            ShowMessageBox("Please select a reference level!", "SiP-test")
+            Exit Sub
+        End If
+        If SelectedHearingAidGain Is Nothing Then
+            ShowMessageBox("Please select hearing aid gain, or no gain!", "SiP-test")
+            Exit Sub
+        End If
+        If SelectedMediaSet Is Nothing Then
+            ShowMessageBox("Please select a test situation!", "SiP-test")
+            Exit Sub
+        End If
+
+        'Creates a new test and updates the psychometric function diagram
+        Dim TempSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification)
+        TempSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
+        TempSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
+        TempSipTestMeasurement.TestProcedure.LengthReduplications = 1
+
+        'Test length was updated, adds test trials to the measurement
+        Dim Lists = TempSipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
+
+        Dim CandidateLists As New List(Of Tuple(Of SpeechMaterialComponent, Double)) 'Component, success probabilities
+        Dim SuccessProbabilityList As New List(Of Double)
+
+        For Each List In Lists
+
+            Dim TempPreset As New List(Of SpeechMaterialComponent) From {List}
+
+            TempSipTestMeasurement.PlanTestTrials(AvailableMediaSets, TempPreset, SelectedMediaSet.MediaSetName)
+            TempSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
+            Dim EstimatedScore = TempSipTestMeasurement.CalculateEstimatedMeanScore
+
+            CandidateLists.Add(New Tuple(Of SpeechMaterialComponent, Double)(List, EstimatedScore.Item1))
+            SuccessProbabilityList.Add(EstimatedScore.Item1)
+
+        Next
+
+        'Sorts the list with success probabilities
+        SuccessProbabilityList.Sort()
+
+        Dim LastIndex As Integer = Math.Min(SuccessProbabilityList.Count - 1, GroupCount - 1)
+        Dim Limit As Double = SuccessProbabilityList(LastIndex)
+        Dim SelectedComponents As New List(Of SpeechMaterialComponent)
+
+        For Each Component In CandidateLists
+            If Component.Item2 <= Limit Then SelectedComponents.Add(Component.Item1)
+            If SelectedComponents.Count = GroupCount Then Exit For
+        Next
+
+        'Creating a preset
+        Dim NewPresetName As String = "Custom " & CustomPresetCount '"Custom_" & SelectedAudiogramData.Name & "_" & SelectedReferenceLevel & "_" & SelectedPnr
+        CustomPresetCount += 1
+
+        CompleteSpeechMaterial.Presets.Add(NewPresetName, SelectedComponents)
+        AvailablePresetsNames.Add(NewPresetName)
+        PresetComboBox.Items.Add(NewPresetName)
+        PresetComboBox.SelectedItem = NewPresetName
+
+        Dim SelectedComponentNames As New List(Of String)
+        For Each SelectedComponent In SelectedComponents
+            SelectedComponentNames.Add(SelectedComponent.PrimaryStringRepresentation)
+        Next
+
+        MsgBox("A new preset was created containing the groups: " & vbCrLf & vbCrLf & String.Join(vbCrLf, SelectedComponentNames), "New custom test preset created")
 
     End Sub
+
 
     Public Sub SelectTestLength(sender As Object, e As EventArgs) Handles TestLengthComboBox.SelectedIndexChanged
 
@@ -497,6 +591,9 @@ Public Class SipTestGui
 
 
     Private Sub TryCalculatePsychometricFunction()
+
+        'Resetting the planned trial test length text
+        PlannedTestLength_TextBox.Text = ""
 
         If CurrentParticipantID Is Nothing Then Exit Sub
         If SelectedAudiogramData Is Nothing Then Exit Sub
@@ -535,6 +632,9 @@ Public Class SipTestGui
 
         'Updates the psychometric function diagram
         DisplayPredictedPsychometricCurve(PNRs, PredictedScores, LowerCriticalBoundary, UpperCriticalBoundary)
+
+        'Displayes the planned test length
+        PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
 
         'Initiates the test
         InitiateNewMeasurement()

@@ -41,16 +41,17 @@ Partial Class SipTestGui
         Me.ImportData_Button = New System.Windows.Forms.Button()
         Me.CompletedTests_Label = New System.Windows.Forms.Label()
         Me.CurrentSessionResults_DataGridView = New System.Windows.Forms.DataGridView()
+        Me.TestDescriptionColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.TestLengthColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.ResultColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
+        Me.CompareColumnSession = New System.Windows.Forms.DataGridViewCheckBoxColumn()
         Me.TestSettings_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.Gain_Label = New System.Windows.Forms.Label()
         Me.SelectAudiogram_Label = New System.Windows.Forms.Label()
         Me.ExpectedScorePanel = New System.Windows.Forms.Panel()
         Me.GainPanel = New System.Windows.Forms.Panel()
         Me.AudiogramPanel = New System.Windows.Forms.Panel()
-        Me.PNR_Label = New System.Windows.Forms.Label()
         Me.LengthReduplications_Label = New System.Windows.Forms.Label()
-        Me.Situation_Label = New System.Windows.Forms.Label()
-        Me.Preset_Label = New System.Windows.Forms.Label()
         Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
@@ -58,16 +59,20 @@ Partial Class SipTestGui
         Me.HaGainComboBox = New System.Windows.Forms.ComboBox()
         Me.ReferenceLevel_Label = New System.Windows.Forms.Label()
         Me.ReferenceLevelComboBox = New System.Windows.Forms.ComboBox()
-        Me.PresetComboBox = New System.Windows.Forms.ComboBox()
-        Me.TestSituationComboBox = New System.Windows.Forms.ComboBox()
         Me.TestLengthComboBox = New System.Windows.Forms.ComboBox()
-        Me.PnrComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel10 = New System.Windows.Forms.TableLayoutPanel()
         Me.AddTypicalAudiograms_Button = New System.Windows.Forms.Button()
         Me.NewAudiogram_Button = New System.Windows.Forms.Button()
         Me.TableLayoutPanel11 = New System.Windows.Forms.TableLayoutPanel()
         Me.CreateNewGain_Button = New System.Windows.Forms.Button()
         Me.AddFig6Gain_Button = New System.Windows.Forms.Button()
+        Me.PNR_Label = New System.Windows.Forms.Label()
+        Me.PnrComboBox = New System.Windows.Forms.ComboBox()
+        Me.Preset_Label = New System.Windows.Forms.Label()
+        Me.PresetComboBox = New System.Windows.Forms.ComboBox()
+        Me.Situation_Label = New System.Windows.Forms.Label()
+        Me.TestSituationComboBox = New System.Windows.Forms.ComboBox()
+        Me.MostDifficultItems_Button = New System.Windows.Forms.Button()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel26 = New System.Windows.Forms.TableLayoutPanel()
         Me.TestDescription_Label = New System.Windows.Forms.Label()
@@ -103,10 +108,8 @@ Partial Class SipTestGui
         Me.BluetoothDevicesComboBox = New System.Windows.Forms.ComboBox()
         Me.ParticipantLock_Button = New System.Windows.Forms.Button()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.TestDescriptionColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.TestLengthColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.ResultColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
-        Me.CompareColumnSession = New System.Windows.Forms.DataGridViewCheckBoxColumn()
+        Me.TestLength_Label = New System.Windows.Forms.Label()
+        Me.PlannedTestLength_TextBox = New System.Windows.Forms.TextBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -310,6 +313,30 @@ Partial Class SipTestGui
         Me.CurrentSessionResults_DataGridView.Size = New System.Drawing.Size(407, 337)
         Me.CurrentSessionResults_DataGridView.TabIndex = 6
         '
+        'TestDescriptionColumnSession
+        '
+        Me.TestDescriptionColumnSession.HeaderText = "Test"
+        Me.TestDescriptionColumnSession.Name = "TestDescriptionColumnSession"
+        Me.TestDescriptionColumnSession.ReadOnly = True
+        '
+        'TestLengthColumnSession
+        '
+        Me.TestLengthColumnSession.HeaderText = "Längd"
+        Me.TestLengthColumnSession.Name = "TestLengthColumnSession"
+        Me.TestLengthColumnSession.ReadOnly = True
+        '
+        'ResultColumnSession
+        '
+        Me.ResultColumnSession.HeaderText = "Resultat (%)"
+        Me.ResultColumnSession.Name = "ResultColumnSession"
+        Me.ResultColumnSession.ReadOnly = True
+        '
+        'CompareColumnSession
+        '
+        Me.CompareColumnSession.HeaderText = "Jämför"
+        Me.CompareColumnSession.Name = "CompareColumnSession"
+        Me.CompareColumnSession.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        '
         'TestSettings_TableLayoutPanel
         '
         Me.TestSettings_TableLayoutPanel.ColumnCount = 4
@@ -318,15 +345,13 @@ Partial Class SipTestGui
         Me.TestSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TestSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 58.0!))
         Me.TestSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TestLength_Label, 0, 10)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.Gain_Label, 0, 3)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.SelectAudiogram_Label, 0, 0)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.ExpectedScorePanel, 1, 9)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.GainPanel, 1, 4)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.AudiogramPanel, 1, 1)
-        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PNR_Label, 0, 10)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.LengthReduplications_Label, 0, 8)
-        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.Situation_Label, 0, 7)
-        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.Preset_Label, 0, 6)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PsychmetricFunction_VerticalLabel, 0, 9)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.Audiogram_VerticalLabel, 0, 1)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.Gain_VerticalLabel, 0, 4)
@@ -334,12 +359,17 @@ Partial Class SipTestGui
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.HaGainComboBox, 2, 3)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.ReferenceLevel_Label, 0, 2)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.ReferenceLevelComboBox, 2, 2)
-        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PresetComboBox, 2, 6)
-        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TestSituationComboBox, 2, 7)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TestLengthComboBox, 2, 8)
-        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PnrComboBox, 2, 10)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel10, 3, 1)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel11, 3, 4)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PNR_Label, 0, 5)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PnrComboBox, 2, 5)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.Preset_Label, 0, 7)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PresetComboBox, 2, 7)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.Situation_Label, 0, 6)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TestSituationComboBox, 2, 6)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.MostDifficultItems_Button, 3, 7)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PlannedTestLength_TextBox, 2, 10)
         Me.TestSettings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestSettings_TableLayoutPanel.Location = New System.Drawing.Point(3, 3)
         Me.TestSettings_TableLayoutPanel.Name = "TestSettings_TableLayoutPanel"
@@ -410,17 +440,6 @@ Partial Class SipTestGui
         Me.AudiogramPanel.Size = New System.Drawing.Size(391, 122)
         Me.AudiogramPanel.TabIndex = 1
         '
-        'PNR_Label
-        '
-        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.PNR_Label, 2)
-        Me.PNR_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PNR_Label.Location = New System.Drawing.Point(3, 531)
-        Me.PNR_Label.Name = "PNR_Label"
-        Me.PNR_Label.Size = New System.Drawing.Size(92, 20)
-        Me.PNR_Label.TabIndex = 0
-        Me.PNR_Label.Text = "PNR (dB)"
-        Me.PNR_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
         'LengthReduplications_Label
         '
         Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.LengthReduplications_Label, 2)
@@ -429,30 +448,8 @@ Partial Class SipTestGui
         Me.LengthReduplications_Label.Name = "LengthReduplications_Label"
         Me.LengthReduplications_Label.Size = New System.Drawing.Size(92, 21)
         Me.LengthReduplications_Label.TabIndex = 0
-        Me.LengthReduplications_Label.Text = "Längd"
+        Me.LengthReduplications_Label.Text = "Repetitioner"
         Me.LengthReduplications_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'Situation_Label
-        '
-        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.Situation_Label, 2)
-        Me.Situation_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Situation_Label.Location = New System.Drawing.Point(3, 361)
-        Me.Situation_Label.Name = "Situation_Label"
-        Me.Situation_Label.Size = New System.Drawing.Size(92, 21)
-        Me.Situation_Label.TabIndex = 0
-        Me.Situation_Label.Text = "Situation"
-        Me.Situation_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'Preset_Label
-        '
-        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.Preset_Label, 2)
-        Me.Preset_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Preset_Label.Location = New System.Drawing.Point(3, 340)
-        Me.Preset_Label.Name = "Preset_Label"
-        Me.Preset_Label.Size = New System.Drawing.Size(92, 21)
-        Me.Preset_Label.TabIndex = 0
-        Me.Preset_Label.Text = "Test"
-        Me.Preset_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'PsychmetricFunction_VerticalLabel
         '
@@ -528,28 +525,6 @@ Partial Class SipTestGui
         Me.ReferenceLevelComboBox.Size = New System.Drawing.Size(376, 21)
         Me.ReferenceLevelComboBox.TabIndex = 2
         '
-        'PresetComboBox
-        '
-        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.PresetComboBox, 2)
-        Me.PresetComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PresetComboBox.FormattingEnabled = True
-        Me.PresetComboBox.Location = New System.Drawing.Point(98, 340)
-        Me.PresetComboBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.PresetComboBox.Name = "PresetComboBox"
-        Me.PresetComboBox.Size = New System.Drawing.Size(376, 21)
-        Me.PresetComboBox.TabIndex = 4
-        '
-        'TestSituationComboBox
-        '
-        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.TestSituationComboBox, 2)
-        Me.TestSituationComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TestSituationComboBox.FormattingEnabled = True
-        Me.TestSituationComboBox.Location = New System.Drawing.Point(98, 361)
-        Me.TestSituationComboBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.TestSituationComboBox.Name = "TestSituationComboBox"
-        Me.TestSituationComboBox.Size = New System.Drawing.Size(376, 21)
-        Me.TestSituationComboBox.TabIndex = 5
-        '
         'TestLengthComboBox
         '
         Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.TestLengthComboBox, 2)
@@ -560,17 +535,6 @@ Partial Class SipTestGui
         Me.TestLengthComboBox.Name = "TestLengthComboBox"
         Me.TestLengthComboBox.Size = New System.Drawing.Size(376, 21)
         Me.TestLengthComboBox.TabIndex = 6
-        '
-        'PnrComboBox
-        '
-        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.PnrComboBox, 2)
-        Me.PnrComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PnrComboBox.FormattingEnabled = True
-        Me.PnrComboBox.Location = New System.Drawing.Point(98, 531)
-        Me.PnrComboBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.PnrComboBox.Name = "PnrComboBox"
-        Me.PnrComboBox.Size = New System.Drawing.Size(376, 21)
-        Me.PnrComboBox.TabIndex = 7
         '
         'TableLayoutPanel10
         '
@@ -644,6 +608,82 @@ Partial Class SipTestGui
         Me.AddFig6Gain_Button.TabIndex = 1
         Me.AddFig6Gain_Button.Text = "Fig6"
         Me.AddFig6Gain_Button.UseVisualStyleBackColor = True
+        '
+        'PNR_Label
+        '
+        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.PNR_Label, 2)
+        Me.PNR_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.PNR_Label.Location = New System.Drawing.Point(3, 319)
+        Me.PNR_Label.Name = "PNR_Label"
+        Me.PNR_Label.Size = New System.Drawing.Size(92, 21)
+        Me.PNR_Label.TabIndex = 0
+        Me.PNR_Label.Text = "PNR (dB)"
+        Me.PNR_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'PnrComboBox
+        '
+        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.PnrComboBox, 2)
+        Me.PnrComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.PnrComboBox.FormattingEnabled = True
+        Me.PnrComboBox.Location = New System.Drawing.Point(98, 319)
+        Me.PnrComboBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.PnrComboBox.Name = "PnrComboBox"
+        Me.PnrComboBox.Size = New System.Drawing.Size(376, 21)
+        Me.PnrComboBox.TabIndex = 7
+        '
+        'Preset_Label
+        '
+        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.Preset_Label, 2)
+        Me.Preset_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Preset_Label.Location = New System.Drawing.Point(3, 361)
+        Me.Preset_Label.Name = "Preset_Label"
+        Me.Preset_Label.Size = New System.Drawing.Size(92, 21)
+        Me.Preset_Label.TabIndex = 0
+        Me.Preset_Label.Text = "Test"
+        Me.Preset_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'PresetComboBox
+        '
+        Me.PresetComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.PresetComboBox.FormattingEnabled = True
+        Me.PresetComboBox.Location = New System.Drawing.Point(98, 361)
+        Me.PresetComboBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.PresetComboBox.Name = "PresetComboBox"
+        Me.PresetComboBox.Size = New System.Drawing.Size(318, 21)
+        Me.PresetComboBox.TabIndex = 4
+        '
+        'Situation_Label
+        '
+        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.Situation_Label, 2)
+        Me.Situation_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Situation_Label.Location = New System.Drawing.Point(3, 340)
+        Me.Situation_Label.Name = "Situation_Label"
+        Me.Situation_Label.Size = New System.Drawing.Size(92, 21)
+        Me.Situation_Label.TabIndex = 0
+        Me.Situation_Label.Text = "Situation"
+        Me.Situation_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'TestSituationComboBox
+        '
+        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.TestSituationComboBox, 2)
+        Me.TestSituationComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TestSituationComboBox.FormattingEnabled = True
+        Me.TestSituationComboBox.Location = New System.Drawing.Point(98, 340)
+        Me.TestSituationComboBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.TestSituationComboBox.Name = "TestSituationComboBox"
+        Me.TestSituationComboBox.Size = New System.Drawing.Size(376, 21)
+        Me.TestSituationComboBox.TabIndex = 5
+        '
+        'MostDifficultItems_Button
+        '
+        Me.MostDifficultItems_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MostDifficultItems_Button.Location = New System.Drawing.Point(416, 361)
+        Me.MostDifficultItems_Button.Margin = New System.Windows.Forms.Padding(0)
+        Me.MostDifficultItems_Button.Name = "MostDifficultItems_Button"
+        Me.MostDifficultItems_Button.Size = New System.Drawing.Size(58, 21)
+        Me.MostDifficultItems_Button.TabIndex = 14
+        Me.MostDifficultItems_Button.Text = "Create"
+        Me.MostDifficultItems_Button.UseVisualStyleBackColor = True
         '
         'TableLayoutPanel4
         '
@@ -1129,29 +1169,26 @@ Partial Class SipTestGui
         Me.Panel1.Size = New System.Drawing.Size(1292, 14)
         Me.Panel1.TabIndex = 2
         '
-        'TestDescriptionColumnSession
+        'TestLength_Label
         '
-        Me.TestDescriptionColumnSession.HeaderText = "Test"
-        Me.TestDescriptionColumnSession.Name = "TestDescriptionColumnSession"
-        Me.TestDescriptionColumnSession.ReadOnly = True
+        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.TestLength_Label, 2)
+        Me.TestLength_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TestLength_Label.Location = New System.Drawing.Point(3, 531)
+        Me.TestLength_Label.Name = "TestLength_Label"
+        Me.TestLength_Label.Size = New System.Drawing.Size(92, 20)
+        Me.TestLength_Label.TabIndex = 15
+        Me.TestLength_Label.Text = "Testlängd"
+        Me.TestLength_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'TestLengthColumnSession
+        'PlannedTestLength_TextBox
         '
-        Me.TestLengthColumnSession.HeaderText = "Längd"
-        Me.TestLengthColumnSession.Name = "TestLengthColumnSession"
-        Me.TestLengthColumnSession.ReadOnly = True
-        '
-        'ResultColumnSession
-        '
-        Me.ResultColumnSession.HeaderText = "Resultat (%)"
-        Me.ResultColumnSession.Name = "ResultColumnSession"
-        Me.ResultColumnSession.ReadOnly = True
-        '
-        'CompareColumnSession
-        '
-        Me.CompareColumnSession.HeaderText = "Jämför"
-        Me.CompareColumnSession.Name = "CompareColumnSession"
-        Me.CompareColumnSession.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.PlannedTestLength_TextBox, 2)
+        Me.PlannedTestLength_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.PlannedTestLength_TextBox.Location = New System.Drawing.Point(98, 531)
+        Me.PlannedTestLength_TextBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.PlannedTestLength_TextBox.Name = "PlannedTestLength_TextBox"
+        Me.PlannedTestLength_TextBox.Size = New System.Drawing.Size(376, 20)
+        Me.PlannedTestLength_TextBox.TabIndex = 16
         '
         'SipTestGui
         '
@@ -1272,4 +1309,7 @@ Partial Class SipTestGui
     Friend WithEvents TestLengthColumnSession As Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents ResultColumnSession As Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents CompareColumnSession As Windows.Forms.DataGridViewCheckBoxColumn
+    Friend WithEvents MostDifficultItems_Button As Windows.Forms.Button
+    Friend WithEvents TestLength_Label As Windows.Forms.Label
+    Friend WithEvents PlannedTestLength_TextBox As Windows.Forms.TextBox
 End Class
