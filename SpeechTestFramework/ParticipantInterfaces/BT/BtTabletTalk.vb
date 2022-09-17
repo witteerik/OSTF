@@ -41,8 +41,7 @@ Public Class BtTabletTalker
 
     Delegate Sub StringArgReturningVoidDelegate([String] As String)
 
-    Public Sub New(ByRef BtTestController As IBtTestController,
-                   UUID As String, PIN As String, ByVal Language As Utils.Languages)
+    Public Sub New(ByRef BtTestController As IBtTestController, UUID As String, PIN As String, ByVal Language As Utils.Languages)
 
         Me.BtTestController = BtTestController
 
@@ -55,7 +54,23 @@ Public Class BtTabletTalker
 
     Public Function EstablishBtConnection() As Boolean
 
-        Dim MyBtSearchDialog = New BtSearchDialog(Language)
+        Dim Instructions As String = ""
+        Select Case Language
+            Case Utils.Constants.Languages.Swedish
+                Instructions = "Du behöver en surfplatta med appen SiP-tablet installerad." & vbCrLf & vbCrLf &
+                    "Steg 1. Starta appen SiP-tablet på suftplattan och följ instruktionerna." & vbCrLf &
+                    "Steg 2. Klicka sedan på knappen Sök nedan, och välj din enhet när den dyker upp i listan." & vbCrLf &
+                    "Steg 3. Klicka till sist på OK nedan, eller Cancel för att avbryta."
+
+            Case Utils.Constants.Languages.English
+                Instructions = "You will need a tablet with the appen SiP-tablet installed." & vbCrLf & vbCrLf &
+                    "Step 1. Start the app SiP-tablet on your tablet and follow the instructions." & vbCrLf &
+                    "Step 2. Then click on the button Search below, and select you unit when it appears in the list." & vbCrLf &
+                    "Step 3. Finally click OK, or Cancel to abort."
+
+        End Select
+
+        Dim MyBtSearchDialog = New BtSearchDialog(Language, Instructions)
 
         MyBtSearchDialog.ShowDialog()
 

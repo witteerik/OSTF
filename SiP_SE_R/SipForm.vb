@@ -3,7 +3,7 @@
 
     Public Sub New()
         'Loads the Swedish SiP test in research mode
-        MyBase.New("Swedish SiP-test", SpeechTestFramework.Utils.Constants.UserTypes.Research, SpeechTestFramework.Utils.Constants.Languages.Swedish)
+        MyBase.New("Swedish SiP-test", SpeechTestFramework.Utils.Constants.UserTypes.Research, SpeechTestFramework.Utils.Constants.Languages.English)
 
     End Sub
 

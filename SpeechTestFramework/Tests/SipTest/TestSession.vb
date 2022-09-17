@@ -10,7 +10,7 @@ Partial Class SipTestGui
 
     Private CurrentSipTrial As SipTest.SipTrial
 
-    Private WithEvents ParticipantForm As TesteeForm
+    Private WithEvents PcParticipantForm As PcTesteeForm
 
     Private WithEvents ParticipantControl As ITesteeControl
 
@@ -609,6 +609,10 @@ Partial Class SipTestGui
 
             TestIsStarted = False
 
+            If CurrentScreenType = ScreenType.Pc Then
+                'Unlocks the cursor 
+                UnlockCursor()
+            End If
 
         Catch ex As Exception
             Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")

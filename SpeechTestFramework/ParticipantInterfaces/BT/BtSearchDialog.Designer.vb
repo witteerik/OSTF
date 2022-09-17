@@ -29,6 +29,7 @@ Partial Class BtSearchDialog
         Me.BtDeviceListBox = New System.Windows.Forms.ListBox()
         Me.AvaliableDevicesLabel = New System.Windows.Forms.Label()
         Me.SelectDeviceLabel = New System.Windows.Forms.Label()
+        Me.Instructions_RichTextBox = New System.Windows.Forms.RichTextBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -40,7 +41,7 @@ Partial Class BtSearchDialog
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel1.Controls.Add(Me.OK_Button, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.Cancel_Button, 1, 0)
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(277, 260)
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(342, 405)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 1
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -68,9 +69,9 @@ Partial Class BtSearchDialog
         '
         'SearchButton
         '
-        Me.SearchButton.Location = New System.Drawing.Point(13, 13)
+        Me.SearchButton.Location = New System.Drawing.Point(13, 153)
         Me.SearchButton.Name = "SearchButton"
-        Me.SearchButton.Size = New System.Drawing.Size(410, 46)
+        Me.SearchButton.Size = New System.Drawing.Size(474, 46)
         Me.SearchButton.TabIndex = 1
         Me.SearchButton.Text = "Search"
         Me.SearchButton.UseVisualStyleBackColor = True
@@ -79,15 +80,15 @@ Partial Class BtSearchDialog
         '
         Me.BtDeviceListBox.FormattingEnabled = True
         Me.BtDeviceListBox.HorizontalScrollbar = True
-        Me.BtDeviceListBox.Location = New System.Drawing.Point(13, 85)
+        Me.BtDeviceListBox.Location = New System.Drawing.Point(13, 225)
         Me.BtDeviceListBox.Name = "BtDeviceListBox"
-        Me.BtDeviceListBox.Size = New System.Drawing.Size(410, 147)
+        Me.BtDeviceListBox.Size = New System.Drawing.Size(474, 147)
         Me.BtDeviceListBox.TabIndex = 3
         '
         'AvaliableDevicesLabel
         '
         Me.AvaliableDevicesLabel.AutoSize = True
-        Me.AvaliableDevicesLabel.Location = New System.Drawing.Point(13, 69)
+        Me.AvaliableDevicesLabel.Location = New System.Drawing.Point(13, 209)
         Me.AvaliableDevicesLabel.Name = "AvaliableDevicesLabel"
         Me.AvaliableDevicesLabel.Size = New System.Drawing.Size(39, 13)
         Me.AvaliableDevicesLabel.TabIndex = 4
@@ -96,11 +97,20 @@ Partial Class BtSearchDialog
         'SelectDeviceLabel
         '
         Me.SelectDeviceLabel.AutoSize = True
-        Me.SelectDeviceLabel.Location = New System.Drawing.Point(13, 235)
+        Me.SelectDeviceLabel.Location = New System.Drawing.Point(13, 375)
         Me.SelectDeviceLabel.Name = "SelectDeviceLabel"
         Me.SelectDeviceLabel.Size = New System.Drawing.Size(39, 13)
         Me.SelectDeviceLabel.TabIndex = 5
         Me.SelectDeviceLabel.Text = "Label1"
+        '
+        'Instructions_RichTextBox
+        '
+        Me.Instructions_RichTextBox.Location = New System.Drawing.Point(13, 11)
+        Me.Instructions_RichTextBox.Name = "Instructions_RichTextBox"
+        Me.Instructions_RichTextBox.ReadOnly = True
+        Me.Instructions_RichTextBox.Size = New System.Drawing.Size(472, 122)
+        Me.Instructions_RichTextBox.TabIndex = 6
+        Me.Instructions_RichTextBox.Text = ""
         '
         'BtSearchDialog
         '
@@ -108,7 +118,8 @@ Partial Class BtSearchDialog
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Cancel_Button
-        Me.ClientSize = New System.Drawing.Size(435, 301)
+        Me.ClientSize = New System.Drawing.Size(500, 446)
+        Me.Controls.Add(Me.Instructions_RichTextBox)
         Me.Controls.Add(Me.SelectDeviceLabel)
         Me.Controls.Add(Me.AvaliableDevicesLabel)
         Me.Controls.Add(Me.BtDeviceListBox)
@@ -133,4 +144,5 @@ Partial Class BtSearchDialog
     Friend WithEvents BtDeviceListBox As Windows.Forms.ListBox
     Friend WithEvents AvaliableDevicesLabel As Windows.Forms.Label
     Friend WithEvents SelectDeviceLabel As Windows.Forms.Label
+    Friend WithEvents Instructions_RichTextBox As Windows.Forms.RichTextBox
 End Class

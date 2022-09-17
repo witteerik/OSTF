@@ -45,8 +45,8 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="InTheHand.Net.Bluetooth, Version=4.0.0.0, Culture=neutral, PublicKeyToken=ea38caa273134499, processorArchitecture=MSIL">
-      <HintPath>..\packages\InTheHand.Net.Bluetooth.4.0.14\lib\net461\InTheHand.Net.Bluetooth.dll</HintPath>
+    <Reference Include="InTheHand.Net.Bluetooth, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\InTheHand.Net.Bluetooth.4.0.4\lib\net461\InTheHand.Net.Bluetooth.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.5.0.0\lib\net48\MathNet.Numerics.dll</HintPath>
@@ -165,6 +165,9 @@
     </Compile>
     <Compile Include="WinFormControls\AudiogramSymbolDialog.vb">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\Lamp.vb">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="WinFormControls\LoadOstaMediaSetControl.Designer.vb">
       <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>

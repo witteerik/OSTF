@@ -6,6 +6,7 @@ Public Class BtSearchDialog
 
     Private AvailableBtDevices As IReadOnlyCollection(Of BluetoothDeviceInfo) = Nothing
     Private SelectedBtDevice As BluetoothDeviceInfo = Nothing
+    Private Instructions As String = ""
 
     Public ReadOnly Property SelectedDevice As BluetoothDeviceInfo
         Get
@@ -15,34 +16,14 @@ Public Class BtSearchDialog
 
     Private Language As Utils.Languages
 
-    Public Sub New(ByVal Language As Utils.Languages)
+    Public Sub New(ByVal Language As Utils.Languages, Optional ByVal Instructions As String = "")
 
         ' This call is required by the designer.
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
         Me.Language = Language
-        SetSearchButtonText(False)
-
-        ' Setting other texts
-        Select Case Language
-            Case Utils.Languages.Swedish
-                Me.Text = "Anslut blåtandsenhet"
-                AvaliableDevicesLabel.Text = "Tillgängliga blåtandsenheter"
-                SelectDeviceLabel.Text = "Välj enhet och klicka OK"
-            Case Utils.Languages.English
-                Me.Text = "Connect bluetooth device"
-                AvaliableDevicesLabel.Text = "Available bluetooth devices"
-                SelectDeviceLabel.Text = "Select device and click OK"
-            Case Else
-                Me.Text = "Connect bluetooth device"
-                AvaliableDevicesLabel.Text = "Available bluetooth devices"
-                SelectDeviceLabel.Text = "Select device and click OK"
-        End Select
-
-        'Hiding the SelectDeviceLabel until an available device has been detected
-        SelectDeviceLabel.Visible = False
-
+        Me.Instructions = Instructions
 
     End Sub
 
@@ -81,14 +62,30 @@ Public Class BtSearchDialog
 
     Private Sub BtSearchDialog_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
+        SetSearchButtonText(False)
+
+        Instructions_RichTextBox.Text = Instructions
+
+        ' Setting other texts
         Select Case Language
             Case Utils.Languages.Swedish
-                Me.Text = "Sök efter blåtandsenheter"
+                Me.Text = "Anslut blåtandsenhet"
+                AvaliableDevicesLabel.Text = "Tillgängliga blåtandsenheter"
+                SelectDeviceLabel.Text = "Välj enhet och klicka OK"
             Case Utils.Languages.English
-                Me.Text = "Search for bluetooth devices"
+                Me.Text = "Connect bluetooth device"
+                AvaliableDevicesLabel.Text = "Available bluetooth devices"
+                SelectDeviceLabel.Text = "Select device and click OK"
             Case Else
-                Me.Text = "Search for bluetooth devices"
+                Me.Text = "Connect bluetooth device"
+                AvaliableDevicesLabel.Text = "Available bluetooth devices"
+                SelectDeviceLabel.Text = "Select device and click OK"
         End Select
+
+
+        'Hiding the SelectDeviceLabel until an available device has been detected
+        SelectDeviceLabel.Visible = False
+
 
     End Sub
 

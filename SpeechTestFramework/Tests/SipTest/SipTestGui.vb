@@ -193,8 +193,8 @@ Public Class SipTestGui
                 PcScreen_RadioButton.Text = "PC-skärm"
                 PcTouch_CheckBox.Text = "Touch"
                 BtScreen_RadioButton.Text = "BT-skärm"
-                BluetoothSearchButton.Text = "Sök BT-skärm"
-                ConnectBluetoothScreen_Button.Text = "Anslut vald BT-skärm"
+                ConnectBluetoothScreen_Button.Text = "Anslut BT-skärm"
+                DisconnectBtScreen_Button.Text = "Koppla från BT-skärm"
                 SoundDeviceSearchButton.Text = "Sök ljudenheter"
                 SelectSoundDeviceButton.Text = "Använd vald ljudenhet"
                 SelectAudiogram_Label.Text = "Välj audiogram"
@@ -230,8 +230,8 @@ Public Class SipTestGui
                 PcScreen_RadioButton.Text = "PC screen"
                 PcTouch_CheckBox.Text = "Touch"
                 BtScreen_RadioButton.Text = "BT screen"
-                BluetoothSearchButton.Text = "Search BT screen"
-                ConnectBluetoothScreen_Button.Text = "Connect selected BT screen"
+                ConnectBluetoothScreen_Button.Text = "Connect to BT screen"
+                DisconnectBtScreen_Button.Text = "Disconnect BT screen"
                 SoundDeviceSearchButton.Text = "Search sound units"
                 SelectSoundDeviceButton.Text = "Use selected sound unit"
                 SelectAudiogram_Label.Text = "Select audiogram"
@@ -263,7 +263,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub KeyDetection(sender As Object, e As KeyEventArgs) Handles Me.KeyUp, ParticipantForm.KeyUp
+    Public Sub KeyDetection(sender As Object, e As KeyEventArgs) Handles Me.KeyUp, PcParticipantForm.KeyUp
 
         'MsgBox("Key pressed: " & e.KeyData)
 
@@ -702,16 +702,17 @@ Public Class SipTestGui
             Case ScreenType.Pc
 
                 'Creating a new participant form (and ParticipantControl) if none exist
-                If ParticipantForm Is Nothing Then
-                    ParticipantForm = New TesteeForm(TesteeForm.TaskType.ForcedChoice)
-                    ParticipantControl = ParticipantForm.ParticipantControl
+                If PcParticipantForm Is Nothing Then
+                    PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
+                    ParticipantControl = PcParticipantForm.ParticipantControl
                 End If
 
                 'Shows the ParticipantForm
-                ParticipantForm.Show()
+                PcParticipantForm.Show()
 
             Case ScreenType.Bluetooth
 
+                ParticipantControl = MyBtTesteeControl
                 MyBtTesteeControl.StartNewTestSession()
 
         End Select
@@ -755,6 +756,13 @@ Public Class SipTestGui
 
         LockSettingsPanels()
 
+        If CurrentScreenType = ScreenType.Pc Then
+            'Locks the cursor to the form
+            If PcParticipantForm IsNot Nothing Then
+                PcParticipantForm.LockCursorToForm()
+                PcParticipantForm.SetResponseMode(PcResponseMode)
+            End If
+        End If
 
         InitiateTest()
 
@@ -972,6 +980,14 @@ Public Class SipTestGui
 
     End Sub
 
+    Private Sub UnlockCursor()
+        'Puts the mouse on the test form
+        Cursor.Position = New Point(Me.ClientRectangle.Left + Me.ClientRectangle.Width / 2, Me.ClientRectangle.Height / 2)
+
+        'Limits mouse movements to the form boundaries
+        Cursor.Clip = Nothing 'Me.Bounds
+
+    End Sub
 
 #Region "Test-result comparison"
 
@@ -1447,62 +1463,55 @@ Public Class SipTestGui
 
     Private Sub PcScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles PcScreen_RadioButton.CheckedChanged
 
-        'Sets the CurrentScreenType 
-        CurrentScreenType = ScreenType.Pc
+        If PcScreen_RadioButton.Checked = True Then
 
-        'Disables the BT buttons
-        BluetoothSearchButton.Enabled = False
-        ConnectBluetoothScreen_Button.Enabled = False
+            'Disconnects the BT screen
+            DisconnectWirelessScreen()
 
-        'Clearing items in the Screen_ComboBox
-        Screen_ComboBox.Items.Clear()
+            'Sets the CurrentScreenType 
+            CurrentScreenType = ScreenType.Pc
 
-        'Adding all screens into the Screen_ComboBox
-        Dim Screens() As Screen = Screen.AllScreens
-        For Each Screen In Screens
-            Screen_ComboBox.Items.Add(Screen.DeviceName)
-        Next
+            'Enables/disables controls
+            BtScreen_TableLayoutPanel.Enabled = False
+            PcScreen_TableLayoutPanel.Enabled = True
+
+            'Clearing items in the Screen_ComboBox
+            PcScreen_ComboBox.Items.Clear()
+
+            'Adding all screens into the Screen_ComboBox
+            Dim Screens() As Screen = Screen.AllScreens
+            For Each Screen In Screens
+                PcScreen_ComboBox.Items.Add(Screen.DeviceName)
+            Next
+
+            'Preselects the first screen (which will also create the PC participant form!)
+            If PcScreen_ComboBox.Items.Count > 0 Then PcScreen_ComboBox.SelectedIndex = 0
+
+        End If
 
     End Sub
 
     Private Sub BtScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles BtScreen_RadioButton.CheckedChanged
 
-        'Sets the CurrentScreenType 
-        CurrentScreenType = ScreenType.Bluetooth
+        If BtScreen_RadioButton.Checked = True Then
 
-        'Enables the BT buttons
-        BluetoothSearchButton.Enabled = True
-        ConnectBluetoothScreen_Button.Enabled = True
+            'Sets the CurrentScreenType 
+            CurrentScreenType = ScreenType.Bluetooth
 
-        'Clearing items in the Screen_ComboBox
-        Screen_ComboBox.Items.Clear()
+            'Enables/disables controls
+            BtScreen_TableLayoutPanel.Enabled = True
+            PcScreen_TableLayoutPanel.Enabled = False
 
-        'Prepares to connect to bluetooth screen
-        '???
+            'Clearing items in the Screen_ComboBox
+            PcScreen_ComboBox.Items.Clear()
 
+            If PcParticipantForm IsNot Nothing Then
+                PcParticipantForm.Close()
+                PcParticipantForm.Dispose()
+                PcParticipantForm = Nothing
+            End If
 
-    End Sub
-
-    Private Sub Screen_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Screen_ComboBox.SelectedIndexChanged
-
-        Select Case CurrentScreenType
-            Case ScreenType.Pc
-
-                'Creating a new participant form (and ParticipantControl) if none exist
-                If ParticipantForm Is Nothing Then
-                    ParticipantForm = New TesteeForm(TesteeForm.TaskType.ForcedChoice)
-                    ParticipantControl = ParticipantForm.ParticipantControl
-                End If
-                ParticipantForm.Show()
-
-                'Selects the screen that comes in the iterated order returned by Screen.AllScreens, which repressent the order screens are added into Screen_ComboBox, and also the order they are selectd in ChangeTestFormScreen
-                ParticipantForm.ChangeTestFormScreen(PcResponseMode, Screen_ComboBox.SelectedIndex)
-
-            Case ScreenType.Bluetooth
-
-                Throw New NotImplementedException
-
-        End Select
+        End If
 
     End Sub
 
@@ -1513,11 +1522,29 @@ Public Class SipTestGui
             PcResponseMode = Utils.Constants.ResponseModes.MouseClick
         End If
 
+        If PcParticipantForm IsNot Nothing Then
+            PcParticipantForm.SetResponseMode(PcResponseMode)
+        End If
+
     End Sub
 
+    Private Sub PcScreen_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PcScreen_ComboBox.SelectedIndexChanged
 
+        If CurrentScreenType = ScreenType.Pc Then
 
+            'Creating a new participant form (and ParticipantControl) if none exist
+            If PcParticipantForm Is Nothing Then
+                PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
+                ParticipantControl = PcParticipantForm.ParticipantControl
+            End If
+            PcParticipantForm.Show()
 
+            'Selects the screen that comes in the iterated order returned by Screen.AllScreens, which repressent the order screens are added into Screen_ComboBox, and also the order they are selectd in ChangeTestFormScreen
+            PcParticipantForm.ChangeTestFormScreen(PcScreen_ComboBox.SelectedIndex)
+
+        End If
+
+    End Sub
 
 
 #End Region
@@ -1531,25 +1558,12 @@ Public Class SipTestGui
     Private MyBtTesteeControl As BtTesteeControl = Nothing
 
 
-    Public Sub SearchForBluetoothDevices()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub SelectBluetoothDevice(SelectedBluetoothDeviceDescription As String)
-        Throw New NotImplementedException()
-    End Sub
-
-
     Private Sub SendBTMessageToolStripMenuItem_Click(sender As Object, e As EventArgs) 'Handles SendBTMessageToolStripMenuItem.Click
 
         If MyBtTesteeControl IsNot Nothing Then
             MyBtTesteeControl.BtTabletTalker.SendBtMessage("ping")
         End If
 
-    End Sub
-
-    Private Sub BluetoothSearchButton_Click(sender As Object, e As EventArgs) Handles BluetoothSearchButton.Click
-        '?
     End Sub
 
 
@@ -1564,7 +1578,7 @@ Public Class SipTestGui
             'Creating a new BtTesteeControl (This should be reused as long as the connection is open!)
             MyBtTesteeControl = New BtTesteeControl()
 
-            If MyBtTesteeControl.Initialize(Bt_UUID, Bt_PIN, Utils.Languages.Swedish) = False Then
+            If MyBtTesteeControl.Initialize(Bt_UUID, Bt_PIN, GuiLanguage) = False Then
                 Failed = True
             End If
 
@@ -1574,12 +1588,12 @@ Public Class SipTestGui
 
         If Failed = True Then
             MsgBox("Ingen blåtandsenhet kunde anslutas, vänligen försök igen!")
-            ConnectBluetoothScreen_Button.Text = "Anslut trådlös pekskärm"
             MyBtTesteeControl = Nothing
             DisconnectWirelessScreen()
+            BtLamp.State = Lamp.States.Disabled
             Exit Sub
         Else
-            ConnectBluetoothScreen_Button.Text = "Trådlös pekskärm ansluten"
+            BtLamp.State = Lamp.States.On
         End If
 
         ConnectBluetoothScreen_Button.Enabled = False
@@ -1589,7 +1603,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub DisconnectWirelessScreenButton_Click(sender As Object, e As EventArgs) Handles DisconnectWirelessScreen_Button.Click
+    Private Sub DisconnectWirelessScreenButton_Click(sender As Object, e As EventArgs) Handles DisconnectBtScreen_Button.Click
         DisconnectWirelessScreen()
     End Sub
 
@@ -1607,9 +1621,10 @@ Public Class SipTestGui
         End If
 
         ConnectBluetoothScreen_Button.Enabled = True
-        ConnectBluetoothScreen_Button.Text = "Anslut trådlös pekskärm"
 
         PcScreen_RadioButton.Checked = True
+
+        BtLamp.State = Lamp.States.Disabled
 
     End Sub
 
@@ -1622,7 +1637,7 @@ Public Class SipTestGui
                 CurrentScreenType = ScreenType.Bluetooth
 
                 'Enabling the AvailableTestsComboBox if not already done
-                DisconnectWirelessScreen_Button.Enabled = True
+                DisconnectBtScreen_Button.Enabled = True
 
             Else
                 Failed = True
@@ -1642,13 +1657,6 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub StartTest(sender As Object, e As EventArgs) Handles StartButton.Click
-
-    End Sub
-
-    Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
-
-    End Sub
 
 #End Region
 

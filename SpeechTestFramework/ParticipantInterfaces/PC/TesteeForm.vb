@@ -1,7 +1,7 @@
 ﻿Imports System.Windows.Forms
 Imports System.Drawing
 
-Public Class TesteeForm
+Public Class PcTesteeForm
 
     Public WithEvents ParticipantControl As ITesteeControl
 
@@ -33,7 +33,7 @@ Public Class TesteeForm
     End Sub
 
 
-    Public Sub UpdateTestFormPosition(ByRef ResponseMode As Utils.ResponseModes, ByRef TestPresentationScreenIndex As Integer, Optional ByVal SetWindowState As Boolean = True)
+    Public Sub UpdateTestFormPosition(ByVal TestPresentationScreenIndex As Integer, Optional ByVal SetWindowState As Boolean = True)
 
         'This sub puts the test form on the screen with the indicated zero based index.
         'If the indicated index is higher than the number of available screens, the test form will be
@@ -43,7 +43,7 @@ Public Class TesteeForm
 
         If TestPresentationScreenIndex > screens.Count - 1 Then
             MsgBox("There is only " & screens.Count & " screen on the system." & vbCr & vbCr &
-                   "Putting the test form on screen " & screens.Count - 1)
+                       "Putting the test form on screen " & screens.Count - 1)
             TestPresentationScreenIndex = screens.Count - 1
         End If
 
@@ -60,6 +60,26 @@ Public Class TesteeForm
             End If
         End If
 
+    End Sub
+
+
+    Public Sub ChangeTestFormScreen(ByVal TestPresentationScreenIndex As Integer)
+
+        Me.WindowState = FormWindowState.Normal
+
+        'Increasing the TestPresentationScreenIndex by 1
+        TestPresentationScreenIndex += 1
+
+        'Checking that its not too high, if so falling back to index 0
+        If TestPresentationScreenIndex > Screen.AllScreens.Count - 1 Then TestPresentationScreenIndex = 0
+
+        'Setting the test form screen 
+        UpdateTestFormPosition(TestPresentationScreenIndex, True)
+
+    End Sub
+
+    Public Sub SetResponseMode(ByVal ResponseMode As Utils.ResponseModes)
+
         'Adjusts cursor depending on response mode
         Select Case ResponseMode
             Case Utils.ResponseModes.MouseClick
@@ -75,23 +95,8 @@ Public Class TesteeForm
 
                 'Cursor.Hide()
 
-                LockCursorToForm()
+                'LockCursorToForm()
         End Select
-
-    End Sub
-
-    Public Sub ChangeTestFormScreen(ByVal ResponseMode As Utils.ResponseModes, ByVal TestPresentationScreenIndex As Integer)
-
-        Me.WindowState = FormWindowState.Normal
-
-        'Increasing the TestPresentationScreenIndex by 1
-        TestPresentationScreenIndex += 1
-
-        'Checking that its not too high, if so falling back to index 0
-        If TestPresentationScreenIndex > Screen.AllScreens.Count - 1 Then TestPresentationScreenIndex = 0
-
-        'Setting the test form screen 
-        UpdateTestFormPosition(ResponseMode, TestPresentationScreenIndex, True)
 
 
     End Sub
