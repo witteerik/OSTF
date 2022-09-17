@@ -22,16 +22,16 @@ Partial Class SipTestGui
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim DataGridViewCellStyle9 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle10 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle11 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle12 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle15 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle16 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle13 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
-        Dim DataGridViewCellStyle14 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle4 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle7 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle8 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
-        Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Test_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel8 = New System.Windows.Forms.TableLayoutPanel()
         Me.StatAnalysisLabel = New System.Windows.Forms.Label()
@@ -93,7 +93,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel16 = New System.Windows.Forms.TableLayoutPanel()
         Me.ParticipantID_Label = New System.Windows.Forms.Label()
         Me.ParticipantIdTextBox = New System.Windows.Forms.TextBox()
-        Me.TableLayoutPanel7 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Screen_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.PcScreen_RadioButton = New System.Windows.Forms.RadioButton()
         Me.BtScreen_RadioButton = New System.Windows.Forms.RadioButton()
         Me.PcScreen_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
@@ -103,7 +103,7 @@ Partial Class SipTestGui
         Me.ConnectBluetoothScreen_Button = New System.Windows.Forms.Button()
         Me.DisconnectBtScreen_Button = New System.Windows.Forms.Button()
         Me.ParticipantLock_Button = New System.Windows.Forms.Button()
-        Me.SoundUnits_Panel = New System.Windows.Forms.Panel()
+        Me.SoundDevice_Panel = New System.Windows.Forms.Panel()
         Me.SoundSettings_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.SelectSoundDevice_Button = New System.Windows.Forms.Button()
         Me.UseSoundField_RadioButton = New System.Windows.Forms.RadioButton()
@@ -115,7 +115,7 @@ Partial Class SipTestGui
         Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.BtLamp = New SpeechTestFramework.Lamp()
         Me.TableLayoutPanel1.SuspendLayout()
-        Me.TableLayoutPanel2.SuspendLayout()
+        Me.Test_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
         Me.TableLayoutPanel8.SuspendLayout()
         Me.TableLayoutPanel9.SuspendLayout()
@@ -130,10 +130,10 @@ Partial Class SipTestGui
         Me.TableLayoutPanel18.SuspendLayout()
         CType(Me.TestTrialDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TableLayoutPanel16.SuspendLayout()
-        Me.TableLayoutPanel7.SuspendLayout()
+        Me.Screen_TableLayoutPanel.SuspendLayout()
         Me.PcScreen_TableLayoutPanel.SuspendLayout()
         Me.BtScreen_TableLayoutPanel.SuspendLayout()
-        Me.SoundUnits_Panel.SuspendLayout()
+        Me.SoundDevice_Panel.SuspendLayout()
         Me.SoundSettings_TableLayoutPanel.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -141,7 +141,7 @@ Partial Class SipTestGui
         '
         Me.TableLayoutPanel1.ColumnCount = 1
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 1298.0!))
-        Me.TableLayoutPanel1.Controls.Add(Me.TableLayoutPanel2, 0, 2)
+        Me.TableLayoutPanel1.Controls.Add(Me.Test_TableLayoutPanel, 0, 2)
         Me.TableLayoutPanel1.Controls.Add(Me.TableLayoutPanel16, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.Panel1, 0, 1)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
@@ -154,22 +154,23 @@ Partial Class SipTestGui
         Me.TableLayoutPanel1.Size = New System.Drawing.Size(1298, 640)
         Me.TableLayoutPanel1.TabIndex = 0
         '
-        'TableLayoutPanel2
+        'Test_TableLayoutPanel
         '
-        Me.TableLayoutPanel2.ColumnCount = 3
-        Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.1517!))
-        Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30.41796!))
-        Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 32.35294!))
-        Me.TableLayoutPanel2.Controls.Add(Me.TableLayoutPanel5, 2, 0)
-        Me.TableLayoutPanel2.Controls.Add(Me.TestSettings_TableLayoutPanel, 0, 0)
-        Me.TableLayoutPanel2.Controls.Add(Me.TableLayoutPanel4, 1, 0)
-        Me.TableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel2.Location = New System.Drawing.Point(3, 76)
-        Me.TableLayoutPanel2.Name = "TableLayoutPanel2"
-        Me.TableLayoutPanel2.RowCount = 1
-        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel2.Size = New System.Drawing.Size(1292, 561)
-        Me.TableLayoutPanel2.TabIndex = 0
+        Me.Test_TableLayoutPanel.ColumnCount = 3
+        Me.Test_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.1517!))
+        Me.Test_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30.41796!))
+        Me.Test_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 32.35294!))
+        Me.Test_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel5, 2, 0)
+        Me.Test_TableLayoutPanel.Controls.Add(Me.TestSettings_TableLayoutPanel, 0, 0)
+        Me.Test_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel4, 1, 0)
+        Me.Test_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Test_TableLayoutPanel.Enabled = False
+        Me.Test_TableLayoutPanel.Location = New System.Drawing.Point(3, 76)
+        Me.Test_TableLayoutPanel.Name = "Test_TableLayoutPanel"
+        Me.Test_TableLayoutPanel.RowCount = 1
+        Me.Test_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.Test_TableLayoutPanel.Size = New System.Drawing.Size(1292, 561)
+        Me.Test_TableLayoutPanel.TabIndex = 0
         '
         'TableLayoutPanel5
         '
@@ -282,36 +283,36 @@ Partial Class SipTestGui
         Me.CurrentSessionResults_DataGridView.AllowUserToResizeRows = False
         Me.CurrentSessionResults_DataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.CurrentSessionResults_DataGridView.BackgroundColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle9.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.CurrentSessionResults_DataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle9
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.CurrentSessionResults_DataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.CurrentSessionResults_DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.CurrentSessionResults_DataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.TestDescriptionColumnSession, Me.TestLengthColumnSession, Me.ResultColumnSession, Me.CompareColumnSession})
-        DataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle10.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.ControlText
-        DataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.CurrentSessionResults_DataGridView.DefaultCellStyle = DataGridViewCellStyle10
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText
+        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.CurrentSessionResults_DataGridView.DefaultCellStyle = DataGridViewCellStyle2
         Me.CurrentSessionResults_DataGridView.Dock = System.Windows.Forms.DockStyle.Fill
         Me.CurrentSessionResults_DataGridView.Location = New System.Drawing.Point(3, 24)
         Me.CurrentSessionResults_DataGridView.MultiSelect = False
         Me.CurrentSessionResults_DataGridView.Name = "CurrentSessionResults_DataGridView"
-        DataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle11.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.CurrentSessionResults_DataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle11
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.CurrentSessionResults_DataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
         Me.CurrentSessionResults_DataGridView.RowHeadersVisible = False
         Me.CurrentSessionResults_DataGridView.Size = New System.Drawing.Size(407, 341)
         Me.CurrentSessionResults_DataGridView.TabIndex = 6
@@ -873,37 +874,37 @@ Partial Class SipTestGui
         Me.TestTrialDataGridView.BackgroundColor = System.Drawing.SystemColors.Window
         Me.TestTrialDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TestTrialDataGridView.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None
-        DataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle12.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle12.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle12.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle12.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle12.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.TestTrialDataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle12
+        DataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle4.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.TestTrialDataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle4
         Me.TestTrialDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.TestTrialDataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.TestWordColumn, Me.ResponseColumn, Me.ResultColumn})
-        DataGridViewCellStyle15.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle15.BackColor = System.Drawing.SystemColors.Window
-        DataGridViewCellStyle15.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle15.ForeColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle15.SelectionBackColor = System.Drawing.SystemColors.GradientActiveCaption
-        DataGridViewCellStyle15.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle15.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
-        Me.TestTrialDataGridView.DefaultCellStyle = DataGridViewCellStyle15
+        DataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window
+        DataGridViewCellStyle7.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.GradientActiveCaption
+        DataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.TestTrialDataGridView.DefaultCellStyle = DataGridViewCellStyle7
         Me.TestTrialDataGridView.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestTrialDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
         Me.TestTrialDataGridView.Location = New System.Drawing.Point(3, 136)
         Me.TestTrialDataGridView.Name = "TestTrialDataGridView"
         Me.TestTrialDataGridView.ReadOnly = True
-        DataGridViewCellStyle16.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
-        DataGridViewCellStyle16.BackColor = System.Drawing.SystemColors.Control
-        DataGridViewCellStyle16.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        DataGridViewCellStyle16.ForeColor = System.Drawing.SystemColors.WindowText
-        DataGridViewCellStyle16.SelectionBackColor = System.Drawing.SystemColors.Highlight
-        DataGridViewCellStyle16.SelectionForeColor = System.Drawing.SystemColors.HighlightText
-        DataGridViewCellStyle16.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
-        Me.TestTrialDataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle16
+        DataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control
+        DataGridViewCellStyle8.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        DataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText
+        DataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight
+        DataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText
+        DataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.TestTrialDataGridView.RowHeadersDefaultCellStyle = DataGridViewCellStyle8
         Me.TestTrialDataGridView.RowHeadersVisible = False
         Me.TestTrialDataGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.TestTrialDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect
@@ -913,9 +914,9 @@ Partial Class SipTestGui
         '
         'TestWordColumn
         '
-        DataGridViewCellStyle13.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle13.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TestWordColumn.DefaultCellStyle = DataGridViewCellStyle13
+        DataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle5.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.TestWordColumn.DefaultCellStyle = DataGridViewCellStyle5
         Me.TestWordColumn.HeaderText = "Testord"
         Me.TestWordColumn.Name = "TestWordColumn"
         Me.TestWordColumn.ReadOnly = True
@@ -924,9 +925,9 @@ Partial Class SipTestGui
         '
         'ResponseColumn
         '
-        DataGridViewCellStyle14.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
-        DataGridViewCellStyle14.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ResponseColumn.DefaultCellStyle = DataGridViewCellStyle14
+        DataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter
+        DataGridViewCellStyle6.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.75!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.ResponseColumn.DefaultCellStyle = DataGridViewCellStyle6
         Me.ResponseColumn.HeaderText = "Svar"
         Me.ResponseColumn.Name = "ResponseColumn"
         Me.ResponseColumn.ReadOnly = True
@@ -952,9 +953,9 @@ Partial Class SipTestGui
         Me.TableLayoutPanel16.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 325.0!))
         Me.TableLayoutPanel16.Controls.Add(Me.ParticipantID_Label, 0, 0)
         Me.TableLayoutPanel16.Controls.Add(Me.ParticipantIdTextBox, 1, 0)
-        Me.TableLayoutPanel16.Controls.Add(Me.TableLayoutPanel7, 4, 0)
+        Me.TableLayoutPanel16.Controls.Add(Me.Screen_TableLayoutPanel, 4, 0)
         Me.TableLayoutPanel16.Controls.Add(Me.ParticipantLock_Button, 2, 0)
-        Me.TableLayoutPanel16.Controls.Add(Me.SoundUnits_Panel, 5, 0)
+        Me.TableLayoutPanel16.Controls.Add(Me.SoundDevice_Panel, 5, 0)
         Me.TableLayoutPanel16.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel16.Location = New System.Drawing.Point(3, 3)
         Me.TableLayoutPanel16.Name = "TableLayoutPanel16"
@@ -987,24 +988,25 @@ Partial Class SipTestGui
         Me.ParticipantIdTextBox.TabIndex = 0
         Me.ParticipantIdTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
-        'TableLayoutPanel7
+        'Screen_TableLayoutPanel
         '
-        Me.TableLayoutPanel7.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.[Single]
-        Me.TableLayoutPanel7.ColumnCount = 2
-        Me.TableLayoutPanel7.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 47.0!))
-        Me.TableLayoutPanel7.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel7.Controls.Add(Me.PcScreen_RadioButton, 0, 0)
-        Me.TableLayoutPanel7.Controls.Add(Me.BtScreen_RadioButton, 0, 1)
-        Me.TableLayoutPanel7.Controls.Add(Me.PcScreen_TableLayoutPanel, 1, 0)
-        Me.TableLayoutPanel7.Controls.Add(Me.BtScreen_TableLayoutPanel, 1, 1)
-        Me.TableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel7.Location = New System.Drawing.Point(604, 3)
-        Me.TableLayoutPanel7.Name = "TableLayoutPanel7"
-        Me.TableLayoutPanel7.RowCount = 2
-        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel7.Size = New System.Drawing.Size(360, 50)
-        Me.TableLayoutPanel7.TabIndex = 1
+        Me.Screen_TableLayoutPanel.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.[Single]
+        Me.Screen_TableLayoutPanel.ColumnCount = 2
+        Me.Screen_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 47.0!))
+        Me.Screen_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.Screen_TableLayoutPanel.Controls.Add(Me.PcScreen_RadioButton, 0, 0)
+        Me.Screen_TableLayoutPanel.Controls.Add(Me.BtScreen_RadioButton, 0, 1)
+        Me.Screen_TableLayoutPanel.Controls.Add(Me.PcScreen_TableLayoutPanel, 1, 0)
+        Me.Screen_TableLayoutPanel.Controls.Add(Me.BtScreen_TableLayoutPanel, 1, 1)
+        Me.Screen_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Screen_TableLayoutPanel.Enabled = False
+        Me.Screen_TableLayoutPanel.Location = New System.Drawing.Point(604, 3)
+        Me.Screen_TableLayoutPanel.Name = "Screen_TableLayoutPanel"
+        Me.Screen_TableLayoutPanel.RowCount = 2
+        Me.Screen_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.Screen_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.Screen_TableLayoutPanel.Size = New System.Drawing.Size(360, 50)
+        Me.Screen_TableLayoutPanel.TabIndex = 1
         '
         'PcScreen_RadioButton
         '
@@ -1119,16 +1121,16 @@ Partial Class SipTestGui
         Me.ParticipantLock_Button.Text = "Lås"
         Me.ParticipantLock_Button.UseVisualStyleBackColor = True
         '
-        'SoundUnits_Panel
+        'SoundDevice_Panel
         '
-        Me.SoundUnits_Panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.SoundUnits_Panel.Controls.Add(Me.SoundSettings_TableLayoutPanel)
-        Me.SoundUnits_Panel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SoundUnits_Panel.Location = New System.Drawing.Point(967, 0)
-        Me.SoundUnits_Panel.Margin = New System.Windows.Forms.Padding(0)
-        Me.SoundUnits_Panel.Name = "SoundUnits_Panel"
-        Me.SoundUnits_Panel.Size = New System.Drawing.Size(325, 56)
-        Me.SoundUnits_Panel.TabIndex = 9
+        Me.SoundDevice_Panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.SoundDevice_Panel.Controls.Add(Me.SoundSettings_TableLayoutPanel)
+        Me.SoundDevice_Panel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SoundDevice_Panel.Location = New System.Drawing.Point(967, 0)
+        Me.SoundDevice_Panel.Margin = New System.Windows.Forms.Padding(0)
+        Me.SoundDevice_Panel.Name = "SoundDevice_Panel"
+        Me.SoundDevice_Panel.Size = New System.Drawing.Size(325, 56)
+        Me.SoundDevice_Panel.TabIndex = 9
         '
         'SoundSettings_TableLayoutPanel
         '
@@ -1141,6 +1143,7 @@ Partial Class SipTestGui
         Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.UseHeadphones_RadioButton, 2, 1)
         Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.SelectedSoundDevice_TextBox, 1, 0)
         Me.SoundSettings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SoundSettings_TableLayoutPanel.Enabled = False
         Me.SoundSettings_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
         Me.SoundSettings_TableLayoutPanel.Name = "SoundSettings_TableLayoutPanel"
         Me.SoundSettings_TableLayoutPanel.RowCount = 2
@@ -1163,6 +1166,7 @@ Partial Class SipTestGui
         'UseSoundField_RadioButton
         '
         Me.UseSoundField_RadioButton.AutoSize = True
+        Me.UseSoundField_RadioButton.Checked = True
         Me.UseSoundField_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.UseSoundField_RadioButton.Location = New System.Drawing.Point(98, 30)
         Me.UseSoundField_RadioButton.Name = "UseSoundField_RadioButton"
@@ -1180,7 +1184,6 @@ Partial Class SipTestGui
         Me.UseHeadphones_RadioButton.Name = "UseHeadphones_RadioButton"
         Me.UseHeadphones_RadioButton.Size = New System.Drawing.Size(108, 21)
         Me.UseHeadphones_RadioButton.TabIndex = 3
-        Me.UseHeadphones_RadioButton.TabStop = True
         Me.UseHeadphones_RadioButton.Text = "Headphones"
         Me.UseHeadphones_RadioButton.UseVisualStyleBackColor = True
         '
@@ -1254,7 +1257,7 @@ Partial Class SipTestGui
         Me.Name = "SipTestGui"
         Me.Text = "SipTestGui"
         Me.TableLayoutPanel1.ResumeLayout(False)
-        Me.TableLayoutPanel2.ResumeLayout(False)
+        Me.Test_TableLayoutPanel.ResumeLayout(False)
         Me.TableLayoutPanel5.ResumeLayout(False)
         Me.TableLayoutPanel8.ResumeLayout(False)
         Me.TableLayoutPanel9.ResumeLayout(False)
@@ -1274,12 +1277,12 @@ Partial Class SipTestGui
         CType(Me.TestTrialDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TableLayoutPanel16.ResumeLayout(False)
         Me.TableLayoutPanel16.PerformLayout()
-        Me.TableLayoutPanel7.ResumeLayout(False)
-        Me.TableLayoutPanel7.PerformLayout()
+        Me.Screen_TableLayoutPanel.ResumeLayout(False)
+        Me.Screen_TableLayoutPanel.PerformLayout()
         Me.PcScreen_TableLayoutPanel.ResumeLayout(False)
         Me.PcScreen_TableLayoutPanel.PerformLayout()
         Me.BtScreen_TableLayoutPanel.ResumeLayout(False)
-        Me.SoundUnits_Panel.ResumeLayout(False)
+        Me.SoundDevice_Panel.ResumeLayout(False)
         Me.SoundSettings_TableLayoutPanel.ResumeLayout(False)
         Me.SoundSettings_TableLayoutPanel.PerformLayout()
         Me.ResumeLayout(False)
@@ -1287,7 +1290,7 @@ Partial Class SipTestGui
     End Sub
 
     Friend WithEvents TableLayoutPanel1 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel2 As Windows.Forms.TableLayoutPanel
+    Friend WithEvents Test_TableLayoutPanel As Windows.Forms.TableLayoutPanel
     Friend WithEvents TestSettings_TableLayoutPanel As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel4 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel5 As Windows.Forms.TableLayoutPanel
@@ -1297,7 +1300,7 @@ Partial Class SipTestGui
     Friend WithEvents ParticipantLock_Button As Windows.Forms.Button
     Friend WithEvents SoundSettings_TableLayoutPanel As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel8 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel7 As Windows.Forms.TableLayoutPanel
+    Friend WithEvents Screen_TableLayoutPanel As Windows.Forms.TableLayoutPanel
     Friend WithEvents TableLayoutPanel9 As Windows.Forms.TableLayoutPanel
     Friend WithEvents ExportData_Button As Windows.Forms.Button
     Friend WithEvents ImportData_Button As Windows.Forms.Button
@@ -1371,6 +1374,6 @@ Partial Class SipTestGui
     Friend WithEvents BtLamp As Lamp
     Friend WithEvents UseSoundField_RadioButton As Windows.Forms.RadioButton
     Friend WithEvents UseHeadphones_RadioButton As Windows.Forms.RadioButton
-    Friend WithEvents SoundUnits_Panel As Windows.Forms.Panel
+    Friend WithEvents SoundDevice_Panel As Windows.Forms.Panel
     Friend WithEvents SelectedSoundDevice_TextBox As Windows.Forms.TextBox
 End Class

@@ -314,6 +314,10 @@ Public Class SipTestGui
         'Creating a new patient
         CurrentParticipantID = ParticipantID
 
+        Screen_TableLayoutPanel.Enabled = True
+        SoundSettings_TableLayoutPanel.Enabled = True
+        MsgBox("Please select a sound device!", MsgBoxStyle.Information, "SiP test")
+
     End Sub
 
     Public Sub LockPatientDetails(ID As String)
@@ -1702,6 +1706,10 @@ Public Class SipTestGui
                 Case Else
                     SelectedSoundDevice_TextBox.Text = "No sound device selected"
             End Select
+        End If
+
+        If CurrentParticipantID <> "" Then
+            Test_TableLayoutPanel.Enabled = True
         End If
 
     End Sub
