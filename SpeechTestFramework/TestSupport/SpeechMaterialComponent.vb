@@ -353,6 +353,27 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    ''' <summary>
+    ''' Returns the wave file format of the first located speech material component at the AudioFileLinguisticLevel of the selected Mediaset, or Nothing is no sound file is found.
+    ''' </summary>
+    ''' <param name="MediaSet"></param>
+    ''' <param name="SoundChannel"></param>
+    ''' <returns></returns>
+    Public Function GetWavefileFormat(ByRef MediaSet As MediaSet, ByVal SoundChannel As Integer) As Audio.Formats.WaveFormat
+
+        Dim FirstRelativeWithSound = GetFirstRelativeWithSound(MediaSet, 0, SoundChannel)
+
+        Dim ComponentSound = FirstRelativeWithSound.GetSound(MediaSet, 0, SoundChannel)
+
+        If ComponentSound IsNot Nothing Then
+            Return ComponentSound.WaveFormat
+        Else
+            Return Nothing
+        End If
+
+    End Function
+
+
     Public Function FindSelfIndices(Optional ByRef ComponentIndices As ComponentIndices = Nothing) As ComponentIndices
 
         If ComponentIndices Is Nothing Then ComponentIndices = New ComponentIndices
@@ -505,6 +526,43 @@ Public Class SpeechMaterialComponent
         Return Output
 
     End Function
+
+
+    ''' <summary>
+    ''' Locates and returns the first speech material component that has (or is planned should have) a sound recording, based on the AudioFileLinguisticLevel of the selected Mediaset.
+    ''' </summary>
+    ''' <param name="MediaSet"></param>
+    ''' <param name="Index"></param>
+    ''' <param name="SoundChannel"></param>
+    ''' <returns></returns>
+    Public Function GetFirstRelativeWithSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer) As SpeechMaterialComponent
+
+        If Me.LinguisticLevel = MediaSet.AudioFileLinguisticLevel Then
+
+            Return Me
+
+        ElseIf Me.LinguisticLevel > MediaSet.AudioFileLinguisticLevel Then
+
+            'E.g. SMC is a Word and AudioFileLinguisticLevel is a Sentence
+            Return GetAncestorAtLevel(MediaSet.AudioFileLinguisticLevel)
+
+        ElseIf Me.LinguisticLevel < MediaSet.AudioFileLinguisticLevel Then
+
+            'E.g. SMC is a List and AudioFileLinguisticLevel is a sentence
+            Dim SmcsWithSoundFile = GetAllDescenentsAtLevel(MediaSet.AudioFileLinguisticLevel)
+            If SmcsWithSoundFile.Count > 0 Then
+                Return SmcsWithSoundFile(0)
+            Else
+                Return Nothing
+            End If
+
+        Else
+            'This is odd, VB warns for lacking return path without this line, but the above should cover all paths...
+            Return Nothing
+        End If
+
+    End Function
+
 
 
     ''' <summary>

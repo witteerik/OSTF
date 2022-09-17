@@ -195,8 +195,9 @@ Public Class SipTestGui
                 BtScreen_RadioButton.Text = "BT-skärm"
                 ConnectBluetoothScreen_Button.Text = "Anslut BT-skärm"
                 DisconnectBtScreen_Button.Text = "Koppla från BT-skärm"
-                SoundDeviceSearchButton.Text = "Sök ljudenheter"
-                SelectSoundDeviceButton.Text = "Använd vald ljudenhet"
+                SelectSoundDevice_Button.Text = "Välj ljudenhet"
+                UseSoundField_RadioButton.Text = "Ljudfält"
+                UseHeadphones_RadioButton.Text = "Hörlurar"
                 SelectAudiogram_Label.Text = "Välj audiogram"
                 TestDescription_Label.Text = "Test"
                 CompletedTests_Label.Text = "Genomförda test"
@@ -232,8 +233,9 @@ Public Class SipTestGui
                 BtScreen_RadioButton.Text = "BT screen"
                 ConnectBluetoothScreen_Button.Text = "Connect to BT screen"
                 DisconnectBtScreen_Button.Text = "Disconnect BT screen"
-                SoundDeviceSearchButton.Text = "Search sound units"
-                SelectSoundDeviceButton.Text = "Use selected sound unit"
+                SelectSoundDevice_Button.Text = "Select sound device"
+                UseSoundField_RadioButton.Text = "Sound field"
+                UseHeadphones_RadioButton.Text = "Headphones"
                 SelectAudiogram_Label.Text = "Select audiogram"
                 TestDescription_Label.Text = "Test"
                 CompletedTests_Label.Text = "Completed tests"
@@ -968,15 +970,25 @@ Public Class SipTestGui
 
     Private Sub LockSettingsPanels()
 
+        PcScreen_RadioButton.Enabled = False
+        BtScreen_RadioButton.Enabled = False
+
         TestSettings_TableLayoutPanel.Enabled = False
         LockTestNameBox()
+
+        SoundSettings_TableLayoutPanel.Enabled = False
 
     End Sub
 
     Private Sub UnlockSettingsPanels()
 
+        PcScreen_RadioButton.Enabled = True
+        BtScreen_RadioButton.Enabled = True
+
         TestSettings_TableLayoutPanel.Enabled = True
         UnlockTestNameBox()
+
+        SoundSettings_TableLayoutPanel.Enabled = True
 
     End Sub
 
@@ -1654,6 +1666,52 @@ Public Class SipTestGui
 
         End If
 
+
+    End Sub
+
+    Private Sub SoundDeviceSearch_Button_Click(sender As Object, e As EventArgs) Handles SelectSoundDevice_Button.Click
+
+        SelectedSoundDevice_TextBox.Text = ""
+
+        'NOTE, the sound player will only support the same sample rate in all files in MediaSets!!!
+
+        Dim CurrentWaveFormat = CompleteSpeechMaterial.GetWavefileFormat(AvailableMediaSets(0), 1)
+        Dim newAudioSettingsDialog = New AudioOutputSettingsDialog(CurrentWaveFormat.SampleRate)
+
+        Dim Result = newAudioSettingsDialog.ShowDialog()
+        If Result = Windows.Forms.DialogResult.OK Then
+            AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
+        Else
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    MsgBox("En ljudenhet mste väljas!", MsgBoxStyle.Exclamation, "Ingen ljudenhet vald!")
+                Case Else
+                    MsgBox("An output sound device must be selected!", MsgBoxStyle.Exclamation, "No output sound device selected!")
+            End Select
+            Exit Sub
+        End If
+
+        If AudioApiSettings.SelectedInputAndOutputDeviceInfo IsNot Nothing Then
+            SelectedSoundDevice_TextBox.Text = AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.name & " (" & AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.ToString & ")"
+        ElseIf AudioApiSettings.SelectedOutputDeviceInfo IsNot Nothing Then
+            SelectedSoundDevice_TextBox.Text = AudioApiSettings.SelectedOutputDeviceInfo.Value.name & " (" & AudioApiSettings.SelectedOutputDeviceInfo.Value.hostApi & ")"
+        Else
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    SelectedSoundDevice_TextBox.Text = "Ingen ljudenhet vald"
+                Case Else
+                    SelectedSoundDevice_TextBox.Text = "No sound device selected"
+            End Select
+        End If
+
+    End Sub
+
+
+    Private Sub UseSoundField_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles UseSoundField_RadioButton.CheckedChanged
+
+    End Sub
+
+    Private Sub UseHeadphones_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles UseHeadphones_RadioButton.CheckedChanged
 
     End Sub
 
