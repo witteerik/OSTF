@@ -408,4 +408,22 @@
 
     End Sub
 
+
+    Private Sub Button10_Click2(sender As Object, e As EventArgs) Handles Button10.Click
+
+        Dim InputSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SwedishSiPTest\SoundFiles\Stad\CBG_Stad.wav")
+
+        Dim Copy2 = InputSound.CopyChannelToMonoSound(1)
+
+        MsgBox(InputSound.WaveData.SampleData(1)(InputSound.WaveData.SampleData(1).Length - 1) & vbCrLf &
+               Copy2.WaveData.SampleData(1)(Copy2.WaveData.SampleData(1).Length - 1))
+
+        For s = 0 To Copy2.WaveData.SampleData(1).Length - 1
+            Copy2.WaveData.SampleData(1)(s) = -1
+        Next
+
+        Dim x = 1
+
+    End Sub
+
 End Class

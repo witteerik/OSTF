@@ -161,6 +161,23 @@ Namespace Audio
             End Sub
 
             ''' <summary>
+            ''' Compares the instance of SoundLevelFormat to another instance.
+            ''' </summary>
+            ''' <param name="SoundLevelFormat"></param>
+            ''' <returns>Returns False if the compared instances differ in SoundMeasurementType, and if time weighting is used, also if the temporal integration time differs. Otherwise returns True</returns>
+            Public Function IsEqual(ByVal SoundLevelFormat As SoundLevelFormat) As Boolean
+
+                If SoundMeasurementType <> SoundLevelFormat.SoundMeasurementType Then Return False
+
+                If LoudestSectionMeasurement Then
+                    If TemporalIntegrationDuration <> SoundLevelFormat.TemporalIntegrationDuration Then Return False
+                End If
+
+                Return True
+
+            End Function
+
+            ''' <summary>
             ''' Displays the parameters of the current SoundLevelFormat, using a GUI, and asks the user to confirm or change it.
             ''' </summary>
             Public Sub SelectFormatWithGui()

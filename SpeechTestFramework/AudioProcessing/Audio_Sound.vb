@@ -189,6 +189,7 @@ Namespace Audio
             Return newSound
         End Function
 
+
         ''' <summary>
         ''' Creates a new sound with a copy (not a reference) of the original sample data. The WaveFormat in the new sound, however, is a reference to the wave format in the original sound.
         ''' </summary>
@@ -201,9 +202,7 @@ Namespace Audio
             'Copying sound data
             For c = 1 To WaveFormat.Channels
                 Dim NewChannelArray(WaveData.SampleData(c).Length - 1) As Single
-                For s = 0 To NewChannelArray.Length - 1
-                    NewChannelArray(s) = WaveData.SampleData(c)(s)
-                Next
+                Array.Copy(WaveData.SampleData(c), NewChannelArray, NewChannelArray.Length)
                 NewSound.WaveData.SampleData(c) = NewChannelArray
             Next
 
@@ -211,7 +210,6 @@ Namespace Audio
             Return NewSound
 
         End Function
-
 
         ''' <summary>
         ''' Copies the sample data of one channel in the original sound to a new sound.
@@ -222,15 +220,33 @@ Namespace Audio
 
             Dim OutputSound As New Sound(New Formats.WaveFormat(WaveFormat.SampleRate, WaveFormat.BitDepth, 1,, WaveFormat.Encoding), FileName)
 
-            Dim NewChannelArray(WaveData.SampleData(Channel).Length) As Single
-            For s = 0 To WaveData.SampleData(Channel).Length - 1
-                NewChannelArray(s) = WaveData.SampleData(Channel)(s)
-            Next
+            Dim NewChannelArray(WaveData.SampleData(Channel).Length - 1) As Single
+            Array.Copy(WaveData.SampleData(Channel), NewChannelArray, NewChannelArray.Length)
             OutputSound.WaveData.SampleData(1) = NewChannelArray
 
             Return OutputSound
 
         End Function
+
+
+
+        ''' <summary>
+        ''' Copies a section of the sample data of one channel in the original sound to a new sound.
+        ''' </summary>
+        ''' <param name="Channel"></param>
+        ''' <returns></returns>
+        Public Function CopySection(ByVal Channel As Integer, ByVal StartSample As Integer, ByVal Length As Integer) As Sound
+
+            Dim OutputSound As New Sound(New Formats.WaveFormat(WaveFormat.SampleRate, WaveFormat.BitDepth, 1,, WaveFormat.Encoding), FileName)
+
+            Dim NewChannelArray(Length - 1) As Single
+            Array.Copy(WaveData.SampleData(Channel), StartSample, NewChannelArray, 0, Length)
+            OutputSound.WaveData.SampleData(1) = NewChannelArray
+
+            Return OutputSound
+
+        End Function
+
 
         ''' <summary>
         ''' Creates a multi channel sound out of a mono sound (or the first channel in a multichannel sound).
