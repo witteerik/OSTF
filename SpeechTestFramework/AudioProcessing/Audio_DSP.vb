@@ -1211,6 +1211,54 @@ Namespace Audio
                 PowerCosine_SkewedFromFadeDirection
             End Enum
 
+            Public Class FadeSpecifications
+
+                Public ReadOnly StartAttenuation As Double?
+                Public ReadOnly EndAttenuation As Double?
+                Public ReadOnly StartSample As Integer
+                Public ReadOnly SectionLength As Integer?
+                Public ReadOnly SlopeType As FadeSlopeType
+                Public ReadOnly CosinePower As Double
+                Public ReadOnly EqualPower As Boolean
+
+                ''' <summary>
+                ''' Creates a new instance of FadeSpecifications
+                ''' </summary>
+                ''' <param name="StartAttenuation">The attenuation (in dB) applied in the start of the fade period. I left empty, fade will start from silence.</param>
+                ''' <param name="EndAttenuation">The attenuation (in dB) applied in the end of the fade period. I left empty, the fade period will end in silence.</param>
+                ''' <param name="startSample">The start sample of the section to fade.</param>
+                ''' <param name="sectionLength">The length (in samples) of the section to fade. If left to Nothing, fading will go to the end of the shortest sound channel.</param>
+                ''' <param name="slopeType">Specifies the curvature of the fade section. Linear creates a linear fade, and Smooth fades using a cosine function to smoothen out the fade section.</param>
+                Public Sub New(Optional ByVal StartAttenuation As Double? = Nothing, Optional ByVal EndAttenuation As Double? = Nothing,
+                            Optional ByVal StartSample As Integer = 0, Optional ByVal SectionLength As Integer? = Nothing,
+                            Optional ByVal SlopeType As FadeSlopeType = FadeSlopeType.Smooth, Optional CosinePower As Double = 10, Optional ByVal EqualPower As Boolean = False)
+
+                    Me.StartAttenuation = StartAttenuation
+                    Me.EndAttenuation = EndAttenuation
+                    Me.startSample = StartSample
+                    Me.sectionLength = SectionLength
+                    Me.slopeType = SlopeType
+                    Me.CosinePower = CosinePower
+                    Me.EqualPower = EqualPower
+
+                End Sub
+
+            End Class
+
+            ''' <summary>
+            ''' Fading the indicated section of the indicated sound using the specified fading type.
+            ''' </summary>
+            ''' <param name="InputSound">The sound to be modified.</param>
+            ''' <param name="FadeSpecifications"></param>
+            ''' <param name="Channel">The channel to be modified. If left empty all channels will be modified.</param>
+            Public Sub Fade(ByRef InputSound As Sound, ByVal FadeSpecifications As FadeSpecifications, Optional ByVal Channel As Integer? = Nothing)
+
+                Fade(InputSound, FadeSpecifications.StartAttenuation, FadeSpecifications.EndAttenuation, Channel, FadeSpecifications.startSample, FadeSpecifications.sectionLength, FadeSpecifications.slopeType, FadeSpecifications.CosinePower, FadeSpecifications.EqualPower)
+
+            End Sub
+
+
+
             ''' <summary>
             ''' Fading the indicated section of the indicated sound using the specified fading type.
             ''' </summary>

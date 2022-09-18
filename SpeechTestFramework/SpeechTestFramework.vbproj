@@ -93,6 +93,7 @@
     <Compile Include="AudioProcessing\Audio_ManagementExt.vb" />
     <Compile Include="AudioProcessing\Audio_Sound.vb" />
     <Compile Include="AudioProcessing\Audio_SoundApiSettings.vb" />
+    <Compile Include="AudioProcessing\Audio_SoundPlayer_DuplexMixer.vb" />
     <Compile Include="AudioProcessing\Audio_SoundPlayer.vb" />
     <Compile Include="AudioProcessing\PortAudioVB.vb" />
     <Compile Include="AudioProcessing\SMA1.0.vb" />
