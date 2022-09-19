@@ -24,6 +24,14 @@ Namespace Audio
             ''' </summary>
             Public HardwareOutputChannelSpeakerLocations As New SortedList(Of Integer, SoundSourceLocation)
 
+            Public TransducerType As TransducerTypes = TransducerTypes.SoundField
+
+            Public Enum TransducerTypes
+                SoundField
+                Ambisonics
+                Headphones
+            End Enum
+
             ''' <summary>
             ''' Creating a new mixer.
             ''' </summary>
@@ -151,8 +159,6 @@ Namespace Audio
                 Public SourceLocation As SoundSourceLocation
 
                 Public InsertSample As Integer
-                Public PlayLength As Integer
-
 
                 ''' <summary>
                 ''' Specifications of fadings. Note that this can also be used to create duckings, by adding a (partial) fade out, attenuation section, and a (partial) fade in.
@@ -167,7 +173,7 @@ Namespace Audio
                 Public Sub New(ByRef Sound As Audio.Sound, ByVal ReadChannel As Integer,
                                ByVal SoundLevel As Double, ByVal LevelGroup As Integer,
                                ByRef SourceLocation As SoundSourceLocation,
-                               ByVal InsertSample As Integer, ByVal PlayLength As Integer,
+                               Optional ByVal InsertSample As Integer = 0,
                                Optional ByVal LevelDefStartSample As Integer? = Nothing, Optional ByVal LevelDefLength As Integer? = Nothing,
                                Optional ByRef SoundLevelFormat As Audio.Formats.SoundLevelFormat = Nothing,
                                Optional ByRef FadeSpecifications As List(Of Audio.DSP.FadeSpecifications) = Nothing,
@@ -180,7 +186,6 @@ Namespace Audio
                     Me.SourceLocation = SourceLocation
 
                     Me.InsertSample = InsertSample
-                    Me.PlayLength = PlayLength
 
                     Me.LevelDefStartSample = LevelDefStartSample
                     Me.LevelDefLength = LevelDefLength
@@ -218,13 +223,229 @@ Namespace Audio
             End Class
 
 
-            Public Function CreateSoundScene(ByRef Input As List(Of SoundSceneItem)) As Audio.Sound
+            Public Function CreateSoundScene(ByRef Input As List(Of SoundSceneItem), Optional ByVal LimiterThreshold As Double? = 100) As Audio.Sound
 
                 Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
+                'Copy sounds so that their individual sample data in the selected channel to a new (mono) sound so that the sample data may be changed without changing the original sound,
+                ' and addes them in a new list of SoundSceneItem, which should henceforth be used instead of the Input object.
+                Dim SoundSceneItemList As New List(Of SoundSceneItem)
+                For Each Item In Input
+                    'Creates a new NewSoundSceneItem 
+                    Dim NewSoundSceneItem = New SoundSceneItem(Item.Sound.CopyChannelToMonoSound(Item.ReadChannel), 1, Item.SoundLevel, Item.LevelGroup,
+                                                                Item.SourceLocation, Item.InsertSample, Item.LevelDefStartSample, Item.LevelDefLength,
+                                                               Item.SoundLevelFormat, Item.FadeSpecifications, Item.DuckingSpecifications)
+                    'Adds the NewSoundSceneItem 
+                    SoundSceneItemList.Add(NewSoundSceneItem)
+
+                    'Also gets and checks the wave formats for equality
+                    If WaveFormat Is Nothing Then
+                        WaveFormat = NewSoundSceneItem.Sound.WaveFormat
+                    Else
+                        If WaveFormat.IsEqual(NewSoundSceneItem.Sound.WaveFormat) = False Then Throw New ArgumentException("Different wave formats detected when mixing sound files.")
+                    End If
+                Next
+
+
+                ' Setting levels
+                'Creating sound level groups
+                Dim SoundLevelGroups = SetupSoundLevelGroups(SoundSceneItemList)
+                For Each SoundLevelGroup In SoundLevelGroups
+
+                    Dim TargetLevel = SoundLevelGroup.Value.Item1
+                    Dim SoundLevelFormat = SoundLevelGroup.Value.Item2
+                    Dim GroupMembers = SoundLevelGroup.Value.Item3
+
+                    'Gets the measurement sounds
+                    Dim GroupMemberMeasurementSounds As New List(Of Sound)
+                    For Each GroupMember In GroupMembers
+                        If GroupMember.LevelDefStartSample.HasValue = False And GroupMember.LevelDefLength.HasValue = False Then
+                            GroupMemberMeasurementSounds.Add(GroupMember.Sound)
+                        Else
+                            'Checks that both have value
+                            If GroupMember.LevelDefStartSample.HasValue = True And GroupMember.LevelDefLength.HasValue = True Then
+                                GroupMemberMeasurementSounds.Add(GroupMember.Sound.CopySection(GroupMember.ReadChannel, GroupMember.LevelDefStartSample, GroupMember.LevelDefLength))
+                            Else
+                                Throw New ArgumentException("Either none or both of the SoundSceneItem parameters LevelDefStartSample and LevelDefLength must have a value.")
+                            End If
+                        End If
+                    Next
+
+                    Dim MasterMeasurementSound As Audio.Sound = Nothing
+                    If GroupMemberMeasurementSounds.Count = 1 Then
+
+                        'References the GroupMemberMeasurementSounds(0) into MasterMeasurementSound 
+                        MasterMeasurementSound = GroupMemberMeasurementSounds(0)
+                    ElseIf GroupMemberMeasurementSounds.Count > 1 Then
+
+                        'TODO Equalize level before superpositioning?
+
+                        'Adds the measurement sounds into MasterMeasurementSound 
+                        MasterMeasurementSound = Audio.DSP.SuperpositionSounds(GroupMemberMeasurementSounds)
+                    Else
+                        Throw New ArgumentException("Missing sound in SoundSceneItem.")
+                    End If
+
+                    'Measures the sound levels
+                    Dim CurrentLevel As Double
+                    If SoundLevelFormat.LoudestSectionMeasurement = False Then
+                        CurrentLevel = Audio.DSP.MeasureSectionLevel(MasterMeasurementSound, 1,,,,, SoundLevelFormat.FrequencyWeighting)
+                    Else
+                        CurrentLevel = Audio.DSP.GetLevelOfLoudestWindow(MasterMeasurementSound, 1, WaveFormat.SampleRate * SoundLevelFormat.TemporalIntegrationDuration,,,, SoundLevelFormat.FrequencyWeighting, True)
+                    End If
+
+                    'Calculating needed gain
+                    Dim NeededGain = TargetLevel - Simulated_dBFS_To_dBSPL(CurrentLevel)
+
+                    'Applying the same gain to all sounds in the group
+                    For Each Member In GroupMembers
+                        Audio.DSP.AmplifySection(Member.Sound, NeededGain, 1)
+                    Next
+                Next
+
+                ' Applies fading to the sounds
+                For Each Item In SoundSceneItemList
+                    If Item.FadeSpecifications IsNot Nothing Then
+                        For Each FadeSpecification In Item.FadeSpecifications
+                            Audio.DSP.Fade(Item.Sound, FadeSpecification, 1)
+                        Next
+                    End If
+                Next
+
+                'Applies ducking
+                For Each Item In SoundSceneItemList
+                    If Item.DuckingSpecifications IsNot Nothing Then
+                        For i = 0 To Item.DuckingSpecifications.Count - 1 Step 2
+
+                            Dim FadeOutSpecs = Item.DuckingSpecifications(i)
+                            Dim FadeInSpecs = Item.DuckingSpecifications(i + 1)
+                            Dim MidStartSample As Integer = FadeOutSpecs.StartSample + FadeOutSpecs.SectionLength
+                            Dim MidLength As Integer = FadeInSpecs.StartSample - MidStartSample
+                            Dim MidFadeSpecs = New Audio.DSP.FadeSpecifications(FadeOutSpecs.EndAttenuation, FadeInSpecs.StartAttenuation,
+                                                                                         MidStartSample, MidLength, FadeOutSpecs.SlopeType, FadeOutSpecs.CosinePower, FadeOutSpecs.EqualPower)
+
+                            Audio.DSP.Fade(Item.Sound, FadeOutSpecs, 1)
+                            Audio.DSP.Fade(Item.Sound, MidFadeSpecs, 1)
+                            Audio.DSP.Fade(Item.Sound, FadeInSpecs, 1)
+
+                        Next
+                    End If
+                Next
+
+                If OutputRouting.Values.Max = 0 Then Throw New Exception("No output channels specified in the DuplexMixer output routing.")
+                Dim OutputSound As Sound = Nothing
+
+                'Inserting/adding sounds to the output sound
+                'OutputSound.
+                Select Case TransducerType
+                    Case TransducerTypes.SoundField
+
+                        'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
+                        OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
+
+                        'Adds the item sound into the single channel that is closest to the SourceLocation specified in the item
+                        For Each Item In SoundSceneItemList
+
+                            Dim ClosestHardwareOutput = FindClosestHardwareOutput(Item.SourceLocation)
+                            Dim CorrespondingChannellInOutputSound As Integer? = OutputRouting(ClosestHardwareOutput)
+
+                            'Inserts the sound into CorrespondingChannellInOutputSound
+                            Audio.DSP.InsertSound(Item.Sound, 1, OutputSound, CorrespondingChannellInOutputSound, Item.InsertSample)
+
+                        Next
+
+                    Case TransducerTypes.Ambisonics
+
+                        Throw New NotImplementedException("Ambisonics presentation is not yet supported.")
+
+                    Case TransducerTypes.Headphones
+
+                        'Simulating the speaker locations into stereo headphones
+                        SimulateSoundSourceLocation(SoundSceneItemList)
+
+                        'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
+                        OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
+
+                        For Each Item In SoundSceneItemList
+
+                            'Inserts the sound into CorrespondingChannellInOutputSound
+                            Audio.DSP.InsertSound(Item.Sound, 1, OutputSound, 1, Item.InsertSample)
+                            Audio.DSP.InsertSound(Item.Sound, 2, OutputSound, 2, Item.InsertSample)
+
+                        Next
+
+                    Case TransducerTypes.Ambisonics
+                        Throw New NotImplementedException("Unknown TransducerType")
+                End Select
+
+
+                ' TODO: Simulation of HL/HA
+
+
+                'Limiter
+                If LimiterThreshold.HasValue Then
+                    'Limiting the total sound level
+                    'Checking the sound levels only in channels with output sound
+                    Dim ChannelsToCheck As New SortedSet(Of Integer)
+                    For Each c In OutputRouting.Values
+                        If Not ChannelsToCheck.Contains(c) Then ChannelsToCheck.Add(c)
+                    Next
+
+                    For Each c In ChannelsToCheck
+                        Dim LimiterResult = Audio.DSP.SoftLimitSection(OutputSound, Simulated_dBSPL_To_dBFS(LimiterThreshold),,,, c, FrequencyWeightings.Z, False, True)
+
+                        If LimiterResult <> "" Then
+                            'Limiting occurred, logging the limiter data
+                            Utils.SendInfoToLog(
+                            "channel " & c &
+                            " had it's output level limited to  " & LimiterThreshold & " dB, " & DateTime.Now.ToString & vbCrLf &
+                            "Section:" & vbTab & "Startattenuation" & vbTab & "EndAttenuation" & vbCrLf &
+                            LimiterResult)
+                        End If
+                    Next
+                End If
+
+
+                'Exporting sound for manual evaluation
+                Audio.AudioIOs.SaveToWaveFile(OutputSound, IO.Path.Combine(Utils.logFilePath, "Step6_PostLimiter"))
+
+                ' Calibrate
+                MsgBox("Fix calibration")
+
+
+                Return OutputSound
+
+
+            End Function
+
+            Private Function GetEmptyOutputSound(ByRef SoundSceneItemList As List(Of SoundSceneItem), ByRef WaveFormat As Audio.Formats.WaveFormat) As Sound
+
+                'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
+                Dim MixLength As Integer = 0
+                For Each Item In SoundSceneItemList
+                    Dim CurrentNeededLength As Integer = Item.InsertSample + Item.Sound.WaveData.SampleData(1).Length
+                    MixLength = Math.Max(MixLength, CurrentNeededLength)
+                Next
+
+                'Creating an OutputSound with the number of channels required by the current output routing Values.
+                Dim OutputSound As New Sound(New Formats.WaveFormat(WaveFormat.SampleRate, WaveFormat.BitDepth, OutputRouting.Values.Max, , WaveFormat.Encoding))
+
+                'Adding the needed channels arrays to the output sound (based on the values in OutputRouting (not adding arrays for in-between channels in which no sound data will exist)
+                For Each Channel In OutputRouting.Values
+                    Dim NewChannelArray(MixLength - 1) As Single
+                    OutputSound.WaveData.SampleData(Channel) = NewChannelArray
+                Next
+
+                Return OutputSound
+
+            End Function
+
+            Private Function SetupSoundLevelGroups(ByRef SoundSceneItemList As List(Of SoundSceneItem)) As SortedList(Of Integer, Tuple(Of Double, Audio.Formats.SoundLevelFormat, List(Of SoundSceneItem)))
+
                 'Checking the sound level groups, and addes them along with their sound level, sound level formats, and the respective SoundSceneItems, by which they can henceforth be retrieved based on the LevelGroup value of each SoundSceneItem.
                 Dim SoundLevelGroups As New SortedList(Of Integer, Tuple(Of Double, Audio.Formats.SoundLevelFormat, List(Of SoundSceneItem)))
-                For Each Item In Input
+                For Each Item In SoundSceneItemList
+
                     If Not SoundLevelGroups.ContainsKey(Item.LevelGroup) Then
                         'Adding the sound level group, and the item
                         SoundLevelGroups.Add(Item.LevelGroup, New Tuple(Of Double, Formats.SoundLevelFormat, List(Of SoundSceneItem))(Item.SoundLevel, Item.SoundLevelFormat, New List(Of SoundSceneItem) From {Item}))
@@ -238,189 +459,289 @@ Namespace Audio
                     End If
                 Next
 
-                'Copy sounds so that their individual sample data in the selected channel to a new (mono) sound so that the sample data may be changed without changing the original sound,
-                ' and addes them in a new list of SoundSceneItem, which should henceforth be used instead of the Input object.
-                Dim SoundSceneItemList As New List(Of SoundSceneItem)
-                For Each Item In Input
-                    'Creates a new NewSoundSceneItem 
-                    Dim NewSoundSceneItem = New SoundSceneItem(Item.Sound.CopyChannelToMonoSound(Item.ReadChannel), 1, Item.SoundLevel, Item.LevelGroup,
-                                                                Item.SourceLocation, Item.InsertSample, Item.PlayLength, Item.LevelDefStartSample, Item.LevelDefLength,
-                                                               Item.SoundLevelFormat, Item.FadeSpecifications, Item.DuckingSpecifications)
-                    'Adds the NewSoundSceneItem 
-                    SoundSceneItemList.Add(NewSoundSceneItem)
-
-                    'Also gets and checks the wave formats for equality
-                    If WaveFormat Is Nothing Then
-                        WaveFormat = NewSoundSceneItem.Sound.WaveFormat
-                    Else
-                        If WaveFormat.IsEqual(NewSoundSceneItem.Sound.WaveFormat) = False Then Throw New ArgumentException("Different wave formats detected when mixing sound files.")
-                    End If
+                'Checking intra group consistence of certain values
+                For Each Group In SoundLevelGroups
+                    CheckGroupLevelConsistency(Group.Value.Item3)
                 Next
 
-                'Getting the length of the complete mix
-                Dim MixLength As Integer = 0
-                For Each Item In SoundSceneItemList
-                    Dim CurrentNeededLength As Integer = Item.InsertSample + Item.PlayLength
-                    MixLength = Math.Max(MixLength, CurrentNeededLength)
-                Next
-
-
-
-                ' Applies fading to the sounds
-                For Each Item In SoundSceneItemList
-                    For Each FadeSpecification In Item.FadeSpecifications
-                        Audio.DSP.Fade(Item.Sound, FadeSpecification, 1)
-                    Next
-                Next
-
-                ' Setting levels
-                For Each SoundLevelGroup In SoundLevelGroups
-
-                    Dim TargetLevel = SoundLevelGroup.Value.Item1
-                    Dim SoundLevelFormat = SoundLevelGroup.Value.Item2
-                    Dim GroupMembers = SoundLevelGroup.Value.Item3
-                    Dim Local_LevelDefStartSample As Integer? = Nothing
-                    Dim Local_LevelDefLength As Integer? = Nothing
-
-                    If GroupMembers.Count > 1 Then
-                        'Checking equality of Local_LevelDefStartSample and Local_LevelDefLength within the SoundLevelGroup
-                        Dim NumberOfMembersWith_LevelDefStartSample As Integer = 0
-                        Dim NumberOfMembersWith_LevelDefLength As Integer = 0
-
-                        For i = 0 To GroupMembers.Count - 1
-                            If GroupMembers(i).LevelDefStartSample.HasValue Then NumberOfMembersWith_LevelDefStartSample += 1
-                            If GroupMembers(i).LevelDefLength.HasValue Then NumberOfMembersWith_LevelDefLength += 1
-                        Next
-
-                        If NumberOfMembersWith_LevelDefStartSample = GroupMembers.Count Then
-                            'Checking that all have the same start value
-                            For i = 0 To GroupMembers.Count - 2
-                                If GroupMembers(i).LevelDefStartSample <> GroupMembers(i + 1).LevelDefStartSample Then
-                                    Throw New ArgumentException("All, or no, members in a LevelGroup must specify the same LevelDefStartSample value.")
-                                End If
-                            Next
-                        ElseIf NumberOfMembersWith_LevelDefStartSample = 0 Then
-                            'This is ok
-                        Else
-                            Throw New ArgumentException("All, or no, members in a LevelGroup must specify a LevelDefStartSample value.")
-                        End If
-
-                        If NumberOfMembersWith_LevelDefLength = GroupMembers.Count Then
-                            'Checking that all have the same length value
-                            For i = 0 To GroupMembers.Count - 2
-                                If GroupMembers(i).LevelDefLength <> GroupMembers(i + 1).LevelDefLength Then
-                                    Throw New ArgumentException("All, or no, members in a LevelGroup must specify the same LevelDefStartSample value.")
-                                End If
-                            Next
-                        ElseIf NumberOfMembersWith_LevelDefLength = 0 Then
-                            'This is ok
-                        Else
-                            Throw New ArgumentException("All, or no, members in a LevelGroup must specify a LevelDefStartSample value.")
-                        End If
-                    End If
-
-
-                    Dim GroupMemberMeasurementSounds As New List(Of Sound)
-                        For Each GroupMember In GroupMembers
-                            If GroupMember.LevelDefStartSample.HasValue = False And GroupMember.LevelDefLength.HasValue = False Then
-                                GroupMemberMeasurementSounds.Add(GroupMember.Sound)
-                            Else
-                                'Checks that both have value
-                                If GroupMember.LevelDefStartSample.HasValue = True And GroupMember.LevelDefLength.HasValue = True Then
-                                    GroupMemberMeasurementSounds.Add(GroupMember.Sound.CopySection(GroupMember.ReadChannel, GroupMember.LevelDefStartSample, GroupMember.LevelDefLength))
-                                Else
-                                    Throw New ArgumentException("Either none or both of the SoundSceneItem parameters LevelDefStartSample and LevelDefLength must have a value.")
-                                End If
-                            End If
-                        Next
-
-                        'Measures the sound levels
-                        If GroupMemberMeasurementSounds.Count = 1 Then
-
-                            'Only one sound, simply set it to the correct level
-                            Dim CurrentLevel As Double
-                            If SoundLevelFormat.LoudestSectionMeasurement = False Then
-                                CurrentLevel = Audio.DSP.MeasureSectionLevel(GroupMemberMeasurementSounds(0), 1,,,,, SoundLevelFormat.FrequencyWeighting)
-                            Else
-                                CurrentLevel = Audio.DSP.GetLevelOfLoudestWindow(GroupMemberMeasurementSounds(0), 1, WaveFormat.SampleRate * SoundLevelFormat.TemporalIntegrationDuration,,,, SoundLevelFormat.FrequencyWeighting, True)
-                            End If
-
-                        'Calculating needed gain
-                        Dim NeededGain = TargetLevel - Simulated_dBFS_To_dBSPL(CurrentLevel)
-
-                        'Applying gain
-                        Audio.DSP.AmplifySection(GroupMembers(0).Sound, NeededGain, 1)
-
-
-                    ElseIf GroupMemberMeasurementSounds.Count > 1 Then
-
-                        ' Equalizing the sound levels in all sounds before mixing them
-
-                        '(TODO: Here room impluse responses could be utilized to better estimate the combined sound level!)
-
-                        'Mixing the sounds
-
-                        'Measuring their levels
-
-                        'Adjusting their levels to reach the desired combined sound level
-
-
-                        'Calculating the sound level of all masker channels added
-                        Dim AddedLevels_FS As Double = Audio.DSP.MeasureSectionLevel_AddedChannels(TempSound, MixerSettings.BackgroundOutputChannels.ToList,
-                                                                                                    StartMeasureSample, MeasurementLength,,, MeasurementModeFrequencyWeighting)
-
-
-                        Else
-                            Throw New ArgumentException("Missing sound in SoundSceneItem.")
-                        End If
-
-
-                    Next
-
-                    'Applies ducking
-                    For Each Item In SoundSceneItemList
-                    For i = 0 To Item.DuckingSpecifications.Count - 1 Step 2
-
-                        Dim FadeOutSpecs = Item.DuckingSpecifications(i)
-                        Dim FadeInSpecs = Item.DuckingSpecifications(i + 1)
-                        Dim MidStartSample As Integer = FadeOutSpecs.StartSample + FadeOutSpecs.SectionLength
-                        Dim MidLength As Integer = FadeInSpecs.StartSample - MidStartSample
-                        Dim MidFadeSpecs = New Audio.DSP.FadeSpecifications(FadeOutSpecs.EndAttenuation, FadeInSpecs.StartAttenuation,
-                                                                                     MidStartSample, MidLength, FadeOutSpecs.SlopeType, FadeOutSpecs.CosinePower, FadeOutSpecs.EqualPower)
-
-                        Audio.DSP.Fade(Item.Sound, FadeOutSpecs, 1)
-                        Audio.DSP.Fade(Item.Sound, MidFadeSpecs, 1)
-                        Audio.DSP.Fade(Item.Sound, FadeInSpecs, 1)
-
-                    Next
-                Next
-
-
-                'Creating an OutputSound with the number of channels required by the current output routing Values.
-                If OutputRouting.Values.Max = 0 Then Throw New Exception("No output channels specified in the DuplexMixer output routing.")
-                Dim OutputSound As New Sound(New Formats.WaveFormat(WaveFormat.SampleRate, WaveFormat.BitDepth, OutputRouting.Values.Max, , WaveFormat.Encoding))
-                'Adding the needed channels arrays to the output sound (based on the values in OutputRouting (not adding arrays for in-between channels in which no sound data will exist)
-                For Each Channel In OutputRouting.Values
-                    Dim NewChannelArray(MixLength - 1) As Single
-                    OutputSound.WaveData.SampleData(Channel) = NewChannelArray
-                Next
-
-                'Inserting/adding sounds to the output sound
-
-
-
-                ' Simulation of HL/HA
-
-                ' Mix
-                '       Select sound field or headphones
-                '             + Calibrate
-
-                'Limiter
-
-                Return OutputSound
-
+                Return SoundLevelGroups
 
             End Function
+
+            Private Sub CheckGroupLevelConsistency(ByRef GroupMembers As List(Of SoundSceneItem))
+
+
+                If GroupMembers.Count > 1 Then
+                    'Checking equality of LevelDefStartSample and LevelDefLength within the SoundLevelGroup
+                    Dim NumberOfMembersWith_LevelDefStartSample As Integer = 0
+                    Dim NumberOfMembersWith_LevelDefLength As Integer = 0
+
+                    For i = 0 To GroupMembers.Count - 1
+                        If GroupMembers(i).LevelDefStartSample.HasValue Then NumberOfMembersWith_LevelDefStartSample += 1
+                        If GroupMembers(i).LevelDefLength.HasValue Then NumberOfMembersWith_LevelDefLength += 1
+                    Next
+
+                    If NumberOfMembersWith_LevelDefStartSample = GroupMembers.Count Then
+                        'Checking that all have the same start value
+                        For i = 0 To GroupMembers.Count - 2
+                            If GroupMembers(i).LevelDefStartSample <> GroupMembers(i + 1).LevelDefStartSample Then
+                                Throw New ArgumentException("All, or no, members in a LevelGroup must specify the same LevelDefStartSample value.")
+                            End If
+                        Next
+                    ElseIf NumberOfMembersWith_LevelDefStartSample = 0 Then
+                        'This is ok
+                    Else
+                        Throw New ArgumentException("All, or no, members in a LevelGroup must specify a LevelDefStartSample value.")
+                    End If
+
+                    If NumberOfMembersWith_LevelDefLength = GroupMembers.Count Then
+                        'Checking that all have the same length value
+                        For i = 0 To GroupMembers.Count - 2
+                            If GroupMembers(i).LevelDefLength <> GroupMembers(i + 1).LevelDefLength Then
+                                Throw New ArgumentException("All, or no, members in a LevelGroup must specify the same LevelDefStartSample value.")
+                            End If
+                        Next
+                    ElseIf NumberOfMembersWith_LevelDefLength = 0 Then
+                        'This is ok
+                    Else
+                        Throw New ArgumentException("All, or no, members in a LevelGroup must specify a LevelDefStartSample value.")
+                    End If
+                End If
+
+
+            End Sub
+
+            ''' <summary>
+            ''' Determines based on the location of the available sound feild speakers which is the closest to the indicated SoundSourceLocation (As of now only azimuth is regarded, and values for elevation and distance ignored!). 
+            ''' Rounding is made away from 0 (front) and 180 / -180 (back) degrees, towards the sides (-90 and 90 degrees).) 
+            ''' </summary>
+            ''' <param name="SoundSourceLocation"></param>
+            ''' <returns>Returns a Tuple in which the first Item contains the selected output channel and the second item contains the azimuth of the loudspeaker connected to that channel.</returns>
+            Public Function FindClosestHardwareOutput(ByVal SoundSourceLocation As SoundSourceLocation) As Integer
+
+                'NB & TODO: this function does not work with loadspeaker Elevation and distance! Any values for these will be ignored!
+
+                Dim Azimuth As Integer = SoundSourceLocation.HorizontalAzimuth
+
+                'Unwraps the Azimuth into the range: -180 < Azimuth <= 180
+                Dim UnwrappedAzimuth = UnwrapAngle(Azimuth)
+
+                Dim DistanceList As New List(Of Tuple(Of Integer, SoundSourceLocation, Double)) ' Channel, SpeakerAzimuth, distance
+
+                For Each kvp In HardwareOutputChannelSpeakerLocations
+
+                    'Calculates and stores the absolute difference between the speaker azimuth and the target azimuth
+                    DistanceList.Add(New Tuple(Of Integer, SoundSourceLocation, Double)(kvp.Key, kvp.Value, Math.Abs(UnwrappedAzimuth - kvp.Value.HorizontalAzimuth)))
+                Next
+
+                'Gets the minimum distance value
+                Dim MinDistance = DistanceList.Min(Function(x) x.Item3)
+
+                'Gets the Items with that (minimum distance) value
+                Dim MinDistanceItems = DistanceList.FindAll(Function(x) x.Item3 = MinDistance)
+
+                'Checks the number of items detected
+                If MinDistanceItems.Count = 1 Then
+
+                    'If there is only one speaker with the minimum distance, its values are returned
+                    Return MinDistanceItems(0).Item1
+
+                ElseIf MinDistanceItems.Count = 2 Then
+                    'If two speakers are at the exact same azimuth distance , the one closest to -90 or 90 degrees is selected based on the side of the UnwrappedAzimuth (however right side takes precensence if the tagert azimuth is zero degrees and no speaker is located there).
+
+                    If UnwrappedAzimuth < 0 Then
+                        'Select the one closest to -90 degrees
+                        If Math.Abs(MinDistanceItems(0).Item3 - (-90)) < Math.Abs(MinDistanceItems(1).Item3 - (-90)) Then
+                            Return MinDistanceItems(0).Item1
+                        Else
+                            Return MinDistanceItems(1).Item1
+                        End If
+
+                    Else
+                        'Select the one closest to 90 degrees
+                        'N.B. The greater and smaller than signs are reversed here to get left/right symmetry 
+                        If Math.Abs(MinDistanceItems(0).Item3 - 90) > Math.Abs(MinDistanceItems(1).Item3 - 90) Then
+                            Return MinDistanceItems(1).Item1
+                        Else
+                            Return MinDistanceItems(0).Item1
+                        End If
+                    End If
+
+                Else
+                    'It should be impossible to have more than two speakers at the same azimuth distance
+                    Throw New Exception("Oops something has gone wrong... find out what...")
+                End If
+
+            End Function
+
+            ''' <summary>
+            ''' Unwraps the indicated angle into the range -180 (is lower than) Azimuth (which is equal to or lower than) 180 degrees.
+            ''' </summary>
+            ''' <param name="Angle">The angle in degrees</param>
+            ''' <returns></returns>
+            Public Shared Function UnwrapAngle(ByVal Angle As Integer) As Integer
+
+                MsgBox("This Function does Not work!!!")
+
+                Dim Div As Integer
+                Dim UnwrappedAngle = Math.DivRem(Angle, 360, Div)
+
+                'Sets the Azimuth in the following range: -180 < Azimuth <= 180
+                If UnwrappedAngle > 180 Then UnwrappedAngle -= 360
+
+                Return UnwrappedAngle
+            End Function
+
+
+            ''' <summary>
+            ''' Re-usable fft format for FIR-filtering
+            ''' </summary>
+            Private MyFftFormat As Audio.Formats.FftFormat = New Formats.FftFormat
+
+            Public DirectionalSimulator As DirectionalSimulation = Nothing
+
+            Private _HeadphoneType As HeadphoneTypes
+
+            Public ReadOnly Property HeadphoneType As HeadphoneTypes
+                Get
+                    Return _HeadphoneType
+                End Get
+            End Property
+
+            Public Enum HeadphoneTypes
+                Unspecified
+                AKGK601
+                AKGK271MKII
+                SennheiserHD25_1
+            End Enum
+
+            Private _SpeakerDistance As SpeakerDistances
+            Public ReadOnly Property SpeakerDistance As SpeakerDistances
+                Get
+                    Return _SpeakerDistance
+                End Get
+            End Property
+
+            Public Enum SpeakerDistances
+                cm50
+                cm100
+                cm200
+                cm300
+            End Enum
+
+            Public Sub SetupDirectionalSimulator(ByVal HeadphoneType As HeadphoneTypes, ByVal SpeakerDistance As SpeakerDistances)
+
+                Me._HeadphoneType = HeadphoneType
+                Me._SpeakerDistance = SpeakerDistance
+
+                'Creating a directional simulator 
+                'These IRs are downloaded from https://dev.qu.tu-berlin.de/projects/measurements/repository/show/2010-11-kemar-anechoic/wav
+
+                Dim CurrentIrDatabasePath As String = ""
+
+                Select Case HeadphoneType
+
+                    Case HeadphoneTypes.Unspecified
+                        Select Case SpeakerDistance
+                            Case SpeakerDistances.cm50
+                                CurrentIrDatabasePath = "C:\EriksDokument\IRs\wierstorf2011\WaveFormat\QU_KEMAR_anechoic_0.5m.wav"
+                            Case SpeakerDistances.cm100
+                                CurrentIrDatabasePath = "C:\EriksDokument\IRs\wierstorf2011\WaveFormat\QU_KEMAR_anechoic_1m.wav"
+                            Case SpeakerDistances.cm200
+                                CurrentIrDatabasePath = "C:\EriksDokument\IRs\wierstorf2011\WaveFormat\QU_KEMAR_anechoic_2m.wav"
+                            Case SpeakerDistances.cm300
+                                CurrentIrDatabasePath = "C:\EriksDokument\IRs\wierstorf2011\WaveFormat\QU_KEMAR_anechoic_3m.wav"
+                        End Select
+
+                    Case HeadphoneTypes.AKGK271MKII
+                        Select Case SpeakerDistance
+                            Case SpeakerDistances.cm50
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK271_0.5m.wav"
+                            Case SpeakerDistances.cm100
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK271_1m.wav"
+                            Case SpeakerDistances.cm200
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK271_2m.wav"
+                            Case SpeakerDistances.cm300
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK271_3m.wav"
+                        End Select
+
+                    Case HeadphoneTypes.AKGK601
+
+                        Select Case SpeakerDistance
+                            Case SpeakerDistances.cm50
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK601_0.5m.wav"
+                            Case SpeakerDistances.cm100
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK601_1m.wav"
+                            Case SpeakerDistances.cm200
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK601_2m.wav"
+                            Case SpeakerDistances.cm300
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK601_3m.wav"
+                        End Select
+
+                    Case HeadphoneTypes.SennheiserHD25_1
+
+                        Select Case SpeakerDistance
+                            Case SpeakerDistances.cm50
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_SennheiserHD25_0.5m.wav"
+                            Case SpeakerDistances.cm100
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_SennheiserHD25_1m.wav"
+                            Case SpeakerDistances.cm200
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_SennheiserHD25_2m.wav"
+                            Case SpeakerDistances.cm300
+                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_SennheiserHD25_3m.wav"
+                        End Select
+
+                End Select
+
+                If CurrentIrDatabasePath = "" Then Throw New ArgumentException("Unkown HeadphoneType or SpeakerDistance.")
+
+                DirectionalSimulator = New DirectionalSimulation(CurrentIrDatabasePath)
+
+            End Sub
+
+            Private Sub SimulateSoundSourceLocation(ByRef SoundSceneItemList As List(Of SoundSceneItem))
+
+                For Each SoundSceneItem In SoundSceneItemList
+
+                    Try
+
+                        'Copies the sound of the SoundSceneItem to a new two-channel sound for use with headphones
+                        Dim NewSound As New Audio.Sound(New Audio.Formats.WaveFormat(
+                                                SoundSceneItem.Sound.WaveFormat.SampleRate,
+                                                SoundSceneItem.Sound.WaveFormat.BitDepth,
+                                                2,, SoundSceneItem.Sound.WaveFormat.Encoding))
+
+                        Dim OriginalSoundLength As Integer = SoundSceneItem.Sound.WaveData.SampleData(1).Length
+                        Dim NewChannel1SampleArray(OriginalSoundLength - 1) As Single
+                        Dim NewChannel2SampleArray(OriginalSoundLength - 1) As Single
+
+                        Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(1), NewSound.WaveData.SampleData(1), OriginalSoundLength)
+                        Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(2), NewSound.WaveData.SampleData(1), OriginalSoundLength)
+
+                        'Attains a copy of the appropriate directional FIR-filter kernel
+                        Dim CurrentKernel = DirectionalSimulator.GetStereoKernel(SoundSceneItem.SourceLocation.HorizontalAzimuth).CreateSoundDataCopy
+
+                        'Applies gain to the kernel (this is more efficient than applying gain to the whole sound array)
+                        'TODO. The following can be utilized to optimize the need for setting level by array looping, when using sound feild simulation
+                        'If SoundSceneItem.NeededGain <> 0 Then
+                        '    Audio.DSP.AmplifySection(CurrentKernel, SoundSceneItem.NeededGain)
+                        'End If
+
+                        'Applies FIR-filtering
+                        Dim FilteredSound = Audio.DSP.FIRFilter(NewSound, CurrentKernel, MyFftFormat)
+
+                        'FilteredSound.WriteWaveFile("C:\SpeechTestFrameworkLog\Test1.wav")
+
+                        'Replacing the original sound
+                        SoundSceneItem.Sound = FilteredSound
+
+                    Catch ex As Exception
+                        MsgBox(ex.ToString)
+                    End Try
+
+                Next
+
+            End Sub
 
 
         End Class

@@ -12,6 +12,8 @@
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -95,6 +97,7 @@
     <Compile Include="AudioProcessing\Audio_SoundApiSettings.vb" />
     <Compile Include="AudioProcessing\Audio_SoundPlayer_DuplexMixer.vb" />
     <Compile Include="AudioProcessing\Audio_SoundPlayer.vb" />
+    <Compile Include="AudioProcessing\DirectionalSimulation.vb" />
     <Compile Include="AudioProcessing\PortAudioVB.vb" />
     <Compile Include="AudioProcessing\SMA1.0.vb" />
     <Compile Include="AudioProcessing\SMA1.1.vb" />

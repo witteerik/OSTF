@@ -1153,6 +1153,50 @@ Namespace Audio
             End Function
 
             ''' <summary>
+            ''' Superpositions the input sounds to a new sound. The lengths and wave format (including channel count) are required to be the same in all input sounds.
+            ''' </summary>
+            ''' <param name="InputSounds"></param>
+            ''' <returns></returns>
+            Public Function SuperpositionSounds(ByRef InputSounds As List(Of Sound)) As Sound
+
+                If InputSounds.Count = 0 Then Return Nothing
+
+                Dim WaveFormat = InputSounds(0).WaveFormat
+                For i = 1 To InputSounds.Count - 1
+                    If WaveFormat.IsEqual(InputSounds(i).WaveFormat) = False Then Throw New ArgumentException("All wave formats need to be the same!")
+                Next
+
+                Dim OutputSound As New Sound(WaveFormat)
+
+                For Channel = 1 To WaveFormat.Channels
+
+                    'Checking length equality of each channel
+                    Dim ChannelLength As Integer = InputSounds(0).WaveData.SampleData(Channel).Length
+                    For i = 1 To InputSounds.Count - 1
+                        If InputSounds(i).WaveData.SampleData(Channel).Length <> ChannelLength Then Throw New ArgumentException("All sounds need to have the same sample array lengths (in corresponding channels)!")
+                    Next
+
+                    Dim NewChannelArray(ChannelLength - 1) As Single
+                    'Copies the first channel
+                    Array.Copy(InputSounds(0).WaveData.SampleData(Channel), NewChannelArray, NewChannelArray.Length)
+
+                    'Superpositions the remaining channels
+                    For i = 1 To InputSounds.Count - 1
+                        Dim CurrentChannelArray = InputSounds(i).WaveData.SampleData(Channel)
+                        For s = 0 To ChannelLength - 1
+                            NewChannelArray(s) += CurrentChannelArray(s)
+                        Next
+                    Next
+
+                    OutputSound.WaveData.SampleData(Channel) = NewChannelArray
+
+                Next
+
+                Return OutputSound
+
+            End Function
+
+            ''' <summary>
             ''' Sets the sound level of the indicated section of the indicated sound to a target level.
             ''' </summary>
             ''' <param name="InputSound"></param>
@@ -1235,9 +1279,9 @@ Namespace Audio
 
                     Me.StartAttenuation = StartAttenuation
                     Me.EndAttenuation = EndAttenuation
-                    Me.startSample = StartSample
-                    Me.sectionLength = SectionLength
-                    Me.slopeType = SlopeType
+                    Me.StartSample = StartSample
+                    Me.SectionLength = SectionLength
+                    Me.SlopeType = SlopeType
                     Me.CosinePower = CosinePower
                     Me.EqualPower = EqualPower
 
@@ -1253,7 +1297,7 @@ Namespace Audio
             ''' <param name="Channel">The channel to be modified. If left empty all channels will be modified.</param>
             Public Sub Fade(ByRef InputSound As Sound, ByVal FadeSpecifications As FadeSpecifications, Optional ByVal Channel As Integer? = Nothing)
 
-                Fade(InputSound, FadeSpecifications.StartAttenuation, FadeSpecifications.EndAttenuation, Channel, FadeSpecifications.startSample, FadeSpecifications.sectionLength, FadeSpecifications.slopeType, FadeSpecifications.CosinePower, FadeSpecifications.EqualPower)
+                Fade(InputSound, FadeSpecifications.StartAttenuation, FadeSpecifications.EndAttenuation, Channel, FadeSpecifications.StartSample, FadeSpecifications.SectionLength, FadeSpecifications.SlopeType, FadeSpecifications.CosinePower, FadeSpecifications.EqualPower)
 
             End Sub
 

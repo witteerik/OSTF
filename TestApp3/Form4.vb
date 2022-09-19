@@ -411,16 +411,30 @@
 
     Private Sub Button10_Click2(sender As Object, e As EventArgs) Handles Button10.Click
 
-        Dim InputSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SwedishSiPTest\SoundFiles\Stad\CBG_Stad.wav")
+        MsgBox(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.UnwrapAngle(-30))
+        MsgBox(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.UnwrapAngle(30))
+        MsgBox(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.UnwrapAngle(400))
 
-        Dim Copy2 = InputSound.CopyChannelToMonoSound(1)
+        Dim Sound_Background = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SwedishSiPTest\SoundFiles\Stad\CBG_Stad.wav")
+        Dim Sound_TestWord = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SwedishSiPTest\SoundFiles\Tyst\TestWordSounds\F_001_000_sätt.wav")
+        Dim Sound_Masker1 = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SwedishSiPTest\SoundFiles\Stad\TWRB\satt_sätt_sött_1\Masker_01.wav")
+        Dim Sound_Masker2 = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\SwedishSiPTest\SoundFiles\Stad\TWRB\satt_sätt_sött_1\Masker_02.wav")
 
-        MsgBox(InputSound.WaveData.SampleData(1)(InputSound.WaveData.SampleData(1).Length - 1) & vbCrLf &
-               Copy2.WaveData.SampleData(1)(Copy2.WaveData.SampleData(1).Length - 1))
+        Dim ItemList = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Background, 1, 60, 1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, 0))
+        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_TestWord, 1, 70, 2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, 78000))
+        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Masker1, 1, 65, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 48000))
+        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Masker2, 1, 65, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 48000))
 
-        For s = 0 To Copy2.WaveData.SampleData(1).Length - 1
-            Copy2.WaveData.SampleData(1)(s) = -1
-        Next
+        Dim MyMixer = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer(3, 0)
+        MyMixer.SetLinearOutput()
+        MyMixer.HardwareOutputChannelSpeakerLocations.Add(1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30})
+        MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})
+        MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30})
+
+        Dim OutputSound = MyMixer.CreateSoundScene(ItemList)
+
+        OutputSound.WriteWaveFile("C:\Temp\OutputSound.wav")
 
         Dim x = 1
 

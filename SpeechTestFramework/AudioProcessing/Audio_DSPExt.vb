@@ -4141,7 +4141,7 @@ Namespace Audio
             End Sub
 
             ''' <summary>
-            ''' Inserts Sound2 in Sound1 at the InsertionStart sample position. The same samplerate, bit depth, sample encoding and number of channels are required in Sound1 and Sound2. Within each each input sound, equal channel lengths are also required.
+            ''' Inserts Sound2 in Sound1 at the InsertionStart sample position. The same samplerate, bit depth, sample encoding and number of channels are required in Sound1 and Sound2. Within each input sound, equal channel lengths are also required.
             ''' </summary>
             ''' <param name="Sound1"></param>
             ''' <param name="Sound2"></param>
@@ -4687,174 +4687,29 @@ Namespace Audio
 
             End Function
 
-            Public Sub InsertSound(ByRef SoundToInsert As Sound, ByRef TargetSound As Sound,
-                                   ByVal TargetChannel As Integer?,
-                               ByVal StartSample As Integer,
-                               Optional ByVal FadeInCrossFadeLength As Integer = 0,
-                               Optional ByVal FadeOutCrossFadeLength As Integer = 0,
-                               Optional ByVal CrossFadeSlopeType As FadeSlopeType = FadeSlopeType.Smooth,
-                               Optional ByVal CheckForDifferentSoundFormats As Boolean = True,
-                               Optional ByVal EqualPowerFade As Boolean = False,
-                               Optional ByVal TargetSoundAttenuation As Double? = Nothing)
+            Public Sub InsertSound(ByRef SoundToInsert As Sound, ByVal SourceChannel As Integer, ByRef TargetSound As Sound, ByVal TargetChannel As Integer, ByVal StartInsertSample As Integer)
+
                 Try
 
-                    MsgBox("This function needs to be properly debugged! Then is overload without channel specification can be removed.")
+                    'This check allows different channel counts
+                    If SoundToInsert.WaveFormat.IsEqual(TargetSound.WaveFormat, False) = False Then Throw New ArgumentException("Different formats in InsertSound sounds. Aborting!")
 
-                    Dim StartChannel As Integer
-                    Dim LastChannel As Integer
+                    Dim SourceChannelArray = SoundToInsert.WaveData.SampleData(SourceChannel)
+                    Dim TargetChannelArray = TargetSound.WaveData.SampleData(TargetChannel)
 
-                    If TargetChannel.HasValue Then
-
-                        StartChannel = TargetChannel
-                        LastChannel = TargetChannel
-
-                        'Checks that the sound to insert is mono
-                        If SoundToInsert.WaveFormat.Channels <> 1 Then
-                            Throw New ArgumentException("When a target channel is specified, the sound to insert can only be mono. Aborting!")
-                        End If
-
-                        If CheckForDifferentSoundFormats = True Then
-                            'This check allows different channel counts
-                            If SoundToInsert.WaveFormat.SampleRate <> TargetSound.WaveFormat.SampleRate Or
-                                SoundToInsert.WaveFormat.BitDepth <> TargetSound.WaveFormat.BitDepth Or
-                                SoundToInsert.WaveFormat.Encoding <> TargetSound.WaveFormat.Encoding Then
-                                Throw New ArgumentException("Different formats in InsertSound sounds. Aborting!")
-                            End If
-                        End If
-                    Else
-
-                        StartChannel = 1
-                        LastChannel = TargetSound.WaveFormat.Channels
-
-                        If CheckForDifferentSoundFormats = True Then
-                            If SoundToInsert.WaveFormat.SampleRate <> TargetSound.WaveFormat.SampleRate Or
-                                SoundToInsert.WaveFormat.BitDepth <> TargetSound.WaveFormat.BitDepth Or
-                                SoundToInsert.WaveFormat.Encoding <> TargetSound.WaveFormat.Encoding Or
-                                SoundToInsert.WaveFormat.Channels <> TargetSound.WaveFormat.Channels Then
-                                Throw New ArgumentException("Different formats in InsertSound sounds. Aborting!")
-                            End If
-                        End If
-
+                    Dim CopyLength As Integer = SourceChannelArray.Length
+                    Dim RequiredTargetLength As Integer = StartInsertSample + SourceChannelArray.Length
+                    If RequiredTargetLength > TargetChannelArray.Length Then
+                        CopyLength = TargetChannelArray.Length - StartInsertSample
                     End If
 
-
-                    'Dim SoundToInsertLength As Integer = SoundToInsert.WaveData.ShortestChannelSampleCount
-                    Dim SoundToInsertLength As Integer = SoundToInsert.WaveData.LongestChannelSampleCount
-
-                    'Fading out Target sound
-                    Fade(TargetSound, 0, TargetSoundAttenuation, TargetChannel, StartSample - FadeInCrossFadeLength, FadeInCrossFadeLength, CrossFadeSlopeType,, EqualPowerFade)
-
-                    'Fading in target sound
-                    Fade(TargetSound, TargetSoundAttenuation, 0, TargetChannel, StartSample + SoundToInsertLength - FadeInCrossFadeLength - FadeOutCrossFadeLength, FadeOutCrossFadeLength, CrossFadeSlopeType,, EqualPowerFade)
-
-                    'Fading In SoundToInsert 
-                    Fade(SoundToInsert, Nothing, 0, , 0, FadeInCrossFadeLength, CrossFadeSlopeType,, EqualPowerFade)
-
-                    'Fading Out SoundToInsert 
-                    Fade(SoundToInsert, 0, Nothing, , SoundToInsert.WaveData.LongestChannelSampleCount - FadeOutCrossFadeLength, FadeOutCrossFadeLength, CrossFadeSlopeType,, EqualPowerFade)
-
-                    'Adding in the first fade section
-                    Dim LocalSampleIndex As Integer = 0
-                    For c = StartChannel To LastChannel
-
-                        Dim SourceSoundArray As Single()
-                        If TargetChannel.HasValue Then
-                            SourceSoundArray = SoundToInsert.WaveData.SampleData(1)
-                        Else
-                            SourceSoundArray = SoundToInsert.WaveData.SampleData(c)
-                        End If
-
-                        'Skipping to next if the channel is empty
-                        If SourceSoundArray.Length = 0 Then Continue For
-
-                        Dim TargetSoundArray = TargetSound.WaveData.SampleData(c)
-
-                        LocalSampleIndex = 0
-                        For s = StartSample - FadeInCrossFadeLength To StartSample - 1
-                            TargetSoundArray(s) += SourceSoundArray(LocalSampleIndex)
-                            LocalSampleIndex += 1
-                        Next
-                    Next
-
-                    If TargetSoundAttenuation Is Nothing Then
-
-                        'Replacing sound in between fade sections
-                        For c = StartChannel To LastChannel
-
-                            Dim SourceSoundArray As Single()
-                            If TargetChannel.HasValue Then
-                                SourceSoundArray = SoundToInsert.WaveData.SampleData(1)
-                            Else
-                                SourceSoundArray = SoundToInsert.WaveData.SampleData(c)
-                            End If
-
-
-                            'Skipping to next if the channel is empty
-                            If SourceSoundArray.Length = 0 Then Continue For
-
-                            Dim TargetSoundArray = TargetSound.WaveData.SampleData(c)
-
-                            LocalSampleIndex = FadeInCrossFadeLength
-                            For s = StartSample To StartSample + SoundToInsertLength - (FadeInCrossFadeLength + FadeOutCrossFadeLength) - 1
-                                TargetSoundArray(s) = SourceSoundArray(LocalSampleIndex)
-                                LocalSampleIndex += 1
-                            Next
-                        Next
-
-                    Else
-
-                        'Attenuating the Target sound insert region using the fade function
-                        Fade(TargetSound, TargetSoundAttenuation, TargetSoundAttenuation, TargetChannel, StartSample, SoundToInsertLength - (FadeInCrossFadeLength + FadeOutCrossFadeLength), CrossFadeSlopeType,, EqualPowerFade)
-
-                        'Adding sound in between fade sections
-                        For c = StartChannel To LastChannel
-                            Dim SourceSoundArray As Single()
-                            If TargetChannel.HasValue Then
-                                SourceSoundArray = SoundToInsert.WaveData.SampleData(1)
-                            Else
-                                SourceSoundArray = SoundToInsert.WaveData.SampleData(c)
-                            End If
-
-                            'Skipping to next if the channel is empty
-                            If SourceSoundArray.Length = 0 Then Continue For
-
-                            Dim TargetSoundArray = TargetSound.WaveData.SampleData(c)
-
-                            LocalSampleIndex = FadeInCrossFadeLength
-                            For s = StartSample To StartSample + SoundToInsertLength - (FadeInCrossFadeLength + FadeOutCrossFadeLength) - 1
-                                TargetSoundArray(s) += SourceSoundArray(LocalSampleIndex)
-                                LocalSampleIndex += 1
-                            Next
-                        Next
-
-                    End If
-
-
-                    'Adding in the second fade section
-                    For c = StartChannel To LastChannel
-                        Dim SourceSoundArray As Single()
-                        If TargetChannel.HasValue Then
-                            SourceSoundArray = SoundToInsert.WaveData.SampleData(1)
-                        Else
-                            SourceSoundArray = SoundToInsert.WaveData.SampleData(c)
-                        End If
-
-                        'Skipping to next if the channel is empty
-                        If SourceSoundArray.Length = 0 Then Continue For
-
-                        Dim TargetSoundArray = TargetSound.WaveData.SampleData(c)
-
-                        LocalSampleIndex = SoundToInsertLength - FadeOutCrossFadeLength
-                        For s = StartSample + SoundToInsertLength - FadeInCrossFadeLength - FadeOutCrossFadeLength To StartSample + SoundToInsertLength - FadeInCrossFadeLength - 1
-                            TargetSoundArray(s) += SourceSoundArray(LocalSampleIndex)
-                            LocalSampleIndex += 1
-                        Next
+                    For s = 0 To CopyLength - 1
+                        TargetChannelArray(StartInsertSample + s) += SourceChannelArray(s)
                     Next
 
                 Catch ex As Exception
                     AudioError(ex.ToString)
                 End Try
-
 
             End Sub
 
