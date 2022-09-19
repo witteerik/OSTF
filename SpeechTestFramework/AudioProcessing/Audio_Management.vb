@@ -73,12 +73,20 @@ Namespace Audio
         ''' If sectionlength is below zero, it is set to 0. If it is too long for the array, it changed to fit within the length of the array.
         ''' </summary>
         ''' <param name="inputArrayLength">The length of the input array.</param>
-        ''' <param name="startSample">The index of the start sample.</param>
+        ''' <param name="startSample">The index of the start sample. If a negative value is supplied, the start sample will be changed to be startSample samples from the end of the array (-1 will mean the last index in the array, -2 will mean the second last sample, and so on.) </param>
         ''' <param name="sectionLength">The length of the section in samples. If the input value is Nothing, then sectionLength is set to the length of the rest of the sound.</param>
         ''' <returns>Returns True if any of startSample or sectionLength was corrected, and False if no correction was made.</returns>
         Public Function CheckAndCorrectSectionLength(ByVal inputArrayLength As Double, ByRef startSample As Integer, ByRef sectionLength As Integer?) As Boolean
 
+            'N.B. This sub was changed 2022-09-19 to support negative start samples (in typical Python style), with the meaning start startSample samples before the (exclusive) end of the array.
+
             Dim modified As Integer = 0
+
+            'New from 2022-09-19
+            If startSample < 0 Then
+                startSample = inputArrayLength - Math.Abs(startSample)
+            End If
+            'End new from 2022-09-19
 
             If startSample < 0 Then
                 startSample = 0
@@ -112,6 +120,52 @@ Namespace Audio
             End If
 
         End Function
+
+        '''' <summary>
+        '''' 'This sub checks to see if the values given for startSample and sectionLength is too high or below zero.
+        '''' If startSample is below 0, it is set to 0. If it is higher than the length of the array, it is set to the last sampe in the array.
+        '''' If sectionlength is below zero, it is set to 0. If it is too long for the array, it changed to fit within the length of the array.
+        '''' </summary>
+        '''' <param name="inputArrayLength">The length of the input array.</param>
+        '''' <param name="startSample">The index of the start sample.</param>
+        '''' <param name="sectionLength">The length of the section in samples. If the input value is Nothing, then sectionLength is set to the length of the rest of the sound.</param>
+        '''' <returns>Returns True if any of startSample or sectionLength was corrected, and False if no correction was made.</returns>
+        'Public Function CheckAndCorrectSectionLength(ByVal inputArrayLength As Double, ByRef startSample As Integer, ByRef sectionLength As Integer?) As Boolean
+
+        '    Dim modified As Integer = 0
+
+        '    If startSample < 0 Then
+        '        startSample = 0
+        '        modified += 1
+        '    End If
+
+        '    If startSample > inputArrayLength - 1 Then
+        '        startSample = inputArrayLength - 1
+        '        modified += 1
+        '    End If
+
+        '    If sectionLength Is Nothing Then
+        '        sectionLength = inputArrayLength
+        '        modified += 1
+        '    End If
+
+        '    If sectionLength < 0 Then
+        '        sectionLength = 0
+        '        modified += 1
+        '    End If
+
+        '    If sectionLength > inputArrayLength - startSample Then
+        '        sectionLength = inputArrayLength - startSample
+        '        modified += 1
+        '    End If
+
+        '    If modified > 0 Then
+        '        Return True
+        '    Else
+        '        Return False
+        '    End If
+
+        'End Function
 
 
 

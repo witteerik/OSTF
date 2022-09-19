@@ -3852,25 +3852,24 @@ Namespace Audio
             ''' <param name="sectionLength"></param>
             ''' <param name="WindowDuration">The time in seconds of windows within which to average the RMS level.</param>
             ''' <param name="Channel">The channel to hard limit. If left to Nothing, all channels will be limited.</param>
-            ''' <param name="RemoveAddedLength">If set to true, the input sound will keep the exact length, but processing takes a little longer.</param>
             ''' <param name="ReturnReport">If ReturnReport is set to True, the function returns a string containing a report of the applied limiting.</param>
             ''' <returns>If ReturnReport is set to True, the function returns a string containing a report of the applied limiting.</returns>
             Public Function SoftLimitSection(ByRef InputSound As Sound,
-                                    ByVal ThresholdLevel As Double,
-                                    Optional ByVal StartSample As Integer = 0,
-                                    Optional ByVal SectionLength As Integer? = Nothing,
-                                    Optional ByVal WindowDuration As Double = 0.2,
-                                    Optional ByVal Channel As Integer? = Nothing,
-                                    Optional ByVal FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z,
-                                    Optional ByVal RemoveAddedLength As Boolean = False,
-                                    Optional ByVal ReturnReport As Boolean = True,
-                                         Optional ByVal slopeType As FadeSlopeType = FadeSlopeType.Linear,
-                                         Optional CosinePower As Double = 10,
-                                         Optional ByVal EqualPower As Boolean = False) As String
+                                             ByVal Channel As Integer,
+                                             ByVal ThresholdLevel As Double,
+                                             Optional ByVal StartSample As Integer = 0,
+                                             Optional ByVal SectionLength As Integer? = Nothing,
+                                             Optional ByVal WindowDuration As Double = 0.2,
+                                             Optional ByVal FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z,
+                                             Optional ByVal ReturnReport As Boolean = True,
+                                             Optional ByVal slopeType As FadeSlopeType = FadeSlopeType.Linear,
+                                             Optional CosinePower As Double = 10,
+                                             Optional ByVal EqualPower As Boolean = False) As String
 
                 Dim Report As String = ""
 
                 Try
+
                     'Declares a list used for reporting of limiter data
                     Dim ReportList As List(Of String) = Nothing
                     If ReturnReport = True Then
@@ -3880,38 +3879,10 @@ Namespace Audio
                     'Calculating the averaging window length in samples
                     Dim WindowLength As Integer = WindowDuration * InputSound.WaveFormat.SampleRate
 
-                    'Stores the original channel 1 length
-                    Dim OriginalLength As Integer = InputSound.WaveData.SampleData(1).Length
-                    Dim ZeroPadded As Boolean = False
-
-                    'Zeropads the sound to an integer of WindowLength, if the end of file is reached
-                    'If StartSample + SectionLength > OriginalLength Then
-                    If InputSound.WaveData.SampleData(1).Length Mod WindowLength <> 0 Then
-                        Dim IntendedWindowCount As Integer = Math.Ceiling(InputSound.WaveData.SampleData(1).Length / WindowLength)
-                        Dim WindowIntegerMultipleLength As Integer = WindowLength * IntendedWindowCount
-                        SectionLength = WindowIntegerMultipleLength
-                        ZeroPadded = True
-                    End If
-
                     'Performs limiting by calling LimitChannelSection
-                    If Channel Is Nothing Then
-                        'Limiting the sound in all channels
-                        For c = 1 To InputSound.WaveFormat.Channels
-                            'Limiting the sound in the specified channel
-                            SoftLimitChannelSection(InputSound, ThresholdLevel, StartSample, SectionLength, WindowLength,
-                                                c, FrequencyWeighting, ReportList, slopeType, CosinePower, EqualPower)
-                        Next
-                    Else
-                        'Limiting the sound in the specified channel
-                        SoftLimitChannelSection(InputSound, ThresholdLevel, StartSample, SectionLength, WindowLength,
-                                            Channel, FrequencyWeighting, ReportList, slopeType, CosinePower, EqualPower)
-                    End If
-
-                    If RemoveAddedLength = True And ZeroPadded = True Then
-                        'Restores the original length (and sections length, if ever changed to ByRef)
-                        CropSection(InputSound, 0, OriginalLength)
-                        SectionLength = OriginalLength
-                    End If
+                    'Limiting the sound in the specified channel
+                    SoftLimitChannelSection(InputSound, Channel, ThresholdLevel, StartSample, SectionLength, WindowLength,
+                                            FrequencyWeighting, ReportList, slopeType, CosinePower, EqualPower)
 
                     'Creating the report
                     If ReturnReport = True Then
@@ -3935,25 +3906,29 @@ Namespace Audio
             ''' Applies limiting to the specified channel, in the specified sound.
             ''' </summary>
             ''' <param name="InputSound"></param>
+            ''' <param name="Channel"></param>
             ''' <param name="ThresholdLevel"></param>
             ''' <param name="StartSample"></param>
             ''' <param name="SectionLength">The length of the measurement windows. Must be an even integer.</param>
             ''' <param name="WindowLength"></param>
-            ''' <param name="Channel"></param>
             ''' <param name="ReportList">A list of string that can be used to log limiter data.</param>
             Private Sub SoftLimitChannelSection(ByRef InputSound As Sound,
+                                            ByVal Channel As Integer,
                                             ByVal ThresholdLevel As Double,
                                             ByVal StartSample As Integer,
-                                            ByVal SectionLength As Integer,
+                                            ByVal SectionLength As Integer?,
                                             ByVal WindowLength As Integer,
-                                            ByVal Channel As Integer,
                                             ByVal FrequencyWeighting As FrequencyWeightings,
                                             Optional ByRef ReportList As List(Of String) = Nothing,
-                                            Optional ByVal slopeType As FadeSlopeType = FadeSlopeType.Linear,
-                                            Optional CosinePower As Double = 10,
+                                            Optional ByVal SlopeType As FadeSlopeType = FadeSlopeType.Linear,
+                                            Optional ByVal CosinePower As Double = 10,
                                             Optional ByVal EqualPower As Boolean = False)
 
                 Try
+
+                    'TODO: This function ignores the last window, if not full!
+
+                    CheckAndCorrectSectionLength(InputSound.WaveData.SampleData(Channel).Length, StartSample, SectionLength)
 
                     'Calculating the number of sections
                     Dim SectionCount As Integer = Int(SectionLength / WindowLength)
@@ -3987,8 +3962,7 @@ Namespace Audio
                         End If
 
                         'Using Fade to perform attenuation
-                        Fade(InputSound, StartAttenuation, EndAttenuation, Channel, StartSample + SectionIndex * WindowLength,
-                         WindowLength, slopeType, CosinePower, EqualPower)
+                        Fade(InputSound, StartAttenuation, EndAttenuation, Channel, StartSample + SectionIndex * WindowLength, WindowLength, SlopeType, CosinePower, EqualPower)
 
                         'Reporting only limited sections
                         If ReportList IsNot Nothing Then
@@ -5371,7 +5345,7 @@ Namespace Audio
                         Dim PostLimitPeakLevel As String = ""
                         If SoftLimit = True Then
                             'Soft limiting to -3 dB FS
-                            DSP.SoftLimitSection(NewSound, -3,,, 0.01, 1, FrequencyWeightings.Z, True, False)
+                            DSP.SoftLimitSection(NewSound, 1, -3,,, 0.01, FrequencyWeightings.Z, False)
 
                             'Measuring peak level after limiting
                             PostLimitPeakLevel = MeasureSectionLevel(NewSound, 1,,,, SoundMeasurementType.AbsolutePeakAmplitude,
@@ -5675,7 +5649,7 @@ Namespace Audio
                             Dim PostLimitPeakLevel As String = ""
                             If SoftLimit = True Then
                                 'Soft limiting to -3 dB FS
-                                DSP.SoftLimitSection(NewSound, -3,,, 0.01, 1, FrequencyWeightings.Z, True, False)
+                                DSP.SoftLimitSection(NewSound, 1, -3,,, 0.01, FrequencyWeightings.Z, False)
 
                                 'Measuring peak level after limiting
                                 PostLimitPeakLevel = MeasureSectionLevel(NewSound, 1,,,, SoundMeasurementType.AbsolutePeakAmplitude,

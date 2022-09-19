@@ -392,7 +392,7 @@ Namespace Audio
                     Next
 
                     For Each c In ChannelsToCheck
-                        Dim LimiterResult = Audio.DSP.SoftLimitSection(OutputSound, Simulated_dBSPL_To_dBFS(LimiterThreshold),,,, c, FrequencyWeightings.Z, False, True)
+                        Dim LimiterResult = Audio.DSP.SoftLimitSection(OutputSound, c, Simulated_dBSPL_To_dBFS(LimiterThreshold),,,, FrequencyWeightings.Z, True)
 
                         If LimiterResult <> "" Then
                             'Limiting occurred, logging the limiter data
@@ -579,12 +579,11 @@ Namespace Audio
             ''' </summary>
             ''' <param name="Angle">The angle in degrees</param>
             ''' <returns></returns>
-            Public Shared Function UnwrapAngle(ByVal Angle As Integer) As Integer
+            Private Shared Function UnwrapAngle(ByVal Angle As Integer) As Integer
 
-                MsgBox("This Function does Not work!!!")
-
-                Dim Div As Integer
-                Dim UnwrappedAngle = Math.DivRem(Angle, 360, Div)
+                'Gets the remainder when dividing by 360
+                Dim UnwrappedAngle As Integer
+                Dim Div = Math.DivRem(Angle, 360, UnwrappedAngle)
 
                 'Sets the Azimuth in the following range: -180 < Azimuth <= 180
                 If UnwrappedAngle > 180 Then UnwrappedAngle -= 360
@@ -712,11 +711,15 @@ Namespace Audio
                                                 2,, SoundSceneItem.Sound.WaveFormat.Encoding))
 
                         Dim OriginalSoundLength As Integer = SoundSceneItem.Sound.WaveData.SampleData(1).Length
+
                         Dim NewChannel1SampleArray(OriginalSoundLength - 1) As Single
+                        NewSound.WaveData.SampleData(1) = NewChannel1SampleArray
+
                         Dim NewChannel2SampleArray(OriginalSoundLength - 1) As Single
+                        NewSound.WaveData.SampleData(2) = NewChannel2SampleArray
 
                         Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(1), NewSound.WaveData.SampleData(1), OriginalSoundLength)
-                        Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(2), NewSound.WaveData.SampleData(1), OriginalSoundLength)
+                        Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(1), NewSound.WaveData.SampleData(2), OriginalSoundLength)
 
                         'Attains a copy of the appropriate directional FIR-filter kernel
                         Dim CurrentKernel = DirectionalSimulator.GetStereoKernel(SoundSceneItem.SourceLocation.HorizontalAzimuth).CreateSoundDataCopy

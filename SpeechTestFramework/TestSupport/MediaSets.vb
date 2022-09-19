@@ -2567,8 +2567,8 @@ Public Class MediaSet
 
                 'Limiting the level in the whole masker sound to the average level of the central region + RelativeMaxLevelAllowed
                 Dim CentralRegionLevel = Audio.DSP.MeasureSectionLevel(MaskerSound, 1, CentralRegionStartSample, CentralRegionLength)
-                Audio.DSP.SoftLimitSection(MaskerSound, CentralRegionLevel + RelativeMaxLevelAllowed, , ,
-                                           0.4, 1, Audio.FrequencyWeightings.Z, True, False,
+                Audio.DSP.SoftLimitSection(MaskerSound, 1, CentralRegionLevel + RelativeMaxLevelAllowed, , ,
+                                           0.4, Audio.FrequencyWeightings.Z, False,
                                            Audio.DSP.FadeSlopeType.Smooth)
 
 
