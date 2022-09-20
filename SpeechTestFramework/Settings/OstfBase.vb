@@ -9,6 +9,7 @@
     Public Property RoomImpulsesSubDirectory As String = "RoomImpulses"
     Public Property AvailableTests As New List(Of TestSpecification)
 
+    Public SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
 
     Public Sub LoadAvailableTestSpecifications()
 

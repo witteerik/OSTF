@@ -116,7 +116,6 @@ Namespace Audio
             Private AllSegmentationComponents As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
 
             'PaSoundPLayer
-            Private SoundPlayer As PortAudioVB.OverlappingSoundPlayer
             Private AudioApiSettings As AudioApiSettings = Nothing
 
 
@@ -1964,8 +1963,8 @@ Namespace Audio
                     SetAudioApiSettings()
                 End If
 
-                SoundPlayer = New PortAudioVB.OverlappingSoundPlayer(Nothing, PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, AudioApiSettings,
-                                                                     CurrentSound.WaveFormat.Encoding, False, False, False, False, 0.1,, False)
+                SoundPlayer.ChangePlayerSettings(AudioApiSettings, CurrentSound.WaveFormat, 0.1, , PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly)
+                d
                 SoundPlayer.OpenStream()
                 SoundPlayer.Start()
 

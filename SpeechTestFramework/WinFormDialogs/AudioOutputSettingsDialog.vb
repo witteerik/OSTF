@@ -27,7 +27,7 @@ Public Class AudioOutputSettingsDialog
     Public CurrentAudioApiSettings As Audio.AudioApiSettings
     Public DefaultDriverName As String
 
-    Public Sub New(Optional FixedSampleRate As Integer? = Nothing, Optional ByVal DefaultDriverName As String = "")
+    Public Sub New(Optional ByVal DefaultDriverName As String = "")
 
         ' This call is required by the designer.
         InitializeComponent()
@@ -35,10 +35,8 @@ Public Class AudioOutputSettingsDialog
         'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
         If Audio.PortAudio.Pa_GetDeviceCount = Audio.PortAudio.PaError.paNotInitialized Then
             Audio.PortAudio.Pa_Initialize()
-
         End If
 
-        CurrentAudioApiSettings = New Audio.AudioApiSettings(FixedSampleRate)
         Me.DefaultDriverName = DefaultDriverName
 
     End Sub
@@ -114,19 +112,8 @@ Public Class AudioOutputSettingsDialog
 
         'Settings default sample rate
         'Disabling selection of new sample rate if the sample rate is fixed
-        If CurrentAudioApiSettings.IsFixedSampleRate = True Then
-            If Not ListOfSampleRates.Contains(CurrentAudioApiSettings.FixedSampleRate) Then
-                ListOfSampleRates.Add(CurrentAudioApiSettings.FixedSampleRate)
-                sampleRateComboBox.Items.Add(CurrentAudioApiSettings.FixedSampleRate)
-            End If
-            sampleRateComboBox.SelectedItem = CurrentAudioApiSettings.FixedSampleRate
-            sampleRateComboBox.Enabled = False
-        Else
-            sampleRateComboBox.SelectedIndex = 4
-            sampleRateComboBox.Enabled = True
-        End If
-
-        CurrentAudioApiSettings.SampleRate = sampleRateComboBox.SelectedItem
+        sampleRateComboBox.SelectedIndex = 4
+        sampleRateComboBox.Enabled = True
 
     End Sub
 
@@ -391,8 +378,6 @@ Public Class AudioOutputSettingsDialog
     End Sub
 
     Private Sub SampleRateComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles sampleRateComboBox.SelectedIndexChanged
-
-        CurrentAudioApiSettings.SampleRate = sampleRateComboBox.SelectedItem
 
         DisplayLatency()
 

@@ -9,7 +9,7 @@ Namespace Audio
         Public Class OverlappingSoundPlayer
             Implements IDisposable
 
-            Private WithEvents MyController As PlayBack.ISoundPlayerControl
+            Public Event MessageFromPlayer(ByVal Message As String)
             Public Property Mixer As DuplexMixer
 
             Public SelectedApiInfo As PortAudio.PaHostApiInfo
@@ -471,8 +471,7 @@ Namespace Audio
                 Duplex
             End Enum
 
-            Public Sub New(ByRef SoundPlayerController As PlayBack.ISoundPlayerControl,
-                   Optional ByVal LoggingEnabled As Boolean = False,
+            Public Sub New(Optional ByVal LoggingEnabled As Boolean = False,
                    Optional ByVal MessagesEnabled As Boolean = False,
                    Optional ByVal StopAtOutputSoundEnd As Boolean = False,
                    Optional ByVal InactivateClipping As Boolean = False,
@@ -480,7 +479,6 @@ Namespace Audio
                    Optional ByVal ActivateBufferTicks As Boolean = False)
 
                 Me.IsBufferTickActive = ActivateBufferTicks
-                Me.MyController = SoundPlayerController
                 Me.ApproachingEndOfBufferAlert_BufferCount = ApproachingEndOfBufferAlert_BufferCount
                 Me.StopAtOutputSoundEnd = StopAtOutputSoundEnd
 
@@ -1360,12 +1358,12 @@ Namespace Audio
                 If IsBufferTickActive = True Then
                     If SendOnNewThread = False Then
                         'Sending message on same thread (Should not be used when messages are sent from within the callback!)
-                        MyController.MessageFromPlayer(Message)
+                        RaiseEvent MessageFromPlayer(Message)
 
                     Else
                         'Sending message on a new thread, allowing the main thread to continue execution
-                        Dim NewthreadMessageSender As New MessageSenderOnNewThread(Message, MyController)
-
+                        'Dim NewthreadMessageSender As New MessageSenderOnNewThread(Message, MyController)
+                        'TODO: How to fix this? Raiseing event from separate thread?
                     End If
                 End If
 
