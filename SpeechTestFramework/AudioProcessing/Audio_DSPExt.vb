@@ -1389,7 +1389,7 @@ Namespace Audio
         ''' <summary>
         ''' The acoustic distance model used to select the Swedish SiB-test phoneme contrasts.
         ''' </summary>
-        Public Module AcousticDistance_ModelA
+        Public Module AcousticDistance
 
             ''' <summary>
             ''' Returns the duration distance, expressed as the proportions by which the longest sound is longer than the shortest sound.
@@ -2530,191 +2530,7 @@ Namespace Audio
         End Module
 
 
-        Public Module Loudness_ModelA
-
-            Public Enum ReturnTypes
-                Loudness
-                LoudnessLevel
-            End Enum
-
-
-            ''' <summary>
-            ''' 
-            ''' </summary>
-            ''' <param name="Signal"></param>
-            ''' <param name="MeasurementWindowDuration"></param>
-            ''' <param name="MeasurementWindowOverlapDuration"></param>
-            ''' <param name="BarkFilterOverlapRatio"></param>
-            ''' <param name="LowestIncludedCentreFrequency"></param>
-            ''' <param name="HighestIncludedCentreFrequency"></param>
-            ''' <param name="MatrixOutputFolder"></param>
-            ''' <param name="ExportDetails"></param>
-            ''' <param name="InactivateFftWarnings"></param>
-            ''' <param name="CurrentIsoPhonFilter"></param>
-            ''' <param name="CurrentAuditoryFilters"></param>
-            ''' <param name="CurrentSpreadOfMaskingFilters"></param>
-            ''' <param name="dbFSToSplDifference"></param>
-            ''' <param name="CurrentBandTemplateList"></param>
-            ''' <param name="SoneScalingFactor"></param>
-            ''' <returns></returns>
-            Public Function GetLoudness(ByRef Signal As Sound,
-                                            Optional ByVal MeasurementWindowDuration As Double = 0.1, '0.17,
-                                            Optional ByVal MeasurementWindowOverlapDuration As Double = 0.09, '0.16,
-                                            Optional ByVal BarkFilterOverlapRatio As Double = 0,
-                                            Optional ByRef LowestIncludedCentreFrequency As Double = 80,
-                                            Optional ByRef HighestIncludedCentreFrequency As Double = 12700, 'Previously 17500, but limited due to the limited band width of the iso-phon filter
-                                            Optional ByVal MatrixOutputFolder As String = "",
-                                            Optional ByVal ExportDetails As Boolean = False,
-                                            Optional ByRef InactivateFftWarnings As Boolean = False,
-                                            Optional ByRef CurrentIsoPhonFilter As IsoPhonFilter = Nothing,
-                                            Optional ByRef CurrentAuditoryFilters As FftData.AuditoryFilters = Nothing,
-                                            Optional ByRef CurrentSpreadOfMaskingFilters As FftData.SpreadOfMaskingFilters = Nothing,
-                                            Optional ByRef CurrentBandTemplateList As FftData.BarkSpectrum.BandTemplateList = Nothing,
-                                    Optional ByRef CurrentFftFormat As Formats.FftFormat = Nothing,
-                                    Optional ByRef ReturnType As ReturnTypes = ReturnTypes.Loudness,
-                                    Optional ByRef dbFSToSplDifference As Double = 88,
-                                    Optional ByRef LoudnessFunction As FftData.LoudnessFunctions = FftData.LoudnessFunctions.ZwickerType,
-                                    Optional ByRef SoneScalingFactor As Double? = Nothing) As Double()
-
-                Try
-                    'Setting up FFT formats
-                    If CurrentFftFormat Is Nothing Then
-
-                        Dim MeasurementWindowLength As Integer = Signal.WaveFormat.SampleRate * MeasurementWindowDuration
-                        If MeasurementWindowLength Mod 2 = 1 Then MeasurementWindowLength += 1
-
-                        Dim MeasurementWindowOverlapLength As Integer = Signal.WaveFormat.SampleRate * MeasurementWindowOverlapDuration
-                        If MeasurementWindowOverlapLength Mod 2 = 1 Then MeasurementWindowOverlapLength += 1
-                        Dim SpectralResolution As Integer = 2048 * 2 * 2
-                        CurrentFftFormat = New Formats.FftFormat(MeasurementWindowLength, SpectralResolution, MeasurementWindowOverlapLength, WindowingType.Tukey, InactivateFftWarnings)
-                    End If
-
-                    'Creating a MatrixOutputFolder if it doesn't exist
-                    Directory.CreateDirectory(MatrixOutputFolder)
-
-                    'Only allowing mono sounds
-                    If Signal.WaveFormat.Channels <> 1 Then Throw New Exception("The current function only supports mono sounds.")
-
-                    'No initial zero padding! Zero padding is unnecessary here, since no temporal alignment is needed, and a hearing threshold is used. However, the end of the sound will be zero padded by the spectral analysis function.
-
-                    'Modifying the signal
-                    'Adding one fft window length of zero padding, to avoid sound final fading effects. This last bit is then removed from the SignalBarkSpectrumArray before the distance calculation (and before the matrix logging).
-                    Dim OriginalSignalLengths As New List(Of Double)
-                    For c = 1 To Signal.WaveFormat.Channels
-                        OriginalSignalLengths.Add(Signal.WaveData.SampleData(c).Length)
-                        ReDim Preserve Signal.WaveData.SampleData(c)(Signal.WaveData.SampleData(c).Length + CurrentFftFormat.FftWindowSize)
-                    Next
-
-                    'Getting frequency domain data
-                    Signal.FFT = Nothing 'Resetting any previously calculated frequency domain data
-                    Signal.FFT = SpectralAnalysis(Signal, CurrentFftFormat)
-
-                    'Resetting the signal by removing the zero padding added above
-                    For c = 1 To Signal.WaveFormat.Channels
-                        ReDim Preserve Signal.WaveData.SampleData(c)(OriginalSignalLengths(c - 1))
-                    Next
-
-                    'Calculating power spectrum
-                    Signal.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
-
-                    'Getting bark filter spectrum for the signal
-                    Signal.FFT.CalculateBarkSpectrum(Signal, 1, CurrentIsoPhonFilter, CurrentAuditoryFilters, CurrentSpreadOfMaskingFilters,
-                       BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency,
-                       dbFSToSplDifference, LoudnessFunction, CurrentBandTemplateList, SoneScalingFactor)
-
-                    'Referencing the Bark spectra
-                    Dim SignalBarkSpectrumArray As SortedList(Of Integer, Single()) = Signal.FFT.BarkSpectrumData(1)
-
-                    'Removing the last time windows repressenting the period of final zero padding above
-                    For n = 0 To Int(CurrentFftFormat.FftWindowSize / (CurrentFftFormat.AnalysisWindowSize - CurrentFftFormat.OverlapSize)) - 1
-                        SignalBarkSpectrumArray.RemoveAt(SignalBarkSpectrumArray.Count - 1)
-                    Next
-
-                    'Exporting stuff
-                    If ExportDetails = True And MatrixOutputFolder <> "" Then
-
-                        CurrentIsoPhonFilter.ExportIsoPhonCurves(MatrixOutputFolder)
-                        CurrentIsoPhonFilter.ExportInverseIsoPhonCurves(MatrixOutputFolder,, False)
-                        CurrentIsoPhonFilter.ExportInverseIsoPhonCurves(MatrixOutputFolder, "InversePhonData_Att", True)
-                        CurrentIsoPhonFilter.ExportSplToPhonData(MatrixOutputFolder,, 10)
-
-                        'Creating a matrix of band loudness levels, and exporting it
-                        Dim BandLoudnessLevels As New SortedList(Of Integer, Single())
-                        For TimeWindow = 0 To SignalBarkSpectrumArray.Count - 1 'Using SignalBarkSpectrumArray.Count since this is already cut at the end to skip the zero padding bit.
-                            Dim CurrentBarkBandArray(Signal.FFT.BarkSpectrumData(1).MyDetailedList(TimeWindow).Count - 1) As Single
-                            For BarkBand = 0 To Signal.FFT.BarkSpectrumData(1).MyDetailedList(TimeWindow).Count - 1
-                                CurrentBarkBandArray(BarkBand) = Signal.FFT.BarkSpectrumData(1).MyDetailedList(TimeWindow)(BarkBand).BandLoudnessLevel
-                            Next
-                            BandLoudnessLevels.Add(TimeWindow, CurrentBarkBandArray)
-                        Next
-                        Dim newDoubleArray1(BandLoudnessLevels.Count - 1, BandLoudnessLevels(0).Length - 1) As Double
-                        For p = 0 To BandLoudnessLevels.Count - 1
-                            For q = 0 To BandLoudnessLevels(0).Length - 1
-                                newDoubleArray1(p, q) = BandLoudnessLevels(p)(q)
-                            Next
-                        Next
-                        Utils.SaveMatrixToFile(newDoubleArray1, IO.Path.Combine(MatrixOutputFolder, "BarkBandLoudnessLevels_" & Signal.FileName & ".txt"))
-
-                        Dim newDoubleArray2(SignalBarkSpectrumArray.Count - 1, SignalBarkSpectrumArray(0).Length - 1) As Double
-                        For p = 0 To SignalBarkSpectrumArray.Count - 1
-                            For q = 0 To SignalBarkSpectrumArray(0).Length - 1
-                                newDoubleArray2(p, q) = SignalBarkSpectrumArray(p)(q)
-                            Next
-                        Next
-                        Utils.SaveMatrixToFile(newDoubleArray2, IO.Path.Combine(MatrixOutputFolder, "BarkBandLoudness_" & Signal.FileName & ".txt"))
-                    End If
-
-
-                    Dim TimeWindowLoudnessArray(SignalBarkSpectrumArray.Count - 1) As Double
-
-                    'Summing band loudness, and converting to total loudness level
-                    For TimeWindowIndex = 0 To SignalBarkSpectrumArray.Count - 1
-                        Dim TotalLoudness As Double = SignalBarkSpectrumArray(TimeWindowIndex).Sum
-                        Select Case ReturnType
-                            Case ReturnTypes.Loudness
-
-                                TimeWindowLoudnessArray(TimeWindowIndex) = TotalLoudness
-                            Case ReturnTypes.LoudnessLevel
-
-                                Select Case LoudnessFunction
-                                    Case FftData.LoudnessFunctions.ZwickerType
-                                        'Converting to loudness level
-                                        If TotalLoudness < 1 Then
-                                            TimeWindowLoudnessArray(TimeWindowIndex) = 40 * TotalLoudness ^ 0.35
-                                        Else
-                                            TimeWindowLoudnessArray(TimeWindowIndex) = 40 + 10 * Utils.getBase_n_Log(TotalLoudness, 2)
-                                        End If
-
-                                    Case FftData.LoudnessFunctions.Simple
-                                        'Converting to loudness level
-                                        TimeWindowLoudnessArray(TimeWindowIndex) = 40 + 10 * Utils.getBase_n_Log(TotalLoudness, 2)
-
-                                    Case FftData.LoudnessFunctions.InExType
-                                        MsgBox("Using ZwickerType loudness function. (Haven't been able to invert InExType)")
-                                        'Converting to loudness level
-                                        If TotalLoudness < 1 Then
-                                            TimeWindowLoudnessArray(TimeWindowIndex) = 40 * TotalLoudness ^ 0.35
-                                        Else
-                                            TimeWindowLoudnessArray(TimeWindowIndex) = 40 + 10 * Utils.getBase_n_Log(TotalLoudness, 2)
-                                        End If
-
-                                End Select
-
-                            Case Else
-                                Throw New NotImplementedException("Invalid return type.")
-                        End Select
-                    Next
-
-                    Return TimeWindowLoudnessArray
-
-
-                Catch ex As Exception
-                    MsgBox(ex.ToString)
-                    Return Nothing
-                End Try
-
-            End Function
-
+        Public Module AcousticDistance2
 
 
             ''' <summary>
@@ -6016,7 +5832,7 @@ Namespace Audio
                             Dim nPoints = Utils.getBase_n_Log(fftFormat.FftWindowSize, 2)
 
                             'Caluculating FFT
-                            FFT_Bourke(1, nPoints, localREXArray, localIMXArray)
+                            FastFourierTransform(1, nPoints, localREXArray, localIMXArray)
 
                             'Storing the DFT data
                             localFftData.FrequencyDomainRealData(c, windowNumber).WindowData = localREXArray
@@ -6092,7 +5908,7 @@ Namespace Audio
                             Dim nPoints = Utils.getBase_n_Log(InputFftData.FftFormat.FftWindowSize, 2)
 
                             'Caluculating iFFT
-                            FFT_Bourke(-1, nPoints, localREXWindow.WindowData, localIMXWindow.WindowData)
+                            FastFourierTransform(-1, nPoints, localREXWindow.WindowData, localIMXWindow.WindowData)
 
                             'Creating a sound array, which will contain the sound output from the iFFT
                             Dim LocalChannelSoundArray(InputFftData.FftFormat.FftWindowSize - 1) As Single
@@ -6246,7 +6062,7 @@ Namespace Audio
 
 
 
-            Public Function FFT_Bourke(ByVal dir As Integer, ByVal m As Long, ByRef x() As Single, ByRef y() As Single,
+            Public Function FastFourierTransform(ByVal dir As Integer, ByVal m As Long, ByRef x() As Single, ByRef y() As Single,
                                    Optional ScaleForwardTransform As Boolean = True)
 
                 'Source:
@@ -6356,7 +6172,7 @@ Namespace Audio
             End Function
 
 
-            Public Function FFT_Bourke(ByVal dir As Integer, ByVal m As Long, ByRef x() As Double, ByRef y() As Double,
+            Public Function FastFourierTransform(ByVal dir As Integer, ByVal m As Long, ByRef x() As Double, ByRef y() As Double,
                                    Optional ScaleForwardTransform As Boolean = True)
 
                 'Source:
@@ -6709,7 +6525,7 @@ Namespace Audio
                                         Next
 
                                         'Calculates forward FFT for the IR (Skipping the forward transform scaling)
-                                        FFT_Bourke(1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), dftIR_Bin_x, dftIR_Bin_y, False)
+                                        FastFourierTransform(1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), dftIR_Bin_x, dftIR_Bin_y, False)
 
                                         'Starts convolution one window at a time
                                         Dim readSample As Integer = 0
@@ -6729,7 +6545,7 @@ Namespace Audio
                                             Next
 
                                             'Calculates forward FFT for the current sound window
-                                            FFT_Bourke(1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), dftSoundBin_x, dftSoundBin_y)
+                                            FastFourierTransform(1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), dftSoundBin_x, dftSoundBin_y)
 
                                             'performs complex multiplications
                                             Dim tempDftSoundBin_x As Double = 0
@@ -6740,7 +6556,7 @@ Namespace Audio
                                             Next
 
                                             'Calculates inverse FFT
-                                            FFT_Bourke(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), dftSoundBin_x, dftSoundBin_y)
+                                            FastFourierTransform(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), dftSoundBin_x, dftSoundBin_y)
 
                                             'Puts the convoluted sound in the output array
                                             For sample = 0 To fftFormat.FftWindowSize - 1
@@ -6943,7 +6759,7 @@ Namespace Audio
                                         Next
 
                                         'Calculates forward FFT for the IR (Skipping the forward transform scaling)
-                                        FFT_Bourke(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftIR_Bin_x, DftIR_Bin_y, False)
+                                        FastFourierTransform(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftIR_Bin_x, DftIR_Bin_y, False)
 
                                         'Starts convolution one time window at a time, using the add-overlap method
                                         Dim readSample As Integer = 0
@@ -6963,7 +6779,7 @@ Namespace Audio
                                             Next
 
                                             'Calculates forward FFT for the current sound window
-                                            FFT_Bourke(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSoundBin_x, DftSoundBin_y)
+                                            FastFourierTransform(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSoundBin_x, DftSoundBin_y)
 
                                             'performs complex multiplications
                                             Dim tempDftSoundBin_x As Single = 0
@@ -6974,7 +6790,7 @@ Namespace Audio
                                             Next
 
                                             'Calculates inverse FFT
-                                            FFT_Bourke(-1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSoundBin_x, DftSoundBin_y)
+                                            FastFourierTransform(-1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSoundBin_x, DftSoundBin_y)
 
                                             'Puts the convoluted sound in the output array
                                             For sample = 0 To FftFormat.FftWindowSize - 1
@@ -7080,7 +6896,7 @@ Namespace Audio
                         Next
 
                         'Calculates forward FFT for sound 1
-                        FFT_Bourke(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSound1_x_Bin, DftSound1_y_Bin, False)
+                        FastFourierTransform(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSound1_x_Bin, DftSound1_y_Bin, False)
 
 
                         'Copies the Sound 2IR samples into DftSound2_x_Bin
@@ -7096,7 +6912,7 @@ Namespace Audio
 
 
                         'Calculates forward FFT for Sound 2
-                        FFT_Bourke(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSound2_x_Bin, DftSound2_y_Bin, True)
+                        FastFourierTransform(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSound2_x_Bin, DftSound2_y_Bin, True)
 
 
                         'Performs complex division
@@ -7126,7 +6942,7 @@ Namespace Audio
                         Next
 
                         'Calculates inverse FFT
-                        FFT_Bourke(-1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSound1_x_Bin, DftSound1_y_Bin)
+                        FastFourierTransform(-1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSound1_x_Bin, DftSound1_y_Bin)
 
                         'Puts the convoluted sound in the output array
                         Dim OutputChannelArray(DftSound1_x_Bin.Length - 1) As Single
@@ -9770,7 +9586,7 @@ Namespace Audio
                                 'getRectangualForm(magnitudeArray, phaseArray, FFT_X, FFT_Y)
 
                                 'Performing an inverse dft on the magnitude and phase arrays
-                                DSP.TransformationsExt.FFT_Bourke(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData, outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData)
+                                DSP.TransformationsExt.FastFourierTransform(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData, outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData)
 
                                 'Shifting + truncating
                                 Dim kernelArray(kernelSize - 1) As Single
@@ -10016,10 +9832,10 @@ Namespace Audio
                             Next
 
                             'Performing an inverse dft on the magnitude and phase arrays
-                            DSP.TransformationsExt.FFT_Bourke(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), X_Re, X_Im)
+                            DSP.TransformationsExt.FastFourierTransform(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), X_Re, X_Im)
 
                             'Out-commented code for FFT with Single datatype
-                            'DSP.Transformations.FFT_Bourke(-1, getBase_n_Log(fftFormat.FftWindowSize, 2), outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData, outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData)
+                            'DSP.Transformations.FastFourierTransform(-1, getBase_n_Log(fftFormat.FftWindowSize, 2), outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData, outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData)
 
                             'Shifting + truncating
                             Dim kernelArray(kernelSize - 1) As Single
@@ -10135,9 +9951,9 @@ Namespace Audio
                     Dim temporaryIMX(fftFormat.FftWindowSize - 1) As Double
 
                     'Performing an inverse dft on the magnitudes
-                    'FFT_Bourke(-1, getBaseTwoLog(fftFormat.FftWindowSize), averageMagnitudes, temporaryIMX)
+                    'FastFourierTransform(-1, getBaseTwoLog(fftFormat.FftWindowSize), averageMagnitudes, temporaryIMX)
 
-                    DSP.FFT_Bourke(-1, Utils.Math.getBase_n_Log(fftFormat.FftWindowSize, 2), averageMagnitudes, temporaryIMX)
+                    DSP.FastFourierTransform(-1, Utils.Math.getBase_n_Log(fftFormat.FftWindowSize, 2), averageMagnitudes, temporaryIMX)
 
                     'Shifting + truncate
                     Dim kernelArray(kernelSize - 1) As Single
@@ -10356,7 +10172,7 @@ Namespace Audio
                     Dim temporaryIMX(fftFormat.FftWindowSize - 1) As Single
 
                     'Performing an inverse dft on the magnitudes
-                    DSP.FFT_Bourke(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), SubtractionMagnitudes, temporaryIMX)
+                    DSP.FastFourierTransform(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), SubtractionMagnitudes, temporaryIMX)
 
                     'Shifting + truncate
                     Dim kernelArray(kernelSize - 1) As Single

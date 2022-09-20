@@ -2166,7 +2166,7 @@ Public Class MediaSet
                 End If
 
                 'Calculating the max window level
-                Dim MaskerSoundWindowLevels = Audio.DSP.AcousticDistance_ModelA.CalculateWindowLevels(InputSound)
+                Dim MaskerSoundWindowLevels = Audio.DSP.AcousticDistance.CalculateWindowLevels(InputSound)
                 Dim MaskerSoundWindowMaxLevel = MaskerSoundWindowLevels.Max
 
                 Dim StepLength As Integer = FFT_AnalysisWindowLength - FFT_OverlapLength
@@ -2186,7 +2186,7 @@ Public Class MediaSet
 
                     'Calculating the current comparison Bark spectrum
                     Dim AverageSpectralLevel_Masker As Double
-                    Dim CurrentMaskerBarkSpectrum = Audio.DSP.AcousticDistance_ModelA.GetAverageBarkSpectrum(InputSound, w, MaskerRegionLengthInWindows, AverageSpectralLevel_Masker)
+                    Dim CurrentMaskerBarkSpectrum = Audio.DSP.AcousticDistance.GetAverageBarkSpectrum(InputSound, w, MaskerRegionLengthInWindows, AverageSpectralLevel_Masker)
 
                     'Evaluating and modifying the current CurrentComparisonBarkSpectrum
                     If MaxSoundLevelRange.HasValue Then
@@ -2921,7 +2921,7 @@ Public Class MediaSet
     '                        Dim ActualLowerLimitFrequency As Double
     '                        Dim ActualUpperLimitFrequency As Double
 
-    '                        Dim WindowLevelArray = Audio.DSP.AcousticDistance_ModelA.CalculateWindowLevels(ConcatPhonemesSound,,,
+    '                        Dim WindowLevelArray = Audio.DSP.AcousticDistance.CalculateWindowLevels(ConcatPhonemesSound,,,
     '                                                                      band.LowerFrequencyLimit,
     '                                                                      band.UpperFrequencyLimit,
     '                                                                      Audio.FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,

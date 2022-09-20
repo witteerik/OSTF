@@ -226,7 +226,7 @@ Namespace Audio
                         Dim ActualLowerLimitFrequency As Double
                         Dim ActualUpperLimitFrequency As Double
 
-                        Dim WindowLevelArray = Audio.DSP.AcousticDistance_ModelA.CalculateWindowLevels(InputSound,,,
+                        Dim WindowLevelArray = Audio.DSP.AcousticDistance.CalculateWindowLevels(InputSound,,,
                                                                           band.LowerFrequencyLimit,
                                                                           band.UpperFrequencyLimit,
                                                                           Audio.FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
