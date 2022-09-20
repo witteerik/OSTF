@@ -1,0 +1,31 @@
+DbId	IncludedTestPhonemes	ListDescription	ListName	ContrastedPhonemeIndex	V	IsPractiseList
+C	C	C	C	N	N	N
+L01	ɑː ɛː øː	Klas, kläs, klös; ɑː ɛː øː_4 2 k l s_Long	Klas_kläs_klös	2	1	0
+L02	a ɔ ɵ	bland, blond, blund; a ɔ ɵ_5 2 b l nː d_Short	bland_blond_blund	2	1	0
+L03	∅ l n	ed, led, ned; l n ɳ lː nː ɳː_3 0 eː d	ed_led_ned	0	0	0
+L04	iː ʉː yː	pir, pur, pyr; iː ʉː yː_3 1 p r_Long	pir_pur_pyr	1	1	0
+L05	ɛ̝ ɪ ʏ	sätt, sitt, sytt; ɛ̝ ɪ ʏ_3 1 s tː_Short	sätt_sitt_sytt	1	1	0
+L06	ɪ ø̞ ʏ	sitt, sytt, sött; ɪ ʏ ø̞_3 1 s tː_Short	sitt_sytt_sött	1	1	0
+L07	h p t	hall, pall, tall; h p t_3 0 a lː	hall_pall_tall	0	0	0
+L08	eː iː øː	res, ris, rös; 3 1 r s_Long	res_ris_rös	1	1	1
+L09	a ɛ̝ ø̞	satt, sätt, sött; a ɛ̝ ø̞_3 1 s tː_Short	satt_sätt_sött	1	1	0
+L10	oː uː ʉː	mår, mor, mur; oː uː ʉː_3 1 m r_Long	mår_mor_mur	1	1	0
+L11	ɑː oː øː	mas, mås, mös; ɑː oː øː_3 1 m s_Long	mas_mås_mös	1	1	0
+L12	ʝː lː ŋː	paj, pall, pang; ʝ l ŋ ʝː lː ŋː_3 2 p a	paj_pall_pang	2	0	0
+L13	b d m	bur, dur, mur; b d m bː dː mː_3 0 ʉː r	bur_dur_mur	0	0	0
+L14	ɡː mː ŋː	tugg, tum, tung; ɡ m ŋ ɡː mː ŋː_3 2 t ɵ	tugg_tum_tung	2	0	0
+L15	ɕ f s	kil, fil, sil; ɕ f s_3 0 iː l	kil_fil_sil	0	0	0
+L16	l ɳ v	kval, kvarn, kvav; l ɳ v lː ɳː vː_4 3 k v ɑː	kval_kvarn_kvav	3	0	0
+L17	a ɛ̝ ø̞	mark, märk, mörk; a ɛ̝ ø̞_4 1 m rː k_Short	mark_märk_mörk	1	1	0
+L18	f ɧ l	farm, charm, larm; f ɧ l fː ɧː lː_4 0 a rː m	farm_charm_larm	0	0	0
+L19	l ɳ r	kval, kvarn, kvar; l ɳ r lː ɳː rː_4 3 k v ɑː	kval_kvarn_kvar	3	0	0
+L20	eː ɛː yː	red, räd, Ryd; eː ɛː yː_3 1 r d_Long	red_räd_Ryd	1	1	0
+L21	f ɧ s	fyr, skyr, syr; f ɧ s fː ɧː sː_3 0 yː r	fyr_skyr_syr	0	0	0
+L22	pː tː ʈː	sopp, sått, sort; p t ʈ pː tː ʈː_3 2 s ɔ	sopp_sått_sort	2	0	0
+L23	a ɔ ø̞	sarg, sorg, sörj; a ɔ ø̞_4 1 s rː ʝ_Short	sarg_sorg_sörj	1	1	0
+L24	ɔ ø̞ ʊ	rått, rott, rött; ɔ ʊ ø̞_3 1 r tː_Short	rått_rott_rött	1	1	0
+L25	fː sː ʂː	tuff, tuss, tusch; f s ʂ fː sː ʂː_3 2 t ɵ	tuff_tuss_tusch	2	0	0
+L26	∅ n ɳ	ko, kon, korn; ɖ n ɳ ɖː nː ɳː_3 2 k uː	ko_kon_korn	2	0	0
+L27	kː tː ʈː	sock, sått, sort; k t ʈ kː tː ʈː_3 2 s ɔ	sock_sått_sort	2	0	0
+L28	∅ f s	å, få, så; f ɧ s fː ɧː sː_3 0 oː ∅	å_få_så	0	0	0
+L29	f s ʂ	hyf, hys, hyrs; f s ʂ fː sː ʂː_3 2 h yː	hyf_hys_hyrs	2	0	0

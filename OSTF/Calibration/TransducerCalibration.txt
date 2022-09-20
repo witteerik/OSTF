@@ -1,0 +1,29 @@
+<New transducer>
+Name = 3 speaker array
+API = MME // "MME", "Windows DirectSound", "Windows WASAPI", "ASIO"
+Device = Högtalare (2- Realtek(R) Audio) // For example: "Primär ljuddrivrutin", "HÃ¶gtalare (2- Realtek(R) Audio) (2)", (MME:"Microsoft Sound Mapper - Output")
+BufferSize = 2048 // Must be powers of 2
+TransducerType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
+TransducerName = Unspecified //Available values: Unspecified, AKGK601, AKGK271MKII, SennheiserHD25_1 // Only important for sound field simulation
+SoundSourceAzimuths = -30, 0, 30 
+SoundSourceElevations = 0,0 // Not yet implemented
+SoundSourceDistances = 0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
+OutputChannels = 1, 2, 3
+Calibration_FsToSpl = 100, 99.2, 98.7 //Sets the calibration level for each speaker (whereby 0 dBFS = Calibration_FsOutputLevel dBPSL) for each output channel, starting from channel 1. The channels values should be comma separated, and dots (.) should be used as decimal mark.
+LimiterThreshold = 100  // Leave empty to disable limiter
+
+<New transducer>
+Name = Simulated sound field (SennheiserHD25_1)
+API = MME //"MME", "Windows DirectSound", "Windows WASAPI", "ASIO"
+Device = Högtalare (2- Realtek(R) Audio) // "Primär ljuddrivrutin", "HÃ¶gtalare (2- Realtek(R) Audio) (2)", (MME:"Microsoft Sound Mapper - Output")
+BufferSize = 2048 // Must be powers of 2
+TransducerType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
+TransducerName = SennheiserHD25_1 //Available values: Unspecified, AKGK601, AKGK271MKII, SennheiserHD25_1 // Only important for sound field simulation
+SoundSourceAzimuths = -30, 0, 30 
+SoundSourceElevations = 0,0,0 // Not yet implemented
+SoundSourceDistances = 0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
+OutputChannels = 1, 2
+Calibration_FsToSpl = 100, 100 //Sets the calibration level for each speaker (whereby 0 dBFS = Calibration_FsOutputLevel dBPSL) for each output channel, starting from channel 1. The channels values should be comma separated, and dots (.) should be used as decimal mark.
+LimiterThreshold = 100  // Leave empty to disable limiter
+
+ 

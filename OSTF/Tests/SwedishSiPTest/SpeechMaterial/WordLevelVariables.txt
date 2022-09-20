@@ -1,0 +1,89 @@
+DbId	Spelling	SpellingAFC	Transcription	TranscriptionAFC	PNDP	PP	Z
+C	C	C	C	C	N	N	N
+L01S01W01	Klas	klas	k l ˈ ɑː s	k l ˈ ɑː s	0,082	0,9086	3,4765
+L01S02W01	kläs	kläs	k l ˈ ɛː s	k l ˈ ɛː s	0,08	0,9134	3,1123
+L01S03W01	klös	klös	k l ˈ øː s	k l ˈ øː s	0,074	0,9044	2,5414
+L02S01W01	bland	bland	b l ˈ a nː d	b l ˈ a nː d	0,163	0,958	5,4731
+L02S02W01	blond	blond	b l ˈ ɔ nː d	b l ˈ ɔ nː d	0,143	0,9304	4,1403
+L02S03W01	blund	blund	b l ˈ ɵ nː d	b l ˈ ɵ nː d	0,135	0,9492	3,5792
+L03S01W01	ed	ed	∅ ˈ eː d	ˈ eː d	0,041	0,9534	3,5713
+L03S02W01	led	led	l ˈ eː d	l ˈ eː d	0,046	0,9535	4,0818
+L03S03W01	ned	ned	n ˈ eː d	n ˈ eː d	0,069	0,9517	4,9098
+L04S01W01	pir	pir	p ˈ iː r	p ˈ iː r	0,043	0,8733	2,3607
+L04S02W01	pur	pur	p ˈ ʉː r	p ˈ ʉː r	0,031	0,8686	2,5874
+L04S03W01	pyr	pyr	p ˈ yː r	p ˈ yː r	0,039	0,8419	2,5152
+L05S01W01	sätt	sätt	s ˈ ɛ̝ tː	s ˈ ɛ̝ tː	0,041	0,9796	5,6152
+L05S02W01	sitt	sitt	s ˈ ɪ tː	s ˈ ɪ tː	0,051	0,9504	5,5433
+L05S03W01	sytt	sytt	s ˈ ʏ tː	s ˈ ʏ tː	0,059	0,9209	3,734
+L06S01W01	sitt	sitt	s ˈ ɪ tː	s ˈ ɪ tː	0,051	0,9504	5,5433
+L06S02W01	sytt	sytt	s ˈ ʏ tː	s ˈ ʏ tː	0,059	0,9209	3,734
+L06S03W01	sött	sött	s ˈ ø̞ tː	s ˈ ø̞ tː	0,062	0,9307	4,5083
+L07S01W01	hall	hall	h ˈ a lː	h ˈ a lː	0,032	0,9655	4,0187
+L07S02W01	pall	pall	p ˈ a lː	p ˈ a lː	0,041	0,93	3,6077
+L07S03W01	tall	tall	t ˈ a lː	t ˈ a lː	0,031	0,9472	3,3842
+L08S01W01	res	res	r ˈ eː s	r ˈ eː s	0,031	0,8941	3,0978
+L08S02W01	ris	ris	r ˈ iː s	r ˈ iː s	0,041	0,9216	4,4159
+L08S03W01	rös	rös	r ˈ øː s	r ˈ øː s	0,026	0,8933	2,9027
+L09S01W01	satt	satt	s ˈ a tː	s ˈ a tː	0,047	0,9807	5,4425
+L09S02W01	sätt	sätt	s ˈ ɛ̝ tː	s ˈ ɛ̝ tː	0,041	0,9796	5,6152
+L09S03W01	sött	sött	s ˈ ø̞ tː	s ˈ ø̞ tː	0,062	0,9307	4,5083
+L10S01W01	mår	mår	m ˈ oː r	m ˈ oː r	0,043	0,9339	5,2103
+L10S02W01	mor	mor	m ˈ uː r	m ˈ uː r	0,043	0,9456	4,5301
+L10S03W01	mur	mur	m ˈ ʉː r	m ˈ ʉː r	0,036	0,9034	3,3891
+L11S01W01	mas	mas	m ˈ ɑː s	m ˈ ɑː s	0,023	0,913	2,5321
+L11S02W01	mås	mås	m ˈ oː s	m ˈ oː s	0,028	0,8958	2,8549
+L11S03W01	mös	mös	m ˈ øː s	m ˈ øː s	0,047	0,8947	3,7527
+L12S01W01	paj	paj	p ˈ a ʝː	p ˈ a ʝː	0,061	0,8976	3,9946
+L12S02W01	pall	pall	p ˈ a lː	p ˈ a lː	0,041	0,93	3,6077
+L12S03W01	pang	pang	p ˈ a ŋː	p ˈ a ŋː	0,048	0,8888	3,6756
+L13S01W01	bur	bur	b ˈ ʉː r	b ˈ ʉː r	0,034	0,9047	3,5078
+L13S02W01	dur	dur	d ˈ ʉː r	d ˈ ʉː r	0,026	0,9433	2,4491
+L13S03W01	mur	mur	m ˈ ʉː r	m ˈ ʉː r	0,036	0,9034	3,3891
+L14S01W01	tugg	tugg	t ˈ ɵ ɡː	t ˈ ɵ ɡː	0,042	0,8846	2,6528
+L14S02W01	tum	tum	t ˈ ɵ mː	t ˈ ɵ mː	0,045	0,919	3,548
+L14S03W01	tung	tung	t ˈ ɵ ŋː	t ˈ ɵ ŋː	0,056	0,9083	4,3376
+L15S01W01	kil	kil	ɕ ˈ iː l	ɕ ˈ iː l	0,041	0,8684	3,0914
+L15S02W01	fil	fil	f ˈ iː l	f ˈ iː l	0,053	0,8994	3,9862
+L15S03W01	sil	sil	s ˈ iː l	s ˈ iː l	0,033	0,9143	3,0239
+L16S01W01	kval	kval	k v ˈ ɑː l	k v ˈ ɑː l	0,111	0,9316	3,3862
+L16S02W01	kvarn	kvarn	k v ˈ ɑː ɳ	k v ˈ ɑː ɳ	0,176	0,9265	3,7511
+L16S03W01	kvav	kvav	k v ˈ ɑː v	k v ˈ ɑː v	0,093	0,9476	2,404
+L17S01W01	mark	mark	m ˈ a rː k	m ˈ a rː k	0,099	0,9408	4,369
+L17S02W01	märk	märk	m ˈ ɛ̝ rː k	m ˈ ɛ̝ rː k	0,079	0,9463	3,5416
+L17S03W01	mörk	mörk	m ˈ ø̞ rː k	m ˈ ø̞ rː k	0,232	0,9371	4,4535
+L18S01W01	farm	farm	f ˈ a rː m	f ˈ a rː m	0,076	0,9284	3,1621
+L18S02W01	charm	charm	ɧ ˈ a rː m	ɧ ˈ a rː m	0,087	0,8782	3,7472
+L18S03W01	larm	larm	l ˈ a rː m	l ˈ a rː m	0,097	0,9224	3,6536
+L19S01W01	kval	kval	k v ˈ ɑː l	k v ˈ ɑː l	0,111	0,9316	3,3862
+L19S02W01	kvarn	kvarn	k v ˈ ɑː ɳ	k v ˈ ɑː ɳ	0,176	0,9265	3,7511
+L19S03W01	kvar	kvar	k v ˈ ɑː r	k v ˈ ɑː r	0,152	0,9588	5,6219
+L20S01W01	red	red	r ˈ eː d	r ˈ eː d	0,046	0,9527	4,8164
+L20S02W01	räd	räd	r ˈ ɛː d	r ˈ ɛː d	0,049	0,8843	2,3641
+L20S03W01	Ryd	ryd	r ˈ yː d	r ˈ yː d	0,059	0,892	2,8832
+L21S01W01	fyr	fyr	f ˈ yː r	f ˈ yː r	0,044	0,8864	3,0231
+L21S02W01	skyr	skyr	ɧ ˈ yː r	ɧ ˈ yː r	0,049	0,8519	3,0254
+L21S03W01	syr	syr	s ˈ yː r	s ˈ yː r	0,042	0,9007	3,561
+L22S01W01	sopp	sopp	s ˈ ɔ pː	s ˈ ɔ pː	0,022	0,9561	1,9205
+L22S02W01	sått	sått	s ˈ ɔ tː	s ˈ ɔ tː	0,024	0,9637	2,9907
+L22S03W01	sort	sort	s ˈ ɔ ʈː	s ˈ ɔ ʈː	0,061	0,9527	3,9851
+L23S01W01	sarg	sarg	s ˈ a rː ʝ	s ˈ a rː ʝ	0,094	0,9412	2,3911
+L23S02W01	sorg	sorg	s ˈ ɔ rː ʝ	s ˈ ɔ rː ʝ	0,178	0,9512	4,3118
+L23S03W01	sörj	sörj	s ˈ ø̞ rː ʝ	s ˈ ø̞ rː ʝ	0,101	0,9375	2,3354
+L24S01W01	rått	rått	r ˈ ɔ tː	r ˈ ɔ tː	0,03	0,9129	3,4337
+L24S02W01	rott	rott	r ˈ ʊ tː	r ˈ ʊ tː	0,062	0,8814	2,4103
+L24S03W01	rött	rött	r ˈ ø̞ tː	r ˈ ø̞ tː	0,062	0,931	4,631
+L25S01W01	tuff	tuff	t ˈ ɵ fː	t ˈ ɵ fː	0,069	0,8336	4,2762
+L25S02W01	tuss	tuss	t ˈ ɵ sː	t ˈ ɵ sː	0,047	0,9099	3,0374
+L25S03W01	tusch	tusch	t ˈ ɵ ʂː	t ˈ ɵ ʂː	0,062	0,8758	2,6346
+L26S01W01	ko	ko	k ˈ uː ∅	k ˈ uː	0,032	0,9116	3,6636
+L26S02W01	kon	kon	k ˈ uː n	k ˈ uː n	0,037	0,9498	3,1967
+L26S03W01	korn	korn	k ˈ uː ɳ	k ˈ uː ɳ	0,073	0,8865	3,4099
+L27S01W01	sock	sock	s ˈ ɔ kː	s ˈ ɔ kː	0,025	0,9987	2,6652
+L27S02W01	sått	sått	s ˈ ɔ tː	s ˈ ɔ tː	0,024	0,9637	2,9907
+L27S03W01	sort	sort	s ˈ ɔ ʈː	s ˈ ɔ ʈː	0,061	0,9527	3,9851
+L28S01W01	å	å	∅ ˈ oː ∅	ˈ oː	0,036	0,9146	5,2476
+L28S02W01	få	få	f ˈ oː ∅	f ˈ oː	0,057	0,9623	6,1662
+L28S03W01	så	så	s ˈ oː ∅	s ˈ oː	0,047	0,9955	7,038
+L29S01W01	hyf	hyf	h ˈ yː f	h ˈ yː f	0,011	0,7026	0,2672
+L29S02W01	hys	hys	h ˈ yː s	h ˈ yː s	0,025	0,8645	1,8693
+L29S03W01	hyrs	hyrs	h ˈ yː ʂ	h ˈ yː ʂ	0,06	0,8041	2,4491
