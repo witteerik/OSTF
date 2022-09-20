@@ -34,6 +34,8 @@ Namespace Audio
     <Serializable>
     Public Class Sound
 
+        Public Description As String = ""
+
         Private _fileName As String
         Public Property FileName As String
             Get
@@ -2133,7 +2135,13 @@ Namespace Audio
 
         End Function
 
-
+        Public Overrides Function ToString() As String
+            If Description <> "" Then
+                Return Description
+            Else
+                Return MyBase.ToString
+            End If
+        End Function
 
     End Class
 

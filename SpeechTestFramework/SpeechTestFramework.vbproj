@@ -311,6 +311,12 @@
     <Compile Include="WinFormsComplexControls\StatisticalSummaryControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="WinForms\CalibrationForm.Designer.vb">
+      <DependentUpon>CalibrationForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinForms\CalibrationForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WinForms\SpeechMaterialCreator.Designer.vb">
       <DependentUpon>SpeechMaterialCreator.vb</DependentUpon>
     </Compile>
@@ -385,6 +391,9 @@
     <EmbeddedResource Include="WinFormsComplexControls\StatisticalSummaryControl.resx">
       <DependentUpon>StatisticalSummaryControl.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="WinForms\CalibrationForm.resx">
+      <DependentUpon>CalibrationForm.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WinForms\SpeechMaterialCreator.resx">
       <DependentUpon>SpeechMaterialCreator.vb</DependentUpon>
     </EmbeddedResource>
@@ -408,6 +417,15 @@
     <Service Include="{94E38DFF-614B-4CBD-B67C-F211BB35CE8B}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CalibrationSignals\Pink_noise.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CalibrationSignals\SignalDescriptions.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CalibrationSignals\Warble_tone_%281_kHz%29.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="portaudio_x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

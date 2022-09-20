@@ -1723,6 +1723,14 @@ Public Class SipTestGui
 
     End Sub
 
+    Private Sub StartTest(sender As Object, e As EventArgs) Handles StartButton.Click
+
+    End Sub
+
+    Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
+
+    End Sub
+
 
 #End Region
 

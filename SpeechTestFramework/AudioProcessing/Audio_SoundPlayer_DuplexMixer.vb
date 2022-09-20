@@ -407,9 +407,10 @@ Namespace Audio
 
 
                 'Exporting sound for manual evaluation
-                Audio.AudioIOs.SaveToWaveFile(OutputSound, IO.Path.Combine(Utils.logFilePath, "Step6_PostLimiter"))
+                'Audio.AudioIOs.SaveToWaveFile(OutputSound, IO.Path.Combine(Utils.logFilePath, "Step6_PostLimiter"))
 
                 ' Calibrate
+
                 MsgBox("Fix calibration")
 
 
@@ -745,6 +746,126 @@ Namespace Audio
                 Next
 
             End Sub
+
+#Region "Calibration"
+
+            Private Enum CalibrationSoundType
+                WarbleTone
+                PinkNoise
+            End Enum
+
+
+            Private Sub PlayCalibration(ByVal CalibrationSoundType As CalibrationSoundType)
+
+                Dim TargetCalibrationSignalLevel As Double?
+
+                'Silencing any previously started calibration signal
+                SilenceCalibrationTone()
+
+                ''Creating a temporary TestSetup. This is needed since it calculates the calibration gain for the current environment (the same TestSoundMixerSettings file (and thus calibration) is used for all environments)
+                'Dim TempTestSetup = New TestSetup(MySpeechTestControl.CurrentSpeechMaterialName)
+
+                ''Creating a temporary Testsession, as this holds the sound player
+                'TempTestSession = New ForcedChoiceTestSession(MySpeechTestControl, TempTestSetup, New TestSessionDescription(New PatientDetails With {.ID = "Calibration"}))
+
+                ''Creating / loading a calibration signal
+                Dim WaveFormat
+                'Dim WaveFormat As New Audio.Formats.WaveFormat(TempTestSession.SoundPlayer.GetSampleRate,
+                '                                       TempTestSession.SoundPlayer.AudioBitDepth,
+                '                                       TempTestSession.SoundPlayer.NumberOfOutputChannels)
+
+                'Ask the user for a channel in which to play the calibration signal
+                Dim CalibrationChannel As Integer
+                Dim ChannelSelectionDialog As New CalibrationChannelDialog() 'TempTestSession.SoundPlayer.NumberOfOutputChannels)
+                Dim DialogResult = ChannelSelectionDialog.ShowDialog
+                If DialogResult = DialogResult.OK Then
+                    CalibrationChannel = ChannelSelectionDialog.SelectedChannel
+                Else
+                    SilenceCalibrationTone()
+                    Exit Sub
+                End If
+
+
+                Dim CalibrationSound As Audio.Sound = Nothing
+
+                Select Case CalibrationSoundType
+                    Case CalibrationSoundType.WarbleTone
+                        CalibrationSound = Audio.GenerateSound.CreateFrequencyModulatedSineWave(WaveFormat, CalibrationChannel, 1000, 0.5, 20, 0.125,, 30)
+
+                    Case CalibrationSoundType.PinkNoise
+                        Dim PinkNoiseSound = Audio.AudioIOs.ReadWaveFile("C:\SwedishSiBTest\SoundFiles\Calibration\Pink_Noise_Audacity_60_s.wav")
+                        CalibrationSound = New Audio.Sound(WaveFormat)
+                        CalibrationSound.WaveData.SampleData(CalibrationChannel) = PinkNoiseSound.WaveData.SampleData(1)
+
+                    Case Else
+                        Throw New NotImplementedException("Calibration sound type not implemented!")
+                End Select
+
+                'Setting the signal level
+                Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Simulated_dBSPL_To_dBFS(TargetCalibrationSignalLevel.Value), CalibrationChannel)
+
+                'Fading in and out
+                Audio.DSP.Fade(CalibrationSound, Nothing, 0, CalibrationChannel, 0, 0.05 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
+                Audio.DSP.Fade(CalibrationSound, 0, Nothing, CalibrationChannel, CalibrationSound.WaveData.SampleData(CalibrationChannel).Length - 1 - 0.05 * CalibrationSound.WaveFormat.SampleRate, Nothing, Audio.DSP.FadeSlopeType.Smooth)
+
+                'Applying calibration gain
+                If CalibrationSound.WaveFormat.Channels < 4 Then
+
+                    Dim GainList As New List(Of Double)
+
+                    'Getting the gain values
+                    For c = 1 To CalibrationSound.WaveFormat.Channels
+                        GainList.Add(GetCalibrationGain(c))
+                    Next
+
+                    'Skipping calibration gain if none is needed.
+                    Dim CalibrationIsNeeded As Boolean = False
+                    For Each GainValue In GainList
+                        If GainValue <> 0 Then CalibrationIsNeeded = True
+                    Next
+
+                    If CalibrationIsNeeded = True Then
+                        Audio.DSP.AmplifySection(CalibrationSound, GainList)
+                    End If
+
+                Else
+
+                    'Using the slower overload of AmplifySection, as the faster one is not implemented for more than 3 channels
+                    For c = 1 To CalibrationSound.WaveFormat.Channels
+                        Dim CalibrationGain = GetCalibrationGain(c)
+                        If CalibrationGain <> 0 Then
+                            'Skipping calibration gain if none is needed.
+                            Audio.DSP.AmplifySection(CalibrationSound, CalibrationGain, c)
+                        End If
+                    Next
+
+                End If
+
+                'Plays the sound
+                'TempTestSession.SoundPlayer.SwapOutputSounds(CalibrationSound)
+
+
+            End Sub
+
+
+            Private Sub SilenceCalibrationTone()
+                'If TempTestSession IsNot Nothing Then
+
+                '    If TempTestSession.SoundPlayer IsNot Nothing Then
+                '        'Immediately stops any output sound from the TempTestSession.SoundPlayer
+                '        TempTestSession.SoundPlayer.Stop(False)
+                '        TempTestSession.SoundPlayer.CloseStream()
+                '        TempTestSession.SoundPlayer.Dispose()
+                '    End If
+
+                '    'Clears the TempTestSession 
+                '    TempTestSession = Nothing
+                'End If
+
+            End Sub
+
+
+#End Region
 
 
         End Class

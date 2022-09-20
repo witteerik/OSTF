@@ -130,6 +130,19 @@ Namespace Audio
 
             End Function
 
+            Public Overrides Function ToString() As String
+
+                Dim Output As New List(Of String)
+
+                Output.Add("Samplerate: " & SampleRate.ToString & " Hz")
+                Output.Add("Bit depth: " & BitDepth.ToString)
+                Output.Add("Channels: " & Channels.ToString)
+                Output.Add("Encoding: " & Encoding.ToString)
+
+                Return String.Join(vbCrLf, Output)
+
+            End Function
+
         End Class
 
 

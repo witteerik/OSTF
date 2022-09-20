@@ -80,8 +80,6 @@ Partial Class SipTestGui
         Me.ProportionCorrectTextBox = New System.Windows.Forms.TextBox()
         Me.CorrectCountTextBox = New System.Windows.Forms.TextBox()
         Me.TableLayoutPanel17 = New System.Windows.Forms.TableLayoutPanel()
-        Me.StartButton = New System.Windows.Forms.Button()
-        Me.StopButton = New System.Windows.Forms.Button()
         Me.TableLayoutPanel18 = New System.Windows.Forms.TableLayoutPanel()
         Me.CorrectCount_Label = New System.Windows.Forms.Label()
         Me.ProportionCorrect_Label = New System.Windows.Forms.Label()
@@ -108,8 +106,10 @@ Partial Class SipTestGui
         Me.SelectSoundDevice_Button = New System.Windows.Forms.Button()
         Me.UseSoundField_RadioButton = New System.Windows.Forms.RadioButton()
         Me.UseHeadphones_RadioButton = New System.Windows.Forms.RadioButton()
-        Me.Panel1 = New System.Windows.Forms.Panel()
         Me.SelectedSoundDevice_TextBox = New System.Windows.Forms.TextBox()
+        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.StartButton = New System.Windows.Forms.Button()
+        Me.StopButton = New System.Windows.Forms.Button()
         Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
@@ -795,30 +795,6 @@ Partial Class SipTestGui
         Me.TableLayoutPanel17.Size = New System.Drawing.Size(387, 40)
         Me.TableLayoutPanel17.TabIndex = 3
         '
-        'StartButton
-        '
-        Me.StartButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.PlayDisabledImage
-        Me.StartButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.StartButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StartButton.Location = New System.Drawing.Point(3, 3)
-        Me.StartButton.Margin = New System.Windows.Forms.Padding(3, 3, 12, 3)
-        Me.StartButton.Name = "StartButton"
-        Me.StartButton.Size = New System.Drawing.Size(178, 34)
-        Me.StartButton.TabIndex = 0
-        Me.StartButton.UseVisualStyleBackColor = True
-        '
-        'StopButton
-        '
-        Me.StopButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.StopDisabledImage
-        Me.StopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.StopButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StopButton.Location = New System.Drawing.Point(205, 3)
-        Me.StopButton.Margin = New System.Windows.Forms.Padding(12, 3, 3, 3)
-        Me.StopButton.Name = "StopButton"
-        Me.StopButton.Size = New System.Drawing.Size(179, 34)
-        Me.StopButton.TabIndex = 1
-        Me.StopButton.UseVisualStyleBackColor = True
-        '
         'TableLayoutPanel18
         '
         Me.TableLayoutPanel18.ColumnCount = 2
@@ -1187,6 +1163,15 @@ Partial Class SipTestGui
         Me.UseHeadphones_RadioButton.Text = "Headphones"
         Me.UseHeadphones_RadioButton.UseVisualStyleBackColor = True
         '
+        'SelectedSoundDevice_TextBox
+        '
+        Me.SoundSettings_TableLayoutPanel.SetColumnSpan(Me.SelectedSoundDevice_TextBox, 2)
+        Me.SelectedSoundDevice_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SelectedSoundDevice_TextBox.Location = New System.Drawing.Point(98, 3)
+        Me.SelectedSoundDevice_TextBox.Name = "SelectedSoundDevice_TextBox"
+        Me.SelectedSoundDevice_TextBox.Size = New System.Drawing.Size(222, 20)
+        Me.SelectedSoundDevice_TextBox.TabIndex = 4
+        '
         'Panel1
         '
         Me.Panel1.BackColor = System.Drawing.Color.Silver
@@ -1196,14 +1181,29 @@ Partial Class SipTestGui
         Me.Panel1.Size = New System.Drawing.Size(1292, 5)
         Me.Panel1.TabIndex = 2
         '
-        'SelectedSoundDevice_TextBox
+        'StartButton
         '
-        Me.SoundSettings_TableLayoutPanel.SetColumnSpan(Me.SelectedSoundDevice_TextBox, 2)
-        Me.SelectedSoundDevice_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SelectedSoundDevice_TextBox.Location = New System.Drawing.Point(98, 3)
-        Me.SelectedSoundDevice_TextBox.Name = "SelectedSoundDevice_TextBox"
-        Me.SelectedSoundDevice_TextBox.Size = New System.Drawing.Size(222, 20)
-        Me.SelectedSoundDevice_TextBox.TabIndex = 4
+        Me.StartButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.PlayDisabledImage
+        Me.StartButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
+        Me.StartButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StartButton.Location = New System.Drawing.Point(3, 3)
+        Me.StartButton.Margin = New System.Windows.Forms.Padding(3, 3, 12, 3)
+        Me.StartButton.Name = "StartButton"
+        Me.StartButton.Size = New System.Drawing.Size(178, 34)
+        Me.StartButton.TabIndex = 0
+        Me.StartButton.UseVisualStyleBackColor = True
+        '
+        'StopButton
+        '
+        Me.StopButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.StopDisabledImage
+        Me.StopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
+        Me.StopButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StopButton.Location = New System.Drawing.Point(205, 3)
+        Me.StopButton.Margin = New System.Windows.Forms.Padding(12, 3, 3, 3)
+        Me.StopButton.Name = "StopButton"
+        Me.StopButton.Size = New System.Drawing.Size(179, 34)
+        Me.StopButton.TabIndex = 1
+        Me.StopButton.UseVisualStyleBackColor = True
         '
         'PsychmetricFunction_VerticalLabel
         '
