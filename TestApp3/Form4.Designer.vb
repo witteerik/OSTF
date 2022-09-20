@@ -28,13 +28,6 @@ Partial Class Form4
         Me.Button3 = New System.Windows.Forms.Button()
         Me.SiP_Button = New System.Windows.Forms.Button()
         Me.Button4 = New System.Windows.Forms.Button()
-        Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
-        Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
-        Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem2 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
         Me.Button5 = New System.Windows.Forms.Button()
         Me.Button6 = New System.Windows.Forms.Button()
         Me.Button7 = New System.Windows.Forms.Button()
@@ -42,6 +35,14 @@ Partial Class Form4
         Me.Button9 = New System.Windows.Forms.Button()
         Me.Button10 = New System.Windows.Forms.Button()
         Me.Button11 = New System.Windows.Forms.Button()
+        Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
+        Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
+        Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
+        Me.ResponseGuiItem2 = New SpeechTestFramework.ResponseGuiItem()
+        Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
+        Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
+        Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
+        Me.Button12 = New System.Windows.Forms.Button()
         CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.ResponseGuiItemTable1.SuspendLayout()
         Me.SuspendLayout()
@@ -90,6 +91,69 @@ Partial Class Form4
         Me.Button4.TabIndex = 9
         Me.Button4.Text = "Button4"
         Me.Button4.UseVisualStyleBackColor = True
+        '
+        'Button5
+        '
+        Me.Button5.Location = New System.Drawing.Point(289, 131)
+        Me.Button5.Name = "Button5"
+        Me.Button5.Size = New System.Drawing.Size(75, 23)
+        Me.Button5.TabIndex = 10
+        Me.Button5.Text = "Button5"
+        Me.Button5.UseVisualStyleBackColor = True
+        '
+        'Button6
+        '
+        Me.Button6.Location = New System.Drawing.Point(289, 160)
+        Me.Button6.Name = "Button6"
+        Me.Button6.Size = New System.Drawing.Size(75, 23)
+        Me.Button6.TabIndex = 11
+        Me.Button6.Text = "Button6"
+        Me.Button6.UseVisualStyleBackColor = True
+        '
+        'Button7
+        '
+        Me.Button7.Location = New System.Drawing.Point(289, 189)
+        Me.Button7.Name = "Button7"
+        Me.Button7.Size = New System.Drawing.Size(75, 23)
+        Me.Button7.TabIndex = 12
+        Me.Button7.Text = "Button7"
+        Me.Button7.UseVisualStyleBackColor = True
+        '
+        'Button8
+        '
+        Me.Button8.Location = New System.Drawing.Point(289, 218)
+        Me.Button8.Name = "Button8"
+        Me.Button8.Size = New System.Drawing.Size(75, 23)
+        Me.Button8.TabIndex = 13
+        Me.Button8.Text = "Button8"
+        Me.Button8.UseVisualStyleBackColor = True
+        '
+        'Button9
+        '
+        Me.Button9.Location = New System.Drawing.Point(289, 247)
+        Me.Button9.Name = "Button9"
+        Me.Button9.Size = New System.Drawing.Size(75, 23)
+        Me.Button9.TabIndex = 14
+        Me.Button9.Text = "Button9"
+        Me.Button9.UseVisualStyleBackColor = True
+        '
+        'Button10
+        '
+        Me.Button10.Location = New System.Drawing.Point(370, 276)
+        Me.Button10.Name = "Button10"
+        Me.Button10.Size = New System.Drawing.Size(75, 23)
+        Me.Button10.TabIndex = 15
+        Me.Button10.Text = "Button10"
+        Me.Button10.UseVisualStyleBackColor = True
+        '
+        'Button11
+        '
+        Me.Button11.Location = New System.Drawing.Point(370, 315)
+        Me.Button11.Name = "Button11"
+        Me.Button11.Size = New System.Drawing.Size(75, 23)
+        Me.Button11.TabIndex = 16
+        Me.Button11.Text = "Calibration"
+        Me.Button11.UseVisualStyleBackColor = True
         '
         'Audiogram1
         '
@@ -214,68 +278,14 @@ Partial Class Form4
         Me.ResponseGuiItem5.TabIndex = 4
         Me.ResponseGuiItem5.Text = "ResponseGuiItem5"
         '
-        'Button5
+        'Button12
         '
-        Me.Button5.Location = New System.Drawing.Point(289, 131)
-        Me.Button5.Name = "Button5"
-        Me.Button5.Size = New System.Drawing.Size(75, 23)
-        Me.Button5.TabIndex = 10
-        Me.Button5.Text = "Button5"
-        Me.Button5.UseVisualStyleBackColor = True
-        '
-        'Button6
-        '
-        Me.Button6.Location = New System.Drawing.Point(289, 160)
-        Me.Button6.Name = "Button6"
-        Me.Button6.Size = New System.Drawing.Size(75, 23)
-        Me.Button6.TabIndex = 11
-        Me.Button6.Text = "Button6"
-        Me.Button6.UseVisualStyleBackColor = True
-        '
-        'Button7
-        '
-        Me.Button7.Location = New System.Drawing.Point(289, 189)
-        Me.Button7.Name = "Button7"
-        Me.Button7.Size = New System.Drawing.Size(75, 23)
-        Me.Button7.TabIndex = 12
-        Me.Button7.Text = "Button7"
-        Me.Button7.UseVisualStyleBackColor = True
-        '
-        'Button8
-        '
-        Me.Button8.Location = New System.Drawing.Point(289, 218)
-        Me.Button8.Name = "Button8"
-        Me.Button8.Size = New System.Drawing.Size(75, 23)
-        Me.Button8.TabIndex = 13
-        Me.Button8.Text = "Button8"
-        Me.Button8.UseVisualStyleBackColor = True
-        '
-        'Button9
-        '
-        Me.Button9.Location = New System.Drawing.Point(289, 247)
-        Me.Button9.Name = "Button9"
-        Me.Button9.Size = New System.Drawing.Size(75, 23)
-        Me.Button9.TabIndex = 14
-        Me.Button9.Text = "Button9"
-        Me.Button9.UseVisualStyleBackColor = True
-        '
-        'Button10
-        '
-        Me.Button10.Location = New System.Drawing.Point(370, 276)
-        Me.Button10.Name = "Button10"
-        Me.Button10.Size = New System.Drawing.Size(75, 23)
-        Me.Button10.TabIndex = 15
-        Me.Button10.Text = "Button10"
-        Me.Button10.UseVisualStyleBackColor = True
-        '
-        'Button11
-        '
-        Me.Button11.Location = New System.Drawing.Point(370, 315)
-        Me.Button11.Name = "Button11"
-        Me.Button11.Size = New System.Drawing.Size(75, 23)
-        Me.Button11.TabIndex = 16
-        Me.Button11.Text = "Calibration"
-        Me.Button11.UseVisualStyleBackColor = True
+        Me.Button12.Location = New System.Drawing.Point(370, 345)
+        Me.Button12.Name = "Button12"
+        Me.Button12.Size = New System.Drawing.Size(75, 23)
+        Me.Button12.TabIndex = 17
+        Me.Button12.Text = "Resample"
+        Me.Button12.UseVisualStyleBackColor = True
         '
         'Form4
         '
@@ -283,6 +293,7 @@ Partial Class Form4
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button12)
         Me.Controls.Add(Me.Button11)
         Me.Controls.Add(Me.Button10)
         Me.Controls.Add(Me.Button9)
@@ -324,4 +335,5 @@ Partial Class Form4
     Friend WithEvents Button9 As Button
     Friend WithEvents Button10 As Button
     Friend WithEvents Button11 As Button
+    Friend WithEvents Button12 As Button
 End Class

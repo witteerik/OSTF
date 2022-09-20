@@ -617,7 +617,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
             ''' <param name="OutputFolder"></param>
             ''' <param name="TargetWaveFormat">Only the wave format fieds SampleRate, BitDepth and Encoding are used, all other are copied from the input files.</param>
             Public Sub SamplerateConversion_DirectBatch(ByVal InputFolder As String, ByVal OutputFolder As String, ByVal TargetWaveFormat As Formats.WaveFormat,
-                                                  Optional ByVal ResampAudioPath As String = "C:\Gamla D\EriksDokument\AudioProgrammingCode\AFsp_Win\ResampAudio.exe")
+                                                  Optional ByVal ResampAudioPath As String = "C:\AFsp_Win\ResampAudio.exe", Optional NoExtensiveFormat As Boolean = True)
 
 
                 'This function is using the ResampAudio software to do the sample rate conversion
@@ -673,10 +673,17 @@ SavingFile:             Dim sfd As New SaveFileDialog
 
                     Dim CurrentFileName As String = IO.Path.GetFileName(CurrentPath)
 
+                    Dim FTYPE As String
+                    If NoExtensiveFormat = True Then
+                        FTYPE = "WAVE-NOEX"
+                    Else
+                        FTYPE = "WAVE"
+                    End If
+
                     'Creating resampled file
                     Dim ResampSigStartInfo As New ProcessStartInfo()
                     ResampSigStartInfo.FileName = ResampAudioPath
-                    ResampSigStartInfo.Arguments = "-s " & TargetWaveFormat.SampleRate.ToString & " -D " & DFormat & " " & Chr(34) & CurrentPath & Chr(34) & " " & Chr(34) & Path.Combine(OutputFolder, CurrentFileName) & Chr(34)
+                    ResampSigStartInfo.Arguments = "-s " & TargetWaveFormat.SampleRate.ToString & " -F " & FTYPE & " -D " & DFormat & " " & Chr(34) & CurrentPath & Chr(34) & " " & Chr(34) & Path.Combine(OutputFolder, CurrentFileName) & Chr(34)
                     'ResampSigStartInfo.WorkingDirectory = WorkFolder
                     Dim sp = Process.Start(ResampSigStartInfo)
                     sp.WaitForExit()
@@ -688,17 +695,17 @@ SavingFile:             Dim sfd As New SaveFileDialog
 
             End Sub
 
-            Public Sub LogPtwfData_Batch()
+            Public Sub LogSmaData_Batch()
 
-                Dim FilePaths = Utils.GetOpenFilePaths(,, {"ptwf"}, "Select the ptwf files to log.")
+                Dim FilePaths = Utils.GetOpenFilePaths(,, {"wav"}, "Select the wave files to log.")
 
                 If FilePaths.Length = 0 Then
-                    MsgBox("No ptwf files selected!")
+                    MsgBox("No wave files selected!")
                     Exit Sub
                 End If
 
                 Dim OutputList As New List(Of String)
-                OutputList.Add("PTWF-data for sound files located at " & IO.Path.GetDirectoryName(FilePaths(0)))
+                OutputList.Add("SMA-data for sound files located at " & IO.Path.GetDirectoryName(FilePaths(0)))
                 OutputList.Add("")
 
                 For n = 0 To FilePaths.Length - 1
@@ -710,26 +717,26 @@ SavingFile:             Dim sfd As New SaveFileDialog
                         OutputList.Add(IO.Path.GetFileName(FilePaths(n)))
                         OutputList.Add(InputSoundFile.SMA.ToString(True))
                     Else
-                        OutputList.Add(IO.Path.GetFileName(FilePaths(n)) & vbTab & "No ptwf object!")
+                        OutputList.Add(IO.Path.GetFileName(FilePaths(n)) & vbTab & "No SMA object!")
                     End If
 
                     OutputList.Add("")
 
                 Next
 
-                SendInfoToAudioLog(String.Join(vbCrLf, OutputList), "PtwfLog")
+                SendInfoToAudioLog(String.Join(vbCrLf, OutputList), "SmaLog")
 
-                MsgBox("Logging of ptwf data completed successfully!")
+                MsgBox("Logging of SMA data completed successfully!")
 
             End Sub
 
-            Public Sub MeasurePtwfData_Batch(Optional ByVal LogResults As Boolean = True, Optional UpdateFiles As Boolean = False,
+            Public Sub MeasureSmaData_Batch(Optional ByVal LogResults As Boolean = True, Optional UpdateFiles As Boolean = False,
                                          Optional ByVal SoundLevelFormat As Formats.SoundLevelFormat = Nothing)
 
-                Dim FilePaths = Utils.GetOpenFilePaths(,, {"ptwf"}, "Select the ptwf files to measure.")
+                Dim FilePaths = Utils.GetOpenFilePaths(,, {"wav"}, "Select the wave files to measure.")
 
                 If FilePaths.Length = 0 Then
-                    MsgBox("No ptwf files selected!")
+                    MsgBox("No wave files selected!")
                     Exit Sub
                 End If
 
@@ -756,7 +763,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
                     End If
                 Next
 
-                MsgBox("Measureing of ptwf data completed successfully!")
+                MsgBox("Measureing of SMA data completed successfully!")
 
             End Sub
 

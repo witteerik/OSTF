@@ -7256,7 +7256,7 @@ Namespace Audio
                                                   ByVal TargetWaveFormat As Formats.WaveFormat,
                                                   Optional ByVal ResampAudioPath As String = "C:\AFsp_Win\ResampAudio.exe",
                                                   Optional ByVal WorkFolder As String = "",
-                                                  Optional ByVal CopyPTWFObjectToOutput As Boolean = False) As Sound
+                                                  Optional ByVal CopyPTWFObjectToOutput As Boolean = False, Optional NoExtensiveFormat As Boolean = True) As Sound
 
                 'This function is using the ResampAudio software to do the sample rate conversion
                 'The resampler used is ResampAudio from http://www-mmsp.ece.mcgill.ca/Documents/Downloads/AFsp/index.html version: AFsp-v10r0.tar.gz from 2017-07 
@@ -7297,9 +7297,17 @@ Namespace Audio
                 AudioIOs.SaveToWaveFile(InputSound, Path.Combine(WorkFolder, TempSoundOriginalFileName))
 
                 'Creating resampled file
+
+                Dim FTYPE As String
+                If NoExtensiveFormat = True Then
+                    FTYPE = "WAVE-NOEX"
+                Else
+                    FTYPE = "WAVE"
+                End If
+
                 Dim ResampSigStartInfo As New ProcessStartInfo()
                 ResampSigStartInfo.FileName = ResampAudioPath
-                ResampSigStartInfo.Arguments = "-s " & TargetWaveFormat.SampleRate.ToString & " -D " & DFormat & " " & Path.Combine(WorkFolder, TempSoundOriginalFileName) & ".wav " & Path.Combine(WorkFolder, TempSoundResampledFileName) & ".wav"
+                ResampSigStartInfo.Arguments = "-s " & TargetWaveFormat.SampleRate.ToString & " -F " & FTYPE & " -D " & DFormat & " " & Path.Combine(WorkFolder, TempSoundOriginalFileName) & ".wav " & Path.Combine(WorkFolder, TempSoundResampledFileName) & ".wav"
                 ResampSigStartInfo.WorkingDirectory = WorkFolder
                 Dim sp = Process.Start(ResampSigStartInfo)
                 sp.WaitForExit()

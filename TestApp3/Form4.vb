@@ -411,6 +411,8 @@
 
     Private Sub Button10_Click2(sender As Object, e As EventArgs) Handles Button10.Click
 
+        Dim TestSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\OSTF\RoomImpulses\wierstorf2011\48000Hz\QU_KEMAR_anechoic_1.0m.wav")
+
 
         'MsgBox(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.UnwrapAngle(-30))
         'MsgBox(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.UnwrapAngle(30))
@@ -462,8 +464,8 @@
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30})
 
-        MyMixer.TransducerType = SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.TransducerTypes.Headphones
-        MyMixer.SetupDirectionalSimulator(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.HeadphoneTypes.Unspecified, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SpeakerDistances.cm100)
+        MyMixer.TransducerType = SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.TransducerTypes.SimulatedSoundField
+        MyMixer.SetupDirectionalSimulator(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.TransducerNames.Unspecified, 1, Sound_Background.WaveFormat)
 
         Dim OutputSound = MyMixer.CreateSoundScene(ItemList)
 
@@ -475,14 +477,22 @@
 
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
 
-        Dim MyMixer = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer(2, 0)
+        Dim MyMixer = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer(2, 0, SpeechTestFramework.OstfSettings.AvaliableTransducers(0))
         MyMixer.SetLinearOutput()
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30})
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30})
 
+
         Dim CalibrationDialog As New SpeechTestFramework.CalibrationForm(MyMixer)
         CalibrationDialog.Show()
 
+    End Sub
+
+    Private Sub Button12_Click(sender As Object, e As EventArgs) Handles Button12.Click
+
+        SpeechTestFramework.Audio.AudioIOs.SamplerateConversion_DirectBatch("C:\OSTF\RoomImpulses\wierstorf2011\44100Hz", "C:\OSTF\RoomImpulses\wierstorf2011\48000Hz", New SpeechTestFramework.Audio.Formats.WaveFormat(44100, 32, 720, , SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints))
+
+        MsgBox("Finished")
     End Sub
 End Class

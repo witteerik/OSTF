@@ -7,6 +7,9 @@ Namespace Audio
     Namespace PortAudioVB
 
         Public Class DuplexMixer
+
+            Private TransducerSpecification As TransducerSpecification
+
             ''' <summary>
             ''' A list of key-value pairs, where the key repressents the hardware output channel and the value repressents the wave file channel from which the output sound should be drawn.
             ''' </summary>
@@ -28,8 +31,9 @@ Namespace Audio
 
             Public Enum TransducerTypes
                 SoundField
-                Ambisonics
+                SimulatedSoundField
                 Headphones
+                Ambisonics
             End Enum
 
             ''' <summary>
@@ -37,10 +41,14 @@ Namespace Audio
             ''' </summary>
             ''' <param name="AvailableOutputChannels"></param>
             ''' <param name="AvailableInputChannels"></param>
-            Public Sub New(ByVal AvailableOutputChannels As Integer, ByVal AvailableInputChannels As Integer)
+            Public Sub New(ByVal AvailableOutputChannels As Integer, ByVal AvailableInputChannels As Integer, Optional ByVal TransducerSpecification As TransducerSpecification = Nothing)
 
                 Me.AvailableOutputChannels = AvailableOutputChannels
                 Me.AvailableInputChannels = AvailableInputChannels
+
+                'Selects the first available transducer
+                If TransducerSpecification Is Nothing Then TransducerSpecification = OstfSettings.AvaliableTransducers(0)
+                Me.TransducerSpecification = TransducerSpecification
 
                 For c = 1 To AvailableOutputChannels
                     OutputRouting.Add(c, 0)
@@ -358,7 +366,7 @@ Namespace Audio
 
                         Throw New NotImplementedException("Ambisonics presentation is not yet supported.")
 
-                    Case TransducerTypes.Headphones
+                    Case TransducerTypes.SimulatedSoundField
 
                         'Simulating the speaker locations into stereo headphones
                         SimulateSoundSourceLocation(SoundSceneItemList)
@@ -600,102 +608,71 @@ Namespace Audio
 
             Public DirectionalSimulator As DirectionalSimulation = Nothing
 
-            Private _HeadphoneType As HeadphoneTypes
+            Private _TransducerName As TransducerNames
 
-            Public ReadOnly Property HeadphoneType As HeadphoneTypes
+            Public ReadOnly Property TransducerName As TransducerNames
                 Get
-                    Return _HeadphoneType
+                    Return _TransducerName
                 End Get
             End Property
 
-            Public Enum HeadphoneTypes
+            Public Enum TransducerNames
                 Unspecified
                 AKGK601
                 AKGK271MKII
                 SennheiserHD25_1
             End Enum
 
-            Private _SpeakerDistance As SpeakerDistances
-            Public ReadOnly Property SpeakerDistance As SpeakerDistances
+            Private _SpeakerDistance As Double
+            Public ReadOnly Property SpeakerDistance As Double
                 Get
                     Return _SpeakerDistance
                 End Get
             End Property
 
-            Public Enum SpeakerDistances
-                cm50
-                cm100
-                cm200
-                cm300
-            End Enum
+            Public SupportedSpeakerDistances As New SortedList(Of String, List(Of Double)) From {{"wierstorf2011", New List(Of Double) From {0.5, 1.0R, 2.0R, 3.0R}}}
 
-            Public Sub SetupDirectionalSimulator(ByVal HeadphoneType As HeadphoneTypes, ByVal SpeakerDistance As SpeakerDistances)
+            Public Sub SetupDirectionalSimulator(ByVal TransducerName As TransducerNames, ByVal SpeakerDistance As Double, ByVal WaveFormat As Audio.Formats.WaveFormat)
 
-                Me._HeadphoneType = HeadphoneType
+                Me._TransducerName = TransducerName
                 Me._SpeakerDistance = SpeakerDistance
 
-                'Creating a directional simulator 
-                'These IRs are downloaded from https://dev.qu.tu-berlin.de/projects/measurements/repository/show/2010-11-kemar-anechoic/wav
+                If Not SupportedSpeakerDistances("wierstorf2011").Contains(SpeakerDistance) Then Throw New NotImplementedException("The selected speaker distance (" & SpeakerDistance & " meters) is not available for sound field simulation.")
 
-                Dim CurrentIrDatabasePath As String = ""
-
-                Select Case HeadphoneType
-
-                    Case HeadphoneTypes.Unspecified
-                        Select Case SpeakerDistance
-                            Case SpeakerDistances.cm50
-                                CurrentIrDatabasePath = "C:\EriksDokument\IRs\wierstorf2011\WaveFormat\QU_KEMAR_anechoic_0.5m.wav"
-                            Case SpeakerDistances.cm100
-                                CurrentIrDatabasePath = "C:\EriksDokument\IRs\wierstorf2011\WaveFormat\QU_KEMAR_anechoic_1m.wav"
-                            Case SpeakerDistances.cm200
-                                CurrentIrDatabasePath = "C:\EriksDokument\IRs\wierstorf2011\WaveFormat\QU_KEMAR_anechoic_2m.wav"
-                            Case SpeakerDistances.cm300
-                                CurrentIrDatabasePath = "C:\EriksDokument\IRs\wierstorf2011\WaveFormat\QU_KEMAR_anechoic_3m.wav"
-                        End Select
-
-                    Case HeadphoneTypes.AKGK271MKII
-                        Select Case SpeakerDistance
-                            Case SpeakerDistances.cm50
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK271_0.5m.wav"
-                            Case SpeakerDistances.cm100
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK271_1m.wav"
-                            Case SpeakerDistances.cm200
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK271_2m.wav"
-                            Case SpeakerDistances.cm300
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK271_3m.wav"
-                        End Select
-
-                    Case HeadphoneTypes.AKGK601
-
-                        Select Case SpeakerDistance
-                            Case SpeakerDistances.cm50
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK601_0.5m.wav"
-                            Case SpeakerDistances.cm100
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK601_1m.wav"
-                            Case SpeakerDistances.cm200
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK601_2m.wav"
-                            Case SpeakerDistances.cm300
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_AKGK601_3m.wav"
-                        End Select
-
-                    Case HeadphoneTypes.SennheiserHD25_1
-
-                        Select Case SpeakerDistance
-                            Case SpeakerDistances.cm50
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_SennheiserHD25_0.5m.wav"
-                            Case SpeakerDistances.cm100
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_SennheiserHD25_1m.wav"
-                            Case SpeakerDistances.cm200
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_SennheiserHD25_2m.wav"
-                            Case SpeakerDistances.cm300
-                                CurrentIrDatabasePath = "QU_KEMAR_anechoic_SennheiserHD25_3m.wav"
-                        End Select
-
+                Select Case WaveFormat.BitDepth
+                    Case 32
+                        'Ok!
+                    Case Else
+                        Throw New NotImplementedException("Directional simulation is unfortunately not supported for audio file bit dephts of " & WaveFormat.BitDepth)
                 End Select
 
-                If CurrentIrDatabasePath = "" Then Throw New ArgumentException("Unkown HeadphoneType or SpeakerDistance.")
+                'Getting the folder
+                Dim CurrentIrDatabasePath As String
+                Select Case WaveFormat.SampleRate
+                    Case 44100
+                        CurrentIrDatabasePath = IO.Path.Combine(OstfSettings.RootDirectory, OstfSettings.RoomImpulsesSubDirectory, "wierstorf2011\44100Hz")
+                    Case 48000
+                        CurrentIrDatabasePath = IO.Path.Combine(OstfSettings.RootDirectory, OstfSettings.RoomImpulsesSubDirectory, "wierstorf2011\48000Hz")
+                    Case Else
+                        Throw New NotImplementedException("Directional simulation is unfortunately not supported for the samplerate " & WaveFormat.SampleRate)
+                End Select
 
-                DirectionalSimulator = New DirectionalSimulation(CurrentIrDatabasePath)
+                'Creating a file name
+                Dim HeadphoneTypeString As String = ""
+                Select Case TransducerName
+                    Case TransducerNames.Unspecified
+                        HeadphoneTypeString = ""
+                    Case TransducerNames.AKGK271MKII
+                        HeadphoneTypeString = "AKGK271_"
+                    Case TransducerNames.AKGK601
+                        HeadphoneTypeString = "AKGK601_"
+                    Case TransducerNames.SennheiserHD25_1
+                        HeadphoneTypeString = "SennheiserHD25_"
+                End Select
+
+                Dim CurrentIrFileName As String = "QU_KEMAR_anechoic_" & HeadphoneTypeString & SpeakerDistance.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) & "m.wav"
+
+                DirectionalSimulator = New DirectionalSimulation(IO.Path.Combine(CurrentIrDatabasePath, CurrentIrFileName))
 
             End Sub
 
@@ -747,125 +724,6 @@ Namespace Audio
 
             End Sub
 
-#Region "Calibration"
-
-            Private Enum CalibrationSoundType
-                WarbleTone
-                PinkNoise
-            End Enum
-
-
-            Private Sub PlayCalibration(ByVal CalibrationSoundType As CalibrationSoundType)
-
-                Dim TargetCalibrationSignalLevel As Double?
-
-                'Silencing any previously started calibration signal
-                SilenceCalibrationTone()
-
-                ''Creating a temporary TestSetup. This is needed since it calculates the calibration gain for the current environment (the same TestSoundMixerSettings file (and thus calibration) is used for all environments)
-                'Dim TempTestSetup = New TestSetup(MySpeechTestControl.CurrentSpeechMaterialName)
-
-                ''Creating a temporary Testsession, as this holds the sound player
-                'TempTestSession = New ForcedChoiceTestSession(MySpeechTestControl, TempTestSetup, New TestSessionDescription(New PatientDetails With {.ID = "Calibration"}))
-
-                ''Creating / loading a calibration signal
-                Dim WaveFormat
-                'Dim WaveFormat As New Audio.Formats.WaveFormat(TempTestSession.SoundPlayer.GetSampleRate,
-                '                                       TempTestSession.SoundPlayer.AudioBitDepth,
-                '                                       TempTestSession.SoundPlayer.NumberOfOutputChannels)
-
-                'Ask the user for a channel in which to play the calibration signal
-                Dim CalibrationChannel As Integer
-                Dim ChannelSelectionDialog As New CalibrationChannelDialog() 'TempTestSession.SoundPlayer.NumberOfOutputChannels)
-                Dim DialogResult = ChannelSelectionDialog.ShowDialog
-                If DialogResult = DialogResult.OK Then
-                    CalibrationChannel = ChannelSelectionDialog.SelectedChannel
-                Else
-                    SilenceCalibrationTone()
-                    Exit Sub
-                End If
-
-
-                Dim CalibrationSound As Audio.Sound = Nothing
-
-                Select Case CalibrationSoundType
-                    Case CalibrationSoundType.WarbleTone
-                        CalibrationSound = Audio.GenerateSound.CreateFrequencyModulatedSineWave(WaveFormat, CalibrationChannel, 1000, 0.5, 20, 0.125,, 30)
-
-                    Case CalibrationSoundType.PinkNoise
-                        Dim PinkNoiseSound = Audio.AudioIOs.ReadWaveFile("C:\SwedishSiBTest\SoundFiles\Calibration\Pink_Noise_Audacity_60_s.wav")
-                        CalibrationSound = New Audio.Sound(WaveFormat)
-                        CalibrationSound.WaveData.SampleData(CalibrationChannel) = PinkNoiseSound.WaveData.SampleData(1)
-
-                    Case Else
-                        Throw New NotImplementedException("Calibration sound type not implemented!")
-                End Select
-
-                'Setting the signal level
-                Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Simulated_dBSPL_To_dBFS(TargetCalibrationSignalLevel.Value), CalibrationChannel)
-
-                'Fading in and out
-                Audio.DSP.Fade(CalibrationSound, Nothing, 0, CalibrationChannel, 0, 0.05 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
-                Audio.DSP.Fade(CalibrationSound, 0, Nothing, CalibrationChannel, CalibrationSound.WaveData.SampleData(CalibrationChannel).Length - 1 - 0.05 * CalibrationSound.WaveFormat.SampleRate, Nothing, Audio.DSP.FadeSlopeType.Smooth)
-
-                'Applying calibration gain
-                If CalibrationSound.WaveFormat.Channels < 4 Then
-
-                    Dim GainList As New List(Of Double)
-
-                    'Getting the gain values
-                    For c = 1 To CalibrationSound.WaveFormat.Channels
-                        GainList.Add(GetCalibrationGain(c))
-                    Next
-
-                    'Skipping calibration gain if none is needed.
-                    Dim CalibrationIsNeeded As Boolean = False
-                    For Each GainValue In GainList
-                        If GainValue <> 0 Then CalibrationIsNeeded = True
-                    Next
-
-                    If CalibrationIsNeeded = True Then
-                        Audio.DSP.AmplifySection(CalibrationSound, GainList)
-                    End If
-
-                Else
-
-                    'Using the slower overload of AmplifySection, as the faster one is not implemented for more than 3 channels
-                    For c = 1 To CalibrationSound.WaveFormat.Channels
-                        Dim CalibrationGain = GetCalibrationGain(c)
-                        If CalibrationGain <> 0 Then
-                            'Skipping calibration gain if none is needed.
-                            Audio.DSP.AmplifySection(CalibrationSound, CalibrationGain, c)
-                        End If
-                    Next
-
-                End If
-
-                'Plays the sound
-                'TempTestSession.SoundPlayer.SwapOutputSounds(CalibrationSound)
-
-
-            End Sub
-
-
-            Private Sub SilenceCalibrationTone()
-                'If TempTestSession IsNot Nothing Then
-
-                '    If TempTestSession.SoundPlayer IsNot Nothing Then
-                '        'Immediately stops any output sound from the TempTestSession.SoundPlayer
-                '        TempTestSession.SoundPlayer.Stop(False)
-                '        TempTestSession.SoundPlayer.CloseStream()
-                '        TempTestSession.SoundPlayer.Dispose()
-                '    End If
-
-                '    'Clears the TempTestSession 
-                '    TempTestSession = Nothing
-                'End If
-
-            End Sub
-
-
-#End Region
 
 
         End Class
