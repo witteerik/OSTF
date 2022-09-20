@@ -26,7 +26,7 @@
     Private Sub CalibrationForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Adding signals
-        Dim CalibrationFilesDirectory = IO.Path.Combine(OstfSettings.RootDirectory, OstfSettings.CalibrationSignalSubDirectory)
+        Dim CalibrationFilesDirectory = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.CalibrationSignalSubDirectory)
         Dim CalibrationFiles = IO.Directory.GetFiles(CalibrationFilesDirectory)
 
         'Getting calibration file descriptions from the text file SignalDescriptions.txt
@@ -131,7 +131,7 @@
         ''Creating / loading a calibration signal
         Dim WaveFormat
         'Dim WaveFormat As New Audio.Formats.WaveFormat(TempTestSession.SoundPlayer.GetSampleRate,
-        '                                       TempTestSession.SoundPlayer.AudioBitDepth,
+        '                                       TempTestSession.SoundPlayer.BitDepth,
         '                                       TempTestSession.SoundPlayer.NumberOfOutputChannels)
 
         'Ask the user for a channel in which to play the calibration signal

@@ -47,7 +47,7 @@ Namespace Audio
                 Me.AvailableInputChannels = AvailableInputChannels
 
                 'Selects the first available transducer
-                If TransducerSpecification Is Nothing Then TransducerSpecification = OstfSettings.AvaliableTransducers(0)
+                If TransducerSpecification Is Nothing Then TransducerSpecification = OstfBase.AvaliableTransducers(0)
                 Me.TransducerSpecification = TransducerSpecification
 
                 For c = 1 To AvailableOutputChannels
@@ -650,9 +650,9 @@ Namespace Audio
                 Dim CurrentIrDatabasePath As String
                 Select Case WaveFormat.SampleRate
                     Case 44100
-                        CurrentIrDatabasePath = IO.Path.Combine(OstfSettings.RootDirectory, OstfSettings.RoomImpulsesSubDirectory, "wierstorf2011\44100Hz")
+                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.RoomImpulsesSubDirectory, "wierstorf2011\44100Hz")
                     Case 48000
-                        CurrentIrDatabasePath = IO.Path.Combine(OstfSettings.RootDirectory, OstfSettings.RoomImpulsesSubDirectory, "wierstorf2011\48000Hz")
+                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.RoomImpulsesSubDirectory, "wierstorf2011\48000Hz")
                     Case Else
                         Throw New NotImplementedException("Directional simulation is unfortunately not supported for the samplerate " & WaveFormat.SampleRate)
                 End Select

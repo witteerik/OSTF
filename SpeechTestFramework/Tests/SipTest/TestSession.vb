@@ -118,7 +118,7 @@ Partial Class SipTestGui
 
         If SimulationMode = False Then 'We need no sound player in the simulation mode
             'Me.SoundPlayer = ParentSpeechTestControl.SoundPlayer
-            SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(Me,, AudioApiSettings,,,,,, 1,, True)
+            SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(Me)
             Dim NewMixer = New Audio.PortAudioVB.DuplexMixer(SoundPlayer.NumberOfOutputChannels, SoundPlayer.NumberOfInputChannels)
 
 

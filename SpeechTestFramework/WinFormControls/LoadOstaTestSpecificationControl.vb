@@ -32,12 +32,12 @@
 
     Private Sub LoadTestSpecifications()
 
-        OstfSettings.LoadAvailableTestSpecifications()
+        OstfBase.LoadAvailableTestSpecifications()
 
         TestSelection_ComboBox.Items.Clear()
 
-        If OstfSettings.AvailableTests.Count > 0 Then
-            For Each AvailableTest In OstfSettings.AvailableTests
+        If OstfBase.AvailableTests.Count > 0 Then
+            For Each AvailableTest In OstfBase.AvailableTests
                 TestSelection_ComboBox.Items.Add(AvailableTest)
             Next
             SelectTest_Button.Enabled = True

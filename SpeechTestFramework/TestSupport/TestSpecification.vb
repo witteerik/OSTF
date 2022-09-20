@@ -33,7 +33,7 @@ Public Class TestSpecification
 
 
     Public Function GetTestsDirectory() As String
-        Return IO.Path.Combine(OstfSettings.RootDirectory, TestsDirectory)
+        Return IO.Path.Combine(OstfBase.RootDirectory, TestsDirectory)
     End Function
 
     Public Function GetTestRootPath() As String
@@ -60,7 +60,7 @@ Public Class TestSpecification
 
     Public Shared Function LoadTestSpecificationFile(ByVal TextFileName As String) As TestSpecification
 
-        Dim FullFilePath As String = IO.Path.Combine(OstfSettings.RootDirectory, OstfSettings.AvailableTestsSubFolder, TextFileName)
+        Dim FullFilePath As String = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.AvailableTestsSubFolder, TextFileName)
 
         If IO.File.Exists(FullFilePath) = False Then
             MsgBox("Unable to load the file " & FullFilePath, MsgBoxStyle.Critical, "Loading OSTF test specification file")
@@ -183,7 +183,7 @@ Public Class TestSpecification
 
         Dim OutputList As New List(Of String)
         OutputList.Add("// This file is an OSTF test specification file. Its first non-empty line which is not commented out (using double slashes) must be exacly " & FormatFlag)
-        OutputList.Add("// In order to make the test that this file specifies available in OSTF, put this file in the OSTF sub folder named: " & OstfSettings.AvailableTestsSubFolder & ", and the restart the OSTF software.")
+        OutputList.Add("// In order to make the test that this file specifies available in OSTF, put this file in the OSTF sub folder named: " & OstfBase.AvailableTestsSubFolder & ", and the restart the OSTF software.")
         OutputList.Add("")
         OutputList.Add(FormatFlag)
         OutputList.Add("")

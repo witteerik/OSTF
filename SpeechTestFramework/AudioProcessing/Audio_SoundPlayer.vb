@@ -10,17 +10,21 @@ Namespace Audio
             Implements IDisposable
 
             Private WithEvents MyController As PlayBack.ISoundPlayerControl
-            '
-            Private CrossFadeProgress As Integer = 0
+            Public Property Mixer As DuplexMixer
 
-            'Declaration of CALLBACK STUFF
+            Public SelectedApiInfo As PortAudio.PaHostApiInfo
+            Public SelectedInputDeviceInfo As PortAudio.PaDeviceInfo?
+            Public SelectedInputDevice As Integer?
+            Public SelectedOutputDeviceInfo As PortAudio.PaDeviceInfo?
+            Public SelectedOutputDevice As Integer?
+            Public SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?
+
+            Private Stream As IntPtr
+            Public FramesPerBuffer As UInteger
             Private PlaybackBuffer As Single() = New Single(511) {}
             Private RecordingBuffer As Single() = New Single(511) {}
             Private SilentBuffer As Single() = New Single(511) {}
             Private paStreamCallback As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
-
-
-                                                                                 'SyncLock PlaybackBuffer
 
                                                                                  'Sending a buffer tick to the controller
                                                                                  SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.NewBufferTick)
@@ -34,7 +38,7 @@ Namespace Audio
 
                                                                                          'This need to be changed for real time recording, the audio need to be converted to Sound format, or maybe it could be fixed after stoppong the recording?
                                                                                          Dim InputBuffer(RecordingBuffer.Length - 1) As Single
-                                                                                         Marshal.Copy(input, InputBuffer, 0, AudioApiSettings.FramesPerBuffer * NumberOfInputChannels)
+                                                                                         Marshal.Copy(input, InputBuffer, 0, FramesPerBuffer * NumberOfInputChannels)
                                                                                          InputBufferHistory.Add(InputBuffer)
                                                                                      End If
 
@@ -113,7 +117,7 @@ Namespace Audio
                                                                                                  PlaybackBuffer = OutputSoundA(PositionA).InterleavedSampleArray
 
                                                                                                  'Copying the playback buffer to unmanaged memory
-                                                                                                 Marshal.Copy(PlaybackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
+                                                                                                 Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
 
                                                                                                  PositionA += 1
 
@@ -138,7 +142,7 @@ Namespace Audio
                                                                                                  PlaybackBuffer = OutputSoundB(PositionB).InterleavedSampleArray
 
                                                                                                  'Copying the playback buffer to unmanaged memory
-                                                                                                 Marshal.Copy(PlaybackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
+                                                                                                 Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
 
                                                                                                  PositionB += 1
 
@@ -153,7 +157,7 @@ Namespace Audio
                                                                                                      Next
 
                                                                                                      'Copying the playback buffer to unmanaged memory
-                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
+                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
 
                                                                                                  ElseIf PositionA < OutputSoundA.Length And PositionB >= OutputSoundB.Length Then
 
@@ -164,7 +168,7 @@ Namespace Audio
                                                                                                      Next
 
                                                                                                      'Copying the playback buffer to unmanaged memory
-                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
+                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
 
                                                                                                  ElseIf PositionA >= OutputSoundA.Length And PositionB < OutputSoundB.Length Then
 
@@ -175,7 +179,7 @@ Namespace Audio
                                                                                                      Next
 
                                                                                                      'Copying the playback buffer to unmanaged memory
-                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
+                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
 
                                                                                                  Else
                                                                                                      'End of both sounds: Copying silence
@@ -212,7 +216,7 @@ Namespace Audio
                                                                                                      Next
 
                                                                                                      'Copying the playback buffer to unmanaged memory
-                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
+                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
 
                                                                                                  ElseIf PositionA < OutputSoundA.Length And PositionB >= OutputSoundB.Length Then
 
@@ -223,7 +227,7 @@ Namespace Audio
                                                                                                      Next
 
                                                                                                      'Copying the playback buffer to unmanaged memory
-                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
+                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
 
                                                                                                  ElseIf PositionA >= OutputSoundA.Length And PositionB < OutputSoundB.Length Then
 
@@ -234,7 +238,7 @@ Namespace Audio
                                                                                                      Next
 
                                                                                                      'Copying the playback buffer to unmanaged memory
-                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
+                                                                                                     Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels) 'PlaybackBuffer.length?
 
                                                                                                  Else
                                                                                                      'End of both sounds: Copying silence
@@ -269,188 +273,51 @@ Namespace Audio
 
                                                                                  Catch ex As Exception
 
-                                                                                     'Logging the exception
-                                                                                     'Dim CurrentSiBTestStimulusFileName As String = ""
-                                                                                     'If CurrentSiBTestData IsNot Nothing Then
-                                                                                     '    If CurrentSiBTestData.CurrentTestStimulus IsNot Nothing Then CurrentSiBTestStimulusFileName = CurrentSiBTestData.CurrentTestStimulus.SoundRecordingFileName
-                                                                                     'End If
-
                                                                                      SendInfoToAudioLog(CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & vbCrLf &
                                                                                                ex.ToString, "ExceptionsDuringTesting")
 
-
-                                                                                     'Utils.SendInfoToLog(CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & vbCrLf &
-                                                                                     '              "CurrentSiBTestStimulusFileName:" & CurrentSiBTestStimulusFileName & vbCrLf &
-                                                                                     '              ex.ToString, "ExceptionsDuringTesting")
-
-                                                                                     'Select Case CurrentOutputSound
-                                                                                     '    Case OutputSounds.FadingToA
-                                                                                     '        Utils.SendInfoToLog("Error in FadingToA" & vbCrLf &
-                                                                                     '        "CurrentSiBTestStimulusFileName:" & vbTab &
-                                                                                     '        "callbackBuffer.length: " & vbTab &
-                                                                                     '        "PlayBackSoundFormat.Channels: " & vbTab &
-                                                                                     '    "OutputSoundB.WaveData.ShortestChannelSampleCount: " & vbTab &
-                                                                                     '    "PositionB: " & vbTab &
-                                                                                     '    "OverlapFadeOutArray.length: " & vbTab &
-                                                                                     '    "CrossFadeProgress: " & vbTab &
-                                                                                     '    "OutputSoundA.WaveData.ShortestChannelSampleCount: " & vbTab &
-                                                                                     '    "PositionA: " & vbTab &
-                                                                                     '    "OverlapFadeInArray.length: " & vbCrLf &
-                                                                                     '    PlaybackBuffer.Length & vbTab &
-                                                                                     '    NumberOfOutputChannels & vbTab &
-                                                                                     '    OutputSoundB.WaveData.ShortestChannelSampleCount & vbTab &
-                                                                                     '    PositionB & vbTab &
-                                                                                     '    OverlapFadeOutArray.Length & vbTab &
-                                                                                     '    CrossFadeProgress & vbTab &
-                                                                                     '    OutputSoundA.WaveData.ShortestChannelSampleCount & vbTab &
-                                                                                     '    PositionA & vbTab &
-                                                                                     '    OverlapFadeInArray.Length & vbCrLf & vbCrLf & ex.ToString, "ExceptionsDuringTesting")
-                                                                                     '       'CurrentSiBTestStimulusFileName & vbTab &
-
-                                                                                     '    Case OutputSounds.FadingToB
-                                                                                     '        Utils.SendInfoToLog("Error in FadingToB" & vbCrLf &
-                                                                                     '                      "CurrentSiBTestStimulusFileName:" & vbTab &
-                                                                                     '                      "callbackBuffer.length: " & vbTab &
-                                                                                     '        "PlayBackSoundFormat.Channels: " & vbTab &
-                                                                                     '        "OutputSoundB.WaveData.ShortestChannelSampleCount: " & vbTab &
-                                                                                     '        "PositionB: " & vbTab &
-                                                                                     '        "OverlapFadeOutArray.length: " & vbTab &
-                                                                                     '        "CrossFadeProgress: " & vbTab &
-                                                                                     '        "OutputSoundA.WaveData.ShortestChannelSampleCount: " & vbTab &
-                                                                                     '        "PositionA: " & vbTab &
-                                                                                     '        "OverlapFadeInArray.length: " & vbCrLf &
-                                                                                     '        PlaybackBuffer.Length & vbTab &
-                                                                                     '        NumberOfOutputChannels & vbTab &
-                                                                                     '        OutputSoundB.WaveData.ShortestChannelSampleCount & vbTab &
-                                                                                     '        PositionB & vbTab &
-                                                                                     '        OverlapFadeOutArray.Length & vbTab &
-                                                                                     '        CrossFadeProgress & vbTab &
-                                                                                     '        OutputSoundA.WaveData.ShortestChannelSampleCount & vbTab &
-                                                                                     '        PositionA & vbTab &
-                                                                                     '        OverlapFadeInArray.Length & vbCrLf & vbCrLf & ex.ToString, "ExceptionsDuringTesting")
-                                                                                     '        'CurrentSiBTestStimulusFileName & vbTab &
-                                                                                     '    Case Else
-                                                                                     '        Utils.SendInfoToLog("Nonfading Exception in " & CurrentOutputSound.ToString & vbCrLf &
-                                                                                     '                      "CurrentSiBTestStimulusFileName:" & vbTab &
-                                                                                     '                      "callbackBuffer.length: " & vbTab &
-                                                                                     '       "PlayBackSoundFormat.Channels: " & vbTab &
-                                                                                     '       "OutputSoundB.WaveData.SampleData.length: " & vbTab &
-                                                                                     '       "PositionB: " & vbTab &
-                                                                                     '       "OverlapFadeOutArray.length: " & vbTab &
-                                                                                     '       "CrossFadeProgress: " & vbTab &
-                                                                                     '       "OutputSoundA.WaveData.SampleData.length: " & vbTab &
-                                                                                     '       "PositionA: " & vbTab &
-                                                                                     '       "OverlapFadeInArray.length: " & vbCrLf &
-                                                                                     '       PlaybackBuffer.Length & vbTab &
-                                                                                     '       NumberOfOutputChannels & vbTab &
-                                                                                     '       OutputSoundB.WaveData.SampleData.Length & vbTab &
-                                                                                     '       PositionB & vbTab &
-                                                                                     '       OverlapFadeOutArray.Length & vbTab &
-                                                                                     '       CrossFadeProgress & vbTab &
-                                                                                     '       OutputSoundA.WaveData.SampleData.Length & vbTab &
-                                                                                     '       PositionA & vbTab &
-                                                                                     '       OverlapFadeInArray.Length & vbCrLf & vbCrLf & ex.ToString, "ExceptionsDuringTesting")
-                                                                                     '        'CurrentSiBTestStimulusFileName & vbTab &
-                                                                                     'End Select
-
-                                                                                     ''Creating a simple reset of position holders
-                                                                                     'Select Case CurrentOutputSound
-                                                                                     '    Case OutputSounds.FadingToA
-                                                                                     '        PositionA = 0
-                                                                                     '        PositionB = 0
-                                                                                     '        CrossFadeProgress = 0
-                                                                                     '        CurrentOutputSound = OutputSounds.OutputSoundA
-
-                                                                                     '    Case OutputSounds.FadingToB
-                                                                                     '        PositionA = 0
-                                                                                     '        PositionB = 0
-                                                                                     '        CrossFadeProgress = 0
-                                                                                     '        CurrentOutputSound = OutputSounds.OutputSoundB
-
-                                                                                     '    Case OutputSounds.OutputSoundA
-                                                                                     '        PositionA = InitialPosA + frameCount
-                                                                                     '        PositionB = 0
-                                                                                     '        CrossFadeProgress = 0
-                                                                                     '    Case OutputSounds.OutputSoundB
-                                                                                     '        PositionA = 0
-                                                                                     '        PositionB = InitialPosB + frameCount
-                                                                                     '        CrossFadeProgress = 0
-                                                                                     'End Select
-
-
-                                                                                     ''Setting positions to the next 100% readable sections
-                                                                                     ''Select Case CurrentOutputSound
-                                                                                     ''    Case OutputSounds.FadingToA
-                                                                                     ''        PositionA = InitialPosA + frameCount
-                                                                                     ''        '_PositionB = 0 'This should not have to be set to 0 since it is checked above 
-                                                                                     ''        CrossFadeProgress = InitialCrossFadeProgress + frameCount
-                                                                                     ''    'CurrentOutputSound = OutputSounds.OutputSoundA
-                                                                                     ''    Case OutputSounds.FadingToB
-                                                                                     ''        '_PositionA = 0 'This should not have to be set to 0 since it is checked above 
-                                                                                     ''        PositionB = InitialPosB + frameCount
-                                                                                     ''        CrossFadeProgress = InitialCrossFadeProgress + frameCount
-                                                                                     ''    'CurrentOutputSound = OutputSounds.OutputSoundB
-                                                                                     ''    Case OutputSounds.OutputSoundA
-                                                                                     ''        PositionA = InitialPosA + frameCount
-                                                                                     ''        PositionB = 0
-                                                                                     ''        CrossFadeProgress = 0
-                                                                                     ''    Case OutputSounds.OutputSoundB
-                                                                                     ''        PositionA = 0
-                                                                                     ''        PositionB = InitialPosB + frameCount
-                                                                                     ''        CrossFadeProgress = 0
-                                                                                     ''End Select
-
-                                                                                     ''Checking if overlap fade is complete
-                                                                                     ''If CrossFadeProgress > OverlapFadeLength - 1 Then
-                                                                                     ''    'Setting new output sound
-                                                                                     ''    Select Case CurrentOutputSound
-                                                                                     ''        Case OutputSounds.FadingToB
-                                                                                     ''            CurrentOutputSound = OutputSounds.OutputSoundB
-                                                                                     ''        Case OutputSounds.FadingToA
-                                                                                     ''            CurrentOutputSound = OutputSounds.OutputSoundA
-                                                                                     ''    End Select
-
-                                                                                     ''    'Resetting the CrossFadeProgress
-                                                                                     ''    CrossFadeProgress = 0
-
-                                                                                     ''    'Correcting read positions
-                                                                                     ''    Select Case CurrentOutputSound
-                                                                                     ''        Case OutputSounds.OutputSoundA
-                                                                                     ''            PositionA = OverlapFadeLength
-                                                                                     ''            PositionB = 0
-
-                                                                                     ''        Case OutputSounds.OutputSoundB
-                                                                                     ''            PositionB = OverlapFadeLength
-                                                                                     ''            PositionA = 0
-                                                                                     ''    End Select
-
-                                                                                     ''End If
-
                                                                                      'Returning silence if an exception occurred
-                                                                                     Marshal.Copy(SilentBuffer, 0, output, AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels)
+                                                                                     Marshal.Copy(SilentBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels)
                                                                                      Return PortAudio.PaStreamCallbackResult.paContinue
 
                                                                                  End Try
 
-                                                                                 'End SyncLock
-
                                                                              End Function
 
 
-            'OTHER DECLATATIONS
-            Public ReadOnly SoundDirection As SoundDirections
-            Public ReadOnly NumberOfOutputChannels As Integer
-            Public ReadOnly NumberOfInputChannels As Integer
-            Public ReadOnly AudioEncoding As Formats.WaveFormat.WaveFormatEncodings
-            Public ReadOnly AudioBitDepth As Integer
-            Private ReadOnly PaSampleFormat As PortAudio.PaSampleFormat
+            Public SoundDirection As SoundDirections
+            Public NumberOfOutputChannels As Integer
+            Public NumberOfInputChannels As Integer
 
-            Public Function GetSampleRate() As Integer
-                Return AudioApiSettings.SampleRate
-            End Function
+            Public AudioEncoding As Formats.WaveFormat.WaveFormatEncodings
+            Public SampleRate As Double
 
-            Public PositionA As Integer
-            Public PositionB As Integer
+            Public ReadOnly Property BitDepth As Integer
+                Get
+                    Select Case Me.PaSampleFormat 'Bit depth is here assumed from PaSampleFormat
+                        Case PortAudio.PaSampleFormat.paInt16
+                            Return 16
+                        Case PortAudio.PaSampleFormat.paFloat32
+                            Return 32
+                        Case Else
+                            Throw New Exception("Unsuppported audio encoding.")
+                    End Select
+                End Get
+            End Property
+
+            Private ReadOnly Property PaSampleFormat As PortAudio.PaSampleFormat
+                Get
+                    Select Case Me.AudioEncoding
+                        Case Formats.WaveFormat.WaveFormatEncodings.PCM
+                            Return PortAudio.PaSampleFormat.paInt16
+                        Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+                            Return PortAudio.PaSampleFormat.paFloat32
+                        Case Else
+                            Throw New Exception("Unsuppported audio encoding.")
+                    End Select
+                End Get
+            End Property
+
 
             Private _IsInitialized As Boolean = False
             Public ReadOnly Property IsInitialized As Boolean
@@ -463,38 +330,6 @@ Namespace Audio
             Private OutputSoundB As BufferHolder()
             Private NewSound As BufferHolder()
             Private SilentSound As BufferHolder()
-
-            Public Class BufferHolder
-                Public InterleavedSampleArray As Single()
-                Public ChannelDataList As List(Of Single())
-                Public ChannelCount As Integer
-                Public FrameCount As Integer
-
-                ''' <summary>
-                ''' Holds the (0-based) index of the first sample in the current BufferHolder
-                ''' </summary>
-                Public StartSample As Integer
-
-                Public Sub New(ByVal ChannelCount As Integer, ByVal FrameCount As Integer)
-                    Me.ChannelCount = ChannelCount
-                    Me.FrameCount = FrameCount
-                    Dim NewInterleavedBuffer(ChannelCount * FrameCount - 1) As Single
-                    InterleavedSampleArray = NewInterleavedBuffer
-                End Sub
-
-                Public Sub New(ByVal ChannelCount As Integer, ByVal FrameCount As Integer, ByRef InterleavedSampleArray As Single())
-                    Me.ChannelCount = ChannelCount
-                    Me.FrameCount = FrameCount
-                    Me.InterleavedSampleArray = InterleavedSampleArray
-                End Sub
-
-                Public Sub ConvertToChannelData(ByRef DuplexMixer As DuplexMixer)
-                    Throw New NotImplementedException
-                End Sub
-
-            End Class
-
-            Public Property Mixer As DuplexMixer
 
             Public OverlappingSounds As Boolean = False
             Public EqualPowerCrossFade As Boolean = True
@@ -512,15 +347,6 @@ Namespace Audio
                 FadingToA
             End Enum
 
-            Private Sub SetOverlapDuration(ByVal Duration As Single)
-                OverlapFadeLength = NumberOfOutputChannels * AudioApiSettings.SampleRate * Duration
-            End Sub
-
-            Public Function GetOverlapDuration() As Single
-                Return (_OverlapFadeLength / NumberOfOutputChannels) / AudioApiSettings.SampleRate
-            End Function
-
-
             Private _OverlapFadeLength As Double
             ''' <summary>
             ''' A value that holds the number of overlapping samples between two sounds. Setting this value automatically creates overlap fade arrays (OverlapFadeInArray and OverlapFadeOutArray). 
@@ -533,7 +359,7 @@ Namespace Audio
                 Set(value As Double)
                     Try
 
-                        _OverlapFadeLength = Int(value / (NumberOfOutputChannels * AudioApiSettings.FramesPerBuffer)) * (NumberOfOutputChannels * AudioApiSettings.FramesPerBuffer)
+                        _OverlapFadeLength = Int(value / (NumberOfOutputChannels * FramesPerBuffer)) * (NumberOfOutputChannels * FramesPerBuffer)
 
                         Dim OverLapFrameCount As Integer = _OverlapFadeLength / NumberOfOutputChannels
 
@@ -599,48 +425,18 @@ Namespace Audio
 
                 End Set
             End Property
+
             Private OverlapFadeInArray As Single()
             Private OverlapFadeOutArray As Single()
-
-
             Private InputBufferHistory As New List(Of Single())
-
             Public StopAtOutputSoundEnd As Boolean
-            'Public EndOfOutputSound_A_IsReached As Boolean = False
-            'Public EndOfOutputSound_B_IsReached As Boolean = False
 
-            Private _AudioApiSettings As AudioApiSettings
-            Property AudioApiSettings As AudioApiSettings
-                Private Set(value As AudioApiSettings)
-                    _AudioApiSettings = value
-                End Set
-                Get
-                    Return _AudioApiSettings
-                End Get
-            End Property
+            Public PositionA As Integer
+            Public PositionB As Integer
+            Private CrossFadeProgress As Integer = 0
 
-            Private stream As IntPtr
-            Private disposed As Boolean = False
-
-            Private Shared m_messagesEnabled As Boolean = False
             Public Shared Property MessagesEnabled() As Boolean
-                Get
-                    Return m_messagesEnabled
-                End Get
-                Set
-                    m_messagesEnabled = Value
-                End Set
-            End Property
-
-            Private Shared m_loggingEnabled As Boolean = False
             Public Shared Property LoggingEnabled() As Boolean
-                Get
-                    Return m_loggingEnabled
-                End Get
-                Set
-                    m_loggingEnabled = Value
-                End Set
-            End Property
 
             Private _IsPlaying As Boolean = False
             Public ReadOnly Property IsPlaying As Boolean
@@ -666,7 +462,6 @@ Namespace Audio
                 End Get
             End Property
 
-            Private CloseStreamAfterPlayCompletion As Boolean = False
             Private ApproachingEndOfBufferAlert_BufferCount As Integer
             Private IsBufferTickActive As Boolean
 
@@ -677,24 +472,101 @@ Namespace Audio
             End Enum
 
             Public Sub New(ByRef SoundPlayerController As PlayBack.ISoundPlayerControl,
-                  Optional ByVal SoundDirection As SoundDirections = SoundDirections.PlaybackOnly,
-                   Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
-                   Optional ByVal AudioEncoding As Formats.WaveFormat.WaveFormatEncodings = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints,
                    Optional ByVal LoggingEnabled As Boolean = False,
                    Optional ByVal MessagesEnabled As Boolean = False,
                    Optional ByVal StopAtOutputSoundEnd As Boolean = False,
                    Optional ByVal InactivateClipping As Boolean = False,
-                   Optional ByVal OverlapDuration As Double = 1,
                    Optional ByVal ApproachingEndOfBufferAlert_BufferCount As Integer = 1,
                    Optional ByVal ActivateBufferTicks As Boolean = False)
 
                 Me.IsBufferTickActive = ActivateBufferTicks
                 Me.MyController = SoundPlayerController
                 Me.ApproachingEndOfBufferAlert_BufferCount = ApproachingEndOfBufferAlert_BufferCount
-
                 Me.StopAtOutputSoundEnd = StopAtOutputSoundEnd
 
                 Try
+
+                    'Setting clipping
+                    Me._IsClippingInactivated = InactivateClipping
+
+                    'Overriding any value set in InitializationSuccess
+                    _IsInitialized = False
+
+                    OverlappingSoundPlayer.LoggingEnabled = LoggingEnabled
+                    OverlappingSoundPlayer.MessagesEnabled = MessagesEnabled
+                    Log("Initializing...")
+
+                    'Initializing PA
+                    If ErrorCheck("Initialize", PortAudio.Pa_Initialize(), True) = True Then
+                        ' if Pa_Initialize() returns an error code, 
+                        ' Pa_Terminate() should NOT be called.
+                        Throw New Exception("Can't initialize audio")
+                    End If
+
+                    'Creating a default mixer if none is supplied
+                    If Mixer Is Nothing Then
+                        Me.Mixer = New DuplexMixer(NumberOfOutputChannels, NumberOfInputChannels)
+                        'Me.Mixer.DirectMonoSoundToOutputChannel(1)
+                        Me.Mixer.DirectMonoSoundToOutputChannels({1, 2})
+                        Me.Mixer.SetLinearInput()
+                    Else
+                        Me.Mixer = Mixer
+                    End If
+
+                    _IsInitialized = True
+
+                Catch e As Exception
+                    Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
+                    Log(e.ToString())
+                End Try
+            End Sub
+
+            ''' <summary>
+            ''' Stops the player and changes the supplied settings.
+            ''' </summary>
+            ''' <param name="WaveFormat"></param>
+            ''' <param name="SoundDirection"></param>
+            ''' <param name="AudioApiSettings"></param>
+            ''' <param name="OverlapDuration"></param>
+            Public Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
+                                            Optional ByVal WaveFormat As Audio.Formats.WaveFormat = Nothing,
+                                            Optional ByVal OverlapDuration As Double = 1,
+                                            Optional ByRef Mixer As DuplexMixer = Nothing,
+                                            Optional ByVal SoundDirection As SoundDirections? = Nothing)
+
+                Dim WasStreamOpen As Boolean = False
+                Dim WasPlaying As Boolean = False
+
+                If IsInitialized = True Then
+                    If IsStreamOpen = True Then
+                        If IsPlaying = True Then
+                            'Stops playing if it's playing
+                            WasPlaying = True
+                            StopStream()
+                        End If
+
+                        'Closes the stream if it was open
+                        WasStreamOpen = True
+                        CloseStream()
+                    End If
+                End If
+
+                'Updating values
+                If AudioApiSettings IsNot Nothing Then SetApiAndDevice(AudioApiSettings, True)
+
+                If WaveFormat IsNot Nothing Then Me.SampleRate = WaveFormat.SampleRate
+                If WaveFormat IsNot Nothing Then Me.AudioEncoding = WaveFormat.Encoding
+                If WaveFormat IsNot Nothing Then
+                    'Does not change the bitdepth, but checks it
+                    If Me.BitDepth <> WaveFormat.BitDepth Then Throw New NotSupportedException("Unsupported bitdepth / encoding combination!")
+                End If
+
+                'Setting OverlapFadeLength (and creating fade arrays)
+                SetOverlapDuration(OverlapDuration)
+
+                If Mixer IsNot Nothing Then Me.Mixer = Mixer
+
+                If SoundDirection.HasValue Then
                     Me.SoundDirection = SoundDirection
                     'Setting PlaybackIsActive depending on the SoundDirection
                     'RecordingIsActive is set to False until playing starts
@@ -711,94 +583,91 @@ Namespace Audio
                         Case Else
                             Throw New Exception("Invalid sound direction")
                     End Select
-
-                    Me.AudioEncoding = AudioEncoding
-                    Select Case Me.AudioEncoding 'Bit depth is here assumed from encoding...
-                        Case Formats.WaveFormat.WaveFormatEncodings.PCM
-                            AudioBitDepth = 16
-                            PaSampleFormat = PortAudio.PaSampleFormat.paInt16
-                        Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
-                            AudioBitDepth = 32
-                            PaSampleFormat = PortAudio.PaSampleFormat.paFloat32
-                        Case Else
-                            Throw New Exception("Unsuppported audio encoding.")
-                    End Select
-
-                    'Setting clipping
-                    Me._IsClippingInactivated = InactivateClipping
-
-                    'Overriding any value set in InitializationSuccess
-                    _IsInitialized = False
-
-                    OverlappingSoundPlayer.LoggingEnabled = LoggingEnabled 'TODO: NB this is most likely a bug. It should be OverlappingSoundPlayer
-                    OverlappingSoundPlayer.MessagesEnabled = MessagesEnabled 'TODO: NB this is most likely a bug. It should be OverlappingSoundPlayer
-                    Log("Initializing...")
+                End If
 
 
-                    'Initializing PA
-                    If ErrorCheck("Initialize", PortAudio.Pa_Initialize(), True) = True Then
-                        Me.disposed = True
-                        ' if Pa_Initialize() returns an error code, 
-                        ' Pa_Terminate() should NOT be called.
-                        Throw New Exception("Can't initialize audio")
-                    End If
+                'Re-opens stream if it was open upon calling this function
+                If WasStreamOpen = True Then
+                    OpenStream()
+                End If
 
-                    'Setting API settings if not already done
-                    If AudioApiSettings Is Nothing Then
-                        'Dim FixedSampleRate As Integer? = Nothing
-                        Dim newAudioSettingsDialog As New AudioSettingsDialog()
-                        Dim DialogResult = newAudioSettingsDialog.ShowDialog()
-                        If DialogResult = DialogResult.OK Then
-                            AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
-                        Else
-                            MsgBox("Did not initialize PaSoundPlayer due to missing audio settings.")
-                            Throw New Exception("Did not initialize PaSoundPlayer due to missing audio settings.")
-                            Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
-                            Exit Sub
-                        End If
-                    End If
+                'Starts playing if it was playing upon calling this function
+                If WasPlaying = True Then
+                    Start()
+                End If
 
-                    'Setting Me.audioApiSettings
-                    Me.AudioApiSettings = AudioApiSettings
-
-                    'Storing the number of input and output channels
-                    If Not Me.AudioApiSettings.SelectedInputDeviceInfo Is Nothing Then
-                        NumberOfInputChannels = Me.AudioApiSettings.SelectedInputDeviceInfo.Value.maxInputChannels
-                    End If
-                    If Not Me.AudioApiSettings.SelectedOutputDeviceInfo Is Nothing Then
-                        NumberOfOutputChannels = Me.AudioApiSettings.SelectedOutputDeviceInfo.Value.maxOutputChannels
-                    End If
-                    If Not Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo Is Nothing Then
-                        NumberOfInputChannels = Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.maxInputChannels
-                        NumberOfOutputChannels = Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.maxOutputChannels
-                    End If
-
-                    Log("Selected HostAPI:" & vbLf & Me.AudioApiSettings.SelectedApiInfo.ToString())
-                    If Not Me.AudioApiSettings.SelectedInputDeviceInfo Is Nothing Then Log("Selected input device:" & vbLf & Me.AudioApiSettings.SelectedInputDeviceInfo.ToString())
-                    If Not Me.AudioApiSettings.SelectedOutputDeviceInfo Is Nothing Then Log("Selected output device:" & vbLf & Me.AudioApiSettings.SelectedOutputDeviceInfo.ToString())
-                    If Not Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo Is Nothing Then Log("Selected input and output device:" & vbLf & Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.ToString())
-
-                    'Setting OverlapFadeLength (and creating fade arrays)
-                    SetOverlapDuration(OverlapDuration)
-
-                    'Creating a default mixer if none is supplied
-                    If Mixer Is Nothing Then
-                        Me.Mixer = New DuplexMixer(NumberOfOutputChannels, NumberOfInputChannels)
-                        'Me.Mixer.DirectMonoSoundToOutputChannel(1)
-                        Me.Mixer.DirectMonoSoundToOutputChannels({1, 2})
-                        Me.Mixer.SetLinearInput()
-
-                    Else
-                        Me.Mixer = Mixer
-                    End If
-
-                    _IsInitialized = True
-
-                Catch e As Exception
-                    Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
-                    Log(e.ToString())
-                End Try
             End Sub
+
+            Private Sub SetApiAndDevice(Optional ByRef AudioApiSettings As AudioApiSettings = Nothing, Optional ByVal SkipLog As Boolean = False)
+
+                'Setting API settings if not already done
+                If AudioApiSettings Is Nothing Then
+                    Dim newAudioSettingsDialog As New AudioSettingsDialog()
+                    Dim DialogResult = newAudioSettingsDialog.ShowDialog()
+                    If DialogResult = DialogResult.OK Then
+                        AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
+                    Else
+                        MsgBox("Did not initialize PaSoundPlayer due to missing audio settings.")
+                        Throw New Exception("Did not initialize PaSoundPlayer due to missing audio settings.")
+                        Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
+                        Exit Sub
+                    End If
+                End If
+
+                SetApiAndDevice(AudioApiSettings.SelectedApiInfo,
+                                AudioApiSettings.SelectedInputDeviceInfo, AudioApiSettings.SelectedInputDevice,
+                                AudioApiSettings.SelectedOutputDeviceInfo, AudioApiSettings.SelectedOutputDevice,
+                                AudioApiSettings.SelectedInputAndOutputDeviceInfo,
+                                AudioApiSettings.FramesPerBuffer, SkipLog)
+
+            End Sub
+
+
+            Private Sub SetApiAndDevice(ByRef SelectedApiInfo As PortAudio.PaHostApiInfo,
+                                        ByRef SelectedInputDeviceInfo As PortAudio.PaDeviceInfo?,
+                                        ByRef SelectedInputDevice As Integer?,
+                                        ByRef SelectedOutputDeviceInfo As PortAudio.PaDeviceInfo?,
+                                        ByRef SelectedOutputDevice As Integer?,
+                                        ByRef SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?,
+                                        ByRef FramesPerBuffer As UInteger,
+                                      Optional ByVal SkipLog As Boolean = False)
+
+                Me.SelectedApiInfo = SelectedApiInfo
+                Me.SelectedInputDeviceInfo = SelectedInputDeviceInfo
+                Me.SelectedInputDevice = SelectedInputDevice
+                Me.SelectedOutputDeviceInfo = SelectedOutputDeviceInfo
+                Me.SelectedOutputDevice = SelectedOutputDevice
+                Me.SelectedInputAndOutputDeviceInfo = SelectedInputAndOutputDeviceInfo
+                Me.FramesPerBuffer = FramesPerBuffer
+
+                'Storing the number of input and output channels
+                If Not Me.SelectedInputDeviceInfo Is Nothing Then
+                    NumberOfInputChannels = Me.SelectedInputDeviceInfo.Value.maxInputChannels
+                End If
+                If Not Me.SelectedOutputDeviceInfo Is Nothing Then
+                    NumberOfOutputChannels = Me.SelectedOutputDeviceInfo.Value.maxOutputChannels
+                End If
+                If Not Me.SelectedInputAndOutputDeviceInfo Is Nothing Then
+                    NumberOfInputChannels = Me.SelectedInputAndOutputDeviceInfo.Value.maxInputChannels
+                    NumberOfOutputChannels = Me.SelectedInputAndOutputDeviceInfo.Value.maxOutputChannels
+                End If
+
+                If SkipLog = False Then
+                    Log("Selected HostAPI:" & vbLf & Me.SelectedApiInfo.ToString())
+                    If Not Me.SelectedInputDeviceInfo Is Nothing Then Log("Selected input device:" & vbLf & Me.SelectedInputDeviceInfo.ToString())
+                    If Not Me.SelectedOutputDeviceInfo Is Nothing Then Log("Selected output device:" & vbLf & Me.SelectedOutputDeviceInfo.ToString())
+                    If Not Me.SelectedInputAndOutputDeviceInfo Is Nothing Then Log("Selected input and output device:" & vbLf & Me.SelectedInputAndOutputDeviceInfo.ToString())
+                End If
+
+            End Sub
+
+            Private Sub SetOverlapDuration(ByVal Duration As Single)
+                OverlapFadeLength = NumberOfOutputChannels * SampleRate * Duration
+            End Sub
+
+            Public Function GetOverlapDuration() As Single
+                Return (_OverlapFadeLength / NumberOfOutputChannels) / SampleRate
+            End Function
 
 
             ''' <summary>
@@ -834,8 +703,8 @@ Namespace Audio
                     End If
 
                     'Checking that the format is the same format, and returns False if not
-                    If NewOutputSound.WaveFormat.SampleRate <> AudioApiSettings.SampleRate Or
-                            NewOutputSound.WaveFormat.BitDepth <> AudioBitDepth Or
+                    If NewOutputSound.WaveFormat.SampleRate <> SampleRate Or
+                            NewOutputSound.WaveFormat.BitDepth <> BitDepth Or
                             NewOutputSound.WaveFormat.Encoding <> AudioEncoding Then
                         Log("Error: Different formats in SwapOutputSounds.")
                         Return False
@@ -869,13 +738,13 @@ Namespace Audio
 
             'Public Function CreateBufferHolders(ByRef InputSound As Sound) As BufferHolder()
 
-            '    Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / AudioApiSettings.FramesPerBuffer) + 1
+            '    Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer) + 1
 
             '    Dim Output(BufferCount - 1) As BufferHolder
 
             '    'Initializing the BufferHolders
             '    For b = 0 To Output.Length - 1
-            '        Output(b) = New BufferHolder(NumberOfOutputChannels, AudioApiSettings.FramesPerBuffer)
+            '        Output(b) = New BufferHolder(NumberOfOutputChannels, FramesPerBuffer)
             '    Next
 
             '    Dim CurrentChannelInterleavedPosition As Integer
@@ -893,7 +762,7 @@ Namespace Audio
             '        'Reading samples
             '        For BufferIndex = 0 To Output.Length - 2
             '            Dim CurrentWriteSampleIndex As Integer = 0
-            '            For Sample = BufferIndex * AudioApiSettings.FramesPerBuffer To (BufferIndex + 1) * AudioApiSettings.FramesPerBuffer - 1
+            '            For Sample = BufferIndex * FramesPerBuffer To (BufferIndex + 1) * FramesPerBuffer - 1
 
             '                Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
             '                CurrentWriteSampleIndex += 1
@@ -902,7 +771,7 @@ Namespace Audio
 
             '        'Reading the last bit
             '        Dim CurrentWriteSampleIndexB As Integer = 0
-            '        For Sample = AudioApiSettings.FramesPerBuffer * Output.Length - 1 To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
+            '        For Sample = FramesPerBuffer * Output.Length - 1 To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
 
             '            Output(Output.Length - 1).InterleavedSampleArray(CurrentWriteSampleIndexB * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
             '            CurrentWriteSampleIndexB += 1
@@ -916,13 +785,13 @@ Namespace Audio
 
             Public Function CreateBufferHoldersOnNewThread(ByRef InputSound As Sound, Optional ByVal BuffersOnMainThread As Integer = 10) As BufferHolder()
 
-                Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / AudioApiSettings.FramesPerBuffer) + 1
+                Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer) + 1
 
                 Dim Output(BufferCount - 1) As BufferHolder
 
                 'Initializing the BufferHolders
                 For b = 0 To Output.Length - 1
-                    Output(b) = New BufferHolder(NumberOfOutputChannels, AudioApiSettings.FramesPerBuffer)
+                    Output(b) = New BufferHolder(NumberOfOutputChannels, FramesPerBuffer)
                 Next
 
                 'Creating the BuffersOnMainThread first buffers
@@ -948,11 +817,11 @@ Namespace Audio
                     For BufferIndex = 0 To BuffersOnMainThread - 1
 
                         'Setting start sample and time
-                        Output(BufferIndex).StartSample = BufferIndex * AudioApiSettings.FramesPerBuffer
+                        Output(BufferIndex).StartSample = BufferIndex * FramesPerBuffer
 
                         'Shuffling samples from the input sound to the interleaved array
                         Dim CurrentWriteSampleIndex As Integer = 0
-                        For Sample = BufferIndex * AudioApiSettings.FramesPerBuffer To (BufferIndex + 1) * AudioApiSettings.FramesPerBuffer - 1
+                        For Sample = BufferIndex * FramesPerBuffer To (BufferIndex + 1) * FramesPerBuffer - 1
 
                             Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
                             CurrentWriteSampleIndex += 1
@@ -962,7 +831,7 @@ Namespace Audio
 
                 'Fixes the rest of the buffers on a new thread, allowing the new sound to start playing
                 Dim ThreadWork As New BufferCreaterOnNewThread(InputSound, Output, BuffersOnMainThread,
-                                                               NumberOfOutputChannels, Mixer, AudioApiSettings)
+                                                               NumberOfOutputChannels, Mixer, FramesPerBuffer)
 
                 Return Output
 
@@ -976,16 +845,16 @@ Namespace Audio
                 Dim BuffersOnMainThread As Integer
                 Dim NumberOfOutputChannels As Integer
                 Dim Mixer As DuplexMixer
-                Dim AudioApiSettings As AudioApiSettings
+                Dim FramesPerBuffer As UInteger
 
                 Public Sub New(ByRef InputSound As Sound, ByRef Output As BufferHolder(), ByVal BuffersOnMainThread As Integer,
-                         ByVal NumberOfOutputChannels As Integer, ByRef Mixer As DuplexMixer, ByRef AudioApiSettings As AudioApiSettings)
+                         ByVal NumberOfOutputChannels As Integer, ByRef Mixer As DuplexMixer, ByVal FramesPerBuffer As UInteger)
                     Me.InputSound = InputSound
                     Me.Output = Output
                     Me.BuffersOnMainThread = BuffersOnMainThread
                     Me.NumberOfOutputChannels = NumberOfOutputChannels
                     Me.Mixer = Mixer
-                    Me.AudioApiSettings = AudioApiSettings
+                    Me.FramesPerBuffer = FramesPerBuffer
 
                     'Starting the new worker thread
                     Dim NewThred As New Thread(AddressOf DoWork)
@@ -1008,11 +877,11 @@ Namespace Audio
                         For BufferIndex = BuffersOnMainThread To Output.Length - 2
 
                             'Setting start sample 
-                            Output(BufferIndex).StartSample = BufferIndex * AudioApiSettings.FramesPerBuffer
+                            Output(BufferIndex).StartSample = BufferIndex * FramesPerBuffer
 
                             'Shuffling samples from the input sound to the interleaved array
                             Dim CurrentWriteSampleIndex As Integer = 0
-                            For Sample = BufferIndex * AudioApiSettings.FramesPerBuffer To (BufferIndex + 1) * AudioApiSettings.FramesPerBuffer - 1
+                            For Sample = BufferIndex * FramesPerBuffer To (BufferIndex + 1) * FramesPerBuffer - 1
 
                                 Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
                                 CurrentWriteSampleIndex += 1
@@ -1021,11 +890,11 @@ Namespace Audio
 
                         'Reading the last bit
                         'Setting start sample 
-                        Output(Output.Length - 1).StartSample = (Output.Length - 1) * AudioApiSettings.FramesPerBuffer
+                        Output(Output.Length - 1).StartSample = (Output.Length - 1) * FramesPerBuffer
 
                         'Shuffling samples from the input sound to the interleaved array
                         Dim CurrentWriteSampleIndexB As Integer = 0
-                        For Sample = AudioApiSettings.FramesPerBuffer * (Output.Length - 1) To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
+                        For Sample = FramesPerBuffer * (Output.Length - 1) To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
 
                             Output(Output.Length - 1).InterleavedSampleArray(CurrentWriteSampleIndexB * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
                             CurrentWriteSampleIndexB += 1
@@ -1075,9 +944,9 @@ Namespace Audio
             ''' </summary>
             Public Function SeekTime(ByVal Time As Single) As Single
 
-                Dim SelectedSample As Integer = SeekSample(Math.Floor(Time * GetSampleRate()))
+                Dim SelectedSample As Integer = SeekSample(Math.Floor(Time * SampleRate))
 
-                Dim SelectedTime As Single = SelectedSample / GetSampleRate()
+                Dim SelectedTime As Single = SelectedSample / SampleRate
 
                 Return SelectedTime
 
@@ -1153,8 +1022,8 @@ Namespace Audio
             Public Sub OpenStream()
 
                 Log("Opening stream...")
-                Me.stream = StreamOpen()
-                Log("Stream pointer: " & stream.ToString())
+                Me.Stream = StreamOpen()
+                Log("Stream pointer: " & Stream.ToString())
 
             End Sub
 
@@ -1182,12 +1051,12 @@ Namespace Audio
                 End If
 
                 'Setting both sounds to silent sound
-                SilentSound = {New BufferHolder(NumberOfOutputChannels, AudioApiSettings.FramesPerBuffer)}
+                SilentSound = {New BufferHolder(NumberOfOutputChannels, FramesPerBuffer)}
                 OutputSoundA = SilentSound
                 OutputSoundB = SilentSound
 
                 Log("Starting stream")
-                If ErrorCheck("StartStream", PortAudio.Pa_StartStream(stream), True) = False Then
+                If ErrorCheck("StartStream", PortAudio.Pa_StartStream(Stream), True) = False Then
                     _IsPlaying = True
                 End If
 
@@ -1238,7 +1107,7 @@ Namespace Audio
 
                 Log("Stopping stream...")
 
-                If ErrorCheck("StopStream", PortAudio.Pa_StopStream(stream), True) = False Then
+                If ErrorCheck("StopStream", PortAudio.Pa_StopStream(Stream), True) = False Then
                     _IsPlaying = False
                 End If
 
@@ -1253,7 +1122,7 @@ Namespace Audio
 
                 Log("Aborting stream...")
 
-                If ErrorCheck("AbortStream", PortAudio.Pa_AbortStream(stream), True) = False Then
+                If ErrorCheck("AbortStream", PortAudio.Pa_AbortStream(Stream), True) = False Then
                     _IsPlaying = False
                 End If
 
@@ -1269,18 +1138,18 @@ Namespace Audio
             Public Sub CloseStream()
 
                 'Stopping the stream if it is running
-                If PortAudio.Pa_IsStreamStopped(Me.stream) < 1 Then
+                If PortAudio.Pa_IsStreamStopped(Me.Stream) < 1 Then
                     'Calls FadeOutPlayback to set the silent sound as output
                     FadeOutPlayback()
                 End If
 
                 'Cloing the stream
-                If ErrorCheck("CloseStream", PortAudio.Pa_CloseStream(stream), True) = False Then
+                If ErrorCheck("CloseStream", PortAudio.Pa_CloseStream(Stream), True) = False Then
 
                     _IsStreamOpen = False
 
                     'Resetting the stream
-                    Me.stream = New IntPtr(0)
+                    Me.Stream = New IntPtr(0)
                 End If
 
             End Sub
@@ -1294,40 +1163,40 @@ Namespace Audio
                 'Do recording and playback buffers need to be of equal length?
 
                 'Setting/updating the length of the playback buffer
-                Log("Creating a new playback buffer length with the length: " & Me.AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels)
-                PlaybackBuffer = New Single((Me.AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) - 1) {}
-                SilentBuffer = New Single((Me.AudioApiSettings.FramesPerBuffer * NumberOfOutputChannels) - 1) {}
+                Log("Creating a new playback buffer length with the length: " & Me.FramesPerBuffer * NumberOfOutputChannels)
+                PlaybackBuffer = New Single((Me.FramesPerBuffer * NumberOfOutputChannels) - 1) {}
+                SilentBuffer = New Single((Me.FramesPerBuffer * NumberOfOutputChannels) - 1) {}
 
                 'Setting/updating the length of the recording buffer
-                Log("Creating a new recording buffer length with the length: " & Me.AudioApiSettings.FramesPerBuffer * NumberOfInputChannels)
-                RecordingBuffer = New Single((Me.AudioApiSettings.FramesPerBuffer * NumberOfInputChannels) - 1) {}
+                Log("Creating a new recording buffer length with the length: " & Me.FramesPerBuffer * NumberOfInputChannels)
+                RecordingBuffer = New Single((Me.FramesPerBuffer * NumberOfInputChannels) - 1) {}
 
                 Dim stream As New IntPtr()
                 Dim data As New IntPtr(0)
 
                 Dim inputParams As New PortAudio.PaStreamParameters
-                If Me.AudioApiSettings.SelectedInputDevice IsNot Nothing Then
+                If Me.SelectedInputDevice IsNot Nothing Then
                     inputParams.channelCount = NumberOfInputChannels
-                    inputParams.device = Me.AudioApiSettings.SelectedInputDevice
+                    inputParams.device = Me.SelectedInputDevice
                     inputParams.sampleFormat = PaSampleFormat
 
-                    If Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.HasValue = True Then
-                        inputParams.suggestedLatency = Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.defaultLowInputLatency
+                    If Me.SelectedInputAndOutputDeviceInfo.HasValue = True Then
+                        inputParams.suggestedLatency = Me.SelectedInputAndOutputDeviceInfo.Value.defaultLowInputLatency
                     Else
-                        inputParams.suggestedLatency = Me.AudioApiSettings.SelectedInputDeviceInfo.Value.defaultLowInputLatency
+                        inputParams.suggestedLatency = Me.SelectedInputDeviceInfo.Value.defaultLowInputLatency
                     End If
                 End If
 
                 Dim outputParams As New PortAudio.PaStreamParameters
-                If Me.AudioApiSettings.SelectedOutputDevice IsNot Nothing Then
+                If Me.SelectedOutputDevice IsNot Nothing Then
                     outputParams.channelCount = NumberOfOutputChannels
-                    outputParams.device = Me.AudioApiSettings.SelectedOutputDevice
+                    outputParams.device = Me.SelectedOutputDevice
                     outputParams.sampleFormat = PaSampleFormat
 
-                    If Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.HasValue = True Then
-                        outputParams.suggestedLatency = Me.AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.defaultLowOutputLatency
+                    If Me.SelectedInputAndOutputDeviceInfo.HasValue = True Then
+                        outputParams.suggestedLatency = Me.SelectedInputAndOutputDeviceInfo.Value.defaultLowOutputLatency
                     Else
-                        outputParams.suggestedLatency = Me.AudioApiSettings.SelectedOutputDeviceInfo.Value.defaultLowOutputLatency
+                        outputParams.suggestedLatency = Me.SelectedOutputDeviceInfo.Value.defaultLowOutputLatency
                     End If
                 End If
 
@@ -1344,14 +1213,14 @@ Namespace Audio
                 Select Case SoundDirection
                     Case SoundDirections.PlaybackOnly
                         ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
-                                                                       Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
+                                                                       Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
                     Case SoundDirections.RecordingOnly
                         ErrorCheck("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters),
-                                                                      Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
+                                                                      Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
                     Case SoundDirections.Duplex
-                        ErrorCheck("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.AudioApiSettings.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag,
+                        ErrorCheck("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Me.FramesPerBuffer, Flag,
                                                                    Me.paStreamCallback, data), True)
                 End Select
 
@@ -1377,7 +1246,7 @@ Namespace Audio
                 If InputBufferHistory Is Nothing Then Return Nothing
 
                 'Creating a wave format for the recorded sound
-                Dim RecordingWaveFormat = New Audio.Formats.WaveFormat(GetSampleRate, AudioBitDepth, NumberOfInputChannels,, AudioEncoding)
+                Dim RecordingWaveFormat = New Audio.Formats.WaveFormat(SampleRate, BitDepth, NumberOfInputChannels,, AudioEncoding)
 
                 'Creating a new Sound
                 Dim RecordedSound As New Sound(RecordingWaveFormat)
@@ -1429,18 +1298,18 @@ Namespace Audio
             ''' <returns></returns>
             Public Function GetCallBackTime() As Double
 
-                Return AudioApiSettings.FramesPerBuffer / AudioApiSettings.SampleRate
+                Return FramesPerBuffer / SampleRate
 
             End Function
 
             Private Sub Log(logString As String)
-                If m_loggingEnabled = True Then
+                If LoggingEnabled = True Then
                     System.Console.WriteLine("PortAudio: " & logString)
                 End If
             End Sub
 
             Private Sub DisplayMessageInBox(Message As String)
-                If m_messagesEnabled = True Then
+                If MessagesEnabled = True Then
                     MsgBox(Message)
                 End If
             End Sub
@@ -1613,6 +1482,38 @@ Namespace Audio
             End Sub
 
 #End Region
+
+
+            Public Class BufferHolder
+                Public InterleavedSampleArray As Single()
+                Public ChannelDataList As List(Of Single())
+                Public ChannelCount As Integer
+                Public FrameCount As Integer
+
+                ''' <summary>
+                ''' Holds the (0-based) index of the first sample in the current BufferHolder
+                ''' </summary>
+                Public StartSample As Integer
+
+                Public Sub New(ByVal ChannelCount As Integer, ByVal FrameCount As Integer)
+                    Me.ChannelCount = ChannelCount
+                    Me.FrameCount = FrameCount
+                    Dim NewInterleavedBuffer(ChannelCount * FrameCount - 1) As Single
+                    InterleavedSampleArray = NewInterleavedBuffer
+                End Sub
+
+                Public Sub New(ByVal ChannelCount As Integer, ByVal FrameCount As Integer, ByRef InterleavedSampleArray As Single())
+                    Me.ChannelCount = ChannelCount
+                    Me.FrameCount = FrameCount
+                    Me.InterleavedSampleArray = InterleavedSampleArray
+                End Sub
+
+                Public Sub ConvertToChannelData(ByRef DuplexMixer As DuplexMixer)
+                    Throw New NotImplementedException
+                End Sub
+
+            End Class
+
 
         End Class
 

@@ -15,12 +15,12 @@
         Select Case test
             Case -1
 
-                SpeechTestFramework.OstfSettings.LoadAvailableTestSpecifications()
+                SpeechTestFramework.OstfBase.LoadAvailableTestSpecifications()
                 Dim SelectedTestIndex As Integer = 1
-                SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
-                Dim MySpeechMaterial = SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).SpeechMaterial
-                SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).LoadAvailableMediaSetSpecifications()
-                Dim MyMediaSet = SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).MediaSets(0)
+                SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
+                Dim MySpeechMaterial = SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).SpeechMaterial
+                SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).LoadAvailableMediaSetSpecifications()
+                Dim MyMediaSet = SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).MediaSets(0)
 
                 Dim TestComponent = MySpeechMaterial.GetAllDescenentsAtLevel(SpeechTestFramework.SpeechMaterialComponent.LinguisticLevels.List)(0)
 
@@ -42,15 +42,15 @@
 
             Case 1
 
-                SpeechTestFramework.OstfSettings.LoadAvailableTestSpecifications()
+                SpeechTestFramework.OstfBase.LoadAvailableTestSpecifications()
 
                 Dim SelectedTestIndex As Integer = 0
 
-                SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
+                SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
 
-                Dim CompleteSpeechMaterial = SpeechTestFramework.OstfSettings.AvailableTests(SelectedTestIndex).SpeechMaterial
+                Dim CompleteSpeechMaterial = SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).SpeechMaterial
 
-                'Dim CompleteSpeechMaterial = SpeechTestFramework.SpeechMaterialComponent.LoadSpeechMaterial(SpeechTestFramework.OstfSettings.CurrentlySelectedTest.SpeechMaterialComponentsSubFilePath)
+                'Dim CompleteSpeechMaterial = SpeechTestFramework.SpeechMaterialComponent.LoadSpeechMaterial(SpeechTestFramework.OstfBase.CurrentlySelectedTest.SpeechMaterialComponentsSubFilePath)
 
                 'CompleteSpeechMaterial.WriteSpeechMaterialComponenFile(SpeechTestFramework.Utils.logFilePath & "TestSMC.txt")
 
@@ -98,11 +98,11 @@
                     newAudioSettingsDialog = New SpeechTestFramework.AudioSettingsDialog(RecordingWaveFormat.SampleRate)
                 Else
                     newAudioSettingsDialog = New SpeechTestFramework.AudioSettingsDialog()
-                    RecordingWaveFormat = New SpeechTestFramework.Audio.Formats.WaveFormat(newAudioSettingsDialog.CurrentAudioApiSettings.SampleRate, 32, 1, , SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+                    RecordingWaveFormat = New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1, , SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
                 End If
 
                 Dim Result = newAudioSettingsDialog.ShowDialog()
-                Dim CurrentAudioApiSettings As New SpeechTestFramework.Audio.AudioApiSettings(RecordingWaveFormat.SampleRate)
+                Dim CurrentAudioApiSettings As New SpeechTestFramework.Audio.AudioApiSettings()
                 If Result = Windows.Forms.DialogResult.OK Then
                     CurrentAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
                 Else
@@ -110,7 +110,7 @@
                     CurrentAudioApiSettings.SelectDefaultAudioDevice(RecordingWaveFormat.SampleRate)
                 End If
 
-                SoundPlayer = New SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer(Nothing, SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.Duplex, CurrentAudioApiSettings,,,,,, 0.1,, False)
+                SoundPlayer = New SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer(Nothing)
 
                 'SoundPlayer.Mixer = NewMixer
                 SoundPlayer.OpenStream()
@@ -477,7 +477,7 @@
 
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
 
-        Dim MyMixer = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer(2, 0, SpeechTestFramework.OstfSettings.AvaliableTransducers(0))
+        Dim MyMixer = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer(2, 0, SpeechTestFramework.OstfBase.AvaliableTransducers(0))
         MyMixer.SetLinearOutput()
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30})
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})

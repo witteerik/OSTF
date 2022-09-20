@@ -148,7 +148,7 @@
     <Compile Include="ParticipantInterfaces\PC\TestFormControls.vb">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Settings\OstfSettings.vb" />
+    <Compile Include="Settings\OstfBase.vb" />
     <Compile Include="Statistics\CriticalDifferences.vb" />
     <Compile Include="TestSupport\TestSpecification.vb" />
     <Compile Include="Tests\SipTest\Participant.vb" />

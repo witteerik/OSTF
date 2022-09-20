@@ -27,7 +27,7 @@ Public Class AudioSettingsDialog
     Public CurrentAudioApiSettings As Audio.AudioApiSettings
     Public DefaultDriverName As String
 
-    Public Sub New(Optional FixedSampleRate As Integer? = Nothing, Optional ByVal DefaultDriverName As String = "")
+    Public Sub New(Optional ByVal DefaultDriverName As String = "")
 
         ' This call is required by the designer.
         InitializeComponent()
@@ -38,7 +38,7 @@ Public Class AudioSettingsDialog
 
         End If
 
-        CurrentAudioApiSettings = New Audio.AudioApiSettings(FixedSampleRate)
+        CurrentAudioApiSettings = New Audio.AudioApiSettings()
         Me.DefaultDriverName = DefaultDriverName
 
     End Sub
@@ -113,20 +113,8 @@ Public Class AudioSettingsDialog
         Next
 
         'Settings default sample rate
-        'Disabling selection of new sample rate if the sample rate is fixed
-        If CurrentAudioApiSettings.IsFixedSampleRate = True Then
-            If Not ListOfSampleRates.Contains(CurrentAudioApiSettings.FixedSampleRate) Then
-                ListOfSampleRates.Add(CurrentAudioApiSettings.FixedSampleRate)
-                sampleRateComboBox.Items.Add(CurrentAudioApiSettings.FixedSampleRate)
-            End If
-            sampleRateComboBox.SelectedItem = CurrentAudioApiSettings.FixedSampleRate
-            sampleRateComboBox.Enabled = False
-        Else
-            sampleRateComboBox.SelectedIndex = 4
-            sampleRateComboBox.Enabled = True
-        End If
-
-        CurrentAudioApiSettings.SampleRate = sampleRateComboBox.SelectedItem
+        sampleRateComboBox.SelectedIndex = 4
+        sampleRateComboBox.Enabled = True
 
     End Sub
 
@@ -413,8 +401,6 @@ Public Class AudioSettingsDialog
     End Sub
 
     Private Sub SampleRateComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles sampleRateComboBox.SelectedIndexChanged
-
-        CurrentAudioApiSettings.SampleRate = sampleRateComboBox.SelectedItem
 
         DisplayLatency()
 

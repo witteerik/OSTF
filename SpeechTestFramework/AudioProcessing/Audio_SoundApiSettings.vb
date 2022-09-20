@@ -36,23 +36,7 @@ Namespace Audio
         Public SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?
         'Public SelectedInputAndOutputDevice As Integer?
 
-        ''' <summary>
-        ''' Upon initialization of AudioApiSettings, sample rate is locked to the sample rate of the output sound, if an output sound exists.
-        ''' </summary>
-        Public ReadOnly IsFixedSampleRate As Boolean = False
-        Public ReadOnly FixedSampleRate As Integer 'TODO: Is this one ever used?
-
-        Public SampleRate As Double
         Public FramesPerBuffer As UInteger
-
-        Public Sub New(FixedSampleRate? As Integer)
-
-            If FixedSampleRate IsNot Nothing Then
-                Me.IsFixedSampleRate = True
-                Me.FixedSampleRate = CInt(FixedSampleRate)
-            End If
-
-        End Sub
 
         Public Overrides Function ToString() As String
             Dim OutputString As String = "Selected sound API settings:"
@@ -61,13 +45,6 @@ Namespace Audio
             If Not SelectedInputDeviceInfo Is Nothing Then OutputString &= "Selected input device:" & vbLf & SelectedInputDeviceInfo.ToString() & vbCrLf
             If Not SelectedOutputDeviceInfo Is Nothing Then OutputString &= "Selected output device:" & vbLf & SelectedOutputDeviceInfo.ToString() & vbCrLf
             If Not SelectedInputAndOutputDeviceInfo Is Nothing Then OutputString &= "Selected input and output device:" & vbLf & SelectedInputAndOutputDeviceInfo.ToString() & vbCrLf
-            OutputString &= "IsFixedSampleRate: " & IsFixedSampleRate.ToString
-            If IsFixedSampleRate = True Then
-                OutputString &= "FixedSampleRate: " & FixedSampleRate
-                OutputString &= "SampleRate: " & SampleRate
-            Else
-                OutputString &= "SampleRate: " & SampleRate
-            End If
             OutputString &= "FramesPerBuffer: " & FramesPerBuffer
 
             Return OutputString
@@ -141,13 +118,6 @@ Namespace Audio
 
         End Function
 
-        Public Sub SetSoundDevice(ByVal HostApi As PortAudio.PaHostApiTypeId,
-                          ByVal InputDeviceName As String,
-                          ByVal OutputDeviceName As String)
-
-            Throw New NotImplementedException
-
-        End Sub
 
         ''' <summary>
         ''' Selects the first available (non asio) audio device for use.
@@ -243,11 +213,6 @@ Namespace Audio
 
             'Checking that we have at least one input or one output device
             If InputDeviceIsSet = False And OutputDeviceIsSet = False Then Return False
-
-
-            'Setting sample rate
-            Me.SampleRate = SampleRate
-
 
             'Setting buffer size
             Dim ValidBufferSizes As New List(Of Integer)
@@ -372,10 +337,6 @@ Namespace Audio
             Else
                 Return False
             End If
-
-
-            'Setting sample rate
-            Me.SampleRate = SampleRate
 
 
             'Setting buffer size
