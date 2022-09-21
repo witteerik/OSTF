@@ -171,6 +171,7 @@ Public Class SipTestGui
         Select Case Language
             Case Utils.Languages.Swedish
 
+                AboutToolStripMenuItem.Text = "Om"
                 ParticipantID_Label.Text = "P.Id."
                 ParticipantLock_Button.Text = "Lås"
                 PcScreen_RadioButton.Text = "PC-skärm"
@@ -206,7 +207,7 @@ Public Class SipTestGui
             Case Else
 
                 'English is default
-
+                AboutToolStripMenuItem.Text = "About"
                 ParticipantID_Label.Text = "P.Id."
                 ParticipantLock_Button.Text = "Lock"
                 PcScreen_RadioButton.Text = "PC screen"
@@ -1734,6 +1735,20 @@ Public Class SipTestGui
         OstfBase.SoundPlayer.Dispose()
 
     End Sub
+
+    Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
+
+        Dim MyAboutBox = New AboutBox_WithLicenseButton
+        MyAboutBox.SelectedLicense = LicenseBox.AvailableLicenses.MIT_X11
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.PortAudio)
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.MathNet)
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.InTheHand)
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.Wierstorf)
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.SwedishSipRecordings)
+        MyAboutBox.Show()
+
+    End Sub
+
 
 
 

@@ -200,6 +200,12 @@
     <Compile Include="WinFormControls\ExistingFilePathControl.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WinFormDialogs\AboutBox_WithLicenseButton.Designer.vb">
+      <DependentUpon>AboutBox_WithLicenseButton.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormDialogs\AboutBox_WithLicenseButton.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WinFormDialogs\AudioOutputSettingsDialog.designer.vb">
       <DependentUpon>AudioOutputSettingsDialog.vb</DependentUpon>
     </Compile>
@@ -378,6 +384,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\CustomVariableSelectionControl.resx">
       <DependentUpon>CustomVariableSelectionControl.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormDialogs\AboutBox_WithLicenseButton.resx">
+      <DependentUpon>AboutBox_WithLicenseButton.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormDialogs\AudioOutputSettingsDialog.resx">
       <DependentUpon>AudioOutputSettingsDialog.vb</DependentUpon>
