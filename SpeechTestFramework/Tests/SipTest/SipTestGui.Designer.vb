@@ -53,6 +53,9 @@ Partial Class SipTestGui
         Me.GainPanel = New System.Windows.Forms.Panel()
         Me.AudiogramPanel = New System.Windows.Forms.Panel()
         Me.LengthReduplications_Label = New System.Windows.Forms.Label()
+        Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.AudiogramComboBox = New System.Windows.Forms.ComboBox()
         Me.HaGainComboBox = New System.Windows.Forms.ComboBox()
         Me.ReferenceLevel_Label = New System.Windows.Forms.Label()
@@ -80,6 +83,8 @@ Partial Class SipTestGui
         Me.ProportionCorrectTextBox = New System.Windows.Forms.TextBox()
         Me.CorrectCountTextBox = New System.Windows.Forms.TextBox()
         Me.TableLayoutPanel17 = New System.Windows.Forms.TableLayoutPanel()
+        Me.StartButton = New System.Windows.Forms.Button()
+        Me.StopButton = New System.Windows.Forms.Button()
         Me.TableLayoutPanel18 = New System.Windows.Forms.TableLayoutPanel()
         Me.CorrectCount_Label = New System.Windows.Forms.Label()
         Me.ProportionCorrect_Label = New System.Windows.Forms.Label()
@@ -100,20 +105,13 @@ Partial Class SipTestGui
         Me.BtScreen_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.ConnectBluetoothScreen_Button = New System.Windows.Forms.Button()
         Me.DisconnectBtScreen_Button = New System.Windows.Forms.Button()
+        Me.BtLamp = New SpeechTestFramework.Lamp()
         Me.ParticipantLock_Button = New System.Windows.Forms.Button()
         Me.SoundDevice_Panel = New System.Windows.Forms.Panel()
         Me.SoundSettings_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
-        Me.SelectSoundDevice_Button = New System.Windows.Forms.Button()
-        Me.UseSoundField_RadioButton = New System.Windows.Forms.RadioButton()
-        Me.UseHeadphones_RadioButton = New System.Windows.Forms.RadioButton()
-        Me.SelectedSoundDevice_TextBox = New System.Windows.Forms.TextBox()
+        Me.SelectTransducer_Label = New System.Windows.Forms.Label()
+        Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.StartButton = New System.Windows.Forms.Button()
-        Me.StopButton = New System.Windows.Forms.Button()
-        Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.BtLamp = New SpeechTestFramework.Lamp()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.Test_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -466,6 +464,36 @@ Partial Class SipTestGui
         Me.LengthReduplications_Label.Text = "Repetitioner"
         Me.LengthReduplications_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'PsychmetricFunction_VerticalLabel
+        '
+        Me.PsychmetricFunction_VerticalLabel.AutoSize = True
+        Me.PsychmetricFunction_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.PsychmetricFunction_VerticalLabel.Location = New System.Drawing.Point(3, 405)
+        Me.PsychmetricFunction_VerticalLabel.Name = "PsychmetricFunction_VerticalLabel"
+        Me.PsychmetricFunction_VerticalLabel.Size = New System.Drawing.Size(19, 129)
+        Me.PsychmetricFunction_VerticalLabel.TabIndex = 0
+        Me.PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
+        '
+        'Audiogram_VerticalLabel
+        '
+        Me.Audiogram_VerticalLabel.AutoSize = True
+        Me.Audiogram_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Audiogram_VerticalLabel.Location = New System.Drawing.Point(3, 21)
+        Me.Audiogram_VerticalLabel.Name = "Audiogram_VerticalLabel"
+        Me.Audiogram_VerticalLabel.Size = New System.Drawing.Size(19, 129)
+        Me.Audiogram_VerticalLabel.TabIndex = 0
+        Me.Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
+        '
+        'Gain_VerticalLabel
+        '
+        Me.Gain_VerticalLabel.AutoSize = True
+        Me.Gain_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Gain_VerticalLabel.Location = New System.Drawing.Point(3, 192)
+        Me.Gain_VerticalLabel.Name = "Gain_VerticalLabel"
+        Me.Gain_VerticalLabel.Size = New System.Drawing.Size(19, 129)
+        Me.Gain_VerticalLabel.TabIndex = 1
+        Me.Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
+        '
         'AudiogramComboBox
         '
         Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.AudiogramComboBox, 2)
@@ -795,6 +823,30 @@ Partial Class SipTestGui
         Me.TableLayoutPanel17.Size = New System.Drawing.Size(387, 40)
         Me.TableLayoutPanel17.TabIndex = 3
         '
+        'StartButton
+        '
+        Me.StartButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.PlayDisabledImage
+        Me.StartButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
+        Me.StartButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StartButton.Location = New System.Drawing.Point(3, 3)
+        Me.StartButton.Margin = New System.Windows.Forms.Padding(3, 3, 12, 3)
+        Me.StartButton.Name = "StartButton"
+        Me.StartButton.Size = New System.Drawing.Size(178, 34)
+        Me.StartButton.TabIndex = 0
+        Me.StartButton.UseVisualStyleBackColor = True
+        '
+        'StopButton
+        '
+        Me.StopButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.StopDisabledImage
+        Me.StopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
+        Me.StopButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StopButton.Location = New System.Drawing.Point(205, 3)
+        Me.StopButton.Margin = New System.Windows.Forms.Padding(12, 3, 3, 3)
+        Me.StopButton.Name = "StopButton"
+        Me.StopButton.Size = New System.Drawing.Size(179, 34)
+        Me.StopButton.TabIndex = 1
+        Me.StopButton.UseVisualStyleBackColor = True
+        '
         'TableLayoutPanel18
         '
         Me.TableLayoutPanel18.ColumnCount = 2
@@ -1086,6 +1138,19 @@ Partial Class SipTestGui
         Me.DisconnectBtScreen_Button.Text = "Koppla från BT-skärm"
         Me.DisconnectBtScreen_Button.UseVisualStyleBackColor = True
         '
+        'BtLamp
+        '
+        Me.BtLamp.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BtLamp.Location = New System.Drawing.Point(257, 1)
+        Me.BtLamp.Margin = New System.Windows.Forms.Padding(1)
+        Me.BtLamp.Name = "BtLamp"
+        Me.BtLamp.Shape = SpeechTestFramework.Lamp.Shapes.Circle
+        Me.BtLamp.ShapeSize = 0.8!
+        Me.BtLamp.Size = New System.Drawing.Size(50, 20)
+        Me.BtLamp.State = SpeechTestFramework.Lamp.States.Disabled
+        Me.BtLamp.TabIndex = 3
+        Me.BtLamp.Text = "Lamp1"
+        '
         'ParticipantLock_Button
         '
         Me.ParticipantLock_Button.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -1114,10 +1179,8 @@ Partial Class SipTestGui
         Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 95.0!))
         Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.SelectSoundDevice_Button, 0, 0)
-        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.UseSoundField_RadioButton, 1, 1)
-        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.UseHeadphones_RadioButton, 2, 1)
-        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.SelectedSoundDevice_TextBox, 1, 0)
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.SelectTransducer_Label, 0, 0)
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.Transducer_ComboBox, 0, 1)
         Me.SoundSettings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SoundSettings_TableLayoutPanel.Enabled = False
         Me.SoundSettings_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
@@ -1128,49 +1191,26 @@ Partial Class SipTestGui
         Me.SoundSettings_TableLayoutPanel.Size = New System.Drawing.Size(323, 54)
         Me.SoundSettings_TableLayoutPanel.TabIndex = 0
         '
-        'SelectSoundDevice_Button
+        'SelectTransducer_Label
         '
-        Me.SelectSoundDevice_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SelectSoundDevice_Button.Location = New System.Drawing.Point(1, 1)
-        Me.SelectSoundDevice_Button.Margin = New System.Windows.Forms.Padding(1)
-        Me.SelectSoundDevice_Button.Name = "SelectSoundDevice_Button"
-        Me.SelectSoundDevice_Button.Size = New System.Drawing.Size(93, 25)
-        Me.SelectSoundDevice_Button.TabIndex = 1
-        Me.SelectSoundDevice_Button.Text = "Välj ljudenhet"
-        Me.SelectSoundDevice_Button.UseVisualStyleBackColor = True
+        Me.SoundSettings_TableLayoutPanel.SetColumnSpan(Me.SelectTransducer_Label, 3)
+        Me.SelectTransducer_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SelectTransducer_Label.Location = New System.Drawing.Point(3, 0)
+        Me.SelectTransducer_Label.Name = "SelectTransducer_Label"
+        Me.SelectTransducer_Label.Size = New System.Drawing.Size(317, 27)
+        Me.SelectTransducer_Label.TabIndex = 0
+        Me.SelectTransducer_Label.Text = "Select transducer"
+        Me.SelectTransducer_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'UseSoundField_RadioButton
+        'Transducer_ComboBox
         '
-        Me.UseSoundField_RadioButton.AutoSize = True
-        Me.UseSoundField_RadioButton.Checked = True
-        Me.UseSoundField_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.UseSoundField_RadioButton.Location = New System.Drawing.Point(98, 30)
-        Me.UseSoundField_RadioButton.Name = "UseSoundField_RadioButton"
-        Me.UseSoundField_RadioButton.Size = New System.Drawing.Size(108, 21)
-        Me.UseSoundField_RadioButton.TabIndex = 2
-        Me.UseSoundField_RadioButton.TabStop = True
-        Me.UseSoundField_RadioButton.Text = "Sound field"
-        Me.UseSoundField_RadioButton.UseVisualStyleBackColor = True
-        '
-        'UseHeadphones_RadioButton
-        '
-        Me.UseHeadphones_RadioButton.AutoSize = True
-        Me.UseHeadphones_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.UseHeadphones_RadioButton.Location = New System.Drawing.Point(212, 30)
-        Me.UseHeadphones_RadioButton.Name = "UseHeadphones_RadioButton"
-        Me.UseHeadphones_RadioButton.Size = New System.Drawing.Size(108, 21)
-        Me.UseHeadphones_RadioButton.TabIndex = 3
-        Me.UseHeadphones_RadioButton.Text = "Headphones"
-        Me.UseHeadphones_RadioButton.UseVisualStyleBackColor = True
-        '
-        'SelectedSoundDevice_TextBox
-        '
-        Me.SoundSettings_TableLayoutPanel.SetColumnSpan(Me.SelectedSoundDevice_TextBox, 2)
-        Me.SelectedSoundDevice_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SelectedSoundDevice_TextBox.Location = New System.Drawing.Point(98, 3)
-        Me.SelectedSoundDevice_TextBox.Name = "SelectedSoundDevice_TextBox"
-        Me.SelectedSoundDevice_TextBox.Size = New System.Drawing.Size(222, 20)
-        Me.SelectedSoundDevice_TextBox.TabIndex = 4
+        Me.SoundSettings_TableLayoutPanel.SetColumnSpan(Me.Transducer_ComboBox, 3)
+        Me.Transducer_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Transducer_ComboBox.FormattingEnabled = True
+        Me.Transducer_ComboBox.Location = New System.Drawing.Point(3, 30)
+        Me.Transducer_ComboBox.Name = "Transducer_ComboBox"
+        Me.Transducer_ComboBox.Size = New System.Drawing.Size(317, 21)
+        Me.Transducer_ComboBox.TabIndex = 1
         '
         'Panel1
         '
@@ -1180,73 +1220,6 @@ Partial Class SipTestGui
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1292, 5)
         Me.Panel1.TabIndex = 2
-        '
-        'StartButton
-        '
-        Me.StartButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.PlayDisabledImage
-        Me.StartButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.StartButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StartButton.Location = New System.Drawing.Point(3, 3)
-        Me.StartButton.Margin = New System.Windows.Forms.Padding(3, 3, 12, 3)
-        Me.StartButton.Name = "StartButton"
-        Me.StartButton.Size = New System.Drawing.Size(178, 34)
-        Me.StartButton.TabIndex = 0
-        Me.StartButton.UseVisualStyleBackColor = True
-        '
-        'StopButton
-        '
-        Me.StopButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.StopDisabledImage
-        Me.StopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.StopButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StopButton.Location = New System.Drawing.Point(205, 3)
-        Me.StopButton.Margin = New System.Windows.Forms.Padding(12, 3, 3, 3)
-        Me.StopButton.Name = "StopButton"
-        Me.StopButton.Size = New System.Drawing.Size(179, 34)
-        Me.StopButton.TabIndex = 1
-        Me.StopButton.UseVisualStyleBackColor = True
-        '
-        'PsychmetricFunction_VerticalLabel
-        '
-        Me.PsychmetricFunction_VerticalLabel.AutoSize = True
-        Me.PsychmetricFunction_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PsychmetricFunction_VerticalLabel.Location = New System.Drawing.Point(3, 405)
-        Me.PsychmetricFunction_VerticalLabel.Name = "PsychmetricFunction_VerticalLabel"
-        Me.PsychmetricFunction_VerticalLabel.Size = New System.Drawing.Size(19, 129)
-        Me.PsychmetricFunction_VerticalLabel.TabIndex = 0
-        Me.PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
-        '
-        'Audiogram_VerticalLabel
-        '
-        Me.Audiogram_VerticalLabel.AutoSize = True
-        Me.Audiogram_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Audiogram_VerticalLabel.Location = New System.Drawing.Point(3, 21)
-        Me.Audiogram_VerticalLabel.Name = "Audiogram_VerticalLabel"
-        Me.Audiogram_VerticalLabel.Size = New System.Drawing.Size(19, 129)
-        Me.Audiogram_VerticalLabel.TabIndex = 0
-        Me.Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
-        '
-        'Gain_VerticalLabel
-        '
-        Me.Gain_VerticalLabel.AutoSize = True
-        Me.Gain_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Gain_VerticalLabel.Location = New System.Drawing.Point(3, 192)
-        Me.Gain_VerticalLabel.Name = "Gain_VerticalLabel"
-        Me.Gain_VerticalLabel.Size = New System.Drawing.Size(19, 129)
-        Me.Gain_VerticalLabel.TabIndex = 1
-        Me.Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
-        '
-        'BtLamp
-        '
-        Me.BtLamp.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BtLamp.Location = New System.Drawing.Point(257, 1)
-        Me.BtLamp.Margin = New System.Windows.Forms.Padding(1)
-        Me.BtLamp.Name = "BtLamp"
-        Me.BtLamp.Shape = SpeechTestFramework.Lamp.Shapes.Circle
-        Me.BtLamp.ShapeSize = 0.8!
-        Me.BtLamp.Size = New System.Drawing.Size(50, 20)
-        Me.BtLamp.State = SpeechTestFramework.Lamp.States.Disabled
-        Me.BtLamp.TabIndex = 3
-        Me.BtLamp.Text = "Lamp1"
         '
         'SipTestGui
         '
@@ -1284,7 +1257,6 @@ Partial Class SipTestGui
         Me.BtScreen_TableLayoutPanel.ResumeLayout(False)
         Me.SoundDevice_Panel.ResumeLayout(False)
         Me.SoundSettings_TableLayoutPanel.ResumeLayout(False)
-        Me.SoundSettings_TableLayoutPanel.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -1328,7 +1300,6 @@ Partial Class SipTestGui
     Friend WithEvents MeasurementProgressBar As Windows.Forms.ProgressBar
     Friend WithEvents StartButton As Windows.Forms.Button
     Friend WithEvents StopButton As Windows.Forms.Button
-    Friend WithEvents SelectSoundDevice_Button As Windows.Forms.Button
     Friend WithEvents ConnectBluetoothScreen_Button As Windows.Forms.Button
     Friend WithEvents PcScreen_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents VerticalLabel2 As SpeechTestFramework.WinFormControls.VerticalLabel
@@ -1372,8 +1343,7 @@ Partial Class SipTestGui
     Friend WithEvents PcScreen_TableLayoutPanel As Windows.Forms.TableLayoutPanel
     Friend WithEvents BtScreen_TableLayoutPanel As Windows.Forms.TableLayoutPanel
     Friend WithEvents BtLamp As Lamp
-    Friend WithEvents UseSoundField_RadioButton As Windows.Forms.RadioButton
-    Friend WithEvents UseHeadphones_RadioButton As Windows.Forms.RadioButton
     Friend WithEvents SoundDevice_Panel As Windows.Forms.Panel
-    Friend WithEvents SelectedSoundDevice_TextBox As Windows.Forms.TextBox
+    Friend WithEvents SelectTransducer_Label As Windows.Forms.Label
+    Friend WithEvents Transducer_ComboBox As Windows.Forms.ComboBox
 End Class

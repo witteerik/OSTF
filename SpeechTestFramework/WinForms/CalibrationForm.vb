@@ -1,27 +1,9 @@
 ﻿Public Class CalibrationForm
 
-    Private ParentMixer As Audio.PortAudioVB.DuplexMixer
     Private SelectedChannel As Integer
+    Private SelectedLevel As Double
     Private CalibrationFileDescriptions As New SortedList(Of String, String)
-
-    Public Sub New()
-
-        ' This call is required by the designer.
-        InitializeComponent()
-
-        ' Add any initialization after the InitializeComponent() call.
-
-    End Sub
-
-    Public Sub New(ByRef ParentMixer As Audio.PortAudioVB.DuplexMixer)
-
-        ' This call is required by the designer.
-        InitializeComponent()
-
-        ' Add any initialization after the InitializeComponent() call.
-        Me.ParentMixer = ParentMixer
-
-    End Sub
+    Private SelectedTransducer As AudioSystemSpecification = Nothing
 
     Private Sub CalibrationForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
@@ -61,32 +43,74 @@
             CalibrationSignal_ComboBox.SelectedIndex = 0
         End If
 
+        'Adding internally generated sounds 
+        AddInternallyGeneratedSounds()
+
         'Adding levels
         For Level = 60 To 80 Step 5
             CalibrationLevel_ComboBox.Items.Add(Level)
         Next
         CalibrationLevel_ComboBox.SelectedItem = 70
 
-        'Adding output channels
-        For c = 1 To ParentMixer.AvailableOutputChannels
+        'Adding transducers
+        'Initiating the sound player if not already done
+        If OstfBase.SoundPlayer Is Nothing Then OstfBase.SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
+
+        Dim TempWaveFromat As New Audio.Formats.WaveFormat(48000, 32, 1,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveFromat,,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+
+        Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
+        If LocalAvailableTransducers.Count = 0 Then
+            MsgBox("Unable to start the application since no sound transducers could be found!", MsgBoxStyle.Critical, "Calibration")
+        End If
+
+        'Adding transducers to the combobox, and selects the first one
+        For Each Transducer In LocalAvailableTransducers
+            Transducer_ComboBox.Items.Add(Transducer)
+        Next
+        Transducer_ComboBox.SelectedIndex = 0
+
+    End Sub
+
+    Public Sub AddInternallyGeneratedSounds()
+
+        Dim TempWaveFormat As New Audio.Formats.WaveFormat(48000, 32, 1,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+
+        Dim GeneratedWarble = Audio.GenerateSound.CreateFrequencyModulatedSineWave(TempWaveFormat, 1, 1000, 0.5, 20, 0.125,, 60)
+        GeneratedWarble.FileName = "Internal1"
+        CalibrationSignal_ComboBox.Items.Add(GeneratedWarble)
+        CalibrationFileDescriptions.Add("Internal1", "Internally generated warble tone. The tone is frequency modulated around 1 kHz by ±12.5 %, with a modulation frequency of 20 Hz. Samplerate 48kHz, duration 60 seconds.")
+
+        Dim GeneratedSine = Audio.GenerateSound.CreateSineWave(TempWaveFormat, 1, 1000, 0.5, , 60)
+        GeneratedWarble.FileName = "Internal2"
+        CalibrationSignal_ComboBox.Items.Add(GeneratedWarble)
+        CalibrationFileDescriptions.Add("Internal2", "Internally generated 1kHz sine. Samplerate 48kHz, duration 60 seconds.")
+
+        Dim GeneratedSweep2 = Audio.GenerateSound.CreateLogSineSweep(TempWaveFormat, 1, 20, 20000, False, 0.5,, 15)
+        GeneratedWarble.FileName = "Internal4"
+        CalibrationSignal_ComboBox.Items.Add(GeneratedWarble)
+        CalibrationFileDescriptions.Add("Internal4", "Internally generated log-sine sweep, 20Hz - 20kHz. Samplerate 48kHz, duration 15 seconds.")
+
+        Dim GeneratedSweep = Audio.GenerateSound.CreateLogSineSweep(TempWaveFormat, 1, 20, 20000, True, 0.5,, 15)
+        GeneratedWarble.FileName = "Internal3"
+        CalibrationSignal_ComboBox.Items.Add(GeneratedWarble)
+        CalibrationFileDescriptions.Add("Internal3", "Internally generated (flat spectrum) log-sine sweep, 20Hz - 20kHz. Samplerate 48kHz, duration 15 seconds.")
+
+    End Sub
+
+    Private Sub Transducer_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Transducer_ComboBox.SelectedIndexChanged
+
+        SelectedTransducer = Transducer_ComboBox.SelectedItem
+
+        '(At this stage the sound player will be started, if not already done.)
+        OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 1, SelectedTransducer.Mixer,, True, True)
+
+        'Adding channels
+        SelectedChannel_ComboBox.Items.Clear()
+        For c = 1 To SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels
             SelectedChannel_ComboBox.Items.Add(c)
         Next
-
-    End Sub
-
-
-    Private Sub Close_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Close_Button.Click
-        Me.Close()
-    End Sub
-
-
-    Private Sub SelectedChannelComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SelectedChannel_ComboBox.SelectedIndexChanged
-
-        SelectedChannel = SelectedChannel_ComboBox.SelectedItem
-
-        If SelectedChannel > -1 Then
-            Close_Button.Enabled = True
-        End If
+        If SelectedChannel_ComboBox.Items.Count > 0 Then SelectedChannel_ComboBox.SelectedIndex = 0
 
     End Sub
 
@@ -95,134 +119,78 @@
         CalibrationSignal_RichTextBox.Text = ""
 
         If CalibrationSignal_ComboBox.SelectedItem IsNot Nothing Then
-
-            Dim CurrentCalibrationSound As Audio.Sound = CalibrationSignal_ComboBox.SelectedItem
-            If CalibrationFileDescriptions.ContainsKey(CurrentCalibrationSound.FileName) Then
-                CalibrationSignal_RichTextBox.Text = CalibrationFileDescriptions(CurrentCalibrationSound.FileName) & vbCrLf &
-                    CurrentCalibrationSound.WaveFormat.ToString
+            Dim SelectedCalibrationSound As Audio.Sound = CalibrationSignal_ComboBox.SelectedItem
+            If CalibrationFileDescriptions.ContainsKey(SelectedCalibrationSound.FileName) Then
+                CalibrationSignal_RichTextBox.Text = CalibrationFileDescriptions(SelectedCalibrationSound.FileName) & vbCrLf &
+                    SelectedCalibrationSound.WaveFormat.ToString
             Else
                 CalibrationSignal_RichTextBox.Text = "Calibration file without custom description." & vbCrLf &
-                    CurrentCalibrationSound.WaveFormat.ToString
+                    SelectedCalibrationSound.WaveFormat.ToString
             End If
-
         End If
 
     End Sub
 
-    Private Enum CalibrationSoundType
-        WarbleTone
-        PinkNoise
-    End Enum
+    Private Sub CalibrationLevel_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles CalibrationLevel_ComboBox.SelectedIndexChanged
+        SelectedLevel = CalibrationLevel_ComboBox.SelectedItem
+    End Sub
+
+    Private Sub SelectedChannelComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SelectedChannel_ComboBox.SelectedIndexChanged
+        SelectedChannel = SelectedChannel_ComboBox.SelectedItem
+    End Sub
 
 
-    Private Sub PlayCalibration(ByVal CalibrationSoundType As CalibrationSoundType)
+    Private Sub PlaySignal_Button_Click(sender As Object, e As EventArgs) Handles PlaySignal_Button.Click
 
-        Dim TargetCalibrationSignalLevel As Double?
 
         'Silencing any previously started calibration signal
         SilenceCalibrationTone()
 
-        ''Creating a temporary TestSetup. This is needed since it calculates the calibration gain for the current environment (the same TestSoundMixerSettings file (and thus calibration) is used for all environments)
-        'Dim TempTestSetup = New TestSetup(MySpeechTestControl.CurrentSpeechMaterialName)
+        'Sets the SelectedCalibrationSound 
+        Dim CalibrationSound As Audio.Sound = CalibrationSignal_ComboBox.SelectedItem
 
-        ''Creating a temporary Testsession, as this holds the sound player
-        'TempTestSession = New ForcedChoiceTestSession(MySpeechTestControl, TempTestSetup, New TestSessionDescription(New PatientDetails With {.ID = "Calibration"}))
-
-        ''Creating / loading a calibration signal
-        Dim WaveFormat
-        'Dim WaveFormat As New Audio.Formats.WaveFormat(TempTestSession.SoundPlayer.GetSampleRate,
-        '                                       TempTestSession.SoundPlayer.BitDepth,
-        '                                       TempTestSession.SoundPlayer.NumberOfOutputChannels)
-
-        'Ask the user for a channel in which to play the calibration signal
-        Dim CalibrationChannel As Integer
-        Dim ChannelSelectionDialog As New CalibrationForm() 'TempTestSession.SoundPlayer.NumberOfOutputChannels)
-        Dim DialogResult = ChannelSelectionDialog.ShowDialog
-        If DialogResult = DialogResult.OK Then
-            CalibrationChannel = ChannelSelectionDialog.SelectedChannel
-        Else
-            SilenceCalibrationTone()
+        If CalibrationSound Is Nothing Then
+            MsgBox("Please select a calibration signal!", MsgBoxStyle.Exclamation, "Calibration")
             Exit Sub
         End If
 
+        'Copies the sound 
+        CalibrationSound = CalibrationSound.CreateCopy
 
-        Dim CalibrationSound As Audio.Sound = Nothing
-
-        Select Case CalibrationSoundType
-            Case CalibrationSoundType.WarbleTone
-                CalibrationSound = Audio.GenerateSound.CreateFrequencyModulatedSineWave(WaveFormat, CalibrationChannel, 1000, 0.5, 20, 0.125,, 30)
-
-            Case CalibrationSoundType.PinkNoise
-                Dim PinkNoiseSound = Audio.AudioIOs.ReadWaveFile("C:\SwedishSiBTest\SoundFiles\Calibration\Pink_Noise_Audacity_60_s.wav")
-                CalibrationSound = New Audio.Sound(WaveFormat)
-                CalibrationSound.WaveData.SampleData(CalibrationChannel) = PinkNoiseSound.WaveData.SampleData(1)
-
-            Case Else
-                Throw New NotImplementedException("Calibration sound type not implemented!")
-        End Select
+        'Updates the wave format of the sound player
+        OstfBase.SoundPlayer.ChangePlayerSettings(, CalibrationSound.WaveFormat)
 
         'Setting the signal level
-        Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Audio.PortAudioVB.DuplexMixer.Simulated_dBSPL_To_dBFS(TargetCalibrationSignalLevel.Value), CalibrationChannel)
+        Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Audio.PortAudioVB.DuplexMixer.Simulated_dBSPL_To_dBFS(SelectedLevel), 1)
 
         'Fading in and out
-        Audio.DSP.Fade(CalibrationSound, Nothing, 0, CalibrationChannel, 0, 0.05 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
-        Audio.DSP.Fade(CalibrationSound, 0, Nothing, CalibrationChannel, CalibrationSound.WaveData.SampleData(CalibrationChannel).Length - 1 - 0.05 * CalibrationSound.WaveFormat.SampleRate, Nothing, Audio.DSP.FadeSlopeType.Smooth)
+        Audio.DSP.Fade(CalibrationSound, Nothing, 0, 1, 0, 0.05 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
+        Audio.DSP.Fade(CalibrationSound, 0, Nothing, 1, -0.05 * CalibrationSound.WaveFormat.SampleRate, Nothing, Audio.DSP.FadeSlopeType.Smooth)
+
+        'Putting the sound in the intend channel
+        Dim PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, CalibrationSound.WaveFormat.Encoding))
+        PlaySound.WaveData.SampleData(SelectedChannel) = CalibrationSound.WaveData.SampleData(1)
 
         'Applying calibration gain
-        If CalibrationSound.WaveFormat.Channels < 4 Then
-
-            Dim GainList As New List(Of Double)
-
-            'Getting the gain values
-            For c = 1 To CalibrationSound.WaveFormat.Channels
-                GainList.Add(ParentMixer.GetCalibrationGain(c))
-            Next
-
-            'Skipping calibration gain if none is needed.
-            Dim CalibrationIsNeeded As Boolean = False
-            For Each GainValue In GainList
-                If GainValue <> 0 Then CalibrationIsNeeded = True
-            Next
-
-            If CalibrationIsNeeded = True Then
-                Audio.DSP.AmplifySection(CalibrationSound, GainList)
-            End If
-
-        Else
-
-            'Using the slower overload of AmplifySection, as the faster one is not implemented for more than 3 channels
-            For c = 1 To CalibrationSound.WaveFormat.Channels
-                Dim CalibrationGain = ParentMixer.GetCalibrationGain(c)
-                If CalibrationGain <> 0 Then
-                    'Skipping calibration gain if none is needed.
-                    Audio.DSP.AmplifySection(CalibrationSound, CalibrationGain, c)
-                End If
-            Next
-
-        End If
+        Dim CalibrationGain = SelectedTransducer.Mixer.GetCalibrationGain(SelectedChannel)
+        Audio.DSP.AmplifySection(CalibrationSound, CalibrationGain, SelectedChannel)
 
         'Plays the sound
-        'TempTestSession.SoundPlayer.SwapOutputSounds(CalibrationSound)
-
+        SoundPlayer.SwapOutputSounds(CalibrationSound)
 
     End Sub
 
+    Private Sub StopSignal_Button_Click(sender As Object, e As EventArgs) Handles StopSignal_Button.Click
+        SilenceCalibrationTone()
+    End Sub
 
     Private Sub SilenceCalibrationTone()
-        'If TempTestSession IsNot Nothing Then
-
-        '    If TempTestSession.SoundPlayer IsNot Nothing Then
-        '        'Immediately stops any output sound from the TempTestSession.SoundPlayer
-        '        TempTestSession.SoundPlayer.Stop(False)
-        '        TempTestSession.SoundPlayer.CloseStream()
-        '        TempTestSession.SoundPlayer.Dispose()
-        '    End If
-
-        '    'Clears the TempTestSession 
-        '    TempTestSession = Nothing
-        'End If
-
+        SoundPlayer.SwapOutputSounds(Nothing)
     End Sub
 
+    Private Sub Close_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Close_Button.Click
+        SoundPlayer.CloseStream()
+        Me.Close()
+    End Sub
 
 End Class

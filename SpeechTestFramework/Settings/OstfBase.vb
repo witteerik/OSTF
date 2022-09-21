@@ -5,7 +5,7 @@
 
     Public Property AvailableTestsSubFolder As String = "AvailableTests"
     Public Property CalibrationSignalSubDirectory As String = "CalibrationSignals"
-    Public Property CalibrationSettingsFile As String = IO.Path.Combine("Calibration", "TransducerCalibration.txt")
+    Public Property AudioSystemSettingsFile As String = IO.Path.Combine("AudioSystem", "AudioSystemSpecification.txt")
     Public Property RoomImpulsesSubDirectory As String = "RoomImpulses"
     Public Property AvailableTests As New List(Of TestSpecification)
 
@@ -41,61 +41,94 @@
 
     End Sub
 
-    Private _AvaliableTransducers As List(Of TransducerSpecification) = Nothing
-    Public ReadOnly Property AvaliableTransducers As List(Of TransducerSpecification)
+    Private _AvaliableTransducers As List(Of AudioSystemSpecification) = Nothing
+    Public ReadOnly Property AvaliableTransducers As List(Of AudioSystemSpecification)
         Get
-            If _AvaliableTransducers Is Nothing Then LoadTransducerCalibrationFile()
+            If _AvaliableTransducers Is Nothing Then LoadAudioSystemSpecificationFile()
             Return _AvaliableTransducers
         End Get
     End Property
 
-    Private Sub LoadTransducerCalibrationFile()
+    Private Sub LoadAudioSystemSpecificationFile()
 
-        _AvaliableTransducers = New List(Of TransducerSpecification)
+        Dim AudioSystemSpecificationFilePath = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.AudioSystemSettingsFile)
 
-        Dim CalibrationSettingsFilePath = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.CalibrationSettingsFile)
+        'Reads the API settings, and tries to select the API and device if available, otherwise lets the user select a device manually
+        '<AudioAPI>
+        'API = MME // "MME", "Windows DirectSound", "Windows WASAPI", "ASIO"
+        'OutputDevice = Högtalare (2- Realtek(R) Audio) // For example: "Primär ljuddrivrutin", "HÃ¶gtalare (2- Realtek(R) Audio) (2)", (MME:"Microsoft Sound Mapper - Output")
+        'InputDevice = 
+        'BufferSize = 2048 // Must be powers of 2
+
+        Dim ApiName As String = "MME"
+        Dim OutputDeviceName As String = "Högtalare (2- Realtek(R) Audio)"
+        Dim InputDevice As String = ""
+        Dim BufferSize As Integer = 2048
+
+        Dim AudioApiSettings As New Audio.AudioApiSettings
+        Dim DeviceLoadSuccess As Boolean
+        If ApiName = "ASIO" Then
+            DeviceLoadSuccess = AudioApiSettings.SetAsioSoundDevice(OutputDeviceName, BufferSize)
+        Else
+            DeviceLoadSuccess = AudioApiSettings.SetNonAsioSoundDevice(ApiName, OutputDeviceName, InputDevice, BufferSize)
+        End If
+
+        If DeviceLoadSuccess = False Then
+            MsgBox("Unable to load the sound API (" & ApiName & ") and output/input device/s (" & OutputDeviceName & "/" & InputDevice & ") indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf &
+                   "Click OK to manually select audio input/output devices." & vbCrLf & vbCrLf &
+                   "IMPORTANT: Sound tranducer calibration and/or routing may not be correct when manually selected sound devices are used!", MsgBoxStyle.Exclamation, "Sound device not found!")
+
+            Dim NewAudioSettingsDialog As New AudioSettingsDialog()
+            Dim AudioSettingsDialogResult = NewAudioSettingsDialog.ShowDialog()
+            If AudioSettingsDialogResult = Windows.Forms.DialogResult.OK Then
+                AudioApiSettings = NewAudioSettingsDialog.CurrentAudioApiSettings
+            Else
+                MsgBox("You pressed cancel. Default sound settings will be used", MsgBoxStyle.Exclamation, "Select sound device!")
+                AudioApiSettings.SelectDefaultAudioDevice()
+            End If
+        End If
+
+
+        _AvaliableTransducers = New List(Of AudioSystemSpecification)
+
 
         ''Getting calibration file descriptions from the text file SignalDescriptions.txt
-        'Dim InputLines() As String = System.IO.File.ReadAllLines(CalibrationSettingsFilePath, System.Text.Encoding.UTF8)
+        Dim InputLines() As String = System.IO.File.ReadAllLines(AudioSystemSpecificationFilePath, System.Text.Encoding.UTF8)
         'For Each line In InputLines
         '    If line.Trim = "" Then Continue For
         '    If line.Trim.StartsWith("//") Then Continue For
 
-        '    'TODO Fix this
+        '    'TODO Fix read file input
 
 
         '    CalibrationFileDescriptions.Add(IO.Path.GetFileNameWithoutExtension(LineSplit(0).Trim), LineSplit(1).Trim)
         'Next
 
-        _AvaliableTransducers.Add(New TransducerSpecification)
+        _AvaliableTransducers.Add(New AudioSystemSpecification(AudioApiSettings))
 
     End Sub
 
 
-    Public Class AudioApiSpecification
-
+    Public Class AudioSystemSpecification
         Public Property Name As String = "Default"
-        Public Property API As String = "MME"
-        Public Property OutputDevice As String = "Högtalare (2- Realtek(R) Audio)"
-        Public Property InputDevice As String = "Högtalare (2- Realtek(R) Audio)"
-        Public Property BufferSize As Integer = 2048
-
-        Public Shared Function LoadFromFile(ByRef FilePath As String) As AudioApiSpecification
-
-        End Function
-
-    End Class
-
-    Public Class TransducerSpecification
-        Public Property Name As String = "Default"
-        Public Property TransducerType As Audio.PortAudioVB.DuplexMixer.TransducerTypes = Audio.PortAudioVB.DuplexMixer.TransducerTypes.SoundField
-        Public Property TransducerName As Audio.PortAudioVB.DuplexMixer.TransducerNames = Audio.PortAudioVB.DuplexMixer.TransducerNames.Unspecified
+        Public ReadOnly Property ParentAudioApiSettings As Audio.AudioApiSettings
+        Public Property Mixer As Audio.PortAudioVB.DuplexMixer
+        Public Property PresentationType As Audio.PortAudioVB.DuplexMixer.PresentationTypes = Audio.PortAudioVB.DuplexMixer.PresentationTypes.SoundField
+        Public Property HeadphonesName As Audio.PortAudioVB.DuplexMixer.HeadphonesName = Audio.PortAudioVB.DuplexMixer.HeadphonesName.Unspecified
         Public Property SoundSourceAzimuths As New List(Of Double) From {-90, 90}
         Public Property SoundSourceElevations As New List(Of Double) From {0, 0}
         Public Property SoundSourceDistances As New List(Of Double) From {0, 0}
-        Public Property OutputChannels As New List(Of Integer) From {1, 2}
+        Public Property HardwareOutputChannels As New List(Of Integer) From {1, 2}
         Public Property Calibration_FsToSpl As New List(Of Double) From {100, 100}
         Public Property LimiterThreshold As Double? = Nothing
+
+        Public Sub New(ByRef ParentAudioApiSettings As Audio.AudioApiSettings)
+            Me.ParentAudioApiSettings = ParentAudioApiSettings
+
+            'Setting up the mixer
+            Mixer = New Audio.PortAudioVB.DuplexMixer(Me)
+
+        End Sub
 
         Public Overrides Function ToString() As String
             If Name <> "" Then

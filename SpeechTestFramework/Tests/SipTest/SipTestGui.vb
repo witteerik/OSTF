@@ -1,12 +1,11 @@
-﻿Imports SpeechTestFramework
-Imports SpeechTestFramework.SipTest
+﻿Imports SpeechTestFramework.SipTest
 Imports SpeechTestFramework.WinFormControls
 Imports System.Windows.Forms
 Imports System.Drawing
-Imports SpeechTestFramework.Audio.PlayBack
 
 Public Class SipTestGui
-    Implements Audio.PlayBack.ISoundPlayerControl
+
+    Private SelectedTransducer As AudioSystemSpecification = Nothing
 
     Private CompleteSpeechMaterial As SpeechMaterialComponent
 
@@ -30,13 +29,6 @@ Public Class SipTestGui
     ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
     ''' </summary>
     Private ReadOnly DefaultReferenceLevelIndex As Integer = 2
-
-
-
-    'Friend SoundPlayer As Audio.PaOverlappingSoundPlayerC
-    'Friend BlueToothConnection As BlueToothConnection
-
-    Private NumberSpeakerChannels As Integer = 3
 
 
     Private SipMeasurementRandomizer As New Random
@@ -71,8 +63,6 @@ Public Class SipTestGui
         Me.UserType = UserType
         Me.GuiLanguage = GuiLanguage
 
-        OstfBase.SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
-
     End Sub
 
 
@@ -101,17 +91,6 @@ Public Class SipTestGui
         'Loading media sets
         CompleteSpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
         AvailableMediaSets = CompleteSpeechMaterial.ParentTestSpecification.MediaSets
-
-        'TODO: We should get sound format data from the speech material before creating the PlayBackWaveFormat
-        'TODO: and NumberSpeakerChannels from where? Gui setting? Headphones?
-
-        'Creating a sound format for the output sound (Same sample rate, bit depth and encoding as used in the SiP-test sound files)
-        Dim PlayBackWaveFormat = New Audio.Formats.WaveFormat(48000, 32, NumberSpeakerChannels,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
-
-        Dim CalibrationData = LookForCalibrationData()
-
-
-
 
         'Hiding things that should not be visible from the start
         StatAnalysisLabel.Visible = False
@@ -183,6 +162,8 @@ Public Class SipTestGui
 
         SetLanguageStrings(GuiLanguage)
 
+        StartSoundPlayer()
+
     End Sub
 
     Private Sub SetLanguageStrings(ByVal Language As Utils.Languages)
@@ -197,9 +178,7 @@ Public Class SipTestGui
                 BtScreen_RadioButton.Text = "BT-skärm"
                 ConnectBluetoothScreen_Button.Text = "Anslut BT-skärm"
                 DisconnectBtScreen_Button.Text = "Koppla från BT-skärm"
-                SelectSoundDevice_Button.Text = "Välj ljudenhet"
-                UseSoundField_RadioButton.Text = "Ljudfält"
-                UseHeadphones_RadioButton.Text = "Hörlurar"
+                SelectTransducer_Label.Text = "Välj ljudgivare"
                 SelectAudiogram_Label.Text = "Välj audiogram"
                 TestDescription_Label.Text = "Test"
                 CompletedTests_Label.Text = "Genomförda test"
@@ -235,9 +214,7 @@ Public Class SipTestGui
                 BtScreen_RadioButton.Text = "BT screen"
                 ConnectBluetoothScreen_Button.Text = "Connect to BT screen"
                 DisconnectBtScreen_Button.Text = "Disconnect BT screen"
-                SelectSoundDevice_Button.Text = "Select sound device"
-                UseSoundField_RadioButton.Text = "Sound field"
-                UseHeadphones_RadioButton.Text = "Headphones"
+                SelectTransducer_Label.Text = "Select sound transducer"
                 SelectAudiogram_Label.Text = "Select audiogram"
                 TestDescription_Label.Text = "Test"
                 CompletedTests_Label.Text = "Completed tests"
@@ -266,6 +243,40 @@ Public Class SipTestGui
 
 
     End Sub
+
+    Private Sub StartSoundPlayer()
+
+        OstfBase.SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
+
+        'Selects the wave format for use (doing it this way means that the wave format MUST be the same in all available MediaSets)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, CompleteSpeechMaterial.GetWavefileFormat(AvailableMediaSets(0)),,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+
+        Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
+        If LocalAvailableTransducers.Count = 0 Then
+            MsgBox("Unable to start the application since no sound transducers could be found!", MsgBoxStyle.Critical, "SiP-test")
+        End If
+
+        'Adding transducers to the combobox, and selects the first one
+        For Each Transducer In LocalAvailableTransducers
+            Transducer_ComboBox.Items.Add(Transducer)
+        Next
+        Transducer_ComboBox.SelectedIndex = 0
+
+    End Sub
+
+    Private Sub Transducer_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Transducer_ComboBox.SelectedIndexChanged
+
+        SelectedTransducer = Transducer_ComboBox.SelectedItem
+
+        '(At this stage the sound player will be started, if not already done.)
+        OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 1, SelectedTransducer.Mixer,, True, True)
+
+        If CurrentParticipantID <> "" Then
+            Test_TableLayoutPanel.Enabled = True
+        End If
+
+    End Sub
+
 
     Public Sub KeyDetection(sender As Object, e As KeyEventArgs) Handles Me.KeyUp, PcParticipantForm.KeyUp
 
@@ -1226,17 +1237,6 @@ Public Class SipTestGui
 
 
 
-
-    Private Function LookForCalibrationData() As SortedList(Of Integer, Double)
-
-        MsgBox("Here we should look for calibration data and offer some options...")
-
-        Dim CalibrationData As SortedList(Of Integer, Double) = Nothing
-
-        Return CalibrationData
-
-    End Function
-
 #Region "ImportExport"
 
     Public Sub SaveFileButtonPressed() Handles ExportData_Button.Click
@@ -1330,11 +1330,6 @@ Public Class SipTestGui
         Throw New NotImplementedException()
     End Sub
 
-    Public Sub MessageFromPlayer(ByRef Message As ISoundPlayerControl.MessagesFromSoundPlayer) Implements ISoundPlayerControl.MessageFromPlayer
-
-        'Ignoes any messages
-
-    End Sub
 
 
 #End Region
@@ -1675,53 +1670,53 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub SoundDeviceSearch_Button_Click(sender As Object, e As EventArgs) Handles SelectSoundDevice_Button.Click
+    'Private Sub SoundDeviceSearch_Button_Click(sender As Object, e As EventArgs)
 
-        SelectedSoundDevice_TextBox.Text = ""
+    '    SelectedSoundDevice_TextBox.Text = ""
 
-        'NOTE, the sound player will only support the same sample rate in all files in MediaSets!!!
+    '    'NOTE, the sound player will only support the same sample rate in all files in MediaSets!!!
 
-        Dim CurrentWaveFormat = CompleteSpeechMaterial.GetWavefileFormat(AvailableMediaSets(0), 1)
-        Dim newAudioSettingsDialog = New AudioOutputSettingsDialog()
+    '    Dim CurrentWaveFormat = CompleteSpeechMaterial.GetWavefileFormat(AvailableMediaSets(0), 1)
+    '    Dim newAudioSettingsDialog = New AudioOutputSettingsDialog()
 
-        Dim Result = newAudioSettingsDialog.ShowDialog()
-        If Result = Windows.Forms.DialogResult.OK Then
-            AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
-        Else
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    MsgBox("En ljudenhet mste väljas!", MsgBoxStyle.Exclamation, "Ingen ljudenhet vald!")
-                Case Else
-                    MsgBox("An output sound device must be selected!", MsgBoxStyle.Exclamation, "No output sound device selected!")
-            End Select
-            Exit Sub
-        End If
+    '    Dim Result = newAudioSettingsDialog.ShowDialog()
+    '    If Result = Windows.Forms.DialogResult.OK Then
+    '        AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
+    '    Else
+    '        Select Case GuiLanguage
+    '            Case Utils.Constants.Languages.Swedish
+    '                MsgBox("En ljudenhet mste väljas!", MsgBoxStyle.Exclamation, "Ingen ljudenhet vald!")
+    '            Case Else
+    '                MsgBox("An output sound device must be selected!", MsgBoxStyle.Exclamation, "No output sound device selected!")
+    '        End Select
+    '        Exit Sub
+    '    End If
 
-        If AudioApiSettings.SelectedInputAndOutputDeviceInfo IsNot Nothing Then
-            SelectedSoundDevice_TextBox.Text = AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.name & " (" & AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.ToString & ")"
-        ElseIf AudioApiSettings.SelectedOutputDeviceInfo IsNot Nothing Then
-            SelectedSoundDevice_TextBox.Text = AudioApiSettings.SelectedOutputDeviceInfo.Value.name & " (" & AudioApiSettings.SelectedOutputDeviceInfo.Value.hostApi & ")"
-        Else
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    SelectedSoundDevice_TextBox.Text = "Ingen ljudenhet vald"
-                Case Else
-                    SelectedSoundDevice_TextBox.Text = "No sound device selected"
-            End Select
-        End If
+    '    If AudioApiSettings.SelectedInputAndOutputDeviceInfo IsNot Nothing Then
+    '        SelectedSoundDevice_TextBox.Text = AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.name & " (" & AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.ToString & ")"
+    '    ElseIf AudioApiSettings.SelectedOutputDeviceInfo IsNot Nothing Then
+    '        SelectedSoundDevice_TextBox.Text = AudioApiSettings.SelectedOutputDeviceInfo.Value.name & " (" & AudioApiSettings.SelectedOutputDeviceInfo.Value.hostApi & ")"
+    '    Else
+    '        Select Case GuiLanguage
+    '            Case Utils.Constants.Languages.Swedish
+    '                SelectedSoundDevice_TextBox.Text = "Ingen ljudenhet vald"
+    '            Case Else
+    '                SelectedSoundDevice_TextBox.Text = "No sound device selected"
+    '        End Select
+    '    End If
 
-        If CurrentParticipantID <> "" Then
-            Test_TableLayoutPanel.Enabled = True
-        End If
+    '    If CurrentParticipantID <> "" Then
+    '        Test_TableLayoutPanel.Enabled = True
+    '    End If
+
+    'End Sub
+
+
+    Private Sub UseSoundField_RadioButton_CheckedChanged(sender As Object, e As EventArgs)
 
     End Sub
 
-
-    Private Sub UseSoundField_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles UseSoundField_RadioButton.CheckedChanged
-
-    End Sub
-
-    Private Sub UseHeadphones_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles UseHeadphones_RadioButton.CheckedChanged
+    Private Sub UseHeadphones_RadioButton_CheckedChanged(sender As Object, e As EventArgs)
 
     End Sub
 
@@ -1739,6 +1734,7 @@ Public Class SipTestGui
         OstfBase.SoundPlayer.Dispose()
 
     End Sub
+
 
 
 #End Region

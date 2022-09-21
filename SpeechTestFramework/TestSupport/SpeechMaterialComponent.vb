@@ -357,13 +357,12 @@ Public Class SpeechMaterialComponent
     ''' Returns the wave file format of the first located speech material component at the AudioFileLinguisticLevel of the selected Mediaset, or Nothing is no sound file is found.
     ''' </summary>
     ''' <param name="MediaSet"></param>
-    ''' <param name="SoundChannel"></param>
     ''' <returns></returns>
-    Public Function GetWavefileFormat(ByRef MediaSet As MediaSet, ByVal SoundChannel As Integer) As Audio.Formats.WaveFormat
+    Public Function GetWavefileFormat(ByRef MediaSet As MediaSet) As Audio.Formats.WaveFormat
 
-        Dim FirstRelativeWithSound = GetFirstRelativeWithSound(MediaSet, 0, SoundChannel)
+        Dim FirstRelativeWithSound = GetFirstRelativeWithSound(MediaSet)
 
-        Dim ComponentSound = FirstRelativeWithSound.GetSound(MediaSet, 0, SoundChannel)
+        Dim ComponentSound = FirstRelativeWithSound.GetSound(MediaSet, 0, 1)
 
         If ComponentSound IsNot Nothing Then
             Return ComponentSound.WaveFormat
@@ -532,10 +531,8 @@ Public Class SpeechMaterialComponent
     ''' Locates and returns the first speech material component that has (or is planned should have) a sound recording, based on the AudioFileLinguisticLevel of the selected Mediaset.
     ''' </summary>
     ''' <param name="MediaSet"></param>
-    ''' <param name="Index"></param>
-    ''' <param name="SoundChannel"></param>
     ''' <returns></returns>
-    Public Function GetFirstRelativeWithSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer) As SpeechMaterialComponent
+    Public Function GetFirstRelativeWithSound(ByRef MediaSet As MediaSet) As SpeechMaterialComponent
 
         If Me.LinguisticLevel = MediaSet.AudioFileLinguisticLevel Then
 

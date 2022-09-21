@@ -8,7 +8,7 @@ Namespace Audio
 
         Public Class DuplexMixer
 
-            Private TransducerSpecification As TransducerSpecification
+            Private ParentTransducerSpecification As AudioSystemSpecification
 
             ''' <summary>
             ''' A list of key-value pairs, where the key repressents the hardware output channel and the value repressents the wave file channel from which the output sound should be drawn.
@@ -24,9 +24,9 @@ Namespace Audio
             ''' </summary>
             Public HardwareOutputChannelSpeakerLocations As New SortedList(Of Integer, SoundSourceLocation)
 
-            Public TransducerType As TransducerTypes = TransducerTypes.SoundField
+            Public TransducerType As PresentationTypes = PresentationTypes.SoundField
 
-            Public Enum TransducerTypes
+            Public Enum PresentationTypes
                 SoundField
                 SimulatedSoundField
                 Headphones
@@ -36,12 +36,37 @@ Namespace Audio
             ''' <summary>
             ''' Creating a new mixer.
             ''' </summary>
-            Public Sub New(Optional ByVal TransducerSpecification As TransducerSpecification = Nothing)
+            Public Sub New(Optional ByVal ParentTransducerSpecification As AudioSystemSpecification = Nothing)
 
-                'Selects the first available transducer
-                If TransducerSpecification Is Nothing Then TransducerSpecification = OstfBase.AvaliableTransducers(0)
-                Me.TransducerSpecification = TransducerSpecification
+                'If ParentTransducerSpecification is not initialized, the first available transducer is selected
+                If ParentTransducerSpecification Is Nothing Then ParentTransducerSpecification = OstfBase.AvaliableTransducers(0)
 
+                Me.ParentTransducerSpecification = ParentTransducerSpecification
+
+                'Sets up the routing
+                Dim OutputWaveFileChannel As Integer = 1
+                For Each c In ParentTransducerSpecification.HardwareOutputChannels
+                    OutputRouting.Add(c, OutputWaveFileChannel)
+                    OutputWaveFileChannel += 1
+                Next
+
+                'Sets soundsource locations
+                For i = 0 To ParentTransducerSpecification.HardwareOutputChannels.Count - 1
+
+                    Me.HardwareOutputChannelSpeakerLocations.Add(ParentTransducerSpecification.HardwareOutputChannels(i),
+                                                                 New SoundSourceLocation With {
+                                                                 .HorizontalAzimuth = ParentTransducerSpecification.SoundSourceAzimuths(i),
+                                                                 .Elevation = ParentTransducerSpecification.SoundSourceElevations(i),
+                                                                 .Distance = ParentTransducerSpecification.SoundSourceDistances(i)})
+                Next
+
+                'Sets calibration
+                For i = 0 To ParentTransducerSpecification.HardwareOutputChannels.Count - 1
+                    Me._Calibration_FsToSpl.Add(ParentTransducerSpecification.HardwareOutputChannels(i), ParentTransducerSpecification.Calibration_FsToSpl(i))
+                Next
+
+                'Sets linear input as default
+                SetLinearInput()
 
             End Sub
 
@@ -49,32 +74,40 @@ Namespace Audio
                 If OutputRouting.ContainsKey(TargetOutputChannel) Then OutputRouting(TargetOutputChannel) = 1
             End Sub
 
-            'Public Sub Mixer_DirectMonoToAllChannels()
-            '    For c = 1 To AvailableOutputChannels
-            '        OutputRouting.Add(c, 0)
-            '    Next
-
-            '    For c = 1 To AvailableInputChannels
-            '        InputRouting.Add(c, 0)
-            '    Next
-            'End Sub
-
-            'Public Sub Mixer_SetLinearInput()
-            '    For c = 1 To AvailableInputChannels
-            '        InputRouting(c) = c
-            '    Next
-            'End Sub
-            'Public Sub Mixer_SetLinearOutput()
-            '    For c = 1 To AvailableOutputChannels
-            '        OutputRouting(c) = c
-            '    Next
-            'End Sub
-
-            Public Sub Mixer_DirectMonoSoundToOutputChannels(ByRef TargetOutputChannels() As Integer)
+            Public Sub DirectMonoSoundToOutputChannels(ByRef TargetOutputChannels() As Integer)
                 For Each OutputChannel In TargetOutputChannels
                     If OutputRouting.ContainsKey(OutputChannel) Then OutputRouting(OutputChannel) = 1
                 Next
             End Sub
+
+            Public Sub DirectMonoToAllChannels()
+                OutputRouting.Clear()
+
+                For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfOutputChannels
+                    OutputRouting.Add(c, 0)
+                Next
+
+                InputRouting.Clear()
+
+                For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfInputChannels
+                    InputRouting.Add(c, 0)
+                Next
+            End Sub
+
+            Public Sub SetLinearOutput()
+                OutputRouting.Clear()
+                For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfOutputChannels
+                    OutputRouting.Add(c, c)
+                Next
+            End Sub
+
+            Public Sub SetLinearInput()
+                InputRouting.Clear()
+                For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfInputChannels
+                    InputRouting.Add(c, c)
+                Next
+            End Sub
+
 
 #Region "Calibration"
 
@@ -341,7 +374,7 @@ Namespace Audio
                 'Inserting/adding sounds to the output sound
                 'OutputSound.
                 Select Case TransducerType
-                    Case TransducerTypes.SoundField
+                    Case PresentationTypes.SoundField
 
                         'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
                         OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
@@ -357,11 +390,11 @@ Namespace Audio
 
                         Next
 
-                    Case TransducerTypes.Ambisonics
+                    Case PresentationTypes.Ambisonics
 
                         Throw New NotImplementedException("Ambisonics presentation is not yet supported.")
 
-                    Case TransducerTypes.SimulatedSoundField
+                    Case PresentationTypes.SimulatedSoundField
 
                         'Simulating the speaker locations into stereo headphones
                         SimulateSoundSourceLocation(SoundSceneItemList)
@@ -377,7 +410,7 @@ Namespace Audio
 
                         Next
 
-                    Case TransducerTypes.Ambisonics
+                    Case PresentationTypes.Ambisonics
                         Throw New NotImplementedException("Unknown TransducerType")
                 End Select
 
@@ -603,36 +636,29 @@ Namespace Audio
 
             Public DirectionalSimulator As DirectionalSimulation = Nothing
 
-            Private _TransducerName As TransducerNames
+            Private _TransducerName As HeadphonesName
 
-            Public ReadOnly Property TransducerName As TransducerNames
+            Public ReadOnly Property TransducerName As HeadphonesName
                 Get
                     Return _TransducerName
                 End Get
             End Property
 
-            Public Enum TransducerNames
+            Public Enum HeadphonesName
                 Unspecified
                 AKGK601
                 AKGK271MKII
                 SennheiserHD25_1
             End Enum
 
-            Private _SpeakerDistance As Double
-            Public ReadOnly Property SpeakerDistance As Double
-                Get
-                    Return _SpeakerDistance
-                End Get
-            End Property
 
-            Public SupportedSpeakerDistances As New SortedList(Of String, List(Of Double)) From {{"wierstorf2011", New List(Of Double) From {0.5, 1.0R, 2.0R, 3.0R}}}
+            Public SupportedSimulatedLoudspeakerDistances As New SortedList(Of String, List(Of Double)) From {{"wierstorf2011", New List(Of Double) From {0.5, 1.0R, 2.0R, 3.0R}}}
 
-            Public Sub SetupDirectionalSimulator(ByVal TransducerName As TransducerNames, ByVal SpeakerDistance As Double, ByVal WaveFormat As Audio.Formats.WaveFormat)
+            Public Sub SetupDirectionalSimulator(ByVal TransducerName As HeadphonesName, ByVal SimulatedLoadspeakerDistance As Double, ByVal WaveFormat As Audio.Formats.WaveFormat)
 
                 Me._TransducerName = TransducerName
-                Me._SpeakerDistance = SpeakerDistance
 
-                If Not SupportedSpeakerDistances("wierstorf2011").Contains(SpeakerDistance) Then Throw New NotImplementedException("The selected speaker distance (" & SpeakerDistance & " meters) is not available for sound field simulation.")
+                If Not SupportedSimulatedLoudspeakerDistances("wierstorf2011").Contains(SimulatedLoadspeakerDistance) Then Throw New NotImplementedException("The selected speaker distance (" & SimulatedLoadspeakerDistance & " meters) is not available for sound field simulation.")
 
                 Select Case WaveFormat.BitDepth
                     Case 32
@@ -655,17 +681,17 @@ Namespace Audio
                 'Creating a file name
                 Dim HeadphoneTypeString As String = ""
                 Select Case TransducerName
-                    Case TransducerNames.Unspecified
+                    Case HeadphonesName.Unspecified
                         HeadphoneTypeString = ""
-                    Case TransducerNames.AKGK271MKII
+                    Case HeadphonesName.AKGK271MKII
                         HeadphoneTypeString = "AKGK271_"
-                    Case TransducerNames.AKGK601
+                    Case HeadphonesName.AKGK601
                         HeadphoneTypeString = "AKGK601_"
-                    Case TransducerNames.SennheiserHD25_1
+                    Case HeadphonesName.SennheiserHD25_1
                         HeadphoneTypeString = "SennheiserHD25_"
                 End Select
 
-                Dim CurrentIrFileName As String = "QU_KEMAR_anechoic_" & HeadphoneTypeString & SpeakerDistance.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) & "m.wav"
+                Dim CurrentIrFileName As String = "QU_KEMAR_anechoic_" & HeadphoneTypeString & SimulatedLoadspeakerDistance.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) & "m.wav"
 
                 DirectionalSimulator = New DirectionalSimulation(IO.Path.Combine(CurrentIrDatabasePath, CurrentIrFileName))
 

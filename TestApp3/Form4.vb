@@ -95,7 +95,7 @@
                 Dim RecordingWaveFormat As SpeechTestFramework.Audio.Formats.WaveFormat = Sound1.WaveFormat
                 Dim newAudioSettingsDialog As SpeechTestFramework.AudioSettingsDialog
                 If RecordingWaveFormat IsNot Nothing Then
-                    newAudioSettingsDialog = New SpeechTestFramework.AudioSettingsDialog(RecordingWaveFormat.SampleRate)
+                    newAudioSettingsDialog = New SpeechTestFramework.AudioSettingsDialog()
                 Else
                     newAudioSettingsDialog = New SpeechTestFramework.AudioSettingsDialog()
                     RecordingWaveFormat = New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1, , SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
@@ -458,14 +458,14 @@
         ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Masker1, 1, 65, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 120}, 48000,,,, FadeSpecs_Maskers))
         ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Masker2, 1, 65, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 130}, 48000,,,, FadeSpecs_Maskers))
 
-        Dim MyMixer = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer(2, 0)
-        MyMixer.SetLinearOutput()
+        Dim MyMixer = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer()
+        'MyMixer.SetLinearOutput()
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30})
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30})
 
-        MyMixer.TransducerType = SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.TransducerTypes.SimulatedSoundField
-        MyMixer.SetupDirectionalSimulator(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.TransducerNames.Unspecified, 1, Sound_Background.WaveFormat)
+        MyMixer.TransducerType = SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.PresentationTypes.SimulatedSoundField
+        MyMixer.SetupDirectionalSimulator(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.HeadphonesName.Unspecified, 1, Sound_Background.WaveFormat)
 
         Dim OutputSound = MyMixer.CreateSoundScene(ItemList)
 
@@ -477,14 +477,7 @@
 
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
 
-        Dim MyMixer = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer(2, 0, SpeechTestFramework.OstfBase.AvaliableTransducers(0))
-        MyMixer.SetLinearOutput()
-        MyMixer.HardwareOutputChannelSpeakerLocations.Add(1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30})
-        MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})
-        MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30})
-
-
-        Dim CalibrationDialog As New SpeechTestFramework.CalibrationForm(MyMixer)
+        Dim CalibrationDialog As New SpeechTestFramework.CalibrationForm()
         CalibrationDialog.Show()
 
     End Sub

@@ -66,7 +66,7 @@ Namespace Audio
 
         End Function
 
-        Public Function SetAsioSoundDevice(ByVal DeviceName As String) As Boolean
+        Public Function SetAsioSoundDevice(ByVal DeviceName As String, Optional ByVal BufferSize As Integer = 256) As Boolean
 
             'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
             If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
@@ -110,6 +110,9 @@ Namespace Audio
                 End If
             Next
 
+            'Setting buffer size
+            SetBufferSize(BufferSize)
+
             If SelectedInputAndOutputDeviceInfo IsNot Nothing Then
                 Return True
             Else
@@ -120,11 +123,124 @@ Namespace Audio
 
 
         ''' <summary>
+        ''' Selects the indicated API and sound device/devices.
+        ''' </summary>
+        ''' <returns>Returns True upon succes and Flase if the intended devices could not be set.</returns>
+        Public Function SetNonAsioSoundDevice(ByVal ApiName As String, ByVal OutputDeviceName As String, Optional ByVal InputDeviceName As String = "", Optional ByVal BufferSize As Integer = 256) As Boolean
+
+            'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
+            If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
+                PortAudio.Pa_Initialize()
+            End If
+
+            'Setting driver type
+            'Getting driver types
+            Dim DriverTypeList As New List(Of PortAudio.PaHostApiInfo)
+            Dim hostApiCount As Integer = PortAudio.Pa_GetHostApiCount()
+            For i As Integer = 0 To hostApiCount - 1
+                Dim CurrentHostApiInfo As PortAudio.PaHostApiInfo = PortAudio.Pa_GetHostApiInfo(i)
+
+                Select Case CurrentHostApiInfo.type
+                    'Adds only the most common types
+                    Case PortAudio.PaHostApiTypeId.paDirectSound, PortAudio.PaHostApiTypeId.paMME, PortAudio.PaHostApiTypeId.paWASAPI
+                        If CurrentHostApiInfo.name = ApiName Then
+                            DriverTypeList.Add(CurrentHostApiInfo)
+                            Exit For
+                        End If
+                End Select
+            Next
+
+            'Selecting the only added driver or returns False if none are available
+            If DriverTypeList.Count > 0 Then
+                SelectedApiInfo = DriverTypeList(0)
+            Else
+                Return False
+            End If
+
+            'Selecting devices
+            'Output device
+            Dim deviceCount As Integer = PortAudio.Pa_GetDeviceCount()
+            Dim outputDeviceList As New List(Of KeyValuePair(Of Integer, PortAudio.PaDeviceInfo))
+
+            For i As Integer = 0 To deviceCount - 1
+                Dim paDeviceInfo As PortAudio.PaDeviceInfo = PortAudio.Pa_GetDeviceInfo(i)
+                Dim paHostApi As PortAudio.PaHostApiInfo = PortAudio.Pa_GetHostApiInfo(paDeviceInfo.hostApi)
+                If paHostApi.type = SelectedApiInfo.type Then
+                    If paDeviceInfo.maxOutputChannels > 0 Then
+                        If paDeviceInfo.name = OutputDeviceName Then
+                            outputDeviceList.Add(New KeyValuePair(Of Integer, PortAudio.PaDeviceInfo)(i, paDeviceInfo))
+                            Exit For
+                        End If
+                    End If
+                End If
+            Next
+
+            Select Case SelectedApiInfo.type
+                Case PortAudio.PaHostApiTypeId.paMME, PortAudio.PaHostApiTypeId.paDirectSound, PortAudio.PaHostApiTypeId.paWASAPI
+                    If outputDeviceList.Count > 0 Then
+                        SelectedOutputDeviceInfo = outputDeviceList(0).Value
+                        SelectedOutputDevice = outputDeviceList(0).Key
+                        SelectedInputAndOutputDeviceInfo = Nothing
+                    Else
+                        'Returns false if the intended output device could not be found
+                        Return False
+                    End If
+
+            End Select
+
+            'Input device
+            If InputDeviceName = "" Then
+
+                ' No input device should be selected
+
+                SelectedInputDeviceInfo = Nothing
+                SelectedInputDevice = Nothing
+                SelectedInputAndOutputDeviceInfo = Nothing
+
+            Else
+
+                Dim InputDeviceList As New List(Of KeyValuePair(Of Integer, PortAudio.PaDeviceInfo))
+
+                For i As Integer = 0 To deviceCount - 1
+                    Dim paDeviceInfo As PortAudio.PaDeviceInfo = PortAudio.Pa_GetDeviceInfo(i)
+                    Dim paHostApi As PortAudio.PaHostApiInfo = PortAudio.Pa_GetHostApiInfo(paDeviceInfo.hostApi)
+                    If paHostApi.type = SelectedApiInfo.type Then
+                        If paDeviceInfo.maxInputChannels > 0 Then
+                            If paDeviceInfo.name = InputDeviceName Then
+                                InputDeviceList.Add(New KeyValuePair(Of Integer, PortAudio.PaDeviceInfo)(i, paDeviceInfo))
+                                Exit For
+                            End If
+                        End If
+                    End If
+                Next
+
+                Select Case SelectedApiInfo.type
+                    Case PortAudio.PaHostApiTypeId.paMME, PortAudio.PaHostApiTypeId.paDirectSound, PortAudio.PaHostApiTypeId.paWASAPI
+
+                        If InputDeviceList.Count > 0 Then
+                            SelectedInputDeviceInfo = InputDeviceList(0).Value
+                            SelectedInputDevice = InputDeviceList(0).Key
+                            SelectedInputAndOutputDeviceInfo = Nothing
+                        Else
+                            'Returns false if the intended input device could not be found
+                            Return False
+                        End If
+                End Select
+            End If
+
+            'Setting buffer size
+            SetBufferSize(BufferSize)
+
+            Return True
+
+        End Function
+
+
+        ''' <summary>
         ''' Selects the first available (non asio) audio device for use.
         ''' </summary>
         ''' <returns>Returns True if at least an input or an output device was set. Returns false if neither an input or an output device could be set.</returns>
-        Public Function SelectFirstAvailableDevice(Optional ByVal SampleRate As Integer = 48000,
-                                            Optional ByVal BufferSize As Integer = 256) As Boolean
+        Public Function SelectFirstAvailableDevice(Optional ByVal BufferSize As Integer = 256) As Boolean
 
             'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
             If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
@@ -215,32 +331,7 @@ Namespace Audio
             If InputDeviceIsSet = False And OutputDeviceIsSet = False Then Return False
 
             'Setting buffer size
-            Dim ValidBufferSizes As New List(Of Integer)
-            Dim NewBufferSize As Integer = 128
-            While NewBufferSize < 100000
-                ValidBufferSizes.Add(NewBufferSize)
-                NewBufferSize *= 2
-            End While
-
-            If ValidBufferSizes.Contains(BufferSize) Then
-                FramesPerBuffer = BufferSize
-            Else
-                'If the user supplied an invalid bufer size, the buffer size is rounded up to the next valid value. 
-                For n = 0 To ValidBufferSizes.Count - 1
-                    If n = 0 Then
-                        If BufferSize < ValidBufferSizes(n) Then FramesPerBuffer = ValidBufferSizes(n)
-                    End If
-
-                    If n > 0 And n < ValidBufferSizes.Count - 1 Then
-                        If BufferSize > ValidBufferSizes(n) And BufferSize < ValidBufferSizes(n + 1) Then FramesPerBuffer = ValidBufferSizes(n + 1)
-                    End If
-
-                    If n = ValidBufferSizes.Count - 1 Then
-                        If BufferSize > ValidBufferSizes(n) Then FramesPerBuffer = ValidBufferSizes(n)
-                    End If
-                Next
-
-            End If
+            SetBufferSize(BufferSize)
 
             Return True
 
@@ -338,6 +429,14 @@ Namespace Audio
                 Return False
             End If
 
+            'Setting buffer size
+            SetBufferSize(BufferSize)
+
+            Return True
+
+        End Function
+
+        Private Sub SetBufferSize(ByVal BufferSize As Integer)
 
             'Setting buffer size
             Dim ValidBufferSizes As New List(Of Integer)
@@ -367,9 +466,8 @@ Namespace Audio
 
             End If
 
-            Return True
+        End Sub
 
-        End Function
 
     End Class
 

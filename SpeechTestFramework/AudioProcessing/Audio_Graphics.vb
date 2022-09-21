@@ -1942,13 +1942,13 @@ Namespace Audio
 
 
             Private Sub SetAudioApiSettings()
-                Dim newAudioSettingsDialog As New AudioSettingsDialog(CurrentSound.WaveFormat.SampleRate)
+                Dim newAudioSettingsDialog As New AudioSettingsDialog()
                 Dim DialogResult = newAudioSettingsDialog.ShowDialog()
                 If DialogResult = DialogResult.OK Then
                     AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
                 Else
                     MsgBox("Default Setting is being used")
-                    AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
+                    AudioApiSettings.SelectDefaultAudioDevice()
                 End If
 
                 SetupSoundPLayer()

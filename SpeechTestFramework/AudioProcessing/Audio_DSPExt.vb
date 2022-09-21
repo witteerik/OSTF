@@ -10524,21 +10524,19 @@ Namespace Audio
 
     End Namespace
 
-    Namespace PlayBack
 
-        Public Interface ISoundPlayerControl
-            Sub MessageFromPlayer(ByRef Message As MessagesFromSoundPlayer)
-
-            Enum MessagesFromSoundPlayer
-                EndOfSound
-                ApproachingEndOfBufferAlert
-                NewBufferTick
-            End Enum
-
-        End Interface
-
-    End Namespace
+    ''Temporarily outcommented, until better solutions is fixed:
+    'Namespace PlayBack
+    '    Public Interface ISoundPlayerControl
+    '        Sub MessageFromPlayer(ByRef Message As MessagesFromSoundPlayer)
+    '        Enum MessagesFromSoundPlayer
+    '            EndOfSound
+    '            ApproachingEndOfBufferAlert
+    '            NewBufferTick
+    '        End Enum
+    '    End Interface
     'End Namespace
+
 
 
 End Namespace

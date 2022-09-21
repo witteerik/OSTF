@@ -533,7 +533,7 @@ Public Class SpeechMaterialRecorder
             CurrentAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
         Else
             'Attempting to set default AudioApiSettings if the user pressed ok
-            CurrentAudioApiSettings.SelectDefaultAudioDevice(RecordingWaveFormat.SampleRate)
+            CurrentAudioApiSettings.SelectDefaultAudioDevice()
         End If
 
         If CurrentAudioApiSettings IsNot Nothing Then
@@ -1233,7 +1233,7 @@ Public Class SpeechMaterialRecorder
                     'Adjusting the level
                     Dim BackgroundSoundLevel_FS = BackgroundSoundLevel - Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
                     Dim UncalibratedGain = BackgroundSoundLevel_FS - PreLevel
-                    Dim CalibratedGain = UncalibratedGain + SoundPlayer.Mixer.GetCalibrationGain(c)
+                    Dim CalibratedGain = UncalibratedGain + SoundPlayer.GetMixer.GetCalibrationGain(c)
                     Audio.DSP.AmplifySection(BackgroundSound, CalibratedGain, c)
                 Next
 
@@ -1284,7 +1284,7 @@ Public Class SpeechMaterialRecorder
 
                 Dim PresentationLevel_FS = PresentationLevel - Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
                 Dim UncalibratedGain = PresentationLevel_FS - PreLevel
-                Dim CalibratedGain = UncalibratedGain + SoundPlayer.Mixer.GetCalibrationGain(c)
+                Dim CalibratedGain = UncalibratedGain + SoundPlayer.GetMixer.GetCalibrationGain(c)
                 Audio.DSP.AmplifySection(PrototypeSoundCopy_Stereo, CalibratedGain, c)
             Next
 

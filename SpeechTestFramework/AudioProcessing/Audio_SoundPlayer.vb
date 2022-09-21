@@ -13,6 +13,10 @@ Namespace Audio
 
             Private Mixer As DuplexMixer
 
+            Public Function GetMixer() As DuplexMixer
+                Return Mixer
+            End Function
+
             Private SelectedApiInfo As PortAudio.PaHostApiInfo
             Private SelectedInputDeviceInfo As PortAudio.PaDeviceInfo?
             Private SelectedInputDevice As Integer?
@@ -28,7 +32,7 @@ Namespace Audio
             Private paStreamCallback As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
 
                                                                                  'Sending a buffer tick to the controller
-                                                                                 SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.NewBufferTick)
+                                                                                 'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.NewBufferTick)
 
                                                                                  Try
 
@@ -80,14 +84,14 @@ Namespace Audio
 
                                                                                                  'Copying the silent buffer if the end of sound A is reached
                                                                                                  If PositionA = OutputSoundA.Length - ApproachingEndOfBufferAlert_BufferCount Then
-                                                                                                     SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.ApproachingEndOfBufferAlert)
+                                                                                                     'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.ApproachingEndOfBufferAlert)
                                                                                                  End If
 
                                                                                              Case OutputSounds.OutputSoundB, OutputSounds.FadingToB
 
                                                                                                  'Copying the silent buffer if the end of sound A is reached
                                                                                                  If PositionB = OutputSoundB.Length - ApproachingEndOfBufferAlert_BufferCount Then
-                                                                                                     SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.ApproachingEndOfBufferAlert)
+                                                                                                     'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.ApproachingEndOfBufferAlert)
                                                                                                  End If
 
                                                                                              Case Else
@@ -104,7 +108,7 @@ Namespace Audio
                                                                                                      Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length)
 
                                                                                                      'Sending message to the controller
-                                                                                                     SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
+                                                                                                     'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
 
                                                                                                      If StopAtOutputSoundEnd = True Then
 
@@ -129,7 +133,7 @@ Namespace Audio
                                                                                                      Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length)
 
                                                                                                      'Sending message to the controller
-                                                                                                     SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
+                                                                                                     'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
 
                                                                                                      If StopAtOutputSoundEnd = True Then
 
@@ -188,7 +192,7 @@ Namespace Audio
                                                                                                      Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length)
 
                                                                                                      'Sending message to the controller
-                                                                                                     SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
+                                                                                                     'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
 
                                                                                                      If StopAtOutputSoundEnd = True Then
 
@@ -247,7 +251,7 @@ Namespace Audio
                                                                                                      Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length)
 
                                                                                                      'Sending message to the controller
-                                                                                                     SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
+                                                                                                     'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
 
                                                                                                      If StopAtOutputSoundEnd = True Then
 
@@ -544,7 +548,7 @@ Namespace Audio
             ''' <param name="OverlapDuration"></param>
             Public Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
                                             Optional ByVal WaveFormat As Audio.Formats.WaveFormat = Nothing,
-                                            Optional ByVal OverlapDuration As Double = 1,
+                                            Optional ByVal OverlapDuration As Double? = Nothing,
                                             Optional ByRef Mixer As DuplexMixer = Nothing,
                                             Optional ByVal SoundDirection As SoundDirections? = Nothing,
                                             Optional ByVal ReOpenStream As Boolean = True,
@@ -578,7 +582,7 @@ Namespace Audio
                 End If
 
                 'Setting OverlapFadeLength (and creating fade arrays)
-                SetOverlapDuration(OverlapDuration)
+                If OverlapDuration.HasValue Then SetOverlapDuration(OverlapDuration)
 
                 If Mixer IsNot Nothing Then Me.Mixer = Mixer
 
@@ -1323,97 +1327,97 @@ Namespace Audio
             End Function
 
 
-            Private Sub SendMessageToController(ByVal Message As PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer,
-                                        Optional ByVal SendOnNewThread As Boolean = True)
+            'Private Sub SendMessageToController(ByVal Message As PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer,
+            '                            Optional ByVal SendOnNewThread As Boolean = True)
 
-                If IsBufferTickActive = True Then
-                    If SendOnNewThread = False Then
-                        'Sending message on same thread (Should not be used when messages are sent from within the callback!)
-                        RaiseEvent MessageFromPlayer(Message)
+            '    If IsBufferTickActive = True Then
+            '        If SendOnNewThread = False Then
+            '            'Sending message on same thread (Should not be used when messages are sent from within the callback!)
+            '            RaiseEvent MessageFromPlayer(Message)
 
-                    Else
-                        'Sending message on a new thread, allowing the main thread to continue execution
-                        'Dim NewthreadMessageSender As New MessageSenderOnNewThread(Message, MyController)
-                        'TODO: How to fix this? Raiseing event from separate thread?
-                    End If
-                End If
+            '        Else
+            '            'Sending message on a new thread, allowing the main thread to continue execution
+            '            'Dim NewthreadMessageSender As New MessageSenderOnNewThread(Message, MyController)
+            '            'TODO: How to fix this? Raiseing event from separate thread?
+            '        End If
+            '    End If
 
-                'Dim NewThread As New Thread(AddressOf SendMessage)
+            '    'Dim NewThread As New Thread(AddressOf SendMessage)
 
-                'NewThread.Join()
-                'Dim 
-                'ThreadPool.QueueUserWorkItem(,)
-                'MyController.Handle
+            '    'NewThread.Join()
+            '    'Dim 
+            '    'ThreadPool.QueueUserWorkItem(,)
+            '    'MyController.Handle
 
-            End Sub
+            'End Sub
 
-            ''' <summary>
-            ''' A class used to send one ISoundPlayerControl.MessagesFromSoundPlayer message on a new thread.
-            ''' </summary>
-            Private Class MessageSenderOnNewThread
-                Implements IDisposable
+            '            ''' <summary>
+            '            ''' A class used to send one ISoundPlayerControl.MessagesFromSoundPlayer message on a new thread.
+            '            ''' </summary>
+            '            Private Class MessageSenderOnNewThread
+            '                Implements IDisposable
 
-                Private Message As PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer
-                Private Controller As PlayBack.ISoundPlayerControl
+            '                Private Message As PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer
+            '                Private Controller As PlayBack.ISoundPlayerControl
 
-                ''' <summary>
-                ''' Sends the supplied message to the indicated Controller directly on initiation and then desposes the sending object.
-                ''' </summary>
-                ''' <param name="Message"></param>
-                ''' <param name="Controller"></param>
-                Public Sub New(ByRef Message As PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer, ByRef Controller As PlayBack.ISoundPlayerControl)
-                    Me.Message = Message
-                    Me.Controller = Controller
+            '                ''' <summary>
+            '                ''' Sends the supplied message to the indicated Controller directly on initiation and then desposes the sending object.
+            '                ''' </summary>
+            '                ''' <param name="Message"></param>
+            '                ''' <param name="Controller"></param>
+            '                Public Sub New(ByRef Message As PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer, ByRef Controller As PlayBack.ISoundPlayerControl)
+            '                    Me.Message = Message
+            '                    Me.Controller = Controller
 
-                    'Sending message on a new thread
-                    Dim NewThred As New Thread(AddressOf SendMessage)
-                    NewThred.Start()
+            '                    'Sending message on a new thread
+            '                    Dim NewThred As New Thread(AddressOf SendMessage)
+            '                    NewThred.Start()
 
-                End Sub
+            '                End Sub
 
-                Private Sub SendMessage()
+            '                Private Sub SendMessage()
 
-                    'Sending the message
-                    Controller.MessageFromPlayer(Message)
+            '                    'Sending the message
+            '                    Controller.MessageFromPlayer(Message)
 
-                    'Disposing Me
-                    Me.Dispose()
+            '                    'Disposing Me
+            '                    Me.Dispose()
 
-                End Sub
+            '                End Sub
 
-#Region "IDisposable Support"
-                Private disposedValue As Boolean ' To detect redundant calls
+            '#Region "IDisposable Support"
+            '                Private disposedValue As Boolean ' To detect redundant calls
 
-                ' IDisposable
-                Protected Overridable Sub Dispose(disposing As Boolean)
-                    If Not disposedValue Then
-                        If disposing Then
-                            ' TODO: dispose managed state (managed objects).
-                        End If
+            '                ' IDisposable
+            '                Protected Overridable Sub Dispose(disposing As Boolean)
+            '                    If Not disposedValue Then
+            '                        If disposing Then
+            '                            ' TODO: dispose managed state (managed objects).
+            '                        End If
 
-                        ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
-                        ' TODO: set large fields to null.
-                    End If
-                    disposedValue = True
-                End Sub
+            '                        ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
+            '                        ' TODO: set large fields to null.
+            '                    End If
+            '                    disposedValue = True
+            '                End Sub
 
-                ' TODO: override Finalize() only if Dispose(disposing As Boolean) above has code to free unmanaged resources.
-                'Protected Overrides Sub Finalize()
-                '    ' Do not change this code.  Put cleanup code in Dispose(disposing As Boolean) above.
-                '    Dispose(False)
-                '    MyBase.Finalize()
-                'End Sub
+            '                ' TODO: override Finalize() only if Dispose(disposing As Boolean) above has code to free unmanaged resources.
+            '                'Protected Overrides Sub Finalize()
+            '                '    ' Do not change this code.  Put cleanup code in Dispose(disposing As Boolean) above.
+            '                '    Dispose(False)
+            '                '    MyBase.Finalize()
+            '                'End Sub
 
-                ' This code added by Visual Basic to correctly implement the disposable pattern.
-                Public Sub Dispose() Implements IDisposable.Dispose
-                    ' Do not change this code.  Put cleanup code in Dispose(disposing As Boolean) above.
-                    Dispose(True)
-                    ' TODO: uncomment the following line if Finalize() is overridden above.
-                    ' GC.SuppressFinalize(Me)
-                End Sub
-#End Region
+            '                ' This code added by Visual Basic to correctly implement the disposable pattern.
+            '                Public Sub Dispose() Implements IDisposable.Dispose
+            '                    ' Do not change this code.  Put cleanup code in Dispose(disposing As Boolean) above.
+            '                    Dispose(True)
+            '                    ' TODO: uncomment the following line if Finalize() is overridden above.
+            '                    ' GC.SuppressFinalize(Me)
+            '                End Sub
+            '#End Region
 
-            End Class
+            '            End Class
 
 
 #Region "IDisposable Support"

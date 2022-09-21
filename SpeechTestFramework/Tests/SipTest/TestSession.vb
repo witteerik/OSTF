@@ -2,8 +2,6 @@
 
 Partial Class SipTestGui
 
-    Private AudioApiSettings As Audio.AudioApiSettings
-
     Private CurrentTestSound As Audio.Sound = Nothing
 
     Private CurrentSipTrial As SipTest.SipTrial
@@ -113,48 +111,6 @@ Partial Class SipTestGui
 
 
     Private Sub InitiateTest()
-
-        If SimulationMode = False Then 'We need no sound player in the simulation mode
-
-            Dim SelectedTransducer As New TransducerSpecification
-
-            Dim NewMixer = New Audio.PortAudioVB.DuplexMixer(SelectedTransducer SoundPlayer.NumberOfOutputChannels, SoundPlayer.NumberOfInputChannels)
-            NewMixer.OutputRouting.Clear()
-
-            Dim ForegroundOutputChannels As New SortedSet(Of Integer) From {1}
-            Dim BackgroundOutputChannels As New SortedSet(Of Integer) From {1, 2}
-
-            'Skipping routing of silent channels
-            Dim OutputChannelCount As Integer = Math.Min(SoundPlayer.NumberOfOutputChannels, 2)
-            For n = 1 To OutputChannelCount
-
-                If ForegroundOutputChannels.Contains(n) Then Continue For
-                If BackgroundOutputChannels.Contains(n) Then Continue For
-
-                NewMixer.OutputRouting.Add(n, 0)
-            Next
-
-            'Getting non-silent channels
-            Dim ChannelsToUse As New SortedSet(Of Integer)
-            For Each n In ForegroundOutputChannels
-                If Not ChannelsToUse.Contains(n) Then ChannelsToUse.Add(n)
-            Next
-            For Each n In BackgroundOutputChannels
-                If Not ChannelsToUse.Contains(n) Then ChannelsToUse.Add(n)
-            Next
-
-            'Adding straight-through routing of nonsilent channels
-            For Each n In ChannelsToUse
-                NewMixer.OutputRouting.Add(n, n)
-            Next
-
-            SoundPlayer.ChangePlayerSettings(,,, NewMixer, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, True, True)
-
-            SoundPlayer.Mixer = NewMixer
-            SoundPlayer.OpenStream()
-            SoundPlayer.Start()
-
-        End If
 
         StartTrialTimer.Interval = Math.Max(1, InterTrialInterval * 1000)
 
