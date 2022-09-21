@@ -269,8 +269,12 @@ Public Class SipTestGui
 
         SelectedTransducer = Transducer_ComboBox.SelectedItem
 
-        '(At this stage the sound player will be started, if not already done.)
-        OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 1, SelectedTransducer.Mixer,, True, True)
+        If SelectedTransducer.CanPlay = True Then
+            '(At this stage the sound player will be started, if not already done.)
+            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 1, SelectedTransducer.Mixer,, True, True)
+        Else
+            MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
+        End If
 
         If CurrentParticipantID <> "" Then
             Test_TableLayoutPanel.Enabled = True
@@ -706,6 +710,11 @@ Public Class SipTestGui
 
     Public Sub InitiateNewMeasurement()
 
+        If SelectedTransducer.CanPlay = True Then
+            'Aborts if the SelectedTransducer cannot be used to play sound
+            Exit Sub
+        End If
+
         If CurrentSipTestMeasurement Is Nothing Then
             ShowMessageBox("Inget test är laddat.", "SiP-test")
             Exit Sub
@@ -1123,88 +1132,6 @@ Public Class SipTestGui
 
 #End Region
 
-
-#Region "BlueToothConnection"
-
-    Public Sub UpdateBluetoothConnectionStatusIndicator(ConnectionOk As Boolean)
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub PopulateBluetoothDevicesList(DeviceDescriptions As List(Of String))
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub EnableBluetoothDevicesList()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub DisableBluetoothDevicesList()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub EnableBluetoothSearchButton()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub DisableBluetoothSearchButton()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub EnableBluetoothDeviceSelectionButton()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub DisableBluetoothDeviceSelectionButton()
-        Throw New NotImplementedException()
-    End Sub
-
-#End Region
-
-
-#Region "BlueToothConnection: Handling of local events"
-
-#End Region
-
-#Region "SoundDevice"
-
-    Public Sub UpdateSoundDeviceConnectionStatusIndicator(ConnectionOk As Boolean)
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub PopulateSoundDevicesList(DeviceDescriptions As List(Of String))
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub EnableSoundDevicesList()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub DisableSoundDevicesList()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub EnableSoundDeviceSearchButton()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub DisableSoundDeviceSearchButton()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub EnableSoundDeviceSelectionButton()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub DisableSoundDeviceSelectionButton()
-        Throw New NotImplementedException()
-    End Sub
-
-#End Region
-
-
-#Region "SoundDevice: Handling of local events"
-
-#End Region
 
 
 #Region "MessageBoxes"
@@ -1671,63 +1598,6 @@ Public Class SipTestGui
 
     End Sub
 
-    'Private Sub SoundDeviceSearch_Button_Click(sender As Object, e As EventArgs)
-
-    '    SelectedSoundDevice_TextBox.Text = ""
-
-    '    'NOTE, the sound player will only support the same sample rate in all files in MediaSets!!!
-
-    '    Dim CurrentWaveFormat = CompleteSpeechMaterial.GetWavefileFormat(AvailableMediaSets(0), 1)
-    '    Dim newAudioSettingsDialog = New AudioOutputSettingsDialog()
-
-    '    Dim Result = newAudioSettingsDialog.ShowDialog()
-    '    If Result = Windows.Forms.DialogResult.OK Then
-    '        AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
-    '    Else
-    '        Select Case GuiLanguage
-    '            Case Utils.Constants.Languages.Swedish
-    '                MsgBox("En ljudenhet mste väljas!", MsgBoxStyle.Exclamation, "Ingen ljudenhet vald!")
-    '            Case Else
-    '                MsgBox("An output sound device must be selected!", MsgBoxStyle.Exclamation, "No output sound device selected!")
-    '        End Select
-    '        Exit Sub
-    '    End If
-
-    '    If AudioApiSettings.SelectedInputAndOutputDeviceInfo IsNot Nothing Then
-    '        SelectedSoundDevice_TextBox.Text = AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.name & " (" & AudioApiSettings.SelectedInputAndOutputDeviceInfo.Value.ToString & ")"
-    '    ElseIf AudioApiSettings.SelectedOutputDeviceInfo IsNot Nothing Then
-    '        SelectedSoundDevice_TextBox.Text = AudioApiSettings.SelectedOutputDeviceInfo.Value.name & " (" & AudioApiSettings.SelectedOutputDeviceInfo.Value.hostApi & ")"
-    '    Else
-    '        Select Case GuiLanguage
-    '            Case Utils.Constants.Languages.Swedish
-    '                SelectedSoundDevice_TextBox.Text = "Ingen ljudenhet vald"
-    '            Case Else
-    '                SelectedSoundDevice_TextBox.Text = "No sound device selected"
-    '        End Select
-    '    End If
-
-    '    If CurrentParticipantID <> "" Then
-    '        Test_TableLayoutPanel.Enabled = True
-    '    End If
-
-    'End Sub
-
-
-    Private Sub UseSoundField_RadioButton_CheckedChanged(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub UseHeadphones_RadioButton_CheckedChanged(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub StartTest(sender As Object, e As EventArgs) Handles StartButton.Click
-
-    End Sub
-
-    Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
-
-    End Sub
 
     Private Sub SipTestGui_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
 

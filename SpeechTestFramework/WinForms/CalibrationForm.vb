@@ -108,8 +108,14 @@
 
         SelectedTransducer = Transducer_ComboBox.SelectedItem
 
-        '(At this stage the sound player will be started, if not already done.)
-        OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 0.1, SelectedTransducer.Mixer,, True, True)
+        If SelectedTransducer.CanPlay = True Then
+            '(At this stage the sound player will be started, if not already done.)
+            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 0.1, SelectedTransducer.Mixer,, True, True)
+            PlaySignal_Button.Enabled = True
+        Else
+            MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
+            PlaySignal_Button.Enabled = False
+        End If
 
         'Adding description
         SoundSystem_RichTextBox.Text = SelectedTransducer.GetDescriptionString
@@ -153,47 +159,53 @@
 
         Try
 
-
             'Silencing any previously started calibration signal
             SilenceCalibrationTone()
 
-            'Sets the SelectedCalibrationSound 
-            Dim CalibrationSound As Audio.Sound = CalibrationSignal_ComboBox.SelectedItem
+            If SelectedTransducer.CanPlay = True Then
 
-            If CalibrationSound Is Nothing Then
-                MsgBox("Please select a calibration signal!", MsgBoxStyle.Exclamation, "Calibration")
-                Exit Sub
+                'Sets the SelectedCalibrationSound 
+                Dim CalibrationSound As Audio.Sound = CalibrationSignal_ComboBox.SelectedItem
+
+                If CalibrationSound Is Nothing Then
+                    MsgBox("Please select a calibration signal!", MsgBoxStyle.Exclamation, "Calibration")
+                    Exit Sub
+                End If
+
+                'Copies the sound 
+                CalibrationSound = CalibrationSound.CreateCopy
+
+                'Converts 16 bit PCM to 32 float
+                If CalibrationSound.WaveFormat.BitDepth = 16 And CalibrationSound.WaveFormat.Encoding = Audio.Formats.WaveFormat.WaveFormatEncodings.PCM Then
+                    CalibrationSound = CalibrationSound.Convert16to32bitSound
+                    'Any other attempted format, except 32 bit IEEE, will be stopped by the player.
+                End If
+
+                'Updates the wave format of the sound player
+                OstfBase.SoundPlayer.ChangePlayerSettings(, CalibrationSound.WaveFormat)
+
+                'Setting the signal level
+                Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Audio.PortAudioVB.DuplexMixer.Simulated_dBSPL_To_dBFS(SelectedLevel), 1)
+
+                'Fading in and out
+                Audio.DSP.Fade(CalibrationSound, Nothing, 0, 1, 0, 0.02 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
+                Audio.DSP.Fade(CalibrationSound, 0, Nothing, 1, -0.02 * CalibrationSound.WaveFormat.SampleRate, Nothing, Audio.DSP.FadeSlopeType.Smooth)
+
+                'Putting the sound in the intend channel
+                Dim PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, CalibrationSound.WaveFormat.Encoding))
+                PlaySound.WaveData.SampleData(SelectedChannel) = CalibrationSound.WaveData.SampleData(1)
+
+                'Applying calibration gain
+                Dim CalibrationGain = SelectedTransducer.Mixer.GetCalibrationGain(SelectedChannel)
+                Audio.DSP.AmplifySection(CalibrationSound, CalibrationGain, SelectedChannel)
+
+                'Plays the sound
+                SoundPlayer.SwapOutputSounds(CalibrationSound)
+
+            Else
+
+
             End If
-
-            'Copies the sound 
-            CalibrationSound = CalibrationSound.CreateCopy
-
-            'Converts 16 bit PCM to 32 float
-            If CalibrationSound.WaveFormat.BitDepth = 16 And CalibrationSound.WaveFormat.Encoding = Audio.Formats.WaveFormat.WaveFormatEncodings.PCM Then
-                CalibrationSound = CalibrationSound.Convert16to32bitSound
-                'Any other attempted format, except 32 bit IEEE, will be stopped by the player.
-            End If
-
-            'Updates the wave format of the sound player
-            OstfBase.SoundPlayer.ChangePlayerSettings(, CalibrationSound.WaveFormat)
-
-            'Setting the signal level
-            Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Audio.PortAudioVB.DuplexMixer.Simulated_dBSPL_To_dBFS(SelectedLevel), 1)
-
-            'Fading in and out
-            Audio.DSP.Fade(CalibrationSound, Nothing, 0, 1, 0, 0.02 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
-            Audio.DSP.Fade(CalibrationSound, 0, Nothing, 1, -0.02 * CalibrationSound.WaveFormat.SampleRate, Nothing, Audio.DSP.FadeSlopeType.Smooth)
-
-            'Putting the sound in the intend channel
-            Dim PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, CalibrationSound.WaveFormat.Encoding))
-            PlaySound.WaveData.SampleData(SelectedChannel) = CalibrationSound.WaveData.SampleData(1)
-
-            'Applying calibration gain
-            Dim CalibrationGain = SelectedTransducer.Mixer.GetCalibrationGain(SelectedChannel)
-            'Audio.DSP.AmplifySection(CalibrationSound, CalibrationGain, SelectedChannel)
-
-            'Plays the sound
-            SoundPlayer.SwapOutputSounds(CalibrationSound)
 
         Catch ex As Exception
             MsgBox("An error occurred!", MsgBoxStyle.Exclamation, "Calibration")

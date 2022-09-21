@@ -24,49 +24,47 @@ Namespace Audio
             ''' </summary>
             Public HardwareOutputChannelSpeakerLocations As New SortedList(Of Integer, SoundSourceLocation)
 
-            Public TransducerType As PresentationTypes = PresentationTypes.SoundField
-
-            Public Enum PresentationTypes
-                SoundField
-                SimulatedSoundField
-                Headphones
-                Ambisonics
-            End Enum
 
             ''' <summary>
             ''' Creating a new mixer.
             ''' </summary>
             Public Sub New(Optional ByVal ParentTransducerSpecification As AudioSystemSpecification = Nothing)
 
-                'If ParentTransducerSpecification is not initialized, the first available transducer is selected
-                If ParentTransducerSpecification Is Nothing Then ParentTransducerSpecification = OstfBase.AvaliableTransducers(0)
+                Try
 
-                Me.ParentTransducerSpecification = ParentTransducerSpecification
+                    'If ParentTransducerSpecification is not initialized, the first available transducer is selected
+                    If ParentTransducerSpecification Is Nothing Then ParentTransducerSpecification = OstfBase.AvaliableTransducers(0)
 
-                'Sets up the routing
-                Dim OutputWaveFileChannel As Integer = 1
-                For Each c In ParentTransducerSpecification.HardwareOutputChannels
-                    OutputRouting.Add(c, OutputWaveFileChannel)
-                    OutputWaveFileChannel += 1
-                Next
+                    Me.ParentTransducerSpecification = ParentTransducerSpecification
 
-                'Sets soundsource locations
-                For i = 0 To ParentTransducerSpecification.HardwareOutputChannels.Count - 1
+                    'Sets up the routing
+                    Dim OutputWaveFileChannel As Integer = 1
+                    For Each c In ParentTransducerSpecification.HardwareOutputChannels
+                        OutputRouting.Add(c, OutputWaveFileChannel)
+                        OutputWaveFileChannel += 1
+                    Next
 
-                    Me.HardwareOutputChannelSpeakerLocations.Add(ParentTransducerSpecification.HardwareOutputChannels(i),
+                    'Sets soundsource locations
+                    For i = 0 To ParentTransducerSpecification.HardwareOutputChannels.Count - 1
+
+                        Me.HardwareOutputChannelSpeakerLocations.Add(ParentTransducerSpecification.HardwareOutputChannels(i),
                                                                  New SoundSourceLocation With {
                                                                  .HorizontalAzimuth = ParentTransducerSpecification.SoundSourceAzimuths(i),
                                                                  .Elevation = ParentTransducerSpecification.SoundSourceElevations(i),
                                                                  .Distance = ParentTransducerSpecification.SoundSourceDistances(i)})
-                Next
+                    Next
 
-                'Sets calibration
-                For i = 0 To ParentTransducerSpecification.HardwareOutputChannels.Count - 1
-                    Me._Calibration_FsToSpl.Add(ParentTransducerSpecification.HardwareOutputChannels(i), ParentTransducerSpecification.Calibration_FsToSpl(i))
-                Next
+                    'Sets calibration
+                    For i = 0 To ParentTransducerSpecification.HardwareOutputChannels.Count - 1
+                        Me._Calibration_FsToSpl.Add(ParentTransducerSpecification.HardwareOutputChannels(i), ParentTransducerSpecification.Calibration_FsToSpl(i))
+                    Next
 
-                'Sets linear input as default
-                SetLinearInput()
+                    'Sets linear input as default
+                    SetLinearInput()
+
+                Catch ex As Exception
+                    MsgBox("An error occurred! Make sure you have the correct (and equal) number of values for a) HardwareOutputChannels, b) SoundSourceAzimuths, c) SoundSourceElevations, d) SoundSourceDistances and e) Calibration_FsToSpl in the AudioSystemSpecification.txt file!", MsgBoxStyle.Critical, "Error: " & ex.ToString)
+                End Try
 
             End Sub
 
@@ -373,7 +371,7 @@ Namespace Audio
 
                 'Inserting/adding sounds to the output sound
                 'OutputSound.
-                Select Case TransducerType
+                Select Case ParentTransducerSpecification.PresentationType
                     Case PresentationTypes.SoundField
 
                         'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
@@ -445,13 +443,19 @@ Namespace Audio
                 'Exporting sound for manual evaluation
                 'Audio.AudioIOs.SaveToWaveFile(OutputSound, IO.Path.Combine(Utils.logFilePath, "Step6_PostLimiter"))
 
-                ' Calibrate
+                'Applying calibration gain
+                For Each kvp In OutputRouting
+                    Dim PhysicalOutputChannel = kvp.Key
+                    Dim WaveFileCannel = kvp.Value
 
-                MsgBox("Fix calibration")
+                    'Gets the gain for the physical output channel
+                    Dim CalibrationGain = GetCalibrationGain(PhysicalOutputChannel)
 
+                    'Applies it to the corresponding wave file channel. TODO: Check that this is really correct!!!
+                    Audio.DSP.AmplifySection(OutputSound, CalibrationGain, WaveFileCannel)
+                Next
 
                 Return OutputSound
-
 
             End Function
 
@@ -644,19 +648,15 @@ Namespace Audio
                 End Get
             End Property
 
-            Public Enum HeadphonesName
-                Unspecified
-                AKGK601
-                AKGK271MKII
-                SennheiserHD25_1
-            End Enum
+
 
 
             Public SupportedSimulatedLoudspeakerDistances As New SortedList(Of String, List(Of Double)) From {{"wierstorf2011", New List(Of Double) From {0.5, 1.0R, 2.0R, 3.0R}}}
 
-            Public Sub SetupDirectionalSimulator(ByVal TransducerName As HeadphonesName, ByVal SimulatedLoadspeakerDistance As Double, ByVal WaveFormat As Audio.Formats.WaveFormat)
+            Public CurrentSimulatorWaveFormat As Audio.Formats.WaveFormat = Nothing
+            Public CurrentSimulatorLoadspeakerDistance As Double? = Nothing
 
-                Me._TransducerName = TransducerName
+            Public Sub SetupDirectionalSimulator(ByVal SimulatedLoadspeakerDistance As Double, ByVal WaveFormat As Audio.Formats.WaveFormat)
 
                 If Not SupportedSimulatedLoudspeakerDistances("wierstorf2011").Contains(SimulatedLoadspeakerDistance) Then Throw New NotImplementedException("The selected speaker distance (" & SimulatedLoadspeakerDistance & " meters) is not available for sound field simulation.")
 
@@ -695,6 +695,10 @@ Namespace Audio
 
                 DirectionalSimulator = New DirectionalSimulation(IO.Path.Combine(CurrentIrDatabasePath, CurrentIrFileName))
 
+
+                CurrentSimulatorWaveFormat = WaveFormat
+                CurrentSimulatorLoadspeakerDistance = SimulatedLoadspeakerDistance
+
             End Sub
 
             Private Sub SimulateSoundSourceLocation(ByRef SoundSceneItemList As List(Of SoundSceneItem))
@@ -730,7 +734,7 @@ Namespace Audio
                         'End If
 
                         'Applies FIR-filtering
-                        Dim FilteredSound = Audio.DSP.FIRFilter(NewSound, CurrentKernel, MyFftFormat)
+                        Dim FilteredSound = Audio.DSP.FIRFilter(NewSound, CurrentKernel, MyFftFormat,,,,,, True)
 
                         'FilteredSound.WriteWaveFile("C:\SpeechTestFrameworkLog\Test1.wav")
 

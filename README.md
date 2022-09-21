@@ -1,7 +1,8 @@
-# OSTF
-Open speech test framework
+# Open Speech Test Framework (OSTF)
 
-The OSTF is a software library specifically developed for the creation speech audiometric test materials, as well as for running actual speech audiometric tests. The aim of the OSTF is to be a useful tool in speech and hearing research. However, the OSTF is not indended for medical use, and is not a medical device.
+The Open Speech Test Framework (OSTF) is an open software library specifically developed for the creation speech audiometric test materials, as well as for running actual speech audiometric tests. The aim of the OSTF is to be a useful tool in speech and hearing research. However, the OSTF is not indended for medical use, and is not a medical device.
+
+The OSTF is still in active development, and will undergo significant changed in the near future. If you decide to try it out, don't expect everything to work quite yet(!), and make sure to do frequent git-pulls to make sure you have the latest version.
 
 Except for the 3:rd partly libraries listed below, the OSTF source code was developed by Erik Witte, Reg. Audiologist, PhD, Örebro University, Sweden, in cooperation with Örebro Audiological Research Center, and Linköping University, Swedish.
 

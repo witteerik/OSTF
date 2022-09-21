@@ -228,6 +228,15 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    Public Function GetMaskerFolderName() As String
+
+        'If LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.ListCollection Then
+        '    Throw New ArgumentException("The linguistic level " & SpeechMaterialComponent.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterialComponent.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
+        'End If
+
+        Return Id & "_" & PrimaryStringRepresentation.Replace(" ", "_")
+
+    End Function
 
     Private Randomizer As Random
 
@@ -284,14 +293,6 @@ Public Class SpeechMaterialComponent
         Image
     End Enum
 
-    Public Function GetMaskerPaths(ByVal RootPath As String, ByRef MediaSet As MediaSet, ByVal MediaType As MediaTypes) As List(Of String)
-
-        Dim MaskerFolder As String = IO.Path.Combine(RootPath, MediaSet.MediaParentFolder, Me.GetMediaFolderName)
-
-        Return GetAvailableFiles(MaskerFolder, MediaType)
-
-    End Function
-
     Private Function GetAvailableFiles(ByVal Folder As String, ByVal MediaType As MediaTypes) As List(Of String)
 
         'Getting files in that folder
@@ -323,6 +324,36 @@ Public Class SpeechMaterialComponent
         Next
 
         Return IncludedFiles
+
+    End Function
+
+
+    ''' <summary>
+    ''' Returns the sound representing the maskers for the current speech material component and mediaset as a new Audio.Sound. 
+    ''' </summary>
+    ''' <param name="MediaSet"></param>
+    ''' <param name="Index"></param>
+    ''' <returns></returns>
+    Public Function GetMaskerSound(ByRef MediaSet As MediaSet, ByVal Index As Integer) As Audio.Sound
+
+        Dim MaskerPath = GetMaskerPath(MediaSet, Index)
+
+        Return GetSoundFile(MaskerPath)
+
+    End Function
+
+
+    ''' <summary>
+    ''' Returns the sound representing background non-speech used with the current speech material component and mediaset as a new Audio.Sound. 
+    ''' </summary>
+    ''' <param name="MediaSet"></param>
+    ''' <param name="Index"></param>
+    ''' <returns></returns>
+    Public Function GetBackgroundNonspeechSound(ByRef MediaSet As MediaSet, ByVal Index As Integer) As Audio.Sound
+
+        Dim SoundPath = GetBackgroundNonspeechPath(MediaSet, Index)
+
+        Return GetSoundFile(SoundPath)
 
     End Function
 
@@ -645,6 +676,24 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+
+    Public Function GetBackgroundNonspeechPath(ByRef MediaSet As MediaSet, ByVal Index As Integer) As String
+
+        Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+        Dim FolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.BackgroundNonspeechParentFolder)
+
+        Dim AvailablePaths = GetAvailableFiles(FolderPath, MediaTypes.Audio)
+
+        If Index > AvailablePaths.Count - 1 Then
+            Return Nothing
+        Else
+            Return AvailablePaths(Index)
+        End If
+
+
+    End Function
+
+
     Public Function GetMaskerPath(ByRef MediaSet As MediaSet, ByVal Index As Integer, Optional ByVal SearchAncestors As Boolean = True) As String
 
         If MediaSet.MaskerAudioItems = 0 And SearchAncestors = True Then
@@ -662,7 +711,10 @@ Public Class SpeechMaterialComponent
             End If
 
             Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
-            Dim FullMaskerFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.MaskerParentFolder, GetMediaFolderName)
+
+
+
+            Dim FullMaskerFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.MaskerParentFolder, Me.GetAncestorAtLevel(MediaSet.SharedMaskersLevel).GetMaskerFolderName())
 
             Return GetAvailableFiles(FullMaskerFolderPath, MediaTypes.Audio)(Index)
 
@@ -2897,11 +2949,11 @@ Public Class InputFileSupport
 
         If ValueString = "" Then Return OutputValue
 
-        If IsNumeric(ValueString) = True Then
-            OutputValue = ValueString
-        Else
+        Try
+            OutputValue = Double.Parse(ValueString.Trim, System.Globalization.CultureInfo.InvariantCulture)
+        Catch ex As Exception
             Throw New Exception("Non-numeric data ( " & InputData & ") found where numeric data was expected in the file: " & SourceTextFile)
-        End If
+        End Try
 
         Return OutputValue
 
@@ -2914,16 +2966,12 @@ Public Class InputFileSupport
         Dim OutputValue As Integer? = Nothing
 
         Dim ValueString As String = TrimmedData.Replace(",", ".")
-        If IsNumeric(ValueString) = True Then
 
-            Dim DoubleValue As Double = Double.Parse(ValueString)
-
-            If Math.Round(DoubleValue) = DoubleValue Then
-                OutputValue = ValueString
-            Else
-                Throw New Exception("Non-integer data ( " & InputData & ") found where integer data was expected in the file: " & SourceTextFile)
-            End If
-        End If
+        Try
+            OutputValue = Integer.Parse(ValueString.Trim, System.Globalization.CultureInfo.InvariantCulture)
+        Catch ex As Exception
+            Throw New Exception("Non-numeric data ( " & InputData & ") found where numeric data was expected in the file: " & SourceTextFile)
+        End Try
 
         Return OutputValue
 
@@ -3055,6 +3103,53 @@ Public Class InputFileSupport
 
     End Function
 
+    Public Shared Function InputFileListOfDoubleParsing(ByVal InputData As String, ByVal ContainsVariableName As Boolean, ByVal SourceTextFile As String) As List(Of Double)
+
+        Dim TrimmedData = GetInputFileValue(InputData, ContainsVariableName)
+
+        If TrimmedData = "" Then Return Nothing
+
+        Dim ValueSplit() As String = TrimmedData.Split(",")
+        Dim ValueList As New List(Of Double)
+        For Each Value In ValueSplit
+            Try
+                ValueList.Add(Double.Parse(Value.Trim, System.Globalization.CultureInfo.InvariantCulture))
+            Catch ex As Exception
+                Throw New Exception("Non-numeric data ( " & InputData & ") found where numeric data was expected in the file: " & SourceTextFile)
+            End Try
+        Next
+
+        If ValueList.Count > 0 Then
+            Return ValueList
+        Else
+            Return Nothing
+        End If
+
+    End Function
+
+    Public Shared Function InputFileListOfIntegerParsing(ByVal InputData As String, ByVal ContainsVariableName As Boolean, ByVal SourceTextFile As String) As List(Of Integer)
+
+        Dim TrimmedData = GetInputFileValue(InputData, ContainsVariableName)
+
+        If TrimmedData = "" Then Return Nothing
+
+        Dim ValueSplit() As String = TrimmedData.Split(",")
+        Dim ValueList As New List(Of Integer)
+        For Each Value In ValueSplit
+            Try
+                ValueList.Add(Integer.Parse(Value.Trim, System.Globalization.CultureInfo.InvariantCulture))
+            Catch ex As Exception
+                Throw New Exception("Non-numeric data ( " & InputData & ") found where numeric data was expected in the file: " & SourceTextFile)
+            End Try
+        Next
+
+        If ValueList.Count > 0 Then
+            Return ValueList
+        Else
+            Return Nothing
+        End If
+
+    End Function
 
     Public Shared Function InputFileSortedSetOfStringParsing(ByVal InputData As String, ByVal IncludeEmptyStrings As Boolean, ByVal ContainsVariableName As Boolean) As SortedSet(Of String)
 

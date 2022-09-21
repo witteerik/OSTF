@@ -464,8 +464,7 @@
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30})
 
-        MyMixer.TransducerType = SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.PresentationTypes.SimulatedSoundField
-        MyMixer.SetupDirectionalSimulator(SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.HeadphonesName.Unspecified, 1, Sound_Background.WaveFormat)
+        MyMixer.SetupDirectionalSimulator(1, Sound_Background.WaveFormat)
 
         Dim OutputSound = MyMixer.CreateSoundScene(ItemList)
 
