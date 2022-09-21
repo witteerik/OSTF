@@ -138,6 +138,25 @@
             End If
         End Function
 
+        Public Function GetDescriptionString() As String
+            Dim OutputList As New List(Of String)
+
+            OutputList.Add("Name: " & Name)
+            OutputList.Add("Presentation type: " & PresentationType.ToString)
+            OutputList.Add("Headphones (when used): " & HeadphonesName.ToString)
+            OutputList.Add("Sound-source azimuths: " & String.Join(", ", SoundSourceAzimuths))
+            OutputList.Add("Hardware output channels: " & String.Join(", ", HardwareOutputChannels))
+            OutputList.Add("Calibration (dBFs to dBSpl): " & String.Join(", ", Calibration_FsToSpl))
+            If LimiterThreshold.HasValue Then
+                OutputList.Add("Limiter threshold: " & LimiterThreshold.ToString)
+            Else
+                OutputList.Add("Limiter threshold: (none)")
+            End If
+            OutputList.Add(vbCrLf & "Sound device info: " & vbCrLf & ParentAudioApiSettings.ToShorterString)
+
+            Return String.Join(vbCrLf, OutputList)
+        End Function
+
     End Class
 
 End Module

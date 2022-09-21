@@ -50,6 +50,19 @@ Namespace Audio
             Return OutputString
         End Function
 
+        Public Function ToShorterString() As String
+            Dim OutputString As String = "Selected sound API settings:" & vbCrLf
+
+            OutputString &= SelectedApiInfo.ToShorterString & vbCrLf & vbCrLf
+            If Not SelectedInputDeviceInfo Is Nothing Then OutputString &= "Selected input device:" & vbLf & SelectedInputDeviceInfo.Value.ToShorterString() & vbCrLf & vbCrLf
+            If Not SelectedOutputDeviceInfo Is Nothing Then OutputString &= "Selected output device:" & vbLf & SelectedOutputDeviceInfo.Value.ToShorterString() & vbCrLf & vbCrLf
+            If Not SelectedInputAndOutputDeviceInfo Is Nothing Then OutputString &= "Selected input and output device:" & vbLf & SelectedInputAndOutputDeviceInfo.Value.ToShorterString() & vbCrLf & vbCrLf
+            OutputString &= "Frames per buffer: " & FramesPerBuffer
+
+            Return OutputString
+        End Function
+
+
         'Returns the number of input channels on the selected device, or Nothing if no input device has been selected
         Public Function NumberOfInputChannels() As Integer?
 

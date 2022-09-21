@@ -103,6 +103,11 @@ Namespace Audio
             Public Overrides Function ToString() As String
                 Return (Convert.ToString("[" & Me.[GetType]().Name & "]" & vbLf & "name: ") & name) & vbLf & "hostApi: " & hostApi & vbLf & "maxInputChannels: " & maxInputChannels & vbLf & "maxOutputChannels: " & maxOutputChannels & vbLf & "defaultLowInputLatency: " & defaultLowInputLatency & vbLf & "defaultLowOutputLatency: " & defaultLowOutputLatency & vbLf & "defaultHighInputLatency: " & defaultHighInputLatency & vbLf & "defaultHighOutputLatency: " & defaultHighOutputLatency & vbLf & "defaultSampleRate: " & defaultSampleRate
             End Function
+
+            Public Function ToShorterString() As String
+                Return (Convert.ToString("Name: ") & name) & vbLf & "Input channels: " & maxInputChannels & vbLf & "Output channels: " & maxOutputChannels
+            End Function
+
         End Structure
 
         <StructLayout(LayoutKind.Sequential)>
@@ -119,6 +124,11 @@ Namespace Audio
             Public Overrides Function ToString() As String
                 Return (Convert.ToString("[" & Me.[GetType]().Name & "]" & vbLf & "structVersion: " & structVersion & vbLf & "type: " & type & vbLf & "name: ") & name) & vbLf & "deviceCount: " & deviceCount & vbLf & "defaultInputDevice: " & defaultInputDevice & vbLf & "defaultOutputDevice: " & defaultOutputDevice
             End Function
+
+            Public Function ToShorterString() As String
+                Return (Convert.ToString("Name: ") & name)
+            End Function
+
         End Structure
 
         <StructLayout(LayoutKind.Sequential)>
@@ -132,6 +142,7 @@ Namespace Audio
             Public Overrides Function ToString() As String
                 Return Convert.ToString("[" & Me.[GetType]().Name & "]" & vbLf & "hostApiType: " & hostApiType & vbLf & "errorCode: " & errorCode & vbLf & "errorText: ") & errorText
             End Function
+
         End Structure
 
         <StructLayout(LayoutKind.Sequential)>

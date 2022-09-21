@@ -317,6 +317,18 @@
     <Compile Include="WinForms\CalibrationForm.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="WinForms\InfoForm.designer.vb">
+      <DependentUpon>InfoForm.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinForms\InfoForm.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinForms\LicenseBox.designer.vb">
+      <DependentUpon>LicenseBox.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinForms\LicenseBox.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WinForms\SpeechMaterialCreator.Designer.vb">
       <DependentUpon>SpeechMaterialCreator.vb</DependentUpon>
     </Compile>
@@ -393,6 +405,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WinForms\CalibrationForm.resx">
       <DependentUpon>CalibrationForm.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinForms\InfoForm.resx">
+      <DependentUpon>InfoForm.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinForms\LicenseBox.resx">
+      <DependentUpon>LicenseBox.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinForms\SpeechMaterialCreator.resx">
       <DependentUpon>SpeechMaterialCreator.vb</DependentUpon>

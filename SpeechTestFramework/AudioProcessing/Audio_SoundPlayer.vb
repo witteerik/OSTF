@@ -294,35 +294,11 @@ Namespace Audio
             Private NumberOfOutputChannels As Integer
             Private NumberOfInputChannels As Integer
 
-            Private AudioEncoding As Formats.WaveFormat.WaveFormatEncodings
             Private SampleRate As Double
-
-            Public ReadOnly Property BitDepth As Integer
-                Get
-                    Select Case Me.PaSampleFormat 'Bit depth is here assumed from PaSampleFormat
-                        Case PortAudio.PaSampleFormat.paInt16
-                            Return 16
-                        Case PortAudio.PaSampleFormat.paFloat32
-                            Return 32
-                        Case Else
-                            Throw New Exception("Unsuppported audio encoding.")
-                    End Select
-                End Get
-            End Property
-
-            Private ReadOnly Property PaSampleFormat As PortAudio.PaSampleFormat
-                Get
-                    Select Case Me.AudioEncoding
-                        Case Formats.WaveFormat.WaveFormatEncodings.PCM
-                            Return PortAudio.PaSampleFormat.paInt16
-                        Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
-                            Return PortAudio.PaSampleFormat.paFloat32
-                        Case Else
-                            Throw New Exception("Unsuppported audio encoding.")
-                    End Select
-                End Get
-            End Property
-
+            'As the OSTF library stores sound data as Single (i.e. float) arrays, "paFloat32" is the only "PaSampleFormat" that can be played in without conversion. Therefore the player requires a bitdepth of 32 and a IEEE encoding of the data.
+            Private Const Required_AudioEncoding As Formats.WaveFormat.WaveFormatEncodings = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+            Public Const Required_BitDepth As Integer = 32
+            Private Const Required_PaSampleFormat As PortAudio.PaSampleFormat = PortAudio.PaSampleFormat.paFloat32
 
             Private _IsInitialized As Boolean = False
             Public ReadOnly Property IsInitialized As Boolean
@@ -575,10 +551,15 @@ Namespace Audio
                 If AudioApiSettings IsNot Nothing Then SetApiAndDevice(AudioApiSettings, True)
 
                 If WaveFormat IsNot Nothing Then Me.SampleRate = WaveFormat.SampleRate
-                If WaveFormat IsNot Nothing Then Me.AudioEncoding = WaveFormat.Encoding
+
                 If WaveFormat IsNot Nothing Then
-                    'Does not change the bitdepth, but checks it
-                    If Me.BitDepth <> WaveFormat.BitDepth Then Throw New NotSupportedException("Unsupported bitdepth / encoding combination!")
+                    'Checks that the Encoding is the one required 
+                    If WaveFormat.Encoding <> OverlappingSoundPlayer.Required_AudioEncoding Then Throw New NotSupportedException("Unsupported sample encoding!")
+                End If
+
+                If WaveFormat IsNot Nothing Then
+                    'Checks that the bit depth is the one required 
+                    If WaveFormat.BitDepth <> OverlappingSoundPlayer.Required_BitDepth Then Throw New NotSupportedException("Unsupported bitdepth!")
                 End If
 
                 'Setting OverlapFadeLength (and creating fade arrays)
@@ -712,6 +693,16 @@ Namespace Audio
 
                 'Checking that the new sound is at least 1 sample long
                 If NewOutputSound IsNot Nothing Then
+
+                    'Checking that the sound has the required bitdepth
+                    If NewOutputSound.WaveFormat.BitDepth <> OverlappingSoundPlayer.Required_BitDepth Then
+                        Throw New ArgumentException("Unsupported bitdepth detected (OverlappingSoundPLayer only supportes a bitdepth of 32!)")
+                    End If
+
+                    If NewOutputSound.WaveFormat.Encoding <> OverlappingSoundPlayer.Required_AudioEncoding Then
+                        Throw New ArgumentException("Unsupported bitdepth detected (OverlappingSoundPLayer only supportes a bitdepth of 32!)")
+                    End If
+
                     If NewOutputSound.WaveData.LongestChannelSampleCount = 0 Then
                         Log("Error: New sound contains no sample data (SwapOutputSounds).")
                         Return False
@@ -722,10 +713,8 @@ Namespace Audio
                         Return False
                     End If
 
-                    'Checking that the format is the same format, and returns False if not
-                    If NewOutputSound.WaveFormat.SampleRate <> SampleRate Or
-                            NewOutputSound.WaveFormat.BitDepth <> BitDepth Or
-                            NewOutputSound.WaveFormat.Encoding <> AudioEncoding Then
+                    'Checking that the sample rate is the same, and returns False if not
+                    If NewOutputSound.WaveFormat.SampleRate <> Me.SampleRate Then
                         Log("Error: Different formats in SwapOutputSounds.")
                         Return False
                     End If
@@ -769,8 +758,8 @@ Namespace Audio
 
                 'Creating the BuffersOnMainThread first buffers
                 'Limiting the number of main thread buffers if the sound is very short
-                If (Output.Length - 1) < BuffersOnMainThread Then
-                    BuffersOnMainThread = Math.Max(0, Output.Length - 1)
+                If (Output.Length - 1) <BuffersOnMainThread Then
+                    BuffersOnMainThread= Math.Max(0, Output.Length - 1)
                 End If
 
 
@@ -1151,7 +1140,7 @@ Namespace Audio
                 If Me.SelectedInputDevice IsNot Nothing Then
                     inputParams.channelCount = NumberOfInputChannels
                     inputParams.device = Me.SelectedInputDevice
-                    inputParams.sampleFormat = PaSampleFormat
+                    inputParams.sampleFormat = Required_PaSampleFormat
 
                     If Me.SelectedInputAndOutputDeviceInfo.HasValue = True Then
                         inputParams.suggestedLatency = Me.SelectedInputAndOutputDeviceInfo.Value.defaultLowInputLatency
@@ -1164,7 +1153,7 @@ Namespace Audio
                 If Me.SelectedOutputDevice IsNot Nothing Then
                     outputParams.channelCount = NumberOfOutputChannels
                     outputParams.device = Me.SelectedOutputDevice
-                    outputParams.sampleFormat = PaSampleFormat
+                    outputParams.sampleFormat = Required_PaSampleFormat
 
                     If Me.SelectedInputAndOutputDeviceInfo.HasValue = True Then
                         outputParams.suggestedLatency = Me.SelectedInputAndOutputDeviceInfo.Value.defaultLowOutputLatency
@@ -1219,7 +1208,7 @@ Namespace Audio
                 If InputBufferHistory Is Nothing Then Return Nothing
 
                 'Creating a wave format for the recorded sound
-                Dim RecordingWaveFormat = New Audio.Formats.WaveFormat(SampleRate, BitDepth, NumberOfInputChannels,, AudioEncoding)
+                Dim RecordingWaveFormat = New Audio.Formats.WaveFormat(SampleRate, Required_BitDepth, NumberOfInputChannels,, Required_AudioEncoding)
 
                 'Creating a new Sound
                 Dim RecordedSound As New Sound(RecordingWaveFormat)

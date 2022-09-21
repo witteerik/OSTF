@@ -274,6 +274,37 @@ Namespace Audio
         End Function
 
         ''' <summary>
+        ''' Converts a sound in which the audio data is stored in 16bit PCM to 32 bit IEEE float format.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function Convert16to32bitSound() As Sound
+
+            Dim NewWaveFormat = New Formats.WaveFormat(Me.WaveFormat.SampleRate, 32, Me.WaveFormat.Channels,, Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+            Dim ConvertedSound As New Sound(NewWaveFormat)
+
+            'Copies SMA and UnparsedWaveChunks
+            If SMA IsNot Nothing Then ConvertedSound.SMA = SMA.CreateCopy
+            If Me.UnparsedWaveChunks IsNot Nothing Then ConvertedSound.UnparsedWaveChunks = Me.UnparsedWaveChunks
+
+            'Copies and converts wave data
+            For c = 1 To Me.WaveFormat.Channels
+                If Me.WaveData.SampleData(c) IsNot Nothing Then
+                    Dim ChannelLength As Integer = Me.WaveData.SampleData(c).Length
+                    Dim ConvertedChannelArray(ChannelLength - 1) As Single
+                    Dim FS As Single = Me.WaveFormat.PositiveFullScale
+                    Array.Copy(Me.WaveData.SampleData(c), ConvertedChannelArray, ChannelLength)
+                    For s = 0 To ChannelLength - 1
+                        ConvertedChannelArray(s) /= FS
+                    Next
+                    ConvertedSound.WaveData.SampleData(c) = ConvertedChannelArray
+                End If
+            Next
+
+            Return ConvertedSound
+
+        End Function
+
+        ''' <summary>
         ''' Creates a new sound converted to the specified format. The SMA object neither copied or referenced.
         ''' </summary>
         ''' <returns></returns>
