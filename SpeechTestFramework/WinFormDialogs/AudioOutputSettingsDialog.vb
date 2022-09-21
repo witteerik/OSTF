@@ -24,7 +24,7 @@
 
 Public Class AudioOutputSettingsDialog
 
-    Public CurrentAudioApiSettings As Audio.AudioApiSettings
+    Public CurrentAudioApiSettings As New Audio.AudioApiSettings
     Public DefaultDriverName As String
 
     Public Sub New(Optional ByVal DefaultDriverName As String = "")

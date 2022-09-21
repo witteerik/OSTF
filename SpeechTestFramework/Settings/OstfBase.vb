@@ -9,6 +9,9 @@
     Public Property RoomImpulsesSubDirectory As String = "RoomImpulses"
     Public Property AvailableTests As New List(Of TestSpecification)
 
+    ''' <summary>
+    ''' The SoundPlayer shared between all OSTF applications. Each application that uses it, is responsible of initiating it, with the settings required by the specific application. As well as disposing it when the application is closed.
+    ''' </summary>
     Public SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
 
     Public Sub LoadAvailableTestSpecifications()

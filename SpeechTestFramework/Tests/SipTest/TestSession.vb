@@ -2,8 +2,6 @@
 
 Partial Class SipTestGui
 
-    Private SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
-
     Private AudioApiSettings As Audio.AudioApiSettings
 
     Private CurrentTestSound As Audio.Sound = Nothing
@@ -117,11 +115,10 @@ Partial Class SipTestGui
     Private Sub InitiateTest()
 
         If SimulationMode = False Then 'We need no sound player in the simulation mode
-            'Me.SoundPlayer = ParentSpeechTestControl.SoundPlayer
-            SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(Me)
-            Dim NewMixer = New Audio.PortAudioVB.DuplexMixer(SoundPlayer.NumberOfOutputChannels, SoundPlayer.NumberOfInputChannels)
 
+            Dim SelectedTransducer As New TransducerSpecification
 
+            Dim NewMixer = New Audio.PortAudioVB.DuplexMixer(SelectedTransducer SoundPlayer.NumberOfOutputChannels, SoundPlayer.NumberOfInputChannels)
             NewMixer.OutputRouting.Clear()
 
             Dim ForegroundOutputChannels As New SortedSet(Of Integer) From {1}
@@ -151,16 +148,15 @@ Partial Class SipTestGui
                 NewMixer.OutputRouting.Add(n, n)
             Next
 
+            SoundPlayer.ChangePlayerSettings(,,, NewMixer, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, True, True)
 
             SoundPlayer.Mixer = NewMixer
             SoundPlayer.OpenStream()
             SoundPlayer.Start()
+
         End If
 
-
         StartTrialTimer.Interval = Math.Max(1, InterTrialInterval * 1000)
-
-
 
 
         'Removes the start button

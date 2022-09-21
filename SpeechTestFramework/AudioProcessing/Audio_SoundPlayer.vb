@@ -10,14 +10,15 @@ Namespace Audio
             Implements IDisposable
 
             Public Event MessageFromPlayer(ByVal Message As String)
-            Public Property Mixer As DuplexMixer
 
-            Public SelectedApiInfo As PortAudio.PaHostApiInfo
-            Public SelectedInputDeviceInfo As PortAudio.PaDeviceInfo?
-            Public SelectedInputDevice As Integer?
-            Public SelectedOutputDeviceInfo As PortAudio.PaDeviceInfo?
-            Public SelectedOutputDevice As Integer?
-            Public SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?
+            Private Mixer As DuplexMixer
+
+            Private SelectedApiInfo As PortAudio.PaHostApiInfo
+            Private SelectedInputDeviceInfo As PortAudio.PaDeviceInfo?
+            Private SelectedInputDevice As Integer?
+            Private SelectedOutputDeviceInfo As PortAudio.PaDeviceInfo?
+            Private SelectedOutputDevice As Integer?
+            Private SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?
 
             Private Stream As IntPtr
             Public FramesPerBuffer As UInteger
@@ -285,12 +286,12 @@ Namespace Audio
                                                                              End Function
 
 
-            Public SoundDirection As SoundDirections
-            Public NumberOfOutputChannels As Integer
-            Public NumberOfInputChannels As Integer
+            Private SoundDirection As SoundDirections
+            Private NumberOfOutputChannels As Integer
+            Private NumberOfInputChannels As Integer
 
-            Public AudioEncoding As Formats.WaveFormat.WaveFormatEncodings
-            Public SampleRate As Double
+            Private AudioEncoding As Formats.WaveFormat.WaveFormatEncodings
+            Private SampleRate As Double
 
             Public ReadOnly Property BitDepth As Integer
                 Get
@@ -331,9 +332,9 @@ Namespace Audio
             Private NewSound As BufferHolder()
             Private SilentSound As BufferHolder()
 
-            Public OverlappingSounds As Boolean = False
-            Public EqualPowerCrossFade As Boolean = True
-            Public OverlappingFadeType As FadeTypes = FadeTypes.Linear
+            Private OverlappingSounds As Boolean = False
+            Private EqualPowerCrossFade As Boolean = True
+            Private OverlappingFadeType As FadeTypes = FadeTypes.Linear
             Public Enum FadeTypes
                 Linear
                 Smooth
@@ -429,10 +430,10 @@ Namespace Audio
             Private OverlapFadeInArray As Single()
             Private OverlapFadeOutArray As Single()
             Private InputBufferHistory As New List(Of Single())
-            Public StopAtOutputSoundEnd As Boolean
+            Private StopAtOutputSoundEnd As Boolean
 
-            Public PositionA As Integer
-            Public PositionB As Integer
+            Private PositionA As Integer
+            Private PositionB As Integer
             Private CrossFadeProgress As Integer = 0
 
             Public Shared Property MessagesEnabled() As Boolean
@@ -503,10 +504,25 @@ Namespace Audio
 
                     'Creating a default mixer if none is supplied
                     If Mixer Is Nothing Then
-                        Me.Mixer = New DuplexMixer(NumberOfOutputChannels, NumberOfInputChannels)
-                        'Me.Mixer.DirectMonoSoundToOutputChannel(1)
-                        Me.Mixer.DirectMonoSoundToOutputChannels({1, 2})
-                        Me.Mixer.SetLinearInput()
+                        Me.Mixer = New DuplexMixer()
+
+                        ' Mixer_DirectMonoToAllChannels()
+                        For c = 1 To NumberOfOutputChannels
+                            Me.Mixer.OutputRouting.Add(c, 0)
+                        Next
+
+                        'Mixer_DirectMonoSoundToOutputChannels(
+                        Dim TargetOutputChannels() As Integer = {1, 2}
+                        For Each OutputChannel In TargetOutputChannels
+                            If Me.Mixer.OutputRouting.ContainsKey(OutputChannel) Then Me.Mixer.OutputRouting(OutputChannel) = 1
+                        Next
+
+                        'Me.Mixer.SetLinearInput()
+                        For c = 1 To NumberOfInputChannels
+                            Me.Mixer.InputRouting.Add(c, 0)
+                        Next
+
+
                     Else
                         Me.Mixer = Mixer
                     End If
@@ -530,7 +546,9 @@ Namespace Audio
                                             Optional ByVal WaveFormat As Audio.Formats.WaveFormat = Nothing,
                                             Optional ByVal OverlapDuration As Double = 1,
                                             Optional ByRef Mixer As DuplexMixer = Nothing,
-                                            Optional ByVal SoundDirection As SoundDirections? = Nothing)
+                                            Optional ByVal SoundDirection As SoundDirections? = Nothing,
+                                            Optional ByVal ReOpenStream As Boolean = True,
+                                            Optional ByVal ReStartStream As Boolean = True)
 
                 Dim WasStreamOpen As Boolean = False
                 Dim WasPlaying As Boolean = False
@@ -585,12 +603,12 @@ Namespace Audio
 
 
                 'Re-opens stream if it was open upon calling this function
-                If WasStreamOpen = True Then
+                If WasStreamOpen = True Or ReOpenStream = True Then
                     OpenStream()
                 End If
 
                 'Starts playing if it was playing upon calling this function
-                If WasPlaying = True Then
+                If WasPlaying = True Or ReStartStream = True Then
                     Start()
                 End If
 
@@ -734,53 +752,6 @@ Namespace Audio
             End Function
 
 
-            'Public Function CreateBufferHolders(ByRef InputSound As Sound) As BufferHolder()
-
-            '    Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer) + 1
-
-            '    Dim Output(BufferCount - 1) As BufferHolder
-
-            '    'Initializing the BufferHolders
-            '    For b = 0 To Output.Length - 1
-            '        Output(b) = New BufferHolder(NumberOfOutputChannels, FramesPerBuffer)
-            '    Next
-
-            '    Dim CurrentChannelInterleavedPosition As Integer
-            '    For Each OutputChannel In Mixer.OutputRouting
-
-            '        If OutputChannel.Value = 0 Then Continue For
-
-            '        If OutputChannel.Value > InputSound.WaveFormat.Channels Then Continue For
-
-            '        'Skipping if channel contains no data
-            '        If InputSound.WaveData.SampleData(OutputChannel.Value).Length = 0 Then Continue For
-
-            '        CurrentChannelInterleavedPosition = OutputChannel.Key - 1
-
-            '        'Reading samples
-            '        For BufferIndex = 0 To Output.Length - 2
-            '            Dim CurrentWriteSampleIndex As Integer = 0
-            '            For Sample = BufferIndex * FramesPerBuffer To (BufferIndex + 1) * FramesPerBuffer - 1
-
-            '                Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
-            '                CurrentWriteSampleIndex += 1
-            '            Next
-            '        Next
-
-            '        'Reading the last bit
-            '        Dim CurrentWriteSampleIndexB As Integer = 0
-            '        For Sample = FramesPerBuffer * Output.Length - 1 To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
-
-            '            Output(Output.Length - 1).InterleavedSampleArray(CurrentWriteSampleIndexB * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
-            '            CurrentWriteSampleIndexB += 1
-            '        Next
-            '    Next
-
-            '    Return Output
-
-            'End Function
-
-
             Public Function CreateBufferHoldersOnNewThread(ByRef InputSound As Sound, Optional ByVal BuffersOnMainThread As Integer = 10) As BufferHolder()
 
                 Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer) + 1
@@ -838,12 +809,12 @@ Namespace Audio
             Private Class BufferCreaterOnNewThread
                 Implements IDisposable
 
-                Dim InputSound As Sound
-                Dim Output As BufferHolder()
-                Dim BuffersOnMainThread As Integer
-                Dim NumberOfOutputChannels As Integer
-                Dim Mixer As DuplexMixer
-                Dim FramesPerBuffer As UInteger
+                Private InputSound As Sound
+                Private Output As BufferHolder()
+                Private BuffersOnMainThread As Integer
+                Private NumberOfOutputChannels As Integer
+                Private Mixer As DuplexMixer
+                Private FramesPerBuffer As UInteger
 
                 Public Sub New(ByRef InputSound As Sound, ByRef Output As BufferHolder(), ByVal BuffersOnMainThread As Integer,
                          ByVal NumberOfOutputChannels As Integer, ByRef Mixer As DuplexMixer, ByVal FramesPerBuffer As UInteger)

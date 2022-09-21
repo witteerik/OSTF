@@ -163,7 +163,6 @@ Namespace Audio
                 Me.PaddingTime = PaddingTime
                 Me.InterSentenceTime = InterSentenceTime
                 Me.DrawNormalizedWave = DrawNormalizedWave
-                Me.SoundPlayer = SoundPlayer
                 Me.AudioApiSettings = AudioApiSettings
                 Me.SetSegmentationToZeroCrossings = SetSegmentationToZeroCrossings
 
@@ -1892,7 +1891,7 @@ Namespace Audio
                     Dim lengthToPlay As Integer = CurrentSegmentationItem.Length
                     If lengthToPlay < 0 Then lengthToPlay = 0
 
-                    If SoundPlayer Is Nothing Then CreateNewPaSoundPLayer()
+                    If SoundPlayer Is Nothing Then SetupSoundPLayer()
                     Dim PlaySection = Audio.DSP.CopySection(CurrentSound, startSample, lengthToPlay)
                     SoundPlayer.SwapOutputSounds(PlaySection)
 
@@ -1952,28 +1951,25 @@ Namespace Audio
                     AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
                 End If
 
-                CreateNewPaSoundPLayer()
+                SetupSoundPLayer()
 
             End Sub
 
 
-            Public Sub CreateNewPaSoundPLayer()
+            Public Sub SetupSoundPLayer()
 
                 If AudioApiSettings Is Nothing Then
                     SetAudioApiSettings()
                 End If
 
-                SoundPlayer.ChangePlayerSettings(AudioApiSettings, CurrentSound.WaveFormat, 0.1, , PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly)
-                d
-                SoundPlayer.OpenStream()
-                SoundPlayer.Start()
+                SoundPlayer.ChangePlayerSettings(AudioApiSettings, CurrentSound.WaveFormat, 0.1, , PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, True, True)
 
             End Sub
 
 
             Public Sub Play()
 
-                If SoundPlayer Is Nothing Then CreateNewPaSoundPLayer()
+                If SoundPlayer Is Nothing Then SetupSoundPLayer()
 
                 If SelectionLength_Sample = 0 Then
 
@@ -1994,7 +1990,7 @@ Namespace Audio
             Public Sub PlayAll()
 
                 UpdateSampleTimeScale()
-                If SoundPlayer Is Nothing Then CreateNewPaSoundPLayer()
+                If SoundPlayer Is Nothing Then SetupSoundPLayer()
                 SoundPlayer.SwapOutputSounds(CurrentSound)
 
             End Sub

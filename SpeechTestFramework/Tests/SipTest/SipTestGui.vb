@@ -71,6 +71,8 @@ Public Class SipTestGui
         Me.UserType = UserType
         Me.GuiLanguage = GuiLanguage
 
+        OstfBase.SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
+
     End Sub
 
 
@@ -1680,7 +1682,7 @@ Public Class SipTestGui
         'NOTE, the sound player will only support the same sample rate in all files in MediaSets!!!
 
         Dim CurrentWaveFormat = CompleteSpeechMaterial.GetWavefileFormat(AvailableMediaSets(0), 1)
-        Dim newAudioSettingsDialog = New AudioOutputSettingsDialog(CurrentWaveFormat.SampleRate)
+        Dim newAudioSettingsDialog = New AudioOutputSettingsDialog()
 
         Dim Result = newAudioSettingsDialog.ShowDialog()
         If Result = Windows.Forms.DialogResult.OK Then
@@ -1728,6 +1730,13 @@ Public Class SipTestGui
     End Sub
 
     Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
+
+    End Sub
+
+    Private Sub SipTestGui_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+
+        'Disploses the OstfBase.SoundPlayer
+        OstfBase.SoundPlayer.Dispose()
 
     End Sub
 

@@ -521,14 +521,12 @@ Public Class SpeechMaterialRecorder
     ''' </summary>
     Public Sub SetupAudioIO()
 
-        Dim newAudioSettingsDialog As AudioSettingsDialog = Nothing
-
         If RecordingWaveFormat IsNot Nothing Then
-            newAudioSettingsDialog = New AudioSettingsDialog(RecordingWaveFormat.SampleRate)
-        Else
-            newAudioSettingsDialog = New AudioSettingsDialog()
-            RecordingWaveFormat = New Audio.Formats.WaveFormat(newAudioSettingsDialog.CurrentAudioApiSettings.SampleRate, 32, 1, , Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+            'Setting a default wave format, if used without MediaSet object
+            RecordingWaveFormat = New Audio.Formats.WaveFormat(48000, 32, 1, , Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
         End If
+
+        Dim newAudioSettingsDialog As New AudioSettingsDialog()
 
         Dim Result = newAudioSettingsDialog.ShowDialog()
         If Result = Windows.Forms.DialogResult.OK Then
@@ -540,14 +538,14 @@ Public Class SpeechMaterialRecorder
 
         If CurrentAudioApiSettings IsNot Nothing Then
             'Creating a new sound player with the updated audio settings
-            CreateAudioPlayer()
+            SetupAudioPlayer()
         Else
             MsgBox("Unable to set audio device! You will not be able to play or record audio.", MsgBoxStyle.Exclamation, "No audio device?")
         End If
 
     End Sub
 
-    Public Sub CreateAudioPlayer()
+    Public Sub SetupAudioPlayer()
 
         If SoundPlayer IsNot Nothing Then
             SoundPlayer.Dispose()
@@ -585,16 +583,7 @@ Public Class SpeechMaterialRecorder
             Exit Sub
         End If
 
-
-        SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(Nothing, PlayerMode, CurrentAudioApiSettings,
-                                                                            TemporaryOutputSound.WaveFormat.Encoding, False, False, False, False, 0.1)
-
-        SoundPlayer.OpenStream()
-        SoundPlayer.Start()
-
-        'Dim TempPlayer = New Audio.PortAudioVB.SoundPlayer(False, RecordingWaveFormat, TemporaryOutputSound, CurrentAudioApiSettings, False, False, False, True, True)
-        'SoundPlayer = New Audio.PortAudioVB.SoundPlayer(False, RecordingWaveFormat, TemporaryOutputSound, CurrentAudioApiSettings,
-        '                                                                 False, False, False, True, True)
+        SoundPlayer.ChangePlayerSettings(CurrentAudioApiSettings, TemporaryOutputSound.WaveFormat, 0.1,, PlayerMode, True, True)
 
     End Sub
 

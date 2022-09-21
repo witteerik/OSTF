@@ -19,9 +19,6 @@ Namespace Audio
             ''' </summary>
             Public InputRouting As New SortedList(Of Integer, Integer)
 
-            Public ReadOnly AvailableOutputChannels As Integer
-            Public ReadOnly AvailableInputChannels As Integer
-
             ''' <summary>
             ''' A list of key-value pairs, where the key repressents the hardware output channel and the values repressents the physical location of the loadspeaker connected to that output channel.
             ''' </summary>
@@ -39,24 +36,12 @@ Namespace Audio
             ''' <summary>
             ''' Creating a new mixer.
             ''' </summary>
-            ''' <param name="AvailableOutputChannels"></param>
-            ''' <param name="AvailableInputChannels"></param>
-            Public Sub New(ByVal AvailableOutputChannels As Integer, ByVal AvailableInputChannels As Integer, Optional ByVal TransducerSpecification As TransducerSpecification = Nothing)
-
-                Me.AvailableOutputChannels = AvailableOutputChannels
-                Me.AvailableInputChannels = AvailableInputChannels
+            Public Sub New(Optional ByVal TransducerSpecification As TransducerSpecification = Nothing)
 
                 'Selects the first available transducer
                 If TransducerSpecification Is Nothing Then TransducerSpecification = OstfBase.AvaliableTransducers(0)
                 Me.TransducerSpecification = TransducerSpecification
 
-                For c = 1 To AvailableOutputChannels
-                    OutputRouting.Add(c, 0)
-                Next
-
-                For c = 1 To AvailableInputChannels
-                    InputRouting.Add(c, 0)
-                Next
 
             End Sub
 
@@ -64,18 +49,28 @@ Namespace Audio
                 If OutputRouting.ContainsKey(TargetOutputChannel) Then OutputRouting(TargetOutputChannel) = 1
             End Sub
 
-            Public Sub SetLinearInput()
-                For c = 1 To AvailableInputChannels
-                    InputRouting(c) = c
-                Next
-            End Sub
-            Public Sub SetLinearOutput()
-                For c = 1 To AvailableOutputChannels
-                    OutputRouting(c) = c
-                Next
-            End Sub
+            'Public Sub Mixer_DirectMonoToAllChannels()
+            '    For c = 1 To AvailableOutputChannels
+            '        OutputRouting.Add(c, 0)
+            '    Next
 
-            Public Sub DirectMonoSoundToOutputChannels(ByRef TargetOutputChannels() As Integer)
+            '    For c = 1 To AvailableInputChannels
+            '        InputRouting.Add(c, 0)
+            '    Next
+            'End Sub
+
+            'Public Sub Mixer_SetLinearInput()
+            '    For c = 1 To AvailableInputChannels
+            '        InputRouting(c) = c
+            '    Next
+            'End Sub
+            'Public Sub Mixer_SetLinearOutput()
+            '    For c = 1 To AvailableOutputChannels
+            '        OutputRouting(c) = c
+            '    Next
+            'End Sub
+
+            Public Sub Mixer_DirectMonoSoundToOutputChannels(ByRef TargetOutputChannels() As Integer)
                 For Each OutputChannel In TargetOutputChannels
                     If OutputRouting.ContainsKey(OutputChannel) Then OutputRouting(OutputChannel) = 1
                 Next
