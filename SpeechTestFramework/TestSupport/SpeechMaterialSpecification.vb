@@ -1,10 +1,10 @@
 ﻿
-Public Class TestSpecification
+Public Class SpeechMaterialSpecification
 
-    Public Const FormatFlag As String = "{OSTF_TEST_SPECIFICATION_FILE}"
-    Public Const TestsDirectory As String = "Tests"
-    Public Const TestSpecificationDirectory As String = "AvailableTests"
-    Public Const MediaSetSpecificationDirectory As String = "AvailableMediaSets"
+    Public Const FormatFlag As String = "{OSTF_SPEECH_MATERIAL_SPECIFICATION_FILE}"
+    Public Const SpeechMaterialsDirectory As String = "SpeechMaterials"
+    Public Const AvailableSpeechMaterialsDirectory As String = "AvailableSpeechMaterials"
+    Public Const AvailableMediaSetsDirectory As String = "AvailableMediaSets"
 
     Public ReadOnly Property Name As String = ""
 
@@ -14,7 +14,7 @@ Public Class TestSpecification
     Public Property TestPresetsSubFilePath As String = ""
 
     ''' <summary>
-    ''' Once the TestSpecification text file has been read from file, this property contains the file name from which the TestSpecification text file was read.
+    ''' Once the SpeechMaterialSpecification text file has been read from file, this property contains the file name from which the SpeechMaterialSpecification text file was read.
     ''' </summary>
     ''' <returns></returns>
     Public Property TestSpecificationFileName As String = ""
@@ -33,7 +33,7 @@ Public Class TestSpecification
 
 
     Public Function GetTestsDirectory() As String
-        Return IO.Path.Combine(OstfBase.RootDirectory, TestsDirectory)
+        Return IO.Path.Combine(OstfBase.RootDirectory, SpeechMaterialsDirectory)
     End Function
 
     Public Function GetTestRootPath() As String
@@ -49,7 +49,7 @@ Public Class TestSpecification
     End Function
 
     Public Function GetAvailableTestSituationsDirectory() As String
-        Return IO.Path.Combine(GetTestRootPath, MediaSetSpecificationDirectory)
+        Return IO.Path.Combine(GetTestRootPath, AvailableMediaSetsDirectory)
     End Function
 
 
@@ -58,7 +58,7 @@ Public Class TestSpecification
         Me.DirectoryName = DirectoryName
     End Sub
 
-    Public Shared Function LoadTestSpecificationFile(ByVal TextFileName As String) As TestSpecification
+    Public Shared Function LoadTestSpecificationFile(ByVal TextFileName As String) As SpeechMaterialSpecification
 
         Dim FullFilePath As String = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.AvailableTestsSubFolder, TextFileName)
 
@@ -107,7 +107,7 @@ Public Class TestSpecification
 
         Next
 
-        Dim Output As New TestSpecification(Name, DirectoryName)
+        Dim Output As New SpeechMaterialSpecification(Name, DirectoryName)
         Output.TestPresetsSubFilePath = TestPresetsSubFilePath
 
         Output.TestSpecificationFileName = TextFileName

@@ -71,7 +71,7 @@ Public Class SipTestGui
         'Initializing all components
         OstfBase.LoadAvailableTestSpecifications()
 
-        Dim SelectedTest As TestSpecification = Nothing
+        Dim SelectedTest As SpeechMaterialSpecification = Nothing
         For Each ts In OstfBase.AvailableTests
             If ts.Name = SpeechMaterialName Then
                 SelectedTest = ts

@@ -1,6 +1,6 @@
 ﻿Public Class LoadOstaMediaSetControl
 
-    Public Property SelectedTestSpecification As TestSpecification = Nothing
+    Public Property SelectedTestSpecification As SpeechMaterialSpecification = Nothing
 
     Public Property SelectedMediaSet As MediaSet = Nothing
 

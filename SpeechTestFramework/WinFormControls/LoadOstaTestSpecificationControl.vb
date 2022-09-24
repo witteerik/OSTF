@@ -1,6 +1,6 @@
 ﻿Public Class LoadOstaTestSpecificationControl
 
-    Public Property SelectedTestSpecification As TestSpecification = Nothing
+    Public Property SelectedTestSpecification As SpeechMaterialSpecification = Nothing
 
     Public Event SpeechTestSpecificationSelected()
 

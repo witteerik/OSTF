@@ -7,8 +7,8 @@ Public Class SpeechMaterialComponent
     ''' </summary>
     Public Const SpeechMaterialComponentFileName As String = "SpeechMaterialComponents.txt"
 
-    Private _ParentTestSpecification As TestSpecification
-    Public Property ParentTestSpecification As TestSpecification
+    Private _ParentTestSpecification As SpeechMaterialSpecification
+    Public Property ParentTestSpecification As SpeechMaterialSpecification
         Get
             'Recursively redirects to the speech material component at the highest level, so that the ParentTestSpecification only exists at one single place in each speech material component hierarchy.
             If Me.ParentComponent Is Nothing Then
@@ -17,7 +17,7 @@ Public Class SpeechMaterialComponent
                 Return Me.ParentComponent.ParentTestSpecification
             End If
         End Get
-        Set(value As TestSpecification)
+        Set(value As SpeechMaterialSpecification)
             'Recursively redirects to the speech material component at the highest level, so that the ParentTestSpecification only exists at one single place in each speech material component hierarchy.
             If Me.ParentComponent Is Nothing Then
                 _ParentTestSpecification = value
@@ -358,6 +358,22 @@ Public Class SpeechMaterialComponent
     End Function
 
 
+
+    ''' <summary>
+    ''' Returns the sound representing background speech used with the current speech material component and mediaset as a new Audio.Sound. 
+    ''' </summary>
+    ''' <param name="MediaSet"></param>
+    ''' <param name="Index"></param>
+    ''' <returns></returns>
+    Public Function GetBackgroundSpeechSound(ByRef MediaSet As MediaSet, ByVal Index As Integer) As Audio.Sound
+
+        Dim SoundPath = GetBackgroundSpeechPath(MediaSet, Index)
+
+        Return GetSoundFile(SoundPath)
+
+    End Function
+
+
     ''' <summary>
     ''' Returns the audio representing the speech material component as a new Audio.Sound. If the recordings of the component is split between different sound files, a concatenated (using optional overlap/crossfade period) sound is returned.
     ''' </summary>
@@ -690,6 +706,20 @@ Public Class SpeechMaterialComponent
             Return AvailablePaths(Index)
         End If
 
+    End Function
+
+    Public Function GetBackgroundSpeechPath(ByRef MediaSet As MediaSet, ByVal Index As Integer) As String
+
+        Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+        Dim FolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.BackgroundSpeechParentFolder)
+
+        Dim AvailablePaths = GetAvailableFiles(FolderPath, MediaTypes.Audio)
+
+        If Index > AvailablePaths.Count - 1 Then
+            Return Nothing
+        Else
+            Return AvailablePaths(Index)
+        End If
 
     End Function
 
@@ -2172,7 +2202,7 @@ Public Class SpeechMaterialComponent
     ''' Writes the speech material components file and associated custom variables files to the indicated OutputSpeechMaterialFolder.
     ''' </summary>
     ''' <param name="OutputParentFolder"></param>
-    Public Sub WriteSpeechMaterialToFile(ByRef CurrentTestSpecification As TestSpecification, Optional ByVal OutputParentFolder As String = "")
+    Public Sub WriteSpeechMaterialToFile(ByRef CurrentTestSpecification As SpeechMaterialSpecification, Optional ByVal OutputParentFolder As String = "")
 
         Dim OutputSpeechMaterialFolder As String
 
@@ -2193,7 +2223,7 @@ Public Class SpeechMaterialComponent
             End If
 
             'Getting the subdirectory in which to store the speech material components files and the custom variables files
-            OutputSpeechMaterialFolder = IO.Path.Combine(OutputParentFolder, TestSpecification.TestsDirectory, CurrentTestSpecification.DirectoryName, SpeechMaterialComponent.SpeechMaterialFolderName)
+            OutputSpeechMaterialFolder = IO.Path.Combine(OutputParentFolder, SpeechMaterialSpecification.SpeechMaterialsDirectory, CurrentTestSpecification.DirectoryName, SpeechMaterialComponent.SpeechMaterialFolderName)
 
         Else
 

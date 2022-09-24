@@ -18,7 +18,7 @@ Namespace SipTest
         Public Property MeasurementDateTime As DateTime
 
 
-        Public Property ParentTestSpecification As TestSpecification
+        Public Property ParentTestSpecification As SpeechMaterialSpecification
 
         ''' <summary>
         ''' Stores the test units presented in the test session
@@ -48,7 +48,7 @@ Namespace SipTest
 
         Friend Randomizer As Random
 
-        Public Sub New(ByRef ParticipantID As String, ByRef ParentTestSpecification As TestSpecification, Optional RandomSeed As Integer? = Nothing)
+        Public Sub New(ByRef ParticipantID As String, ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional RandomSeed As Integer? = Nothing)
 
             If RandomSeed.HasValue = True Then
                 Randomizer = New Random(RandomSeed)
@@ -582,7 +582,7 @@ Namespace SipTest
             Return -1
         End Function
 
-        Public Shared Function ParseImportLines(ByVal ImportLines() As String, ByRef ParentTestSpecification As TestSpecification, Optional ByVal ParticipantID As String = "") As SipMeasurement
+        Public Shared Function ParseImportLines(ByVal ImportLines() As String, ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional ByVal ParticipantID As String = "") As SipMeasurement
 
             Dim Output As SipMeasurement = Nothing
 
@@ -700,7 +700,7 @@ Namespace SipTest
 
         End Sub
 
-        Public Shared Function ImportSummary(ByRef ParentTestSpecification As TestSpecification, Optional ByVal FilePath As String = "", Optional ByVal Participant As String = "") As SipMeasurement
+        Public Shared Function ImportSummary(ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional ByVal FilePath As String = "", Optional ByVal Participant As String = "") As SipMeasurement
 
             'Gets a file path from the user if none is supplied
             If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured measurement history .txt file.")
@@ -1182,7 +1182,7 @@ Namespace SipTest
         ''' </summary>
         ''' <param name="FilePath"></param>
         ''' <returns>Returns Nothing if an error occured during loading.</returns>
-        Public Function LoadMeasurements(ByRef ParentTestSpecification As TestSpecification, Optional ByVal FilePath As String = "", Optional ByVal ParticipantID As String = "") As MeasurementHistory
+        Public Function LoadMeasurements(ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional ByVal FilePath As String = "", Optional ByVal ParticipantID As String = "") As MeasurementHistory
 
             Dim Output As New MeasurementHistory
 

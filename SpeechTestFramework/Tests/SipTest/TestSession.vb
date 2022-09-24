@@ -259,7 +259,6 @@ Partial Class SipTestGui
             If SimulationMode = False Then 'We don't need to prepare the test sound in simulation mode
 
                 'Setting up the SiP-trial sound mix
-
                 Dim TestWordStartTime As Double = SipMeasurementRandomizer.Next(MinimumTestWordStartTime, MaximumTestWordStartTime)
                 Dim CurrentComponentSound = CurrentSipTrial.SpeechMaterialComponent.GetSound(CurrentSipTrial.MediaSet, 1, 1)
                 Dim TestWordCompletedTime As Double = TestWordStartTime + CurrentComponentSound.WaveData.SampleData(1).Length / CurrentComponentSound.WaveFormat.SampleRate
@@ -281,48 +280,57 @@ Partial Class SipTestGui
                 Dim MaskersStartMeasureLength As Integer = (2 * MaskersStartSample) / 3
 
                 'Background
-                Dim Background_Sound As Audio.Sound = CurrentSipTrial.SpeechMaterialComponent.GetBackgroundNonspeechSound(CurrentSipTrial.MediaSet, 0)
-                Dim Background1 = Background_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, Background_Sound.WaveData.SampleData(1).Length - TargetLength - 2), TargetLength)
-                Dim Background2 = Background_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, Background_Sound.WaveData.SampleData(1).Length - TargetLength - 2), TargetLength)
+                Dim BackgroundNonSpeech_Sound As Audio.Sound = CurrentSipTrial.SpeechMaterialComponent.GetBackgroundNonspeechSound(CurrentSipTrial.MediaSet, 0)
+                Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TargetLength - 2), TargetLength)
+                Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TargetLength - 2), TargetLength)
 
+                'Background speech
+                Dim BackgroundSpeech_Sound As Audio.Sound = CurrentSipTrial.SpeechMaterialComponent.GetBackgroundSpeechSound(CurrentSipTrial.MediaSet, 0)
+                Dim BackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TargetLength - 2), TargetLength)
 
                 Dim ItemList = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
 
                 Dim FadeSpecs_Background = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, 10000))
-                FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -10000))
+                FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
+                FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
                 Dim FadeSpecs_Speech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Speech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, 100))
-                FadeSpecs_Speech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -100))
+                FadeSpecs_Speech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                FadeSpecs_Speech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
 
                 Dim FadeSpecs_Maskers = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, 48000))
-                FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -48000))
+                FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
+                FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 1))
 
-                Dim DuckSpecs = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                DuckSpecs.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -3, TestWordStartSample - 24000, TestWordStartSample))
-                DuckSpecs.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-3, 0, TestWordCompletedSample, TestWordCompletedSample - 24000))
+                Dim DuckSpecsBackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                Dim BackgroundNonSpeechDucking = CurrentSipTrial.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(CurrentSipTrial.TargetMasking_SPL.Value - 3, CurrentSipTrial.MediaSet.BackgroundNonspeechRealisticLevel)
+                DuckSpecsBackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
+                DuckSpecsBackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
 
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(CurrentComponentSound, 1, CurrentSipTrial.TestWordLevel, 2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, TestWordStartSample,,,, FadeSpecs_Speech))
+                Dim DuckSpecsBackgroundSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                DuckSpecsBackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, Math.Max(0, TestWordStartSample - CurrentSampleRate * 1), Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)))
+                DuckSpecsBackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, Math.Max(0, TestWordCompletedSample + CurrentSampleRate * 0.5), Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 1)))
 
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker1, 1, 65, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker2, 1, 65, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                'Test speech
+                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(CurrentComponentSound, 1, CurrentSipTrial.TestWordLevel, 1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, TestWordStartSample,,,, FadeSpecs_Speech))
 
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, 60, 1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 0,,,, FadeSpecs_Background, DuckSpecs))
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, 60, 1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 0,,,, FadeSpecs_Background, DuckSpecs))
+                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker1, 1, CurrentSipTrial.TargetMasking_SPL, 2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker2, 1, CurrentSipTrial.TargetMasking_SPL, 2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
 
-                'CurrentSipTrial.ContextRegionSpeech_SPL
+                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, CurrentSipTrial.MediaSet.BackgroundNonspeechRealisticLevel, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 0,,,, FadeSpecs_Background, DuckSpecsBackgroundNonSpeech))
+                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, CurrentSipTrial.MediaSet.BackgroundNonspeechRealisticLevel, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 0,,,, FadeSpecs_Background, DuckSpecsBackgroundNonSpeech))
+
+                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelection, 1, CurrentSipTrial.ContextRegionSpeech_SPL, 4, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, 0,,,, FadeSpecs_Background, DuckSpecsBackgroundSpeech))
 
                 'Initiating the sound field simulator if needed
                 If SelectedTransducer.PresentationType = PresentationTypes.SimulatedSoundField Then
                     If SelectedTransducer.Mixer.CurrentSimulatorWaveFormat Is Nothing Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance Is Nothing Then
                         'Initiating the simulator
-                        SelectedTransducer.Mixer.SetupDirectionalSimulator(1, Background_Sound.WaveFormat)
+                        SelectedTransducer.Mixer.SetupDirectionalSimulator(1, BackgroundNonSpeech_Sound.WaveFormat)
                     Else
-                        If Background_Sound.WaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, False) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1 Then
+                        If BackgroundNonSpeech_Sound.WaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, False) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1 Then
                             'Updating the simulator
-                            SelectedTransducer.Mixer.SetupDirectionalSimulator(1, Background_Sound.WaveFormat)
+                            SelectedTransducer.Mixer.SetupDirectionalSimulator(1, BackgroundNonSpeech_Sound.WaveFormat)
                         End If
                     End If
                 End If

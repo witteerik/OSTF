@@ -1,7 +1,7 @@
 ﻿Public Class MediaSetSetupControl
 
 
-    Private SelectedTestSpecification As TestSpecification = Nothing
+    Private SelectedTestSpecification As SpeechMaterialSpecification = Nothing
 
     Private SelectedMediaSet As MediaSet = Nothing
 
@@ -149,6 +149,7 @@
         CustomVariablesFolder_TextBox.Text = SelectedMediaSet.CustomVariablesFolder
         MediaParentFolder_TextBox.Text = SelectedMediaSet.MediaParentFolder
         MaskerParentFolder_TextBox.Text = SelectedMediaSet.MaskerParentFolder
+        BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Text = SelectedMediaSet.BackgroundNonspeechRealisticLevel
         BackgroundNonspeechParentFolder_TextBox.Text = SelectedMediaSet.BackgroundNonspeechParentFolder
         BackgroundSpeechParentFolder_TextBox.Text = SelectedMediaSet.BackgroundSpeechParentFolder
         PrototypeMediaParentFolder_TextBox.Text = SelectedMediaSet.PrototypeMediaParentFolder

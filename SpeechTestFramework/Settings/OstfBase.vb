@@ -3,11 +3,11 @@
     ' Program location
     Public Property RootDirectory As String = IO.Path.Combine("C:\", "OSTF") 'Indicates the root path. Other paths given in the project setting files are relative (subpaths) to this path only if they begin with .\ otherwise they are taken as absolute paths.
 
-    Public Property AvailableTestsSubFolder As String = "AvailableTests"
+    Public Property AvailableTestsSubFolder As String = "AvailableSpeechMaterials"
     Public Property CalibrationSignalSubDirectory As String = "CalibrationSignals"
     Public Property AudioSystemSettingsFile As String = IO.Path.Combine("AudioSystem", "AudioSystemSpecification.txt")
     Public Property RoomImpulsesSubDirectory As String = "RoomImpulses"
-    Public Property AvailableTests As New List(Of TestSpecification)
+    Public Property AvailableTests As New List(Of SpeechMaterialSpecification)
 
     ''' <summary>
     ''' The SoundPlayer shared between all OSTF applications. Each application that uses it, is responsible of initiating it, with the settings required by the specific application. As well as disposing it when the application is closed.
@@ -33,7 +33,7 @@
 
         For Each TextFileName In TextFileNames
             'Ties to use the text file in order to create a new test specification object, and just skipps it if unsuccessful
-            Dim NewTestSpecification = TestSpecification.LoadTestSpecificationFile(TextFileName)
+            Dim NewTestSpecification = SpeechMaterialSpecification.LoadTestSpecificationFile(TextFileName)
             If NewTestSpecification IsNot Nothing Then
                 OstfBase.AvailableTests.Add(NewTestSpecification)
             End If

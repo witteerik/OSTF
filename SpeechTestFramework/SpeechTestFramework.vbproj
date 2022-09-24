@@ -150,7 +150,7 @@
     </Compile>
     <Compile Include="Settings\OstfBase.vb" />
     <Compile Include="Statistics\CriticalDifferences.vb" />
-    <Compile Include="TestSupport\TestSpecification.vb" />
+    <Compile Include="TestSupport\SpeechMaterialSpecification.vb" />
     <Compile Include="Tests\SipTest\Participant.vb" />
     <Compile Include="Tests\SipTest\PDL.vb" />
     <Compile Include="Tests\SipTest\SipMeasurement.vb" />

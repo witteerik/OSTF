@@ -25,7 +25,7 @@ Public Class MediaSet
     'Public Const DefaultMediaFolderName As String = "Media"
     'Public Const DefaultVariablesSubFolderName As String = "Variables"
 
-    Public ParentTestSpecification As TestSpecification
+    Public ParentTestSpecification As SpeechMaterialSpecification
 
     ''' <summary>
     ''' Describes the media set used in the test situaton in which a test trial is situated
@@ -342,7 +342,7 @@ Public Class MediaSet
 
     End Sub
 
-    Public Shared Function LoadMediaSetSpecification(ByRef ParentTestSpecification As TestSpecification, ByVal FilePath As String) As MediaSet
+    Public Shared Function LoadMediaSetSpecification(ByRef ParentTestSpecification As SpeechMaterialSpecification, ByVal FilePath As String) As MediaSet
 
         'Gets a file path from the user if none is supplied
         If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a media set specification .txt file.")
@@ -464,6 +464,16 @@ Public Class MediaSet
             If Line.StartsWith("MaskerParentFolder") Then Output.MaskerParentFolder = InputFileSupport.GetInputFileValue(Line, True)
 
             If Line.StartsWith("BackgroundNonspeechParentFolder") Then Output.BackgroundNonspeechParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+
+            If Line.StartsWith("BackgroundNonspeechRealisticLevel") Then
+                Dim Value = InputFileSupport.InputFileDoubleValueParsing(Line, True, FilePath)
+                If Value.HasValue Then
+                    Output.BackgroundNonspeechRealisticLevel = Value
+                Else
+                    MsgBox("Failed to read the BackgroundNonspeechRealisticLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    Return Nothing
+                End If
+            End If
 
             If Line.StartsWith("BackgroundSpeechParentFolder") Then Output.BackgroundSpeechParentFolder = InputFileSupport.GetInputFileValue(Line, True)
 

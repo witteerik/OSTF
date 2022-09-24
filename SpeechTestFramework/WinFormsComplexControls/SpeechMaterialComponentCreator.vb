@@ -331,11 +331,11 @@
         Next
         Dim NewTestSpecificationDirectoryName As String = String.Concat(NewTestSpecificationDirectoryNameList)
 
-        'Creates the new TestSpecification
-        Dim NewTestSpecification As New TestSpecification(TestId, NewTestSpecificationDirectoryName)
+        'Creates the new SpeechMaterialSpecification
+        Dim NewTestSpecification As New SpeechMaterialSpecification(TestId, NewTestSpecificationDirectoryName)
 
         'Noting where to save the test specification
-        Dim TestSpecificationFullPath = IO.Path.Combine(OutputParentFolder, TestSpecification.TestSpecificationDirectory, TestId & "_TestSpecificationFile (Put this in the " & OstfBase.AvailableTestsSubFolder & " folder).txt")
+        Dim TestSpecificationFullPath = IO.Path.Combine(OutputParentFolder, SpeechMaterialSpecification.AvailableSpeechMaterialsDirectory, TestId & "_TestSpecificationFile (Put this in the " & OstfBase.AvailableTestsSubFolder & " folder).txt")
         'Saving the test specification file
         NewTestSpecification.WriteTextFile(TestSpecificationFullPath)
 
