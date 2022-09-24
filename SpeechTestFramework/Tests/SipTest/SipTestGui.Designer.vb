@@ -73,21 +73,18 @@ Partial Class SipTestGui
         Me.MostDifficultItems_Button = New System.Windows.Forms.Button()
         Me.PlannedTestLength_TextBox = New System.Windows.Forms.TextBox()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
-        Me.TableLayoutPanel26 = New System.Windows.Forms.TableLayoutPanel()
-        Me.TestDescription_Label = New System.Windows.Forms.Label()
-        Me.TestDescriptionTextBox = New System.Windows.Forms.TextBox()
-        Me.TableLayoutPanel19 = New System.Windows.Forms.TableLayoutPanel()
         Me.ProportionCorrectTextBox = New System.Windows.Forms.TextBox()
-        Me.CorrectCountTextBox = New System.Windows.Forms.TextBox()
-        Me.TableLayoutPanel17 = New System.Windows.Forms.TableLayoutPanel()
-        Me.TableLayoutPanel18 = New System.Windows.Forms.TableLayoutPanel()
-        Me.CorrectCount_Label = New System.Windows.Forms.Label()
-        Me.ProportionCorrect_Label = New System.Windows.Forms.Label()
         Me.MeasurementProgressBar = New System.Windows.Forms.ProgressBar()
         Me.TestTrialDataGridView = New System.Windows.Forms.DataGridView()
         Me.TestWordColumn = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.ResponseColumn = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.ResultColumn = New System.Windows.Forms.DataGridViewImageColumn()
+        Me.CorrectCount_Label = New System.Windows.Forms.Label()
+        Me.ProportionCorrect_Label = New System.Windows.Forms.Label()
+        Me.CorrectCountTextBox = New System.Windows.Forms.TextBox()
+        Me.TestDescriptionTextBox = New System.Windows.Forms.TextBox()
+        Me.TestDescription_Label = New System.Windows.Forms.Label()
+        Me.RandomSeed_Label = New System.Windows.Forms.Label()
         Me.TableLayoutPanel16 = New System.Windows.Forms.TableLayoutPanel()
         Me.ParticipantID_Label = New System.Windows.Forms.Label()
         Me.ParticipantIdTextBox = New System.Windows.Forms.TextBox()
@@ -108,11 +105,12 @@ Partial Class SipTestGui
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.StartButton = New System.Windows.Forms.Button()
-        Me.StopButton = New System.Windows.Forms.Button()
         Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Start_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
+        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.BtLamp = New SpeechTestFramework.Lamp()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.Test_TableLayoutPanel.SuspendLayout()
@@ -124,10 +122,6 @@ Partial Class SipTestGui
         Me.TableLayoutPanel10.SuspendLayout()
         Me.TableLayoutPanel11.SuspendLayout()
         Me.TableLayoutPanel4.SuspendLayout()
-        Me.TableLayoutPanel26.SuspendLayout()
-        Me.TableLayoutPanel19.SuspendLayout()
-        Me.TableLayoutPanel17.SuspendLayout()
-        Me.TableLayoutPanel18.SuspendLayout()
         CType(Me.TestTrialDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TableLayoutPanel16.SuspendLayout()
         Me.Screen_TableLayoutPanel.SuspendLayout()
@@ -685,18 +679,28 @@ Partial Class SipTestGui
         '
         'TableLayoutPanel4
         '
-        Me.TableLayoutPanel4.ColumnCount = 1
-        Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel4.Controls.Add(Me.TableLayoutPanel26, 0, 0)
-        Me.TableLayoutPanel4.Controls.Add(Me.TableLayoutPanel19, 0, 4)
-        Me.TableLayoutPanel4.Controls.Add(Me.TableLayoutPanel17, 0, 1)
-        Me.TableLayoutPanel4.Controls.Add(Me.TableLayoutPanel18, 0, 3)
-        Me.TableLayoutPanel4.Controls.Add(Me.MeasurementProgressBar, 0, 2)
-        Me.TableLayoutPanel4.Controls.Add(Me.TestTrialDataGridView, 0, 5)
+        Me.TableLayoutPanel4.ColumnCount = 4
+        Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100.0!))
+        Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 101.0!))
+        Me.TableLayoutPanel4.Controls.Add(Me.ProportionCorrectTextBox, 2, 5)
+        Me.TableLayoutPanel4.Controls.Add(Me.MeasurementProgressBar, 0, 3)
+        Me.TableLayoutPanel4.Controls.Add(Me.TestTrialDataGridView, 0, 6)
+        Me.TableLayoutPanel4.Controls.Add(Me.CorrectCount_Label, 0, 4)
+        Me.TableLayoutPanel4.Controls.Add(Me.ProportionCorrect_Label, 2, 4)
+        Me.TableLayoutPanel4.Controls.Add(Me.Start_AudioButton, 0, 2)
+        Me.TableLayoutPanel4.Controls.Add(Me.CorrectCountTextBox, 0, 5)
+        Me.TableLayoutPanel4.Controls.Add(Me.TestDescriptionTextBox, 1, 0)
+        Me.TableLayoutPanel4.Controls.Add(Me.TestDescription_Label, 0, 0)
+        Me.TableLayoutPanel4.Controls.Add(Me.RandomSeed_Label, 0, 1)
+        Me.TableLayoutPanel4.Controls.Add(Me.RandomSeed_IntegerParsingTextBox, 1, 1)
+        Me.TableLayoutPanel4.Controls.Add(Me.Stop_AudioButton, 2, 2)
         Me.TableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel4.Location = New System.Drawing.Point(483, 3)
         Me.TableLayoutPanel4.Name = "TableLayoutPanel4"
-        Me.TableLayoutPanel4.RowCount = 6
+        Me.TableLayoutPanel4.RowCount = 7
+        Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
@@ -706,137 +710,24 @@ Partial Class SipTestGui
         Me.TableLayoutPanel4.Size = New System.Drawing.Size(387, 531)
         Me.TableLayoutPanel4.TabIndex = 1
         '
-        'TableLayoutPanel26
-        '
-        Me.TableLayoutPanel26.ColumnCount = 2
-        Me.TableLayoutPanel26.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
-        Me.TableLayoutPanel26.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel26.Controls.Add(Me.TestDescription_Label, 0, 0)
-        Me.TableLayoutPanel26.Controls.Add(Me.TestDescriptionTextBox, 1, 0)
-        Me.TableLayoutPanel26.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel26.Location = New System.Drawing.Point(0, 0)
-        Me.TableLayoutPanel26.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel26.Name = "TableLayoutPanel26"
-        Me.TableLayoutPanel26.RowCount = 1
-        Me.TableLayoutPanel26.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel26.Size = New System.Drawing.Size(387, 21)
-        Me.TableLayoutPanel26.TabIndex = 7
-        '
-        'TestDescription_Label
-        '
-        Me.TestDescription_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TestDescription_Label.Location = New System.Drawing.Point(3, 0)
-        Me.TestDescription_Label.Name = "TestDescription_Label"
-        Me.TestDescription_Label.Size = New System.Drawing.Size(34, 21)
-        Me.TestDescription_Label.TabIndex = 0
-        Me.TestDescription_Label.Text = "Test"
-        Me.TestDescription_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'TestDescriptionTextBox
-        '
-        Me.TestDescriptionTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TestDescriptionTextBox.Location = New System.Drawing.Point(40, 0)
-        Me.TestDescriptionTextBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.TestDescriptionTextBox.Name = "TestDescriptionTextBox"
-        Me.TestDescriptionTextBox.Size = New System.Drawing.Size(347, 20)
-        Me.TestDescriptionTextBox.TabIndex = 1
-        '
-        'TableLayoutPanel19
-        '
-        Me.TableLayoutPanel19.ColumnCount = 2
-        Me.TableLayoutPanel19.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel19.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel19.Controls.Add(Me.ProportionCorrectTextBox, 0, 0)
-        Me.TableLayoutPanel19.Controls.Add(Me.CorrectCountTextBox, 0, 0)
-        Me.TableLayoutPanel19.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel19.Location = New System.Drawing.Point(3, 106)
-        Me.TableLayoutPanel19.Name = "TableLayoutPanel19"
-        Me.TableLayoutPanel19.RowCount = 1
-        Me.TableLayoutPanel19.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel19.Size = New System.Drawing.Size(381, 24)
-        Me.TableLayoutPanel19.TabIndex = 3
-        '
         'ProportionCorrectTextBox
         '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.ProportionCorrectTextBox, 2)
         Me.ProportionCorrectTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ProportionCorrectTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.ProportionCorrectTextBox.Location = New System.Drawing.Point(190, 0)
+        Me.ProportionCorrectTextBox.Location = New System.Drawing.Point(193, 124)
         Me.ProportionCorrectTextBox.Margin = New System.Windows.Forms.Padding(0)
         Me.ProportionCorrectTextBox.Name = "ProportionCorrectTextBox"
         Me.ProportionCorrectTextBox.ReadOnly = True
-        Me.ProportionCorrectTextBox.Size = New System.Drawing.Size(191, 24)
+        Me.ProportionCorrectTextBox.Size = New System.Drawing.Size(194, 24)
         Me.ProportionCorrectTextBox.TabIndex = 4
         Me.ProportionCorrectTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
-        'CorrectCountTextBox
-        '
-        Me.CorrectCountTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.CorrectCountTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.CorrectCountTextBox.Location = New System.Drawing.Point(0, 0)
-        Me.CorrectCountTextBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.CorrectCountTextBox.Name = "CorrectCountTextBox"
-        Me.CorrectCountTextBox.ReadOnly = True
-        Me.CorrectCountTextBox.Size = New System.Drawing.Size(190, 24)
-        Me.CorrectCountTextBox.TabIndex = 3
-        Me.CorrectCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        '
-        'TableLayoutPanel17
-        '
-        Me.TableLayoutPanel17.ColumnCount = 2
-        Me.TableLayoutPanel17.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel17.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel17.Controls.Add(Me.StartButton, 0, 0)
-        Me.TableLayoutPanel17.Controls.Add(Me.StopButton, 1, 0)
-        Me.TableLayoutPanel17.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel17.Location = New System.Drawing.Point(0, 21)
-        Me.TableLayoutPanel17.Margin = New System.Windows.Forms.Padding(0)
-        Me.TableLayoutPanel17.Name = "TableLayoutPanel17"
-        Me.TableLayoutPanel17.RowCount = 1
-        Me.TableLayoutPanel17.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel17.Size = New System.Drawing.Size(387, 40)
-        Me.TableLayoutPanel17.TabIndex = 3
-        '
-        'TableLayoutPanel18
-        '
-        Me.TableLayoutPanel18.ColumnCount = 2
-        Me.TableLayoutPanel18.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel18.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel18.Controls.Add(Me.CorrectCount_Label, 0, 0)
-        Me.TableLayoutPanel18.Controls.Add(Me.ProportionCorrect_Label, 1, 0)
-        Me.TableLayoutPanel18.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel18.Location = New System.Drawing.Point(3, 85)
-        Me.TableLayoutPanel18.Name = "TableLayoutPanel18"
-        Me.TableLayoutPanel18.RowCount = 1
-        Me.TableLayoutPanel18.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel18.Size = New System.Drawing.Size(381, 15)
-        Me.TableLayoutPanel18.TabIndex = 4
-        '
-        'CorrectCount_Label
-        '
-        Me.CorrectCount_Label.AutoSize = True
-        Me.CorrectCount_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.CorrectCount_Label.Location = New System.Drawing.Point(3, 0)
-        Me.CorrectCount_Label.Name = "CorrectCount_Label"
-        Me.CorrectCount_Label.Size = New System.Drawing.Size(184, 15)
-        Me.CorrectCount_Label.TabIndex = 0
-        Me.CorrectCount_Label.Text = "Antal rätt"
-        Me.CorrectCount_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'ProportionCorrect_Label
-        '
-        Me.ProportionCorrect_Label.AutoSize = True
-        Me.ProportionCorrect_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ProportionCorrect_Label.Location = New System.Drawing.Point(193, 0)
-        Me.ProportionCorrect_Label.Name = "ProportionCorrect_Label"
-        Me.ProportionCorrect_Label.Size = New System.Drawing.Size(185, 15)
-        Me.ProportionCorrect_Label.TabIndex = 1
-        Me.ProportionCorrect_Label.Text = "Andel rätt"
-        Me.ProportionCorrect_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
         'MeasurementProgressBar
         '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.MeasurementProgressBar, 4)
         Me.MeasurementProgressBar.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MeasurementProgressBar.Location = New System.Drawing.Point(3, 64)
+        Me.MeasurementProgressBar.Location = New System.Drawing.Point(3, 85)
         Me.MeasurementProgressBar.Name = "MeasurementProgressBar"
         Me.MeasurementProgressBar.Size = New System.Drawing.Size(381, 15)
         Me.MeasurementProgressBar.TabIndex = 5
@@ -861,6 +752,7 @@ Partial Class SipTestGui
         Me.TestTrialDataGridView.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle4
         Me.TestTrialDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.TestTrialDataGridView.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.TestWordColumn, Me.ResponseColumn, Me.ResultColumn})
+        Me.TableLayoutPanel4.SetColumnSpan(Me.TestTrialDataGridView, 4)
         DataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
         DataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window
         DataGridViewCellStyle7.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -869,9 +761,8 @@ Partial Class SipTestGui
         DataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText
         DataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
         Me.TestTrialDataGridView.DefaultCellStyle = DataGridViewCellStyle7
-        Me.TestTrialDataGridView.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestTrialDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically
-        Me.TestTrialDataGridView.Location = New System.Drawing.Point(3, 136)
+        Me.TestTrialDataGridView.Location = New System.Drawing.Point(3, 157)
         Me.TestTrialDataGridView.Name = "TestTrialDataGridView"
         Me.TestTrialDataGridView.ReadOnly = True
         DataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
@@ -886,7 +777,7 @@ Partial Class SipTestGui
         Me.TestTrialDataGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.TestTrialDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect
         Me.TestTrialDataGridView.ShowCellToolTips = False
-        Me.TestTrialDataGridView.Size = New System.Drawing.Size(381, 392)
+        Me.TestTrialDataGridView.Size = New System.Drawing.Size(381, 371)
         Me.TestTrialDataGridView.TabIndex = 6
         '
         'TestWordColumn
@@ -918,6 +809,75 @@ Partial Class SipTestGui
         Me.ResultColumn.Name = "ResultColumn"
         Me.ResultColumn.ReadOnly = True
         Me.ResultColumn.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
+        '
+        'CorrectCount_Label
+        '
+        Me.CorrectCount_Label.AutoSize = True
+        Me.TableLayoutPanel4.SetColumnSpan(Me.CorrectCount_Label, 2)
+        Me.CorrectCount_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.CorrectCount_Label.Location = New System.Drawing.Point(3, 103)
+        Me.CorrectCount_Label.Name = "CorrectCount_Label"
+        Me.CorrectCount_Label.Size = New System.Drawing.Size(187, 21)
+        Me.CorrectCount_Label.TabIndex = 0
+        Me.CorrectCount_Label.Text = "Antal rätt"
+        Me.CorrectCount_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'ProportionCorrect_Label
+        '
+        Me.ProportionCorrect_Label.AutoSize = True
+        Me.TableLayoutPanel4.SetColumnSpan(Me.ProportionCorrect_Label, 2)
+        Me.ProportionCorrect_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ProportionCorrect_Label.Location = New System.Drawing.Point(196, 103)
+        Me.ProportionCorrect_Label.Name = "ProportionCorrect_Label"
+        Me.ProportionCorrect_Label.Size = New System.Drawing.Size(188, 21)
+        Me.ProportionCorrect_Label.TabIndex = 1
+        Me.ProportionCorrect_Label.Text = "Andel rätt"
+        Me.ProportionCorrect_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'CorrectCountTextBox
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.CorrectCountTextBox, 2)
+        Me.CorrectCountTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.CorrectCountTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.CorrectCountTextBox.Location = New System.Drawing.Point(0, 124)
+        Me.CorrectCountTextBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.CorrectCountTextBox.Name = "CorrectCountTextBox"
+        Me.CorrectCountTextBox.ReadOnly = True
+        Me.CorrectCountTextBox.Size = New System.Drawing.Size(193, 24)
+        Me.CorrectCountTextBox.TabIndex = 3
+        Me.CorrectCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        '
+        'TestDescriptionTextBox
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.TestDescriptionTextBox, 3)
+        Me.TestDescriptionTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TestDescriptionTextBox.Location = New System.Drawing.Point(100, 0)
+        Me.TestDescriptionTextBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.TestDescriptionTextBox.Name = "TestDescriptionTextBox"
+        Me.TestDescriptionTextBox.Size = New System.Drawing.Size(287, 20)
+        Me.TestDescriptionTextBox.TabIndex = 1
+        '
+        'TestDescription_Label
+        '
+        Me.TestDescription_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TestDescription_Label.Location = New System.Drawing.Point(3, 3)
+        Me.TestDescription_Label.Margin = New System.Windows.Forms.Padding(3)
+        Me.TestDescription_Label.Name = "TestDescription_Label"
+        Me.TestDescription_Label.Size = New System.Drawing.Size(94, 15)
+        Me.TestDescription_Label.TabIndex = 0
+        Me.TestDescription_Label.Text = "Test description:"
+        Me.TestDescription_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'RandomSeed_Label
+        '
+        Me.RandomSeed_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RandomSeed_Label.Location = New System.Drawing.Point(3, 24)
+        Me.RandomSeed_Label.Margin = New System.Windows.Forms.Padding(3)
+        Me.RandomSeed_Label.Name = "RandomSeed_Label"
+        Me.RandomSeed_Label.Size = New System.Drawing.Size(94, 15)
+        Me.RandomSeed_Label.TabIndex = 7
+        Me.RandomSeed_Label.Text = "Random seed (optional):"
+        Me.RandomSeed_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'TableLayoutPanel16
         '
@@ -1173,30 +1133,6 @@ Partial Class SipTestGui
         Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(52, 20)
         Me.AboutToolStripMenuItem.Text = "About"
         '
-        'StartButton
-        '
-        Me.StartButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.PlayDisabledImage
-        Me.StartButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.StartButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StartButton.Location = New System.Drawing.Point(3, 3)
-        Me.StartButton.Margin = New System.Windows.Forms.Padding(3, 3, 12, 3)
-        Me.StartButton.Name = "StartButton"
-        Me.StartButton.Size = New System.Drawing.Size(178, 34)
-        Me.StartButton.TabIndex = 0
-        Me.StartButton.UseVisualStyleBackColor = True
-        '
-        'StopButton
-        '
-        Me.StopButton.BackgroundImage = Global.SpeechTestFramework.My.Resources.Resources.StopDisabledImage
-        Me.StopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom
-        Me.StopButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StopButton.Location = New System.Drawing.Point(205, 3)
-        Me.StopButton.Margin = New System.Windows.Forms.Padding(12, 3, 3, 3)
-        Me.StopButton.Name = "StopButton"
-        Me.StopButton.Size = New System.Drawing.Size(179, 34)
-        Me.StopButton.TabIndex = 1
-        Me.StopButton.UseVisualStyleBackColor = True
-        '
         'PsychmetricFunction_VerticalLabel
         '
         Me.PsychmetricFunction_VerticalLabel.AutoSize = True
@@ -1226,6 +1162,41 @@ Partial Class SipTestGui
         Me.Gain_VerticalLabel.Size = New System.Drawing.Size(19, 121)
         Me.Gain_VerticalLabel.TabIndex = 1
         Me.Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
+        '
+        'Start_AudioButton
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.Start_AudioButton, 2)
+        Me.Start_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Start_AudioButton.Enabled = False
+        Me.Start_AudioButton.Location = New System.Drawing.Point(3, 45)
+        Me.Start_AudioButton.Name = "Start_AudioButton"
+        Me.Start_AudioButton.Size = New System.Drawing.Size(187, 34)
+        Me.Start_AudioButton.TabIndex = 10
+        Me.Start_AudioButton.UseVisualStyleBackColor = True
+        Me.Start_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
+        '
+        'RandomSeed_IntegerParsingTextBox
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.RandomSeed_IntegerParsingTextBox, 3)
+        Me.RandomSeed_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(100, 21)
+        Me.RandomSeed_IntegerParsingTextBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
+        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(287, 20)
+        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 8
+        '
+        'Stop_AudioButton
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.Stop_AudioButton, 2)
+        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Stop_AudioButton.Enabled = False
+        Me.Stop_AudioButton.Location = New System.Drawing.Point(196, 45)
+        Me.Stop_AudioButton.Name = "Stop_AudioButton"
+        Me.Stop_AudioButton.Size = New System.Drawing.Size(188, 34)
+        Me.Stop_AudioButton.TabIndex = 11
+        Me.Stop_AudioButton.UseVisualStyleBackColor = True
+        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
         '
         'BtLamp
         '
@@ -1261,13 +1232,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel10.ResumeLayout(False)
         Me.TableLayoutPanel11.ResumeLayout(False)
         Me.TableLayoutPanel4.ResumeLayout(False)
-        Me.TableLayoutPanel26.ResumeLayout(False)
-        Me.TableLayoutPanel26.PerformLayout()
-        Me.TableLayoutPanel19.ResumeLayout(False)
-        Me.TableLayoutPanel19.PerformLayout()
-        Me.TableLayoutPanel17.ResumeLayout(False)
-        Me.TableLayoutPanel18.ResumeLayout(False)
-        Me.TableLayoutPanel18.PerformLayout()
+        Me.TableLayoutPanel4.PerformLayout()
         CType(Me.TestTrialDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TableLayoutPanel16.ResumeLayout(False)
         Me.TableLayoutPanel16.PerformLayout()
@@ -1300,9 +1265,6 @@ Partial Class SipTestGui
     Friend WithEvents TableLayoutPanel9 As Windows.Forms.TableLayoutPanel
     Friend WithEvents ExportData_Button As Windows.Forms.Button
     Friend WithEvents ImportData_Button As Windows.Forms.Button
-    Friend WithEvents TableLayoutPanel19 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel17 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel18 As Windows.Forms.TableLayoutPanel
     Friend WithEvents StatAnalysisLabel As Windows.Forms.Label
     Friend WithEvents CompletedTests_Label As Windows.Forms.Label
     Friend WithEvents PNR_Label As Windows.Forms.Label
@@ -1322,8 +1284,6 @@ Partial Class SipTestGui
     Friend WithEvents ProportionCorrectTextBox As Windows.Forms.TextBox
     Friend WithEvents CorrectCountTextBox As Windows.Forms.TextBox
     Friend WithEvents MeasurementProgressBar As Windows.Forms.ProgressBar
-    Friend WithEvents StartButton As Windows.Forms.Button
-    Friend WithEvents StopButton As Windows.Forms.Button
     Friend WithEvents ConnectBluetoothScreen_Button As Windows.Forms.Button
     Friend WithEvents PcScreen_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents VerticalLabel2 As SpeechTestFramework.WinFormControls.VerticalLabel
@@ -1331,7 +1291,6 @@ Partial Class SipTestGui
     Friend WithEvents VerticalLabel3 As SpeechTestFramework.WinFormControls.VerticalLabel
     Friend WithEvents TestTrialDataGridView As Windows.Forms.DataGridView
     Friend WithEvents CurrentSessionResults_DataGridView As Windows.Forms.DataGridView
-    Friend WithEvents TableLayoutPanel26 As Windows.Forms.TableLayoutPanel
     Friend WithEvents TestDescription_Label As Windows.Forms.Label
     Friend WithEvents TestDescriptionTextBox As Windows.Forms.TextBox
     Friend WithEvents GainPanel As Windows.Forms.Panel
@@ -1372,4 +1331,8 @@ Partial Class SipTestGui
     Friend WithEvents Transducer_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents MenuStrip1 As Windows.Forms.MenuStrip
     Friend WithEvents AboutToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents RandomSeed_Label As Windows.Forms.Label
+    Friend WithEvents RandomSeed_IntegerParsingTextBox As IntegerParsingTextBox
+    Friend WithEvents Start_AudioButton As WinFormControls.AudioButton
+    Friend WithEvents Stop_AudioButton As WinFormControls.AudioButton
 End Class

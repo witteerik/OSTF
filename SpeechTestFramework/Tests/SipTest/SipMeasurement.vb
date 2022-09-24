@@ -220,45 +220,31 @@ Namespace SipTest
                 Return Nothing
             Else
 
-                Dim NextTestTrial As SipTrial = PlannedTrials(0)
-
-                Dim NextTestUnit = NextTestTrial.ParentTestUnit
-
-                'Adding the trial to the history
-                ObservedTrials.Add(NextTestTrial)
-                NextTestUnit.ObservedTrials.Add(NextTestTrial)
-
-                'Removes the next trial from PlannedTrials
-                PlannedTrials.Remove(NextTestTrial)
-                NextTestUnit.PlannedTrials.Add(NextTestTrial)
-
-
                 'Returns the next planed trial
-                Return NextTestTrial
+                Return PlannedTrials(0)
             End If
 
-
-            'Dim NextTestUnit = GetNextTestUnit(rnd)
-
-            ''Returns nothing if there are no more test units to present
-            'If NextTestUnit Is Nothing Then Return Nothing
-
-            ''Gets the next test trial
-            'Dim NextTestTrial = NextTestUnit.GetNextTrial(rnd)
-
-            ''Setting levels
-
-            ''Adding the trial to the history
-            'ObservedTrials.Add(NextTestTrial)
-            'NextTestUnit.ObservedTrials.Add(NextTestTrial)
-
-            ''Removes the next trial from PlannedTrials
-            'PlannedTrials.Remove(NextTestTrial)
-            'NextTestUnit.PlannedTrials.Add(NextTestTrial)
-
-            'Return NextTestTrial
-
         End Function
+
+        ''' <summary>
+        ''' Moves the referenced test trial from the PlannedTrials to ObservedTrials objects, both in the parent TestUnit and in the parent SipMeasurement. This way it will not be presented again.
+        ''' </summary>
+        ''' <param name="TestTrial"></param>
+        Public Sub MoveTrialToHistory(ByRef TestTrial As SipTrial)
+
+            Dim ParentTestUnit = TestTrial.ParentTestUnit
+
+            'Adding the trial to the history
+            ObservedTrials.Add(TestTrial)
+            ParentTestUnit.ObservedTrials.Add(TestTrial)
+
+            'Removes the next trial from PlannedTrials
+            PlannedTrials.Remove(TestTrial)
+            ParentTestUnit.PlannedTrials.Remove(TestTrial)
+
+        End Sub
+
+
 
         Public Function GetNextTestUnit(ByRef rnd As Random) As SiPTestUnit
 
@@ -287,7 +273,6 @@ Namespace SipTest
 
             Dim Output As New GuiTableData
 
-
             'Adding already tested trials
             For i = 0 To ObservedTrials.Count - 1
                 Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation)
@@ -304,7 +289,7 @@ Namespace SipTest
 
             Dim LastPresentedTrialIndex As Integer = ObservedTrials.Count - 1
             Output.SelectionRow = Math.Max(0, LastPresentedTrialIndex)
-                Output.FirstRowToDisplayInScrollmode = Math.Max(0, LastPresentedTrialIndex - 7)
+            Output.FirstRowToDisplayInScrollmode = Math.Max(0, LastPresentedTrialIndex - 7)
 
             'Overriding values if no rows exist
             If PlannedTrials.Count = 0 And ObservedTrials.Count = 0 Then
@@ -1158,10 +1143,14 @@ Namespace SipTest
 
         Public Property Measurements As New List(Of SipMeasurement)
 
-        Public Sub SaveToFile(Optional ByVal FilePath As String = "")
+        Public Sub SaveToFile(Optional ByVal FilePath As String = "", Optional ByVal SaveOnlyLast As Boolean = False)
 
             'Gets a file path from the user if none is supplied
-            If FilePath = "" Then FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save stuctured measurement history .txt file as...")
+            If SaveOnlyLast = False Then
+                If FilePath = "" Then FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save stuctured measurement history .txt file as...")
+            Else
+                If FilePath = "" Then FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save stuctured measurement (.txt) file as...")
+            End If
             If FilePath = "" Then
                 MsgBox("No file selected!")
                 Exit Sub
@@ -1169,9 +1158,13 @@ Namespace SipTest
 
             Dim Output As New List(Of String)
 
-            For Each Measurement In Measurements
-                Output.Add(Measurement.CreateExportString)
-            Next
+            If SaveOnlyLast = False Then
+                For Each Measurement In Measurements
+                    Output.Add(Measurement.CreateExportString)
+                Next
+            Else
+                If Measurements.Count > 0 Then Output.Add(Measurements(Measurements.Count - 1).CreateExportString)
+            End If
 
             Utils.SendInfoToLog(String.Join(vbCrLf, Output), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
 

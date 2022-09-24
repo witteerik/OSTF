@@ -114,7 +114,6 @@ Partial Class SipTestGui
 
         StartTrialTimer.Interval = Math.Max(1, InterTrialInterval * 1000)
 
-
         'Removes the start button
         ParticipantControl.ResetTestWordPanel()
 
@@ -169,6 +168,8 @@ Partial Class SipTestGui
         'Pausing test
         If IsPaused = True Then
             Exit Sub
+        Else
+            TogglePlayButton(False)
         End If
 
         'Updates the GUI table
@@ -474,7 +475,6 @@ Partial Class SipTestGui
     End Sub
 
 
-
     Public Sub TestWordResponse_TreadSafe(ByVal ResponseString As String) Handles ParticipantControl.TestWordResponse
 
         If Me.InvokeRequired = True Then
@@ -568,6 +568,8 @@ Partial Class SipTestGui
 
         'Dim TestPhonemeDuration As Double = CurrentSipTrial.SoundRecording.SMA.ChannelData(1)(sentence)(0).PhoneData(CurrentSipTrial.ParentTestWord.ParentTestWordList.ContrastedPhonemeIndex).Length / CurrentSipTrial.SoundRecording.WaveFormat.SampleRate
 
+        'Moves the trials to from planned to observed trials so thatr it doesn't get presented again
+        CurrentSipTestMeasurement.MoveTrialToHistory(CurrentSipTrial)
 
         'Updates the progress bar
         If ShowProgressIndication = True Then
@@ -592,14 +594,21 @@ Partial Class SipTestGui
 
         Try
 
+            Stop_AudioButton.Enabled = False
+
             ParticipantControl.ResetTestWordPanel()
 
             ParticipantControl.ShowMessage("Testet är klart!")
             'ParticipantControl.ShowMessage(GUIDictionary.SubTestIsCompleted)
 
             'Saving results to the log folder
-            'If SimulationMode = False Then _TestResults.SaveResultsToFile(Path.Combine(logFilePath, "AutoLoggedResults"), "TestResultLogExport_" & TestSessionDescription.PatientDetails.ID)
+            If SimulationMode = False Then
+                SoundPlayer.SwapOutputSounds(Nothing)
 
+                'Sleeps during the fade out phase
+                Threading.Thread.Sleep(SoundPlayer.GetOverlapDuration * 1000)
+
+            End If
 
             'Summarizes the result
             CurrentSipTestMeasurement.SummarizeTestResults()
@@ -608,45 +617,38 @@ Partial Class SipTestGui
             'Display results
             PopulateTestHistoryTables()
 
-            'Export data here?
+            'TODO: Should we auto-export data here, or let the user be responsible for saving the test results?
+            'If SimulationMode = False Then MeasurementHistory.SaveToFile(Path.Combine(Utils.logFilePath, "AutoLoggedResults"))
+            'If SimulationMode = False Then MeasurementHistory.SaveToFile(Path.Combine(Utils.logFilePath, "AutoLoggedResults"))
 
 
             'Resets values to prepare for next measurement
             ResetValuesAfterMeasurement()
 
-            'Disposing the sound player
-            If SimulationMode = False Then
-                SoundPlayer.SwapOutputSounds(Nothing)
-
-                'Sleeps during the fade out phase
-                Threading.Thread.Sleep(SoundPlayer.GetOverlapDuration * 1000)
-
-                SoundPlayer.CloseStream()
-                SoundPlayer.Dispose()
-            End If
-
-            TestIsStarted = False
-
-            If CurrentScreenType = ScreenType.Pc Then
-                'Unlocks the cursor 
-                UnlockCursor()
-            End If
-
         Catch ex As Exception
             Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
         End Try
-
 
     End Sub
 
 
     Public Sub ResetValuesAfterMeasurement()
 
+        IsPaused = False
+        TestIsStarted = False
+
+        'Unlocks the cursor in Pc mode
+        If CurrentScreenType = ScreenType.Pc Then UnlockCursor()
+
         ClearTestNameBox()
 
         UnlockSettingsPanels()
 
-        MsgBox("Unlock stuff for new test!")
+        TogglePlayButton(True)
+        Start_AudioButton.Enabled = False
+
+        'Calls TryCalculatePsychometricFunction to create a new instance of SiPmeasuement based on the settings already selected
+        TryCalculatePsychometricFunction()
 
     End Sub
 
@@ -667,24 +669,19 @@ Partial Class SipTestGui
         ParticipantControl.ShowMessage("Testet är pausat")
         'ParticipantControl.ShowMessage(GUIDictionary.TestingIsPaused)
 
+        TogglePlayButton(True)
+
     End Sub
 
     Public Sub ResumeTesting()
 
         If IsPaused = True Then
             IsPaused = False
-
+            TogglePlayButton(False)
             ParticipantControl.ResetTestWordPanel()
-
             PrepareAndLaunchTrial_ThreadSafe()
-
         End If
 
-    End Sub
-
-    Public Sub StopTesting()
-        StopAllTimers()
-        FinalizeTesting()
     End Sub
 
     Public Sub StopAllTimers()

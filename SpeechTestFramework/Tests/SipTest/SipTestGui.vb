@@ -181,7 +181,8 @@ Public Class SipTestGui
                 DisconnectBtScreen_Button.Text = "Koppla från BT-skärm"
                 SelectTransducer_Label.Text = "Välj ljudgivare"
                 SelectAudiogram_Label.Text = "Välj audiogram"
-                TestDescription_Label.Text = "Test"
+                TestDescription_Label.Text = "Testbeskrivning:"
+                RandomSeed_Label.Text = "Slumptalsfrö (valfritt):"
                 CompletedTests_Label.Text = "Genomförda test"
                 Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
                 NewAudiogram_Button.Text = "Skapa nytt"
@@ -217,7 +218,8 @@ Public Class SipTestGui
                 DisconnectBtScreen_Button.Text = "Disconnect BT screen"
                 SelectTransducer_Label.Text = "Select sound transducer"
                 SelectAudiogram_Label.Text = "Select audiogram"
-                TestDescription_Label.Text = "Test"
+                TestDescription_Label.Text = "Test description:"
+                RandomSeed_Label.Text = "Random seed (optional):"
                 CompletedTests_Label.Text = "Completed tests"
                 Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
                 NewAudiogram_Button.Text = "Create new"
@@ -667,7 +669,7 @@ Public Class SipTestGui
         PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
 
         'Initiates the test
-        InitiateNewMeasurement()
+        TestDescriptionTextBox.Focus()
 
     End Sub
 
@@ -703,15 +705,41 @@ Public Class SipTestGui
 
     Private Sub TestDescriptionTextBox_TextChanged(sender As Object, e As EventArgs) Handles TestDescriptionTextBox.TextChanged
 
-        SelectedTestDescription = TestDescriptionTextBox.Text
+        'Makes sure that the user enters a valid, not already taken, test description
+        Dim DescriptionIsOk As Boolean = False
+
+        Dim ExistingDescriptions As New List(Of String)
+        For Each Measurement In MeasurementHistory.Measurements
+            ExistingDescriptions.Add(Measurement.Description.Trim.ToLower)
+        Next
+
+        If ExistingDescriptions.Contains(TestDescriptionTextBox.Text.Trim.ToLower) Then
+            TestDescriptionTextBox.ForeColor = Color.Red
+            DescriptionIsOk = False
+        Else
+            TestDescriptionTextBox.ForeColor = Color.Black
+            If TestDescriptionTextBox.Text.Trim = "" Then
+                DescriptionIsOk = False
+            Else
+                DescriptionIsOk = True
+                SelectedTestDescription = TestDescriptionTextBox.Text.Trim
+            End If
+        End If
+
+        If DescriptionIsOk = True Then
+            InitiateNewMeasurement()
+        Else
+            Start_AudioButton.Enabled = False
+        End If
 
     End Sub
 
 
     Public Sub InitiateNewMeasurement()
 
-        If SelectedTransducer.CanPlay = True Then
+        If SelectedTransducer.CanPlay = False Then
             'Aborts if the SelectedTransducer cannot be used to play sound
+            MsgBox("Unable to play sound using the selected transducer!", MsgBoxStyle.Exclamation, "Sound player error")
             Exit Sub
         End If
 
@@ -746,62 +774,77 @@ Public Class SipTestGui
 
         End Select
 
-
-        EnablePlayButton()
-
+        Start_AudioButton.Enabled = True
 
     End Sub
 
 
 #Region "Active measurement"
 
-    Public Sub StartTest() Handles StartButton.Click
+    Public Sub StartTest() Handles Start_AudioButton.Click
 
-        If SelectedPnr Is Nothing Then
-            ShowMessageBox("Please select a PNR value!", "SiP-test")
-            Exit Sub
-        End If
-        If SelectedTestDescription = "" Then
-            ShowMessageBox("Please provide a test description (such as 'test 1, with HA')!", "SiP-test")
-            Exit Sub
-        End If
+        If TestIsStarted = False Then
 
-        'Creates a new randomizer before each test start
-        Dim Seed As Integer? = 42 'TODO: remove this seed value, and possible let the user specify one instead
-        If Seed.HasValue Then
-            SipMeasurementRandomizer = New Random(Seed)
+
+            If SelectedPnr Is Nothing Then
+                ShowMessageBox("Please select a PNR value!", "SiP-test")
+                Exit Sub
+            End If
+            If SelectedTestDescription = "" Then
+                ShowMessageBox("Please provide a test description (such as 'test 1, with HA')!", "SiP-test")
+                Exit Sub
+            End If
+
+            'Creates a new randomizer before each test start
+            Dim Seed As Integer? = RandomSeed_IntegerParsingTextBox.Value
+            If Seed.HasValue Then
+                SipMeasurementRandomizer = New Random(Seed)
+            Else
+                SipMeasurementRandomizer = New Random
+            End If
+
+
+            'Applying the SelectedReferenceLevel, SelectedPnr and the SelectedTestDescription
+            CurrentSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
+
+            CurrentSipTestMeasurement.Description = SelectedTestDescription
+
+            'Things seemed to be in order,
+            'Starting the test
+
+            TogglePlayButton(False)
+            Stop_AudioButton.Enabled = True
+
+            LockSettingsPanels()
+
+            If CurrentScreenType = ScreenType.Pc Then
+                'Locks the cursor to the form
+                If PcParticipantForm IsNot Nothing Then
+                    PcParticipantForm.LockCursorToForm()
+                    PcParticipantForm.SetResponseMode(PcResponseMode)
+                End If
+            End If
+
+            StartedByAdministrator()
+
         Else
-            SipMeasurementRandomizer = New Random
-        End If
-
-
-        'Applying the SelectedReferenceLevel, SelectedPnr and the SelectedTestDescription
-        CurrentSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
-
-        CurrentSipTestMeasurement.Description = SelectedTestDescription
-
-        'Things seemed to be in order,
-        'Starting the test
-
-        LockSettingsPanels()
-
-        If CurrentScreenType = ScreenType.Pc Then
-            'Locks the cursor to the form
-            If PcParticipantForm IsNot Nothing Then
-                PcParticipantForm.LockCursorToForm()
-                PcParticipantForm.SetResponseMode(PcResponseMode)
+            'Test is started
+            If IsPaused = True Then
+                ResumeTesting()
+            Else
+                PauseTesting()
             End If
         End If
-
-        InitiateTest()
 
     End Sub
 
 
+    Public Sub StopButton_Click() Handles Stop_AudioButton.Click
 
+        If TestIsStarted = True Then
+            FinalizeTesting()
+        End If
 
-    Public Sub StopButton_Click() Handles StopButton.Click
-        Throw New NotImplementedException()
     End Sub
 
 
@@ -817,39 +860,15 @@ Public Class SipTestGui
 
 #Region "Active measurement - GUI stuff"
 
-    Public Sub EnablePlayButton()
-        StartButton.Enabled = True
-        StartButton.BackgroundImage = My.Resources.PlayImage
-    End Sub
-
-    Public Sub DisableStopButton()
-        StopButton.Enabled = False
-        StopButton.BackgroundImage = My.Resources.StopDisabledImage
-    End Sub
-
-    Public Sub EnableStopButton()
-        StopButton.Enabled = True
-        StopButton.BackgroundImage = My.Resources.StopImage
-    End Sub
-
-    Public Sub DisablePlayButton()
-        StartButton.Enabled = False
-        StartButton.BackgroundImage = My.Resources.PlayDisabledImage
-    End Sub
-
-    Public Sub TogglePlayButton(PlayMode As Boolean)
-        If StartButton.Enabled = True Then
-            If PlayMode = True Then
-                StartButton.BackgroundImage = My.Resources.PlayImage
-            Else
-                StartButton.BackgroundImage = My.Resources.PauseImage
-            End If
+    ''' <summary>
+    ''' Toggles the start button.
+    ''' </summary>
+    ''' <param name="ShowPlay">Set to True to show a play symbol, or False to show a pausue symbol.</param>
+    Public Sub TogglePlayButton(ByVal ShowPlay As Boolean)
+        If ShowPlay = True Then
+            Start_AudioButton.ViewMode = AudioButton.ViewModes.Play
         Else
-            If PlayMode = True Then
-                StartButton.BackgroundImage = My.Resources.PlayDisabledImage
-            Else
-                StartButton.BackgroundImage = My.Resources.PauseDisabledImage
-            End If
+            Start_AudioButton.ViewMode = AudioButton.ViewModes.Pause
         End If
     End Sub
 
@@ -1616,6 +1635,18 @@ Public Class SipTestGui
         MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.Wierstorf)
         MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.SwedishSipRecordings)
         MyAboutBox.Show()
+
+    End Sub
+
+    Private Sub SaveFileButtonPressed(sender As Object, e As EventArgs) Handles ExportData_Button.Click
+
+    End Sub
+
+    Private Sub StartTest(sender As Object, e As EventArgs) Handles Start_AudioButton.Click
+
+    End Sub
+
+    Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
 
     End Sub
 
