@@ -8,11 +8,11 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("SiP_SE_R")>
-<Assembly: AssemblyDescription("")>
+<Assembly: AssemblyTitle("Swedish SiP-test - Research version")>
+<Assembly: AssemblyDescription("Swedish Situated Phoneme (SiP) Test.")>
 <Assembly: AssemblyCompany("")>
-<Assembly: AssemblyProduct("SiP_SE_R")>
-<Assembly: AssemblyCopyright("Copyright ©  2022")>
+<Assembly: AssemblyProduct("Swedish SiP-test - Research version")>
+<Assembly: AssemblyCopyright("Copyright © 2022 Erik Witte")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>

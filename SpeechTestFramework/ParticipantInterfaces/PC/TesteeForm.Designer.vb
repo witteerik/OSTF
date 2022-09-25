@@ -24,14 +24,15 @@ Partial Class PcTesteeForm
     Private Sub InitializeComponent()
         Me.SuspendLayout()
         '
-        'TesteeForm
+        'PcTesteeForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(793, 511)
         Me.KeyPreview = True
-        Me.Name = "TesteeForm"
+        Me.Name = "PcTesteeForm"
         Me.ShowIcon = False
+        Me.ShowInTaskbar = False
         Me.ResumeLayout(False)
 
     End Sub

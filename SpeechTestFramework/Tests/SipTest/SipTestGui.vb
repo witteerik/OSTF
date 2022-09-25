@@ -51,6 +51,7 @@ Public Class SipTestGui
 
     Public Sub New()
         MyClass.New("Swedish SiP-test", Utils.Constants.UserTypes.Research, Utils.Constants.Languages.English)
+
     End Sub
 
     Public Sub New(ByVal SpeechMaterialName As String, ByVal UserType As Utils.UserTypes, ByVal GuiLanguage As Utils.Languages)
@@ -62,6 +63,21 @@ Public Class SipTestGui
         Me.SpeechMaterialName = SpeechMaterialName
         Me.UserType = UserType
         Me.GuiLanguage = GuiLanguage
+
+        Dim UserTypeString As String = ""
+        Select Case UserType
+            Case Utils.Constants.UserTypes.Research
+                Select Case GuiLanguage
+                    Case Utils.Constants.Languages.Swedish
+                        UserTypeString = "Forskningsversion"
+                    Case Else
+                        UserTypeString = "Research version"
+                End Select
+            Case Else
+                UserTypeString = ""
+        End Select
+
+        Me.Text = SpeechMaterialName & " - " & UserTypeString
 
     End Sub
 
@@ -1578,7 +1594,7 @@ Public Class SipTestGui
     ''' </summary>
     Private SimulationMode As Boolean
 
-    Private TestItemsPerTrial As Integer = 1
+    Private TestItemsPerTrial As Integer = 3
 
 #End Region
 
@@ -2436,6 +2452,14 @@ Public Class SipTestGui
             Case Else
                 'Do not change!
         End Select
+    End Sub
+
+    Private Sub StartTest(sender As Object, e As EventArgs) Handles Start_AudioButton.Click
+
+    End Sub
+
+    Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
+
     End Sub
 
 
