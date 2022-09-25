@@ -511,8 +511,8 @@ Namespace SipTest
             'Plus write-only stuff
             Headings.Add("ResponseAlternativeCount")
             Headings.Add("PhonemeDiscriminabilityLevel")
-            Headings.Add("CorrectScreenPosition")
-            Headings.Add("ResponseScreenPosition")
+            'Headings.Add("CorrectScreenPosition")
+            'Headings.Add("ResponseScreenPosition")
 
 
             OutputLines.Add(String.Join(vbTab, Headings))
@@ -540,8 +540,8 @@ Namespace SipTest
                 'Plus write-only stuff
                 TrialList.Add(Trial.ResponseAlternativeCount)
                 TrialList.Add(Trial.PhonemeDiscriminabilityLevel)
-                TrialList.Add(Trial.CorrectScreenPosition)
-                TrialList.Add(Trial.ResponseScreenPosition)
+                'TrialList.Add(Trial.CorrectScreenPosition)
+                'TrialList.Add(Trial.ResponseScreenPosition)
 
                 'TODO: ... add more
 
@@ -836,6 +836,13 @@ Namespace SipTest
         ''' The response given in a test trial
         ''' </summary>
         ''' <returns></returns>
+        Public Property ResponseAlternativeOrderResponse As String() = {""}
+
+
+        ''' <summary>
+        ''' The response given in a test trial
+        ''' </summary>
+        ''' <returns></returns>
         Public Property Response As String = ""
 
         'The result of a test trial
@@ -852,8 +859,6 @@ Namespace SipTest
         Public Property AdjustedSuccessProbability As Double
         Public Property ResponseAlternativeCount As Integer
 
-        Public Property CorrectScreenPosition As Integer
-        Public Property ResponseScreenPosition As Integer
 
 
         'Sound Levels

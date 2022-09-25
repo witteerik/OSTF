@@ -28,7 +28,7 @@ Public Class SpatializedStilmuliTesteeControl
     Private WithEvents ResetButtonsAfterClickTimer As New Timers.Timer With {.Interval = 500}
 
     Public Event StartedByTestee() Implements ITesteeControl.StartedByTestee
-    Public Event TestWordResponse(ByVal Response As String) Implements ITesteeControl.TestWordResponse
+    Public Event ResponseGiven(ByVal Response As String) Implements ITesteeControl.ResponseGiven
 
     Private Sub Me_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
@@ -101,7 +101,7 @@ Public Class SpatializedStilmuliTesteeControl
 
     Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of String))
 
-        'ResetTestWordPanel()
+        'ResetTestItemPanel()
 
         ''Adding new test words labels to the TestWordPanel
         'For i = 0 To ResponseAlternatives.Count - 1
@@ -225,7 +225,7 @@ Public Class SpatializedStilmuliTesteeControl
         ResetButtonsAfterClickTimer.Start()
 
         'Sending result to controller
-        RaiseEvent TestWordResponse(ClickedLabel.Text)
+        RaiseEvent ResponseGiven(ClickedLabel.Text)
 
     End Sub
 
@@ -246,7 +246,7 @@ Public Class SpatializedStilmuliTesteeControl
 
         TestSurfacePictureBox.Update()
 
-        'ResetTestWordPanel()
+        'ResetTestItemPanel()
     End Sub
 
 
@@ -291,12 +291,12 @@ Public Class SpatializedStilmuliTesteeControl
     ''' <summary>
     ''' Removes all TestWordLabel controls from the TestSurfacePictureBox in a thread-safe way. 
     ''' </summary>
-    Private Sub ResetTestWordPanel() Implements ITesteeControl.ResetTestWordPanel
+    Private Sub ResetTestItemPanel() Implements ITesteeControl.ResetTestItemPanel
 
         'Try
 
         '    If Me.TestSurfacePictureBox.InvokeRequired Then
-        '        Dim d As New NoArgReturningVoidDelegate(AddressOf ResetTestWordPanel)
+        '        Dim d As New NoArgReturningVoidDelegate(AddressOf ResetTestItemPanel)
         '        Me.Invoke(d)
         '    Else
         '        Me.ResetTestWordPanel_Unsafe()
@@ -423,7 +423,7 @@ Public Class SpatializedStilmuliTesteeControl
     Private Sub ShowMessage_UnSafe(ByVal Message As String)
 
         'Clearing the panel
-        ResetTestWordPanel()
+        ResetTestItemPanel()
 
         'Storing the message in the MessageLabel 
         MessageLabel.Text = Message

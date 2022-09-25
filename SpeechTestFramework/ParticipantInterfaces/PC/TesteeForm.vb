@@ -8,6 +8,7 @@ Public Class PcTesteeForm
     Public Enum TaskType
         ForcedChoice
         DirectionTask
+        SerialChoice
     End Enum
 
     Public Sub New(ByVal TaskType As TaskType)
@@ -22,6 +23,9 @@ Public Class PcTesteeForm
 
             Case TaskType.DirectionTask
                 ParticipantControl = New SpatializedStilmuliTesteeControl
+
+            Case TaskType.SerialChoice
+                ParticipantControl = New SerialChoiceTesteeControl
 
             Case Else
                 Throw New NotImplementedException

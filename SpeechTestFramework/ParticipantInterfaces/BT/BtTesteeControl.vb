@@ -6,7 +6,7 @@ Public Class BtTesteeControl
 
 
     Public Event StartedByTestee() Implements ITesteeControl.StartedByTestee
-    Public Event TestWordResponse(ByVal Response As String) Implements ITesteeControl.TestWordResponse
+    Public Event ResponseGiven(ByVal Response As String) Implements ITesteeControl.ResponseGiven
 
 
     Public ReadOnly Property InvokeRequired As Boolean Implements IBtTestController.InvokeRequired
@@ -72,7 +72,7 @@ Public Class BtTesteeControl
         BtTabletTalker.SendBtMessage("F")
     End Sub
 
-    Public Sub ResetTestWordPanel() Implements ITesteeControl.ResetTestWordPanel
+    Public Sub ResetTestItemPanel() Implements ITesteeControl.ResetTestItemPanel
         BtTabletTalker.SendBtMessage("B")
     End Sub
 
@@ -101,7 +101,7 @@ Public Class BtTesteeControl
 
                 'Incoming test-word response
                 Dim Response As String = Message.Split("|")(1)
-                RaiseEvent TestWordResponse(Response)
+                RaiseEvent ResponseGiven(Response)
 
             Else
                 Select Case Message

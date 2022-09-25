@@ -22,6 +22,26 @@
 'SOFTWARE.
 
 Namespace Utils
+
+    Public Module StringComparison
+
+        ''' <summary>
+        ''' Compares two string arrays and returns true only if they have the same lengths and all corresponding items are equal. Items are compared in the given order. 
+        ''' </summary>
+        ''' <param name="Strings1"></param>
+        ''' <param name="Strings2"></param>
+        ''' <returns></returns>
+        Public Function AllStringsEqual(ByVal Strings1() As String, ByVal Strings2() As String) As Boolean
+            If Strings1.Length <> Strings2.Length Then Return False
+            For n = 0 To Strings1.Length - 1
+                If Strings1(n) <> Strings2(n) Then Return False
+            Next
+            Return True
+        End Function
+
+
+    End Module
+
     Public Module StringArrayExclusionMethods
 
         Public Sub ExcludeStringArrayMembersDueToLength(ByRef input() As String, ByVal upperStringLengthInclusionLimit As Integer)

@@ -3,7 +3,7 @@ Imports System.Windows.Forms
 Imports System.Drawing
 
 
-Public Class ForcedChoiceTesteeControl
+Public Class SerialChoiceTesteeControl
     Implements ITesteeControl
 
     'Declaring delegate subs used for invoking across threads
@@ -34,7 +34,6 @@ Public Class ForcedChoiceTesteeControl
 
 
     Private Sub ForcedChoiceTesteeControl_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
 
         'Layout
         Me.BackColor = DarkGreyBackColor
@@ -105,40 +104,32 @@ Public Class ForcedChoiceTesteeControl
         For i = 0 To ResponseAlternatives.Count - 1
 
             'Creating labels that will hold the response alternatives
-            Dim SpellingLabel As New TestWordLabel(TestSurfacePictureBox, ItemColor) With {.Text = ResponseAlternatives(i)}
+            Dim SpellingLabel As New TestWordLabel(TestSurfacePictureBox, ItemColor, 40) With {.Text = ResponseAlternatives(i)}
 
             'Adding the current test word label
             TestSurfacePictureBox.Controls.Add(SpellingLabel)
 
             'Setting size of the label and positioning it within the test word panel
-            SpellingLabel.Width = (6 / 15) * TestSurfacePictureBox.Width
-            SpellingLabel.Height = (6 / 15) * TestSurfacePictureBox.Height
+            SpellingLabel.Width = (7 / 25) * TestSurfacePictureBox.Width
+            SpellingLabel.Height = (7 / 25) * TestSurfacePictureBox.Height
 
             'Setting left
             Select Case i
                 Case 0
-                    SpellingLabel.Left = (1 / 15) * TestSurfacePictureBox.Width
-                Case 1, 3
-                    SpellingLabel.Left = (8 / 15) * TestSurfacePictureBox.Width
+                    SpellingLabel.Left = (1 / 25) * TestSurfacePictureBox.Width
+                Case 1
+                    SpellingLabel.Left = ((2 + 7) / 25) * TestSurfacePictureBox.Width
                 Case 2
-                    Select Case ResponseAlternatives.Count
-                        Case 3
-                            SpellingLabel.Left = (TestSurfacePictureBox.Width / 2) - (SpellingLabel.Width / 2)
-                        Case 4
-                            SpellingLabel.Left = (1 / 15) * TestSurfacePictureBox.Width
-                        Case Else
-                            Throw New NotImplementedException("The current testee GUI only supports 1-4 test words.")
-                    End Select
+                    SpellingLabel.Left = ((3 + 14) / 25) * TestSurfacePictureBox.Width
+                Case Else
+                    Throw New NotImplementedException("The current testee GUI only supports 3 test words.")
             End Select
 
             'Setting top
             Select Case i
-                Case 0, 1
-                    SpellingLabel.Top = (1 / 15) * TestSurfacePictureBox.Height
-                Case 2, 3
-                    SpellingLabel.Top = (8 / 15) * TestSurfacePictureBox.Height
+                Case 0, 1, 2, 3
+                    SpellingLabel.Top = (TestSurfacePictureBox.Height / 2) - (SpellingLabel.Height / 2)
             End Select
-
 
         Next
 
@@ -169,7 +160,16 @@ Public Class ForcedChoiceTesteeControl
     ''' <summary>
     ''' Inactivating the event handlers needed to enable response.
     ''' </summary>
-    Private Sub InactivateResponseEventHandlers()
+    Private Sub InactivateResponseEventHandler(ByVal TestWordLabel As TestWordLabel)
+
+        RemoveHandler TestWordLabel.MouseDown, AddressOf Me.TestWordLabel_MouseDown
+
+    End Sub
+
+    ''' <summary>
+    ''' Inactivating the event handlers needed to enable response.
+    ''' </summary>
+    Private Sub InactivateAllResponseEventHandlers()
 
         'Removes the eventhandlers so that the labels cannot be clicked again
         For Each Control In TestSurfacePictureBox.Controls
@@ -184,6 +184,8 @@ Public Class ForcedChoiceTesteeControl
 
     'Section on response
 
+    Private GivenResponses As New List(Of String)
+
     ''' <summary>
     ''' Sub for handling the testee response.
     ''' </summary>
@@ -191,31 +193,55 @@ Public Class ForcedChoiceTesteeControl
     ''' <param name="e"></param>
     Private Sub TestWordLabel_MouseDown(sender As System.Object, e As System.EventArgs)
 
-        'Inactivates the event handlers
-        InactivateResponseEventHandlers()
-
         'Getting the clicked label
         Dim ClickedLabel = TryCast(sender, TestWordLabel)
 
-        'Hides the labels that were not clicked
-        For Each Control In TestSurfacePictureBox.Controls
+        InactivateResponseEventHandler(ClickedLabel)
 
-            Dim CurrentControl = TryCast(Control, TestWordLabel)
-            If CurrentControl IsNot Nothing Then
-                If CurrentControl IsNot ClickedLabel Then CurrentControl.Visible = False
-            End If
+        GivenResponses.Add(ClickedLabel.Text)
 
-        Next
+        ClickedLabel.BackColor = Color.Gray
+        ClickedLabel.Invalidate()
+        ClickedLabel.Update()
 
-        'Updates the TestSurfacePictureBox layout
-        TestSurfacePictureBox.Update()
+        Select Case GivenResponses.Count
+            Case 1
+                'Just waits for the next click
 
-        'Starts the timer that will remove also the clicked button
-        HideResponseButtonsAfterClickTimer.Start()
+            Case 2
 
-        'Sending result to controller
+                'Autoclicks the remaining control (as it's the only one left)
+                For Each Control In TestSurfacePictureBox.Controls
+                    Dim CurrentControl As TestWordLabel = TryCast(Control, TestWordLabel)
+                    If CurrentControl IsNot Nothing Then
+                        If CurrentControl.BackColor <> Color.Gray Then
+                            TestWordLabel_MouseDown(CurrentControl, New EventArgs)
+                        End If
+                    End If
+                Next
 
-        RaiseEvent ResponseGiven(ClickedLabel.Text)
+            Case 3
+
+                InactivateAllResponseEventHandlers()
+
+                'Hides all labels 
+                For Each Control In TestSurfacePictureBox.Controls
+                    Dim CurrentControl = TryCast(Control, TestWordLabel)
+                    If CurrentControl IsNot Nothing Then
+                        CurrentControl.Visible = False
+                    End If
+                Next
+
+                'Updates the TestSurfacePictureBox layout
+                TestSurfacePictureBox.Update()
+
+                'Starts the timer that will remove also the clicked button
+                HideResponseButtonsAfterClickTimer.Start()
+
+                'Sending result to controller, as a tab-delimited string
+                RaiseEvent ResponseGiven(String.Join(vbTab, GivenResponses))
+
+        End Select
 
     End Sub
 
@@ -250,7 +276,7 @@ Public Class ForcedChoiceTesteeControl
     Private Sub ResponseTimesOut_UnSafe()
 
         'Inactivates the event handlers
-        InactivateResponseEventHandlers()
+        InactivateAllResponseEventHandlers()
 
         'Changes the backgroundcolour of all labels if no answer has been given
         For Each Control In TestSurfacePictureBox.Controls
@@ -289,6 +315,8 @@ Public Class ForcedChoiceTesteeControl
     ''' Removes all TestWordLabel controls from the TestSurfacePictureBox. 
     ''' </summary>
     Private Sub ResetTestWordPanel_Unsafe()
+
+        GivenResponses.Clear()
 
         Dim InitialControlCount As Integer = TestSurfacePictureBox.Controls.Count
         Dim ControlsToRetain As New List(Of Control)
