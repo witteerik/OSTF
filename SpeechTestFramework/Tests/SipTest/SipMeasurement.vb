@@ -281,14 +281,14 @@ Namespace SipTest
 
             'Adding already tested trials
             For i = 0 To ObservedTrials.Count - 1
-                Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation)
-                Output.Responses.Add(ObservedTrials(i).Response)
+                Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.GetCategoricalVariableValue("ListDescription")) '  PrimaryStringRepresentation)
+                Output.Responses.Add(ObservedTrials(i).Response.Replace(vbTab, ", "))
                 Output.ResponseType.Add(ObservedTrials(i).Result)
             Next
 
             'Adding trials yet to be tested
             For i = 0 To PlannedTrials.Count - 1
-                Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation)
+                Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.GetCategoricalVariableValue("ListDescription")) '.PrimaryStringRepresentation)
                 Output.Responses.Add("")
                 Output.ResponseType.Add(PossibleResults.Missing)
             Next
@@ -435,30 +435,50 @@ Namespace SipTest
         Public Sub CalculateAdjustedSuccessProbabilities()
 
             Dim UnadjustedEstimates As New List(Of Double)
-            Dim Floors(Me.ObservedTrials.Count - 1) As Double
+            Dim Floors As New List(Of Double)
 
-            For i = 0 To Me.ObservedTrials.Count - 1
-                'Get the unadjusted trial success probability estimates
-                UnadjustedEstimates.Add(Me.ObservedTrials(i).EstimatedSuccessProbability(True))
+            For Each Trial In ObservedTrials
+                If Trial.SubTrials.Count = 0 Then
+                    UnadjustedEstimates.Add(Trial.EstimatedSuccessProbability(True))
 
-                'Gets the number of response alternatives
-                Dim ResponseAlternativeCount As Integer = 0
-                Me.ObservedTrials(i).SpeechMaterialComponent.IsContrastingComponent(, ResponseAlternativeCount)
-                Me.ObservedTrials(i).ResponseAlternativeCount = ResponseAlternativeCount
+                    'Gets the number of response alternatives
+                    Dim ResponseAlternativeCount As Integer = 0
+                    Trial.SpeechMaterialComponent.IsContrastingComponent(, ResponseAlternativeCount)
+                    Trial.ResponseAlternativeCount = ResponseAlternativeCount
 
-                'Calulates the floors of the psychometric functions (of each trial) based on the number of response alternatives
-                If ResponseAlternativeCount > 0 Then
-                    Floors(i) = 1 / ResponseAlternativeCount
+                    'Calulates the floors of the psychometric functions (of each trial) based on the number of response alternatives
+                    If ResponseAlternativeCount > 0 Then
+                        Floors.Add(1 / ResponseAlternativeCount)
+                    Else
+                        Floors.Add(0)
+                    End If
+
                 Else
-                    Floors(i) = 0
+
+                    Dim TemporarySuccessProbabilityList As New List(Of Double)
+                    For Each SubTrial In Trial.SubTrials
+                        TemporarySuccessProbabilityList.Add(SubTrial.EstimatedSuccessProbability(True))
+                    Next
+
+                    TemporarySuccessProbabilityList.Sort()
+                    Dim Min = Math.Min(1, TemporarySuccessProbabilityList.Count - 1)
+                    Dim Count = Math.Max(0, TemporarySuccessProbabilityList.Count - 1)
+                    UnadjustedEstimates.AddRange(TemporarySuccessProbabilityList.GetRange(Min, Count))
+
+                    For n = 1 To Count
+                        'TODO: Here we can modify chance rate between subtrials
+                        Floors.Add(1 / Trial.SubTrials.Count)
+                    Next
+
                 End If
             Next
+
 
             'Gets the target average score to adjust the unadjusted estimates to
             Dim LocalAverageScore = GetAverageObservedScore()
 
             'Creates adjusted estimates
-            Dim AdjustedEstimates = SpeechTestFramework.CriticalDifferences.AdjustSuccessProbabilities(UnadjustedEstimates.ToArray, LocalAverageScore, Floors)
+            Dim AdjustedEstimates = SpeechTestFramework.CriticalDifferences.AdjustSuccessProbabilities(UnadjustedEstimates.ToArray, LocalAverageScore, Floors.ToArray)
             For n = 0 To Me.ObservedTrials.Count - 1
                 Me.ObservedTrials(n).AdjustedSuccessProbability = AdjustedEstimates(n)
             Next
@@ -475,21 +495,30 @@ Namespace SipTest
             If Me.ObservedTrials.Count = 0 Then Return Nothing
 
             Dim Correct As Integer = 0
-            Dim Total As Integer = Me.ObservedTrials.Count
+            Dim Total As Integer = 0
             For n = 0 To Me.ObservedTrials.Count - 1
 
-                If Me.ObservedTrials(n).Result = PossibleResults.Correct Then
-                    Correct += 1
+                Dim Factor As Integer
+                If Me.ObservedTrials(n).SubTrials.Count = 0 Then
+                    Factor = 1
+                Else
+                    Factor = ObservedTrials(n).SubTrials.Count
+                End If
 
-                ElseIf Me.ObservedTrials(n).Result = PossibleResults.Missing Then
+                Total += Factor
+
+                If Me.ObservedTrials(n).Result = PossibleResults.Correct Then
+                        Correct += 1
+
+                    ElseIf Me.ObservedTrials(n).Result = PossibleResults.Missing Then
 
                     If Me.ObservedTrials(n).ResponseAlternativeCount > 0 Then
                         If n Mod Me.ObservedTrials(n).ResponseAlternativeCount = (Me.ObservedTrials(n).ResponseAlternativeCount - 1) Then
                             Correct += 1
                         End If
-
                     End If
                 End If
+
             Next
 
             Return New Tuple(Of Integer, Integer)(Correct, Total)
@@ -513,7 +542,13 @@ Namespace SipTest
         Public Function GetAdjustedSuccessProbabilities() As Double()
             Dim OutputList As New List(Of Double)
             For n = 0 To Me.ObservedTrials.Count - 1
-                OutputList.Add(Me.ObservedTrials(n).AdjustedSuccessProbability)
+                If Me.ObservedTrials.Count = 0 Then
+                    OutputList.Add(Me.ObservedTrials(n).AdjustedSuccessProbability)
+                Else
+                    For Each SubTrial In Me.ObservedTrials(n).SubTrials
+                        OutputList.Add(SubTrial.AdjustedSuccessProbability)
+                    Next
+                End If
             Next
             Return OutputList.ToArray
         End Function

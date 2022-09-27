@@ -653,52 +653,59 @@ Public Class SipTestGui
 
     Private Sub TryCalculatePsychometricFunction()
 
-        'Resetting the planned trial test length text
-        PlannedTestLength_TextBox.Text = ""
-
-        If CurrentParticipantID Is Nothing Then Exit Sub
-        If SelectedAudiogramData Is Nothing Then Exit Sub
-        If SelectedReferenceLevel.HasValue = False Then Exit Sub
-        If SelectedHearingAidGain Is Nothing Then Exit Sub
-        If SelectedPresetName = "" Then Exit Sub
-        If SelectedMediaSet Is Nothing Then Exit Sub
-        If SelectedLengthReduplications.HasValue = False Then Exit Sub
+        Try
 
 
-        'Creates a new test and updates the psychometric function diagram
-        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification, TrialLinguisticLevel)
-        CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
-        CurrentSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
-        CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
+            'Resetting the planned trial test length text
+            PlannedTestLength_TextBox.Text = ""
 
-        'Test length was updated, adds test trials to the measurement
-        CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName)
+            If CurrentParticipantID Is Nothing Then Exit Sub
+            If SelectedAudiogramData Is Nothing Then Exit Sub
+            If SelectedReferenceLevel.HasValue = False Then Exit Sub
+            If SelectedHearingAidGain Is Nothing Then Exit Sub
+            If SelectedPresetName = "" Then Exit Sub
+            If SelectedMediaSet Is Nothing Then Exit Sub
+            If SelectedLengthReduplications.HasValue = False Then Exit Sub
 
-        'Calculates the psychometric function
-        Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction(SelectedReferenceLevel)
 
-        Dim PNRs(PsychoMetricFunction.Count - 1) As Single
-        Dim PredictedScores(PsychoMetricFunction.Count - 1) As Single
-        Dim LowerCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
-        Dim UpperCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
+            'Creates a new test and updates the psychometric function diagram
+            CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification, TrialLinguisticLevel)
+            CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
+            CurrentSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
+            CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
 
-        Dim n As Integer = 0
-        For Each kvp In PsychoMetricFunction
-            PNRs(n) = kvp.Key
-            PredictedScores(n) = kvp.Value.Item1
-            LowerCriticalBoundary(n) = kvp.Value.Item2
-            UpperCriticalBoundary(n) = kvp.Value.Item3
-            n += 1
-        Next
+            'Test length was updated, adds test trials to the measurement
+            CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName)
 
-        'Updates the psychometric function diagram
-        DisplayPredictedPsychometricCurve(PNRs, PredictedScores, LowerCriticalBoundary, UpperCriticalBoundary)
+            'Calculates the psychometric function
+            Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction(SelectedReferenceLevel)
 
-        'Displayes the planned test length
-        PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
+            Dim PNRs(PsychoMetricFunction.Count - 1) As Single
+            Dim PredictedScores(PsychoMetricFunction.Count - 1) As Single
+            Dim LowerCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
+            Dim UpperCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
 
-        'Initiates the test
-        TestDescriptionTextBox.Focus()
+            Dim n As Integer = 0
+            For Each kvp In PsychoMetricFunction
+                PNRs(n) = kvp.Key
+                PredictedScores(n) = kvp.Value.Item1
+                LowerCriticalBoundary(n) = kvp.Value.Item2
+                UpperCriticalBoundary(n) = kvp.Value.Item3
+                n += 1
+            Next
+
+            'Updates the psychometric function diagram
+            DisplayPredictedPsychometricCurve(PNRs, PredictedScores, LowerCriticalBoundary, UpperCriticalBoundary)
+
+            'Displayes the planned test length
+            PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
+
+            'Initiates the test
+            TestDescriptionTextBox.Focus()
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+        End Try
 
     End Sub
 
@@ -1288,6 +1295,8 @@ Public Class SipTestGui
                     MeasurementDescription.Add(Measurement.Description)
                 End If
             Next
+
+            CurrentSipTestMeasurement.SummarizeTestResults()
 
             Dim Result = CriticalDifferences.IsNotSignificantlyDifferent_PBAC(MeasurementsToCompare(0).GetAdjustedSuccessProbabilities, MeasurementsToCompare(1).GetAdjustedSuccessProbabilities, 0.95)
 
@@ -2329,6 +2338,7 @@ Public Class SipTestGui
             ResetValuesAfterMeasurement()
 
         Catch ex As Exception
+            MsgBox(ex.ToString)
             Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
         End Try
 
