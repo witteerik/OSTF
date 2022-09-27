@@ -742,9 +742,16 @@ Public Class SpeechMaterialComponent
 
             Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
 
+            Dim SharedMaskersLevelComponent As SpeechMaterialComponent = Nothing
+            If Me.LinguisticLevel = MediaSet.SharedMaskersLevel Then
+                SharedMaskersLevelComponent = Me
+            ElseIf Me.LinguisticLevel > MediaSet.SharedMaskersLevel Then
+                Me.GetAncestorAtLevel(MediaSet.SharedMaskersLevel)
+            Else
+                Throw New Exception("Unable to locate the masker files!")
+            End If
 
-
-            Dim FullMaskerFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.MaskerParentFolder, Me.GetAncestorAtLevel(MediaSet.SharedMaskersLevel).GetMaskerFolderName())
+            Dim FullMaskerFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.MaskerParentFolder, SharedMaskersLevelComponent.GetMaskerFolderName())
 
             Return GetAvailableFiles(FullMaskerFolderPath, MediaTypes.Audio)(Index)
 

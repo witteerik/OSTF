@@ -54,11 +54,13 @@ Partial Class SipTestGui
         Me.GainPanel = New System.Windows.Forms.Panel()
         Me.AudiogramPanel = New System.Windows.Forms.Panel()
         Me.LengthReduplications_Label = New System.Windows.Forms.Label()
+        Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.AudiogramComboBox = New System.Windows.Forms.ComboBox()
         Me.HaGainComboBox = New System.Windows.Forms.ComboBox()
         Me.ReferenceLevel_Label = New System.Windows.Forms.Label()
         Me.ReferenceLevelComboBox = New System.Windows.Forms.ComboBox()
-        Me.TestLengthComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel10 = New System.Windows.Forms.TableLayoutPanel()
         Me.AddTypicalAudiograms_Button = New System.Windows.Forms.Button()
         Me.NewAudiogram_Button = New System.Windows.Forms.Button()
@@ -73,6 +75,10 @@ Partial Class SipTestGui
         Me.TestSituationComboBox = New System.Windows.Forms.ComboBox()
         Me.MostDifficultItems_Button = New System.Windows.Forms.Button()
         Me.PlannedTestLength_TextBox = New System.Windows.Forms.TextBox()
+        Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
+        Me.WordsPerTrial_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.WordsPerTrial_Label = New System.Windows.Forms.Label()
+        Me.TestLengthComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.ProportionCorrectTextBox = New System.Windows.Forms.TextBox()
         Me.MeasurementProgressBar = New System.Windows.Forms.ProgressBar()
@@ -82,10 +88,13 @@ Partial Class SipTestGui
         Me.ResultColumn = New System.Windows.Forms.DataGridViewImageColumn()
         Me.CorrectCount_Label = New System.Windows.Forms.Label()
         Me.ProportionCorrect_Label = New System.Windows.Forms.Label()
+        Me.Start_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.CorrectCountTextBox = New System.Windows.Forms.TextBox()
         Me.TestDescriptionTextBox = New System.Windows.Forms.TextBox()
         Me.TestDescription_Label = New System.Windows.Forms.Label()
         Me.RandomSeed_Label = New System.Windows.Forms.Label()
+        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.TableLayoutPanel16 = New System.Windows.Forms.TableLayoutPanel()
         Me.ParticipantID_Label = New System.Windows.Forms.Label()
         Me.ParticipantIdTextBox = New System.Windows.Forms.TextBox()
@@ -98,6 +107,7 @@ Partial Class SipTestGui
         Me.BtScreen_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.ConnectBluetoothScreen_Button = New System.Windows.Forms.Button()
         Me.DisconnectBtScreen_Button = New System.Windows.Forms.Button()
+        Me.BtLamp = New SpeechTestFramework.Lamp()
         Me.ParticipantLock_Button = New System.Windows.Forms.Button()
         Me.SoundDevice_Panel = New System.Windows.Forms.Panel()
         Me.SoundSettings_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
@@ -106,13 +116,6 @@ Partial Class SipTestGui
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Start_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
-        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
-        Me.BtLamp = New SpeechTestFramework.Lamp()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.Test_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -122,6 +125,7 @@ Partial Class SipTestGui
         Me.TestSettings_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel10.SuspendLayout()
         Me.TableLayoutPanel11.SuspendLayout()
+        Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel4.SuspendLayout()
         CType(Me.TestTrialDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TableLayoutPanel16.SuspendLayout()
@@ -359,7 +363,6 @@ Partial Class SipTestGui
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.HaGainComboBox, 2, 3)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.ReferenceLevel_Label, 0, 2)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.ReferenceLevelComboBox, 2, 2)
-        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TestLengthComboBox, 2, 8)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel10, 3, 1)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel11, 3, 4)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PNR_Label, 0, 5)
@@ -370,6 +373,7 @@ Partial Class SipTestGui
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TestSituationComboBox, 2, 6)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.MostDifficultItems_Button, 3, 7)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PlannedTestLength_TextBox, 2, 10)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel2, 2, 8)
         Me.TestSettings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestSettings_TableLayoutPanel.Location = New System.Drawing.Point(3, 3)
         Me.TestSettings_TableLayoutPanel.Name = "TestSettings_TableLayoutPanel"
@@ -462,6 +466,36 @@ Partial Class SipTestGui
         Me.LengthReduplications_Label.Text = "Repetitioner"
         Me.LengthReduplications_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'PsychmetricFunction_VerticalLabel
+        '
+        Me.PsychmetricFunction_VerticalLabel.AutoSize = True
+        Me.PsychmetricFunction_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.PsychmetricFunction_VerticalLabel.Location = New System.Drawing.Point(3, 389)
+        Me.PsychmetricFunction_VerticalLabel.Name = "PsychmetricFunction_VerticalLabel"
+        Me.PsychmetricFunction_VerticalLabel.Size = New System.Drawing.Size(19, 121)
+        Me.PsychmetricFunction_VerticalLabel.TabIndex = 0
+        Me.PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
+        '
+        'Audiogram_VerticalLabel
+        '
+        Me.Audiogram_VerticalLabel.AutoSize = True
+        Me.Audiogram_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Audiogram_VerticalLabel.Location = New System.Drawing.Point(3, 21)
+        Me.Audiogram_VerticalLabel.Name = "Audiogram_VerticalLabel"
+        Me.Audiogram_VerticalLabel.Size = New System.Drawing.Size(19, 121)
+        Me.Audiogram_VerticalLabel.TabIndex = 0
+        Me.Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
+        '
+        'Gain_VerticalLabel
+        '
+        Me.Gain_VerticalLabel.AutoSize = True
+        Me.Gain_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Gain_VerticalLabel.Location = New System.Drawing.Point(3, 184)
+        Me.Gain_VerticalLabel.Name = "Gain_VerticalLabel"
+        Me.Gain_VerticalLabel.Size = New System.Drawing.Size(19, 121)
+        Me.Gain_VerticalLabel.TabIndex = 1
+        Me.Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
+        '
         'AudiogramComboBox
         '
         Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.AudiogramComboBox, 2)
@@ -505,17 +539,6 @@ Partial Class SipTestGui
         Me.ReferenceLevelComboBox.Name = "ReferenceLevelComboBox"
         Me.ReferenceLevelComboBox.Size = New System.Drawing.Size(386, 21)
         Me.ReferenceLevelComboBox.TabIndex = 2
-        '
-        'TestLengthComboBox
-        '
-        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.TestLengthComboBox, 2)
-        Me.TestLengthComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TestLengthComboBox.FormattingEnabled = True
-        Me.TestLengthComboBox.Location = New System.Drawing.Point(98, 368)
-        Me.TestLengthComboBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.TestLengthComboBox.Name = "TestLengthComboBox"
-        Me.TestLengthComboBox.Size = New System.Drawing.Size(386, 21)
-        Me.TestLengthComboBox.TabIndex = 6
         '
         'TableLayoutPanel10
         '
@@ -678,6 +701,55 @@ Partial Class SipTestGui
         Me.PlannedTestLength_TextBox.Size = New System.Drawing.Size(386, 20)
         Me.PlannedTestLength_TextBox.TabIndex = 16
         '
+        'TableLayoutPanel2
+        '
+        Me.TableLayoutPanel2.ColumnCount = 3
+        Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.TableLayoutPanel2, 2)
+        Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 92.0!))
+        Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel2.Controls.Add(Me.WordsPerTrial_ComboBox, 0, 0)
+        Me.TableLayoutPanel2.Controls.Add(Me.WordsPerTrial_Label, 0, 0)
+        Me.TableLayoutPanel2.Controls.Add(Me.TestLengthComboBox, 0, 0)
+        Me.TableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel2.Location = New System.Drawing.Point(98, 368)
+        Me.TableLayoutPanel2.Margin = New System.Windows.Forms.Padding(0)
+        Me.TableLayoutPanel2.Name = "TableLayoutPanel2"
+        Me.TableLayoutPanel2.RowCount = 1
+        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel2.Size = New System.Drawing.Size(386, 21)
+        Me.TableLayoutPanel2.TabIndex = 17
+        '
+        'WordsPerTrial_ComboBox
+        '
+        Me.WordsPerTrial_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.WordsPerTrial_ComboBox.FormattingEnabled = True
+        Me.WordsPerTrial_ComboBox.Location = New System.Drawing.Point(239, 0)
+        Me.WordsPerTrial_ComboBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.WordsPerTrial_ComboBox.Name = "WordsPerTrial_ComboBox"
+        Me.WordsPerTrial_ComboBox.Size = New System.Drawing.Size(147, 21)
+        Me.WordsPerTrial_ComboBox.TabIndex = 8
+        '
+        'WordsPerTrial_Label
+        '
+        Me.WordsPerTrial_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.WordsPerTrial_Label.Location = New System.Drawing.Point(150, 0)
+        Me.WordsPerTrial_Label.Name = "WordsPerTrial_Label"
+        Me.WordsPerTrial_Label.Size = New System.Drawing.Size(86, 21)
+        Me.WordsPerTrial_Label.TabIndex = 7
+        Me.WordsPerTrial_Label.Text = "Words per trial"
+        Me.WordsPerTrial_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'TestLengthComboBox
+        '
+        Me.TestLengthComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TestLengthComboBox.FormattingEnabled = True
+        Me.TestLengthComboBox.Location = New System.Drawing.Point(0, 0)
+        Me.TestLengthComboBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.TestLengthComboBox.Name = "TestLengthComboBox"
+        Me.TestLengthComboBox.Size = New System.Drawing.Size(147, 21)
+        Me.TestLengthComboBox.TabIndex = 6
+        '
         'TableLayoutPanel4
         '
         Me.TableLayoutPanel4.ColumnCount = 4
@@ -836,6 +908,18 @@ Partial Class SipTestGui
         Me.ProportionCorrect_Label.Text = "Andel rätt"
         Me.ProportionCorrect_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'Start_AudioButton
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.Start_AudioButton, 2)
+        Me.Start_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Start_AudioButton.Enabled = False
+        Me.Start_AudioButton.Location = New System.Drawing.Point(3, 45)
+        Me.Start_AudioButton.Name = "Start_AudioButton"
+        Me.Start_AudioButton.Size = New System.Drawing.Size(191, 34)
+        Me.Start_AudioButton.TabIndex = 10
+        Me.Start_AudioButton.UseVisualStyleBackColor = True
+        Me.Start_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
+        '
         'CorrectCountTextBox
         '
         Me.TableLayoutPanel4.SetColumnSpan(Me.CorrectCountTextBox, 2)
@@ -880,6 +964,29 @@ Partial Class SipTestGui
         Me.RandomSeed_Label.TabIndex = 7
         Me.RandomSeed_Label.Text = "Random seed (optional):"
         Me.RandomSeed_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'RandomSeed_IntegerParsingTextBox
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.RandomSeed_IntegerParsingTextBox, 3)
+        Me.RandomSeed_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(100, 21)
+        Me.RandomSeed_IntegerParsingTextBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
+        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(295, 20)
+        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 8
+        '
+        'Stop_AudioButton
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.Stop_AudioButton, 2)
+        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Stop_AudioButton.Enabled = False
+        Me.Stop_AudioButton.Location = New System.Drawing.Point(200, 45)
+        Me.Stop_AudioButton.Name = "Stop_AudioButton"
+        Me.Stop_AudioButton.Size = New System.Drawing.Size(192, 34)
+        Me.Stop_AudioButton.TabIndex = 11
+        Me.Stop_AudioButton.UseVisualStyleBackColor = True
+        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
         '
         'TableLayoutPanel16
         '
@@ -1049,6 +1156,19 @@ Partial Class SipTestGui
         Me.DisconnectBtScreen_Button.Text = "Koppla från BT-skärm"
         Me.DisconnectBtScreen_Button.UseVisualStyleBackColor = True
         '
+        'BtLamp
+        '
+        Me.BtLamp.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BtLamp.Location = New System.Drawing.Point(257, 1)
+        Me.BtLamp.Margin = New System.Windows.Forms.Padding(1)
+        Me.BtLamp.Name = "BtLamp"
+        Me.BtLamp.Shape = SpeechTestFramework.Lamp.Shapes.Circle
+        Me.BtLamp.ShapeSize = 0.8!
+        Me.BtLamp.Size = New System.Drawing.Size(50, 20)
+        Me.BtLamp.State = SpeechTestFramework.Lamp.States.Disabled
+        Me.BtLamp.TabIndex = 3
+        Me.BtLamp.Text = "Lamp1"
+        '
         'ParticipantLock_Button
         '
         Me.ParticipantLock_Button.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -1135,84 +1255,6 @@ Partial Class SipTestGui
         Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(52, 20)
         Me.AboutToolStripMenuItem.Text = "About"
         '
-        'PsychmetricFunction_VerticalLabel
-        '
-        Me.PsychmetricFunction_VerticalLabel.AutoSize = True
-        Me.PsychmetricFunction_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PsychmetricFunction_VerticalLabel.Location = New System.Drawing.Point(3, 389)
-        Me.PsychmetricFunction_VerticalLabel.Name = "PsychmetricFunction_VerticalLabel"
-        Me.PsychmetricFunction_VerticalLabel.Size = New System.Drawing.Size(19, 121)
-        Me.PsychmetricFunction_VerticalLabel.TabIndex = 0
-        Me.PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
-        '
-        'Audiogram_VerticalLabel
-        '
-        Me.Audiogram_VerticalLabel.AutoSize = True
-        Me.Audiogram_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Audiogram_VerticalLabel.Location = New System.Drawing.Point(3, 21)
-        Me.Audiogram_VerticalLabel.Name = "Audiogram_VerticalLabel"
-        Me.Audiogram_VerticalLabel.Size = New System.Drawing.Size(19, 121)
-        Me.Audiogram_VerticalLabel.TabIndex = 0
-        Me.Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
-        '
-        'Gain_VerticalLabel
-        '
-        Me.Gain_VerticalLabel.AutoSize = True
-        Me.Gain_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Gain_VerticalLabel.Location = New System.Drawing.Point(3, 184)
-        Me.Gain_VerticalLabel.Name = "Gain_VerticalLabel"
-        Me.Gain_VerticalLabel.Size = New System.Drawing.Size(19, 121)
-        Me.Gain_VerticalLabel.TabIndex = 1
-        Me.Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
-        '
-        'Start_AudioButton
-        '
-        Me.TableLayoutPanel4.SetColumnSpan(Me.Start_AudioButton, 2)
-        Me.Start_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Start_AudioButton.Enabled = False
-        Me.Start_AudioButton.Location = New System.Drawing.Point(3, 45)
-        Me.Start_AudioButton.Name = "Start_AudioButton"
-        Me.Start_AudioButton.Size = New System.Drawing.Size(191, 34)
-        Me.Start_AudioButton.TabIndex = 10
-        Me.Start_AudioButton.UseVisualStyleBackColor = True
-        Me.Start_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
-        '
-        'RandomSeed_IntegerParsingTextBox
-        '
-        Me.TableLayoutPanel4.SetColumnSpan(Me.RandomSeed_IntegerParsingTextBox, 3)
-        Me.RandomSeed_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(100, 21)
-        Me.RandomSeed_IntegerParsingTextBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
-        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(295, 20)
-        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 8
-        '
-        'Stop_AudioButton
-        '
-        Me.TableLayoutPanel4.SetColumnSpan(Me.Stop_AudioButton, 2)
-        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Stop_AudioButton.Enabled = False
-        Me.Stop_AudioButton.Location = New System.Drawing.Point(200, 45)
-        Me.Stop_AudioButton.Name = "Stop_AudioButton"
-        Me.Stop_AudioButton.Size = New System.Drawing.Size(192, 34)
-        Me.Stop_AudioButton.TabIndex = 11
-        Me.Stop_AudioButton.UseVisualStyleBackColor = True
-        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
-        '
-        'BtLamp
-        '
-        Me.BtLamp.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BtLamp.Location = New System.Drawing.Point(257, 1)
-        Me.BtLamp.Margin = New System.Windows.Forms.Padding(1)
-        Me.BtLamp.Name = "BtLamp"
-        Me.BtLamp.Shape = SpeechTestFramework.Lamp.Shapes.Circle
-        Me.BtLamp.ShapeSize = 0.8!
-        Me.BtLamp.Size = New System.Drawing.Size(50, 20)
-        Me.BtLamp.State = SpeechTestFramework.Lamp.States.Disabled
-        Me.BtLamp.TabIndex = 3
-        Me.BtLamp.Text = "Lamp1"
-        '
         'SipTestGui
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1234,6 +1276,7 @@ Partial Class SipTestGui
         Me.TestSettings_TableLayoutPanel.PerformLayout()
         Me.TableLayoutPanel10.ResumeLayout(False)
         Me.TableLayoutPanel11.ResumeLayout(False)
+        Me.TableLayoutPanel2.ResumeLayout(False)
         Me.TableLayoutPanel4.ResumeLayout(False)
         Me.TableLayoutPanel4.PerformLayout()
         CType(Me.TestTrialDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
@@ -1338,4 +1381,7 @@ Partial Class SipTestGui
     Friend WithEvents RandomSeed_IntegerParsingTextBox As IntegerParsingTextBox
     Friend WithEvents Start_AudioButton As WinFormControls.AudioButton
     Friend WithEvents Stop_AudioButton As WinFormControls.AudioButton
+    Friend WithEvents TableLayoutPanel2 As Windows.Forms.TableLayoutPanel
+    Friend WithEvents WordsPerTrial_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents WordsPerTrial_Label As Windows.Forms.Label
 End Class

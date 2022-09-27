@@ -176,11 +176,22 @@ Public Class SipTestGui
         Next
         'We don't yet select a default here...?? It could possibly be done automatically at a later stage...
 
+        'Adding values in WordsPerTrial_ComboBox
+        WordsPerTrial_ComboBox.Items.Add(WordsPerTrialOptions.Single)
+        WordsPerTrial_ComboBox.Items.Add(WordsPerTrialOptions.Multiple)
+        WordsPerTrial_ComboBox.SelectedIndex = 0
         SetLanguageStrings(GuiLanguage)
 
         StartSoundPlayer()
 
     End Sub
+
+    Public Enum WordsPerTrialOptions
+        [Single]
+        Multiple
+    End Enum
+
+    Private TrialLinguisticLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.Sentence
 
     Private Sub SetLanguageStrings(ByVal Language As Utils.Languages)
 
@@ -211,6 +222,7 @@ Public Class SipTestGui
                 Preset_Label.Text = "Test"
                 Situation_Label.Text = "Situation"
                 LengthReduplications_Label.Text = "Repetitioner"
+                WordsPerTrial_Label.Text = "Ord per försök"
                 PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
                 PNR_Label.Text = "PNR (dB)"
                 CorrectCount_Label.Text = "Antal rätt"
@@ -248,6 +260,7 @@ Public Class SipTestGui
                 Preset_Label.Text = "Test"
                 Situation_Label.Text = "Situation"
                 LengthReduplications_Label.Text = "Repetitions"
+                WordsPerTrial_Label.Text = "Words per trial"
                 PsychmetricFunction_VerticalLabel.Text = "EST. SCORE (%)"
                 PNR_Label.Text = "PNR (dB)"
                 CorrectCount_Label.Text = "Number correct"
@@ -567,7 +580,7 @@ Public Class SipTestGui
         End If
 
         'Creates a new test and updates the psychometric function diagram
-        Dim TempSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification)
+        Dim TempSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification, TrialLinguisticLevel)
         TempSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
         TempSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
         TempSipTestMeasurement.TestProcedure.LengthReduplications = 1
@@ -653,7 +666,7 @@ Public Class SipTestGui
 
 
         'Creates a new test and updates the psychometric function diagram
-        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification)
+        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification, TrialLinguisticLevel)
         CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
         CurrentSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
         CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
@@ -776,10 +789,10 @@ Public Class SipTestGui
 
                 'Creating a new participant form (and ParticipantControl) if none exist
                 If PcParticipantForm Is Nothing Then
-                    Select Case TestItemsPerTrial
-                        Case 1
+                    Select Case TrialLinguisticLevel
+                        Case SpeechMaterialComponent.LinguisticLevels.Sentence
                             PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
-                        Case 3
+                        Case SpeechMaterialComponent.LinguisticLevels.List
                             PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.SerialChoice)
 
                             TrialRecordingTime = 8
@@ -1356,7 +1369,8 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub BtScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles BtScreen_RadioButton.CheckedChanged
+    '    Private Sub BtScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles BtScreen_RadioButton.CheckedChanged
+    Private Sub SetBtScreen() Handles BtScreen_RadioButton.CheckedChanged
 
         If BtScreen_RadioButton.Checked = True Then
 
@@ -1393,16 +1407,17 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub PcScreen_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PcScreen_ComboBox.SelectedIndexChanged
+    'Private Sub PcScreen_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PcScreen_ComboBox.SelectedIndexChanged
+    Private Sub SetPcScreen() Handles PcScreen_ComboBox.SelectedIndexChanged
 
         If CurrentScreenType = ScreenType.Pc Then
 
             'Creating a new participant form (and ParticipantControl) if none exist
             If PcParticipantForm Is Nothing Then
-                Select Case TestItemsPerTrial
-                    Case 1
+                Select Case TrialLinguisticLevel
+                    Case SpeechMaterialComponent.LinguisticLevels.Sentence
                         PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
-                    Case 3
+                    Case SpeechMaterialComponent.LinguisticLevels.List
                         PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.SerialChoice)
                     Case Else
                         Throw New NotImplementedException
@@ -1415,6 +1430,42 @@ Public Class SipTestGui
             PcParticipantForm.ChangeTestFormScreen(PcScreen_ComboBox.SelectedIndex)
 
         End If
+
+    End Sub
+
+    ''' <summary>
+    ''' Exits the current response control and lanches a new depending on the current TrialLinguisticLevel
+    ''' </summary>
+    Public Sub ChangeResponseType()
+
+        If TestIsStarted = True Then Exit Sub
+
+        Select Case CurrentScreenType
+            Case ScreenType.Pc
+
+                If PcParticipantForm IsNot Nothing Then
+                    PcParticipantForm.Close()
+                End If
+
+                Select Case TrialLinguisticLevel
+                    Case SpeechMaterialComponent.LinguisticLevels.Sentence
+                        PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
+                    Case SpeechMaterialComponent.LinguisticLevels.List
+                        PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.SerialChoice)
+                    Case Else
+                        Throw New NotImplementedException
+                End Select
+                ParticipantControl = PcParticipantForm.ParticipantControl
+
+            Case ScreenType.Bluetooth
+
+                Throw New NotImplementedException("Bt-screen not yet implemented for multiple words.")
+
+            Case Else
+                Throw New NotImplementedException
+        End Select
+
+
 
     End Sub
 
@@ -1594,8 +1645,6 @@ Public Class SipTestGui
     ''' </summary>
     Private SimulationMode As Boolean
 
-    Private TestItemsPerTrial As Integer = 3
-
 #End Region
 
 #Region "TemporaryMeasurementObjects"
@@ -1749,26 +1798,8 @@ Public Class SipTestGui
 
         If CurrentSipTrial IsNot Nothing Then
 
-            'Preparing alternatives
-            TestWordAlternatives = New List(Of String)
-            Dim TempList As New List(Of SpeechMaterialComponent)
-            CurrentSipTrial.SpeechMaterialComponent.IsContrastingComponent(,, TempList)
-            For Each ContrastingComponent In TempList
-                TestWordAlternatives.Add(ContrastingComponent.GetCategoricalVariableValue("Spelling"))
-            Next
-
-            'Randomizing the order
-            Dim AlternativesCount As Integer = TestWordAlternatives.Count
-            Dim TempList2 As New List(Of String)
-            For n = 0 To AlternativesCount - 1
-                Dim RandomIndex As Integer = SipMeasurementRandomizer.Next(0, TestWordAlternatives.Count)
-                TempList2.Add(TestWordAlternatives(RandomIndex))
-                TestWordAlternatives.RemoveAt(RandomIndex)
-            Next
-            TestWordAlternatives = TempList2
-
             'Praparing the sound
-            PrepareNewSound()
+            PrepareTrial()
 
             'Setting NextTrialIsReady to True to mark that the trial is ready to run
             CurrentTrialSoundIsReady = True
@@ -1801,7 +1832,7 @@ Public Class SipTestGui
 
 
 
-    Private Sub PrepareNewSound()
+    Private Sub PrepareTrial()
 
         Try
 
@@ -1814,40 +1845,67 @@ Public Class SipTestGui
             End If
 
 
-            If SimulationMode = False Then 'We don't need to prepare the test sound in simulation mode
+            'Setting up the SiP-trial sound mix
+            Dim SelectedMediaIndex As Integer
+            Dim CurrentSampleRate As Integer
 
-                'Setting up the SiP-trial sound mix
-                Dim SelectedMediaIndex As Integer
-                Dim CurrentSampleRate As Integer
+            Dim CurrentTrialComponents As New List(Of SipTrial)
+            If CurrentSipTrial.SubTrials.Count > 0 Then
+                CurrentTrialComponents = CurrentSipTrial.SubTrials
+            Else
+                CurrentTrialComponents = {CurrentSipTrial}.ToList
+            End If
 
-                Dim TestWordStartTimes(TestItemsPerTrial - 1) As Double
-                TestWordStartTimes(0) = SipMeasurementRandomizer.Next(MinimumTestWordStartTime, MaximumTestWordStartTime)
+            Dim TestWordStartTimes(CurrentTrialComponents.Count - 1) As Double
+            TestWordStartTimes(0) = SipMeasurementRandomizer.Next(MinimumTestWordStartTime, MaximumTestWordStartTime)
 
-                Dim TestWordStartSamples(TestItemsPerTrial - 1) As Integer
-                Dim TestWordLengths(TestItemsPerTrial - 1) As Integer
-                Dim TestWordCompletedSamples(TestItemsPerTrial - 1) As Integer
+            Dim TestWordStartSamples(CurrentTrialComponents.Count - 1) As Integer
+            Dim TestWordLengths(CurrentTrialComponents.Count - 1) As Integer
+            Dim TestWordCompletedSamples(CurrentTrialComponents.Count - 1) As Integer
 
-                Dim TestItems As New List(Of SpeechMaterialComponent)
-                If TestItemsPerTrial = 1 Then
-                    'Getting the current speechmaterial component
-                    TestItems.Add(CurrentSipTrial.SpeechMaterialComponent)
-                Else
-                    'Getting all contrasting components
-                    CurrentSipTrial.SpeechMaterialComponent.IsContrastingComponent(,, TestItems)
-                End If
+            Dim ResponseSpellings As New SortedList(Of Integer, String)
 
-                Dim CorrectResponses As New SortedList(Of Integer, String)
+            Dim PresentationOrder = Utils.SampleWithoutReplacement(CurrentTrialComponents.Count, 0, CurrentTrialComponents.Count, SipMeasurementRandomizer)
+            Dim CurrentComponentSounds As New SortedList(Of Integer, Audio.Sound)
 
-                Dim PresentationOrder = Utils.SampleWithoutReplacement(TestItemsPerTrial, 0, TestItemsPerTrial, SipMeasurementRandomizer)
-                Dim CurrentComponentSounds As New SortedList(Of Integer, Audio.Sound)
+            For Each RandomIndex In PresentationOrder
+                'Adding the response alternative
+                ResponseSpellings.Add(RandomIndex, CurrentTrialComponents(RandomIndex).SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+            Next
+
+            'Creates a response string
+            CorrectResponse = String.Join(vbTab, ResponseSpellings.Values)
+
+            'Collects the response alternatives
+            TestWordAlternatives = New List(Of String)
+            If CurrentTrialComponents.Count = 1 Then
+                Dim TempList As New List(Of SpeechMaterialComponent)
+                CurrentSipTrial.SpeechMaterialComponent.IsContrastingComponent(,, TempList)
+                For Each ContrastingComponent In TempList
+                    TestWordAlternatives.Add(ContrastingComponent.GetCategoricalVariableValue("Spelling"))
+                Next
+            Else
+                For Each ResponseSpelling In ResponseSpellings
+                    TestWordAlternatives.Add(ResponseSpelling.Value)
+                Next
+            End If
+
+            'Randomizing the order
+            Dim AlternativesCount As Integer = TestWordAlternatives.Count
+            Dim TempList2 As New List(Of String)
+            For n = 0 To AlternativesCount - 1
+                Dim RandomIndex As Integer = SipMeasurementRandomizer.Next(0, TestWordAlternatives.Count)
+                TempList2.Add(TestWordAlternatives(RandomIndex))
+                TestWordAlternatives.RemoveAt(RandomIndex)
+            Next
+            TestWordAlternatives = TempList2
+
+            If SimulationMode = False Then 'We don't actually need to prepare the test sound in simulation mode
 
                 For Each RandomIndex In PresentationOrder
-                    'Adding the correct response
-                    CorrectResponses.Add(RandomIndex, TestItems(RandomIndex).GetCategoricalVariableValue("Spelling"))
-
                     'Selects a sound
                     SelectedMediaIndex = SipMeasurementRandomizer.Next(0, CurrentSipTrial.MediaSet.MediaAudioItems)
-                    Dim CurrentSound = TestItems(RandomIndex).GetSound(CurrentSipTrial.MediaSet, SelectedMediaIndex, 1)
+                    Dim CurrentSound = CurrentTrialComponents(RandomIndex).SpeechMaterialComponent.GetSound(CurrentSipTrial.MediaSet, SelectedMediaIndex, 1)
 
                     'Stores the sample rate
                     CurrentSampleRate = CurrentSound.WaveFormat.SampleRate
@@ -1859,10 +1917,6 @@ Public Class SipTestGui
                     TestWordLengths(RandomIndex) = CurrentSound.WaveData.SampleData(1).Length
                 Next
 
-                'Creates a response string
-                CorrectResponse = String.Join(vbTab, CorrectResponses.Values)
-
-
                 'Calculates the onset and offset of the test items
                 Dim TestWordsStartTime = TestWordStartTimes(0)
                 For i = 0 To TestWordStartSamples.Length - 1
@@ -1873,7 +1927,7 @@ Public Class SipTestGui
                     End If
                     TestWordCompletedSamples(i) = TestWordStartSamples(i) + TestWordLengths(i)
                 Next
-                Dim TestWordsCompletedTime As Double = TestWordCompletedSamples(TestItemsPerTrial - 1) / CurrentSampleRate
+                Dim TestWordsCompletedTime As Double = TestWordCompletedSamples(CurrentTrialComponents.Count - 1) / CurrentSampleRate
 
                 'Sets a total recording time
                 Dim TargetLength As Integer = TrialRecordingTime * CurrentSampleRate
@@ -1881,12 +1935,13 @@ Public Class SipTestGui
                 'Maskers
                 Dim Maskers1 As New List(Of Audio.Sound)
                 Dim Maskers2 As New List(Of Audio.Sound)
-                Dim MaskersStartSamples(CurrentComponentSounds.Count - 1) As Integer
-                Dim MaskersMidSamples(CurrentComponentSounds.Count - 1) As Integer
+                Dim MaskersStartSamples(CurrentTrialComponents.Count - 1) As Integer
+                Dim MaskersMidSamples(CurrentTrialComponents.Count - 1) As Integer
                 Dim MaskersStartMeasureSample As Integer
                 Dim MaskersStartMeasureLength As Integer
 
-                For i = 0 To CurrentComponentSounds.Count - 1
+
+                For i = 0 To CurrentTrialComponents.Count - 1
 
                     Dim SelectedMaskerIndices = Utils.SampleWithoutReplacement(2, 0, CurrentSipTrial.MediaSet.MaskerAudioItems, SipMeasurementRandomizer)
                     Maskers1.Add(CurrentSipTrial.SpeechMaterialComponent.GetMaskerSound(CurrentSipTrial.MediaSet, SelectedMaskerIndices(0)))
@@ -1910,7 +1965,7 @@ Public Class SipTestGui
                 'Background speech
                 Dim BackgroundSpeechSelection As Audio.Sound = Nothing
 
-                If TestItemsPerTrial = 1 Then
+                If CurrentTrialComponents.Count = 1 Then
                     Dim BackgroundSpeech_Sound As Audio.Sound = CurrentSipTrial.SpeechMaterialComponent.GetBackgroundSpeechSound(CurrentSipTrial.MediaSet, 0)
                     BackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TargetLength - 2), TargetLength)
                 End If
@@ -1999,37 +2054,47 @@ Public Class SipTestGui
                 End If
 
             Else
-                'Simulating a respons directly without displaying anything on the screen
-                'The response is based on the the presented SNR and the hearing level of simulated patient, using a bernoulli trial
-                Dim CorrectResponse As String = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
+                Select Case TrialLinguisticLevel
+                    Case SpeechMaterialComponent.LinguisticLevels.Sentence
 
-                'Assigning approximate success probabilities depending on SNR and the testee hearing level
-                Dim SuccessProbability As Double = CurrentSipTrial.EstimatedSuccessProbability(True)
+                        'Simulating a respons directly without displaying anything on the screen
+                        'The response is based on the the presented SNR and the hearing level of simulated patient, using a bernoulli trial
+                        Dim CorrectResponse As String = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
 
-                Dim BernoulliTrialResult = MathNet.Numerics.Distributions.Bernoulli.Sample(SipMeasurementRandomizer, SuccessProbability)
-                Dim SimulatedResponse As String = ""
-                If BernoulliTrialResult = 1 Then
-                    SimulatedResponse = CorrectResponse
-                Else
-                    'Selecting an incorrect alternative
-                    Dim IncorrectAlternatives = New List(Of String)
-                    For Each Spelling In TestWordAlternatives
-                        If Spelling = CorrectResponse Then Continue For
-                        IncorrectAlternatives.Add(Spelling)
-                    Next
+                        'Assigning approximate success probabilities depending on SNR and the testee hearing level
+                        Dim SuccessProbability As Double = CurrentSipTrial.EstimatedSuccessProbability(True)
 
-                    'Selecting a random incorrect response
-                    If IncorrectAlternatives.Count > 0 Then
-                        SimulatedResponse = IncorrectAlternatives(SipMeasurementRandomizer.Next(0, IncorrectAlternatives.Count))
-                    End If
-                End If
+                        Dim BernoulliTrialResult = MathNet.Numerics.Distributions.Bernoulli.Sample(SipMeasurementRandomizer, SuccessProbability)
+                        Dim SimulatedResponse As String = ""
+                        If BernoulliTrialResult = 1 Then
+                            SimulatedResponse = CorrectResponse
+                        Else
+                            'Selecting an incorrect alternative
+                            Dim IncorrectAlternatives = New List(Of String)
+                            For Each Spelling In TestWordAlternatives
+                                If Spelling = CorrectResponse Then Continue For
+                                IncorrectAlternatives.Add(Spelling)
+                            Next
 
-                'Calling the response sub
-                TestWordResponse_TreadSafe(SimulatedResponse)
+                            'Selecting a random incorrect response
+                            If IncorrectAlternatives.Count > 0 Then
+                                SimulatedResponse = IncorrectAlternatives(SipMeasurementRandomizer.Next(0, IncorrectAlternatives.Count))
+                            End If
+                        End If
+
+                        'Calling the response sub
+                        TestWordResponse_TreadSafe(SimulatedResponse)
+
+                    Case Else
+                        Throw New NotImplementedException
+
+                End Select
+
 
             End If
 
         Catch ex As Exception
+            MsgBox(ex.ToString)
             Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
         End Try
 
@@ -2061,7 +2126,7 @@ Public Class SipTestGui
             'Plays sound
             If SimulationMode = False Then SoundPlayer.SwapOutputSounds(TestSound)
 
-            If TestItemsPerTrial = 1 Then
+            If TrialLinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
                 'Presents the visual que
                 If UseVisualQue = True Then
                     ShowVisualQueTimer.Start()
@@ -2071,13 +2136,15 @@ Public Class SipTestGui
                 'Starts response timers
                 ShowResponseAlternativesTimer.Start()
                 MaxResponseTimeTimer.Start()
-            Else
+            ElseIf TrialLinguisticLevel = SpeechMaterialComponent.LinguisticLevels.List Then
                 'Locks the presentation time of the response alternatives to the inset of the auditory presentation (which is now stored in ShowVisualQueTimer.Interval)
                 ShowResponseAlternativesTimer.Interval = ShowVisualQueTimer.Interval
 
                 'Starts response timers
                 ShowResponseAlternativesTimer.Start()
                 MaxResponseTimeTimer.Start()
+            Else
+                Throw New NotSupportedException("Unsupported TrialLinguisticLevel")
             End If
 
         Finally
@@ -2459,6 +2526,37 @@ Public Class SipTestGui
     End Sub
 
     Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
+
+    End Sub
+
+    Private Sub WordsPerTrial_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles WordsPerTrial_ComboBox.SelectedIndexChanged
+
+        Dim TypeIsChanged As Boolean = False
+
+        If WordsPerTrial_ComboBox.SelectedItem = WordsPerTrialOptions.Single Then
+
+            'Notes if a change in TrialLinguisticLevel is about to occur
+            If TrialLinguisticLevel <> SpeechMaterialComponent.LinguisticLevels.Sentence Then TypeIsChanged = True
+
+            'Sets to sentence level (In the SiP-test, meaning one word per trial)
+            TrialLinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence
+
+        ElseIf WordsPerTrial_ComboBox.SelectedItem = WordsPerTrialOptions.Multiple Then
+
+            'Notes if a change in TrialLinguisticLevel is about to occur
+            If TrialLinguisticLevel <> SpeechMaterialComponent.LinguisticLevels.List Then TypeIsChanged = True
+
+            'Sets to List level (In the SiP-test, meaning three contrasting words per trial)
+            TrialLinguisticLevel = SpeechMaterialComponent.LinguisticLevels.List
+
+        Else
+            'Ignors any other value
+            Exit Sub
+        End If
+
+        If TypeIsChanged = True Then
+            ChangeResponseType()
+        End If
 
     End Sub
 
