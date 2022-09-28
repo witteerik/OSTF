@@ -969,7 +969,9 @@ Public Class SipTestGui
         'Setting the interval to the first test stimulus using NewTrialTimer.Interval (N.B. The NewTrialTimer.Interval value has to be reset at the first tick, as the deafault value is overridden here)
         StartTrialTimer.Interval = Math.Max(1, PretestSoundDuration * 1000)
 
-        CurrentSipTestMeasurement.PreMixTestTrialSounds(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+
+        'CurrentSipTestMeasurement.PreMixTestTrialSounds(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
 
 
         'Preparing and launching the next trial
@@ -1096,9 +1098,17 @@ Public Class SipTestGui
 
             If SimulationMode = False Then 'We don't actually need to prepare the test sound in simulation mode
 
-                If CurrentSipTrial.TestTrialSound Is Nothing Then
-                    CurrentSipTrial.MixSound(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
-                End If
+                'Waiting for the background thread to finish mixing
+                Dim WaitPeriods As Integer = 0
+                While CurrentSipTrial.TestTrialSound Is Nothing
+                    WaitPeriods += 1
+                    Threading.Thread.Sleep(10)
+                    Console.WriteLine("Waiting for sound to mix: " & WaitPeriods * 10 & " ms")
+                End While
+
+                'If CurrentSipTrial.TestTrialSound Is Nothing Then
+                '    CurrentSipTrial.MixSound(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+                'End If
 
                 'References the sound
                 CurrentTestSound = CurrentSipTrial.TestTrialSound

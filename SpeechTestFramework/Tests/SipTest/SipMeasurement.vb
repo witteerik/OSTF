@@ -184,13 +184,75 @@ Namespace SipTest
 
         End Sub
 
-        Public Sub PreMixTestTrialSounds(ByRef SelectedTransducer As AudioSystemSpecification, ByVal TestingSpeed As SipMeasurement.TestingSpeeds,
-                             ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
-                            ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean)
 
-            For Each TestTrial In PlannedTrials
-                TestTrial.MixSound(SelectedTransducer, TestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
-            Next
+        Public Sub PreMixTestTrialSoundsOnNewTread(ByRef SelectedTransducer As AudioSystemSpecification, ByVal TestingSpeed As SipMeasurement.TestingSpeeds,
+                                         ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
+                                         ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
+                                         Optional ByVal StopAfter As Integer? = 10)
+
+            Dim NewTestTrialSoundMixClass = New TestTrialSoundMixClass(Me, SelectedTransducer, TestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, StopAfter)
+
+            Dim NewTread As New Threading.Thread(AddressOf NewTestTrialSoundMixClass.PreMixTestTrialSounds)
+            NewTread.IsBackground = True
+            NewTread.Start()
+
+        End Sub
+
+        Private Class TestTrialSoundMixClass
+
+            Public SipMeasurement As SipMeasurement
+            Public SelectedTransducer As AudioSystemSpecification
+            Public TestingSpeed As SipMeasurement.TestingSpeeds
+            Public MinimumStimulusOnsetTime As Double
+            Public MaximumStimulusOnsetTime As Double
+            Public SipMeasurementRandomizer As Random
+            Public TrialSoundMaxDuration As Double
+            Public UseBackgroundSpeech As Boolean
+            Public StopAfter As Integer? = 10
+
+            Public Sub New(ByRef SipMeasurement As SipMeasurement, ByRef SelectedTransducer As AudioSystemSpecification, ByVal TestingSpeed As SipMeasurement.TestingSpeeds,
+                                         ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
+                                         ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
+                                         Optional ByVal StopAfter As Integer? = 10)
+
+                Me.SipMeasurement = SipMeasurement
+                Me.SelectedTransducer = SelectedTransducer
+                Me.TestingSpeed = TestingSpeed
+                Me.MinimumStimulusOnsetTime = MinimumStimulusOnsetTime
+                Me.MaximumStimulusOnsetTime = MaximumStimulusOnsetTime
+                Me.SipMeasurementRandomizer = SipMeasurementRandomizer
+                Me.TrialSoundMaxDuration = TrialSoundMaxDuration
+                Me.UseBackgroundSpeech = UseBackgroundSpeech
+                Me.StopAfter = StopAfter
+
+            End Sub
+
+            Public Sub PreMixTestTrialSounds()
+                SipMeasurement.PreMixTestTrialSounds(SelectedTransducer, TestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, StopAfter)
+            End Sub
+
+        End Class
+
+        Public Sub PreMixTestTrialSounds(ByRef SelectedTransducer As AudioSystemSpecification, ByVal TestingSpeed As SipMeasurement.TestingSpeeds,
+                                         ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
+                                         ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
+                                         Optional ByVal StopAfter As Integer? = 10)
+
+            Dim MixedCount As Integer = 0
+            Dim CurrentIndex As Integer = 0
+            While CurrentIndex < PlannedTrials.Count
+
+                If PlannedTrials(CurrentIndex).TestTrialSound Is Nothing Then
+                    PlannedTrials(CurrentIndex).MixSound(SelectedTransducer, TestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+                    MixedCount += 1
+
+                    'Stops after mixing StopAfter new sounds (this can be utilized in order not to bulid up too much memory)
+                    If StopAfter.HasValue Then
+                        If MixedCount >= StopAfter Then Exit While
+                    End If
+                End If
+
+            End While
 
         End Sub
 
@@ -244,7 +306,13 @@ Namespace SipTest
         ''' Moves the referenced test trial from the PlannedTrials to ObservedTrials objects, both in the parent TestUnit and in the parent SipMeasurement. This way it will not be presented again.
         ''' </summary>
         ''' <param name="TestTrial"></param>
-        Public Sub MoveTrialToHistory(ByRef TestTrial As SipTrial)
+        ''' <param name="RemoveSound">If True, removes the TestTrialSound in the referenced trial.</param>
+        Public Sub MoveTrialToHistory(ByRef TestTrial As SipTrial, Optional ByVal RemoveSound As Boolean = True)
+
+            If RemoveSound = True Then
+                'Removes the sound, since it's not going to be used again (and could take up quite some memory if kept...)
+                If TestTrial.TestTrialSound IsNot Nothing Then TestTrial.TestTrialSound = Nothing
+            End If
 
             Dim ParentTestUnit = TestTrial.ParentTestUnit
 
