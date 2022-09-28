@@ -69,15 +69,9 @@ Public Class SipTestGui
     Private ReadOnly Bt_PIN As String = "1234"
     Private MyBtTesteeControl As BtTesteeControl = Nothing
 
+    Private SelectedTestingSpeed As SipMeasurement.TestingSpeeds = SipMeasurement.TestingSpeeds.Slow
 
-    Private Enum TestingSpeeds
-        Quick
-        Slow
-    End Enum
-
-    Private SelectedTestingSpeed As TestingSpeeds = TestingSpeeds.Slow
-
-    'Test settings
+    'Test settings /note that these default values are or may be overwritten when changing SelectedTestingSpeed through the GUI
     ''' <summary>
     ''' The (shortest) time delay (in seconds) between the response and the start of a new trial.
     ''' </summary>
@@ -88,9 +82,9 @@ Public Class SipTestGui
     ''' </summary>
     Private ResponseAlternativeDelay As Double = 0.5
     Private PretestSoundDuration As Double = 5
-    Private MinimumTestWordStartTime As Double = 1.5 '// If test word region background sound Is used, this needs to be longer than FadeInDuration_TestWordRegion, And longer than any of the fade-in region in specific test word masker sounds (If The environment variable UseListSpecificMaskers = True).
-    Private MaximumTestWordStartTime As Double = 2
-    Private TrialSoundMaxDuration As Double = 8 ' TODO: Optimize by shortening this time
+    Private MinimumStimulusOnsetTime As Double ' Used to be called MinimumTestWordStartTime and influence the test word onset time. However as the test word is always shorter that the masker, it now instead influences the masker onset time
+    Private MaximumStimulusOnsetTime As Double ' Used to be called MaximumTestWordStartTime and influence the test word onset time. However as the test word is always shorter that the masker, it now instead influences the masker onset time
+    Private TrialSoundMaxDuration As Double = 10 ' TODO: Optimize by shortening this time
     Private UseVisualQue As Boolean = True
     Private UseBackgroundSpeech As Boolean = False
     Private MaximumResponseTime As Double = 4
@@ -253,14 +247,14 @@ Public Class SipTestGui
         Next
         'We don't yet select a default here...?? It could possibly be done automatically at a later stage...
 
-        'Adding values in TestingSpeed_ComboBox
-        TestingSpeed_ComboBox.Items.Add(TestingSpeeds.Quick)
-        TestingSpeed_ComboBox.Items.Add(TestingSpeeds.Slow)
-        TestingSpeed_ComboBox.SelectedIndex = 0
-
         SetLanguageStrings(GuiLanguage)
 
         StartSoundPlayer()
+
+        'Adding values in TestingSpeed_ComboBox
+        TestingSpeed_ComboBox.Items.Add(SipMeasurement.TestingSpeeds.Quick)
+        TestingSpeed_ComboBox.Items.Add(SipMeasurement.TestingSpeeds.Slow)
+        TestingSpeed_ComboBox.SelectedIndex = 0
 
     End Sub
 
@@ -373,7 +367,7 @@ Public Class SipTestGui
 
         If SelectedTransducer.CanPlay = True Then
             '(At this stage the sound player will be started, if not already done.)
-            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 1, SelectedTransducer.Mixer,, True, True)
+            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 0.4, SelectedTransducer.Mixer,, True, True)
         Else
             MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
         End If
@@ -975,6 +969,8 @@ Public Class SipTestGui
         'Setting the interval to the first test stimulus using NewTrialTimer.Interval (N.B. The NewTrialTimer.Interval value has to be reset at the first tick, as the deafault value is overridden here)
         StartTrialTimer.Interval = Math.Max(1, PretestSoundDuration * 1000)
 
+        CurrentSipTestMeasurement.PreMixTestTrialSounds(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+
 
         'Preparing and launching the next trial
         PrepareAndLaunchTrial_ThreadSafe()
@@ -1011,9 +1007,6 @@ Public Class SipTestGui
         UpdateTestTrialTable()
         UpdateTestProgress()
 
-        'Starting the timer that will initiate the presentation of the trial, if the sound is is prepared in time.
-        StartTrialTimer.Start()
-
         'Gets the next stimulus
         CurrentSipTrial = CurrentSipTestMeasurement.GetNextTrial()
 
@@ -1023,10 +1016,16 @@ Public Class SipTestGui
             Exit Sub
         End If
 
+        'Starting the timer that will initiate the presentation of the trial, if the sound is is prepared in time.
+        StartTrialTimer.Start()
+
         If CurrentSipTrial IsNot Nothing Then
 
+            'Preparing words to be presented on the response screen, and defines the correct response
+            PrepareResponseScreenData()
+
             'Praparing the sound
-            PrepareTestTrial()
+            PrepareTestTrialSound()
 
             'Setting NextTrialIsReady to True to mark that the trial is ready to run
             CurrentTrialSoundIsReady = True
@@ -1057,7 +1056,32 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub PrepareTestTrial()
+    Private Sub PrepareResponseScreenData()
+
+        'Creates a response string
+        CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
+
+        'Collects the response alternatives
+        TestWordAlternatives = New List(Of String)
+        Dim TempList As New List(Of SpeechMaterialComponent)
+        CurrentSipTrial.SpeechMaterialComponent.IsContrastingComponent(,, TempList)
+        For Each ContrastingComponent In TempList
+            TestWordAlternatives.Add(ContrastingComponent.GetCategoricalVariableValue("Spelling"))
+        Next
+
+        'Randomizing the order
+        Dim AlternativesCount As Integer = TestWordAlternatives.Count
+        Dim TempList2 As New List(Of String)
+        For n = 0 To AlternativesCount - 1
+            Dim RandomIndex As Integer = SipMeasurementRandomizer.Next(0, TestWordAlternatives.Count)
+            TempList2.Add(TestWordAlternatives(RandomIndex))
+            TestWordAlternatives.RemoveAt(RandomIndex)
+        Next
+        TestWordAlternatives = TempList2
+
+    End Sub
+
+    Private Sub PrepareTestTrialSound()
 
         Try
 
@@ -1070,155 +1094,25 @@ Public Class SipTestGui
             End If
 
 
-            'Creates a response string
-            CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
-
-            'Collects the response alternatives
-            TestWordAlternatives = New List(Of String)
-            Dim TempList As New List(Of SpeechMaterialComponent)
-            CurrentSipTrial.SpeechMaterialComponent.IsContrastingComponent(,, TempList)
-            For Each ContrastingComponent In TempList
-                TestWordAlternatives.Add(ContrastingComponent.GetCategoricalVariableValue("Spelling"))
-            Next
-
-            'Randomizing the order
-            Dim AlternativesCount As Integer = TestWordAlternatives.Count
-            Dim TempList2 As New List(Of String)
-            For n = 0 To AlternativesCount - 1
-                Dim RandomIndex As Integer = SipMeasurementRandomizer.Next(0, TestWordAlternatives.Count)
-                TempList2.Add(TestWordAlternatives(RandomIndex))
-                TestWordAlternatives.RemoveAt(RandomIndex)
-            Next
-            TestWordAlternatives = TempList2
-
             If SimulationMode = False Then 'We don't actually need to prepare the test sound in simulation mode
 
-                'Setting up the SiP-trial sound mix
-                'Randomizing a test word start time
-                Dim TestWordStartTime As Double = SipMeasurementRandomizer.Next(MinimumTestWordStartTime, MaximumTestWordStartTime)
-
-                'Selects a recording index, and gets the corresponding sound
-                Dim SelectedMediaIndex As Integer = SipMeasurementRandomizer.Next(0, CurrentSipTrial.MediaSet.MediaAudioItems)
-                Dim TestWordSound = CurrentSipTrial.SpeechMaterialComponent.GetSound(CurrentSipTrial.MediaSet, SelectedMediaIndex, 1)
-
-                'Stores the sample rate
-                Dim CurrentSampleRate As Integer = TestWordSound.WaveFormat.SampleRate
-
-                'Stores the length of the test word sound
-                Dim TestWordLength As Integer = TestWordSound.WaveData.SampleData(1).Length
-
-                'Calculates the onset and offset of the test word sound
-                Dim TestWordStartSample As Integer = Math.Round(TestWordStartTime * CurrentSampleRate)
-                Dim TestWordCompletedSample As Integer = TestWordStartSample + TestWordLength
-                Dim TestWordsCompletedTime As Double = TestWordCompletedSample / CurrentSampleRate
-
-                'Sets a total trial sound length
-                Dim TrialSoundLength As Integer = TrialSoundMaxDuration * CurrentSampleRate
-
-                'Getting maskers
-                Dim SelectedMaskerIndices = Utils.SampleWithoutReplacement(2, 0, CurrentSipTrial.MediaSet.MaskerAudioItems, SipMeasurementRandomizer)
-                Dim Masker1 As Audio.Sound = (CurrentSipTrial.SpeechMaterialComponent.GetMaskerSound(CurrentSipTrial.MediaSet, SelectedMaskerIndices(0)))
-                Dim Masker2 As Audio.Sound = (CurrentSipTrial.SpeechMaterialComponent.GetMaskerSound(CurrentSipTrial.MediaSet, SelectedMaskerIndices(1)))
-
-                'Getting the lengths of the maskers (Assuming same lengths of all maskers)
-                Dim MaskersLength As Integer = Masker1.WaveData.SampleData(1).Length
-
-                'Calculating syncronization of the maskers to the test word
-                Dim MaskersMidSample As Integer = (TestWordStartSample + (TestWordCompletedSample - TestWordStartSample) / 2)
-                Dim MaskersStartSample As Integer = MaskersMidSample - MaskersLength / 2
-
-                'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
-                Dim MaskersStartMeasureSample As Integer = MaskersLength / 3
-                Dim MaskersStartMeasureLength As Integer = (2 * MaskersLength) / 3
-
-                'Getting a background non-speech sound, and copies random sections of it into two sounds
-                Dim BackgroundNonSpeech_Sound As Audio.Sound = CurrentSipTrial.SpeechMaterialComponent.GetBackgroundNonspeechSound(CurrentSipTrial.MediaSet, 0)
-                Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
-                Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
-
-                'Getting a background speech sound, if needed, and copies a random section of it into a single sound
-                Dim BackgroundSpeechSelection As Audio.Sound = Nothing
-                If UseBackgroundSpeech = True Then
-                    Dim BackgroundSpeech_Sound As Audio.Sound = CurrentSipTrial.SpeechMaterialComponent.GetBackgroundSpeechSound(CurrentSipTrial.MediaSet, 0)
-                    BackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                If CurrentSipTrial.TestTrialSound Is Nothing Then
+                    CurrentSipTrial.MixSound(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
                 End If
 
-                'Sets a List of SoundSceneItem in which to put the sounds to mix
-                Dim ItemList = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
-
-                'Sets up fading specifications for the test word
-                Dim FadeSpecs_TestWord = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
-                FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
-
-                'Sets up fading specifications for the maskers
-                Dim FadeSpecs_Maskers = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
-                FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 1))
-
-                'Sets up fading specifications for the background signals
-                Dim FadeSpecs_Background = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
-                FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
-
-                'Sets up ducking specifications for the background (non-speech) signals
-                Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                Dim BackgroundNonSpeechDucking = CurrentSipTrial.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(CurrentSipTrial.TargetMasking_SPL.Value - 3, CurrentSipTrial.MediaSet.BackgroundNonspeechRealisticLevel)
-                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
-                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
-
-                'Sets up ducking specifications for the background (speech) signals
-                Dim DuckSpecs_BackgroundSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, Math.Max(0, TestWordStartSample - CurrentSampleRate * 1), Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)))
-                DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, Math.Max(0, TestWordCompletedSample + CurrentSampleRate * 0.5), Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 1)))
-
-                'Adds the test word signal, with fade and location specifications
-                Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(TestWordSound, 1, CurrentSipTrial.TestWordLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, TestWordStartSample,,,, FadeSpecs_TestWord))
-                LevelGroup += 1
-
-                'Adds the Maskers, with fade and location specifications
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker1, 1, CurrentSipTrial.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker2, 1, CurrentSipTrial.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
-                LevelGroup += 1
-
-                'Adds the background (non-speech) signals, with fade, duck and location specifications
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, CurrentSipTrial.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, CurrentSipTrial.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
-                LevelGroup += 1
-
-                'Adds the background (speech) signal, with fade, duck and location specifications
-                If UseBackgroundSpeech = True Then
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelection, 1, CurrentSipTrial.ContextRegionSpeech_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
-                    LevelGroup += 1
-                End If
-
-                'Initiating the sound field simulator if needed
-                If SelectedTransducer.PresentationType = PresentationTypes.SimulatedSoundField Then
-                    If SelectedTransducer.Mixer.CurrentSimulatorWaveFormat Is Nothing Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance Is Nothing Then
-                        'Initiating the simulator
-                        SelectedTransducer.Mixer.SetupDirectionalSimulator(1, BackgroundNonSpeech_Sound.WaveFormat)
-                    Else
-                        If BackgroundNonSpeech_Sound.WaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, False) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1 Then
-                            'Updating the simulator
-                            SelectedTransducer.Mixer.SetupDirectionalSimulator(1, BackgroundNonSpeech_Sound.WaveFormat)
-                        End If
-                    End If
-                End If
-
-                'Creating the mix by calling CreateSoundScene of the current Mixer
-                CurrentTestSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
-
-                'TODO: Here we can simulate and/or compensate for hearing loss:
-                'SimulateHearingLoss,
-                'CompensateHearingLoss
-
+                'References the sound
+                CurrentTestSound = CurrentSipTrial.TestTrialSound
 
                 'Setting visual que intervals
-                ShowVisualQueTimer.Interval = Math.Max(1, TestWordStartTime * 1000)
-                HideVisualQueTimer.Interval = Math.Max(2, TestWordsCompletedTime * 1000)
-                ShowResponseAlternativesTimer.Interval = HideVisualQueTimer.Interval + 1000 * ResponseAlternativeDelay 'TestSetup.CurrentEnvironment.TestSoundMixerSettings.ResponseAlternativeDelay * 1000
-                MaxResponseTimeTimer.Interval = ShowResponseAlternativesTimer.Interval + 1000 * MaximumResponseTime  ' TestSetup.CurrentEnvironment.TestSoundMixerSettings.MaximumResponseTime * 1000
+                If UseVisualQue = True Then
+                    ShowVisualQueTimer.Interval = Math.Max(1, CurrentSipTrial.TestWordStartTime * 1000)
+                    HideVisualQueTimer.Interval = Math.Max(2, CurrentSipTrial.TestWordCompletedTime * 1000)
+                    ShowResponseAlternativesTimer.Interval = HideVisualQueTimer.Interval + 1000 * ResponseAlternativeDelay 'TestSetup.CurrentEnvironment.TestSoundMixerSettings.ResponseAlternativeDelay * 1000
+                    MaxResponseTimeTimer.Interval = Math.Max(1, ShowResponseAlternativesTimer.Interval + 1000 * MaximumResponseTime)  ' TestSetup.CurrentEnvironment.TestSoundMixerSettings.MaximumResponseTime * 1000
+                Else
+                    ShowResponseAlternativesTimer.Interval = Math.Max(1, CurrentSipTrial.TestWordStartTime * 1000) + 1000 * ResponseAlternativeDelay
+                    MaxResponseTimeTimer.Interval = Math.Max(2, CurrentSipTrial.TestWordCompletedTime * 1000) + 1000 * MaximumResponseTime
+                End If
             End If
 
             If SimulationMode = False Then
@@ -2209,6 +2103,38 @@ Public Class SipTestGui
         If TestingSpeed_ComboBox.SelectedItem IsNot Nothing Then
             SelectedTestingSpeed = TestingSpeed_ComboBox.SelectedItem
         End If
+
+        Select Case SelectedTestingSpeed
+            Case SipMeasurement.TestingSpeeds.Slow
+
+                InterTrialInterval = 1
+                ResponseAlternativeDelay = 0.5
+                PretestSoundDuration = 5
+                MinimumStimulusOnsetTime = 0.3 ' Earlier, when this variable directed the test words instead of maskers its value was 1.5. Having maskers of 3 seconds with the test word centralized, should be approximately the same as 0.3.
+                MaximumStimulusOnsetTime = 0.8 ' Earlier, when this variable directed the test words instead of maskers its value was 2
+                TrialSoundMaxDuration = 10 ' TODO: Optimize by shortening this time
+                UseVisualQue = True
+                UseBackgroundSpeech = True
+                MaximumResponseTime = 4
+                ShowProgressIndication = True
+
+            Case SipMeasurement.TestingSpeeds.Quick
+
+                InterTrialInterval = 0.1
+                ResponseAlternativeDelay = 0
+                PretestSoundDuration = 2
+                MinimumStimulusOnsetTime = 0.02
+                MaximumStimulusOnsetTime = 0.1
+                TrialSoundMaxDuration = 4 ' TODO: Optimize by shortening this time
+                UseVisualQue = False
+                UseBackgroundSpeech = False
+                MaximumResponseTime = 1
+                ShowProgressIndication = True
+
+
+
+        End Select
+
 
     End Sub
 
