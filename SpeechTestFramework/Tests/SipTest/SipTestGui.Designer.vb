@@ -76,8 +76,8 @@ Partial Class SipTestGui
         Me.MostDifficultItems_Button = New System.Windows.Forms.Button()
         Me.PlannedTestLength_TextBox = New System.Windows.Forms.TextBox()
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
-        Me.WordsPerTrial_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.WordsPerTrial_Label = New System.Windows.Forms.Label()
+        Me.TestingSpeed_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.TestingSpeed_Label = New System.Windows.Forms.Label()
         Me.TestLengthComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.ProportionCorrectTextBox = New System.Windows.Forms.TextBox()
@@ -708,8 +708,8 @@ Partial Class SipTestGui
         Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 92.0!))
         Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel2.Controls.Add(Me.WordsPerTrial_ComboBox, 0, 0)
-        Me.TableLayoutPanel2.Controls.Add(Me.WordsPerTrial_Label, 0, 0)
+        Me.TableLayoutPanel2.Controls.Add(Me.TestingSpeed_ComboBox, 0, 0)
+        Me.TableLayoutPanel2.Controls.Add(Me.TestingSpeed_Label, 0, 0)
         Me.TableLayoutPanel2.Controls.Add(Me.TestLengthComboBox, 0, 0)
         Me.TableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel2.Location = New System.Drawing.Point(98, 368)
@@ -720,25 +720,25 @@ Partial Class SipTestGui
         Me.TableLayoutPanel2.Size = New System.Drawing.Size(386, 21)
         Me.TableLayoutPanel2.TabIndex = 17
         '
-        'WordsPerTrial_ComboBox
+        'TestingSpeed_ComboBox
         '
-        Me.WordsPerTrial_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.WordsPerTrial_ComboBox.FormattingEnabled = True
-        Me.WordsPerTrial_ComboBox.Location = New System.Drawing.Point(239, 0)
-        Me.WordsPerTrial_ComboBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.WordsPerTrial_ComboBox.Name = "WordsPerTrial_ComboBox"
-        Me.WordsPerTrial_ComboBox.Size = New System.Drawing.Size(147, 21)
-        Me.WordsPerTrial_ComboBox.TabIndex = 8
+        Me.TestingSpeed_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TestingSpeed_ComboBox.FormattingEnabled = True
+        Me.TestingSpeed_ComboBox.Location = New System.Drawing.Point(239, 0)
+        Me.TestingSpeed_ComboBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.TestingSpeed_ComboBox.Name = "TestingSpeed_ComboBox"
+        Me.TestingSpeed_ComboBox.Size = New System.Drawing.Size(147, 21)
+        Me.TestingSpeed_ComboBox.TabIndex = 8
         '
-        'WordsPerTrial_Label
+        'TestingSpeed_Label
         '
-        Me.WordsPerTrial_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.WordsPerTrial_Label.Location = New System.Drawing.Point(150, 0)
-        Me.WordsPerTrial_Label.Name = "WordsPerTrial_Label"
-        Me.WordsPerTrial_Label.Size = New System.Drawing.Size(86, 21)
-        Me.WordsPerTrial_Label.TabIndex = 7
-        Me.WordsPerTrial_Label.Text = "Words per trial"
-        Me.WordsPerTrial_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        Me.TestingSpeed_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TestingSpeed_Label.Location = New System.Drawing.Point(150, 0)
+        Me.TestingSpeed_Label.Name = "TestingSpeed_Label"
+        Me.TestingSpeed_Label.Size = New System.Drawing.Size(86, 21)
+        Me.TestingSpeed_Label.TabIndex = 7
+        Me.TestingSpeed_Label.Text = "Testing speed"
+        Me.TestingSpeed_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'TestLengthComboBox
         '
@@ -1382,6 +1382,6 @@ Partial Class SipTestGui
     Friend WithEvents Start_AudioButton As WinFormControls.AudioButton
     Friend WithEvents Stop_AudioButton As WinFormControls.AudioButton
     Friend WithEvents TableLayoutPanel2 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents WordsPerTrial_ComboBox As Windows.Forms.ComboBox
-    Friend WithEvents WordsPerTrial_Label As Windows.Forms.Label
+    Friend WithEvents TestingSpeed_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents TestingSpeed_Label As Windows.Forms.Label
 End Class

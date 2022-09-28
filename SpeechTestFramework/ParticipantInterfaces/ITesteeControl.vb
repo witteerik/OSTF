@@ -7,7 +7,8 @@
     Sub UpdateTestFormProgressbar(ByVal Value As Integer, ByVal Maximum As Integer, Optional ByVal Minimum As Integer = 0)
     Sub ShowMessage(ByVal Message As String)
 
-    Event StartedByTestee()
+    Event StartedByTestee(sender As Object, e As EventArgs)
+
     Event ResponseGiven(ByVal Response As String)
 
 End Interface

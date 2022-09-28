@@ -29,7 +29,7 @@ Public Class SerialChoiceTesteeControl
 
     Private WithEvents HideResponseButtonsAfterClickTimer As New Timers.Timer With {.Interval = 500}
 
-    Public Event StartedByTestee() Implements ITesteeControl.StartedByTestee
+    Public Event StartedByTestee(sender As Object, e As EventArgs) Implements ITesteeControl.StartedByTestee
     Public Event ResponseGiven(ByVal Response As String) Implements ITesteeControl.ResponseGiven
 
 
@@ -51,7 +51,7 @@ Public Class SerialChoiceTesteeControl
 
 
     Private Sub StartButton_Click(sender As Object, e As EventArgs) Handles StartButton.Click
-        RaiseEvent StartedByTestee()
+        RaiseEvent StartedByTestee(sender, e)
     End Sub
 
 

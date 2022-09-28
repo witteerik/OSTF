@@ -5,53 +5,130 @@ Imports System.Drawing
 
 Public Class SipTestGui
 
-    Private SelectedTransducer As AudioSystemSpecification = Nothing
-
-    Private CompleteSpeechMaterial As SpeechMaterialComponent
-
-    Private WithEvents Audiogram As Audiogram
-    Private GainDiagram As GainDiagram
-    Private ExpectedScoreDiagram As PsychometricFunctionDiagram
-
-
-    Private AvailableAudiograms As New List(Of AudiogramData)
-    Private ReadOnly AvailableReferenceLevels As New List(Of Double) From {68 - 10, 68 - 5, 68, 68 + 5, 68 + 10}
-    Private AvailableHaGains As New List(Of HearingAidGainData)
-    Private AvailablePresetsNames As List(Of String)
-    Private AvailableMediaSets As MediaSetLibrary
-    Private AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 60}
-
-    Friend AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
-
-    Friend CurrentSipTestMeasurement As SipMeasurement
-
     ''' <summary>
-    ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
+    ''' Holds the type of layout / functionality. R=Reserach, C=Clinical
     ''' </summary>
-    Private ReadOnly DefaultReferenceLevelIndex As Integer = 2
-
-
-    Private SipMeasurementRandomizer As New Random
-
+    Private ReadOnly UserType As Utils.UserTypes
+    Private GuiLanguage As Utils.Languages
+    Private SelectedTransducer As AudioSystemSpecification = Nothing
+    Private SpeechMaterial As SpeechMaterialComponent
 
     ''' <summary>
     ''' Holds the name of the speech material to be loaded.
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property SpeechMaterialName As String
+    Private ReadOnly Property SpeechMaterialName As String
+
+    Private WithEvents Audiogram As Audiogram
+    Private GainDiagram As GainDiagram
+    Private ExpectedScoreDiagram As PsychometricFunctionDiagram
+    Private AvailableAudiograms As New List(Of AudiogramData)
+    Private ReadOnly AvailableReferenceLevels As New List(Of Double) From {68 - 10, 68 - 5, 68, 68 + 5, 68 + 10}
+    Private AvailableHaGains As New List(Of HearingAidGainData)
+    Private AvailablePresetsNames As List(Of String)
+    Private CustomPresetCount As Integer = 1
+    Private AvailableMediaSets As MediaSetLibrary
+    Private AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 60}
+    Private AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
+    ''' <summary>
+    ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
+    ''' </summary>
+    Private ReadOnly DefaultReferenceLevelIndex As Integer = 2
+
+    Private CurrentParticipantID As String = ""
+    Private SelectedAudiogramData As AudiogramData = Nothing
+    Private SelectedReferenceLevel As Double?
+    Private SelectedHearingAidGain As HearingAidGainData = Nothing
+    Private SelectedPresetName As String = ""
+    Private SelectedMediaSet As MediaSet = Nothing
+    Private SelectedLengthReduplications As Integer?
+    Private SelectedPnr As Double?
+    Private SelectedTestDescription As String = ""
+
+    Private SipMeasurementRandomizer As New Random
+
+    Private MeasurementHistory As New MeasurementHistory
+    Private TestComparisonHistory As New List(Of String)
+    Private CurrentSipTestMeasurement As SipMeasurement
+    Private CurrentTestSound As Audio.Sound = Nothing
+    Private CurrentSipTrial As SipTest.SipTrial = Nothing
+
+
+    Private WithEvents PcParticipantForm As PcTesteeForm
+    Private WithEvents ParticipantControl As ITesteeControl
+
+    Private Enum ScreenType
+        Pc
+        Bluetooth
+    End Enum
+
+    Private CurrentScreenType As ScreenType
+    Private PcResponseMode As Utils.ResponseModes
+
+    Private ReadOnly Bt_UUID As String = "056435e9-cfdd-4fb3-8cc8-9a4eb21c439c" 'Created with https://www.uuidgenerator.net/
+    Private ReadOnly Bt_PIN As String = "1234"
+    Private MyBtTesteeControl As BtTesteeControl = Nothing
+
+
+    Private Enum TestingSpeeds
+        Quick
+        Slow
+    End Enum
+
+    Private SelectedTestingSpeed As TestingSpeeds = TestingSpeeds.Slow
+
+    'Test settings
+    ''' <summary>
+    ''' The (shortest) time delay (in seconds) between the response and the start of a new trial.
+    ''' </summary>
+    Private InterTrialInterval As Double = 1
 
     ''' <summary>
-    ''' Holds the type of layout / functionality. R=Reserach, C=Clinical
+    ''' The time delay (in seconds) between the end of the test word and the visual presenation of the response alternatives.
     ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property UserType As Utils.UserTypes
+    Private ResponseAlternativeDelay As Double = 0.5
+    Private PretestSoundDuration As Double = 5
+    Private MinimumTestWordStartTime As Double = 1.5 '// If test word region background sound Is used, this needs to be longer than FadeInDuration_TestWordRegion, And longer than any of the fade-in region in specific test word masker sounds (If The environment variable UseListSpecificMaskers = True).
+    Private MaximumTestWordStartTime As Double = 2
+    Private TrialSoundMaxDuration As Double = 8 ' TODO: Optimize by shortening this time
+    Private UseVisualQue As Boolean = True
+    Private UseBackgroundSpeech As Boolean = False
+    Private MaximumResponseTime As Double = 4
+    Private ShowProgressIndication As Boolean = True
 
-    Public Property GuiLanguage As Utils.Languages
+    ''' <summary>
+    ''' Set to True to simulate test results.
+    ''' </summary>
+    Private SimulationMode As Boolean = False
+
+    'Variables used during active testing
+    Private TestIsStarted As Boolean = False
+    Private TestIsPaused As Boolean = False
+    ''' <summary>
+    ''' Holds the time of the presentation of the response alternatives
+    ''' </summary>
+    Private ResponseAlternativesPresentationTime As DateTime
+    Private TestWordAlternatives As List(Of String)
+    Private CorrectResponse As String = ""
+    Private CurrentTrialSoundIsReady As Boolean = False
+    Private CurrentTrialIsLaunched As Boolean = False ' A variable that holds a value indicating if the current trial was started by the StartTrialTimer, or if it should be started directly from prepare sound. (This construction is needed as the sound may not always be created before the next trial should start. If that happens the trial starts as soon as the sound is ready to be played.)
+    Private StartTrialTimerHasTicked As Boolean = False
+    Private TrialLaunchSpinLock As New Threading.SpinLock
+
+    'Timers
+    Private WithEvents StartTrialTimer As New Timers.Timer
+    Private WithEvents ShowVisualQueTimer As New Timers.Timer
+    Private WithEvents HideVisualQueTimer As New Timers.Timer
+    Private WithEvents ShowResponseAlternativesTimer As New Timers.Timer
+    Private WithEvents MaxResponseTimeTimer As New Timers.Timer
+
+    'Delegate subs
+    Delegate Sub NoArgDelegate()
+    Delegate Sub StringArgReturningVoidDelegate([String] As String)
 
 
     Public Sub New()
         MyClass.New("Swedish SiP-test", Utils.Constants.UserTypes.Research, Utils.Constants.Languages.English)
-
     End Sub
 
     Public Sub New(ByVal SpeechMaterialName As String, ByVal UserType As Utils.UserTypes, ByVal GuiLanguage As Utils.Languages)
@@ -96,17 +173,17 @@ Public Class SipTestGui
         Next
 
         If SelectedTest IsNot Nothing Then
-            CompleteSpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(SelectedTest.GetSpeechMaterialFilePath, SelectedTest.GetTestRootPath)
-            CompleteSpeechMaterial.ParentTestSpecification = SelectedTest
-            SelectedTest.SpeechMaterial = CompleteSpeechMaterial
+            SpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(SelectedTest.GetSpeechMaterialFilePath, SelectedTest.GetTestRootPath)
+            SpeechMaterial.ParentTestSpecification = SelectedTest
+            SelectedTest.SpeechMaterial = SpeechMaterial
         Else
             MsgBox("Unable to locate or load the speech material '" & SpeechMaterialName & "'. Exiting the program!", MsgBoxStyle.Exclamation, "Speech material not found!")
             Exit Sub
         End If
 
         'Loading media sets
-        CompleteSpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
-        AvailableMediaSets = CompleteSpeechMaterial.ParentTestSpecification.MediaSets
+        SpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
+        AvailableMediaSets = SpeechMaterial.ParentTestSpecification.MediaSets
 
         'Hiding things that should not be visible from the start
         StatAnalysisLabel.Visible = False
@@ -148,7 +225,7 @@ Public Class SipTestGui
         HaGainComboBox.SelectedIndex = HaGainComboBox.Items.Count - 1
 
         'Adding available preset names
-        AvailablePresetsNames = CompleteSpeechMaterial.Presets.Keys.ToList
+        AvailablePresetsNames = SpeechMaterial.Presets.Keys.ToList
         PresetComboBox.Items.Clear()
         For Each Preset In AvailablePresetsNames
             PresetComboBox.Items.Add(Preset)
@@ -176,17 +253,16 @@ Public Class SipTestGui
         Next
         'We don't yet select a default here...?? It could possibly be done automatically at a later stage...
 
-        'Adding values in WordsPerTrial_ComboBox
-        'WordsPerTrial_ComboBox.Items.Add(WordsPerTrialOptions.Single)
-        'WordsPerTrial_ComboBox.Items.Add(WordsPerTrialOptions.Multiple)
-        'WordsPerTrial_ComboBox.SelectedIndex = 0
+        'Adding values in TestingSpeed_ComboBox
+        TestingSpeed_ComboBox.Items.Add(TestingSpeeds.Quick)
+        TestingSpeed_ComboBox.Items.Add(TestingSpeeds.Slow)
+        TestingSpeed_ComboBox.SelectedIndex = 0
 
         SetLanguageStrings(GuiLanguage)
 
         StartSoundPlayer()
 
     End Sub
-
 
     Private Sub SetLanguageStrings(ByVal Language As Utils.Languages)
 
@@ -217,7 +293,7 @@ Public Class SipTestGui
                 Preset_Label.Text = "Test"
                 Situation_Label.Text = "Situation"
                 LengthReduplications_Label.Text = "Repetitioner"
-                WordsPerTrial_Label.Text = "Ord per försök"
+                TestingSpeed_Label.Text = "Hastighet"
                 PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
                 PNR_Label.Text = "PNR (dB)"
                 CorrectCount_Label.Text = "Antal rätt"
@@ -255,7 +331,7 @@ Public Class SipTestGui
                 Preset_Label.Text = "Test"
                 Situation_Label.Text = "Situation"
                 LengthReduplications_Label.Text = "Repetitions"
-                WordsPerTrial_Label.Text = "Words per trial"
+                TestingSpeed_Label.Text = "Testing speed"
                 PsychmetricFunction_VerticalLabel.Text = "EST. SCORE (%)"
                 PNR_Label.Text = "PNR (dB)"
                 CorrectCount_Label.Text = "Number correct"
@@ -276,7 +352,7 @@ Public Class SipTestGui
         OstfBase.SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
 
         'Selects the wave format for use (doing it this way means that the wave format MUST be the same in all available MediaSets)
-        OstfBase.SoundPlayer.ChangePlayerSettings(, CompleteSpeechMaterial.GetWavefileFormat(AvailableMediaSets(0)),,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0)),,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
 
         Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
         If LocalAvailableTransducers.Count = 0 Then
@@ -308,39 +384,15 @@ Public Class SipTestGui
 
     End Sub
 
+    Private Sub KeyDetection(sender As Object, e As KeyEventArgs) Handles Me.KeyUp, PcParticipantForm.KeyUp
 
-    Public Sub KeyDetection(sender As Object, e As KeyEventArgs) Handles Me.KeyUp, PcParticipantForm.KeyUp
-
+        'Use this method to tigger actions by pressing a keyboard key during active testing, when PcScreen is used, and mouse is therefore used by the testee.
         'MsgBox("Key pressed: " & e.KeyData)
 
     End Sub
 
 
-    Private Enum RecalculationStartpoints
-        ParticipantLocked
-        AudiogramSelected
-        ReferenceLevelSelected
-        HearingAidGainSelected
-        TestPresetSelected
-        TestSituationSelected
-        TestLengthSelected
-    End Enum
-
-    Private CurrentParticipantID As String = ""
-    Private SelectedAudiogramData As AudiogramData = Nothing
-    Private SelectedReferenceLevel As Double?
-    Private SelectedHearingAidGain As HearingAidGainData = Nothing
-    Private SelectedPresetName As String = ""
-    Private SelectedMediaSet As MediaSet = Nothing
-    Private SelectedLengthReduplications As Integer?
-    Private SelectedPnr As Double?
-    Private SelectedTestDescription As String = ""
-
-    Private MeasurementHistory As New MeasurementHistory
-
-#Region "Participant"
-
-    Public Sub LockParticipant(sender As Object, e As EventArgs) Handles ParticipantLock_Button.Click
+    Private Sub LockParticipant(sender As Object, e As EventArgs) Handles ParticipantLock_Button.Click
 
         'Then look up a patient in a file or database, create a patient from it and reference that patient into the CurrentPatient property
 
@@ -353,7 +405,7 @@ Public Class SipTestGui
         End If
 
         'Locking ID controls in the Gui
-        LockPatientDetails(ParticipantID)
+        LockParticipanDetails(ParticipantID)
 
         'Creating a new patient
         CurrentParticipantID = ParticipantID
@@ -364,7 +416,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub LockPatientDetails(ID As String)
+    Private Sub LockParticipanDetails(ID As String)
 
         ParticipantIdTextBox.ReadOnly = True
         ParticipantIdTextBox.Text = ID
@@ -372,11 +424,8 @@ Public Class SipTestGui
 
     End Sub
 
-#End Region
 
-#Region "Audiogram"
-
-    Public Sub CreateNewAudiogram(sender As Object, e As EventArgs) Handles NewAudiogram_Button.Click
+    Private Sub CreateNewAudiogram(sender As Object, e As EventArgs) Handles NewAudiogram_Button.Click
 
         'Stores the selected audiogram data
         Dim NewAudiogram = New AudiogramData
@@ -386,7 +435,6 @@ Public Class SipTestGui
         UpdateAudiogramList()
 
     End Sub
-
 
     Private Sub AddTypicalAudiograms_Button_Click(sender As Object, e As EventArgs) Handles AddTypicalAudiograms_Button.Click
 
@@ -419,7 +467,7 @@ Public Class SipTestGui
     ''' <summary>
     ''' Updates the audiogram list and selects the audiogram last added 
     ''' </summary>
-    Public Sub UpdateAudiogramList()
+    Private Sub UpdateAudiogramList()
 
         AudiogramComboBox.Items.Clear()
         AudiogramComboBox.Items.AddRange(AvailableAudiograms.ToArray)
@@ -429,7 +477,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub SelectAudiogram(sender As Object, e As EventArgs) Handles AudiogramComboBox.SelectedIndexChanged
+    Private Sub SelectAudiogram(sender As Object, e As EventArgs) Handles AudiogramComboBox.SelectedIndexChanged
 
         'Stores the selected audiogram data
         SelectedAudiogramData = AudiogramComboBox.SelectedItem
@@ -445,7 +493,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub AudiogramDataChanged() Handles Audiogram.DataChanged
+    Private Sub AudiogramDataChanged() Handles Audiogram.DataChanged
 
         'Checks if the audiogram contains data, and stops if not
         If SelectedAudiogramData.ContainsAcData = False Then Exit Sub
@@ -458,9 +506,7 @@ Public Class SipTestGui
 
     End Sub
 
-#End Region
-
-    Public Sub SelectReferenceLevel(sender As Object, e As EventArgs) Handles ReferenceLevelComboBox.SelectedIndexChanged
+    Private Sub SelectReferenceLevel(sender As Object, e As EventArgs) Handles ReferenceLevelComboBox.SelectedIndexChanged
 
         'Stores the selected reference level
         SelectedReferenceLevel = ReferenceLevelComboBox.SelectedItem
@@ -468,8 +514,6 @@ Public Class SipTestGui
         TryCalculatePsychometricFunction()
 
     End Sub
-
-#Region "HaGain"
 
     Private Sub CreateNewGain_Button_Click(sender As Object, e As EventArgs) Handles CreateNewGain_Button.Click
 
@@ -498,7 +542,7 @@ Public Class SipTestGui
     ''' <summary>
     ''' Updates the hearing aid gain list and selects the gain data last added 
     ''' </summary>
-    Public Sub UpdateGainList()
+    Private Sub UpdateGainList()
 
         HaGainComboBox.Items.Clear()
         HaGainComboBox.Items.AddRange(AvailableHaGains.ToArray)
@@ -508,8 +552,7 @@ Public Class SipTestGui
 
     End Sub
 
-
-    Public Sub SelectHearingAidGain(sender As Object, e As EventArgs) Handles HaGainComboBox.SelectedIndexChanged
+    Private Sub SelectHearingAidGain(sender As Object, e As EventArgs) Handles HaGainComboBox.SelectedIndexChanged
 
         'Stores the selected hearing-aid gain type
         SelectedHearingAidGain = HaGainComboBox.SelectedItem
@@ -521,9 +564,7 @@ Public Class SipTestGui
 
     End Sub
 
-#End Region
-
-    Public Sub SelectSituation(sender As Object, e As EventArgs) Handles TestSituationComboBox.SelectedIndexChanged
+    Private Sub SelectSituation(sender As Object, e As EventArgs) Handles TestSituationComboBox.SelectedIndexChanged
 
         'Stores the selected preset
         SelectedMediaSet = TestSituationComboBox.SelectedItem
@@ -532,7 +573,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub SelectPreset(sender As Object, e As EventArgs) Handles PresetComboBox.SelectedIndexChanged
+    Private Sub SelectPreset(sender As Object, e As EventArgs) Handles PresetComboBox.SelectedIndexChanged
 
         'Stores the selected preset
         SelectedPresetName = PresetComboBox.SelectedItem
@@ -541,13 +582,11 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub MostDifficultItems_Button_Click() Handles MostDifficultItems_Button.Click
+    Private Sub MostDifficultItems_Button_Click() Handles MostDifficultItems_Button.Click
         SelectMostDifficultItems()
     End Sub
 
-    Private CustomPresetCount As Integer = 1
-
-    Public Sub SelectMostDifficultItems(Optional ByVal GroupCount As Integer = 7)
+    Private Sub SelectMostDifficultItems(Optional ByVal GroupCount As Integer = 7)
 
         If SelectedPnr Is Nothing Then
             ShowMessageBox("Please select a PNR value!", "SiP-test")
@@ -575,7 +614,7 @@ Public Class SipTestGui
         End If
 
         'Creates a new test and updates the psychometric function diagram
-        Dim TempSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification)
+        Dim TempSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
         TempSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
         TempSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
         TempSipTestMeasurement.TestProcedure.LengthReduplications = 1
@@ -615,7 +654,7 @@ Public Class SipTestGui
         Dim NewPresetName As String = "Custom " & CustomPresetCount '"Custom_" & SelectedAudiogramData.Name & "_" & SelectedReferenceLevel & "_" & SelectedPnr
         CustomPresetCount += 1
 
-        CompleteSpeechMaterial.Presets.Add(NewPresetName, SelectedComponents)
+        SpeechMaterial.Presets.Add(NewPresetName, SelectedComponents)
         AvailablePresetsNames.Add(NewPresetName)
         PresetComboBox.Items.Add(NewPresetName)
         PresetComboBox.SelectedItem = NewPresetName
@@ -629,27 +668,18 @@ Public Class SipTestGui
 
     End Sub
 
+    Private Sub SelectTestLength(sender As Object, e As EventArgs) Handles TestLengthComboBox.SelectedIndexChanged
 
-    Public Sub SelectTestLength(sender As Object, e As EventArgs) Handles TestLengthComboBox.SelectedIndexChanged
-
-        'Stores the selected preset
+        'Stores the selected length
         SelectedLengthReduplications = TestLengthComboBox.SelectedItem
-
-
-        'Setting the test length is the last required step before calculating estimated psychometric function and therefore the last re-calculation step
-        'At this stage a new test session should be created
 
         TryCalculatePsychometricFunction()
 
     End Sub
 
-#Region "PsychometricFunction"
-
-
     Private Sub TryCalculatePsychometricFunction()
 
         Try
-
 
             'Resetting the planned trial test length text
             PlannedTestLength_TextBox.Text = ""
@@ -664,7 +694,7 @@ Public Class SipTestGui
 
 
             'Creates a new test and updates the psychometric function diagram
-            CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, CompleteSpeechMaterial.ParentTestSpecification)
+            CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
             CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
             CurrentSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
             CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
@@ -704,18 +734,12 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub DisplayPredictedPsychometricCurve(PNRs() As Single, PredictedScores() As Single, LowerCiLimits() As Single, UpperCiLimits() As Single)
+    Private Sub DisplayPredictedPsychometricCurve(PNRs() As Single, PredictedScores() As Single, LowerCiLimits() As Single, UpperCiLimits() As Single)
 
         ExpectedScoreDiagram.Lines.Clear()
         ExpectedScoreDiagram.Lines.Add(New PlotBase.Line With {.Color = Color.Black, .Dashed = False, .LineWidth = 3, .XValues = PNRs, .YValues = PredictedScores})
 
         ExpectedScoreDiagram.Areas.Clear()
-
-        ''High-jacking the values in PredictedScores for now
-        'For n = 0 To PredictedScores.Length - 1
-        '    LowerCiLimits(n) = PredictedScores(n) - 0.1
-        '    UpperCiLimits(n) = PredictedScores(n) + 0.1
-        'Next
 
         ExpectedScoreDiagram.Areas.Add(New PlotBase.Area With {.Color = Color.Pink, .XValues = PNRs, .YValuesLower = LowerCiLimits, .YValuesUpper = UpperCiLimits})
 
@@ -724,10 +748,9 @@ Public Class SipTestGui
 
     End Sub
 
-#End Region
 
 
-    Public Sub SelectPNR(sender As Object, e As EventArgs) Handles PnrComboBox.SelectedIndexChanged
+    Private Sub SelectPNR(sender As Object, e As EventArgs) Handles PnrComboBox.SelectedIndexChanged
 
         'Stores the selected selected PNR
         SelectedPnr = PnrComboBox.SelectedItem
@@ -758,7 +781,7 @@ Public Class SipTestGui
         End If
 
         If DescriptionIsOk = True Then
-            InitiateNewMeasurement()
+            TryEnableTestStart()
         Else
             Start_AudioButton.Enabled = False
         End If
@@ -766,7 +789,7 @@ Public Class SipTestGui
     End Sub
 
 
-    Public Sub InitiateNewMeasurement()
+    Private Sub TryEnableTestStart()
 
         If SelectedTransducer.CanPlay = False Then
             'Aborts if the SelectedTransducer cannot be used to play sound
@@ -809,10 +832,7 @@ Public Class SipTestGui
 
     End Sub
 
-
-#Region "Active measurement"
-
-    Public Sub StartTest() Handles Start_AudioButton.Click
+    Private Sub TryStartTest(sender As Object, e As EventArgs) Handles Start_AudioButton.Click, ParticipantControl.StartedByTestee
 
         If TestIsStarted = False Then
 
@@ -856,7 +876,20 @@ Public Class SipTestGui
                 End If
             End If
 
-            StartedByAdministrator()
+            If sender Is ParticipantControl Then
+                Utils.SendInfoToLog("Test started by administrator")
+            ElseIf sender Is ParticipantControl Then
+                Utils.SendInfoToLog("Test started by testee")
+            End If
+
+            TestIsStarted = True
+
+            If SimulationMode = False Then
+                InitiateTestByPlayingSound()
+            Else
+                'Calling StartTimerTick directly
+                StartTrialTimerTick()
+            End If
 
         Else
             'Test is started
@@ -869,33 +902,17 @@ Public Class SipTestGui
 
     End Sub
 
-
-    Public Sub StopButton_Click() Handles Stop_AudioButton.Click
-
+    Private Sub StopButton_Click() Handles Stop_AudioButton.Click
         If TestIsStarted = True Then
             FinalizeTesting()
         End If
-
     End Sub
-
-
-#End Region
-
-
-
-
-
-
-
-
-
-#Region "Active measurement - GUI stuff"
 
     ''' <summary>
     ''' Toggles the start button.
     ''' </summary>
     ''' <param name="ShowPlay">Set to True to show a play symbol, or False to show a pausue symbol.</param>
-    Public Sub TogglePlayButton(ByVal ShowPlay As Boolean)
+    Private Sub TogglePlayButton(ByVal ShowPlay As Boolean)
         If ShowPlay = True Then
             Start_AudioButton.ViewMode = AudioButton.ViewModes.Play
         Else
@@ -903,170 +920,21 @@ Public Class SipTestGui
         End If
     End Sub
 
-    Public Sub UpdateTestProgress()
-
-        Dim Max As Integer = CurrentSipTestMeasurement.ObservedTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count
-        Dim Progress As Integer = CurrentSipTestMeasurement.ObservedTrials.Count
-        Dim NumberObservedScore = CurrentSipTestMeasurement.GetNumberObservedScore
-        Dim ProportionCorrect As String = CurrentSipTestMeasurement.PercentCorrect
-
-        MeasurementProgressBar.Minimum = 0
-        MeasurementProgressBar.Maximum = Max
-        MeasurementProgressBar.Value = Progress
-
-        If NumberObservedScore IsNot Nothing Then
-            CorrectCountTextBox.Text = NumberObservedScore.Item1 & " / " & Progress
-        Else
-            CorrectCountTextBox.Text = 0 & " / " & Progress
-        End If
-
-        If ProportionCorrect <> "" Then
-            ProportionCorrectTextBox.Text = ProportionCorrect
-        Else
-            ProportionCorrectTextBox.Text = ""
-        End If
-    End Sub
-
-    Public Sub UpdateTestTrialTable()
-
-        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
-
-        Dim TestWords() As String = GetGuiTableData.TestWords.ToArray
-        Dim Responses() As String = GetGuiTableData.Responses.ToArray
-        Dim ResultResponseTypes() As SipTest.PossibleResults = GetGuiTableData.ResponseType.ToArray
-        Dim UpdateRow As Integer? = GetGuiTableData.UpdateRow
-        Dim SelectionRow As Integer? = GetGuiTableData.SelectionRow
-        Dim FirstRowToDisplayInScrollmode As Integer? = GetGuiTableData.FirstRowToDisplayInScrollmode
-
-
-        'Checking input arguments
-        If TestWords.Length <> Responses.Length Or TestWords.Length <> ResultResponseTypes.Length Then
-            Throw New ArgumentException("TestWords, Responses and ResultResponseTypes must all have the same length!")
-        End If
-
-        If UpdateRow.HasValue = True Then
-            If UpdateRow < 0 Or UpdateRow >= Responses.Length Then Throw New ArgumentException("UpdateRow must be non-negative integer, less than the length of the number of test-list items!")
-        End If
-
-        If SelectionRow.HasValue = True Then
-            If SelectionRow < 0 Or SelectionRow >= Responses.Length Then Throw New ArgumentException("SelectionRow must be non-negative integer, less than the length of the number of test-list items!")
-        End If
-
-        If FirstRowToDisplayInScrollmode.HasValue = True Then
-            If FirstRowToDisplayInScrollmode < 0 Or FirstRowToDisplayInScrollmode >= Responses.Length Then Throw New ArgumentException("FirstRowToDisplayInScrollmode must be non-negative integer, less than the length of the number of test-list items!")
-        End If
-
-
-        'Determines if the whole table can be 
-        Dim UpdateOnlySpecificRow As Boolean = False
-
-        If UpdateRow.HasValue = True Then
-            If Responses.Length = TestTrialDataGridView.Rows.Count Then
-                'Allows updating of only a specific row if 
-                '-an UpdateIndex is given
-                '-the number of rows in the existing table equals the number of test-list items (taken as the length of TestWords). This could happen if the number of test-list items have changed.
-                UpdateOnlySpecificRow = True
-            End If
-        End If
-
-        If UpdateOnlySpecificRow = True Then
-
-            TestTrialDataGridView.Rows(UpdateRow.Value).Cells(0).Value = TestWords(UpdateRow.Value)
-            TestTrialDataGridView.Rows(UpdateRow.Value).Cells(1).Value = Responses(UpdateRow.Value)
-
-            Select Case ResultResponseTypes(UpdateRow.Value)
-                Case SipTest.PossibleResults.Correct
-                    TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.CorrectResponseImage
-
-                Case SipTest.PossibleResults.Incorrect
-                    TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.IncorrectResponseImage
-
-                Case Else
-                    TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.IncorrectResponseImage
-            End Select
-
-        Else
-
-            'Clearing all rows
-            TestTrialDataGridView.Rows.Clear()
-
-            'Creating new rows
-            TestTrialDataGridView.Rows.Add(TestWords.Length)
-
-            'Adding data to all rows
-            For r = 0 To TestWords.Length - 1
-
-                TestTrialDataGridView.Rows(r).Cells(0).Value = TestWords(r)
-                TestTrialDataGridView.Rows(r).Cells(1).Value = Responses(r)
-
-                Select Case ResultResponseTypes(r)
-                    Case SipTest.PossibleResults.Correct
-                        TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.CorrectResponseImage
-
-                    Case SipTest.PossibleResults.Incorrect
-                        TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.IncorrectResponseImage
-
-                    Case Else
-                        TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.TrialNotPresentedImage
-                End Select
-
-
-            Next
-
-        End If
-
-        'Sets the selection row
-        'Clears any selection first
-        TestTrialDataGridView.ClearSelection()
-        If SelectionRow.HasValue Then
-            'Selects the first column of the SelectionRow
-            TestTrialDataGridView.Rows(SelectionRow).Cells(0).Selected = True
-        End If
-
-        'Scrolls to the indicated FirstRowToDisplayInScrollmode
-        If FirstRowToDisplayInScrollmode.HasValue Then
-            TestTrialDataGridView.FirstDisplayedScrollingRowIndex = FirstRowToDisplayInScrollmode
-        End If
-
-    End Sub
-
-#End Region
-
-
-    Public Sub ClearTestNameBox()
-        TestDescriptionTextBox.Text = ""
-    End Sub
-
-    Public Sub LockTestNameBox()
-        TestDescriptionTextBox.ReadOnly = True
-    End Sub
-
-    Public Sub UnlockTestNameBox()
-        TestDescriptionTextBox.ReadOnly = False
-    End Sub
 
     Private Sub LockSettingsPanels()
-
         PcScreen_RadioButton.Enabled = False
         BtScreen_RadioButton.Enabled = False
-
         TestSettings_TableLayoutPanel.Enabled = False
-        LockTestNameBox()
-
+        TestDescriptionTextBox.ReadOnly = True
         SoundSettings_TableLayoutPanel.Enabled = False
-
     End Sub
 
     Private Sub UnlockSettingsPanels()
-
         PcScreen_RadioButton.Enabled = True
         BtScreen_RadioButton.Enabled = True
-
         TestSettings_TableLayoutPanel.Enabled = True
-        UnlockTestNameBox()
-
+        TestDescriptionTextBox.ReadOnly = False
         SoundSettings_TableLayoutPanel.Enabled = True
-
     End Sub
 
     Private Sub UnlockCursor()
@@ -1078,591 +946,7 @@ Public Class SipTestGui
 
     End Sub
 
-#Region "Test-result comparison"
-
-    Public Sub PopulateTestHistoryTables()
-
-        'Clears all rows in the TestHistoryTables
-        CurrentSessionResults_DataGridView.Rows.Clear()
-
-        'Adds rows
-        CurrentSessionResults_DataGridView.Rows.Add(MeasurementHistory.Measurements.Count)
-
-        'Adds data
-        For r = 0 To MeasurementHistory.Measurements.Count - 1
-            CurrentSessionResults_DataGridView.Rows(r).Cells(0).Value = MeasurementHistory.Measurements(r).Description
-            CurrentSessionResults_DataGridView.Rows(r).Cells(1).Value = MeasurementHistory.Measurements(r).ObservedTestLength
-            CurrentSessionResults_DataGridView.Rows(r).Cells(2).Value = MeasurementHistory.Measurements(r).PercentCorrect
-            CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = False 'Setting selected value to false by default
-        Next
-
-    End Sub
-
-    Public Sub UpdateSignificanceTestResult(Result As String)
-
-        SignificanceTestResult_RichTextBox.Text = Result
-
-        'Also showing/hiding the StatAnalysisLabel depending on the information in Result
-        If Result = "" Then
-            StatAnalysisLabel.Visible = False
-        Else
-            StatAnalysisLabel.Visible = True
-        End If
-
-    End Sub
-
-
-#End Region
-
-
-#Region "Test-result comparison: Handling of local events"
-
-    Private TestComparisonHistory As New List(Of String)
-
-
-    Private Sub CurrentSessionResults_DataGridView_CurrentCellDirtyStateChanged(sender As Object, e As EventArgs) Handles CurrentSessionResults_DataGridView.CurrentCellDirtyStateChanged
-
-        'This extra event handler is needed since the CellValueChanged event does not always trigger for DataGridViewCheckBoxCells. See https://stackoverflow.com/questions/11843488/how-to-detect-datagridview-checkbox-event-change for this solution
-        Dim Result = TryCast(sender.CurrentCell, DataGridViewCheckBoxCell)
-        If Result IsNot Nothing Then
-            sender.CommitEdit(DataGridViewDataErrorContexts.Commit)
-        End If
-
-    End Sub
-
-    Private Sub SessionResults_DataGridView_CellValueChanged(sender As Object, e As DataGridViewCellEventArgs) Handles CurrentSessionResults_DataGridView.CellValueChanged
-
-        'Exits sub if invalid indices are sent
-        If e.RowIndex < 0 Then Exit Sub
-        If e.ColumnIndex < 0 Then Exit Sub
-        If e.RowIndex > sender.Rows.count - 1 Then Exit Sub
-        If e.ColumnIndex > sender.Columns.count - 1 Then Exit Sub
-
-        'Ignores any calls that do not come from the third column (i.e. the check-box column)
-        If e.ColumnIndex <> 3 Then Exit Sub
-
-        'Adding/removing the appropriate test GuiDescriptions to/from the TestComparisonHistory.
-        If sender.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = True Then
-
-            'Checks to see whether to add the test to the TestComparisonHistory and perform a significance test
-
-            'Updating the testcomparison history with the description string of checked test
-            If Not TestComparisonHistory.Contains(CurrentSessionResults_DataGridView.Rows(e.RowIndex).Cells(0).Value) Then
-                TestComparisonHistory.Add(CurrentSessionResults_DataGridView.Rows(e.RowIndex).Cells(0).Value)
-            End If
-
-            'Removing anything but the two last items in TestComparisonHistory
-            If TestComparisonHistory.Count > 2 Then
-                TestComparisonHistory.RemoveRange(0, TestComparisonHistory.Count - 2)
-            End If
-
-            'Updating the checkboxes in both the CurrentSessionResults_DataGridView and the PreviousSessionsResults_DataGridView based on the last two selected values
-            For r = 0 To CurrentSessionResults_DataGridView.Rows.Count - 1
-                If TestComparisonHistory.Contains(CurrentSessionResults_DataGridView.Rows(r).Cells(0).Value) Then
-                    CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = True
-                Else
-                    CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = False
-                End If
-            Next
-
-        Else
-
-            'Removes the test from testcomparison if it is there as the test was unchecked (This need to loop because Remove only removes the first occurence...)
-            Do Until TestComparisonHistory.Contains(CurrentSessionResults_DataGridView.Rows(e.RowIndex).Cells(0).Value) = False
-                TestComparisonHistory.Remove(CurrentSessionResults_DataGridView.Rows(e.RowIndex).Cells(0).Value)
-            Loop
-
-        End If
-
-        'Sending a call for statistical analysis to the backend. 
-        CompareTwoSipTestScores(TestComparisonHistory)
-
-    End Sub
-
-
-#End Region
-
-
-
-#Region "MessageBoxes"
-
-
-    ''' <summary>
-    ''' This method can be called by the backend in order to display a message box message to the user.
-    ''' </summary>
-    ''' <param name="Message"></param>
-    Public Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "SiP-testet")
-
-        MsgBox(Message, MsgBoxStyle.Information, Title)
-
-    End Sub
-
-    Public Function ShowYesNoMessageBox(Question As String, Optional Title As String = "SiP-testet") As Boolean
-
-        Dim Result = MsgBox(Question, MsgBoxStyle.YesNo, Title)
-
-        If Result = MsgBoxResult.Yes Then
-            Return True
-        Else
-            Return False
-        End If
-
-    End Function
-
-
-
-#End Region
-
-
-
-#Region "ImportExport"
-
-    Public Sub SaveFileButtonPressed() Handles ExportData_Button.Click
-
-        If CurrentParticipantID Is Nothing Then
-            MsgBox("No participant selected!", MsgBoxStyle.Exclamation, "Exporting measurements")
-        End If
-
-        MeasurementHistory.SaveToFile()
-
-    End Sub
-
-    Public Sub OpenFileButtonPressed() Handles ImportData_Button.Click
-
-        If CurrentParticipantID Is Nothing Then
-            MsgBox("No participant selected!", MsgBoxStyle.Exclamation, "Importing measurements")
-            Exit Sub
-        End If
-
-        Dim ImportedMeasurements = MeasurementHistory.LoadMeasurements(CompleteSpeechMaterial.ParentTestSpecification,, CurrentParticipantID)
-
-        If ImportedMeasurements Is Nothing Then Exit Sub
-
-        For Each LoadedMeasurement In ImportedMeasurements.Measurements
-            MeasurementHistory.Measurements.Insert(0, LoadedMeasurement)
-        Next
-
-        'Displaying the loded tests
-        PopulateTestHistoryTables()
-
-    End Sub
-
-
-#End Region
-
-
-
-
-#Region "Test-result comparison"
-
-
-    ''' <summary>
-    ''' Performs a statistical analysis of the score difference between the SiP-testet refered to in ComparedMeasurementGuiDescriptions by their GuiDescription strings
-    ''' </summary>
-    ''' <param name="ComparedMeasurementGuiDescriptions"></param>
-    Sub CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String))
-
-        'Clears the Gui significance test result box if not exaclty two measurements descriptions are recieved. And the exits the sub
-        If ComparedMeasurementGuiDescriptions.Count = 2 Then
-
-            Dim MeasurementDescription As New List(Of String)
-
-            Dim MeasurementsToCompare As New List(Of SipMeasurement)
-            For Each Measurement In MeasurementHistory.Measurements
-                If ComparedMeasurementGuiDescriptions.Contains(Measurement.Description) Then
-                    MeasurementsToCompare.Add(Measurement)
-                    MeasurementDescription.Add(Measurement.Description)
-                End If
-            Next
-
-            MeasurementsToCompare(0).SummarizeTestResults()
-            MeasurementsToCompare(1).SummarizeTestResults()
-
-            Dim Result = CriticalDifferences.IsNotSignificantlyDifferent_PBAC(MeasurementsToCompare(0).GetAdjustedSuccessProbabilities, MeasurementsToCompare(1).GetAdjustedSuccessProbabilities, 0.95)
-
-            If Result = False Then
-                'Significant
-                UpdateSignificanceTestResult("The difference (" & Math.Round(100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore)) & " % points) between " &
-                                             MeasurementDescription(0) & " and " & MeasurementDescription(1) & " is statistically significant (p < 0.05).")
-            Else
-                'Not significant
-                UpdateSignificanceTestResult("The difference (" & Math.Round(100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore)) & " % points) between " &
-                                             MeasurementDescription(0) & " and " & MeasurementDescription(1) & " is NOT statistically significant (p < 0.05).")
-            End If
-
-        Else
-            UpdateSignificanceTestResult("")
-        End If
-
-    End Sub
-
-
-#End Region
-
-
-
-#Region "SoundDevice"
-
-    Public Sub SearchForSoundDevices()
-        Throw New NotImplementedException()
-    End Sub
-
-    Public Sub SelectSoundDevice(SelectedSoundDeviceDescription As String)
-        Throw New NotImplementedException()
-    End Sub
-
-
-
-#End Region
-
-
-
-#Region "Screen"
-
-
-    Public Enum ScreenType
-        Pc
-        Bluetooth
-    End Enum
-
-    Public CurrentScreenType As ScreenType
-    Public PcResponseMode As Utils.ResponseModes
-
-    Private Sub PcScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles PcScreen_RadioButton.CheckedChanged
-
-        If PcScreen_RadioButton.Checked = True Then
-
-            'Disconnects the BT screen
-            DisconnectWirelessScreen()
-
-            'Sets the CurrentScreenType 
-            CurrentScreenType = ScreenType.Pc
-
-            'Enables/disables controls
-            BtScreen_TableLayoutPanel.Enabled = False
-            PcScreen_TableLayoutPanel.Enabled = True
-
-            'Clearing items in the Screen_ComboBox
-            PcScreen_ComboBox.Items.Clear()
-
-            'Adding all screens into the Screen_ComboBox
-            Dim Screens() As Screen = Screen.AllScreens
-            For Each Screen In Screens
-                PcScreen_ComboBox.Items.Add(Screen.DeviceName)
-            Next
-
-            'Preselects the first screen (which will also create the PC participant form!)
-            If PcScreen_ComboBox.Items.Count > 0 Then PcScreen_ComboBox.SelectedIndex = 0
-
-        End If
-
-    End Sub
-
-    '    Private Sub BtScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles BtScreen_RadioButton.CheckedChanged
-    Private Sub SetBtScreen() Handles BtScreen_RadioButton.CheckedChanged
-
-        If BtScreen_RadioButton.Checked = True Then
-
-            'Sets the CurrentScreenType 
-            CurrentScreenType = ScreenType.Bluetooth
-
-            'Enables/disables controls
-            BtScreen_TableLayoutPanel.Enabled = True
-            PcScreen_TableLayoutPanel.Enabled = False
-
-            'Clearing items in the Screen_ComboBox
-            PcScreen_ComboBox.Items.Clear()
-
-            If PcParticipantForm IsNot Nothing Then
-                PcParticipantForm.Close()
-                PcParticipantForm.Dispose()
-                PcParticipantForm = Nothing
-            End If
-
-        End If
-
-    End Sub
-
-    Private Sub PcTouch_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles PcTouch_CheckBox.CheckedChanged
-        If PcTouch_CheckBox.Checked = True Then
-            PcResponseMode = Utils.Constants.ResponseModes.TabletTouch
-        Else
-            PcResponseMode = Utils.Constants.ResponseModes.MouseClick
-        End If
-
-        If PcParticipantForm IsNot Nothing Then
-            PcParticipantForm.SetResponseMode(PcResponseMode)
-        End If
-
-    End Sub
-
-    'Private Sub PcScreen_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PcScreen_ComboBox.SelectedIndexChanged
-    Private Sub SetPcScreen() Handles PcScreen_ComboBox.SelectedIndexChanged
-
-        If CurrentScreenType = ScreenType.Pc Then
-
-            'Creating a new participant form (and ParticipantControl) if none exist
-            If PcParticipantForm Is Nothing Then
-                PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
-                ParticipantControl = PcParticipantForm.ParticipantControl
-            End If
-            PcParticipantForm.Show()
-
-            'Selects the screen that comes in the iterated order returned by Screen.AllScreens, which repressent the order screens are added into Screen_ComboBox, and also the order they are selectd in ChangeTestFormScreen
-            PcParticipantForm.ChangeTestFormScreen(PcScreen_ComboBox.SelectedIndex)
-
-        End If
-
-    End Sub
-
-
-#End Region
-
-
-#Region "BlueToothConnection"
-
-    Private ReadOnly Bt_UUID As String = "056435e9-cfdd-4fb3-8cc8-9a4eb21c439c" 'Created with https://www.uuidgenerator.net/
-    Private ReadOnly Bt_PIN As String = "1234"
-
-    Private MyBtTesteeControl As BtTesteeControl = Nothing
-
-
-    Private Sub SendBTMessageToolStripMenuItem_Click(sender As Object, e As EventArgs) 'Handles SendBTMessageToolStripMenuItem.Click
-
-        If MyBtTesteeControl IsNot Nothing Then
-            MyBtTesteeControl.BtTabletTalker.SendBtMessage("ping")
-        End If
-
-    End Sub
-
-
-    Private Sub ConnectBluetoothScreenButton_Click(sender As Object, e As EventArgs) Handles ConnectBluetoothScreen_Button.Click
-
-        Dim Failed As Boolean = False
-        If MyBtTesteeControl Is Nothing Then
-
-            'MyBtTabletTalker = New BtTabletTalker(Me, Bt_UUID, Bt_PIN)
-            'If MyBtTabletTalker.EstablishBtConnection() = False Then Failed = True
-
-            'Creating a new BtTesteeControl (This should be reused as long as the connection is open!)
-            MyBtTesteeControl = New BtTesteeControl()
-
-            If MyBtTesteeControl.Initialize(Bt_UUID, Bt_PIN, GuiLanguage) = False Then
-                Failed = True
-            End If
-
-        Else
-            If MyBtTesteeControl.BtTabletTalker.TrySendData() = False Then Failed = True
-        End If
-
-        If Failed = True Then
-            MsgBox("Ingen blåtandsenhet kunde anslutas, vänligen försök igen!")
-            MyBtTesteeControl = Nothing
-            DisconnectWirelessScreen()
-            BtLamp.State = Lamp.States.Disabled
-            Exit Sub
-        Else
-            BtLamp.State = Lamp.States.On
-        End If
-
-        ConnectBluetoothScreen_Button.Enabled = False
-
-        'Calling UseBtScreen to set things up
-        UseBtScreen()
-
-    End Sub
-
-    Private Sub DisconnectWirelessScreenButton_Click(sender As Object, e As EventArgs) Handles DisconnectBtScreen_Button.Click
-        DisconnectWirelessScreen()
-    End Sub
-
-    Private Sub DisconnectWirelessScreen()
-
-        If MyBtTesteeControl IsNot Nothing Then
-            Try
-                MyBtTesteeControl.BtTabletTalker.DisconnectBT()
-                MyBtTesteeControl.BtTabletTalker.Dispose()
-                MyBtTesteeControl.BtTabletTalker = Nothing
-                MyBtTesteeControl = Nothing
-            Catch ex As Exception
-                MyBtTesteeControl = Nothing
-            End Try
-        End If
-
-        ConnectBluetoothScreen_Button.Enabled = True
-
-        PcScreen_RadioButton.Checked = True
-
-        BtLamp.State = Lamp.States.Disabled
-
-    End Sub
-
-    Private Sub UseBtScreen()
-
-
-        Dim Failed As Boolean = False
-        Try
-            If MyBtTesteeControl.BtTabletTalker.TrySendData = True Then
-                CurrentScreenType = ScreenType.Bluetooth
-
-                'Enabling the AvailableTestsComboBox if not already done
-                DisconnectBtScreen_Button.Enabled = True
-
-            Else
-                Failed = True
-            End If
-        Catch ex As Exception
-            Failed = True
-        End Try
-
-        If Failed = True Then
-            MsgBox("Anslutningen till blåtandsskärmen har gått förlorad.")
-
-            ' Calls DisconnectWirelessScreen to set correct enabled status of all controls
-            DisconnectWirelessScreen()
-
-        End If
-
-
-    End Sub
-
-
-    Private Sub SipTestGui_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-
-        'Disploses the OstfBase.SoundPlayer
-        OstfBase.SoundPlayer.Dispose()
-
-    End Sub
-
-    Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
-
-        Dim MyAboutBox = New AboutBox_WithLicenseButton
-        MyAboutBox.SelectedLicense = LicenseBox.AvailableLicenses.MIT_X11
-        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.PortAudio)
-        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.MathNet)
-        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.InTheHand)
-        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.Wierstorf)
-        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.SwedishSipRecordings)
-        MyAboutBox.Show()
-
-    End Sub
-
-
-
-
-#End Region
-
-
-
-    Private CurrentTestSound As Audio.Sound = Nothing
-
-    Private CurrentSipTrial As SipTest.SipTrial
-
-    Private WithEvents PcParticipantForm As PcTesteeForm
-
-    Private WithEvents ParticipantControl As ITesteeControl
-
-
-    Private TestIsStarted As Boolean = False
-    Private TestIsPaused As Boolean = False
-
-#Region "FixedTestSettings"
-
-    ''' <summary>
-    ''' The (shortest) time delay (in seconds) between the response and the start of a new trial.
-    ''' </summary>
-    Private InterTrialInterval As Double = 1
-
-    ''' <summary>
-    ''' The time delay (in seconds) between the end of the test word and the visual presenation of the response alternatives.
-    ''' </summary>
-    Private ResponseAlternativeDelay As Double = 0.5
-    Private PretestSoundDuration As Double = 5
-    Private MinimumTestWordStartTime As Double = 1.5 '// If test word region background sound Is used, this needs to be longer than FadeInDuration_TestWordRegion, And longer than any of the fade-in region in specific test word masker sounds (If The environment variable UseListSpecificMaskers = True).
-    Private MaximumTestWordStartTime As Double = 2
-    Private TrialSoundMaxDuration As Double = 15 ' TODO: Optimize by shortening this time
-
-    Private UseVisualQue As Boolean = True
-    Private MaximumResponseTime As Double = 4
-    Private ShowProgressIndication As Boolean = True
-
-    ''' <summary>
-    ''' Set to True to simulate test results.
-    ''' </summary>
-    Private SimulationMode As Boolean
-
-#End Region
-
-#Region "TemporaryMeasurementObjects"
-
-    'Timers
-    Private WithEvents StartTrialTimer As New Timers.Timer
-    Private WithEvents ShowVisualQueTimer As New Timers.Timer
-    Private WithEvents HideVisualQueTimer As New Timers.Timer
-    Private WithEvents ShowResponseAlternativesTimer As New Timers.Timer
-    Private WithEvents MaxResponseTimeTimer As New Timers.Timer
-
-    ''' <summary>
-    ''' Holds the time of the presentation of the response alternatives
-    ''' </summary>
-    Private ResponseAlternativesPresentationTime As DateTime
-
-    Private TestWordAlternatives As List(Of String)
-
-    'Others
-    Dim CurrentTrialSoundIsReady As Boolean = False
-    Dim CurrentTrialIsLaunched As Boolean = False ' A variable that holds a value indicating if the current trial was started by the StartTrialTimer, or if it should be started directly from prepare sound. (This construction is needed as the sound may not always be created before the next trial should start. If that happens the trial starts as soon as the sound is ready to be played.)
-    Dim StartTrialTimerHasTicked As Boolean = False
-
-    Dim CorrectResponse As String = ""
-
-#End Region
-
-
-    Delegate Sub NoArgDelegate()
-    Delegate Sub StringArgReturningVoidDelegate([String] As String)
-
-
-#Region "ActiveTesting"
-
-    'Code structure:
-    '
-    'Start
-    'Select Case word
-    '-randomize test word start time
-    'prepare sound
-    'play sound
-    'display visual que
-    'display response alternatives
-    'receive response/wait For timeout
-    'check if paused/store response/adjust result
-    'launch next trial/finish up
-
-
-    Public Sub StartedByTestee() Handles ParticipantControl.StartedByTestee
-        Utils.SendInfoToLog("Test started by testee")
-        TestIsStarted = True
-
-        InitiateTest()
-
-    End Sub
-
-    Public Sub StartedByAdministrator()
-        Utils.SendInfoToLog("Test started by administrator")
-        TestIsStarted = True
-
-        If SimulationMode = False Then
-            InitiateTest()
-        Else
-            'Calling StartTimerTick directly
-            StartTrialTimerTick()
-        End If
-
-    End Sub
-
-
-
-    Private Sub InitiateTest()
+    Private Sub InitiateTestByPlayingSound()
 
         StartTrialTimer.Interval = Math.Max(1, InterTrialInterval * 1000)
 
@@ -1709,7 +993,6 @@ Public Class SipTestGui
 
     End Sub
 
-
     Private Sub PrepareAndLaunchTrial_Unsafe()
 
         'Resetting NextTrialIsReady and CurrentTrialIsStarted  
@@ -1728,7 +1011,6 @@ Public Class SipTestGui
         UpdateTestTrialTable()
         UpdateTestProgress()
 
-
         'Starting the timer that will initiate the presentation of the trial, if the sound is is prepared in time.
         StartTrialTimer.Start()
 
@@ -1741,11 +1023,10 @@ Public Class SipTestGui
             Exit Sub
         End If
 
-
         If CurrentSipTrial IsNot Nothing Then
 
             'Praparing the sound
-            PrepareTrial()
+            PrepareTestTrial()
 
             'Setting NextTrialIsReady to True to mark that the trial is ready to run
             CurrentTrialSoundIsReady = True
@@ -1776,9 +1057,7 @@ Public Class SipTestGui
 
     End Sub
 
-
-
-    Private Sub PrepareTrial()
+    Private Sub PrepareTestTrial()
 
         Try
 
@@ -1859,7 +1138,6 @@ Public Class SipTestGui
 
                 'Getting a background speech sound, if needed, and copies a random section of it into a single sound
                 Dim BackgroundSpeechSelection As Audio.Sound = Nothing
-                Dim UseBackgroundSpeech As Boolean = False
                 If UseBackgroundSpeech = True Then
                     Dim BackgroundSpeech_Sound As Audio.Sound = CurrentSipTrial.SpeechMaterialComponent.GetBackgroundSpeechSound(CurrentSipTrial.MediaSet, 0)
                     BackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
@@ -1988,13 +1266,11 @@ Public Class SipTestGui
             End If
 
         Catch ex As Exception
-            MsgBox(ex.ToString)
             Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
         End Try
 
     End Sub
 
-    Private TrialLaunchSpinLock As New Threading.SpinLock
 
     Private Sub LaunchTrial(TestSound As Audio.Sound)
 
@@ -2072,7 +1348,7 @@ Public Class SipTestGui
     End Sub
 
 
-    Public Sub TestWordResponse_TreadSafe(ByVal ResponseString As String) Handles ParticipantControl.ResponseGiven
+    Private Sub TestWordResponse_TreadSafe(ByVal ResponseString As String) Handles ParticipantControl.ResponseGiven
 
         If Me.InvokeRequired = True Then
             Dim d As New StringArgReturningVoidDelegate(AddressOf TestWordResponse_Unsafe)
@@ -2084,7 +1360,7 @@ Public Class SipTestGui
     End Sub
 
 
-    Public Sub TestWordResponse_Unsafe(ByVal ResponseString As String)
+    Private Sub TestWordResponse_Unsafe(ByVal ResponseString As String)
 
         'Stopping the max response time timer, as a response has been given in time.
         MaxResponseTimeTimer.Stop()
@@ -2162,7 +1438,6 @@ Public Class SipTestGui
             ParticipantControl.UpdateTestFormProgressbar(CurrentSipTestMeasurement.ObservedTrials.Count, CurrentSipTestMeasurement.ObservedTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count)
         End If
 
-
         'Starting the next trial
         If SimulationMode = False Then
             PrepareAndLaunchTrial_ThreadSafe()
@@ -2172,9 +1447,7 @@ Public Class SipTestGui
 
     End Sub
 
-
-
-    Public Sub FinalizeTesting()
+    Private Sub FinalizeTesting()
 
         StopAllTimers()
 
@@ -2207,19 +1480,16 @@ Public Class SipTestGui
             'If SimulationMode = False Then MeasurementHistory.SaveToFile(Path.Combine(Utils.logFilePath, "AutoLoggedResults"))
             'If SimulationMode = False Then MeasurementHistory.SaveToFile(Path.Combine(Utils.logFilePath, "AutoLoggedResults"))
 
-
             'Resets values to prepare for next measurement
             ResetValuesAfterMeasurement()
 
         Catch ex As Exception
-            MsgBox(ex.ToString)
             Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
         End Try
 
     End Sub
 
-
-    Public Sub ResetValuesAfterMeasurement()
+    Private Sub ResetValuesAfterMeasurement()
 
         TestIsPaused = False
         TestIsStarted = False
@@ -2227,7 +1497,7 @@ Public Class SipTestGui
         'Unlocks the cursor in Pc mode
         If CurrentScreenType = ScreenType.Pc Then UnlockCursor()
 
-        ClearTestNameBox()
+        TestDescriptionTextBox.Text = ""
 
         UnlockSettingsPanels()
 
@@ -2239,8 +1509,7 @@ Public Class SipTestGui
 
     End Sub
 
-
-    Public Sub PauseTesting()
+    Private Sub PauseTesting()
         TestIsPaused = True
 
         'Stopping response timers
@@ -2260,7 +1529,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub ResumeTesting()
+    Private Sub ResumeTesting()
 
         If TestIsPaused = True Then
             TestIsPaused = False
@@ -2271,7 +1540,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Public Sub StopAllTimers()
+    Private Sub StopAllTimers()
         StartTrialTimer.Stop()
         ShowVisualQueTimer.Stop()
         HideVisualQueTimer.Stop()
@@ -2279,8 +1548,530 @@ Public Class SipTestGui
         MaxResponseTimeTimer.Stop()
     End Sub
 
+    Private Sub UpdateTestProgress()
+
+        Dim Max As Integer = CurrentSipTestMeasurement.ObservedTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count
+        Dim Progress As Integer = CurrentSipTestMeasurement.ObservedTrials.Count
+        Dim NumberObservedScore = CurrentSipTestMeasurement.GetNumberObservedScore
+        Dim ProportionCorrect As String = CurrentSipTestMeasurement.PercentCorrect
+
+        MeasurementProgressBar.Minimum = 0
+        MeasurementProgressBar.Maximum = Max
+        MeasurementProgressBar.Value = Progress
+
+        If NumberObservedScore IsNot Nothing Then
+            CorrectCountTextBox.Text = NumberObservedScore.Item1 & " / " & Progress
+        Else
+            CorrectCountTextBox.Text = 0 & " / " & Progress
+        End If
+
+        If ProportionCorrect <> "" Then
+            ProportionCorrectTextBox.Text = ProportionCorrect
+        Else
+            ProportionCorrectTextBox.Text = ""
+        End If
+    End Sub
+
+    Private Sub UpdateTestTrialTable()
+
+        Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
+
+        Dim TestWords() As String = GetGuiTableData.TestWords.ToArray
+        Dim Responses() As String = GetGuiTableData.Responses.ToArray
+        Dim ResultResponseTypes() As SipTest.PossibleResults = GetGuiTableData.ResponseType.ToArray
+        Dim UpdateRow As Integer? = GetGuiTableData.UpdateRow
+        Dim SelectionRow As Integer? = GetGuiTableData.SelectionRow
+        Dim FirstRowToDisplayInScrollmode As Integer? = GetGuiTableData.FirstRowToDisplayInScrollmode
+
+
+        'Checking input arguments
+        If TestWords.Length <> Responses.Length Or TestWords.Length <> ResultResponseTypes.Length Then
+            Throw New ArgumentException("TestWords, Responses and ResultResponseTypes must all have the same length!")
+        End If
+
+        If UpdateRow.HasValue = True Then
+            If UpdateRow < 0 Or UpdateRow >= Responses.Length Then Throw New ArgumentException("UpdateRow must be non-negative integer, less than the length of the number of test-list items!")
+        End If
+
+        If SelectionRow.HasValue = True Then
+            If SelectionRow < 0 Or SelectionRow >= Responses.Length Then Throw New ArgumentException("SelectionRow must be non-negative integer, less than the length of the number of test-list items!")
+        End If
+
+        If FirstRowToDisplayInScrollmode.HasValue = True Then
+            If FirstRowToDisplayInScrollmode < 0 Or FirstRowToDisplayInScrollmode >= Responses.Length Then Throw New ArgumentException("FirstRowToDisplayInScrollmode must be non-negative integer, less than the length of the number of test-list items!")
+        End If
+
+
+        'Determines if the whole table can be 
+        Dim UpdateOnlySpecificRow As Boolean = False
+
+        If UpdateRow.HasValue = True Then
+            If Responses.Length = TestTrialDataGridView.Rows.Count Then
+                'Allows updating of only a specific row if 
+                '-an UpdateIndex is given
+                '-the number of rows in the existing table equals the number of test-list items (taken as the length of TestWords). This could happen if the number of test-list items have changed.
+                UpdateOnlySpecificRow = True
+            End If
+        End If
+
+        If UpdateOnlySpecificRow = True Then
+
+            TestTrialDataGridView.Rows(UpdateRow.Value).Cells(0).Value = TestWords(UpdateRow.Value)
+            TestTrialDataGridView.Rows(UpdateRow.Value).Cells(1).Value = Responses(UpdateRow.Value)
+
+            Select Case ResultResponseTypes(UpdateRow.Value)
+                Case SipTest.PossibleResults.Correct
+                    TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.CorrectResponseImage
+
+                Case SipTest.PossibleResults.Incorrect
+                    TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.IncorrectResponseImage
+
+                Case Else
+                    TestTrialDataGridView.Rows(UpdateRow.Value).Cells(2).Value = My.Resources.IncorrectResponseImage
+            End Select
+
+        Else
+
+            'Clearing all rows
+            TestTrialDataGridView.Rows.Clear()
+
+            'Creating new rows
+            TestTrialDataGridView.Rows.Add(TestWords.Length)
+
+            'Adding data to all rows
+            For r = 0 To TestWords.Length - 1
+
+                TestTrialDataGridView.Rows(r).Cells(0).Value = TestWords(r)
+                TestTrialDataGridView.Rows(r).Cells(1).Value = Responses(r)
+
+                Select Case ResultResponseTypes(r)
+                    Case SipTest.PossibleResults.Correct
+                        TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.CorrectResponseImage
+
+                    Case SipTest.PossibleResults.Incorrect
+                        TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.IncorrectResponseImage
+
+                    Case Else
+                        TestTrialDataGridView.Rows(r).Cells(2).Value = My.Resources.TrialNotPresentedImage
+                End Select
+
+
+            Next
+
+        End If
+
+        'Sets the selection row
+        'Clears any selection first
+        TestTrialDataGridView.ClearSelection()
+        If SelectionRow.HasValue Then
+            'Selects the first column of the SelectionRow
+            TestTrialDataGridView.Rows(SelectionRow).Cells(0).Selected = True
+        End If
+
+        'Scrolls to the indicated FirstRowToDisplayInScrollmode
+        If FirstRowToDisplayInScrollmode.HasValue Then
+            TestTrialDataGridView.FirstDisplayedScrollingRowIndex = FirstRowToDisplayInScrollmode
+        End If
+
+    End Sub
+
+    Private Sub CurrentSessionResults_DataGridView_CurrentCellDirtyStateChanged(sender As Object, e As EventArgs) Handles CurrentSessionResults_DataGridView.CurrentCellDirtyStateChanged
+
+        'This extra event handler is needed since the CellValueChanged event does not always trigger for DataGridViewCheckBoxCells. See https://stackoverflow.com/questions/11843488/how-to-detect-datagridview-checkbox-event-change for this solution
+        Dim Result = TryCast(sender.CurrentCell, DataGridViewCheckBoxCell)
+        If Result IsNot Nothing Then
+            sender.CommitEdit(DataGridViewDataErrorContexts.Commit)
+        End If
+
+    End Sub
+
+    Private Sub SessionResults_DataGridView_CellValueChanged(sender As Object, e As DataGridViewCellEventArgs) Handles CurrentSessionResults_DataGridView.CellValueChanged
+
+        'Exits sub if invalid indices are sent
+        If e.RowIndex < 0 Then Exit Sub
+        If e.ColumnIndex < 0 Then Exit Sub
+        If e.RowIndex > sender.Rows.count - 1 Then Exit Sub
+        If e.ColumnIndex > sender.Columns.count - 1 Then Exit Sub
+
+        'Ignores any calls that do not come from the third column (i.e. the check-box column)
+        If e.ColumnIndex <> 3 Then Exit Sub
+
+        'Adding/removing the appropriate test GuiDescriptions to/from the TestComparisonHistory.
+        If sender.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = True Then
+
+            'Checks to see whether to add the test to the TestComparisonHistory and perform a significance test
+
+            'Updating the testcomparison history with the description string of checked test
+            If Not TestComparisonHistory.Contains(CurrentSessionResults_DataGridView.Rows(e.RowIndex).Cells(0).Value) Then
+                TestComparisonHistory.Add(CurrentSessionResults_DataGridView.Rows(e.RowIndex).Cells(0).Value)
+            End If
+
+            'Removing anything but the two last items in TestComparisonHistory
+            If TestComparisonHistory.Count > 2 Then
+                TestComparisonHistory.RemoveRange(0, TestComparisonHistory.Count - 2)
+            End If
+
+            'Updating the checkboxes in both the CurrentSessionResults_DataGridView and the PreviousSessionsResults_DataGridView based on the last two selected values
+            For r = 0 To CurrentSessionResults_DataGridView.Rows.Count - 1
+                If TestComparisonHistory.Contains(CurrentSessionResults_DataGridView.Rows(r).Cells(0).Value) Then
+                    CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = True
+                Else
+                    CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = False
+                End If
+            Next
+
+        Else
+
+            'Removes the test from testcomparison if it is there as the test was unchecked (This need to loop because Remove only removes the first occurence...)
+            Do Until TestComparisonHistory.Contains(CurrentSessionResults_DataGridView.Rows(e.RowIndex).Cells(0).Value) = False
+                TestComparisonHistory.Remove(CurrentSessionResults_DataGridView.Rows(e.RowIndex).Cells(0).Value)
+            Loop
+
+        End If
+
+        'Sending a call for statistical analysis to the backend. 
+        CompareTwoSipTestScores(TestComparisonHistory)
+
+    End Sub
+
+
+    Private Sub PopulateTestHistoryTables()
+
+        'Clears all rows in the TestHistoryTables
+        CurrentSessionResults_DataGridView.Rows.Clear()
+
+        'Adds rows
+        CurrentSessionResults_DataGridView.Rows.Add(MeasurementHistory.Measurements.Count)
+
+        'Adds data
+        For r = 0 To MeasurementHistory.Measurements.Count - 1
+            CurrentSessionResults_DataGridView.Rows(r).Cells(0).Value = MeasurementHistory.Measurements(r).Description
+            CurrentSessionResults_DataGridView.Rows(r).Cells(1).Value = MeasurementHistory.Measurements(r).ObservedTestLength
+            CurrentSessionResults_DataGridView.Rows(r).Cells(2).Value = MeasurementHistory.Measurements(r).PercentCorrect
+            CurrentSessionResults_DataGridView.Rows(r).Cells(3).Value = False 'Setting selected value to false by default
+        Next
+
+    End Sub
+
+    Private Sub UpdateSignificanceTestResult(Result As String)
+
+        SignificanceTestResult_RichTextBox.Text = Result
+
+        'Also showing/hiding the StatAnalysisLabel depending on the information in Result
+        If Result = "" Then
+            StatAnalysisLabel.Visible = False
+        Else
+            StatAnalysisLabel.Visible = True
+        End If
+
+    End Sub
+
+
+
+    ''' <summary>
+    ''' Performs a statistical analysis of the score difference between the SiP-testet refered to in ComparedMeasurementGuiDescriptions by their GuiDescription strings
+    ''' </summary>
+    ''' <param name="ComparedMeasurementGuiDescriptions"></param>
+    Private Sub CompareTwoSipTestScores(ByRef ComparedMeasurementGuiDescriptions As List(Of String))
+
+        'Clears the Gui significance test result box if not exaclty two measurements descriptions are recieved. And the exits the sub
+        If ComparedMeasurementGuiDescriptions.Count = 2 Then
+
+            Dim MeasurementDescription As New List(Of String)
+
+            Dim MeasurementsToCompare As New List(Of SipMeasurement)
+            For Each Measurement In MeasurementHistory.Measurements
+                If ComparedMeasurementGuiDescriptions.Contains(Measurement.Description) Then
+                    MeasurementsToCompare.Add(Measurement)
+                    MeasurementDescription.Add(Measurement.Description)
+                End If
+            Next
+
+            Dim Result = CriticalDifferences.IsNotSignificantlyDifferent_PBAC(MeasurementsToCompare(0).GetAdjustedSuccessProbabilities, MeasurementsToCompare(1).GetAdjustedSuccessProbabilities, 0.95)
+
+            If Result = False Then
+                'Significant
+                UpdateSignificanceTestResult("The difference (" & Math.Round(100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore)) & " % points) between " &
+                                             MeasurementDescription(0) & " and " & MeasurementDescription(1) & " is statistically significant (p < 0.05).")
+            Else
+                'Not significant
+                UpdateSignificanceTestResult("The difference (" & Math.Round(100 * Math.Abs(MeasurementsToCompare(0).GetAverageObservedScore - MeasurementsToCompare(1).GetAverageObservedScore)) & " % points) between " &
+                                             MeasurementDescription(0) & " and " & MeasurementDescription(1) & " is NOT statistically significant (p < 0.05).")
+            End If
+
+        Else
+            UpdateSignificanceTestResult("")
+        End If
+
+    End Sub
+
+
+    Private Sub SaveFileButtonPressed() Handles ExportData_Button.Click
+
+        If CurrentParticipantID Is Nothing Then
+            MsgBox("No participant selected!", MsgBoxStyle.Exclamation, "Exporting measurements")
+        End If
+
+        MeasurementHistory.SaveToFile()
+
+    End Sub
+
+    Private Sub OpenFileButtonPressed() Handles ImportData_Button.Click
+
+        If CurrentParticipantID Is Nothing Then
+            MsgBox("No participant selected!", MsgBoxStyle.Exclamation, "Importing measurements")
+            Exit Sub
+        End If
+
+        Dim ImportedMeasurements = MeasurementHistory.LoadMeasurements(SpeechMaterial.ParentTestSpecification,, CurrentParticipantID)
+
+        If ImportedMeasurements Is Nothing Then Exit Sub
+
+        For Each LoadedMeasurement In ImportedMeasurements.Measurements
+            MeasurementHistory.Measurements.Insert(0, LoadedMeasurement)
+        Next
+
+        'Displaying the loded tests
+        PopulateTestHistoryTables()
+
+    End Sub
+
+    ''' <summary>
+    ''' This method can be called by the backend in order to display a message box message to the user.
+    ''' </summary>
+    ''' <param name="Message"></param>
+    Private Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "SiP-testet")
+
+        MsgBox(Message, MsgBoxStyle.Information, Title)
+
+    End Sub
+
+    Private Function ShowYesNoMessageBox(Question As String, Optional Title As String = "SiP-testet") As Boolean
+
+        Dim Result = MsgBox(Question, MsgBoxStyle.YesNo, Title)
+
+        If Result = MsgBoxResult.Yes Then
+            Return True
+        Else
+            Return False
+        End If
+
+    End Function
+
+
+#Region "ParticipantScreens"
+
+    Private Sub PcScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles PcScreen_RadioButton.CheckedChanged
+
+        If PcScreen_RadioButton.Checked = True Then
+
+            'Disconnects the BT screen
+            DisconnectWirelessScreen()
+
+            'Sets the CurrentScreenType 
+            CurrentScreenType = ScreenType.Pc
+
+            'Enables/disables controls
+            BtScreen_TableLayoutPanel.Enabled = False
+            PcScreen_TableLayoutPanel.Enabled = True
+
+            'Clearing items in the Screen_ComboBox
+            PcScreen_ComboBox.Items.Clear()
+
+            'Adding all screens into the Screen_ComboBox
+            Dim Screens() As Screen = Screen.AllScreens
+            For Each Screen In Screens
+                PcScreen_ComboBox.Items.Add(Screen.DeviceName)
+            Next
+
+            'Preselects the first screen (which will also create the PC participant form!)
+            If PcScreen_ComboBox.Items.Count > 0 Then PcScreen_ComboBox.SelectedIndex = 0
+
+        End If
+
+    End Sub
+
+    '    Private Sub BtScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles BtScreen_RadioButton.CheckedChanged
+    Private Sub SetBtScreen() Handles BtScreen_RadioButton.CheckedChanged
+
+        If BtScreen_RadioButton.Checked = True Then
+
+            'Sets the CurrentScreenType 
+            CurrentScreenType = ScreenType.Bluetooth
+
+            'Enables/disables controls
+            BtScreen_TableLayoutPanel.Enabled = True
+            PcScreen_TableLayoutPanel.Enabled = False
+
+            'Clearing items in the Screen_ComboBox
+            PcScreen_ComboBox.Items.Clear()
+
+            If PcParticipantForm IsNot Nothing Then
+                PcParticipantForm.Close()
+                PcParticipantForm.Dispose()
+                PcParticipantForm = Nothing
+            End If
+
+        End If
+
+    End Sub
+
+    Private Sub PcTouch_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles PcTouch_CheckBox.CheckedChanged
+        If PcTouch_CheckBox.Checked = True Then
+            PcResponseMode = Utils.Constants.ResponseModes.TabletTouch
+        Else
+            PcResponseMode = Utils.Constants.ResponseModes.MouseClick
+        End If
+
+        If PcParticipantForm IsNot Nothing Then
+            PcParticipantForm.SetResponseMode(PcResponseMode)
+        End If
+
+    End Sub
+
+    'Private Sub PcScreen_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles PcScreen_ComboBox.SelectedIndexChanged
+    Private Sub SetPcScreen() Handles PcScreen_ComboBox.SelectedIndexChanged
+
+        If CurrentScreenType = ScreenType.Pc Then
+
+            'Creating a new participant form (and ParticipantControl) if none exist
+            If PcParticipantForm Is Nothing Then
+                PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
+                ParticipantControl = PcParticipantForm.ParticipantControl
+            End If
+            PcParticipantForm.Show()
+
+            'Selects the screen that comes in the iterated order returned by Screen.AllScreens, which repressent the order screens are added into Screen_ComboBox, and also the order they are selectd in ChangeTestFormScreen
+            PcParticipantForm.ChangeTestFormScreen(PcScreen_ComboBox.SelectedIndex)
+
+        End If
+
+    End Sub
+
+
+#Region "BlueToothConnection"
+
+    Private Sub SendBTMessageToolStripMenuItem_Click(sender As Object, e As EventArgs) 'Handles SendBTMessageToolStripMenuItem.Click
+
+        If MyBtTesteeControl IsNot Nothing Then
+            MyBtTesteeControl.BtTabletTalker.SendBtMessage("ping")
+        End If
+
+    End Sub
+
+    Private Sub ConnectBluetoothScreenButton_Click(sender As Object, e As EventArgs) Handles ConnectBluetoothScreen_Button.Click
+
+        Dim Failed As Boolean = False
+        If MyBtTesteeControl Is Nothing Then
+
+            'MyBtTabletTalker = New BtTabletTalker(Me, Bt_UUID, Bt_PIN)
+            'If MyBtTabletTalker.EstablishBtConnection() = False Then Failed = True
+
+            'Creating a new BtTesteeControl (This should be reused as long as the connection is open!)
+            MyBtTesteeControl = New BtTesteeControl()
+
+            If MyBtTesteeControl.Initialize(Bt_UUID, Bt_PIN, GuiLanguage) = False Then
+                Failed = True
+            End If
+
+        Else
+            If MyBtTesteeControl.BtTabletTalker.TrySendData() = False Then Failed = True
+        End If
+
+        If Failed = True Then
+            MsgBox("Ingen blåtandsenhet kunde anslutas, vänligen försök igen!")
+            MyBtTesteeControl = Nothing
+            DisconnectWirelessScreen()
+            BtLamp.State = Lamp.States.Disabled
+            Exit Sub
+        Else
+            BtLamp.State = Lamp.States.On
+        End If
+
+        ConnectBluetoothScreen_Button.Enabled = False
+
+        'Calling UseBtScreen to set things up
+        UseBtScreen()
+
+    End Sub
+
+    Private Sub DisconnectWirelessScreenButton_Click(sender As Object, e As EventArgs) Handles DisconnectBtScreen_Button.Click
+        DisconnectWirelessScreen()
+    End Sub
+
+    Private Sub DisconnectWirelessScreen()
+
+        If MyBtTesteeControl IsNot Nothing Then
+            Try
+                MyBtTesteeControl.BtTabletTalker.DisconnectBT()
+                MyBtTesteeControl.BtTabletTalker.Dispose()
+                MyBtTesteeControl.BtTabletTalker = Nothing
+                MyBtTesteeControl = Nothing
+            Catch ex As Exception
+                MyBtTesteeControl = Nothing
+            End Try
+        End If
+
+        ConnectBluetoothScreen_Button.Enabled = True
+
+        PcScreen_RadioButton.Checked = True
+
+        BtLamp.State = Lamp.States.Disabled
+
+    End Sub
+
+    Private Sub UseBtScreen()
+
+
+        Dim Failed As Boolean = False
+        Try
+            If MyBtTesteeControl.BtTabletTalker.TrySendData = True Then
+                CurrentScreenType = ScreenType.Bluetooth
+
+                'Enabling the AvailableTestsComboBox if not already done
+                DisconnectBtScreen_Button.Enabled = True
+
+            Else
+                Failed = True
+            End If
+        Catch ex As Exception
+            Failed = True
+        End Try
+
+        If Failed = True Then
+            MsgBox("Anslutningen till blåtandsskärmen har gått förlorad.")
+
+            ' Calls DisconnectWirelessScreen to set correct enabled status of all controls
+            DisconnectWirelessScreen()
+
+        End If
+
+    End Sub
+
+    Private Sub SipTestGui_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+
+        'Disploses the OstfBase.SoundPlayer
+        OstfBase.SoundPlayer.Dispose()
+
+    End Sub
+
+    Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
+
+        Dim MyAboutBox = New AboutBox_WithLicenseButton
+        MyAboutBox.SelectedLicense = LicenseBox.AvailableLicenses.MIT_X11
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.PortAudio)
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.MathNet)
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.InTheHand)
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.Wierstorf)
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.SwedishSipRecordings)
+        MyAboutBox.Show()
+
+    End Sub
+
+
 #End Region
 
+#End Region
 
 
 #Region "ExperimentalStuff"
@@ -2405,7 +2196,7 @@ Public Class SipTestGui
         End Select
     End Sub
 
-    Private Sub StartTest(sender As Object, e As EventArgs) Handles Start_AudioButton.Click
+    Private Sub StartTest(sender As Object, e As EventArgs)
 
     End Sub
 
@@ -2413,7 +2204,13 @@ Public Class SipTestGui
 
     End Sub
 
+    Private Sub TestingSpeed_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TestingSpeed_ComboBox.SelectedIndexChanged
 
+        If TestingSpeed_ComboBox.SelectedItem IsNot Nothing Then
+            SelectedTestingSpeed = TestingSpeed_ComboBox.SelectedItem
+        End If
+
+    End Sub
 
 
 #End Region

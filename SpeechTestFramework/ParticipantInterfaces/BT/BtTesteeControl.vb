@@ -5,7 +5,7 @@ Public Class BtTesteeControl
     Public BtTabletTalker As BtTabletTalker
 
 
-    Public Event StartedByTestee() Implements ITesteeControl.StartedByTestee
+    Public Event StartedByTestee(sender As Object, e As EventArgs) Implements ITesteeControl.StartedByTestee
     Public Event ResponseGiven(ByVal Response As String) Implements ITesteeControl.ResponseGiven
 
 
@@ -106,7 +106,7 @@ Public Class BtTesteeControl
             Else
                 Select Case Message
                     Case "StartTest"
-                        RaiseEvent StartedByTestee()
+                        RaiseEvent StartedByTestee(Me, New EventArgs)
 
                     Case Else
                         MsgBox("Recevied unhandled BT message" & Message)

@@ -277,14 +277,14 @@ Namespace SipTest
 
             'Adding already tested trials
             For i = 0 To ObservedTrials.Count - 1
-                Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.GetCategoricalVariableValue("ListDescription")) '  PrimaryStringRepresentation)
+                Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                 Output.Responses.Add(ObservedTrials(i).Response.Replace(vbTab, ", "))
                 Output.ResponseType.Add(ObservedTrials(i).Result)
             Next
 
             'Adding trials yet to be tested
             For i = 0 To PlannedTrials.Count - 1
-                Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.GetCategoricalVariableValue("ListDescription")) '.PrimaryStringRepresentation)
+                Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                 Output.Responses.Add("")
                 Output.ResponseType.Add(PossibleResults.Missing)
             Next
