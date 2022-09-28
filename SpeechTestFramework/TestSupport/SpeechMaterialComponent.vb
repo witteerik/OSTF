@@ -746,7 +746,7 @@ Public Class SpeechMaterialComponent
             If Me.LinguisticLevel = MediaSet.SharedMaskersLevel Then
                 SharedMaskersLevelComponent = Me
             ElseIf Me.LinguisticLevel > MediaSet.SharedMaskersLevel Then
-                Me.GetAncestorAtLevel(MediaSet.SharedMaskersLevel)
+                SharedMaskersLevelComponent = Me.GetAncestorAtLevel(MediaSet.SharedMaskersLevel)
             Else
                 Throw New Exception("Unable to locate the masker files!")
             End If

@@ -13,8 +13,6 @@ Namespace SipTest
 
         Public Property Description As String = ""
 
-        Public Property TrialLinguisticLevel As SpeechMaterialComponent.LinguisticLevels
-
         Public Property ParticipantID As String
 
         Public Property MeasurementDateTime As DateTime
@@ -51,7 +49,6 @@ Namespace SipTest
         Friend Randomizer As Random
 
         Public Sub New(ByRef ParticipantID As String, ByRef ParentTestSpecification As SpeechMaterialSpecification,
-                       ByVal TrialLinguisticLevel As SpeechMaterialComponent.LinguisticLevels,
                        Optional RandomSeed As Integer? = Nothing)
 
             If RandomSeed.HasValue = True Then
@@ -62,7 +59,6 @@ Namespace SipTest
 
             Me.ParticipantID = ParticipantID
             Me.ParentTestSpecification = ParentTestSpecification
-            Me.TrialLinguisticLevel = TrialLinguisticLevel
 
         End Sub
 
@@ -96,7 +92,7 @@ Namespace SipTest
 
                             Dim NewTestUnit = New SiPTestUnit(Me)
 
-                            Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(TrialLinguisticLevel, True)
+                            Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
                             NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
                             If MediaSetName <> "" Then
@@ -368,23 +364,7 @@ Namespace SipTest
             Dim AllTrials = GetAllTrials()
 
             For Each Trial In AllTrials
-                If Trial.SubTrials.Count = 0 Then
-                    TrialSuccessProbabilityList.Add(Trial.EstimatedSuccessProbability(True))
-                Else
-
-                    Dim TemporarySuccessProbabilityList As New List(Of Double)
-                    For Each SubTrial In Trial.SubTrials
-
-                        TemporarySuccessProbabilityList.Add(SubTrial.EstimatedSuccessProbability(True))
-
-                    Next
-
-                    TemporarySuccessProbabilityList.Sort()
-                    Dim Min = Math.Min(1, TemporarySuccessProbabilityList.Count - 1)
-                    Dim Count = Math.Max(0, TemporarySuccessProbabilityList.Count - 1)
-                    TrialSuccessProbabilityList.AddRange(TemporarySuccessProbabilityList.GetRange(Min, Count))
-
-                End If
+                TrialSuccessProbabilityList.Add(Trial.EstimatedSuccessProbability(True))
             Next
 
             Dim CriticalDifferenceLimits = CriticalDifferences.GetCriticalDifferenceLimits_PBAC(TrialSuccessProbabilityList.ToArray, TrialSuccessProbabilityList.ToArray)
@@ -435,42 +415,23 @@ Namespace SipTest
         Public Sub CalculateAdjustedSuccessProbabilities()
 
             Dim UnadjustedEstimates As New List(Of Double)
-            Dim Floors As New List(Of Double)
+            Dim Floors(Me.ObservedTrials.Count - 1) As Double
 
-            For Each Trial In ObservedTrials
-                If Trial.SubTrials.Count = 0 Then
-                    UnadjustedEstimates.Add(Trial.EstimatedSuccessProbability(True))
+            For n = 0 To Me.ObservedTrials.Count - 1
+                UnadjustedEstimates.Add(ObservedTrials(n).EstimatedSuccessProbability(True))
 
-                    'Gets the number of response alternatives
-                    Dim ResponseAlternativeCount As Integer = 0
-                    Trial.SpeechMaterialComponent.IsContrastingComponent(, ResponseAlternativeCount)
-                    Trial.ResponseAlternativeCount = ResponseAlternativeCount
+                'Gets the number of response alternatives
+                Dim ResponseAlternativeCount As Integer = 0
+                ObservedTrials(n).SpeechMaterialComponent.IsContrastingComponent(, ResponseAlternativeCount)
+                ObservedTrials(n).ResponseAlternativeCount = ResponseAlternativeCount
 
-                    'Calulates the floors of the psychometric functions (of each trial) based on the number of response alternatives
-                    If ResponseAlternativeCount > 0 Then
-                        Floors.Add(1 / ResponseAlternativeCount)
-                    Else
-                        Floors.Add(0)
-                    End If
-
+                'Calulates the floors of the psychometric functions (of each trial) based on the number of response alternatives
+                If ResponseAlternativeCount > 0 Then
+                    Floors(n) = 1 / ResponseAlternativeCount
                 Else
-
-                    Dim TemporarySuccessProbabilityList As New List(Of Double)
-                    For Each SubTrial In Trial.SubTrials
-                        TemporarySuccessProbabilityList.Add(SubTrial.EstimatedSuccessProbability(True))
-                    Next
-
-                    TemporarySuccessProbabilityList.Sort()
-                    Dim Min = Math.Min(1, TemporarySuccessProbabilityList.Count - 1)
-                    Dim Count = Math.Max(0, TemporarySuccessProbabilityList.Count - 1)
-                    UnadjustedEstimates.AddRange(TemporarySuccessProbabilityList.GetRange(Min, Count))
-
-                    For n = 1 To Count
-                        'TODO: Here we can modify chance rate between subtrials
-                        Floors.Add(1 / Trial.SubTrials.Count)
-                    Next
-
+                    Floors(n) = 0
                 End If
+
             Next
 
 
@@ -495,17 +456,8 @@ Namespace SipTest
             If Me.ObservedTrials.Count = 0 Then Return Nothing
 
             Dim Correct As Integer = 0
-            Dim Total As Integer = 0
+            Dim Total As Integer = Me.ObservedTrials.Count
             For n = 0 To Me.ObservedTrials.Count - 1
-
-                Dim Factor As Integer
-                If Me.ObservedTrials(n).SubTrials.Count = 0 Then
-                    Factor = 1
-                Else
-                    Factor = ObservedTrials(n).SubTrials.Count
-                End If
-
-                Total += Factor
 
                 If Me.ObservedTrials(n).Result = PossibleResults.Correct Then
                         Correct += 1
@@ -542,13 +494,7 @@ Namespace SipTest
         Public Function GetAdjustedSuccessProbabilities() As Double()
             Dim OutputList As New List(Of Double)
             For n = 0 To Me.ObservedTrials.Count - 1
-                If Me.ObservedTrials.Count = 0 Then
-                    OutputList.Add(Me.ObservedTrials(n).AdjustedSuccessProbability)
-                Else
-                    For Each SubTrial In Me.ObservedTrials(n).SubTrials
-                        OutputList.Add(SubTrial.AdjustedSuccessProbability)
-                    Next
-                End If
+                OutputList.Add(Me.ObservedTrials(n).AdjustedSuccessProbability)
             Next
             Return OutputList.ToArray
         End Function
@@ -677,10 +623,6 @@ Namespace SipTest
                 c += 1
                 Dim Description As String = LineColumns(c)
                 c += 1
-                Dim TrialLinguisticLevel As SpeechMaterialComponent.LinguisticLevels = [Enum].Parse(GetType(SpeechMaterialComponent.LinguisticLevels), LineColumns(c))
-                c += 1
-                Dim IsSubTrial As Boolean = [Boolean].Parse(LineColumns(c))
-                c += 1
                 Dim ParentTestUnitIndex As Integer = LineColumns(c)
                 c += 1
                 Dim SpeechMaterialComponentID As String = LineColumns(c)
@@ -711,12 +653,11 @@ Namespace SipTest
                 End If
 
                 'Creates a new Output only after we've got the participantID from the first data line
-                If Output Is Nothing Then Output = New SipMeasurement(Loaded_ParticipantID, ParentTestSpecification, TrialLinguisticLevel)
+                If Output Is Nothing Then Output = New SipMeasurement(Loaded_ParticipantID, ParentTestSpecification)
 
                 'Stores the MeasurementDateTime and Description
                 Output.MeasurementDateTime = MeasurementDateTime
                 Output.Description = Description
-                Output.TrialLinguisticLevel = TrialLinguisticLevel
 
                 'Creates a test unit if not existing (and storing it temporarily in LoadedTestUnits
                 If Not LoadedTestUnits.ContainsKey(ParentTestUnitIndex) Then LoadedTestUnits.Add(ParentTestUnitIndex, New SiPTestUnit(Output))
@@ -727,7 +668,6 @@ Namespace SipTest
                 Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet)
 
                 'Stores the remaining test trial data
-                NewTestTrial.IsSubTrial = IsSubTrial
                 'NewTestTrial.PresentationOrder = PresentationOrder 'This is not stored as the export/import should always be ordered in the presentation order, as they are read from and stored into the ObservedTrials object!
                 NewTestTrial.Reference_SPL = Reference_SPL
                 NewTestTrial.PNR = PNR
@@ -742,13 +682,6 @@ Namespace SipTest
 
                 'Adding it also to the observed trial in the test unit
                 LoadedTestUnits(ParentTestUnitIndex).ObservedTrials.Add(NewTestTrial)
-
-                'References the current sub trial to its main trial (This method requires that sub-trials always without exceptions follow after their corresponding main trial, in the loaded data.
-                If NewTestTrial.IsSubTrial = False Then
-                    LastMainTrial = NewTestTrial
-                Else
-                    LastMainTrial.SubTrials.Add(NewTestTrial)
-                End If
 
             Next
 
@@ -897,10 +830,6 @@ Namespace SipTest
 
     Public Class SipTrial
 
-        Public SubTrials As New List(Of SipTrial)
-
-        Public IsSubTrial As Boolean = False
-
         ''' <summary>
         ''' Holds a reference to the test unit to which the current test trial belongs
         ''' </summary>
@@ -946,35 +875,20 @@ Namespace SipTest
 
         Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
                        ByRef SpeechMaterialComponent As SpeechMaterialComponent,
-                       ByRef MediaSet As MediaSet,
-                       Optional ByVal IsSubTrial As Boolean = False)
+                       ByRef MediaSet As MediaSet)
 
             Me.ParentTestUnit = ParentTestUnit
             Me.SpeechMaterialComponent = SpeechMaterialComponent
             Me.MediaSet = MediaSet
-            Me.IsSubTrial = IsSubTrial
 
             'Setting some levels
             Dim Fs2Spl As Double = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
 
-            If SpeechMaterialComponent.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
-
-                'Calculating levels
-                ReferenceSpeechMaterialLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection).GetNumericMediaSetVariableValue(MediaSet, "Lc")
+            'Calculating levels
+            ReferenceSpeechMaterialLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection).GetNumericMediaSetVariableValue(MediaSet, "Lc")
                 ReferenceTestWordLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
                 ReferenceContrastingPhonemesLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, "RLxs")
 
-            ElseIf SpeechMaterialComponent.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.List Then
-
-                'Creating sub trials from the TrialLinguisticLevel componens specified in the ParentTestUnit.ParentMeasurement
-                Dim SentenceComponents = SpeechMaterialComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence, True)
-                For Each Component In SentenceComponents
-                    Me.SubTrials.Add(New SipTrial(ParentTestUnit, Component, MediaSet, True))
-                Next
-
-            Else
-                Throw New NotImplementedException
-            End If
 
         End Sub
 
@@ -1014,88 +928,49 @@ Namespace SipTest
         ''' </summary>
         ''' <param name="ReferenceLevel"></param>
         ''' <param name="PNR"></param>
-        ''' <returns>Returns the TargetTestWord_SPL</returns>
-        Public Function SetLevels(ByVal ReferenceLevel As Double, ByVal PNR As Double) As Double
+        Public Sub SetLevels(ByVal ReferenceLevel As Double, ByVal PNR As Double)
 
-            If SubTrials.Count = 0 Then
+            'Setting the levels
 
-                'Setting the levels
+            'Setting UpdatePdlOnNextCall to True to signal recalculation of PDL when needed next time (TODO: this could be skipped if the ReferenceLevel and PNR are not changed since last call)
+            UpdatePdlOnNextCall = True
 
-                'Setting UpdatePdlOnNextCall to True to signal recalculation of PDL when needed next time (TODO: this could be skipped if the ReferenceLevel and PNR are not changed since last call)
-                UpdatePdlOnNextCall = True
+            Me.Reference_SPL = ReferenceLevel
+            Me.PNR = PNR
 
-                Me.Reference_SPL = ReferenceLevel
-                Me.PNR = PNR
+            'Calculating the difference between the standard ReferenceSpeechMaterialLevel_SPL (68.34 dB SPL) reference level and the one currently used
+            Dim RefLevelDifference As Double = ReferenceLevel - ReferenceSpeechMaterialLevel_SPL
 
-                'Calculating the difference between the standard ReferenceSpeechMaterialLevel_SPL (68.34 dB SPL) reference level and the one currently used
-                Dim RefLevelDifference As Double = ReferenceLevel - ReferenceSpeechMaterialLevel_SPL
+            '0. Gettings some levels
+            Dim ContrastingPhonemesLevel_SPL = ReferenceContrastingPhonemesLevel_SPL + RefLevelDifference
 
-                '0. Gettings some levels
-                Dim ContrastingPhonemesLevel_SPL = ReferenceContrastingPhonemesLevel_SPL + RefLevelDifference
+            '1. Setting the noise level
+            Dim SNR_Type As String = "PNR"
+            If SNR_Type = "PNR" Then
+                'In this procedure, CurrentSNR represents the sound level difference between the average max level of the contrasting test phonemes, and the masker sound
+                'Setting the test word masker to Lcp
 
-                '1. Setting the noise level
-                Dim SNR_Type As String = "PNR"
-                If SNR_Type = "PNR" Then
-                    'In this procedure, CurrentSNR represents the sound level difference between the average max level of the contrasting test phonemes, and the masker sound
-                    'Setting the test word masker to Lcp
+                'Setting TargetMasking_SPL to ContrastingPhonemesLevel_SPL
+                _TargetMasking_SPL = ContrastingPhonemesLevel_SPL
 
-                    'Setting TargetMasking_SPL to ContrastingPhonemesLevel_SPL
-                    _TargetMasking_SPL = ContrastingPhonemesLevel_SPL
-
-                ElseIf SNR_Type = "SNR_SpeechMaterial" Then
-                    'In this procedure, CurrentSNR represents the sound level difference between the average level of the whole speech material, and the masker sound
-                    'Setting the TargetMasking_SPL to Lsm
-                    _TargetMasking_SPL = ReferenceSpeechMaterialLevel_SPL + RefLevelDifference
-                Else
-                    Throw New NotImplementedException()
-                End If
-
-                '2. Adjusting the speech level to attain the desired PNR
-
-                'Calculating the unlimited target test word level
-                Dim TargetTestWord_SPL = ReferenceTestWordLevel_SPL + RefLevelDifference + PNR
-
-                'Calculating the average speech material level equivalent to the current TargetTestWord_SPL
-                Dim CurrentAverageSpeechMaterial_SPL = ReferenceSpeechMaterialLevel_SPL + RefLevelDifference + PNR
-
-                'Setting the ContextRegionSpeech_SPL to the CurrentAverageSpeechMaterial_SPL                    
-                ContextRegionSpeech_SPL = CurrentAverageSpeechMaterial_SPL
-
-                'Limiting levels
-                LimitLevels(TargetTestWord_SPL)
-
-                Return TargetTestWord_SPL
-
+            ElseIf SNR_Type = "SNR_SpeechMaterial" Then
+                'In this procedure, CurrentSNR represents the sound level difference between the average level of the whole speech material, and the masker sound
+                'Setting the TargetMasking_SPL to Lsm
+                _TargetMasking_SPL = ReferenceSpeechMaterialLevel_SPL + RefLevelDifference
             Else
-                Dim TargetTestWord_SPL_list As New List(Of Double)
-
-                'Setting levels of the sub trials
-                For Each SubTrial In SubTrials
-                    TargetTestWord_SPL_list.Add(SubTrial.SetLevels(ReferenceLevel, PNR))
-                Next
-
-                'Limiting levels
-                Dim TargetMasking_SPL_List As New List(Of Double)
-                Dim TestWordLevel_SPL_List As New List(Of Double)
-                For Each SubTrial In SubTrials
-                    LimitLevels(TargetTestWord_SPL_list.Min)
-
-                    'Adding the levels
-                    TargetMasking_SPL_List.Add(SubTrial.TargetMasking_SPL.Value)
-                    TestWordLevel_SPL_List.Add(SubTrial.TestWordLevel)
-                Next
-
-                'Summarizing the levels also to the SipTrial level
-                Me._TargetMasking_SPL = TargetMasking_SPL_List.Average 'Summarized masking as the mean
-                Me._TestWordLevel = TestWordLevel_SPL_List.Average 'Summarized masking as the mean
-
-                Return TargetTestWord_SPL_list.Min
-
+                Throw New NotImplementedException()
             End If
 
-        End Function
+            '2. Adjusting the speech level to attain the desired PNR
 
-        Private Sub LimitLevels(ByVal TargetTestWord_SPL As Double)
+            'Calculating the unlimited target test word level
+            Dim TargetTestWord_SPL = ReferenceTestWordLevel_SPL + RefLevelDifference + PNR
+
+            'Calculating the average speech material level equivalent to the current TargetTestWord_SPL
+            Dim CurrentAverageSpeechMaterial_SPL = ReferenceSpeechMaterialLevel_SPL + RefLevelDifference + PNR
+
+            'Setting the ContextRegionSpeech_SPL to the CurrentAverageSpeechMaterial_SPL                    
+            ContextRegionSpeech_SPL = CurrentAverageSpeechMaterial_SPL
 
             '3. Limiting test word level
             If TargetTestWord_SPL > TestWordLevelLimit Then
@@ -1121,6 +996,7 @@ Namespace SipTest
             End If
 
         End Sub
+
 
         Public Function GetCurrentSpeechGain() As Double
             Dim SpeechGain As Double = TestWordLevel - ReferenceTestWordLevel_SPL ' SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
