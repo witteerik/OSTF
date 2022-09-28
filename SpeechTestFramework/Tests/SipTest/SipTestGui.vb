@@ -942,6 +942,9 @@ Public Class SipTestGui
 
     Private Sub InitiateTestByPlayingSound()
 
+        'Premixing the first 10 sounds 
+        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+
         StartTrialTimer.Interval = Math.Max(1, InterTrialInterval * 1000)
 
         'Removes the start button
@@ -968,10 +971,6 @@ Public Class SipTestGui
 
         'Setting the interval to the first test stimulus using NewTrialTimer.Interval (N.B. The NewTrialTimer.Interval value has to be reset at the first tick, as the deafault value is overridden here)
         StartTrialTimer.Interval = Math.Max(1, PretestSoundDuration * 1000)
-
-        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
-
-        'CurrentSipTestMeasurement.PreMixTestTrialSounds(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
 
 
         'Preparing and launching the next trial
@@ -1098,12 +1097,17 @@ Public Class SipTestGui
 
             If SimulationMode = False Then 'We don't actually need to prepare the test sound in simulation mode
 
+                If (CurrentSipTestMeasurement.ObservedTrials.Count + 3) Mod 10 = 0 Then
+                    'Premixing the next 10 sounds, starting three trials before the next is needed 
+                    CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+                End If
+
                 'Waiting for the background thread to finish mixing
                 Dim WaitPeriods As Integer = 0
                 While CurrentSipTrial.TestTrialSound Is Nothing
                     WaitPeriods += 1
-                    Threading.Thread.Sleep(10)
-                    Console.WriteLine("Waiting for sound to mix: " & WaitPeriods * 10 & " ms")
+                    Threading.Thread.Sleep(100)
+                    Console.WriteLine("Waiting for sound to mix: " & WaitPeriods * 100 & " ms")
                 End While
 
                 'If CurrentSipTrial.TestTrialSound Is Nothing Then

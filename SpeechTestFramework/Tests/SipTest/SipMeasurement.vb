@@ -190,15 +190,12 @@ Namespace SipTest
                                          ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
                                          Optional ByVal StopAfter As Integer? = 10)
 
-            Dim NewTestTrialSoundMixClass = New TestTrialSoundMixClass(Me, SelectedTransducer, TestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, StopAfter)
+            Dim NewTestTrialSoundMixClass = New TestTrialSoundMixerOnNewThread(Me, SelectedTransducer, TestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, StopAfter)
 
-            Dim NewTread As New Threading.Thread(AddressOf NewTestTrialSoundMixClass.PreMixTestTrialSounds)
-            NewTread.IsBackground = True
-            NewTread.Start()
 
         End Sub
 
-        Private Class TestTrialSoundMixClass
+        Private Class TestTrialSoundMixerOnNewThread
 
             Public SipMeasurement As SipMeasurement
             Public SelectedTransducer As AudioSystemSpecification
@@ -225,9 +222,13 @@ Namespace SipTest
                 Me.UseBackgroundSpeech = UseBackgroundSpeech
                 Me.StopAfter = StopAfter
 
+                Dim NewTread As New Threading.Thread(AddressOf DoWork)
+                NewTread.IsBackground = True
+                NewTread.Start()
+
             End Sub
 
-            Public Sub PreMixTestTrialSounds()
+            Public Sub DoWork()
                 SipMeasurement.PreMixTestTrialSounds(SelectedTransducer, TestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, StopAfter)
             End Sub
 
@@ -239,20 +240,32 @@ Namespace SipTest
                                          Optional ByVal StopAfter As Integer? = 10)
 
             Dim MixedCount As Integer = 0
-            Dim CurrentIndex As Integer = 0
-            While CurrentIndex < PlannedTrials.Count
+            Dim RemainingPlannedTrials = PlannedTrials.GetRange(0, PlannedTrials.Count)
 
-                If PlannedTrials(CurrentIndex).TestTrialSound Is Nothing Then
-                    PlannedTrials(CurrentIndex).MixSound(SelectedTransducer, TestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+            If StopAfter.HasValue Then
+                Console.WriteLine("Starts mixing " & StopAfter.Value & " trial sounds...")
+            Else
+                Console.WriteLine("Starts mixing new trial sounds...")
+            End If
+
+            For Each Trial In RemainingPlannedTrials
+
+                If Trial.TestTrialSound Is Nothing Then
+                    Trial.MixSound(SelectedTransducer, TestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
                     MixedCount += 1
+
+                    If Trial.TestTrialSound IsNot Nothing Then
+                        Console.WriteLine("Mixed trial sound: " & MixedCount)
+                    Else
+                        Console.WriteLine("   Failed to mix trial sound: " & MixedCount)
+                    End If
 
                     'Stops after mixing StopAfter new sounds (this can be utilized in order not to bulid up too much memory)
                     If StopAfter.HasValue Then
-                        If MixedCount >= StopAfter Then Exit While
+                        If MixedCount >= StopAfter.Value Then Exit For
                     End If
                 End If
-
-            End While
+            Next
 
         End Sub
 
@@ -1098,321 +1111,327 @@ Namespace SipTest
                             ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                             ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean)
 
-            'Setting up the SiP-trial sound mix
-            Dim MixStopWatch As New Stopwatch
-            MixStopWatch.Start()
+            Try
 
-            'Sets a List of SoundSceneItem in which to put the sounds to mix
-            Dim ItemList = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+                'Setting up the SiP-trial sound mix
+                Dim MixStopWatch As New Stopwatch
+                MixStopWatch.Start()
 
-            Dim SoundWaveFormat As Audio.Formats.WaveFormat = Nothing
+                'Sets a List of SoundSceneItem in which to put the sounds to mix
+                Dim ItemList = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
 
-            Select Case TestingSpeed
-                Case SipMeasurement.TestingSpeeds.Slow
+                Dim SoundWaveFormat As Audio.Formats.WaveFormat = Nothing
 
-                    'Getting maskers
-                    Dim SelectedMaskerIndices = Utils.SampleWithoutReplacement(2, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer)
-                    Dim Masker1 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(0)))
-                    Dim Masker2 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(1)))
+                Select Case TestingSpeed
+                    Case SipMeasurement.TestingSpeeds.Slow
 
-                    'Stores the sample rate and the wave format
-                    Dim CurrentSampleRate As Integer = Masker1.WaveFormat.SampleRate
-                    SoundWaveFormat = Masker1.WaveFormat
+                        'Getting maskers
+                        Dim SelectedMaskerIndices = Utils.SampleWithoutReplacement(2, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer)
+                        Dim Masker1 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(0)))
+                        Dim Masker2 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(1)))
 
-                    'Getting the lengths of the maskers (Assuming same lengths of all maskers)
-                    Dim MaskersLength As Integer = Masker1.WaveData.SampleData(1).Length
+                        'Stores the sample rate and the wave format
+                        Dim CurrentSampleRate As Integer = Masker1.WaveFormat.SampleRate
+                        SoundWaveFormat = Masker1.WaveFormat
 
-                    'Randomizing a masker start time, and stores it in TestWordStartTime 
-                    Dim MaskerStartTime = SipMeasurementRandomizer.Next(Math.Round(MinimumStimulusOnsetTime * 1000), Math.Round(MaximumStimulusOnsetTime * 1000)) / 1000
-                    Dim MaskersStartSample As Integer = MaskerStartTime * CurrentSampleRate
+                        'Getting the lengths of the maskers (Assuming same lengths of all maskers)
+                        Dim MaskersLength As Integer = Masker1.WaveData.SampleData(1).Length
 
-                    'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
-                    Dim MaskersStartMeasureSample As Integer = MaskersLength / 3
-                    Dim MaskersStartMeasureLength As Integer = MaskersLength / 3
+                        'Randomizing a masker start time, and stores it in TestWordStartTime 
+                        Dim MaskerStartTime = SipMeasurementRandomizer.Next(Math.Round(MinimumStimulusOnsetTime * 1000), Math.Round(MaximumStimulusOnsetTime * 1000)) / 1000
+                        Dim MaskersStartSample As Integer = MaskerStartTime * CurrentSampleRate
 
-                    'Selects a recording index, and gets the corresponding sound
-                    Dim SelectedMediaIndex As Integer = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
-                    Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1)
+                        'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
+                        Dim MaskersStartMeasureSample As Integer = MaskersLength / 3
+                        Dim MaskersStartMeasureLength As Integer = MaskersLength / 3
 
-                    'Stores the length of the test word sound
-                    Dim TestWordLength As Integer = TestWordSound.WaveData.SampleData(1).Length
+                        'Selects a recording index, and gets the corresponding sound
+                        Dim SelectedMediaIndex As Integer = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
+                        Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1)
 
-                    'Calculating test word start sample, syncronized with the centre of the maskers
-                    Dim TestWordStartSample As Integer = MaskersStartSample + MaskersLength / 2 - TestWordLength / 2
+                        'Stores the length of the test word sound
+                        Dim TestWordLength As Integer = TestWordSound.WaveData.SampleData(1).Length
 
-                    'Calculating test word start time
-                    TestWordStartTime = TestWordStartSample / CurrentSampleRate
+                        'Calculating test word start sample, syncronized with the centre of the maskers
+                        Dim TestWordStartSample As Integer = MaskersStartSample + MaskersLength / 2 - TestWordLength / 2
 
-                    'Calculates the offset of the test word sound
-                    Dim TestWordCompletedSample As Integer = TestWordStartSample + TestWordLength
+                        'Calculating test word start time
+                        TestWordStartTime = TestWordStartSample / CurrentSampleRate
 
-                    'Calculates and stores the TestWordCompletedTime 
-                    TestWordCompletedTime = TestWordCompletedSample / CurrentSampleRate
+                        'Calculates the offset of the test word sound
+                        Dim TestWordCompletedSample As Integer = TestWordStartSample + TestWordLength
 
-                    'Sets a total trial sound length
-                    Dim TrialSoundLength As Integer = TrialSoundMaxDuration * CurrentSampleRate
+                        'Calculates and stores the TestWordCompletedTime 
+                        TestWordCompletedTime = TestWordCompletedSample / CurrentSampleRate
 
-                    'Getting a background non-speech sound, and copies random sections of it into two sounds
-                    Dim BackgroundNonSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundNonspeechSound(Me.MediaSet, 0)
-                    Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
-                    Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                        'Sets a total trial sound length
+                        Dim TrialSoundLength As Integer = TrialSoundMaxDuration * CurrentSampleRate
 
-                    'Getting a background speech sound, if needed, and copies a random section of it into a single sound
-                    Dim BackgroundSpeechSelection As Audio.Sound = Nothing
-                    If UseBackgroundSpeech = True Then
-                        Dim BackgroundSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundSpeechSound(Me.MediaSet, 0)
-                        BackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
-                    End If
+                        'Getting a background non-speech sound, and copies random sections of it into two sounds
+                        Dim BackgroundNonSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundNonspeechSound(Me.MediaSet, 0)
+                        Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                        Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
 
-                    'Sets up fading specifications for the test word
-                    Dim FadeSpecs_TestWord = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
-                    FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+                        'Getting a background speech sound, if needed, and copies a random section of it into a single sound
+                        Dim BackgroundSpeechSelection As Audio.Sound = Nothing
+                        If UseBackgroundSpeech = True Then
+                            Dim BackgroundSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundSpeechSound(Me.MediaSet, 0)
+                            BackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                        End If
 
-                    'Sets up fading specifications for the maskers
-                    Dim FadeSpecs_Maskers = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
-                    FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 1))
+                        'Sets up fading specifications for the test word
+                        Dim FadeSpecs_TestWord = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                        FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
 
-                    'Sets up fading specifications for the background signals
-                    Dim FadeSpecs_Background = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
-                    FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+                        'Sets up fading specifications for the maskers
+                        Dim FadeSpecs_Maskers = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
+                        FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 1))
 
-                    'Sets up ducking specifications for the background (non-speech) signals
-                    Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    Dim BackgroundNonSpeechDucking = Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel)
-                    DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
-                    DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
+                        'Sets up fading specifications for the background signals
+                        Dim FadeSpecs_Background = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
+                        FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
-                    'Sets up ducking specifications for the background (speech) signals
-                    Dim DuckSpecs_BackgroundSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, Math.Max(0, TestWordStartSample - CurrentSampleRate * 1), Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)))
-                    DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, Math.Max(0, TestWordCompletedSample + CurrentSampleRate * 0.5), Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 1)))
+                        'Sets up ducking specifications for the background (non-speech) signals
+                        Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        Dim BackgroundNonSpeechDucking = Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel)
+                        DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
+                        DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
 
-                    'Adds the test word signal, with fade and location specifications
-                    Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(TestWordSound, 1, Me.TestWordLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, TestWordStartSample,,,, FadeSpecs_TestWord))
-                    LevelGroup += 1
+                        'Sets up ducking specifications for the background (speech) signals
+                        Dim DuckSpecs_BackgroundSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, Math.Max(0, TestWordStartSample - CurrentSampleRate * 1), Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)))
+                        DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, Math.Max(0, TestWordCompletedSample + CurrentSampleRate * 0.5), Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 1)))
 
-                    'Adds the Maskers, with fade and location specifications
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker1, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker2, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
-                    LevelGroup += 1
-
-                    'Adds the background (non-speech) signals, with fade, duck and location specifications
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
-                    LevelGroup += 1
-
-                    'Adds the background (speech) signal, with fade, duck and location specifications
-                    If UseBackgroundSpeech = True Then
-                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelection, 1, Me.ContextRegionSpeech_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
+                        'Adds the test word signal, with fade and location specifications
+                        Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(TestWordSound, 1, Me.TestWordLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, TestWordStartSample,,,, FadeSpecs_TestWord))
                         LevelGroup += 1
-                    End If
+
+                        'Adds the Maskers, with fade and location specifications
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker1, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker2, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                        LevelGroup += 1
+
+                        'Adds the background (non-speech) signals, with fade, duck and location specifications
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
+                        LevelGroup += 1
+
+                        'Adds the background (speech) signal, with fade, duck and location specifications
+                        If UseBackgroundSpeech = True Then
+                            ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelection, 1, Me.ContextRegionSpeech_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
+                            LevelGroup += 1
+                        End If
 
 
-                Case SipMeasurement.TestingSpeeds.Quick
+                    Case SipMeasurement.TestingSpeeds.Quick
 
-                    'Getting maskers
-                    Dim SelectedMaskerIndices = Utils.SampleWithoutReplacement(2, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer)
-                    Dim Masker1 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(0)))
-                    Dim Masker2 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(1)))
+                        'Getting maskers
+                        Dim SelectedMaskerIndices = Utils.SampleWithoutReplacement(2, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer)
+                        Dim Masker1 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(0)))
+                        Dim Masker2 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(1)))
 
-                    'Stores the sample rate and the wave format
-                    Dim CurrentSampleRate As Integer = Masker1.WaveFormat.SampleRate
-                    SoundWaveFormat = Masker1.WaveFormat
+                        'Stores the sample rate and the wave format
+                        Dim CurrentSampleRate As Integer = Masker1.WaveFormat.SampleRate
+                        SoundWaveFormat = Masker1.WaveFormat
 
-                    'Getting the lengths of the maskers (Assuming same lengths of all maskers)
-                    Dim MaskersLength As Integer = Masker1.WaveData.SampleData(1).Length
+                        'Getting the lengths of the maskers (Assuming same lengths of all maskers)
+                        Dim MaskersLength As Integer = Masker1.WaveData.SampleData(1).Length
 
-                    'Randomizing a masker start time, and stores it in TestWordStartTime 
-                    Dim MaskerStartTime = SipMeasurementRandomizer.Next(Math.Round(MinimumStimulusOnsetTime * 1000), Math.Round(MaximumStimulusOnsetTime * 1000)) / 1000
+                        'Randomizing a masker start time, and stores it in TestWordStartTime 
+                        Dim MaskerStartTime = SipMeasurementRandomizer.Next(Math.Round(MinimumStimulusOnsetTime * 1000), Math.Round(MaximumStimulusOnsetTime * 1000)) / 1000
 
-                    Dim MaskersStartSample As Integer = MaskerStartTime * CurrentSampleRate
-                    Dim MaskersStartMeasureSample As Integer
-                    Dim MaskersStartMeasureLength As Integer
+                        Dim MaskersStartSample As Integer = MaskerStartTime * CurrentSampleRate
+                        Dim MaskersStartMeasureSample As Integer
+                        Dim MaskersStartMeasureLength As Integer
 
-                    Dim MaskerLengthType As Integer = 3
-                    Dim MaskerFadeInDuration As Double = 0
-                    Dim MaskerFadeOutDuration As Double = 0
-                    Select Case MaskerLengthType
-                        Case 0
+                        Dim MaskerLengthType As Integer = 0
+                        Dim MaskerFadeInDuration As Double = 0
+                        Dim MaskerFadeOutDuration As Double = 0
+                        Select Case MaskerLengthType
+                            Case 0
 
-                            'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
-                            MaskersStartMeasureSample = MaskersLength / 3
-                            MaskersStartMeasureLength = MaskersLength / 3
+                                'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
+                                MaskersStartMeasureSample = MaskersLength / 3
+                                MaskersStartMeasureLength = MaskersLength / 3
 
-                            MaskerFadeInDuration = 1
-                            MaskerFadeOutDuration = 1
+                                MaskerFadeInDuration = 1
+                                MaskerFadeOutDuration = 1
 
-                        Case 1
+                            Case 1
 
-                            'Cutting down the maskers to 2 seconds (if they were initially 3 seconds, as in Witte's thesis
-                            Masker1 = Masker1.CopySection(1, MaskersLength / 6, 2 * (MaskersLength / 3))
-                            Masker2 = Masker2.CopySection(1, MaskersLength / 6, 2 * (MaskersLength / 3))
+                                'Cutting down the maskers to 2 seconds (if they were initially 3 seconds, as in Witte's thesis
+                                Masker1 = Masker1.CopySection(1, MaskersLength / 6, 2 * (MaskersLength / 3))
+                                Masker2 = Masker2.CopySection(1, MaskersLength / 6, 2 * (MaskersLength / 3))
 
-                            'Updating MaskerLength
-                            MaskersLength = Masker1.WaveData.SampleData(1).Length
+                                'Updating MaskerLength
+                                MaskersLength = Masker1.WaveData.SampleData(1).Length
 
-                            'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
-                            MaskersStartMeasureSample = MaskersLength / 4
-                            MaskersStartMeasureLength = MaskersLength / 2
+                                'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
+                                MaskersStartMeasureSample = MaskersLength / 4
+                                MaskersStartMeasureLength = MaskersLength / 2
 
-                            MaskerFadeInDuration = 0.5
-                            MaskerFadeOutDuration = 0.5
+                                MaskerFadeInDuration = 0.5
+                                MaskerFadeOutDuration = 0.5
 
-                        Case 2
-                            'Cutting down the maskers to 2.5 seconds (if they were initially 3 seconds, as in Witte's thesis
-                            Masker1 = Masker1.CopySection(1, MaskersLength / 6, 5 * (MaskersLength / 6))
-                            Masker2 = Masker2.CopySection(1, MaskersLength / 6, 5 * (MaskersLength / 6))
+                            Case 2
+                                'Cutting down the maskers to 2.5 seconds (if they were initially 3 seconds, as in Witte's thesis
+                                Masker1 = Masker1.CopySection(1, MaskersLength / 6, 5 * (MaskersLength / 6))
+                                Masker2 = Masker2.CopySection(1, MaskersLength / 6, 5 * (MaskersLength / 6))
 
-                            'Updating MaskerLength
-                            MaskersLength = Masker1.WaveData.SampleData(1).Length
+                                'Updating MaskerLength
+                                MaskersLength = Masker1.WaveData.SampleData(1).Length
 
-                            'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
-                            MaskersStartMeasureSample = MaskersLength / 5
-                            MaskersStartMeasureLength = 2 * MaskersLength / 5
+                                'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
+                                MaskersStartMeasureSample = MaskersLength / 5
+                                MaskersStartMeasureLength = 2 * MaskersLength / 5
 
-                            MaskerFadeInDuration = 0.5
-                            MaskerFadeOutDuration = 1
+                                MaskerFadeInDuration = 0.5
+                                MaskerFadeOutDuration = 1
 
-                        Case 3
+                            Case 3
 
-                            'Cutting down the maskers to 2.5 seconds (if they were initially 3 seconds, as in Witte's thesis
-                            Masker1 = Masker1.CopySection(1, 0, 5 * (MaskersLength / 6))
-                            Masker2 = Masker2.CopySection(1, 0, 5 * (MaskersLength / 6))
+                                'Cutting down the maskers to 2.5 seconds (if they were initially 3 seconds, as in Witte's thesis
+                                Masker1 = Masker1.CopySection(1, 0, 5 * (MaskersLength / 6))
+                                Masker2 = Masker2.CopySection(1, 0, 5 * (MaskersLength / 6))
 
-                            'Updating MaskerLength
-                            MaskersLength = Masker1.WaveData.SampleData(1).Length
+                                'Updating MaskerLength
+                                MaskersLength = Masker1.WaveData.SampleData(1).Length
 
-                            'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
-                            MaskersStartMeasureSample = 2 * MaskersLength / 5
-                            MaskersStartMeasureLength = 2 * MaskersLength / 5
+                                'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
+                                MaskersStartMeasureSample = 2 * MaskersLength / 5
+                                MaskersStartMeasureLength = 2 * MaskersLength / 5
 
-                            MaskerFadeInDuration = 1
-                            MaskerFadeOutDuration = 0.5
+                                MaskerFadeInDuration = 1
+                                MaskerFadeOutDuration = 0.5
 
-                    End Select
+                        End Select
 
-                    'Selects a recording index, and gets the corresponding sound
-                    Dim SelectedMediaIndex As Integer = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
-                    Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1)
+                        'Selects a recording index, and gets the corresponding sound
+                        Dim SelectedMediaIndex As Integer = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
+                        Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1)
 
-                    'Stores the length of the test word sound
-                    Dim TestWordLength As Integer = TestWordSound.WaveData.SampleData(1).Length
+                        'Stores the length of the test word sound
+                        Dim TestWordLength As Integer = TestWordSound.WaveData.SampleData(1).Length
 
-                    'Calculating test word start sample
-                    Dim TestWordStartSample As Integer
-                    Select Case MaskerLengthType
-                        Case 0, 1
-                            'Calculating syncronization of the maskers to the test word
-                            TestWordStartSample = MaskersStartSample + MaskersLength / 2 - TestWordLength / 2
-                        Case 2
-                            'Calculating syncronization of the maskers to the test word
-                            TestWordStartSample = MaskersStartSample + 2 * MaskersLength / 5 - TestWordLength / 2
-                        Case 3
-                            'Calculating syncronization of the maskers to the test word
-                            TestWordStartSample = MaskersStartSample + 3 * MaskersLength / 5 - TestWordLength / 2
-                    End Select
+                        'Calculating test word start sample
+                        Dim TestWordStartSample As Integer
+                        Select Case MaskerLengthType
+                            Case 0, 1
+                                'Calculating syncronization of the maskers to the test word
+                                TestWordStartSample = MaskersStartSample + MaskersLength / 2 - TestWordLength / 2
+                            Case 2
+                                'Calculating syncronization of the maskers to the test word
+                                TestWordStartSample = MaskersStartSample + 2 * MaskersLength / 5 - TestWordLength / 2
+                            Case 3
+                                'Calculating syncronization of the maskers to the test word
+                                TestWordStartSample = MaskersStartSample + 3 * MaskersLength / 5 - TestWordLength / 2
+                        End Select
 
-                    'Calculating test word start time
-                    TestWordStartTime = TestWordStartSample / CurrentSampleRate
+                        'Calculating test word start time
+                        TestWordStartTime = TestWordStartSample / CurrentSampleRate
 
-                    'Calculates the offset of the test word sound
-                    Dim TestWordCompletedSample As Integer = TestWordStartSample + TestWordLength
+                        'Calculates the offset of the test word sound
+                        Dim TestWordCompletedSample As Integer = TestWordStartSample + TestWordLength
 
-                    'Calculates and stores the TestWordCompletedTime 
-                    TestWordCompletedTime = TestWordCompletedSample / CurrentSampleRate
+                        'Calculates and stores the TestWordCompletedTime 
+                        TestWordCompletedTime = TestWordCompletedSample / CurrentSampleRate
 
-                    'Sets a total trial sound length
-                    Dim TrialSoundLength As Integer = TrialSoundMaxDuration * CurrentSampleRate
+                        'Sets a total trial sound length
+                        Dim TrialSoundLength As Integer = TrialSoundMaxDuration * CurrentSampleRate
 
 
-                    'Getting a background non-speech sound, and copies random sections of it into two sounds
-                    Dim BackgroundNonSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundNonspeechSound(Me.MediaSet, 0)
-                    Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
-                    Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                        'Getting a background non-speech sound, and copies random sections of it into two sounds
+                        Dim BackgroundNonSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundNonspeechSound(Me.MediaSet, 0)
+                        Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                        Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
 
-                    'Getting a background speech sound, if needed, and copies a random section of it into a single sound
-                    Dim BackgroundSpeechSelection As Audio.Sound = Nothing
-                    If UseBackgroundSpeech = True Then
-                        Dim BackgroundSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundSpeechSound(Me.MediaSet, 0)
-                        BackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
-                    End If
+                        'Getting a background speech sound, if needed, and copies a random section of it into a single sound
+                        Dim BackgroundSpeechSelection As Audio.Sound = Nothing
+                        If UseBackgroundSpeech = True Then
+                            Dim BackgroundSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundSpeechSound(Me.MediaSet, 0)
+                            BackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                        End If
 
-                    'Sets up fading specifications for the test word
-                    Dim FadeSpecs_TestWord = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
-                    FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+                        'Sets up fading specifications for the test word
+                        Dim FadeSpecs_TestWord = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                        FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
 
-                    'Sets up fading specifications for the maskers
-                    Dim FadeSpecs_Maskers = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * MaskerFadeInDuration))
-                    FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * MaskerFadeOutDuration))
+                        'Sets up fading specifications for the maskers
+                        Dim FadeSpecs_Maskers = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * MaskerFadeInDuration))
+                        FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * MaskerFadeOutDuration))
 
-                    'Sets up fading specifications for the background signals
-                    Dim FadeSpecs_Background = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
-                    FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+                        'Sets up fading specifications for the background signals
+                        Dim FadeSpecs_Background = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
+                        FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
-                    'Sets up ducking specifications for the background (non-speech) signals
-                    Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    Dim BackgroundNonSpeechDucking = Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel)
-                    DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
-                    DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
+                        'Sets up ducking specifications for the background (non-speech) signals
+                        Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        Dim BackgroundNonSpeechDucking = Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel)
+                        DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
+                        DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
 
-                    'Sets up ducking specifications for the background (speech) signals
-                    Dim DuckSpecs_BackgroundSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                    DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, Math.Max(0, TestWordStartSample - CurrentSampleRate * 1), Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)))
-                    DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, Math.Max(0, TestWordCompletedSample + CurrentSampleRate * 0.5), Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 1)))
+                        'Sets up ducking specifications for the background (speech) signals
+                        Dim DuckSpecs_BackgroundSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                        DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, Math.Max(0, TestWordStartSample - CurrentSampleRate * 1), Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)))
+                        DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, Math.Max(0, TestWordCompletedSample + CurrentSampleRate * 0.5), Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 1)))
 
-                    'Adds the test word signal, with fade and location specifications
-                    Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(TestWordSound, 1, Me.TestWordLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, TestWordStartSample,,,, FadeSpecs_TestWord))
-                    LevelGroup += 1
+                        'Adds the test word signal, with fade and location specifications
+                        Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(TestWordSound, 1, Me.TestWordLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, TestWordStartSample,,,, FadeSpecs_TestWord))
+                        LevelGroup += 1
 
-                    'Adds the Maskers, with fade and location specifications
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker1, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker2, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
-                    LevelGroup += 1
+                        'Adds the Maskers, with fade and location specifications
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker1, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker2, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                        LevelGroup += 1
 
-                    'Adds the background (non-speech) signals, with fade, duck and location specifications
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
-                    LevelGroup += 1
+                        'Adds the background (non-speech) signals, with fade, duck and location specifications
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
+                        LevelGroup += 1
 
-                Case Else
-                    Throw New NotImplementedException("Unknown TestingSpeed value")
-            End Select
+                    Case Else
+                        Throw New NotImplementedException("Unknown TestingSpeed value")
+                End Select
 
-            MixStopWatch.Stop()
-            Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
-            MixStopWatch.Restart()
+                MixStopWatch.Stop()
+                Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
+                MixStopWatch.Restart()
 
-            'Initiating the sound field simulator if needed
-            If SelectedTransducer.PresentationType = PresentationTypes.SimulatedSoundField Then
-                If SelectedTransducer.Mixer.CurrentSimulatorWaveFormat Is Nothing Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance Is Nothing Then
-                    'Initiating the simulator
-                    SelectedTransducer.Mixer.SetupDirectionalSimulator(1, SoundWaveFormat)
-                Else
-                    If SoundWaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, True) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1 Then
-                        'Updating the simulator
+                'Initiating the sound field simulator if needed
+                If SelectedTransducer.PresentationType = PresentationTypes.SimulatedSoundField Then
+                    If SelectedTransducer.Mixer.CurrentSimulatorWaveFormat Is Nothing Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance Is Nothing Then
+                        'Initiating the simulator
                         SelectedTransducer.Mixer.SetupDirectionalSimulator(1, SoundWaveFormat)
+                    Else
+                        If SoundWaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, True) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1 Then
+                            'Updating the simulator
+                            SelectedTransducer.Mixer.SetupDirectionalSimulator(1, SoundWaveFormat)
+                        End If
                     End If
                 End If
-            End If
 
-            'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedTestTrialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
+                'Creating the mix by calling CreateSoundScene of the current Mixer
+                Dim MixedTestTrialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
 
-            Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
+                Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
-            'TODO: Here we can simulate and/or compensate for hearing loss:
-            'SimulateHearingLoss,
-            'CompensateHearingLoss
+                'TODO: Here we can simulate and/or compensate for hearing loss:
+                'SimulateHearingLoss,
+                'CompensateHearingLoss
 
-            TestTrialSound = MixedTestTrialSound
+                TestTrialSound = MixedTestTrialSound
+
+            Catch ex As Exception
+                MsgBox(ex.ToString)
+            End Try
 
         End Sub
 

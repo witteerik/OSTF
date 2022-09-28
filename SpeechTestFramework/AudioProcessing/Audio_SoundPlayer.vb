@@ -820,6 +820,7 @@ Namespace Audio
 
                     'Starting the new worker thread
                     Dim NewThred As New Thread(AddressOf DoWork)
+                    NewThred.IsBackground = True
                     NewThred.Start()
 
                 End Sub
