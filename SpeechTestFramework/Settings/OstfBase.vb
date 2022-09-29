@@ -1,7 +1,7 @@
 ﻿Public Module OstfBase
 
     ' Program location
-    Public Property RootDirectory As String = IO.Path.Combine("C:\", "OSTF") 'Indicates the root path. Other paths given in the project setting files are relative (subpaths) to this path only if they begin with .\ otherwise they are taken as absolute paths.
+    Public Property MediaRootDirectory As String = "" '= IO.Path.Combine("C:\", "OSTFMedia") 'Indicates the root path. Other paths given in the project setting files are relative (subpaths) to this path only if they begin with .\ otherwise they are taken as absolute paths.
 
     Public Property AvailableTestsSubFolder As String = "AvailableSpeechMaterials"
     Public Property CalibrationSignalSubDirectory As String = "CalibrationSignals"
@@ -14,9 +14,41 @@
     ''' </summary>
     Public SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
 
+    ''' <summary>
+    ''' This sub needs to be called upon startup of all OSTF applications.
+    ''' </summary>
+    ''' <param name="StartupPath"></param>
+    Public Sub InitializeOSTF(ByVal StartupPath As String)
+
+        Try
+            Dim local_settings_FilePath As String = IO.Path.Combine(StartupPath, "local_settings.txt")
+            Dim local_settings_Input = IO.File.ReadAllLines(local_settings_FilePath)
+
+            For Each item In local_settings_Input
+                If item.Trim = "" Then Continue For
+                If item.Trim.StartsWith("//") Then Continue For
+
+                Dim SplitItem = item.Trim.Split("=")
+                If SplitItem.Length < 2 Then Continue For
+
+                If SplitItem(0).Trim.ToLower.StartsWith("MediaRootDirectory".ToLower) Then MediaRootDirectory = SplitItem(1).Trim
+
+            Next
+
+            If IO.Directory.Exists(MediaRootDirectory) = False Then
+                Throw New Exception("Unable to locate the MediaRootDirectory: " & MediaRootDirectory & vbCrLf &
+                                    "Make sure that the correct MediaRootDirectory directory is supplied in the file 'local_settings.txt' located at your application startup path.")
+            End If
+
+        Catch ex As Exception
+            Throw New Exception("The following error occurred when trying to initialize OSTF:" & vbCrLf & vbCrLf & ex.ToString)
+        End Try
+
+    End Sub
+
     Public Sub LoadAvailableTestSpecifications()
 
-        Dim TestSpecificationFolder As String = IO.Path.Combine(RootDirectory, AvailableTestsSubFolder)
+        Dim TestSpecificationFolder As String = IO.Path.Combine(MediaRootDirectory, AvailableTestsSubFolder)
 
         'Getting .txt files in that folder
         Dim ExistingFiles = IO.Directory.GetFiles(TestSpecificationFolder)
@@ -51,7 +83,7 @@
 
     Private Sub LoadAudioSystemSpecificationFile()
 
-        Dim AudioSystemSpecificationFilePath = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.AudioSystemSettingsFile)
+        Dim AudioSystemSpecificationFilePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AudioSystemSettingsFile)
 
         'Reads the API settings, and tries to select the API and device if available, otherwise lets the user select a device manually
 
@@ -142,7 +174,7 @@
             If Line.StartsWith("SoundSourceElevations") Then CurrentTransducer.SoundSourceElevations = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
             If Line.StartsWith("SoundSourceDistances") Then CurrentTransducer.SoundSourceDistances = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
             If Line.StartsWith("HardwareOutputChannels") Then CurrentTransducer.HardwareOutputChannels = InputFileSupport.InputFileListOfIntegerParsing(Line, True, AudioSystemSpecificationFilePath)
-            If Line.StartsWith("Calibration_FsToSpl") Then CurrentTransducer.Calibration_FsToSpl = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
+            If Line.StartsWith("CalibrationGain") Then CurrentTransducer.CalibrationGain = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
             If Line.StartsWith("LimiterThreshold") Then CurrentTransducer.LimiterThreshold = InputFileSupport.InputFileDoubleValueParsing(Line, True, AudioSystemSpecificationFilePath)
 
         Next
@@ -155,6 +187,17 @@
 
         For Each Transducer In _AvaliableTransducers
             Transducer.SetupMixer()
+        Next
+
+        'Checking calibration gain values and issues warnings if calibration gain is above 30 dB
+        For Each Transducer In _AvaliableTransducers
+            For i = 0 To Transducer.CalibrationGain.Count - 1
+                If Transducer.CalibrationGain(i) > 30 Then
+                    MsgBox("Calibration gain number " & i & " for the audio transducer '" & Transducer.Name & "' exceeds 30 dB. " & vbCrLf & vbCrLf &
+                           "Make sure that this is really correct before you continue and be cautios not to inflict personal injuries or damage your equipment if you continue! " & vbCrLf & vbCrLf &
+                           "This calibration value is set in the audio system specifications file: " & AudioSystemSpecificationFilePath, MsgBoxStyle.Exclamation, "Warning - High calibration gain value!")
+                End If
+            Next
         Next
 
     End Sub
@@ -183,7 +226,7 @@
         Public Property SoundSourceElevations As New List(Of Double) From {0, 0}
         Public Property SoundSourceDistances As New List(Of Double) From {0, 0}
         Public Property HardwareOutputChannels As New List(Of Integer) From {1, 2}
-        Public Property Calibration_FsToSpl As New List(Of Double) From {100, 100}
+        Public Property CalibrationGain As New List(Of Double) From {0, 0}
         Public Property LimiterThreshold As Double? = Nothing
 
         Private _CanPlay As Boolean = False
@@ -244,7 +287,7 @@
             OutputList.Add("Headphones (when used): " & HeadphonesName.ToString)
             OutputList.Add("Sound-source azimuths: " & String.Join(", ", SoundSourceAzimuths))
             OutputList.Add("Hardware output channels: " & String.Join(", ", HardwareOutputChannels))
-            OutputList.Add("Calibration (dBFs to dBSpl): " & String.Join(", ", Calibration_FsToSpl))
+            OutputList.Add("CalibrationGain: " & String.Join(", ", CalibrationGain))
             If LimiterThreshold.HasValue Then
                 OutputList.Add("Limiter threshold: " & LimiterThreshold.ToString)
             Else

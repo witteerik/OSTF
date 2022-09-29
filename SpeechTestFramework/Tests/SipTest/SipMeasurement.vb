@@ -980,7 +980,7 @@ Namespace SipTest
             Me.MediaSet = MediaSet
 
             'Setting some levels
-            Dim Fs2Spl As Double = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+            Dim Fs2Spl As Double = Audio.Standard_dBFS_dBSPL_Difference
 
             'Calculating levels
             ReferenceSpeechMaterialLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection).GetNumericMediaSetVariableValue(MediaSet, "Lc")

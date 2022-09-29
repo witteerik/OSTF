@@ -262,6 +262,30 @@ Namespace Audio
             from_dB
         End Enum
 
+        ''' <summary>
+        ''' Holds the simulated sound field output level of a 1 kHz sine wave at an (hypothetical) RMS level of 0 dBFS. 
+        ''' </summary>
+        Public Const Standard_dBFS_dBSPL_Difference As Double = 100
+
+        ''' <summary>
+        ''' Converts the sound pressure level given by InputSPL to a value in dB FS using the conversion value given by Standard_dBFS_dBSPL_Difference
+        ''' </summary>
+        ''' <param name="InputSPL"></param>
+        ''' <returns></returns>
+        Public Function Standard_dBSPL_To_dBFS(ByVal InputSPL As Double) As Double
+            Return InputSPL - Standard_dBFS_dBSPL_Difference
+        End Function
+
+        ''' <summary>
+        ''' Converts the full scale sound level given by InputFS to a sound pressure level value using the conversion value given by Standard_dBFS_dBSPL_Difference
+        ''' </summary>
+        ''' <param name="InputFS"></param>
+        ''' <returns></returns>
+        Public Function Standard_dBFS_To_dBSPL(ByVal InputFS As Double) As Double
+            Return Standard_dBFS_dBSPL_Difference + InputFS
+        End Function
+
+
     End Module
 
 End Namespace

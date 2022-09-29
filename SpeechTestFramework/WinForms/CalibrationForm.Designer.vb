@@ -30,7 +30,7 @@ Partial Class CalibrationForm
         Me.CalibrationSignal_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Close_Button = New System.Windows.Forms.Button()
-        Me.SelectedChannel_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.SelectedHardWareOutputChannel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label5 = New System.Windows.Forms.Label()
@@ -134,13 +134,13 @@ Partial Class CalibrationForm
         '
         'SelectedChannel_ComboBox
         '
-        Me.TableLayoutPanel1.SetColumnSpan(Me.SelectedChannel_ComboBox, 2)
-        Me.SelectedChannel_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SelectedChannel_ComboBox.FormattingEnabled = True
-        Me.SelectedChannel_ComboBox.Location = New System.Drawing.Point(249, 81)
-        Me.SelectedChannel_ComboBox.Name = "SelectedChannel_ComboBox"
-        Me.SelectedChannel_ComboBox.Size = New System.Drawing.Size(240, 21)
-        Me.SelectedChannel_ComboBox.TabIndex = 12
+        Me.TableLayoutPanel1.SetColumnSpan(Me.SelectedHardWareOutputChannel_ComboBox, 2)
+        Me.SelectedHardWareOutputChannel_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SelectedHardWareOutputChannel_ComboBox.FormattingEnabled = True
+        Me.SelectedHardWareOutputChannel_ComboBox.Location = New System.Drawing.Point(249, 81)
+        Me.SelectedHardWareOutputChannel_ComboBox.Name = "SelectedChannel_ComboBox"
+        Me.SelectedHardWareOutputChannel_ComboBox.Size = New System.Drawing.Size(240, 21)
+        Me.SelectedHardWareOutputChannel_ComboBox.TabIndex = 12
         '
         'Label1
         '
@@ -164,7 +164,7 @@ Partial Class CalibrationForm
         Me.TableLayoutPanel1.Controls.Add(Me.StopSignal_Button, 3, 4)
         Me.TableLayoutPanel1.Controls.Add(Me.CalibrationLevel_ComboBox, 2, 2)
         Me.TableLayoutPanel1.Controls.Add(Me.PlaySignal_Button, 2, 4)
-        Me.TableLayoutPanel1.Controls.Add(Me.SelectedChannel_ComboBox, 2, 3)
+        Me.TableLayoutPanel1.Controls.Add(Me.SelectedHardWareOutputChannel_ComboBox, 2, 3)
         Me.TableLayoutPanel1.Controls.Add(Me.Label3, 0, 2)
         Me.TableLayoutPanel1.Controls.Add(Me.Label2, 0, 1)
         Me.TableLayoutPanel1.Controls.Add(Me.CalibrationSignal_ComboBox, 2, 1)
@@ -337,7 +337,7 @@ Partial Class CalibrationForm
     Friend WithEvents CalibrationSignal_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents Label2 As Windows.Forms.Label
     Friend WithEvents Close_Button As Windows.Forms.Button
-    Friend WithEvents SelectedChannel_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents SelectedHardWareOutputChannel_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents Label1 As Windows.Forms.Label
     Friend WithEvents TableLayoutPanel1 As Windows.Forms.TableLayoutPanel
     Friend WithEvents Label4 As Windows.Forms.Label

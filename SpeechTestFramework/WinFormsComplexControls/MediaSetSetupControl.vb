@@ -43,9 +43,9 @@
         SmaFrequencyWeighting_ComboBox.SelectedIndex = 0
 
 
-        'Showing the value of Simulated_dBFS_dBSPL_Difference in the Speech level SPL lable
+        'Showing the value of Standard_dBFS_dBSPL_Difference in the Speech level SPL lable
 
-        SpeechLevelSPL_Label.Text = "Speech level (dB SPL, [SPL - FS = " & Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference & " dB])"
+        SpeechLevelSPL_Label.Text = "Speech level (dB SPL, [SPL - FS = " & Audio.Standard_dBFS_dBSPL_Difference & " dB])"
 
         UpdateControlEnabledStatuses()
 
@@ -382,7 +382,7 @@
     Private Sub SpeechLevelSPL_DoubleParsingTextBox_ValueUpdated() Handles SpeechLevelSPL_DoubleParsingTextBox.ValueUpdated
 
         If SpeechLevelSPL_DoubleParsingTextBox.Value IsNot Nothing Then
-            SpeechLevelFS_DoubleParsingTextBox.Text = Audio.PortAudioVB.DuplexMixer.Simulated_dBSPL_To_dBFS(SpeechLevelSPL_DoubleParsingTextBox.Value)
+            SpeechLevelFS_DoubleParsingTextBox.Text = Audio.Standard_dBSPL_To_dBFS(SpeechLevelSPL_DoubleParsingTextBox.Value)
         Else
             SpeechLevelFS_DoubleParsingTextBox.Text = ""
         End If
@@ -394,7 +394,7 @@
     Private Sub SpeechLevelFS_DoubleParsingTextBox_ValueUpdated() Handles SpeechLevelFS_DoubleParsingTextBox.ValueUpdated
 
         If SpeechLevelFS_DoubleParsingTextBox.Value IsNot Nothing Then
-            SpeechLevelSPL_DoubleParsingTextBox.Text = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_To_dBSPL(SpeechLevelFS_DoubleParsingTextBox.Value)
+            SpeechLevelSPL_DoubleParsingTextBox.Text = Audio.Standard_dBFS_To_dBSPL(SpeechLevelFS_DoubleParsingTextBox.Value)
         Else
             SpeechLevelSPL_DoubleParsingTextBox.Text = ""
         End If

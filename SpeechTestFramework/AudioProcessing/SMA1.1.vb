@@ -1263,7 +1263,7 @@ Namespace Audio
                 Public Function GetSpectrumLevels(Optional ByVal dBSPL_FSdifference As Double? = Nothing) As Double()
 
                     'Setting default dBSPL_FSdifference 
-                    If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+                    If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.Standard_dBFS_dBSPL_Difference
 
                     Dim SpectrumLevelList As New List(Of Double)
                     If BandLevels.Length = BandWidths.Length Then

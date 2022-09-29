@@ -24,6 +24,28 @@ Namespace Audio
             ''' </summary>
             Public HardwareOutputChannelSpeakerLocations As New SortedList(Of Integer, SoundSourceLocation)
 
+            ''' <summary>
+            ''' Holds the gain (value) for the hardwave output channel (key).
+            ''' </summary>
+            Private _CalibrationGain As New SortedList(Of Integer, Double)
+
+            ''' <summary>
+            ''' Returns the CalibrationGain (in dB) for the loudspeaker connected to the indicated hardware output channel.
+            ''' </summary>
+            ''' <param name="HardWareOutputChannel"></param>
+            ''' <returns></returns>
+            Public ReadOnly Property CalibrationGain(ByVal HardWareOutputChannel As Integer) As Double
+                Get
+                    If _CalibrationGain.ContainsKey(HardWareOutputChannel) Then
+                        Return _CalibrationGain(HardWareOutputChannel)
+                    Else
+                        MsgBox("Calibration has not been set for hardware output channel " & HardWareOutputChannel & vbCrLf & vbCrLf &
+                       "Click OK to use the default calibration gain of " & 0 & " dB!", MsgBoxStyle.Exclamation, "Warning!")
+                        Return 0
+                    End If
+                End Get
+            End Property
+
 
             ''' <summary>
             ''' Creating a new mixer.
@@ -38,10 +60,10 @@ Namespace Audio
                     Me.ParentTransducerSpecification = ParentTransducerSpecification
 
                     'Sets up the routing
-                    Dim OutputWaveFileChannel As Integer = 1
+                    Dim CorrespondingWaveDataChannel As Integer = 1
                     For Each c In ParentTransducerSpecification.HardwareOutputChannels
-                        OutputRouting.Add(c, OutputWaveFileChannel)
-                        OutputWaveFileChannel += 1
+                        OutputRouting.Add(c, CorrespondingWaveDataChannel)
+                        CorrespondingWaveDataChannel += 1
                     Next
 
                     'Sets soundsource locations
@@ -56,14 +78,14 @@ Namespace Audio
 
                     'Sets calibration
                     For i = 0 To ParentTransducerSpecification.HardwareOutputChannels.Count - 1
-                        Me._Calibration_FsToSpl.Add(ParentTransducerSpecification.HardwareOutputChannels(i), ParentTransducerSpecification.Calibration_FsToSpl(i))
+                        Me._CalibrationGain.Add(ParentTransducerSpecification.HardwareOutputChannels(i), ParentTransducerSpecification.CalibrationGain(i))
                     Next
 
                     'Sets linear input as default
                     SetLinearInput()
 
                 Catch ex As Exception
-                    MsgBox("An error occurred! Make sure you have the correct (and equal) number of values for a) HardwareOutputChannels, b) SoundSourceAzimuths, c) SoundSourceElevations, d) SoundSourceDistances and e) Calibration_FsToSpl in the AudioSystemSpecification.txt file!", MsgBoxStyle.Critical, "Error: " & ex.ToString)
+                    MsgBox("An error occurred! Make sure you have the correct (and equal) number of values for a) HardwareOutputChannels, b) SoundSourceAzimuths, c) SoundSourceElevations, d) SoundSourceDistances and e) CalibrationGain in the AudioSystemSpecification.txt file!", MsgBoxStyle.Critical, "Error: " & ex.ToString)
                 End Try
 
             End Sub
@@ -110,68 +132,16 @@ Namespace Audio
 #Region "Calibration"
 
             ''' <summary>
-            ''' Holds the simulated sound field output level of a 1 kHz sine wave at an (hypothetical) RMS level of 0 dBFS. 
-            ''' </summary>
-            Public Const Simulated_dBFS_dBSPL_Difference As Double = 100
-
-            Private _Calibration_FsToSpl As New SortedList(Of Integer, Double)
-
-            ''' <summary>
-            ''' Returns the calibration (FsToSpl) value for the indicated loudspeaker.
-            ''' </summary>
-            ''' <param name="Channel"></param>
-            ''' <returns></returns>
-            Public ReadOnly Property Calibration_FsToSpl(ByVal Channel As Integer) As Double
-                Get
-                    If _Calibration_FsToSpl.ContainsKey(Channel) Then
-                        Return _Calibration_FsToSpl(Channel)
-                    Else
-                        MsgBox("Calibration has not been set for output channel " & Channel & vbCrLf & vbCrLf &
-                       "Click OK to use the default FsToSpl value of " & Simulated_dBFS_dBSPL_Difference & " dB!", MsgBoxStyle.Exclamation, "Warning!")
-                        Return Simulated_dBFS_dBSPL_Difference
-                    End If
-                End Get
-            End Property
-
-
-            Public Function GetCalibrationGain(ByVal Channel As Integer)
-
-                'Calculates the calibration gain
-                Dim CalibrationGain As Double = Simulated_dBFS_dBSPL_Difference - Calibration_FsToSpl(Channel)
-
-                'Returns the calibration gain
-                Return CalibrationGain
-
-            End Function
-
-            ''' <summary>
             ''' Call this sub to set the loudspeaker or headphone calibration of the current instance of DuplexMixer.
             ''' </summary>
-            ''' <param name="Calibration_FsToSpl"></param>
-            Public Sub SetCalibrationValues(ByVal Calibration_FsToSpl As SortedList(Of Integer, Double))
+            ''' <param name="CalibrationGain"></param>
+            Public Sub SetCalibrationValues(ByVal CalibrationGain As SortedList(Of Integer, Double))
 
-                'Setting the private field _Calibration_FsToSpl. Values are retrieved by the public Readonly Property Calibration_FsToSpl 
-                Me._Calibration_FsToSpl = Calibration_FsToSpl
+                'Setting the private field _CalibrationGain. Values are retrieved by the public Readonly Property CalibrationGain 
+                Me._CalibrationGain = CalibrationGain
 
             End Sub
 
-            ''' <summary>
-            ''' Converts the sound pressure level given by InputSPL to a value in dB FS using the conversion value given by Simulated_dBFS_dBSPL_Difference
-            ''' </summary>
-            ''' <param name="InputSPL"></param>
-            ''' <returns></returns>
-            Public Shared Function Simulated_dBSPL_To_dBFS(ByVal InputSPL As Double) As Double
-                Return InputSPL - Simulated_dBFS_dBSPL_Difference
-            End Function
-
-            ''' <summary>
-            ''' Converts the full scale sound level given by InputFS to a sound pressure level value using the conversion value given by Simulated_dBFS_dBSPL_Difference
-            ''' </summary>
-            ''' <param name="InputFS"></param>
-            ''' <returns></returns>
-            Public Shared Function Simulated_dBFS_To_dBSPL(ByVal InputFS As Double) As Double
-                Return Simulated_dBFS_dBSPL_Difference + InputFS
-            End Function
 
 #End Region
 
@@ -332,7 +302,7 @@ Namespace Audio
                         End If
 
                         'Calculating needed gain
-                        Dim NeededGain = TargetLevel - Simulated_dBFS_To_dBSPL(CurrentLevel)
+                        Dim NeededGain = TargetLevel - Standard_dBFS_To_dBSPL(CurrentLevel)
 
                         'Applying the same gain to all sounds in the group
                         For Each Member In GroupMembers
@@ -429,7 +399,7 @@ Namespace Audio
                         Next
 
                         For Each c In ChannelsToCheck
-                            Dim LimiterResult = Audio.DSP.SoftLimitSection(OutputSound, c, Simulated_dBSPL_To_dBFS(LimiterThreshold),,,, FrequencyWeightings.Z, True)
+                            Dim LimiterResult = Audio.DSP.SoftLimitSection(OutputSound, c, Standard_dBSPL_To_dBFS(LimiterThreshold),,,, FrequencyWeightings.Z, True)
 
                             If LimiterResult <> "" Then
                                 'Limiting occurred, logging the limiter data
@@ -445,18 +415,6 @@ Namespace Audio
 
                     'Exporting sound for manual evaluation
                     'Audio.AudioIOs.SaveToWaveFile(OutputSound, IO.Path.Combine(Utils.logFilePath, "Step6_PostLimiter"))
-
-                    'Applying calibration gain
-                    For Each kvp In OutputRouting
-                        Dim PhysicalOutputChannel = kvp.Key
-                        Dim WaveFileCannel = kvp.Value
-
-                        'Gets the gain for the physical output channel
-                        Dim CalibrationGain = GetCalibrationGain(PhysicalOutputChannel)
-
-                        'Applies it to the corresponding wave file channel. TODO: Check that this is really correct!!!
-                        Audio.DSP.AmplifySection(OutputSound, CalibrationGain, WaveFileCannel)
-                    Next
 
                     Return OutputSound
 
@@ -679,9 +637,9 @@ Namespace Audio
                 Dim CurrentIrDatabasePath As String
                 Select Case WaveFormat.SampleRate
                     Case 44100
-                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.RoomImpulsesSubDirectory, "wierstorf2011\44100Hz")
+                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, "wierstorf2011\44100Hz")
                     Case 48000
-                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.RoomImpulsesSubDirectory, "wierstorf2011\48000Hz")
+                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, "wierstorf2011\48000Hz")
                     Case Else
                         Throw New NotImplementedException("Directional simulation is unfortunately not supported for the samplerate " & WaveFormat.SampleRate)
                 End Select

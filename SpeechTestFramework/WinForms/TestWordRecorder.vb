@@ -1231,10 +1231,9 @@ Public Class SpeechMaterialRecorder
                     End If
 
                     'Adjusting the level
-                    Dim BackgroundSoundLevel_FS = BackgroundSoundLevel - Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
-                    Dim UncalibratedGain = BackgroundSoundLevel_FS - PreLevel
-                    Dim CalibratedGain = UncalibratedGain + SoundPlayer.GetMixer.GetCalibrationGain(c)
-                    Audio.DSP.AmplifySection(BackgroundSound, CalibratedGain, c)
+                    Dim BackgroundSoundLevel_FS = Audio.Standard_dBSPL_To_dBFS(BackgroundSoundLevel)
+                    Dim NeededGain = BackgroundSoundLevel_FS - PreLevel
+                    Audio.DSP.AmplifySection(BackgroundSound, NeededGain, c)
                 Next
 
                 ReMeasureBackgroundSoundLevel = False
@@ -1282,10 +1281,9 @@ Public Class SpeechMaterialRecorder
                 End If
 
 
-                Dim PresentationLevel_FS = PresentationLevel - Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
-                Dim UncalibratedGain = PresentationLevel_FS - PreLevel
-                Dim CalibratedGain = UncalibratedGain + SoundPlayer.GetMixer.GetCalibrationGain(c)
-                Audio.DSP.AmplifySection(PrototypeSoundCopy_Stereo, CalibratedGain, c)
+                Dim PresentationLevel_FS = Audio.Standard_dBSPL_To_dBFS(PresentationLevel)
+                Dim NeededGain = PresentationLevel_FS - PreLevel
+                Audio.DSP.AmplifySection(PrototypeSoundCopy_Stereo, NeededGain, c)
             Next
 
 

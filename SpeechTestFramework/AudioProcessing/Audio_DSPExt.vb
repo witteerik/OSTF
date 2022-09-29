@@ -7473,8 +7473,8 @@ Namespace Audio
                         Dim MeasurementSoundMaxLevel As Double = DSP.GetLevelOfLoudestWindow(MeasureMentSound, 1, SoundSection.WaveFormat.SampleRate * MaxLevelTemporalIntegrationDuration,,,, FrequencyWeighting)
                         If MinimumIncludedMaxLevel_dBSPL IsNot Nothing Then
 
-                            'Using the default calibration stored in Simulated_dBFS_dBSPL_Difference, if no dBSPL_dBFS_Difference is assigned
-                            If dBSPL_dBFS_Difference Is Nothing Then dBSPL_dBFS_Difference = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+                            'Using the default calibration stored in Standard_dBFS_dBSPL_Difference, if no dBSPL_dBFS_Difference is assigned
+                            If dBSPL_dBFS_Difference Is Nothing Then dBSPL_dBFS_Difference = Audio.Standard_dBFS_dBSPL_Difference
                             Dim MinimumIncludedMaxLevel_dBFS As Double = MinimumIncludedMaxLevel_dBSPL - dBSPL_dBFS_Difference
 
                             If MeasurementSoundMaxLevel < MinimumIncludedMaxLevel_dBFS Then Continue For

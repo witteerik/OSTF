@@ -271,7 +271,7 @@ Namespace Audio
 
 
                 'Setting default dBSPL_FSdifference 
-                If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+                If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.Standard_dBFS_dBSPL_Difference
 
                 'Calculates band levels
                 Dim BandLevels = CalculateBandLevels(InputSound, Channel, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList)

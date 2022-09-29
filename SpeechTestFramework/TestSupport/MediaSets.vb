@@ -1215,7 +1215,7 @@ Public Class MediaSet
             Dim ConcatenatedSoundLevel As Double = GetSoundLevelOfConcatenatedSounds(SharpTestingSoundList, FrequencyWeighting, SoundChannel)
 
             'Adjusting each recording with the same gain to attain the correct average sound level
-            Dim NeededGainForOutputLevel = Audio.PortAudioVB.DuplexMixer.Simulated_dBSPL_To_dBFS(AverageTestWordOutputlevel) - ConcatenatedSoundLevel
+            Dim NeededGainForOutputLevel = Audio.Standard_dBSPL_To_dBFS(AverageTestWordOutputlevel) - ConcatenatedSoundLevel
 
             Utils.SendInfoToLog("Applying gain to test word recordings: " & NeededGainForOutputLevel & " dB",, ExportFolder)
 
@@ -1367,7 +1367,7 @@ Public Class MediaSet
         'Sets of some objects which are reused between the loops in the code below
         Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
         Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
-        Dim dBSPL_FSdifference As Double? = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+        Dim dBSPL_FSdifference As Double? = Audio.Standard_dBFS_dBSPL_Difference
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
@@ -1440,7 +1440,7 @@ Public Class MediaSet
         'Sets of some objects which are reused between the loops in the code below
         Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
         Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
-        Dim dBSPL_FSdifference As Double? = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+        Dim dBSPL_FSdifference As Double? = Audio.Standard_dBFS_dBSPL_Difference
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
@@ -2817,7 +2817,7 @@ Public Class MediaSet
     '    Dim AudioFileLoadMode_StartValue = SpeechMaterialComponent.AudioFileLoadMode
     '    SpeechMaterialComponent.AudioFileLoadMode = SpeechMaterialComponent.MediaFileLoadModes.LoadOnFirstUse
 
-    '    If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.PortAudioVB.DuplexMixer.Simulated_dBFS_dBSPL_Difference
+    '    If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.PortAudioVB.DuplexMixer.Standard_dBFS_dBSPL_Difference
 
     '    If BandInfo Is Nothing Then
     '        'Setting default audiogram frequencies

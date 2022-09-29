@@ -33,7 +33,7 @@ Public Class SpeechMaterialSpecification
 
 
     Public Function GetTestsDirectory() As String
-        Return IO.Path.Combine(OstfBase.RootDirectory, SpeechMaterialsDirectory)
+        Return IO.Path.Combine(OstfBase.MediaRootDirectory, SpeechMaterialsDirectory)
     End Function
 
     Public Function GetTestRootPath() As String
@@ -60,7 +60,7 @@ Public Class SpeechMaterialSpecification
 
     Public Shared Function LoadTestSpecificationFile(ByVal TextFileName As String) As SpeechMaterialSpecification
 
-        Dim FullFilePath As String = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.AvailableTestsSubFolder, TextFileName)
+        Dim FullFilePath As String = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AvailableTestsSubFolder, TextFileName)
 
         If IO.File.Exists(FullFilePath) = False Then
             MsgBox("Unable to load the file " & FullFilePath, MsgBoxStyle.Critical, "Loading OSTF test specification file")

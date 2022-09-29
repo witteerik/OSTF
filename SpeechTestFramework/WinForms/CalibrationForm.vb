@@ -1,6 +1,6 @@
 ﻿Public Class CalibrationForm
 
-    Private SelectedChannel As Integer
+    Private SelectedHardwareOutputChannel As Integer
     Private SelectedLevel As Double
     Private CalibrationFileDescriptions As New SortedList(Of String, String)
     Private SelectedTransducer As AudioSystemSpecification = Nothing
@@ -43,7 +43,7 @@
     Private Sub CalibrationForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Adding signals
-        Dim CalibrationFilesDirectory = IO.Path.Combine(OstfBase.RootDirectory, OstfBase.CalibrationSignalSubDirectory)
+        Dim CalibrationFilesDirectory = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.CalibrationSignalSubDirectory)
         Dim CalibrationFiles = IO.Directory.GetFiles(CalibrationFilesDirectory)
 
         'Getting calibration file descriptions from the text file SignalDescriptions.txt
@@ -156,11 +156,11 @@
         SoundSystem_RichTextBox.Text = SelectedTransducer.GetDescriptionString
 
         'Adding channels
-        SelectedChannel_ComboBox.Items.Clear()
-        For c = 1 To SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels
-            SelectedChannel_ComboBox.Items.Add(c)
+        SelectedHardWareOutputChannel_ComboBox.Items.Clear()
+        For Each c In SelectedTransducer.Mixer.OutputRouting.Keys
+            SelectedHardWareOutputChannel_ComboBox.Items.Add(c)
         Next
-        If SelectedChannel_ComboBox.Items.Count > 0 Then SelectedChannel_ComboBox.SelectedIndex = 0
+        If SelectedHardWareOutputChannel_ComboBox.Items.Count > 0 Then SelectedHardWareOutputChannel_ComboBox.SelectedIndex = 0
 
     End Sub
 
@@ -185,8 +185,8 @@
         SelectedLevel = CalibrationLevel_ComboBox.SelectedItem
     End Sub
 
-    Private Sub SelectedChannelComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SelectedChannel_ComboBox.SelectedIndexChanged
-        SelectedChannel = SelectedChannel_ComboBox.SelectedItem
+    Private Sub SelectedChannelComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SelectedHardWareOutputChannel_ComboBox.SelectedIndexChanged
+        SelectedHardwareOutputChannel = SelectedHardWareOutputChannel_ComboBox.SelectedItem
     End Sub
 
 
@@ -220,7 +220,7 @@
                 OstfBase.SoundPlayer.ChangePlayerSettings(, CalibrationSound.WaveFormat)
 
                 'Setting the signal level
-                Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Audio.PortAudioVB.DuplexMixer.Simulated_dBSPL_To_dBFS(SelectedLevel), 1)
+                Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Audio.Standard_dBSPL_To_dBFS(SelectedLevel), 1)
 
                 'Fading in and out
                 Audio.DSP.Fade(CalibrationSound, Nothing, 0, 1, 0, 0.02 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
@@ -228,19 +228,14 @@
 
                 'Putting the sound in the intended channel
                 Dim PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, CalibrationSound.WaveFormat.Encoding))
-                PlaySound.WaveData.SampleData(SelectedChannel) = CalibrationSound.WaveData.SampleData(1)
-                'PlaySound.WaveData.EnforceEqualChannelLength()
-
-                'Applying calibration gain
-                Dim CalibrationGain = SelectedTransducer.Mixer.GetCalibrationGain(SelectedChannel)
-                Audio.DSP.AmplifySection(PlaySound, CalibrationGain, SelectedChannel)
+                PlaySound.WaveData.SampleData(SelectedTransducer.Mixer.OutputRouting(SelectedHardwareOutputChannel)) = CalibrationSound.WaveData.SampleData(1)
 
                 'Plays the sound
                 SoundPlayer.SwapOutputSounds(PlaySound)
 
             Else
-
-
+                MsgBox("Unable to start the player using the selected transducer!", MsgBoxStyle.Exclamation, "Sound player failure")
+                PlaySignal_Button.Enabled = False
             End If
 
         Catch ex As Exception
@@ -278,7 +273,7 @@
 4. Select which output speaker channel you want to calibrate.
 5. Use a sound level meter and measure the sound level at the desired measurement point.
 6. Calculate the difference between the selected calibration signal level and the measured level.
-7. Adjust the calibration value ('Calibration_FsToSpl') for the output channel in the file OSTF\AudioSystem\AudioSystemSpecification.txt by the calculated difference. 
+7. Adjust the calibration value ('CalibrationGain') for the output channel in the file OSTF\AudioSystem\AudioSystemSpecification.txt by the calculated difference. 
 8. Do the same for all speaker channels.
 9. Restart the app to load the new calibration values and measure the calibration levels again to ensure correct calibration."
 

@@ -1,0 +1,1 @@
+MediaRootDirectory = C:\OSTFMedia

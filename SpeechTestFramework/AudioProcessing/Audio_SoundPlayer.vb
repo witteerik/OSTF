@@ -764,16 +764,19 @@ Namespace Audio
 
 
                 Dim CurrentChannelInterleavedPosition As Integer
-                For Each OutputChannel In Mixer.OutputRouting
+                For Each OutputRouting In Mixer.OutputRouting
 
-                    If OutputChannel.Value = 0 Then Continue For
+                    If OutputRouting.Value = 0 Then Continue For
 
-                    If OutputChannel.Value > InputSound.WaveFormat.Channels Then Continue For
+                    If OutputRouting.Value > InputSound.WaveFormat.Channels Then Continue For
 
                     'Skipping if channel contains no data
-                    If InputSound.WaveData.SampleData(OutputChannel.Value).Length = 0 Then Continue For
+                    If InputSound.WaveData.SampleData(OutputRouting.Value).Length = 0 Then Continue For
 
-                    CurrentChannelInterleavedPosition = OutputChannel.Key - 1
+                    'Calculates the calibration gain
+                    Dim CalibrationGainFactor = 10 ^ (Mixer.CalibrationGain(OutputRouting.Key) / 20)
+
+                    CurrentChannelInterleavedPosition = OutputRouting.Key - 1
 
                     'Going through buffer by buffer
                     For BufferIndex = 0 To BuffersOnMainThread - 1
@@ -787,7 +790,7 @@ Namespace Audio
 
                             Dim x = CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition
 
-                            Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
+                            Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputRouting.Value)(Sample) * CalibrationGainFactor
                             CurrentWriteSampleIndex += 1
                         Next
                     Next
@@ -830,16 +833,19 @@ Namespace Audio
                 Private Sub DoWork()
 
                     Dim CurrentChannelInterleavedPosition As Integer
-                    For Each OutputChannel In Mixer.OutputRouting
+                    For Each OutputRouting In Mixer.OutputRouting
 
-                        If OutputChannel.Value = 0 Then Continue For
+                        If OutputRouting.Value = 0 Then Continue For
 
-                        If OutputChannel.Value > InputSound.WaveFormat.Channels Then Continue For
+                        If OutputRouting.Value > InputSound.WaveFormat.Channels Then Continue For
 
                         'Skipping if channel contains no data
-                        If InputSound.WaveData.SampleData(OutputChannel.Value).Length = 0 Then Continue For
+                        If InputSound.WaveData.SampleData(OutputRouting.Value).Length = 0 Then Continue For
 
-                        CurrentChannelInterleavedPosition = OutputChannel.Key - 1
+                        'Calculates the calibration gain
+                        Dim CalibrationGainFactor = 10 ^ (Mixer.CalibrationGain(OutputRouting.Key) / 20)
+
+                        CurrentChannelInterleavedPosition = OutputRouting.Key - 1
 
                         'Going through buffer by buffer
                         For BufferIndex = BuffersOnMainThread To Output.Length - 2
@@ -847,11 +853,11 @@ Namespace Audio
                             'Setting start sample 
                             Output(BufferIndex).StartSample = BufferIndex * FramesPerBuffer
 
-                            'Shuffling samples from the input sound to the interleaved array
+                            'Shuffling samples from the input sound to the interleaved array, and also applied the calibration gain for the output hardware channel
                             Dim CurrentWriteSampleIndex As Integer = 0
                             For Sample = BufferIndex * FramesPerBuffer To (BufferIndex + 1) * FramesPerBuffer - 1
 
-                                Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
+                                Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputRouting.Value)(Sample) * CalibrationGainFactor
                                 CurrentWriteSampleIndex += 1
                             Next
                         Next
@@ -862,9 +868,9 @@ Namespace Audio
 
                         'Shuffling samples from the input sound to the interleaved array
                         Dim CurrentWriteSampleIndexB As Integer = 0
-                        For Sample = FramesPerBuffer * (Output.Length - 1) To InputSound.WaveData.SampleData(OutputChannel.Value).Length - 1
+                        For Sample = FramesPerBuffer * (Output.Length - 1) To InputSound.WaveData.SampleData(OutputRouting.Value).Length - 1
 
-                            Output(Output.Length - 1).InterleavedSampleArray(CurrentWriteSampleIndexB * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
+                            Output(Output.Length - 1).InterleavedSampleArray(CurrentWriteSampleIndexB * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputRouting.Value)(Sample) * CalibrationGainFactor
                             CurrentWriteSampleIndexB += 1
                         Next
                     Next
