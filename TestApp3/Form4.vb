@@ -477,7 +477,7 @@
     Private Sub Button11_Click(sender As Object, e As EventArgs) Handles Button11.Click
 
 
-        Dim CalibrationDialog As New SpeechTestFramework.CalibrationForm()
+        Dim CalibrationDialog As New SpeechTestFramework.CalibrationForm(SpeechTestFramework.Utils.Constants.UserTypes.Research, True)
         CalibrationDialog.Show()
 
     End Sub

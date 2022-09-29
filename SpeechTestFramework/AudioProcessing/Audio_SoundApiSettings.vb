@@ -481,6 +481,74 @@ Namespace Audio
 
         End Sub
 
+        Public Shared Function GetAllAvailableDevices() As String
+
+            Try
+
+                Dim OutputList As New List(Of String)
+
+                Dim DefaultHostApiName As String = ""
+                Dim DefaultHostApiNumber As Integer = Audio.PortAudio.Pa_GetDefaultHostApi()
+                Dim HostApiCount As Integer = Audio.PortAudio.Pa_GetHostApiCount()
+                For HostIndex As Integer = 0 To HostApiCount - 1
+                    Dim HostApiInfo As Audio.PortAudio.PaHostApiInfo = Audio.PortAudio.Pa_GetHostApiInfo(HostIndex)
+                    If HostIndex = DefaultHostApiNumber Then DefaultHostApiName = HostApiInfo.name
+                Next
+
+                Dim SupportedDeviceCount As Integer = 0
+                Dim DeviceCount As Integer = Audio.PortAudio.Pa_GetDeviceCount()
+                OutputList.Add("Total audio device count: " & DeviceCount)
+                OutputList.Add("Total Host API count: " & HostApiCount & vbCrLf)
+
+                For DeviceIndex As Integer = 0 To DeviceCount - 1
+
+                    Dim PaDeviceInfo As Audio.PortAudio.PaDeviceInfo = Audio.PortAudio.Pa_GetDeviceInfo(DeviceIndex)
+                    Dim HostApiInfo As Audio.PortAudio.PaHostApiInfo = Audio.PortAudio.Pa_GetHostApiInfo(PaDeviceInfo.hostApi)
+
+                    'Only adding supported host API types
+                    Select Case HostApiInfo.type
+                        Case Audio.PortAudio.PaHostApiTypeId.paMME, Audio.PortAudio.PaHostApiTypeId.paDirectSound, Audio.PortAudio.PaHostApiTypeId.paWASAPI, Audio.PortAudio.PaHostApiTypeId.paWDMKS, Audio.PortAudio.PaHostApiTypeId.paASIO
+
+                            SupportedDeviceCount += 1
+
+                            OutputList.Add("Device name: " & PaDeviceInfo.name)
+                            OutputList.Add("Device number: " & DeviceIndex)
+
+                            OutputList.Add("Host API name: " & HostApiInfo.name)
+                            If HostApiInfo.name = DefaultHostApiName Then
+                                OutputList.Add("   (Default host API)")
+                            Else
+                                OutputList.Add("   (Not default host API)")
+                            End If
+
+                            OutputList.Add("Input channels: " & PaDeviceInfo.maxInputChannels)
+                            OutputList.Add("Output channels: " & PaDeviceInfo.maxOutputChannels)
+
+                            If DeviceIndex = HostApiInfo.defaultInputDevice Then
+                                OutputList.Add("   (Default input device)")
+                            Else
+                                OutputList.Add("   (Not default input device)")
+                            End If
+
+                            If DeviceIndex = HostApiInfo.defaultOutputDevice Then
+                                OutputList.Add("   (Default output device)" & vbCrLf)
+                            Else
+                                OutputList.Add("   (Not default output device)" & vbCrLf)
+                            End If
+
+                    End Select
+
+                Next
+
+                OutputList.Add("Supported audio device count: " & SupportedDeviceCount)
+
+                Return String.Join(vbCrLf, OutputList)
+
+            Catch ex As Exception
+                Return "Unable to get sound device info. THe following error occurred: " & vbCrLf & ex.ToString
+            End Try
+
+        End Function
 
     End Class
 

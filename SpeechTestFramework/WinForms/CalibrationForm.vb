@@ -4,6 +4,41 @@
     Private SelectedLevel As Double
     Private CalibrationFileDescriptions As New SortedList(Of String, String)
     Private SelectedTransducer As AudioSystemSpecification = Nothing
+    Private DisposeSoundPlayerOnClose As Boolean
+    Private UserType As Utils.UserTypes
+
+    Public Sub New()
+        MyClass.New(Utils.Constants.UserTypes.Research, True)
+    End Sub
+
+    ''' <summary>
+    ''' Creates a new instance of CalibrationForm.
+    ''' </summary>
+    ''' <param name="DisposeSoundPlayerOnClose">Set to True if the calibration form is started as a standalone application. This will dispose the SoundPlayer on when the calibration form is closed. 
+    ''' If the calibration form is launched from another OSTF application that uses the SoundPlayer, that application is instead responsible for disposing the SoundPlayer when closed.</param>
+    Public Sub New(ByVal UserType As Utils.UserTypes, ByVal DisposeSoundPlayerOnClose As Boolean)
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        Me.DisposeSoundPlayerOnClose = DisposeSoundPlayerOnClose
+
+        ' Add any initialization after the InitializeComponent() call.
+        Me.UserType = UserType
+
+        Dim UserTypeString As String = ""
+        Select Case UserType
+            Case Utils.Constants.UserTypes.Research
+                UserTypeString = "Research version"
+            Case Else
+                UserTypeString = ""
+        End Select
+
+        Me.Text = "OSTA Sound Level Calibration" & " - " & UserTypeString
+
+    End Sub
+
 
     Private Sub CalibrationForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
@@ -191,16 +226,17 @@
                 Audio.DSP.Fade(CalibrationSound, Nothing, 0, 1, 0, 0.02 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
                 Audio.DSP.Fade(CalibrationSound, 0, Nothing, 1, -0.02 * CalibrationSound.WaveFormat.SampleRate, Nothing, Audio.DSP.FadeSlopeType.Smooth)
 
-                'Putting the sound in the intend channel
+                'Putting the sound in the intended channel
                 Dim PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, CalibrationSound.WaveFormat.Encoding))
                 PlaySound.WaveData.SampleData(SelectedChannel) = CalibrationSound.WaveData.SampleData(1)
+                'PlaySound.WaveData.EnforceEqualChannelLength()
 
                 'Applying calibration gain
                 Dim CalibrationGain = SelectedTransducer.Mixer.GetCalibrationGain(SelectedChannel)
-                Audio.DSP.AmplifySection(CalibrationSound, CalibrationGain, SelectedChannel)
+                Audio.DSP.AmplifySection(PlaySound, CalibrationGain, SelectedChannel)
 
                 'Plays the sound
-                SoundPlayer.SwapOutputSounds(CalibrationSound)
+                SoundPlayer.SwapOutputSounds(PlaySound)
 
             Else
 
@@ -227,6 +263,10 @@
     End Sub
 
     Private Sub Help_Button_Click(sender As Object, e As EventArgs) Handles Help_Button.Click
+        ShowHelp()
+    End Sub
+
+    Private Sub ShowHelp()
 
         Dim InstructionsForm As New InfoForm
 
@@ -246,4 +286,36 @@
         InstructionsForm.Show()
 
     End Sub
+
+    Private Sub CalibrationForm_FormClosing(sender As Object, e As Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
+        'Disposing the sound player. Note that this means that 
+        If DisposeSoundPlayerOnClose = True Then If SoundPlayer IsNot Nothing Then SoundPlayer.Dispose()
+    End Sub
+
+    Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
+
+        Dim AboutBox = New AboutBox_WithLicenseButton
+        AboutBox.SelectedLicense = LicenseBox.AvailableLicenses.MIT_X11
+        AboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.PortAudio)
+        AboutBox.ShowDialog()
+
+    End Sub
+
+    Private Sub ViewAvailableSoundDevicesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ViewAvailableSoundDevicesToolStripMenuItem.Click
+
+        Dim SoundDevicesForm As New InfoForm
+        Dim DeviceInfoString As String = "Currently available sound devices:" & vbCrLf & vbCrLf & Audio.AudioApiSettings.GetAllAvailableDevices
+        SoundDevicesForm.SetInfo(DeviceInfoString, "Available sound devices")
+        SoundDevicesForm.Show()
+
+    End Sub
+
+    Private Sub HelpToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles HelpToolStripMenuItem.Click
+        ShowHelp()
+    End Sub
+
+    Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
+        Me.Close()
+    End Sub
+
 End Class

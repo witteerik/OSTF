@@ -785,6 +785,8 @@ Namespace Audio
                         Dim CurrentWriteSampleIndex As Integer = 0
                         For Sample = BufferIndex * FramesPerBuffer To (BufferIndex + 1) * FramesPerBuffer - 1
 
+                            Dim x = CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition
+
                             Output(BufferIndex).InterleavedSampleArray(CurrentWriteSampleIndex * NumberOfOutputChannels + CurrentChannelInterleavedPosition) = InputSound.WaveData.SampleData(OutputChannel.Value)(Sample)
                             CurrentWriteSampleIndex += 1
                         Next
@@ -833,6 +835,9 @@ Namespace Audio
                         If OutputChannel.Value = 0 Then Continue For
 
                         If OutputChannel.Value > InputSound.WaveFormat.Channels Then Continue For
+
+                        'Skipping if channel contains no data
+                        If InputSound.WaveData.SampleData(OutputChannel.Value).Length = 0 Then Continue For
 
                         CurrentChannelInterleavedPosition = OutputChannel.Key - 1
 

@@ -33,14 +33,21 @@ Partial Class CalibrationForm
         Me.SelectedChannel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
-        Me.Label4 = New System.Windows.Forms.Label()
         Me.Label5 = New System.Windows.Forms.Label()
         Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.Label4 = New System.Windows.Forms.Label()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.SoundSystem_RichTextBox = New System.Windows.Forms.RichTextBox()
         Me.Splitter1 = New System.Windows.Forms.Splitter()
         Me.Help_Button = New System.Windows.Forms.Button()
+        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
+        Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ViewAvailableSoundDevicesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TableLayoutPanel1.SuspendLayout()
+        Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
         'CalibrationSignal_RichTextBox
@@ -49,7 +56,7 @@ Partial Class CalibrationForm
         Me.CalibrationSignal_RichTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.CalibrationSignal_RichTextBox.Location = New System.Drawing.Point(3, 167)
         Me.CalibrationSignal_RichTextBox.Name = "CalibrationSignal_RichTextBox"
-        Me.CalibrationSignal_RichTextBox.Size = New System.Drawing.Size(240, 272)
+        Me.CalibrationSignal_RichTextBox.Size = New System.Drawing.Size(240, 248)
         Me.CalibrationSignal_RichTextBox.TabIndex = 19
         Me.CalibrationSignal_RichTextBox.Text = ""
         '
@@ -119,7 +126,7 @@ Partial Class CalibrationForm
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.Close_Button, 4)
         Me.Close_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Close_Button.Location = New System.Drawing.Point(3, 445)
+        Me.Close_Button.Location = New System.Drawing.Point(3, 421)
         Me.Close_Button.Name = "Close_Button"
         Me.Close_Button.Size = New System.Drawing.Size(486, 24)
         Me.Close_Button.TabIndex = 10
@@ -172,7 +179,7 @@ Partial Class CalibrationForm
         Me.TableLayoutPanel1.Controls.Add(Me.Splitter1, 0, 5)
         Me.TableLayoutPanel1.Controls.Add(Me.Help_Button, 0, 4)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 24)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 9
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
@@ -184,19 +191,8 @@ Partial Class CalibrationForm
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(492, 472)
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(492, 448)
         Me.TableLayoutPanel1.TabIndex = 20
-        '
-        'Label4
-        '
-        Me.TableLayoutPanel1.SetColumnSpan(Me.Label4, 2)
-        Me.Label4.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label4.Location = New System.Drawing.Point(3, 144)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(240, 20)
-        Me.Label4.TabIndex = 20
-        Me.Label4.Text = "Signal description"
-        Me.Label4.TextAlign = System.Drawing.ContentAlignment.BottomCenter
         '
         'Label5
         '
@@ -220,6 +216,17 @@ Partial Class CalibrationForm
         Me.Transducer_ComboBox.Size = New System.Drawing.Size(240, 21)
         Me.Transducer_ComboBox.TabIndex = 22
         '
+        'Label4
+        '
+        Me.TableLayoutPanel1.SetColumnSpan(Me.Label4, 2)
+        Me.Label4.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label4.Location = New System.Drawing.Point(3, 144)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(240, 20)
+        Me.Label4.TabIndex = 20
+        Me.Label4.Text = "Signal description"
+        Me.Label4.TextAlign = System.Drawing.ContentAlignment.BottomCenter
+        '
         'Label6
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.Label6, 2)
@@ -237,7 +244,7 @@ Partial Class CalibrationForm
         Me.SoundSystem_RichTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SoundSystem_RichTextBox.Location = New System.Drawing.Point(249, 167)
         Me.SoundSystem_RichTextBox.Name = "SoundSystem_RichTextBox"
-        Me.SoundSystem_RichTextBox.Size = New System.Drawing.Size(240, 272)
+        Me.SoundSystem_RichTextBox.Size = New System.Drawing.Size(240, 248)
         Me.SoundSystem_RichTextBox.TabIndex = 24
         Me.SoundSystem_RichTextBox.Text = ""
         '
@@ -263,17 +270,62 @@ Partial Class CalibrationForm
         Me.Help_Button.Text = "Help"
         Me.Help_Button.UseVisualStyleBackColor = True
         '
+        'MenuStrip1
+        '
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem})
+        Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
+        Me.MenuStrip1.Name = "MenuStrip1"
+        Me.MenuStrip1.Size = New System.Drawing.Size(492, 24)
+        Me.MenuStrip1.TabIndex = 21
+        Me.MenuStrip1.Text = "File"
+        '
+        'FileToolStripMenuItem
+        '
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.HelpToolStripMenuItem, Me.ViewAvailableSoundDevicesToolStripMenuItem, Me.AboutToolStripMenuItem, Me.ExitToolStripMenuItem})
+        Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
+        Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
+        Me.FileToolStripMenuItem.Text = "File"
+        '
+        'HelpToolStripMenuItem
+        '
+        Me.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem"
+        Me.HelpToolStripMenuItem.Size = New System.Drawing.Size(226, 22)
+        Me.HelpToolStripMenuItem.Text = "Help"
+        '
+        'ViewAvailableSoundDevicesToolStripMenuItem
+        '
+        Me.ViewAvailableSoundDevicesToolStripMenuItem.Name = "ViewAvailableSoundDevicesToolStripMenuItem"
+        Me.ViewAvailableSoundDevicesToolStripMenuItem.Size = New System.Drawing.Size(226, 22)
+        Me.ViewAvailableSoundDevicesToolStripMenuItem.Text = "View available sound devices"
+        '
+        'AboutToolStripMenuItem
+        '
+        Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
+        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(226, 22)
+        Me.AboutToolStripMenuItem.Text = "About"
+        '
+        'ExitToolStripMenuItem
+        '
+        Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(226, 22)
+        Me.ExitToolStripMenuItem.Text = "Exit"
+        '
         'CalibrationForm
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(492, 472)
         Me.Controls.Add(Me.TableLayoutPanel1)
+        Me.Controls.Add(Me.MenuStrip1)
+        Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "CalibrationForm"
         Me.Text = "Calibration form"
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.TableLayoutPanel1.PerformLayout()
+        Me.MenuStrip1.ResumeLayout(False)
+        Me.MenuStrip1.PerformLayout()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
@@ -295,4 +347,10 @@ Partial Class CalibrationForm
     Friend WithEvents SoundSystem_RichTextBox As Windows.Forms.RichTextBox
     Friend WithEvents Splitter1 As Windows.Forms.Splitter
     Friend WithEvents Help_Button As Windows.Forms.Button
+    Friend WithEvents MenuStrip1 As Windows.Forms.MenuStrip
+    Friend WithEvents FileToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents HelpToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ViewAvailableSoundDevicesToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents AboutToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ExitToolStripMenuItem As Windows.Forms.ToolStripMenuItem
 End Class
