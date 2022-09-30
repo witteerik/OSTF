@@ -4,8 +4,12 @@ The Open Speech Test Framework (OSTF) is an open software library specifically d
 
 The OSTF is still in active development, and will undergo significant changed in the near future. If you decide to try it out, don't expect everything to work quite yet(!), and make sure to do frequent git-pulls to make sure you have the latest version.
 
-Except for the 3:rd partly libraries listed below, the OSTF source code was developed by Erik Witte, Reg. Audiologist, PhD, Örebro University, Sweden, in cooperation with Örebro Audiological Research Center, and Linköping University, Swedish.
+Except for the 3:rd partly libraries listed below, the OSTF source code was developed by Erik Witte, Reg. Audiologist, PhD, Örebro University, Sweden, in cooperation with Örebro Audiological Research Center, and Linköping University, Sweden.
 
+# Documentation
+... is to come, but for now, in order to get an OSTF application even started you will need to specify the path to the folder "OSTFMedia" in the file "local_settings.txt" located in each project folder (of the application you attempt to start). You may place the OSTFMedia folder anywhere on your computer, as long as you point to it in the "local_settings.txt" file. (Preferably don't put the OSTFMedia folder on a place which is synched to a remote network as that could make the application very slow. A suggestion is to use "MediaRootDirectory = C:\OSTFMedia", and then you will of course also have to copy the OSTFMedia folder and its containing files there).
+
+# Terms of use
 The OSTF source code (available at https://github.com/witteerik/OSTF) is licensed under the following terms:
 
 MIT/X11 License
