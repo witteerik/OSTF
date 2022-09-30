@@ -1,0 +1,9 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="@style/Theme.Design">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item><item name="android:colorPrimary">#ff3d5928</item><item name="android:colorControlNormal">#ff305147</item><item name="android:colorControlActivated">#ff342061</item><item name="android:colorButtonNormal">#ffffff80</item><item name="android:textColorPrimary">#ff000000</item><item name="android:colorBackground">#e8282828</item><item name="android:windowBackground">?android:attr/colorBackground</item></style>
+
+</resources>
