@@ -38,6 +38,7 @@ Public Class LicenseBox
         InTheHand
         Wierstorf
         SwedishSipRecordings
+        Modified_IFFM
     End Enum
 
     Public Sub New(ByVal License As AvailableLicenses, ByVal Additions As List(Of AvailableLicenseAdditions))
@@ -147,6 +148,16 @@ Copyright (c) Erik Witte
 "
         End If
 
+        If LicenseAdditions.Contains(AvailableLicenseAdditions.Modified_IFFM) Then
+            LicenseRichTextBox.Text &= "
+- A modified version of 'The International Female Fluctuating Masker' (IFFM). This application uses a modified version (resampled to 48 kHz, float32 format, file name: 'IFFM_60s_32bit_48k.wav') of the IFFM signal. The modifed IFFM signal is NOT free to use, except for under the following terms, which are the same as for the original IFFM signal, namely 
+    a) the copyright of the modified IFFM signal belongs to the European Hearing Instrument Manufacturers Association (EHIMA) and 
+    b) the IFFM modified signal can be used free of cost in the 'field of hearing'. For use in other fields, permission must be obtained from EHIMA. 
+For further information concerning the terms of use, see EHIMA's documentation for the IFFM and IFnoise at www.ehima.com/documents.
+
+For further information about the modified IFFM signal, see the ReadMe file located in the same folders as the signal."
+
+        End If
 
 
     End Sub

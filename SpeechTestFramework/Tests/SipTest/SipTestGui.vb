@@ -1972,6 +1972,7 @@ Public Class SipTestGui
         MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.InTheHand)
         MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.Wierstorf)
         MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.SwedishSipRecordings)
+        MyAboutBox.LicenseAdditions.Add(LicenseBox.AvailableLicenseAdditions.Modified_IFFM)
         MyAboutBox.Show()
 
     End Sub

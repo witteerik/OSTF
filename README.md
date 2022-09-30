@@ -44,7 +44,9 @@ Deutsche Telekom Laboratories, TU Berlin
 Ernst-Reuter-Platz 7, 10587 Berlin, Germany
 
 - SiP-test recordings. 
-This application uses a set of recordings for the Swedish SiP-test (available at https://osf.io/q4rb3/), These recordings are separately licensed under the Creative Commons Attribution-NonCommercial 4.0 International License. This means NOT FOR COMMERCIAL USE! If the source code or software itself is to be used commersially, these recordings must first be removed from the distributed files!
+The OSTF uses a set of recordings for the Swedish SiP-test (available at https://osf.io/q4rb3/), These recordings are separately licensed under the Creative Commons Attribution-NonCommercial 4.0 International License. This means NOT FOR COMMERCIAL USE! If the source code or software itself is to be used commersially, these recordings must first be removed from the distributed files!
 http://creativecommons.org/licenses/by-nc/4.0/ .
 Copyright (c) Erik Witte
 
+- A modified version of "The International Female Fluctuating Masker" (IFFM).
+The OSTF uses a modified version (resampled to 48 kHz, float32 format, file name: "IFFM_60s_32bit_48k.wav") of the IFFM signal. The modifed IFFM signal is NOT free to use, except for under the following terms, which are the same as for the original IFFM signal, namely a) the copyright of the modified IFFM signal belongs to the European Hearing Instrument Manufacturers Association (EHIMA) and b) the IFFM modified signal can be used free of cost in the "field of hearing". For use in other fields, permission must be obtained from EHIMA. (For further information, see EHIMA's documentation for the IFFM and IFnoise at www.ehima.com/documents.) For further information about the modified IFFM signal, see the ReadMe file supplied in the same folders as the signal.
