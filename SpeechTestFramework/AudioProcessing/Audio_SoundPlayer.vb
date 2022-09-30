@@ -4,6 +4,19 @@ Imports System.Windows.Forms
 
 Namespace Audio
 
+    ''Temporarily outcommented, until better solutions is fixed:
+    'Namespace PlayBack
+    '    Public Interface ISoundPlayerControl
+    '        Sub MessageFromPlayer(ByRef Message As MessagesFromSoundPlayer)
+    '        Enum MessagesFromSoundPlayer
+    '            EndOfSound
+    '            ApproachingEndOfBufferAlert
+    '            NewBufferTick
+    '        End Enum
+    '    End Interface
+    'End Namespace
+
+
     Namespace PortAudioVB
 
         Public Class OverlappingSoundPlayer
@@ -758,8 +771,8 @@ Namespace Audio
 
                 'Creating the BuffersOnMainThread first buffers
                 'Limiting the number of main thread buffers if the sound is very short
-                If (Output.Length - 1) <BuffersOnMainThread Then
-                    BuffersOnMainThread= Math.Max(0, Output.Length - 1)
+                If (Output.Length - 1) < BuffersOnMainThread Then
+                    BuffersOnMainThread = Math.Max(0, Output.Length - 1)
                 End If
 
 

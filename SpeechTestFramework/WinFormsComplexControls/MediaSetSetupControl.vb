@@ -456,7 +456,7 @@
         'Creating SiP-test type masker sounds
         SelectedMediaSet.CreateNewTestSituationMaskers(MediaSet.MaskerSourceTypes.ExternalSoundFilesBestMatch,
                                                         SpeechMaterialComponent.LinguisticLevels.Sentence,
-                                                          SpeechMaterialComponent.LinguisticLevels.Word, True, , False,,,,, 3,, 1, 10)
+                                                          SpeechMaterialComponent.LinguisticLevels.Word, True, , False,,,,, 3,, 1, 10, SipTest.Common.SipTestReferenceMaskerLevel_FS)
 
     End Sub
 

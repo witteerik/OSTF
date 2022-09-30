@@ -161,13 +161,13 @@
     <Compile Include="Tests\SipTest\Participant.vb" />
     <Compile Include="Tests\SipTest\PDL.vb" />
     <Compile Include="Tests\SipTest\SipMeasurement.vb" />
+    <Compile Include="Tests\SipTest\SipTestCommon.vb" />
     <Compile Include="Tests\SipTest\SipTestGui.designer.vb">
       <DependentUpon>SipTestGui.vb</DependentUpon>
     </Compile>
     <Compile Include="Tests\SipTest\SipTestGui.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Tests\SipTest\SipTestSummary.vb" />
     <Compile Include="WinFormControls\AudiogramSymbolDialog.Designer.vb">
       <DependentUpon>AudiogramSymbolDialog.vb</DependentUpon>
     </Compile>

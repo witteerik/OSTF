@@ -2561,7 +2561,7 @@ Public Class MediaSet
                     Audio.DSP.MeasureAndAdjustSectionLevel(CentralRegionSound, ConcatSoundLevel, 1,,, Audio.FrequencyWeightings.Z)
 
                     'Using pure fft data to create an spectral shaping filter
-                    SpectralSubtractionKernel = Audio.GenerateSound.GetImpulseResponseForSpectralSubtraction(SummaryComponentKvp.Value.Item2, CentralRegionSound,,,,,
+                    SpectralSubtractionKernel = Audio.GenerateSound.GetImpulseResponseForSpectralShaping(SummaryComponentKvp.Value.Item2, CentralRegionSound,,,,,
                                                                                                              IrFftFormat, FirKernelLength, 1, MaxBandGain, MaxBandAttenuation, SpectralShapingLowerCutOff, SpectralShapingUpperCutOff)
 
                     'Filtering the (whole) masker sound

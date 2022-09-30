@@ -83,7 +83,7 @@ Namespace SipTest
             ClearTrials()
 
             'MediaSetName ' TODO: should we use the name or the mediaset in the GUI/Measurment?
-            'TODO: If media set in not selected we could ranomize between the available ones...
+            'TODO: If media set is not selected we could randomize between the available ones...
 
             Select Case TestProcedure.AdaptiveType
                 Case AdaptiveTypes.Fixed
@@ -1030,9 +1030,6 @@ Namespace SipTest
 
             'Setting the levels
 
-            'Setting UpdatePdlOnNextCall to True to signal recalculation of PDL when needed next time (TODO: this could be skipped if the ReferenceLevel and PNR are not changed since last call)
-            UpdatePdlOnNextCall = True
-
             Me.Reference_SPL = ReferenceLevel
             Me.PNR = PNR
 
@@ -1102,7 +1099,7 @@ Namespace SipTest
         End Function
 
         Public Function GetCurrentMaskerGain() As Double
-            Dim CurrentMaskerGain = TargetMasking_SPL - 70 'TODO: In the SiP-test maskers sound files the level is set to -30 dB FS across the whole sounds. A more detailed sound level data could be used instead!
+            Dim CurrentMaskerGain = TargetMasking_SPL - Audio.Standard_dBFS_To_dBSPL(Common.SipTestReferenceMaskerLevel_FS) 'TODO: In the SiP-test maskers sound files the level is set to -30 dB FS across the whole sounds. A more detailed sound level data could be used instead!
             Return CurrentMaskerGain
         End Function
 
@@ -1489,80 +1486,70 @@ Namespace SipTest
         End Sub
 
 
-        Private _PhonemeDiscriminabilityLevel As Double
-        Private UpdatePdlOnNextCall As Boolean = True
-
-        Public ReadOnly Property PhonemeDiscriminabilityLevel(Optional ByVal SpeechSpectrumLevelsVariableNamePrefix As String = "SLs",
+        Public Function PhonemeDiscriminabilityLevel(Optional ByVal SpeechSpectrumLevelsVariableNamePrefix As String = "SLs",
                                                               Optional ByVal MaskerSpectrumLevelsVariableNamePrefix As String = "SLm") As Double
-            Get
-                If UpdatePdlOnNextCall = True Then
 
-                    'Using thresholds and gain data from the side with the best aided thresholds (selecting side separately for each critical band)
-                    Dim Thresholds(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-                    Dim Gain(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+            'Using thresholds and gain data from the side with the best aided thresholds (selecting side separately for each critical band)
+            Dim Thresholds(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+            Dim Gain(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
 
-                    For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
-                        'TODO: should we allow for the lack of gain data here, or should we always use a gain of zero when no hearing aid is used?
-                        Dim AidedThreshold_Left As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i)
-                        Dim AidedThreshold_Right As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i)
+            For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+                'TODO: should we allow for the lack of gain data here, or should we always use a gain of zero when no hearing aid is used?
+                Dim AidedThreshold_Left As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i)
+                Dim AidedThreshold_Right As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i)
 
-                        If AidedThreshold_Left < AidedThreshold_Right Then
-                            Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i)
-                            Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i)
-                        Else
-                            Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i)
-                            Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i)
-                        End If
-                    Next
-
-                    'Getting spectral levels
-                    Dim CorrectResponseSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-                    Dim MaskerSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-                    Dim Siblings = Me.SpeechMaterialComponent.GetSiblingsExcludingSelf
-                    Dim IncorrectResponsesSpectralLevels As New List(Of Double())
-                    For Each Sibling In Siblings
-                        Dim IncorrectResponseSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-                        IncorrectResponsesSpectralLevels.Add(IncorrectResponseSpectralLevels)
-                    Next
-
-                    'Getting the current gain, compared to the reference test-word and masker levels
-                    Dim CurrentSpeechGain As Double = GetCurrentSpeechGain()
-                    Dim CurrentMaskerGain As Double = GetCurrentMaskerGain()
-
-                    For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
-                        Dim VariableNameSuffix = Math.Round(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(i)).ToString("00000")
-                        Dim SLsName As String = SpeechSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
-                        Dim SLmName As String = MaskerSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
-
-                        'Retreiving the reference levels and adjusts them by the CurrentSpeechGain and CurrentMaskerGain
-                        CorrectResponseSpectralLevels(i) = Me.SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
-                        MaskerSpectralLevels(i) = Me.SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, SLmName) + CurrentMaskerGain
-                        For s = 0 To Siblings.Count - 1
-                            IncorrectResponsesSpectralLevels(s)(i) = Siblings(s).GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
-                        Next
-                    Next
-
-                    Dim SRFM As Double?() = GetMLD(Nothing, 1.01) ' Cf Witte's Thesis for the value of c_factor
-
-                    'N.B. SRFM and SF 30 need to change if presented in other speaker azimuths!
-
-                    'Calculating SDRs
-                    Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
-                    Dim SDRcs As New List(Of Double())
-                    For s = 0 To Siblings.Count - 1
-                        Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s), MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
-                        SDRcs.Add(SDRc)
-                    Next
-
-                    'Calculating PDL
-                    _PhonemeDiscriminabilityLevel = PDL.CalculatePDL(SDRt, SDRcs)
-
-                    UpdatePdlOnNextCall = False
+                If AidedThreshold_Left < AidedThreshold_Right Then
+                    Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i)
+                    Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i)
+                Else
+                    Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i)
+                    Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i)
                 End If
-                Return _PhonemeDiscriminabilityLevel
-            End Get
-        End Property
+            Next
 
+            'Getting spectral levels
+            Dim CorrectResponseSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+            Dim MaskerSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+            Dim Siblings = Me.SpeechMaterialComponent.GetSiblingsExcludingSelf
+            Dim IncorrectResponsesSpectralLevels As New List(Of Double())
+            For Each Sibling In Siblings
+                Dim IncorrectResponseSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+                IncorrectResponsesSpectralLevels.Add(IncorrectResponseSpectralLevels)
+            Next
+
+            'Getting the current gain, compared to the reference test-word and masker levels
+            Dim CurrentSpeechGain As Double = GetCurrentSpeechGain()
+            Dim CurrentMaskerGain As Double = GetCurrentMaskerGain()
+
+            For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+                Dim VariableNameSuffix = Math.Round(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(i)).ToString("00000")
+                Dim SLsName As String = SpeechSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
+                Dim SLmName As String = MaskerSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
+
+                'Retreiving the reference levels and adjusts them by the CurrentSpeechGain and CurrentMaskerGain
+                CorrectResponseSpectralLevels(i) = Me.SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
+                MaskerSpectralLevels(i) = Me.SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, SLmName) + CurrentMaskerGain
+                For s = 0 To Siblings.Count - 1
+                    IncorrectResponsesSpectralLevels(s)(i) = Siblings(s).GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
+                Next
+            Next
+
+            Dim SRFM As Double?() = GetMLD(Nothing, 1.01) ' Cf Witte's Thesis for the value of c_factor
+
+            'N.B. SRFM and SF 30 need to change if presented in other speaker azimuths!
+
+            'Calculating SDRs
+            Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
+            Dim SDRcs As New List(Of Double())
+            For s = 0 To Siblings.Count - 1
+                Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s), MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
+                SDRcs.Add(SDRc)
+            Next
+
+            'Calculating PDL
+            Return PDL.CalculatePDL(SDRt, SDRcs)
+
+        End Function
 
     End Class
 
