@@ -74,13 +74,15 @@ Public Class HearingAidGainData
 
     End Function
 
-    Public Shared Function CreateNewFig6GainData(ByRef AudiogramData As AudiogramData, ByVal ReferenceLevel As Double)
+    Public Shared Function CreateNewFig6GainData(ByRef AudiogramData As AudiogramData, ByVal ReferenceLevel As Double) As HearingAidGainData
 
         Dim Output = New HearingAidGainData
 
         'Calculating critical band thresholds if not calculated
         If AudiogramData.Cb_Left_AC.Length = 0 Or AudiogramData.Cb_Right_AC.Length = 0 Then
-            AudiogramData.CalculateCriticalBandValues()
+            If AudiogramData.CalculateCriticalBandValues() = False Then
+                Return Nothing
+            End If
         End If
 
         'Calculating Fig6 for each critical band

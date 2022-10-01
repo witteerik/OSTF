@@ -35,6 +35,7 @@ Partial Class Form4
         Me.Button9 = New System.Windows.Forms.Button()
         Me.Button10 = New System.Windows.Forms.Button()
         Me.Button11 = New System.Windows.Forms.Button()
+        Me.Button12 = New System.Windows.Forms.Button()
         Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
         Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
         Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
@@ -42,9 +43,10 @@ Partial Class Form4
         Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
-        Me.Button12 = New System.Windows.Forms.Button()
+        Me.Audiogram2 = New SpeechTestFramework.WinFormControls.Audiogram()
         CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.ResponseGuiItemTable1.SuspendLayout()
+        CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'Button1
@@ -155,6 +157,15 @@ Partial Class Form4
         Me.Button11.Text = "Calibration"
         Me.Button11.UseVisualStyleBackColor = True
         '
+        'Button12
+        '
+        Me.Button12.Location = New System.Drawing.Point(370, 345)
+        Me.Button12.Name = "Button12"
+        Me.Button12.Size = New System.Drawing.Size(75, 23)
+        Me.Button12.TabIndex = 17
+        Me.Button12.Text = "Resample"
+        Me.Button12.UseVisualStyleBackColor = True
+        '
         'Audiogram1
         '
         Me.Audiogram1.AudiogramData = Nothing
@@ -162,7 +173,7 @@ Partial Class Form4
         Me.Audiogram1.DashedGridLineColor = System.Drawing.Color.Gray
         Me.Audiogram1.GridLineColor = System.Drawing.Color.Gray
         Me.Audiogram1.HideAudiogramLines = False
-        Me.Audiogram1.Location = New System.Drawing.Point(577, 15)
+        Me.Audiogram1.Location = New System.Drawing.Point(22, 264)
         Me.Audiogram1.Name = "Audiogram1"
         Me.Audiogram1.PlotAreaBorder = True
         Me.Audiogram1.PlotAreaBorderColor = System.Drawing.Color.DarkGray
@@ -170,7 +181,8 @@ Partial Class Form4
         Me.Audiogram1.PlotAreaRelativeMarginLeft = 0.1!
         Me.Audiogram1.PlotAreaRelativeMarginRight = 0.1!
         Me.Audiogram1.PlotAreaRelativeMarginTop = 0.1!
-        Me.Audiogram1.Size = New System.Drawing.Size(489, 446)
+        Me.Audiogram1.RightClickMode = SpeechTestFramework.WinFormControls.Audiogram.RightClickActions.NoAction
+        Me.Audiogram1.Size = New System.Drawing.Size(151, 132)
         Me.Audiogram1.TabIndex = 7
         Me.Audiogram1.TabStop = False
         Me.Audiogram1.XaxisDashedGridLinePositions = CType(resources.GetObject("Audiogram1.XaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
@@ -278,14 +290,52 @@ Partial Class Form4
         Me.ResponseGuiItem5.TabIndex = 4
         Me.ResponseGuiItem5.Text = "ResponseGuiItem5"
         '
-        'Button12
+        'Audiogram2
         '
-        Me.Button12.Location = New System.Drawing.Point(370, 345)
-        Me.Button12.Name = "Button12"
-        Me.Button12.Size = New System.Drawing.Size(75, 23)
-        Me.Button12.TabIndex = 17
-        Me.Button12.Text = "Resample"
-        Me.Button12.UseVisualStyleBackColor = True
+        Me.Audiogram2.AudiogramData = Nothing
+        Me.Audiogram2.BackColor = System.Drawing.SystemColors.Window
+        Me.Audiogram2.DashedGridLineColor = System.Drawing.Color.Gray
+        Me.Audiogram2.GridLineColor = System.Drawing.Color.Gray
+        Me.Audiogram2.HideAudiogramLines = False
+        Me.Audiogram2.Location = New System.Drawing.Point(607, 92)
+        Me.Audiogram2.Name = "Audiogram2"
+        Me.Audiogram2.PlotAreaBorder = True
+        Me.Audiogram2.PlotAreaBorderColor = System.Drawing.Color.DarkGray
+        Me.Audiogram2.PlotAreaRelativeMarginBottom = 0.05!
+        Me.Audiogram2.PlotAreaRelativeMarginLeft = 0.1!
+        Me.Audiogram2.PlotAreaRelativeMarginRight = 0.1!
+        Me.Audiogram2.PlotAreaRelativeMarginTop = 0.1!
+        Me.Audiogram2.RightClickMode = SpeechTestFramework.WinFormControls.Audiogram.RightClickActions.ShowAudiogramDialog
+        Me.Audiogram2.Size = New System.Drawing.Size(390, 345)
+        Me.Audiogram2.TabIndex = 18
+        Me.Audiogram2.TabStop = False
+        Me.Audiogram2.XaxisDashedGridLinePositions = CType(resources.GetObject("Audiogram2.XaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
+        Me.Audiogram2.XaxisDrawBottom = False
+        Me.Audiogram2.XaxisDrawTop = True
+        Me.Audiogram2.XaxisGridLinePositions = CType(resources.GetObject("Audiogram2.XaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
+        Me.Audiogram2.XaxisTextPositions = CType(resources.GetObject("Audiogram2.XaxisTextPositions"), System.Collections.Generic.List(Of Single))
+        Me.Audiogram2.XaxisTextSize = 8.0!
+        Me.Audiogram2.XaxisTextValues = New String() {"125", "250", "500", "1k", "2k", "4k", "8k"}
+        Me.Audiogram2.XaxisTickHeight = 2.0!
+        Me.Audiogram2.XaxisTickPositions = CType(resources.GetObject("Audiogram2.XaxisTickPositions"), System.Collections.Generic.List(Of Single))
+        Me.Audiogram2.XlimMax = 8000.0!
+        Me.Audiogram2.XlimMin = 125.0!
+        Me.Audiogram2.Xlog = True
+        Me.Audiogram2.XlogBase = 2.0!
+        Me.Audiogram2.YaxisDashedGridLinePositions = CType(resources.GetObject("Audiogram2.YaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
+        Me.Audiogram2.YaxisDrawLeft = True
+        Me.Audiogram2.YaxisDrawRight = True
+        Me.Audiogram2.YaxisGridLinePositions = CType(resources.GetObject("Audiogram2.YaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
+        Me.Audiogram2.YaxisTextPositions = CType(resources.GetObject("Audiogram2.YaxisTextPositions"), System.Collections.Generic.List(Of Single))
+        Me.Audiogram2.YaxisTextSize = 8.0!
+        Me.Audiogram2.YaxisTextValues = New String() {"0", "20", "40", "60", "80", "100"}
+        Me.Audiogram2.YaxisTickPositions = CType(resources.GetObject("Audiogram2.YaxisTickPositions"), System.Collections.Generic.List(Of Single))
+        Me.Audiogram2.YaxisTickWidth = 2.0!
+        Me.Audiogram2.YlimMax = 110.0!
+        Me.Audiogram2.YlimMin = -10.0!
+        Me.Audiogram2.Ylog = False
+        Me.Audiogram2.YlogBase = 10.0!
+        Me.Audiogram2.Yreversed = True
         '
         'Form4
         '
@@ -293,6 +343,7 @@ Partial Class Form4
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Audiogram2)
         Me.Controls.Add(Me.Button12)
         Me.Controls.Add(Me.Button11)
         Me.Controls.Add(Me.Button10)
@@ -312,6 +363,7 @@ Partial Class Form4
         Me.Text = "Form4"
         CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResponseGuiItemTable1.ResumeLayout(False)
+        CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -336,4 +388,5 @@ Partial Class Form4
     Friend WithEvents Button10 As Button
     Friend WithEvents Button11 As Button
     Friend WithEvents Button12 As Button
+    Friend WithEvents Audiogram2 As SpeechTestFramework.WinFormControls.Audiogram
 End Class

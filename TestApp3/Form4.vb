@@ -7,6 +7,8 @@
         'Initializing the OSTF 
         SpeechTestFramework.InitializeOSTF(Application.StartupPath)
 
+        Me.Audiogram2.AudiogramData = New SpeechTestFramework.AudiogramData
+
     End Sub
 
 

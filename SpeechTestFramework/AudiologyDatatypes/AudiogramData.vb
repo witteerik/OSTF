@@ -1,21 +1,20 @@
-﻿
-<Serializable>
+﻿<Serializable>
 Public Class AudiogramData
 
     Public Property Name As String = ""
 
-    Public ReadOnly Property AC_Right As New List(Of TonePoint)
-    Public ReadOnly Property AC_Left As New List(Of TonePoint)
-    Public ReadOnly Property BC_Right As New List(Of TonePoint)
-    Public ReadOnly Property BC_Left As New List(Of TonePoint)
+    Public Property AC_Right As New List(Of TonePoint)
+    Public Property AC_Left As New List(Of TonePoint)
+    Public Property BC_Right As New List(Of TonePoint)
+    Public Property BC_Left As New List(Of TonePoint)
 
-    Public ReadOnly Property AC_Right_Masked As New List(Of TonePoint)
-    Public ReadOnly Property AC_Left_Masked As New List(Of TonePoint)
-    Public ReadOnly Property BC_Right_Masked As New List(Of TonePoint)
-    Public ReadOnly Property BC_Left_Masked As New List(Of TonePoint)
+    Public Property AC_Right_Masked As New List(Of TonePoint)
+    Public Property AC_Left_Masked As New List(Of TonePoint)
+    Public Property BC_Right_Masked As New List(Of TonePoint)
+    Public Property BC_Left_Masked As New List(Of TonePoint)
 
-    Public ReadOnly Property UCL_Left As New List(Of TonePoint)
-    Public ReadOnly Property UCL_Right As New List(Of TonePoint)
+    Public Property UCL_Left As New List(Of TonePoint)
+    Public Property UCL_Right As New List(Of TonePoint)
 
     Public Property Cb_Left_AC As Double() = {}
     Public Property Cb_Left_BC As Double() = {}
@@ -217,7 +216,7 @@ Public Class AudiogramData
 
     End Sub
 
-    Public Sub CalculateCriticalBandValues()
+    Public Function CalculateCriticalBandValues() As Boolean
 
         'Overriding the opposite side if AC is not given for both sides
         If AC_Left.Count > 0 And AC_Right.Count = 0 Then
@@ -233,25 +232,52 @@ Public Class AudiogramData
 
         'Calculates appropriate values for AC and BC for left side.
         Dim Left_AC = GetFullAudiogramPointSerie(AC_Left_Masked, AC_Left)
+
+        'Clears the Cb arrays and returns False if unsuccessful (which will happen when too few audiogram points exist)
+        If Left_AC Is Nothing Then
+            Cb_Left_AC = {}
+            Cb_Left_BC = {}
+            Cb_Right_AC = {}
+            Cb_Right_BC = {}
+            Return False
+        End If
+
         Dim Left_BC = GetFullAudiogramPointSerie(BC_Left_Masked, BC_Left)
         If Left_BC Is Nothing Then Left_BC = New SortedList(Of Integer, TonePoint)
 
         'Overrides lacking BC-data with the AC data
         Left_BC = GetFullAudiogramPointSerie(Left_BC.Values.ToList, Left_AC.Values.ToList)
 
-        If Left_AC IsNot Nothing And Left_BC IsNot Nothing Then
-            'Interpolates the audiogram frequency values to critical band values
-            Cb_Left_AC = ConvertAudiogramToCriticalBands(Left_AC)
-            Cb_Left_BC = ConvertAudiogramToCriticalBands(Left_BC)
-        End If
 
         'Calculates appropriate values for AC and BC for right side.
         Dim Right_AC = GetFullAudiogramPointSerie(AC_Right_Masked, AC_Right)
+
+        'Clears the Cb arrays and returns False if unsuccessful (which will happen when too few audiogram points exist)
+        If Right_AC Is Nothing Then
+            Cb_Left_AC = {}
+            Cb_Left_BC = {}
+            Cb_Right_AC = {}
+            Cb_Right_BC = {}
+            Return False
+        End If
+
         Dim Right_BC = GetFullAudiogramPointSerie(BC_Right_Masked, BC_Right)
         If Right_BC Is Nothing Then Right_BC = New SortedList(Of Integer, TonePoint)
 
         'Overrides lacking BC-data with the AC data
         Right_BC = GetFullAudiogramPointSerie(Right_BC.Values.ToList, Right_AC.Values.ToList)
+
+
+
+        'Calculates critical band values
+        If Left_AC IsNot Nothing And Left_BC IsNot Nothing Then
+            'Interpolates the audiogram frequency values to critical band values
+            Cb_Left_AC = ConvertAudiogramToCriticalBands(Left_AC)
+            Cb_Left_BC = ConvertAudiogramToCriticalBands(Left_BC)
+        Else
+            Cb_Left_AC = {}
+            Cb_Left_BC = {}
+        End If
 
         If Right_AC IsNot Nothing And Right_BC IsNot Nothing Then
             'Interpolates the audiogram frequency values to critical band values
@@ -262,7 +288,9 @@ Public Class AudiogramData
             Cb_Right_BC = {}
         End If
 
-    End Sub
+        Return True
+
+    End Function
 
 
     ''' <summary>
@@ -409,6 +437,54 @@ Public Class AudiogramData
         End If
 
     End Function
+
+    ''' <summary>
+    ''' Creates a new AudiogramData which is a deep copy of the original, by using serialization.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function CreateCopy() As AudiogramData
+
+        'Creating an output object
+        Dim newAudiogramData As AudiogramData
+
+        'Serializing to memorystream
+        Dim serializedMe As New IO.MemoryStream
+        Dim serializer As New System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+        serializer.Serialize(serializedMe, Me)
+
+        'Deserializing to new object
+        serializedMe.Position = 0
+        newAudiogramData = CType(serializer.Deserialize(serializedMe), AudiogramData)
+        serializedMe.Close()
+
+        'Returning the new object
+        Return newAudiogramData
+    End Function
+
+    'Copies all data from the current instance of AudiogramData to the references TargetAudiogramData instance.
+    Public Sub CopyData(ByRef TargetAudiogramData As AudiogramData)
+
+        TargetAudiogramData.Name = Name
+
+        TargetAudiogramData.AC_Right = AC_Right
+        TargetAudiogramData.AC_Left = AC_Left
+        TargetAudiogramData.BC_Right = BC_Right
+        TargetAudiogramData.BC_Left = BC_Left
+
+        TargetAudiogramData.AC_Right_Masked = AC_Right_Masked
+        TargetAudiogramData.AC_Left_Masked = AC_Left_Masked
+        TargetAudiogramData.BC_Right_Masked = BC_Right_Masked
+        TargetAudiogramData.BC_Left_Masked = BC_Left_Masked
+
+        TargetAudiogramData.UCL_Left = UCL_Left
+        TargetAudiogramData.UCL_Right = UCL_Right
+
+        TargetAudiogramData.Cb_Left_AC = Cb_Left_AC
+        TargetAudiogramData.Cb_Left_BC = Cb_Left_BC
+        TargetAudiogramData.Cb_Right_AC = Cb_Right_AC
+        TargetAudiogramData.Cb_Right_BC = Cb_Right_BC
+
+    End Sub
 
 End Class
 

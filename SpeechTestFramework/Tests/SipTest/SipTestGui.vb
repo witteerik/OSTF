@@ -36,7 +36,27 @@ Public Class SipTestGui
     Private ReadOnly DefaultReferenceLevelIndex As Integer = 2
 
     Private CurrentParticipantID As String = ""
-    Private SelectedAudiogramData As AudiogramData = Nothing
+    Private _SelectedAudiogramData As AudiogramData = Nothing
+    Private Property SelectedAudiogramData As AudiogramData
+        Get
+            Return _SelectedAudiogramData
+        End Get
+        Set(value As AudiogramData)
+
+            _SelectedAudiogramData = value
+
+            'Enables/disables the audiogram depending on whether _SelectedAudiogramData has a value
+            If _SelectedAudiogramData Is Nothing Then
+                Audiogram.Enabled = False
+                Audiogram.AudiogramData = Nothing
+            Else
+                Audiogram.AudiogramData = _SelectedAudiogramData
+                Audiogram.Enabled = True
+            End If
+
+        End Set
+    End Property
+
     Private SelectedReferenceLevel As Double?
     Private SelectedHearingAidGain As HearingAidGainData = Nothing
     Private SelectedPresetName As String = ""
@@ -185,6 +205,8 @@ Public Class SipTestGui
         'Createing diagrams and adding their references to the corresponding private fields
         AudiogramPanel.Controls.Add(New Audiogram)
         Audiogram = AudiogramPanel.Controls(AudiogramPanel.Controls.Count - 1)
+        Audiogram.RightClickMode = Audiogram.RightClickActions.ShowAudiogramDialog
+        Audiogram.Enabled = False
 
         GainPanel.Controls.Add(New GainDiagram)
         GainDiagram = GainPanel.Controls(GainPanel.Controls.Count - 1)
@@ -476,9 +498,6 @@ Public Class SipTestGui
         'Stores the selected audiogram data
         SelectedAudiogramData = AudiogramComboBox.SelectedItem
 
-        'Displays it in the Audiogram
-        Audiogram.AudiogramData = SelectedAudiogramData
-
         'Checks if the audiogram contains data, and stops if not
         If SelectedAudiogramData.ContainsAcData = False Then Exit Sub
         If SelectedAudiogramData.ContainsCbData = False Then SelectedAudiogramData.CalculateCriticalBandValues()
@@ -493,7 +512,10 @@ Public Class SipTestGui
         If SelectedAudiogramData.ContainsAcData = False Then Exit Sub
 
         'Updating the critical band values
-        SelectedAudiogramData.CalculateCriticalBandValues()
+        If SelectedAudiogramData.CalculateCriticalBandValues() = False Then
+            ShowMessageBox("Unable to calculate critical band values. Probably there are not enough data points in the selected audiogram.")
+            Exit Sub
+        End If
 
         'Triggers recalculation based on a change in the selected audiogram data
         TryCalculatePsychometricFunction()
@@ -526,6 +548,10 @@ Public Class SipTestGui
         End If
 
         Dim NewGain = HearingAidGainData.CreateNewFig6GainData(SelectedAudiogramData, SelectedReferenceLevel)
+        If NewGain Is Nothing Then
+            ShowMessageBox("Unable to create Fig6 gain. Probably there are not enough data points in the selected audiogram!")
+            Exit Sub
+        End If
         NewGain.Name = CurrentParticipantID & "_" & "Fig6" & "_R" & SelectedReferenceLevel & "_" & SelectedAudiogramData.Name
         AvailableHaGains.Add(NewGain)
         UpdateGainList()

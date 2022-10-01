@@ -168,11 +168,29 @@
     <Compile Include="Tests\SipTest\SipTestGui.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="WinFormControls\AudiogramDialog.Designer.vb">
+      <DependentUpon>AudiogramDialog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\AudiogramDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\AudiogramEditControl.Designer.vb">
+      <DependentUpon>AudiogramEditControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\AudiogramEditControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormControls\AudiogramSymbolDialog.Designer.vb">
       <DependentUpon>AudiogramSymbolDialog.vb</DependentUpon>
     </Compile>
     <Compile Include="WinFormControls\AudiogramSymbolDialog.vb">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\AudiogramWithEditControls.Designer.vb">
+      <DependentUpon>AudiogramWithEditControls.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\AudiogramWithEditControls.vb">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="WinFormControls\Lamp.vb">
       <SubType>Component</SubType>
@@ -374,8 +392,17 @@
     <EmbeddedResource Include="Tests\SipTest\SipTestGui.resx">
       <DependentUpon>SipTestGui.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\AudiogramDialog.resx">
+      <DependentUpon>AudiogramDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\AudiogramEditControl.resx">
+      <DependentUpon>AudiogramEditControl.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\AudiogramSymbolDialog.resx">
       <DependentUpon>AudiogramSymbolDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\AudiogramWithEditControls.resx">
+      <DependentUpon>AudiogramWithEditControls.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\LoadOstaMediaSetControl.resx">
       <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>

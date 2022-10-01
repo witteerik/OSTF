@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
-Partial Class AudiogramSymbolDialog
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+Partial Class AudiogramDialog
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()>
+    <System.Diagnostics.DebuggerNonUserCode()> _
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,13 +20,15 @@ Partial Class AudiogramSymbolDialog
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()>
+    <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.OK_Button = New System.Windows.Forms.Button()
         Me.Cancel_Button = New System.Windows.Forms.Button()
-        Me.AudiogramEditControl = New SpeechTestFramework.AudiogramEditControl()
+        Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
+        Me.AudiogramWithEditControls = New SpeechTestFramework.AudiogramWithEditControls()
         Me.TableLayoutPanel1.SuspendLayout()
+        Me.TableLayoutPanel2.SuspendLayout()
         Me.SuspendLayout()
         '
         'TableLayoutPanel1
@@ -37,7 +39,8 @@ Partial Class AudiogramSymbolDialog
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel1.Controls.Add(Me.OK_Button, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.Cancel_Button, 1, 0)
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(277, 267)
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(360, 631)
+        Me.TableLayoutPanel1.Margin = New System.Windows.Forms.Padding(3, 3, 10, 10)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 1
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -63,36 +66,51 @@ Partial Class AudiogramSymbolDialog
         Me.Cancel_Button.TabIndex = 1
         Me.Cancel_Button.Text = "Cancel"
         '
-        'AudiogramEditControl
+        'TableLayoutPanel2
         '
-        Me.AudiogramEditControl.Dock = System.Windows.Forms.DockStyle.Top
-        Me.AudiogramEditControl.Location = New System.Drawing.Point(0, 0)
-        Me.AudiogramEditControl.Name = "AudiogramEditControl"
-        Me.AudiogramEditControl.Size = New System.Drawing.Size(435, 261)
-        Me.AudiogramEditControl.TabIndex = 1
+        Me.TableLayoutPanel2.ColumnCount = 1
+        Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel2.Controls.Add(Me.AudiogramWithEditControls, 0, 0)
+        Me.TableLayoutPanel2.Controls.Add(Me.TableLayoutPanel1, 0, 1)
+        Me.TableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel2.Location = New System.Drawing.Point(0, 0)
+        Me.TableLayoutPanel2.Name = "TableLayoutPanel2"
+        Me.TableLayoutPanel2.RowCount = 2
+        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50.0!))
+        Me.TableLayoutPanel2.Size = New System.Drawing.Size(516, 670)
+        Me.TableLayoutPanel2.TabIndex = 2
         '
-        'AudiogramSymbolDialog
+        'AudiogramWithEditControls
+        '
+        Me.AudiogramWithEditControls.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.AudiogramWithEditControls.Location = New System.Drawing.Point(3, 3)
+        Me.AudiogramWithEditControls.Name = "AudiogramWithEditControls"
+        Me.AudiogramWithEditControls.Size = New System.Drawing.Size(510, 614)
+        Me.AudiogramWithEditControls.TabIndex = 1
+        '
+        'AudiogramDialog
         '
         Me.AcceptButton = Me.OK_Button
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Cancel_Button
-        Me.ClientSize = New System.Drawing.Size(435, 308)
-        Me.Controls.Add(Me.AudiogramEditControl)
-        Me.Controls.Add(Me.TableLayoutPanel1)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
+        Me.ClientSize = New System.Drawing.Size(516, 670)
+        Me.Controls.Add(Me.TableLayoutPanel2)
         Me.MaximizeBox = False
         Me.MinimizeBox = False
-        Me.Name = "AudiogramSymbolDialog"
+        Me.Name = "AudiogramDialog"
         Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
-        Me.Text = "Select Audiogram Editing Mode"
+        Me.Text = "Audiogram editor"
         Me.TableLayoutPanel1.ResumeLayout(False)
+        Me.TableLayoutPanel2.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
     Friend WithEvents TableLayoutPanel1 As System.Windows.Forms.TableLayoutPanel
     Friend WithEvents OK_Button As System.Windows.Forms.Button
     Friend WithEvents Cancel_Button As System.Windows.Forms.Button
-    Friend WithEvents AudiogramEditControl As AudiogramEditControl
+    Friend WithEvents AudiogramWithEditControls As AudiogramWithEditControls
+    Friend WithEvents TableLayoutPanel2 As Windows.Forms.TableLayoutPanel
 End Class

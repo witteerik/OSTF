@@ -786,7 +786,7 @@ Namespace WinFormControls
             Remove
         End Enum
 
-        Private Enum PointTypes
+        Public Enum AudiogramPointTypes
             RightAir
             RightBone
             RightMaskedAir
@@ -797,11 +797,19 @@ Namespace WinFormControls
             LeftMaskedBone
         End Enum
 
-        Private EnableEditing As Boolean
-        Private CurrentPointType As PointTypes
-        Private CurrentOverheard As Boolean
-        Private CurrentWriteNotHeard As Boolean
-        Private MyAudiogramSymbolDialog = New AudiogramSymbolDialog
+        Public EnableEditing As Boolean
+        Public CurrentPointType As AudiogramPointTypes
+        Public CurrentOverheard As Boolean
+        Public CurrentWriteNotHeard As Boolean
+        Public MyAudiogramSymbolDialog = New AudiogramSymbolDialog
+
+        Public Property RightClickMode As RightClickActions
+
+        Public Enum RightClickActions
+            NoAction
+            ShowSymbolDialog
+            ShowAudiogramDialog
+        End Enum
 
         Private Sub Audiogram_MouseClick(sender As Object, e As MouseEventArgs) Handles Me.MouseClick
 
@@ -824,66 +832,43 @@ Namespace WinFormControls
 
                 Case MouseButtons.Right
 
-                    MyAudiogramSymbolDialog.Location = e.Location
-                    Dim DialogResult = MyAudiogramSymbolDialog.ShowDialog()
-                    If DialogResult = DialogResult.OK Then
+                    Select Case RightClickMode
+                        Case RightClickActions.NoAction
+                            'No action
 
-                        EnableEditing = MyAudiogramSymbolDialog.EditEnabled
-                        CurrentOverheard = MyAudiogramSymbolDialog.Overheard
-                        CurrentWriteNotHeard = MyAudiogramSymbolDialog.NotHeard
+                        Case RightClickActions.ShowSymbolDialog
 
-                        If MyAudiogramSymbolDialog.Masked = False Then
-                            'Unmasked
-                            If MyAudiogramSymbolDialog.AirConduction = True Then
-                                'Air
-                                If MyAudiogramSymbolDialog.LeftSide = True Then
-                                    'Left side
-                                    CurrentPointType = PointTypes.LeftAir
-                                Else
-                                    'Right side
-                                    CurrentPointType = PointTypes.RightAir
-                                End If
+                            MyAudiogramSymbolDialog.Location = e.Location
+                            Dim DialogResult = MyAudiogramSymbolDialog.ShowDialog()
+                            If DialogResult = DialogResult.OK Then
+
+                                EnableEditing = MyAudiogramSymbolDialog.EditEnabled
+                                CurrentOverheard = MyAudiogramSymbolDialog.Overheard
+                                CurrentWriteNotHeard = MyAudiogramSymbolDialog.NotHeard
+                                CurrentPointType = MyAudiogramSymbolDialog.GetPointType()
+
                             Else
-                                'Bone
-                                If MyAudiogramSymbolDialog.LeftSide = True Then
-                                    'Left side
-                                    CurrentPointType = PointTypes.LeftBone
-                                Else
-                                    'Right side
-                                    CurrentPointType = PointTypes.RightBone
-                                End If
+                                EnableEditing = False
                             End If
-                        Else
-                            'Masked
-                            If MyAudiogramSymbolDialog.AirConduction = True Then
-                                'Air
-                                If MyAudiogramSymbolDialog.LeftSide = True Then
-                                    'Left side
-                                    CurrentPointType = PointTypes.LeftMaskedAir
-                                Else
-                                    'Right side
-                                    CurrentPointType = PointTypes.RightMaskedAir
-                                End If
+
+                        Case RightClickActions.ShowAudiogramDialog
+
+                            Dim MyAudiogramDialog = New AudiogramDialog(Me.AudiogramData)
+                            MyAudiogramDialog.Location = e.Location
+                            Dim DialogResult = MyAudiogramDialog.ShowDialog()
+                            If DialogResult = DialogResult.OK Then
+                                Me.AudiogramData = MyAudiogramDialog.GetAudiogramData()
                             Else
-                                'Bone
-                                If MyAudiogramSymbolDialog.LeftSide = True Then
-                                    'Left side
-                                    CurrentPointType = PointTypes.LeftMaskedBone
-                                Else
-                                    'Right side
-                                    CurrentPointType = PointTypes.RightMaskedBone
-                                End If
+                                'Just skipps to read the (potentially) modifeid audiogram data as the user pressed cancel.
                             End If
-                        End If
-                    Else
-                        EnableEditing = False
-                    End If
+
+                    End Select
 
             End Select
 
         End Sub
 
-        Private Sub EditAudiogramValue(ByVal PointType As PointTypes, ByVal Frequency As Integer, ByVal StimulusLevel As Integer, Optional ByVal Overheard As Boolean = False, Optional ByVal NoResponse As Boolean = False)
+        Private Sub EditAudiogramValue(ByVal PointType As AudiogramPointTypes, ByVal Frequency As Integer, ByVal StimulusLevel As Integer, Optional ByVal Overheard As Boolean = False, Optional ByVal NoResponse As Boolean = False)
 
             'Creating a new instance of audiogram data if none exists
             If _AudiogramData Is Nothing Then _AudiogramData = New AudiogramData
@@ -891,21 +876,21 @@ Namespace WinFormControls
             'Finding the right array to change
             Dim ModArray As New List(Of AudiogramData.TonePoint)
             Select Case PointType
-                Case PointTypes.RightAir
+                Case AudiogramPointTypes.RightAir
                     ModArray = _AudiogramData.AC_Right
-                Case PointTypes.RightBone
+                Case AudiogramPointTypes.RightBone
                     ModArray = _AudiogramData.BC_Right
-                Case PointTypes.RightMaskedAir
+                Case AudiogramPointTypes.RightMaskedAir
                     ModArray = _AudiogramData.AC_Right_Masked
-                Case PointTypes.RightMaskedBone
+                Case AudiogramPointTypes.RightMaskedBone
                     ModArray = _AudiogramData.BC_Right_Masked
-                Case PointTypes.LeftAir
+                Case AudiogramPointTypes.LeftAir
                     ModArray = _AudiogramData.AC_Left
-                Case PointTypes.LeftBone
+                Case AudiogramPointTypes.LeftBone
                     ModArray = _AudiogramData.BC_Left
-                Case PointTypes.LeftMaskedAir
+                Case AudiogramPointTypes.LeftMaskedAir
                     ModArray = _AudiogramData.AC_Left_Masked
-                Case PointTypes.LeftMaskedBone
+                Case AudiogramPointTypes.LeftMaskedBone
                     ModArray = _AudiogramData.BC_Left_Masked
             End Select
 
