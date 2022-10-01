@@ -243,21 +243,21 @@ Namespace Utils
         End Function
 
         ''' <summary>
-        ''' Rounds the Frequency value to the nearest audiogram frequency.
+        ''' Rounds the Frequency value to the nearest log2 frequency (Suitable to round audiogram frequencies).
         ''' </summary>
-        ''' <param name="Frequency"></param>
+        ''' <param name="Frequency">The array on valid output frequencies (to round to). If not supplied the default value will be standard audiogram frequencies.</param>
         ''' <returns></returns>
-        Public Function RoundToAudiogramFrequency(ByVal Frequency As Double, Optional ValidFrequencies As SortedSet(Of Double) = Nothing)
+        Public Function RoundToLog2Frequency(ByVal Frequency As Double, Optional ValidFrequencies As SortedSet(Of Double) = Nothing)
 
             If ValidFrequencies Is Nothing Then
                 ValidFrequencies = New SortedSet(Of Double) From {125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000}
             End If
 
-            Dim AudFsLog2 As New SortedSet(Of Double)
+            Dim ValidFrequenciesLog2 As New SortedSet(Of Double)
             For Each f In ValidFrequencies
-                AudFsLog2.Add(Utils.getBase_n_Log(f, 2))
+                ValidFrequenciesLog2.Add(Utils.getBase_n_Log(f, 2))
             Next
-            Dim NearestIndex = Utils.GetNearestIndex(Utils.getBase_n_Log(Frequency, 2), AudFsLog2, True)
+            Dim NearestIndex = Utils.GetNearestIndex(Utils.getBase_n_Log(Frequency, 2), ValidFrequenciesLog2, True)
             Dim RoundedValue = ValidFrequencies(NearestIndex)
             Return RoundedValue
 

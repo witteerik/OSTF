@@ -6834,10 +6834,14 @@ Namespace Audio
 
         Public Module PsychoAcoustics
             Public Structure SiiCriticalBands
+                ''' <summary>
+                ''' Critical band centre frequencies according to table 1 in ANSI S3.5-1997
+                ''' </summary>
                 Public Shared CentreFrequencies As Double() = {150, 250, 350, 450, 570, 700, 840, 1000, 1170, 1370, 1600, 1850, 2150, 2500, 2900, 3400, 4000, 4800, 5800, 7000, 8500}
                 Public Shared LowerCutoffFrequencies As Double() = {100, 200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000, 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700}
                 Public Shared UpperCutoffFrequencies As Double() = {200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000, 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700, 9500}
             End Structure
+
 
         End Module
 

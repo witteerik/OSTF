@@ -3,13 +3,61 @@ Public Class HearingAidGainData
 
     Public Property Name As String = ""
 
-    Public LeftSideGain() As Single
-    Public RightSideGain() As Single
+    Public LeftSideGain As New List(Of GainPoint)
+    Public RightSideGain As New List(Of GainPoint)
+
+    Public Class GainPoint
+        Public Frequency As Integer
+        Public Gain As Double
+    End Class
 
     ''' <summary>
-    ''' Critical band centre frequencies according to table 1 in ANSI S3.5-1997
+    ''' Returns the gain values for the corresponding left side for frequency values
     ''' </summary>
-    Public Frequencies() As Single = {150, 250, 350, 450, 570, 700, 840, 1000, 1170, 1370, 1600, 1850, 2150, 2500, 2900, 3400, 4000, 4800, 5800, 7000, 8500}
+    ''' <returns></returns>
+    Public Function GetLeftSideGain() As Single()
+        Dim Output As New List(Of Single)
+        For Each GainPoint In LeftSideGain
+            Output.Add(GainPoint.Gain)
+        Next
+        Return Output.ToArray
+    End Function
+
+    ''' <summary>
+    ''' Returns the gain values for the corresponding right side for frequency values
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetRightSideGain() As Single()
+        Dim Output As New List(Of Single)
+        For Each GainPoint In RightSideGain
+            Output.Add(GainPoint.Gain)
+        Next
+        Return Output.ToArray
+    End Function
+
+    ''' <summary>
+    ''' Returns the frequency values for the corresponding left side for gain values
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetLeftSideFrequencies() As Single()
+        Dim Output As New List(Of Single)
+        For Each GainPoint In LeftSideGain
+            Output.Add(GainPoint.Frequency)
+        Next
+        Return Output.ToArray
+    End Function
+
+    ''' <summary>
+    ''' Returns the frequency values for the corresponding right side for gain values
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetRightSideFrequencies() As Single()
+        Dim Output As New List(Of Single)
+        For Each GainPoint In RightSideGain
+            Output.Add(GainPoint.Frequency)
+        Next
+        Return Output.ToArray
+    End Function
 
 
     Public Shared Function CreateNewNoGainData()
@@ -17,8 +65,10 @@ Public Class HearingAidGainData
         Dim Output = New HearingAidGainData
 
         'Setting gain arrays to 0 for all frequencies
-        Output.LeftSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-        Output.RightSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        For Each f In Audio.DSP.SiiCriticalBands.CentreFrequencies
+            Output.LeftSideGain.Add(New GainPoint With {.Frequency = f, .Gain = 0})
+            Output.RightSideGain.Add(New GainPoint With {.Frequency = f, .Gain = 0})
+        Next
 
         Return Output
 
@@ -34,14 +84,12 @@ Public Class HearingAidGainData
         End If
 
         'Calculating Fig6 for each critical band
-        Output.LeftSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-        For n = 0 To Output.LeftSideGain.Length - 1
-            Output.LeftSideGain(n) = Output.GetFig6Interpolation(AudiogramData.Cb_Left_AC(n), ReferenceLevel)
+        For n = 0 To Audio.DSP.SiiCriticalBands.CentreFrequencies.Length - 1
+            Output.LeftSideGain.Add(New GainPoint With {.Frequency = Audio.DSP.SiiCriticalBands.CentreFrequencies(n), .Gain = Output.GetFig6Interpolation(AudiogramData.Cb_Left_AC(n), ReferenceLevel)})
         Next
 
-        Output.RightSideGain = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-        For n = 0 To Output.LeftSideGain.Length - 1
-            Output.RightSideGain(n) = Output.GetFig6Interpolation(AudiogramData.Cb_Right_AC(n), ReferenceLevel)
+        For n = 0 To Audio.DSP.SiiCriticalBands.CentreFrequencies.Length - 1
+            Output.RightSideGain.Add(New GainPoint With {.Frequency = Audio.DSP.SiiCriticalBands.CentreFrequencies(n), .Gain = Output.GetFig6Interpolation(AudiogramData.Cb_Right_AC(n), ReferenceLevel)})
         Next
 
         Return Output

@@ -20,7 +20,7 @@ Public Class SipTestGui
     Private ReadOnly Property SpeechMaterialName As String
 
     Private WithEvents Audiogram As Audiogram
-    Private GainDiagram As GainDiagram
+    Private WithEvents GainDiagram As GainDiagram
     Private ExpectedScoreDiagram As PsychometricFunctionDiagram
     Private AvailableAudiograms As New List(Of AudiogramData)
     Private ReadOnly AvailableReferenceLevels As New List(Of Double) From {68 - 10, 68 - 5, 68, 68 + 5, 68 + 10}
@@ -552,8 +552,15 @@ Public Class SipTestGui
         SelectedHearingAidGain = HaGainComboBox.SelectedItem
 
         'Displays it in the Audiogram
-        GainDiagram.UpdateGainValues(SelectedHearingAidGain)
+        GainDiagram.GainData = SelectedHearingAidGain
 
+        TryCalculatePsychometricFunction()
+
+    End Sub
+
+    Private Sub GainDataChanged() Handles GainDiagram.DataChanged
+
+        'Triggers recalculation based on a change in the selected audiogram data
         TryCalculatePsychometricFunction()
 
     End Sub

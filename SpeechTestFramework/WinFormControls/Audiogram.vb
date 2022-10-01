@@ -771,7 +771,7 @@ Namespace WinFormControls
         Private Sub Audiogram_MouseMove(sender As Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles Me.MouseMove
 
             ' Rounding to valid audiogram frequency and stimulus level
-            Dim Frequency = Utils.RoundToAudiogramFrequency(CoordinateToXValue(e.X))
+            Dim Frequency = Utils.RoundToLog2Frequency(CoordinateToXValue(e.X))
             Dim StimulusLevel = Utils.RoundToAudiogramLevel(CoordinateToYValue(e.Y))
 
             AudiogramToolTip.SetToolTip(Me, Frequency & " Hz: " & StimulusLevel & " dB")
@@ -811,7 +811,7 @@ Namespace WinFormControls
                     If EnableEditing = False Then Exit Sub
 
                     ' Rounding to valid audiogram frequency and stimulus level
-                    Dim Frequency = Utils.RoundToAudiogramFrequency(CoordinateToXValue(e.X))
+                    Dim Frequency = Utils.RoundToLog2Frequency(CoordinateToXValue(e.X))
                     Dim StimulusLevel = Utils.RoundToAudiogramLevel(CoordinateToYValue(e.Y))
 
                     'Setting the value
