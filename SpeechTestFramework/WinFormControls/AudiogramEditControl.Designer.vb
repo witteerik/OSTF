@@ -38,8 +38,8 @@ Partial Class AudiogramEditControl
         Me.BoneConduction_RadioButton = New System.Windows.Forms.RadioButton()
         Me.Side_GroupBox = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
-        Me.LeftSide_RadioButton = New System.Windows.Forms.RadioButton()
         Me.RightSide_RadioButton = New System.Windows.Forms.RadioButton()
+        Me.LeftSide_RadioButton = New System.Windows.Forms.RadioButton()
         Me.Content_TableLayoutPanel.SuspendLayout()
         Me.EditMode_GroupBox.SuspendLayout()
         Me.TableLayoutPanel6.SuspendLayout()
@@ -62,11 +62,12 @@ Partial Class AudiogramEditControl
         Me.Content_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Content_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
         Me.Content_TableLayoutPanel.Name = "Content_TableLayoutPanel"
-        Me.Content_TableLayoutPanel.RowCount = 4
+        Me.Content_TableLayoutPanel.RowCount = 5
         Me.Content_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50.0!))
         Me.Content_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50.0!))
         Me.Content_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50.0!))
         Me.Content_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50.0!))
+        Me.Content_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.Content_TableLayoutPanel.Size = New System.Drawing.Size(461, 200)
         Me.Content_TableLayoutPanel.TabIndex = 2
         '
@@ -254,16 +255,6 @@ Partial Class AudiogramEditControl
         Me.TableLayoutPanel5.Size = New System.Drawing.Size(449, 25)
         Me.TableLayoutPanel5.TabIndex = 2
         '
-        'LeftSide_RadioButton
-        '
-        Me.LeftSide_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LeftSide_RadioButton.Location = New System.Drawing.Point(227, 3)
-        Me.LeftSide_RadioButton.Name = "LeftSide_RadioButton"
-        Me.LeftSide_RadioButton.Size = New System.Drawing.Size(219, 19)
-        Me.LeftSide_RadioButton.TabIndex = 0
-        Me.LeftSide_RadioButton.Text = "Left"
-        Me.LeftSide_RadioButton.UseVisualStyleBackColor = True
-        '
         'RightSide_RadioButton
         '
         Me.RightSide_RadioButton.Checked = True
@@ -275,6 +266,16 @@ Partial Class AudiogramEditControl
         Me.RightSide_RadioButton.TabStop = True
         Me.RightSide_RadioButton.Text = "Right"
         Me.RightSide_RadioButton.UseVisualStyleBackColor = True
+        '
+        'LeftSide_RadioButton
+        '
+        Me.LeftSide_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LeftSide_RadioButton.Location = New System.Drawing.Point(227, 3)
+        Me.LeftSide_RadioButton.Name = "LeftSide_RadioButton"
+        Me.LeftSide_RadioButton.Size = New System.Drawing.Size(219, 19)
+        Me.LeftSide_RadioButton.TabIndex = 0
+        Me.LeftSide_RadioButton.Text = "Left"
+        Me.LeftSide_RadioButton.UseVisualStyleBackColor = True
         '
         'AudiogramEditControl
         '

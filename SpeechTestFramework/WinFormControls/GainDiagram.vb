@@ -97,9 +97,9 @@ Namespace WinFormControls
 
         Private EnableEditing As Boolean
         Private CurrentPointType As PointTypes
-        Private MyAudiogramSymbolDialog = New AudiogramSymbolDialog
+        Private MyGainSymbolDialog = New GainSymbolDialog
 
-        Private Sub Audiogram_MouseClick(sender As Object, e As MouseEventArgs) Handles Me.MouseClick
+        Private Sub GainDiagram_MouseClick(sender As Object, e As MouseEventArgs) Handles Me.MouseClick
 
             Select Case e.Button
                 Case MouseButtons.Left
@@ -126,13 +126,13 @@ Namespace WinFormControls
 
                 Case MouseButtons.Right
 
-                    MyAudiogramSymbolDialog.Location = e.Location
-                    Dim DialogResult = MyAudiogramSymbolDialog.ShowDialog()
+                    MyGainSymbolDialog.Location = e.Location
+                    Dim DialogResult = MyGainSymbolDialog.ShowDialog()
                     If DialogResult = DialogResult.OK Then
 
-                        EnableEditing = MyAudiogramSymbolDialog.EditEnabled
+                        EnableEditing = MyGainSymbolDialog.EditEnabled
 
-                        If MyAudiogramSymbolDialog.LeftSide = True Then
+                        If MyGainSymbolDialog.LeftSide = True Then
                             CurrentPointType = PointTypes.Left
                         Else
                             'Right side

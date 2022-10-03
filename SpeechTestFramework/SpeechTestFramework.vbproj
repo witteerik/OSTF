@@ -101,6 +101,12 @@
     <Compile Include="AudioProcessing\PortAudioVB.vb" />
     <Compile Include="AudioProcessing\SMA1.0.vb" />
     <Compile Include="AudioProcessing\SMA1.1.vb" />
+    <Compile Include="WinFormControls\GainSymbolDialog.Designer.vb">
+      <DependentUpon>GainSymbolDialog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\GainSymbolDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="IPA\IPA.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
@@ -190,6 +196,12 @@
       <DependentUpon>AudiogramWithEditControls.vb</DependentUpon>
     </Compile>
     <Compile Include="WinFormControls\AudiogramWithEditControls.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WinFormControls\GainEditControl.Designer.vb">
+      <DependentUpon>GainEditControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormControls\GainEditControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="WinFormControls\Lamp.vb">
@@ -371,6 +383,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="WinFormControls\GainSymbolDialog.resx">
+      <DependentUpon>GainSymbolDialog.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
@@ -403,6 +418,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\AudiogramWithEditControls.resx">
       <DependentUpon>AudiogramWithEditControls.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormControls\GainEditControl.resx">
+      <DependentUpon>GainEditControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\LoadOstaMediaSetControl.resx">
       <DependentUpon>LoadOstaMediaSetControl.vb</DependentUpon>
