@@ -14,8 +14,8 @@
     ''' <summary>
     ''' Creates a new instance of CalibrationForm.
     ''' </summary>
-    ''' <param name="DisposeSoundPlayerOnClose">Set to True if the calibration form is started as a standalone application. This will dispose the SoundPlayer on when the calibration form is closed. 
-    ''' If the calibration form is launched from another OSTF application that uses the SoundPlayer, that application is instead responsible for disposing the SoundPlayer when closed.</param>
+    ''' <param name="DisposeSoundPlayerOnClose">Set to True if the new form/class is started as a standalone application. This will dispose the SoundPlayer when the new form/class is closed. 
+    ''' If the form/class is launched from within another OSTF application that uses the SoundPlayer, that application is instead responsible for disposing the SoundPlayer when closed.</param>
     Public Sub New(ByVal UserType As Utils.UserTypes, ByVal DisposeSoundPlayerOnClose As Boolean)
 
         ' This call is required by the designer.
@@ -88,9 +88,6 @@
         CalibrationLevel_ComboBox.SelectedItem = 70
 
         'Adding transducers
-        'Initiating the sound player if not already done
-        If OstfBase.SoundPlayer Is Nothing Then OstfBase.SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
-
         Dim TempWaveFromat As New Audio.Formats.WaveFormat(48000, 32, 1,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
         OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveFromat,,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
 
@@ -283,8 +280,8 @@
     End Sub
 
     Private Sub CalibrationForm_FormClosing(sender As Object, e As Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
-        'Disposing the sound player. Note that this means that 
-        If DisposeSoundPlayerOnClose = True Then If SoundPlayer IsNot Nothing Then SoundPlayer.Dispose()
+        'Disposing the sound player. 
+        If DisposeSoundPlayerOnClose = True Then If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()
     End Sub
 
     Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click

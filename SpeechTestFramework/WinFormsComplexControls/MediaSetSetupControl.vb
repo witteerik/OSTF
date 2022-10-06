@@ -8,46 +8,52 @@
 
     Private Sub MediaSetSetupControl_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        'Adding genders
-        TalkerGender_ComboBox.Items.AddRange([Enum].GetNames(GetType(MediaSet.Genders)))
+        Try
 
-        'Adding sound file linguistic levels
-        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
-        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
-        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
-        SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+            'Adding genders
+            TalkerGender_ComboBox.Items.AddRange([Enum].GetNames(GetType(MediaSet.Genders)))
 
-        'Adding supported bit depths
-        WaveFileBitDepth_ComboBox.Items.Add(16)
-        WaveFileBitDepth_ComboBox.Items.Add(32)
+            'Adding sound file linguistic levels
+            SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
+            SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
+            SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
-        'Adding encodings
-        WaveFileEncoding_ComboBox.Items.AddRange([Enum].GetNames(GetType(Audio.Formats.WaveFormat.WaveFormatEncodings)))
+            'Adding supported bit depths
+            WaveFileBitDepth_ComboBox.Items.Add(16)
+            WaveFileBitDepth_ComboBox.Items.Add(32)
 
-        'Adding speech level frequency weightings
-        SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
-        SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.C)
-        SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.K)
-        SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.RLB)
+            'Adding encodings
+            WaveFileEncoding_ComboBox.Items.AddRange([Enum].GetNames(GetType(Audio.Formats.WaveFormat.WaveFormatEncodings)))
 
-        'Pre-selecting Z weighting
-        SpeechLevelFrequencyWeighting_ComboBox.SelectedIndex = 0
+            'Adding speech level frequency weightings
+            SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
+            SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.C)
+            SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.K)
+            SpeechLevelFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.RLB)
 
-        'Adding SMA level frequency weightings 
-        SmaFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
-        SmaFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.C)
-        SmaFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.K)
-        SmaFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.RLB)
+            'Pre-selecting Z weighting
+            SpeechLevelFrequencyWeighting_ComboBox.SelectedIndex = 0
 
-        'Pre-selecting Z weighting
-        SmaFrequencyWeighting_ComboBox.SelectedIndex = 0
+            'Adding SMA level frequency weightings 
+            SmaFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
+            SmaFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.C)
+            SmaFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.K)
+            SmaFrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.RLB)
+
+            'Pre-selecting Z weighting
+            SmaFrequencyWeighting_ComboBox.SelectedIndex = 0
 
 
-        'Showing the value of Standard_dBFS_dBSPL_Difference in the Speech level SPL lable
+            'Showing the value of Standard_dBFS_dBSPL_Difference in the Speech level SPL lable
 
-        SpeechLevelSPL_Label.Text = "Speech level (dB SPL, [SPL - FS = " & Audio.Standard_dBFS_dBSPL_Difference & " dB])"
+            SpeechLevelSPL_Label.Text = "Speech level (dB SPL, [SPL - FS = " & Audio.Standard_dBFS_dBSPL_Difference & " dB])"
 
-        UpdateControlEnabledStatuses()
+            UpdateControlEnabledStatuses()
+
+        Catch ex As Exception
+            MsgBox("The following error occured: " & vbCrLf & vbCrLf & ex.ToString)
+        End Try
 
     End Sub
 

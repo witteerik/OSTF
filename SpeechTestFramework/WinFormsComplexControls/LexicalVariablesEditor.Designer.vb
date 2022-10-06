@@ -45,13 +45,13 @@ Partial Class LexicalVariablesEditor
         Me.Label4 = New System.Windows.Forms.Label()
         Me.LoadDatabase_LoadFileControl = New SpeechTestFramework.LoadFileControl()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
+        Me.IgnoreZeroPhonemesCheckBox = New System.Windows.Forms.CheckBox()
         Me.CaseInvariantLookupCheckBox = New System.Windows.Forms.CheckBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.LoadedSpeechMaterialName_TextBox = New System.Windows.Forms.TextBox()
         Me.LoadOstaTestSpecificationControl1 = New SpeechTestFramework.LoadOstaTestSpecificationControl()
-        Me.IgnoreZeroPhonemesCheckBox = New System.Windows.Forms.CheckBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.ProcessingGroupBox.SuspendLayout()
         Me.TableLayoutPanel4.SuspendLayout()
@@ -399,6 +399,9 @@ Partial Class LexicalVariablesEditor
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 71.62791!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.37209!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
@@ -409,6 +412,7 @@ Partial Class LexicalVariablesEditor
         Me.LoadDatabase_LoadFileControl.Location = New System.Drawing.Point(3, 53)
         Me.LoadDatabase_LoadFileControl.Name = "LoadDatabase_LoadFileControl"
         Me.LoadDatabase_LoadFileControl.RowCount = 2
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -444,6 +448,16 @@ Partial Class LexicalVariablesEditor
         Me.GroupBox3.Size = New System.Drawing.Size(174, 73)
         Me.GroupBox3.TabIndex = 5
         Me.GroupBox3.TabStop = False
+        '
+        'IgnoreZeroPhonemesCheckBox
+        '
+        Me.IgnoreZeroPhonemesCheckBox.AutoSize = True
+        Me.IgnoreZeroPhonemesCheckBox.Location = New System.Drawing.Point(6, 39)
+        Me.IgnoreZeroPhonemesCheckBox.Name = "IgnoreZeroPhonemesCheckBox"
+        Me.IgnoreZeroPhonemesCheckBox.Size = New System.Drawing.Size(162, 17)
+        Me.IgnoreZeroPhonemesCheckBox.TabIndex = 4
+        Me.IgnoreZeroPhonemesCheckBox.Text = "Ignore phonetic character ∅"
+        Me.IgnoreZeroPhonemesCheckBox.UseVisualStyleBackColor = True
         '
         'CaseInvariantLookupCheckBox
         '
@@ -515,16 +529,6 @@ Partial Class LexicalVariablesEditor
         Me.LoadOstaTestSpecificationControl1.SelectedTestSpecification = Nothing
         Me.LoadOstaTestSpecificationControl1.Size = New System.Drawing.Size(332, 54)
         Me.LoadOstaTestSpecificationControl1.TabIndex = 8
-        '
-        'IgnoreZeroPhonemesCheckBox
-        '
-        Me.IgnoreZeroPhonemesCheckBox.AutoSize = True
-        Me.IgnoreZeroPhonemesCheckBox.Location = New System.Drawing.Point(6, 39)
-        Me.IgnoreZeroPhonemesCheckBox.Name = "IgnoreZeroPhonemesCheckBox"
-        Me.IgnoreZeroPhonemesCheckBox.Size = New System.Drawing.Size(162, 17)
-        Me.IgnoreZeroPhonemesCheckBox.TabIndex = 4
-        Me.IgnoreZeroPhonemesCheckBox.Text = "Ignore phonetic character ∅"
-        Me.IgnoreZeroPhonemesCheckBox.UseVisualStyleBackColor = True
         '
         'LexicalVariablesEditor
         '

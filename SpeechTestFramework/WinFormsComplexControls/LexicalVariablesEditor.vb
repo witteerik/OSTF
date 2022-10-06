@@ -11,12 +11,18 @@
 
     Private Sub LexicalVariablesEditor_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        MatchBoth_RadioButton.Checked = True
+        Try
 
-        SpellingVariableNameTextBox.Text = SpeechMaterialComponent.DefaultSpellingVariableName
-        TranscriptionVariableNameTextBox.Text = SpeechMaterialComponent.DefaultTranscriptionVariableName
+            MatchBoth_RadioButton.Checked = True
 
-        UpdateControlEnabledStatuses()
+            SpellingVariableNameTextBox.Text = SpeechMaterialComponent.DefaultSpellingVariableName
+            TranscriptionVariableNameTextBox.Text = SpeechMaterialComponent.DefaultTranscriptionVariableName
+
+            UpdateControlEnabledStatuses()
+
+        Catch ex As Exception
+            MsgBox("The following error occured: " & vbCrLf & vbCrLf & ex.ToString)
+        End Try
 
     End Sub
 

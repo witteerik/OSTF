@@ -4,27 +4,25 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C9F084E5-9B2E-4F9B-9D07-F52B4ABC44E7}</ProjectGuid>
+    <ProjectGuid>{06D5DB7A-F10D-445F-A3F9-EC048634E093}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <StartupObject>SiP_SE_R.My.MyApplication</StartupObject>
-    <RootNamespace>SiP_SE_R</RootNamespace>
-    <AssemblyName>SiP_SE_R</AssemblyName>
+    <StartupObject>OSTF_suite_R.My.MyApplication</StartupObject>
+    <RootNamespace>OSTF_suite_R</RootNamespace>
+    <AssemblyName>OSTF_suite_R</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>SiP_SE_R.xml</DocumentationFile>
+    <DocumentationFile>OSTF_suite_R.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -34,7 +32,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>SiP_SE_R.xml</DocumentationFile>
+    <DocumentationFile>OSTF_suite_R.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -49,15 +47,15 @@
   <PropertyGroup>
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>Resources\SiP-icon.ico</ApplicationIcon>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.5.0.0\lib\net48\MathNet.Numerics.dll</HintPath>
+    <Reference Include="InTheHand.Net.Bluetooth">
+      <HintPath>..\SpeechTestFramework\bin\Release\InTheHand.Net.Bluetooth.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>..\SpeechTestFramework\bin\Release\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="SpeechTestFramework">
-      <HintPath>..\SpeechTestFramework\bin\Debug\SpeechTestFramework.dll</HintPath>
+      <HintPath>..\SpeechTestFramework\bin\Release\SpeechTestFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -100,7 +98,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="SipForm.vb">
+    <Compile Include="OSTF_suite_R.Designer.vb">
+      <DependentUpon>OSTF_suite_R.vb</DependentUpon>
+    </Compile>
+    <Compile Include="OSTF_suite_R.vb">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
@@ -110,6 +111,9 @@
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OSTF_suite_R.resx">
+      <DependentUpon>OSTF_suite_R.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -123,7 +127,6 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="InvisibleCursor.cur">
@@ -138,7 +141,7 @@
     <Content Include="portaudio_x86.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Resources\SiP-icon.ico" />
+    <None Include="Resources\ic_launcher.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

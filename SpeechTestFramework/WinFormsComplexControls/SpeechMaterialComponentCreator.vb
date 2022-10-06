@@ -12,29 +12,35 @@
 
     Private Sub SpeechMaterialComponentCreator_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        'Adding default characters into the word level spelling trim text box
-        Dim DefaultWordTrimChars As New List(Of Char) From {".", ",", "?", "!", ";", ":", Chr(34), Chr(39), Chr(60), Chr(62)}
-        For UnicodePoint = 8216 To 8223
-            DefaultWordTrimChars.Add(ChrW(UnicodePoint))
-        Next
-        DefaultWordTrimChars.Add(ChrW(8242))
-        DefaultWordTrimChars.Add(ChrW(8243))
-        DefaultWordTrimChars.Add(ChrW(8245))
-        DefaultWordTrimChars.Add(ChrW(8246))
-        DefaultWordTrimChars.Add(ChrW(8249))
-        DefaultWordTrimChars.Add(ChrW(8250))
-        WordTrimChars_TextBox.Text = String.Join(" ", DefaultWordTrimChars)
+        Try
 
-        'Adding default characters into phone level transcription trim text box
-        Dim IpaMainStress As Char = "ˈ"
-        Dim IpaMainSwedishAccent2 As Char = "²"
-        Dim IpaSecondaryStress As Char = "ˌ"
-        Dim IpaSyllableBoundary As Char = "."
-        Dim IpaLinkingSymbol As Char = "‿"
-        Dim IpaMinorFootGroup As Char = "|"
-        Dim IpaMajorIntonationGroup As Char = "‖"
-        Dim DefaultPhoneTrimChars As New List(Of Char) From {",", IpaMainStress, IpaSecondaryStress, IpaSyllableBoundary, IpaMainSwedishAccent2, IpaLinkingSymbol, IpaMinorFootGroup, IpaMajorIntonationGroup}
-        PhoneTrimChars_TextBox.Text = String.Join(" ", DefaultPhoneTrimChars)
+            'Adding default characters into the word level spelling trim text box
+            Dim DefaultWordTrimChars As New List(Of Char) From {".", ",", "?", "!", ";", ":", Chr(34), Chr(39), Chr(60), Chr(62)}
+            For UnicodePoint = 8216 To 8223
+                DefaultWordTrimChars.Add(ChrW(UnicodePoint))
+            Next
+            DefaultWordTrimChars.Add(ChrW(8242))
+            DefaultWordTrimChars.Add(ChrW(8243))
+            DefaultWordTrimChars.Add(ChrW(8245))
+            DefaultWordTrimChars.Add(ChrW(8246))
+            DefaultWordTrimChars.Add(ChrW(8249))
+            DefaultWordTrimChars.Add(ChrW(8250))
+            WordTrimChars_TextBox.Text = String.Join(" ", DefaultWordTrimChars)
+
+            'Adding default characters into phone level transcription trim text box
+            Dim IpaMainStress As Char = "ˈ"
+            Dim IpaMainSwedishAccent2 As Char = "²"
+            Dim IpaSecondaryStress As Char = "ˌ"
+            Dim IpaSyllableBoundary As Char = "."
+            Dim IpaLinkingSymbol As Char = "‿"
+            Dim IpaMinorFootGroup As Char = "|"
+            Dim IpaMajorIntonationGroup As Char = "‖"
+            Dim DefaultPhoneTrimChars As New List(Of Char) From {",", IpaMainStress, IpaSecondaryStress, IpaSyllableBoundary, IpaMainSwedishAccent2, IpaLinkingSymbol, IpaMinorFootGroup, IpaMajorIntonationGroup}
+            PhoneTrimChars_TextBox.Text = String.Join(" ", DefaultPhoneTrimChars)
+
+        Catch ex As Exception
+            MsgBox("The following error occured: " & vbCrLf & vbCrLf & ex.ToString)
+        End Try
 
     End Sub
 

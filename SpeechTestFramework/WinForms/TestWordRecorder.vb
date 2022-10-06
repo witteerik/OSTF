@@ -35,9 +35,6 @@ Public Class SpeechMaterialRecorder
     Private BackgroundSound As Audio.Sound = Nothing ' This sound holds the full background sound
     Private CurrentMasker As Audio.Sound = Nothing ' This sound holds the shortened random section of the background sound which is actually played
 
-    'Sound player
-    Private SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
-
     'Sound audio settings
     Private CurrentAudioApiSettings As Audio.AudioApiSettings = Nothing
 
@@ -333,11 +330,7 @@ Public Class SpeechMaterialRecorder
         'Checks if the user wants to save the sound before closing
         CheckIfSaveSound()
 
-        If SoundPlayer IsNot Nothing Then
-            SoundPlayer.Dispose()
-        End If
-
-        SoundPlayer = Nothing
+        If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()
 
     End Sub
 
@@ -546,10 +539,6 @@ Public Class SpeechMaterialRecorder
     End Sub
 
     Public Sub SetupAudioPlayer()
-
-        If SoundPlayer IsNot Nothing Then
-            SoundPlayer.Dispose()
-        End If
 
         Dim TemporaryOutputSound As Audio.Sound = Audio.GenerateSound.CreateSilence(RecordingWaveFormat,, 1)
         Dim PlayerMode As Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections
@@ -901,7 +890,7 @@ Public Class SpeechMaterialRecorder
                 'Resetting sound display
                 If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
 
-                Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2,,,,,,,,,, SoundPlayer, CurrentAudioApiSettings)
+                Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2,,,,,,,,,, CurrentAudioApiSettings)
                 waveDrawer.Dock = Windows.Forms.DockStyle.Fill
                 RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
                 HasSound = True
@@ -966,7 +955,7 @@ Public Class SpeechMaterialRecorder
                         'SoundEditor
                         Dim TestSound = Audio.Sound.GetTestSound
                         Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,, True, ShowSpectrogram, CurrentSpectrogramFormat, PaddingTime,
-                                                                         InterSentenceTime, DrawNormalizedWave, SoundPlayer, CurrentAudioApiSettings, SetSegmentationToZeroCrossings)
+                                                                         InterSentenceTime, DrawNormalizedWave, CurrentAudioApiSettings, SetSegmentationToZeroCrossings)
 
                         'Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,, True, ShowSpectrogram, CurrentSpectrogramFormat, PaddingTime,
                         '                                                 InterSentenceTime, DrawNormalizedWave, SoundPlayer, SetSegmentationToZeroCrossings)

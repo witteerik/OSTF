@@ -31,11 +31,16 @@ Partial Class SpeechMaterialCreator
         Me.StatisticalSummaryControl1 = New SpeechTestFramework.StatisticalSummaryControl()
         Me.TabPage4 = New System.Windows.Forms.TabPage()
         Me.MediaSetSetupControl1 = New SpeechTestFramework.MediaSetSetupControl()
+        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
+        Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MainTabControl.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
         Me.TabPage3.SuspendLayout()
         Me.TabPage4.SuspendLayout()
+        Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
         'MainTabControl
@@ -45,10 +50,10 @@ Partial Class SpeechMaterialCreator
         Me.MainTabControl.Controls.Add(Me.TabPage3)
         Me.MainTabControl.Controls.Add(Me.TabPage4)
         Me.MainTabControl.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MainTabControl.Location = New System.Drawing.Point(0, 0)
+        Me.MainTabControl.Location = New System.Drawing.Point(0, 24)
         Me.MainTabControl.Name = "MainTabControl"
         Me.MainTabControl.SelectedIndex = 0
-        Me.MainTabControl.Size = New System.Drawing.Size(845, 450)
+        Me.MainTabControl.Size = New System.Drawing.Size(845, 426)
         Me.MainTabControl.TabIndex = 0
         '
         'TabPage1
@@ -57,7 +62,7 @@ Partial Class SpeechMaterialCreator
         Me.TabPage1.Location = New System.Drawing.Point(4, 22)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(837, 424)
+        Me.TabPage1.Size = New System.Drawing.Size(837, 400)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "Speech material components (SMC)"
         Me.TabPage1.UseVisualStyleBackColor = True
@@ -69,7 +74,7 @@ Partial Class SpeechMaterialCreator
         Me.MySpeechMaterialComponentCreator.Dock = System.Windows.Forms.DockStyle.Fill
         Me.MySpeechMaterialComponentCreator.Location = New System.Drawing.Point(3, 3)
         Me.MySpeechMaterialComponentCreator.Name = "MySpeechMaterialComponentCreator"
-        Me.MySpeechMaterialComponentCreator.Size = New System.Drawing.Size(831, 418)
+        Me.MySpeechMaterialComponentCreator.Size = New System.Drawing.Size(831, 394)
         Me.MySpeechMaterialComponentCreator.TabIndex = 0
         '
         'TabPage2
@@ -78,7 +83,7 @@ Partial Class SpeechMaterialCreator
         Me.TabPage2.Location = New System.Drawing.Point(4, 22)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(837, 424)
+        Me.TabPage2.Size = New System.Drawing.Size(837, 400)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "Add lexical variables to SMC"
         Me.TabPage2.UseVisualStyleBackColor = True
@@ -90,7 +95,7 @@ Partial Class SpeechMaterialCreator
         Me.LexicalVariablesEditor1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.LexicalVariablesEditor1.Location = New System.Drawing.Point(3, 3)
         Me.LexicalVariablesEditor1.Name = "LexicalVariablesEditor1"
-        Me.LexicalVariablesEditor1.Size = New System.Drawing.Size(831, 418)
+        Me.LexicalVariablesEditor1.Size = New System.Drawing.Size(831, 394)
         Me.LexicalVariablesEditor1.TabIndex = 0
         '
         'TabPage3
@@ -99,7 +104,7 @@ Partial Class SpeechMaterialCreator
         Me.TabPage3.Location = New System.Drawing.Point(4, 22)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(837, 424)
+        Me.TabPage3.Size = New System.Drawing.Size(837, 400)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "Summary statistics"
         Me.TabPage3.UseVisualStyleBackColor = True
@@ -111,7 +116,7 @@ Partial Class SpeechMaterialCreator
         Me.StatisticalSummaryControl1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.StatisticalSummaryControl1.Location = New System.Drawing.Point(3, 3)
         Me.StatisticalSummaryControl1.Name = "StatisticalSummaryControl1"
-        Me.StatisticalSummaryControl1.Size = New System.Drawing.Size(831, 418)
+        Me.StatisticalSummaryControl1.Size = New System.Drawing.Size(831, 394)
         Me.StatisticalSummaryControl1.TabIndex = 0
         '
         'TabPage4
@@ -120,7 +125,7 @@ Partial Class SpeechMaterialCreator
         Me.TabPage4.Location = New System.Drawing.Point(4, 22)
         Me.TabPage4.Name = "TabPage4"
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(837, 424)
+        Me.TabPage4.Size = New System.Drawing.Size(837, 400)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "Add/edit media set"
         Me.TabPage4.UseVisualStyleBackColor = True
@@ -132,8 +137,36 @@ Partial Class SpeechMaterialCreator
         Me.MediaSetSetupControl1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.MediaSetSetupControl1.Location = New System.Drawing.Point(3, 3)
         Me.MediaSetSetupControl1.Name = "MediaSetSetupControl1"
-        Me.MediaSetSetupControl1.Size = New System.Drawing.Size(831, 418)
+        Me.MediaSetSetupControl1.Size = New System.Drawing.Size(831, 394)
         Me.MediaSetSetupControl1.TabIndex = 0
+        '
+        'MenuStrip1
+        '
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem})
+        Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
+        Me.MenuStrip1.Name = "MenuStrip1"
+        Me.MenuStrip1.Size = New System.Drawing.Size(845, 24)
+        Me.MenuStrip1.TabIndex = 1
+        Me.MenuStrip1.Text = "MenuStrip1"
+        '
+        'FileToolStripMenuItem
+        '
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AboutToolStripMenuItem, Me.ExitToolStripMenuItem})
+        Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
+        Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
+        Me.FileToolStripMenuItem.Text = "File"
+        '
+        'AboutToolStripMenuItem
+        '
+        Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
+        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.AboutToolStripMenuItem.Text = "About"
+        '
+        'ExitToolStripMenuItem
+        '
+        Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.ExitToolStripMenuItem.Text = "Exit"
         '
         'SpeechMaterialCreator
         '
@@ -141,14 +174,19 @@ Partial Class SpeechMaterialCreator
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(845, 450)
         Me.Controls.Add(Me.MainTabControl)
+        Me.Controls.Add(Me.MenuStrip1)
+        Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "SpeechMaterialCreator"
-        Me.Text = "SpeechMaterialCreator"
+        Me.Text = "OSTF - Speech Material Creator"
         Me.MainTabControl.ResumeLayout(False)
         Me.TabPage1.ResumeLayout(False)
         Me.TabPage2.ResumeLayout(False)
         Me.TabPage3.ResumeLayout(False)
         Me.TabPage4.ResumeLayout(False)
+        Me.MenuStrip1.ResumeLayout(False)
+        Me.MenuStrip1.PerformLayout()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
@@ -161,4 +199,8 @@ Partial Class SpeechMaterialCreator
     Friend WithEvents StatisticalSummaryControl1 As StatisticalSummaryControl
     Friend WithEvents TabPage4 As Windows.Forms.TabPage
     Friend WithEvents MediaSetSetupControl1 As MediaSetSetupControl
+    Friend WithEvents MenuStrip1 As Windows.Forms.MenuStrip
+    Friend WithEvents FileToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents AboutToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ExitToolStripMenuItem As Windows.Forms.ToolStripMenuItem
 End Class

@@ -148,8 +148,7 @@ Namespace Audio
             Public Sub New(ByRef InputSound As Sound, Optional ByVal StartSample As Integer = 0, Optional ByVal LengthInSamples As Integer? = Nothing, Optional ByVal ViewChannel As Integer = 1,
                            Optional ByVal UseItemSegmentation As Boolean = False, Optional ByVal ShowSpectrogram As Boolean = False,
                     Optional ByRef SpectrogramFormat As Formats.SpectrogramFormat = Nothing, Optional ByRef PaddingTime As Single = 0.5, Optional ByRef InterSentenceTime As Single = 4,
-                    Optional ByRef DrawNormalizedWave As Boolean = False,
-                           Optional ByRef SoundPlayer As PortAudioVB.OverlappingSoundPlayer = Nothing, Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
+                    Optional ByRef DrawNormalizedWave As Boolean = False, Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
                     Optional ByRef SetSegmentationToZeroCrossings As Boolean = True, Optional ByRef ShowPlaySoundButton As Boolean = True, Optional ShowInferLengthsButton As Boolean = True,
                     Optional ByRef ShowNextUnvalidatedItemButtons As Boolean = True, Optional ByRef ShowValidateSegmentationButton As Boolean = True,
                            Optional ByRef ShowFadePaddingButton As Boolean = True, Optional ByRef ShowFadeIntervalsButton As Boolean = True)
@@ -164,6 +163,9 @@ Namespace Audio
                 Me.InterSentenceTime = InterSentenceTime
                 Me.DrawNormalizedWave = DrawNormalizedWave
                 Me.AudioApiSettings = AudioApiSettings
+
+                If Me.AudioApiSettings IsNot Nothing Then SetupSoundPlayer()
+
                 Me.SetSegmentationToZeroCrossings = SetSegmentationToZeroCrossings
 
                 Me.ShowPlaySoundButton = ShowPlaySoundButton
@@ -1891,7 +1893,7 @@ Namespace Audio
                     Dim lengthToPlay As Integer = CurrentSegmentationItem.Length
                     If lengthToPlay < 0 Then lengthToPlay = 0
 
-                    If SoundPlayer Is Nothing Then SetupSoundPLayer()
+                    If SoundPlayerIsInitialized() = False Then SetupSoundPlayer()
                     Dim PlaySection = Audio.DSP.CopySection(CurrentSound, startSample, lengthToPlay)
                     SoundPlayer.SwapOutputSounds(PlaySection)
 
@@ -1951,12 +1953,12 @@ Namespace Audio
                     AudioApiSettings.SelectDefaultAudioDevice()
                 End If
 
-                SetupSoundPLayer()
+                SetupSoundPlayer()
 
             End Sub
 
 
-            Public Sub SetupSoundPLayer()
+            Public Sub SetupSoundPlayer()
 
                 If AudioApiSettings Is Nothing Then
                     SetAudioApiSettings()
@@ -1969,7 +1971,7 @@ Namespace Audio
 
             Public Sub Play()
 
-                If SoundPlayer Is Nothing Then SetupSoundPLayer()
+                If SoundPlayerIsInitialized() = False Then SetupSoundPlayer()
 
                 If SelectionLength_Sample = 0 Then
 
@@ -1990,7 +1992,8 @@ Namespace Audio
             Public Sub PlayAll()
 
                 UpdateSampleTimeScale()
-                If SoundPlayer Is Nothing Then SetupSoundPLayer()
+                If SoundPlayerIsInitialized() = False Then SetupSoundPlayer()
+
                 SoundPlayer.SwapOutputSounds(CurrentSound)
 
             End Sub

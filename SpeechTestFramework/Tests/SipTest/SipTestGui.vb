@@ -5,6 +5,8 @@ Imports System.Drawing
 
 Public Class SipTestGui
 
+    Private DisposeSoundPlayerOnClose As Boolean
+
     ''' <summary>
     ''' Holds the type of layout / functionality. R=Reserach, C=Clinical
     ''' </summary>
@@ -142,13 +144,23 @@ Public Class SipTestGui
 
 
     Public Sub New()
-        MyClass.New("Swedish SiP-test", Utils.Constants.UserTypes.Research, Utils.Constants.Languages.English)
+        MyClass.New("Swedish SiP-test", Utils.Constants.UserTypes.Research, Utils.Constants.Languages.English, True)
     End Sub
 
-    Public Sub New(ByVal SpeechMaterialName As String, ByVal UserType As Utils.UserTypes, ByVal GuiLanguage As Utils.Languages)
+    ''' <summary>
+    ''' Creates a new instance of SiPTestGui 
+    ''' </summary>
+    ''' <param name="SpeechMaterialName"></param>
+    ''' <param name="UserType"></param>
+    ''' <param name="GuiLanguage"></param>
+    ''' <param name="DisposeSoundPlayerOnClose">Set to True if the new form/class is started as a standalone application. This will dispose the SoundPlayer when the new form/class is closed. 
+    ''' If the form/class is launched from within another OSTF application that uses the SoundPlayer, that application is instead responsible for disposing the SoundPlayer when closed.</param>
+    Public Sub New(ByVal SpeechMaterialName As String, ByVal UserType As Utils.UserTypes, ByVal GuiLanguage As Utils.Languages, ByVal DisposeSoundPlayerOnClose As Boolean)
 
         ' This call is required by the designer.
         InitializeComponent()
+
+        Me.DisposeSoundPlayerOnClose = DisposeSoundPlayerOnClose
 
         ' Add any initialization after the InitializeComponent() call.
         Me.SpeechMaterialName = SpeechMaterialName
@@ -364,8 +376,6 @@ Public Class SipTestGui
     End Sub
 
     Private Sub StartSoundPlayer()
-
-        OstfBase.SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
 
         'Selects the wave format for use (doing it this way means that the wave format MUST be the same in all available MediaSets)
         OstfBase.SoundPlayer.ChangePlayerSettings(, SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0)),,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
@@ -1991,8 +2001,17 @@ Public Class SipTestGui
 
     Private Sub SipTestGui_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
 
-        'Disploses the OstfBase.SoundPlayer
-        OstfBase.SoundPlayer.Dispose()
+        'Closing the PcResponseForm
+        Try
+            If PcParticipantForm IsNot Nothing Then
+                PcParticipantForm.Close()
+            End If
+        Catch ex As Exception
+            'Ignores any error
+        End Try
+
+        'Disposing the OstfBase.SoundPlayer. 
+        If DisposeSoundPlayerOnClose = True Then If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()
 
     End Sub
 
@@ -2138,13 +2157,6 @@ Public Class SipTestGui
         End Select
     End Sub
 
-    Private Sub StartTest(sender As Object, e As EventArgs)
-
-    End Sub
-
-    Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
-
-    End Sub
 
     Private Sub TestingSpeed_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TestingSpeed_ComboBox.SelectedIndexChanged
 

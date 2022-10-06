@@ -9,10 +9,21 @@
     Public Property RoomImpulsesSubDirectory As String = "RoomImpulses"
     Public Property AvailableTests As New List(Of SpeechMaterialSpecification)
 
+    Private _SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
+
     ''' <summary>
     ''' The SoundPlayer shared between all OSTF applications. Each application that uses it, is responsible of initiating it, with the settings required by the specific application. As well as disposing it when the application is closed.
     ''' </summary>
-    Public SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
+    Public ReadOnly Property SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
+        Get
+            If _SoundPlayer Is Nothing Then _SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
+            Return _SoundPlayer
+        End Get
+    End Property
+
+    Public Function SoundPlayerIsInitialized() As Boolean
+        Return _SoundPlayer IsNot Nothing
+    End Function
 
     ''' <summary>
     ''' This sub needs to be called upon startup of all OSTF applications.

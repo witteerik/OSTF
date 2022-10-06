@@ -132,13 +132,13 @@ Partial Class CalibrationForm
         Me.Close_Button.TabIndex = 10
         Me.Close_Button.Text = "Close"
         '
-        'SelectedChannel_ComboBox
+        'SelectedHardWareOutputChannel_ComboBox
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.SelectedHardWareOutputChannel_ComboBox, 2)
         Me.SelectedHardWareOutputChannel_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SelectedHardWareOutputChannel_ComboBox.FormattingEnabled = True
         Me.SelectedHardWareOutputChannel_ComboBox.Location = New System.Drawing.Point(249, 81)
-        Me.SelectedHardWareOutputChannel_ComboBox.Name = "SelectedChannel_ComboBox"
+        Me.SelectedHardWareOutputChannel_ComboBox.Name = "SelectedHardWareOutputChannel_ComboBox"
         Me.SelectedHardWareOutputChannel_ComboBox.Size = New System.Drawing.Size(240, 21)
         Me.SelectedHardWareOutputChannel_ComboBox.TabIndex = 12
         '
@@ -319,7 +319,7 @@ Partial Class CalibrationForm
         Me.Controls.Add(Me.MenuStrip1)
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "CalibrationForm"
-        Me.Text = "Calibration form"
+        Me.Text = "OSTF - Calibration form"
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.TableLayoutPanel1.PerformLayout()
         Me.MenuStrip1.ResumeLayout(False)

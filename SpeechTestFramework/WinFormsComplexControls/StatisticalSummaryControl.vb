@@ -4,15 +4,21 @@
 
     Private Sub StatisticalSummaryControl_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        SourceLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
-        SourceLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
-        SourceLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
-        SourceLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
+        Try
 
-        'Selecting a default level
-        SourceLevel_ComboBox.SelectedItem = SpeechMaterialComponent.LinguisticLevels.Word
+            SourceLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+            SourceLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
+            SourceLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            SourceLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
 
-        UpdateControlEnabledStatuses()
+            'Selecting a default level
+            SourceLevel_ComboBox.SelectedItem = SpeechMaterialComponent.LinguisticLevels.Word
+
+            UpdateControlEnabledStatuses()
+
+        Catch ex As Exception
+            MsgBox("The following error occured: " & vbCrLf & vbCrLf & ex.ToString)
+        End Try
 
     End Sub
 

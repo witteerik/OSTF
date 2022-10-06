@@ -46,13 +46,13 @@ Partial Class SpeechMaterialComponentCreator
         Me.AddZeroPhoneme_CheckBox = New System.Windows.Forms.CheckBox()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.WordTrimChars_TextBox = New System.Windows.Forms.TextBox()
-        Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
-        Me.CheckInputButton = New System.Windows.Forms.Button()
-        Me.CreateSpeechMaterialComponentFile_Button = New System.Windows.Forms.Button()
         Me.SequentialLists_CheckBox = New System.Windows.Forms.CheckBox()
         Me.SequentialSentences_CheckBox = New System.Windows.Forms.CheckBox()
         Me.SequentialWords_CheckBox = New System.Windows.Forms.CheckBox()
         Me.SequentialPhonemes_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
+        Me.CheckInputButton = New System.Windows.Forms.Button()
+        Me.CreateSpeechMaterialComponentFile_Button = New System.Windows.Forms.Button()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
         Me.SplitContainer1.Panel2.SuspendLayout()
@@ -299,6 +299,9 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
@@ -323,6 +326,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionDatabase_FilePathControl.Location = New System.Drawing.Point(3, 3)
         Me.TranscriptionDatabase_FilePathControl.Name = "TranscriptionDatabase_FilePathControl"
         Me.TranscriptionDatabase_FilePathControl.RowCount = 2
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -434,35 +438,6 @@ Partial Class SpeechMaterialComponentCreator
         Me.WordTrimChars_TextBox.Size = New System.Drawing.Size(174, 22)
         Me.WordTrimChars_TextBox.TabIndex = 7
         '
-        'FlowLayoutPanel1
-        '
-        Me.FlowLayoutPanel1.Controls.Add(Me.CheckInputButton)
-        Me.FlowLayoutPanel1.Controls.Add(Me.CreateSpeechMaterialComponentFile_Button)
-        Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.FlowLayoutPanel1.Location = New System.Drawing.Point(0, 0)
-        Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
-        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(819, 99)
-        Me.FlowLayoutPanel1.TabIndex = 0
-        '
-        'CheckInputButton
-        '
-        Me.CheckInputButton.Location = New System.Drawing.Point(3, 3)
-        Me.CheckInputButton.Name = "CheckInputButton"
-        Me.CheckInputButton.Size = New System.Drawing.Size(173, 42)
-        Me.CheckInputButton.TabIndex = 0
-        Me.CheckInputButton.Text = "Check speech material input"
-        Me.CheckInputButton.UseVisualStyleBackColor = True
-        '
-        'CreateSpeechMaterialComponentFile_Button
-        '
-        Me.CreateSpeechMaterialComponentFile_Button.Enabled = False
-        Me.CreateSpeechMaterialComponentFile_Button.Location = New System.Drawing.Point(182, 3)
-        Me.CreateSpeechMaterialComponentFile_Button.Name = "CreateSpeechMaterialComponentFile_Button"
-        Me.CreateSpeechMaterialComponentFile_Button.Size = New System.Drawing.Size(173, 42)
-        Me.CreateSpeechMaterialComponentFile_Button.TabIndex = 1
-        Me.CreateSpeechMaterialComponentFile_Button.Text = "Create speech-material component file"
-        Me.CreateSpeechMaterialComponentFile_Button.UseVisualStyleBackColor = True
-        '
         'SequentialLists_CheckBox
         '
         Me.SequentialLists_CheckBox.AutoSize = True
@@ -510,6 +485,35 @@ Partial Class SpeechMaterialComponentCreator
         Me.SequentialPhonemes_CheckBox.TabIndex = 11
         Me.SequentialPhonemes_CheckBox.Text = "Sequentially ordered phonemes"
         Me.SequentialPhonemes_CheckBox.UseVisualStyleBackColor = True
+        '
+        'FlowLayoutPanel1
+        '
+        Me.FlowLayoutPanel1.Controls.Add(Me.CheckInputButton)
+        Me.FlowLayoutPanel1.Controls.Add(Me.CreateSpeechMaterialComponentFile_Button)
+        Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.FlowLayoutPanel1.Location = New System.Drawing.Point(0, 0)
+        Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
+        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(819, 99)
+        Me.FlowLayoutPanel1.TabIndex = 0
+        '
+        'CheckInputButton
+        '
+        Me.CheckInputButton.Location = New System.Drawing.Point(3, 3)
+        Me.CheckInputButton.Name = "CheckInputButton"
+        Me.CheckInputButton.Size = New System.Drawing.Size(173, 42)
+        Me.CheckInputButton.TabIndex = 0
+        Me.CheckInputButton.Text = "Check speech material input"
+        Me.CheckInputButton.UseVisualStyleBackColor = True
+        '
+        'CreateSpeechMaterialComponentFile_Button
+        '
+        Me.CreateSpeechMaterialComponentFile_Button.Enabled = False
+        Me.CreateSpeechMaterialComponentFile_Button.Location = New System.Drawing.Point(182, 3)
+        Me.CreateSpeechMaterialComponentFile_Button.Name = "CreateSpeechMaterialComponentFile_Button"
+        Me.CreateSpeechMaterialComponentFile_Button.Size = New System.Drawing.Size(173, 42)
+        Me.CreateSpeechMaterialComponentFile_Button.TabIndex = 1
+        Me.CreateSpeechMaterialComponentFile_Button.Text = "Create speech-material component file"
+        Me.CreateSpeechMaterialComponentFile_Button.UseVisualStyleBackColor = True
         '
         'SpeechMaterialComponentCreator
         '

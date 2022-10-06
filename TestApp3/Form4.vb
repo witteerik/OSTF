@@ -41,7 +41,7 @@
 
             Case 0
 
-                Dim SM_Creator As New SpeechTestFramework.SpeechMaterialCreator
+                Dim SM_Creator As New SpeechTestFramework.SpeechMaterialCreator(SpeechTestFramework.Utils.Constants.UserTypes.Research, True)
 
                 SM_Creator.Show()
 
