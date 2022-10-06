@@ -22,6 +22,7 @@ Partial Class SpeechMaterialCreator
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(SpeechMaterialCreator))
         Me.MainTabControl = New System.Windows.Forms.TabControl()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
         Me.MySpeechMaterialComponentCreator = New SpeechTestFramework.SpeechMaterialComponentCreator()
@@ -159,13 +160,13 @@ Partial Class SpeechMaterialCreator
         'AboutToolStripMenuItem
         '
         Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
-        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(107, 22)
         Me.AboutToolStripMenuItem.Text = "About"
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(107, 22)
         Me.ExitToolStripMenuItem.Text = "Exit"
         '
         'SpeechMaterialCreator
@@ -175,6 +176,7 @@ Partial Class SpeechMaterialCreator
         Me.ClientSize = New System.Drawing.Size(845, 450)
         Me.Controls.Add(Me.MainTabControl)
         Me.Controls.Add(Me.MenuStrip1)
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "SpeechMaterialCreator"
         Me.Text = "OSTF - Speech Material Creator"

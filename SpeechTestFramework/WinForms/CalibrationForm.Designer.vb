@@ -22,6 +22,7 @@ Partial Class CalibrationForm
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(CalibrationForm))
         Me.CalibrationSignal_RichTextBox = New System.Windows.Forms.RichTextBox()
         Me.CalibrationLevel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
@@ -317,6 +318,7 @@ Partial Class CalibrationForm
         Me.ClientSize = New System.Drawing.Size(492, 472)
         Me.Controls.Add(Me.TableLayoutPanel1)
         Me.Controls.Add(Me.MenuStrip1)
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "CalibrationForm"
         Me.Text = "OSTF - Calibration form"

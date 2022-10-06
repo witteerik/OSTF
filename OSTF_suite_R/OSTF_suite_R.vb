@@ -9,6 +9,11 @@ Public Class OSTF_suite_R
         'Initializing the OSTF 
         SpeechTestFramework.InitializeOSTF(Application.StartupPath)
 
+        'Setting texts
+        Launch_SiP_SE_R_Button.Text = "Swedish SiP-test" & vbCr & "(Research version)"
+        Launch_SpeechMaterialCreator_Button.Text = "OSTF" & vbCr & "Speech Material Creator"
+        Launch_SoundLevelCalibration_Button.Text = "OSTF" & vbCr & "Sound Level Calibration" & vbCr & "(Research version)"
+
     End Sub
 
     Public Function CheckApplicationRunning() As Boolean

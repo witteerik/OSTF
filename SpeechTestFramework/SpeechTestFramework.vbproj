@@ -513,6 +513,8 @@
     <None Include="Resources\IncorrectResponseImage.bmp" />
     <None Include="Resources\CorrectResponseImage.bmp" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Icons\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

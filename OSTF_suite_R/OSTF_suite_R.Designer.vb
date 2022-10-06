@@ -39,7 +39,7 @@ Partial Class OSTF_suite_R
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(739, 24)
+        Me.MenuStrip1.Size = New System.Drawing.Size(789, 24)
         Me.MenuStrip1.TabIndex = 0
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -53,7 +53,7 @@ Partial Class OSTF_suite_R
         'AboutToolStripMenuItem
         '
         Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
-        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(107, 22)
         Me.AboutToolStripMenuItem.Text = "About"
         '
         'CloseToolStripMenuItem
@@ -77,16 +77,17 @@ Partial Class OSTF_suite_R
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 1
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(739, 271)
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(789, 308)
         Me.TableLayoutPanel1.TabIndex = 1
         '
         'Launch_SiP_SE_R_Button
         '
         Me.Launch_SiP_SE_R_Button.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Launch_SiP_SE_R_Button.Image = Global.OSTF_suite_R.My.Resources.Resources.ic_launcher
+        Me.Launch_SiP_SE_R_Button.ImageAlign = System.Drawing.ContentAlignment.TopCenter
         Me.Launch_SiP_SE_R_Button.Location = New System.Drawing.Point(3, 3)
         Me.Launch_SiP_SE_R_Button.Name = "Launch_SiP_SE_R_Button"
-        Me.Launch_SiP_SE_R_Button.Size = New System.Drawing.Size(240, 265)
+        Me.Launch_SiP_SE_R_Button.Size = New System.Drawing.Size(256, 302)
         Me.Launch_SiP_SE_R_Button.TabIndex = 0
         Me.Launch_SiP_SE_R_Button.Text = "Swedish SiP-test (Research version)"
         Me.Launch_SiP_SE_R_Button.TextAlign = System.Drawing.ContentAlignment.BottomCenter
@@ -95,28 +96,34 @@ Partial Class OSTF_suite_R
         'Launch_SpeechMaterialCreator_Button
         '
         Me.Launch_SpeechMaterialCreator_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Launch_SpeechMaterialCreator_Button.Location = New System.Drawing.Point(249, 3)
+        Me.Launch_SpeechMaterialCreator_Button.Image = Global.OSTF_suite_R.My.Resources.Resources.SpeechMaterialCreator_192
+        Me.Launch_SpeechMaterialCreator_Button.ImageAlign = System.Drawing.ContentAlignment.TopCenter
+        Me.Launch_SpeechMaterialCreator_Button.Location = New System.Drawing.Point(265, 3)
         Me.Launch_SpeechMaterialCreator_Button.Name = "Launch_SpeechMaterialCreator_Button"
-        Me.Launch_SpeechMaterialCreator_Button.Size = New System.Drawing.Size(240, 265)
+        Me.Launch_SpeechMaterialCreator_Button.Size = New System.Drawing.Size(256, 302)
         Me.Launch_SpeechMaterialCreator_Button.TabIndex = 1
         Me.Launch_SpeechMaterialCreator_Button.Text = "OSTF - Speech Material Creator"
+        Me.Launch_SpeechMaterialCreator_Button.TextAlign = System.Drawing.ContentAlignment.BottomCenter
         Me.Launch_SpeechMaterialCreator_Button.UseVisualStyleBackColor = True
         '
         'Launch_SoundLevelCalibration_Button
         '
         Me.Launch_SoundLevelCalibration_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Launch_SoundLevelCalibration_Button.Location = New System.Drawing.Point(495, 3)
+        Me.Launch_SoundLevelCalibration_Button.Image = Global.OSTF_suite_R.My.Resources.Resources.OSTF__Calibrator_Tansparent_192
+        Me.Launch_SoundLevelCalibration_Button.ImageAlign = System.Drawing.ContentAlignment.TopCenter
+        Me.Launch_SoundLevelCalibration_Button.Location = New System.Drawing.Point(527, 3)
         Me.Launch_SoundLevelCalibration_Button.Name = "Launch_SoundLevelCalibration_Button"
-        Me.Launch_SoundLevelCalibration_Button.Size = New System.Drawing.Size(241, 265)
+        Me.Launch_SoundLevelCalibration_Button.Size = New System.Drawing.Size(259, 302)
         Me.Launch_SoundLevelCalibration_Button.TabIndex = 2
-        Me.Launch_SoundLevelCalibration_Button.Text = "OSTF - Sound level calibration (Research version)"
+        Me.Launch_SoundLevelCalibration_Button.Text = "OSTF - Sound Level Calibration (Research version)"
+        Me.Launch_SoundLevelCalibration_Button.TextAlign = System.Drawing.ContentAlignment.BottomCenter
         Me.Launch_SoundLevelCalibration_Button.UseVisualStyleBackColor = True
         '
         'OSTF_suite_R
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(739, 295)
+        Me.ClientSize = New System.Drawing.Size(789, 332)
         Me.Controls.Add(Me.TableLayoutPanel1)
         Me.Controls.Add(Me.MenuStrip1)
         Me.MainMenuStrip = Me.MenuStrip1
