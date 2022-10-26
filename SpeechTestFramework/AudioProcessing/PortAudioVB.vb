@@ -195,25 +195,27 @@ Namespace Audio
         End Enum
 
         Public Enum PaSampleFormat As UInteger
-            paFloat32 = &H1
-            paInt32 = &H2
-            paInt24 = &H4
-            paInt16 = &H8
-            paInt8 = &H10
-            paUInt8 = &H20
-            paCustomFormat = &H10000
+            paFloat32 = &H1UI
+            paInt32 = &H2UI
+            paInt24 = &H4UI
+            paInt16 = &H8UI
+            paInt8 = &H10UI
+            paUInt8 = &H20UI
+            paCustomFormat = &H10000UI
             paNonInterleaved = &H80000000UI
+
+            'paNonInterleaved = &H80000000UI
         End Enum
 
         Public Const paFormatIsSupported As Integer = 0
         Public Const paFramesPerBufferUnspecified As Integer = 0
 
         Public Enum PaStreamFlags As UInteger
-            paNoFlag = 0
-            paClipOff = &H1
-            paDitherOff = &H2
-            paNeverDropInput = &H4
-            paPrimeOutputBuffersUsingStreamCallback = &H8
+            paNoFlag = 0UI
+            paClipOff = &H1UI
+            paDitherOff = &H2UI
+            paNeverDropInput = &H4UI
+            paPrimeOutputBuffersUsingStreamCallback = &H8UI
             paPlatformSpecificFlags = &HFFFF0000UI
         End Enum
 
@@ -286,6 +288,107 @@ Namespace Audio
         End Enum
 
 #End Region
+
+#Region "**** MME SPECIFIC STUFF ****"
+
+
+        Public Enum PaWinMmeStreamInfoFlags As UInteger
+            ' The following are flags which can be set in
+            ' PaWinMmeStreamInfo's flags field.
+            '
+            paWinMmeUseLowLevelLatencyParameters = &H1 ' (0x01)
+            paWinMmeUseMultipleDevices = &H2 ' (0x02)  /* use mme specific multiple device feature */
+            paWinMmeUseChannelMask = &H4 ' (0x04)
+
+            'By default, the mme implementation drops the processing thread's priority
+            'to THREAD_PRIORITY_NORMAL and sleeps the thread if the CPU load exceeds 100%
+            'This flag disables any priority throttling. The processing thread will always
+            'run at THREAD_PRIORITY_TIME_CRITICAL.
+
+            paWinMmeDontThrottleOverloadedProcessingThread = &H8 ' (0x08)
+
+            'Flags for non-PCM spdif passthrough.
+
+            paWinMmeWaveFormatDolbyAc3Spdif = &H10 ' (0x10)
+            paWinMmeWaveFormatWmaSpdif = &H20 ' (0x20)
+
+        End Enum
+
+
+
+        <StructLayout(LayoutKind.Sequential)>
+        Public Structure PaWinMmeDeviceAndChannelCount
+            '<FieldOffset(0)>
+            Public device As PaDeviceIndex
+            '<FieldOffset(4)>
+            Public channelCount As Integer
+
+            '        [FieldOffset(8)]
+            '[MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
+            'Public Byte[] itemname;
+
+        End Structure
+
+        <StructLayout(LayoutKind.Sequential)>
+        Public Structure PaWinMmeStreamInfo
+
+            Public size As UInteger
+            Public hostApiType As PaHostApiTypeId ' paMME
+            Public version As UInteger ' 1
+            Public flags As UInteger
+
+            'low-level latency setting support
+            'These settings control the number and size of host buffers in order
+            'to set latency. They will be used instead of the generic parameters
+            'to Pa_OpenStream() if flags contains the PaWinMmeUseLowLevelLatencyParameters
+            'flag.
+
+            'If PaWinMmeStreamInfo structures with PaWinMmeUseLowLevelLatencyParameters
+            'are supplied for both input and output in a full duplex stream, then the
+            'input and output framesPerBuffer must be the same, or the larger of the
+            'two must be a multiple of the smaller, otherwise a
+            'paIncompatibleHostApiSpecificStreamInfo error will be returned from
+            'Pa_OpenStream().
+
+            Public framesPerBuffer As UInteger
+            Public bufferCount As UInteger
+
+            'multiple devices per direction support
+            'If flags contains the PaWinMmeUseMultipleDevices flag,
+            'this functionality will be used, otherwise the device parameter to
+            'Pa_OpenStream() will be used instead.
+            'If devices are specified here, the corresponding device parameter
+            'to Pa_OpenStream() should be set to paUseHostApiSpecificDeviceSpecification,
+            'otherwise an paInvalidDevice error will result.
+            'The total number of channels across all specified devices
+            'must agree with the corresponding channelCount parameter to
+            'Pa_OpenStream() otherwise a paInvalidChannelCount error will result.
+
+            Public devices As IntPtr ' PaWinMmeDeviceAndChannelCount
+
+            Public deviceCount As UInteger
+
+            'support for WAVEFORMATEXTENSIBLE channel masks. If flags contains
+            'paWinMmeUseChannelMask this allows you to specify which speakers
+            'to address in a multichannel stream. Constants for channelMask
+            'are specified in pa_win_waveformat.h
+
+            Public channelMask As UInteger ' PaWinWaveFormatChannelMask
+
+
+            'Public Overrides Function ToString() As String
+            '    Return (Convert.ToString("[" & Me.[GetType]().Name & "]" & vbLf & "structVersion: " & structVersion & vbLf & "type: " & type & vbLf & "name: ") & name) & vbLf & "deviceCount: " & deviceCount & vbLf & "defaultInputDevice: " & defaultInputDevice & vbLf & "defaultOutputDevice: " & defaultOutputDevice
+            'End Function
+
+            'Public Function ToShorterString() As String
+            '    Return (Convert.ToString("Name: ") & name)
+            'End Function
+
+        End Structure
+
+
+#End Region
+
 
 #Region "**** PORTAUDIO FUNCTIONS ****"
         <DllImport("PortAudio_x86.dll", EntryPoint:="Pa_GetVersion", CallingConvention:=CallingConvention.Cdecl)>

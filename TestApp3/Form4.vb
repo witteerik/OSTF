@@ -494,4 +494,48 @@
         MsgBox("Finished")
     End Sub
 
+    Private Sub Button13_Click(sender As Object, e As EventArgs) Handles Button13.Click
+
+        Dim SondFilePath = SpeechTestFramework.Utils.GetOpenFilePath("")
+
+        Dim SoundFile = SpeechTestFramework.Audio.Sound.LoadWaveFile(SondFilePath)
+
+        SoundFile = SoundFile.Convert16to32bitSound()
+
+        Dim SE = New SpeechTestFramework.Audio.Graphics.SoundEditor(SoundFile)
+        SE.Dock = DockStyle.Fill
+
+        Dim NewForm As New Windows.Forms.Form
+        NewForm.Controls.Add(SE)
+        NewForm.Show()
+
+    End Sub
+
+    Private SoundPlayer2 As SpeechTestFramework.Audio.PortAudioVB.SoundPlayer2
+
+    Private Sub Button14_Click(sender As Object, e As EventArgs) Handles Button14.Click
+
+        Dim OutputSound As New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints))
+        Dim Channel1 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 500, 0.5,, 5)
+        Dim Channel2 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 510, 0.5,, 5)
+        Dim Channel3 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 670, 0.5,, 5)
+        Dim Channel4 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 680, 0.5,, 5)
+        OutputSound.WaveData.SampleData(1) = Channel1.WaveData.SampleData(1)
+        OutputSound.WaveData.SampleData(2) = Channel2.WaveData.SampleData(1)
+        OutputSound.WaveData.SampleData(3) = Channel3.WaveData.SampleData(1)
+        OutputSound.WaveData.SampleData(4) = Channel4.WaveData.SampleData(1)
+
+        SoundPlayer2 = New SpeechTestFramework.Audio.PortAudioVB.SoundPlayer2(OutputSound, 1024)
+        SoundPlayer2.OpenStream()
+        SoundPlayer2.Start()
+
+
+    End Sub
+
+    Private Sub Button15_Click(sender As Object, e As EventArgs) Handles Button15.Click
+        SoundPlayer2.StopStream()
+        SoundPlayer2.CloseStream()
+        SoundPlayer2.Dispose()
+
+    End Sub
 End Class

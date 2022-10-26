@@ -42,6 +42,8 @@ Namespace Audio
             Private PlaybackBuffer As Single() = New Single(511) {}
             Private RecordingBuffer As Single() = New Single(511) {}
             Private SilentBuffer As Single() = New Single(511) {}
+
+
             Private paStreamCallback As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
 
                                                                                  'Sending a buffer tick to the controller
@@ -304,16 +306,16 @@ Namespace Audio
 
 
             Private SoundDirection As SoundDirections
-            Private NumberOfOutputChannels As Integer
-            Private NumberOfInputChannels As Integer
+                                                                                 Private NumberOfOutputChannels As Integer
+                                                                                 Private NumberOfInputChannels As Integer
 
-            Private SampleRate As Double
-            'As the OSTF library stores sound data as Single (i.e. float) arrays, "paFloat32" is the only "PaSampleFormat" that can be played in without conversion. Therefore the player requires a bitdepth of 32 and a IEEE encoding of the data.
-            Private Const Required_AudioEncoding As Formats.WaveFormat.WaveFormatEncodings = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
-            Public Const Required_BitDepth As Integer = 32
-            Private Const Required_PaSampleFormat As PortAudio.PaSampleFormat = PortAudio.PaSampleFormat.paFloat32
+                                                                                 Private SampleRate As Double
+                                                                                 'As the OSTF library stores sound data as Single (i.e. float) arrays, "paFloat32" is the only "PaSampleFormat" that can be played in without conversion. Therefore the player requires a bitdepth of 32 and a IEEE encoding of the data.
+                                                                                 Private Const Required_AudioEncoding As Formats.WaveFormat.WaveFormatEncodings = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+                                                                                 Public Const Required_BitDepth As Integer = 32
+                                                                                 Private Const Required_PaSampleFormat As PortAudio.PaSampleFormat = PortAudio.PaSampleFormat.paFloat32
 
-            Private _IsInitialized As Boolean = False
+                                                                                 Private _IsInitialized As Boolean = False
             Public ReadOnly Property IsInitialized As Boolean
                 Get
                     Return _IsInitialized
@@ -429,8 +431,10 @@ Namespace Audio
             Private PositionB As Integer
             Private CrossFadeProgress As Integer = 0
 
-            Public Shared Property MessagesEnabled() As Boolean
-            Public Shared Property LoggingEnabled() As Boolean
+            Public Shared Property MessagesEnabled As Boolean
+            Public Shared Property LoggingEnabled As Boolean
+            Public Shared Property LogToFileEnabled As Boolean = False
+
 
             Private _IsPlaying As Boolean = False
             Public ReadOnly Property IsPlaying As Boolean
@@ -1006,13 +1010,18 @@ Namespace Audio
                 InputBufferHistory.Clear()
             End Sub
 
-            Public Sub OpenStream()
+            Public Function OpenStream() As Boolean
 
                 Log("Opening stream...")
                 Me.Stream = StreamOpen()
-                Log("Stream pointer: " & Stream.ToString())
+                If IntPtr.Zero = False Then
+                    Log("Stream pointer: " & Stream.ToString())
+                    Return True
+                Else
+                    Return False
+                End If
 
-            End Sub
+            End Function
 
 
 
@@ -1197,23 +1206,23 @@ Namespace Audio
                     Flag = PortAudio.PaStreamFlags.paNoFlag
                 End If
 
+
                 Select Case SoundDirection
                     Case SoundDirections.PlaybackOnly
-                        ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
+                        _IsStreamOpen = ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
                                                                        Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
                     Case SoundDirections.RecordingOnly
-                        ErrorCheck("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters),
+                        _IsStreamOpen = ErrorCheck("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters),
                                                                       Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
                     Case SoundDirections.Duplex
-                        ErrorCheck("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Me.FramesPerBuffer, Flag,
+                        _IsStreamOpen = ErrorCheck("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Me.FramesPerBuffer, Flag,
                                                                    Me.paStreamCallback, data), True)
                 End Select
 
-                _IsStreamOpen = True
-
                 Return stream
+
             End Function
 
 
@@ -1301,7 +1310,6 @@ Namespace Audio
                 End If
             End Sub
 
-            Public Shared LogToFileEnabled As Boolean = False
             Private Sub LogToFile(Message As String)
                 If LogToFileEnabled = True Then
                     SendInfoToAudioLog(Message)
