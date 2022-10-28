@@ -1,8 +1,10 @@
 <AudioDevices>
-ApiName = Windows DirectSound // "MME", "Windows DirectSound", "Windows WASAPI", "ASIO"
-OutputDevice = Högtalare (USB Sound Device        ) // For example: "Hörlurar (2- Realtek(R) Audio)", "Högtalare (2- Realtek(R) Audio)", "Primär ljuddrivrutin", "HÃ¶gtalare (2- Realtek(R) Audio) (2)", (MME:"Microsoft Sound Mapper - Output")
+ApiName = MME // "MME", "Windows DirectSound", "Windows WASAPI", "ASIO"
+OutputDevices = Högtalare (2- Realtek(R) Audio), Hörlurar (2- Realtek(R) Audio)
+InputDevices = 
+OutputDevice = // Hörlurar (2- Realtek(R) Audio) // OCTA-CAPTURE // For example: "Hörlurar (2- Realtek(R) Audio)", "Högtalare (2- Realtek(R) Audio)", "Primär ljuddrivrutin", "HÃ¶gtalare (2- Realtek(R) Audio) (2)", (MME:"Microsoft Sound Mapper - Output")
 InputDevice = 
-BufferSize = 2048 // Must be powers of 2
+BufferSize = 1024 // Must be powers of 2
 
 <New transducer>
 Name = 3 speaker array
@@ -11,8 +13,8 @@ HeadphonesName = Unspecified //Available values: Unspecified, AKGK601, AKGK271MK
 SoundSourceAzimuths = -30, 0, 30 
 SoundSourceElevations = 0,0,0 // Not yet implemented
 SoundSourceDistances = 0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
-HardwareOutputChannels = 1, 3, 4
-CalibrationGain = 0, 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+HardwareOutputChannels = 1, 2, 3
+CalibrationGain = -21, -21, -21 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
@@ -24,4 +26,26 @@ SoundSourceElevations = 0,0 // Not yet implemented
 SoundSourceDistances = 0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
 HardwareOutputChannels = 1, 2
 CalibrationGain = 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
+
+<New transducer>
+Name = 8 speaker array
+PresentationType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
+HeadphonesName = Unspecified //Available values: Unspecified, AKGK601, AKGK271MKII, SennheiserHD25_1 // Only important for sound field simulation
+SoundSourceAzimuths = -30, 0, 30, 0, 0,0,0,0 
+SoundSourceElevations = 0,0,0,0,0,0,0,0 // Not yet implemented
+SoundSourceDistances = 0,0,0,0,0,0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
+HardwareOutputChannels = 1, 2, 3, 4, 5, 6, 7, 8
+CalibrationGain = 0,0,0,0,0,0,0,0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
+
+<New transducer>
+Name = 4 speaker array
+PresentationType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
+HeadphonesName = Unspecified //Available values: Unspecified, AKGK601, AKGK271MKII, SennheiserHD25_1 // Only important for sound field simulation
+SoundSourceAzimuths = -30, 0, 30, 0
+SoundSourceElevations = 0,0,0,0 // Not yet implemented
+SoundSourceDistances = 0,0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
+HardwareOutputChannels = 1, 2, 3, 4
+CalibrationGain = 0,0,0,0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter

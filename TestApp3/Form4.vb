@@ -515,27 +515,66 @@
 
     Private Sub Button14_Click(sender As Object, e As EventArgs) Handles Button14.Click
 
-        Dim OutputSound As New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints))
-        Dim Channel1 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 500, 0.5,, 5)
-        Dim Channel2 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 510, 0.5,, 5)
-        Dim Channel3 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 670, 0.5,, 5)
-        Dim Channel4 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 4,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 680, 0.5,, 5)
-        OutputSound.WaveData.SampleData(1) = Channel1.WaveData.SampleData(1)
-        OutputSound.WaveData.SampleData(2) = Channel2.WaveData.SampleData(1)
-        OutputSound.WaveData.SampleData(3) = Channel3.WaveData.SampleData(1)
-        OutputSound.WaveData.SampleData(4) = Channel4.WaveData.SampleData(1)
+        Dim NumChan As Integer = 2
+        Dim Sine As Boolean = True
+        Dim Duraton As Integer = 20
 
-        SoundPlayer2 = New SpeechTestFramework.Audio.PortAudioVB.SoundPlayer2(OutputSound, 1024)
+        Dim OutputSound As New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, NumChan,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints))
+        Dim Channel1 As SpeechTestFramework.Audio.Sound
+        Dim Channel2 As SpeechTestFramework.Audio.Sound
+        Dim Channel3 As SpeechTestFramework.Audio.Sound
+        Dim Channel4 As SpeechTestFramework.Audio.Sound
+
+        If Sine = True Then
+            Channel1 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 250, 0.005,, Duraton)
+            Channel2 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 400, 0.005,, Duraton)
+            Channel3 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 700, 0.005,, Duraton)
+            Channel4 = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 900, 0.005,, Duraton)
+        Else
+            Channel1 = SpeechTestFramework.Audio.GenerateSound.CreateSilence(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, Duraton)
+            Channel2 = SpeechTestFramework.Audio.GenerateSound.CreateSilence(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, Duraton)
+            Channel3 = SpeechTestFramework.Audio.GenerateSound.CreateSilence(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, Duraton)
+            Channel4 = SpeechTestFramework.Audio.GenerateSound.CreateSilence(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, Duraton)
+        End If
+
+        If NumChan > 0 Then OutputSound.WaveData.SampleData(1) = Channel1.WaveData.SampleData(1)
+        If NumChan > 1 Then OutputSound.WaveData.SampleData(2) = Channel2.WaveData.SampleData(1)
+        If NumChan > 2 Then OutputSound.WaveData.SampleData(3) = Channel3.WaveData.SampleData(1)
+        If NumChan > 3 Then OutputSound.WaveData.SampleData(4) = Channel4.WaveData.SampleData(1)
+
+        If Sine = False Then
+            For c = 1 To NumChan
+                OutputSound.WaveData.SampleData(c)(5 * 48000) = 1
+                'OutputSound.WaveData.SampleData(c)(5 * 48000 + 1) = -1
+                'OutputSound.WaveData.SampleData(c)(48002) = 1
+                'OutputSound.WaveData.SampleData(c)(48003) = -1
+            Next
+        End If
+
+        'Selects the wave format for use (doing it this way means that the wave format MUST be the same in all available MediaSets)
+        Dim Transducers = SpeechTestFramework.AvaliableTransducers
+        Dim Transducer = Transducers(3)
+
+
+        SoundPlayer2 = New SpeechTestFramework.Audio.PortAudioVB.SoundPlayer2(OutputSound, Transducer.ParentAudioApiSettings)
         SoundPlayer2.OpenStream()
         SoundPlayer2.Start()
 
+        Exit Sub
+
+
+        SpeechTestFramework.SoundPlayer.ChangePlayerSettings(, OutputSound.WaveFormat,,, SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+        SpeechTestFramework.SoundPlayer.ChangePlayerSettings(Transducer.ParentAudioApiSettings, , 0.4, Transducer.Mixer,, True, True)
+        SpeechTestFramework.SoundPlayer.SwapOutputSounds(OutputSound)
 
     End Sub
 
     Private Sub Button15_Click(sender As Object, e As EventArgs) Handles Button15.Click
-        SoundPlayer2.StopStream()
-        SoundPlayer2.CloseStream()
-        SoundPlayer2.Dispose()
+        If SoundPlayer2 IsNot Nothing Then
+            SoundPlayer2.StopStream()
+            SoundPlayer2.CloseStream()
+            SoundPlayer2.Dispose()
+        End If
 
     End Sub
 End Class

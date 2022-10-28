@@ -142,7 +142,7 @@
 
         If SelectedTransducer.CanPlay = True Then
             '(At this stage the sound player will be started, if not already done.)
-            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 0.1, SelectedTransducer.Mixer,, True, True)
+            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 1, SelectedTransducer.Mixer,, True, True)
             PlaySignal_Button.Enabled = True
         Else
             MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")

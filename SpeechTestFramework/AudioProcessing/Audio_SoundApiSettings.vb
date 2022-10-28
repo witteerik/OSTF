@@ -36,6 +36,12 @@ Namespace Audio
         Public SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?
         'Public SelectedInputAndOutputDevice As Integer?
 
+        Public UseMmeMultipleDevices As Boolean = False
+        Public PaWinMmeOutputDeviceAndChannelCountArray() As Integer = {}
+        Public PaWinMmeInputDeviceAndChannelCountArray() As Integer = {}
+        Public WinMmeSuggestedOutputLatency As Double
+        Public WinMmeSuggestedInputLatency As Double
+
         Public FramesPerBuffer As UInteger
 
         Public Overrides Function ToString() As String
@@ -66,16 +72,24 @@ Namespace Audio
         'Returns the number of input channels on the selected device, or Nothing if no input device has been selected
         Public Function NumberOfInputChannels() As Integer?
 
-            If SelectedInputDeviceInfo.HasValue = True Then Return SelectedInputDeviceInfo.Value.maxInputChannels
-            If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxInputChannels
+            If UseMmeMultipleDevices = False Then
+                If SelectedInputDeviceInfo.HasValue = True Then Return SelectedInputDeviceInfo.Value.maxInputChannels
+                If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxInputChannels
+            Else
+                Return NumberOfWinMmeInputChannels()
+            End If
 
         End Function
 
         'Returns the number of output channels on the selected device, or Nothing if no output device has been selected
         Public Function NumberOfOutputChannels() As Integer?
 
-            If SelectedOutputDeviceInfo.HasValue = True Then Return SelectedOutputDeviceInfo.Value.maxOutputChannels
-            If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxOutputChannels
+            If UseMmeMultipleDevices = False Then
+                If SelectedOutputDeviceInfo.HasValue = True Then Return SelectedOutputDeviceInfo.Value.maxOutputChannels
+                If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxOutputChannels
+            Else
+                Return NumberOfWinMmeOutputChannels()
+            End If
 
         End Function
 
@@ -448,6 +462,153 @@ Namespace Audio
             Return True
 
         End Function
+
+        Public Function SetMmeMultipleDevices(Optional ByVal InputDeviceNames As List(Of String) = Nothing, Optional ByVal OutputDeviceNames As List(Of String) = Nothing, Optional ByVal BufferSize As Integer = 1024)
+
+            'Dim InputDeviceNames As New List(Of String) From {"Högtalare (2- Realtek(R) Audio)", "Hörlurar (2- Realtek(R) Audio)"}
+            'Dim OutputDeviceNames As New List(Of String) From {"Högtalare (2- Realtek(R) Audio)", "Hörlurar (2- Realtek(R) Audio)"}
+            'Dim OutputDeviceNames As New List(Of String) From {"Högtalare (RME Fireface UCX)", "Analog (3+4) (RME Fireface UCX)"} 'Tested at AudF
+
+            'Returns false if no devices are supplied
+            If InputDeviceNames Is Nothing And OutputDeviceNames Is Nothing Then Return False
+            If InputDeviceNames IsNot Nothing Then
+                If InputDeviceNames.Count = 0 And OutputDeviceNames Is Nothing Then Return False
+            End If
+            If OutputDeviceNames IsNot Nothing Then
+                If OutputDeviceNames.Count = 0 And InputDeviceNames Is Nothing Then Return False
+            End If
+            If InputDeviceNames IsNot Nothing And OutputDeviceNames IsNot Nothing Then
+                If InputDeviceNames.Count = 0 And OutputDeviceNames.Count = 0 Then Return False
+            End If
+
+            WinMmeSuggestedOutputLatency = 0
+            WinMmeSuggestedInputLatency = 0
+
+            'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
+            If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
+                PortAudio.Pa_Initialize()
+            End If
+
+            Dim deviceCount As Integer = PortAudio.Pa_GetDeviceCount()
+
+            'Getting input device numbers
+            If InputDeviceNames IsNot Nothing Then
+                Dim PaWinMmeInputDeviceAndChannelCount As New List(Of PortAudio.PaWinMmeDeviceAndChannelCount)
+                For d = 0 To InputDeviceNames.Count - 1
+                    For i As Integer = 0 To deviceCount - 1
+                        Dim paDeviceInfo As PortAudio.PaDeviceInfo = PortAudio.Pa_GetDeviceInfo(i)
+                        Dim paHostApi As PortAudio.PaHostApiInfo = PortAudio.Pa_GetHostApiInfo(paDeviceInfo.hostApi)
+
+                        'Skipping if it's not the selected host API
+                        'If paHostApi.name <> SelectedApiInfo.name Then Continue For
+                        If paHostApi.name <> "MME" Then Continue For
+
+                        If InputDeviceNames(d) = paDeviceInfo.name Then
+
+                            'Skipping if no input channels exist
+                            If paDeviceInfo.maxInputChannels = 0 Then Continue For
+
+                            'Storing device number and input channels count
+                            PaWinMmeInputDeviceAndChannelCount.Add(New PortAudio.PaWinMmeDeviceAndChannelCount With {.device = i, .channelCount = paDeviceInfo.maxInputChannels})
+
+                            'Getting the highest value of the defaultLowOutputLatency of the selected devices
+                            WinMmeSuggestedInputLatency = Math.Max(WinMmeSuggestedInputLatency, paDeviceInfo.defaultLowInputLatency)
+
+                        End If
+                    Next
+                Next
+
+                If InputDeviceNames.Count <> PaWinMmeInputDeviceAndChannelCount.Count Then
+                    'Returns false as some devices were not found
+                    Return False
+                End If
+
+                Dim InputDeviceList As New List(Of Integer)
+                For i = 0 To PaWinMmeInputDeviceAndChannelCount.Count - 1
+                    InputDeviceList.Add(PaWinMmeInputDeviceAndChannelCount(i).device)
+                    InputDeviceList.Add(PaWinMmeInputDeviceAndChannelCount(i).channelCount)
+                Next
+
+                'Storing the Input devices in PaWinMmeInputDeviceAndChannelCountArray 
+                PaWinMmeInputDeviceAndChannelCountArray = InputDeviceList.ToArray
+            End If
+
+
+            'Getting output device numbers
+            If OutputDeviceNames IsNot Nothing Then
+                Dim PaWinMmeOutputDeviceAndChannelCount As New List(Of PortAudio.PaWinMmeDeviceAndChannelCount)
+                For d = 0 To OutputDeviceNames.Count - 1
+                    For i As Integer = 0 To deviceCount - 1
+                        Dim paDeviceInfo As PortAudio.PaDeviceInfo = PortAudio.Pa_GetDeviceInfo(i)
+                        Dim paHostApi As PortAudio.PaHostApiInfo = PortAudio.Pa_GetHostApiInfo(paDeviceInfo.hostApi)
+
+                        'Skipping if it's not the selected host API
+                        'If paHostApi.name <> SelectedApiInfo.name Then Continue For
+                        If paHostApi.name <> "MME" Then Continue For
+
+                        If OutputDeviceNames(d) = paDeviceInfo.name Then
+
+                            'Skipping if no output channels exist
+                            If paDeviceInfo.maxOutputChannels = 0 Then Continue For
+
+                            'Storing device number and output channels count
+                            PaWinMmeOutputDeviceAndChannelCount.Add(New PortAudio.PaWinMmeDeviceAndChannelCount With {.device = i, .channelCount = paDeviceInfo.maxOutputChannels})
+
+                            'Getting the highest value of the defaultLowOutputLatency of the selected devices
+                            WinMmeSuggestedOutputLatency = Math.Max(WinMmeSuggestedOutputLatency, paDeviceInfo.defaultLowOutputLatency)
+
+                        End If
+                    Next
+                Next
+
+                If OutputDeviceNames.Count <> PaWinMmeOutputDeviceAndChannelCount.Count Then
+                    'Returns false as some devices were not found
+                    Return False
+                End If
+
+                Dim OutputDeviceList As New List(Of Integer)
+                For i = 0 To PaWinMmeOutputDeviceAndChannelCount.Count - 1
+                    OutputDeviceList.Add(PaWinMmeOutputDeviceAndChannelCount(i).device)
+                    OutputDeviceList.Add(PaWinMmeOutputDeviceAndChannelCount(i).channelCount)
+                Next
+
+                'Storing the output devices in PaWinMmeOutputDeviceAndChannelCountArray 
+                PaWinMmeOutputDeviceAndChannelCountArray = OutputDeviceList.ToArray
+            End If
+
+            UseMmeMultipleDevices = True
+
+            'Setting buffer size
+            SetBufferSize(BufferSize)
+
+            Return True
+
+        End Function
+
+        Public Function NumberOfWinMmeOutputChannels() As Integer
+            Dim Output As Integer = 0
+            For i = 1 To PaWinMmeOutputDeviceAndChannelCountArray.Length - 1 Step 2
+                Output += PaWinMmeOutputDeviceAndChannelCountArray(i)
+            Next
+            Return Output
+        End Function
+
+        Public Function NumberOfWinMmeInputChannels() As Integer
+            Dim Output As Integer = 0
+            For i = 1 To PaWinMmeInputDeviceAndChannelCountArray.Length - 1 Step 2
+                Output += PaWinMmeInputDeviceAndChannelCountArray(i)
+            Next
+            Return Output
+        End Function
+
+        Public Function NumberOfWinMmeOutputDevices() As Integer
+            Return PaWinMmeOutputDeviceAndChannelCountArray.Length / 2
+        End Function
+
+        Public Function NumberOfWinMmeInputDevices() As Integer
+            Return PaWinMmeInputDeviceAndChannelCountArray.Length / 2
+        End Function
+
 
         Private Sub SetBufferSize(ByVal BufferSize As Integer)
 

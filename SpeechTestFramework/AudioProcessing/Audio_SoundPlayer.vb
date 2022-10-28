@@ -37,19 +37,36 @@ Namespace Audio
             Private SelectedOutputDevice As Integer?
             Private SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?
 
+            'MME multiple devices support
+            Private UseMmeMultipleDevices As Boolean = False
+            Private PaWinMmeOutputDeviceAndChannelCountArray() As Integer = {}
+            Private PaWinMmeInputDeviceAndChannelCountArray() As Integer = {}
+            Private WinMmeSuggestedOutputLatency As Double
+            Private WinMmeSuggestedInputLatency As Double
+            Private NumberOfWinMmeOutputDevices As Integer
+            Private NumberOfWinMmeInputDevices As Integer
+
             Private Stream As IntPtr
             Public FramesPerBuffer As UInteger
             Private PlaybackBuffer As Single() = New Single(511) {}
             Private RecordingBuffer As Single() = New Single(511) {}
             Private SilentBuffer As Single() = New Single(511) {}
 
+            Private CallbackSpinLock As New Threading.SpinLock
 
             Private paStreamCallback As PortAudio.PaStreamCallbackDelegate = Function(input As IntPtr, output As IntPtr, frameCount As UInteger, ByRef timeInfo As PortAudio.PaStreamCallbackTimeInfo, statusFlags As PortAudio.PaStreamCallbackFlags, userData As IntPtr) As PortAudio.PaStreamCallbackResult
 
                                                                                  'Sending a buffer tick to the controller
                                                                                  'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.NewBufferTick)
 
+                                                                                 'Declaring a spin lock taken variable
+                                                                                 Dim SpinLockTaken As Boolean = False
+
+
                                                                                  Try
+
+                                                                                     'Attempts to enter a spin lock to avoid multiple threads calling before compete
+                                                                                     CallbackSpinLock.Enter(SpinLockTaken)
 
                                                                                      'INPUT SOUND
 
@@ -112,6 +129,8 @@ Namespace Audio
                                                                                              Case Else
                                                                                                  Throw New NotImplementedException
                                                                                          End Select
+
+                                                                                         'Console.WriteLine(CrossFadeProgress & " " & FadeArrayLength & " " & CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & " " & OverlapFadeInArray.Length & " " & OverlapFadeOutArray.Length)
 
 
                                                                                          'Copying buffers 
@@ -203,7 +222,7 @@ Namespace Audio
 
                                                                                                  Else
                                                                                                      'End of both sounds: Copying silence
-                                                                                                     CrossFadeProgress = OverlapFadeLength
+                                                                                                     CrossFadeProgress = FadeArrayLength
                                                                                                      Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length)
 
                                                                                                      'Sending message to the controller
@@ -220,7 +239,8 @@ Namespace Audio
                                                                                                  PositionB += 1
 
                                                                                                  'Changing to OutputSounds.OutputSoundA and Resetting the CrossFadeProgress, if fading is completed
-                                                                                                 If CrossFadeProgress >= OverlapFadeLength - 1 Then
+                                                                                                 If CrossFadeProgress >= FadeArrayLength - 1 Then
+                                                                                                     'Console.WriteLine("FadeEnd: " & CrossFadeProgress & " " & FadeArrayLength & " " & CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & " " & OverlapFadeInArray.Length & " " & OverlapFadeOutArray.Length)
                                                                                                      CurrentOutputSound = OutputSounds.OutputSoundA
                                                                                                      CrossFadeProgress = 0
                                                                                                  End If
@@ -262,7 +282,7 @@ Namespace Audio
 
                                                                                                  Else
                                                                                                      'End of both sounds: Copying silence
-                                                                                                     CrossFadeProgress = OverlapFadeLength
+                                                                                                     CrossFadeProgress = FadeArrayLength
                                                                                                      Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length)
 
                                                                                                      'Sending message to the controller
@@ -279,7 +299,8 @@ Namespace Audio
                                                                                                  PositionB += 1
 
                                                                                                  'Changing to OutputSounds.OutputSoundA and Resetting the CrossFadeProgress, if fading is completed
-                                                                                                 If CrossFadeProgress >= OverlapFadeLength - 1 Then
+                                                                                                 If CrossFadeProgress >= FadeArrayLength - 1 Then
+                                                                                                     'Console.WriteLine("FadeEnd: " & CrossFadeProgress & " " & FadeArrayLength & " " & CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & " " & OverlapFadeInArray.Length & " " & OverlapFadeOutArray.Length)
                                                                                                      CurrentOutputSound = OutputSounds.OutputSoundB
                                                                                                      CrossFadeProgress = 0
                                                                                                  End If
@@ -289,16 +310,24 @@ Namespace Audio
                                                                                          End Select
                                                                                      End If
 
+
                                                                                      Return PortAudio.PaStreamCallbackResult.paContinue
 
                                                                                  Catch ex As Exception
 
-                                                                                     SendInfoToAudioLog(CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & vbCrLf &
+                                                                                     'Console.WriteLine("Error: " & CrossFadeProgress & " " & FadeArrayLength & " " & CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & " " & OverlapFadeInArray.Length & " " & OverlapFadeOutArray.Length)
+
+                                                                                     SendInfoToAudioLog(CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & " " & OverlapFadeInArray.Length & " " & OverlapFadeOutArray.Length & vbCrLf &
                                                                                                ex.ToString, "ExceptionsDuringTesting")
 
                                                                                      'Returning silence if an exception occurred
                                                                                      Marshal.Copy(SilentBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels)
                                                                                      Return PortAudio.PaStreamCallbackResult.paContinue
+
+                                                                                 Finally
+
+                                                                                     'Releases any spinlock
+                                                                                     If SpinLockTaken = True Then CallbackSpinLock.Exit()
 
                                                                                  End Try
 
@@ -306,16 +335,16 @@ Namespace Audio
 
 
             Private SoundDirection As SoundDirections
-                                                                                 Private NumberOfOutputChannels As Integer
-                                                                                 Private NumberOfInputChannels As Integer
+            Private NumberOfOutputChannels As Integer
+            Private NumberOfInputChannels As Integer
 
-                                                                                 Private SampleRate As Double
-                                                                                 'As the OSTF library stores sound data as Single (i.e. float) arrays, "paFloat32" is the only "PaSampleFormat" that can be played in without conversion. Therefore the player requires a bitdepth of 32 and a IEEE encoding of the data.
-                                                                                 Private Const Required_AudioEncoding As Formats.WaveFormat.WaveFormatEncodings = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
-                                                                                 Public Const Required_BitDepth As Integer = 32
-                                                                                 Private Const Required_PaSampleFormat As PortAudio.PaSampleFormat = PortAudio.PaSampleFormat.paFloat32
+            Private SampleRate As Double
+            'As the OSTF library stores sound data as Single (i.e. float) arrays, "paFloat32" is the only "PaSampleFormat" that can be played in without conversion. Therefore the player requires a bitdepth of 32 and a IEEE encoding of the data.
+            Private Const Required_AudioEncoding As Formats.WaveFormat.WaveFormatEncodings = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+            Public Const Required_BitDepth As Integer = 32
+            Private Const Required_PaSampleFormat As PortAudio.PaSampleFormat = PortAudio.PaSampleFormat.paFloat32
 
-                                                                                 Private _IsInitialized As Boolean = False
+            Private _IsInitialized As Boolean = False
             Public ReadOnly Property IsInitialized As Boolean
                 Get
                     Return _IsInitialized
@@ -329,7 +358,6 @@ Namespace Audio
 
             Private OverlappingSounds As Boolean = False
             Private EqualPowerCrossFade As Boolean = True
-            Private OverlappingFadeType As FadeTypes = FadeTypes.Linear
             Public Enum FadeTypes
                 Linear
                 Smooth
@@ -343,74 +371,54 @@ Namespace Audio
                 FadingToA
             End Enum
 
-            Private _OverlapFadeLength As Double
+            Private ReadOnly Property FadeArrayLength As Integer
+                Get
+                    Return NumberOfOutputChannels * _OverlapFrameCount
+                End Get
+            End Property
+
+
+            Private _OverlapFrameCount As Double
             ''' <summary>
-            ''' A value that holds the number of overlapping samples between two sounds. Setting this value automatically creates overlap fade arrays (OverlapFadeInArray and OverlapFadeOutArray). 
+            ''' A value that holds the number of overlapping frames between two sounds. Setting this value automatically creates overlap fade arrays (OverlapFadeInArray and OverlapFadeOutArray). 
             ''' </summary>
             ''' <returns></returns>
-            Private Property OverlapFadeLength As Double
+            Private Property OverlapFrameCount As Double
                 Get
-                    Return _OverlapFadeLength
+                    Return _OverlapFrameCount
                 End Get
                 Set(value As Double)
                     Try
 
-                        _OverlapFadeLength = Int(value / (NumberOfOutputChannels * FramesPerBuffer)) * (NumberOfOutputChannels * FramesPerBuffer)
+                        'Enforcing overlap fade length to be a multiple of FramesPerBuffer
+                        _OverlapFrameCount = FramesPerBuffer * Math.Ceiling(value / FramesPerBuffer)
 
-                        Dim OverLapFrameCount As Integer = _OverlapFadeLength / NumberOfOutputChannels
+                        Dim FadeArrayLength As Integer = NumberOfOutputChannels * _OverlapFrameCount
 
-                        Select Case OverlappingFadeType
-                            Case FadeTypes.Linear
-                                'Linear fading
-                                'fade in array
-                                ReDim OverlapFadeInArray(_OverlapFadeLength - 1)
-                                For n = 0 To OverLapFrameCount - 1
-                                    For c = 0 To NumberOfOutputChannels - 1
-                                        OverlapFadeInArray(n * NumberOfOutputChannels + c) = n / (OverLapFrameCount - 1)
-                                    Next
-                                Next
+                        'Linear fading
+                        'fade in array
+                        ReDim OverlapFadeInArray(FadeArrayLength - 1)
+                        For n = 0 To _OverlapFrameCount - 1
+                            For c = 0 To NumberOfOutputChannels - 1
+                                OverlapFadeInArray(n * NumberOfOutputChannels + c) = n / (_OverlapFrameCount - 1)
+                            Next
+                        Next
 
-                                'fade out array
-                                ReDim OverlapFadeOutArray(_OverlapFadeLength - 1)
-                                For n = 0 To OverLapFrameCount - 1
-                                    For c = 0 To NumberOfOutputChannels - 1
-                                        OverlapFadeOutArray(n * NumberOfOutputChannels + c) = 1 - (n / (OverLapFrameCount - 1))
-                                    Next
-                                Next
+                        'fade out array
+                        ReDim OverlapFadeOutArray(FadeArrayLength - 1)
+                        For n = 0 To _OverlapFrameCount - 1
+                            For c = 0 To NumberOfOutputChannels - 1
+                                OverlapFadeOutArray(n * NumberOfOutputChannels + c) = 1 - (n / (_OverlapFrameCount - 1))
+                            Next
+                        Next
 
-                            Case FadeTypes.Smooth
-
-                                'Smooth fading
-                                'fade in array
-                                ReDim OverlapFadeInArray(_OverlapFadeLength - 1)
-
-                                'fade out array
-                                ReDim OverlapFadeOutArray(_OverlapFadeLength - 1)
-
-                                Dim FadeProgress As Single = 0
-                                Dim currentModFactor As Single
-                                Dim StartFactor As Single = 0
-                                Dim endFactor As Single = 1
-                                For n = 0 To _OverlapFadeLength - 1
-                                    'fadeProgress goes from 0 to 1 during the fade section
-                                    FadeProgress = n / (_OverlapFadeLength - 1)
-
-                                    'Modifies currentFadeFactor according to a cosine finction, whereby currentModFactor starts on 1 and end at 0
-                                    currentModFactor = ((Math.Cos(twopi * (FadeProgress / 2)) + 1) / 2)
-                                    OverlapFadeInArray(n) = StartFactor * currentModFactor + endFactor * (1 - currentModFactor)
-
-                                    'Setting the fade out array values to 1-(fade in array values) to create an exact inverse, which allways adds up to 1 during fading.
-                                    OverlapFadeOutArray(n) = 1 - OverlapFadeInArray(n)
-                                Next
-
-                        End Select
 
                         'Adjusting to equal power fades
                         If EqualPowerCrossFade = True Then
-                            For n = 0 To OverlapFadeInArray.Length - 1
+                            For n = 0 To FadeArrayLength - 1
                                 OverlapFadeInArray(n) = Math.Sqrt(OverlapFadeInArray(n))
                             Next
-                            For n = 0 To OverlapFadeOutArray.Length - 1
+                            For n = 0 To FadeArrayLength - 1
                                 OverlapFadeOutArray(n) = Math.Sqrt(OverlapFadeOutArray(n))
                             Next
                         End If
@@ -632,43 +640,37 @@ Namespace Audio
                     End If
                 End If
 
-                SetApiAndDevice(AudioApiSettings.SelectedApiInfo,
-                                AudioApiSettings.SelectedInputDeviceInfo, AudioApiSettings.SelectedInputDevice,
-                                AudioApiSettings.SelectedOutputDeviceInfo, AudioApiSettings.SelectedOutputDevice,
-                                AudioApiSettings.SelectedInputAndOutputDeviceInfo,
-                                AudioApiSettings.FramesPerBuffer, SkipLog)
 
-            End Sub
+                Me.SelectedApiInfo = AudioApiSettings.SelectedApiInfo
+                Me.SelectedInputDeviceInfo = AudioApiSettings.SelectedInputDeviceInfo
+                Me.SelectedInputDevice = AudioApiSettings.SelectedInputDevice
+                Me.SelectedOutputDeviceInfo = AudioApiSettings.SelectedOutputDeviceInfo
+                Me.SelectedOutputDevice = AudioApiSettings.SelectedOutputDevice
+                Me.SelectedInputAndOutputDeviceInfo = AudioApiSettings.SelectedInputAndOutputDeviceInfo
+                Me.FramesPerBuffer = AudioApiSettings.FramesPerBuffer
 
-
-            Private Sub SetApiAndDevice(ByRef SelectedApiInfo As PortAudio.PaHostApiInfo,
-                                        ByRef SelectedInputDeviceInfo As PortAudio.PaDeviceInfo?,
-                                        ByRef SelectedInputDevice As Integer?,
-                                        ByRef SelectedOutputDeviceInfo As PortAudio.PaDeviceInfo?,
-                                        ByRef SelectedOutputDevice As Integer?,
-                                        ByRef SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?,
-                                        ByRef FramesPerBuffer As UInteger,
-                                      Optional ByVal SkipLog As Boolean = False)
-
-                Me.SelectedApiInfo = SelectedApiInfo
-                Me.SelectedInputDeviceInfo = SelectedInputDeviceInfo
-                Me.SelectedInputDevice = SelectedInputDevice
-                Me.SelectedOutputDeviceInfo = SelectedOutputDeviceInfo
-                Me.SelectedOutputDevice = SelectedOutputDevice
-                Me.SelectedInputAndOutputDeviceInfo = SelectedInputAndOutputDeviceInfo
-                Me.FramesPerBuffer = FramesPerBuffer
-
-                'Storing the number of input and output channels
-                If Not Me.SelectedInputDeviceInfo Is Nothing Then
-                    NumberOfInputChannels = Me.SelectedInputDeviceInfo.Value.maxInputChannels
+                Dim Temp_NumberOfInputChannels = AudioApiSettings.NumberOfInputChannels()
+                If Temp_NumberOfInputChannels.HasValue Then
+                    NumberOfInputChannels = Temp_NumberOfInputChannels
+                Else
+                    NumberOfInputChannels = 0
                 End If
-                If Not Me.SelectedOutputDeviceInfo Is Nothing Then
-                    NumberOfOutputChannels = Me.SelectedOutputDeviceInfo.Value.maxOutputChannels
+
+                Dim Temp_NumberOfOutputChannels = AudioApiSettings.NumberOfOutputChannels()
+                If Temp_NumberOfOutputChannels.HasValue Then
+                    NumberOfOutputChannels = Temp_NumberOfOutputChannels
+                Else
+                    NumberOfOutputChannels = 0
                 End If
-                If Not Me.SelectedInputAndOutputDeviceInfo Is Nothing Then
-                    NumberOfInputChannels = Me.SelectedInputAndOutputDeviceInfo.Value.maxInputChannels
-                    NumberOfOutputChannels = Me.SelectedInputAndOutputDeviceInfo.Value.maxOutputChannels
-                End If
+
+                'MME Multiple device support
+                Me.UseMmeMultipleDevices = AudioApiSettings.UseMmeMultipleDevices
+                Me.PaWinMmeOutputDeviceAndChannelCountArray = AudioApiSettings.PaWinMmeOutputDeviceAndChannelCountArray
+                Me.PaWinMmeInputDeviceAndChannelCountArray = AudioApiSettings.PaWinMmeInputDeviceAndChannelCountArray
+                Me.WinMmeSuggestedOutputLatency = AudioApiSettings.WinMmeSuggestedOutputLatency
+                Me.WinMmeSuggestedInputLatency = AudioApiSettings.WinMmeSuggestedInputLatency
+                Me.NumberOfWinMmeOutputDevices = AudioApiSettings.NumberOfWinMmeOutputDevices
+                Me.NumberOfWinMmeInputDevices = AudioApiSettings.NumberOfWinMmeInputDevices
 
                 If SkipLog = False Then
                     Log("Selected HostAPI:" & vbLf & Me.SelectedApiInfo.ToString())
@@ -679,12 +681,13 @@ Namespace Audio
 
             End Sub
 
+
             Private Sub SetOverlapDuration(ByVal Duration As Single)
-                OverlapFadeLength = NumberOfOutputChannels * SampleRate * Duration
+                OverlapFrameCount = SampleRate * Duration
             End Sub
 
             Public Function GetOverlapDuration() As Single
-                Return (_OverlapFadeLength / NumberOfOutputChannels) / SampleRate
+                Return _OverlapFrameCount / SampleRate
             End Function
 
 
@@ -1184,16 +1187,52 @@ Namespace Audio
                 End If
 
                 Dim outputParams As New PortAudio.PaStreamParameters
-                If Me.SelectedOutputDevice IsNot Nothing Then
-                    outputParams.channelCount = NumberOfOutputChannels
-                    outputParams.device = Me.SelectedOutputDevice
-                    outputParams.sampleFormat = Required_PaSampleFormat
+                Dim OutputDeviceNumChanPtr As IntPtr
+                Dim WmmeOutputStreamInfoPtr As IntPtr
 
-                    If Me.SelectedInputAndOutputDeviceInfo.HasValue = True Then
-                        outputParams.suggestedLatency = Me.SelectedInputAndOutputDeviceInfo.Value.defaultLowOutputLatency
-                    Else
-                        outputParams.suggestedLatency = Me.SelectedOutputDeviceInfo.Value.defaultLowOutputLatency
+                If UseMmeMultipleDevices = False Then
+
+                    If Me.SelectedOutputDevice IsNot Nothing Then
+                        outputParams.channelCount = NumberOfOutputChannels
+                        outputParams.device = Me.SelectedOutputDevice
+                        outputParams.sampleFormat = Required_PaSampleFormat
+
+                        If Me.SelectedInputAndOutputDeviceInfo.HasValue = True Then
+                            outputParams.suggestedLatency = Me.SelectedInputAndOutputDeviceInfo.Value.defaultLowOutputLatency
+                        Else
+                            outputParams.suggestedLatency = Me.SelectedOutputDeviceInfo.Value.defaultLowOutputLatency
+                        End If
                     End If
+
+                Else
+
+                    If NumberOfWinMmeOutputDevices > 0 Then
+
+                        outputParams.sampleFormat = Required_PaSampleFormat
+                        outputParams.device = PortAudio.PaDeviceIndex.paUseHostApiSpecificDeviceSpecification
+
+                        Dim wmmeOutputStreamInfo As New PortAudio.PaWinMmeStreamInfo
+                        wmmeOutputStreamInfo.size = Marshal.SizeOf(wmmeOutputStreamInfo)
+                        wmmeOutputStreamInfo.hostApiType = PortAudio.PaHostApiTypeId.paMME
+                        wmmeOutputStreamInfo.version = 1
+                        wmmeOutputStreamInfo.flags = PortAudio.PaWinMmeStreamInfoFlags.paWinMmeUseMultipleDevices
+
+                        'Marshalling PaWinMmeDeviceAndChannelCount
+                        OutputDeviceNumChanPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf(GetType(Integer)) * PaWinMmeOutputDeviceAndChannelCountArray.Length)
+                        Marshal.Copy(PaWinMmeOutputDeviceAndChannelCountArray, 0, OutputDeviceNumChanPtr, PaWinMmeOutputDeviceAndChannelCountArray.Length)
+                        wmmeOutputStreamInfo.devices = OutputDeviceNumChanPtr
+                        wmmeOutputStreamInfo.deviceCount = NumberOfWinMmeOutputDevices
+
+                        'Marshalling wmmeOutputStreamInfoPtr
+                        WmmeOutputStreamInfoPtr = Marshal.AllocHGlobal(Marshal.SizeOf(wmmeOutputStreamInfo))
+                        Marshal.StructureToPtr(wmmeOutputStreamInfo, WmmeOutputStreamInfoPtr, True)
+
+                        outputParams.hostApiSpecificStreamInfo = WmmeOutputStreamInfoPtr
+                        outputParams.channelCount = NumberOfOutputChannels
+                        outputParams.suggestedLatency = WinMmeSuggestedOutputLatency
+
+                    End If
+
                 End If
 
                 Log(inputParams.ToString)
@@ -1209,17 +1248,22 @@ Namespace Audio
 
                 Select Case SoundDirection
                     Case SoundDirections.PlaybackOnly
-                        _IsStreamOpen = ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
+                        _IsStreamOpen = Not ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
                                                                        Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
                     Case SoundDirections.RecordingOnly
-                        _IsStreamOpen = ErrorCheck("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters),
+                        _IsStreamOpen = Not ErrorCheck("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters),
                                                                       Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
                     Case SoundDirections.Duplex
-                        _IsStreamOpen = ErrorCheck("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Me.FramesPerBuffer, Flag,
+                        _IsStreamOpen = Not ErrorCheck("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Me.FramesPerBuffer, Flag,
                                                                    Me.paStreamCallback, data), True)
                 End Select
+
+                If UseMmeMultipleDevices = True Then
+                    Marshal.FreeCoTaskMem(WmmeOutputStreamInfoPtr)
+                    Marshal.FreeCoTaskMem(OutputDeviceNumChanPtr)
+                End If
 
                 Return stream
 

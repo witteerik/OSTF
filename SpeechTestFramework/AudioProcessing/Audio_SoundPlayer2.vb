@@ -19,7 +19,6 @@ Namespace Audio
             Private SelectedOutputDevice As Integer
 
             Private Stream As IntPtr
-            Public FramesPerBuffer As UInteger
             Private PlaybackBuffer As Single()
             Private SilentBuffer As Single()
 
@@ -94,14 +93,18 @@ Namespace Audio
             Public Shared Property LoggingEnabled As Boolean = False
             Public Shared Property LogToFileEnabled As Boolean = False
 
+            Public AudioApiSettings As AudioApiSettings
+
             Public Sub New(ByRef OutputSound As Audio.Sound,
-                       ByRef FramesPerBuffer As Integer,
+                                           ByRef AudioApiSettings As AudioApiSettings,
                        Optional ByVal LoggingEnabled As Boolean = False,
                        Optional ByVal LogToFileEnabled As Boolean = False)
 
                 Try
 
-                    Me.FramesPerBuffer = FramesPerBuffer
+                    Me.AudioApiSettings = AudioApiSettings
+
+                    Me.AudioApiSettings.FramesPerBuffer = Me.AudioApiSettings.FramesPerBuffer
 
                     SampleRate = OutputSound.WaveFormat.SampleRate
                     NumberOfOutputChannels = OutputSound.WaveFormat.Channels
@@ -112,16 +115,16 @@ Namespace Audio
                     Next
 
                     'Creating buffers
-                    Dim BufferCount As Integer = Math.Floor(OutputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer)
+                    Dim BufferCount As Integer = Math.Floor(OutputSound.WaveData.LongestChannelSampleCount / Me.AudioApiSettings.FramesPerBuffer)
                     For i = 0 To BufferCount - 1
 
                         For c = 1 To NumberOfOutputChannels
 
-                            Dim NewBufferArray(FramesPerBuffer - 1) As Single
+                            Dim NewBufferArray(Me.AudioApiSettings.FramesPerBuffer - 1) As Single
 
-                            Dim StartReadSample As Integer = i * FramesPerBuffer
+                            Dim StartReadSample As Integer = i * Me.AudioApiSettings.FramesPerBuffer
 
-                            Array.Copy(OutputSound.WaveData.SampleData(c), StartReadSample, NewBufferArray, 0, FramesPerBuffer)
+                            Array.Copy(OutputSound.WaveData.SampleData(c), StartReadSample, NewBufferArray, 0, Me.AudioApiSettings.FramesPerBuffer)
 
                             OutputBuffer(c - 1).Add(NewBufferArray)
 
@@ -310,73 +313,80 @@ Namespace Audio
 
             End Sub
 
-            Private wmmeStreamInfoPtr As IntPtr
-            Private DevNumChanBuffer As IntPtr
 
             Private Function StreamOpen() As IntPtr
 
-                SilentBuffer = New Single(Me.FramesPerBuffer - 1) {}
+
+
+                SilentBuffer = New Single(Me.AudioApiSettings.FramesPerBuffer - 1) {}
 
                 Dim stream As New IntPtr()
                 Dim data As New IntPtr(0)
 
                 Dim outputParams As New PortAudio.PaStreamParameters
-                outputParams.sampleFormat = Required_PaSampleFormat
-                outputParams.device = PortAudio.PaDeviceIndex.paUseHostApiSpecificDeviceSpecification
 
-                Dim wmmeStreamInfo As New PortAudio.PaWinMmeStreamInfo
-                wmmeStreamInfo.size = Marshal.SizeOf(wmmeStreamInfo)
-                wmmeStreamInfo.hostApiType = PortAudio.PaHostApiTypeId.paMME
-                wmmeStreamInfo.version = 1
-                wmmeStreamInfo.flags = PortAudio.PaWinMmeStreamInfoFlags.paWinMmeUseMultipleDevices
 
-                Dim DevNumChanBuffer As IntPtr
-                'Dim DeviceArray() As Integer = {3, 2, 5, 2}
-                Dim DeviceArray() As Integer = {4, 2, 5, 2}
-                Marshal.FreeCoTaskMem(DevNumChanBuffer)
-                DevNumChanBuffer = Marshal.AllocCoTaskMem(Marshal.SizeOf(GetType(Integer)) * DeviceArray.Length)
-                Marshal.Copy(DeviceArray, 0, DevNumChanBuffer, DeviceArray.Length)
-                wmmeStreamInfo.devices = DevNumChanBuffer
-                wmmeStreamInfo.deviceCount = 2
+                Dim OutputDeviceNumChanPtr As IntPtr
+                Dim WmmeOutputStreamInfoPtr As IntPtr
 
-                'Printing the selected devices
-                Dim SelectedDeviceNames As New List(Of String)
-                Dim deviceCount As Integer = PortAudio.Pa_GetDeviceCount()
-                'Dim outputDeviceList As New List(Of KeyValuePair(Of Integer, PortAudio.PaDeviceInfo))
-                For i As Integer = 0 To deviceCount - 1
-                    Dim paDeviceInfo As PortAudio.PaDeviceInfo = PortAudio.Pa_GetDeviceInfo(i)
-                    'Dim paHostApi As PortAudio.PaHostApiInfo = PortAudio.Pa_GetHostApiInfo(paDeviceInfo.hostApi)
-                    If i = DeviceArray(0) Or i = DeviceArray(2) Then
-                        SelectedDeviceNames.Add(paDeviceInfo.name & " (" & SelectedApiInfo.type.ToString() & ")")
+                If Me.AudioApiSettings.UseMmeMultipleDevices = False Then
+
+                Else
+
+                    If AudioApiSettings.NumberOfWinMmeOutputDevices > 0 Then
+
+                        outputParams.sampleFormat = Required_PaSampleFormat
+                        outputParams.device = PortAudio.PaDeviceIndex.paUseHostApiSpecificDeviceSpecification
+
+                        Dim wmmeOutputStreamInfo As New PortAudio.PaWinMmeStreamInfo
+                        wmmeOutputStreamInfo.size = Marshal.SizeOf(wmmeOutputStreamInfo)
+                        wmmeOutputStreamInfo.hostApiType = PortAudio.PaHostApiTypeId.paMME
+                        wmmeOutputStreamInfo.version = 1
+                        wmmeOutputStreamInfo.flags = PortAudio.PaWinMmeStreamInfoFlags.paWinMmeUseMultipleDevices
+
+                        'Marshalling PaWinMmeDeviceAndChannelCount
+                        OutputDeviceNumChanPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf(GetType(Integer)) * AudioApiSettings.PaWinMmeOutputDeviceAndChannelCountArray.Length)
+                        Marshal.Copy(AudioApiSettings.PaWinMmeOutputDeviceAndChannelCountArray, 0, OutputDeviceNumChanPtr, AudioApiSettings.PaWinMmeOutputDeviceAndChannelCountArray.Length)
+                        wmmeOutputStreamInfo.devices = OutputDeviceNumChanPtr
+                        wmmeOutputStreamInfo.deviceCount = AudioApiSettings.NumberOfWinMmeOutputDevices
+
+                        'Marshalling wmmeOutputStreamInfoPtr
+                        WmmeOutputStreamInfoPtr = Marshal.AllocHGlobal(Marshal.SizeOf(wmmeOutputStreamInfo))
+                        Marshal.StructureToPtr(wmmeOutputStreamInfo, WmmeOutputStreamInfoPtr, True)
+
+                        outputParams.hostApiSpecificStreamInfo = WmmeOutputStreamInfoPtr
+                        outputParams.channelCount = AudioApiSettings.NumberOfWinMmeOutputChannels
+                        outputParams.suggestedLatency = AudioApiSettings.WinMmeSuggestedOutputLatency
+
                     End If
-                Next
-                Console.WriteLine("Selected devices: " & vbCrLf & String.Join(vbCrLf, SelectedDeviceNames))
+
+                End If
 
 
-                'Marshalling, move this code to Pa_OpenStream ?
-                Marshal.FreeCoTaskMem(wmmeStreamInfoPtr)
-                wmmeStreamInfoPtr = Marshal.AllocHGlobal(Marshal.SizeOf(wmmeStreamInfo))
-                Marshal.StructureToPtr(wmmeStreamInfo, wmmeStreamInfoPtr, True)
-                outputParams.hostApiSpecificStreamInfo = wmmeStreamInfoPtr
-                outputParams.channelCount = 4
 
-
-                Dim paDeviceInfo3 As PortAudio.PaDeviceInfo = PortAudio.Pa_GetDeviceInfo(3)
-                outputParams.suggestedLatency = paDeviceInfo3.defaultLowOutputLatency
-
+                Dim Flag As PortAudio.PaStreamFlags
+                Dim IsClippingInactivated As Boolean = False
+                If IsClippingInactivated = True Then
+                    Flag = PortAudio.PaStreamFlags.paClipOff
+                Else
+                    Flag = PortAudio.PaStreamFlags.paNoFlag
+                End If
 
                 Log(outputParams.ToString)
 
-                Dim Flag As PortAudio.PaStreamFlags = PortAudio.PaStreamFlags.paNoFlag
-                'Dim IsClippingInactivated As Boolean = False
-                'If IsClippingInactivated = True Then
-                '    Flag = PortAudio.PaStreamFlags.paClipOff
-                'Else
-                '    Flag = PortAudio.PaStreamFlags.paNoFlag
-                'End If
 
-                _IsStreamOpen = ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
-                                                                   Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
+                _IsStreamOpen = Not ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
+                                                                   Me.SampleRate, Me.AudioApiSettings.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
+
+
+                Dim StreamInfo = PortAudio.Pa_GetStreamInfo(stream)
+                Console.WriteLine(StreamInfo.outputLatency)
+
+
+                If Me.AudioApiSettings.UseMmeMultipleDevices = True Then
+                    Marshal.FreeCoTaskMem(WmmeOutputStreamInfoPtr)
+                    Marshal.FreeCoTaskMem(OutputDeviceNumChanPtr)
+                End If
 
                 Return stream
 
@@ -458,8 +468,8 @@ Namespace Audio
             Public Sub Dispose() Implements IDisposable.Dispose
 
                 'Freeing memory from the last callback
-                Marshal.FreeCoTaskMem(wmmeStreamInfoPtr)
-                Marshal.FreeCoTaskMem(DevNumChanBuffer)
+                'Marshal.FreeCoTaskMem(wmmeStreamInfoPtr)
+                'Marshal.FreeCoTaskMem(DevNumChanBuffer)
 
                 ' Do not change this code.  Put cleanup code in Dispose(disposing As Boolean) above.
                 Dispose(True)

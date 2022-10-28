@@ -104,7 +104,9 @@
 
         Dim ApiName As String = "MME"
         Dim OutputDeviceName As String = "Högtalare (2- Realtek(R) Audio)"
+        Dim OutputDeviceNames As New List(Of String) ' Used for MME multiple device support
         Dim InputDeviceName As String = ""
+        Dim InputDeviceNames As New List(Of String) ' Used for MME multiple device support
         Dim BufferSize As Integer = 2048
 
 
@@ -121,26 +123,64 @@
             End If
 
             If Line.StartsWith("ApiName") Then ApiName = InputFileSupport.GetInputFileValue(Line, True)
-            If Line.StartsWith("OutputDevice") Then OutputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
-            If Line.StartsWith("InputDevice") Then InputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.Replace(" ", "").StartsWith("OutputDevice=") Then OutputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.Replace(" ", "").StartsWith("OutputDevices=") Then OutputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
+            If Line.Replace(" ", "").StartsWith("InputDevice=") Then InputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.Replace(" ", "").StartsWith("InputDevices=") Then InputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
             If Line.StartsWith("BufferSize") Then BufferSize = InputFileSupport.InputFileIntegerValueParsing(Line, True, AudioSystemSpecificationFilePath)
 
             If Line = "<New transducer>" Then Exit For
         Next
 
+        Dim DeviceLoadSuccess As Boolean = True
+        If OutputDeviceName = "" And InputDeviceName = "" And OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
+            'No device names have been specified
+            DeviceLoadSuccess = False
+        End If
+
+        If ApiName <> "MME" Then
+            If OutputDeviceNames IsNot Nothing Or InputDeviceNames IsNot Nothing Then
+                DeviceLoadSuccess = False
+                MsgBox("When specifying multiple sound (input or output) devices in the file " & AudioSystemSpecificationFilePath & ", the sound API must be MME ( not " & ApiName & ")!", MsgBoxStyle.Exclamation, "Sound device specification error!")
+            End If
+        End If
+
+        If OutputDeviceNames IsNot Nothing And OutputDeviceName <> "" Then
+            DeviceLoadSuccess = False
+            MsgBox("Either (not both) of single or multiple sound output devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
+        End If
+
+        If InputDeviceNames IsNot Nothing And InputDeviceName <> "" Then
+            DeviceLoadSuccess = False
+            MsgBox("Either (not both) of single or multiple sound input devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
+        End If
+
         'Tries to setup the AudioApiSettings using the loaded data
         Dim AudioApiSettings As New Audio.AudioApiSettings
-        Dim DeviceLoadSuccess As Boolean
-        If ApiName = "ASIO" Then
-            DeviceLoadSuccess = AudioApiSettings.SetAsioSoundDevice(OutputDeviceName, BufferSize)
-        Else
-            DeviceLoadSuccess = AudioApiSettings.SetNonAsioSoundDevice(ApiName, OutputDeviceName, InputDeviceName, BufferSize)
+        If DeviceLoadSuccess = True Then
+            If ApiName = "ASIO" Then
+                DeviceLoadSuccess = AudioApiSettings.SetAsioSoundDevice(OutputDeviceName, BufferSize)
+            Else
+                If OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
+                    DeviceLoadSuccess = AudioApiSettings.SetNonAsioSoundDevice(ApiName, OutputDeviceName, InputDeviceName, BufferSize)
+                Else
+                    DeviceLoadSuccess = AudioApiSettings.SetMmeMultipleDevices(InputDeviceNames, OutputDeviceNames, BufferSize)
+                End If
+            End If
         End If
 
         If DeviceLoadSuccess = False Then
-            MsgBox("Unable to load the sound API (" & ApiName & ") and output/input device/s (" & OutputDeviceName & "/" & InputDeviceName & ") indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf &
-                   "Click OK to manually select audio input/output devices." & vbCrLf & vbCrLf &
-                   "IMPORTANT: Sound tranducer calibration and/or routing may not be correct when manually selected sound devices are used!", MsgBoxStyle.Exclamation, "Sound device not found!")
+
+            If OutputDeviceNames Is Nothing Then OutputDeviceNames = New List(Of String)
+            If InputDeviceNames Is Nothing Then InputDeviceNames = New List(Of String)
+
+            MsgBox("Unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
+                "Output device: " & OutputDeviceName & vbCrLf &
+                "Output devices: " & String.Join(", ", OutputDeviceNames) & vbCrLf &
+                "Input device: " & InputDeviceName & vbCrLf &
+                "Input devices: " & String.Join(", ", InputDeviceNames) & vbCrLf & vbCrLf &
+                "Click OK to manually select audio input/output devices." & vbCrLf & vbCrLf &
+                "IMPORTANT: Sound tranducer calibration and/or routing may not be correct when manually selected sound devices are used!", MsgBoxStyle.Exclamation, "Sound device not found!")
 
             Dim NewAudioSettingsDialog As New AudioSettingsDialog()
             Dim AudioSettingsDialogResult = NewAudioSettingsDialog.ShowDialog()
