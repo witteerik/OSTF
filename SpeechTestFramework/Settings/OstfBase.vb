@@ -25,13 +25,47 @@
         Return _SoundPlayer IsNot Nothing
     End Function
 
+
+    Private _PortAudioIsInitialized As Boolean = False
     ''' <summary>
-    ''' This sub needs to be called upon startup of all OSTF applications.
+    ''' Returns True if the PortAudio library has been successfylly initialized by call the the OstfBase function InitializeOSTF.
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property PortAudioIsInitialized As Boolean
+        Get
+            Return _PortAudioIsInitialized
+        End Get
+    End Property
+
+    Private OstfIsInitialized As Boolean = False
+
+    ''' <summary>
+    ''' This sub needs to be called upon startup of all OSTF applications. (Any subsequent calls to this Sub will be ignored.)
     ''' </summary>
     ''' <param name="StartupPath"></param>
     Public Sub InitializeOSTF(ByVal StartupPath As String)
 
+        'Exits the sub to avoid multiple calls (which should be avoided, especially to the Audio.PortAudio.Pa_Initialize function).
+        If OstfIsInitialized = True Then Exit Sub
+        OstfIsInitialized = True
+
         Try
+            'Initializing the port audio library
+            If Audio.PortAudio.Pa_GetDeviceCount = Audio.PortAudio.PaError.paNotInitialized Then
+                Dim Pa_Initialize_ReturnValue = Audio.PortAudio.Pa_Initialize
+                If Pa_Initialize_ReturnValue = Audio.PortAudio.PaError.paNoError Then
+                    _PortAudioIsInitialized = True
+                Else
+                    Throw New Exception("Unable to initialize PortAudio library for audio processing." & vbCrLf & vbCrLf &
+                                        "The following error occurred: " & vbCrLf & vbCrLf &
+                                        Audio.PortAudio.Pa_GetErrorText(Pa_Initialize_ReturnValue))
+                    ' if Pa_Initialize() returns an error code, 
+                    ' Pa_Terminate() should NOT be called.
+                End If
+            Else
+                'If the we end up here, PortAudio will have already bee initialized, which it should not. (Then there will be missing calls to Pa_Terminate.)
+            End If
+
             Dim local_settings_FilePath As String = IO.Path.Combine(StartupPath, "local_settings.txt")
             Dim local_settings_Input = IO.File.ReadAllLines(local_settings_FilePath)
 
@@ -54,6 +88,19 @@
         Catch ex As Exception
             Throw New Exception("The following error occurred when trying to initialize OSTF:" & vbCrLf & vbCrLf & ex.ToString)
         End Try
+
+    End Sub
+
+    ''' <summary>
+    ''' This sub needs to be called when closing the last OSTF application.
+    ''' </summary>
+    Public Sub TerminateOSTF()
+
+        'Disposing the sound player. 
+        If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()
+
+        'Terminating Port Audio
+        If PortAudioIsInitialized Then Audio.PortAudio.Pa_Terminate()
 
     End Sub
 

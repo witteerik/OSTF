@@ -1,7 +1,8 @@
 ﻿Public Class SpeechMaterialCreator
 
-    Private DisposeSoundPlayerOnClose As Boolean
     Private UserType As Utils.UserTypes
+
+    Public ReadOnly Property IsStandAlone As Boolean
 
     Public Sub New()
         MyClass.New(Utils.Constants.UserTypes.Research, True)
@@ -10,23 +11,21 @@
     ''' <summary>
     ''' Creates a new instance of SpeechMaterialCreator.
     ''' </summary>
-    ''' <param name="DisposeSoundPlayerOnClose">Set to True if the new form/class is started as a standalone application. This will dispose the SoundPlayer when the new form/class is closed. 
-    ''' If the form/class is launched from within another OSTF application that uses the SoundPlayer, that application is instead responsible for disposing the SoundPlayer when closed.</param>
-    Public Sub New(ByVal UserType As Utils.UserTypes, ByVal DisposeSoundPlayerOnClose As Boolean)
+    ''' <param name="UserType"></param>
+    ''' <param name="IsStandAlone">Set to true if called from within another OSTF application, and False if run as a standalone OSTF application. </param>
+    Public Sub New(ByVal UserType As Utils.UserTypes, ByVal IsStandAlone As Boolean)
 
         ' This call is required by the designer.
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
         Me.UserType = UserType
-        Me.DisposeSoundPlayerOnClose = DisposeSoundPlayerOnClose
+        Me.IsStandAlone = IsStandAlone
 
     End Sub
 
     Private Sub SpeechMaterialCreator_FormClosing(sender As Object, e As Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
-        'Disposing the sound player.
-        If DisposeSoundPlayerOnClose = True Then If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()
-
+        If IsStandAlone = True Then OstfBase.TerminateOSTF()
     End Sub
 
     Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
@@ -38,6 +37,7 @@
     End Sub
 
     Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
+        If IsStandAlone = True Then OstfBase.TerminateOSTF()
         Me.Close()
     End Sub
 End Class

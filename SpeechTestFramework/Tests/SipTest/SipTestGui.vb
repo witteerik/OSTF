@@ -4,8 +4,7 @@ Imports System.Windows.Forms
 Imports System.Drawing
 
 Public Class SipTestGui
-
-    Private DisposeSoundPlayerOnClose As Boolean
+    Public ReadOnly Property IsStandAlone As Boolean
 
     ''' <summary>
     ''' Holds the type of layout / functionality. R=Reserach, C=Clinical
@@ -153,14 +152,13 @@ Public Class SipTestGui
     ''' <param name="SpeechMaterialName"></param>
     ''' <param name="UserType"></param>
     ''' <param name="GuiLanguage"></param>
-    ''' <param name="DisposeSoundPlayerOnClose">Set to True if the new form/class is started as a standalone application. This will dispose the SoundPlayer when the new form/class is closed. 
-    ''' If the form/class is launched from within another OSTF application that uses the SoundPlayer, that application is instead responsible for disposing the SoundPlayer when closed.</param>
-    Public Sub New(ByVal SpeechMaterialName As String, ByVal UserType As Utils.UserTypes, ByVal GuiLanguage As Utils.Languages, ByVal DisposeSoundPlayerOnClose As Boolean)
+    ''' <param name="IsStandAlone">Set to true if called from within another OSTF application, and False if run as a standalone OSTF application. </param>
+    Public Sub New(ByVal SpeechMaterialName As String, ByVal UserType As Utils.UserTypes, ByVal GuiLanguage As Utils.Languages, ByVal IsStandAlone As Boolean)
 
         ' This call is required by the designer.
         InitializeComponent()
 
-        Me.DisposeSoundPlayerOnClose = DisposeSoundPlayerOnClose
+        Me.IsStandAlone = IsStandAlone
 
         ' Add any initialization after the InitializeComponent() call.
         Me.SpeechMaterialName = SpeechMaterialName
@@ -389,7 +387,7 @@ Public Class SipTestGui
         For Each Transducer In LocalAvailableTransducers
             Transducer_ComboBox.Items.Add(Transducer)
         Next
-        Transducer_ComboBox.SelectedIndex = 0
+        'Transducer_ComboBox.SelectedIndex = 0
 
     End Sub
 
@@ -438,7 +436,8 @@ Public Class SipTestGui
 
         Screen_TableLayoutPanel.Enabled = True
         SoundSettings_TableLayoutPanel.Enabled = True
-        MsgBox("Please select a sound device!", MsgBoxStyle.Information, "SiP test")
+
+        Transducer_ComboBox.Focus()
 
     End Sub
 
@@ -2010,8 +2009,7 @@ Public Class SipTestGui
             'Ignores any error
         End Try
 
-        'Disposing the OstfBase.SoundPlayer. 
-        If DisposeSoundPlayerOnClose = True Then If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()
+        If IsStandAlone = True Then OstfBase.TerminateOSTF()
 
     End Sub
 

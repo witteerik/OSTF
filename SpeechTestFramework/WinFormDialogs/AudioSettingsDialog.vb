@@ -32,11 +32,8 @@ Public Class AudioSettingsDialog
         ' This call is required by the designer.
         InitializeComponent()
 
-        'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
-        If Audio.PortAudio.Pa_GetDeviceCount = Audio.PortAudio.PaError.paNotInitialized Then
-            Audio.PortAudio.Pa_Initialize()
-
-        End If
+        'Checking if PortAudio has been initialized 
+        If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
 
         CurrentAudioApiSettings = New Audio.AudioApiSettings()
         Me.DefaultDriverName = DefaultDriverName

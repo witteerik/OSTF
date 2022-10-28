@@ -9,6 +9,8 @@ Namespace Audio
         Public Class SoundPlayer2
             Implements IDisposable
 
+            'N.B. This sound player is just for debugging and trying out new stuff! Don't use it for regular tasks!
+
             Private _IsStreamOpen As Boolean
             Private _IsPlaying As Boolean
             Private _IsInitialized As Boolean
@@ -145,15 +147,10 @@ Namespace Audio
 
                     Log("Initializing...")
 
-                    'Initializing PA
-                    If ErrorCheck("Initialize", PortAudio.Pa_Initialize(), True) = True Then
-                        ' if Pa_Initialize() returns an error code, 
-                        ' Pa_Terminate() should NOT be called.
-                        Throw New Exception("Can't initialize audio")
-                    End If
+                    'Checking if PortAudio has been initialized 
+                    If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
 
                     _IsInitialized = True
-
 
                     SetNonAsioSoundDevice()
 
@@ -171,10 +168,8 @@ Namespace Audio
 
                 Dim ApiName As String = "MME"
 
-                'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
-                If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
-                    PortAudio.Pa_Initialize()
-                End If
+                'Checking if PortAudio has been initialized 
+                If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
 
                 'Setting driver type
                 'Getting driver types

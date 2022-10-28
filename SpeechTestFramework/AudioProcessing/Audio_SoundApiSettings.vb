@@ -95,10 +95,8 @@ Namespace Audio
 
         Public Function SetAsioSoundDevice(ByVal DeviceName As String, Optional ByVal BufferSize As Integer = 256) As Boolean
 
-            'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
-            If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
-                PortAudio.Pa_Initialize()
-            End If
+            'Checking if PortAudio has been initialized 
+            If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
 
             'Selects the ASIO host type
             Dim hostApiCount As Integer = PortAudio.Pa_GetHostApiCount()
@@ -155,10 +153,8 @@ Namespace Audio
         ''' <returns>Returns True upon succes and Flase if the intended devices could not be set.</returns>
         Public Function SetNonAsioSoundDevice(ByVal ApiName As String, ByVal OutputDeviceName As String, Optional ByVal InputDeviceName As String = "", Optional ByVal BufferSize As Integer = 256) As Boolean
 
-            'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
-            If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
-                PortAudio.Pa_Initialize()
-            End If
+            'Checking if PortAudio has been initialized 
+            If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
 
             'Setting driver type
             'Getting driver types
@@ -269,10 +265,8 @@ Namespace Audio
         ''' <returns>Returns True if at least an input or an output device was set. Returns false if neither an input or an output device could be set.</returns>
         Public Function SelectFirstAvailableDevice(Optional ByVal BufferSize As Integer = 256) As Boolean
 
-            'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
-            If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
-                PortAudio.Pa_Initialize()
-            End If
+            'Checking if PortAudio has been initialized 
+            If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
 
             'Setting driver type
             'Getting driver types
@@ -373,10 +367,8 @@ Namespace Audio
         Public Function SelectDefaultAudioDevice(Optional ByVal SampleRate As Integer = 48000,
                                             Optional ByVal BufferSize As Integer = 256) As Boolean
 
-            'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
-            If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
-                PortAudio.Pa_Initialize()
-            End If
+            'Checking if PortAudio has been initialized 
+            If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
 
             'Setting driver type
             'Getting driver types
@@ -484,10 +476,8 @@ Namespace Audio
             WinMmeSuggestedOutputLatency = 0
             WinMmeSuggestedInputLatency = 0
 
-            'Initializing PA if not already done (using a call to the method Pa_GetDeviceCount to check if PA is initialized.)
-            If PortAudio.Pa_GetDeviceCount = PortAudio.PaError.paNotInitialized Then
-                PortAudio.Pa_Initialize()
-            End If
+            'Checking if PortAudio has been initialized 
+            If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
 
             Dim deviceCount As Integer = PortAudio.Pa_GetDeviceCount()
 

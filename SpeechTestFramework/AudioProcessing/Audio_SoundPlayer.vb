@@ -38,12 +38,12 @@ Namespace Audio
             Private SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?
 
             'MME multiple devices support
-            Private UseMmeMultipleDevices As Boolean = False
+            Private UseMmeMultipleDevices As Boolean = False 'N.B. It may be possible to use the MME multiple device support for output and at the same time not using it for input (i.e. signle input device). We have however not tested this. The same functionality can be attained by specifying only a single input device in InputDevices (i.e. so that NumberOfWinMmeInputDevices = 1).
             Private PaWinMmeOutputDeviceAndChannelCountArray() As Integer = {}
-            Private PaWinMmeInputDeviceAndChannelCountArray() As Integer = {}
             Private WinMmeSuggestedOutputLatency As Double
-            Private WinMmeSuggestedInputLatency As Double
             Private NumberOfWinMmeOutputDevices As Integer
+            Private PaWinMmeInputDeviceAndChannelCountArray() As Integer = {}
+            Private WinMmeSuggestedInputLatency As Double
             Private NumberOfWinMmeInputDevices As Integer
 
             Private Stream As IntPtr
@@ -500,12 +500,8 @@ Namespace Audio
                     OverlappingSoundPlayer.MessagesEnabled = MessagesEnabled
                     Log("Initializing...")
 
-                    'Initializing PA
-                    If ErrorCheck("Initialize", PortAudio.Pa_Initialize(), True) = True Then
-                        ' if Pa_Initialize() returns an error code, 
-                        ' Pa_Terminate() should NOT be called.
-                        Throw New Exception("Can't initialize audio")
-                    End If
+                    'Checking if PortAudio has been initialized 
+                    If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
 
                     'Creating a default mixer if none is supplied
                     If Mixer Is Nothing Then
@@ -535,7 +531,7 @@ Namespace Audio
                     _IsInitialized = True
 
                 Catch e As Exception
-                    Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
+                    Log(HasPaError("Terminate", PortAudio.Pa_Terminate(), True))
                     Log(e.ToString())
                 End Try
             End Sub
@@ -635,7 +631,7 @@ Namespace Audio
                     Else
                         MsgBox("Did not initialize PaSoundPlayer due to missing audio settings.")
                         Throw New Exception("Did not initialize PaSoundPlayer due to missing audio settings.")
-                        Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
+                        Log(HasPaError("Terminate", PortAudio.Pa_Terminate(), True))
                         Exit Sub
                     End If
                 End If
@@ -1017,11 +1013,11 @@ Namespace Audio
 
                 Log("Opening stream...")
                 Me.Stream = StreamOpen()
-                If IntPtr.Zero = False Then
+                If Me.Stream = IntPtr.Zero Then
+                    Return False
+                Else
                     Log("Stream pointer: " & Stream.ToString())
                     Return True
-                Else
-                    Return False
                 End If
 
             End Function
@@ -1055,9 +1051,7 @@ Namespace Audio
                 OutputSoundB = SilentSound
 
                 Log("Starting stream")
-                If ErrorCheck("StartStream", PortAudio.Pa_StartStream(Stream), True) = False Then
-                    _IsPlaying = True
-                End If
+                _IsPlaying = Not HasPaError("StartStream", PortAudio.Pa_StartStream(Stream), True)
 
             End Sub
 
@@ -1106,7 +1100,30 @@ Namespace Audio
 
                 Log("Stopping stream...")
 
-                If ErrorCheck("StopStream", PortAudio.Pa_StopStream(Stream), True) = False Then
+                'Stopping the stream if it is running
+                Dim ReturnValue = PortAudio.Pa_IsStreamStopped(Me.Stream)
+                If ReturnValue = 0 Then
+
+                    'The stream in active
+                    'Calls Pa_StopStream plays all pending buffers before continuing
+                    If HasPaError("Pa_StopStream", PortAudio.Pa_StopStream(Me.Stream), True) = False Then
+                        _IsPlaying = False
+                    Else
+                        'We cannot set _IsPlaying here as we don't know what has happened
+                        '_IsPlaying = False
+                    End If
+
+                ElseIf ReturnValue < 0 Then
+                    'An PA error has occurred
+                    HasPaError("Pa_IsStreamStopped", ReturnValue, True)
+                    'Calls FadeOutPlayback to set the silent sound as output
+                    FadeOutPlayback()
+
+                    'We cannot set _IsPlaying here as we don't know what has happened
+                    '_IsPlaying = False
+
+                Else
+                    'the stream have already been stopped, or not started
                     _IsPlaying = False
                 End If
 
@@ -1115,15 +1132,12 @@ Namespace Audio
 
             Public Sub AbortStream() 'Optional ByVal StoreInputSound As Boolean = True)
 
+                _IsPlaying = Not HasPaError("AbortStream", PortAudio.Pa_AbortStream(Stream), True)
+
                 'Stops recording directly
                 RecordingIsActive = False
 
-
                 Log("Aborting stream...")
-
-                If ErrorCheck("AbortStream", PortAudio.Pa_AbortStream(Stream), True) = False Then
-                    _IsPlaying = False
-                End If
 
                 'If StoreInputSound = True Then
                 'Storing recorded sound
@@ -1136,14 +1150,11 @@ Namespace Audio
 
             Public Sub CloseStream()
 
-                'Stopping the stream if it is running
-                If PortAudio.Pa_IsStreamStopped(Me.Stream) < 1 Then
-                    'Calls FadeOutPlayback to set the silent sound as output
-                    FadeOutPlayback()
-                End If
+                'Colsing the stream if not stopped
+                StopStream()
 
                 'Cloing the stream
-                If ErrorCheck("CloseStream", PortAudio.Pa_CloseStream(Stream), True) = False Then
+                If HasPaError("CloseStream", PortAudio.Pa_CloseStream(Stream), True) = False Then
 
                     _IsStreamOpen = False
 
@@ -1174,23 +1185,26 @@ Namespace Audio
                 Dim data As New IntPtr(0)
 
                 Dim inputParams As New PortAudio.PaStreamParameters
-                If Me.SelectedInputDevice IsNot Nothing Then
-                    inputParams.channelCount = NumberOfInputChannels
-                    inputParams.device = Me.SelectedInputDevice
-                    inputParams.sampleFormat = Required_PaSampleFormat
-
-                    If Me.SelectedInputAndOutputDeviceInfo.HasValue = True Then
-                        inputParams.suggestedLatency = Me.SelectedInputAndOutputDeviceInfo.Value.defaultLowInputLatency
-                    Else
-                        inputParams.suggestedLatency = Me.SelectedInputDeviceInfo.Value.defaultLowInputLatency
-                    End If
-                End If
+                Dim InputDeviceNumChanPtr As IntPtr
+                Dim WmmeInputStreamInfoPtr As IntPtr
 
                 Dim outputParams As New PortAudio.PaStreamParameters
                 Dim OutputDeviceNumChanPtr As IntPtr
                 Dim WmmeOutputStreamInfoPtr As IntPtr
 
                 If UseMmeMultipleDevices = False Then
+
+                    If Me.SelectedInputDevice IsNot Nothing Then
+                        inputParams.channelCount = NumberOfInputChannels
+                        inputParams.device = Me.SelectedInputDevice
+                        inputParams.sampleFormat = Required_PaSampleFormat
+
+                        If Me.SelectedInputAndOutputDeviceInfo.HasValue = True Then
+                            inputParams.suggestedLatency = Me.SelectedInputAndOutputDeviceInfo.Value.defaultLowInputLatency
+                        Else
+                            inputParams.suggestedLatency = Me.SelectedInputDeviceInfo.Value.defaultLowInputLatency
+                        End If
+                    End If
 
                     If Me.SelectedOutputDevice IsNot Nothing Then
                         outputParams.channelCount = NumberOfOutputChannels
@@ -1205,6 +1219,34 @@ Namespace Audio
                     End If
 
                 Else
+
+                    If NumberOfWinMmeInputDevices > 0 Then
+
+                        inputParams.sampleFormat = Required_PaSampleFormat
+                        inputParams.device = PortAudio.PaDeviceIndex.paUseHostApiSpecificDeviceSpecification
+
+                        Dim wmmeInputStreamInfo As New PortAudio.PaWinMmeStreamInfo
+                        wmmeInputStreamInfo.size = Marshal.SizeOf(wmmeInputStreamInfo)
+                        wmmeInputStreamInfo.hostApiType = PortAudio.PaHostApiTypeId.paMME
+                        wmmeInputStreamInfo.version = 1
+                        wmmeInputStreamInfo.flags = PortAudio.PaWinMmeStreamInfoFlags.paWinMmeUseMultipleDevices
+
+                        'Marshalling PaWinMmeDeviceAndChannelCount
+                        InputDeviceNumChanPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf(GetType(Integer)) * PaWinMmeInputDeviceAndChannelCountArray.Length)
+                        Marshal.Copy(PaWinMmeInputDeviceAndChannelCountArray, 0, InputDeviceNumChanPtr, PaWinMmeInputDeviceAndChannelCountArray.Length)
+                        wmmeInputStreamInfo.devices = InputDeviceNumChanPtr
+                        wmmeInputStreamInfo.deviceCount = NumberOfWinMmeInputDevices
+
+                        'Marshalling wmmeInputStreamInfoPtr
+                        WmmeInputStreamInfoPtr = Marshal.AllocHGlobal(Marshal.SizeOf(wmmeInputStreamInfo))
+                        Marshal.StructureToPtr(wmmeInputStreamInfo, WmmeInputStreamInfoPtr, True)
+
+                        inputParams.hostApiSpecificStreamInfo = WmmeInputStreamInfoPtr
+                        inputParams.channelCount = NumberOfInputChannels
+                        inputParams.suggestedLatency = WinMmeSuggestedInputLatency
+
+                    End If
+
 
                     If NumberOfWinMmeOutputDevices > 0 Then
 
@@ -1248,15 +1290,15 @@ Namespace Audio
 
                 Select Case SoundDirection
                     Case SoundDirections.PlaybackOnly
-                        _IsStreamOpen = Not ErrorCheck("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
+                        _IsStreamOpen = Not HasPaError("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
                                                                        Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
                     Case SoundDirections.RecordingOnly
-                        _IsStreamOpen = Not ErrorCheck("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters),
+                        _IsStreamOpen = Not HasPaError("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters),
                                                                       Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
                     Case SoundDirections.Duplex
-                        _IsStreamOpen = Not ErrorCheck("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Me.FramesPerBuffer, Flag,
+                        _IsStreamOpen = Not HasPaError("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Me.FramesPerBuffer, Flag,
                                                                    Me.paStreamCallback, data), True)
                 End Select
 
@@ -1316,7 +1358,7 @@ Namespace Audio
                                 Try
                                     RecordedSound.WaveData.SampleData(ch + 1)(CurrentBufferStartSample + CurrentBufferSampleIndex) = Buffer(CurrentDataPoint + ch)
                                 Catch ex As Exception
-                                    Log(ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True))
+                                    Log(HasPaError("Terminate", PortAudio.Pa_Terminate(), True))
                                 End Try
                             Next
                             'Increasing sample index
@@ -1344,7 +1386,7 @@ Namespace Audio
 
             Private Sub Log(logString As String)
                 If LoggingEnabled = True Then
-                    System.Console.WriteLine("PortAudio: " & logString)
+                    System.Console.WriteLine("SoundPlayer: " & logString)
                 End If
             End Sub
 
@@ -1360,15 +1402,25 @@ Namespace Audio
                 End If
             End Sub
 
-            Private Function ErrorCheck(action As String, errorCode As PortAudio.PaError, Optional ShowErrorInMsgBox As Boolean = False) As Boolean
-                If errorCode <> PortAudio.PaError.paNoError Then
-                    Dim MessageA As String = action & " error: " & PortAudio.Pa_GetErrorText(errorCode)
+            ''' <summary>
+            ''' Checks whether the supplied error code contains a PortAudio error. Returns True if an error code exists or False if no error code exists.
+            ''' </summary>
+            ''' <param name="Action">A string representing the action attempted.</param>
+            ''' <param name="ErrorCode"></param>
+            ''' <param name="ShowErrorInMsgBox"></param>
+            ''' <returns></returns>
+            Private Function HasPaError(ByVal Action As String, ErrorCode As PortAudio.PaError, Optional ShowErrorInMsgBox As Boolean = False) As Boolean
+                If ErrorCode <> PortAudio.PaError.paNoError Then
+
+                    'An error has occurred
+                    Dim MessageA As String = Action & " error: " & PortAudio.Pa_GetErrorText(ErrorCode)
+
                     Log(MessageA)
                     If ShowErrorInMsgBox = True Then DisplayMessageInBox(MessageA)
 
                     LogToFile(MessageA)
 
-                    If errorCode = PortAudio.PaError.paUnanticipatedHostError Then
+                    If ErrorCode = PortAudio.PaError.paUnanticipatedHostError Then
                         Dim errorInfo As PortAudio.PaHostErrorInfo = PortAudio.Pa_GetLastHostErrorInfo()
                         Dim MessageB As String = "- Host error API type: " & errorInfo.hostApiType
                         Dim MessageC As String = "- Host error code: " & errorInfo.errorCode
@@ -1386,8 +1438,10 @@ Namespace Audio
 
                     Return True
                 Else
-                    Log(action & " OK")
-                    LogToFile(action & " OK")
+
+                    'No error has occurred
+                    Log(Action & " OK")
+                    LogToFile(Action & " OK")
                     Return False
                 End If
             End Function
@@ -1499,7 +1553,7 @@ Namespace Audio
                     ' TODO: free unmanaged resources (unmanaged objects) and override Finalize() below.
                     ' TODO: set large fields to null.
                     Log("Terminating...")
-                    ErrorCheck("Terminate", PortAudio.Pa_Terminate(), True)
+                    HasPaError("Terminate", PortAudio.Pa_Terminate(), True)
 
                 End If
                 disposedValue = True

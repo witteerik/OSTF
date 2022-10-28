@@ -329,9 +329,6 @@ Public Class SpeechMaterialRecorder
     Private Sub SpeechMaterialRecorder_FormClosing(sender As Object, e As Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
         'Checks if the user wants to save the sound before closing
         CheckIfSaveSound()
-
-        If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()
-
     End Sub
 
     Private Sub RandomizeRecordingsOrder()

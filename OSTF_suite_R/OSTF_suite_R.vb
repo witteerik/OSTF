@@ -51,12 +51,8 @@ Public Class OSTF_suite_R
         If CheckApplicationRunning() = False Then
             Try
                 'Loads the Swedish SiP test in research mode
-                CurrentApplicationForm = New SpeechTestFramework.SpeechMaterialCreator()
+                CurrentApplicationForm = New SpeechTestFramework.SpeechMaterialCreator(Utils.Constants.UserTypes.Research, False)
                 CurrentApplicationForm.Show()
-
-
-                'CurrentApplicationForm = New SpeechTestFramework.SpeechMaterialCreator(SpeechTestFramework.Utils.Constants.UserTypes.Research, False)
-                'CurrentApplicationForm.Show()
             Catch ex As Exception
                 MsgBox("The following error occurred: " & ex.ToString, MsgBoxStyle.Critical, "Error!")
             End Try
@@ -101,8 +97,9 @@ Public Class OSTF_suite_R
     End Sub
 
     Private Sub OSTF_suite_R_FormClosing(sender As Object, e As Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
-        'Disposing the sound player. 
-        If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()
+
+        OstfBase.TerminateOSTF()
+
     End Sub
 
 End Class
