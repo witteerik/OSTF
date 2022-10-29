@@ -1303,8 +1303,16 @@ Namespace Audio
                 End Select
 
                 If UseMmeMultipleDevices = True Then
-                    Marshal.FreeCoTaskMem(WmmeOutputStreamInfoPtr)
-                    Marshal.FreeCoTaskMem(OutputDeviceNumChanPtr)
+                    If NumberOfWinMmeOutputDevices > 0 Then
+                        Marshal.FreeCoTaskMem(WmmeOutputStreamInfoPtr)
+                        Marshal.FreeCoTaskMem(OutputDeviceNumChanPtr)
+                    End If
+
+                    If NumberOfWinMmeInputDevices > 0 Then
+                        Marshal.FreeCoTaskMem(WmmeInputStreamInfoPtr)
+                        Marshal.FreeCoTaskMem(InputDeviceNumChanPtr)
+                    End If
+
                 End If
 
                 Return stream
