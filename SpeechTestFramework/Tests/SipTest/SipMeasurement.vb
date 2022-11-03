@@ -1037,16 +1037,14 @@ Namespace SipTest
             Dim RefLevelDifference As Double = ReferenceLevel - ReferenceSpeechMaterialLevel_SPL
 
             '0. Gettings some levels
-            Dim ContrastingPhonemesLevel_SPL = ReferenceContrastingPhonemesLevel_SPL + RefLevelDifference
-
-            '1. Setting the noise level
+            '1.And setting the noise level
             Dim SNR_Type As String = "PNR"
             If SNR_Type = "PNR" Then
                 'In this procedure, CurrentSNR represents the sound level difference between the average max level of the contrasting test phonemes, and the masker sound
                 'Setting the test word masker to Lcp
 
                 'Setting TargetMasking_SPL to ContrastingPhonemesLevel_SPL
-                _TargetMasking_SPL = ContrastingPhonemesLevel_SPL
+                _TargetMasking_SPL = ReferenceContrastingPhonemesLevel_SPL + RefLevelDifference
 
             ElseIf SNR_Type = "SNR_SpeechMaterial" Then
                 'In this procedure, CurrentSNR represents the sound level difference between the average level of the whole speech material, and the masker sound
@@ -1091,17 +1089,6 @@ Namespace SipTest
             End If
 
         End Sub
-
-
-        Public Function GetCurrentSpeechGain() As Double
-            Dim SpeechGain As Double = TestWordLevel - ReferenceTestWordLevel_SPL ' SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
-            Return SpeechGain
-        End Function
-
-        Public Function GetCurrentMaskerGain() As Double
-            Dim CurrentMaskerGain = TargetMasking_SPL - Audio.Standard_dBFS_To_dBSPL(Common.SipTestReferenceMaskerLevel_FS) 'TODO: In the SiP-test maskers sound files the level is set to -30 dB FS across the whole sounds. A more detailed sound level data could be used instead!
-            Return CurrentMaskerGain
-        End Function
 
 
         Public Sub MixSound(ByRef SelectedTransducer As AudioSystemSpecification, ByVal TestingSpeed As SipMeasurement.TestingSpeeds,
@@ -1517,9 +1504,16 @@ Namespace SipTest
                 IncorrectResponsesSpectralLevels.Add(IncorrectResponseSpectralLevels)
             Next
 
+            'Calculating the difference between the standard ReferenceSpeechMaterialLevel_SPL (68.34 dB SPL) reference level and the one currently used
+            Dim RefLevelDifference As Double = Me.Reference_SPL - ReferenceSpeechMaterialLevel_SPL
+
             'Getting the current gain, compared to the reference test-word and masker levels
-            Dim CurrentSpeechGain As Double = GetCurrentSpeechGain()
-            Dim CurrentMaskerGain As Double = GetCurrentMaskerGain()
+            Dim CurrentSpeechGain As Double = TestWordLevel - ReferenceTestWordLevel_SPL + RefLevelDifference ' SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
+            Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " SpeechGain : " & CurrentSpeechGain)
+
+            Dim CurrentMaskerGain As Double = TargetMasking_SPL - ReferenceContrastingPhonemesLevel_SPL + RefLevelDifference 'Audio.Standard_dBFS_To_dBSPL(Common.SipTestReferenceMaskerLevel_FS) 'TODO: In the SiP-test maskers sound files the level is set to -30 dB FS across the whole sounds. A more detailed sound level data could be used instead!
+            Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " CurrentMaskerGain: " & CurrentMaskerGain)
+
 
             For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
                 Dim VariableNameSuffix = Math.Round(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(i)).ToString("00000")
@@ -1539,10 +1533,10 @@ Namespace SipTest
             'N.B. SRFM and SF 30 need to change if presented in other speaker azimuths!
 
             'Calculating SDRs
-            Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
+            Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels.Clone, MaskerSpectralLevels.Clone, Thresholds.Clone, Gain.Clone, True, True, SRFM.Clone)
             Dim SDRcs As New List(Of Double())
             For s = 0 To Siblings.Count - 1
-                Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s), MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
+                Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s).Clone, MaskerSpectralLevels.Clone, Thresholds.Clone, Gain.Clone, True, True, SRFM.Clone)
                 SDRcs.Add(SDRc)
             Next
 
