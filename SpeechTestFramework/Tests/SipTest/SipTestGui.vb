@@ -985,7 +985,7 @@ Public Class SipTestGui
     Private Sub InitiateTestByPlayingSound()
 
         'Premixing the first 10 sounds 
-        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
 
         StartTrialTimer.Interval = Math.Max(1, InterTrialInterval * 1000)
 
@@ -1141,7 +1141,7 @@ Public Class SipTestGui
 
                 If (CurrentSipTestMeasurement.ObservedTrials.Count + 3) Mod 10 = 0 Then
                     'Premixing the next 10 sounds, starting three trials before the next is needed 
-                    CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+                    CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
                 End If
 
                 'Waiting for the background thread to finish mixing
