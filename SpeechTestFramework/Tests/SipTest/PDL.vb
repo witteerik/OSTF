@@ -68,6 +68,14 @@
         Public Function CalculateSDR(ByVal E As Double(), ByVal N As Double(), ByVal T_ As Double(), ByVal G As Double(),
                                  ByVal Binaural As Boolean, ByVal SF30 As Boolean, ByVal SRFM As Double?()) As Double()
 
+            'Cloning the input arrays, so that they don't get modified by the function
+            Dim E_Copy As Double() = E.Clone
+            Dim N_Copy As Double() = N.Clone
+            Dim T__Copy As Double() = T_.Clone
+            Dim G_Copy As Double() = G.Clone
+
+            Dim SRFM_Copy As Double?() = SRFM.Clone
+
             '  Critical band specifications according to table 1 in ANSI S3.5-1997
             '   Centre frequencies
             Dim F As Double() = {150, 250, 350, 450, 570, 700, 840, 1000, 1170, 1370, 1600, 1850,
@@ -95,7 +103,7 @@
             '  # Calculating Spectrum level of equivalent speech
             Dim E_(20) As Double
             For i = 0 To 20
-                E_(i) = E(i) + G(i)
+                E_(i) = E_Copy(i) + G_Copy(i)
             Next
 
             'Step 3
@@ -111,19 +119,19 @@
 
                 'Step 4
                 '    Subtracting spectral release from masking To the noise
-                If SRFM IsNot Nothing Then
-                    If SRFM.Length = 1 Or SRFM.Length = 21 Then
+                If SRFM_Copy IsNot Nothing Then
+                    If SRFM_Copy.Length = 1 Or SRFM_Copy.Length = 21 Then
 
                         ' If the the length of SRFM Is 1, that value Is subtracted from all requency bands,
                         ' And if the length Is 21, SRFM should contain the attenuation of each of the 21 critical frequency bands
 
-                        If SRFM.Length = 1 Then
+                        If SRFM_Copy.Length = 1 Then
                             For i = 0 To int_ds.Length - 1
-                                int_ds(i) -= SRFM(0)
+                                int_ds(i) -= SRFM_Copy(0)
                             Next
                         Else
                             For i = 0 To int_ds.Length - 1
-                                int_ds(i) -= SRFM(i)
+                                int_ds(i) -= SRFM_Copy(i)
                             Next
                         End If
                     Else
@@ -133,20 +141,20 @@
 
                 'Adding the delta HRFT, optionally modified  by the SRFM, to N
                 For i = 0 To 20
-                    N(i) = N(i) + int_ds(i)
+                    N_Copy(i) = N_Copy(i) + int_ds(i)
                 Next
             End If
 
             'Step 5
             Dim N_(20) As Double
             For i = 0 To 20
-                N_(i) = N(i) + G(i)
+                N_(i) = N_Copy(i) + G_Copy(i)
             Next
 
             'Step 6
             If Binaural = True Then
                 For i = 0 To 20
-                    T_(i) -= 1.7
+                    T__Copy(i) -= 1.7
                 Next
             End If
 
@@ -189,7 +197,7 @@
             Dim X_(20) As Double
 
             For i = 0 To 20
-                X_(i) = X(i) + T_(i)
+                X_(i) = X(i) + T__Copy(i)
             Next
 
 

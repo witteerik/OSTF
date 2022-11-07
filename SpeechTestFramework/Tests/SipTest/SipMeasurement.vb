@@ -1533,10 +1533,10 @@ Namespace SipTest
             'N.B. SRFM and SF 30 need to change if presented in other speaker azimuths!
 
             'Calculating SDRs
-            Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels.Clone, MaskerSpectralLevels.Clone, Thresholds.Clone, Gain.Clone, True, True, SRFM.Clone)
+            Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
             Dim SDRcs As New List(Of Double())
             For s = 0 To Siblings.Count - 1
-                Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s).Clone, MaskerSpectralLevels.Clone, Thresholds.Clone, Gain.Clone, True, True, SRFM.Clone)
+                Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s), MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
                 SDRcs.Add(SDRc)
             Next
 
