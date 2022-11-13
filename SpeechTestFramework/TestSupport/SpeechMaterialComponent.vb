@@ -384,7 +384,7 @@ Public Class SpeechMaterialComponent
     ''' <returns></returns>
     Public Function GetSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer, Optional CrossFadeLength As Integer? = Nothing) As Audio.Sound
 
-        Dim CorrespondingSmaComponentList = GetCorrespondingSmaComponent(MediaSet, Index, SoundChannel)
+        Dim CorrespondingSmaComponentList = GetCorrespondingSmaComponent(MediaSet, Index, SoundChannel, True)
 
         If CorrespondingSmaComponentList.Count = 0 Then
             Return Nothing
@@ -536,7 +536,7 @@ Public Class SpeechMaterialComponent
     ''' <param name="Index"></param>
     ''' <param name="SoundChannel"></param>
     ''' <returns></returns>
-    Public Function GetCorrespondingSmaComponent(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer) As List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+    Public Function GetCorrespondingSmaComponent(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer, ByVal IncludePractiseComponents As Boolean) As List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
 
         Dim SelfIndices = FindSelfIndices()
 
@@ -556,6 +556,17 @@ Public Class SpeechMaterialComponent
             'E.g. SMC is a List and AudioFileLinguisticLevel is a sentence
             SmcsWithSoundFile.AddRange(GetAllDescenentsAtLevel(MediaSet.AudioFileLinguisticLevel))
 
+        End If
+
+        'Removing practise components
+        If IncludePractiseComponents = False Then
+            Dim TempList As New List(Of SpeechMaterialComponent)
+            For Each Component In SmcsWithSoundFile
+                If Component.IsPractiseComponent = False Then
+                    TempList.Add(Component)
+                End If
+            Next
+            SmcsWithSoundFile = TempList
         End If
 
         Dim Output As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
@@ -652,7 +663,7 @@ Public Class SpeechMaterialComponent
             End If
 
             For i = 0 To MediaSet.MediaAudioItems - 1
-                CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(MediaSet, i, SoundChannel))
+                CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(MediaSet, i, SoundChannel, Not SkipPractiseComponents))
             Next
 
         Next

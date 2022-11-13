@@ -1084,7 +1084,7 @@ Public Class MediaSet
                     If TempSoundLib.ContainsKey(RecordingComponents(c).Id) = False Then
                         TempSoundLib.Add(RecordingComponents(c).Id, New Tuple(Of Boolean, List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent))(RecordingComponents(c).IsPractiseComponent, New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)))
                     End If
-                    TempSoundLib(RecordingComponents(c).Id).Item2.Add(RecordingComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
+                    TempSoundLib(RecordingComponents(c).Id).Item2.Add(RecordingComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel, True))
 
                 Next
             Next
@@ -1571,7 +1571,7 @@ Public Class MediaSet
                 End If
 
                 For i = 0 To MediaAudioItems - 1
-                    CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
+                    CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel, True))
                 Next
 
             Next
@@ -1662,7 +1662,7 @@ Public Class MediaSet
                 End If
 
                 For i = 0 To MediaAudioItems - 1
-                    CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel))
+                    CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(Me, i, SoundChannel, True))
                 Next
 
             Next
@@ -1699,7 +1699,8 @@ Public Class MediaSet
                                                                ByVal SoundChannel As Integer,
                                                                Optional ByVal IntegrationTime As Double = 0,
                                                                Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
-                                                               Optional ByVal VariableName As String = "Lc")
+                                                               Optional ByVal VariableName As String = "Lc",
+                                       Optional ByVal IncludePractiseComponents As Boolean = False)
 
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
@@ -1714,7 +1715,7 @@ Public Class MediaSet
             'Get the SMA components representing the sound sections of all target components
             Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
             For i = 0 To MediaAudioItems - 1
-                CurrentSmaComponentList.AddRange(SummaryComponent.GetCorrespondingSmaComponent(Me, i, SoundChannel))
+                CurrentSmaComponentList.AddRange(SummaryComponent.GetCorrespondingSmaComponent(Me, i, SoundChannel, IncludePractiseComponents))
             Next
 
             'Skipping to next Summary component if no
@@ -3109,7 +3110,7 @@ Public Class MediaSet
 
             For i = 0 To MediaAudioItems - 1
 
-                Dim CurrentSmaComponentList = AllComponentsWithSound(c).GetCorrespondingSmaComponent(Me, i, SoundChannel)
+                Dim CurrentSmaComponentList = AllComponentsWithSound(c).GetCorrespondingSmaComponent(Me, i, SoundChannel, True)
 
                 If CurrentSmaComponentList.Count = 1 Then
                     If CurrentSmaComponentList(0).GetSoundFileSection(SoundChannel) Is Nothing Then
