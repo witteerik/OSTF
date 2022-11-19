@@ -212,17 +212,17 @@ Namespace Audio
                 ''' <summary>
                 ''' The distance to the sound source in meters.
                 ''' </summary>
-                Public Distance As Double
+                Public Distance As Double = 1
 
                 ''' <summary>
                 ''' The horizontal azimuth of the sound source in degrees, in relation to front (zero degrees), positive values to the right and negative values to the left.
                 ''' </summary>
-                Public HorizontalAzimuth As Double
+                Public HorizontalAzimuth As Double = 0
 
                 ''' <summary>
                 ''' The verical elevation of the sound source in degrees, where zero degrees refers to the horizontal plane, positive values upwards and negative values downwards.
                 ''' </summary>
-                Public Elevation As Double
+                Public Elevation As Double = 0
 
             End Class
 
@@ -236,11 +236,13 @@ Namespace Audio
 
                     'Copy sounds so that their individual sample data in the selected channel to a new (mono) sound so that the sample data may be changed without changing the original sound,
                     ' and addes them in a new list of SoundSceneItem, which should henceforth be used instead of the Input object.
+                    ' TODO: SoundLevelFormat, FadeSpecifications, and DuckingSpecifications is still used and not copied! May be allright?!
                     Dim SoundSceneItemList As New List(Of SoundSceneItem)
                     For Each Item In Input
                         'Creates a new NewSoundSceneItem 
                         Dim NewSoundSceneItem = New SoundSceneItem(Item.Sound.CopyChannelToMonoSound(Item.ReadChannel), 1, Item.SoundLevel, Item.LevelGroup,
-                                                                Item.SourceLocation, Item.InsertSample, Item.LevelDefStartSample, Item.LevelDefLength,
+                                                                New SoundSourceLocation With {.Distance = Item.SourceLocation.Distance, .Elevation = Item.SourceLocation.Elevation, .HorizontalAzimuth = Item.SourceLocation.HorizontalAzimuth},
+                                                                Item.InsertSample, Item.LevelDefStartSample, Item.LevelDefLength,
                                                                Item.SoundLevelFormat, Item.FadeSpecifications, Item.DuckingSpecifications)
                         'Adds the NewSoundSceneItem 
                         SoundSceneItemList.Add(NewSoundSceneItem)

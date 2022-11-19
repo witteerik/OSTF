@@ -90,9 +90,9 @@ Public Class SipTestGui
     Private ReadOnly Bt_PIN As String = "1234"
     Private MyBtTesteeControl As BtTesteeControl = Nothing
 
-    Private SelectedTestingSpeed As SipMeasurement.TestingSpeeds = SipMeasurement.TestingSpeeds.Slow
+    Private SelectedTestparadigm As Testparadigm = Testparadigm.Slow
 
-    'Test settings /note that these default values are or may be overwritten when changing SelectedTestingSpeed through the GUI
+    'Test settings /note that these default values are or may be overwritten when changing SelectedTestparadigm through the GUI
     ''' <summary>
     ''' The (shortest) time delay (in seconds) between the response and the start of a new trial.
     ''' </summary>
@@ -283,10 +283,12 @@ Public Class SipTestGui
 
         StartSoundPlayer()
 
-        'Adding values in TestingSpeed_ComboBox
-        TestingSpeed_ComboBox.Items.Add(SipMeasurement.TestingSpeeds.Quick)
-        TestingSpeed_ComboBox.Items.Add(SipMeasurement.TestingSpeeds.Slow)
-        TestingSpeed_ComboBox.SelectedIndex = 0
+        'Adding values in Testparadigm_ComboBox
+        Testparadigm_ComboBox.Items.Add(Testparadigm.Quick)
+        Testparadigm_ComboBox.Items.Add(Testparadigm.Slow)
+        Testparadigm_ComboBox.Items.Add(Testparadigm.Directional3)
+        Testparadigm_ComboBox.Items.Add(Testparadigm.Directional5)
+        Testparadigm_ComboBox.SelectedIndex = 0
 
     End Sub
 
@@ -319,7 +321,7 @@ Public Class SipTestGui
                 Preset_Label.Text = "Test"
                 Situation_Label.Text = "Situation"
                 LengthReduplications_Label.Text = "Repetitioner"
-                TestingSpeed_Label.Text = "Hastighet"
+                Testparadigm_Label.Text = "Testläge"
                 PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
                 PNR_Label.Text = "PNR (dB)"
                 CorrectCount_Label.Text = "Antal rätt"
@@ -357,7 +359,7 @@ Public Class SipTestGui
                 Preset_Label.Text = "Test"
                 Situation_Label.Text = "Situation"
                 LengthReduplications_Label.Text = "Repetitions"
-                TestingSpeed_Label.Text = "Testing speed"
+                Testparadigm_Label.Text = "Test mode"
                 PsychmetricFunction_VerticalLabel.Text = "EST. SCORE (%)"
                 PNR_Label.Text = "PNR (dB)"
                 CorrectCount_Label.Text = "Number correct"
@@ -734,6 +736,7 @@ Public Class SipTestGui
             CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
             CurrentSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
             CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
+            CurrentSipTestMeasurement.TestProcedure.TestParadigm = SelectedTestparadigm
 
             'Test length was updated, adds test trials to the measurement
             CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName)
@@ -1153,7 +1156,7 @@ Public Class SipTestGui
                 End While
 
                 'If CurrentSipTrial.TestTrialSound Is Nothing Then
-                '    CurrentSipTrial.MixSound(SelectedTransducer, SelectedTestingSpeed, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+                '    CurrentSipTrial.MixSound(SelectedTransducer, SelectedTestparadigm, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
                 'End If
 
                 'References the sound
@@ -2156,14 +2159,14 @@ Public Class SipTestGui
     End Sub
 
 
-    Private Sub TestingSpeed_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles TestingSpeed_ComboBox.SelectedIndexChanged
+    Private Sub TestingSpeed_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Testparadigm_ComboBox.SelectedIndexChanged
 
-        If TestingSpeed_ComboBox.SelectedItem IsNot Nothing Then
-            SelectedTestingSpeed = TestingSpeed_ComboBox.SelectedItem
+        If Testparadigm_ComboBox.SelectedItem IsNot Nothing Then
+            SelectedTestparadigm = Testparadigm_ComboBox.SelectedItem
         End If
 
-        Select Case SelectedTestingSpeed
-            Case SipMeasurement.TestingSpeeds.Slow
+        Select Case SelectedTestparadigm
+            Case Testparadigm.Slow, Testparadigm.Directional3, Testparadigm.Directional5
 
                 InterTrialInterval = 1
                 ResponseAlternativeDelay = 0.5
@@ -2176,7 +2179,7 @@ Public Class SipTestGui
                 MaximumResponseTime = 4
                 ShowProgressIndication = True
 
-            Case SipMeasurement.TestingSpeeds.Quick
+            Case Testparadigm.Quick
 
                 InterTrialInterval = 0.1
                 ResponseAlternativeDelay = 0

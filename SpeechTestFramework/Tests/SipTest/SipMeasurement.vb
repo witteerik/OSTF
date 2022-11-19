@@ -39,16 +39,11 @@ Namespace SipTest
         ''' Holds settings that determine how the test should enfold.
         ''' </summary>
         ''' <returns></returns>
-        Public Property TestProcedure As New TestProcedure(AdaptiveTypes.Fixed)
+        Public Property TestProcedure As New TestProcedure(AdaptiveTypes.Fixed, Testparadigm.Slow)
 
 
         Public Property SelectedAudiogramData As AudiogramData = Nothing
         Public Property HearingAidGain As HearingAidGainData = Nothing
-
-        Public Enum TestingSpeeds
-            Quick
-            Slow
-        End Enum
 
         Friend Randomizer As Random
 
@@ -85,31 +80,37 @@ Namespace SipTest
             'MediaSetName ' TODO: should we use the name or the mediaset in the GUI/Measurment?
             'TODO: If media set is not selected we could randomize between the available ones...
 
+            Dim CurrentTargetLocations = TestProcedure.TargetStimulusLocations(Me.TestProcedure.TestParadigm)
+
+
             Select Case TestProcedure.AdaptiveType
                 Case AdaptiveTypes.Fixed
 
                     If RandomSeed.HasValue Then Randomizer = New Random(RandomSeed)
 
-                    For r = 1 To TestProcedure.LengthReduplications
+                    For Each TargetLocation In CurrentTargetLocations
 
-                        For Each PresetComponent In Preset
+                        For r = 1 To TestProcedure.LengthReduplications
 
-                            Dim NewTestUnit = New SiPTestUnit(Me)
+                            For Each PresetComponent In Preset
 
-                            Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
-                            NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
+                                Dim NewTestUnit = New SiPTestUnit(Me)
 
-                            If MediaSetName <> "" Then
-                                'Adding from the selected media set
-                                NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName))
-                                TestUnits.Add(NewTestUnit)
-                            Else
-                                'Adding from random media sets
-                                Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
-                                NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex))
-                                TestUnits.Add(NewTestUnit)
-                            End If
+                                Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+                                NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
+                                If MediaSetName <> "" Then
+                                    'Adding from the selected media set
+                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), TargetLocation)
+                                    TestUnits.Add(NewTestUnit)
+                                Else
+                                    'Adding from random media sets
+                                    Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), TargetLocation)
+                                    TestUnits.Add(NewTestUnit)
+                                End If
+
+                            Next
                         Next
                     Next
 
@@ -135,26 +136,29 @@ Namespace SipTest
 
                     If RandomSeed.HasValue Then Randomizer = New Random(RandomSeed)
 
-                    For r = 1 To TestProcedure.LengthReduplications
+                    For Each TargetLocation In CurrentTargetLocations
 
-                        For Each PresetComponent In Preset
+                        For r = 1 To TestProcedure.LengthReduplications
 
-                            Dim NewTestUnit = New SiPTestUnit(Me)
+                            For Each PresetComponent In Preset
 
-                            Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
-                            NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
+                                Dim NewTestUnit = New SiPTestUnit(Me)
 
-                            If MediaSetName <> "" Then
-                                'Adding from the selected media set
-                                NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName))
-                                TestUnits.Add(NewTestUnit)
-                            Else
-                                'Adding from random media sets
-                                Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
-                                NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex))
-                                TestUnits.Add(NewTestUnit)
-                            End If
+                                Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+                                NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
+                                If MediaSetName <> "" Then
+                                    'Adding from the selected media set
+                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), TargetLocation)
+                                    TestUnits.Add(NewTestUnit)
+                                Else
+                                    'Adding from random media sets
+                                    Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), TargetLocation)
+                                    TestUnits.Add(NewTestUnit)
+                                End If
+
+                            Next
                         Next
                     Next
 
@@ -610,6 +614,9 @@ Namespace SipTest
             Headings.Add("PNR")
             Headings.Add("EstimatedSuccessProbability")
             Headings.Add("AdjustedSuccessProbability")
+            Headings.Add("TargetLocation_Distance")
+            Headings.Add("TargetLocation_HorizontalAzimuth")
+            Headings.Add("TargetLocation_Elevation")
             Headings.Add("Response")
             Headings.Add("Result")
             Headings.Add("ResponseTime")
@@ -639,6 +646,9 @@ Namespace SipTest
                 TrialList.Add(Trial.PNR)
                 TrialList.Add(Trial.EstimatedSuccessProbability(True))
                 TrialList.Add(Trial.AdjustedSuccessProbability)
+                TrialList.Add(Trial.TargetStimulusLocation.Distance)
+                TrialList.Add(Trial.TargetStimulusLocation.HorizontalAzimuth)
+                TrialList.Add(Trial.TargetStimulusLocation.Elevation)
                 TrialList.Add(Trial.Response)
                 TrialList.Add(Trial.Result.ToString)
                 TrialList.Add(Trial.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
@@ -730,6 +740,13 @@ Namespace SipTest
                 c += 1
                 Dim AdjustedSuccessProbability As Double = LineColumns(c)
                 c += 1
+                Dim TargetLocation = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                TargetLocation.Distance = LineColumns(c)
+                c += 1
+                TargetLocation.HorizontalAzimuth = LineColumns(c)
+                c += 1
+                TargetLocation.Elevation = LineColumns(c)
+                c += 1
                 Dim Response As String = LineColumns(c)
                 c += 1
                 Dim Result As SipTest.PossibleResults = [Enum].Parse(GetType(SipTest.PossibleResults), LineColumns(c))
@@ -756,7 +773,7 @@ Namespace SipTest
                 'Getting the SpeechMaterialComponent, media set and (re-)creates the test trial
                 Dim SpeechMaterialComponent = ParentTestSpecification.SpeechMaterial.GetComponentById(SpeechMaterialComponentID)
                 Dim MediaSet = ParentTestSpecification.MediaSets.GetMediaSet(MediaSetName)
-                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet)
+                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, TargetLocation)
 
                 'Stores the remaining test trial data
                 'NewTestTrial.PresentationOrder = PresentationOrder 'This is not stored as the export/import should always be ordered in the presentation order, as they are read from and stored into the ObservedTrials object!
@@ -839,7 +856,7 @@ Namespace SipTest
             Me.ParentMeasurement = ParentMeasurement
         End Sub
 
-        Public Sub PlanTrials(ByRef MediaSet As MediaSet)
+        Public Sub PlanTrials(ByRef MediaSet As MediaSet, ByVal TargetLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
 
             PlannedTrials.Clear()
 
@@ -848,7 +865,7 @@ Namespace SipTest
 
                     'For n = 1 To ParentMeasurement.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
                     For c = 0 To SpeechMaterialComponents.Count - 1
-                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet)
+                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet, TargetLocation)
                         PlannedTrials.Add(NewTrial)
                     Next
 
@@ -967,15 +984,20 @@ Namespace SipTest
         Public TestWordStartTime As Double
         Public TestWordCompletedTime As Double
 
-
+        ''' <summary>
+        ''' Holds the location of the target
+        ''' </summary>
+        Public TargetStimulusLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
 
         Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
                        ByRef SpeechMaterialComponent As SpeechMaterialComponent,
-                       ByRef MediaSet As MediaSet)
+                       ByRef MediaSet As MediaSet,
+                       ByRef TargetStimulusLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
 
             Me.ParentTestUnit = ParentTestUnit
             Me.SpeechMaterialComponent = SpeechMaterialComponent
             Me.MediaSet = MediaSet
+            Me.TargetStimulusLocation = TargetStimulusLocation
 
             'Setting some levels
             Dim Fs2Spl As Double = Audio.Standard_dBFS_dBSPL_Difference
@@ -1191,7 +1213,7 @@ Namespace SipTest
 
                 'Adds the test word signal, with fade and location specifications
                 Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(TestWordSound, 1, Me.TestWordLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, TestWordStartSample,,,, FadeSpecs_TestWord))
+                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(TestWordSound, 1, Me.TestWordLevel, LevelGroup, Me.TargetStimulusLocation, TestWordStartSample,,,, FadeSpecs_TestWord))
                 LevelGroup += 1
 
                 'Adds the Maskers, with fade and location specifications
@@ -1206,7 +1228,7 @@ Namespace SipTest
 
                 'Adds the background (speech) signal, with fade, duck and location specifications
                 If UseBackgroundSpeech = True Then
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelection, 1, Me.ContextRegionSpeech_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
+                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelection, 1, Me.ContextRegionSpeech_SPL, LevelGroup, Me.TargetStimulusLocation, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
                     LevelGroup += 1
                 End If
 
@@ -1385,16 +1407,47 @@ Namespace SipTest
         Fixed
     End Enum
 
+    Public Enum Testparadigm
+        Quick
+        Slow
+        Directional3
+        Directional5
+    End Enum
+
     Public Class TestProcedure
 
         Public Property AdaptiveType As AdaptiveTypes
+
+        Public Property TestParadigm As Testparadigm
 
         Public Property LengthReduplications As Integer?
 
         Public Property RandomizeOrder As Boolean = True
 
-        Public Sub New(ByVal AdaptiveType As AdaptiveTypes)
+        Public ReadOnly Property TargetStimulusLocations As New SortedList(Of Testparadigm, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation())
+
+        Public Sub New(ByVal AdaptiveType As AdaptiveTypes, ByVal TestParadigm As Testparadigm)
             Me.AdaptiveType = AdaptiveType
+            Me.TestParadigm = TestParadigm
+
+            'Setting up TargetStimulusLocations
+            TargetStimulusLocations.Add(Testparadigm.Slow, {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}})
+
+            TargetStimulusLocations.Add(Testparadigm.Quick, {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}})
+
+            TargetStimulusLocations.Add(Testparadigm.Directional3, {
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+
+            TargetStimulusLocations.Add(Testparadigm.Directional5, {
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -120},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 120}})
+
+
         End Sub
 
     End Class
