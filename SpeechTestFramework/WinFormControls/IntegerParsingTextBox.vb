@@ -29,10 +29,10 @@ Public Class IntegerParsingTextBox
     Protected Overrides Sub OnTextChanged(e As EventArgs)
         MyBase.OnTextChanged(e)
 
-        'Tries to parse the text as a valid Double
-        Dim ParsedValue As Double
+        'Tries to parse the text as a valid INteger
+        Dim ParsedValue As Integer
 
-        If Double.TryParse(Me.Text.Replace(",", "."), NumberStyles.Integer, CultureInfo.InvariantCulture, ParsedValue) = True Then
+        If Integer.TryParse(Me.Text.Replace(",", "."), NumberStyles.Integer, CultureInfo.InvariantCulture, ParsedValue) = True Then
             Me._Value = ParsedValue
             Me.ForeColor = DefaultTextColor
         Else

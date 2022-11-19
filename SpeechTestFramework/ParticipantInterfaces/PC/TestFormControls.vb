@@ -4,6 +4,16 @@ Imports System.Drawing
 Public Class TestWordLabel
     Inherits Label
 
+    Public Sub New()
+
+        Me.Font = New Font("Verdana", 60, FontStyle.Regular)
+        Me.TextAlign = ContentAlignment.MiddleCenter
+        Me.BackColor = Drawing.Color.FromArgb(40, 40, 40)
+        Me.ForeColor = Drawing.Color.FromArgb(255, 255, 128)
+        Me.AutoSize = False
+
+    End Sub
+
     Public Sub New(ByRef ParentContainer As Object, Optional BackColorRed As Integer = 255, Optional BackColorGreen As Integer = 255, Optional BackColorBlue As Integer = 90, Optional ByVal FontSize As Single = 60)
 
         Me.Parent = ParentContainer

@@ -2193,9 +2193,13 @@ Public Class SipTestGui
                 ShowProgressIndication = True
 
 
-
         End Select
 
+        TryCalculatePsychometricFunction()
+
+    End Sub
+
+    Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
 
     End Sub
 

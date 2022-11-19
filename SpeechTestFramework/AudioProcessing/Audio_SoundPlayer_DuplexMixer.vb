@@ -224,6 +224,11 @@ Namespace Audio
                 ''' </summary>
                 Public Elevation As Double = 0
 
+                ''' <summary>
+                ''' After presentation, this object should hold the actual location of the presented sound source as limited by the available speakers or limitations of the sound field simulator used.
+                ''' </summary>
+                Public ActualLocation As SoundSourceLocation
+
             End Class
 
 
@@ -236,12 +241,13 @@ Namespace Audio
 
                     'Copy sounds so that their individual sample data in the selected channel to a new (mono) sound so that the sample data may be changed without changing the original sound,
                     ' and addes them in a new list of SoundSceneItem, which should henceforth be used instead of the Input object.
+                    ' However SourceLocation is referenced, as it revieces its ActualLocation value as part of the algorithm
                     ' TODO: SoundLevelFormat, FadeSpecifications, and DuckingSpecifications is still used and not copied! May be allright?!
                     Dim SoundSceneItemList As New List(Of SoundSceneItem)
                     For Each Item In Input
                         'Creates a new NewSoundSceneItem 
                         Dim NewSoundSceneItem = New SoundSceneItem(Item.Sound.CopyChannelToMonoSound(Item.ReadChannel), 1, Item.SoundLevel, Item.LevelGroup,
-                                                                New SoundSourceLocation With {.Distance = Item.SourceLocation.Distance, .Elevation = Item.SourceLocation.Elevation, .HorizontalAzimuth = Item.SourceLocation.HorizontalAzimuth},
+                                                                Item.SourceLocation,
                                                                 Item.InsertSample, Item.LevelDefStartSample, Item.LevelDefLength,
                                                                Item.SoundLevelFormat, Item.FadeSpecifications, Item.DuckingSpecifications)
                         'Adds the NewSoundSceneItem 
@@ -529,6 +535,7 @@ Namespace Audio
             Public Function FindClosestHardwareOutput(ByVal SoundSourceLocation As SoundSourceLocation) As Integer
 
                 'NB & TODO: this function does not work with loadspeaker Elevation and distance! Any values for these will be ignored!
+                If SoundSourceLocation.ActualLocation Is Nothing Then SoundSourceLocation.ActualLocation = New SoundSourceLocation
 
                 Dim Azimuth As Integer = SoundSourceLocation.HorizontalAzimuth
 
@@ -552,7 +559,15 @@ Namespace Audio
                 'Checks the number of items detected
                 If MinDistanceItems.Count = 1 Then
 
-                    'If there is only one speaker with the minimum distance, its values are returned
+                    'If there is only one speaker with the minimum distance, 
+                    'Store its horizontal azimuth
+                    SoundSourceLocation.ActualLocation.HorizontalAzimuth = MinDistanceItems(0).Item2.HorizontalAzimuth
+
+                    'TODO: when distance and/or elevation is implemented, these need to be set as well
+                    'SoundSourceLocation.ActualLocation.Distance = ...
+                    'SoundSourceLocation.ActualLocation.Elevation = ...
+
+                    'And returns its index
                     Return MinDistanceItems(0).Item1
 
                 ElseIf MinDistanceItems.Count = 2 Then
@@ -561,8 +576,20 @@ Namespace Audio
                     If UnwrappedAzimuth < 0 Then
                         'Select the one closest to -90 degrees
                         If Math.Abs(MinDistanceItems(0).Item3 - (-90)) < Math.Abs(MinDistanceItems(1).Item3 - (-90)) Then
+                            SoundSourceLocation.ActualLocation.HorizontalAzimuth = MinDistanceItems(0).Item2.HorizontalAzimuth
+
+                            'TODO: when distance and/or elevation is implemented, these need to be set as well
+                            'SoundSourceLocation.ActualLocation.Distance = ...
+                            'SoundSourceLocation.ActualLocation.Elevation = ...
+
                             Return MinDistanceItems(0).Item1
                         Else
+                            SoundSourceLocation.ActualLocation.HorizontalAzimuth = MinDistanceItems(1).Item2.HorizontalAzimuth
+
+                            'TODO: when distance and/or elevation is implemented, these need to be set as well
+                            'SoundSourceLocation.ActualLocation.Distance = ...
+                            'SoundSourceLocation.ActualLocation.Elevation = ...
+
                             Return MinDistanceItems(1).Item1
                         End If
 
@@ -570,8 +597,20 @@ Namespace Audio
                         'Select the one closest to 90 degrees
                         'N.B. The greater and smaller than signs are reversed here to get left/right symmetry 
                         If Math.Abs(MinDistanceItems(0).Item3 - 90) > Math.Abs(MinDistanceItems(1).Item3 - 90) Then
+                            SoundSourceLocation.ActualLocation.HorizontalAzimuth = MinDistanceItems(1).Item2.HorizontalAzimuth
+
+                            'TODO: when distance and/or elevation is implemented, these need to be set as well
+                            'SoundSourceLocation.ActualLocation.Distance = ...
+                            'SoundSourceLocation.ActualLocation.Elevation = ...
+
                             Return MinDistanceItems(1).Item1
                         Else
+                            SoundSourceLocation.ActualLocation.HorizontalAzimuth = MinDistanceItems(0).Item2.HorizontalAzimuth
+
+                            'TODO: when distance and/or elevation is implemented, these need to be set as well
+                            'SoundSourceLocation.ActualLocation.Distance = ...
+                            'SoundSourceLocation.ActualLocation.Elevation = ...
+
                             Return MinDistanceItems(0).Item1
                         End If
                     End If
@@ -692,8 +731,15 @@ Namespace Audio
                         Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(1), NewSound.WaveData.SampleData(1), OriginalSoundLength)
                         Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(1), NewSound.WaveData.SampleData(2), OriginalSoundLength)
 
+                        'TODO: elevation and distance is not supported here
+
                         'Attains a copy of the appropriate directional FIR-filter kernel
                         Dim CurrentKernel = DirectionalSimulator.GetStereoKernel(SoundSceneItem.SourceLocation.HorizontalAzimuth).CreateSoundDataCopy
+
+                        'TODO: actual location values used should be stored in SoundSceneItem.SourceLocation.ActualLocation
+                        'For now, just copies the values to ActualLocation, as the current simulator supports 360 degrees in 1-degree steps
+                        If SoundSceneItem.SourceLocation.ActualLocation Is Nothing Then SoundSceneItem.SourceLocation.ActualLocation = New SoundSourceLocation
+                        SoundSceneItem.SourceLocation.ActualLocation.HorizontalAzimuth = SoundSceneItem.SourceLocation.HorizontalAzimuth
 
                         'Applies gain to the kernel (this is more efficient than applying gain to the whole sound array)
                         'TODO. The following can be utilized to optimize the need for setting level by array looping, when using sound feild simulation

@@ -38,6 +38,8 @@ Partial Class Form4
         Me.Button12 = New System.Windows.Forms.Button()
         Me.Button13 = New System.Windows.Forms.Button()
         Me.Button14 = New System.Windows.Forms.Button()
+        Me.Button15 = New System.Windows.Forms.Button()
+        Me.TestWordLabel1 = New SpeechTestFramework.TestWordLabel()
         Me.Audiogram2 = New SpeechTestFramework.WinFormControls.Audiogram()
         Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
         Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
@@ -46,7 +48,6 @@ Partial Class Form4
         Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
-        Me.Button15 = New System.Windows.Forms.Button()
         CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.ResponseGuiItemTable1.SuspendLayout()
@@ -187,6 +188,27 @@ Partial Class Form4
         Me.Button14.Text = "Play sound file"
         Me.Button14.UseVisualStyleBackColor = True
         '
+        'Button15
+        '
+        Me.Button15.Location = New System.Drawing.Point(289, 472)
+        Me.Button15.Name = "Button15"
+        Me.Button15.Size = New System.Drawing.Size(156, 23)
+        Me.Button15.TabIndex = 21
+        Me.Button15.Text = "Stop player"
+        Me.Button15.UseVisualStyleBackColor = True
+        '
+        'TestWordLabel1
+        '
+        Me.TestWordLabel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(40, Byte), Integer), CType(CType(40, Byte), Integer), CType(CType(40, Byte), Integer))
+        Me.TestWordLabel1.Font = New System.Drawing.Font("Verdana", 30.0!)
+        Me.TestWordLabel1.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.TestWordLabel1.Location = New System.Drawing.Point(519, 34)
+        Me.TestWordLabel1.Name = "TestWordLabel1"
+        Me.TestWordLabel1.Size = New System.Drawing.Size(139, 79)
+        Me.TestWordLabel1.TabIndex = 22
+        Me.TestWordLabel1.Text = "Word"
+        Me.TestWordLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
         'Audiogram2
         '
         Me.Audiogram2.AudiogramData = Nothing
@@ -194,7 +216,7 @@ Partial Class Form4
         Me.Audiogram2.DashedGridLineColor = System.Drawing.Color.Gray
         Me.Audiogram2.GridLineColor = System.Drawing.Color.Gray
         Me.Audiogram2.HideAudiogramLines = False
-        Me.Audiogram2.Location = New System.Drawing.Point(607, 92)
+        Me.Audiogram2.Location = New System.Drawing.Point(692, 169)
         Me.Audiogram2.Name = "Audiogram2"
         Me.Audiogram2.PlotAreaBorder = True
         Me.Audiogram2.PlotAreaBorderColor = System.Drawing.Color.DarkGray
@@ -358,21 +380,13 @@ Partial Class Form4
         Me.ResponseGuiItem5.TabIndex = 4
         Me.ResponseGuiItem5.Text = "ResponseGuiItem5"
         '
-        'Button15
-        '
-        Me.Button15.Location = New System.Drawing.Point(289, 472)
-        Me.Button15.Name = "Button15"
-        Me.Button15.Size = New System.Drawing.Size(156, 23)
-        Me.Button15.TabIndex = 21
-        Me.Button15.Text = "Stop player"
-        Me.Button15.UseVisualStyleBackColor = True
-        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.TestWordLabel1)
         Me.Controls.Add(Me.Button15)
         Me.Controls.Add(Me.Button14)
         Me.Controls.Add(Me.Button13)
@@ -425,4 +439,5 @@ Partial Class Form4
     Friend WithEvents Button13 As Button
     Friend WithEvents Button14 As Button
     Friend WithEvents Button15 As Button
+    Friend WithEvents TestWordLabel1 As SpeechTestFramework.TestWordLabel
 End Class

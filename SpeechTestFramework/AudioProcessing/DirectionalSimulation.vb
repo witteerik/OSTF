@@ -73,6 +73,9 @@ Public Class DirectionalSimulation
         If StereoKernels.ContainsKey(Angle) Then
             Return StereoKernels(Angle)
         Else
+
+            'TODO: here we could round to the closest available direction, and store the value used in a referenced argument.
+
             Throw New Exception("The angle " & Angle & " degrees cannot be found in the directional simulator!")
         End If
 

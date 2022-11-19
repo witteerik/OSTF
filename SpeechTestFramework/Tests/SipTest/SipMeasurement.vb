@@ -614,9 +614,12 @@ Namespace SipTest
             Headings.Add("PNR")
             Headings.Add("EstimatedSuccessProbability")
             Headings.Add("AdjustedSuccessProbability")
-            Headings.Add("TargetLocation_Distance")
-            Headings.Add("TargetLocation_HorizontalAzimuth")
-            Headings.Add("TargetLocation_Elevation")
+            Headings.Add("IntendedTargetLocation_Distance")
+            Headings.Add("IntendedTargetLocation_HorizontalAzimuth")
+            Headings.Add("IntendedTargetLocation_Elevation")
+            Headings.Add("PresentedTargetLocation_Distance")
+            Headings.Add("PresentedTargetLocation_HorizontalAzimuth")
+            Headings.Add("PresentedTargetLocation_Elevation")
             Headings.Add("Response")
             Headings.Add("Result")
             Headings.Add("ResponseTime")
@@ -646,9 +649,16 @@ Namespace SipTest
                 TrialList.Add(Trial.PNR)
                 TrialList.Add(Trial.EstimatedSuccessProbability(True))
                 TrialList.Add(Trial.AdjustedSuccessProbability)
+
                 TrialList.Add(Trial.TargetStimulusLocation.Distance)
                 TrialList.Add(Trial.TargetStimulusLocation.HorizontalAzimuth)
                 TrialList.Add(Trial.TargetStimulusLocation.Elevation)
+
+                If Trial.TargetStimulusLocation.ActualLocation Is Nothing Then Trial.TargetStimulusLocation.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                TrialList.Add(Trial.TargetStimulusLocation.ActualLocation.Distance)
+                TrialList.Add(Trial.TargetStimulusLocation.ActualLocation.HorizontalAzimuth)
+                TrialList.Add(Trial.TargetStimulusLocation.ActualLocation.Elevation)
+
                 TrialList.Add(Trial.Response)
                 TrialList.Add(Trial.Result.ToString)
                 TrialList.Add(Trial.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
@@ -741,11 +751,18 @@ Namespace SipTest
                 Dim AdjustedSuccessProbability As Double = LineColumns(c)
                 c += 1
                 Dim TargetLocation = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                TargetLocation.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
                 TargetLocation.Distance = LineColumns(c)
                 c += 1
                 TargetLocation.HorizontalAzimuth = LineColumns(c)
                 c += 1
                 TargetLocation.Elevation = LineColumns(c)
+                c += 1
+                TargetLocation.ActualLocation.Distance = LineColumns(c)
+                c += 1
+                TargetLocation.ActualLocation.HorizontalAzimuth = LineColumns(c)
+                c += 1
+                TargetLocation.ActualLocation.Elevation = LineColumns(c)
                 c += 1
                 Dim Response As String = LineColumns(c)
                 c += 1

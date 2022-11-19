@@ -102,6 +102,12 @@
     <Compile Include="AudioProcessing\PortAudioVB.vb" />
     <Compile Include="AudioProcessing\SMA1.0.vb" />
     <Compile Include="AudioProcessing\SMA1.1.vb" />
+    <Compile Include="ParticipantInterfaces\PC\DirectionalForcedChoiceControl.Designer.vb">
+      <DependentUpon>DirectionalForcedChoiceControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ParticipantInterfaces\PC\DirectionalForcedChoiceControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormControls\GainSymbolDialog.Designer.vb">
       <DependentUpon>GainSymbolDialog.vb</DependentUpon>
     </Compile>
@@ -384,6 +390,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ParticipantInterfaces\PC\DirectionalForcedChoiceControl.resx">
+      <DependentUpon>DirectionalForcedChoiceControl.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\GainSymbolDialog.resx">
       <DependentUpon>GainSymbolDialog.vb</DependentUpon>
     </EmbeddedResource>
