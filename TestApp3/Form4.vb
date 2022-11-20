@@ -581,19 +581,14 @@
     Private Sub TestWordLabel1_Click(sender As Object, e As EventArgs) Handles TestWordLabel1.Click
 
         Dim DirForm = New Form
+        DirForm.Width = 800
+        DirForm.Height = 600
         Dim DirControl = New SpeechTestFramework.DirectionalForcedChoiceControl
         DirForm.Controls.Add(DirControl)
         DirForm.Show()
 
     End Sub
 
-    Private Sub TestWordLabel1_MouseDown(sender As Object, e As MouseEventArgs) Handles TestWordLabel1.MouseDown
-
-    End Sub
-
-    Private Sub TestWordLabel1_MouseMove(sender As Object, e As MouseEventArgs) Handles TestWordLabel1.MouseMove
-
-    End Sub
 
 
 End Class

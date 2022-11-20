@@ -8,8 +8,18 @@ Public Class TestWordLabel
 
         Me.Font = New Font("Verdana", 60, FontStyle.Regular)
         Me.TextAlign = ContentAlignment.MiddleCenter
-        Me.BackColor = Drawing.Color.FromArgb(40, 40, 40)
-        Me.ForeColor = Drawing.Color.FromArgb(255, 255, 128)
+        Me.ForeColor = Drawing.Color.FromArgb(40, 40, 40)
+        Me.BackColor = Drawing.Color.FromArgb(255, 255, 128)
+        Me.AutoSize = False
+
+    End Sub
+
+    Public Sub New(ByVal FontSize As Single)
+
+        Me.Font = New Font("Verdana", FontSize, FontStyle.Regular)
+        Me.TextAlign = ContentAlignment.MiddleCenter
+        Me.ForeColor = Drawing.Color.FromArgb(40, 40, 40)
+        Me.BackColor = Drawing.Color.FromArgb(255, 255, 128)
         Me.AutoSize = False
 
     End Sub

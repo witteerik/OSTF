@@ -1557,6 +1557,13 @@ Namespace Utils
 
         End Class
 
+        Public Function Degrees2Radians(ByVal Degrees As Double) As Double
+            Return Degrees * System.Math.PI / 180
+        End Function
+
+        Public Function Radians2Degrees(ByVal Radians As Double) As Double
+            Return Radians * 180 / System.Math.PI
+        End Function
 
     End Module
 
