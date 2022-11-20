@@ -9,9 +9,10 @@ Public Class PcTesteeForm
         ForcedChoice
         DirectionTask
         SerialChoice
+        ForcedChoiceDirection
     End Enum
 
-    Public Sub New(ByVal TaskType As TaskType)
+    Public Sub New(ByVal TaskType As TaskType, Optional ByVal TargetDirections As List(Of Double) = Nothing)
 
         ' This call is required by the designer.
         InitializeComponent()
@@ -26,6 +27,9 @@ Public Class PcTesteeForm
 
             Case TaskType.SerialChoice
                 ParticipantControl = New SerialChoiceTesteeControl
+
+            Case TaskType.ForcedChoiceDirection
+                ParticipantControl = New DirectionalForcedChoiceControl(TargetDirections)
 
             Case Else
                 Throw New NotImplementedException

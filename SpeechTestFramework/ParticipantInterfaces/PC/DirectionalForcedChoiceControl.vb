@@ -2,9 +2,19 @@
 Imports System.Drawing
 
 Public Class DirectionalForcedChoiceControl
+    Implements ITesteeControl
 
     Private TargetPoints As New List(Of Tuple(Of Double, Drawing.Point))
     Private ResponseControls As New List(Of ResponseItem)
+
+    Public Event StartedByTestee(sender As Object, e As EventArgs) Implements ITesteeControl.StartedByTestee
+    Public Event ResponseGiven(Response As String) Implements ITesteeControl.ResponseGiven
+
+    'Declaring delegate subs used for invoking across threads
+    Delegate Sub NoArgReturningVoidDelegate()
+    Delegate Sub StringArgReturningVoidDelegate([String] As String)
+    Delegate Sub ListOfStringArgReturningVoidDelegate(StringList As List(Of String))
+    Delegate Sub ProgressBarArgReturningVoidDelegate(ByVal Value As Integer, ByVal Maximum As Integer, ByVal Minimum As Integer)
 
     Public Sub New()
 
@@ -75,8 +85,8 @@ Public Class DirectionalForcedChoiceControl
 
             Dim AngleInRadians = Utils.Math.Degrees2Radians(HorizontalAzimuth)
 
-            Dim TargetX = CenterPoint.x - Radius * Math.Sin(AngleInRadians)
-            Dim TargetY = CenterPoint.y - Radius * Math.Cos(AngleInRadians)
+            Dim TargetX = CenterPoint.X - Radius * Math.Sin(AngleInRadians)
+            Dim TargetY = CenterPoint.Y - Radius * Math.Cos(AngleInRadians)
 
             Corners.Add(New Drawing.Point(TargetX, TargetY))
         Next
@@ -231,7 +241,10 @@ Public Class DirectionalForcedChoiceControl
 
     Private Sub SendResponse(ByRef ResponseItem As ResponseItem, ByVal SelectedPoint As Drawing.Point)
 
+        'Dim ResponseTime = ResponseItem.ResponseStopWatch.Elapsed
 
+        'Sending result to controller, as a tab-delimited string
+        RaiseEvent ResponseGiven(ResponseItem.Text & vbTab & ResponseItem.ResponseAngle)
 
     End Sub
 
@@ -373,16 +386,125 @@ Public Class DirectionalForcedChoiceControl
     End Sub
 
 
-    Private Sub DirectionalForcedChoiceControl_Click() Handles Me.Click
 
-        AddItems({"1", "2", "3"}.ToList)
 
+    ''' <summary>
+    ''' Displays the response alternatives in a thread safe way.
+    ''' </summary>
+    ''' <param name="ResponseAlternatives"></param>
+    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of String)) Implements ITesteeControl.ShowResponseAlternatives
+
+        Try
+            If Me.InvokeRequired Then
+                Dim d As New ListOfStringArgReturningVoidDelegate(AddressOf ShowResponseAlternatives_UnSafe)
+                Me.Invoke(d, New Object() {ResponseAlternatives})
+            Else
+                Me.ShowResponseAlternatives_UnSafe(ResponseAlternatives)
+            End If
+        Catch ex As Exception
+            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+        End Try
+
+    End Sub
+
+    Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of String))
+        AddItems(ResponseAlternatives)
+    End Sub
+
+
+    Public Sub ShowVisualQue() Implements ITesteeControl.ShowVisualQue
+        'Throw New NotImplementedException("Visual Que is not supported with DirectionalForcedChoiceControl")
+    End Sub
+
+    Public Sub HideVisualQue() Implements ITesteeControl.HideVisualQue
+        'Throw New NotImplementedException("Visual Que is not supported with DirectionalForcedChoiceControl")
+    End Sub
+
+    Private Sub ResponseTimesOut() Implements ITesteeControl.ResponseTimesOut
+
+        Try
+
+            If Me.InvokeRequired Then
+                Dim d As New NoArgReturningVoidDelegate(AddressOf ResponseTimesOut_UnSafe)
+                Me.Invoke(d)
+            Else
+                Me.ResponseTimesOut_UnSafe()
+            End If
+
+        Catch ex As Exception
+            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+        End Try
+
+    End Sub
+
+
+    ''' <summary>
+    ''' This sub should be called by the controller, when the response time has run out
+    ''' </summary>
+    Private Sub ResponseTimesOut_UnSafe()
+
+        'Inactivates the event handlers
+
+        'Changes the backgroundcolour of all labels if no answer has been given
+        For Each Control In Me.Controls
+
+            Dim CurrentControl = TryCast(Control, ResponseItem)
+            If CurrentControl IsNot Nothing Then
+
+                RemoveHandler CurrentControl.MouseMove, AddressOf ResponseItem_MouseMove
+                CurrentControl.FlashBackground = True
+            End If
+        Next
+
+    End Sub
+
+
+    Public Sub ResetTestItemPanel() Implements ITesteeControl.ResetTestItemPanel
+
+        If Me.InvokeRequired Then
+            Dim d As New NoArgReturningVoidDelegate(AddressOf ResetTestItemPanel_UnSafe)
+            Me.Invoke(d)
+        Else
+            Me.ResetTestItemPanel_UnSafe()
+        End If
+
+    End Sub
+
+    Public Sub ResetTestItemPanel_UnSafe()
+        Me.Controls.Clear()
+        ResponseControls.Clear()
+        Me.Invalidate()
+        Me.Update()
+    End Sub
+
+    Public Sub UpdateTestFormProgressbar(Value As Integer, Maximum As Integer, Optional Minimum As Integer = 0) Implements ITesteeControl.UpdateTestFormProgressbar
+        'Throw New NotImplementedException()
+    End Sub
+
+    Public Sub ShowMessage(Message As String) Implements ITesteeControl.ShowMessage
+        'Throw New NotImplementedException()
     End Sub
 End Class
 
 
 Public Class ResponseItem
     Inherits Label
+
+    Public ResponseAngle As Double
+
+    'Public ResponseStopWatch As New Stopwatch
+
+    Private _FlashBackground As Boolean = False
+    Public Property FlashBackground As Boolean
+        Get
+            Return _FlashBackground
+        End Get
+        Set(value As Boolean)
+            _FlashBackground = value
+            Me.Invalidate()
+            Me.Update()
+        End Set
+    End Property
 
     Public Sub New()
 
@@ -406,7 +528,12 @@ Public Class ResponseItem
         Dim TransparentBrush = New SolidBrush(Drawing.Color.Transparent)
         e.Graphics.FillRectangle(TransparentBrush, ClientRectangle)
 
-        Dim FillBackgroundBrush = New SolidBrush(Drawing.Color.FromArgb(255, 255, 128))
+        Dim FillBackgroundBrush As SolidBrush
+        If _FlashBackground = False Then
+            FillBackgroundBrush = New SolidBrush(Drawing.Color.FromArgb(255, 255, 128))
+        Else
+            FillBackgroundBrush = New SolidBrush(Drawing.Color.Red)
+        End If
 
         e.Graphics.FillPie(FillBackgroundBrush, 0, 0, DoubleRadius, DoubleRadius, 0, 360)
         e.Graphics.FillPie(FillBackgroundBrush, 0, Height - DoubleRadius, DoubleRadius, DoubleRadius, 0, 360)

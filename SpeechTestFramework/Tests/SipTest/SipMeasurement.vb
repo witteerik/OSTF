@@ -852,6 +852,25 @@ Namespace SipTest
 
 #End Region
 
+        Public Function GetTargetAzimuths() As List(Of Double)
+
+            Dim AvailableTargetDirections As New SortedSet(Of Double)
+
+            For Each PlannedTrial In PlannedTrials
+                AvailableTargetDirections.Add(PlannedTrial.TargetStimulusLocation.HorizontalAzimuth)
+
+                'TODO we must adjust these to the available and speakers in the selected transducer
+
+                'Adding tha actual azimuth
+                PlannedTrial.TargetStimulusLocation.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                PlannedTrial.TargetStimulusLocation.ActualLocation.HorizontalAzimuth = PlannedTrial.TargetStimulusLocation.HorizontalAzimuth
+            Next
+
+
+            Return AvailableTargetDirections.ToList
+
+        End Function
+
 
     End Class
 

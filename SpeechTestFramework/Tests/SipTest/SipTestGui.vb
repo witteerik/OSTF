@@ -66,6 +66,8 @@ Public Class SipTestGui
     Private SelectedPnr As Double?
     Private SelectedTestDescription As String = ""
 
+    Private IsNewTestParadigm As Boolean = False
+
     Private SipMeasurementRandomizer As New Random
 
     Private MeasurementHistory As New MeasurementHistory
@@ -851,9 +853,26 @@ Public Class SipTestGui
         Select Case CurrentScreenType
             Case ScreenType.Pc
 
+                If IsNewTestParadigm = True Then
+                    If PcParticipantForm IsNot Nothing Then
+                        PcParticipantForm.Close()
+                        PcParticipantForm.Dispose()
+                        PcParticipantForm = Nothing
+                    End If
+                    IsNewTestParadigm = False
+                End If
+
                 'Creating a new participant form (and ParticipantControl) if none exist
                 If PcParticipantForm Is Nothing Then
-                    PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
+
+                    Select Case SelectedTestparadigm
+                        Case Testparadigm.Quick, Testparadigm.Slow
+                            PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
+
+                        Case Testparadigm.Directional3, Testparadigm.Directional5
+                            PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoiceDirection, CurrentSipTestMeasurement.GetTargetAzimuths())
+                    End Select
+
                     ParticipantControl = PcParticipantForm.ParticipantControl
                 End If
 
@@ -1105,7 +1124,12 @@ Public Class SipTestGui
     Private Sub PrepareResponseScreenData()
 
         'Creates a response string
-        CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
+        Select Case SelectedTestparadigm
+            Case Testparadigm.Quick, Testparadigm.Slow
+                CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
+            Case Testparadigm.Directional3, Testparadigm.Directional5
+                CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") & vbTab & CurrentSipTrial.TargetStimulusLocation.ActualLocation.HorizontalAzimuth
+        End Select
 
         'Collects the response alternatives
         TestWordAlternatives = New List(Of String)
@@ -2160,6 +2184,9 @@ Public Class SipTestGui
 
 
     Private Sub TestingSpeed_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Testparadigm_ComboBox.SelectedIndexChanged
+
+        'TODO it is not necessary to set IsNewTestParadigm to True every time, only when the GUI form needs to be exchanged
+        IsNewTestParadigm = True
 
         If Testparadigm_ComboBox.SelectedItem IsNot Nothing Then
             SelectedTestparadigm = Testparadigm_ComboBox.SelectedItem
