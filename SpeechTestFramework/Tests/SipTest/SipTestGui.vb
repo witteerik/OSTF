@@ -66,8 +66,6 @@ Public Class SipTestGui
     Private SelectedPnr As Double?
     Private SelectedTestDescription As String = ""
 
-    Private IsNewTestParadigm As Boolean = False
-
     Private SipMeasurementRandomizer As New Random
 
     Private MeasurementHistory As New MeasurementHistory
@@ -125,7 +123,7 @@ Public Class SipTestGui
     ''' Holds the time of the presentation of the response alternatives
     ''' </summary>
     Private ResponseAlternativesPresentationTime As DateTime
-    Private TestWordAlternatives As List(Of String)
+    Private TestWordAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
     Private CorrectResponse As String = ""
     Private CurrentTrialSoundIsReady As Boolean = False
     Private CurrentTrialIsLaunched As Boolean = False ' A variable that holds a value indicating if the current trial was started by the StartTrialTimer, or if it should be started directly from prepare sound. (This construction is needed as the sound may not always be created before the next trial should start. If that happens the trial starts as soon as the sound is ready to be played.)
@@ -721,6 +719,9 @@ Public Class SipTestGui
 
         Try
 
+            'Resetting the test description box
+            TestDescriptionTextBox.Text = ""
+
             'Resetting the planned trial test length text
             PlannedTestLength_TextBox.Text = ""
 
@@ -765,6 +766,15 @@ Public Class SipTestGui
 
             'Displayes the planned test length
             PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
+
+            'TODO: Calling GetTargetAzimuths only to ensure that the Actual Azimuths needed for presentation in the TestTrialTable exist. This should probably be done in some other way... (Only applies to the Directional3 and Directional5 Testparadigms)
+            Select Case SelectedTestparadigm
+                Case Testparadigm.Directional3, Testparadigm.Directional5
+                    CurrentSipTestMeasurement.GetTargetAzimuths()
+            End Select
+
+            UpdateTestTrialTable()
+            UpdateTestProgress()
 
             'Initiates the test
             TestDescriptionTextBox.Focus()
@@ -846,45 +856,74 @@ Public Class SipTestGui
         'Sets the measurement datetime
         CurrentSipTestMeasurement.MeasurementDateTime = DateTime.Now
 
-        UpdateTestTrialTable()
-        UpdateTestProgress()
+        'Getting NeededTargetAzimuths for the Directional3 and Directional5 Testparadigms
+        Dim NeededTargetAzimuths As List(Of Double) = Nothing
+        Select Case SelectedTestparadigm
+            Case Testparadigm.Directional3, Testparadigm.Directional5
+                NeededTargetAzimuths = CurrentSipTestMeasurement.GetTargetAzimuths()
+        End Select
 
         'Creating a ParticipantForm
         Select Case CurrentScreenType
             Case ScreenType.Pc
 
-                If IsNewTestParadigm = True Then
-                    If PcParticipantForm IsNot Nothing Then
-                        PcParticipantForm.Close()
-                        PcParticipantForm.Dispose()
-                        PcParticipantForm = Nothing
-                    End If
-                    IsNewTestParadigm = False
-                End If
-
                 'Creating a new participant form (and ParticipantControl) if none exist
                 If PcParticipantForm Is Nothing Then
-
                     Select Case SelectedTestparadigm
                         Case Testparadigm.Quick, Testparadigm.Slow
                             PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
 
                         Case Testparadigm.Directional3, Testparadigm.Directional5
-                            PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoiceDirection, CurrentSipTestMeasurement.GetTargetAzimuths())
+                            PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoiceDirection, NeededTargetAzimuths)
                     End Select
-
-                    ParticipantControl = PcParticipantForm.ParticipantControl
                 End If
+
+
+                Select Case SelectedTestparadigm
+                    Case Testparadigm.Quick, Testparadigm.Slow
+                        If PcParticipantForm.CurrentTaskType <> PcTesteeForm.TaskType.ForcedChoice Then
+                            PcParticipantForm.UpdateType(PcTesteeForm.TaskType.ForcedChoice)
+                        End If
+
+                    Case Testparadigm.Directional3, Testparadigm.Directional5
+
+                        If PcParticipantForm.CurrentTaskType <> PcTesteeForm.TaskType.ForcedChoiceDirection Then
+                            PcParticipantForm.UpdateType(PcTesteeForm.TaskType.ForcedChoiceDirection, NeededTargetAzimuths)
+
+                        ElseIf PcParticipantForm.CurrentTaskType = PcTesteeForm.TaskType.ForcedChoiceDirection Then
+
+                            If String.Join(" ", PcParticipantForm.CurrentTargetDirections) <> String.Join(" ", NeededTargetAzimuths) Then
+                                PcParticipantForm.UpdateType(PcTesteeForm.TaskType.ForcedChoiceDirection, NeededTargetAzimuths)
+                            Else
+                                'No need for update, alreday the right azimuths
+                            End If
+
+                        Else
+                            'No need for update
+                        End If
+
+                    Case Else
+                        'This will be an other type, not yet implemented
+                        Throw New NotImplementedException
+
+                End Select
+
+                ParticipantControl = PcParticipantForm.ParticipantControl
 
                 'Shows the ParticipantForm
                 PcParticipantForm.Show()
 
             Case ScreenType.Bluetooth
 
-                ParticipantControl = MyBtTesteeControl
-                MyBtTesteeControl.StartNewTestSession()
+                Select Case SelectedTestparadigm
+                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                        ShowMessageBox("Bluetooth screen is not yet implemented for the Directional3 and Directional5 test paradigms. Use the PC screen instead.", "SiP-test")
+                End Select
 
-        End Select
+                ParticipantControl = MyBtTesteeControl
+                    MyBtTesteeControl.StartNewTestSession()
+
+                End Select
 
         Start_AudioButton.Enabled = True
 
@@ -1132,16 +1171,16 @@ Public Class SipTestGui
         End Select
 
         'Collects the response alternatives
-        TestWordAlternatives = New List(Of String)
+        TestWordAlternatives = New List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
         Dim TempList As New List(Of SpeechMaterialComponent)
         CurrentSipTrial.SpeechMaterialComponent.IsContrastingComponent(,, TempList)
         For Each ContrastingComponent In TempList
-            TestWordAlternatives.Add(ContrastingComponent.GetCategoricalVariableValue("Spelling"))
+            TestWordAlternatives.Add(New Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(ContrastingComponent.GetCategoricalVariableValue("Spelling"), CurrentSipTrial.TargetStimulusLocation.ActualLocation))
         Next
 
         'Randomizing the order
         Dim AlternativesCount As Integer = TestWordAlternatives.Count
-        Dim TempList2 As New List(Of String)
+        Dim TempList2 As New List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
         For n = 0 To AlternativesCount - 1
             Dim RandomIndex As Integer = SipMeasurementRandomizer.Next(0, TestWordAlternatives.Count)
             TempList2.Add(TestWordAlternatives(RandomIndex))
@@ -1212,6 +1251,11 @@ Public Class SipTestGui
 
             Else
 
+                Select Case SelectedTestparadigm
+                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                        Throw New Exception("Simulation is not implemented for Testparadigm Directional3 and Directional5")
+                End Select
+
                 'Simulating a respons directly without displaying anything on the screen
                 'The response is based on the the presented SNR and the hearing level of simulated patient, using a bernoulli trial
                 Dim CorrectResponse As String = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
@@ -1227,8 +1271,8 @@ Public Class SipTestGui
                     'Selecting an incorrect alternative
                     Dim IncorrectAlternatives = New List(Of String)
                     For Each Spelling In TestWordAlternatives
-                        If Spelling = CorrectResponse Then Continue For
-                        IncorrectAlternatives.Add(Spelling)
+                        If Spelling.Item1 = CorrectResponse Then Continue For
+                        IncorrectAlternatives.Add(Spelling.Item1)
                     Next
 
                     'Selecting a random incorrect response
@@ -1386,16 +1430,29 @@ Public Class SipTestGui
 
 
         'Getting the screen position of the test word
+        'And getting the response screen position
         Dim TestWordScreenPosition As Integer = -1
-        For n = 0 To TestWordAlternatives.Count - 1
-            If TestWordAlternatives(n) = CorrectResponse Then TestWordScreenPosition = n
-        Next
-
-        'Getting the response screen position
         Dim ResponseScreenPosition As Integer? = Nothing
-        For n = 0 To TestWordAlternatives.Count - 1
-            If TestWordAlternatives(n) = ResponseString Then ResponseScreenPosition = n
-        Next
+
+        Select Case SelectedTestparadigm
+            Case Testparadigm.Directional3, Testparadigm.Directional5
+                For n = 0 To TestWordAlternatives.Count - 1
+                    If TestWordAlternatives(n).Item1 & vbTab & TestWordAlternatives(n).Item2.HorizontalAzimuth = CorrectResponse Then TestWordScreenPosition = n
+                Next
+
+                For n = 0 To TestWordAlternatives.Count - 1
+                    If TestWordAlternatives(n).Item1 & vbTab & TestWordAlternatives(n).Item2.HorizontalAzimuth = ResponseString Then ResponseScreenPosition = n
+                Next
+
+            Case Else
+                For n = 0 To TestWordAlternatives.Count - 1
+                    If TestWordAlternatives(n).Item1 = CorrectResponse Then TestWordScreenPosition = n
+                Next
+
+                For n = 0 To TestWordAlternatives.Count - 1
+                    If TestWordAlternatives(n).Item1 = ResponseString Then ResponseScreenPosition = n
+                Next
+        End Select
 
         'These can be used to store the screen position of the alternatives!
         'CurrentSipTrial.CorrectScreenPosition = TestWordScreenPosition
@@ -2185,15 +2242,12 @@ Public Class SipTestGui
 
     Private Sub TestingSpeed_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Testparadigm_ComboBox.SelectedIndexChanged
 
-        'TODO it is not necessary to set IsNewTestParadigm to True every time, only when the GUI form needs to be exchanged
-        IsNewTestParadigm = True
-
         If Testparadigm_ComboBox.SelectedItem IsNot Nothing Then
             SelectedTestparadigm = Testparadigm_ComboBox.SelectedItem
         End If
 
         Select Case SelectedTestparadigm
-            Case Testparadigm.Slow, Testparadigm.Directional3, Testparadigm.Directional5
+            Case Testparadigm.Slow
 
                 InterTrialInterval = 1
                 ResponseAlternativeDelay = 0.5
@@ -2219,6 +2273,18 @@ Public Class SipTestGui
                 MaximumResponseTime = 1
                 ShowProgressIndication = True
 
+            Case Testparadigm.Directional3, Testparadigm.Directional5
+
+                InterTrialInterval = 1
+                ResponseAlternativeDelay = 0.5
+                PretestSoundDuration = 5
+                MinimumStimulusOnsetTime = 0.3 ' Earlier, when this variable directed the test words instead of maskers its value was 1.5. Having maskers of 3 seconds with the test word centralized, should be approximately the same as 0.3.
+                MaximumStimulusOnsetTime = 0.8 ' Earlier, when this variable directed the test words instead of maskers its value was 2
+                TrialSoundMaxDuration = 10 ' TODO: Optimize by shortening this time
+                UseVisualQue = False
+                UseBackgroundSpeech = False
+                MaximumResponseTime = 4
+                ShowProgressIndication = True
 
         End Select
 

@@ -1,4 +1,6 @@
 ﻿
+Imports SpeechTestFramework.Audio.PortAudioVB
+
 Public Class BtTesteeControl
     Implements ITesteeControl, IBtTestController
 
@@ -52,9 +54,14 @@ Public Class BtTesteeControl
     End Sub
 
 
-    Public Sub ShowResponseAlternatives(ResponseAlternatives As List(Of String)) Implements ITesteeControl.ShowResponseAlternatives
+    Public Sub ShowResponseAlternatives(ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
 
-        Dim ResponseAlternativeMessage As String = "TW|" & String.Join("|", ResponseAlternatives)
+        Dim ResponseAlternativeSpellings As New List(Of String)
+        For Each ResponseAlternative In ResponseAlternatives
+            ResponseAlternativeSpellings.Add(ResponseAlternative.Item1)
+        Next
+
+        Dim ResponseAlternativeMessage As String = "TW|" & String.Join("|", ResponseAlternativeSpellings)
 
         BtTabletTalker.SendBtMessage(ResponseAlternativeMessage)
 
@@ -122,4 +129,5 @@ Public Class BtTesteeControl
     Public Function Invoke(method As [Delegate], ParamArray args() As Object) As Object Implements IBtTestController.Invoke
         Throw New NotImplementedException()
     End Function
+
 End Class

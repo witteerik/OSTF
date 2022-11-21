@@ -10,6 +10,7 @@ Public Class SerialChoiceTesteeControl
     Delegate Sub NoArgReturningVoidDelegate()
     Delegate Sub StringArgReturningVoidDelegate([String] As String)
     Delegate Sub ListOfStringArgReturningVoidDelegate(StringList As List(Of String))
+    Delegate Sub ListOfStringLocationTupleArgReturningVoidDelegate(StringList As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
     Delegate Sub ProgressBarArgReturningVoidDelegate(ByVal Value As Integer, ByVal Maximum As Integer, ByVal Minimum As Integer)
 
 
@@ -79,12 +80,12 @@ Public Class SerialChoiceTesteeControl
     ''' Displays the response alternatives in a thread safe way.
     ''' </summary>
     ''' <param name="ResponseAlternatives"></param>
-    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of String)) Implements ITesteeControl.ShowResponseAlternatives
+    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
 
         Try
 
             If Me.TestSurfacePictureBox.InvokeRequired Then
-                Dim d As New ListOfStringArgReturningVoidDelegate(AddressOf ShowResponseAlternatives_UnSafe)
+                Dim d As New ListOfStringLocationTupleArgReturningVoidDelegate(AddressOf ShowResponseAlternatives_UnSafe)
                 Me.Invoke(d, New Object() {ResponseAlternatives})
             Else
                 Me.ShowResponseAlternatives_UnSafe(ResponseAlternatives)
@@ -96,7 +97,7 @@ Public Class SerialChoiceTesteeControl
 
     End Sub
 
-    Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of String))
+    Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
 
         ResetTestItemPanel()
 
@@ -104,7 +105,7 @@ Public Class SerialChoiceTesteeControl
         For i = 0 To ResponseAlternatives.Count - 1
 
             'Creating labels that will hold the response alternatives
-            Dim SpellingLabel As New TestWordLabel(TestSurfacePictureBox, ItemColor, 40) With {.Text = ResponseAlternatives(i)}
+            Dim SpellingLabel As New TestWordLabel(TestSurfacePictureBox, ItemColor, 40) With {.Text = ResponseAlternatives(i).Item1}
 
             'Adding the current test word label
             TestSurfacePictureBox.Controls.Add(SpellingLabel)

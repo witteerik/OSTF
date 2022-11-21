@@ -82,7 +82,7 @@ Public Class SpatializedStilmuliTesteeControl
     ''' Displays the response alternatives in a thread safe way.
     ''' </summary>
     ''' <param name="ResponseAlternatives"></param>
-    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of String)) Implements ITesteeControl.ShowResponseAlternatives
+    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
 
         'Try
 

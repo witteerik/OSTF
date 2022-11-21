@@ -5,6 +5,13 @@ Public Class PcTesteeForm
 
     Public WithEvents ParticipantControl As ITesteeControl
 
+    Public Property CurrentTaskType As TaskType
+    ''' <summary>
+    ''' Hold the currently used ForcedChoiceDirection type TargetDirections
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property CurrentTargetDirections As List(Of Double)
+
     Public Enum TaskType
         ForcedChoice
         DirectionTask
@@ -18,6 +25,19 @@ Public Class PcTesteeForm
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
+        UpdateType(TaskType, TargetDirections)
+
+    End Sub
+
+
+    Public Sub UpdateType(ByVal TaskType As TaskType, Optional ByVal TargetDirections As List(Of Double) = Nothing)
+
+        CurrentTaskType = TaskType
+
+        Me.CurrentTargetDirections = TargetDirections
+
+        Me.Controls.Clear()
+
         Select Case TaskType
             Case TaskType.ForcedChoice
                 ParticipantControl = New ForcedChoiceTesteeControl
@@ -39,7 +59,6 @@ Public Class PcTesteeForm
         Me.Controls(0).Dock = DockStyle.Fill
 
     End Sub
-
 
     Public Sub UpdateTestFormPosition(ByVal TestPresentationScreenIndex As Integer, Optional ByVal SetWindowState As Boolean = True)
 

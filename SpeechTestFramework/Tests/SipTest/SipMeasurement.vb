@@ -372,14 +372,25 @@ Namespace SipTest
 
             'Adding already tested trials
             For i = 0 To ObservedTrials.Count - 1
-                Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                Select Case TestProcedure.TestParadigm
+                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                        Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & ObservedTrials(i).TargetStimulusLocation.ActualLocation.HorizontalAzimuth)  'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                    Case Else
+                        Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                End Select
                 Output.Responses.Add(ObservedTrials(i).Response.Replace(vbTab, ", "))
                 Output.ResponseType.Add(ObservedTrials(i).Result)
             Next
 
             'Adding trials yet to be tested
             For i = 0 To PlannedTrials.Count - 1
-                Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+
+                Select Case TestProcedure.TestParadigm
+                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                        Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & PlannedTrials(i).TargetStimulusLocation.ActualLocation.HorizontalAzimuth) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                    Case Else
+                        Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                End Select
                 Output.Responses.Add("")
                 Output.ResponseType.Add(PossibleResults.Missing)
             Next

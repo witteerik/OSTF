@@ -1,5 +1,6 @@
 ﻿Imports System.Windows.Forms
 Imports System.Drawing
+Imports SpeechTestFramework.Audio.PortAudioVB
 
 Public Class DirectionalForcedChoiceControl
     Implements ITesteeControl
@@ -14,6 +15,7 @@ Public Class DirectionalForcedChoiceControl
     Delegate Sub NoArgReturningVoidDelegate()
     Delegate Sub StringArgReturningVoidDelegate([String] As String)
     Delegate Sub ListOfStringArgReturningVoidDelegate(StringList As List(Of String))
+    Delegate Sub ListOfStringLocationTupleArgReturningVoidDelegate(StringList As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
     Delegate Sub ProgressBarArgReturningVoidDelegate(ByVal Value As Integer, ByVal Maximum As Integer, ByVal Minimum As Integer)
 
     Public Sub New()
@@ -41,23 +43,25 @@ Public Class DirectionalForcedChoiceControl
 
     Private Sub AddRadialTargetPoints(ByVal HorizontalAzimuths As List(Of Double))
 
-        Dim Radius As Double = 0.8 * GetLowestDimensionSize() / 2
+        Dim Radius As Double = 0.85 * GetLowestDimensionSize() / 2
         Dim CenterPoint = GetMyCenterPoint()
 
         For Each HorizontalAzimuth In HorizontalAzimuths
-            Dim AngleInRadians = Utils.Math.Degrees2Radians(HorizontalAzimuth)
+
+            'Shifting to counter-clockwise direction used for drawing the points (instead of clockwise angle specification used in the test specifications)
+            Dim ClockWiseAngle = -HorizontalAzimuth
+
+            Dim AngleInRadians = Utils.Math.Degrees2Radians(ClockWiseAngle)
             Dim TargetX = CenterPoint.X - Radius * Math.Sin(AngleInRadians)
             Dim TargetY = CenterPoint.Y - Radius * Math.Cos(AngleInRadians)
-            TargetPoints.Add(New Tuple(Of Double, Drawing.Point)(HorizontalAzimuth, New Drawing.Point(TargetX, TargetY)))
+            TargetPoints.Add(New Tuple(Of Double, Drawing.Point)(ClockWiseAngle, New Drawing.Point(TargetX, TargetY)))
         Next
-
-
 
     End Sub
 
     Private Sub UpdateRadialPointLocations()
 
-        Dim Radius As Double = 0.8 * GetLowestDimensionSize() / 2
+        Dim Radius As Double = 0.85 * GetLowestDimensionSize() / 2
         Dim CenterPoint = GetMyCenterPoint()
 
         For i = 0 To TargetPoints.Count - 1
@@ -95,14 +99,15 @@ Public Class DirectionalForcedChoiceControl
 
     End Function
 
-    Public Sub AddItems(ByVal ItemList As List(Of String))
+    Public Sub AddItems(ByVal ItemList As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
 
         For i = 0 To ItemList.Count - 1
 
             Dim NewResponseItem = New ResponseItem()
-            NewResponseItem.Text = ItemList(i)
+            NewResponseItem.Text = ItemList(i).Item1
             NewResponseItem.AutoSize = False
             NewResponseItem.BackColor = Drawing.Color.Transparent
+            NewResponseItem.ResponseAngle = ItemList(i).Item2.HorizontalAzimuth
 
             AddHandler NewResponseItem.MouseDown, AddressOf ResponseItem_MouseDown
             AddHandler NewResponseItem.MouseUp, AddressOf ResponseItem_MouseUp
@@ -129,7 +134,7 @@ Public Class DirectionalForcedChoiceControl
 
         Dim ItemDistance = ItemRectangle.Height / ItemCount
         Dim ItemHeight = 0.8 * (ItemRectangle.Height / ItemCount)
-        Dim ItemWidth = 0.6 * ItemRectangle.Width
+        Dim ItemWidth = 0.4 * ItemRectangle.Width
 
         For i = 0 To ResponseControls.Count - 1
 
@@ -151,17 +156,6 @@ Public Class DirectionalForcedChoiceControl
 
         Dim CastSender As ResponseItem = DirectCast(sender, ResponseItem)
         GripPoint = e.Location
-
-        'Me.SuspendLayout()
-        'For i = 0 To Me.Controls.Count - 1
-        '    If Me.Controls(i) Is CastSender Then
-        '        Dim CurrentReference = Me.Controls(i)
-        '        'Me.Controls.RemoveAt(i)
-        '        Me.Controls.SetChildIndex(CurrentReference, 0)
-        '        Exit For
-        '    End If
-        'Next
-        'Me.ResumeLayout()
 
         AddHandler CastSender.MouseMove, AddressOf ResponseItem_MouseMove
 
@@ -241,12 +235,29 @@ Public Class DirectionalForcedChoiceControl
 
     Private Sub SendResponse(ByRef ResponseItem As ResponseItem, ByVal SelectedPoint As Drawing.Point)
 
-        'Dim ResponseTime = ResponseItem.ResponseStopWatch.Elapsed
+        LookupTargetPointAzimuth(SelectedPoint)
+
+        'Shifting back to the clockwise direction instead of counter-clockwise angle specification
+        Dim CounterClockWiseAngle = -LookupTargetPointAzimuth(SelectedPoint)
 
         'Sending result to controller, as a tab-delimited string
-        RaiseEvent ResponseGiven(ResponseItem.Text & vbTab & ResponseItem.ResponseAngle)
+        RaiseEvent ResponseGiven(ResponseItem.Text & vbTab & CounterClockWiseAngle)
 
     End Sub
+
+    Private Function LookupTargetPointAzimuth(ByVal TargetPoint As Drawing.Point) As Double
+
+
+        For i = 0 To TargetPoints.Count - 1
+            If TargetPoints(i).Item2 = TargetPoint Then
+                Return TargetPoints(i).Item1
+            End If
+        Next
+
+        'Returns NaN to indicate that no point could be found. This should never occur!
+        Return Double.NaN
+
+    End Function
 
     Private Function GetLowestDimensionSize() As Double
         Return Math.Min(Me.ClientRectangle.Width, Me.ClientRectangle.Height)
@@ -280,6 +291,23 @@ Public Class DirectionalForcedChoiceControl
         'If SegmentationItem.SegmentationCompleted = False Then
         '        e.Graphics.DrawRectangle(RedPen, New Rectangle(Me.ClientRectangle.X + 1, Me.ClientRectangle.Y + 1, Me.ClientRectangle.Width - 2, Me.ClientRectangle.Height - 2))
         '    End If
+
+    End Sub
+
+    Private Sub CenterCrossPaint(ByVal sender As Object, ByVal e As System.Windows.Forms.PaintEventArgs) Handles Me.Paint
+
+        Dim CenterCrossBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(255, 255, 128))
+
+        Dim CenterRectangleLongSideLength = GetLowestDimensionSize() / 14
+        Dim CenterRectangleShortSideLength = CenterRectangleLongSideLength / 6
+
+        Dim CenterPoint = GetMyCenterPoint()
+
+        Dim VerticalPeice = New Drawing.Rectangle(CenterPoint.X - CenterRectangleShortSideLength / 2, CenterPoint.Y - CenterRectangleLongSideLength / 2, CenterRectangleShortSideLength, CenterRectangleLongSideLength)
+        Dim HorizontalPeice = New Drawing.Rectangle(CenterPoint.X - CenterRectangleLongSideLength / 2, CenterPoint.Y - CenterRectangleShortSideLength / 2, CenterRectangleLongSideLength, CenterRectangleShortSideLength)
+
+        e.Graphics.FillRectangle(CenterCrossBrush, VerticalPeice)
+        e.Graphics.FillRectangle(CenterCrossBrush, HorizontalPeice)
 
     End Sub
 
@@ -392,11 +420,11 @@ Public Class DirectionalForcedChoiceControl
     ''' Displays the response alternatives in a thread safe way.
     ''' </summary>
     ''' <param name="ResponseAlternatives"></param>
-    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of String)) Implements ITesteeControl.ShowResponseAlternatives
+    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
 
         Try
             If Me.InvokeRequired Then
-                Dim d As New ListOfStringArgReturningVoidDelegate(AddressOf ShowResponseAlternatives_UnSafe)
+                Dim d As New ListOfStringLocationTupleArgReturningVoidDelegate(AddressOf ShowResponseAlternatives_UnSafe)
                 Me.Invoke(d, New Object() {ResponseAlternatives})
             Else
                 Me.ShowResponseAlternatives_UnSafe(ResponseAlternatives)
@@ -407,7 +435,7 @@ Public Class DirectionalForcedChoiceControl
 
     End Sub
 
-    Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of String))
+    Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
         AddItems(ResponseAlternatives)
     End Sub
 
@@ -484,6 +512,7 @@ Public Class DirectionalForcedChoiceControl
     Public Sub ShowMessage(Message As String) Implements ITesteeControl.ShowMessage
         'Throw New NotImplementedException()
     End Sub
+
 End Class
 
 
@@ -525,37 +554,28 @@ Public Class ResponseItem
         Dim Radius As Single = Height / 8
         Dim DoubleRadius As Single = Radius * 2
 
-        Dim TransparentBrush = New SolidBrush(Drawing.Color.Transparent)
-        e.Graphics.FillRectangle(TransparentBrush, ClientRectangle)
-
-        Dim FillBackgroundBrush As SolidBrush
-        If _FlashBackground = False Then
-            FillBackgroundBrush = New SolidBrush(Drawing.Color.FromArgb(255, 255, 128))
+        Dim BackgroundBrush1 As SolidBrush
+        If Me.Parent IsNot Nothing Then
+            BackgroundBrush1 = New SolidBrush(Me.Parent.BackColor)
         Else
-            FillBackgroundBrush = New SolidBrush(Drawing.Color.Red)
+            BackgroundBrush1 = New SolidBrush(Drawing.Color.FromArgb(40, 40, 40))
+        End If
+        e.Graphics.FillRectangle(BackgroundBrush1, ClientRectangle)
+
+        Dim BackgroundBrush2 As SolidBrush
+        If _FlashBackground = False Then
+            BackgroundBrush2 = New SolidBrush(Drawing.Color.FromArgb(255, 255, 128))
+        Else
+            BackgroundBrush2 = New SolidBrush(Drawing.Color.Red)
         End If
 
-        e.Graphics.FillPie(FillBackgroundBrush, 0, 0, DoubleRadius, DoubleRadius, 0, 360)
-        e.Graphics.FillPie(FillBackgroundBrush, 0, Height - DoubleRadius, DoubleRadius, DoubleRadius, 0, 360)
-        e.Graphics.FillPie(FillBackgroundBrush, Width - DoubleRadius, 0, DoubleRadius, DoubleRadius, 0, 360)
-        e.Graphics.FillPie(FillBackgroundBrush, Width - DoubleRadius, Height - DoubleRadius, DoubleRadius, DoubleRadius, 0, 360)
+        e.Graphics.FillPie(BackgroundBrush2, 0, 0, DoubleRadius, DoubleRadius, 0, 360)
+        e.Graphics.FillPie(BackgroundBrush2, 0, Height - DoubleRadius, DoubleRadius, DoubleRadius, 0, 360)
+        e.Graphics.FillPie(BackgroundBrush2, Width - DoubleRadius, 0, DoubleRadius, DoubleRadius, 0, 360)
+        e.Graphics.FillPie(BackgroundBrush2, Width - DoubleRadius, Height - DoubleRadius, DoubleRadius, DoubleRadius, 0, 360)
 
-        e.Graphics.FillRectangle(FillBackgroundBrush, New Rectangle(Radius, 0, ClientRectangle.Width - 2 * Radius, ClientRectangle.Height))
-        e.Graphics.FillRectangle(FillBackgroundBrush, New Rectangle(0, Radius, ClientRectangle.Width, ClientRectangle.Height - 2 * Radius))
-
-        'Drawing border
-        Dim LineWidth As Single = 8
-        Dim BorderPen = New Pen(Me.ForeColor, LineWidth)
-        e.Graphics.DrawArc(BorderPen, 0, 0, DoubleRadius, DoubleRadius, 180, 90)
-        e.Graphics.DrawArc(BorderPen, 0, Height - DoubleRadius, DoubleRadius, DoubleRadius, 90, 90)
-        e.Graphics.DrawArc(BorderPen, Width - DoubleRadius, 0, DoubleRadius, DoubleRadius, 270, 90)
-        e.Graphics.DrawArc(BorderPen, Width - DoubleRadius, Height - DoubleRadius, DoubleRadius, DoubleRadius, 0, 90)
-
-        e.Graphics.DrawLine(BorderPen, 0, Radius, 0, ClientRectangle.Height - Radius)
-        e.Graphics.DrawLine(BorderPen, ClientRectangle.Width, Radius, ClientRectangle.Width, ClientRectangle.Height - Radius)
-
-        e.Graphics.DrawLine(BorderPen, 0 + Radius, 0, ClientRectangle.Width - Radius, 0)
-        e.Graphics.DrawLine(BorderPen, Radius, 0 + ClientRectangle.Height, ClientRectangle.Width - Radius, ClientRectangle.Height)
+        e.Graphics.FillRectangle(BackgroundBrush2, New Rectangle(Radius, 0, ClientRectangle.Width - 2 * Radius, ClientRectangle.Height))
+        e.Graphics.FillRectangle(BackgroundBrush2, New Rectangle(0, Radius, ClientRectangle.Width, ClientRectangle.Height - 2 * Radius))
 
     End Sub
 
