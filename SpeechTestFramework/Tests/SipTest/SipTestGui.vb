@@ -918,12 +918,13 @@ Public Class SipTestGui
                 Select Case SelectedTestparadigm
                     Case Testparadigm.Directional3, Testparadigm.Directional5
                         ShowMessageBox("Bluetooth screen is not yet implemented for the Directional3 and Directional5 test paradigms. Use the PC screen instead.", "SiP-test")
+                        Exit Sub
                 End Select
 
                 ParticipantControl = MyBtTesteeControl
-                    MyBtTesteeControl.StartNewTestSession()
+                MyBtTesteeControl.StartNewTestSession()
 
-                End Select
+        End Select
 
         Start_AudioButton.Enabled = True
 
