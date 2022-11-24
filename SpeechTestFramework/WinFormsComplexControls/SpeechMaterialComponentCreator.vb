@@ -245,6 +245,7 @@
                 For w = 0 To Words.Length - 1
 
                     Dim WordSpelling As String = Words(w)
+
                     'Trimming off characters
                     For Each c In WordLevelTrimChars
                         WordSpelling = WordSpelling.Replace(c, " ")

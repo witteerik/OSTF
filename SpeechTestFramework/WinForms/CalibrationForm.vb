@@ -8,6 +8,8 @@
     Private SelectedTransducer As AudioSystemSpecification = Nothing
     Private UserType As Utils.UserTypes
 
+    Private CalibrationFilesDirectory As String = ""
+
     Public Sub New()
         MyClass.New(Utils.Constants.UserTypes.Research, True)
     End Sub
@@ -37,13 +39,18 @@
 
         Me.Text = "OSTA Sound Level Calibration" & " - " & UserTypeString
 
+        'Adds frequency weightings
+        FrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
+        FrequencyWeighting_ComboBox.Items.Add(Audio.FrequencyWeightings.C)
+        FrequencyWeighting_ComboBox.SelectedIndex = 0
+
     End Sub
 
 
     Private Sub CalibrationForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Adding signals
-        Dim CalibrationFilesDirectory = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.CalibrationSignalSubDirectory)
+        CalibrationFilesDirectory = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.CalibrationSignalSubDirectory)
         Dim CalibrationFiles = IO.Directory.GetFiles(CalibrationFilesDirectory)
 
         'Getting calibration file descriptions from the text file SignalDescriptions.txt
@@ -174,6 +181,15 @@
                 CalibrationSignal_RichTextBox.Text = "Calibration file without custom description." & vbCrLf &
                     SelectedCalibrationSound.WaveFormat.ToString
             End If
+
+            'Checks if signal FS is 48 kHz. If not disables the FrequencyWeighting_ComboBox, and sets its selected value to Z-weighting
+            If SelectedCalibrationSound.WaveFormat.SampleRate = 48000 Then
+                FrequencyWeighting_ComboBox.Enabled = True
+            Else
+                FrequencyWeighting_ComboBox.SelectedIndex = 0
+                FrequencyWeighting_ComboBox.Enabled = False
+            End If
+
         End If
 
     End Sub
@@ -217,7 +233,7 @@
                 OstfBase.SoundPlayer.ChangePlayerSettings(, CalibrationSound.WaveFormat)
 
                 'Setting the signal level
-                Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Audio.Standard_dBSPL_To_dBFS(SelectedLevel), 1)
+                Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Audio.Standard_dBSPL_To_dBFS(SelectedLevel), 1,,, FrequencyWeighting_ComboBox.SelectedItem)
 
                 'Fading in and out
                 Audio.DSP.Fade(CalibrationSound, Nothing, 0, 1, 0, 0.02 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
@@ -262,17 +278,20 @@
 
         Dim InstructionsForm As New InfoForm
 
+        Dim AudioSystemSpecificationFilePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AudioSystemSettingsFile)
+
         Dim CalibrationInfoString As String = "Instructions on how to perform calibration
 
 1. Select the sound system that you want to calibrate.
-2. Select the desired calibration signal. (If you want to use your own signal, just locate the folder 'OSTF\CalibrationSignals\' and put your signal there, and restart the app. The signal needs to be stored in 32-bit IEEE/float or 16-bit PCM format.)
-3. Select a calibration signal level (in dB SPL) to present.
-4. Select which output speaker channel you want to calibrate.
-5. Use a sound level meter and measure the sound level at the desired measurement point.
-6. Calculate the difference between the selected calibration signal level and the measured level.
-7. Adjust the calibration value ('CalibrationGain') for the output channel in the file OSTF\AudioSystem\AudioSystemSpecification.txt by the calculated difference. 
-8. Do the same for all speaker channels.
-9. Restart the app to load the new calibration values and measure the calibration levels again to ensure correct calibration."
+2. Select the desired calibration signal. (If you want to use your own signal, just locate the folder '" & CalibrationFilesDirectory & "' and put your signal there, and restart the app. The signal needs to be stored in 32-bit IEEE/float or 16-bit PCM format.)
+3. Select a calibration signal level to present.
+4. Select a frequency weighting. If set to 'Z' the unit of the selected signal level will be dB SPL, if set to 'C' it will instead be in dB C. The C-weighting option is only available for calibration signals with a sample rate of 48 kHz.
+5. Select which output speaker channel you want to calibrate.
+6. Use a sound level meter and measure the sound level at the desired measurement point.
+7. Calculate the difference between the selected calibration signal level and the measured level.
+8. Adjust the calibration value ('CalibrationGain') for the output channel in the file '" & AudioSystemSpecificationFilePath & "' by the calculated difference. 
+9. Do the same for all speaker channels.
+10. Restart the app to load the new calibration values and measure the calibration levels again to ensure correct calibration."
 
         InstructionsForm.SetInfo(CalibrationInfoString, "How to calibrate")
         InstructionsForm.Show()
