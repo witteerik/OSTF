@@ -83,6 +83,40 @@
         End If
 
         'Getting the input lines
+        Dim InputRTF = EditRichTextBox.Rtf
+
+        Dim LextLength As Integer = EditRichTextBox.TextLength()
+        Dim UnderLine(LextLength - 1) As Boolean
+        Dim InputText(LextLength - 1) As Char
+        Dim LineBreakIndices As New SortedSet(Of Integer)
+        For n = 0 To LextLength - 1
+            EditRichTextBox.Select(n, 1)
+            'Notes if the selected char is underlined
+            UnderLine(n) = EditRichTextBox.SelectionFont.Underline
+            InputText(n) = EditRichTextBox.Text(n)
+
+            If InputText(n) = vbCrLf Or InputText(n) = vbCr Or InputText(n) = vbLf Then
+                LineBreakIndices.Add(n + 1)
+            End If
+
+        Next
+
+        'Also adding 0 and LextLength-1
+        LineBreakIndices.Add(0)
+        LineBreakIndices.Add(LextLength)
+
+        Dim LineBreakIndicesArray = LineBreakIndices.ToArray
+        Dim InputTextList = InputText.ToList
+        Dim InputUnderLineList = UnderLine.ToList
+
+        Dim WordLineChars As New List(Of Char())
+        Dim UnderLinedChars As New List(Of Boolean())
+        For n = 0 To LineBreakIndicesArray.Length - 2
+            WordLineChars.Add(InputTextList.GetRange(LineBreakIndicesArray(n), LineBreakIndicesArray(n + 1) - LineBreakIndicesArray(n) - 1).ToArray)
+            UnderLinedChars.Add(InputUnderLineList.GetRange(LineBreakIndicesArray(n), LineBreakIndicesArray(n + 1) - LineBreakIndicesArray(n) - 1).ToArray)
+        Next
+
+
         Dim Input = EditRichTextBox.Lines
 
         'The whole input represent a ListCollection
