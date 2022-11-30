@@ -434,8 +434,9 @@
         'Assigning Id as a categorical variable to all components
         CurrentListCollectionComponent.SetIdAsCategoricalCustumVariable(True)
 
-        Return New Tuple(Of Boolean, SpeechMaterialComponent)(True, CurrentListCollectionComponent)
+        MarkIncompleteTranscriptionsInRed()
 
+        Return New Tuple(Of Boolean, SpeechMaterialComponent)(True, CurrentListCollectionComponent)
 
     End Function
 
@@ -623,7 +624,6 @@
         Next
 
         'If all went well, we print the text back to the user, with the transcriptions interlined
-        'Dim OutputList As New List(Of String)
         EditRichTextBox.Clear()
         Dim CurrentWriteIndex As Integer = 0
         Dim ListsComponents = NewSmaComponent.Item2.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
@@ -632,7 +632,6 @@
             Dim ListString As String = "{" & ListComponent.PrimaryStringRepresentation & "}" & vbCr
             EditRichTextBox.AppendText(ListString)
             CurrentWriteIndex += ListString.Length
-            'OutputList.Add("{" & ListComponent.PrimaryStringRepresentation & "}")
 
             For Each SentenceComponent In ListComponent.ChildComponents
 
@@ -680,22 +679,16 @@
                 Dim SentenceTranscription = String.Join(", ", SentenceWordTranscriptions) & vbCr
                 EditRichTextBox.AppendText(SentenceTranscription)
                 CurrentWriteIndex += SentenceTranscription.Length
-                'OutputList.Add(SentenceTranscription)
 
             Next
 
             'Adding an empty line between lists
             EditRichTextBox.AppendText(vbCr)
             CurrentWriteIndex += 1
-            'OutputList.Add("")
 
         Next
 
-        'Displayes the results in the EditRichTextBox
-
-
-
-        'EditRichTextBox.Lines = OutputList.ToArray
+        MarkIncompleteTranscriptionsInRed()
 
     End Sub
 
@@ -733,6 +726,41 @@
             Dim PreviousFont = EditRichTextBox.SelectionFont
             EditRichTextBox.SelectionFont = New Drawing.Font(PreviousFont.FontFamily, PreviousFont.Size, Drawing.FontStyle.Regular)
         End If
+
+    End Sub
+
+    Private Sub MarkIncompleteTranscriptionsInRed()
+
+        Dim OriginalBackColor = EditRichTextBox.BackColor
+
+        Dim MarkColor As Drawing.Color = Drawing.Color.FromArgb(248, 108, 108)
+
+        Dim n As Integer = 0
+        Do Until n = EditRichTextBox.TextLength - 1
+
+            EditRichTextBox.Select(n, 3)
+
+            If EditRichTextBox.SelectedText = DefaultNotFoundTranscriptionString Then
+                EditRichTextBox.SelectionBackColor = MarkColor
+                n += 3
+            Else
+                EditRichTextBox.SelectionBackColor = OriginalBackColor
+                n += 1
+            End If
+        Loop
+
+        For m = 0 To EditRichTextBox.TextLength - 1
+
+            EditRichTextBox.Select(m, 1)
+
+            If EditRichTextBox.SelectionBackColor = MarkColor Then Continue For
+
+            If EditRichTextBox.SelectedText = DefaultAmbigousTranscriptionMarker Then
+                EditRichTextBox.SelectionBackColor = MarkColor
+            Else
+                EditRichTextBox.SelectionBackColor = OriginalBackColor
+            End If
+        Next
 
     End Sub
 
