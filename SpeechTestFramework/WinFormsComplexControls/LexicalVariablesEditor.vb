@@ -312,7 +312,7 @@
 
                     'Selects variable type, and saves the variable value
                     If VariableControl.IsNumericVariable = True Then
-                        WordComponent.SetNumericWordMetricValue(CurrentUpdatedVariableName, CurrentVariableValue)
+                        WordComponent.SetNumericVariableValue(CurrentUpdatedVariableName, CurrentVariableValue)
                     Else
                         WordComponent.SetCategoricalVariableValue(CurrentUpdatedVariableName, CurrentVariableValue)
                     End If

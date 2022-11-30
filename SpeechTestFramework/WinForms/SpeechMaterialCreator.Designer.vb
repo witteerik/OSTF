@@ -25,17 +25,17 @@ Partial Class SpeechMaterialCreator
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(SpeechMaterialCreator))
         Me.MainTabControl = New System.Windows.Forms.TabControl()
         Me.TabPage1 = New System.Windows.Forms.TabPage()
-        Me.MySpeechMaterialComponentCreator = New SpeechTestFramework.SpeechMaterialComponentCreator()
         Me.TabPage2 = New System.Windows.Forms.TabPage()
-        Me.LexicalVariablesEditor1 = New SpeechTestFramework.LexicalVariablesEditor()
         Me.TabPage3 = New System.Windows.Forms.TabPage()
-        Me.StatisticalSummaryControl1 = New SpeechTestFramework.StatisticalSummaryControl()
         Me.TabPage4 = New System.Windows.Forms.TabPage()
-        Me.MediaSetSetupControl1 = New SpeechTestFramework.MediaSetSetupControl()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.MySpeechMaterialComponentCreator = New SpeechTestFramework.SpeechMaterialComponentCreator()
+        Me.LexicalVariablesEditor1 = New SpeechTestFramework.LexicalVariablesEditor()
+        Me.StatisticalSummaryControl1 = New SpeechTestFramework.StatisticalSummaryControl()
+        Me.MediaSetSetupControl1 = New SpeechTestFramework.MediaSetSetupControl()
         Me.MainTabControl.SuspendLayout()
         Me.TabPage1.SuspendLayout()
         Me.TabPage2.SuspendLayout()
@@ -54,7 +54,7 @@ Partial Class SpeechMaterialCreator
         Me.MainTabControl.Location = New System.Drawing.Point(0, 24)
         Me.MainTabControl.Name = "MainTabControl"
         Me.MainTabControl.SelectedIndex = 0
-        Me.MainTabControl.Size = New System.Drawing.Size(845, 426)
+        Me.MainTabControl.Size = New System.Drawing.Size(963, 524)
         Me.MainTabControl.TabIndex = 0
         '
         'TabPage1
@@ -63,20 +63,10 @@ Partial Class SpeechMaterialCreator
         Me.TabPage1.Location = New System.Drawing.Point(4, 22)
         Me.TabPage1.Name = "TabPage1"
         Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(837, 400)
+        Me.TabPage1.Size = New System.Drawing.Size(955, 498)
         Me.TabPage1.TabIndex = 0
         Me.TabPage1.Text = "Speech material components (SMC)"
         Me.TabPage1.UseVisualStyleBackColor = True
-        '
-        'MySpeechMaterialComponentCreator
-        '
-        Me.MySpeechMaterialComponentCreator.BackColor = System.Drawing.SystemColors.Control
-        Me.MySpeechMaterialComponentCreator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.MySpeechMaterialComponentCreator.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MySpeechMaterialComponentCreator.Location = New System.Drawing.Point(3, 3)
-        Me.MySpeechMaterialComponentCreator.Name = "MySpeechMaterialComponentCreator"
-        Me.MySpeechMaterialComponentCreator.Size = New System.Drawing.Size(831, 394)
-        Me.MySpeechMaterialComponentCreator.TabIndex = 0
         '
         'TabPage2
         '
@@ -84,20 +74,10 @@ Partial Class SpeechMaterialCreator
         Me.TabPage2.Location = New System.Drawing.Point(4, 22)
         Me.TabPage2.Name = "TabPage2"
         Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(837, 400)
+        Me.TabPage2.Size = New System.Drawing.Size(955, 498)
         Me.TabPage2.TabIndex = 1
         Me.TabPage2.Text = "Add lexical variables to SMC"
         Me.TabPage2.UseVisualStyleBackColor = True
-        '
-        'LexicalVariablesEditor1
-        '
-        Me.LexicalVariablesEditor1.BackColor = System.Drawing.SystemColors.Control
-        Me.LexicalVariablesEditor1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.LexicalVariablesEditor1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LexicalVariablesEditor1.Location = New System.Drawing.Point(3, 3)
-        Me.LexicalVariablesEditor1.Name = "LexicalVariablesEditor1"
-        Me.LexicalVariablesEditor1.Size = New System.Drawing.Size(831, 394)
-        Me.LexicalVariablesEditor1.TabIndex = 0
         '
         'TabPage3
         '
@@ -105,20 +85,10 @@ Partial Class SpeechMaterialCreator
         Me.TabPage3.Location = New System.Drawing.Point(4, 22)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(837, 400)
+        Me.TabPage3.Size = New System.Drawing.Size(955, 498)
         Me.TabPage3.TabIndex = 2
         Me.TabPage3.Text = "Summary statistics"
         Me.TabPage3.UseVisualStyleBackColor = True
-        '
-        'StatisticalSummaryControl1
-        '
-        Me.StatisticalSummaryControl1.BackColor = System.Drawing.SystemColors.Control
-        Me.StatisticalSummaryControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.StatisticalSummaryControl1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StatisticalSummaryControl1.Location = New System.Drawing.Point(3, 3)
-        Me.StatisticalSummaryControl1.Name = "StatisticalSummaryControl1"
-        Me.StatisticalSummaryControl1.Size = New System.Drawing.Size(831, 394)
-        Me.StatisticalSummaryControl1.TabIndex = 0
         '
         'TabPage4
         '
@@ -126,27 +96,17 @@ Partial Class SpeechMaterialCreator
         Me.TabPage4.Location = New System.Drawing.Point(4, 22)
         Me.TabPage4.Name = "TabPage4"
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(837, 400)
+        Me.TabPage4.Size = New System.Drawing.Size(955, 498)
         Me.TabPage4.TabIndex = 3
         Me.TabPage4.Text = "Add/edit media set"
         Me.TabPage4.UseVisualStyleBackColor = True
-        '
-        'MediaSetSetupControl1
-        '
-        Me.MediaSetSetupControl1.BackColor = System.Drawing.SystemColors.Control
-        Me.MediaSetSetupControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.MediaSetSetupControl1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MediaSetSetupControl1.Location = New System.Drawing.Point(3, 3)
-        Me.MediaSetSetupControl1.Name = "MediaSetSetupControl1"
-        Me.MediaSetSetupControl1.Size = New System.Drawing.Size(831, 394)
-        Me.MediaSetSetupControl1.TabIndex = 0
         '
         'MenuStrip1
         '
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(845, 24)
+        Me.MenuStrip1.Size = New System.Drawing.Size(963, 24)
         Me.MenuStrip1.TabIndex = 1
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -169,11 +129,52 @@ Partial Class SpeechMaterialCreator
         Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(107, 22)
         Me.ExitToolStripMenuItem.Text = "Exit"
         '
+        'MySpeechMaterialComponentCreator
+        '
+        Me.MySpeechMaterialComponentCreator.BackColor = System.Drawing.SystemColors.Control
+        Me.MySpeechMaterialComponentCreator.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.MySpeechMaterialComponentCreator.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MySpeechMaterialComponentCreator.Font = New System.Drawing.Font("Arial", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.MySpeechMaterialComponentCreator.Location = New System.Drawing.Point(3, 3)
+        Me.MySpeechMaterialComponentCreator.Name = "MySpeechMaterialComponentCreator"
+        Me.MySpeechMaterialComponentCreator.Size = New System.Drawing.Size(949, 492)
+        Me.MySpeechMaterialComponentCreator.TabIndex = 0
+        '
+        'LexicalVariablesEditor1
+        '
+        Me.LexicalVariablesEditor1.BackColor = System.Drawing.SystemColors.Control
+        Me.LexicalVariablesEditor1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.LexicalVariablesEditor1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LexicalVariablesEditor1.Location = New System.Drawing.Point(3, 3)
+        Me.LexicalVariablesEditor1.Name = "LexicalVariablesEditor1"
+        Me.LexicalVariablesEditor1.Size = New System.Drawing.Size(949, 492)
+        Me.LexicalVariablesEditor1.TabIndex = 0
+        '
+        'StatisticalSummaryControl1
+        '
+        Me.StatisticalSummaryControl1.BackColor = System.Drawing.SystemColors.Control
+        Me.StatisticalSummaryControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.StatisticalSummaryControl1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StatisticalSummaryControl1.Location = New System.Drawing.Point(3, 3)
+        Me.StatisticalSummaryControl1.Name = "StatisticalSummaryControl1"
+        Me.StatisticalSummaryControl1.Size = New System.Drawing.Size(949, 492)
+        Me.StatisticalSummaryControl1.TabIndex = 0
+        '
+        'MediaSetSetupControl1
+        '
+        Me.MediaSetSetupControl1.BackColor = System.Drawing.SystemColors.Control
+        Me.MediaSetSetupControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.MediaSetSetupControl1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MediaSetSetupControl1.Location = New System.Drawing.Point(3, 3)
+        Me.MediaSetSetupControl1.Name = "MediaSetSetupControl1"
+        Me.MediaSetSetupControl1.Size = New System.Drawing.Size(949, 492)
+        Me.MediaSetSetupControl1.TabIndex = 0
+        '
         'SpeechMaterialCreator
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(845, 450)
+        Me.ClientSize = New System.Drawing.Size(963, 548)
         Me.Controls.Add(Me.MainTabControl)
         Me.Controls.Add(Me.MenuStrip1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)

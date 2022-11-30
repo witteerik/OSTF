@@ -38,6 +38,9 @@
             Dim DefaultPhoneTrimChars As New List(Of Char) From {",", IpaMainStress, IpaSecondaryStress, IpaSyllableBoundary, IpaMainSwedishAccent2, IpaLinkingSymbol, IpaMinorFootGroup, IpaMajorIntonationGroup}
             PhoneTrimChars_TextBox.Text = String.Join(" ", DefaultPhoneTrimChars)
 
+            'Setting font in the EditRichTextBox
+            EditRichTextBox.Font = New Drawing.Font("Arial", 12, Drawing.FontStyle.Regular)
+
         Catch ex As Exception
             MsgBox("The following error occured: " & vbCrLf & vbCrLf & ex.ToString)
         End Try
@@ -82,42 +85,125 @@
             Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
         End If
 
-        'Getting the input lines
-        Dim InputRTF = EditRichTextBox.Rtf
-
+        'Getting the input text and parses through its rtf underlining specification in order to mark key words (which should be underlined)
         Dim LextLength As Integer = EditRichTextBox.TextLength()
-        Dim UnderLine(LextLength - 1) As Boolean
-        Dim InputText(LextLength - 1) As Char
-        Dim LineBreakIndices As New SortedSet(Of Integer)
+
+        'Getting the text and its underlining, character by character
+        Dim InputTextList As New List(Of Char)
+        Dim InputUnderLineList As New List(Of Boolean)
         For n = 0 To LextLength - 1
             EditRichTextBox.Select(n, 1)
             'Notes if the selected char is underlined
-            UnderLine(n) = EditRichTextBox.SelectionFont.Underline
-            InputText(n) = EditRichTextBox.Text(n)
+            InputUnderLineList.Add(EditRichTextBox.SelectionFont.Underline)
+            InputTextList.Add(EditRichTextBox.Text(n))
+        Next
 
-            If InputText(n) = vbCrLf Or InputText(n) = vbCr Or InputText(n) = vbLf Then
-                LineBreakIndices.Add(n + 1)
+        If InputTextList.Count > 0 Then
+            'If the text does not start with an initial line break, we insert one, to regularize the text.
+            If InputTextList.First = vbCrLf Or InputTextList.First = vbCr Or InputTextList.First = vbLf Then
+                'There is already a line break at the start of the text
+            Else
+                InputTextList.Insert(0, vbCrLf)
+                InputUnderLineList.Insert(0, False)
             End If
 
+            'If the text does not end with a final line break, we insert one, to regularize the text.
+            If InputTextList.Last = vbCrLf Or InputTextList.Last = vbCr Or InputTextList.Last = vbLf Then
+                'There is already a line break at the end of the text
+            Else
+                InputTextList.Add(vbCrLf)
+                InputUnderLineList.Add(False)
+            End If
+        End If
+
+        'Getting the indices of line breaks
+        Dim LineBreakIndices As New SortedSet(Of Integer)
+        For n = 0 To InputTextList.Count - 1
+            If InputTextList(n) = vbCrLf Or InputTextList(n) = vbCr Or InputTextList(n) = vbLf Then
+                LineBreakIndices.Add(n)
+            End If
         Next
 
-        'Also adding 0 and LextLength-1
-        LineBreakIndices.Add(0)
-        LineBreakIndices.Add(LextLength)
+        'Parsing lines into lists of words and underlining, still character by character
+        Dim WordLineChars As New List(Of List(Of Char))
+        Dim UnderLinedChars As New List(Of List(Of Boolean))
+        Dim WordBreakIndices As New List(Of SortedSet(Of Integer))
+        Dim WordBreakCharacter As Char
 
-        Dim LineBreakIndicesArray = LineBreakIndices.ToArray
-        Dim InputTextList = InputText.ToList
-        Dim InputUnderLineList = UnderLine.ToList
+        For n = 0 To LineBreakIndices.Count - 2
+            Dim StartReadIndex = LineBreakIndices(n) + 1
+            Dim ReadLength = LineBreakIndices(n + 1) - LineBreakIndices(n) - 1
+            Dim CurrentLineChars = InputTextList.GetRange(StartReadIndex, ReadLength)
+            Dim CurrentLineUnderlineData = InputUnderLineList.GetRange(StartReadIndex, ReadLength)
 
-        Dim WordLineChars As New List(Of Char())
-        Dim UnderLinedChars As New List(Of Boolean())
-        For n = 0 To LineBreakIndicesArray.Length - 2
-            WordLineChars.Add(InputTextList.GetRange(LineBreakIndicesArray(n), LineBreakIndicesArray(n + 1) - LineBreakIndicesArray(n) - 1).ToArray)
-            UnderLinedChars.Add(InputUnderLineList.GetRange(LineBreakIndicesArray(n), LineBreakIndicesArray(n + 1) - LineBreakIndicesArray(n) - 1).ToArray)
+            Dim TrimmedLineAsString = String.Concat(CurrentLineChars).Trim
+            If TrimmedLineAsString.StartsWith("{") Then
+                'It should be a list name, using space as WordBreakCharacter 'TODO, this could be generalized to WhiteSpace
+                WordBreakCharacter = " "
+            ElseIf TrimmedLineAsString.StartsWith("[") Then
+                'It should be phonetic form, using comma as WordBreakCharacter 
+                WordBreakCharacter = ","
+            Else
+                'It should be a sentence, using space as WordBreakCharacter 'TODO, this could be generalized to WhiteSpace
+                WordBreakCharacter = " "
+            End If
+
+            If CurrentLineChars.Count > 0 Then
+                'Padding the beginning of the line with a WordBreakCharacter, if needed, in order to regularize the text
+                If CurrentLineChars.First <> WordBreakCharacter Then
+                    CurrentLineChars.Insert(0, WordBreakCharacter)
+                    CurrentLineUnderlineData.Insert(0, False)
+                End If
+
+                'Padding the line end with a WordBreakCharacter, if needed, in order to regularize the text
+                If CurrentLineChars.Last <> WordBreakCharacter Then
+                    CurrentLineChars.Add(WordBreakCharacter)
+                    CurrentLineUnderlineData.Add(False)
+                End If
+            End If
+
+            'Getting the indices of all word breaks
+            Dim CurrentLineWordBreakIndices As New SortedSet(Of Integer)
+            For c = 0 To CurrentLineChars.Count - 1
+                If CurrentLineChars(c) = WordBreakCharacter Then
+                    CurrentLineWordBreakIndices.Add(c)
+                End If
+            Next
+
+            WordLineChars.Add(CurrentLineChars)
+            UnderLinedChars.Add(CurrentLineUnderlineData)
+            WordBreakIndices.Add(CurrentLineWordBreakIndices)
+        Next
+
+        'Splitting the data into one string arrays (containing one word in eacg string) per line, and a corresponding boolean array per line (containing True/False for the underlining of each word)
+        Dim WordLines As New List(Of String())
+        Dim UnderLineInfo As New List(Of Boolean())
+
+        For Line = 0 To WordLineChars.Count - 1
+
+            Dim WordBreakIndicesArray = WordBreakIndices(Line).ToArray
+            Dim WordLineCharsList = WordLineChars(Line)
+            Dim UnderLinedCharsList = UnderLinedChars(Line)
+
+            Dim Words As New List(Of String)
+            Dim Underlining As New List(Of Boolean)
+
+            For n = 0 To WordBreakIndicesArray.Length - 2
+                Dim StartReadIndex = WordBreakIndicesArray(n) + 1
+                Dim ReadLength = WordBreakIndicesArray(n + 1) - WordBreakIndicesArray(n) - 1
+
+                Words.Add(String.Concat(WordLineCharsList.GetRange(StartReadIndex, ReadLength)))
+
+                'Getting the underlining data from the first character in the word, and ignores all other underlining (Underlining should be binary for each word)
+                Underlining.Add(UnderLinedCharsList.GetRange(StartReadIndex, ReadLength).First)
+            Next
+
+            WordLines.Add(Words.ToArray)
+            UnderLineInfo.Add(Underlining.ToArray)
         Next
 
 
-        Dim Input = EditRichTextBox.Lines
+        'Dim Input = EditRichTextBox.Lines
 
         'The whole input represent a ListCollection
         Dim CurrentListCollectionComponent As New SpeechMaterialComponent(rnd) With {
@@ -136,9 +222,25 @@
         Dim FirstListDetected As Boolean = False
 
         'Parsing input lines
-        For i = 0 To Input.Length - 1
+        'For i = 0 To Input.Length - 1
+        For i = 0 To WordLines.Count - 1
 
-            Dim CurrentLine = Input(i).Trim
+            Dim TrimmedLineAsString = String.Concat(WordLines(i)).Trim
+            If TrimmedLineAsString.StartsWith("{") Then
+                'It should be a list name, and space should be used as WordBreakCharacter
+                WordBreakCharacter = " "
+            ElseIf TrimmedLineAsString.StartsWith("[") Then
+                'It should be phonetic form, and comma should be used as WordBreakCharacter 
+                WordBreakCharacter = ","
+            Else
+                'It should be a sentence, and space should be used as WordBreakCharacter
+                WordBreakCharacter = " "
+            End If
+
+            Dim CurrentLine = String.Join(WordBreakCharacter, WordLines(i)).Trim
+
+            'Dim CurrentLine = Input(i).Trim
+
 
             'Skips empty lines
             If CurrentLine = "" Then Continue For
@@ -193,7 +295,7 @@
                 Dim WordTranscriptions = CurrentLine.Split(",")
                 'Checks that the number of transcriptions and spellings agree
                 If CurrentSentenceComponent.ChildComponents.Count <> WordTranscriptions.Length Then
-                    MsgBox("The number of transcriptions at the following line (line " & i + 1 & ") do do agree with the number of speelings in the corresponding sentence. Have you missed a comma between word transcriptions?" & vbCrLf & vbCrLf &
+                    MsgBox("The number of transcriptions at the following line (line " & i + 1 & ") do do agree with the number of spellings in the corresponding sentence. Have you missed a comma between word transcriptions?" & vbCrLf & vbCrLf &
                    CurrentSentenceComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName) & vbCrLf & CurrentLine, MsgBoxStyle.Information, "Checking input data")
                     Return New Tuple(Of Boolean, SpeechMaterialComponent)(False, Nothing)
                 End If
@@ -274,7 +376,8 @@
                 NumberOfSentenceLines += 1
 
                 'Adds the word components
-                Dim Words = CurrentLine.Split(" ")
+                'Dim Words = CurrentLine.Split(" ")
+                Dim Words = WordLines(i)
                 Dim AddedWordIndex As Integer = -1
                 For w = 0 To Words.Length - 1
 
@@ -303,13 +406,17 @@
 
                     NewWordComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName, WordSpelling)
 
+                    Dim IsUnderline As Boolean = UnderLineInfo(i)(w)
+
+                    NewWordComponent.SetNumericVariableValue(SpeechMaterialComponent.DefaultIsKeyComponentVariableName, IsUnderline)
+
                 Next
 
             End If
 
         Next
 
-        'Checking that all or no sentnces are transcribed
+        'Checking that all or no sentences are transcribed
         If NumberOfTranscriptionLines > 0 Then
             If NumberOfSentenceLines <> NumberOfTranscriptionLines Then
                 MsgBox("The number of sentence level inputs lines (" & NumberOfSentenceLines & ") do not agree with the number of transcription lines (" & NumberOfTranscriptionLines &
@@ -323,6 +430,9 @@
         CurrentListCollectionComponent.SequentiallyOrderedSentences = SequentialSentences_CheckBox.Checked
         CurrentListCollectionComponent.SequentiallyOrderedWords = SequentialWords_CheckBox.Checked
         CurrentListCollectionComponent.SequentiallyOrderedPhonemes = SequentialPhonemes_CheckBox.Checked
+
+        'Assigning Id as a categorical variable to all components
+        CurrentListCollectionComponent.SetIdAsCategoricalCustumVariable(True)
 
         Return New Tuple(Of Boolean, SpeechMaterialComponent)(True, CurrentListCollectionComponent)
 
@@ -513,41 +623,117 @@
         Next
 
         'If all went well, we print the text back to the user, with the transcriptions interlined
-        Dim OutputList As New List(Of String)
+        'Dim OutputList As New List(Of String)
+        EditRichTextBox.Clear()
+        Dim CurrentWriteIndex As Integer = 0
         Dim ListsComponents = NewSmaComponent.Item2.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
         For Each ListComponent In ListsComponents
 
-            OutputList.Add("{" & ListComponent.PrimaryStringRepresentation & "}")
+            Dim ListString As String = "{" & ListComponent.PrimaryStringRepresentation & "}" & vbCr
+            EditRichTextBox.AppendText(ListString)
+            CurrentWriteIndex += ListString.Length
+            'OutputList.Add("{" & ListComponent.PrimaryStringRepresentation & "}")
 
             For Each SentenceComponent In ListComponent.ChildComponents
-                OutputList.Add(SentenceComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName))
+
+                'Dim SentenceSpelling As String = SentenceComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName)
+                'EditRichTextBox.AppendText(SentenceSpelling)
+                'CurrentWriteIndex += SentenceSpelling.Length
+
+                For w = 0 To SentenceComponent.ChildComponents.Count - 1
+
+                    Dim WordComponent = SentenceComponent.ChildComponents(w)
+
+                    Dim WordSpelling = WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName)
+
+                    EditRichTextBox.AppendText(WordSpelling)
+                    CurrentWriteIndex += WordSpelling.Length
+
+                    EditRichTextBox.Select(CurrentWriteIndex - WordSpelling.Length, WordSpelling.Length)
+                    If WordComponent.GetNumericVariableValue(SpeechMaterialComponent.DefaultIsKeyComponentVariableName) = True Then
+                        EditRichTextBox.SelectionFont = New Drawing.Font(EditRichTextBox.Font, Drawing.FontStyle.Underline)
+                    Else
+                        EditRichTextBox.SelectionFont = New Drawing.Font(EditRichTextBox.Font, Drawing.FontStyle.Regular)
+                    End If
+
+                    If w < SentenceComponent.ChildComponents.Count - 1 Then
+                        'Adding a space between words
+                        EditRichTextBox.AppendText(" ")
+                    Else
+                        'Adding a line break
+                        EditRichTextBox.AppendText(vbCr)
+                    End If
+
+                    CurrentWriteIndex += 1
+                    EditRichTextBox.Select(CurrentWriteIndex - 1, 1)
+                    EditRichTextBox.SelectionFont = New Drawing.Font(EditRichTextBox.Font, Drawing.FontStyle.Regular)
+
+                Next
+
+                EditRichTextBox.DeselectAll()
 
                 Dim SentenceWordTranscriptions As New List(Of String)
                 For Each WordComponent In SentenceComponent.ChildComponents
                     SentenceWordTranscriptions.Add("[ " & WordComponent.GetCategoricalVariableValue(SpeechMaterialComponent.DefaultTranscriptionVariableName) & " ]")
                 Next
 
-                Dim SentenceTranscription = String.Join(", ", SentenceWordTranscriptions)
-                OutputList.Add(SentenceTranscription)
+                Dim SentenceTranscription = String.Join(", ", SentenceWordTranscriptions) & vbCr
+                EditRichTextBox.AppendText(SentenceTranscription)
+                CurrentWriteIndex += SentenceTranscription.Length
+                'OutputList.Add(SentenceTranscription)
 
             Next
+
             'Adding an empty line between lists
-            OutputList.Add("")
+            EditRichTextBox.AppendText(vbCr)
+            CurrentWriteIndex += 1
+            'OutputList.Add("")
 
         Next
 
         'Displayes the results in the EditRichTextBox
-        EditRichTextBox.Lines = OutputList.ToArray
+
+
+
+        'EditRichTextBox.Lines = OutputList.ToArray
 
     End Sub
 
-    Private Sub MenuStrip1_ItemClicked(sender As Object, e As Windows.Forms.ToolStripItemClickedEventArgs) Handles MenuStrip1.ItemClicked
+    Private Sub SelectFontToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SelectFontToolStripMenuItem.Click
 
         Dim fd As New Windows.Forms.FontDialog
         Dim Res = fd.ShowDialog
         If Res = Windows.Forms.DialogResult.OK Then
-            EditRichTextBox.Font = fd.Font
+
+            For n = 0 To EditRichTextBox.TextLength - 1
+
+                EditRichTextBox.Select(n, 1)
+
+                Dim PreviousFont = EditRichTextBox.SelectionFont
+                EditRichTextBox.SelectionFont = New Drawing.Font(fd.Font, PreviousFont.Style)
+
+            Next
+
         End If
 
     End Sub
+
+    Private Sub UnderlineSelectedTextToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UnderlineSelectedTextToolStripMenuItem.Click
+
+        If EditRichTextBox.SelectionLength > 0 Then
+            Dim PreviousFont = EditRichTextBox.SelectionFont
+            EditRichTextBox.SelectionFont = New Drawing.Font(PreviousFont.FontFamily, PreviousFont.Size, Drawing.FontStyle.Underline)
+        End If
+
+    End Sub
+
+    Private Sub DeunderlineSelectedTextToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DeunderlineSelectedTextToolStripMenuItem.Click
+
+        If EditRichTextBox.SelectionLength > 0 Then
+            Dim PreviousFont = EditRichTextBox.SelectionFont
+            EditRichTextBox.SelectionFont = New Drawing.Font(PreviousFont.FontFamily, PreviousFont.Size, Drawing.FontStyle.Regular)
+        End If
+
+    End Sub
+
 End Class

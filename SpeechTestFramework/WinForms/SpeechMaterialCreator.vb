@@ -40,4 +40,8 @@
         If IsStandAlone = True Then OstfBase.TerminateOSTF()
         Me.Close()
     End Sub
+
+    Private Sub MySpeechMaterialComponentCreator_Load(sender As Object, e As EventArgs) Handles MySpeechMaterialComponentCreator.Load
+
+    End Sub
 End Class

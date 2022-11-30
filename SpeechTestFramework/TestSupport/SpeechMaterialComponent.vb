@@ -256,6 +256,7 @@ Public Class SpeechMaterialComponent
     'Setting up some default strings
     Public Shared DefaultSpellingVariableName As String = "Spelling"
     Public Shared DefaultTranscriptionVariableName As String = "Transcription"
+    Public Shared DefaultIsKeyComponentVariableName As String = "IsKeyComponent"
 
 
     Public Function GetDatabaseFileName()
@@ -292,6 +293,19 @@ Public Class SpeechMaterialComponent
         Audio
         Image
     End Enum
+
+    Public Sub SetIdAsCategoricalCustumVariable(ByVal CascadeToLowerLevels As Boolean)
+
+        Me.SetCategoricalVariableValue("Id", Me.Id)
+
+        If CascadeToLowerLevels = True Then
+            For Each ChildComponent In Me.ChildComponents
+                ChildComponent.SetIdAsCategoricalCustumVariable(CascadeToLowerLevels)
+            Next
+        End If
+
+    End Sub
+
 
     Private Function GetAvailableFiles(ByVal Folder As String, ByVal MediaType As MediaTypes) As List(Of String)
 
@@ -854,7 +868,7 @@ Public Class SpeechMaterialComponent
 
     ''' <summary>
     ''' Searches first among the numeric variable types and then among the categorical for the indicated VariableName. If found, returns the value. 
-    ''' The calling codes need to parse the value as it is returned as an object. If the variable type is known, it is better to use either GetNumericWordMetricValue or GetCategoricalWordMetricValue instead.
+    ''' The calling codes need to parse the value as it is returned as an object. If the variable type is known, it is better to use either GetNumericVariableValue or GetCategoricalVariableValue instead.
     ''' </summary>
     ''' <param name="VariableName"></param>
     ''' <returns></returns>
@@ -1012,7 +1026,7 @@ Public Class SpeechMaterialComponent
     ''' </summary>
     ''' <param name="VariableName"></param>
     ''' <param name="Value"></param>
-    Public Sub SetNumericWordMetricValue(ByVal VariableName As String, ByVal Value As Double)
+    Public Sub SetNumericVariableValue(ByVal VariableName As String, ByVal Value As Double)
         If NumericVariables.Keys.Contains(VariableName) = True Then
             NumericVariables(VariableName) = Value
         Else
@@ -1209,9 +1223,9 @@ Public Class SpeechMaterialComponent
 
                     'Stortes the value
                     If ContainsVowel = True Then
-                        SummaryComponent.SetNumericWordMetricValue(VariableName, 1)
+                        SummaryComponent.SetNumericVariableValue(VariableName, 1)
                     Else
-                        SummaryComponent.SetNumericWordMetricValue(VariableName, 0)
+                        SummaryComponent.SetNumericVariableValue(VariableName, 0)
                     End If
 
                 End If
@@ -1271,7 +1285,7 @@ Public Class SpeechMaterialComponent
 
                 'Gets and stores the self index of the first contrasting phoneme (the rest should have the same self index value), and then continues directly to the next SummaryComponent
                 Dim ContrastingPhonemeIndex As Integer = TargetComponents(c).GetSelfIndex
-                SummaryComponent.SetNumericWordMetricValue(VariableName, ContrastingPhonemeIndex)
+                SummaryComponent.SetNumericVariableValue(VariableName, ContrastingPhonemeIndex)
 
                 Exit For
 
@@ -2442,41 +2456,41 @@ Public Class SpeechMaterialComponent
 
                     'Storing the result
                     Dim SummaryResult As Double = ValueList.Average
-                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "Mean_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericVariableValue(VariableNameSourceLevelPrefix & "Mean_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.StandardDeviation
 
                     'Storing the result
                     Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.StandardDeviation(ValueList)
-                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "SD_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericVariableValue(VariableNameSourceLevelPrefix & "SD_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.Maximum
 
                     'Storing the result
                     Dim SummaryResult As Double = ValueList.Max
-                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "Max_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericVariableValue(VariableNameSourceLevelPrefix & "Max_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.Minimum
 
                     'Storing the result
                     Dim SummaryResult As Double = ValueList.Min
-                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "Min_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericVariableValue(VariableNameSourceLevelPrefix & "Min_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.Median
 
                     Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.Median(ValueList)
-                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "MD_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericVariableValue(VariableNameSourceLevelPrefix & "MD_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.InterquartileRange
 
                     Dim SummaryResult As Double = MathNet.Numerics.Statistics.Statistics.InterquartileRange(ValueList)
-                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "IQR_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericVariableValue(VariableNameSourceLevelPrefix & "IQR_" & CustomVariableName, SummaryResult)
 
                 Case NumericSummaryMetricTypes.CoefficientOfVariation
 
                     'Storing the result
                     Dim SummaryResult As Double = Utils.CoefficientOfVariation(ValueList)
-                    Me.SetNumericWordMetricValue(VariableNameSourceLevelPrefix & "CV_" & CustomVariableName, SummaryResult)
+                    Me.SetNumericVariableValue(VariableNameSourceLevelPrefix & "CV_" & CustomVariableName, SummaryResult)
 
             End Select
 
