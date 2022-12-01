@@ -539,12 +539,16 @@ Namespace Audio
             ''' <summary>
             ''' Stops the player and changes the supplied settings.
             ''' </summary>
-            ''' <param name="WaveFormat"></param>
-            ''' <param name="SoundDirection"></param>
             ''' <param name="AudioApiSettings"></param>
+            ''' <param name="SampleRate"></param>
+            '''<param name="BitDepth">At the moment, BitDepth is not possible to change. If a BitDepth is supplied, a check will be made that it's supported and an exception will be thrown if not. The only BitDepth supported is 32.</param>
+            '''<param name="Encoding">At the moment, Encoding is not possible to change. If a Encoding is supplied, a check will be made that it's supported and an exception will be thrown if not. The only Encoding supported is Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints</param>
+            ''' <param name="SoundDirection"></param>
             ''' <param name="OverlapDuration"></param>
             Public Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
-                                            Optional ByVal WaveFormat As Audio.Formats.WaveFormat = Nothing,
+                                            Optional ByVal SampleRate As Integer? = Nothing,
+                                            Optional ByVal BitDepth As Integer? = Nothing,
+                                            Optional ByVal Encoding As Audio.Formats.WaveFormat.WaveFormatEncodings? = Nothing,
                                             Optional ByVal OverlapDuration As Double? = Nothing,
                                             Optional ByRef Mixer As DuplexMixer = Nothing,
                                             Optional ByVal SoundDirection As SoundDirections? = Nothing,
@@ -571,16 +575,16 @@ Namespace Audio
                 'Updating values
                 If AudioApiSettings IsNot Nothing Then SetApiAndDevice(AudioApiSettings, True)
 
-                If WaveFormat IsNot Nothing Then Me.SampleRate = WaveFormat.SampleRate
+                If SampleRate IsNot Nothing Then Me.SampleRate = SampleRate
 
-                If WaveFormat IsNot Nothing Then
-                    'Checks that the Encoding is the one required 
-                    If WaveFormat.Encoding <> OverlappingSoundPlayer.Required_AudioEncoding Then Throw New NotSupportedException("Unsupported sample encoding!")
+                'Checks that the Encoding is the one required 
+                If Encoding IsNot Nothing Then
+                    If Encoding <> OverlappingSoundPlayer.Required_AudioEncoding Then Throw New NotSupportedException("Unsupported sample encoding!")
                 End If
 
-                If WaveFormat IsNot Nothing Then
-                    'Checks that the bit depth is the one required 
-                    If WaveFormat.BitDepth <> OverlappingSoundPlayer.Required_BitDepth Then Throw New NotSupportedException("Unsupported bitdepth!")
+                'Checks that the bit depth is the one required 
+                If BitDepth IsNot Nothing Then
+                    If BitDepth <> OverlappingSoundPlayer.Required_BitDepth Then Throw New NotSupportedException("Unsupported bitdepth!")
                 End If
 
                 'Setting OverlapFadeLength (and creating fade arrays)

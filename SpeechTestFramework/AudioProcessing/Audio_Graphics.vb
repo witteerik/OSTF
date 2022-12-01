@@ -115,10 +115,6 @@ Namespace Audio
 
             Private AllSegmentationComponents As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
 
-            'PaSoundPLayer
-            Private AudioApiSettings As AudioApiSettings = Nothing
-
-
             'Buttons
             Public ShowPlaySoundButton As Boolean
             Public ShowInferEndsButton As Boolean
@@ -148,8 +144,8 @@ Namespace Audio
             Public Sub New(ByRef InputSound As Sound, Optional ByVal StartSample As Integer = 0, Optional ByVal LengthInSamples As Integer? = Nothing, Optional ByVal ViewChannel As Integer = 1,
                            Optional ByVal UseItemSegmentation As Boolean = False, Optional ByVal ShowSpectrogram As Boolean = False,
                     Optional ByRef SpectrogramFormat As Formats.SpectrogramFormat = Nothing, Optional ByRef PaddingTime As Single = 0.5, Optional ByRef InterSentenceTime As Single = 4,
-                    Optional ByRef DrawNormalizedWave As Boolean = False, Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
-                    Optional ByRef SetSegmentationToZeroCrossings As Boolean = True, Optional ByRef ShowPlaySoundButton As Boolean = True, Optional ShowInferLengthsButton As Boolean = True,
+                    Optional ByRef DrawNormalizedWave As Boolean = False, Optional ByRef SetSegmentationToZeroCrossings As Boolean = True,
+                           Optional ByRef ShowPlaySoundButton As Boolean = True, Optional ShowInferLengthsButton As Boolean = True,
                     Optional ByRef ShowNextUnvalidatedItemButtons As Boolean = True, Optional ByRef ShowValidateSegmentationButton As Boolean = True,
                            Optional ByRef ShowFadePaddingButton As Boolean = True, Optional ByRef ShowFadeIntervalsButton As Boolean = True)
 
@@ -162,9 +158,9 @@ Namespace Audio
                 Me.PaddingTime = PaddingTime
                 Me.InterSentenceTime = InterSentenceTime
                 Me.DrawNormalizedWave = DrawNormalizedWave
-                Me.AudioApiSettings = AudioApiSettings
+                'Me.AudioApiSettings = AudioApiSettings
 
-                If Me.AudioApiSettings IsNot Nothing Then SetupSoundPlayer()
+                'If Me.AudioApiSettings IsNot Nothing Then SetupSoundPlayer()
 
                 Me.SetSegmentationToZeroCrossings = SetSegmentationToZeroCrossings
 
@@ -479,32 +475,37 @@ Namespace Audio
 
                 'This sub handles clicking on the sentence labels
                 CurrentSentenceIndex = sender.name
-                CurrentWordIndex = 0
-                CurrentPhonemeIndex = 0
+                    CurrentWordIndex = 0
+                    CurrentPhonemeIndex = 0
 
-                'Resets the colors of the buttons
-                For Each item As Control In SentenceSelectorPanel.Controls
-                    item.BackColor = Color.White
-                Next
-                For Each item As Control In WordSelectorPanel.Controls
-                    item.BackColor = Color.White
-                Next
-                For Each item As Control In PhonemeSelectorPanel.Controls
-                    item.BackColor = Color.White
-                Next
+                    'Resets the colors of the buttons
+                    For Each item As Control In SentenceSelectorPanel.Controls
+                        item.BackColor = Color.White
+                    Next
+                    For Each item As Control In WordSelectorPanel.Controls
+                        item.BackColor = Color.White
+                    Next
+                    For Each item As Control In PhonemeSelectorPanel.Controls
+                        item.BackColor = Color.White
+                    Next
 
-                sender.BackColor = Color.LightGreen
+                    sender.BackColor = Color.LightGreen
 
-                'Setting the current segmentation item
-                CurrentSegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)
+                    'Setting the current segmentation item
+                    CurrentSegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)
 
-                AddSegmentationControls()
+                    AddSegmentationControls()
 
-                If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 0 Then
-                    AddWords()
+                    If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 0 Then
+                        AddWords()
+                    End If
+
+                    InvalidateGraphics()
+
+                'Also plays the item on right click
+                If e.Button = MouseButtons.Right Then
+                    SegmentationItemPlay()
                 End If
-
-                InvalidateGraphics()
 
             End Sub
 
@@ -537,6 +538,11 @@ Namespace Audio
 
                 InvalidateGraphics()
 
+                'Also plays the item on right click
+                If e.Button = MouseButtons.Right Then
+                    SegmentationItemPlay()
+                End If
+
             End Sub
 
             Private Sub PhoneLabelButtonClick(sender As Object, ByVal e As MouseEventArgs)
@@ -561,6 +567,11 @@ Namespace Audio
                 End If
 
                 InvalidateGraphics()
+
+                'Also plays the item on right click
+                If e.Button = MouseButtons.Right Then
+                    SegmentationItemPlay()
+                End If
 
             End Sub
 
@@ -1681,8 +1692,6 @@ Namespace Audio
                         GraphicCrop()
                     Case "UndoAll"
                         GraphicUndoAll()
-                    Case "SetAudioApiSettings"
-                        SetAudioApiSettings()
                 End Select
 
             End Sub
@@ -1893,7 +1902,7 @@ Namespace Audio
                     Dim lengthToPlay As Integer = CurrentSegmentationItem.Length
                     If lengthToPlay < 0 Then lengthToPlay = 0
 
-                    If SoundPlayerIsInitialized() = False Then SetupSoundPlayer()
+                    'If SoundPlayerIsInitialized() = False Then SetupSoundPlayer()
                     Dim PlaySection = Audio.DSP.CopySection(CurrentSound, startSample, lengthToPlay)
                     SoundPlayer.SwapOutputSounds(PlaySection)
 
@@ -1943,35 +1952,9 @@ Namespace Audio
             End Sub
 
 
-            Private Sub SetAudioApiSettings()
-                Dim newAudioSettingsDialog As New AudioSettingsDialog()
-                Dim DialogResult = newAudioSettingsDialog.ShowDialog()
-                If DialogResult = DialogResult.OK Then
-                    AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
-                Else
-                    MsgBox("Default Setting is being used")
-                    AudioApiSettings.SelectDefaultAudioDevice()
-                End If
-
-                SetupSoundPlayer()
-
-            End Sub
-
-
-            Public Sub SetupSoundPlayer()
-
-                If AudioApiSettings Is Nothing Then
-                    SetAudioApiSettings()
-                End If
-
-                SoundPlayer.ChangePlayerSettings(AudioApiSettings, CurrentSound.WaveFormat, 0.1, , PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, True, True)
-
-            End Sub
-
-
             Public Sub Play()
 
-                If SoundPlayerIsInitialized() = False Then SetupSoundPlayer()
+                'If SoundPlayerIsInitialized() = False Then SetupSoundPlayer()
 
                 If SelectionLength_Sample = 0 Then
 
@@ -1992,7 +1975,7 @@ Namespace Audio
             Public Sub PlayAll()
 
                 UpdateSampleTimeScale()
-                If SoundPlayerIsInitialized() = False Then SetupSoundPlayer()
+                'If SoundPlayerIsInitialized() = False Then SoundPlayer.SetupSoundPlayer()
 
                 SoundPlayer.SwapOutputSounds(CurrentSound)
 

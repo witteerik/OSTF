@@ -378,7 +378,8 @@ Public Class SipTestGui
     Private Sub StartSoundPlayer()
 
         'Selects the wave format for use (doing it this way means that the wave format MUST be the same in all available MediaSets)
-        OstfBase.SoundPlayer.ChangePlayerSettings(, SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0)),,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+        Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveformat.SampleRate, TempWaveformat.BitDepth, TempWaveformat.Encoding,, , Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
 
         Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
         If LocalAvailableTransducers.Count = 0 Then
@@ -399,7 +400,7 @@ Public Class SipTestGui
 
         If SelectedTransducer.CanPlay = True Then
             '(At this stage the sound player will be started, if not already done.)
-            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 0.4, SelectedTransducer.Mixer,, True, True)
+            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.4, SelectedTransducer.Mixer,, True, True)
         Else
             MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
         End If

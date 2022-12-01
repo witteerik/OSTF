@@ -35,25 +35,8 @@ Public Class SpeechMaterialRecorder
     Private BackgroundSound As Audio.Sound = Nothing ' This sound holds the full background sound
     Private CurrentMasker As Audio.Sound = Nothing ' This sound holds the shortened random section of the background sound which is actually played
 
-    'Sound audio settings
-    Private CurrentAudioApiSettings As Audio.AudioApiSettings = Nothing
+    Private SelectedTransducer As AudioSystemSpecification = Nothing
 
-    Private _CurrentSoundTransducerMode As Audio.SoundTransducerModes = Audio.GlobalAudioData.SoundTransducerModes.SoundField
-    Private Property CurrentSoundTransducerMode As Audio.SoundTransducerModes
-        Get
-            Return _CurrentSoundTransducerMode
-        End Get
-        Set(value As Audio.SoundTransducerModes)
-            _CurrentSoundTransducerMode = value
-            If _CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.HeadPhones Then
-                HeadphonesToolStripMenuItem.Checked = True
-                SoundFieldToolStripMenuItem.Checked = False
-            Else
-                HeadphonesToolStripMenuItem.Checked = False
-                SoundFieldToolStripMenuItem.Checked = True
-            End If
-        End Set
-    End Property
 
     Private PresentationSound_SoundLevelFormat As Audio.Formats.SoundLevelFormat = New Audio.Formats.SoundLevelFormat(Audio.BasicAudioEnums.SoundMeasurementTypes.LoudestSection_C_Weighted, 0.05)
     Private BackgroundSound_SoundLevelFormat As Audio.Formats.SoundLevelFormat = New Audio.Formats.SoundLevelFormat(Audio.BasicAudioEnums.SoundMeasurementTypes.LoudestSection_C_Weighted, 0.05)
@@ -229,21 +212,13 @@ Public Class SpeechMaterialRecorder
         ' This call is required by the designer.
         InitializeComponent()
 
-        ' Add any initialization after the InitializeComponent() call.
-
-        'Setting up a default RecordingWaveFormat
-        SetupAudioIO()
-
-        SetDefaultValues()
-
     End Sub
 
     Public Sub New(ByRef MediaSet As MediaSet,
                    ByRef EditItems As List(Of Tuple(Of String, String)),
                    Optional ByVal RandomItemOrder As Boolean = True)
 
-        ' This call is required by the designer.
-        InitializeComponent()
+        Me.New()
 
         Me.MediaSet = MediaSet
 
@@ -256,9 +231,9 @@ Public Class SpeechMaterialRecorder
         ' Add any initialization after the InitializeComponent() call.
         Me.SoundFilesForEditing = EditItems
 
-        SetupAudioIO()
-
         SetDefaultValues()
+
+        StartSoundPlayer()
 
     End Sub
 
@@ -281,8 +256,6 @@ Public Class SpeechMaterialRecorder
     End Sub
 
     Private Sub SetDefaultValues()
-
-        CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.HeadPhones
 
         Dim AvailableInterSentenceTimes() As Single = {0.1, 0.2, 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 15}
         For Each value In AvailableInterSentenceTimes
@@ -436,7 +409,7 @@ Public Class SpeechMaterialRecorder
         If CurrentlyLoadedSoundFile IsNot Nothing Then
             If CurrentlyLoadedSoundFile.IsChanged = True Then
 
-                Dim Res = MsgBox("The current sound has unsaved changes. Do you want to save the changes? (This will overwrite the old loaded sound file!)", MsgBoxStyle.YesNo, "Save file?")
+                Dim Res = MsgBox("The current sound has unsaved changes. Do you want to save the changes? (This will overwrite the originally loaded sound file!)", MsgBoxStyle.YesNo, "Save file?")
 
                 If Res = MsgBoxResult.Yes Then
                     SaveRecordedSound()
@@ -502,77 +475,6 @@ Public Class SpeechMaterialRecorder
 
 #Region "Setup audio"
 
-    Private Sub IOSettingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles IOSettingsToolStripMenuItem.Click
-        SetupAudioIO()
-    End Sub
-
-    ''' <summary>
-    ''' Set new audio settings.
-    ''' </summary>
-    Public Sub SetupAudioIO()
-
-        If RecordingWaveFormat IsNot Nothing Then
-            'Setting a default wave format, if used without MediaSet object
-            RecordingWaveFormat = New Audio.Formats.WaveFormat(48000, 32, 1, , Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
-        End If
-
-        Dim newAudioSettingsDialog As New AudioSettingsDialog()
-
-        Dim Result = newAudioSettingsDialog.ShowDialog()
-        If Result = Windows.Forms.DialogResult.OK Then
-            CurrentAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
-        Else
-            'Attempting to set default AudioApiSettings if the user pressed ok
-            CurrentAudioApiSettings.SelectDefaultAudioDevice()
-        End If
-
-        If CurrentAudioApiSettings IsNot Nothing Then
-            'Creating a new sound player with the updated audio settings
-            SetupAudioPlayer()
-        Else
-            MsgBox("Unable to set audio device! You will not be able to play or record audio.", MsgBoxStyle.Exclamation, "No audio device?")
-        End If
-
-    End Sub
-
-    Public Sub SetupAudioPlayer()
-
-        Dim TemporaryOutputSound As Audio.Sound = Audio.GenerateSound.CreateSilence(RecordingWaveFormat,, 1)
-        Dim PlayerMode As Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections
-
-        If CurrentAudioApiSettings.NumberOfInputChannels.HasValue = True And CurrentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
-            If CurrentAudioApiSettings.NumberOfInputChannels = 0 And CurrentAudioApiSettings.NumberOfOutputChannels = 0 Then
-                MsgBox("This software requires at least an output device sound to work.")
-                Exit Sub
-            ElseIf CurrentAudioApiSettings.NumberOfInputChannels = 0 Then
-                MsgBox("The selected sound device has no input channels! You will not be able to record any sound!")
-                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly
-            ElseIf CurrentAudioApiSettings.NumberOfOutputChannels = 0 Then
-                MsgBox("The selected sound device has no output channels! You will not be able to hear any sound!")
-                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.RecordingOnly
-            Else
-                'This is the preferred path! Both input and output channels present!
-                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.Duplex
-            End If
-        ElseIf CurrentAudioApiSettings.NumberOfInputChannels.HasValue = True Then
-            If CurrentAudioApiSettings.NumberOfInputChannels = 0 Then
-                MsgBox("The selected sound device has no input channels! You will not be able to record any sound!")
-                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly
-            End If
-        ElseIf CurrentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
-            If CurrentAudioApiSettings.NumberOfOutputChannels = 0 Then
-                MsgBox("The selected sound device has no output channels! You will not be able to hear any sound!")
-                PlayerMode = Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.RecordingOnly
-            End If
-        Else
-            MsgBox("No sound device has been selected. This software requires at least an output device sound to work.")
-            Exit Sub
-        End If
-
-        SoundPlayer.ChangePlayerSettings(CurrentAudioApiSettings, TemporaryOutputSound.WaveFormat, 0.1,, PlayerMode, True, True)
-
-    End Sub
-
     Public Sub SetSpectrogramFormatInDialog()
         Dim SpectrogramSettingsResult As New SpectrogramSettingsDialog
         If SpectrogramSettingsResult.ShowDialog = Windows.Forms.DialogResult.OK Then
@@ -580,14 +482,6 @@ Public Class SpeechMaterialRecorder
         Else
             CurrentSpectrogramFormat = New Audio.Formats.SpectrogramFormat(, 1024,, 512,, True,,,, True)
         End If
-    End Sub
-
-    Private Sub HeadphonesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles HeadphonesToolStripMenuItem.Click
-        CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.HeadPhones
-    End Sub
-
-    Private Sub SoundFieldToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SoundFieldToolStripMenuItem.Click
-        CurrentSoundTransducerMode = Audio.GlobalAudioData.SoundTransducerModes.SoundField
     End Sub
 
 
@@ -887,7 +781,7 @@ Public Class SpeechMaterialRecorder
                 'Resetting sound display
                 If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
 
-                Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2,,,,,,,,,, CurrentAudioApiSettings)
+                Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2)
                 waveDrawer.Dock = Windows.Forms.DockStyle.Fill
                 RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
                 HasSound = True
@@ -952,7 +846,7 @@ Public Class SpeechMaterialRecorder
                         'SoundEditor
                         Dim TestSound = Audio.Sound.GetTestSound
                         Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,, True, ShowSpectrogram, CurrentSpectrogramFormat, PaddingTime,
-                                                                         InterSentenceTime, DrawNormalizedWave, CurrentAudioApiSettings, SetSegmentationToZeroCrossings)
+                                                                         InterSentenceTime, DrawNormalizedWave, SetSegmentationToZeroCrossings)
 
                         'Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentlyLoadedSoundFile,,,, True, ShowSpectrogram, CurrentSpectrogramFormat, PaddingTime,
                         '                                                 InterSentenceTime, DrawNormalizedWave, SoundPlayer, SetSegmentationToZeroCrossings)
@@ -1603,11 +1497,6 @@ Public Class SpeechMaterialRecorder
     End Sub
 
 
-    Private Sub CalibrateOutputLevelToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CalibrateOutputLevelToolStripMenuItem.Click
-
-    End Sub
-
-
 
 #End Region
 
@@ -1682,7 +1571,40 @@ Public Class SpeechMaterialRecorder
         Me.Close()
     End Sub
 
+    Private Sub Transducer_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Transducer_ComboBox.SelectedIndexChanged
 
+        SelectedTransducer = Transducer_ComboBox.SelectedItem
+
+        If SelectedTransducer.CanPlay = True And SelectedTransducer.CanRecord = True Then
+            '(At this stage the sound player will be started, if not already done.)
+            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.4, SelectedTransducer.Mixer,, True, True)
+            MainTabControl.Enabled = True
+        Else
+            MainTabControl.Enabled = False
+            MsgBox("Unable to start the player using the selected transducer (Does the selected sound device doesn't have enough input and output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
+        End If
+
+    End Sub
+
+    Private Sub StartSoundPlayer()
+
+        'Selects the samplerate, bitdepth and encoding for use (based on the recording format)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, RecordingWaveFormat.SampleRate, RecordingWaveFormat.BitDepth, RecordingWaveFormat.Encoding,,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.Duplex, False, False)
+
+        Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
+        If LocalAvailableTransducers.Count = 0 Then
+            MsgBox("Unable to start the application since no sound transducers could be found!", MsgBoxStyle.Critical, "SiP-test")
+        End If
+
+        'Adding transducers to the combobox, and selects the first one
+        For Each Transducer In LocalAvailableTransducers
+            Transducer_ComboBox.Items.Add(Transducer)
+        Next
+        'Transducer_ComboBox.SelectedIndex = 0
+
+        Transducer_ComboBox.Focus()
+
+    End Sub
 
 
 

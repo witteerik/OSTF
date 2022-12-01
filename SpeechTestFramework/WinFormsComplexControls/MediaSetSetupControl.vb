@@ -19,6 +19,14 @@
             SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
             SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
+            'Adding common masker sound file linguistic levels
+            SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
+            SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
+            SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
+            SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+
+
             'Adding supported bit depths
             WaveFileBitDepth_ComboBox.Items.Add(16)
             WaveFileBitDepth_ComboBox.Items.Add(32)

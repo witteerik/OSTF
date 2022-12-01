@@ -407,8 +407,15 @@
                     NewWordComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName, WordSpelling)
 
                     Dim IsUnderline As Boolean = UnderLineInfo(i)(w)
+                    Dim IsUnderlineAsInteger As Integer
+                    'Overrideing the normal VB convertion of Boolean True to -1, and use instead 1 as True, and (0 as False)
+                    If IsUnderline = False Then
+                        IsUnderlineAsInteger = 0
+                    Else
+                        IsUnderlineAsInteger = 1
+                    End If
 
-                    NewWordComponent.SetNumericVariableValue(SpeechMaterialComponent.DefaultIsKeyComponentVariableName, IsUnderline)
+                    NewWordComponent.SetNumericVariableValue(SpeechMaterialComponent.DefaultIsKeyComponentVariableName, IsUnderlineAsInteger)
 
                 Next
 

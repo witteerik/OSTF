@@ -413,6 +413,106 @@
 
     End Sub
 
+    Private Sub HINTfixButton_Click(sender As Object, e As EventArgs) Handles HINTfixButton.Click
+        Dim InputFolder As String = "C:\EriksDokument\n200\Phonemically balanced 10-sentence lists"
+        Dim OutputFolder As String = "C:\EriksDokument\n200\HINT_lists_Mono"
+
+        Dim Files = IO.Directory.GetFiles(InputFolder)
+        For Each file In Files
+            If IO.Path.GetExtension(file) <> ".wav" Then Continue For
+
+            Dim FileName = IO.Path.GetFileName(file)
+
+            If FileName.StartsWith("CalibrationSignal") Then Continue For
+
+            Dim InputFile = SpeechTestFramework.Audio.Sound.LoadWaveFile(file)
+
+            Dim Channel1File = New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(InputFile.WaveFormat.SampleRate, InputFile.WaveFormat.BitDepth, 1,, InputFile.WaveFormat.Encoding))
+
+            Channel1File.WaveData.SampleData(1) = InputFile.WaveData.SampleData(1)
+
+            'Exporting the speech file
+            Channel1File.SMA = Nothing
+            Channel1File.WriteWaveFile(IO.Path.Combine(OutputFolder, FileName))
+
+        Next
+
+        MsgBox("Finished!")
+
+    End Sub
+
+    Private Sub HINTfixButton2_Click(sender As Object, e As EventArgs) Handles HINTfixButton2.Click
+
+        'Getting the noise files
+
+        Dim InputFolder As String = "C:\EriksDokument\n200\Phonemically balanced 10-sentence lists"
+        Dim OutputFolder As String = "C:\EriksDokument\n200\HINT_Noises_Mono"
+
+        Dim Files = IO.Directory.GetFiles(InputFolder)
+        For Each file In Files
+            If IO.Path.GetExtension(file) <> ".wav" Then Continue For
+
+            Dim FileName = IO.Path.GetFileName(file)
+
+            If FileName.StartsWith("CalibrationSignal") Then Continue For
+
+            Dim InputFile = SpeechTestFramework.Audio.Sound.LoadWaveFile(file)
+
+            Dim Channel1File = New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(InputFile.WaveFormat.SampleRate, InputFile.WaveFormat.BitDepth, 1,, InputFile.WaveFormat.Encoding))
+
+            Channel1File.WaveData.SampleData(1) = InputFile.WaveData.SampleData(2)
+
+            'Exporting the speech file
+            Channel1File.SMA = Nothing
+            Channel1File.WriteWaveFile(IO.Path.Combine(OutputFolder, FileName))
+
+        Next
+
+        MsgBox("Finished!")
+
+    End Sub
+
+    Private Sub HINTfixButton3_Click(sender As Object, e As EventArgs) Handles HINTfixButton3.Click
+
+        'Getting the noise files
+
+        Dim InputFolder1 As String = "C:\EriksDokument\n200\RecordingsVoiceOnly"
+        Dim Files1 = IO.Directory.GetFiles(InputFolder1)
+
+        Dim InputFolder2 As String = "C:\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard\RecordingsVoiceOnly"
+        Dim Files2 = IO.Directory.GetFiles(InputFolder2, "*", IO.SearchOption.AllDirectories)
+
+        If Files1.Length <> Files2.Length Then
+            MsgBox("Unequal number of files! Stopping operation now!")
+            Exit Sub
+        End If
+
+        For n = 0 To Files1.Length - 1
+
+            Dim InputFile1 = SpeechTestFramework.Audio.Sound.LoadWaveFile(Files1(n))
+            Dim InputFile2 = SpeechTestFramework.Audio.Sound.LoadWaveFile(Files2(n))
+
+            'Converting HINT recordings to 32 bit
+            InputFile1 = InputFile1.Convert16to32bitSound()
+
+            If InputFile1.WaveFormat.IsEqual(InputFile2.WaveFormat) = False Then
+                MsgBox("Wave formats are not equal between " & Files1(n) & " and " & Files2(n) & " ! Stopping operation now!")
+                Exit Sub
+            End If
+
+            Dim NewOutputPath As String = Files2(n).Replace("RecordingsVoiceOnly", "RecordingsVoiceOnly_New")
+
+            'Copying channel 1 sound data from file 1 to file 2
+            InputFile2.WaveData.SampleData(1) = InputFile1.WaveData.SampleData(1)
+
+            'Exporting file 2
+            InputFile2.WriteWaveFile(NewOutputPath)
+
+        Next
+
+        MsgBox("Finished!")
+
+    End Sub
 
     Private Sub Button10_Click2(sender As Object, e As EventArgs) Handles Button10.Click
 
@@ -563,8 +663,8 @@
         Exit Sub
 
 
-        SpeechTestFramework.SoundPlayer.ChangePlayerSettings(, OutputSound.WaveFormat,,, SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
-        SpeechTestFramework.SoundPlayer.ChangePlayerSettings(Transducer.ParentAudioApiSettings, , 0.4, Transducer.Mixer,, True, True)
+        SpeechTestFramework.SoundPlayer.ChangePlayerSettings(, OutputSound.WaveFormat.SampleRate, OutputSound.WaveFormat.BitDepth, OutputSound.WaveFormat.Encoding,,, SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+        SpeechTestFramework.SoundPlayer.ChangePlayerSettings(Transducer.ParentAudioApiSettings, ,,, 0.4, Transducer.Mixer,, True, True)
         SpeechTestFramework.SoundPlayer.SwapOutputSounds(OutputSound)
 
     End Sub

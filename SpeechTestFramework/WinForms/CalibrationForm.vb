@@ -95,8 +95,8 @@
         CalibrationLevel_ComboBox.SelectedItem = 70
 
         'Adding transducers
-        Dim TempWaveFromat As New Audio.Formats.WaveFormat(48000, 32, 1,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
-        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveFromat,,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+        Dim TempWaveFormat As New Audio.Formats.WaveFormat(48000, 32, 1,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding,,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
 
         Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
         If LocalAvailableTransducers.Count = 0 Then
@@ -149,7 +149,7 @@
 
         If SelectedTransducer.CanPlay = True Then
             '(At this stage the sound player will be started, if not already done.)
-            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, , 0.3, SelectedTransducer.Mixer,, True, True)
+            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.3, SelectedTransducer.Mixer,, True, True)
             PlaySignal_Button.Enabled = True
         Else
             MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
@@ -230,7 +230,7 @@
                 End If
 
                 'Updates the wave format of the sound player
-                OstfBase.SoundPlayer.ChangePlayerSettings(, CalibrationSound.WaveFormat)
+                OstfBase.SoundPlayer.ChangePlayerSettings(, CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, CalibrationSound.WaveFormat.Encoding)
 
                 'Setting the signal level
                 Audio.DSP.MeasureAndAdjustSectionLevel(CalibrationSound, Audio.Standard_dBSPL_To_dBFS(SelectedLevel), 1,,, FrequencyWeighting_ComboBox.SelectedItem)
