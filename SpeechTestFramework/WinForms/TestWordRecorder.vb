@@ -437,7 +437,7 @@ Public Class SpeechMaterialRecorder
                 MsgBox("Unable to save the current sound (" & SoundFilesForEditing(CurrentSoundFileIndex).Item1 & ") to file. Unknown reason. Is it open in another application?")
                 Exit Sub
             Else
-                'Setting IsChanged manually to Nothing, to inactivate the overriding of IsChanged
+                'Setting IsChanged manually to Nothing, to inactivate the overwrite warning
                 CurrentlyLoadedSoundFile.SetIsChangedManually(Nothing)
 
                 'And resets the SMA and Sound Change detection objects

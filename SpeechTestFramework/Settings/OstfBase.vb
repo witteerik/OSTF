@@ -167,7 +167,9 @@
 
             If Line = "<AudioDevices>" Then
                 'No need to do anything?
+                Continue For
             End If
+            If Line = "<New transducer>" Then Exit For
 
             If Line.StartsWith("ApiName") Then ApiName = InputFileSupport.GetInputFileValue(Line, True)
             If Line.Replace(" ", "").StartsWith("OutputDevice=") Then OutputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
@@ -176,7 +178,6 @@
             If Line.Replace(" ", "").StartsWith("InputDevices=") Then InputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
             If Line.StartsWith("BufferSize") Then BufferSize = InputFileSupport.InputFileIntegerValueParsing(Line, True, AudioSystemSpecificationFilePath)
 
-            If Line = "<New transducer>" Then Exit For
         Next
 
         Dim DeviceLoadSuccess As Boolean = True
@@ -266,8 +267,22 @@
             End If
 
             If Line.StartsWith("Name") Then CurrentTransducer.Name = InputFileSupport.GetInputFileValue(Line, True)
-            If Line.StartsWith("PresentationType") Then CurrentTransducer.PresentationType = InputFileSupport.InputFileEnumValueParsing(Line, GetType(PresentationTypes), AudioSystemSpecificationFilePath, True)
-            If Line.StartsWith("HeadphonesName") Then CurrentTransducer.HeadphonesName = InputFileSupport.InputFileEnumValueParsing(Line, GetType(HeadphonesName), AudioSystemSpecificationFilePath, True)
+            If Line.StartsWith("PresentationType") Then
+                Dim ParsedValue = InputFileSupport.InputFileEnumValueParsing(Line, GetType(PresentationTypes), AudioSystemSpecificationFilePath, True)
+                If ParsedValue.HasValue Then
+                    CurrentTransducer.PresentationType = ParsedValue
+                Else
+                    Throw New Exception("Missing value for the variable PresentationType in the audio system specification file " & AudioSystemSpecificationFilePath & vbCrLf & "Please manually correct the file and then restart the software! The value of the variable PresentationType should be either of: " & String.Join(",", [Enum].GetNames(GetType(PresentationTypes))))
+                End If
+            End If
+            If Line.StartsWith("HeadphonesName") Then
+                Dim ParsedValue = InputFileSupport.InputFileEnumValueParsing(Line, GetType(HeadphonesName), AudioSystemSpecificationFilePath, True)
+                If ParsedValue.HasValue Then
+                    CurrentTransducer.HeadphonesName = ParsedValue
+                Else
+                    CurrentTransducer.HeadphonesName = HeadphonesName.Unspecified
+                End If
+            End If
             If Line.StartsWith("SoundSourceAzimuths") Then CurrentTransducer.SoundSourceAzimuths = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
             If Line.StartsWith("SoundSourceElevations") Then CurrentTransducer.SoundSourceElevations = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
             If Line.StartsWith("SoundSourceDistances") Then CurrentTransducer.SoundSourceDistances = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)

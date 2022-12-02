@@ -85,7 +85,7 @@ Namespace Audio
                     SetLinearInput()
 
                 Catch ex As Exception
-                    MsgBox("An error occurred! Make sure you have the correct (and equal) number of values for a) HardwareOutputChannels, b) SoundSourceAzimuths, c) SoundSourceElevations, d) SoundSourceDistances and e) CalibrationGain in the AudioSystemSpecification.txt file!", MsgBoxStyle.Critical, "Error: " & ex.ToString)
+                    MsgBox("An error occurred! The following error message may be relevant: " & vbCrLf & ex.Message & vbCrLf & vbCrLf & "If the above error message is not relevant, make sure you have the correct (and equal) number of values for a) HardwareOutputChannels, b) SoundSourceAzimuths, c) SoundSourceElevations, d) SoundSourceDistances and e) CalibrationGain in the AudioSystemSpecification.txt file!", MsgBoxStyle.Critical, "Error: " & ex.ToString)
                 End Try
 
             End Sub
@@ -353,7 +353,9 @@ Namespace Audio
                     'Inserting/adding sounds to the output sound
                     'OutputSound.
                     Select Case ParentTransducerSpecification.PresentationType
-                        Case PresentationTypes.SoundField
+                        Case PresentationTypes.SoundField, PresentationTypes.Headphones
+
+                            'TODO, perhaps PresentationTypes.Headphones should be treated separately?
 
                             'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
                             OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
@@ -389,7 +391,7 @@ Namespace Audio
 
                             Next
 
-                        Case PresentationTypes.Ambisonics
+                        Case Else
                             Throw New NotImplementedException("Unknown TransducerType")
                     End Select
 

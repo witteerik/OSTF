@@ -428,13 +428,18 @@ Namespace Audio
                     WordSelectorPanel.Controls.Add(WordLabel)
                 Next
 
-                'If there is only one word in the current sentence, selecting it right away
+                'If there is only one word in the current sentence, selecting it right away. Otherwise, emptying the phoneme box (otherwise the previously shown phonemes will be shown there)
+                Dim ClearPhonemes As Boolean = True
                 If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count = 1 Then
                     If WordSelectorPanel.Controls.Count = 1 Then
                         WordLabelButtonClick(WordSelectorPanel.Controls.Item(0), Nothing)
+                        ClearPhonemes = False
                     End If
                 End If
 
+                If ClearPhonemes = True Then
+                    PhonemeSelectorPanel.Controls.Clear()
+                End If
 
             End Sub
 
@@ -503,8 +508,10 @@ Namespace Audio
                     InvalidateGraphics()
 
                 'Also plays the item on right click
-                If e.Button = MouseButtons.Right Then
-                    SegmentationItemPlay()
+                If e IsNot Nothing Then
+                    If e.Button = MouseButtons.Right Then
+                        SegmentationItemPlay()
+                    End If
                 End If
 
             End Sub
@@ -539,8 +546,10 @@ Namespace Audio
                 InvalidateGraphics()
 
                 'Also plays the item on right click
-                If e.Button = MouseButtons.Right Then
-                    SegmentationItemPlay()
+                If e IsNot Nothing Then
+                    If e.Button = MouseButtons.Right Then
+                        SegmentationItemPlay()
+                    End If
                 End If
 
             End Sub
@@ -569,8 +578,10 @@ Namespace Audio
                 InvalidateGraphics()
 
                 'Also plays the item on right click
-                If e.Button = MouseButtons.Right Then
-                    SegmentationItemPlay()
+                If e IsNot Nothing Then
+                    If e.Button = MouseButtons.Right Then
+                        SegmentationItemPlay()
+                    End If
                 End If
 
             End Sub

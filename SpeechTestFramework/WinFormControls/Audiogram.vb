@@ -858,6 +858,7 @@ Namespace WinFormControls
                             Dim DialogResult = MyAudiogramDialog.ShowDialog()
                             If DialogResult = DialogResult.OK Then
                                 Me.AudiogramData = MyAudiogramDialog.GetAudiogramData()
+                                RaiseEvent DataChanged()
                             Else
                                 'Just skipps to read the (potentially) modifeid audiogram data as the user pressed cancel.
                             End If

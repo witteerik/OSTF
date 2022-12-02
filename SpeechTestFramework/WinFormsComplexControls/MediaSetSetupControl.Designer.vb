@@ -934,11 +934,10 @@ Partial Class MediaSetSetupControl
         'RandomOrder_CheckBox
         '
         Me.RandomOrder_CheckBox.AutoSize = True
-        Me.RandomOrder_CheckBox.Checked = True
-        Me.RandomOrder_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.RandomOrder_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.RandomOrder_CheckBox.Location = New System.Drawing.Point(3, 3)
         Me.RandomOrder_CheckBox.Name = "RandomOrder_CheckBox"
-        Me.RandomOrder_CheckBox.Size = New System.Drawing.Size(106, 17)
+        Me.RandomOrder_CheckBox.Size = New System.Drawing.Size(374, 19)
         Me.RandomOrder_CheckBox.TabIndex = 1
         Me.RandomOrder_CheckBox.Text = "Randomize order"
         Me.RandomOrder_CheckBox.UseVisualStyleBackColor = True
@@ -946,9 +945,10 @@ Partial Class MediaSetSetupControl
         'SpecificPrototypeRecording_RadioButton
         '
         Me.SpecificPrototypeRecording_RadioButton.AutoSize = True
+        Me.SpecificPrototypeRecording_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SpecificPrototypeRecording_RadioButton.Location = New System.Drawing.Point(3, 53)
         Me.SpecificPrototypeRecording_RadioButton.Name = "SpecificPrototypeRecording_RadioButton"
-        Me.SpecificPrototypeRecording_RadioButton.Size = New System.Drawing.Size(143, 17)
+        Me.SpecificPrototypeRecording_RadioButton.Size = New System.Drawing.Size(374, 19)
         Me.SpecificPrototypeRecording_RadioButton.TabIndex = 2
         Me.SpecificPrototypeRecording_RadioButton.TabStop = True
         Me.SpecificPrototypeRecording_RadioButton.Text = "Use prototype recordings"
@@ -957,9 +957,10 @@ Partial Class MediaSetSetupControl
         'NoPrototypeRecording_RadioButton
         '
         Me.NoPrototypeRecording_RadioButton.AutoSize = True
+        Me.NoPrototypeRecording_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.NoPrototypeRecording_RadioButton.Location = New System.Drawing.Point(3, 78)
         Me.NoPrototypeRecording_RadioButton.Name = "NoPrototypeRecording_RadioButton"
-        Me.NoPrototypeRecording_RadioButton.Size = New System.Drawing.Size(138, 17)
+        Me.NoPrototypeRecording_RadioButton.Size = New System.Drawing.Size(374, 19)
         Me.NoPrototypeRecording_RadioButton.TabIndex = 3
         Me.NoPrototypeRecording_RadioButton.TabStop = True
         Me.NoPrototypeRecording_RadioButton.Text = "No prototype recordings"
@@ -968,9 +969,10 @@ Partial Class MediaSetSetupControl
         'MasterPrototypeRecording_RadioButton
         '
         Me.MasterPrototypeRecording_RadioButton.AutoSize = True
+        Me.MasterPrototypeRecording_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.MasterPrototypeRecording_RadioButton.Location = New System.Drawing.Point(3, 28)
         Me.MasterPrototypeRecording_RadioButton.Name = "MasterPrototypeRecording_RadioButton"
-        Me.MasterPrototypeRecording_RadioButton.Size = New System.Drawing.Size(172, 17)
+        Me.MasterPrototypeRecording_RadioButton.Size = New System.Drawing.Size(374, 19)
         Me.MasterPrototypeRecording_RadioButton.TabIndex = 4
         Me.MasterPrototypeRecording_RadioButton.TabStop = True
         Me.MasterPrototypeRecording_RadioButton.Text = "Use master prototype recording"

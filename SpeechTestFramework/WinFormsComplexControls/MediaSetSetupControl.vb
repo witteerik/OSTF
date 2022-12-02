@@ -123,8 +123,40 @@
             SaveMediaSetSpecification_Button.Enabled = False
         End If
 
+        UpdatePrototypeRecordingOptionsInGUI()
+
     End Sub
 
+
+    Public Sub UpdatePrototypeRecordingOptionsInGUI()
+
+        If SelectedTestSpecification IsNot Nothing Then
+            If SelectedMediaSet IsNot Nothing Then
+                Dim LocalUsePrototypeRecordings As Boolean = False
+                If SelectedMediaSet.MasterPrototypeRecordingPath.Trim <> "" Then
+                    LocalUsePrototypeRecordings = True
+                    MasterPrototypeRecording_RadioButton.Enabled = True
+                Else
+                    MasterPrototypeRecording_RadioButton.Enabled = False
+                End If
+
+                If SelectedMediaSet.PrototypeMediaParentFolder.Trim <> "" Then
+                    LocalUsePrototypeRecordings = True
+                    SpecificPrototypeRecording_RadioButton.Enabled = True
+                Else
+                    SpecificPrototypeRecording_RadioButton.Enabled = False
+                End If
+
+                'Checks the NoPrototypeRecording_RadioButton if no prototype recording path has been specified, and unchecks it otherwise
+                If LocalUsePrototypeRecordings = False Then
+                    NoPrototypeRecording_RadioButton.Checked = True
+                Else
+                    NoPrototypeRecording_RadioButton.Checked = False
+                End If
+            End If
+        End If
+
+    End Sub
 
     Private Sub NewMediaSet_Button_Click(sender As Object, e As EventArgs) Handles NewMediaSet_Button.Click
 
