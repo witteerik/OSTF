@@ -619,6 +619,7 @@ Namespace SipTest
             Headings.Add("Description")
             Headings.Add("TestUnitIndex")
             Headings.Add("SpeechMaterialComponentID")
+            Headings.Add("PrimaryStringRepresentation")
             Headings.Add("MediaSetName")
             Headings.Add("PresentationOrder")
             Headings.Add("Reference_SPL")
@@ -654,6 +655,7 @@ Namespace SipTest
                 TrialList.Add(Me.Description)
                 TrialList.Add(GetParentTestUnitIndex(Trial))
                 TrialList.Add(Trial.SpeechMaterialComponent.Id)
+                TrialList.Add(Trial.SpeechMaterialComponent.PrimaryStringRepresentation)
                 TrialList.Add(Trial.MediaSet.MediaSetName)
                 TrialList.Add(t)
                 TrialList.Add(Trial.Reference_SPL)
@@ -748,6 +750,8 @@ Namespace SipTest
                 Dim ParentTestUnitIndex As Integer = LineColumns(c)
                 c += 1
                 Dim SpeechMaterialComponentID As String = LineColumns(c)
+                c += 1
+                'Here the PrimaryStringRepresenation is exported, but it doesn't have to be read
                 c += 1
                 Dim MediaSetName As String = LineColumns(c)
                 c += 1
