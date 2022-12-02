@@ -108,10 +108,10 @@
     <Compile Include="ParticipantInterfaces\PC\DirectionalForcedChoiceControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="WinFormControls\GainSymbolDialog.Designer.vb">
-      <DependentUpon>GainSymbolDialog.vb</DependentUpon>
+    <Compile Include="WinFormControls\GainDiagramSettingsDialog.Designer.vb">
+      <DependentUpon>GainDiagramSettingsDialog.vb</DependentUpon>
     </Compile>
-    <Compile Include="WinFormControls\GainSymbolDialog.vb">
+    <Compile Include="WinFormControls\GainDiagramSettingsDialog.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="IPA\IPA.vb" />
@@ -393,8 +393,8 @@
     <EmbeddedResource Include="ParticipantInterfaces\PC\DirectionalForcedChoiceControl.resx">
       <DependentUpon>DirectionalForcedChoiceControl.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WinFormControls\GainSymbolDialog.resx">
-      <DependentUpon>GainSymbolDialog.vb</DependentUpon>
+    <EmbeddedResource Include="WinFormControls\GainDiagramSettingsDialog.resx">
+      <DependentUpon>GainDiagramSettingsDialog.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>

@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
-Partial Class GainSymbolDialog
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+Partial Class GainDiagramSettingsDialog
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()>
+    <System.Diagnostics.DebuggerNonUserCode()> _
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class GainSymbolDialog
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()>
+    <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.OK_Button = New System.Windows.Forms.Button()
@@ -37,7 +37,7 @@ Partial Class GainSymbolDialog
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel1.Controls.Add(Me.OK_Button, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.Cancel_Button, 1, 0)
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(277, 118)
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(277, 171)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
         Me.TableLayoutPanel1.RowCount = 1
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -65,26 +65,24 @@ Partial Class GainSymbolDialog
         '
         'GainEditControl
         '
-        Me.GainEditControl.Dock = System.Windows.Forms.DockStyle.Top
-        Me.GainEditControl.Location = New System.Drawing.Point(0, 0)
+        Me.GainEditControl.Location = New System.Drawing.Point(12, 12)
         Me.GainEditControl.Name = "GainEditControl"
-        Me.GainEditControl.ShowEditEnabledOptions = True
-        Me.GainEditControl.Size = New System.Drawing.Size(435, 105)
+        Me.GainEditControl.Size = New System.Drawing.Size(411, 149)
         Me.GainEditControl.TabIndex = 1
         '
-        'GainSymbolDialog
+        'GainDiagramSettingsDialog
         '
         Me.AcceptButton = Me.OK_Button
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Cancel_Button
-        Me.ClientSize = New System.Drawing.Size(435, 159)
+        Me.ClientSize = New System.Drawing.Size(435, 212)
         Me.Controls.Add(Me.GainEditControl)
         Me.Controls.Add(Me.TableLayoutPanel1)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
         Me.MaximizeBox = False
         Me.MinimizeBox = False
-        Me.Name = "GainSymbolDialog"
+        Me.Name = "GainDiagramSettingsDialog"
         Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
         Me.Text = "Select gain diagram editing mode"

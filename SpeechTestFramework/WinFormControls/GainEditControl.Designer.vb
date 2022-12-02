@@ -42,16 +42,15 @@ Partial Class GainEditControl
         '
         Me.Content_TableLayoutPanel.ColumnCount = 1
         Me.Content_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
-        Me.Content_TableLayoutPanel.Controls.Add(Me.EditMode_GroupBox, 0, 0)
         Me.Content_TableLayoutPanel.Controls.Add(Me.Side_GroupBox, 0, 1)
+        Me.Content_TableLayoutPanel.Controls.Add(Me.EditMode_GroupBox, 0, 0)
         Me.Content_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Content_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
         Me.Content_TableLayoutPanel.Name = "Content_TableLayoutPanel"
         Me.Content_TableLayoutPanel.RowCount = 2
         Me.Content_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.Content_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.Content_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
-        Me.Content_TableLayoutPanel.Size = New System.Drawing.Size(555, 105)
+        Me.Content_TableLayoutPanel.Size = New System.Drawing.Size(438, 149)
         Me.Content_TableLayoutPanel.TabIndex = 3
         '
         'EditMode_GroupBox
@@ -60,7 +59,7 @@ Partial Class GainEditControl
         Me.EditMode_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.EditMode_GroupBox.Location = New System.Drawing.Point(3, 3)
         Me.EditMode_GroupBox.Name = "EditMode_GroupBox"
-        Me.EditMode_GroupBox.Size = New System.Drawing.Size(549, 46)
+        Me.EditMode_GroupBox.Size = New System.Drawing.Size(432, 68)
         Me.EditMode_GroupBox.TabIndex = 3
         Me.EditMode_GroupBox.TabStop = False
         Me.EditMode_GroupBox.Text = "Edit mode"
@@ -76,8 +75,8 @@ Partial Class GainEditControl
         Me.TableLayoutPanel6.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel6.Name = "TableLayoutPanel6"
         Me.TableLayoutPanel6.RowCount = 1
-        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel6.Size = New System.Drawing.Size(543, 27)
+        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel6.Size = New System.Drawing.Size(426, 49)
         Me.TableLayoutPanel6.TabIndex = 2
         '
         'EnableEdit_RadioButton
@@ -85,7 +84,7 @@ Partial Class GainEditControl
         Me.EnableEdit_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.EnableEdit_RadioButton.Location = New System.Drawing.Point(3, 3)
         Me.EnableEdit_RadioButton.Name = "EnableEdit_RadioButton"
-        Me.EnableEdit_RadioButton.Size = New System.Drawing.Size(265, 21)
+        Me.EnableEdit_RadioButton.Size = New System.Drawing.Size(207, 43)
         Me.EnableEdit_RadioButton.TabIndex = 0
         Me.EnableEdit_RadioButton.Text = "Enable editing"
         Me.EnableEdit_RadioButton.UseVisualStyleBackColor = True
@@ -94,9 +93,9 @@ Partial Class GainEditControl
         '
         Me.DiableEdit_RadioButton.Checked = True
         Me.DiableEdit_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.DiableEdit_RadioButton.Location = New System.Drawing.Point(274, 3)
+        Me.DiableEdit_RadioButton.Location = New System.Drawing.Point(216, 3)
         Me.DiableEdit_RadioButton.Name = "DiableEdit_RadioButton"
-        Me.DiableEdit_RadioButton.Size = New System.Drawing.Size(266, 21)
+        Me.DiableEdit_RadioButton.Size = New System.Drawing.Size(207, 43)
         Me.DiableEdit_RadioButton.TabIndex = 1
         Me.DiableEdit_RadioButton.TabStop = True
         Me.DiableEdit_RadioButton.Text = "Disable editing"
@@ -107,9 +106,9 @@ Partial Class GainEditControl
         Me.Side_GroupBox.Controls.Add(Me.TableLayoutPanel5)
         Me.Side_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Side_GroupBox.Enabled = False
-        Me.Side_GroupBox.Location = New System.Drawing.Point(3, 55)
+        Me.Side_GroupBox.Location = New System.Drawing.Point(3, 77)
         Me.Side_GroupBox.Name = "Side_GroupBox"
-        Me.Side_GroupBox.Size = New System.Drawing.Size(549, 47)
+        Me.Side_GroupBox.Size = New System.Drawing.Size(432, 69)
         Me.Side_GroupBox.TabIndex = 0
         Me.Side_GroupBox.TabStop = False
         Me.Side_GroupBox.Text = "Side"
@@ -125,8 +124,8 @@ Partial Class GainEditControl
         Me.TableLayoutPanel5.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel5.Name = "TableLayoutPanel5"
         Me.TableLayoutPanel5.RowCount = 1
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel5.Size = New System.Drawing.Size(543, 28)
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel5.Size = New System.Drawing.Size(426, 50)
         Me.TableLayoutPanel5.TabIndex = 2
         '
         'RightSide_RadioButton
@@ -135,7 +134,7 @@ Partial Class GainEditControl
         Me.RightSide_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.RightSide_RadioButton.Location = New System.Drawing.Point(3, 3)
         Me.RightSide_RadioButton.Name = "RightSide_RadioButton"
-        Me.RightSide_RadioButton.Size = New System.Drawing.Size(265, 22)
+        Me.RightSide_RadioButton.Size = New System.Drawing.Size(207, 44)
         Me.RightSide_RadioButton.TabIndex = 1
         Me.RightSide_RadioButton.TabStop = True
         Me.RightSide_RadioButton.Text = "Right"
@@ -144,9 +143,9 @@ Partial Class GainEditControl
         'LeftSide_RadioButton
         '
         Me.LeftSide_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LeftSide_RadioButton.Location = New System.Drawing.Point(274, 3)
+        Me.LeftSide_RadioButton.Location = New System.Drawing.Point(216, 3)
         Me.LeftSide_RadioButton.Name = "LeftSide_RadioButton"
-        Me.LeftSide_RadioButton.Size = New System.Drawing.Size(266, 22)
+        Me.LeftSide_RadioButton.Size = New System.Drawing.Size(207, 44)
         Me.LeftSide_RadioButton.TabIndex = 0
         Me.LeftSide_RadioButton.Text = "Left"
         Me.LeftSide_RadioButton.UseVisualStyleBackColor = True
@@ -157,7 +156,7 @@ Partial Class GainEditControl
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.Controls.Add(Me.Content_TableLayoutPanel)
         Me.Name = "GainEditControl"
-        Me.Size = New System.Drawing.Size(555, 105)
+        Me.Size = New System.Drawing.Size(438, 149)
         Me.Content_TableLayoutPanel.ResumeLayout(False)
         Me.EditMode_GroupBox.ResumeLayout(False)
         Me.TableLayoutPanel6.ResumeLayout(False)

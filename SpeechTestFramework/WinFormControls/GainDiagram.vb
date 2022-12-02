@@ -97,7 +97,7 @@ Namespace WinFormControls
 
         Private EnableEditing As Boolean
         Private CurrentPointType As PointTypes
-        Private MyGainSymbolDialog = New GainSymbolDialog
+        Private MyGainDiagramSettingsDialog = New GainDiagramSettingsDialog
 
         Private Sub GainDiagram_MouseClick(sender As Object, e As MouseEventArgs) Handles Me.MouseClick
 
@@ -126,13 +126,13 @@ Namespace WinFormControls
 
                 Case MouseButtons.Right
 
-                    MyGainSymbolDialog.Location = e.Location
-                    Dim DialogResult = MyGainSymbolDialog.ShowDialog()
+                    MyGainDiagramSettingsDialog.Location = e.Location
+                    Dim DialogResult = MyGainDiagramSettingsDialog.ShowDialog()
                     If DialogResult = DialogResult.OK Then
 
-                        EnableEditing = MyGainSymbolDialog.EditEnabled
+                        EnableEditing = MyGainDiagramSettingsDialog.EditEnabled
 
-                        If MyGainSymbolDialog.LeftSide = True Then
+                        If MyGainDiagramSettingsDialog.LeftSide = True Then
                             CurrentPointType = PointTypes.Left
                         Else
                             'Right side

@@ -1,10 +1,9 @@
 ﻿Imports System.Windows.Forms
 
-Public Class GainSymbolDialog
+Public Class GainDiagramSettingsDialog
 
     Public EditEnabled As Boolean
     Public LeftSide As Boolean
-
 
     Private Sub OK_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OK_Button.Click
 
