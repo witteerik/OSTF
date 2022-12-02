@@ -1695,12 +1695,23 @@ Public Class MediaSet
     End Sub
 
 
+    ''' <summary>
+    ''' 
+    ''' </summary>
+    ''' <param name="TargetComponentsLevel"></param>
+    ''' <param name="SoundChannel"></param>
+    ''' <param name="IntegrationTime"></param>
+    ''' <param name="FrequencyWeighting"></param>
+    ''' <param name="VariableName"></param>
+    ''' <param name="IncludePractiseComponents"></param>
+    ''' <param name="UniquePrimaryStringRepresenations">If set to true, only the first occurence of a set of components that have the same PrimaryStringRepresentation will be included. This can be used to include multiple instantiations of the same component one once.</param>
     Public Sub CalculateComponentLevel(ByVal TargetComponentsLevel As SpeechMaterialComponent.LinguisticLevels,
                                                                ByVal SoundChannel As Integer,
                                                                Optional ByVal IntegrationTime As Double = 0,
                                                                Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
                                                                Optional ByVal VariableName As String = "Lc",
-                                       Optional ByVal IncludePractiseComponents As Boolean = False)
+                                       Optional ByVal IncludePractiseComponents As Boolean = False,
+                                       Optional ByVal UniquePrimaryStringRepresenations As Boolean = False)
 
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
@@ -1715,7 +1726,7 @@ Public Class MediaSet
             'Get the SMA components representing the sound sections of all target components
             Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
             For i = 0 To MediaAudioItems - 1
-                CurrentSmaComponentList.AddRange(SummaryComponent.GetCorrespondingSmaComponent(Me, i, SoundChannel, IncludePractiseComponents))
+                CurrentSmaComponentList.AddRange(SummaryComponent.GetCorrespondingSmaComponent(Me, i, SoundChannel, IncludePractiseComponents, UniquePrimaryStringRepresenations))
             Next
 
             'Skipping to next Summary component if no

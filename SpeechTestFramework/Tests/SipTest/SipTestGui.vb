@@ -24,7 +24,13 @@ Public Class SipTestGui
     Private WithEvents GainDiagram As GainDiagram
     Private ExpectedScoreDiagram As PsychometricFunctionDiagram
     Private AvailableAudiograms As New List(Of AudiogramData)
-    Private ReadOnly AvailableReferenceLevels As New List(Of Double) From {68 - 10, 68 - 5, 68, 68 + 5, 68 + 10}
+    Private ReadOnly AvailableReferenceLevels As New List(Of Double) From {
+        Audio.GlobalAudioData.RaisedVocalEffortLevel - 10,
+        Audio.GlobalAudioData.RaisedVocalEffortLevel - 5,
+        Audio.GlobalAudioData.RaisedVocalEffortLevel,
+        Audio.GlobalAudioData.RaisedVocalEffortLevel + 5,
+        Audio.GlobalAudioData.RaisedVocalEffortLevel + 10}
+
     Private AvailableHaGains As New List(Of HearingAidGainData)
     Private AvailablePresetsNames As List(Of String)
     Private CustomPresetCount As Integer = 1

@@ -420,6 +420,49 @@ Namespace Audio
             End Function
 
 
+            ''' <summary>
+            ''' Calculating the average RMS sound level in all InputSounds (as if they were one long sound)
+            ''' </summary>
+            ''' <param name="InputSounds"></param>
+            ''' <param name="SoundChannel"></param>
+            ''' <param name="FrequencyWeighting"></param>
+            ''' <returns></returns>
+            Public Function GetSoundLevelOfConcatenatedSoundsRecordings(ByVal InputSounds As List(Of Audio.Sound), ByVal SoundChannel As Integer,
+                                                                  ByVal FrequencyWeighting As Audio.FrequencyWeightings) As Double
+
+                Dim SumOfSquaresList As New List(Of Tuple(Of Double, Integer))
+
+                For Each TestWordRecording In InputSounds
+
+                    'Measures the test word region of each sound
+                    Dim SumOfSquareData As Tuple(Of Double, Integer) = Nothing
+                    Audio.DSP.MeasureSectionLevel(TestWordRecording, SoundChannel, 0, TestWordRecording.WaveData.SampleData(SoundChannel).Length,,, FrequencyWeighting, True, SumOfSquareData)
+                    'Adds the sum-of-square data
+                    SumOfSquaresList.Add(SumOfSquareData)
+
+                Next
+
+                'Calculating a weighted average sum of squares. 
+                Dim SumOfSquares As Double = 0
+                Dim TotalLength As Double = 0
+                For n = 0 To SumOfSquaresList.Count - 1
+                    SumOfSquares += SumOfSquaresList(n).Item1
+                    TotalLength += SumOfSquaresList(n).Item2
+                Next
+
+                'Calculating mean square
+                Dim MeanSquare As Double = SumOfSquares / TotalLength
+
+                'Calculating RMS by taking the root of the mean of the MeanSquare
+                Dim RMS As Double = MeanSquare ^ (1 / 2)
+
+                'Converting to dB
+                Dim RMSLevel As Double = Audio.dBConversion(RMS, Audio.dBConversionDirection.to_dB, InputSounds(0).WaveFormat)
+
+                Return RMSLevel
+
+            End Function
+
         End Module
 
         Public Module Transformations

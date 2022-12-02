@@ -549,8 +549,10 @@ Public Class SpeechMaterialComponent
     ''' <param name="MediaSet"></param>
     ''' <param name="Index"></param>
     ''' <param name="SoundChannel"></param>
+    ''' <param name="UniquePrimaryStringRepresenations">If set to true, only the first occurence of a set of components that have the same PrimaryStringRepresentation will be included. This can be used to include multiple instantiations of the same component one once.</param>
     ''' <returns></returns>
-    Public Function GetCorrespondingSmaComponent(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer, ByVal IncludePractiseComponents As Boolean) As List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+    Public Function GetCorrespondingSmaComponent(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer,
+                                                 ByVal IncludePractiseComponents As Boolean, Optional ByVal UniquePrimaryStringRepresenations As Boolean = False) As List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
 
         Dim SelfIndices = FindSelfIndices()
 
@@ -580,6 +582,20 @@ Public Class SpeechMaterialComponent
                     TempList.Add(Component)
                 End If
             Next
+            SmcsWithSoundFile = TempList
+        End If
+
+        If UniquePrimaryStringRepresenations = True Then
+            Dim TempList As New List(Of SpeechMaterialComponent)
+            Dim Included_PrimaryStringRepresenations As New SortedSet(Of String)
+
+            For Each Component In SmcsWithSoundFile
+                If Not Included_PrimaryStringRepresenations.Contains(Component.PrimaryStringRepresentation) Then
+                    Included_PrimaryStringRepresenations.Add(Component.PrimaryStringRepresentation)
+                    TempList.Add(Component)
+                End If
+            Next
+
             SmcsWithSoundFile = TempList
         End If
 
