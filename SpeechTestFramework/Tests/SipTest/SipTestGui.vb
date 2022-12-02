@@ -337,6 +337,10 @@ Public Class SipTestGui
                 ImportData_Button.Text = "Importera resultat"
                 MostDifficultItems_Button.Text = "Anpassat"
                 TestLength_Label.Text = "Testlängd"
+                KeyBoardShortcut_Label.Text = "Tangentkommandon att använda vid testkörning"
+                Pause_Label.Text = "Pausa test = P"
+                Resume_Label.Text = "Återuppta test = R"
+                Stop_Label.Text = "Stoppa test = S"
 
             Case Else
 
@@ -375,6 +379,10 @@ Public Class SipTestGui
                 ImportData_Button.Text = "Import data"
                 MostDifficultItems_Button.Text = "Custom"
                 TestLength_Label.Text = "Test length"
+                KeyBoardShortcut_Label.Text = "Keyboard commands to use during testing"
+                Pause_Label.Text = "Pause test = P"
+                Resume_Label.Text = "Resume test = R"
+                Stop_Label.Text = "Stop test = S"
 
         End Select
 
@@ -421,6 +429,28 @@ Public Class SipTestGui
 
         'Use this method to tigger actions by pressing a keyboard key during active testing, when PcScreen is used, and mouse is therefore used by the testee.
         'MsgBox("Key pressed: " & e.KeyData)
+
+        'Triggering these functions only if a test is started, and then also notes that the event is handled
+        If TestIsStarted = True Then
+
+            Select Case e.KeyData
+                Case Keys.P
+                    'For pause
+                    PauseTesting()
+
+                Case Keys.R
+                    'For resume
+                    ResumeTesting()
+
+                Case Keys.S
+                    'For stop
+                    StopTest()
+
+            End Select
+
+            e.Handled = True
+
+        End If
 
     End Sub
 
@@ -1007,7 +1037,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub StopButton_Click() Handles Stop_AudioButton.Click
+    Private Sub StopTest() Handles Stop_AudioButton.Click
         If TestIsStarted = True Then
             FinalizeTesting()
         End If

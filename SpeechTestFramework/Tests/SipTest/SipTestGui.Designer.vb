@@ -54,6 +54,9 @@ Partial Class SipTestGui
         Me.GainPanel = New System.Windows.Forms.Panel()
         Me.AudiogramPanel = New System.Windows.Forms.Panel()
         Me.LengthReduplications_Label = New System.Windows.Forms.Label()
+        Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
+        Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
         Me.AudiogramComboBox = New System.Windows.Forms.ComboBox()
         Me.HaGainComboBox = New System.Windows.Forms.ComboBox()
         Me.ReferenceLevel_Label = New System.Windows.Forms.Label()
@@ -85,10 +88,18 @@ Partial Class SipTestGui
         Me.ResultColumn = New System.Windows.Forms.DataGridViewImageColumn()
         Me.CorrectCount_Label = New System.Windows.Forms.Label()
         Me.ProportionCorrect_Label = New System.Windows.Forms.Label()
+        Me.Start_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.CorrectCountTextBox = New System.Windows.Forms.TextBox()
         Me.TestDescriptionTextBox = New System.Windows.Forms.TextBox()
         Me.TestDescription_Label = New System.Windows.Forms.Label()
         Me.RandomSeed_Label = New System.Windows.Forms.Label()
+        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
+        Me.KeyBoardShortcut_Label = New System.Windows.Forms.Label()
+        Me.KeybordShortcut_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
+        Me.Stop_Label = New System.Windows.Forms.Label()
+        Me.Pause_Label = New System.Windows.Forms.Label()
+        Me.Resume_Label = New System.Windows.Forms.Label()
         Me.TableLayoutPanel16 = New System.Windows.Forms.TableLayoutPanel()
         Me.ParticipantID_Label = New System.Windows.Forms.Label()
         Me.ParticipantIdTextBox = New System.Windows.Forms.TextBox()
@@ -101,6 +112,7 @@ Partial Class SipTestGui
         Me.BtScreen_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.ConnectBluetoothScreen_Button = New System.Windows.Forms.Button()
         Me.DisconnectBtScreen_Button = New System.Windows.Forms.Button()
+        Me.BtLamp = New SpeechTestFramework.Lamp()
         Me.ParticipantLock_Button = New System.Windows.Forms.Button()
         Me.SoundDevice_Panel = New System.Windows.Forms.Panel()
         Me.SoundSettings_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
@@ -109,13 +121,7 @@ Partial Class SipTestGui
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.PsychmetricFunction_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Audiogram_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Gain_VerticalLabel = New SpeechTestFramework.WinFormControls.VerticalLabel()
-        Me.Start_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
-        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
-        Me.BtLamp = New SpeechTestFramework.Lamp()
+        Me.KeyboardShortcutContainer_Panel = New System.Windows.Forms.Panel()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.Test_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -128,6 +134,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel4.SuspendLayout()
         CType(Me.TestTrialDataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.KeybordShortcut_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel16.SuspendLayout()
         Me.Screen_TableLayoutPanel.SuspendLayout()
         Me.PcScreen_TableLayoutPanel.SuspendLayout()
@@ -135,6 +142,7 @@ Partial Class SipTestGui
         Me.SoundDevice_Panel.SuspendLayout()
         Me.SoundSettings_TableLayoutPanel.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
+        Me.KeyboardShortcutContainer_Panel.SuspendLayout()
         Me.SuspendLayout()
         '
         'TableLayoutPanel1
@@ -466,6 +474,36 @@ Partial Class SipTestGui
         Me.LengthReduplications_Label.Text = "Repetitioner"
         Me.LengthReduplications_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'PsychmetricFunction_VerticalLabel
+        '
+        Me.PsychmetricFunction_VerticalLabel.AutoSize = True
+        Me.PsychmetricFunction_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.PsychmetricFunction_VerticalLabel.Location = New System.Drawing.Point(3, 389)
+        Me.PsychmetricFunction_VerticalLabel.Name = "PsychmetricFunction_VerticalLabel"
+        Me.PsychmetricFunction_VerticalLabel.Size = New System.Drawing.Size(19, 121)
+        Me.PsychmetricFunction_VerticalLabel.TabIndex = 0
+        Me.PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
+        '
+        'Audiogram_VerticalLabel
+        '
+        Me.Audiogram_VerticalLabel.AutoSize = True
+        Me.Audiogram_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Audiogram_VerticalLabel.Location = New System.Drawing.Point(3, 21)
+        Me.Audiogram_VerticalLabel.Name = "Audiogram_VerticalLabel"
+        Me.Audiogram_VerticalLabel.Size = New System.Drawing.Size(19, 121)
+        Me.Audiogram_VerticalLabel.TabIndex = 0
+        Me.Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
+        '
+        'Gain_VerticalLabel
+        '
+        Me.Gain_VerticalLabel.AutoSize = True
+        Me.Gain_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Gain_VerticalLabel.Location = New System.Drawing.Point(3, 184)
+        Me.Gain_VerticalLabel.Name = "Gain_VerticalLabel"
+        Me.Gain_VerticalLabel.Size = New System.Drawing.Size(19, 121)
+        Me.Gain_VerticalLabel.TabIndex = 1
+        Me.Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
+        '
         'AudiogramComboBox
         '
         Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.AudiogramComboBox, 2)
@@ -739,10 +777,11 @@ Partial Class SipTestGui
         Me.TableLayoutPanel4.Controls.Add(Me.RandomSeed_Label, 0, 1)
         Me.TableLayoutPanel4.Controls.Add(Me.RandomSeed_IntegerParsingTextBox, 1, 1)
         Me.TableLayoutPanel4.Controls.Add(Me.Stop_AudioButton, 2, 2)
+        Me.TableLayoutPanel4.Controls.Add(Me.KeyboardShortcutContainer_Panel, 0, 7)
         Me.TableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel4.Location = New System.Drawing.Point(493, 3)
         Me.TableLayoutPanel4.Name = "TableLayoutPanel4"
-        Me.TableLayoutPanel4.RowCount = 7
+        Me.TableLayoutPanel4.RowCount = 8
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
@@ -750,6 +789,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45.0!))
         Me.TableLayoutPanel4.Size = New System.Drawing.Size(395, 531)
         Me.TableLayoutPanel4.TabIndex = 1
         '
@@ -821,7 +861,7 @@ Partial Class SipTestGui
         Me.TestTrialDataGridView.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
         Me.TestTrialDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect
         Me.TestTrialDataGridView.ShowCellToolTips = False
-        Me.TestTrialDataGridView.Size = New System.Drawing.Size(389, 371)
+        Me.TestTrialDataGridView.Size = New System.Drawing.Size(389, 326)
         Me.TestTrialDataGridView.TabIndex = 6
         '
         'TestWordColumn
@@ -878,6 +918,18 @@ Partial Class SipTestGui
         Me.ProportionCorrect_Label.Text = "Andel rätt"
         Me.ProportionCorrect_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'Start_AudioButton
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.Start_AudioButton, 2)
+        Me.Start_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Start_AudioButton.Enabled = False
+        Me.Start_AudioButton.Location = New System.Drawing.Point(3, 45)
+        Me.Start_AudioButton.Name = "Start_AudioButton"
+        Me.Start_AudioButton.Size = New System.Drawing.Size(191, 34)
+        Me.Start_AudioButton.TabIndex = 10
+        Me.Start_AudioButton.UseVisualStyleBackColor = True
+        Me.Start_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
+        '
         'CorrectCountTextBox
         '
         Me.TableLayoutPanel4.SetColumnSpan(Me.CorrectCountTextBox, 2)
@@ -922,6 +974,89 @@ Partial Class SipTestGui
         Me.RandomSeed_Label.TabIndex = 7
         Me.RandomSeed_Label.Text = "Random seed (optional):"
         Me.RandomSeed_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'RandomSeed_IntegerParsingTextBox
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.RandomSeed_IntegerParsingTextBox, 3)
+        Me.RandomSeed_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(100, 21)
+        Me.RandomSeed_IntegerParsingTextBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
+        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(295, 20)
+        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 8
+        '
+        'Stop_AudioButton
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.Stop_AudioButton, 2)
+        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Stop_AudioButton.Enabled = False
+        Me.Stop_AudioButton.Location = New System.Drawing.Point(200, 45)
+        Me.Stop_AudioButton.Name = "Stop_AudioButton"
+        Me.Stop_AudioButton.Size = New System.Drawing.Size(192, 34)
+        Me.Stop_AudioButton.TabIndex = 11
+        Me.Stop_AudioButton.UseVisualStyleBackColor = True
+        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
+        '
+        'KeyBoardShortcut_Label
+        '
+        Me.KeybordShortcut_TableLayoutPanel.SetColumnSpan(Me.KeyBoardShortcut_Label, 3)
+        Me.KeyBoardShortcut_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.KeyBoardShortcut_Label.Location = New System.Drawing.Point(3, 0)
+        Me.KeyBoardShortcut_Label.Name = "KeyBoardShortcut_Label"
+        Me.KeyBoardShortcut_Label.Size = New System.Drawing.Size(381, 23)
+        Me.KeyBoardShortcut_Label.TabIndex = 12
+        Me.KeyBoardShortcut_Label.Text = "KeyBoardShortcut_Label"
+        Me.KeyBoardShortcut_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'KeybordShortcut_TableLayoutPanel
+        '
+        Me.KeybordShortcut_TableLayoutPanel.ColumnCount = 3
+        Me.KeybordShortcut_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
+        Me.KeybordShortcut_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
+        Me.KeybordShortcut_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
+        Me.KeybordShortcut_TableLayoutPanel.Controls.Add(Me.Pause_Label, 0, 1)
+        Me.KeybordShortcut_TableLayoutPanel.Controls.Add(Me.Resume_Label, 1, 1)
+        Me.KeybordShortcut_TableLayoutPanel.Controls.Add(Me.Stop_Label, 2, 1)
+        Me.KeybordShortcut_TableLayoutPanel.Controls.Add(Me.KeyBoardShortcut_Label, 0, 0)
+        Me.KeybordShortcut_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.KeybordShortcut_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
+        Me.KeybordShortcut_TableLayoutPanel.Name = "KeybordShortcut_TableLayoutPanel"
+        Me.KeybordShortcut_TableLayoutPanel.RowCount = 2
+        Me.KeybordShortcut_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.KeybordShortcut_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.KeybordShortcut_TableLayoutPanel.Size = New System.Drawing.Size(387, 43)
+        Me.KeybordShortcut_TableLayoutPanel.TabIndex = 16
+        '
+        'Stop_Label
+        '
+        Me.Stop_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Stop_Label.Location = New System.Drawing.Point(261, 23)
+        Me.Stop_Label.Name = "Stop_Label"
+        Me.Stop_Label.Size = New System.Drawing.Size(123, 20)
+        Me.Stop_Label.TabIndex = 15
+        Me.Stop_Label.Text = "Stop = S"
+        Me.Stop_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Pause_Label
+        '
+        Me.Pause_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Pause_Label.Location = New System.Drawing.Point(3, 23)
+        Me.Pause_Label.Name = "Pause_Label"
+        Me.Pause_Label.Size = New System.Drawing.Size(123, 20)
+        Me.Pause_Label.TabIndex = 13
+        Me.Pause_Label.Text = "Pause = P"
+        Me.Pause_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Resume_Label
+        '
+        Me.Resume_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Resume_Label.Location = New System.Drawing.Point(132, 23)
+        Me.Resume_Label.Name = "Resume_Label"
+        Me.Resume_Label.Size = New System.Drawing.Size(123, 20)
+        Me.Resume_Label.TabIndex = 14
+        Me.Resume_Label.Text = "Resume = R"
+        Me.Resume_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'TableLayoutPanel16
         '
@@ -1091,6 +1226,19 @@ Partial Class SipTestGui
         Me.DisconnectBtScreen_Button.Text = "Koppla från BT-skärm"
         Me.DisconnectBtScreen_Button.UseVisualStyleBackColor = True
         '
+        'BtLamp
+        '
+        Me.BtLamp.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BtLamp.Location = New System.Drawing.Point(257, 1)
+        Me.BtLamp.Margin = New System.Windows.Forms.Padding(1)
+        Me.BtLamp.Name = "BtLamp"
+        Me.BtLamp.Shape = SpeechTestFramework.Lamp.Shapes.Circle
+        Me.BtLamp.ShapeSize = 0.8!
+        Me.BtLamp.Size = New System.Drawing.Size(50, 20)
+        Me.BtLamp.State = SpeechTestFramework.Lamp.States.Disabled
+        Me.BtLamp.TabIndex = 3
+        Me.BtLamp.Text = "Lamp1"
+        '
         'ParticipantLock_Button
         '
         Me.ParticipantLock_Button.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -1177,83 +1325,17 @@ Partial Class SipTestGui
         Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(52, 20)
         Me.AboutToolStripMenuItem.Text = "About"
         '
-        'PsychmetricFunction_VerticalLabel
+        'KeyboardShortcutContainer_Panel
         '
-        Me.PsychmetricFunction_VerticalLabel.AutoSize = True
-        Me.PsychmetricFunction_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.PsychmetricFunction_VerticalLabel.Location = New System.Drawing.Point(3, 389)
-        Me.PsychmetricFunction_VerticalLabel.Name = "PsychmetricFunction_VerticalLabel"
-        Me.PsychmetricFunction_VerticalLabel.Size = New System.Drawing.Size(19, 121)
-        Me.PsychmetricFunction_VerticalLabel.TabIndex = 0
-        Me.PsychmetricFunction_VerticalLabel.Text = "FÖRV. RESULTAT (%)"
-        '
-        'Audiogram_VerticalLabel
-        '
-        Me.Audiogram_VerticalLabel.AutoSize = True
-        Me.Audiogram_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Audiogram_VerticalLabel.Location = New System.Drawing.Point(3, 21)
-        Me.Audiogram_VerticalLabel.Name = "Audiogram_VerticalLabel"
-        Me.Audiogram_VerticalLabel.Size = New System.Drawing.Size(19, 121)
-        Me.Audiogram_VerticalLabel.TabIndex = 0
-        Me.Audiogram_VerticalLabel.Text = "AUDIOGRAM (dB HL)"
-        '
-        'Gain_VerticalLabel
-        '
-        Me.Gain_VerticalLabel.AutoSize = True
-        Me.Gain_VerticalLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.5!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Gain_VerticalLabel.Location = New System.Drawing.Point(3, 184)
-        Me.Gain_VerticalLabel.Name = "Gain_VerticalLabel"
-        Me.Gain_VerticalLabel.Size = New System.Drawing.Size(19, 121)
-        Me.Gain_VerticalLabel.TabIndex = 1
-        Me.Gain_VerticalLabel.Text = "FÖRSTÄRKNING (dB)"
-        '
-        'Start_AudioButton
-        '
-        Me.TableLayoutPanel4.SetColumnSpan(Me.Start_AudioButton, 2)
-        Me.Start_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Start_AudioButton.Enabled = False
-        Me.Start_AudioButton.Location = New System.Drawing.Point(3, 45)
-        Me.Start_AudioButton.Name = "Start_AudioButton"
-        Me.Start_AudioButton.Size = New System.Drawing.Size(191, 34)
-        Me.Start_AudioButton.TabIndex = 10
-        Me.Start_AudioButton.UseVisualStyleBackColor = True
-        Me.Start_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
-        '
-        'RandomSeed_IntegerParsingTextBox
-        '
-        Me.TableLayoutPanel4.SetColumnSpan(Me.RandomSeed_IntegerParsingTextBox, 3)
-        Me.RandomSeed_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(100, 21)
-        Me.RandomSeed_IntegerParsingTextBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
-        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(295, 20)
-        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 8
-        '
-        'Stop_AudioButton
-        '
-        Me.TableLayoutPanel4.SetColumnSpan(Me.Stop_AudioButton, 2)
-        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Stop_AudioButton.Enabled = False
-        Me.Stop_AudioButton.Location = New System.Drawing.Point(200, 45)
-        Me.Stop_AudioButton.Name = "Stop_AudioButton"
-        Me.Stop_AudioButton.Size = New System.Drawing.Size(192, 34)
-        Me.Stop_AudioButton.TabIndex = 11
-        Me.Stop_AudioButton.UseVisualStyleBackColor = True
-        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
-        '
-        'BtLamp
-        '
-        Me.BtLamp.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BtLamp.Location = New System.Drawing.Point(257, 1)
-        Me.BtLamp.Margin = New System.Windows.Forms.Padding(1)
-        Me.BtLamp.Name = "BtLamp"
-        Me.BtLamp.Shape = SpeechTestFramework.Lamp.Shapes.Circle
-        Me.BtLamp.ShapeSize = 0.8!
-        Me.BtLamp.Size = New System.Drawing.Size(50, 20)
-        Me.BtLamp.State = SpeechTestFramework.Lamp.States.Disabled
-        Me.BtLamp.TabIndex = 3
-        Me.BtLamp.Text = "Lamp1"
+        Me.KeyboardShortcutContainer_Panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.TableLayoutPanel4.SetColumnSpan(Me.KeyboardShortcutContainer_Panel, 4)
+        Me.KeyboardShortcutContainer_Panel.Controls.Add(Me.KeybordShortcut_TableLayoutPanel)
+        Me.KeyboardShortcutContainer_Panel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.KeyboardShortcutContainer_Panel.Location = New System.Drawing.Point(3, 486)
+        Me.KeyboardShortcutContainer_Panel.Margin = New System.Windows.Forms.Padding(3, 0, 3, 0)
+        Me.KeyboardShortcutContainer_Panel.Name = "KeyboardShortcutContainer_Panel"
+        Me.KeyboardShortcutContainer_Panel.Size = New System.Drawing.Size(389, 45)
+        Me.KeyboardShortcutContainer_Panel.TabIndex = 17
         '
         'SipTestGui
         '
@@ -1280,6 +1362,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel4.ResumeLayout(False)
         Me.TableLayoutPanel4.PerformLayout()
         CType(Me.TestTrialDataGridView, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.KeybordShortcut_TableLayoutPanel.ResumeLayout(False)
         Me.TableLayoutPanel16.ResumeLayout(False)
         Me.TableLayoutPanel16.PerformLayout()
         Me.Screen_TableLayoutPanel.ResumeLayout(False)
@@ -1291,6 +1374,7 @@ Partial Class SipTestGui
         Me.SoundSettings_TableLayoutPanel.ResumeLayout(False)
         Me.MenuStrip1.ResumeLayout(False)
         Me.MenuStrip1.PerformLayout()
+        Me.KeyboardShortcutContainer_Panel.ResumeLayout(False)
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -1384,4 +1468,10 @@ Partial Class SipTestGui
     Friend WithEvents TableLayoutPanel2 As Windows.Forms.TableLayoutPanel
     Friend WithEvents Testparadigm_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents Testparadigm_Label As Windows.Forms.Label
+    Friend WithEvents KeyBoardShortcut_Label As Windows.Forms.Label
+    Friend WithEvents KeybordShortcut_TableLayoutPanel As Windows.Forms.TableLayoutPanel
+    Friend WithEvents Stop_Label As Windows.Forms.Label
+    Friend WithEvents Pause_Label As Windows.Forms.Label
+    Friend WithEvents Resume_Label As Windows.Forms.Label
+    Friend WithEvents KeyboardShortcutContainer_Panel As Windows.Forms.Panel
 End Class
