@@ -178,6 +178,24 @@ Public Class HearingAidGainData
 
     End Function
 
+    ''' <summary>
+    ''' Checks the gain data and returns True if at least one GainPoint has a non-zero gain value. Otherwise, returns False.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function HasGain() As Boolean
+
+        For Each GainPoint In LeftSideGain
+            If GainPoint.Gain <> 0 Then Return True
+        Next
+
+        For Each GainPoint In RightSideGain
+            If GainPoint.Gain <> 0 Then Return True
+        Next
+
+        Return False
+
+    End Function
+
     Public Overrides Function ToString() As String
 
         If Name = "" Then

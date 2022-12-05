@@ -706,7 +706,7 @@ Public Class SipTestGui
 
             TempSipTestMeasurement.PlanTestTrials(AvailableMediaSets, TempPreset, SelectedMediaSet.MediaSetName)
             TempSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
-            Dim EstimatedScore = TempSipTestMeasurement.CalculateEstimatedMeanScore
+            Dim EstimatedScore = TempSipTestMeasurement.CalculateEstimatedMeanScore(True)
 
             CandidateLists.Add(New Tuple(Of SpeechMaterialComponent, Double)(List, EstimatedScore.Item1))
             SuccessProbabilityList.Add(EstimatedScore.Item1)
@@ -770,6 +770,32 @@ Public Class SipTestGui
             If SelectedMediaSet Is Nothing Then Exit Sub
             If SelectedLengthReduplications.HasValue = False Then Exit Sub
 
+            'Determines if a no-gain curve should be calculated and shown
+            Dim ShowNoGainCurve As Boolean = False
+            If SelectedHearingAidGain IsNot Nothing Then
+                If SelectedHearingAidGain.HasGain = True Then
+                    ShowNoGainCurve = True
+                End If
+            End If
+
+            'Prepares the operation progress bar
+            Test_TableLayoutPanel.Enabled = False
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    Operation_ProgressBarWithText.CustomText = "Beräknar förväntade testresultat..."
+                Case Else
+                    Operation_ProgressBarWithText.CustomText = "Calculating predicted test scores..."
+            End Select
+            Operation_ProgressBarWithText.Step = 1
+            Operation_ProgressBarWithText.Minimum = 0
+            If ShowNoGainCurve = False Then
+                Operation_ProgressBarWithText.Maximum = 2
+            Else
+                Operation_ProgressBarWithText.Maximum = 3
+            End If
+            Operation_ProgressBarWithText.PerformStep()
+            Operation_ProgressBarWithText.Invalidate()
+            Operation_ProgressBarWithText.Update()
 
             'Creates a new test and updates the psychometric function diagram
             CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
@@ -789,6 +815,10 @@ Public Class SipTestGui
             Dim LowerCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
             Dim UpperCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
 
+            Operation_ProgressBarWithText.PerformStep()
+            Operation_ProgressBarWithText.Invalidate()
+            Operation_ProgressBarWithText.Update()
+
             Dim n As Integer = 0
             For Each kvp In PsychoMetricFunction
                 PNRs(n) = kvp.Key
@@ -798,8 +828,39 @@ Public Class SipTestGui
                 n += 1
             Next
 
+            'Creates a no-gain psychometric function (to be compared with a gain-based function)
+            Dim NoGain_PredictedScores As New List(Of Single)
+            If ShowNoGainCurve = True Then
+
+                'Creates a new test and updates the psychometric function diagram
+                Dim NoGainTemporarySiPTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
+                NoGainTemporarySiPTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
+                NoGainTemporarySiPTestMeasurement.HearingAidGain = HearingAidGainData.CreateNewNoGainData
+                NoGainTemporarySiPTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
+                NoGainTemporarySiPTestMeasurement.TestProcedure.TestParadigm = SelectedTestparadigm
+
+                'Test length was updated, adds test trials to the measurement
+                NoGainTemporarySiPTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName)
+
+                'Calculates the psychometric function
+                Dim NoGain_PsychoMetricFunction = NoGainTemporarySiPTestMeasurement.CalculateEstimatedPsychometricFunction(SelectedReferenceLevel,, True)
+                For Each kvp In NoGain_PsychoMetricFunction
+                    NoGain_PredictedScores.Add(kvp.Value.Item1)
+                Next
+
+                Operation_ProgressBarWithText.PerformStep()
+                Operation_ProgressBarWithText.Invalidate()
+                Operation_ProgressBarWithText.Update()
+
+            End If
+
+            'Resetting the Operation_ProgressBarWithText
+            Operation_ProgressBarWithText.Value = 0
+            Operation_ProgressBarWithText.CustomText = ""
+            Test_TableLayoutPanel.Enabled = True
+
             'Updates the psychometric function diagram
-            DisplayPredictedPsychometricCurve(PNRs, PredictedScores, LowerCriticalBoundary, UpperCriticalBoundary)
+            DisplayPredictedPsychometricCurve(PNRs, PredictedScores, LowerCriticalBoundary, UpperCriticalBoundary, NoGain_PredictedScores)
 
             'Displayes the planned test length
             PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
@@ -822,7 +883,7 @@ Public Class SipTestGui
 
     End Sub
 
-    Private Sub DisplayPredictedPsychometricCurve(PNRs() As Single, PredictedScores() As Single, LowerCiLimits() As Single, UpperCiLimits() As Single)
+    Private Sub DisplayPredictedPsychometricCurve(PNRs() As Single, PredictedScores() As Single, LowerCiLimits() As Single, UpperCiLimits() As Single, Optional NoGain_PredictedScores As List(Of Single) = Nothing)
 
         ExpectedScoreDiagram.Lines.Clear()
         ExpectedScoreDiagram.Lines.Add(New PlotBase.Line With {.Color = Color.Black, .Dashed = False, .LineWidth = 3, .XValues = PNRs, .YValues = PredictedScores})
@@ -830,6 +891,12 @@ Public Class SipTestGui
         ExpectedScoreDiagram.Areas.Clear()
 
         ExpectedScoreDiagram.Areas.Add(New PlotBase.Area With {.Color = Color.Pink, .XValues = PNRs, .YValuesLower = LowerCiLimits, .YValuesUpper = UpperCiLimits})
+
+        If NoGain_PredictedScores IsNot Nothing Then
+            If NoGain_PredictedScores.Count > 0 Then
+                ExpectedScoreDiagram.Lines.Add(New PlotBase.Line With {.Color = Color.Gray, .Dashed = True, .LineWidth = 3, .XValues = PNRs, .YValues = NoGain_PredictedScores.ToArray})
+            End If
+        End If
 
         ExpectedScoreDiagram.Invalidate()
         ExpectedScoreDiagram.Update()
@@ -2331,6 +2398,10 @@ Public Class SipTestGui
     End Sub
 
     Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
+
+    End Sub
+
+    Private Sub StopTest(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
 
     End Sub
 

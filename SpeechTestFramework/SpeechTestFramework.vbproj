@@ -226,6 +226,9 @@
     <Compile Include="WinFormControls\LoadOstaTestSpecificationControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="WinFormControls\ProgressBarWithText.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="WinFormControls\SummaryStatisticsSelectionControl.Designer.vb">
       <DependentUpon>SummaryStatisticsSelectionControl.vb</DependentUpon>
     </Compile>

@@ -34,6 +34,8 @@ Public Class ProgressDisplay
     Private LastSpeedUpdateTime As DateTime = DateTime.Now
     Private LastUpdateProcessedItemsCount As Integer = 0
 
+    Private UseText As Boolean = True
+
     Private Sub ProgressDisplay_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
     End Sub
@@ -50,20 +52,6 @@ Public Class ProgressDisplay
 
         If Utils.BlockProgressForm = True Then Exit Sub
         MyBase.Close()
-
-    End Sub
-
-    Public Sub UpdateProgress_old(ByRef NewProgressValue As Double, ByRef SetMaxValue As Double, Optional ByRef SetMinValue As Double = 0, Optional SetTitle As String = "Working...")
-
-        If Utils.BlockProgressForm = True Then Exit Sub
-
-        ProgressBar1.Minimum = MinValue
-        ProgressBar1.Maximum = MaxValue
-        ProgressBar1.Value = NewProgressValue
-
-        ProgressLabel.Text = "Processing item " & NewProgressValue & " of " & MaxValue - MinValue
-        ProgressLabel.Refresh()
-        Me.Text = SetTitle
 
     End Sub
 
@@ -90,7 +78,12 @@ Public Class ProgressDisplay
             End If
 
             ProgressBar1.Value = NewProgressValue
-            ProgressLabel.Text = "Processing item " & NewProgressValue & " of " & MaxValue - MinValue & " " & AddToTitle
+
+            If UseText = True Then
+                ProgressLabel.Text = "Processing item " & NewProgressValue & " of " & MaxValue - MinValue & " " & AddToTitle
+            Else
+                ProgressLabel.Text = ""
+            End If
 
             ProgressLabel.Refresh()
 
@@ -175,11 +168,13 @@ Public Class ProgressDisplay
     Public Sub Initialize(ByRef SetMaxValue As Double, Optional ByRef SetMinValue As Double = 0,
                           Optional SetTitle As String = "Working...", Optional UpdateInterval As Integer = 1,
                           Optional SetDescriptionText As String = "",
-                          Optional TopTopMostForm As Boolean = True)
+                          Optional TopTopMostForm As Boolean = True,
+                          Optional UseText As Boolean = True)
 
         If Utils.BlockProgressForm = True Then Exit Sub
 
         Me.TopMost = TopTopMostForm
+        Me.UseText = UseText
 
         If SetMaxValue < 0 Then SetMaxValue = 0
         If SetMinValue < 0 Then SetMinValue = 0

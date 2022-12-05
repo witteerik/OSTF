@@ -429,7 +429,7 @@ Namespace SipTest
 
         Public Property EstimatedMeanScore As Double
 
-        Public Function CalculateEstimatedPsychometricFunction(ByVal ReferenceLevel As Double, Optional ByVal PNRs As List(Of Double) = Nothing) As SortedList(Of Double, Tuple(Of Double, Double, Double))
+        Public Function CalculateEstimatedPsychometricFunction(ByVal ReferenceLevel As Double, Optional ByVal PNRs As List(Of Double) = Nothing, Optional ByVal SkipCriticalDifferenceCalculation As Boolean = False) As SortedList(Of Double, Tuple(Of Double, Double, Double))
 
             If PNRs Is Nothing Then
                 PNRs = New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
@@ -442,7 +442,7 @@ Namespace SipTest
 
                 Me.SetLevels(ReferenceLevel, pnr)
 
-                Dim EstimatedScore = Me.CalculateEstimatedMeanScore
+                Dim EstimatedScore = Me.CalculateEstimatedMeanScore(SkipCriticalDifferenceCalculation)
 
                 If EstimatedScore IsNot Nothing Then
                     Output.Add(pnr, EstimatedScore)
@@ -467,7 +467,7 @@ Namespace SipTest
 
         End Function
 
-        Public Function CalculateEstimatedMeanScore() As Tuple(Of Double, Double, Double)
+        Public Function CalculateEstimatedMeanScore(ByVal SkipCriticalDifferenceCalculation As Boolean) As Tuple(Of Double, Double, Double)
 
             Dim TrialSuccessProbabilityList As New List(Of Double)
 
@@ -477,10 +477,14 @@ Namespace SipTest
                 TrialSuccessProbabilityList.Add(Trial.EstimatedSuccessProbability(True))
             Next
 
-            Dim CriticalDifferenceLimits = CriticalDifferences.GetCriticalDifferenceLimits_PBAC(TrialSuccessProbabilityList.ToArray, TrialSuccessProbabilityList.ToArray)
 
             If TrialSuccessProbabilityList.Count > 0 Then
-                Return New Tuple(Of Double, Double, Double)(TrialSuccessProbabilityList.Average(), CriticalDifferenceLimits.Item1, CriticalDifferenceLimits.Item2)
+                If SkipCriticalDifferenceCalculation = False Then
+                    Dim CriticalDifferenceLimits = CriticalDifferences.GetCriticalDifferenceLimits_PBAC(TrialSuccessProbabilityList.ToArray, TrialSuccessProbabilityList.ToArray)
+                    Return New Tuple(Of Double, Double, Double)(TrialSuccessProbabilityList.Average(), CriticalDifferenceLimits.Item1, CriticalDifferenceLimits.Item2)
+                Else
+                    Return New Tuple(Of Double, Double, Double)(TrialSuccessProbabilityList.Average(), Double.NaN, Double.NaN)
+                End If
             Else
                 Return Nothing
             End If
@@ -1383,6 +1387,9 @@ Namespace SipTest
 
             If LogToConsole = True Then
                 Dim LogList As New List(Of String)
+                LogList.Add("PrimaryStringRepresentation:" & vbTab & Me.SpeechMaterialComponent.PrimaryStringRepresentation)
+                LogList.Add("Reference_SPL:" & vbTab & Reference_SPL)
+                LogList.Add("PNR:" & vbTab & PNR)
                 LogList.Add("PDL:" & vbTab & PDL)
                 LogList.Add("TPD:" & vbTab & TPD)
                 LogList.Add("Z:" & vbTab & Z)
