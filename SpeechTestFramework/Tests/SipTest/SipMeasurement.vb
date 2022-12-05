@@ -244,10 +244,12 @@ Namespace SipTest
             Dim MixedCount As Integer = 0
             Dim RemainingPlannedTrials = PlannedTrials.GetRange(0, PlannedTrials.Count)
 
-            If StopAfter.HasValue Then
-                Console.WriteLine("Starts mixing " & StopAfter.Value & " trial sounds...")
-            Else
-                Console.WriteLine("Starts mixing new trial sounds...")
+            If LogToConsole = True Then
+                If StopAfter.HasValue Then
+                    Console.WriteLine("Starts mixing " & StopAfter.Value & " trial sounds...")
+                Else
+                    Console.WriteLine("Starts mixing new trial sounds...")
+                End If
             End If
 
             For Each Trial In RemainingPlannedTrials
@@ -256,10 +258,12 @@ Namespace SipTest
                     Trial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
                     MixedCount += 1
 
-                    If Trial.TestTrialSound IsNot Nothing Then
-                        Console.WriteLine("Mixed trial sound: " & MixedCount)
-                    Else
-                        Console.WriteLine("   Failed to mix trial sound: " & MixedCount)
+                    If LogToConsole = True Then
+                        If Trial.TestTrialSound IsNot Nothing Then
+                            Console.WriteLine("Mixed trial sound: " & MixedCount)
+                        Else
+                            Console.WriteLine("   Failed to mix trial sound: " & MixedCount)
+                        End If
                     End If
 
                     'Stops after mixing StopAfter new sounds (this can be utilized in order not to bulid up too much memory)
@@ -619,7 +623,6 @@ Namespace SipTest
             Headings.Add("Description")
             Headings.Add("TestUnitIndex")
             Headings.Add("SpeechMaterialComponentID")
-            Headings.Add("PrimaryStringRepresentation")
             Headings.Add("MediaSetName")
             Headings.Add("PresentationOrder")
             Headings.Add("Reference_SPL")
@@ -642,6 +645,8 @@ Namespace SipTest
             'Headings.Add("CorrectScreenPosition")
             'Headings.Add("ResponseScreenPosition")
 
+            Headings.Add("PrimaryStringRepresentation")
+
 
             OutputLines.Add(String.Join(vbTab, Headings))
 
@@ -655,7 +660,6 @@ Namespace SipTest
                 TrialList.Add(Me.Description)
                 TrialList.Add(GetParentTestUnitIndex(Trial))
                 TrialList.Add(Trial.SpeechMaterialComponent.Id)
-                TrialList.Add(Trial.SpeechMaterialComponent.PrimaryStringRepresentation)
                 TrialList.Add(Trial.MediaSet.MediaSetName)
                 TrialList.Add(t)
                 TrialList.Add(Trial.Reference_SPL)
@@ -683,6 +687,7 @@ Namespace SipTest
                 'TrialList.Add(Trial.ResponseScreenPosition)
 
                 'TODO: ... add more
+                TrialList.Add(Trial.SpeechMaterialComponent.PrimaryStringRepresentation)
 
 
                 OutputLines.Add(String.Join(vbTab, TrialList))
@@ -713,7 +718,7 @@ Namespace SipTest
             Return -1
         End Function
 
-        Public Shared Function ParseImportLines(ByVal ImportLines() As String, ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional ByVal ParticipantID As String = "") As SipMeasurement
+        Public Shared Function ParseImportLines(ByVal ImportLines() As String, ByRef Randomizer As Random, ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional ByVal ParticipantID As String = "") As SipMeasurement
 
             Dim Output As SipMeasurement = Nothing
 
@@ -750,8 +755,6 @@ Namespace SipTest
                 Dim ParentTestUnitIndex As Integer = LineColumns(c)
                 c += 1
                 Dim SpeechMaterialComponentID As String = LineColumns(c)
-                c += 1
-                'Here the PrimaryStringRepresenation is exported, but it doesn't have to be read
                 c += 1
                 Dim MediaSetName As String = LineColumns(c)
                 c += 1
@@ -805,7 +808,7 @@ Namespace SipTest
                 'Getting the SpeechMaterialComponent, media set and (re-)creates the test trial
                 Dim SpeechMaterialComponent = ParentTestSpecification.SpeechMaterial.GetComponentById(SpeechMaterialComponentID)
                 Dim MediaSet = ParentTestSpecification.MediaSets.GetMediaSet(MediaSetName)
-                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, TargetLocation)
+                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, TargetLocation, Randomizer)
 
                 'Stores the remaining test trial data
                 'NewTestTrial.PresentationOrder = PresentationOrder 'This is not stored as the export/import should always be ordered in the presentation order, as they are read from and stored into the ObservedTrials object!
@@ -847,7 +850,7 @@ Namespace SipTest
 
         End Sub
 
-        Public Shared Function ImportSummary(ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional ByVal FilePath As String = "", Optional ByVal Participant As String = "") As SipMeasurement
+        Public Shared Function ImportSummary(ByRef ParentTestSpecification As SpeechMaterialSpecification, ByRef Randomizer As Random, Optional ByVal FilePath As String = "", Optional ByVal Participant As String = "") As SipMeasurement
 
             'Gets a file path from the user if none is supplied
             If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured measurement history .txt file.")
@@ -860,7 +863,7 @@ Namespace SipTest
             Dim InputLines() As String = System.IO.File.ReadAllLines(FilePath, Text.Encoding.UTF8)
 
             'Imports a summary
-            Return ParseImportLines(InputLines, ParentTestSpecification, Participant)
+            Return ParseImportLines(InputLines, Randomizer, ParentTestSpecification, Participant)
 
         End Function
 
@@ -916,7 +919,7 @@ Namespace SipTest
 
                     'For n = 1 To ParentMeasurement.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
                     For c = 0 To SpeechMaterialComponents.Count - 1
-                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet, TargetLocation)
+                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet, TargetLocation, ParentMeasurement.Randomizer)
                         PlannedTrials.Add(NewTrial)
                     Next
 
@@ -1001,6 +1004,8 @@ Namespace SipTest
         ''' <returns></returns>
         Public ReadOnly Property SpeechMaterialComponent As SpeechMaterialComponent
 
+        Public ReadOnly Property SelectedMediaIndex As Integer
+
         ''' <summary>
         ''' Holds a reference to the MediaSet used in the trial.
         ''' </summary>
@@ -1043,7 +1048,8 @@ Namespace SipTest
         Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
                        ByRef SpeechMaterialComponent As SpeechMaterialComponent,
                        ByRef MediaSet As MediaSet,
-                       ByRef TargetStimulusLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+                       ByRef TargetStimulusLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation,
+                       ByRef SipMeasurementRandomizer As Random)
 
             Me.ParentTestUnit = ParentTestUnit
             Me.SpeechMaterialComponent = SpeechMaterialComponent
@@ -1058,6 +1064,10 @@ Namespace SipTest
             ReferenceTestWordLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
             ReferenceContrastingPhonemesLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, "RLxs")
 
+            'Randomizing the SelectedMediaIndex 
+            'SelectedMediaIndex = 0
+            'MsgBox("Re-insert randomizer!")
+            SelectedMediaIndex = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
 
         End Sub
 
@@ -1203,7 +1213,7 @@ Namespace SipTest
                 Dim MaskersStartMeasureLength As Integer = MaskerCentralizedSectionLength
 
                 'Selects a recording index, and gets the corresponding sound
-                Dim SelectedMediaIndex As Integer = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
+                'Dim SelectedMediaIndex As Integer = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
                 Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1)
 
                 'Stores the length of the test word sound
@@ -1285,7 +1295,7 @@ Namespace SipTest
 
 
                 MixStopWatch.Stop()
-                Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
+                If LogToConsole = True Then Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
                 MixStopWatch.Restart()
 
                 'Initiating the sound field simulator if needed
@@ -1304,7 +1314,7 @@ Namespace SipTest
                 'Creating the mix by calling CreateSoundScene of the current Mixer
                 Dim MixedTestTrialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
 
-                Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
+                If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
                 'TODO: Here we can simulate and/or compensate for hearing loss:
                 'SimulateHearingLoss,
@@ -1340,7 +1350,12 @@ Namespace SipTest
 
             'Getting predictors
             Dim PDL As Double = Me.PhonemeDiscriminabilityLevel
-            Dim TPD As Double = Me.SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Tc")
+
+            'TODO! Decide whether exact duration of the presented phoneme should be used (slower, but as in Witte,2021) or if average test phoneme duration (for the five exemplar recordings of each word) should be used (a little faster)
+            Dim DurationList = Me.SpeechMaterialComponent.GetDurationOfContrastingComponents(Me.MediaSet, SpeechMaterialComponent.LinguisticLevels.Phoneme, Me.SelectedMediaIndex, 1)
+            Dim TPD As Double = DurationList(0)
+            'Dim TPD As Double = Me.SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Tc")
+
             Dim Z As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("Z")
             Dim iPNDP As Double = 1 / Me.SpeechMaterialComponent.GetNumericVariableValue("PNDP")
             Dim PP As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("PP")
@@ -1365,6 +1380,23 @@ Namespace SipTest
 
             'Calculating estimated success probability
             Dim p As Double = 1 / 3 + (2 / 3) * (1 / (1 + Math.Exp(-Eta)))
+
+            If LogToConsole = True Then
+                Dim LogList As New List(Of String)
+                LogList.Add("PDL:" & vbTab & PDL)
+                LogList.Add("TPD:" & vbTab & TPD)
+                LogList.Add("Z:" & vbTab & Z)
+                LogList.Add("iPNDP:" & vbTab & iPNDP)
+                LogList.Add("PP:" & vbTab & PP)
+                LogList.Add("PT:" & vbTab & PT)
+                LogList.Add("PDL_gmc_div:" & vbTab & PDL_gmc_div)
+                LogList.Add("Z_gmc_div:" & vbTab & Z_gmc_div)
+                LogList.Add("iPNDP_gmc_div:" & vbTab & iPNDP_gmc_div)
+                LogList.Add("Eta:" & vbTab & Eta)
+                LogList.Add("p:" & vbTab & p)
+
+                Console.WriteLine(String.Join(vbCrLf, LogList))
+            End If
 
             'Stores the result in PredictedSuccessProbability
             _EstimatedSuccessProbability = p
@@ -1408,11 +1440,10 @@ Namespace SipTest
 
             'Getting the current gain, compared to the reference test-word and masker levels
             Dim CurrentSpeechGain As Double = TestWordLevel - ReferenceTestWordLevel_SPL + RefLevelDifference ' SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
-            Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " SpeechGain : " & CurrentSpeechGain)
+            If LogToConsole = True Then Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " SpeechGain : " & CurrentSpeechGain)
 
             Dim CurrentMaskerGain As Double = TargetMasking_SPL - ReferenceContrastingPhonemesLevel_SPL + RefLevelDifference 'Audio.Standard_dBFS_To_dBSPL(Common.SipTestReferenceMaskerLevel_FS) 'TODO: In the SiP-test maskers sound files the level is set to -30 dB FS across the whole sounds. A more detailed sound level data could be used instead!
-            Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " CurrentMaskerGain: " & CurrentMaskerGain)
-
+            If LogToConsole = True Then Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " CurrentMaskerGain: " & CurrentMaskerGain)
 
             For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
                 Dim VariableNameSuffix = Math.Round(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(i)).ToString("00000")
@@ -1438,6 +1469,32 @@ Namespace SipTest
                 Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s), MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
                 SDRcs.Add(SDRc)
             Next
+
+            If LogToConsole = True Then
+                Dim LogList As New List(Of String)
+                LogList.Add("PrimaryStringRepresentation:" & vbTab & Me.SpeechMaterialComponent.PrimaryStringRepresentation)
+                LogList.Add("RefLevelDifference:" & vbTab & RefLevelDifference)
+                LogList.Add("CurrentSpeechGain:" & vbTab & CurrentSpeechGain)
+                LogList.Add("CurrentMaskerGain:" & vbTab & CurrentMaskerGain)
+
+                LogList.Add("CentreFrequencies:" & vbTab & String.Join("; ", Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies))
+                LogList.Add("Thresholds:" & vbTab & String.Join("; ", Thresholds))
+                LogList.Add("Gain:" & vbTab & String.Join("; ", Gain))
+
+                LogList.Add("CorrectResponseSpectralLevels:" & vbTab & String.Join("; ", CorrectResponseSpectralLevels))
+                For s = 0 To Siblings.Count - 1
+                    LogList.Add("IncorrectResponsesSpectralLevels_" & s & ":" & vbTab & String.Join("; ", IncorrectResponsesSpectralLevels(s)))
+                Next
+                LogList.Add("MaskerSpectralLevels:" & vbTab & String.Join("; ", MaskerSpectralLevels))
+                LogList.Add("SRFM:" & vbTab & String.Join("; ", SRFM))
+
+                LogList.Add("SDRt:" & vbTab & String.Join("; ", SDRt))
+                For s = 0 To Siblings.Count - 1
+                    LogList.Add("SDRcs_" & s & ":" & vbTab & String.Join("; ", SDRcs(s)))
+                Next
+
+                Console.WriteLine(String.Join(vbCrLf, LogList))
+            End If
 
             'Calculating PDL
             Return PDL.CalculatePDL(SDRt, SDRcs)
@@ -1542,7 +1599,7 @@ Namespace SipTest
         ''' </summary>
         ''' <param name="FilePath"></param>
         ''' <returns>Returns Nothing if an error occured during loading.</returns>
-        Public Function LoadMeasurements(ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional ByVal FilePath As String = "", Optional ByVal ParticipantID As String = "") As MeasurementHistory
+        Public Function LoadMeasurements(ByRef ParentTestSpecification As SpeechMaterialSpecification, ByRef Randomizer As Random, Optional ByVal FilePath As String = "", Optional ByVal ParticipantID As String = "") As MeasurementHistory
 
             Dim Output As New MeasurementHistory
 
@@ -1581,7 +1638,7 @@ Namespace SipTest
 
             'Parsing each measurement
             For Each MeasurementStringArray In ImportedMeasurementList
-                Dim LoadedMeasurement = SipMeasurement.ParseImportLines(MeasurementStringArray, ParentTestSpecification, ParticipantID)
+                Dim LoadedMeasurement = SipMeasurement.ParseImportLines(MeasurementStringArray, Randomizer, ParentTestSpecification, ParticipantID)
                 If LoadedMeasurement Is Nothing Then Return Nothing
                 Output.Measurements.Add(LoadedMeasurement)
             Next

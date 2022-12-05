@@ -1253,7 +1253,7 @@ Public Class SipTestGui
                 While CurrentSipTrial.TestTrialSound Is Nothing
                     WaitPeriods += 1
                     Threading.Thread.Sleep(100)
-                    Console.WriteLine("Waiting for sound to mix: " & WaitPeriods * 100 & " ms")
+                    If LogToConsole = True Then Console.WriteLine("Waiting for sound to mix: " & WaitPeriods * 100 & " ms")
                 End While
 
                 'If CurrentSipTrial.TestTrialSound Is Nothing Then
@@ -1895,7 +1895,7 @@ Public Class SipTestGui
             Exit Sub
         End If
 
-        Dim ImportedMeasurements = MeasurementHistory.LoadMeasurements(SpeechMaterial.ParentTestSpecification,, CurrentParticipantID)
+        Dim ImportedMeasurements = MeasurementHistory.LoadMeasurements(SpeechMaterial.ParentTestSpecification, SipMeasurementRandomizer, CurrentParticipantID)
 
         If ImportedMeasurements Is Nothing Then Exit Sub
 

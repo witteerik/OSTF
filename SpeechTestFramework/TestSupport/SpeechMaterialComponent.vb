@@ -434,6 +434,41 @@ Public Class SpeechMaterialComponent
     End Function
 
 
+    Public Function GetDurationOfContrastingComponents(ByRef MediaSet As MediaSet,
+                                                               ByVal ContrastLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                       ByVal MediaItemIndex As Integer,
+                                                               ByVal SoundChannel As Integer) As List(Of Double)
+
+
+        Dim TargetComponents = Me.GetAllDescenentsAtLevel(ContrastLevel, True)
+
+
+        'Get the SMA components representing the sound sections of all target components
+        Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+
+        For c = 0 To TargetComponents.Count - 1
+
+            'Determine if is contraisting component??
+            If TargetComponents(c).IsContrastingComponent = False Then
+                Continue For
+            End If
+
+            CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(MediaSet, MediaItemIndex, SoundChannel, True))
+
+        Next
+
+        Dim DurationList As New List(Of Double)
+
+        'Getting the actual sound sections and measures their durations
+        For Each SmaComponent In CurrentSmaComponentList
+            DurationList.Add(SmaComponent.Length / SmaComponent.ParentSMA.ParentSound.WaveFormat.SampleRate)
+        Next
+
+        Return DurationList
+
+    End Function
+
+
     Public Function FindSelfIndices(Optional ByRef ComponentIndices As ComponentIndices = Nothing) As ComponentIndices
 
         If ComponentIndices Is Nothing Then ComponentIndices = New ComponentIndices

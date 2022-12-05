@@ -4,6 +4,8 @@
 
         Public SipTestReferenceMaskerLevel_FS As Double = -30
 
+        Public LogToConsole As Boolean = False
+
     End Module
 
 

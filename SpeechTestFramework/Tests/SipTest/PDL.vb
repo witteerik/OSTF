@@ -184,7 +184,7 @@
 
             Z(0) = B(0)
 
-            For i = 1 To 19 'TODO: Check why this do not go to 20 (or 21 in the R-code) ???
+            For i = 1 To 20
                 Dim ExponentTermB As New List(Of Double)
                 For j = 0 To i - 1
                     ExponentTermB.Add(10 ^ (0.1 * (B(j) + 3.32 * C(j) * Math.Log10(F(i) / h(j)))))

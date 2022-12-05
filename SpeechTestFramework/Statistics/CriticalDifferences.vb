@@ -662,10 +662,7 @@
 
         Loop
 
-        Console.WriteLine(String.Concat("Detected function minimum of " & AdjSP_OptimF(CurrentSampleX, xCopy, TargetScore, Floor) &
-                                        " within the range " & Point1X & " to " & Point2X &
-                                        " in: ", Iterations & " iterations"))
-
+        ' Then Console.WriteLine(String.Concat("Detected function minimum of " & AdjSP_OptimF(CurrentSampleX, xCopy, TargetScore, Floor) & " within the range " & Point1X & " to " & Point2X & " in: ", Iterations & " iterations"))
 
         Dim Y = AdjSP_F(CurrentSampleX, xCopy, Floor)
 

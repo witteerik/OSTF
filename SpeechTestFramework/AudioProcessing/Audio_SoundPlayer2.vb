@@ -50,7 +50,7 @@ Namespace Audio
                                                                                              End If
 
                                                                                              BufferPosition += 1
-                                                                                             Console.WriteLine("End: " & BufferPosition)
+                                                                                             'Console.WriteLine("End: " & BufferPosition)
 
                                                                                          Else
 
@@ -60,7 +60,7 @@ Namespace Audio
                                                                                              Next
 
                                                                                              BufferPosition += 1
-                                                                                             Console.WriteLine(BufferPosition)
+                                                                                             'Console.WriteLine(BufferPosition)
 
                                                                                          End If
 
@@ -70,7 +70,7 @@ Namespace Audio
 
                                                                                  Catch ex As Exception
 
-                                                                                     Console.WriteLine(ex.ToString)
+                                                                                     'Console.WriteLine(ex.ToString)
 
                                                                                      SendInfoToAudioLog(BufferPosition & " " & ex.ToString, "SoundPlayerExceptions")
 
