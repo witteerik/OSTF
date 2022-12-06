@@ -5,7 +5,8 @@
 
     Public Property AvailableTestsSubFolder As String = "AvailableSpeechMaterials"
     Public Property CalibrationSignalSubDirectory As String = "CalibrationSignals"
-    Public Property AudioSystemSettingsFile As String = IO.Path.Combine("AudioSystem", "AudioSystemSpecification.txt")
+    Public Property AudioSystemSubDirectory As String = "AudioSystem"
+    Public Property AudioSystemSettingsFile As String = IO.Path.Combine(AudioSystemSubDirectory, "AudioSystemSpecification.txt")
     Public Property RoomImpulsesSubDirectory As String = "RoomImpulses"
     Public Property AvailableTests As New List(Of SpeechMaterialSpecification)
 
@@ -80,13 +81,40 @@
 
             Next
 
+            'Checks that the folder exists
             If IO.Directory.Exists(MediaRootDirectory) = False Then
-                Throw New Exception("Unable to locate the MediaRootDirectory: " & MediaRootDirectory & vbCrLf &
-                                    "Make sure that the correct MediaRootDirectory directory is supplied in the file 'local_settings.txt' located at your application startup path.")
+0:
+                Dim NewOSTFMediaFolderDialog As New OSTFMediaFolderDialog
+                NewOSTFMediaFolderDialog.Text = "Cannot find the OSTF media folder"
+                NewOSTFMediaFolderDialog.StartPosition = Windows.Forms.FormStartPosition.CenterScreen
+                NewOSTFMediaFolderDialog.ShowDialog()
+            End If
+
+            'Checks that it seems to be the right (media) folder
+            If IO.Directory.Exists(IO.Path.Combine(MediaRootDirectory, AudioSystemSubDirectory)) = False Then
+                Dim MsgResult = MsgBox("It seems like you have selected an incorrect OSTF media folder. The OSTF media folder should for example contain the folder " & AudioSystemSubDirectory & vbCrLf &
+                                    "Please try again.", MsgBoxStyle.OkCancel, "Unable to find the OSTF media folder!")
+                If MsgResult = MsgBoxResult.Ok Then
+                    GoTo 0
+                Else
+                    Throw New Exception("Unable to locate the OSTF media folder! Cannot start the application.")
+                End If
             End If
 
         Catch ex As Exception
             Throw New Exception("The following error occurred when trying to initialize OSTF:" & vbCrLf & vbCrLf & ex.ToString)
+        End Try
+
+    End Sub
+
+    Public Sub StoreMediaRootDirectory(ByVal MediaRootDirectory As String)
+
+        'Storing the MediaRootDirectory to the file local_settings file, for now just overwriting the file since the MediaRootDirectory is its only content
+        Dim local_settings_FilePath As String = IO.Path.Combine(Windows.Forms.Application.StartupPath, "local_settings.txt")
+        Try
+            IO.File.WriteAllText(local_settings_FilePath, "MediaRootDirectory = " & MediaRootDirectory)
+        Catch ex As Exception
+            MsgBox("Unable to write to the file " & local_settings_FilePath & vbCrLf & vbCrLf & " If it is open in another application, please close it and try again.", MsgBoxStyle.Critical, "An error occurred when attempting to store the media folder path...")
         End Try
 
     End Sub

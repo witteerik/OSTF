@@ -1,4 +1,9 @@
 ﻿
+'TODOs
+'Should we neutralize TPD per testord instead of per recording in the SiP-test model?
+'We have To fix the randomizers In the SIPtest. There are randomizers at several levels!
+
+
 Namespace SipTest
 
     'N.B. Variable name abbreviations used:

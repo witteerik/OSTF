@@ -108,6 +108,12 @@
     <Compile Include="ParticipantInterfaces\PC\DirectionalForcedChoiceControl.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Settings\OSTFMediaFolderDialog.Designer.vb">
+      <DependentUpon>OSTFMediaFolderDialog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\OSTFMediaFolderDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="WinFormControls\GainDiagramSettingsDialog.Designer.vb">
       <DependentUpon>GainDiagramSettingsDialog.vb</DependentUpon>
     </Compile>
@@ -395,6 +401,9 @@
   <ItemGroup>
     <EmbeddedResource Include="ParticipantInterfaces\PC\DirectionalForcedChoiceControl.resx">
       <DependentUpon>DirectionalForcedChoiceControl.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\OSTFMediaFolderDialog.resx">
+      <DependentUpon>OSTFMediaFolderDialog.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\GainDiagramSettingsDialog.resx">
       <DependentUpon>GainDiagramSettingsDialog.vb</DependentUpon>

@@ -26,6 +26,28 @@ Public Class PathControl
     '<DesignerSerializationVisibility(DesignerSerializationVisibility.Content)>
     Protected WithEvents BrowseButton As New Button
 
+    Public Property PathType As PathTextBox.PathTypes
+        Get
+            Return PathTextBox.PathType
+        End Get
+        Set(value As PathTextBox.PathTypes)
+            PathTextBox.PathType = value
+        End Set
+    End Property
+
+    ''' <summary>
+    ''' Determines whether the control is to be used for reading/loading or writing/saving paths
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property DirectionType As PathTextBox.DirectionTypes
+        Get
+            Return PathTextBox.DirectionType
+        End Get
+        Set(value As PathTextBox.DirectionTypes)
+            PathTextBox.DirectionType = value
+        End Set
+    End Property
+
     Public ReadOnly Property SelectedPath As String
         Get
             Return PathTextBox.SelectedPath
@@ -84,7 +106,7 @@ Public Class PathControl
                     Case PathTextBox.PathTypes.Folder
                         'Open a select input folder dialog
                         Dim fbd As New FolderBrowserDialog()
-                        fbd.Description = "Select input folder "
+                        fbd.Description = "Select folder "
                         Dim result = fbd.ShowDialog()
                         If result = DialogResult.OK Then
                             PathTextBox.Text = fbd.SelectedPath
@@ -111,7 +133,7 @@ Public Class PathControl
 
                         'Open a select input folder dialog
                         Dim fbd As New FolderBrowserDialog()
-                        fbd.Description = "Select ouput folder "
+                        fbd.Description = "Select folder "
                         Dim result = fbd.ShowDialog()
                         If result = DialogResult.OK Then
                             PathTextBox.Text = fbd.SelectedPath
@@ -121,7 +143,10 @@ Public Class PathControl
 
         End Select
 
+    End Sub
 
+    Public Sub SetSelectedPath(ByVal Path As String)
+        PathTextBox.Text = Path
     End Sub
 
 End Class
