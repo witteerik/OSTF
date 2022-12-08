@@ -1,0 +1,32 @@
+Id	ListName
+C	C
+L00	Lista 1
+L01	Lista 2
+L02	Lista 3
+L03	Lista 4
+L04	Lista 5
+L05	Lista 6
+L06	Lista 7
+L07	Lista 8
+L08	Lista 9
+L09	Lista 10
+L10	Lista 11
+L11	Lista 12
+L12	Lista 13
+L13	Lista 14
+L14	Lista 15
+L15	Lista 16
+L16	Lista 17
+L17	Lista 18
+L18	Lista 19
+L19	Lista 20
+L20	Lista 21
+L21	Lista 22
+L22	Lista 23
+L23	Lista 24
+L24	Lista 25
+L25	Övningslista 1
+L26	Övningslista 2
+L27	Övningslista 3
+L28	Övningslista 4
+L29	Övningslista 5

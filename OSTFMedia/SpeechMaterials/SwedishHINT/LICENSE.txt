@@ -1,0 +1,5 @@
+All materials in the current folder and all its subfolders are separately licensed under the Creative Commons Attribution 4.0 International License https://creativecommons.org/licenses/by/4.0/
+
+The materials are modified versions of the recordings for the Swedish Hearing In Noise Test (HINT), originally created by Hällgren, Larsby and Arlinger and available from https://doi.org/10.17605/OSF.IO/4ZNCK under the Creative Commons Attribution 4.0 International License, https://creativecommons.org/licenses/by/4.0/.
+
+Our modifications are solely technical and do notably alter the audio quality or the relative sound levels within the original recordings. For details see the ReadMe file at https://github.com/witteerik/OSTF.

@@ -1,0 +1,26 @@
+// This is an OSTA media set specification file
+MediaSetName = Standard
+TalkerName = NA
+TalkerGender = Female
+TalkerAge = 40
+TalkerDialect = Central Swedish
+VoiceType = Normal Vocal Effort
+AudioFileLinguisticLevel = List
+SharedMaskersLevel = ListCollection
+MediaAudioItems = 1
+MaskerAudioItems = 1
+MediaImageItems = 0
+MaskerImageItems = 0
+CustomVariablesFolder = Media\Standard\CustomVariables
+MediaParentFolder = Media\Standard\RecordingsVoiceOnly
+MaskerParentFolder = Media\Standard\RecordingsNoiseOnly
+BackgroundNonspeechParentFolder = 
+BackgroundSpeechParentFolder = 
+PrototypeMediaParentFolder = 
+MasterPrototypeRecordingPath = 
+PrototypeRecordingLevel = -999
+LombardNoisePath = 
+LombardNoiseLevel = -999
+WaveFileSampleRate = 44100
+WaveFileBitDepth = 32
+WaveFileEncoding = IeeeFloatingPoints

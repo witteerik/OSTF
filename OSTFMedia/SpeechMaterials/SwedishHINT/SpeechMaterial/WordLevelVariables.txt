@@ -1,0 +1,1382 @@
+Id	Spelling	Transcription	IsKeyComponent
+C	C	C	N
+L00S00W00	Farfar	 f ² a rː . f ˌ a rː 	1
+L00S00W01	ska	 s k ˈ ɑː 	0
+L00S00W02	vaxa	 v ² a kː . s a 	1
+L00S00W03	bilen	 b ˈ iː . l e̞ n 	1
+L00S01W00	Pojken	 p ² ɔ ʝː . k e̞ n 	1
+L00S01W01	stod	 s t ˈ uː d 	1
+L00S01W02	på	 p ˈ oː 	0
+L00S01W03	händer	 h ˈ ɛ̝ nː . d e̞ r 	1
+L00S02W00	Låset	 l ˈ oː . s e̞ t 	1
+L00S02W01	frös	 f r ˈ øː s 	1
+L00S02W02	under	 ˈ ɵ nː . d e̞ r 	0
+L00S02W03	natten	 n ˈ a tː . e̞ n 	1
+L00S03W00	Den	 d ˈ ɛ̝ nː 	0
+L00S03W01	gamle	 ɡ ² a mː . l e̞ 	1
+L00S03W02	mannen	 m ˈ a nː . e̞ n 	1
+L00S03W03	läste	 l ² ɛː . s t e̞ 	1
+L00S03W04	en	 ˈ ɛ̝ nː 	0
+L00S03W05	bok	 b ˈ uː k 	1
+L00S04W00	De	 d ˈ eː 	0
+L00S04W01	röda	 r ² øː . d a 	1
+L00S04W02	stövlarna	 s t ² ø̞ vː . l a . ɳ a 	1
+L00S04W03	var	 v ˈ ɑː r 	0
+L00S04W04	för	 f ˈ øː r 	1
+L00S04W05	små	 s m ˈ oː 	1
+L00S05W00	Hunden	 h ˈ ɵ nː . d e̞ n 	1
+L00S05W01	kom	 k ˈ ɔ mː 	0
+L00S05W02	hem	 h ˈ ɛ̝ mː 	1
+L00S05W03	till	 t ˈ ɪ lː 	1
+L00S05W04	slut	 s l ˈ ʉː t 	1
+L00S06W00	Bebisen	 b ˈ ɛː . b ɪ . s e̞ n 	1
+L00S06W01	sover	 s ˈ oː . v e̞ r 	1
+L00S06W02	i	 ˈ iː 	0
+L00S06W03	skuggan	 s k ² ɵ ɡː . a n 	1
+L00S07W00	Hon	 h ˈ ʊ nː 	1
+L00S07W01	klättrar	 k l ² ɛ̝ tː . r a r 	1
+L00S07W02	upp	 ˈ ɵ pː 	1
+L00S07W03	på	 p ˈ oː 	0
+L00S07W04	taket	 t ˈ ɑː . k e̞ t 	1
+L00S08W00	Killen	 k ² ɪ lː . e̞ n 	1
+L00S08W01	satt	 s ˈ a tː 	1
+L00S08W02	tyst	 t ˈ ʏ sː t 	1
+L00S08W03	i	 ˈ iː 	0
+L00S08W04	hörnet	 h ˈ øː . ɳ e̞ t 	1
+L00S09W00	En	 ˈ ɛ̝ nː 	0
+L00S09W01	lärare	 l ² ɛː . r a . r e̞ 	1
+L00S09W02	sjöng	 ɧ ˈ ø̞ ŋː 	1
+L00S09W03	i	 ˈ iː 	0
+L00S09W04	aulan	 ˈ a͡uː . l a n 	1
+L01S00W00	Cykeln	 s ˈ ʏ kː . e̞ l n 	1
+L01S00W01	ligger	 l ² ɪ ɡː . e̞ r 	0
+L01S00W02	slängd	 s l ˈ ɛ̝ ŋː d 	1
+L01S00W03	i	 ˈ iː 	0
+L01S00W04	gräset	 ɡ r ˈ ɛː . s e̞ t 	1
+L01S01W00	Tanten	 t ˈ a nː . t e̞ n 	1
+L01S01W01	handlar	 h ² a nː d . l a r 	1
+L01S01W02	en	 ˈ ɛ̝ nː 	1
+L01S01W03	gång	 ɡ ˈ ɔ ŋː 	1
+L01S01W04	i	 ˈ iː 	0
+L01S01W05	veckan	 v ² ɛ̝ kː . a n 	1
+L01S02W00	Frukten	 f r ˈ ɵ kː . t e̞ n 	1
+L01S02W01	packades	 p ² a kː . a . d e̞ s 	1
+L01S02W02	i	 ˈ iː 	0
+L01S02W03	sex	 s ˈ ɛ̝ kː s 	1
+L01S02W04	lådor	 l ² oː . d ʊ r 	1
+L01S03W00	Plånboken	 p l ² oː m . b ˌ uː . k e̞ n 	1
+L01S03W01	låg	 l ˈ oː ɡ 	0
+L01S03W02	kvar	 k v ˈ ɑː r 	1
+L01S03W03	på	 p ˈ oː 	0
+L01S03W04	isen	 ˈ iː . s e̞ n 	1
+L01S04W00	Mamma	 m ² a mː . a 	1
+L01S04W01	lär	 l ˈ ɛː r 	1
+L01S04W02	sig	 s ˈ ɛ̝ ʝː 	0
+L01S04W03	hoppa	 h ² ɔ pː . a 	1
+L01S04W04	fallskärm	 f ² a lː . ɧ ˌ ɛ̝ rː m 	1
+L01S05W00	Datorn	 d ² ɑː . t ʊ ɳ 	1
+L01S05W01	blev	 b l ˈ eː v 	0
+L01S05W02	överhettad	 ² øː . v e̞ r . h ˌ ɛ̝ tː . a d 	1
+L01S06W00	Rektorn	 r ² ɛ̝ kː . t ʊ ɳ 	1
+L01S06W01	tog	 t ˈ uː ɡ 	1
+L01S06W02	fram	 f r ˈ a mː 	1
+L01S06W03	kastrullen	 k a . s t r ˈ ɵ lː . e̞ n 	1
+L01S07W00	Kvinnan	 k v ² ɪ nː . a n 	1
+L01S07W01	arbetade	 ² a rː . b e . t a . d e̞ 	1
+L01S07W02	på	 p ˈ oː 	0
+L01S07W03	posten	 p ˈ ɔ sː . t e̞ n 	1
+L01S08W00	Nästa	 n ² ɛ̝ sː . t a 	1
+L01S08W01	år	 ˈ oː r 	1
+L01S08W02	börjar	 b ² ø̞ rː . ʝ a r 	1
+L01S08W03	de	 d ˈ ɔ mː 	0
+L01S08W04	sjuan	 ɧ ² ʉː . a n 	1
+L01S09W00	Bonden	 b ² ʊ nː . d e̞ n 	1
+L01S09W01	skjutsade	 ɧ ² ɵ sː . a . d e̞ 	1
+L01S09W02	sina	 s ² iː . n a 	0
+L01S09W03	barn	 b ˈ ɑː ɳ 	1
+L02S00W00	Kvinnan	 k v ² ɪ nː . a n 	1
+L02S00W01	ringde	 r ² ɪ ŋː . d e̞ 	1
+L02S00W02	sin	 s ˈ ɪ nː 	0
+L02S00W03	syster	 s ² ʏ sː . t e̞ r 	1
+L02S01W00	Isen	 ˈ iː . s e̞ n 	1
+L02S01W01	lade	 l ² ɑː . d e̞ 	1
+L02S01W02	sig	 s ˈ ɛ̝ ʝː 	1
+L02S01W03	över	 ˈ øː . v e̞ r 	0
+L02S01W04	sjön	 ɧ ˈ ø̞ nː 	1
+L02S02W00	Träden	 t r ˈ ɛː . d e̞ n 	1
+L02S02W01	gav	 ɡ ˈ ɑː v 	0
+L02S02W02	svalkande	 s v ² a lː . k a n . d e̞ 	1
+L02S02W03	skugga	 s k ² ɵ ɡː . a 	1
+L02S03W00	Personalen	 p e̞ . ʂ ʊ . n ˈ ɑː . l e̞ n 	1
+L02S03W01	kommer	 k ˈ ɔ mː . e̞ r 	1
+L02S03W02	imorgon	 ɪ . m ² ɔ rː . ɔ n 	1
+L02S04W00	Korvgubben	 k ² ɔ rː v . ɡ ˌ ɵ bː . e̞ n 	1
+L02S04W01	tittar	 t ² ɪ tː . a r 	1
+L02S04W02	på	 p ˈ oː 	0
+L02S04W03	stjärnorna	 ɧ ² ɛː . ɳ ʊ . ɳ a 	1
+L02S05W00	Sovrumsmattan	 s ² oː v . r ɵ m s . m ˌ a tː . a n 	1
+L02S05W01	är	 ˈ ɛː r 	0
+L02S05W02	blå	 b l ˈ oː 	1
+L02S06W00	Killen	 k ² ɪ lː . e̞ n 	1
+L02S06W01	halkade	 h ² a lː . k a . d e̞ 	1
+L02S06W02	i	 ˈ iː 	0
+L02S06W03	badrummet	 b ² ɑː d . r ˌ ɵ mː . e̞ t 	1
+L02S07W00	Mannen	 m ˈ a nː . e̞ n 	1
+L02S07W01	fotograferar	 f ʊ . t ʊ . ɡ r a . f ˈ eː . r a r 	1
+L02S07W02	slottet	 s l ˈ ɔ tː . e̞ t 	1
+L02S08W00	Föräldrarna	 f ø̞ r . ˈ ɛ̝ lː . d r a . ɳ a 	1
+L02S08W01	satt	 s ˈ a tː 	1
+L02S08W02	på	 p ˈ oː 	0
+L02S08W03	balkongen	 b a l . k ˈ ɔ ŋː . e̞ n 	1
+L02S09W00	Tjejen	 ɕ ˈ ɛ̝ ʝː . e̞ n 	1
+L02S09W01	tappade	 t ² a pː . a . d e̞ 	1
+L02S09W02	boken	 b ˈ uː . k e̞ n 	1
+L03S00W00	I	 ˈ iː 	0
+L03S00W01	tallen	 t ˈ a lː . e̞ n 	1
+L03S00W02	satt	 s ˈ a tː 	1
+L03S00W03	en	 ˈ ɛ̝ nː 	0
+L03S00W04	hackspett	 h ² a kː . s p ˌ ɛ̝ tː 	1
+L03S01W00	Kvinnan	 k v ² ɪ nː . a n 	1
+L03S01W01	missade	 m ² ɪ sː . a . d e̞ 	1
+L03S01W02	barnens	 b ˈ ɑː . ɳ e̞ n s 	1
+L03S01W03	pjäs	 p ʝ ˈ ɛː s 	1
+L03S02W00	Han	 h ˈ a nː 	1
+L03S02W01	försökte	 f ø̞ . ʂ ˈ øː k . t e̞ 	1
+L03S02W02	lyfta	 l ² ʏ fː . t a 	1
+L03S02W03	sju	 ɧ ˈ ʉː 	1
+L03S02W04	kilo	 ɕ ˈ iː . l ʊ 	1
+L03S03W00	Mormor	 m ² ʊ rː . m ˌ ʊ rː 	1
+L03S03W01	ska	 s k ˈ ɑː 	0
+L03S03W02	klippa	 k l ² ɪ pː . a 	1
+L03S03W03	sig	 s ˈ ɛ̝ ʝː 	0
+L03S03W04	på	 p ˈ oː 	0
+L03S03W05	tisdag	 t ˈ iː s . d ɑ ɡ 	1
+L03S04W00	Flickan	 f l ² ɪ kː . a n 	1
+L03S04W01	brände	 b r ² ɛ̝ nː . d e̞ 	1
+L03S04W02	sig	 s ˈ ɛ̝ ʝː 	0
+L03S04W03	på	 p ˈ oː 	0
+L03S04W04	ryggen	 r ˈ ʏ ɡː . e̞ n 	1
+L03S05W00	Det	 d ˈ ɛː 	0
+L03S05W01	gamla	 ɡ ² a mː . l a 	1
+L03S05W02	bordet	 b ˈ uː . ɖ e̞ t 	1
+L03S05W03	står	 s t ˈ oː r 	1
+L03S05W04	på	 p ˈ oː 	0
+L03S05W05	gården	 ɡ ˈ oː . ɖ e̞ n 	1
+L03S06W00	Killen	 k ² ɪ lː . e̞ n 	1
+L03S06W01	visslade	 v ² ɪ sː . l a . d e̞ 	1
+L03S06W02	från	 f r ˈ oː n 	0
+L03S06W03	balkongen	 b a l . k ˈ ɔ ŋː . e̞ n 	1
+L03S07W00	Turisten	 t ʉ . r ˈ ɪ sː . t e̞ n 	1
+L03S07W01	cyklade	 s ² ʏ kː . l a . d e̞ 	1
+L03S07W02	över	 ˈ øː . v e̞ r 	0
+L03S07W03	bron	 b r ˈ uː n 	1
+L03S08W00	Pojken	 p ˈ ɔ ʝː . k e̞ n 	1
+L03S08W01	startade	 s t ² a ʈː . a . d e̞ 	1
+L03S08W02	en	 ˈ ɛ̝ nː 	0
+L03S08W03	förening	 f ø̞ r . ˈ eː . n ɪ ŋ 	1
+L03S09W00	Rummet	 r ˈ ɵ mː . e̞ t 	1
+L03S09W01	har	 h ˈ ɑː r 	0
+L03S09W02	tre	 t r ˈ eː 	1
+L03S09W03	gula	 ɡ ² ʉː . l a 	1
+L03S09W04	väggar	 v ² ɛ̝ ɡː . a r 	1
+L04S00W00	Flickan	 f l ² ɪ kː . a n 	1
+L04S00W01	ska	 s k ˈ ɑː 	0
+L04S00W02	åka	 ² oː . k a 	1
+L04S00W03	skridskor	 s k r ˈ ɪ sː . k ʊ r 	1
+L04S00W04	idag	 ɪ . d ˈ ɑː ɡ 	1
+L04S01W00	Mamma	 m ² a mː . a 	1
+L04S01W01	slog	 s l ˈ uː ɡ 	1
+L04S01W02	upp	 ˈ ɵ pː 	0
+L04S01W03	tältet	 t ˈ ɛ̝ lː . t e̞ t 	1
+L04S01W04	på	 p ˈ oː 	0
+L04S01W05	ängen	 ˈ ɛ̝ ŋː . e̞ n 	1
+L04S02W00	Eleven	 e̞ . l ˈ eː . v e̞ n 	1
+L04S02W01	glömde	 ɡ l ² ø̞ mː . d e̞ 	1
+L04S02W02	sin	 s ˈ ɪ nː 	0
+L04S02W03	väska	 v ² ɛ̝ sː . k a 	1
+L04S03W00	Lillebror	 l ² ɪ lː . e̞ . b r ˌ uː r 	1
+L04S03W01	förfrös	 f ø̞ r . f r ˈ øː s 	1
+L04S03W02	vänstra	 v ² ɛ̝ nː . s t r a 	1
+L04S03W03	stortån	 s t ² uː . ʈ ˌ oː n 	1
+L04S04W00	Tåget	 t ˈ oː . ɡ e̞ t 	1
+L04S04W01	stannade	 s t ² a nː . a . d e̞ 	1
+L04S04W02	vid	 v ˈ iː d 	0
+L04S04W03	perrong	 p e̞ . r ˈ ɔ ŋː 	1
+L04S04W04	sju	 ɧ ˈ ʉː 	1
+L04S05W00	Hon	 h ˈ ʊ nː 	1
+L04S05W01	fick	 f ˈ ɪ kː 	0
+L04S05W02	schampo	 ɧ ˈ a mː . p ʊ 	1
+L04S05W03	i	 ˈ iː 	0
+L04S05W04	ögonen	 ² øː . ɡ ɔ . n e̞ n 	1
+L04S06W00	Pojken	 p ² ɔ ʝː . k e̞ n 	1
+L04S06W01	föll	 f ˈ ø̞ lː 	1
+L04S06W02	från	 f r ˈ oː n 	0
+L04S06W03	trädet	 t r ˈ ɛː . d e̞ t 	1
+L04S07W00	Damen	 d ˈ ɑː . m e̞ n 	1
+L04S07W01	handlade	 h ² a nː d . l a . d e̞ 	1
+L04S07W02	på	 p ˈ oː 	0
+L04S07W03	torget	 t ˈ ɔ rː . ʝ e̞ t 	1
+L04S08W00	Flickorna	 f l ² ɪ kː . ʊ . ɳ a 	1
+L04S08W01	åkte	 ² oː k . t e̞ 	1
+L04S08W02	karusell	 k a . r ʉ . s ˈ ɛ̝ lː 	1
+L04S09W00	Pappa	 p ² a pː . a 	1
+L04S09W01	bakar	 b ² ɑː . k a r 	1
+L04S09W02	torra	 t ² ɔ rː . a 	1
+L04S09W03	bullar	 b ² ɵ lː . a r 	1
+L05S00W00	De	 d ˈ ɔ mː 	0
+L05S00W01	svarta	 s v ² a ʈː . a 	1
+L05S00W02	fåren	 f ˈ oː . r e̞ n 	1
+L05S00W03	går	 ɡ ˈ oː r 	0
+L05S00W04	på	 p ˈ oː 	0
+L05S00W05	ängen	 ˈ ɛ̝ ŋː . e̞ n 	1
+L05S01W00	Clownen	 k l ˈ a͡uː . n e̞ n 	1
+L05S01W01	tappar	 t ² a pː . a r 	1
+L05S01W02	en	 ˈ ɛ̝ nː 	0
+L05S01W03	ballong	 b a . l ˈ ɔ ŋː 	1
+L05S02W00	Pappa	 p ² a pː . a 	1
+L05S02W01	byggde	 b ² ʏ ɡː . d e̞ 	1
+L05S02W02	kojor	 k ² ɔ ʝː . ʊ r 	1
+L05S02W03	med	 m ˈ eː 	0
+L05S02W04	oss	 ˈ ɔ sː 	1
+L05S03W00	Den	 d ˈ ɛ̝ nː 	0
+L05S03W01	stora	 s t ² uː . r a 	1
+L05S03W02	svarta	 s v ² a ʈː . a 	1
+L05S03W03	hästen	 h ˈ ɛ̝ sː . t e̞ n 	1
+L05S03W04	frös	 f r ˈ øː s 	1
+L05S04W00	Flickan	 f l ² ɪ kː . a n 	1
+L05S04W01	valde	 v ² ɑː l . d e̞ 	1
+L05S04W02	mellan	 m ² ɛ̝ lː . a n 	1
+L05S04W03	tre	 t r ˈ eː 	1
+L05S04W04	par	 p ˈ ɑː r 	0
+L05S04W05	jeans	 ʝ ˈ iː n s 	1
+L05S05W00	Chefen	 ɧ ˈ eː . f e̞ n 	1
+L05S05W01	hittade	 h ² ɪ tː . a . d e̞ 	1
+L05S05W02	en	 ˈ ɛ̝ nː 	0
+L05S05W03	nyckel	 n ² ʏ kː . e̞ l 	1
+L05S06W00	Pennan	 p ² ɛ̝ nː . a n 	1
+L05S06W01	ligger	 l ² ɪ ɡː . e̞ r 	1
+L05S06W02	på	 p ˈ oː 	0
+L05S06W03	skrivbordet	 s k r ² iː v . b ˌ uː . ɖ e̞ t 	1
+L05S07W00	Sovrumsdörren	 s ² oː v . r ɵ m s . d ˌ ø̞ rː . e̞ n 	1
+L05S07W01	var	 v ˈ ɑː r 	0
+L05S07W02	målad	 m ² oː . l a d 	1
+L05S07W03	i	 ˈ iː 	0
+L05S07W04	rött	 r ˈ ø̞ tː 	1
+L05S08W00	Hon	 h ˈ ʊ nː 	1
+L05S08W01	satte	 s ² a tː . e̞ 	1
+L05S08W02	sig	 s ˈ ɛ̝ ʝː 	1
+L05S08W03	vid	 v ˈ iː d 	0
+L05S08W04	elden	 ˈ ɛ̝ lː . d e̞ n 	1
+L05S09W00	Dagisbarnen	 d ² ɑː . ɡ ɪ s . b ˌ ɑː . ɳ e̞ n 	1
+L05S09W01	gick	 ʝ ˈ ɪ kː 	1
+L05S09W02	till	 t ˈ ɪ lː 	0
+L05S09W03	lekparken	 l ² eː k . p ˌ a rː . k e̞ n 	1
+L06S00W00	Den	 d ˈ ɛ̝ nː 	0
+L06S00W01	gröna	 ɡ r ² øː . n a 	1
+L06S00W02	hinken	 h ˈ ɪ ŋː . k e̞ n 	1
+L06S00W03	står	 s t ˈ oː r 	1
+L06S00W04	på	 p ˈ oː 	0
+L06S00W05	marken	 m ˈ a rː . k e̞ n 	1
+L06S01W00	Golvet	 ɡ ˈ ɔ lː . v e̞ t 	1
+L06S01W01	täcktes	 t ² ɛ̝ kː . t e̞ s 	1
+L06S01W02	av	 ˈ ɑː v 	0
+L06S01W03	en	 ˈ ɛ̝ nː 	0
+L06S01W04	vit	 v ˈ iː t 	1
+L06S01W05	matta	 m ² a tː . a 	1
+L06S02W00	Soppan	 s ² ɔ pː . a n 	1
+L06S02W01	sjöd	 ɧ ˈ øː d 	1
+L06S02W02	i	 ˈ iː 	0
+L06S02W03	kastrullen	 k a . s t r ˈ ɵ lː . e̞ n 	1
+L06S03W00	Pappa	 p ² a pː . a 	1
+L06S03W01	ska	 s k ˈ ɑː 	0
+L06S03W02	laga	 l ² ɑː . ɡ a 	1
+L06S03W03	min	 m ˈ ɪ nː 	0
+L06S03W04	fåtölj	 f ɔ . t ˈ ø̞ lː ʝ 	1
+L06S04W00	Bagaren	 b ² ɑː . ɡ a . r e̞ n 	1
+L06S04W01	knäppte	 k n ² ɛ̝ pː . t e̞ 	1
+L06S04W02	sin	 s ˈ ɪ nː 	0
+L06S04W03	stora	 s t ² uː . r a 	1
+L06S04W04	rock	 r ˈ ɔ kː 	1
+L06S05W00	Båten	 b ˈ oː . t e̞ n 	1
+L06S05W01	hade	 h ² a dː . e̞ 	0
+L06S05W02	två	 t v ˈ oː 	1
+L06S05W03	blå	 b l ˈ oː 	1
+L06S05W04	segel	 s ˈ eː . ɡ e̞ l 	1
+L06S06W00	Tjuven	 ɕ ˈ ʉː . v e̞ n 	1
+L06S06W01	halkade	 h ² a lː . k a . d e̞ 	1
+L06S06W02	i	 ˈ iː 	0
+L06S06W03	leran	 l ² eː . r a n 	1
+L06S07W00	Morfar	 m ² ʊ rː . f ˌ a rː 	1
+L06S07W01	provade	 p r ² uː . v a . d e̞ 	1
+L06S07W02	för	 f ˈ øː r 	0
+L06S07W03	stora	 s t ² uː . r a 	1
+L06S07W04	skor	 s k ˈ uː r 	1
+L06S08W00	De	 d ˈ ɔ mː 	0
+L06S08W01	gula	 ɡ ² ʉː . l a 	1
+L06S08W02	glasögonen	 ɡ l ² ɑː s . ˌ øː . ɡ ɔ . n e̞ n 	1
+L06S08W03	är	 ˈ ɛː 	0
+L06S08W04	fina	 f ² iː . n a 	1
+L06S09W00	Busschauffören	 b ² ɵ sː . ɧ ɔ . f ˌ øː . r e̞ n 	1
+L06S09W01	äter	 ˈ ɛː . t e̞ r 	1
+L06S09W02	kex	 k ˈ ɛ̝ kː s 	1
+L07S00W00	Doktorn	 d ˈ ɔ kː . t ɔ ɳ 	1
+L07S00W01	duschade	 d ² ɵ ʂː . a . d e̞ 	1
+L07S00W02	på	 p ˈ oː 	0
+L07S00W03	kvällen	 k v ˈ ɛ̝ lː . e̞ n 	1
+L07S01W00	Fotbollen	 f ² uː t . b ˌ ɔ lː . e̞ n 	1
+L07S01W01	försvann	 f ø̞ . ʂ v ˈ a nː 	1
+L07S01W02	bakom	 b ² ɑː . k ɔ m 	1
+L07S01W03	huset	 h ˈ ʉː . s e̞ t 	1
+L07S02W00	Flickan	 f l ² ɪ kː . a n 	1
+L07S02W01	svalde	 s v ² ɑː l . d e̞ 	1
+L07S02W02	ett	 ˈ ɛ̝ tː 	0
+L07S02W03	tuggummi	 t ² ɵ ɡː . ˌ ɵ mː . ɪ 	1
+L07S03W00	Farbrorn	 f ² a rː . b r ˌ ʊ ɳː 	1
+L07S03W01	svettades	 s v ² ɛ̝ tː . a . d e̞ s 	1
+L07S03W02	när	 n ˈ ɛː r 	0
+L07S03W03	han	 h ˈ a nː 	0
+L07S03W04	sprang	 s p r ˈ a ŋː 	1
+L07S04W00	Läraren	 l ² ɛː . r a . r e̞ n 	1
+L07S04W01	snubblade	 s n ² ɵ bː . l a . d e̞ 	1
+L07S04W02	i	 ˈ iː 	0
+L07S04W03	trappan	 t r ² a pː . a n 	1
+L07S05W00	I	 ˈ iː 	0
+L07S05W01	källaren	 ɕ ² ɛ̝ lː . a . r e̞ n 	1
+L07S05W02	stod	 s t ˈ uː d 	1
+L07S05W03	en	 ˈ ɛ̝ nː 	0
+L07S05W04	blå	 b l ˈ oː 	1
+L07S05W05	byrå	 b ² yː . r o 	1
+L07S06W00	Mannen	 m ˈ a nː . e̞ n 	1
+L07S06W01	kramar	 k r ² ɑː . m a r 	1
+L07S06W02	sina	 s ² iː . n a 	0
+L07S06W03	söner	 s ² øː . n e̞ r 	1
+L07S07W00	Grusvägen	 ɡ r ² ʉː s . v ˌ ɛː . ɡ e̞ n 	1
+L07S07W01	leder	 l ˈ eː . d e̞ r 	1
+L07S07W02	till	 t ˈ ɪ lː 	1
+L07S07W03	ett	 ˈ ɛ̝ tː 	0
+L07S07W04	rött	 r ˈ ø̞ tː 	1
+L07S07W05	hus	 h ˈ ʉː s 	1
+L07S08W00	Pojkarna	 p ² ɔ ʝː . k a . ɳ a 	1
+L07S08W01	sjöng	 ɧ ˈ ø̞ ŋː 	1
+L07S08W02	vackert	 v ˈ a kː . e̞ ʈ 	1
+L07S08W03	igår	 ɪ . ɡ ˈ oː r 	1
+L07S09W00	Mannen	 m ˈ a nː . e̞ n 	1
+L07S09W01	skar	 s k ˈ ɑː r 	1
+L07S09W02	sig	 s ˈ ɛ̝ ʝː 	0
+L07S09W03	i	 ˈ iː 	0
+L07S09W04	pekfingret	 p ² eː k . f ˌ ɪ ŋː . r e̞ t 	1
+L08S00W00	Min	 m ˈ ɪ nː 	0
+L08S00W01	syster	 s ² ʏ sː . t e̞ r 	1
+L08S00W02	fyller	 f ˈ ʏ lː . e̞ r 	1
+L08S00W03	snart	 s n ˈ ɑː ʈ 	1
+L08S00W04	tjugofyra	 ɕ ʉ . f ² yː . r a 	1
+L08S01W00	Barnvakten	 b ² ɑː ɳ . v ˌ a kː . t e̞ n 	1
+L08S01W01	kom	 k ˈ ɔ mː 	1
+L08S01W02	klockan	 k l ² ɔ kː . a n 	1
+L08S01W03	tio	 t ² iː . ʊ 	1
+L08S02W00	Grannens	 ɡ r ² a nː . e̞ n s 	1
+L08S02W01	pojke	 p ² ɔ ʝː . k e̞ 	1
+L08S02W02	har	 h ˈ ɑː r 	0
+L08S02W03	svart	 s v ˈ a ʈː 	1
+L08S02W04	hår	 h ˈ oː r 	1
+L08S03W00	En	 ˈ ɛ̝ nː 	0
+L08S03W01	blå	 b l ˈ oː 	1
+L08S03W02	duk	 d ˈ ʉː k 	1
+L08S03W03	låg	 l ˈ oː ɡ 	0
+L08S03W04	på	 p ˈ oː 	1
+L08S03W05	pianot	 p ɪ . ˈ ɑː . n ʊ t 	1
+L08S04W00	Golfspelaren	 ɡ ² ɔ lː f . s p ˌ eː . l a . r e̞ n 	1
+L08S04W01	skadade	 s k ² ɑː . d a . d e̞ 	1
+L08S04W02	axeln	 ˈ a kː . s e̞ l n 	1
+L08S05W00	Lillebror	 l ² ɪ lː . e̞ . b r ˌ uː r 	1
+L08S05W01	försov	 f ø̞ . ʂ ˈ oː v 	1
+L08S05W02	sig	 s ˈ ɛ̝ ʝː 	0
+L08S05W03	i	 ˈ iː 	0
+L08S05W04	morse	 m ² ɔ ʂː . e̞ 	1
+L08S06W00	Killarna	 k ² ɪ lː . a . ɳ a 	1
+L08S06W01	retades	 r ² eː . t a . d e̞ s 	1
+L08S06W02	med	 m ˈ eː 	0
+L08S06W03	fröken	 f r ˈ øː . k e̞ n 	1
+L08S07W00	Tuppen	 t ˈ ɵ pː . e̞ n 	1
+L08S07W01	står	 s t ˈ oː r 	1
+L08S07W02	mitt	 m ˈ ɪ tː 	1
+L08S07W03	på	 p ˈ oː 	0
+L08S07W04	vägen	 v ˈ ɛː . ɡ e̞ n 	1
+L08S08W00	Mattan	 m ² a tː . a n 	1
+L08S08W01	i	 ˈ iː 	0
+L08S08W02	köket	 ɕ ˈ øː . k e̞ t 	1
+L08S08W03	är	 ˈ ɛː 	0
+L08S08W04	handvävd	 h ² a nː d . v ˌ ɛː v d 	1
+L08S09W00	Mannen	 m ˈ a nː . e̞ n 	1
+L08S09W01	planterade	 p l a n . t ˈ eː . r a . d e̞ 	1
+L08S09W02	rädisor	 r ² ɛ̝ dː . ɪ . s ʊ r 	1
+L09S00W00	Kocken	 k ˈ ɔ kː . e̞ n 	1
+L09S00W01	skaffade	 s k ² a fː . a . d e̞ 	1
+L09S00W02	glasögon	 ɡ l ² ɑː s . ˌ øː . ɡ ɔ n 	1
+L09S01W00	Hon	 h ˈ ʊ nː 	1
+L09S01W01	målar	 m ² oː . l a r 	1
+L09S01W02	hjärtat	 ʝ ² ɛ̝ ʈː . a t 	1
+L09S01W03	blått	 b l ˈ ɔ tː 	1
+L09S02W00	Pojkarna	 p ² ɔ ʝː . k a . ɳ a 	1
+L09S02W01	lekte	 l ² eː k . t e̞ 	1
+L09S02W02	i	 ˈ iː 	0
+L09S02W03	parken	 p ˈ a rː . k e̞ n 	1
+L09S03W00	Det	 d ˈ ɛː 	0
+L09S03W01	står	 s t ˈ oː r 	1
+L09S03W02	tjugo	 ɕ ² ʉː . ɡ ʊ 	1
+L09S03W03	bänkar	 b ² ɛ̝ ŋː . k a r 	1
+L09S03W04	längs	 l ˈ ɛ̝ ŋː s 	0
+L09S03W05	kajen	 k ˈ a ʝː . e̞ n 	1
+L09S04W00	Svärmor	 s v ² ɛː r . m ˌ uː r 	1
+L09S04W01	bjöd	 b ʝ ˈ øː d 	1
+L09S04W02	på	 p ˈ oː 	0
+L09S04W03	middag	 m ˈ ɪ dː . a 	1
+L09S04W04	igår	 ɪ . ɡ ˈ oː r 	1
+L09S05W00	Gräset	 ɡ r ˈ ɛː . s e̞ t 	1
+L09S05W01	var	 v ˈ ɑː 	0
+L09S05W02	vitt	 v ˈ ɪ tː 	1
+L09S05W03	av	 ˈ ɑː v 	0
+L09S05W04	frost	 f r ˈ ɔ sː t 	1
+L09S06W00	Mannen	 m ˈ a nː . e̞ n 	1
+L09S06W01	slog	 s l ˈ uː ɡ 	1
+L09S06W02	sönder	 s ˈ ø̞ nː . d e̞ r 	1
+L09S06W03	en	 ˈ ɛ̝ nː 	0
+L09S06W04	tand	 t ˈ a nː d 	1
+L09S07W00	Grannen	 ɡ r ² a nː . e̞ n 	1
+L09S07W01	låste	 l ² oː . s t e̞ 	1
+L09S07W02	sin	 s ˈ ɪ nː 	1
+L09S07W03	cykel	 s ˈ ʏ kː . e̞ l 	1
+L09S08W00	Smöret	 s m ˈ øː . r e̞ t 	1
+L09S08W01	smälter	 s m ˈ ɛ̝ lː . t e̞ r 	1
+L09S08W02	i	 ˈ iː 	0
+L09S08W03	stekpannan	 s t ² eː k . p ˌ a nː . a n 	1
+L09S09W00	Han	 h ˈ a nː 	1
+L09S09W01	förlorade	 f ø̞ . ɭ ˈ uː . r a . d e̞ 	1
+L09S09W02	partiet	 p a . ʈ ˈ iː . e̞ t 	1
+L10S00W00	Tanten	 t ˈ a nː . t e̞ n 	1
+L10S00W01	rullade	 r ² ɵ lː . a . d e̞ 	1
+L10S00W02	bollen	 b ˈ ɔ lː . e̞ n 	1
+L10S01W00	Skivan	 ɧ ² iː . v a n 	1
+L10S01W01	har	 h ˈ ɑː r 	0
+L10S01W02	ett	 ˈ ɛ̝ tː 	0
+L10S01W03	rött	 r ˈ ø̞ tː 	1
+L10S01W04	fodral	 f ʊ . d r ˈ ɑː l 	1
+L10S02W00	Mamma	 m ² a mː . a 	1
+L10S02W01	skickar	 ɧ ² ɪ kː . a r 	1
+L10S02W02	fjorton	 f ʝ ² uː . ʈ ɔ n 	1
+L10S02W03	julkort	 ʝ ² ʉː l . k ˌ ʊ ʈː 	1
+L10S03W00	Vännerna	 v ² ɛ̝ nː . e̞ . ɳ a 	1
+L10S03W01	var	 v ˈ ɑː 	0
+L10S03W02	på	 p ˈ oː 	0
+L10S03W03	bio	 b ˈ iː . ʊ 	1
+L10S03W04	igår	 ɪ . ɡ ˈ oː r 	1
+L10S04W00	Sonen	 s ˈ oː . n e̞ n 	1
+L10S04W01	kör	 ɕ ˈ øː r 	1
+L10S04W02	traktor	 t r ² a kː . t ʊ r 	1
+L10S04W03	på	 p ˈ oː 	0
+L10S04W04	åkern	 ˈ oː . k e̞ ɳ 	1
+L10S05W00	Han	 h ˈ a nː 	1
+L10S05W01	svettades	 s v ² ɛ̝ tː . a . d e̞ s 	1
+L10S05W02	under	 ˈ ɵ nː . d e̞ r 	1
+L10S05W03	matchen	 m ˈ a ʈː . ʂ e̞ n 	1
+L10S06W00	En	 ˈ ɛ̝ nː 	0
+L10S06W01	grön	 ɡ r ˈ øː n 	1
+L10S06W02	cykel	 s ˈ ʏ kː . e̞ l 	1
+L10S06W03	stod	 s t ˈ uː d 	0
+L10S06W04	olåst	 ² ʊ lː . ˌ oː s t 	1
+L10S07W00	Tjejerna	 ɕ ² ɛ̝ ʝː . e̞ . ɳ a 	1
+L10S07W01	spelar	 s p ² eː . l a r 	1
+L10S07W02	handboll	 h ² a nː d . b ˌ ɔ lː 	1
+L10S07W03	ikväll	 ɪ . k v ˈ ɛ̝ lː 	1
+L10S08W00	Köket	 ɕ ˈ øː . k e̞ t 	1
+L10S08W01	ska	 s k ˈ ɑː 	0
+L10S08W02	städas	 s t ² ɛː . d a s 	1
+L10S08W03	nästa	 n ² ɛ̝ sː . t a 	1
+L10S08W04	lördag	 l ˈ øː . ɖ ɑ ɡ 	1
+L10S09W00	Det	 d ˈ ɛː 	0
+L10S09W01	är	 ˈ ɛː 	0
+L10S09W02	picknick	 p ˈ ɪ kː . n ɪ k 	1
+L10S09W03	på	 p ˈ oː 	0
+L10S09W04	stranden	 s t r ˈ a nː . d e̞ n 	1
+L10S09W05	vid	 v ˈ iː 	0
+L10S09W06	sju	 ɧ ˈ ʉː 	1
+L11S00W00	Bilen	 b ˈ iː . l e̞ n 	1
+L11S00W01	kör	 ɕ ˈ øː r 	1
+L11S00W02	på	 p ˈ oː 	0
+L11S00W03	skogsvägen	 s k ² ʊ kː s . v ˌ ɛː . ɡ e̞ n 	1
+L11S01W00	Skjortorna	 ɧ ² ʊ ʈː . ʊ . ɳ a 	1
+L11S01W01	ska	 s k ˈ ɑː 	0
+L11S01W02	hängas	 h ² ɛ̝ ŋː . a s 	1
+L11S01W03	i	 ˈ iː 	0
+L11S01W04	skåpet	 s k ˈ oː . p e̞ t 	1
+L11S02W00	De	 d ˈ ɔ mː 	0
+L11S02W01	små	 s m ˈ oː 	1
+L11S02W02	tomaterna	 t ʊ . m ˈ ɑː . t e̞ . ɳ a 	1
+L11S02W03	är	 ˈ ɛː 	0
+L11S02W04	gröna	 ɡ r ² øː . n a 	1
+L11S03W00	Refrängen	 r e̞ . f r ˈ ɛ̝ ŋː . e̞ n 	1
+L11S03W01	kom	 k ˈ ɔ mː 	0
+L11S03W02	tre	 t r ˈ eː 	1
+L11S03W03	gånger	 ɡ ² ɔ ŋː . e̞ r 	1
+L11S04W00	De	 d ˈ ɔ mː 	1
+L11S04W01	tvättade	 t v ² ɛ̝ tː . a . d e̞ 	1
+L11S04W02	i	 ˈ iː 	0
+L11S04W03	kallt	 k ˈ a lː t 	1
+L11S04W04	vatten	 v ˈ a tː . e̞ n 	1
+L11S05W00	Flickan	 f l ² ɪ kː . a n 	1
+L11S05W01	fick	 f ˈ ɪ kː 	1
+L11S05W02	sjutton	 ɧ ² ɵ tː . ɔ n 	1
+L11S05W03	julklappar	 ʝ ² ʉː l . k l ˌ a pː . a r 	1
+L11S06W00	Paret	 p ˈ ɑː . r e̞ t 	1
+L11S06W01	gick	 ʝ ˈ ɪ kː 	1
+L11S06W02	genom	 ʝ ˈ eː . n ɔ m 	0
+L11S06W03	parken	 p ˈ a rː . k e̞ n 	1
+L11S07W00	Matchen	 m ˈ a ʈː . ʂ e̞ n 	1
+L11S07W01	spelades	 s p ² eː . l a . d e̞ s 	1
+L11S07W02	i	 ˈ iː 	0
+L11S07W03	gassande	 ɡ ² a sː . a n . d e̞ 	1
+L11S07W04	sol	 s ˈ uː l 	1
+L11S08W00	Ödlan	 ² øː d . l a n 	1
+L11S08W01	smet	 s m ˈ eː t 	1
+L11S08W02	ner	 n ˈ eː r 	0
+L11S08W03	under	 ˈ ɵ nː . d e̞ r 	1
+L11S08W04	bron	 b r ˈ uː n 	1
+L11S09W00	En	 ˈ ɛ̝ nː 	0
+L11S09W01	häst	 h ˈ ɛ̝ sː t 	1
+L11S09W02	betade	 b ² eː . t a . d e̞ 	1
+L11S09W03	bland	 b l ˈ a nː d 	1
+L11S09W04	fåren	 f ˈ oː . r e̞ n 	1
+L12S00W00	Han	 h ˈ a nː 	1
+L12S00W01	brände	 b r ² ɛ̝ nː . d e̞ 	1
+L12S00W02	sig	 s ˈ ɛ̝ ʝː 	0
+L12S00W03	på	 p ˈ oː 	0
+L12S00W04	strykjärnet	 s t r ² yː k . ʝ ˌ ɛː . ɳ e̞ t 	1
+L12S01W00	Växten	 v ˈ ɛ̝ kː . s t e̞ n 	1
+L12S01W01	i	 ˈ iː 	0
+L12S01W02	fönstret	 f ˈ ø̞ nː . s t r e̞ t 	1
+L12S01W03	har	 h ˈ ɑː r 	1
+L12S01W04	en	 ˈ ɛ̝ nː 	0
+L12S01W05	blomma	 b l ² ʊ mː . a 	1
+L12S02W00	Han	 h ˈ a nː 	1
+L12S02W01	tappade	 t ² a pː . a . d e̞ 	1
+L12S02W02	kniven	 k n ˈ iː . v e̞ n 	1
+L12S02W03	i	 ˈ iː 	0
+L12S02W04	sjön	 ɧ ˈ ø̞ nː 	1
+L12S03W00	Tolv	 t ˈ ɔ lː v 	1
+L12S03W01	muffins	 m ˈ ɵ fː . ɪ n s 	1
+L12S03W02	gräddades	 ɡ r ² ɛ̝ dː . a . d e̞ s 	1
+L12S03W03	i	 ˈ iː 	0
+L12S03W04	ugnen	 ˈ ɵ ŋː . n e̞ n 	1
+L12S04W00	Farmor	 f ² a rː . m ˌ ʊ rː 	1
+L12S04W01	åker	 ˈ oː . k e̞ r 	1
+L12S04W02	till	 t ˈ ɪ 	0
+L12S04W03	golfbanan	 ɡ ² ɔ lː f . b ˌ ɑː . n a n 	1
+L12S05W00	Såsen	 s ˈ oː . s e̞ n 	1
+L12S05W01	kokade	 k ² uː . k a . d e̞ 	1
+L12S05W02	över	 ˈ øː . v e̞ r 	1
+L12S06W00	Två	 t v ˈ oː 	1
+L12S06W01	muggar	 m ² ɵ ɡː . a r 	1
+L12S06W02	gick	 ʝ ˈ ɪ kː 	0
+L12S06W03	sönder	 s ˈ ø̞ nː . d e̞ r 	1
+L12S07W00	De	 d ˈ eː 	0
+L12S07W01	sprang	 s p r ˈ a ŋː 	1
+L12S07W02	runt	 r ˈ ɵ nː t 	1
+L12S07W03	det	 d ˈ ɛː 	0
+L12S07W04	gula	 ɡ ² ʉː . l a 	1
+L12S07W05	huset	 h ˈ ʉː . s e̞ t 	1
+L12S08W00	I	 ˈ iː 	0
+L12S08W01	aulan	 ˈ a͡uː . l a n 	1
+L12S08W02	hänger	 h ˈ ɛ̝ ŋː . e̞ r 	1
+L12S08W03	tolv	 t ˈ ɔ lː v 	1
+L12S08W04	tavlor	 t ² ɑː v . l ʊ r 	1
+L12S09W00	Flickan	 f l ² ɪ kː . a n 	1
+L12S09W01	lyssnade	 l ² ʏ sː . n a . d e̞ 	1
+L12S09W02	på	 p ˈ oː 	0
+L12S09W03	talet	 t ˈ ɑː . l e̞ t 	1
+L13S00W00	Morfar	 m ² ʊ rː . f ˌ a rː 	1
+L13S00W01	fiskar	 f ² ɪ sː . k a r 	1
+L13S00W02	hela	 h ² eː . l a 	0
+L13S00W03	dagarna	 d ² ɑː . ɡ a . ɳ a 	1
+L13S01W00	Pappa	 p ² a pː . a 	1
+L13S01W01	tvättar	 t v ² ɛ̝ tː . a r 	1
+L13S01W02	den	 d ˈ ɛ̝ nː 	0
+L13S01W03	blå	 b l ˈ oː 	1
+L13S01W04	bilen	 b ˈ iː . l e̞ n 	1
+L13S02W00	Målaren	 m ² oː . l a . r e̞ n 	1
+L13S02W01	beställde	 b e̞ . s t ˈ ɛ̝ lː . d e̞ 	1
+L13S02W02	två	 t v ˈ oː 	0
+L13S02W03	öl	 ˈ øː l 	1
+L13S03W00	Det	 d ˈ ɛː 	0
+L13S03W01	finns	 f ˈ ɪ nː s 	1
+L13S03W02	en	 ˈ ɛ̝ nː 	0
+L13S03W03	spegel	 s p ² eː . ɡ e̞ l 	1
+L13S03W04	i	 ˈ iː 	0
+L13S03W05	sovrummet	 s ² oː v . r ˌ ɵ mː . e̞ t 	1
+L13S04W00	Äggen	 ˈ ɛ̝ ɡː . e̞ n 	1
+L13S04W01	ska	 s k ˈ ɑː 	0
+L13S04W02	kokas	 k ² uː . k a s 	1
+L13S04W03	sju	 ɧ ˈ ʉː 	1
+L13S04W04	minuter	 m ɪ . n ˈ ʉː . t e̞ r 	1
+L13S05W00	Flickan	 f l ² ɪ kː . a n 	1
+L13S05W01	känner	 ɕ ˈ ɛ̝ nː . e̞ r 	1
+L13S05W02	min	 m ˈ ɪ nː 	0
+L13S05W03	kusin	 k ʉ . s ˈ iː n 	1
+L13S06W00	Spaden	 s p ² ɑː . d e̞ n 	1
+L13S06W01	i	 ˈ iː 	0
+L13S06W02	sandlådan	 s ² a nː d . l ˌ oː . d a n 	1
+L13S06W03	var	 v ˈ ɑː 	0
+L13S06W04	gul	 ɡ ˈ ʉː l 	1
+L13S07W00	Min	 m ˈ ɪ nː 	0
+L13S07W01	morbror	 m ² ʊ rː . b r ˌ ʊ rː 	1
+L13S07W02	ska	 s k ˈ ɑː 	0
+L13S07W03	cykla	 s ² ʏ kː . l a 	1
+L13S07W04	till	 t ˈ ɪ 	0
+L13S07W05	Norge	 n ˈ ɔ rː . ʝ e̞ 	1
+L13S08W00	Två	 t v ˈ oː 	1
+L13S08W01	svarta	 s v ² a ʈː . a 	1
+L13S08W02	skjortor	 ɧ ² ʊ ʈː . ʊ r 	1
+L13S08W03	hängde	 h ² ɛ̝ ŋː . d e̞ 	1
+L13S08W04	på	 p ˈ oː 	0
+L13S08W05	tork	 t ˈ ɔ rː k 	1
+L13S09W00	Flickan	 f l ² ɪ kː . a n 	0
+L13S09W01	hittade	 h ² ɪ tː . a . d e̞ 	1
+L13S09W02	inte	 ² ɪ nː . t e̞ 	1
+L13S09W03	rätt	 r ˈ ɛ̝ tː 	0
+L13S09W04	väg	 v ˈ ɛː ɡ 	1
+L14S00W00	Läraren	 l ² ɛː . r a . r e̞ n 	1
+L14S00W01	tränar	 t r ² ɛː . n a r 	1
+L14S00W02	efter	 ² ɛ̝ fː . t e̞ r 	0
+L14S00W03	skolan	 s k ² uː . l a n 	1
+L14S01W00	En	 ˈ ɛ̝ nː 	0
+L14S01W01	gul	 ɡ ˈ ʉː l 	1
+L14S01W02	ros	 r ˈ uː s 	1
+L14S01W03	blev	 b l ˈ eː v 	0
+L14S01W04	gruppens	 ɡ r ˈ ɵ pː . e̞ n s 	1
+L14S01W05	symbol	 s ʏ m . b ˈ oː l 	1
+L14S02W00	Tyskarna	 t ² ʏ sː . k a . ɳ a 	1
+L14S02W01	bodde	 b ² ʊ dː . e̞ 	1
+L14S02W02	hos	 h ˈ ʊ sː 	0
+L14S02W03	morfar	 m ² ʊ rː . f ˌ a rː 	1
+L14S03W00	Ljuset	 ʝ ˈ ʉː . s e̞ t 	1
+L14S03W01	brinner	 b r ˈ ɪ nː . e̞ r 	1
+L14S03W02	långsamt	 l ² ɔ ŋː . s ˌ a mː t 	1
+L14S04W00	Mamma	 m ² a mː . a 	1
+L14S04W01	ska	 s k ˈ ɑː 	0
+L14S04W02	baka	 b ² ɑː . k a 	1
+L14S04W03	en	 ˈ ɛ̝ nː 	0
+L14S04W04	paj	 p ˈ a ʝː 	1
+L14S05W00	Flickan	 f l ² ɪ kː . a n 	1
+L14S05W01	sökte	 s ² øː k . t e̞ 	1
+L14S05W02	en	 ˈ ɛ̝ nː 	0
+L14S05W03	vit	 v ˈ iː t 	1
+L14S05W04	sjal	 ɧ ˈ ɑː l 	1
+L14S06W00	Pojken	 p ˈ ɔ ʝː . k e̞ n 	1
+L14S06W01	hann	 h ˈ a nː 	1
+L14S06W02	tvätta	 t v ² ɛ̝ tː . a 	1
+L14S06W03	arton	 ² ɑː . ʈ ɔ n 	0
+L14S06W04	bilar	 b ² iː . l a r 	1
+L14S07W00	Pappa	 p ² a pː . a 	1
+L14S07W01	slängde	 s l ² ɛ̝ ŋː . d e̞ 	1
+L14S07W02	den	 d ˈ ɛ̝ nː 	0
+L14S07W03	brända	 b r ² ɛ̝ nː . d a 	1
+L14S07W04	kakan	 k ² ɑː . k a n 	1
+L14S08W00	Tjejen	 ɕ ˈ ɛ̝ ʝː . e̞ n 	1
+L14S08W01	kom	 k ˈ ɔ mː 	1
+L14S08W02	in	 ˈ ɪ nː 	0
+L14S08W03	i	 ˈ iː 	0
+L14S08W04	rummet	 r ˈ ɵ mː . e̞ t 	1
+L14S09W00	Den	 d ˈ ɛ̝ nː 	0
+L14S09W01	vita	 v ² iː . t a 	1
+L14S09W02	stolen	 s t ˈ uː . l e̞ n 	1
+L14S09W03	står	 s t ˈ oː r 	1
+L14S09W04	på	 p ˈ oː 	0
+L14S09W05	gruset	 ɡ r ˈ ʉː . s e̞ t 	1
+L15S00W00	Hon	 h ˈ ʊ nː 	1
+L15S00W01	sköljde	 ɧ ² ø̞ lː ʝ . d e̞ 	1
+L15S00W02	kläderna	 k l ˈ ɛː . d e̞ . ɳ a 	1
+L15S00W03	i	 ˈ iː 	0
+L15S00W04	bäcken	 b ˈ ɛ̝ kː . e̞ n 	1
+L15S01W00	Det	 d ˈ ɛː 	0
+L15S01W01	står	 s t ˈ oː r 	1
+L15S01W02	en	 ˈ ɛ̝ nː 	0
+L15S01W03	blomma	 b l ² ʊ mː . a 	1
+L15S01W04	på	 p ˈ oː 	0
+L15S01W05	pallen	 p ˈ a lː . e̞ n 	1
+L15S02W00	Köksklockan	 ɕ ² ø̞ kː s . k l ˌ ɔ kː . a n 	1
+L15S02W01	går	 ɡ ˈ oː r 	1
+L15S02W02	fel	 f ˈ eː l 	1
+L15S03W00	Det	 d ˈ ɛː 	0
+L15S03W01	stod	 s t ˈ uː d 	1
+L15S03W02	en	 ˈ ɛ̝ nː 	0
+L15S03W03	ren	 r ˈ eː n 	1
+L15S03W04	vid	 v ˈ iː 	0
+L15S03W05	vägkanten	 v ² ɛː ɡ . k ˌ a nː . t e̞ n 	1
+L15S04W00	En	 ˈ ɛ̝ nː 	0
+L15S04W01	röd	 r ˈ øː d 	1
+L15S04W02	lampa	 l ² a mː . p a 	1
+L15S04W03	tänds	 t ˈ ɛ̝ nː d s 	1
+L15S05W00	Flickan	 f l ² ɪ kː . a n 	1
+L15S05W01	säljer	 s ˈ ɛ̝ lː . ʝ e̞ r 	1
+L15S05W02	glass	 ɡ l ˈ a sː 	1
+L15S05W03	på	 p ˈ oː 	0
+L15S05W04	stranden	 s t r ˈ a nː . d e̞ n 	1
+L15S06W00	Stadsborna	 s t ² a tː s . b ˌ uː . ɳ a 	1
+L15S06W01	åker	 ˈ oː . k e̞ r 	1
+L15S06W02	till	 t ˈ ɪ 	1
+L15S06W03	havet	 h ˈ ɑː . v e̞ t 	1
+L15S07W00	Grodan	 ɡ r ² uː . d a n 	1
+L15S07W01	ska	 s k ˈ ɑː 	1
+L15S07W02	fånga	 f ² ɔ ŋː . a 	1
+L15S07W03	en	 ˈ ɛ̝ nː 	0
+L15S07W04	fluga	 f l ² ʉː . ɡ a 	1
+L15S08W00	Mamma	 m ² a mː . a 	1
+L15S08W01	strök	 s t r ˈ øː k 	1
+L15S08W02	byxorna	 b ² ʏ kː . s ʊ . ɳ a 	1
+L15S09W00	Mormor	 m ² ʊ rː . m ˌ ʊ rː 	1
+L15S09W01	ska	 s k ˈ ɑː 	1
+L15S09W02	till	 t ˈ ɪ 	0
+L15S09W03	Grekland	 ɡ r ˈ eː k . l a n d 	1
+L15S09W04	imorgon	 ɪ . m ² ɔ rː . ɔ n 	1
+L16S00W00	Ledarna	 l ² eː . d a . ɳ a 	1
+L16S00W01	ordnade	 ² oː ɖ . ɳ a . d e̞ 	1
+L16S00W02	en	 ˈ ɛ̝ nː 	0
+L16S00W03	lekkväll	 l ² eː . k v ˌ ɛ̝ lː 	1
+L16S01W00	Han	 h ˈ a nː 	1
+L16S01W01	åker	 ˈ oː . k e̞ r 	1
+L16S01W02	skridskor	 s k r ˈ ɪ sː . k ʊ r 	1
+L16S01W03	med	 m ˈ eː 	0
+L16S01W04	barnen	 b ˈ ɑː . ɳ e̞ n 	1
+L16S02W00	Lillasyster	 l ² ɪ lː . a . s ˌ ʏ sː . t e̞ r 	1
+L16S02W01	öppnade	 ² ø̞ pː . n a . d e̞ 	1
+L16S02W02	paket	 p a . k ˈ eː t 	1
+L16S03W00	Pojken	 p ˈ ɔ ʝː . k e̞ n 	1
+L16S03W01	åt	 ˈ oː t 	1
+L16S03W02	allt	 ˈ a lː t 	1
+L16S03W03	utom	 ² ʉː . t ɔ m 	1
+L16S03W04	kärnhuset	 ɕ ² ɛː ɳ . h ˌ ʉː . s e̞ t 	1
+L16S04W00	Femåringen	 f ² ɛ̝ mː . ˌ oː . r ɪ ŋ . e̞ n 	1
+L16S04W01	samlade	 s ² a mː . l a . d e̞ 	1
+L16S04W02	burkar	 b ² ɵ rː . k a r 	1
+L16S05W00	Pappa	 p ² a pː . a 	1
+L16S05W01	har	 h ˈ ɑː r 	1
+L16S05W02	bytt	 b ˈ ʏ tː 	1
+L16S05W03	frisyr	 f r ɪ . s ˈ yː r 	1
+L16S06W00	Den	 d ˈ ɛ̝ nː 	0
+L16S06W01	svarta	 s v ² a ʈː . a 	1
+L16S06W02	hunden	 h ˈ ɵ nː . d e̞ n 	1
+L16S06W03	var	 v ˈ ɑː 	0
+L16S06W04	hungrig	 h ² ɵ ŋː . r ɪ ɡ 	1
+L16S07W00	Tanten	 t ˈ a nː . t e̞ n 	1
+L16S07W01	plockade	 p l ² ɔ kː . a . d e̞ 	1
+L16S07W02	snäckor	 s n ² ɛ̝ kː . ʊ r 	1
+L16S08W00	Lillebror	 l ² ɪ lː . e̞ . b r ˌ uː r 	1
+L16S08W01	vattnade	 v ² a tː . n a . d e̞ 	1
+L16S08W02	gräsmattan	 ɡ r ² ɛː s . m ˌ a tː . a n 	1
+L16S09W00	Gästen	 ʝ ˈ ɛ̝ sː . t e̞ n 	1
+L16S09W01	bad	 b ˈ ɑː d 	1
+L16S09W02	om	 ˈ ɔ mː 	1
+L16S09W03	en	 ˈ ɛ̝ nː 	0
+L16S09W04	filt	 f ˈ ɪ lː t 	1
+L17S00W00	Anden	 ˈ a nː . d e̞ n 	1
+L17S00W01	simmade	 s ² ɪ mː . a . d e̞ 	1
+L17S00W02	i	 ˈ iː 	0
+L17S00W03	dammen	 d ˈ a mː . e̞ n 	1
+L17S01W00	Bollen	 b ˈ ɔ lː . e̞ n 	1
+L17S01W01	studsade	 s t ² ɵ tː . s a . d e̞ 	1
+L17S01W02	ut	 ˈ ʉː t 	0
+L17S01W03	på	 p ˈ oː 	0
+L17S01W04	vägen	 v ˈ ɛː . ɡ e̞ n 	1
+L17S02W00	Engelsmannen	 ² ɛ̝ ŋː . e̞ l s . m ˌ a nː . e̞ n 	1
+L17S02W01	spelar	 s p ² eː . l a r 	1
+L17S02W02	tuba	 t ² ʉː . b a 	1
+L17S03W00	Hon	 h ˈ ʊ nː 	1
+L17S03W01	köpte	 ɕ ² ø̞ pː . t e̞ 	1
+L17S03W02	sex	 s ˈ ɛ̝ kː s 	1
+L17S03W03	liter	 l ˈ iː . t e̞ r 	0
+L17S03W04	mjölk	 m ʝ ˈ ø̞ lː k 	1
+L17S04W00	Farfar	 f ² a rː . f ˌ a rː 	1
+L17S04W01	lagar	 l ² ɑː . ɡ a r 	1
+L17S04W02	mat	 m ˈ ɑː t 	1
+L17S04W03	åt	 ˈ oː t 	0
+L17S04W04	barnen	 b ˈ ɑː . ɳ e̞ n 	1
+L17S05W00	Mannen	 m ˈ a nː . e̞ n 	1
+L17S05W01	vaknade	 v ² ɑː . k n a . d e̞ 	1
+L17S05W02	på	 p ˈ oː 	0
+L17S05W03	soffan	 s ² ɔ fː . a n 	1
+L17S06W00	Pojken	 p ˈ ɔ ʝː . k e̞ n 	1
+L17S06W01	skrattade	 s k r ² a tː . a . d e̞ 	1
+L17S06W02	åt	 ˈ oː t 	0
+L17S06W03	sin	 s ˈ ɪ nː 	0
+L17S06W04	kompis	 k ˈ ɔ mː . p ɪ s 	1
+L17S07W00	Ungdomarna	 ² ɵ ŋː . d ˌ ʊ mː . a . ɳ a 	1
+L17S07W01	köper	 ɕ ˈ øː . p e̞ r 	1
+L17S07W02	varsin	 v ˈ a ʂː . ɪ n 	0
+L17S07W03	glass	 ɡ l ˈ a sː 	1
+L17S08W00	Flickan	 f l ² ɪ kː . a n 	1
+L17S08W01	har	 h ˈ ɑː r 	0
+L17S08W02	kort	 k ˈ ɔ ʈː 	1
+L17S08W03	rött	 r ˈ ø̞ tː 	1
+L17S08W04	hår	 h ˈ oː r 	1
+L17S09W00	Ett	 ˈ ɛ̝ tː 	0
+L17S09W01	grönt	 ɡ r ˈ øː n t 	1
+L17S09W02	kuvert	 k ʉ . v ˈ ɛː r 	1
+L17S09W03	låg	 l ˈ oː ɡ 	1
+L17S09W04	kvar	 k v ˈ ɑː r 	1
+L17S09W05	i	 ˈ iː 	0
+L17S09W06	köket	 ɕ ˈ øː . k e̞ t 	1
+L18S00W00	De	 d ˈ eː 	0
+L18S00W01	röda	 r ² øː . d a 	1
+L18S00W02	bladen	 b l ˈ ɑː . d e̞ n 	1
+L18S00W03	föll	 f ˈ ø̞ lː 	1
+L18S00W04	från	 f r ˈ oː n 	0
+L18S00W05	trädet	 t r ˈ ɛː . d e̞ t 	1
+L18S01W00	Det	 d ˈ ɛː 	0
+L18S01W01	finns	 f ˈ ɪ nː s 	0
+L18S01W02	två	 t v ˈ oː 	1
+L18S01W03	gungor	 ɡ ² ɵ ŋː . ʊ r 	1
+L18S01W04	i	 ˈ iː 	0
+L18S01W05	parken	 p ˈ a rː . k e̞ n 	1
+L18S02W00	Bilen	 b ˈ iː . l e̞ n 	1
+L18S02W01	står	 s t ˈ oː r 	1
+L18S02W02	fem	 f ˈ ɛ̝ mː 	0
+L18S02W03	gator	 ɡ ² ɑː . t ʊ r 	1
+L18S02W04	bort	 b ˈ ɔ ʈː 	1
+L18S03W00	Dansken	 d ˈ a nː . s k e̞ n 	1
+L18S03W01	reser	 r ˈ eː . s e̞ r 	1
+L18S03W02	till	 t ˈ ɪ 	0
+L18S03W03	Sverige	 s v ˈ ɛ̝ rː . ʝ e̞ 	1
+L18S04W00	Flickan	 f l ² ɪ kː . a n 	1
+L18S04W01	spiller	 s p ˈ ɪ lː . e̞ r 	1
+L18S04W02	sås	 s ˈ oː s 	1
+L18S04W03	på	 p ˈ oː 	0
+L18S04W04	tröjan	 t r ² ø̞ ʝː . a n 	1
+L18S05W00	Han	 h ˈ a nː 	1
+L18S05W01	skänkte	 ɧ ² ɛ̝ ŋː k . t e̞ 	1
+L18S05W02	vinsten	 v ˈ ɪ nː . s t e̞ n 	1
+L18S05W03	till	 t ˈ ɪ lː 	0
+L18S05W04	ett	 ˈ ɛ̝ tː 	0
+L18S05W05	sjukhus	 ɧ ² ʉː k . h ˌ ʉː s 	1
+L18S06W00	Killarna	 k ² ɪ lː . a . ɳ a 	1
+L18S06W01	spelar	 s p ² eː . l a 	1
+L18S06W02	squash	 s k v ˈ ɔ ʂː 	1
+L18S06W03	på	 p ˈ oː 	0
+L18S06W04	lördag	 l ˈ øː . ɖ ɑ ɡ 	1
+L18S07W00	Tjejen	 ɕ ˈ ɛ̝ ʝː . e̞ n 	1
+L18S07W01	hoppade	 h ² ɔ pː . a . d e̞ 	1
+L18S07W02	i	 ˈ iː 	0
+L18S07W03	snödrivan	 s n ² øː . d r ˌ iː . v a n 	1
+L18S08W00	Alla	 ˈ a lː . a 	1
+L18S08W01	äpplen	 ² ɛ̝ pː . l e̞ n 	1
+L18S08W02	låg	 l ˈ oː ɡ 	0
+L18S08W03	på	 p ˈ oː 	0
+L18S08W04	marken	 m ˈ a rː . k e̞ n 	1
+L18S09W00	Katten	 k ˈ a tː . e̞ n 	1
+L18S09W01	ska	 s k ˈ ɑː 	0
+L18S09W02	få	 f ˈ oː 	1
+L18S09W03	ungar	 ² ɵ ŋː . a r 	1
+L19S00W00	Tanten	 t ˈ a nː . t e̞ n 	1
+L19S00W01	säljer	 s ˈ ɛ̝ lː . ʝ e̞ r 	1
+L19S00W02	en	 ˈ ɛ̝ nː 	0
+L19S00W03	gammal	 ɡ ² a mː . a l 	1
+L19S00W04	soffa	 s ² ɔ fː . a 	1
+L19S01W00	Vi	 v ˈ iː 	1
+L19S01W01	ska	 s k ˈ ɑː 	0
+L19S01W02	sy	 s ˈ yː 	1
+L19S01W03	åtta	 ² ɔ tː . a 	1
+L19S01W04	par	 p ˈ ɑː r 	0
+L19S01W05	byxor	 b ² ʏ kː . s ʊ r 	1
+L19S02W00	Det	 d ˈ ɛː 	0
+L19S02W01	låg	 l ˈ oː ɡ 	0
+L19S02W02	fem	 f ˈ ɛ̝ mː 	1
+L19S02W03	kritor	 k r ² iː . t ʊ r 	1
+L19S02W04	i	 ˈ iː 	0
+L19S02W05	badkaret	 b ² ɑː d . k ˌ ɑː . r e̞ t 	1
+L19S03W00	Hon	 h ˈ ʊ nː 	1
+L19S03W01	dök	 d ˈ øː k 	1
+L19S03W02	ner	 n ˈ eː r 	0
+L19S03W03	i	 ˈ iː 	0
+L19S03W04	floden	 f l ˈ uː . d e̞ n 	1
+L19S04W00	Temperaturen	 t e̞ m p . r a . t ˈ ʉː . r e̞ n 	1
+L19S04W01	sjönk	 ɧ ˈ ø̞ ŋː k 	1
+L19S04W02	under	 ˈ ɵ nː . d e̞ r 	1
+L19S04W03	noll	 n ˈ ɔ lː 	1
+L19S05W00	Optikern	 ˈ ɔ pː . t ɪ . k e̞ ɳ 	1
+L19S05W01	ser	 s ˈ eː r 	1
+L19S05W02	en	 ˈ ɛ̝ nː 	0
+L19S05W03	fågel	 f ˈ oː . ɡ e̞ l 	1
+L19S06W00	Fem	 f ˈ ɛ̝ mː 	1
+L19S06W01	svarta	 s v ² a ʈː . a 	1
+L19S06W02	valpar	 v ² a lː . p a r 	1
+L19S06W03	låg	 l ˈ oː ɡ 	1
+L19S06W04	på	 p ˈ oː 	0
+L19S06W05	filten	 f ˈ ɪ lː . t e̞ n 	1
+L19S07W00	Studenten	 s t ʉ . d ˈ ɛ̝ nː . t e̞ n 	1
+L19S07W01	vann	 v ˈ a nː 	1
+L19S07W02	en	 ˈ ɛ̝ nː 	0
+L19S07W03	biobiljett	 b ² iː . ʊ . b ɪ l . ʝ ˌ ɛ̝ tː 	1
+L19S08W00	Barnen	 b ˈ ɑː . ɳ e̞ n 	1
+L19S08W01	smög	 s m ˈ øː ɡ 	1
+L19S08W02	i	 ˈ iː 	0
+L19S08W03	buskarna	 b ² ɵ sː . k a . ɳ a 	1
+L19S09W00	Kvinnan	 k v ² ɪ nː . a n 	1
+L19S09W01	dansade	 d ² a nː . s a . d e̞ 	1
+L19S09W02	hela	 h ² eː . l a 	0
+L19S09W03	natten	 n ˈ a tː . e̞ n 	1
+L20S00W00	Staketet	 s t a . k ˈ eː . t e̞ t 	1
+L20S00W01	målades	 m ² oː . l a . d e̞ s 	1
+L20S00W02	vitt	 v ˈ ɪ tː 	1
+L20S01W00	Längs	 l ˈ ɛ̝ ŋː s 	0
+L20S01W01	muren	 m ˈ ʉː . r e̞ n 	1
+L20S01W02	växte	 v ² ɛ̝ kː . s t e̞ 	1
+L20S01W03	röda	 r ² øː . d a 	1
+L20S01W04	liljor	 l ² ɪ lː . ʝ ʊ r 	1
+L20S02W00	Barnen	 b ˈ ɑː . ɳ e̞ n 	1
+L20S02W01	paddlade	 p ² a dː . l a . d e̞ 	1
+L20S02W02	runt	 r ˈ ɵ nː t 	1
+L20S02W03	sjön	 ɧ ˈ ø̞ nː 	1
+L20S03W00	Fyra	 f ² yː . r a 	1
+L20S03W01	män	 m ˈ ɛ̝ nː 	1
+L20S03W02	sjöng	 ɧ ˈ ø̞ ŋː 	1
+L20S03W03	i	 ˈ iː 	0
+L20S03W04	kyrkan	 ɕ ² ʏ rː . k a n 	1
+L20S04W00	Mannen	 m ˈ a nː . e̞ n 	1
+L20S04W01	låg	 l ˈ oː ɡ 	1
+L20S04W02	på	 p ˈ oː 	0
+L20S04W03	stranden	 s t r ˈ a nː . d e̞ n 	1
+L20S05W00	Läkaren	 l ² ɛː . k a . r e̞ n 	1
+L20S05W01	hälsar	 h ² ɛ̝ lː . s a r 	1
+L20S05W02	på	 p ˈ oː 	0
+L20S05W03	sin	 s ˈ ɪ nː 	0
+L20S05W04	dotter	 d ² ɔ tː . e̞ r 	1
+L20S06W00	Blommorna	 b l ² ʊ mː . ʊ . ɳ a 	1
+L20S06W01	i	 ˈ iː 	0
+L20S06W02	vasen	 v ˈ ɑː . s e̞ n 	1
+L20S06W03	är	 ˈ ɛː 	0
+L20S06W04	blåa	 b l ² oː . a 	1
+L20S07W00	Kvinnan	 k v ² ɪ nː . a n 	1
+L20S07W01	i	 ˈ iː 	0
+L20S07W02	kiosken	 ɕ ˈ ɔ sː . k e̞ n 	1
+L20S07W03	har	 h ˈ ɑː r 	0
+L20S07W04	vitt	 v ˈ ɪ tː 	1
+L20S07W05	hår	 h ˈ oː r 	1
+L20S08W00	Flickan	 f l ² ɪ kː . a n 	1
+L20S08W01	letar	 l ² eː . t a r 	1
+L20S08W02	efter	 ² ɛ̝ fː . t e̞ r 	0
+L20S08W03	strumporna	 s t r ² ɵ mː . p ʊ . ɳ a 	1
+L20S09W00	Pojken	 p ˈ ɔ ʝː . k e̞ n 	1
+L20S09W01	såg	 s ˈ oː ɡ 	1
+L20S09W02	det	 d ˈ ɛː 	0
+L20S09W03	gröna	 ɡ r ² øː . n a 	1
+L20S09W04	tyget	 t ˈ yː . ɡ e̞ t 	1
+L21S00W00	Kossan	 k ² ʊ sː . a n 	1
+L21S00W01	betar	 b ² eː . t a r 	1
+L21S00W02	grönt	 ɡ r ˈ øː n t 	0
+L21S00W03	gräs	 ɡ r ˈ ɛː s 	1
+L21S00W04	i	 ˈ iː 	0
+L21S00W05	hagen	 h ² ɑː . ɡ e̞ n 	1
+L21S01W00	Marken	 m ˈ a rː . k e̞ n 	1
+L21S01W01	blir	 b l ˈ iː r 	1
+L21S01W02	hård	 h ˈ oː ɖ 	1
+L21S01W03	när	 n ˈ ɛː r 	0
+L21S01W04	det	 d ˈ ɛː 	0
+L21S01W05	är	 ˈ ɛː 	0
+L21S01W06	tjäle	 ɕ ² ɛː . l e̞ 	1
+L21S02W00	Farmor	 f ² a rː . m ˌ ʊ rː 	1
+L21S02W01	köpte	 ɕ ² ø̞ pː . t e̞ 	1
+L21S02W02	femton	 f ² ɛ̝ mː . t ɔ n 	1
+L21S02W03	fiskar	 f ² ɪ sː . k a r 	1
+L21S03W00	Valpen	 v ˈ a lː . p e̞ n 	1
+L21S03W01	svalkade	 s v ² a lː . k a . d e̞ 	1
+L21S03W02	sig	 s ˈ ɛ̝ ʝː 	0
+L21S03W03	i	 ˈ iː 	0
+L21S03W04	skuggan	 s k ² ɵ ɡː . a n 	1
+L21S04W00	Kvinnan	 k v ² ɪ nː . a n 	1
+L21S04W01	hjälper	 ʝ ˈ ɛ̝ lː . p e̞ r 	1
+L21S04W02	sina	 s ² iː . n a 	1
+L21S04W03	barn	 b ˈ ɑː ɳ 	1
+L21S05W00	Den	 d ˈ ɛ̝ nː 	0
+L21S05W01	blå	 b l ˈ oː 	1
+L21S05W02	flaskan	 f l ² a sː . k a n 	1
+L21S05W03	står	 s t ˈ oː r 	0
+L21S05W04	på	 p ˈ oː 	0
+L21S05W05	hyllan	 h ² ʏ lː . a n 	1
+L21S06W00	Stegen	 s t ² eː . ɡ e̞ n 	1
+L21S06W01	är	 ˈ ɛː 	0
+L21S06W02	två	 t v ˈ oː 	1
+L21S06W03	meter	 m ˈ eː . t e̞ r 	1
+L21S06W04	lång	 l ˈ ɔ ŋː 	0
+L21S07W00	Ungarna	 ² ɵ ŋː . a . ɳ a 	1
+L21S07W01	satt	 s ˈ a tː 	1
+L21S07W02	framför	 f r ² a mː . f ˌ øː r 	0
+L21S07W03	datorn	 d ² ɑː . t ʊ ɳ 	1
+L21S08W00	Pojken	 p ˈ ɔ ʝː . k e̞ n 	0
+L21S08W01	hade	 h ² a dː . e̞ 	0
+L21S08W02	sönder	 s ˈ ø̞ nː . d e̞ r 	1
+L21S08W03	staketet	 s t a . k ˈ eː . t e̞ t 	1
+L21S09W00	Rektorn	 r ² ɛ̝ kː . t ʊ ɳ 	1
+L21S09W01	rättade	 r ² ɛ̝ tː . a . d e̞ 	1
+L21S09W02	till	 t ˈ ɪ lː 	1
+L21S09W03	slipsen	 s l ˈ ɪ pː . s e̞ n 	1
+L22S00W00	Pojken	 p ² ɔ ʝː . k e̞ n 	1
+L22S00W01	har	 h ˈ ɑː r 	0
+L22S00W02	tretton	 t r ² ɛ̝ tː . ɔ n 	1
+L22S00W03	kusiner	 k ʉ . s ˈ iː . n e̞ r 	1
+L22S01W00	Fyra	 f ² yː . r a 	1
+L22S01W01	gula	 ɡ ² ʉː . l a 	1
+L22S01W02	bilar	 b ² iː . l a r 	1
+L22S01W03	stod	 s t ˈ uː d 	1
+L22S01W04	i	 ˈ iː 	0
+L22S01W05	kön	 k ˈ øː n 	1
+L22S02W00	Tavlan	 t ² ɑː v . l a n 	1
+L22S02W01	var	 v ˈ ɑː 	0
+L22S02W02	målad	 m ² oː . l a d 	1
+L22S02W03	i	 ˈ iː 	0
+L22S02W04	rött	 r ˈ ø̞ tː 	1
+L22S03W00	Mattan	 m ² a tː . a n 	1
+L22S03W01	vädrades	 v ² ɛː . d r a . d e̞ s 	1
+L22S03W02	på	 p ˈ oː 	0
+L22S03W03	balkongen	 b a l . k ˈ ɔ ŋː . e̞ n 	1
+L22S04W00	Fem	 f ˈ ɛ̝ mː 	1
+L22S04W01	tjejer	 ɕ ² ɛ̝ ʝː . e̞ r 	1
+L22S04W02	sprang	 s p r ˈ a ŋː 	1
+L22S04W03	på	 p ˈ oː 	0
+L22S04W04	skolgården	 s k ² uː l . ɡ ˌ oː . ɖ e̞ n 	1
+L22S05W00	Huset	 h ˈ ʉː . s e̞ t 	1
+L22S05W01	hade	 h ² a dː . e̞ 	0
+L22S05W02	nio	 n ² iː . ʊ 	1
+L22S05W03	sovrum	 s ² oː v . r ˌ ɵ mː 	1
+L22S06W00	Tjusningen	 ɕ ² ʉː . s n ɪ ŋ . e̞ n 	1
+L22S06W01	med	 m ˈ eː 	0
+L22S06W02	vintern	 v ˈ ɪ nː . t e̞ ɳ 	1
+L22S06W03	är	 ˈ ɛː 	0
+L22S06W04	snön	 s n ˈ ø̞ nː 	1
+L22S07W00	Farmor	 f ² a rː . m ˌ ʊ rː 	1
+L22S07W01	rensade	 r ² ɛ̝ nː . s a . d e̞ 	1
+L22S07W02	i	 ˈ iː 	0
+L22S07W03	klädskåpet	 k l ² ɛː . s k ˌ oː . p e̞ t 	1
+L22S08W00	Flickan	 f l ² ɪ kː . a n 	1
+L22S08W01	handlade	 h ² a nː d . l a . d e̞ 	1
+L22S08W02	ost	 ˈ ʊ sː t 	1
+L22S08W03	och	 ˈ ɔ kː 	0
+L22S08W04	korv	 k ˈ ɔ rː v 	1
+L22S09W00	Barnet	 b ˈ ɑː . ɳ e̞ t 	1
+L22S09W01	lärde	 l ² ɛː . ɖ e̞ 	1
+L22S09W02	sig	 s ˈ ɛ̝ ʝː 	1
+L22S09W03	alfabetet	 ² a lː . f a . b ˌ eː . t e̞ t 	1
+L23S00W00	Soldaten	 s ʊ l . d ˈ ɑː . t e̞ n 	1
+L23S00W01	springer	 s p r ˈ ɪ ŋː . e̞ r 	1
+L23S00W02	över	 ˈ øː . v e̞ r 	0
+L23S00W03	bron	 b r ˈ uː n 	1
+L23S01W00	Chefen	 ɧ ˈ eː . f e̞ n 	1
+L23S01W01	pratade	 p r ² ɑː . t a . d e̞ 	1
+L23S01W02	med	 m ˈ eː 	1
+L23S01W03	honom	 h ² ɔ nː . ɔ m 	1
+L23S02W00	I	 ˈ iː 	0
+L23S02W01	glaset	 ɡ l ˈ ɑː . s e̞ t 	1
+L23S02W02	fanns	 f ˈ a nː s 	1
+L23S02W03	en	 ˈ ɛ̝ nː 	0
+L23S02W04	röd	 r ˈ øː d 	1
+L23S02W05	servett	 s e̞ r . v ˈ ɛ̝ tː 	1
+L23S03W00	Hundarna	 h ² ɵ nː . d a . ɳ a 	1
+L23S03W01	rullade	 r ² ɵ lː . a . d e̞ 	1
+L23S03W02	runt	 r ˈ ɵ nː t 	1
+L23S03W03	i	 ˈ iː 	0
+L23S03W04	snön	 s n ˈ ø̞ nː 	1
+L23S04W00	Flickan	 f l ² ɪ kː . a n 	1
+L23S04W01	lånade	 l ² oː . n a . d e̞ 	1
+L23S04W02	ut	 ˈ ʉː t 	1
+L23S04W03	sitt	 s ˈ ɪ tː 	0
+L23S04W04	hårband	 h ² oː r . b ˌ a nː d 	1
+L23S05W00	Bilen	 b ˈ iː . l e̞ n 	1
+L23S05W01	fick	 f ˈ ɪ kː 	1
+L23S05W02	två	 t v ˈ oː 	1
+L23S05W03	repor	 r ² eː . p ʊ r 	1
+L23S06W00	Vaktmästaren	 v ² a kː t . m ˌ ɛ̝ sː . t a . r e̞ n 	1
+L23S06W01	städar	 s t ² ɛː . d a r 	1
+L23S06W02	matsalen	 m ² ɑː t . s ˌ ɑː . l e̞ n 	1
+L23S07W00	Killen	 k ² ɪ lː . e̞ n 	1
+L23S07W01	målade	 m ² oː . l a . d e̞ 	1
+L23S07W02	om	 ˈ ɔ mː 	0
+L23S07W03	väggarna	 v ² ɛ̝ ɡː . a . ɳ a 	1
+L23S08W00	Byxorna	 b ² ʏ kː . s ʊ . ɳ a 	1
+L23S08W01	glömdes	 ɡ l ² ø̞ mː . d e̞ s 	1
+L23S08W02	i	 ˈ iː 	0
+L23S08W03	torkskåpet	 t ² ɔ rː k . s k ˌ oː . p e̞ t 	1
+L23S09W00	Jackan	 ʝ ² a kː . a n 	1
+L23S09W01	hängde	 h ² ɛ̝ ŋː . d e̞ 	1
+L23S09W02	i	 ˈ iː 	0
+L23S09W03	garderoben	 ɡ a . ɖ e̞ . r ˈ oː . b e̞ n 	1
+L24S00W00	Elefanten	 e̞ . l e̞ . f ˈ a nː . t e̞ n 	1
+L24S00W01	åt	 ˈ oː t 	1
+L24S00W02	ur	 ˈ ʉː r 	1
+L24S00W03	en	 ˈ ɛ̝ nː 	0
+L24S00W04	blå	 b l ˈ oː 	1
+L24S00W05	hink	 h ˈ ɪ ŋː k 	1
+L24S01W00	Servitrisen	 s e̞ r . v ɪ . t r ˈ iː . s e̞ n 	1
+L24S01W01	bar	 b ˈ ɑː r 	1
+L24S01W02	ut	 ˈ ʉː t 	1
+L24S01W03	grädden	 ɡ r ² ɛ̝ dː . e̞ n 	1
+L24S02W00	Under	 ˈ ɵ nː . d e̞ r 	1
+L24S02W01	fönstret	 f ˈ ø̞ nː . s t r e̞ t 	1
+L24S02W02	stod	 s t ˈ uː d 	0
+L24S02W03	en	 ˈ ɛ̝ nː 	0
+L24S02W04	säng	 s ˈ ɛ̝ ŋː 	1
+L24S03W00	Det	 d ˈ ɛː 	0
+L24S03W01	fanns	 f ˈ a nː s 	0
+L24S03W02	mycket	 m ² ʏ kː . e̞ t 	1
+L24S03W03	svamp	 s v ˈ a mː p 	1
+L24S03W04	i	 ˈ iː 	0
+L24S03W05	gläntan	 ɡ l ² ɛ̝ nː . t a n 	1
+L24S04W00	Klockan	 k l ² ɔ kː . a n 	1
+L24S04W01	i	 ˈ iː 	0
+L24S04W02	köket	 ɕ ˈ øː . k e̞ t 	1
+L24S04W03	slog	 s l ˈ uː ɡ 	1
+L24S04W04	tolv	 t ˈ ɔ lː v 	1
+L24S05W00	Pojkarna	 p ² ɔ ʝː . k a . ɳ a 	1
+L24S05W01	sprang	 s p r ˈ a ŋː 	1
+L24S05W02	nedför	 n ˈ eː . f ø r 	1
+L24S05W03	backen	 b ² a kː . e̞ n 	1
+L24S06W00	Flickan	 f l ² ɪ kː . a n 	1
+L24S06W01	har	 h ˈ ɑː r 	0
+L24S06W02	tio	 t ² iː . ʊ 	1
+L24S06W03	väskor	 v ² ɛ̝ sː . k ʊ r 	1
+L24S07W00	Dockan	 d ² ɔ kː . a n 	1
+L24S07W01	låg	 l ˈ oː ɡ 	0
+L24S07W02	gömd	 ʝ ˈ ø̞ mː d 	1
+L24S07W03	i	 ˈ iː 	0
+L24S07W04	buskarna	 b ² ɵ sː . k a . ɳ a 	1
+L24S08W00	Kompisarna	 k ˈ ɔ mː . p ɪ . s a . ɳ a 	1
+L24S08W01	delar	 d ² eː . l a r 	1
+L24S08W02	på	 p ˈ oː 	0
+L24S08W03	pizzan	 p ² ɪ tː . s a n 	1
+L24S09W00	Grannen	 ɡ r ² a nː . e̞ n 	1
+L24S09W01	lånade	 l ² oː . n a . d e̞ 	1
+L24S09W02	en	 ˈ ɛ̝ nː 	0
+L24S09W03	mejsel	 m ² ɛ̝ ʝː . s e̞ l 	1
+L25S00W00	Kvinnan	 k v ² ɪ nː . a n 	1
+L25S00W01	plockar	 p l ² ɔ kː . a r 	1
+L25S00W02	fram	 f r ˈ a mː 	1
+L25S00W03	sin	 s ˈ ɪ nː 	0
+L25S00W04	medicin	 m e̞ . d ɪ . s ˈ iː n 	1
+L25S01W00	Killen	 k ² ɪ lː . e̞ n 	1
+L25S01W01	köpte	 ɕ ² ø̞ pː . t e̞ 	1
+L25S01W02	en	 ˈ ɛ̝ nː 	0
+L25S01W03	glass	 ɡ l ˈ a sː 	1
+L25S02W00	Han	 h ˈ a nː 	1
+L25S02W01	sprang	 s p r ˈ a ŋː 	1
+L25S02W02	fort	 f ˈ ʊ ʈː 	1
+L25S02W03	genom	 ʝ ˈ eː . n ɔ m 	0
+L25S02W04	skogen	 s k ˈ uː . ɡ e̞ n 	1
+L25S03W00	Svenskarna	 s v ² ɛ̝ nː . s k a . ɳ a 	1
+L25S03W01	dricker	 d r ˈ ɪ kː . e̞ r 	1
+L25S03W02	hemgjord	 h ² ɛ̝ mː . ʝ ˌ uː ɖ 	1
+L25S03W03	saft	 s ˈ a fː t 	1
+L25S04W00	Morfar	 m ² ʊ rː . f ˌ a rː 	1
+L25S04W01	odlar	 ² uː d . l a r 	1
+L25S04W02	potatis	 p ʊ . t ˈ ɑː . t ɪ s 	1
+L25S05W00	Grannen	 ɡ r ² a nː . e̞ n 	1
+L25S05W01	hade	 h ² a dː . e̞ 	0
+L25S05W02	fest	 f ˈ ɛ̝ sː t 	1
+L25S05W03	igår	 ɪ . ɡ ˈ oː r 	1
+L25S06W00	Pojken	 p ˈ ɔ ʝː . k e̞ n 	1
+L25S06W01	kräver	 k r ˈ ɛː . v e̞ r 	1
+L25S06W02	högre	 h ˈ øː ɡ . r e̞ 	1
+L25S06W03	veckopeng	 v ² ɛ̝ kː . ʊ . p ˌ ɛ̝ ŋː 	1
+L25S07W00	Barnet	 b ˈ ɑː . ɳ e̞ t 	1
+L25S07W01	lekte	 l ² eː k . t e̞ 	1
+L25S07W02	med	 m ˈ eː 	0
+L25S07W03	hunden	 h ˈ ɵ nː . d e̞ n 	1
+L25S08W00	Båda	 b ² oː . d a 	1
+L25S08W01	tröjorna	 t r ² ø̞ ʝː . ʊ . ɳ a 	1
+L25S08W02	var	 v ˈ ɑː 	0
+L25S08W03	svarta	 s v ² a ʈː . a 	1
+L25S09W00	Lyktan	 l ² ʏ kː . t a n 	1
+L25S09W01	gav	 ɡ ˈ ɑː v 	1
+L25S09W02	ett	 ˈ ɛ̝ tː 	0
+L25S09W03	grönt	 ɡ r ˈ øː n t 	1
+L25S09W04	sken	 ɧ ˈ eː n 	1
+L26S00W00	Kvinnorna	 k v ² ɪ nː . ʊ . ɳ a 	1
+L26S00W01	satt	 s ˈ a tː 	1
+L26S00W02	på	 p ˈ oː 	0
+L26S00W03	bänken	 b ˈ ɛ̝ ŋː . k e̞ n 	1
+L26S01W00	Pojkarna	 p ² ɔ ʝː . k a . ɳ a 	1
+L26S01W01	lekte	 l ² eː k . t e̞ 	1
+L26S01W02	på	 p ˈ oː 	0
+L26S01W03	stranden	 s t r ˈ a nː . d e̞ n 	1
+L26S02W00	Syltburken	 s ² ʏ lː t . b ˌ ɵ rː . k e̞ n 	1
+L26S02W01	står	 s t ˈ oː r 	1
+L26S02W02	på	 p ˈ oː 	0
+L26S02W03	köksbordet	 ɕ ² ø̞ kː s . b ˌ uː . ɖ e̞ t 	1
+L26S03W00	Fåtöljen	 f ɔ . t ˈ ø̞ lː . ʝ e̞ n 	1
+L26S03W01	står	 s t ˈ oː r 	1
+L26S03W02	en	 ˈ ɛ̝ nː 	0
+L26S03W03	trappa	 t r ² a pː . a 	1
+L26S03W04	upp	 ˈ ɵ pː 	1
+L26S04W00	Det	 d ˈ ɛː 	0
+L26S04W01	låg	 l ˈ oː ɡ 	1
+L26S04W02	en	 ˈ ɛ̝ nː 	0
+L26S04W03	vit	 v ˈ iː t 	1
+L26S04W04	snäcka	 s n ² ɛ̝ kː . a 	1
+L26S04W05	på	 p ˈ oː 	0
+L26S04W06	botten	 b ˈ ɔ tː . e̞ n 	1
+L26S05W00	Mamma	 m ² a mː . a 	1
+L26S05W01	dricker	 d r ˈ ɪ kː . e̞ r 	1
+L26S05W02	ur	 ˈ ʉː r 	0
+L26S05W03	sin	 s ˈ ɪ nː 	1
+L26S05W04	nya	 n ² yː . a 	1
+L26S05W05	kopp	 k ˈ ɔ pː 	1
+L26S06W00	Boken	 b ˈ uː . k e̞ n 	1
+L26S06W01	är	 ˈ ɛː 	0
+L26S06W02	i	 ˈ iː 	0
+L26S06W03	trädgården	 t r ˈ ɛ̝ ɡː . o . ɖ e̞ n 	1
+L26S07W00	Skivan	 ɧ ² iː . v a n 	1
+L26S07W01	innehöll	 ² ɪ nː . e̞ . h ˌ ø̞ lː 	1
+L26S07W02	femton	 f ² ɛ̝ mː . t ɔ n 	1
+L26S07W03	låtar	 l ² oː t . a r 	1
+L26S08W00	Hennes	 h ² ɛ̝ nː . e̞ s 	1
+L26S08W01	skor	 s k ˈ uː r 	1
+L26S08W02	är	 ˈ ɛː 	0
+L26S08W03	svarta	 s v ² a ʈː . a 	1
+L26S09W00	Handskarna	 h ² a nː d . s k a . ɳ a 	1
+L26S09W01	låg	 l ˈ oː ɡ 	1
+L26S09W02	på	 p ˈ oː 	1
+L26S09W03	hatthyllan	 h ² a tː . h ˌ ʏ lː . a n 	1
+L27S00W00	Kusinerna	 k ʉ . s ˈ iː . n e̞ . ɳ a 	1
+L27S00W01	satt	 s ˈ a tː 	1
+L27S00W02	i	 ˈ iː 	0
+L27S00W03	fåtöljen	 f ɔ . t ˈ ø̞ lː . ʝ e̞ n 	1
+L27S01W00	Mormor	 m ² ʊ rː . m ˌ ʊ rː 	1
+L27S01W01	äter	 ˈ ɛː . t e̞ r 	1
+L27S01W02	gröt	 ɡ r ˈ øː t 	1
+L27S01W03	varje	 v ² a rː . ʝ e̞ 	0
+L27S01W04	dag	 d ˈ ɑː ɡ 	1
+L27S02W00	Damen	 d ˈ ɑː . m e̞ n 	1
+L27S02W01	handlade	 h ² a nː d . l a . d e̞ 	1
+L27S02W02	sju	 ɧ ˈ ʉː 	1
+L27S02W03	skjortor	 ɧ ² ʊ ʈː . ʊ r 	1
+L27S03W00	Sönerna	 s ² øː . n e̞ . ɳ a 	1
+L27S03W01	pussade	 p ² ɵ sː . a . d e̞ 	1
+L27S03W02	sin	 s ˈ ɪ nː 	0
+L27S03W03	mamma	 m ² a mː . a 	1
+L27S04W00	Pappa	 p ² a pː . a 	1
+L27S04W01	väntade	 v ² ɛ̝ nː . t a . d e̞ 	1
+L27S04W02	utanför	 ² ʉː . t a ɱ . f ˌ øː r 	1
+L27S05W00	Killarna	 k ² ɪ lː . a . ɳ a 	1
+L27S05W01	stod	 s t ˈ uː d 	1
+L27S05W02	framför	 f r ² a mː . f ˌ øː r 	0
+L27S05W03	kiosken	 ɕ ˈ ɔ sː . k e̞ n 	1
+L27S06W00	Mamma	 m ² a mː . a 	1
+L27S06W01	stökade	 s t ² øː . k a . d e̞ 	1
+L27S06W02	till	 t ˈ ɪ lː 	1
+L27S06W03	i	 ˈ iː 	0
+L27S06W04	köket	 ɕ ˈ øː . k e̞ t 	1
+L27S07W00	Det	 d ˈ ɛː 	0
+L27S07W01	sitter	 s ˈ ɪ tː . e̞ r 	1
+L27S07W02	tio	 t ² iː . ʊ 	1
+L27S07W03	män	 m ˈ ɛ̝ nː 	1
+L27S07W04	i	 ˈ iː 	0
+L27S07W05	bastun	 b ² a sː . t ɵ n 	1
+L27S08W00	Brandbilen	 b r ² a nː d . b ˌ iː . l e̞ n 	1
+L27S08W01	välte	 v ² ɛ̝ lː . t e̞ 	1
+L27S08W02	ner	 n ˈ eː r 	0
+L27S08W03	i	 ˈ iː 	0
+L27S08W04	diket	 d ² iː . k e̞ t 	1
+L27S09W00	Trädet	 t r ˈ ɛː . d e̞ t 	1
+L27S09W01	hade	 h ² a dː . e̞ 	0
+L27S09W02	bara	 b ² ɑː . r a 	0
+L27S09W03	sex	 s ˈ ɛ̝ kː s 	1
+L27S09W04	löv	 l ˈ øː v 	1
+L27S09W05	kvar	 k v ˈ ɑː r 	1
+L28S00W00	Kvinnan	 k v ² ɪ nː . a n 	1
+L28S00W01	hade	 h ² a dː . e̞ 	0
+L28S00W02	blå	 b l ˈ oː 	1
+L28S00W03	naglar	 n ² ɑː . ɡ l a r 	1
+L28S01W00	Pojken	 p ² ɔ ʝː . k e̞ n 	1
+L28S01W01	i	 ˈ iː 	0
+L28S01W02	grönt	 ɡ r ˈ øː n t 	1
+L28S01W03	åt	 ˈ oː t 	1
+L28S01W04	tre	 t r ˈ eː 	1
+L28S01W05	portioner	 p ʊ ʈ . ɧ ˈ uː . n e̞ r 	1
+L28S02W00	Barnen	 b ˈ ɑː . ɳ e̞ n 	1
+L28S02W01	fick	 f ˈ ɪ kː 	1
+L28S02W02	måla	 m ² oː . l a 	1
+L28S02W03	nere	 n ² eː . r e̞ 	0
+L28S02W04	vid	 v ˈ iː 	1
+L28S02W05	ån	 ˈ oː n 	1
+L28S03W00	På	 p ˈ oː 	0
+L28S03W01	lovet	 l ˈ oː . v e̞ t 	1
+L28S03W02	ska	 s k ˈ ɑː 	0
+L28S03W03	jag	 ʝ ˈ ɑː 	1
+L28S03W04	till	 t ˈ ɪ 	0
+L28S03W05	simhallen	 s ² ɪ mː . h ˌ a lː . e̞ n 	1
+L28S04W00	Det	 d ˈ ɛː 	0
+L28S04W01	låg	 l ˈ oː ɡ 	0
+L28S04W02	tretton	 t r ² ɛ̝ tː . ɔ n 	1
+L28S04W03	knivar	 k n ² iː . v a r 	1
+L28S04W04	i	 ˈ iː 	0
+L28S04W05	lådan	 l ² oː . d a n 	1
+L28S05W00	Påsen	 p ² oː . s e̞ n 	1
+L28S05W01	innehöll	 ² ɪ nː . e̞ . h ˌ ø̞ lː 	1
+L28S05W02	ett	 ˈ ɛ̝ tː 	0
+L28S05W03	gult	 ɡ ˈ ʉː l t 	1
+L28S05W04	paket	 p a . k ˈ eː t 	1
+L28S06W00	Författaren	 f ø̞ r . f ˈ a tː . a . r e̞ n 	1
+L28S06W01	såg	 s ˈ oː ɡ 	1
+L28S06W02	en	 ˈ ɛ̝ nː 	0
+L28S06W03	pjäs	 p ʝ ˈ ɛː s 	1
+L28S07W00	Tjejen	 ɕ ˈ ɛ̝ ʝː . e̞ n 	1
+L28S07W01	satt	 s ˈ a tː 	1
+L28S07W02	i	 ˈ iː 	0
+L28S07W03	trappan	 t r ² a pː . a n 	1
+L28S08W00	Barnen	 b ˈ ɑː . ɳ e̞ n 	1
+L28S08W01	lekte	 l ² eː k . t e̞ 	1
+L28S08W02	framför	 f r ² a mː . f ˌ øː r 	0
+L28S08W03	huset	 h ˈ ʉː . s e̞ t 	1
+L28S09W00	Löparen	 l ² øː . p a . r e̞ n 	1
+L28S09W01	rengjorde	 r ² eː n . ʝ ˌ uː . ɖ e̞ 	1
+L28S09W02	sina	 s ² iː . n a 	0
+L28S09W03	skor	 s k ˈ uː r 	1
+L29S00W00	Klänningen	 k l ² ɛ̝ nː . ɪ ŋ . e̞ n 	1
+L29S00W01	i	 ˈ iː 	0
+L29S00W02	skyltfönstret	 ɧ ² ʏ lː t . f ˌ ø̞ nː . s t r e̞ t 	1
+L29S00W03	är	 ˈ ɛː 	0
+L29S00W04	vit	 v ˈ iː t 	1
+L29S01W00	Affärsmannen	 a . f ² ɛː ʂ . m ˌ a nː . e̞ n 	1
+L29S01W01	körde	 ɕ ² øː . ɖ e̞ 	1
+L29S01W02	för	 f ˈ øː r 	1
+L29S01W03	fort	 f ˈ ʊ ʈː 	1
+L29S02W00	Servitrisen	 s e̞ r . v ɪ . t r ˈ iː . s e̞ n 	1
+L29S02W01	tappar	 t ² a pː . a r 	1
+L29S02W02	besticken	 b e̞ . s t ˈ ɪ kː . e̞ n 	1
+L29S03W00	Månen	 m ² oː . n e̞ n 	1
+L29S03W01	lyste	 l ² yː . s t e̞ 	1
+L29S03W02	på	 p ˈ oː 	0
+L29S03W03	de	 d ˈ ɔ mː 	0
+L29S03W04	sex	 s ˈ ɛ̝ kː s 	1
+L29S03W05	männen	 m ˈ ɛ̝ nː . e̞ n 	1
+L29S04W00	I	 ˈ iː 	0
+L29S04W01	diskhon	 d ² ɪ sː k . h ˌ uː n 	1
+L29S04W02	låg	 l ˈ oː ɡ 	1
+L29S04W03	tjugo	 ɕ ² ʉː . ɡ ʊ 	1
+L29S04W04	gafflar	 ɡ ² a fː . l a r 	1
+L29S05W00	Flickan	 f l ² ɪ kː . a n 	1
+L29S05W01	stod	 s t ˈ uː d 	1
+L29S05W02	länge	 l ² ɛ̝ ŋː . e̞ 	1
+L29S05W03	i	 ˈ iː 	0
+L29S05W04	duschen	 d ˈ ɵ ʂː . e̞ n 	1
+L29S06W00	Han	 h ˈ a nː 	1
+L29S06W01	tappade	 t ² a pː . a . d e̞ 	1
+L29S06W02	en	 ˈ ɛ̝ nː 	0
+L29S06W03	sko	 s k ˈ uː 	1
+L29S07W00	Åtta	 ² ɔ tː . a 	1
+L29S07W01	tallrikar	 t ² a lː . r ɪ . k a r 	1
+L29S07W02	föll	 f ˈ ø̞ lː 	1
+L29S07W03	från	 f r ˈ oː n 	0
+L29S07W04	hyllan	 h ² ʏ lː . a n 	1
+L29S08W00	Fem	 f ˈ ɛ̝ mː 	1
+L29S08W01	filmer	 f ² ɪ lː . m e̞ r 	1
+L29S08W02	recenserades	 r e̞ . s e̞ n . s ˈ eː . r a . d e̞ s 	1
+L29S09W00	En	 ˈ ɛ̝ nː 	0
+L29S09W01	spegelram	 s p ² eː . ɡ e̞ l . r ˌ ɑː m 	1
+L29S09W02	målades	 m ² oː . l a . d e̞ s 	1
+L29S09W03	grön	 ɡ r ˈ øː n 	1
