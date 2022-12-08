@@ -7,7 +7,7 @@ Public Class OSTF_suite_R
     Private Sub OSTF_suite_R_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Initializing the OSTF 
-        SpeechTestFramework.InitializeOSTF(Application.StartupPath)
+        SpeechTestFramework.InitializeOSTF()
 
         'Setting texts
         Launch_SiP_SE_R_Button.Text = "Swedish SiP-test" & vbCr & "(Research version)"

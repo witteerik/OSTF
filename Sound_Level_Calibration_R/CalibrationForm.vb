@@ -6,7 +6,7 @@
         MyBase.New(SpeechTestFramework.Utils.Constants.UserTypes.Research, True)
 
         'Initializing the OSTF 
-        SpeechTestFramework.InitializeOSTF(Application.StartupPath)
+        SpeechTestFramework.InitializeOSTF()
 
     End Sub
 

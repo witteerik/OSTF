@@ -2,6 +2,8 @@
 
 Public Class OSTFMediaFolderDialog
 
+    Public Property InitialPath As String = ""
+
     Private Sub OK_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OK_Button.Click
 
         If IO.Directory.Exists(OSTFMedia_PathControl.SelectedPath) = True Then
@@ -37,22 +39,13 @@ Public Class OSTFMediaFolderDialog
 
     Private Sub OSTFMediaFolderDialog_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        Dim local_settings_FilePath As String = IO.Path.Combine(Application.StartupPath, "local_settings.txt")
-        Dim local_settings_Input = IO.File.ReadAllLines(local_settings_FilePath)
-
-        For Each item In local_settings_Input
-            If item.Trim = "" Then Continue For
-            If item.Trim.StartsWith("//") Then Continue For
-
-            Dim SplitItem = item.Trim.Split("=")
-            If SplitItem.Length < 2 Then Continue For
-
-            If SplitItem(0).Trim.ToLower.StartsWith("MediaRootDirectory".ToLower) Then MediaRootDirectory = SplitItem(1).Trim
-
-        Next
+        If InitialPath <> "" Then
+            MediaRootDirectory = InitialPath
+        Else
+            ReadMediaRootDirectory()
+        End If
 
         Me.OSTFMedia_PathControl.SetSelectedPath(MediaRootDirectory)
-
         Me.OSTFMedia_PathControl.BorderStyle = BorderStyle.None
 
     End Sub

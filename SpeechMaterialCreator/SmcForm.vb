@@ -3,7 +3,7 @@
 
     Public Sub New()
         'Initializing the OSTF 
-        SpeechTestFramework.InitializeOSTF(Application.StartupPath)
+        SpeechTestFramework.InitializeOSTF()
     End Sub
 
 End Class

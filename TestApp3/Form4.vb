@@ -5,7 +5,7 @@
     Private Sub Form4_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Initializing the OSTF 
-        SpeechTestFramework.InitializeOSTF(Application.StartupPath)
+        SpeechTestFramework.InitializeOSTF()
 
         Me.Audiogram2.AudiogramData = New SpeechTestFramework.AudiogramData
 

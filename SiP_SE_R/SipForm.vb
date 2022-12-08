@@ -7,7 +7,7 @@
         MyBase.New("Swedish SiP-test", SpeechTestFramework.Utils.Constants.UserTypes.Research, SpeechTestFramework.Utils.Constants.Languages.English, True)
 
         'Initializing the OSTF 
-        SpeechTestFramework.InitializeOSTF(Application.StartupPath)
+        SpeechTestFramework.InitializeOSTF()
 
     End Sub
 

@@ -1,1 +1,3 @@
-MediaRootDirectory = C:\OSTFMedia
+// The variable MediaRootDirectory should specify the OSTF media folder. If left empty, the OSTF media folder is assumed to be named 'OSTFMedia' and located in the same folder as the application .exe file.
+// (N.B. If the application is started from within Visual Studio, the OSTF media folder (when not explicitly specified below) is assumed to be named 'OSTFMedia' and located in the parent folder of the application project (i.e. three levels above the folder containing the executable file.)
+MediaRootDirectory = 

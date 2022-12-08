@@ -132,7 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="local_settings.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="portaudio_x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
