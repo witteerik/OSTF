@@ -9,6 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+JSLHR-S-18-0454witte_SuppS10_WithVariableTypes.txt
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

@@ -54,3 +54,9 @@ Copyright (c) Erik Witte
 
 - A modified version of "The International Female Fluctuating Masker" (IFFM).
 The OSTF uses a modified version (resampled to 48 kHz, float32 format, file name: "IFFM_60s_32bit_48k.wav") of the IFFM signal. The modifed IFFM signal is NOT free to use, except for under the following terms, which are the same as for the original IFFM signal, namely a) the copyright of the modified IFFM signal belongs to the European Hearing Instrument Manufacturers Association (EHIMA) and b) the IFFM modified signal can be used free of cost in the "field of hearing". For use in other fields, permission must be obtained from EHIMA. (For further information, see EHIMA's documentation for the IFFM and IFnoise at www.ehima.com/documents.) For further information about the modified IFFM signal, see the ReadMe file supplied in the same folders as the signal.
+
+- Modified versions of the recordings for the Swedish Hearing In Noise Test (HINT), originally created by Hällgren, Larsby and Arlinger and available from https://doi.org/10.17605/OSF.IO/4ZNCK. Like the original, our modified verison of the HINT recordings are separately licensed under the Creative Commons Attribution 4.0 International License https://creativecommons.org/licenses/by/4.0/. Our modifications are solely technical and do notably alter the audio quality or the relative sound levels within the original recordings.
+The following modifications have been made:
+     - Conversion from the original 16-bit encoding to 32-bit IEEE floating point encoding.
+     - Splitting left and right channels into separate sound files.
+     - Addition of Speech Material Annotation (SMA) iXML wave chunks for linguistic segmentations of the sound files.
