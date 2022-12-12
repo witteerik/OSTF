@@ -70,7 +70,28 @@
                 'If the we end up here, PortAudio will have already bee initialized, which it should not. (Then there will be missing calls to Pa_Terminate.)
             End If
 
-            ReadMediaRootDirectory()
+            ReadMediaRootDirectory(StartupPath)
+
+            'Checks that the folder exists
+            If IO.Directory.Exists(MediaRootDirectory) = False Then
+0:
+                Dim NewOSTFMediaFolderDialog As New OSTFMediaFolderDialog
+                NewOSTFMediaFolderDialog.InitialPath = MediaRootDirectory
+                NewOSTFMediaFolderDialog.Text = "Cannot find the OSTF media folder"
+                NewOSTFMediaFolderDialog.StartPosition = Windows.Forms.FormStartPosition.CenterScreen
+                NewOSTFMediaFolderDialog.ShowDialog()
+            End If
+
+            'Checks that it seems to be the right (media) folder
+            If IO.Directory.Exists(IO.Path.Combine(MediaRootDirectory, AudioSystemSubDirectory)) = False Then
+                Dim MsgResult = MsgBox("It seems like you have selected an incorrect OSTF media folder. The OSTF media folder should for example contain the folder " & AudioSystemSubDirectory & vbCrLf &
+                                    "Please try again.", MsgBoxStyle.OkCancel, "Unable to find the OSTF media folder!")
+                If MsgResult = MsgBoxResult.Ok Then
+                    GoTo 0
+                Else
+                    Throw New Exception("Unable to locate the OSTF media folder! Cannot start the application.")
+                End If
+            End If
 
         Catch ex As Exception
             Throw New Exception("The following error occurred when trying to initialize OSTF:" & vbCrLf & vbCrLf & ex.ToString)
@@ -115,26 +136,6 @@
             Else
                 'The application is likely not started from within visual studio, assuming the OSTF media folder to be located directly in the start-up folder
                 MediaRootDirectory = IO.Path.Combine(Windows.Forms.Application.StartupPath, DefaultMediaRootFolderName)
-            End If
-        End If
-
-        'Checks that the folder exists
-        If IO.Directory.Exists(MediaRootDirectory) = False Then
-0:
-            Dim NewOSTFMediaFolderDialog As New OSTFMediaFolderDialog
-            NewOSTFMediaFolderDialog.Text = "Cannot find the OSTF media folder"
-            NewOSTFMediaFolderDialog.StartPosition = Windows.Forms.FormStartPosition.CenterScreen
-            NewOSTFMediaFolderDialog.ShowDialog()
-        End If
-
-        'Checks that it seems to be the right (media) folder
-        If IO.Directory.Exists(IO.Path.Combine(MediaRootDirectory, AudioSystemSubDirectory)) = False Then
-            Dim MsgResult = MsgBox("It seems like you have selected an incorrect OSTF media folder. The OSTF media folder should for example contain the folder " & AudioSystemSubDirectory & vbCrLf &
-                                "Please try again.", MsgBoxStyle.OkCancel, "Unable to find the OSTF media folder!")
-            If MsgResult = MsgBoxResult.Ok Then
-                GoTo 0
-            Else
-                Throw New Exception("Unable to locate the OSTF media folder! Cannot start the application.")
             End If
         End If
 

@@ -105,6 +105,7 @@ Public Class OSTF_suite_R
     Private Sub SetMediaFolderLocationToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SetMediaFolderLocationToolStripMenuItem.Click
 
         Dim NewOSTFMediaFolderDialog As New OSTFMediaFolderDialog
+        NewOSTFMediaFolderDialog.InitialPath = MediaRootDirectory
         NewOSTFMediaFolderDialog.ShowDialog()
 
     End Sub
