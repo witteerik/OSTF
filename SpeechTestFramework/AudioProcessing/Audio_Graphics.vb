@@ -943,9 +943,6 @@ Namespace Audio
                     Select Case displayColumnCount
                         Case Is <= SpectrogramArea.Width
 
-                            'testForm.startvalueLabel.Text = 0
-                            'testForm.startvalueLabel.Refresh()
-
                             'Updating spectrogram X-scale
                             Dim columnsSizeInPixels As Single = SpectrogramWindowDistance / SampleToPixelScale
                             Dim analysisWindowLengthInPixels As Single = SpectrogramWindowDistance / SampleToPixelScale
@@ -958,14 +955,9 @@ Namespace Audio
                                 For coeffNumber = 0 To CurrentSound.FFT.SpectrogramData(CurrentChannel, 0).WindowData.Length - 1
 
                                     Dim newBrushGradient As Integer '= sound.FFT.SpectrogramData(currentChannel, columnNumber)(coeffNumber) * spectrogramLightFactor
-                                    Try
-                                        newBrushGradient = CurrentSound.FFT.SpectrogramData(CurrentChannel, columnNumber).WindowData(coeffNumber) * SpectrogramLightFactor
-                                    Catch ex As Exception
-                                        MsgBox(ex.ToString)
-                                    End Try
+                                    newBrushGradient = CurrentSound.FFT.SpectrogramData(CurrentChannel, columnNumber).WindowData(coeffNumber) * SpectrogramLightFactor
                                     If newBrushGradient > 255 Then newBrushGradient = 255
                                     Dim newBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(newBrushGradient, Drawing.Color.Black))
-                                    'newLowResolutionSpectrogramArea(drawingPixel) = New spectrogramDisplayData(newBrush, xPixel, YPixelCount - yPixel, 1, 1)
 
                                     newLowResolutionSpectrogramArea(drawingSurface) = New SpectrogramDisplayData(newBrush, ((columnNumber - displayStartColumn) * columnsSizeInPixels + pixelsOfFirstWindowOutsideDisplay),
                             (SpectrogramArea.Height - coeffNumber * YscaleToPixel_Spectrogram),
@@ -980,11 +972,8 @@ Namespace Audio
 
                         Case Is > SpectrogramArea.Width
 
-                            'testForm.startvalueLabel.Text = 1
-                            'testForm.startvalueLabel.Refresh()
-
-                            Dim XPixelCount As Integer = SpectrogramArea.Width
-                            Dim YPixelCount As Single = SpectrogramArea.Height
+                            Dim XPixelCount As Integer = SpectrogramArea.ClientRectangle.Width
+                            Dim YPixelCount As Single = SpectrogramArea.ClientRectangle.Height
 
                             Dim columnScaleToPixel As Single = displayColumnCount / XPixelCount
                             Dim binScaleToPixel As Single = CurrentSound.FFT.SpectrogramData(CurrentChannel, 0).WindowData.Length / YPixelCount
@@ -995,15 +984,14 @@ Namespace Audio
                             For xPixel = 0 To XPixelCount - 1
                                 For yPixel = 0 To YPixelCount - 1
 
-                                    Try
-                                        Dim newBrushGradient As Integer = CurrentSound.FFT.SpectrogramData(CurrentChannel, Math.Round(displayStartColumn + xPixel * columnScaleToPixel)).WindowData(Math.Round(yPixel * binScaleToPixel)) * SpectrogramLightFactor
+                                    Dim WindowIndex = Math.Floor(displayStartColumn + xPixel * columnScaleToPixel)
+                                    Dim BinIndex = Math.Floor(yPixel * binScaleToPixel)
+
+                                        Dim newBrushGradient As Integer = CurrentSound.FFT.SpectrogramData(CurrentChannel, WindowIndex).WindowData(BinIndex) * SpectrogramLightFactor
                                         If newBrushGradient > 255 Then newBrushGradient = 255
                                         Dim newBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(newBrushGradient, Drawing.Color.Black))
                                         newLowResolutionSpectrogramArea(drawingPixel) = New SpectrogramDisplayData(newBrush, xPixel, YPixelCount - yPixel, 1, 1)
                                         drawingPixel += 1
-                                    Catch ex As Exception
-                                        MsgBox(ex.ToString)
-                                    End Try
 
                                 Next
                             Next
