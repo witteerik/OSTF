@@ -57,6 +57,8 @@ Partial Class Form4
         Me.HINTfixButton = New System.Windows.Forms.Button()
         Me.HINTfixButton2 = New System.Windows.Forms.Button()
         Me.HINTfixButton3 = New System.Windows.Forms.Button()
+        Me.Button16 = New System.Windows.Forms.Button()
+        Me.Button17 = New System.Windows.Forms.Button()
         CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.ResponseGuiItemTable1.SuspendLayout()
@@ -479,12 +481,32 @@ Partial Class Form4
         Me.HINTfixButton3.Text = "HINTfixButton3"
         Me.HINTfixButton3.UseVisualStyleBackColor = True
         '
+        'Button16
+        '
+        Me.Button16.Location = New System.Drawing.Point(796, 34)
+        Me.Button16.Name = "Button16"
+        Me.Button16.Size = New System.Drawing.Size(75, 23)
+        Me.Button16.TabIndex = 28
+        Me.Button16.Text = "MoveFiles"
+        Me.Button16.UseVisualStyleBackColor = True
+        '
+        'Button17
+        '
+        Me.Button17.Location = New System.Drawing.Point(796, 63)
+        Me.Button17.Name = "Button17"
+        Me.Button17.Size = New System.Drawing.Size(75, 23)
+        Me.Button17.TabIndex = 29
+        Me.Button17.Text = "CorrectFileNames"
+        Me.Button17.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button17)
+        Me.Controls.Add(Me.Button16)
         Me.Controls.Add(Me.HINTfixButton3)
         Me.Controls.Add(Me.HINTfixButton2)
         Me.Controls.Add(Me.HINTfixButton)
@@ -557,4 +579,6 @@ Partial Class Form4
     Friend WithEvents HINTfixButton As Button
     Friend WithEvents HINTfixButton2 As Button
     Friend WithEvents HINTfixButton3 As Button
+    Friend WithEvents Button16 As Button
+    Friend WithEvents Button17 As Button
 End Class

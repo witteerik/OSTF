@@ -307,9 +307,10 @@ Public Class SpeechMaterialRecorder
     Private Sub RandomizeRecordingsOrder()
 
         Dim rnd As New Random
-        Dim RndList As New List(Of Tuple(Of Double, Tuple(Of String, String)))
+        Dim RndList As New List(Of Tuple(Of Double, Tuple(Of String, String))) 'TODO: It should be Double, String here, shouldn't it?
         For Each item In Me.SoundFilesForEditing
             RndList.Add(New Tuple(Of Double, Tuple(Of String, String))(rnd.NextDouble, item))
+            'TODO: is it realy necessary to sort within each loop!?
             RndList.Sort(Function(x, y) x.Item1.CompareTo(y.Item1))
         Next
         Me.SoundFilesForEditing.Clear()
