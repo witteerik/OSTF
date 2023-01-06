@@ -1332,7 +1332,7 @@ Namespace SipTest
                 TestTrialSound = MixedTestTrialSound
 
             Catch ex As Exception
-                MsgBox(ex.ToString)
+                Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             End Try
 
         End Sub

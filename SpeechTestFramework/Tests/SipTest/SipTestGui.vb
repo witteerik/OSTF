@@ -1150,29 +1150,11 @@ Public Class SipTestGui
 
     Private Sub InitiateTestByPlayingSound()
 
-        'Premixing the first 10 sounds 
-        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
-
-        StartTrialTimer.Interval = Math.Max(1, InterTrialInterval * 1000)
-
         'Removes the start button
         ParticipantControl.ResetTestItemPanel()
 
         'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds
-        Dim TestSound As Audio.Sound = Nothing
-        'TestSound = SoundLibrary.CreateSoundStimulus(Nothing, 0, 0,
-        '                                             Nothing,
-        '                                             Nothing,
-        '                                             Nothing,
-        '                                             ContextRegionForegroundLevel_SPL,
-        '                                             ContextRegionBackgroundLevel_SPL,
-        '                                             TestSetup.CurrentFixedMaskerSoundRandomization,
-        '                                             False,
-        '                                             TestSetup.SimulateHearingLoss,
-        '                                             TestSetup.CompensateHearingLoss,
-        '                                             TestSessionDescription.PatientDetails.ID & "_" & Me.TestSessionStage.ToString & "_" & Me.TestConditionName,
-        '                                             "PreSound", Nothing, Nothing, TestSetup.PretestSoundDuration + MaximumResponseTime) 'Adding four seconds to PretestSoundDuration to allow for preparation of the first test trial 
-
+        Dim TestSound As Audio.Sound = CreateInitialSound()
 
         'Plays sound
         If SimulationMode = False Then SoundPlayer.SwapOutputSounds(TestSound)
@@ -1180,11 +1162,87 @@ Public Class SipTestGui
         'Setting the interval to the first test stimulus using NewTrialTimer.Interval (N.B. The NewTrialTimer.Interval value has to be reset at the first tick, as the deafault value is overridden here)
         StartTrialTimer.Interval = Math.Max(1, PretestSoundDuration * 1000)
 
+        'Premixing the first 10 sounds 
+        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
 
         'Preparing and launching the next trial
         PrepareAndLaunchTrial_ThreadSafe()
 
     End Sub
+
+
+    Public Function CreateInitialSound() As Audio.Sound
+
+        Try
+
+            'Setting up the SiP-trial sound mix
+            Dim MixStopWatch As New Stopwatch
+            MixStopWatch.Start()
+
+            'Sets a List of SoundSceneItem in which to put the sounds to mix
+            Dim ItemList = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+
+            Dim SoundWaveFormat As Audio.Formats.WaveFormat = Nothing
+
+            'Getting a background non-speech sound
+            Dim BackgroundNonSpeech_Sound As Audio.Sound = SpeechMaterial.GetBackgroundNonspeechSound(SelectedMediaSet, 0)
+
+            'Stores the sample rate and the wave format
+            Dim CurrentSampleRate As Integer = BackgroundNonSpeech_Sound.WaveFormat.SampleRate
+            SoundWaveFormat = BackgroundNonSpeech_Sound.WaveFormat
+
+            'Sets a total pretest sound length
+            Dim TrialSoundLength As Integer = (PretestSoundDuration + 4) * CurrentSampleRate 'Adds 4 seconds to allow for potential delay caused by the mixing time of the first test trial sounds
+
+            'Copies copies random sections of the background non-speech sound into two sounds
+            Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+            Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+
+            'Sets up fading specifications for the background signals
+            Dim FadeSpecs_Background = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+            FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
+            FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+
+            'Adds the background (non-speech) signals, with fade, duck and location specifications
+            Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
+            ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 0,,,, FadeSpecs_Background))
+            ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 0,,,, FadeSpecs_Background))
+            LevelGroup += 1
+
+            MixStopWatch.Stop()
+            If LogToConsole = True Then Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
+            MixStopWatch.Restart()
+
+            'Initiating the sound field simulator if needed
+            If SelectedTransducer.PresentationType = PresentationTypes.SimulatedSoundField Then
+                If SelectedTransducer.Mixer.CurrentSimulatorWaveFormat Is Nothing Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance Is Nothing Then
+                    'Initiating the simulator
+                    SelectedTransducer.Mixer.SetupDirectionalSimulator(1, SoundWaveFormat)
+                Else
+                    If SoundWaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, True) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1 Then
+                        'Updating the simulator
+                        SelectedTransducer.Mixer.SetupDirectionalSimulator(1, SoundWaveFormat)
+                    End If
+                End If
+            End If
+
+            'Creating the mix by calling CreateSoundScene of the current Mixer
+            Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
+
+            If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
+
+            'TODO: Here we can simulate and/or compensate for hearing loss:
+            'SimulateHearingLoss,
+            'CompensateHearingLoss
+
+            Return MixedInitialSound
+
+        Catch ex As Exception
+            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            Return Nothing
+        End Try
+
+    End Function
 
 
     Private Sub PrepareAndLaunchTrial_ThreadSafe()
