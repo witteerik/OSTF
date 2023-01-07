@@ -59,6 +59,7 @@ Partial Class Form4
         Me.HINTfixButton3 = New System.Windows.Forms.Button()
         Me.MoveFilesButton = New System.Windows.Forms.Button()
         Me.Button17 = New System.Windows.Forms.Button()
+        Me.HLSIM_Button = New System.Windows.Forms.Button()
         CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.ResponseGuiItemTable1.SuspendLayout()
@@ -499,12 +500,22 @@ Partial Class Form4
         Me.Button17.Text = "CorrectFileNames"
         Me.Button17.UseVisualStyleBackColor = True
         '
+        'HLSIM_Button
+        '
+        Me.HLSIM_Button.Location = New System.Drawing.Point(968, 34)
+        Me.HLSIM_Button.Name = "HLSIM_Button"
+        Me.HLSIM_Button.Size = New System.Drawing.Size(75, 23)
+        Me.HLSIM_Button.TabIndex = 30
+        Me.HLSIM_Button.Text = "HLSIM"
+        Me.HLSIM_Button.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.HLSIM_Button)
         Me.Controls.Add(Me.Button17)
         Me.Controls.Add(Me.MoveFilesButton)
         Me.Controls.Add(Me.HINTfixButton3)
@@ -581,4 +592,5 @@ Partial Class Form4
     Friend WithEvents HINTfixButton3 As Button
     Friend WithEvents MoveFilesButton As Button
     Friend WithEvents Button17 As Button
+    Friend WithEvents HLSIM_Button As Button
 End Class

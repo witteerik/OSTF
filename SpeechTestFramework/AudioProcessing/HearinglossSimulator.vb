@@ -17,16 +17,120 @@
         Public Property SourceSound As Sound
         Public Property SimulatedSound As Sound
 
-        Public Function SimulateHearingloss(ByRef SourceSound As Sound) As Sound
+        Public FilterBank As Audio.DSP.GammatoneFirFilterBank = Nothing
+
+        Public WaveFormat As Formats.WaveFormat
+
+        Public Sub New(ByVal WaveFormat As Formats.WaveFormat, Optional ByVal CentreFrequencies As List(Of Double) = Nothing)
+
+            'Storing the required wave format
+            Me.WaveFormat = WaveFormat
+
+            'Setting default centre frequencies
+            If CentreFrequencies Is Nothing Then
+                'CentreFrequencies = New List(Of Double) From {125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000}
+                CentreFrequencies = Audio.DSP.GammatoneFirFilterBank.CalculateAdjacentCentreFrequencies(125, 8000)
+            End If
+
+            'Creating a filterbank
+            FilterBank = New Audio.DSP.GammatoneFirFilterBank(WaveFormat, CentreFrequencies)
+            'Exporting filter info and kernels
+            'FilterBank.ExportKernels(IO.Path.Combine(ExportFolder, "GammatoneFirFilterKernels"))
+            'FilterBank.ExportFilterDescription(ExportFolder)
+
+
+        End Sub
+
+        ''' <summary>
+        ''' 
+        ''' </summary>
+        ''' <param name="SourceSound"></param>
+        ''' <param name="RemoveDcComponent">If set to true, the DC component of the input sound will be set to zero prior to spectrum level calculations.</param>
+        ''' <returns></returns>
+        Public Function SimulateHearingloss(ByRef SourceSound As Sound,
+                                            Optional ByVal RemoveDcComponent As Boolean = True,
+                                            Optional ByVal KeepInputSoundLength As Boolean = True) As Sound
+
+            'Checks the WaveFormat
+            If WaveFormat.IsEqual(SourceSound.WaveFormat, True, True, True, True) = False Then Throw New Exception("Unexpected wave format in the SourceSound. Make sure the same format is used when creating your instance of HearinglossSimulator as when calling SimulateHearingloss!")
 
             'References the supplied SourceSound into Me.SourceSound
             Me.SourceSound = SourceSound
 
+            'Removing SourceSound DC-component
+            If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(SourceSound)
+
+            'Filterring the input sound (left and right channels)
+            Dim FilteredSoundChannel1 = FilterBank.Filter(SourceSound, 1, KeepInputSoundLength)
+            Dim FilteredSoundChannel2 As New List(Of Audio.DSP.GammatoneFirFilterBank.FilteredSound)
+            If SourceSound.WaveFormat.Channels > 1 Then FilteredSoundChannel2 = FilterBank.Filter(SourceSound, 2, KeepInputSoundLength)
+
+            'Clearing any previoulsy created list of FrequencyBand
+            LeftSideData.Clear()
+            RightSideData.Clear()
+
+            'Setting up simulation FrequencyBands
+            'Left side
+            For BandIndex = 0 To FilteredSoundChannel1.Count - 1
+                'Creating a new band
+                Dim NewBand As New FrequencyBand(Me)
+                NewBand.BandData = FilteredSoundChannel1(BandIndex).Sound
+                NewBand.BandWidth = FilteredSoundChannel1(BandIndex).Bandwidth
+                NewBand.CenterFrequency = FilteredSoundChannel1(BandIndex).CentreFrequency
+                LeftSideData.Add(NewBand)
+            Next
+
+            'Left side
+            For BandIndex = 0 To FilteredSoundChannel2.Count - 1
+                'Creating a new band
+                Dim NewBand As New FrequencyBand(Me)
+                NewBand.BandData = FilteredSoundChannel2(BandIndex).Sound
+                NewBand.BandWidth = FilteredSoundChannel2(BandIndex).Bandwidth
+                NewBand.CenterFrequency = FilteredSoundChannel2(BandIndex).CentreFrequency
+                RightSideData.Add(NewBand)
+            Next
+
+
+            'Testing to restore the original sound
+            Dim LeftChannelArray = LeftSideData(1).BandData.WaveData.SampleData(1)
+            For i = 2 To LeftSideData.Count - 1
+                Dim CurrentBandData = LeftSideData(i).BandData.WaveData.SampleData(1)
+                For s = 0 To CurrentBandData.Length - 1
+                    LeftChannelArray(s) += CurrentBandData(s)
+                Next
+            Next
+
+            Dim RightChannelArray() As Single = Nothing
+            If RightSideData.Count > 0 Then
+                RightChannelArray = RightSideData(1).BandData.WaveData.SampleData(1)
+                For i = 2 To RightSideData.Count - 1
+                    Dim CurrentBandData = RightSideData(i).BandData.WaveData.SampleData(1)
+                    For s = 0 To CurrentBandData.Length - 1
+                        RightChannelArray(s) += CurrentBandData(s)
+                    Next
+                Next
+            End If
+
+            'Dim FilteredSoundLevels = FilterBank.GetFilteredSoundLevels(SourceSound, 1)
+
+
             'Creates an OutputSound, with the same format as the input sound
             Dim OutputSound As New Sound(SourceSound.WaveFormat)
 
-            'Simulation comes here
+            OutputSound.WaveData.SampleData(1) = LeftChannelArray
+            If RightSideData.Count > 0 Then
+                OutputSound.WaveData.SampleData(1) = RightChannelArray
+            End If
 
+
+            'For i = 0 To BandLevels.Count - 1
+            '    'Converting dB FS to dB SPL
+            '    Dim BandLevel_SPL As Double = BandLevels(i) + dBSPL_FSdifference
+
+            '    'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+            '    Dim SpectrumLevel As Double = Audio.DSP.BandLevel2SpectrumLevel(BandLevel_SPL, BandWidths(i))
+            '    SpectrumLevelList.Add(SpectrumLevel)
+            'Next
 
 
             'Stores the OutputSound in SimulatedSound

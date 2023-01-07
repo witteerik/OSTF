@@ -252,7 +252,7 @@ Namespace Audio
             End Function
 
             ''' <summary>
-            ''' Calculates the SII spectrum levels based on the band levels stored in BandLevels (N.B. requires precalculation of band levels)
+            ''' Calculates spectrum levels
             ''' </summary>
             ''' <param name="InputSound"></param>
             ''' <param name="Channel"></param>
