@@ -99,6 +99,7 @@
     <Compile Include="AudioProcessing\Audio_SoundPlayer_DuplexMixer.vb" />
     <Compile Include="AudioProcessing\Audio_SoundPlayer.vb" />
     <Compile Include="AudioProcessing\DirectionalSimulation.vb" />
+    <Compile Include="AudioProcessing\HearinglossSimulator.vb" />
     <Compile Include="AudioProcessing\PortAudioVB.vb" />
     <Compile Include="AudioProcessing\SMA1.0.vb" />
     <Compile Include="AudioProcessing\SMA1.1.vb" />
