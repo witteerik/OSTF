@@ -21,19 +21,16 @@
 
         Public WaveFormat As Formats.WaveFormat
 
-        Public Sub New(ByVal WaveFormat As Formats.WaveFormat, Optional ByVal CentreFrequencies As List(Of Double) = Nothing)
+        Public Sub New(ByVal WaveFormat As Formats.WaveFormat)
 
             'Storing the required wave format
             Me.WaveFormat = WaveFormat
 
-            'Setting default centre frequencies
-            If CentreFrequencies Is Nothing Then
-                'CentreFrequencies = New List(Of Double) From {125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000}
-                CentreFrequencies = Audio.DSP.GammatoneFirFilterBank.CalculateAdjacentCentreFrequencies(125, 8000)
-            End If
-
             'Creating a filterbank
-            FilterBank = New Audio.DSP.GammatoneFirFilterBank(WaveFormat, CentreFrequencies)
+            FilterBank = New Audio.DSP.GammatoneFirFilterBank()
+            'FilterBank.SetupAdjacentCentreFrequencies(WaveFormat, 125, 8000)
+            FilterBank.SetupAudiogramFrequencies(WaveFormat)
+
             'Exporting filter info and kernels
             'FilterBank.ExportKernels(IO.Path.Combine(ExportFolder, "GammatoneFirFilterKernels"))
             'FilterBank.ExportFilterDescription(ExportFolder)
@@ -95,6 +92,7 @@
             Dim LeftChannelArray = LeftSideData(1).BandData.WaveData.SampleData(1)
             For i = 2 To LeftSideData.Count - 1
                 Dim CurrentBandData = LeftSideData(i).BandData.WaveData.SampleData(1)
+                LeftSideData(i).BandData.WriteWaveFile("C:\Temp\B\B" & LeftSideData(i).CenterFrequency.ToString("00000") & "_" & LeftSideData(i).BandWidth.ToString("00000") & ".wav")
                 For s = 0 To CurrentBandData.Length - 1
                     LeftChannelArray(s) += CurrentBandData(s)
                 Next

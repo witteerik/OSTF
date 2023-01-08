@@ -2758,14 +2758,15 @@
 
     Private Sub HLSIM_Button_Click(sender As Object, e As EventArgs) Handles HLSIM_Button.Click
 
-        Dim InputSound = SpeechTestFramework.Audio.AudioIOs.LoadWaveFile("C:\Temp\L00_Lista_1_000.wav")
+        'Dim InputSound = SpeechTestFramework.Audio.AudioIOs.LoadWaveFile("C:\Temp\L00_Lista_1_001.wav")
+        Dim InputSound = SpeechTestFramework.Audio.AudioIOs.LoadWaveFile("C:\Temp\Chirp1.wav")
 
         Dim HLSIM = New SpeechTestFramework.Audio.HearinglossSimulator(InputSound.WaveFormat)
 
         Dim OutputSound = HLSIM.SimulateHearingloss(InputSound)
 
-        OutputSound.WriteWaveFile("C:\Temp\L00_Lista_1_000_HL.wav")
-
+        'OutputSound.WriteWaveFile("C:\Temp\L00_Lista_1_000_HL.wav")
+        OutputSound.WriteWaveFile("C:\Temp\Chirp1_HL.wav")
 
     End Sub
 End Class

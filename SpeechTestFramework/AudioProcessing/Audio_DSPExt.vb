@@ -6927,11 +6927,12 @@ Namespace Audio
 
         Public Class GammatoneFirFilterBank
 
-            Public ReadOnly FilterKernels As List(Of Sound)
-            Public ReadOnly CentreFrequencies As List(Of Double)
-            Public ReadOnly Bandwidths As List(Of Double)
+            Public FilterKernels As List(Of Sound)
+            Public CentreFrequencies As List(Of Double)
+            Public Bandwidths As List(Of Double)
             Private _FilterFftFormat As New Formats.FftFormat(4096,,,, True)
-            Private Shared FilterCreationFftFormat As New Formats.FftFormat(4096,,,, True)
+            Private FilterCreationFftFormat As New Formats.FftFormat(4096,,,, True)
+            Private WaveFormat As Formats.WaveFormat = Nothing
 
             Public ReadOnly Property FilterFftFormat As Formats.FftFormat
                 Get
@@ -6939,10 +6940,18 @@ Namespace Audio
                 End Get
             End Property
 
-            Public Sub New(ByVal WaveFormat As Formats.WaveFormat,
+            Public ReadOnly FilterOrder As Integer
+
+            Public Sub New(Optional ByVal FilterOrder As Integer = 4)
+                Me.FilterOrder = FilterOrder
+            End Sub
+
+            Public Sub SetupCustomCenterFrequencies(ByVal WaveFormat As Formats.WaveFormat,
                        ByVal CentreFrequencies As List(Of Double),
-                       Optional ByVal Phases As List(Of Double) = Nothing,
-                       Optional ByVal FilterOrder As Integer = 4)
+                       Optional ByVal BandOverlapGainCompensation As Double = 0,
+                       Optional ByVal Phases As List(Of Double) = Nothing)
+
+                Me.WaveFormat = WaveFormat
 
                 'Checking some arguments
                 If CentreFrequencies.Count < 1 Then Throw New ArgumentException("At least one centre frequency must be supplied!")
@@ -6973,18 +6982,67 @@ Namespace Audio
                 For n = 0 To CentreFrequencies.Count - 1
                     FilterKernels.Add(CreateGammatoneImpulseResponse(TempWaveFormat, 1,
                                                                  CentreFrequencies(n),
-                                                                 Phases(n), 500,
+                                                                 Phases(n), 210,
                                                                  FilterOrder, Bandwidths(n), 0.1, 0.01,,
-                                                                 True))
+                                                                 True, BandOverlapGainCompensation))
                 Next
+
 
             End Sub
 
-            Public Class FilteredSound
-                Public Property Sound As Sound
-                Public Property CentreFrequency As Double
-                Public Property Bandwidth As Double
-            End Class
+            Public Sub SetupAdjacentCentreFrequencies(ByVal WaveFormat As Formats.WaveFormat,
+                                                      ByVal LowestFrequency As Double,
+                                                      ByVal HighestFrequency As Double,
+                                                      Optional ByVal Round As Boolean = True,
+                                                      Optional ByVal ForceInclusionOfHighestFrequency As Boolean = False)
+
+                Dim BandOverlapGainCompensation As Double = 10.297 'This constant was derived from measuring on a sine chirp, in order to get the right filter gain /EW
+
+                Dim NewCenterFrequencies = New List(Of Double)
+                Dim NextCentreFrequency As Double = LowestFrequency
+
+                Dim LastBandwidth As Double
+                Do
+                    If NextCentreFrequency > HighestFrequency Then
+                        Exit Do
+                    End If
+
+                    NewCenterFrequencies.Add(NextCentreFrequency)
+
+                    LastBandwidth = CalculateGammatoneFilterBandWidth(NextCentreFrequency)
+
+                    'NextCentreFrequency += LastBandwidth * 1.058195
+                    'NextCentreFrequency += (LastBandwidth * 1.058195) / 2
+                    NextCentreFrequency += LastBandwidth / 2
+
+                Loop
+
+                If ForceInclusionOfHighestFrequency = True Then
+                    If Not NewCenterFrequencies.Contains(HighestFrequency) Then NewCenterFrequencies.Add(HighestFrequency)
+                End If
+
+                If Round = True Then
+                    For n = 0 To NewCenterFrequencies.Count - 1
+                        NewCenterFrequencies(n) = Math.Round(NewCenterFrequencies(n))
+                    Next
+                End If
+
+                SetupCustomCenterFrequencies(WaveFormat, NewCenterFrequencies, BandOverlapGainCompensation)
+
+            End Sub
+
+            Public Shared Function CalculateGammatoneFilterBandWidth(ByVal CentreFrequency As Double) As Double
+                Return 1.019 * (24.7 * (4.37 * (CentreFrequency / 1000) + 1))
+            End Function
+
+
+            Public Sub SetupAudiogramFrequencies(ByVal WaveFormat As Formats.WaveFormat)
+
+                Dim AudiogramFrequencies = New List(Of Double) From {125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000}
+                Dim BandOverlapGainCompensation As Double = 0
+                SetupCustomCenterFrequencies(WaveFormat, AudiogramFrequencies, BandOverlapGainCompensation)
+
+            End Sub
 
             Public Function Filter(ByRef InputSound As Sound,
                                ByRef channel As Integer,
@@ -7005,14 +7063,6 @@ Namespace Audio
                 Return Output
 
             End Function
-
-            Public Class FilteredSoundLevels
-                Inherits FilteredSound
-                Public Property SoundLevel As Double
-                Public Property Unit As SoundDataUnit
-                Public Property Type As SoundMeasurementType
-                Public Property FrequencyWeighting As FrequencyWeightings
-            End Class
 
             Public Function GetFilteredSoundLevels(ByRef InputSound As Sound,
                                                ByRef Channel As Integer,
@@ -7080,17 +7130,18 @@ Namespace Audio
             End Sub
 
 
-            Public Shared Function CreateGammatoneImpulseResponse(ByRef format As Formats.WaveFormat,
+            Public Function CreateGammatoneImpulseResponse(ByRef format As Formats.WaveFormat,
                                                        Optional ByVal Channel As Integer? = Nothing,
                                                        Optional ByVal CentreFrequency As Double = 1000,
                                                        Optional ByVal Phase As Double = 0,
-                                                       Optional ByVal Amplitude As Double = 500,
+                                                       Optional ByVal Amplitude As Double = 210,
                                                        Optional ByVal FilterOrder As Integer = 4,
                                                        Optional ByVal BandWidth As Double = 132.6,
                                                        Optional ByVal Duration As Double = 0.1,
                                                        Optional ByVal FadeOutDuration As Double = 0.01,
                                                        Optional ByVal DurationTimeUnit As TimeUnits = TimeUnits.seconds,
-                                                       Optional ByVal ZeroPhaseKernel As Boolean = True) As Sound
+                                                       Optional ByVal ZeroPhaseKernel As Boolean = True,
+                                                           Optional ByVal BandOverlapGainCompensation As Double = 0) As Sound
                 Try
 
                     If FilterCreationFftFormat Is Nothing Then
@@ -7148,7 +7199,7 @@ Namespace Audio
                     Dim FilteredProbeSignal = DSP.FIRFilter(ProbeSignal, outputSound, FilterCreationFftFormat)
                     DSP.CropSection(FilteredProbeSignal, FilterCreationFftFormat.AnalysisWindowSize, FilteredProbeSignal.WaveData.SampleData(1).Length - 4 * FilterCreationFftFormat.AnalysisWindowSize)
                     Dim PostLevel = DSP.MeasureSectionLevel(FilteredProbeSignal, 1)
-                    Dim CurrentGain = PostLevel - Prelevel
+                    Dim CurrentGain = PostLevel - Prelevel + BandOverlapGainCompensation
 
                     'Applying minus gain to the impulse response
                     DSP.AmplifySection(outputSound, -CurrentGain)
@@ -7169,7 +7220,7 @@ Namespace Audio
                     Dim FilteredProbeSignal_B = DSP.FIRFilter(ProbeSignal_B, outputSound, FilterCreationFftFormat)
                     DSP.CropSection(FilteredProbeSignal_B, FilterCreationFftFormat.AnalysisWindowSize, FilteredProbeSignal_B.WaveData.SampleData(1).Length - 4 * FilterCreationFftFormat.AnalysisWindowSize)
                     Dim PostLevel_B = DSP.MeasureSectionLevel(FilteredProbeSignal_B, 1)
-                    Dim CurrentGain_B = PostLevel_B - PreLevel_B
+                    Dim CurrentGain_B = PostLevel_B - PreLevel_B + BandOverlapGainCompensation
 
                     'Applying minus gain to the impulse response
                     DSP.AmplifySection(outputSound, -CurrentGain_B)
@@ -7183,44 +7234,21 @@ Namespace Audio
 
             End Function
 
-            Public Shared Function CalculateAdjacentCentreFrequencies(ByVal LowestFrequency As Double,
-                                                                  ByVal HighestFrequency As Double,
-                                                                  Optional ByVal Round As Boolean = True,
-                                                                  Optional ByVal ForceInclusionOfHighestFrequency As Boolean = False) As List(Of Double)
 
-                Dim Output = New List(Of Double)
-                Dim NextCentreFrequency As Double = LowestFrequency
+            Public Class FilteredSound
+                Public Property Sound As Sound
+                Public Property CentreFrequency As Double
+                Public Property Bandwidth As Double
+            End Class
 
-                Dim LastBandwidth As Double
-                Do
-                    If NextCentreFrequency > HighestFrequency Then
-                        Exit Do
-                    End If
+            Public Class FilteredSoundLevels
+                Inherits FilteredSound
+                Public Property SoundLevel As Double
+                Public Property Unit As SoundDataUnit
+                Public Property Type As SoundMeasurementType
+                Public Property FrequencyWeighting As FrequencyWeightings
+            End Class
 
-                    Output.Add(NextCentreFrequency)
-
-                    LastBandwidth = 1.019 * (24.7 * (4.37 * (NextCentreFrequency / 1000) + 1))
-                    NextCentreFrequency += LastBandwidth * 1.058195
-
-                Loop
-
-                If ForceInclusionOfHighestFrequency = True Then
-                    If Not Output.Contains(HighestFrequency) Then Output.Add(HighestFrequency)
-                End If
-
-                If Round = True Then
-                    For n = 0 To Output.Count - 1
-                        Output(n) = Math.Round(Output(n))
-                    Next
-                End If
-
-                Return Output
-
-            End Function
-
-            Public Function CalculateGammatoneFilterBandWidth(ByVal CentreFrequency As Double) As Double
-                Return 1.019 * (24.7 * (4.37 * (CentreFrequency / 1000) + 1))
-            End Function
 
 
         End Class
