@@ -1,7 +1,233 @@
 ﻿Namespace Audio
 
+    Public Class HearinglossSimulator_CB
 
-    Public Class HearinglossSimulator
+        Public ReadOnly Property ListenerAudiogram As AudiogramData
+        Public ReadOnly Property SimulatedAudiogram As AudiogramData
+
+        Public ReadOnly Property AnalysisWindowDuration As Double
+            Get
+                If SourceSound Is Nothing Then
+                    Return -1
+                Else
+                    Return AnalysisWindowLength / SourceSound.WaveFormat.SampleRate
+                End If
+            End Get
+        End Property
+
+        Public AnalysisWindowLength As Integer = 4096
+
+        Public FirKernelLength As Integer = 4096
+
+        Public Property SourceSound As Sound
+        Public Property SimulatedSound As Sound
+
+        Public TimeWindows As New List(Of HearinglossSimulatorTimeWindow)
+
+        Public Sub New(ByRef SimulatedAudiogram As AudiogramData, Optional ByRef ListenerAudiogram As AudiogramData = Nothing)
+
+            If ListenerAudiogram Is Nothing Then
+                ListenerAudiogram = New AudiogramData
+                ListenerAudiogram.CreateTypicalAudiogramData(AudiogramData.BisgaardAudiograms.NH)
+            End If
+
+            Me.SimulatedAudiogram = SimulatedAudiogram
+            Me.ListenerAudiogram = ListenerAudiogram
+
+            'Calculating CB values
+            SimulatedAudiogram.CalculateCriticalBandValues()
+            ListenerAudiogram.CalculateCriticalBandValues()
+
+            'Converting CB levels relative to internal noise spectrum levels
+            SimulatedAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
+            ListenerAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
+
+        End Sub
+
+        Public Sub Simulate(ByRef SourceSound As Audio.Sound)
+
+            TimeWindows.Clear()
+
+            'Enforces stereo input (TODO: This should be done without chancing the SourceSound
+            If SourceSound.WaveFormat.Channels = 1 Then SourceSound = SourceSound.ConvertMonoToMultiChannel(2, True)
+            If SourceSound.WaveFormat.Channels > 2 Then
+                Dim TempSourceSound = New Audio.Sound(New Formats.WaveFormat(SourceSound.WaveFormat.SampleRate, SourceSound.WaveFormat.BitDepth, 2,, SourceSound.WaveFormat.Encoding))
+                TempSourceSound.WaveData.SampleData(1) = SourceSound.WaveData.SampleData(1)
+                TempSourceSound.WaveData.SampleData(2) = SourceSound.WaveData.SampleData(2)
+                SourceSound = TempSourceSound
+            End If
+
+            Me.SourceSound = SourceSound
+
+            'Copying sound sections to TimeWindows (skipping the last non-full window)
+            For StartSample As Integer = 0 To Me.SourceSound.WaveData.ShortestChannelSampleCount - AnalysisWindowLength - 1 Step (AnalysisWindowLength / 2)
+
+                Dim WindowData = New Sound(SourceSound.WaveFormat)
+                For c = 1 To WindowData.WaveFormat.Channels
+                    Dim NewChannelArray(AnalysisWindowLength - 1) As Single
+                    Array.Copy(Me.SourceSound.WaveData.SampleData(c), StartSample, NewChannelArray, 0, AnalysisWindowLength)
+                    WindowData.WaveData.SampleData(c) = NewChannelArray
+                Next
+
+                Dim NewTimeWindow As New HearinglossSimulatorTimeWindow(Me)
+                NewTimeWindow.SoundData = WindowData
+                NewTimeWindow.StartSample = StartSample
+
+                TimeWindows.Add(NewTimeWindow)
+            Next
+
+
+            'Sets of some objects which are reused between the loops in the code below
+            Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+            Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
+            Dim dBSPL_FSdifference As Double? = Audio.Standard_dBFS_dBSPL_Difference
+
+            For Each TimeWindow In TimeWindows
+
+                TimeWindow.CalculateSignalSpectrumLevels(BandBank, FftFormat, dBSPL_FSdifference)
+
+                TimeWindow.CalculateBandGains()
+
+                TimeWindow.CreateDynamicFilter()
+
+                TimeWindow.Filter()
+
+                TimeWindow.Window()
+
+            Next
+
+            'Overlapping windows
+            Dim TotalLength As Integer = TimeWindows.Last.StartSample + AnalysisWindowLength
+            Dim LeftSimulatedSoundArray(TotalLength - 1) As Single
+            Dim RightSimulatedSoundArray(TotalLength - 1) As Single
+
+            For w = 0 To TimeWindows.Count - 1
+
+                Dim StartSample = TimeWindows(w).StartSample
+                Dim LeftWindowArray = TimeWindows(w).SoundData.WaveData.SampleData(1)
+                Dim RightWindowArray = TimeWindows(w).SoundData.WaveData.SampleData(1)
+
+                For s = 0 To TimeWindows(w).SoundData.WaveData.ShortestChannelSampleCount - 1
+                    LeftSimulatedSoundArray(StartSample + s) += LeftWindowArray(s)
+                    RightSimulatedSoundArray(StartSample + s) += RightWindowArray(s)
+                Next
+            Next
+
+            'Storing into the SimulatedSound 
+            SimulatedSound = New Sound(SourceSound.WaveFormat)
+            SimulatedSound.WaveData.SampleData(1) = LeftSimulatedSoundArray
+            SimulatedSound.WaveData.SampleData(2) = RightSimulatedSoundArray
+
+        End Sub
+
+        Public Class HearinglossSimulatorTimeWindow
+
+            Public ParentHearinglossSimulator As HearinglossSimulator_CB
+
+            Public Sub New(ByRef ParentHearinglossSimulator As HearinglossSimulator_CB)
+                Me.ParentHearinglossSimulator = ParentHearinglossSimulator
+            End Sub
+
+            Public StartSample As Integer
+
+            Public SignalSpectrumLevels(20) As Double
+            Public Left_SimulationTargetSpectrumLevels(20) As Double
+            Public Left_SimulationBandGains(20) As Single
+
+            Public Right_SimulationTargetSpectrumLevels(20) As Double
+            Public Right_SimulationBandGains(20) As Single
+
+            Private LeftEar_FilterKernel As Audio.Sound
+            Private RightEar_FilterKernel As Audio.Sound
+
+            Public SoundData As Audio.Sound
+
+            Public Sub CalculateSignalSpectrumLevels(ByRef BandBank As Audio.DSP.BandBank, ByRef FftFormat As Audio.Formats.FftFormat, ByVal dBSPL_FSdifference As Double)
+
+
+                'And these are only used to be able to export the values used
+                Dim ActualLowerLimitFrequencyList As List(Of Double) = Nothing
+                Dim ActualUpperLimitFrequencyList As List(Of Double) = Nothing
+
+                Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(SoundData, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
+                SignalSpectrumLevels = SpectrumLevels.ToArray
+
+            End Sub
+
+            Public Sub CalculateBandGains()
+
+                For b = 0 To 20
+
+                    Dim S = SignalSpectrumLevels(b)
+
+                    'Left side
+                    Dim Tn_L = ParentHearinglossSimulator.ListenerAudiogram.Cb_Left_AC(b)
+                    Dim UCLn_L = ParentHearinglossSimulator.ListenerAudiogram.Cb_Left_UCL(b)
+                    Dim Tsim_L = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Left_AC(b)
+                    Dim UCLsim_L = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Left_UCL(b)
+
+                    Dim SimulationLevel_L = Math.Min(UCLn_L, Tn_L + (S - Tsim_L) / (UCLsim_L - Tsim_L) * (UCLn_L - Tn_L))
+                    Left_SimulationTargetSpectrumLevels(b) = SimulationLevel_L 'Uncessesary to store
+
+                    Left_SimulationBandGains(b) = Math.Max(Single.MinValue, SimulationLevel_L - S)
+
+                    'Right side
+                    Dim Tn_R = ParentHearinglossSimulator.ListenerAudiogram.Cb_Right_AC(b)
+                    Dim UCLn_R = ParentHearinglossSimulator.ListenerAudiogram.Cb_Right_UCL(b)
+                    Dim Tsim_R = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Right_AC(b)
+                    Dim UCLsim_R = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Right_UCL(b)
+
+                    Dim SimulationLevel_R = Math.Min(UCLn_R, Tn_R + (S - Tsim_R) / (UCLsim_R - Tsim_R) * (UCLn_R - Tn_R))
+                    Right_SimulationTargetSpectrumLevels(b) = SimulationLevel_R 'Uncessesary to store
+
+                    Right_SimulationBandGains(b) = Math.Max(Single.MinValue, SimulationLevel_R - S)
+
+                Next
+
+            End Sub
+
+            Public Sub CreateDynamicFilter()
+
+                Dim LeftEarFilter_TargetResponse As New List(Of Tuple(Of Single, Single))
+                Dim RightEarFilter_TargetResponse As New List(Of Tuple(Of Single, Single))
+                For b = 0 To 20
+                    LeftEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), Left_SimulationBandGains(b)))
+                    RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), Right_SimulationBandGains(b)))
+                Next
+
+                LeftEar_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(LeftEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)
+                RightEar_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(RightEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)
+
+            End Sub
+
+            Public Sub Filter()
+
+                'Adjusting the amplitude response of both sides
+                Dim LeftSound = SoundData.CopySection(1, 0, SoundData.WaveData.SampleData(1).Length)
+                Dim RightSound = SoundData.CopySection(2, 0, SoundData.WaveData.SampleData(2).Length)
+                LeftSound = Audio.DSP.FIRFilter(LeftSound, LeftEar_FilterKernel, New Formats.FftFormat(), ,,,, False, True, True)
+                RightSound = Audio.DSP.FIRFilter(RightSound, RightEar_FilterKernel, New Formats.FftFormat(), ,,,, False, True, True)
+
+                SoundData.WaveData.SampleData(1) = LeftSound.WaveData.SampleData(1)
+                SoundData.WaveData.SampleData(2) = RightSound.WaveData.SampleData(1)
+
+            End Sub
+
+            Public Sub Window()
+
+                For c = 1 To SoundData.WaveFormat.Channels
+                    Dim SoundArray = SoundData.WaveData.SampleData(c)
+                    Audio.WindowingFunction(SoundArray, WindowingType.Hanning)
+                Next
+
+            End Sub
+
+        End Class
+
+    End Class
+
+
+    Public Class HearinglossSimulator_GTF
 
         Public Property ListenerAudiogram As AudiogramData
 
@@ -141,7 +367,7 @@
 
         Public Class FrequencyBand
 
-            Public Property ParentSimulator As HearinglossSimulator
+            Public Property ParentSimulator As HearinglossSimulator_GTF
 
             Public CenterFrequency As Double
             Public BandWidth As Double
@@ -159,7 +385,7 @@
             Public BandNoise As Sound
             Public TimeFrequencyWindows As New List(Of TimeFrequencyWindow)
 
-            Public Sub New(ByRef ParentSimulator As HearinglossSimulator)
+            Public Sub New(ByRef ParentSimulator As HearinglossSimulator_GTF)
                 Me.ParentSimulator = ParentSimulator
             End Sub
 

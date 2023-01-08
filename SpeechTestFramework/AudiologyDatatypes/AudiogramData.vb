@@ -21,6 +21,9 @@ Public Class AudiogramData
     Public Property Cb_Right_AC As Double() = {}
     Public Property Cb_Right_BC As Double() = {}
 
+    Public Property Cb_Left_UCL As Double() = {}
+    Public Property Cb_Right_UCL As Double() = {}
+
     <Serializable>
     Public Class TonePoint
         Property StimulusFrequency As Integer
@@ -237,8 +240,10 @@ Public Class AudiogramData
         If Left_AC Is Nothing Then
             Cb_Left_AC = {}
             Cb_Left_BC = {}
+            Cb_Left_UCL = {}
             Cb_Right_AC = {}
             Cb_Right_BC = {}
+            Cb_Right_UCL = {}
             Return False
         End If
 
@@ -288,9 +293,80 @@ Public Class AudiogramData
             Cb_Right_BC = {}
         End If
 
+        If UCL_Left.Count > 0 Then
+            Dim Left_UCL = GetFullAudiogramPointSerie(UCL_Left, New List(Of TonePoint))
+
+            If UCL_Left IsNot Nothing Then
+                'Interpolates the audiogram frequency values to critical band values
+                Cb_Left_UCL = ConvertAudiogramToCriticalBands(Left_UCL)
+            Else
+                'Setting 95 dB HL as default
+                Cb_Left_UCL = {95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95}
+            End If
+        Else
+            'Setting 95 dB HL as default
+            Cb_Left_UCL = {95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95}
+        End If
+
+        If UCL_Right.Count > 0 Then
+            Dim Right_UCL = GetFullAudiogramPointSerie(UCL_Right, New List(Of TonePoint))
+
+            If UCL_Right IsNot Nothing Then
+                'Interpolates the audiogram frequency values to critical band values
+                Cb_Right_UCL = ConvertAudiogramToCriticalBands(Right_UCL)
+            Else
+                'Setting 95 dB HL as default
+                Cb_Right_UCL = {95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95}
+            End If
+        Else
+            'Setting 95 dB HL as default
+            Cb_Right_UCL = {95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95}
+        End If
+
         Return True
 
     End Function
+
+    Public Function CompensateCbLevelsForInternalNoiseSpectrumLevels(ByVal Binaural As Boolean) As Boolean
+
+        'TODO: this is a bad method name, come up with something better if the method is helpful...
+
+        If Cb_Left_AC.Length = 0 Or Cb_Right_AC.Length = 0 Or Cb_Left_UCL.Length = 0 Or Cb_Right_UCL.Length = 0 Then
+            Return False
+        End If
+
+        '  Reference internal noise spectrum (According to the SII standard)
+        Dim X As Double() = {1.5, -3.9, -7.2, -8.9, -10.3, -11.4, -12.0, -12.5, -13.2, -14.0, -15.4, -16.9, -18.8, -21.2, -23.2, -24.9, -25.9, -24.2, -19.0, -11.7, -6.0}
+
+        If Binaural = True Then
+            For i = 0 To 20
+                Cb_Left_AC(i) -= 1.7
+                Cb_Right_AC(i) -= 1.7
+
+                'And applying the same compaensation to UCLs
+                Cb_Left_UCL(i) -= 1.7
+                Cb_Right_UCL(i) -= 1.7
+
+            Next
+        End If
+
+        '  # Calculating Equivalent internal noise spectrum
+        For i = 0 To 20
+            Cb_Left_AC(i) += X(i)
+            Cb_Right_AC(i) += X(i)
+
+            'And applying the same compaensation to UCLs
+            Cb_Left_UCL(i) += X(i)
+            Cb_Right_UCL(i) += X(i)
+
+        Next
+
+
+        Return True
+
+    End Function
+
+
 
 
     ''' <summary>
