@@ -34,13 +34,17 @@
             Me.SimulatedAudiogram = SimulatedAudiogram
             Me.ListenerAudiogram = ListenerAudiogram
 
+            'Converting db HLs to dB SPLs
+            SimulatedAudiogram.ConvertToSplAudiogram()
+            ListenerAudiogram.ConvertToSplAudiogram()
+
             'Calculating CB values
             SimulatedAudiogram.CalculateCriticalBandValues()
             ListenerAudiogram.CalculateCriticalBandValues()
 
             'Converting CB levels relative to internal noise spectrum levels
-            SimulatedAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
-            ListenerAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
+            'SimulatedAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
+            'ListenerAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
 
         End Sub
 
@@ -120,6 +124,40 @@
 
         End Sub
 
+        Public Function GetAverageResponse(ByVal Side As Utils.Sides) As SortedList(Of Double, Double)
+
+            Dim BandGains As New SortedList(Of Double, List(Of Double))
+            For b = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+                BandGains.Add(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), New List(Of Double))
+            Next
+
+            Select Case Side
+                Case Utils.Constants.Sides.Left
+                    For Each TimeWindow In TimeWindows
+                        For b = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+                            BandGains(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b)).Add(TimeWindow.Left_SimulationBandGains(b))
+                        Next
+                    Next
+                Case Utils.Constants.Sides.Right
+                    For Each TimeWindow In TimeWindows
+                        For b = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+                            BandGains(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b)).Add(TimeWindow.Right_SimulationBandGains(b))
+                        Next
+                    Next
+                Case Else
+                    Throw New ArgumentException("Unknown value for Side")
+            End Select
+
+            Dim AverageResponse As New SortedList(Of Double, Double)
+            For Each Kvp In BandGains
+                AverageResponse.Add(Kvp.Key, Kvp.Value.Average)
+            Next
+
+            Return AverageResponse
+
+        End Function
+
+
         Public Class HearinglossSimulatorTimeWindow
 
             Public ParentHearinglossSimulator As HearinglossSimulator_CB
@@ -144,13 +182,10 @@
 
             Public Sub CalculateSignalSpectrumLevels(ByRef BandBank As Audio.DSP.BandBank, ByRef FftFormat As Audio.Formats.FftFormat, ByVal dBSPL_FSdifference As Double)
 
-
                 'And these are only used to be able to export the values used
                 Dim ActualLowerLimitFrequencyList As List(Of Double) = Nothing
                 Dim ActualUpperLimitFrequencyList As List(Of Double) = Nothing
-
-                Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(SoundData, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
-                SignalSpectrumLevels = SpectrumLevels.ToArray
+                SignalSpectrumLevels = Audio.DSP.CalculateSpectrumLevels(SoundData, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference).ToArray
 
             End Sub
 
@@ -158,7 +193,7 @@
 
                 For b = 0 To 20
 
-                    Dim S = SignalSpectrumLevels(b)
+                    Dim S = Math.Max(Single.MinValue, SignalSpectrumLevels(b))
 
                     'Left side
                     Dim Tn_L = ParentHearinglossSimulator.ListenerAudiogram.Cb_Left_AC(b)

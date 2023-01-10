@@ -113,12 +113,20 @@ Public Class AudiogramData
         S3
     End Enum
 
+    Public Enum DebuggingAudiograms
+        Flat10
+        Flat50
+        Flat85
+        Flat95
+        PlusFivePerFrequency
+    End Enum
+
     ''' <summary>
     ''' Creating Bisgaard type audiograms.
     ''' </summary>
     ''' <param name="AudiogramType"></param>
     ''' <param name="Include375Hz">Set to true to include values for 375 Hz.</param>
-    ''' <param name="AirBoneGap">An optional list of air-bon gaps. The list can either contain 1 value, repressenting a global air-bone-gap, or one value per frequency (including 125 and 8k Hz)</param>
+    ''' <param name="AirBoneGap">An optional list of air-bone gaps. The list can either contain 1 value, repressenting a global air-bone-gap, or one value per frequency (including 125 and 8k Hz)</param>
     Public Sub CreateTypicalAudiogramData(ByVal AudiogramType As BisgaardAudiograms,
                                               Optional ByVal Include375Hz As Boolean = False,
                                               Optional ByVal AirBoneGap As List(Of Double) = Nothing,
@@ -172,6 +180,86 @@ Public Class AudiogramData
         TempAudiograms.Add(BisgaardAudiograms.S1, {10, 10, 10, 10, 10, 10, 10, 15, 30, 55, 70, 70})
         TempAudiograms.Add(BisgaardAudiograms.S2, {20, 20, 20, 20, 22.5, 25, 35, 55, 75, 95, 95, 95})
         TempAudiograms.Add(BisgaardAudiograms.S3, {30, 30, 30, 35, 47.5, 60, 70, 75, 80, 80, 85, 85})
+
+        Dim SelectedAudiogram = TempAudiograms(AudiogramType)
+
+        For n = 0 To fs.Length - 1
+
+            If Include375Hz = False Then
+                If fs(n) = 375 Then
+                    Continue For
+                End If
+            End If
+
+            AC_Right.Add(New TonePoint With {.StimulusFrequency = fs(n), .StimulusLevel = SelectedAudiogram(n)})
+            AC_Left.Add(New TonePoint With {.StimulusFrequency = fs(n), .StimulusLevel = SelectedAudiogram(n)})
+            BC_Right.Add(New TonePoint With {.StimulusFrequency = fs(n), .StimulusLevel = SelectedAudiogram(n) + TempAirBonegapArray(n)})
+            BC_Left.Add(New TonePoint With {.StimulusFrequency = fs(n), .StimulusLevel = SelectedAudiogram(n) + TempAirBonegapArray(n)})
+
+            If IncludeMasking = True Then
+
+                AC_Right_Masked.Add(New TonePoint With {.StimulusFrequency = fs(n), .StimulusLevel = SelectedAudiogram(n)})
+                AC_Left_Masked.Add(New TonePoint With {.StimulusFrequency = fs(n), .StimulusLevel = SelectedAudiogram(n)})
+                BC_Right_Masked.Add(New TonePoint With {.StimulusFrequency = fs(n), .StimulusLevel = SelectedAudiogram(n) + TempAirBonegapArray(n)})
+                BC_Left_Masked.Add(New TonePoint With {.StimulusFrequency = fs(n), .StimulusLevel = SelectedAudiogram(n) + TempAirBonegapArray(n)})
+            End If
+
+        Next
+
+        CalculateCriticalBandValues()
+
+    End Sub
+
+
+    ''' <summary>
+    ''' Creating audiograms usful for debugging of code.
+    ''' </summary>
+    ''' <param name="AudiogramType"></param>
+    ''' <param name="Include375Hz">Set to true to include values for 375 Hz.</param>
+    ''' <param name="AirBoneGap">An optional list of air-bone gaps. The list can either contain 1 value, repressenting a global air-bone-gap, or one value per frequency (including 125 and 8k Hz)</param>
+    Public Sub CreateDebuggingAudiogramData(ByVal AudiogramType As DebuggingAudiograms,
+                                              Optional ByVal Include375Hz As Boolean = False,
+                                              Optional ByVal AirBoneGap As List(Of Double) = Nothing,
+                                              Optional IncludeMasking As Boolean = False)
+
+        'Setting a name based on the audiogram type
+        Name = AudiogramType.ToString
+
+        Dim fs() As Integer = {125, 250, 375, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000}
+
+        Dim TempAirBonegapArray(fs.Length - 1) As Double
+        If AirBoneGap IsNot Nothing Then
+
+            If AirBoneGap.Count = fs.Length - 1 Then
+
+                For n = 1 To fs.Length - 1
+                    AirBoneGap.Add(AirBoneGap(0))
+                Next
+
+            ElseIf AirBoneGap.Count = fs.Length - 1 Then
+
+                'Nothing needs to be done here
+
+            ElseIf AirBoneGap.Count = fs.Length - 2 Then
+
+                'Inserts a 0 into AirBoneGap at the index corresponding to the missing air-bone-gap value for 375 Hz.
+                AirBoneGap.Insert(2, 0)
+
+            Else
+                Throw New ArgumentException("The number of items in AirBoneGap must be either 11 or 12 (depending on whether 375 Hz is included).")
+            End If
+
+            TempAirBonegapArray = AirBoneGap.ToArray
+
+        End If
+
+        Dim TempAudiograms As New SortedList(Of DebuggingAudiograms, Double())
+
+        TempAudiograms.Add(DebuggingAudiograms.Flat10, {10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10})
+        TempAudiograms.Add(DebuggingAudiograms.Flat50, {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50})
+        TempAudiograms.Add(DebuggingAudiograms.Flat85, {85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85})
+        TempAudiograms.Add(DebuggingAudiograms.Flat95, {95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95})
+        TempAudiograms.Add(DebuggingAudiograms.PlusFivePerFrequency, {0, 5, 10, 15, 20, 25, 30, 45, 50, 55, 60, 65})
 
         Dim SelectedAudiogram = TempAudiograms(AudiogramType)
 
@@ -327,8 +415,139 @@ Public Class AudiogramData
 
     End Function
 
+
+    Public Enum AudiogramDecibelTypes
+        dBSPL
+        dBHL
+    End Enum
+
+    Public Property AudiogramDecibelType As AudiogramDecibelTypes = AudiogramDecibelTypes.dBHL
+
+
+    ''' <summary>
+    ''' Converts all values in the audiogram to from dB HL to dB SPL. If values are already in dB SPL no convertion is performed.
+    ''' </summary>
+    Public Sub ConvertToSplAudiogram()
+
+        If AudiogramDecibelType = AudiogramDecibelTypes.dBSPL Then Exit Sub
+
+        For Each TonePiont In Me.AC_Left
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+        For Each TonePiont In Me.AC_Right
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+        For Each TonePiont In Me.AC_Left_Masked
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+        For Each TonePiont In Me.AC_Right_Masked
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+        For Each TonePiont In Me.BC_Left
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+        For Each TonePiont In Me.BC_Right
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+        For Each TonePiont In Me.BC_Left_Masked
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+        For Each TonePiont In Me.BC_Right_Masked
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+        For Each TonePiont In Me.UCL_Left
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+        For Each TonePiont In Me.UCL_Right
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel += ConversionValue
+        Next
+
+    End Sub
+
+    ''' <summary>
+    ''' Converts all values in the audiogram to from dB SPL to dB HL. If values are already in dB HL no convertion is performed.
+    ''' </summary>
+    Public Sub ConvertToHLAudiogram()
+
+        If AudiogramDecibelType = AudiogramDecibelTypes.dBHL Then Exit Sub
+
+        If AudiogramDecibelType = AudiogramDecibelTypes.dBSPL Then Exit Sub
+
+        For Each TonePiont In Me.AC_Left
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+        For Each TonePiont In Me.AC_Right
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+        For Each TonePiont In Me.AC_Left_Masked
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+        For Each TonePiont In Me.AC_Right_Masked
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+        For Each TonePiont In Me.BC_Left
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+        For Each TonePiont In Me.BC_Right
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+        For Each TonePiont In Me.BC_Left_Masked
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+        For Each TonePiont In Me.BC_Right_Masked
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+        For Each TonePiont In Me.UCL_Left
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+        For Each TonePiont In Me.UCL_Right
+            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            TonePiont.StimulusLevel -= ConversionValue
+        Next
+
+    End Sub
+
+    <Obsolete>
     Public Function CompensateCbLevelsForInternalNoiseSpectrumLevels(ByVal Binaural As Boolean) As Boolean
 
+        'TODO: I'm very much in doubt this function is even reasonably good. Likely it should be removed
         'TODO: this is a bad method name, come up with something better if the method is helpful...
 
         If Cb_Left_AC.Length = 0 Or Cb_Right_AC.Length = 0 Or Cb_Left_UCL.Length = 0 Or Cb_Right_UCL.Length = 0 Then
@@ -343,7 +562,7 @@ Public Class AudiogramData
                 Cb_Left_AC(i) -= 1.7
                 Cb_Right_AC(i) -= 1.7
 
-                'And applying the same compaensation to UCLs
+                'And applying the same compensation to UCLs
                 Cb_Left_UCL(i) -= 1.7
                 Cb_Right_UCL(i) -= 1.7
 
@@ -355,12 +574,11 @@ Public Class AudiogramData
             Cb_Left_AC(i) += X(i)
             Cb_Right_AC(i) += X(i)
 
-            'And applying the same compaensation to UCLs
+            'And applying the same compensation to UCLs
             Cb_Left_UCL(i) += X(i)
             Cb_Right_UCL(i) += X(i)
 
         Next
-
 
         Return True
 
