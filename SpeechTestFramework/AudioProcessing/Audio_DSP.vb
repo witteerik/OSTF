@@ -296,6 +296,7 @@ Namespace Audio
 
             End Function
 
+
             ''' <summary>
             ''' Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
             ''' </summary>

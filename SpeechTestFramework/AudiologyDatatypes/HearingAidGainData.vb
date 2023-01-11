@@ -80,7 +80,7 @@ Public Class HearingAidGainData
 
         'Calculating critical band thresholds if not calculated
         If AudiogramData.Cb_Left_AC.Length = 0 Or AudiogramData.Cb_Right_AC.Length = 0 Then
-            If AudiogramData.CalculateCriticalBandValues() = False Then
+            If AudiogramData.InterpolateCriticalBandValues() = False Then
                 Return Nothing
             End If
         End If

@@ -548,7 +548,7 @@ Public Class SipTestGui
 
         'Checks if the audiogram contains data, and stops if not
         If SelectedAudiogramData.ContainsAcData = False Then Exit Sub
-        If SelectedAudiogramData.ContainsCbData = False Then SelectedAudiogramData.CalculateCriticalBandValues()
+        If SelectedAudiogramData.ContainsCbData = False Then SelectedAudiogramData.InterpolateCriticalBandValues()
 
         TryCalculatePsychometricFunction()
 
@@ -560,7 +560,7 @@ Public Class SipTestGui
         If SelectedAudiogramData.ContainsAcData = False Then Exit Sub
 
         'Updating the critical band values
-        If SelectedAudiogramData.CalculateCriticalBandValues() = False Then
+        If SelectedAudiogramData.InterpolateCriticalBandValues() = False Then
             ShowMessageBox("Unable to calculate critical band values. Probably there are not enough data points in the selected audiogram.")
             Exit Sub
         End If

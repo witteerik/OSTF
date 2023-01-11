@@ -19,6 +19,8 @@
 
         Public FirKernelLength As Integer = 4096
 
+        Public BandBank As Audio.DSP.BandBank
+
         Public Property SourceSound As Sound
         Public Property SimulatedSound As Sound
 
@@ -31,6 +33,13 @@
                 ListenerAudiogram.CreateTypicalAudiogramData(AudiogramData.BisgaardAudiograms.NH)
             End If
 
+            'Ensures that the audiograms have UCL data
+            ListenerAudiogram.FillUpUCLs
+            SimulatedAudiogram.FillUpUCLs
+
+            'Creates the SII critical band bank
+            BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+
             Me.SimulatedAudiogram = SimulatedAudiogram
             Me.ListenerAudiogram = ListenerAudiogram
 
@@ -38,10 +47,34 @@
             SimulatedAudiogram.ConvertToSplAudiogram()
             ListenerAudiogram.ConvertToSplAudiogram()
 
-            'Calculating CB values
-            SimulatedAudiogram.CalculateCriticalBandValues()
-            ListenerAudiogram.CalculateCriticalBandValues()
+            'Converts audiogram values (thresholds, etc) to spectrum levels
+            Dim RefSL = BandBank.GetReferenceSpectrumLevels.Values.ToArray
 
+            'Calculating CB values
+            SimulatedAudiogram.InterpolateCriticalBandValues()
+            ListenerAudiogram.InterpolateCriticalBandValues()
+
+            'Converting to spectrum levels
+            For i = 0 To 20
+                SimulatedAudiogram.Cb_Left_AC(i) += RefSL(i)
+                SimulatedAudiogram.Cb_Right_AC(i) += RefSL(i)
+                SimulatedAudiogram.Cb_Left_BC(i) += RefSL(i)
+                SimulatedAudiogram.Cb_Right_BC(i) += RefSL(i)
+                SimulatedAudiogram.Cb_Left_UCL(i) += RefSL(i)
+                SimulatedAudiogram.Cb_Right_UCL(i) += RefSL(i)
+            Next
+
+            For i = 0 To 20
+                ListenerAudiogram.Cb_Left_AC(i) += RefSL(i)
+                ListenerAudiogram.Cb_Right_AC(i) += RefSL(i)
+                ListenerAudiogram.Cb_Left_BC(i) += RefSL(i)
+                ListenerAudiogram.Cb_Right_BC(i) += RefSL(i)
+                ListenerAudiogram.Cb_Left_UCL(i) += RefSL(i)
+                ListenerAudiogram.Cb_Right_UCL(i) += RefSL(i)
+            Next
+
+
+            'Dim x = 1
             'Converting CB levels relative to internal noise spectrum levels
             'SimulatedAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
             'ListenerAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
@@ -82,7 +115,6 @@
 
 
             'Sets of some objects which are reused between the loops in the code below
-            Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
             Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
             Dim dBSPL_FSdifference As Double? = Audio.Standard_dBFS_dBSPL_Difference
 
@@ -225,10 +257,20 @@
 
                 Dim LeftEarFilter_TargetResponse As New List(Of Tuple(Of Single, Single))
                 Dim RightEarFilter_TargetResponse As New List(Of Tuple(Of Single, Single))
+
+                'Extending gain values towards 1 Hz
+                LeftEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(1, Left_SimulationBandGains(0)))
+                RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(1, Left_SimulationBandGains(0)))
+
+                'Adding gain
                 For b = 0 To 20
                     LeftEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), Left_SimulationBandGains(b)))
                     RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), Right_SimulationBandGains(b)))
                 Next
+
+                'Extending gain values to the Nyquist frequency (with some margin)
+                LeftEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Int(SoundData.WaveFormat.SampleRate / 2) - 2, Left_SimulationBandGains(20)))
+                RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Int(SoundData.WaveFormat.SampleRate / 2) - 2, Left_SimulationBandGains(20)))
 
                 LeftEar_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(LeftEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)
                 RightEar_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(RightEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)

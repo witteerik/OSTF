@@ -206,7 +206,7 @@ Public Class AudiogramData
 
         Next
 
-        CalculateCriticalBandValues()
+        InterpolateCriticalBandValues()
 
     End Sub
 
@@ -286,7 +286,7 @@ Public Class AudiogramData
 
         Next
 
-        CalculateCriticalBandValues()
+        InterpolateCriticalBandValues()
 
     End Sub
 
@@ -303,11 +303,15 @@ Public Class AudiogramData
 
         Next
 
-        CalculateCriticalBandValues()
+        InterpolateCriticalBandValues()
 
     End Sub
 
-    Public Function CalculateCriticalBandValues() As Boolean
+    ''' <summary>
+    ''' Interpolates the levels (thresholds, etc) stored for the audiogram frequencies to the SII critical band frequencies by linear interpolation.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function InterpolateCriticalBandValues() As Boolean
 
         'Overriding the opposite side if AC is not given for both sides
         If AC_Left.Count > 0 And AC_Right.Count = 0 Then
@@ -365,8 +369,8 @@ Public Class AudiogramData
         'Calculates critical band values
         If Left_AC IsNot Nothing And Left_BC IsNot Nothing Then
             'Interpolates the audiogram frequency values to critical band values
-            Cb_Left_AC = ConvertAudiogramToCriticalBands(Left_AC)
-            Cb_Left_BC = ConvertAudiogramToCriticalBands(Left_BC)
+            Cb_Left_AC = InterpolateAudiogramToCriticalBandFrequencies(Left_AC)
+            Cb_Left_BC = InterpolateAudiogramToCriticalBandFrequencies(Left_BC)
         Else
             Cb_Left_AC = {}
             Cb_Left_BC = {}
@@ -374,8 +378,8 @@ Public Class AudiogramData
 
         If Right_AC IsNot Nothing And Right_BC IsNot Nothing Then
             'Interpolates the audiogram frequency values to critical band values
-            Cb_Right_AC = ConvertAudiogramToCriticalBands(Right_AC)
-            Cb_Right_BC = ConvertAudiogramToCriticalBands(Right_BC)
+            Cb_Right_AC = InterpolateAudiogramToCriticalBandFrequencies(Right_AC)
+            Cb_Right_BC = InterpolateAudiogramToCriticalBandFrequencies(Right_BC)
         Else
             Cb_Right_AC = {}
             Cb_Right_BC = {}
@@ -386,14 +390,10 @@ Public Class AudiogramData
 
             If UCL_Left IsNot Nothing Then
                 'Interpolates the audiogram frequency values to critical band values
-                Cb_Left_UCL = ConvertAudiogramToCriticalBands(Left_UCL)
+                Cb_Left_UCL = InterpolateAudiogramToCriticalBandFrequencies(Left_UCL)
             Else
-                'Setting 95 dB HL as default
-                Cb_Left_UCL = {95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95}
+                Cb_Left_UCL = {}
             End If
-        Else
-            'Setting 95 dB HL as default
-            Cb_Left_UCL = {95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95}
         End If
 
         If UCL_Right.Count > 0 Then
@@ -401,14 +401,10 @@ Public Class AudiogramData
 
             If UCL_Right IsNot Nothing Then
                 'Interpolates the audiogram frequency values to critical band values
-                Cb_Right_UCL = ConvertAudiogramToCriticalBands(Right_UCL)
+                Cb_Right_UCL = InterpolateAudiogramToCriticalBandFrequencies(Right_UCL)
             Else
-                'Setting 95 dB HL as default
-                Cb_Right_UCL = {95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95}
+                Cb_Right_UCL = {}
             End If
-        Else
-            'Setting 95 dB HL as default
-            Cb_Right_UCL = {95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95}
         End If
 
         Return True
@@ -430,6 +426,9 @@ Public Class AudiogramData
     Public Sub ConvertToSplAudiogram()
 
         If AudiogramDecibelType = AudiogramDecibelTypes.dBSPL Then Exit Sub
+
+        'Setting type SPL
+        AudiogramDecibelType = AudiogramDecibelTypes.dBSPL
 
         For Each TonePiont In Me.AC_Left
             Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
@@ -483,6 +482,36 @@ Public Class AudiogramData
 
     End Sub
 
+    Public Sub FillUpUCLs(Optional ByVal DefaultValue As Double = 95)
+
+        Dim AudiogramFrequencies() As Double = {125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000}
+
+        Dim LeftSideValues As New SortedList(Of Double, TonePoint)
+        Dim RightSideValues As New SortedList(Of Double, TonePoint)
+
+        For Each TP In Me.UCL_Left
+            LeftSideValues.Add(TP.StimulusFrequency, TP)
+        Next
+
+        For Each TP In Me.UCL_Right
+            RightSideValues.Add(TP.StimulusFrequency, TP)
+        Next
+
+        For Each Frequency In AudiogramFrequencies
+            If LeftSideValues.ContainsKey(Frequency) = False Then
+                LeftSideValues.Add(Frequency, New TonePoint With {.StimulusFrequency = Frequency, .StimulusLevel = DefaultValue})
+            End If
+
+            If RightSideValues.ContainsKey(Frequency) = False Then
+                RightSideValues.Add(Frequency, New TonePoint With {.StimulusFrequency = Frequency, .StimulusLevel = DefaultValue})
+            End If
+        Next
+
+        Me.UCL_Left = LeftSideValues.Values.ToList
+        Me.UCL_Right = RightSideValues.Values.ToList
+
+    End Sub
+
     ''' <summary>
     ''' Converts all values in the audiogram to from dB SPL to dB HL. If values are already in dB HL no convertion is performed.
     ''' </summary>
@@ -490,7 +519,8 @@ Public Class AudiogramData
 
         If AudiogramDecibelType = AudiogramDecibelTypes.dBHL Then Exit Sub
 
-        If AudiogramDecibelType = AudiogramDecibelTypes.dBSPL Then Exit Sub
+        'Setting type HL
+        AudiogramDecibelType = AudiogramDecibelTypes.dBHL
 
         For Each TonePiont In Me.AC_Left
             Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
@@ -651,7 +681,7 @@ Public Class AudiogramData
 
     End Function
 
-    Private Function ConvertAudiogramToCriticalBands(ByRef AudiogramThresholds As SortedList(Of Integer, TonePoint)) As Double()
+    Private Function InterpolateAudiogramToCriticalBandFrequencies(ByRef AudiogramThresholds As SortedList(Of Integer, TonePoint)) As Double()
 
         'Dim AudiogramFrequencies() As Integer = {125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000}
 

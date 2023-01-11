@@ -6866,6 +6866,34 @@ Namespace Audio
             End Function
 
 
+            ''' <summary>
+            ''' Calculates and returns the spectrum levels equivalent to band levels of 0 dB SPL. Keys represent frequencies and values represent spectrum levels.
+            ''' </summary>
+            ''' <returns></returns>
+            Public Function GetReferenceSpectrumLevels() As SortedList(Of Double, Double)
+
+                'Getting the band widths
+                Dim BandWidths = GetBandWidths()
+
+                Dim CentreFrequencies = GetCentreFrequencies()
+
+                'Creating a list to store the spectrum levels
+                Dim SpectrumLevelList As New SortedList(Of Double, Double)
+
+                For i = 0 To BandWidths.Count - 1
+
+                    'Sets band levels to 0 dB SPL
+                    Dim BandLevel_SPL As Double = 0
+
+                    'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+                    Dim SpectrumLevel As Double = BandLevel2SpectrumLevel(BandLevel_SPL, BandWidths(i))
+                    SpectrumLevelList.Add(CentreFrequencies(i), SpectrumLevel)
+                Next
+
+                Return SpectrumLevelList
+
+            End Function
+
             Public Class BandInfo
                 Public CentreFrequency As Double
                 Public LowerFrequencyLimit As Double
