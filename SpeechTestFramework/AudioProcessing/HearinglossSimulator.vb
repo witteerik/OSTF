@@ -47,37 +47,31 @@
             SimulatedAudiogram.ConvertToSplAudiogram()
             ListenerAudiogram.ConvertToSplAudiogram()
 
-            'Converts audiogram values (thresholds, etc) to spectrum levels
-            Dim RefSL = BandBank.GetReferenceSpectrumLevels.Values.ToArray
-
             'Calculating CB values
             SimulatedAudiogram.InterpolateCriticalBandValues()
             ListenerAudiogram.InterpolateCriticalBandValues()
 
-            'Converting to spectrum levels
-            For i = 0 To 20
-                SimulatedAudiogram.Cb_Left_AC(i) += RefSL(i)
-                SimulatedAudiogram.Cb_Right_AC(i) += RefSL(i)
-                SimulatedAudiogram.Cb_Left_BC(i) += RefSL(i)
-                SimulatedAudiogram.Cb_Right_BC(i) += RefSL(i)
-                SimulatedAudiogram.Cb_Left_UCL(i) += RefSL(i)
-                SimulatedAudiogram.Cb_Right_UCL(i) += RefSL(i)
-            Next
+            ''Converts audiogram values (thresholds, etc) to spectrum levels
+            'Dim RefSL = BandBank.GetReferenceSpectrumLevels.Values.ToArray
 
-            For i = 0 To 20
-                ListenerAudiogram.Cb_Left_AC(i) += RefSL(i)
-                ListenerAudiogram.Cb_Right_AC(i) += RefSL(i)
-                ListenerAudiogram.Cb_Left_BC(i) += RefSL(i)
-                ListenerAudiogram.Cb_Right_BC(i) += RefSL(i)
-                ListenerAudiogram.Cb_Left_UCL(i) += RefSL(i)
-                ListenerAudiogram.Cb_Right_UCL(i) += RefSL(i)
-            Next
+            ''Converting to spectrum levels
+            'For i = 0 To 20
+            '    SimulatedAudiogram.Cb_Left_AC(i) += RefSL(i)
+            '    SimulatedAudiogram.Cb_Right_AC(i) += RefSL(i)
+            '    SimulatedAudiogram.Cb_Left_BC(i) += RefSL(i)
+            '    SimulatedAudiogram.Cb_Right_BC(i) += RefSL(i)
+            '    SimulatedAudiogram.Cb_Left_UCL(i) += RefSL(i)
+            '    SimulatedAudiogram.Cb_Right_UCL(i) += RefSL(i)
+            'Next
 
-
-            'Dim x = 1
-            'Converting CB levels relative to internal noise spectrum levels
-            'SimulatedAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
-            'ListenerAudiogram.CompensateCbLevelsForInternalNoiseSpectrumLevels(True)
+            'For i = 0 To 20
+            '    ListenerAudiogram.Cb_Left_AC(i) += RefSL(i)
+            '    ListenerAudiogram.Cb_Right_AC(i) += RefSL(i)
+            '    ListenerAudiogram.Cb_Left_BC(i) += RefSL(i)
+            '    ListenerAudiogram.Cb_Right_BC(i) += RefSL(i)
+            '    ListenerAudiogram.Cb_Left_UCL(i) += RefSL(i)
+            '    ListenerAudiogram.Cb_Right_UCL(i) += RefSL(i)
+            'Next
 
         End Sub
 
@@ -141,7 +135,7 @@
 
                 Dim StartSample = TimeWindows(w).StartSample
                 Dim LeftWindowArray = TimeWindows(w).SoundData.WaveData.SampleData(1)
-                Dim RightWindowArray = TimeWindows(w).SoundData.WaveData.SampleData(1)
+                Dim RightWindowArray = TimeWindows(w).SoundData.WaveData.SampleData(2)
 
                 For s = 0 To TimeWindows(w).SoundData.WaveData.ShortestChannelSampleCount - 1
                     LeftSimulatedSoundArray(StartSample + s) += LeftWindowArray(s)
@@ -200,7 +194,7 @@
 
             Public StartSample As Integer
 
-            Public SignalSpectrumLevels(20) As Double
+            Public SignalCriticalBandLevels(20) As Double
             Public Left_SimulationTargetSpectrumLevels(20) As Double
             Public Left_SimulationBandGains(20) As Single
 
@@ -217,7 +211,14 @@
                 'And these are only used to be able to export the values used
                 Dim ActualLowerLimitFrequencyList As List(Of Double) = Nothing
                 Dim ActualUpperLimitFrequencyList As List(Of Double) = Nothing
-                SignalSpectrumLevels = Audio.DSP.CalculateSpectrumLevels(SoundData, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference).ToArray
+                SignalCriticalBandLevels = Audio.DSP.CalculateBandLevels(SoundData, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList).ToArray
+
+                'Converting from dBFS to dBSPL
+                For i = 0 To SignalCriticalBandLevels.Length - 1
+                    SignalCriticalBandLevels(i) += dBSPL_FSdifference
+                Next
+
+                'SignalSpectrumLevels = Audio.DSP.CalculateSpectrumLevels(SoundData, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference).ToArray
 
             End Sub
 
@@ -225,7 +226,7 @@
 
                 For b = 0 To 20
 
-                    Dim S = Math.Max(Single.MinValue, SignalSpectrumLevels(b))
+                    Dim S = Math.Max(Single.MinValue, SignalCriticalBandLevels(b))
 
                     'Left side
                     Dim Tn_L = ParentHearinglossSimulator.ListenerAudiogram.Cb_Left_AC(b)
@@ -260,7 +261,7 @@
 
                 'Extending gain values towards 1 Hz
                 LeftEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(1, Left_SimulationBandGains(0)))
-                RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(1, Left_SimulationBandGains(0)))
+                RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(1, Right_SimulationBandGains(0)))
 
                 'Adding gain
                 For b = 0 To 20
@@ -270,7 +271,7 @@
 
                 'Extending gain values to the Nyquist frequency (with some margin)
                 LeftEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Int(SoundData.WaveFormat.SampleRate / 2) - 2, Left_SimulationBandGains(20)))
-                RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Int(SoundData.WaveFormat.SampleRate / 2) - 2, Left_SimulationBandGains(20)))
+                RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Int(SoundData.WaveFormat.SampleRate / 2) - 2, Right_SimulationBandGains(20)))
 
                 LeftEar_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(LeftEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)
                 RightEar_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(RightEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)

@@ -251,6 +251,51 @@ Namespace Audio
 
             End Function
 
+
+
+            ''' <summary>
+            ''' Calculates the sound level in the input sound using frequency domain calculations.
+            ''' </summary>
+            ''' <param name="InputSound"></param>
+            ''' <param name="Channel"></param>
+            ''' <param name="FftFormat"></param>
+            ''' <returns></returns>
+            Public Function CalculateSoundLevelFromFrequencyDomain(ByRef InputSound As Sound, ByVal Channel As Integer,
+                                                Optional ByRef FftFormat As Audio.Formats.FftFormat = Nothing) As Double
+
+                Try
+
+                    'Setting up FFT format
+                    If FftFormat Is Nothing Then FftFormat = New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
+
+                    'Calculating spectra
+                    InputSound.FFT = Audio.DSP.SpectralAnalysis(InputSound, FftFormat)
+                    InputSound.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
+
+                    Dim ActualLowerLimitFrequency As Double
+                    Dim ActualUpperLimitFrequency As Double
+
+                    Dim WindowLevelArray = Audio.DSP.AcousticDistance.CalculateWindowLevels(InputSound,,,
+                                                                          ,
+                                                                          ,
+                                                                          Audio.FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
+                                                                          False, False,
+                                                                          ActualLowerLimitFrequency,
+                                                                          ActualUpperLimitFrequency)
+
+                    Dim AverageBandLevel_FS As Double = WindowLevelArray.Average
+
+                    Return AverageBandLevel_FS
+
+                Catch ex As Exception
+                    AudioError(ex.ToString)
+                    Return Nothing
+                End Try
+
+            End Function
+
+
+
             ''' <summary>
             ''' Calculates spectrum levels
             ''' </summary>
