@@ -194,11 +194,10 @@
 
             Public StartSample As Integer
 
-            Public SignalCriticalBandLevels(20) As Double
-            Public Left_SimulationTargetSpectrumLevels(20) As Double
+            Public Left_SignalCriticalBandLevels(20) As Double
             Public Left_SimulationBandGains(20) As Single
 
-            Public Right_SimulationTargetSpectrumLevels(20) As Double
+            Public Right_SignalCriticalBandLevels(20) As Double
             Public Right_SimulationBandGains(20) As Single
 
             Private LeftEar_FilterKernel As Audio.Sound
@@ -209,13 +208,15 @@
             Public Sub CalculateSignalSpectrumLevels(ByRef BandBank As Audio.DSP.BandBank, ByRef FftFormat As Audio.Formats.FftFormat, ByVal dBSPL_FSdifference As Double)
 
                 'And these are only used to be able to export the values used
-                Dim ActualLowerLimitFrequencyList As List(Of Double) = Nothing
-                Dim ActualUpperLimitFrequencyList As List(Of Double) = Nothing
-                SignalCriticalBandLevels = Audio.DSP.CalculateBandLevels(SoundData, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList).ToArray
+                Left_SignalCriticalBandLevels = Audio.DSP.CalculateBandLevels(SoundData, 1, BandBank, FftFormat).ToArray
+                Right_SignalCriticalBandLevels = Audio.DSP.CalculateBandLevels(SoundData, 2, BandBank, FftFormat).ToArray
 
                 'Converting from dBFS to dBSPL
-                For i = 0 To SignalCriticalBandLevels.Length - 1
-                    SignalCriticalBandLevels(i) += dBSPL_FSdifference
+                For i = 0 To Left_SignalCriticalBandLevels.Length - 1
+                    Left_SignalCriticalBandLevels(i) += dBSPL_FSdifference
+                Next
+                For i = 0 To Right_SignalCriticalBandLevels.Length - 1
+                    Right_SignalCriticalBandLevels(i) += dBSPL_FSdifference
                 Next
 
                 'SignalSpectrumLevels = Audio.DSP.CalculateSpectrumLevels(SoundData, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference).ToArray
@@ -226,33 +227,52 @@
 
                 For b = 0 To 20
 
-                    Dim S = Math.Max(Single.MinValue, SignalCriticalBandLevels(b))
-
                     'Left side
+                    Dim S_L = Math.Max(Single.MinValue, Left_SignalCriticalBandLevels(b))
+                    Dim Ts_L = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Left_AC(b)
+                    Dim UCLs_L = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Left_UCL(b)
                     Dim Tn_L = ParentHearinglossSimulator.ListenerAudiogram.Cb_Left_AC(b)
                     Dim UCLn_L = ParentHearinglossSimulator.ListenerAudiogram.Cb_Left_UCL(b)
-                    Dim Tsim_L = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Left_AC(b)
-                    Dim UCLsim_L = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Left_UCL(b)
+                    Left_SimulationBandGains(b) = GetGain(S_L, Ts_L, UCLs_L, Tn_L, UCLn_L)
 
-                    Dim SimulationLevel_L = Math.Min(UCLn_L, Tn_L + (S - Tsim_L) / (UCLsim_L - Tsim_L) * (UCLn_L - Tn_L))
-                    Left_SimulationTargetSpectrumLevels(b) = SimulationLevel_L 'Uncessesary to store
-
-                    Left_SimulationBandGains(b) = Math.Max(Single.MinValue, SimulationLevel_L - S)
 
                     'Right side
+                    Dim S_R = Math.Max(Single.MinValue, Right_SignalCriticalBandLevels(b))
+                    Dim Ts_R = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Right_AC(b)
+                    Dim UCLs_R = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Right_UCL(b)
                     Dim Tn_R = ParentHearinglossSimulator.ListenerAudiogram.Cb_Right_AC(b)
                     Dim UCLn_R = ParentHearinglossSimulator.ListenerAudiogram.Cb_Right_UCL(b)
-                    Dim Tsim_R = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Right_AC(b)
-                    Dim UCLsim_R = ParentHearinglossSimulator.SimulatedAudiogram.Cb_Right_UCL(b)
-
-                    Dim SimulationLevel_R = Math.Min(UCLn_R, Tn_R + (S - Tsim_R) / (UCLsim_R - Tsim_R) * (UCLn_R - Tn_R))
-                    Right_SimulationTargetSpectrumLevels(b) = SimulationLevel_R 'Uncessesary to store
-
-                    Right_SimulationBandGains(b) = Math.Max(Single.MinValue, SimulationLevel_R - S)
+                    Right_SimulationBandGains(b) = GetGain(S_R, Ts_R, UCLs_R, Tn_R, UCLn_R)
 
                 Next
 
             End Sub
+
+            Private Function GetGain(ByVal S As Double, ByVal Ts As Double,
+                ByVal UCLs As Double, ByVal Tn As Double, ByVal UCLn As Double) As Double
+
+                Dim A_L = S - Ts
+                Dim B_L = UCLs - Ts
+
+                Dim SimulationLevel_L As Double
+                Select Case A_L / B_L
+                    Case < 0
+                        SimulationLevel_L = Tn - Ts + S
+                    Case > 1
+                        SimulationLevel_L = UCLn - UCLs + S
+                    Case Else
+                        SimulationLevel_L = Math.Min(UCLn, Tn + ((S - Ts) / (UCLs - Ts)) * (UCLn - Tn))
+                End Select
+
+                Dim Gain As Double = Math.Max(Single.MinValue, SimulationLevel_L - S)
+
+                'Console.WriteLine(vbCrLf & "Simulated audiogram dynamic range: " & Ts & " to " & UCLs & " dB SPL, Input signal level: " & S & vbCrLf &
+                '                      "Listener audiogram dynamic range: " & Tn & " to " & UCLn & " dB SPL, Corresponding simulation level: " & SimulationLevel_L & vbCrLf &
+                '                      "Gain: " & Gain)
+
+                Return Gain
+
+            End Function
 
             Public Sub CreateDynamicFilter()
 

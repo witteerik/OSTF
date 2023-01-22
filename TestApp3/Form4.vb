@@ -2765,7 +2765,7 @@
         'Dim InputSound = SpeechTestFramework.Audio.GenerateSound.CreateWhiteNoise(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 2,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints),, 1, 5)
         'Dim InputSound = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 2,, SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints),, 1000,,, 5)
 
-        SpeechTestFramework.Audio.DSP.MeasureAndAdjustSectionLevel(InputSound, SpeechTestFramework.Audio.Standard_dBSPL_To_dBFS(15))
+        SpeechTestFramework.Audio.DSP.MeasureAndAdjustSectionLevel(InputSound, SpeechTestFramework.Audio.Standard_dBSPL_To_dBFS(65))
 
         'Dim FftFormat = New SpeechTestFramework.Audio.Formats.FftFormat(4 * 2048,, 1024, SpeechTestFramework.Audio.WindowingType.Hamming, False)
         'Dim TDL = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(InputSound, 1)
@@ -2776,10 +2776,14 @@
         InputSound.WriteWaveFile("C:\Temp\WN_85.wav")
 
         Dim SimulatedAudiogram As New SpeechTestFramework.AudiogramData
-        SimulatedAudiogram.CreateTypicalAudiogramData(SpeechTestFramework.AudiogramData.BisgaardAudiograms.S1)
+        SimulatedAudiogram.CreateTypicalAudiogramData(SpeechTestFramework.AudiogramData.BisgaardAudiograms.N1)
         'SimulatedAudiogram.CreateDebuggingAudiogramData(SpeechTestFramework.AudiogramData.DebuggingAudiograms.PlusFivePerFrequency)
 
-        Dim HLSIM = New SpeechTestFramework.Audio.HearinglossSimulator_CB(SimulatedAudiogram)
+        Dim ListenerAudiogram As New SpeechTestFramework.AudiogramData
+        ListenerAudiogram.CreateTypicalAudiogramData(SpeechTestFramework.AudiogramData.BisgaardAudiograms.NH)
+
+
+        Dim HLSIM = New SpeechTestFramework.Audio.HearinglossSimulator_CB(SimulatedAudiogram, ListenerAudiogram)
 
         HLSIM.Simulate(InputSound)
 
