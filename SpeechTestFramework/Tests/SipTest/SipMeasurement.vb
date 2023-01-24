@@ -647,15 +647,22 @@ Namespace SipTest
             Headings.Add("Response")
             Headings.Add("Result")
             Headings.Add("ResponseTime")
-
-            'Plus write-only stuff
             Headings.Add("ResponseAlternativeCount")
             Headings.Add("PhonemeDiscriminabilityLevel")
+
+            'Plus write-only stuff
             'Headings.Add("CorrectScreenPosition")
             'Headings.Add("ResponseScreenPosition")
 
             Headings.Add("PrimaryStringRepresentation")
 
+            Headings.Add("Spelling")
+            Headings.Add("SpellingAFC")
+            Headings.Add("Transcription")
+            Headings.Add("TranscriptionAFC")
+            Headings.Add("Zipf")
+            Headings.Add("PNDP")
+            Headings.Add("PP-Average SSPP")
 
             OutputLines.Add(String.Join(vbTab, Headings))
 
@@ -673,7 +680,7 @@ Namespace SipTest
                 TrialList.Add(t)
                 TrialList.Add(Trial.Reference_SPL)
                 TrialList.Add(Trial.PNR)
-                TrialList.Add(Trial.EstimatedSuccessProbability(True))
+                TrialList.Add(Trial.EstimatedSuccessProbability(False))
                 TrialList.Add(Trial.AdjustedSuccessProbability)
 
                 TrialList.Add(Trial.TargetStimulusLocation.Distance)
@@ -688,15 +695,43 @@ Namespace SipTest
                 TrialList.Add(Trial.Response)
                 TrialList.Add(Trial.Result.ToString)
                 TrialList.Add(Trial.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                TrialList.Add(Trial.ResponseAlternativeCount)
+                TrialList.Add(Trial.PhonemeDiscriminabilityLevel(False))
 
                 'Plus write-only stuff
-                TrialList.Add(Trial.ResponseAlternativeCount)
-                TrialList.Add(Trial.PhonemeDiscriminabilityLevel)
+                TrialList.Add(Trial.SpeechMaterialComponent.PrimaryStringRepresentation)
+                TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+                TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("SpellingAFC"))
+                TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Transcription"))
+                TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("TranscriptionAFC"))
+
+                Dim Zipf = Trial.SpeechMaterialComponent.GetNumericVariableValue("Z")
+                If Zipf IsNot Nothing Then
+                    TrialList.Add(Zipf)
+                Else
+                    TrialList.Add("")
+                End If
+
+                Dim PNDP = Trial.SpeechMaterialComponent.GetNumericVariableValue("PNDP")
+                If PNDP IsNot Nothing Then
+                    TrialList.Add(PNDP)
+                Else
+                    TrialList.Add("")
+                End If
+
+                Dim PP = Trial.SpeechMaterialComponent.GetNumericVariableValue("PP")
+                If PP IsNot Nothing Then
+                    TrialList.Add(PP)
+                Else
+                    TrialList.Add("")
+                End If
+
                 'TrialList.Add(Trial.CorrectScreenPosition)
                 'TrialList.Add(Trial.ResponseScreenPosition)
 
                 'TODO: ... add more
-                TrialList.Add(Trial.SpeechMaterialComponent.PrimaryStringRepresentation)
+
+
 
 
                 OutputLines.Add(String.Join(vbTab, TrialList))
@@ -750,8 +785,9 @@ Namespace SipTest
                 'Parses and adds trial
                 Dim LineColumns = Line.Split({"//"}, StringSplitOptions.None)(0).Trim.Split(vbTab) ' A comment can be added after // in the input file
 
-                If LineColumns.Length < 14 Then
+                If LineColumns.Length < 21 Then
                     MsgBox("Error when loading line " & Line & vbCrLf & vbCrLf & "Not enough columns!", MsgBoxStyle.Exclamation, "Missing columns in imported measurement file!")
+                    Return Nothing
                 End If
 
                 Dim c As Integer = 0
@@ -797,6 +833,10 @@ Namespace SipTest
                 c += 1
                 Dim ResponseTime As Integer = LineColumns(c)
                 c += 1
+                Dim ResponseAlternativeCount As Integer = LineColumns(c)
+                c += 1
+                Dim PDL As Double = LineColumns(c)
+                c += 1
 
                 'Checks, for every data row, that the participant ID is correct, and exits otherwise (in order not to mistakingly mix data from different participants when importing measurments)
                 If Loaded_ParticipantID <> ParticipantID Then
@@ -828,6 +868,8 @@ Namespace SipTest
                 NewTestTrial.Response = Response
                 NewTestTrial.Result = Result
                 NewTestTrial.ResponseTime = ResponseTime
+                NewTestTrial.ResponseAlternativeCount = ResponseAlternativeCount
+                NewTestTrial.SetPhonemeDiscriminabilityLevelExternally(PDL)
 
                 'Adding the loaded trial into ObservedTrials
                 Output.ObservedTrials.Add(NewTestTrial)
@@ -1415,9 +1457,25 @@ Namespace SipTest
 
         End Sub
 
+        Private _PhonemeDiscriminabilityLevel As Double? = Nothing
 
-        Public Function PhonemeDiscriminabilityLevel(Optional ByVal SpeechSpectrumLevelsVariableNamePrefix As String = "SLs",
+        Public ReadOnly Property PhonemeDiscriminabilityLevel(Optional ByVal ReCalculate As Boolean = True,
+                                                              Optional ByVal SpeechSpectrumLevelsVariableNamePrefix As String = "SLs",
                                                               Optional ByVal MaskerSpectrumLevelsVariableNamePrefix As String = "SLm") As Double
+            Get
+                If _PhonemeDiscriminabilityLevel.HasValue = False Or ReCalculate = True Then
+                    UpdatePhonemeDiscriminabilityLevel(SpeechSpectrumLevelsVariableNamePrefix, MaskerSpectrumLevelsVariableNamePrefix)
+                End If
+                Return _PhonemeDiscriminabilityLevel
+            End Get
+        End Property
+
+        Public Sub SetPhonemeDiscriminabilityLevelExternally(ByVal Value As Double)
+            _PhonemeDiscriminabilityLevel = Value
+        End Sub
+
+        Public Sub UpdatePhonemeDiscriminabilityLevel(Optional ByVal SpeechSpectrumLevelsVariableNamePrefix As String = "SLs",
+                                                              Optional ByVal MaskerSpectrumLevelsVariableNamePrefix As String = "SLm")
 
             'Using thresholds and gain data from the side with the best aided thresholds (selecting side separately for each critical band)
             Dim Thresholds(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
@@ -1509,9 +1567,9 @@ Namespace SipTest
             End If
 
             'Calculating PDL
-            Return PDL.CalculatePDL(SDRt, SDRcs)
+            _PhonemeDiscriminabilityLevel = PDL.CalculatePDL(SDRt, SDRcs)
 
-        End Function
+        End Sub
 
     End Class
 

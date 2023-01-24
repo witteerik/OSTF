@@ -29,7 +29,7 @@
     <PublisherName>Erik Witte</PublisherName>
     <SuiteName>Open Speech Test Framework %28OSTF%29</SuiteName>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>0.4.0.0</ApplicationVersion>
+    <ApplicationVersion>0.5.0.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -91,9 +91,8 @@
     <Reference Include="MathNet.Numerics">
       <HintPath>..\SpeechTestFramework\bin\Release\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="SpeechTestFramework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SpeechTestFramework\bin\Debug\SpeechTestFramework.dll</HintPath>
+    <Reference Include="SpeechTestFramework">
+      <HintPath>..\SpeechTestFramework\bin\Release\SpeechTestFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

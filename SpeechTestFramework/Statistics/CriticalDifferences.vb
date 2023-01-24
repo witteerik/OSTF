@@ -667,7 +667,8 @@
         Dim Y = AdjSP_F(CurrentSampleX, xCopy, Floor)
 
         If Math.Abs(TargetScore - Y.Average) > tol Then
-            MsgBox("Warning! Optimization algorithm failure! Average adjusted score deviates from the target score by " & 100 * Math.Abs(TargetScore - Y.Average) & " percentage points.", MsgBoxStyle.Exclamation, "Critical difference calculations!")
+            Console.WriteLine("Warning! Optimization algorithm failure! Average adjusted score deviates from the target score by " & 100 * Math.Abs(TargetScore - Y.Average) & " percentage points.")
+            'MsgBox("Warning! Optimization algorithm failure! Average adjusted score deviates from the target score by " & 100 * Math.Abs(TargetScore - Y.Average) & " percentage points.", MsgBoxStyle.Exclamation, "Critical difference calculations!")
         End If
 
 

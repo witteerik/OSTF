@@ -1150,6 +1150,13 @@ Public Class SipTestGui
 
     Private Sub InitiateTestByPlayingSound()
 
+        UpdateTestProgress()
+        'Updates the progress bar
+        If ShowProgressIndication = True Then
+            ParticipantControl.UpdateTestFormProgressbar(CurrentSipTestMeasurement.ObservedTrials.Count, CurrentSipTestMeasurement.ObservedTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count)
+        End If
+
+
         'Removes the start button
         ParticipantControl.ResetTestItemPanel()
 
@@ -1654,7 +1661,13 @@ Public Class SipTestGui
 
             ParticipantControl.ResetTestItemPanel()
 
-            ParticipantControl.ShowMessage("Testet är klart!")
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    ParticipantControl.ShowMessage("Testet är klart!")
+                Case Utils.Constants.Languages.English
+                    ParticipantControl.ShowMessage("The test is completed!")
+            End Select
+
             'ParticipantControl.ShowMessage(GUIDictionary.SubTestIsCompleted)
 
             'Saving results to the log folder
@@ -1662,7 +1675,7 @@ Public Class SipTestGui
                 SoundPlayer.SwapOutputSounds(Nothing)
 
                 'Sleeps during the fade out phase
-                Threading.Thread.Sleep(SoundPlayer.GetOverlapDuration * 1000)
+                Threading.Thread.Sleep(SoundPlayer.GetOverlapDuration * 3000)
 
             End If
 
@@ -1719,7 +1732,13 @@ Public Class SipTestGui
         SoundPlayer.SwapOutputSounds(Nothing)
 
         'Displays a message to the testee
-        ParticipantControl.ShowMessage("Testet är pausat")
+        Select Case GuiLanguage
+            Case Utils.Constants.Languages.Swedish
+                ParticipantControl.ShowMessage("Testet är pausat!")
+            Case Utils.Constants.Languages.English
+                ParticipantControl.ShowMessage("Testing is paused!")
+        End Select
+
         'ParticipantControl.ShowMessage(GUIDictionary.TestingIsPaused)
 
         TogglePlayButton(True)
@@ -2011,6 +2030,8 @@ Public Class SipTestGui
 
         MeasurementHistory.SaveToFile()
 
+        Me.ShowMessageBox("Finished exporting data!")
+
     End Sub
 
     Private Sub OpenFileButtonPressed() Handles ImportData_Button.Click
@@ -2020,7 +2041,7 @@ Public Class SipTestGui
             Exit Sub
         End If
 
-        Dim ImportedMeasurements = MeasurementHistory.LoadMeasurements(SpeechMaterial.ParentTestSpecification, SipMeasurementRandomizer, CurrentParticipantID)
+        Dim ImportedMeasurements = MeasurementHistory.LoadMeasurements(SpeechMaterial.ParentTestSpecification, SipMeasurementRandomizer, , CurrentParticipantID)
 
         If ImportedMeasurements Is Nothing Then Exit Sub
 
