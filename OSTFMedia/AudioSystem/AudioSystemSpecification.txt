@@ -1,12 +1,26 @@
 <AudioDevices>
 ApiName = MME // "MME", "Windows DirectSound", "Windows WASAPI", "ASIO" // N.B. ASIO is not supported in all editions
 
-OutputDevices = 1-2 (OCTA-CAPTURE), 3-4 (OCTA-CAPTURE), 5-6 (OCTA-CAPTURE), 7-8 (OCTA-CAPTURE), // Högtalare/Hörlurar (Realtek(R) 
-InputDevices = 1-2 (OCTA-CAPTURE)
+OutputDevices = Högtalare (RME Fireface UCX), Analog (3+4) (RME Fireface UCX), Analog (5+6) (RME Fireface UCX)
+//OutputDevices = 1-2 (OCTA-CAPTURE), 3-4 (OCTA-CAPTURE), 5-6 (OCTA-CAPTURE), 7-8 (OCTA-CAPTURE), // Högtalare/Hörlurar (Realtek(R) 
+InputDevices = //1-2 (OCTA-CAPTURE)
 OutputDevice = // 1-2 (OCTA-CAPTURE) // Högtalare/Hörlurar (Realtek(R) 
 InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
 
 BufferSize = 1024 // Must be powers of 2
+
+<New transducer>
+Name = 5 speaker array
+PresentationType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
+HeadphonesName = //Available values: Unspecified, AKGK601, AKGK271MKII, SennheiserHD25_1 // Only relevant for sound field simulation
+SoundSourceAzimuths = 0, 30, 120, -120, -30
+SoundSourceElevations = 0,0,0,0,0 // Not yet implemented
+SoundSourceDistances = 0,0,0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
+HardwareOutputChannels = 1, 2, 3, 4, 5
+CalibrationGain = 0, 0, 0, 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
+
+
 
 <New transducer>
 Name = 3 speaker array

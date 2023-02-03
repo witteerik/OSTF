@@ -15,7 +15,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>C:\EriksDokument\source\Releases\OSTF Suite 0.04 - PreRelease - ClickOnce\</PublishUrl>
+    <PublishUrl>C:\EriksDokument\source\Releases\OSTF Suite 0.05 - PreRelease - ClickOnce\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -83,6 +83,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>OSTF.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="InTheHand.Net.Bluetooth">
@@ -174,6 +177,8 @@
     <Content Include="local_settings.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="OSTF.ico" />
+    <Content Include="OSTF2.ico" />
     <Content Include="portaudio_x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -22,15 +22,16 @@ Partial Class OSTF_suite_R
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(OSTF_suite_R))
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SetMediaFolderLocationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CloseToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.Launch_SiP_SE_R_Button = New System.Windows.Forms.Button()
         Me.Launch_SpeechMaterialCreator_Button = New System.Windows.Forms.Button()
         Me.Launch_SoundLevelCalibration_Button = New System.Windows.Forms.Button()
-        Me.SetMediaFolderLocationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.SuspendLayout()
@@ -56,6 +57,12 @@ Partial Class OSTF_suite_R
         Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
         Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(206, 22)
         Me.AboutToolStripMenuItem.Text = "About"
+        '
+        'SetMediaFolderLocationToolStripMenuItem
+        '
+        Me.SetMediaFolderLocationToolStripMenuItem.Name = "SetMediaFolderLocationToolStripMenuItem"
+        Me.SetMediaFolderLocationToolStripMenuItem.Size = New System.Drawing.Size(206, 22)
+        Me.SetMediaFolderLocationToolStripMenuItem.Text = "Set media folder location"
         '
         'CloseToolStripMenuItem
         '
@@ -120,12 +127,6 @@ Partial Class OSTF_suite_R
         Me.Launch_SoundLevelCalibration_Button.TextAlign = System.Drawing.ContentAlignment.BottomCenter
         Me.Launch_SoundLevelCalibration_Button.UseVisualStyleBackColor = True
         '
-        'SetMediaFolderLocationToolStripMenuItem
-        '
-        Me.SetMediaFolderLocationToolStripMenuItem.Name = "SetMediaFolderLocationToolStripMenuItem"
-        Me.SetMediaFolderLocationToolStripMenuItem.Size = New System.Drawing.Size(206, 22)
-        Me.SetMediaFolderLocationToolStripMenuItem.Text = "Set media folder location"
-        '
         'OSTF_suite_R
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -133,6 +134,7 @@ Partial Class OSTF_suite_R
         Me.ClientSize = New System.Drawing.Size(789, 332)
         Me.Controls.Add(Me.TableLayoutPanel1)
         Me.Controls.Add(Me.MenuStrip1)
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "OSTF_suite_R"
         Me.Text = "Open Speech Test Framwork (OSTF) Suite - Research Version - BETA"
