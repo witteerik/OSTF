@@ -2797,4 +2797,30 @@
         OutputSound.WriteWaveFile("C:\Temp\WN_85_HL.wav")
 
     End Sub
+
+    Private Sub CreateCalib_Button_Click(sender As Object, e As EventArgs) Handles CreateCalib_Button.Click
+
+        Dim SignalLevel As Double = -25
+
+        Dim InputSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\Temp\Calib\S_F1_000.wav")
+
+        Dim CalibSound = SpeechTestFramework.Audio.GenerateSound.CreateFrequencyModulatedSineWave(InputSound.WaveFormat, 1, 1000, 1, 20, 0.125, , 30)
+
+
+        'Setting the signal level
+        SpeechTestFramework.Audio.DSP.MeasureAndAdjustSectionLevel(CalibSound, SignalLevel)
+
+        'Fading in and out
+        SpeechTestFramework.Audio.DSP.Fade(CalibSound, Nothing, 0,,, 0.05 * CalibSound.WaveFormat.SampleRate, SpeechTestFramework.Audio.DSP.FadeSlopeType.Smooth)
+        SpeechTestFramework.Audio.DSP.Fade(CalibSound, 0, Nothing,, CalibSound.WaveData.ShortestChannelSampleCount - 0.05 * CalibSound.WaveFormat.SampleRate, Nothing, SpeechTestFramework.Audio.DSP.FadeSlopeType.Smooth)
+
+        CalibSound.WriteWaveFile("C:\Temp\Calib\Calibration.wav")
+
+        Dim CalibSoundStereo = New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(CalibSound.WaveFormat.SampleRate, CalibSound.WaveFormat.BitDepth, 2,, CalibSound.WaveFormat.Encoding))
+        CalibSoundStereo.WaveData.SampleData(1) = CalibSound.WaveData.SampleData(1)
+        CalibSoundStereo.WaveData.SampleData(2) = CalibSound.WaveData.SampleData(1)
+
+        CalibSoundStereo.WriteWaveFile("C:\Temp\Calib\Calibration_Stereo.wav")
+
+    End Sub
 End Class
