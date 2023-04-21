@@ -384,9 +384,14 @@
                     Dim WordSpelling As String = Words(w)
 
                     'Trimming off characters
-                    For Each c In WordLevelTrimChars
-                        WordSpelling = WordSpelling.Replace(c, " ")
-                    Next
+                    WordSpelling = WordSpelling.TrimStart(WordLevelTrimChars.ToArray)
+                    WordSpelling = WordSpelling.TrimEnd(WordLevelTrimChars.ToArray)
+
+                    'For Each c In WordLevelTrimChars
+                    '    WordSpelling = WordSpelling.TrimStart(c)
+                    '    WordSpelling = WordSpelling.TrimEnd(c)
+                    '    'WordSpelling = WordSpelling.Replace(c, " ")
+                    'Next
                     'Skipping to next if all characters in the spelling were removed
                     If WordSpelling.Trim = "" Then Continue For
 
@@ -768,6 +773,31 @@
                 EditRichTextBox.SelectionBackColor = OriginalBackColor
             End If
         Next
+
+    End Sub
+
+    Private Sub SaveWorkToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveWorkToolStripMenuItem.Click
+
+        Dim SaveDialog As New Windows.Forms.SaveFileDialog
+        SaveDialog.Filter = "Rich text files (*.rtf)|*.rtf"
+        SaveDialog.Title = "Save current work"
+        Dim Result = SaveDialog.ShowDialog()
+        If Result = Windows.Forms.DialogResult.OK Then
+            EditRichTextBox.SaveFile(SaveDialog.FileName)
+        End If
+
+    End Sub
+
+    Private Sub LoadWorkToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles LoadWorkToolStripMenuItem.Click
+
+        Dim OpenDialog As New Windows.Forms.OpenFileDialog
+        OpenDialog.Filter = "Rich text files (*.rtf)|*.rtf"
+        OpenDialog.Title = "Open work (.rtf) file"
+
+        Dim Result = OpenDialog.ShowDialog()
+        If Result = Windows.Forms.DialogResult.OK Then
+            EditRichTextBox.LoadFile(OpenDialog.FileName)
+        End If
 
     End Sub
 

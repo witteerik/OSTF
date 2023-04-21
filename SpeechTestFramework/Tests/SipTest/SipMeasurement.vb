@@ -1287,8 +1287,30 @@ Namespace SipTest
 
                 'Getting a background non-speech sound, and copies random sections of it into two sounds
                 Dim BackgroundNonSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundNonspeechSound(Me.MediaSet, 0)
-                Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
-                Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                Dim Backgrounds As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
+                'Background 1
+                Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
+                                BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
+                                New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}))
+
+                'Background 2
+                Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
+                                BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
+                                New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}))
+
+                'Adding more backgrounds
+                Select Case ParentTestUnit.ParentMeasurement.TestProcedure.TestParadigm
+                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                        'Background 3
+                        Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
+                                BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
+                                New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135}))
+
+                        'Background 4
+                        Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
+                                BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
+                                New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135}))
+                End Select
 
                 'Getting a background speech sound, if needed, and copies a random section of it into a single sound
                 Dim BackgroundSpeechSelection As Audio.Sound = Nothing
@@ -1315,8 +1337,12 @@ Namespace SipTest
                 'Sets up ducking specifications for the background (non-speech) signals
                 Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
                 Dim BackgroundNonSpeechDucking = Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel)
-                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
-                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
+                'TODO: There is some bug here, causing the BackgroundNonSpeech to suddenly pop up a few decibels!!! Lines outcommented until solved:
+                MsgBox("Check bug here somewhere!")
+                'DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
+                'DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
+                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, 0, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
+                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
 
                 'Sets up ducking specifications for the background (speech) signals
                 Dim DuckSpecs_BackgroundSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
@@ -1334,8 +1360,11 @@ Namespace SipTest
                 LevelGroup += 1
 
                 'Adds the background (non-speech) signals, with fade, duck and location specifications
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
+                For BackgroundIndex = 0 To Backgrounds.Count - 1
+
+                    'ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Backgrounds(BackgroundIndex).Item1, 1, BackgroundNonSpeechDucking, LevelGroup, Backgrounds(BackgroundIndex).Item2, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
+                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Backgrounds(BackgroundIndex).Item1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, Backgrounds(BackgroundIndex).Item2, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
+                Next
                 LevelGroup += 1
 
                 'Adds the background (speech) signal, with fade, duck and location specifications
@@ -1619,11 +1648,11 @@ Namespace SipTest
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
 
             TargetStimulusLocations.Add(Testparadigm.Directional5, {
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -120},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90},
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0},
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30},
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 120}})
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90}})
 
 
         End Sub

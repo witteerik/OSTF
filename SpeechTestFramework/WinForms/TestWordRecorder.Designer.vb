@@ -35,10 +35,14 @@ Partial Class SpeechMaterialRecorder
         Me.SetFontsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetFontOfSpellingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SetFontOfPhoneticTranscriptionsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ShowSpellingToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ShowTranscriptionToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AuditoryPrequeingToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToggleSoundLevelMeteronoffToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RecordingStopDelayToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RecordingStopDelay_ToolStripComboBox = New System.Windows.Forms.ToolStripComboBox()
         Me.AudioSettingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.PresentationLevelToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.PresentationLevel_ToolStripComboBox = New System.Windows.Forms.ToolStripComboBox()
@@ -55,6 +59,13 @@ Partial Class SpeechMaterialRecorder
         Me.PaddingTimeComboBox = New System.Windows.Forms.ToolStripComboBox()
         Me.IntersentenceTimesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.InterSentenceTimeComboBox = New System.Windows.Forms.ToolStripComboBox()
+        Me.ExportToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.AllSoundsFiles_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.AllSoundsFiles_AllSegmentations_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.AllSoundsFiles_SentenceTimes_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.CurrentFile_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.CurrentFile_AllSegmentations_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.CurrentFile_SentenceTimes_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
         Me.preQueLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.ToolStripStatusLabel2 = New System.Windows.Forms.ToolStripStatusLabel()
@@ -133,7 +144,7 @@ Partial Class SpeechMaterialRecorder
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System
-        Me.MenuStrip1.Size = New System.Drawing.Size(1163, 24)
+        Me.MenuStrip1.Size = New System.Drawing.Size(1236, 24)
         Me.MenuStrip1.TabIndex = 0
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -172,7 +183,7 @@ Partial Class SpeechMaterialRecorder
         '
         'RecordingSettingsMenu
         '
-        Me.RecordingSettingsMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FontSizeToolStripMenuItem, Me.SetFontsToolStripMenuItem, Me.AuditoryPrequeingToolStripMenuItem, Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem, Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem, Me.ToggleSoundLevelMeteronoffToolStripMenuItem})
+        Me.RecordingSettingsMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FontSizeToolStripMenuItem, Me.SetFontsToolStripMenuItem, Me.ShowSpellingToolStripMenuItem, Me.ShowTranscriptionToolStripMenuItem, Me.AuditoryPrequeingToolStripMenuItem, Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem, Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem, Me.ToggleSoundLevelMeteronoffToolStripMenuItem, Me.RecordingStopDelayToolStripMenuItem})
         Me.RecordingSettingsMenu.Name = "RecordingSettingsMenu"
         Me.RecordingSettingsMenu.Size = New System.Drawing.Size(61, 20)
         Me.RecordingSettingsMenu.Text = "Settings"
@@ -215,6 +226,18 @@ Partial Class SpeechMaterialRecorder
         Me.SetFontOfPhoneticTranscriptionsToolStripMenuItem.Size = New System.Drawing.Size(258, 22)
         Me.SetFontOfPhoneticTranscriptionsToolStripMenuItem.Text = "Set font for phonetic transcriptions"
         '
+        'ShowSpellingToolStripMenuItem
+        '
+        Me.ShowSpellingToolStripMenuItem.Name = "ShowSpellingToolStripMenuItem"
+        Me.ShowSpellingToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.ShowSpellingToolStripMenuItem.Text = "Show spelling"
+        '
+        'ShowTranscriptionToolStripMenuItem
+        '
+        Me.ShowTranscriptionToolStripMenuItem.Name = "ShowTranscriptionToolStripMenuItem"
+        Me.ShowTranscriptionToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.ShowTranscriptionToolStripMenuItem.Text = "Show transcription"
+        '
         'AuditoryPrequeingToolStripMenuItem
         '
         Me.AuditoryPrequeingToolStripMenuItem.Name = "AuditoryPrequeingToolStripMenuItem"
@@ -238,6 +261,18 @@ Partial Class SpeechMaterialRecorder
         Me.ToggleSoundLevelMeteronoffToolStripMenuItem.Name = "ToggleSoundLevelMeteronoffToolStripMenuItem"
         Me.ToggleSoundLevelMeteronoffToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
         Me.ToggleSoundLevelMeteronoffToolStripMenuItem.Text = "Show sound level meter"
+        '
+        'RecordingStopDelayToolStripMenuItem
+        '
+        Me.RecordingStopDelayToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RecordingStopDelay_ToolStripComboBox})
+        Me.RecordingStopDelayToolStripMenuItem.Name = "RecordingStopDelayToolStripMenuItem"
+        Me.RecordingStopDelayToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.RecordingStopDelayToolStripMenuItem.Text = "Recording stop delay"
+        '
+        'RecordingStopDelay_ToolStripComboBox
+        '
+        Me.RecordingStopDelay_ToolStripComboBox.Name = "RecordingStopDelay_ToolStripComboBox"
+        Me.RecordingStopDelay_ToolStripComboBox.Size = New System.Drawing.Size(121, 23)
         '
         'AudioSettingsToolStripMenuItem
         '
@@ -285,7 +320,7 @@ Partial Class SpeechMaterialRecorder
         '
         'SegmentationToolStripMenuItem
         '
-        Me.SegmentationToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.MoveSegmentationsToZeroCrossingsToolStripMenuItem, Me.DrawNormalizedWaveToolStripMenuItem, Me.ShowSpectrogramToolStripMenuItem, Me.SpectrogramSettingsToolStripMenuItem1, Me.SetPaddingTimesToolStripMenuItem, Me.IntersentenceTimesToolStripMenuItem})
+        Me.SegmentationToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.MoveSegmentationsToZeroCrossingsToolStripMenuItem, Me.DrawNormalizedWaveToolStripMenuItem, Me.ShowSpectrogramToolStripMenuItem, Me.SpectrogramSettingsToolStripMenuItem1, Me.SetPaddingTimesToolStripMenuItem, Me.IntersentenceTimesToolStripMenuItem, Me.ExportToolStripMenuItem})
         Me.SegmentationToolStripMenuItem.Name = "SegmentationToolStripMenuItem"
         Me.SegmentationToolStripMenuItem.Size = New System.Drawing.Size(93, 20)
         Me.SegmentationToolStripMenuItem.Text = "Segmentation"
@@ -345,12 +380,57 @@ Partial Class SpeechMaterialRecorder
         Me.InterSentenceTimeComboBox.Name = "InterSentenceTimeComboBox"
         Me.InterSentenceTimeComboBox.Size = New System.Drawing.Size(121, 23)
         '
+        'ExportToolStripMenuItem
+        '
+        Me.ExportToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllSoundsFiles_ToolStripMenuItem, Me.CurrentFile_ToolStripMenuItem})
+        Me.ExportToolStripMenuItem.Name = "ExportToolStripMenuItem"
+        Me.ExportToolStripMenuItem.Size = New System.Drawing.Size(248, 22)
+        Me.ExportToolStripMenuItem.Text = "Export"
+        '
+        'AllSoundsFiles_ToolStripMenuItem
+        '
+        Me.AllSoundsFiles_ToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllSoundsFiles_AllSegmentations_ToolStripMenuItem, Me.AllSoundsFiles_SentenceTimes_ToolStripMenuItem})
+        Me.AllSoundsFiles_ToolStripMenuItem.Name = "AllSoundsFiles_ToolStripMenuItem"
+        Me.AllSoundsFiles_ToolStripMenuItem.Size = New System.Drawing.Size(148, 22)
+        Me.AllSoundsFiles_ToolStripMenuItem.Text = "All sound files"
+        '
+        'AllSoundsFiles_AllSegmentations_ToolStripMenuItem
+        '
+        Me.AllSoundsFiles_AllSegmentations_ToolStripMenuItem.Name = "AllSoundsFiles_AllSegmentations_ToolStripMenuItem"
+        Me.AllSoundsFiles_AllSegmentations_ToolStripMenuItem.Size = New System.Drawing.Size(169, 22)
+        Me.AllSoundsFiles_AllSegmentations_ToolStripMenuItem.Text = "All segmentations"
+        '
+        'AllSoundsFiles_SentenceTimes_ToolStripMenuItem
+        '
+        Me.AllSoundsFiles_SentenceTimes_ToolStripMenuItem.Name = "AllSoundsFiles_SentenceTimes_ToolStripMenuItem"
+        Me.AllSoundsFiles_SentenceTimes_ToolStripMenuItem.Size = New System.Drawing.Size(169, 22)
+        Me.AllSoundsFiles_SentenceTimes_ToolStripMenuItem.Text = "Sentence times"
+        '
+        'CurrentFile_ToolStripMenuItem
+        '
+        Me.CurrentFile_ToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.CurrentFile_AllSegmentations_ToolStripMenuItem, Me.CurrentFile_SentenceTimes_ToolStripMenuItem})
+        Me.CurrentFile_ToolStripMenuItem.Name = "CurrentFile_ToolStripMenuItem"
+        Me.CurrentFile_ToolStripMenuItem.Size = New System.Drawing.Size(148, 22)
+        Me.CurrentFile_ToolStripMenuItem.Text = "Current file"
+        '
+        'CurrentFile_AllSegmentations_ToolStripMenuItem
+        '
+        Me.CurrentFile_AllSegmentations_ToolStripMenuItem.Name = "CurrentFile_AllSegmentations_ToolStripMenuItem"
+        Me.CurrentFile_AllSegmentations_ToolStripMenuItem.Size = New System.Drawing.Size(169, 22)
+        Me.CurrentFile_AllSegmentations_ToolStripMenuItem.Text = "All segmentations"
+        '
+        'CurrentFile_SentenceTimes_ToolStripMenuItem
+        '
+        Me.CurrentFile_SentenceTimes_ToolStripMenuItem.Name = "CurrentFile_SentenceTimes_ToolStripMenuItem"
+        Me.CurrentFile_SentenceTimes_ToolStripMenuItem.Size = New System.Drawing.Size(169, 22)
+        Me.CurrentFile_SentenceTimes_ToolStripMenuItem.Text = "Sentence times"
+        '
         'StatusStrip1
         '
         Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.preQueLabel, Me.ToolStripStatusLabel2, Me.AutoRecordingStatusLabel, Me.ToolStripStatusLabel1, Me.BackgroundSoundStatusLabel, Me.ToolStripStatusLabel5, Me.PresentationLevelToolStripStatusLabel, Me.ToolStripStatusLabel4, Me.BackgroundLevel_ToolStripStatusLabel, Me.ToolStripStatusLabel3, Me.SoundFilePathStatusLabel})
         Me.StatusStrip1.Location = New System.Drawing.Point(0, 479)
         Me.StatusStrip1.Name = "StatusStrip1"
-        Me.StatusStrip1.Size = New System.Drawing.Size(1163, 22)
+        Me.StatusStrip1.Size = New System.Drawing.Size(1236, 22)
         Me.StatusStrip1.TabIndex = 1
         Me.StatusStrip1.Text = "StatusStrip1"
         '
@@ -429,7 +509,7 @@ Partial Class SpeechMaterialRecorder
         Me.MainTabControl.Location = New System.Drawing.Point(0, 0)
         Me.MainTabControl.Name = "MainTabControl"
         Me.MainTabControl.SelectedIndex = 0
-        Me.MainTabControl.Size = New System.Drawing.Size(1163, 374)
+        Me.MainTabControl.Size = New System.Drawing.Size(1236, 357)
         Me.MainTabControl.TabIndex = 2
         '
         'RecordingTab
@@ -438,7 +518,7 @@ Partial Class SpeechMaterialRecorder
         Me.RecordingTab.Location = New System.Drawing.Point(4, 22)
         Me.RecordingTab.Name = "RecordingTab"
         Me.RecordingTab.Padding = New System.Windows.Forms.Padding(3)
-        Me.RecordingTab.Size = New System.Drawing.Size(1155, 348)
+        Me.RecordingTab.Size = New System.Drawing.Size(1228, 331)
         Me.RecordingTab.TabIndex = 0
         Me.RecordingTab.Text = "Recording"
         Me.RecordingTab.UseVisualStyleBackColor = True
@@ -452,8 +532,8 @@ Partial Class SpeechMaterialRecorder
         'RecordingTabMainSplitContainer.Panel1
         '
         Me.RecordingTabMainSplitContainer.Panel1.Controls.Add(Me.TableLayoutPanel1)
-        Me.RecordingTabMainSplitContainer.Size = New System.Drawing.Size(1149, 342)
-        Me.RecordingTabMainSplitContainer.SplitterDistance = 717
+        Me.RecordingTabMainSplitContainer.Size = New System.Drawing.Size(1222, 325)
+        Me.RecordingTabMainSplitContainer.SplitterDistance = 762
         Me.RecordingTabMainSplitContainer.TabIndex = 0
         '
         'TableLayoutPanel1
@@ -462,7 +542,7 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33332!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 93.0!))
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 126.0!))
         Me.TableLayoutPanel1.Controls.Add(Me.RecordingSoundLevelMeter, 3, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.TopRecordingControlPanel, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.StartRecordingButton, 0, 1)
@@ -474,7 +554,7 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel1.RowCount = 2
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(717, 342)
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(762, 325)
         Me.TableLayoutPanel1.TabIndex = 3
         '
         'RecordingSoundLevelMeter
@@ -483,11 +563,11 @@ Partial Class SpeechMaterialRecorder
         Me.RecordingSoundLevelMeter.BackColor = System.Drawing.Color.White
         Me.RecordingSoundLevelMeter.Dock = System.Windows.Forms.DockStyle.Fill
         Me.RecordingSoundLevelMeter.FullScaleLevel = 0!
-        Me.RecordingSoundLevelMeter.Location = New System.Drawing.Point(626, 3)
+        Me.RecordingSoundLevelMeter.Location = New System.Drawing.Point(638, 3)
         Me.RecordingSoundLevelMeter.maxLevel = 12.0!
         Me.RecordingSoundLevelMeter.minLevel = -100.0!
         Me.RecordingSoundLevelMeter.Name = "RecordingSoundLevelMeter"
-        Me.RecordingSoundLevelMeter.Size = New System.Drawing.Size(88, 296)
+        Me.RecordingSoundLevelMeter.Size = New System.Drawing.Size(121, 279)
         Me.RecordingSoundLevelMeter.TabIndex = 0
         Me.RecordingSoundLevelMeter.TabStop = False
         Me.RecordingSoundLevelMeter.WarningLevel = -4.0!
@@ -501,7 +581,7 @@ Partial Class SpeechMaterialRecorder
         Me.TopRecordingControlPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TopRecordingControlPanel.Location = New System.Drawing.Point(3, 3)
         Me.TopRecordingControlPanel.Name = "TopRecordingControlPanel"
-        Me.TopRecordingControlPanel.Size = New System.Drawing.Size(617, 296)
+        Me.TopRecordingControlPanel.Size = New System.Drawing.Size(629, 279)
         Me.TopRecordingControlPanel.TabIndex = 0
         '
         'TableLayoutPanel3
@@ -516,7 +596,7 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel3.RowCount = 2
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.72603!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 85.27397!))
-        Me.TableLayoutPanel3.Size = New System.Drawing.Size(613, 292)
+        Me.TableLayoutPanel3.Size = New System.Drawing.Size(625, 275)
         Me.TableLayoutPanel3.TabIndex = 15
         '
         'TableLayoutPanel2
@@ -531,7 +611,7 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel2.Name = "TableLayoutPanel2"
         Me.TableLayoutPanel2.RowCount = 1
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel2.Size = New System.Drawing.Size(607, 37)
+        Me.TableLayoutPanel2.Size = New System.Drawing.Size(619, 34)
         Me.TableLayoutPanel2.TabIndex = 14
         '
         'RecordingLabel
@@ -541,10 +621,10 @@ Partial Class SpeechMaterialRecorder
         Me.RecordingLabel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.RecordingLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.RecordingLabel.ForeColor = System.Drawing.Color.Blue
-        Me.RecordingLabel.Location = New System.Drawing.Point(205, 4)
+        Me.RecordingLabel.Location = New System.Drawing.Point(209, 4)
         Me.RecordingLabel.Margin = New System.Windows.Forms.Padding(3, 4, 3, 3)
         Me.RecordingLabel.Name = "RecordingLabel"
-        Me.RecordingLabel.Size = New System.Drawing.Size(196, 30)
+        Me.RecordingLabel.Size = New System.Drawing.Size(200, 27)
         Me.RecordingLabel.TabIndex = 7
         Me.RecordingLabel.Text = "Not recording"
         Me.RecordingLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
@@ -562,12 +642,12 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel4.Controls.Add(Me.Rec_NextItemButton, 2, 0)
         Me.TableLayoutPanel4.Controls.Add(Me.Rec_NextNRItemButton, 2, 1)
         Me.TableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel4.Location = New System.Drawing.Point(3, 46)
+        Me.TableLayoutPanel4.Location = New System.Drawing.Point(3, 43)
         Me.TableLayoutPanel4.Name = "TableLayoutPanel4"
         Me.TableLayoutPanel4.RowCount = 2
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel4.Size = New System.Drawing.Size(607, 243)
+        Me.TableLayoutPanel4.Size = New System.Drawing.Size(619, 229)
         Me.TableLayoutPanel4.TabIndex = 15
         '
         'Transcription_AutoHeightTextBox
@@ -576,12 +656,12 @@ Partial Class SpeechMaterialRecorder
         Me.Transcription_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.Transcription_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Top
         Me.Transcription_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Transcription_AutoHeightTextBox.Location = New System.Drawing.Point(93, 131)
+        Me.Transcription_AutoHeightTextBox.Location = New System.Drawing.Point(93, 124)
         Me.Transcription_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 10, 3, 3)
         Me.Transcription_AutoHeightTextBox.Multiline = True
         Me.Transcription_AutoHeightTextBox.Name = "Transcription_AutoHeightTextBox"
         Me.Transcription_AutoHeightTextBox.ReadOnly = True
-        Me.Transcription_AutoHeightTextBox.Size = New System.Drawing.Size(421, 26)
+        Me.Transcription_AutoHeightTextBox.Size = New System.Drawing.Size(433, 26)
         Me.Transcription_AutoHeightTextBox.TabIndex = 5
         Me.Transcription_AutoHeightTextBox.Text = "Transcription"
         Me.Transcription_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
@@ -592,12 +672,12 @@ Partial Class SpeechMaterialRecorder
         Me.Spelling_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.Spelling_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.Spelling_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Spelling_AutoHeightTextBox.Location = New System.Drawing.Point(93, 85)
+        Me.Spelling_AutoHeightTextBox.Location = New System.Drawing.Point(93, 78)
         Me.Spelling_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 3, 3, 10)
         Me.Spelling_AutoHeightTextBox.Multiline = True
         Me.Spelling_AutoHeightTextBox.Name = "Spelling_AutoHeightTextBox"
         Me.Spelling_AutoHeightTextBox.ReadOnly = True
-        Me.Spelling_AutoHeightTextBox.Size = New System.Drawing.Size(421, 26)
+        Me.Spelling_AutoHeightTextBox.Size = New System.Drawing.Size(433, 26)
         Me.Spelling_AutoHeightTextBox.TabIndex = 0
         Me.Spelling_AutoHeightTextBox.Text = "Spelling"
         Me.Spelling_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
@@ -607,7 +687,7 @@ Partial Class SpeechMaterialRecorder
         Me.Rec_PreviousItemButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Rec_PreviousItemButton.Location = New System.Drawing.Point(3, 3)
         Me.Rec_PreviousItemButton.Name = "Rec_PreviousItemButton"
-        Me.Rec_PreviousItemButton.Size = New System.Drawing.Size(84, 115)
+        Me.Rec_PreviousItemButton.Size = New System.Drawing.Size(84, 108)
         Me.Rec_PreviousItemButton.TabIndex = 1
         Me.Rec_PreviousItemButton.Text = "Previous item"
         Me.Rec_PreviousItemButton.UseVisualStyleBackColor = True
@@ -615,9 +695,9 @@ Partial Class SpeechMaterialRecorder
         'Rec_PreviousNRItemButton
         '
         Me.Rec_PreviousNRItemButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Rec_PreviousNRItemButton.Location = New System.Drawing.Point(3, 124)
+        Me.Rec_PreviousNRItemButton.Location = New System.Drawing.Point(3, 117)
         Me.Rec_PreviousNRItemButton.Name = "Rec_PreviousNRItemButton"
-        Me.Rec_PreviousNRItemButton.Size = New System.Drawing.Size(84, 116)
+        Me.Rec_PreviousNRItemButton.Size = New System.Drawing.Size(84, 109)
         Me.Rec_PreviousNRItemButton.TabIndex = 2
         Me.Rec_PreviousNRItemButton.Text = "Previous non-recorded item"
         Me.Rec_PreviousNRItemButton.UseVisualStyleBackColor = True
@@ -625,9 +705,9 @@ Partial Class SpeechMaterialRecorder
         'Rec_NextItemButton
         '
         Me.Rec_NextItemButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Rec_NextItemButton.Location = New System.Drawing.Point(520, 3)
+        Me.Rec_NextItemButton.Location = New System.Drawing.Point(532, 3)
         Me.Rec_NextItemButton.Name = "Rec_NextItemButton"
-        Me.Rec_NextItemButton.Size = New System.Drawing.Size(84, 115)
+        Me.Rec_NextItemButton.Size = New System.Drawing.Size(84, 108)
         Me.Rec_NextItemButton.TabIndex = 3
         Me.Rec_NextItemButton.Text = "Next item"
         Me.Rec_NextItemButton.UseVisualStyleBackColor = True
@@ -635,9 +715,9 @@ Partial Class SpeechMaterialRecorder
         'Rec_NextNRItemButton
         '
         Me.Rec_NextNRItemButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Rec_NextNRItemButton.Location = New System.Drawing.Point(520, 124)
+        Me.Rec_NextNRItemButton.Location = New System.Drawing.Point(532, 117)
         Me.Rec_NextNRItemButton.Name = "Rec_NextNRItemButton"
-        Me.Rec_NextNRItemButton.Size = New System.Drawing.Size(84, 116)
+        Me.Rec_NextNRItemButton.Size = New System.Drawing.Size(84, 109)
         Me.Rec_NextNRItemButton.TabIndex = 4
         Me.Rec_NextNRItemButton.Text = "Next non-recorded item"
         Me.Rec_NextNRItemButton.UseVisualStyleBackColor = True
@@ -645,9 +725,9 @@ Partial Class SpeechMaterialRecorder
         'StartRecordingButton
         '
         Me.StartRecordingButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StartRecordingButton.Location = New System.Drawing.Point(3, 305)
+        Me.StartRecordingButton.Location = New System.Drawing.Point(3, 288)
         Me.StartRecordingButton.Name = "StartRecordingButton"
-        Me.StartRecordingButton.Size = New System.Drawing.Size(201, 34)
+        Me.StartRecordingButton.Size = New System.Drawing.Size(205, 34)
         Me.StartRecordingButton.TabIndex = 0
         Me.StartRecordingButton.Text = "Start recording"
         Me.StartRecordingButton.UseVisualStyleBackColor = True
@@ -655,9 +735,9 @@ Partial Class SpeechMaterialRecorder
         'ListenButton
         '
         Me.ListenButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ListenButton.Location = New System.Drawing.Point(418, 305)
+        Me.ListenButton.Location = New System.Drawing.Point(426, 288)
         Me.ListenButton.Name = "ListenButton"
-        Me.ListenButton.Size = New System.Drawing.Size(202, 34)
+        Me.ListenButton.Size = New System.Drawing.Size(206, 34)
         Me.ListenButton.TabIndex = 1
         Me.ListenButton.Text = "Play"
         Me.ListenButton.UseVisualStyleBackColor = True
@@ -665,9 +745,9 @@ Partial Class SpeechMaterialRecorder
         'StopRecordingButton
         '
         Me.StopRecordingButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StopRecordingButton.Location = New System.Drawing.Point(210, 305)
+        Me.StopRecordingButton.Location = New System.Drawing.Point(214, 288)
         Me.StopRecordingButton.Name = "StopRecordingButton"
-        Me.StopRecordingButton.Size = New System.Drawing.Size(202, 34)
+        Me.StopRecordingButton.Size = New System.Drawing.Size(206, 34)
         Me.StopRecordingButton.TabIndex = 3
         Me.StopRecordingButton.Text = "Stop recording"
         Me.StopRecordingButton.UseVisualStyleBackColor = True
@@ -678,7 +758,7 @@ Partial Class SpeechMaterialRecorder
         Me.SegmentationTab.Location = New System.Drawing.Point(4, 22)
         Me.SegmentationTab.Name = "SegmentationTab"
         Me.SegmentationTab.Padding = New System.Windows.Forms.Padding(3)
-        Me.SegmentationTab.Size = New System.Drawing.Size(1155, 348)
+        Me.SegmentationTab.Size = New System.Drawing.Size(1228, 331)
         Me.SegmentationTab.TabIndex = 1
         Me.SegmentationTab.Text = "Segmentation"
         Me.SegmentationTab.UseVisualStyleBackColor = True
@@ -688,7 +768,7 @@ Partial Class SpeechMaterialRecorder
         Me.SegmentationPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SegmentationPanel.Location = New System.Drawing.Point(3, 3)
         Me.SegmentationPanel.Name = "SegmentationPanel"
-        Me.SegmentationPanel.Size = New System.Drawing.Size(1149, 342)
+        Me.SegmentationPanel.Size = New System.Drawing.Size(1222, 325)
         Me.SegmentationPanel.TabIndex = 0
         '
         'ItemProgressBar
@@ -730,10 +810,11 @@ Partial Class SpeechMaterialRecorder
         Me.FlowLayoutPanel1.Controls.Add(Me.FileComboBox)
         Me.FlowLayoutPanel1.Controls.Add(Me.Top_PreviousFileButton)
         Me.FlowLayoutPanel1.Controls.Add(Me.Top_NextFileButton)
+        Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.FlowLayoutPanel1.Location = New System.Drawing.Point(3, 3)
         Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
         Me.FlowLayoutPanel1.Padding = New System.Windows.Forms.Padding(5, 10, 5, 10)
-        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(851, 52)
+        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(924, 69)
         Me.FlowLayoutPanel1.TabIndex = 3
         '
         'Label1
@@ -803,8 +884,8 @@ Partial Class SpeechMaterialRecorder
         'MainSplitContainer.Panel2
         '
         Me.MainSplitContainer.Panel2.Controls.Add(Me.MainTabControl)
-        Me.MainSplitContainer.Size = New System.Drawing.Size(1163, 455)
-        Me.MainSplitContainer.SplitterDistance = 77
+        Me.MainSplitContainer.Size = New System.Drawing.Size(1236, 455)
+        Me.MainSplitContainer.SplitterDistance = 94
         Me.MainSplitContainer.TabIndex = 5
         '
         'GroupBox1
@@ -814,7 +895,7 @@ Partial Class SpeechMaterialRecorder
         Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox1.Location = New System.Drawing.Point(0, 0)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(1163, 77)
+        Me.GroupBox1.Size = New System.Drawing.Size(1236, 94)
         Me.GroupBox1.TabIndex = 0
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Current item"
@@ -831,7 +912,7 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel5.Name = "TableLayoutPanel5"
         Me.TableLayoutPanel5.RowCount = 1
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel5.Size = New System.Drawing.Size(1157, 58)
+        Me.TableLayoutPanel5.Size = New System.Drawing.Size(1230, 75)
         Me.TableLayoutPanel5.TabIndex = 4
         '
         'SoundSettings_TableLayoutPanel
@@ -842,7 +923,7 @@ Partial Class SpeechMaterialRecorder
         Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.SelectTransducer_Label, 0, 0)
         Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.Transducer_ComboBox, 0, 1)
-        Me.SoundSettings_TableLayoutPanel.Location = New System.Drawing.Point(860, 3)
+        Me.SoundSettings_TableLayoutPanel.Location = New System.Drawing.Point(933, 3)
         Me.SoundSettings_TableLayoutPanel.Name = "SoundSettings_TableLayoutPanel"
         Me.SoundSettings_TableLayoutPanel.RowCount = 2
         Me.SoundSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -875,10 +956,11 @@ Partial Class SpeechMaterialRecorder
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1163, 501)
+        Me.ClientSize = New System.Drawing.Size(1236, 501)
         Me.Controls.Add(Me.MainSplitContainer)
         Me.Controls.Add(Me.StatusStrip1)
         Me.Controls.Add(Me.MenuStrip1)
+        Me.KeyPreview = True
         Me.MainMenuStrip = Me.MenuStrip1
         Me.Name = "SpeechMaterialRecorder"
         Me.Text = "Speech Material Recorder"
@@ -994,4 +1076,15 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents SoundSettings_TableLayoutPanel As Windows.Forms.TableLayoutPanel
     Friend WithEvents SelectTransducer_Label As Windows.Forms.Label
     Friend WithEvents Transducer_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents ExportToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents AllSoundsFiles_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents AllSoundsFiles_AllSegmentations_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents AllSoundsFiles_SentenceTimes_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents CurrentFile_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents CurrentFile_AllSegmentations_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents CurrentFile_SentenceTimes_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents RecordingStopDelayToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents RecordingStopDelay_ToolStripComboBox As Windows.Forms.ToolStripComboBox
+    Friend WithEvents ShowSpellingToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ShowTranscriptionToolStripMenuItem As Windows.Forms.ToolStripMenuItem
 End Class

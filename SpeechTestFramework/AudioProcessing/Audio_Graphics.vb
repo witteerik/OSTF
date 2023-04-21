@@ -107,8 +107,18 @@ Namespace Audio
             Private CurrentSentenceIndex As Integer = 0 'This holds the index of the sentence in each sound.
             Private CurrentWordIndex As Integer = 0
             Private CurrentPhonemeIndex As Integer
+
             Private PaddingTime As Single        'padding time should be in seconds
             Private InterSentenceTime As Single
+
+            Public Function SetPaddingTime(ByVal PaddingSeconds As Single)
+                PaddingTime = Math.Max(0, PaddingSeconds)
+            End Function
+
+            Public Function SetInterSentenceTime(ByVal InterSentenceTimeSeconds As Single)
+                InterSentenceTimeSeconds = Math.Max(0, InterSentenceTimeSeconds)
+            End Function
+
             Private SetSegmentationToZeroCrossings As Boolean
 
             Private CurrentSegmentationItem As Audio.Sound.SpeechMaterialAnnotation.SmaComponent = Nothing
@@ -697,6 +707,14 @@ Namespace Audio
                     SegmentationItemsPanel.Controls.Add(ValidateSegmentationButton)
                 End If
 
+                Dim ShowAutoDetectSentencesIntervalsButton As Boolean = True
+                If ShowAutoDetectSentencesIntervalsButton = True Then
+                    Dim AutoCropButton As New Button With {.Text = "Auto-detect sentence start/end", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
+                    AddHandler AutoCropButton.Click, AddressOf AutoSetSentenceSegmentation
+                    SegmentationItemsPanel.Controls.Add(AutoCropButton)
+                End If
+
                 If ShowFadeIntervalsButton = True Then
                     Dim FixIntervalsButton As New Button With {.Text = "Fix intervals", .TextAlign = ContentAlignment.MiddleCenter,
                         .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
@@ -709,6 +727,14 @@ Namespace Audio
                         .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                     AddHandler FixPaddingButton.Click, AddressOf FixPadding
                     SegmentationItemsPanel.Controls.Add(FixPaddingButton)
+                End If
+
+                Dim ShowSetInitialPeakAmplitudesButton As Boolean = True
+                If ShowSetInitialPeakAmplitudesButton = True Then
+                    Dim SetPeakButton As New Button With {.Text = "Store initial peak", .TextAlign = ContentAlignment.MiddleCenter,
+                        .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
+                    AddHandler SetPeakButton.Click, AddressOf SetInitialPeak
+                    SegmentationItemsPanel.Controls.Add(SetPeakButton)
                 End If
 
 
@@ -987,11 +1013,11 @@ Namespace Audio
                                     Dim WindowIndex = Math.Floor(displayStartColumn + xPixel * columnScaleToPixel)
                                     Dim BinIndex = Math.Floor(yPixel * binScaleToPixel)
 
-                                        Dim newBrushGradient As Integer = CurrentSound.FFT.SpectrogramData(CurrentChannel, WindowIndex).WindowData(BinIndex) * SpectrogramLightFactor
-                                        If newBrushGradient > 255 Then newBrushGradient = 255
-                                        Dim newBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(newBrushGradient, Drawing.Color.Black))
-                                        newLowResolutionSpectrogramArea(drawingPixel) = New SpectrogramDisplayData(newBrush, xPixel, YPixelCount - yPixel, 1, 1)
-                                        drawingPixel += 1
+                                    Dim newBrushGradient As Integer = CurrentSound.FFT.SpectrogramData(CurrentChannel, WindowIndex).WindowData(BinIndex) * SpectrogramLightFactor
+                                    If newBrushGradient > 255 Then newBrushGradient = 255
+                                    Dim newBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(newBrushGradient, Drawing.Color.Black))
+                                    newLowResolutionSpectrogramArea(drawingPixel) = New SpectrogramDisplayData(newBrush, xPixel, YPixelCount - yPixel, 1, 1)
+                                    drawingPixel += 1
 
                                 Next
                             Next
@@ -2286,6 +2312,63 @@ Namespace Audio
 
             End Sub
 
+            Private Sub AutoSetSentenceSegmentation()
+
+                If CurrentSound IsNot Nothing Then
+                    If CurrentSound.SMA IsNot Nothing Then
+
+                        'Moves the sentence start and end positions based on the audio, but only if the segmentations of all sentence level components are validated
+                        If CurrentSound.SMA.ChannelData(CurrentChannel).AllChildSegmentationsCompleted = True Then
+
+                            Dim InitialPadding As Double = 0
+                            Dim FinalPadding As Double = 0
+                            Dim SilenceDefinition As Double = 25
+                            Dim SetToZeroCrossings As Boolean = True
+
+                            CurrentSound.SMA.DetectSpeechBoundaries(CurrentChannel, InitialPadding, FinalPadding, SilenceDefinition, SetToZeroCrossings)
+
+                        Else
+                            MsgBox("Unable to fix the sentences level auto segmentation due to incomplete initial boundary segmentation. (You need to first set approximate sentence segmentation).")
+                            Exit Sub
+                        End If
+                    End If
+                End If
+
+                'Recalculates spectrogram data, since the waveform have been changed
+                If ShowSpectrogram = True Then UpdateSpectrogramData()
+
+                ZoomFull()
+
+
+            End Sub
+
+
+
+            Private Sub SetInitialPeak()
+
+                If CurrentSound IsNot Nothing Then
+                    If CurrentSound.SMA IsNot Nothing Then
+
+                        'Moves the sentence start and end positions based on the audio, but only if the segmentations of all sentence level components are validated
+                        If CurrentSound.SMA.ChannelData(CurrentChannel).AllChildSegmentationsCompleted = True Then
+
+                            CurrentSound.SMA.SetInitialPeakAmplitudes()
+
+                        Else
+                            MsgBox("Unable to fix the sentences level auto segmentation due to incomplete initial boundary segmentation. (You need to first set approximate sentence segmentation).")
+                            Exit Sub
+                        End If
+                    End If
+                End If
+
+                'Recalculates spectrogram data, since the waveform have been changed
+                If ShowSpectrogram = True Then UpdateSpectrogramData()
+
+                ZoomFull()
+
+
+            End Sub
+
             Private Sub FixIntervals()
 
                 If CurrentSound IsNot Nothing Then
@@ -2324,7 +2407,7 @@ Namespace Audio
                         If CurrentSound.SMA.ChannelData(CurrentChannel).AllChildSegmentationsCompleted = True Then
                             CurrentSound.SMA.ApplyPaddingSection(CurrentSound, CurrentChannel, PaddingTime)
                         Else
-                                MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
+                            MsgBox("Unable to fade padding section due to incomplete boundary segmentation.")
                             Return False
                         End If
                     End If

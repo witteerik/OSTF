@@ -2469,6 +2469,8 @@ Public Class SipTestGui
                 UseBackgroundSpeech = False
                 MaximumResponseTime = 4
                 ShowProgressIndication = True
+                'Temporarily overriding the BackgroundNonspeechRealisticLevel 
+                'SelectedMediaSet.BackgroundNonspeechRealisticLevel = 65
 
         End Select
 

@@ -134,16 +134,55 @@ Namespace Audio
                 Next
 
                 If IncludeHeadings = True Then
-                    Return String.Join(vbTab, HeadingList) & vbCrLf &
-                        String.Join(vbTab, OutputList)
+                    Return String.Join(vbTab, HeadingList) & vbCrLf & String.Join(vbCrLf, OutputList)
                 Else
                     Return String.Join(vbTab, OutputList)
                 End If
 
-
-
             End Function
 
+
+            Public Shadows Function GetSentenceSegmentationsString(ByVal IncludeHeadings As Boolean) As String
+
+                Dim HeadingList As New List(Of String)
+                Dim OutputList As New List(Of String)
+
+                If IncludeHeadings = True Then
+                    HeadingList.Add("Channel")
+                    HeadingList.Add("SentenceIndex")
+                    HeadingList.Add("OrthographicForm")
+                    HeadingList.Add("PhoneticForm")
+                    HeadingList.Add("StartTimeSec")
+                    HeadingList.Add("DurationSec")
+                    HeadingList.Add("StartSample")
+                    HeadingList.Add("LengthSamples")
+                    HeadingList.Add("SegmentationCompleted")
+                End If
+
+                For c = 0 To _ChannelData.Count - 1
+                    For s = 0 To _ChannelData(c).Count - 1
+                        Dim Sentence = _ChannelData(c)(s)
+                        Dim SentenceList As New List(Of String)
+                        SentenceList.Add(c)
+                        SentenceList.Add(s)
+                        SentenceList.Add(Sentence.OrthographicForm)
+                        SentenceList.Add(Sentence.PhoneticForm)
+                        SentenceList.Add(Sentence.StartTime)
+                        SentenceList.Add(Sentence.Length / ParentSound.WaveFormat.SampleRate)
+                        SentenceList.Add(Sentence.StartSample)
+                        SentenceList.Add(Sentence.Length)
+                        SentenceList.Add(Sentence.SegmentationCompleted.ToString)
+                        OutputList.Add(String.Join(vbTab, SentenceList))
+                    Next
+                Next
+
+                If IncludeHeadings = True Then
+                    Return String.Join(vbTab, HeadingList) & vbCrLf & String.Join(vbCrLf, OutputList)
+                Else
+                    Return String.Join(vbTab, OutputList)
+                End If
+
+            End Function
 
             ''' <summary>
             ''' Converts all instances of a specified phone to a new phone
@@ -200,11 +239,10 @@ Namespace Audio
             ''' Measures the unalterred (original recording) absolute peak amplitude (linear value) within the word parts of a segmented audio recording. 
             ''' At least WordStartSample and WordLength of all words must be set prior to calling this function.
             ''' </summary>
-            ''' <param name="MeasurementSound">The sound to measure.</param>
             ''' <returns>Returns True if all measurements were successful, and False if one or more measurements failed.</returns>
-            Public Function SetInitialPeakAmplitudes(ByVal MeasurementSound As Sound) As Boolean
+            Public Function SetInitialPeakAmplitudes() As Boolean
 
-                If MeasurementSound Is Nothing Then
+                If ParentSound Is Nothing Then
                     Throw New Exception("The parent sound if the current instance of SpeechMaterialAnnotation cannot be Nothing!")
                 End If
 
@@ -213,7 +251,7 @@ Namespace Audio
 
                 'Measuring each channel 
                 For c As Integer = 1 To ChannelCount
-                    ChannelData(c).SetInitialPeakAmplitudes(MeasurementSound, c, AttemptedMeasurementCount, SuccesfullMeasurementsCount)
+                    ChannelData(c).SetInitialPeakAmplitudes(ParentSound, c, AttemptedMeasurementCount, SuccesfullMeasurementsCount)
                 Next
 
                 'Logging results
@@ -376,6 +414,7 @@ Namespace Audio
                 'MsgBox("Check the code below for accuracy!!!")
 
                 If StartIndex >= FirstSampleToShift Then
+
                     'Adjusting the StartSample and limiting it to the available range
                     StartIndex = Math.Min(Math.Max(StartIndex + Shift, 0), TotalAvailableLength - 1)
 
@@ -416,6 +455,133 @@ Namespace Audio
                 Else
                     MsgBox("The current SMA object does not contain the requested channel: " & CurrentChannel)
                 End If
+
+            End Sub
+
+            ''' <summary>
+            ''' This method may be used to facilitate manual segmentation, as it suggests appropriate sentence boundary positions, based on a rough initially segmentation.
+            '''The method works by 
+            ''' a) detecting the speech location by assuming that the loudest window in the initially segmented sentence section will be found inside the actual sentence.
+            ''' b) detecting sentence start by locating the centre of the last window of a silent section of at least LongestSilentSegment milliseconds.
+            ''' c) detecting sentence end by locating the centre of the first window of a silent section of at least LongestSilentSegment milliseconds.
+            ''' </summary>
+            ''' <param name="InitialPadding">Time section in seconds included before the detected start position.</param>
+            ''' <param name="FinalPadding">Time section in seconds included after the detected end position.</param>
+            ''' <param name="SilenceDefinition">The definition of a silent window is set to SilenceDefinition dB lower that the loudest detected window in the initially segmented sentence section.</param>
+            Public Sub DetectSpeechBoundaries(ByVal CurrentChannel As Integer,
+                                              Optional ByVal InitialPadding As Double = 0,
+                                              Optional ByVal FinalPadding As Double = 0,
+                                              Optional ByVal SilenceDefinition As Double = 25,
+                                              Optional ByVal SetToZeroCrossings As Boolean = True)
+
+                Try
+
+
+
+                    Dim TotalSoundLength = Me.ParentSound.WaveData.SampleData(CurrentChannel).Length
+
+                    'Low-pass filter
+                    Dim LpFirFilter_FftFormat = New Formats.FftFormat(1024 * 4,,,, True)
+                    Dim ReusedLpFirKernel As Audio.Sound = Audio.GenerateSound.CreateSpecialTypeImpulseResponse(Me.ParentSound.WaveFormat, LpFirFilter_FftFormat, 4000, , FilterType.LinearAttenuationAboveCF_dBPerOctave, 15,,,, 25,, True)
+
+                    'High-pass filterring the sound to reduce vibration influences
+                    Dim HpFirFilter_FftFormat = New Formats.FftFormat(1024 * 4,,,, True)
+                    Dim ReusedHpFirKernel As Audio.Sound = Audio.GenerateSound.CreateSpecialTypeImpulseResponse(Me.ParentSound.WaveFormat, HpFirFilter_FftFormat, 4000, , FilterType.LinearAttenuationBelowCF_dBPerOctave, 100,,,, 25,, True)
+
+                    For s = 0 To Me.ChannelData(CurrentChannel).Count - 1
+
+                        Dim SentenceSmaComponent = Me.ChannelData(CurrentChannel)(s)
+
+                        Dim SentenceSoundCopy = SentenceSmaComponent.GetSoundFileSection(CurrentChannel)
+
+                        Dim FilterredSound As Audio.Sound = Audio.DSP.TransformationsExt.FIRFilter(SentenceSoundCopy, ReusedHpFirKernel, HpFirFilter_FftFormat,,,,,, True, True)
+
+                        'Detecting the start position, and level, of the loudest 25 ms window
+                        Dim WindowSize As Integer = 0.025 * ParentSound.WaveFormat.SampleRate
+
+                        'Measuring sentence sound level
+                        Dim LoudestWindowStartSample As Integer
+                        Dim WindowLevelList As New List(Of Double)
+                        Dim LoudestWindowLevel As Double = DSP.GetLevelOfLoudestWindow(FilterredSound, CurrentChannel, WindowSize,,, LoudestWindowStartSample,,, WindowLevelList)
+
+                        'Smoothing the WindowLevelList (using FIR filter)
+                        Dim SmoothNonSound As New Audio.Sound(SentenceSoundCopy.WaveFormat)
+                        Dim WindowLevelList_Single As New List(Of Single)
+                        For Each Value In WindowLevelList
+                            WindowLevelList_Single.Add(Value)
+                        Next
+                        SmoothNonSound.WaveData.SampleData(1) = WindowLevelList_Single.ToArray
+
+                        'DSP.MaxAmplitudeNormalizeSection(SmoothNonSound, CurrentChannel)
+
+                        'SmoothNonSound.WriteWaveFile("C:\Temp\PreFilt.wav")
+
+                        Dim FilterredLevelArray As Audio.Sound = Audio.DSP.TransformationsExt.FIRFilter(SmoothNonSound, ReusedLpFirKernel, LpFirFilter_FftFormat,,,,,, True, True)
+
+                        'ReusedLpFirKernel.WriteWaveFile("C:\Temp\Kern.wav")
+
+
+                        'FilterredLevelArray.WriteWaveFile("C:\Temp\Filt.wav")
+
+                        WindowLevelList.Clear()
+                        For Each Value In FilterredLevelArray.WaveData.SampleData(1)
+                            WindowLevelList.Add(Value)
+                        Next
+
+                        'Setting the value of silence definition
+                        Dim SilenceLevel As Double = LoudestWindowLevel - SilenceDefinition
+
+                        'Setting default start and end values
+                        Dim StartSample As Integer = LoudestWindowStartSample
+                        Dim EndSample As Integer = LoudestWindowStartSample
+
+                        'Looking for the first non-silent window
+                        Dim IterationStart As Integer = Math.Min(1024, WindowLevelList.Count - 1)
+                        For w = IterationStart To LoudestWindowStartSample - 1
+                            If WindowLevelList(w) > SilenceLevel Then
+                                StartSample = w + Math.Floor(InitialPadding * SentenceSoundCopy.WaveFormat.SampleRate)
+                                Exit For
+                            End If
+                        Next
+
+                        'Looking for the last non-silent window
+                        Dim IterationStart2 As Integer = Math.Max(0, WindowLevelList.Count - 1 - 1024)
+                        For w = IterationStart2 To LoudestWindowStartSample + 1 Step -1
+                            If WindowLevelList(w) > SilenceLevel Then
+                                EndSample = w + Math.Ceiling(FinalPadding * SentenceSoundCopy.WaveFormat.SampleRate)
+                                Exit For
+                            End If
+                        Next
+
+
+                        If SetToZeroCrossings = True Then
+                            'Setting to closets zero-crossings
+                            StartSample = DSP.GetZeroCrossingSample(SentenceSoundCopy, CurrentChannel, StartSample, DSP.MeasurementsExt.SearchDirections.Earlier)
+                            EndSample = DSP.GetZeroCrossingSample(SentenceSoundCopy, CurrentChannel, EndSample, DSP.MeasurementsExt.SearchDirections.Later)
+                        End If
+
+                        'Calculating new start and sentence length
+                        Dim SoundFileRelativeStartSample = SentenceSmaComponent.StartSample + StartSample
+                        Dim SentenceLength As Integer = Math.Max(0, EndSample - StartSample)
+
+                        'Updating the sentence segmentation (and all dependent levels)
+                        SentenceSmaComponent.MoveStart(SoundFileRelativeStartSample, TotalSoundLength)
+                        SentenceSmaComponent.AlignSegmentationStartsAcrossLevels(TotalSoundLength)
+
+                        If SentenceSmaComponent.StartSample + SentenceLength > TotalSoundLength Then
+                            'Limiting length to stay within the length of the sound file
+                            SentenceSmaComponent.Length = TotalSoundLength - SentenceSmaComponent.StartSample
+                        Else
+                            SentenceSmaComponent.Length = SentenceLength
+                        End If
+                        SentenceSmaComponent.AlignSegmentationEndsAcrossLevels()
+
+                    Next
+
+                Catch ex As Exception
+                    MsgBox(ex.ToString)
+                End Try
+
 
             End Sub
 
@@ -865,7 +1031,6 @@ Namespace Audio
 
                 Public Property OrthographicForm As String = ""
                 Public Property PhoneticForm As String = ""
-
                 Public Property StartSample As Integer = -1
                 Public Property Length As Integer = 0
 
@@ -1653,11 +1818,20 @@ Namespace Audio
                     TempStartSample = Math.Min(SoundLength - 1, TempStartSample)
                     TempStartSample = Math.Max(0, TempStartSample)
 
+                    'Storing the difference in start sampe
+                    Dim DifferenceSamples As Integer = TempStartSample - StartSample
+
                     'Storing the new StartSample
                     StartSample = TempStartSample
 
                     'Adjusting the Length
                     Length = ExclusiveEndSample - StartSample
+
+                    'Also adjusts StartTime
+                    If ParentSMA.ParentSound IsNot Nothing Then
+                        Dim DurationDifference As Double = DifferenceSamples / ParentSMA.ParentSound.WaveFormat.SampleRate
+                        StartTime += DurationDifference
+                    End If
 
                 End Sub
 

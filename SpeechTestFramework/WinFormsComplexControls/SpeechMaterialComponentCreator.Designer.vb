@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class SpeechMaterialComponentCreator
     Inherits System.Windows.Forms.UserControl
 
     'UserControl overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,14 +20,17 @@ Partial Class SpeechMaterialComponentCreator
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
         Me.SplitContainer2 = New System.Windows.Forms.SplitContainer()
         Me.SplitContainer3 = New System.Windows.Forms.SplitContainer()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.EditRichTextBox = New System.Windows.Forms.RichTextBox()
-        Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
+        Me.RtfBox_MenuStrip = New System.Windows.Forms.MenuStrip()
+        Me.RtfFileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SaveWorkToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.LoadWorkToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SelectFontToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.DeunderlineSelectedTextToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.UnderlineSelectedTextToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -67,7 +70,7 @@ Partial Class SpeechMaterialComponentCreator
         Me.SplitContainer3.Panel1.SuspendLayout()
         Me.SplitContainer3.Panel2.SuspendLayout()
         Me.SplitContainer3.SuspendLayout()
-        Me.MenuStrip1.SuspendLayout()
+        Me.RtfBox_MenuStrip.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
@@ -126,7 +129,7 @@ Partial Class SpeechMaterialComponentCreator
         'SplitContainer3.Panel2
         '
         Me.SplitContainer3.Panel2.Controls.Add(Me.EditRichTextBox)
-        Me.SplitContainer3.Panel2.Controls.Add(Me.MenuStrip1)
+        Me.SplitContainer3.Panel2.Controls.Add(Me.RtfBox_MenuStrip)
         Me.SplitContainer3.Size = New System.Drawing.Size(482, 450)
         Me.SplitContainer3.SplitterDistance = 25
         Me.SplitContainer3.TabIndex = 0
@@ -152,17 +155,36 @@ Partial Class SpeechMaterialComponentCreator
         Me.EditRichTextBox.Text = ""
         Me.EditRichTextBox.WordWrap = False
         '
-        'MenuStrip1
+        'RtfBox_MenuStrip
         '
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SelectFontToolStripMenuItem, Me.DeunderlineSelectedTextToolStripMenuItem, Me.UnderlineSelectedTextToolStripMenuItem})
-        Me.MenuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow
-        Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
-        Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System
-        Me.MenuStrip1.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.MenuStrip1.Size = New System.Drawing.Size(482, 24)
-        Me.MenuStrip1.TabIndex = 1
-        Me.MenuStrip1.Text = "MenuStrip1"
+        Me.RtfBox_MenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RtfFileToolStripMenuItem, Me.SelectFontToolStripMenuItem, Me.DeunderlineSelectedTextToolStripMenuItem, Me.UnderlineSelectedTextToolStripMenuItem})
+        Me.RtfBox_MenuStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow
+        Me.RtfBox_MenuStrip.Location = New System.Drawing.Point(0, 0)
+        Me.RtfBox_MenuStrip.Name = "RtfBox_MenuStrip"
+        Me.RtfBox_MenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System
+        Me.RtfBox_MenuStrip.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.RtfBox_MenuStrip.Size = New System.Drawing.Size(482, 24)
+        Me.RtfBox_MenuStrip.TabIndex = 1
+        Me.RtfBox_MenuStrip.Text = "MenuStrip1"
+        '
+        'RtfFileToolStripMenuItem
+        '
+        Me.RtfFileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SaveWorkToolStripMenuItem, Me.LoadWorkToolStripMenuItem})
+        Me.RtfFileToolStripMenuItem.Name = "RtfFileToolStripMenuItem"
+        Me.RtfFileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
+        Me.RtfFileToolStripMenuItem.Text = "File"
+        '
+        'SaveWorkToolStripMenuItem
+        '
+        Me.SaveWorkToolStripMenuItem.Name = "SaveWorkToolStripMenuItem"
+        Me.SaveWorkToolStripMenuItem.Size = New System.Drawing.Size(129, 22)
+        Me.SaveWorkToolStripMenuItem.Text = "Save work"
+        '
+        'LoadWorkToolStripMenuItem
+        '
+        Me.LoadWorkToolStripMenuItem.Name = "LoadWorkToolStripMenuItem"
+        Me.LoadWorkToolStripMenuItem.Size = New System.Drawing.Size(129, 22)
+        Me.LoadWorkToolStripMenuItem.Text = "Load work"
         '
         'SelectFontToolStripMenuItem
         '
@@ -325,6 +347,18 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
+        Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
@@ -344,11 +378,17 @@ Partial Class SpeechMaterialComponentCreator
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.78633!))
         Me.TranscriptionDatabase_FilePathControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 9.0!))
         Me.TranscriptionDatabase_FilePathControl.Description = "File path"
+        Me.TranscriptionDatabase_FilePathControl.DirectionType = SpeechTestFramework.PathTextBox.DirectionTypes.Load
         Me.TranscriptionDatabase_FilePathControl.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TranscriptionDatabase_FilePathControl.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns
         Me.TranscriptionDatabase_FilePathControl.Location = New System.Drawing.Point(3, 3)
         Me.TranscriptionDatabase_FilePathControl.Name = "TranscriptionDatabase_FilePathControl"
+        Me.TranscriptionDatabase_FilePathControl.PathType = SpeechTestFramework.PathTextBox.PathTypes.File
         Me.TranscriptionDatabase_FilePathControl.RowCount = 2
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TranscriptionDatabase_FilePathControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -561,8 +601,8 @@ Partial Class SpeechMaterialComponentCreator
         Me.SplitContainer3.Panel2.PerformLayout()
         CType(Me.SplitContainer3, System.ComponentModel.ISupportInitialize).EndInit()
         Me.SplitContainer3.ResumeLayout(False)
-        Me.MenuStrip1.ResumeLayout(False)
-        Me.MenuStrip1.PerformLayout()
+        Me.RtfBox_MenuStrip.ResumeLayout(False)
+        Me.RtfBox_MenuStrip.PerformLayout()
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.TableLayoutPanel1.PerformLayout()
         Me.GroupBox1.ResumeLayout(False)
@@ -597,7 +637,7 @@ Partial Class SpeechMaterialComponentCreator
     Friend WithEvents WordTrimChars_TextBox As Windows.Forms.TextBox
     Friend WithEvents Label7 As Windows.Forms.Label
     Friend WithEvents PhoneTrimChars_TextBox As Windows.Forms.TextBox
-    Friend WithEvents MenuStrip1 As Windows.Forms.MenuStrip
+    Friend WithEvents RtfBox_MenuStrip As Windows.Forms.MenuStrip
     Friend WithEvents SelectFontToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents AddZeroPhoneme_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents SequentialLists_CheckBox As Windows.Forms.CheckBox
@@ -606,4 +646,7 @@ Partial Class SpeechMaterialComponentCreator
     Friend WithEvents SequentialPhonemes_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents UnderlineSelectedTextToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents DeunderlineSelectedTextToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents RtfFileToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents SaveWorkToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents LoadWorkToolStripMenuItem As Windows.Forms.ToolStripMenuItem
 End Class
