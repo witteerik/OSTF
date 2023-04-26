@@ -44,7 +44,7 @@ Namespace Audio
 
         <Serializable>
         Public Class TimeWindow
-            Public WindowData As Single()
+            Public WindowData As Double()
             Public Property WindowingType As WindowingType?
             Public Property ZeroPadding As Integer?
             Public TotalPower As Double?
@@ -250,8 +250,8 @@ Namespace Audio
             For channel = 0 To dataToExtend.Count - 1
                 For n = 0 To windowCountToAdd - 1
                     Dim NewTimeWindow As New TimeWindow
-                    Dim newSingleArray(FftFormat.FftWindowSize - 1) As Single
-                    NewTimeWindow.WindowData = newSingleArray
+                    Dim newDoubleArray(FftFormat.FftWindowSize - 1) As Double
+                    NewTimeWindow.WindowData = newDoubleArray
                     dataToExtend(channel).Add(NewTimeWindow)
                 Next
             Next
@@ -272,7 +272,7 @@ Namespace Audio
                 Dim NewChannelPhaseSpectrum As New List(Of TimeWindow)
                 For window = 0 To Me._FrequencyDomainRealData(channel).Count - 1
                     Dim NewTimeWindow As New TimeWindow
-                    Dim NewWindowPhaseSpectrum(FftFormat.FftWindowSize - 1) As Single
+                    Dim NewWindowPhaseSpectrum(FftFormat.FftWindowSize - 1) As Double
                     NewTimeWindow.WindowData = NewWindowPhaseSpectrum
 
                     'Copying window description data from the _FrequencyDomainRealData
@@ -280,8 +280,7 @@ Namespace Audio
                     NewTimeWindow.ZeroPadding = _FrequencyDomainRealData(channel)(window).ZeroPadding
 
                     'Getting the spectrum array
-                    NewTimeWindow.WindowData = GetTimeWindowSpectrum(channel + 1, window, SpectrumTypes.PhaseSpectrum, False,
-                                      False, False,,)
+                    NewTimeWindow.WindowData = GetTimeWindowSpectrum(channel + 1, window, SpectrumTypes.PhaseSpectrum, False, False, False,,)
 
                     'getPhases(NewWindowPhaseSpectrum, _FrequencyDomainRealData(channel)(window).WindowData, _FrequencyDomainImaginaryData(channel)(window).WindowData)
                     NewChannelPhaseSpectrum.Add(NewTimeWindow)
@@ -325,7 +324,7 @@ Namespace Audio
                         Dim NewChannelAmplitudeSpectrum As New List(Of TimeWindow)
                         For window = 0 To Me._FrequencyDomainRealData(channel).Count - 1
                             Dim NewTimeWindow As New TimeWindow
-                            Dim NewWindowAmplitudeSpectrum(FftFormat.FftWindowSize - 1) As Single
+                            Dim NewWindowAmplitudeSpectrum(FftFormat.FftWindowSize - 1) As Double
                             NewTimeWindow.WindowData = NewWindowAmplitudeSpectrum
 
                             'Copying window description data from the _FrequencyDomainRealData
@@ -366,7 +365,7 @@ Namespace Audio
                         Parallel.For(0, Me._FrequencyDomainRealData(channel).Count, Sub(window)
 
                                                                                         Dim NewTimeWindow As New TimeWindow
-                                                                                        Dim NewWindowAmplitudeSpectrum(FftFormat.FftWindowSize - 1) As Single
+                                                                                        Dim NewWindowAmplitudeSpectrum(FftFormat.FftWindowSize - 1) As Double
                                                                                         NewTimeWindow.WindowData = NewWindowAmplitudeSpectrum
 
                                                                                         'Copying window description data from the _FrequencyDomainRealData
@@ -422,7 +421,7 @@ Namespace Audio
                     Dim NewChannelPowerSpectrumData As New List(Of TimeWindow)
                     For window = 0 To Me._FrequencyDomainRealData(channel).Count - 1
                         Dim NewTimeWindow As New TimeWindow
-                        Dim NewWindowPowerSpectrumData(FftFormat.FftWindowSize - 1) As Single
+                        Dim NewWindowPowerSpectrumData(FftFormat.FftWindowSize - 1) As Double
                         NewTimeWindow.WindowData = NewWindowPowerSpectrumData
 
                         'Copying window description data from the _FrequencyDomainRealData
@@ -465,7 +464,7 @@ Namespace Audio
                     Parallel.For(0, Me._FrequencyDomainRealData(channel).Count, Sub(window)
 
                                                                                     Dim NewTimeWindow As New TimeWindow
-                                                                                    Dim NewWindowPowerSpectrumData(FftFormat.FftWindowSize - 1) As Single
+                                                                                    Dim NewWindowPowerSpectrumData(FftFormat.FftWindowSize - 1) As Double
                                                                                     NewTimeWindow.WindowData = NewWindowPowerSpectrumData
 
                                                                                     'Copying window description data from the _FrequencyDomainRealData
@@ -2092,11 +2091,11 @@ Namespace Audio
                         Dim NewChannelImaginaryData As New List(Of TimeWindow)
                         For window = 0 To Me._AmplitudeSpectrum(channel).Count - 1
                             Dim NewRealTimeWindow As New TimeWindow
-                            Dim NewWindowRealData(FftFormat.FftWindowSize - 1) As Single
+                            Dim NewWindowRealData(FftFormat.FftWindowSize - 1) As Double
                             NewRealTimeWindow.WindowData = NewWindowRealData
 
                             Dim NewImaginaryTimeWindow As New TimeWindow
-                            Dim NewWindowImaginaryData(FftFormat.FftWindowSize - 1) As Single
+                            Dim NewWindowImaginaryData(FftFormat.FftWindowSize - 1) As Double
                             NewImaginaryTimeWindow.WindowData = NewWindowImaginaryData
 
                             GetRectangualForm_UsingMagnitudeAndPhase(NewWindowRealData, NewWindowImaginaryData, _AmplitudeSpectrum(channel)(window).WindowData, _PhaseSpectrum(channel)(window).WindowData)
@@ -2145,11 +2144,11 @@ Namespace Audio
                         Dim NewChannelImaginaryData As New List(Of TimeWindow)
                         For window = 0 To Me._PowerSpectrumData(channel).Count - 1
                             Dim NewRealTimeWindow As New TimeWindow
-                            Dim NewWindowRealData(FftFormat.FftWindowSize - 1) As Single
+                            Dim NewWindowRealData(FftFormat.FftWindowSize - 1) As Double
                             NewRealTimeWindow.WindowData = NewWindowRealData
 
                             Dim NewImaginaryTimeWindow As New TimeWindow
-                            Dim NewWindowImaginaryData(FftFormat.FftWindowSize - 1) As Single
+                            Dim NewWindowImaginaryData(FftFormat.FftWindowSize - 1) As Double
                             NewImaginaryTimeWindow.WindowData = NewWindowImaginaryData
 
                             GetRectangualForm_UsingPowerAndPhase(NewWindowRealData, NewWindowImaginaryData, _PowerSpectrumData(channel)(window).WindowData, _PhaseSpectrum(channel)(window).WindowData)
@@ -2227,11 +2226,11 @@ Namespace Audio
                                      Optional ByVal CompensateForTimeWindowingScaling As Boolean = True,
                                      Optional ByRef EquivalentNoiseBandwidth As Double? = Nothing,
                                      Optional ByRef InverseTimeWindowingScalingFactor As Double? = Nothing,
-                                              Optional ByVal ZeroPaddingCompensationLowerLimit As Double? = Nothing) As Single()
+                                              Optional ByVal ZeroPaddingCompensationLowerLimit As Double? = Nothing) As Double()
 
             'This sub could be optimized by an option to skip calculation of the negative frequency side.
 
-            Dim TempSpectrumArray(FrequencyDomainRealData(channel, windowNumber).WindowData.Length - 1) As Single
+            Dim TempSpectrumArray(FrequencyDomainRealData(channel, windowNumber).WindowData.Length - 1) As Double
 
             'Converts to polar form
             Select Case SpectrumType
@@ -2325,8 +2324,8 @@ Namespace Audio
 
         End Function
 
-        Public Sub GetSpectrogramMagnitudes(ByRef magnitudeSpectrumArray() As Single, ByRef x() As Single, ByRef y() As Single,
-                                            ByVal normalizingFactor As Single)
+        Public Sub GetSpectrogramMagnitudes(ByRef magnitudeSpectrumArray() As Single, ByRef x() As Double, ByRef y() As Double,
+                                            ByVal normalizingFactor As Double)
             Try
 
                 'Converts to polar form
@@ -2341,7 +2340,7 @@ Namespace Audio
         End Sub
 
 
-        Public Sub GetRectangualForm_UsingMagnitudeAndPhase(ByRef x() As Single, ByRef y() As Single, ByRef magnitudes() As Single, ByRef phases() As Single)
+        Public Sub GetRectangualForm_UsingMagnitudeAndPhase(ByRef x() As Double, ByRef y() As Double, ByRef magnitudes() As Double, ByRef phases() As Double)
 
             If Not ((magnitudes.Length = phases.Length) And (phases.Length = x.Length) And (x.Length = y.Length)) Then
                 AudioError("All input arrays to FftData.getRectangularForm need to have the same length.")
@@ -2355,7 +2354,7 @@ Namespace Audio
 
         End Sub
 
-        Public Sub GetRectangualForm_UsingPowerAndPhase(ByRef x() As Single, ByRef y() As Single, ByRef powers() As Single, ByRef phases() As Single)
+        Public Sub GetRectangualForm_UsingPowerAndPhase(ByRef x() As Double, ByRef y() As Double, ByRef powers() As Double, ByRef phases() As Double)
 
             If Not ((powers.Length = phases.Length) And (phases.Length = x.Length) And (x.Length = y.Length)) Then
                 AudioError("All input arrays to FftData.getRectangularForm need to have the same length.")
@@ -2464,7 +2463,7 @@ Namespace Audio
                     Dim newSpectrogramChannelData As New List(Of TimeWindow)
                     For column = 0 To ColumnCount - 1
                         Dim NewTimeWindow As New TimeWindow
-                        Dim newColumn(topDisplayFFTBin - 1) As Single
+                        Dim newColumn(topDisplayFFTBin - 1) As Double
                         NewTimeWindow.WindowData = newColumn
                         For fftbin = 0 To topDisplayFFTBin - 1
                             newColumn(fftbin) = 0

@@ -47,6 +47,9 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CsDspLib">
+      <HintPath>..\CsDspLib\bin\Debug\CsDspLib.dll</HintPath>
+    </Reference>
     <Reference Include="InTheHand.Net.Bluetooth, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\InTheHand.Net.Bluetooth.4.0.4\lib\net461\InTheHand.Net.Bluetooth.dll</HintPath>
     </Reference>
@@ -56,6 +59,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />

@@ -622,6 +622,20 @@ Namespace Utils
 
         End Function
 
+        Public Function GetEuclideanDistance(ByRef Array1 As Double(), ByRef Array2 As Double()) As Double
+
+            'Checking that the arrays have the same lengths
+            If Array1.Length <> Array2.Length Then Throw New ArgumentException("Input arrays must have the same length.")
+
+            Dim Sum As Double = 0
+            For n = 0 To Array1.Length - 1
+                Sum += (Array1(n) - Array2(n)) ^ 2
+            Next
+
+            Return System.Math.Sqrt(Sum)
+
+        End Function
+
 
         ''' <summary>
         ''' Calculates the Euclidian distance of two arrays. However, differences within dimensions are limited to MaximumDifferenceThreshold.
@@ -644,6 +658,26 @@ Namespace Utils
 
         End Function
 
+        ''' <summary>
+        ''' Calculates the Euclidian distance of two arrays. However, differences within dimensions are limited to MaximumDifferenceThreshold.
+        ''' </summary>
+        ''' <param name="Array1"></param>
+        ''' <param name="Array2"></param>
+        ''' <param name="MaximumDifferenceThreshold"></param>
+        ''' <returns></returns>
+        Public Function GetEuclideanDistance(ByRef Array1 As Double(), ByRef Array2 As Double(), ByVal MaximumDifferenceThreshold As Single) As Double
+
+            'Checking that the arrays have the same lengths
+            If Array1.Length <> Array2.Length Then Throw New ArgumentException("Input arrays must have the same length.")
+
+            Dim Sum As Double = 0
+            For n = 0 To Array1.Length - 1
+                Sum += (System.Math.Min(MaximumDifferenceThreshold, Array1(n) - Array2(n))) ^ 2
+            Next
+
+            Return System.Math.Sqrt(Sum)
+
+        End Function
 
         Public Function GetManhattanDistance(ByRef Array1 As Single(), ByRef Array2 As Single()) As Double
 
@@ -652,6 +686,22 @@ Namespace Utils
 
             'Subtracting the arrays
             Dim SubtractionArray(Array1.Length - 1) As Single
+            For k = 0 To SubtractionArray.Length - 1
+                SubtractionArray(k) = System.Math.Abs(Array1(k) - Array2(k))
+            Next
+
+            Dim TotalSubtractionValue As Double = SubtractionArray.Average
+            Return TotalSubtractionValue
+
+        End Function
+
+        Public Function GetManhattanDistance(ByRef Array1 As Double(), ByRef Array2 As Double()) As Double
+
+            'Checking that the arrays have the same lengths
+            If Array1.Length <> Array2.Length Then Throw New ArgumentException("Input arrays must have the same length.")
+
+            'Subtracting the arrays
+            Dim SubtractionArray(Array1.Length - 1) As Double
             For k = 0 To SubtractionArray.Length - 1
                 SubtractionArray(k) = System.Math.Abs(Array1(k) - Array2(k))
             Next

@@ -763,7 +763,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
                     End If
                 Next
 
-                MsgBox("Measureing of SMA data completed successfully!")
+                MsgBox("Measuring of SMA data completed successfully!")
 
             End Sub
 

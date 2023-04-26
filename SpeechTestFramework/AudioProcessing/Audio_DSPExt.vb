@@ -832,7 +832,7 @@ Namespace Audio
                 InputSound.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
 
                 'Splitting the magnitude values in different bark filters (critical band widths)
-                Dim FilterredMagnitudesArray As SortedList(Of Integer, Single()) = BarkFilter(InputSound.FFT, InputSound.WaveFormat.SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, ReusableCentreFrequencies, True)
+                Dim FilterredMagnitudesArray As SortedList(Of Integer, Double()) = BarkFilter(InputSound.FFT, InputSound.WaveFormat.SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, ReusableCentreFrequencies, True)
 
                 'Referencing the data into the Sound1.FFT.BarkSpectrumTimeWindowData object
                 For Each CurrentTimeWindow In FilterredMagnitudesArray
@@ -909,7 +909,7 @@ Namespace Audio
 
                 'Calculating average Bark spectra
                 Dim AverageData As New FftData.TimeWindow
-                Dim FrequencyArray(BarkBinCount - 1) As Single
+                Dim FrequencyArray(BarkBinCount - 1) As Double
                 AverageData.WindowData = FrequencyArray
 
                 TotalLevel = 0
@@ -975,8 +975,8 @@ Namespace Audio
                                                        Optional ByVal ExportBarkSpectra As Boolean = False,
                                                        Optional ByVal LogOutputFolder As String = "",
                                                        Optional ByRef FftFormat As Formats.FftFormat = Nothing,
-                                                       Optional ByRef Sound1BarkSpectrum As Single() = Nothing,
-                                                       Optional ByRef Sound2BarkSpectrum As Single() = Nothing,
+                                                       Optional ByRef Sound1BarkSpectrum As Double() = Nothing,
+                                                       Optional ByRef Sound2BarkSpectrum As Double() = Nothing,
                                                        Optional ByVal SkipDistanceCalculation As Boolean = False) As Double
 
                 Dim SpinLock1Taken As Boolean = False
@@ -1019,7 +1019,7 @@ Namespace Audio
                             Sound1.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
 
                             'Splitting the magnitude values in different bark filters (critical band widths)
-                            Dim FilterredMagnitudesArray As SortedList(Of Integer, Single()) = BarkFilter(Sound1.FFT, Sound1.WaveFormat.SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, ReusableCentreFrequencies, True)
+                            Dim FilterredMagnitudesArray As SortedList(Of Integer, Double()) = BarkFilter(Sound1.FFT, Sound1.WaveFormat.SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, ReusableCentreFrequencies, True)
 
                             'Referencing the data into the Sound1.FFT.BarkSpectrumTimeWindowData object
                             For Each CurrentTimeWindow In FilterredMagnitudesArray
@@ -1030,7 +1030,7 @@ Namespace Audio
 
                             'Calculating average Bark spectra, and stores in the FFT.TemporaryData Object, for re-use in the next analyses
                             Dim AverageData As New FftData.TimeWindow
-                            Dim FrequencyArray(Sound1.FFT.BarkSpectrumTimeWindowData(1, 0).WindowData.Length - 1) As Single
+                            Dim FrequencyArray(Sound1.FFT.BarkSpectrumTimeWindowData(1, 0).WindowData.Length - 1) As Double
                             AverageData.WindowData = FrequencyArray
 
                             For f = 0 To FrequencyArray.Length - 1
@@ -1098,7 +1098,7 @@ Namespace Audio
                             Sound2.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
 
                             'Splitting the magnitude values in different bark filters (critical band widths)
-                            Dim FilterredMagnitudesArray As SortedList(Of Integer, Single()) = BarkFilter(Sound2.FFT, Sound1.WaveFormat.SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, ReusableCentreFrequencies, True)
+                            Dim FilterredMagnitudesArray As SortedList(Of Integer, Double()) = BarkFilter(Sound2.FFT, Sound1.WaveFormat.SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, ReusableCentreFrequencies, True)
 
                             'Referencing the data into the Sound1.FFT.BarkSpectrumTimeWindowData object
                             For Each CurrentTimeWindow In FilterredMagnitudesArray
@@ -1109,7 +1109,7 @@ Namespace Audio
 
                             'Calculating average Bark spectra, and stores in the FFT.TemporaryData Object, for re-use in the next analyses
                             Dim AverageData As New FftData.TimeWindow
-                            Dim FrequencyArray(Sound2.FFT.BarkSpectrumTimeWindowData(1, 0).WindowData.Length - 1) As Single
+                            Dim FrequencyArray(Sound2.FFT.BarkSpectrumTimeWindowData(1, 0).WindowData.Length - 1) As Double
                             AverageData.WindowData = FrequencyArray
 
                             For f = 0 To FrequencyArray.Length - 1
@@ -1219,8 +1219,8 @@ Namespace Audio
 
                 'Splitting the magnitude values in different bark filters (critical band widths)
                 Dim CentreFrequencies As SortedSet(Of Single) = Nothing
-                Dim FilterredMagnitudesArray1 As SortedList(Of Integer, Single()) = BarkFilter(FftData1, SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, CentreFrequencies,, UseImprovementsAfterSiB)
-                Dim FilterredMagnitudesArray2 As SortedList(Of Integer, Single()) = BarkFilter(FftData2, SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, CentreFrequencies,, UseImprovementsAfterSiB)
+                Dim FilterredMagnitudesArray1 As SortedList(Of Integer, Double()) = BarkFilter(FftData1, SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, CentreFrequencies,, UseImprovementsAfterSiB)
+                Dim FilterredMagnitudesArray2 As SortedList(Of Integer, Double()) = BarkFilter(FftData2, SampleRate, BarkFilterOverlapRatio, LowestIncludedCentreFrequency, HighestIncludedCentreFrequency, CentreFrequencies,, UseImprovementsAfterSiB)
 
 
                 If ExportDetails = True And MatrixOutputFolder <> "" Then
@@ -1590,7 +1590,7 @@ Namespace Audio
                                     Optional ByRef HighestIncludedFrequency As Double = 8000,
                                     Optional ByRef CentreFrequencies As SortedSet(Of Single) = Nothing,
                                     Optional ByVal UsePowerSpectrum As Boolean = False,
-                                    Optional ByVal UseImprovementsAfterSiB As Boolean = True) As SortedList(Of Integer, Single())
+                                    Optional ByVal UseImprovementsAfterSiB As Boolean = True) As SortedList(Of Integer, Double())
 
                 Dim SpinLockTaken As Boolean = False
 
@@ -1632,12 +1632,12 @@ Namespace Audio
                     End If
 
                     'Summing magnitudes into frequency bands
-                    Dim SummedMagnitudesArray As New SortedList(Of Integer, Single())
+                    Dim SummedMagnitudesArray As New SortedList(Of Integer, Double())
 
                     'Looking at one time window at a time
                     For w = 0 To FftData.WindowCount(1) - 1
 
-                        Dim BandMagnitudes(CentreFrequencies.Count - 1) As Single
+                        Dim BandMagnitudes(CentreFrequencies.Count - 1) As Double
 
                         'Collecting bin values for the current band
                         For CentreFrequencyIndex = 0 To CentreFrequencies.Count - 1
@@ -1839,7 +1839,7 @@ Namespace Audio
             End Enum
 
 
-            Private Function GetDistanceValue(ByRef AmplitudeSpectrum1 As SortedList(Of Integer, Single()), ByRef AmplitudeSpectrum2 As SortedList(Of Integer, Single()),
+            Private Function GetDistanceValue(ByRef AmplitudeSpectrum1 As SortedList(Of Integer, Double()), ByRef AmplitudeSpectrum2 As SortedList(Of Integer, Double()),
                                              ByVal ColumnIndex As Integer, ByVal RowIndex As Integer) As Double
 
                 'Calculating the Euclidean distance
@@ -4666,7 +4666,7 @@ Namespace Audio
                         Dim EndOfSoundZeroPadding As Integer = ExtendSoundArrayToWindowLengthMultiple(inputArray, fftFormat)
 
                         For windowNumber = 0 To numberOfWindows - 1
-                            Dim localREXArray(fftFormat.FftWindowSize - 1) As Single
+                            Dim localREXArray(fftFormat.FftWindowSize - 1) As Double
                             Dim fftIndex As Integer = 0
                             Dim startReadSample As Integer = windowNumber * (windowDistance)
                             For sample = startReadSample To startReadSample + fftFormat.AnalysisWindowSize - 1
@@ -4682,13 +4682,10 @@ Namespace Audio
 
                             'Preparing for FFT
                             'Creating an imaginary time domain signal consisting of zeros, same length as the real signal
-                            Dim localIMXArray(fftFormat.FftWindowSize - 1) As Single
-
-                            'Getting the base 2 log for windowSize
-                            Dim nPoints = Utils.getBase_n_Log(fftFormat.FftWindowSize, 2)
+                            Dim localIMXArray(fftFormat.FftWindowSize - 1) As Double
 
                             'Caluculating FFT
-                            FastFourierTransform(1, nPoints, localREXArray, localIMXArray)
+                            FastFourierTransform(FftDirections.Forward, localREXArray, localIMXArray)
 
                             'Storing the DFT data
                             localFftData.FrequencyDomainRealData(c, windowNumber).WindowData = localREXArray
@@ -4759,12 +4756,8 @@ Namespace Audio
                             Dim localREXWindow As FftData.TimeWindow = InputFftData.FrequencyDomainRealData(c, windowNumber)
                             Dim localIMXWindow As FftData.TimeWindow = InputFftData.FrequencyDomainImaginaryData(c, windowNumber)
 
-
-                            'Getting the base 2 log for windowSize
-                            Dim nPoints = Utils.getBase_n_Log(InputFftData.FftFormat.FftWindowSize, 2)
-
                             'Caluculating iFFT
-                            FastFourierTransform(-1, nPoints, localREXWindow.WindowData, localIMXWindow.WindowData)
+                            FastFourierTransform(FftDirections.Backward, localREXWindow.WindowData, localIMXWindow.WindowData)
 
                             'Creating a sound array, which will contain the sound output from the iFFT
                             Dim LocalChannelSoundArray(InputFftData.FftFormat.FftWindowSize - 1) As Single
@@ -4919,225 +4912,411 @@ Namespace Audio
             End Function
 
 
+            Public Enum FftDirections
+                Forward
+                Backward
+            End Enum
 
-            Public Function FastFourierTransform(ByVal dir As Integer, ByVal m As Long, ByRef x() As Single, ByRef y() As Single,
-                                   Optional ScaleForwardTransform As Boolean = True)
+            ''' <summary>
+            ''' Calculates the fast fourier transform using the complex Radix-2 FFT algorithm
+            ''' </summary>
+            ''' <param name="Direction">Transform direction</param>
+            ''' <param name="x">Real data array</param>
+            ''' <param name="y">Imaginary data array</param>
+            ''' <param name="ScaleForwardTransform"></param>
+            ''' <param name="Reorder">Set to false to skip sample reordering</param>
+            Public Sub FastFourierTransform(ByVal Direction As FftDirections, ByRef x() As Double, ByRef y() As Double,
+                                   Optional ScaleForwardTransform As Boolean = True, Optional ByVal Reorder As Boolean = True)
 
-                'Source:
-                'Title of the source chapter:
-                'DFT
-                '(Discrete Fourier Transform)
-                'FFT
-                '(Fast Fourier Transform)
-                'Written by Paul Bourke
-                'June 1993
+                FftRadix2(x, y, Direction, ScaleForwardTransform, Reorder)
 
-                'http://paulbourke.net/miscellaneous/dft/  (Aquired 2015-08-14)
-
-                'References cited by Bourke:
-                'Fast Fourier Transforms
-                'Walker, j.S.
-                'CRC Press. 1996 
-
-                'Fast Fourier Transforms: Algorithms
-                'Elliot, D.F.and Rao, k.R.
-                'Academic Press, New York, 1982 
-
-                'Fast Fourier Transforms And Convolution Algorithms
-                'Nussbaumer, H.J.
-                'Springer, New York, 1982 
-
-                'Digital Signal Processing
-                'Oppenheimer, A.V.and Shaffer, R.W.
-                'Prentice - Hall, Englewood Cliffs, NJ, 1975 
-
-                'Appendix B. FFT (Fast Fourier Transform), contains the code in C. The following is a translation to VB.NET by Erik Witte (August 2015)
-
-                '
-                '   This computes an in-place complex-to-complex FFT 
-                '   x and y are the real and imaginary arrays of 2^m points.
-                '   dir =  1 gives forward transform
-                '   dir = -1 gives reverse transform 
-
-                Dim n, i, i1, j, k, i2, l, l1, l2 As Long
-                Dim c1, c2, tx, ty, t1, t2, u1, u2, z As Single
-
-                '/* Calculate the number of points */
-                n = 1
-                For i = 0 To m - 1
-                    n *= 2
-                Next i
+            End Sub
 
 
-                '/* Do the bit reversal */
-                i2 = n >> 1
-                j = 0
-                For i = 0 To n - 2
-                    If (i < j) Then
-                        tx = x(i)
-                        ty = y(i)
-                        x(i) = x(j)
-                        y(i) = y(j)
-                        x(j) = tx
-                        y(j) = ty
-                    End If
-                    k = i2
+            ''' <summary>
+            ''' Complex Radix-2 FFT
+            ''' </summary>
+            ''' <param name="x">Real data array</param>
+            ''' <param name="y">Imaginary data array</param>
+            ''' <param name="Direction">Transform direction</param>
+            ''' <param name="ScaleForwardTransform"></param>
+            ''' <param name="Reorder">Set to false to skip sample reordering</param>
+            Public Sub FftRadix2(ByRef x() As Double, ByRef y() As Double, ByRef Direction As FftDirections, Optional ByVal ScaleForwardTransform As Boolean = True, Optional ByVal Reorder As Boolean = True)
 
-                    While k <= j
-                        j -= k
-                        k >>= 1
-                    End While
-                    j += k
-                Next i
+                ' This is a modified VB translation of the MIT licensed code in Mathnet Numerics, See https://github.com/mathnet/mathnet-numerics/blob/306fb068d73f3c3d0e90f6f644b55cddfdeb9a0c/src/Numerics/Providers/FourierTransform/ManagedFourierTransformProvider.Radix2.cs
 
-                '/* Compute the FFT */
-                c1 = -1.0
-                c2 = 0.0
-                l2 = 1
-                For l = 0 To m - 1
-                    l1 = l2
-                    l2 <<= 1
-                    u1 = 1.0
-                    u2 = 0.0
-                    For j = 0 To l1 - 1
-                        For i = j To n - 1 Step l2
-                            i1 = i + l1
-                            t1 = u1 * x(i1) - u2 * y(i1)
-                            t2 = u1 * y(i1) + u2 * x(i1)
-                            x(i1) = x(i) - t1
-                            y(i1) = y(i) - t2
-                            x(i) += t1
-                            y(i) += t2
-                        Next i
-                        z = u1 * c1 - u2 * c2
-                        u2 = u1 * c2 + u2 * c1
-                        u1 = z
-                    Next j
-                    c2 = Math.Sqrt((1.0 - c1) / 2.0)
-                    If dir = 1 Then c2 = -c2
-                    c1 = Math.Sqrt((1.0 + c1) / 2.0)
-                Next l
-
-                '/* Scaling for forward transform */
-                If dir = 1 And ScaleForwardTransform = True Then
-                    For i = 0 To n - 1
-                        x(i) /= n
-                        y(i) /= n
-                    Next i
+                Dim ExponentSign As Integer
+                If Direction = FftDirections.Forward Then
+                    ExponentSign = -1
+                ElseIf Direction = FftDirections.Backward Then
+                    ExponentSign = 1
+                Else
+                    Throw New ArgumentException("Unknown FFT direction")
                 End If
 
-                Return True
+                If Reorder = True Then
+
+                    Dim TempX As Double
+                    Dim TempY As Double
+
+                    Dim j As Integer = 0
+                    For i = 0 To x.Length - 2
+
+                        If i < j Then
+                            TempX = x(i)
+                            x(i) = x(j)
+                            x(j) = TempX
+
+                            TempY = y(i)
+                            y(i) = y(j)
+                            y(j) = TempY
+
+                        End If
+
+                        Dim m As Integer = x.Length
+
+                        Do
+                            m >>= 1
+                            j = j Xor m
+                        Loop While (j And m) = 0
+
+                    Next
+
+                End If
+
+                'Defining some temporary variables to avoid definition inside loop
+                Dim aiX As Double
+                Dim aiY As Double
+                Dim Real1 As Double
+                Dim Imaginary1 As Double
+                Dim Real2 As Double
+                Dim Imaginary2 As Double
+                Dim TempReal1 As Double
+
+                Dim LevelSize As Integer = 1
+                While LevelSize < x.Length
+
+                    For k = 0 To LevelSize - 1
+
+                        Dim exponent = (ExponentSign * k) * Math.PI / LevelSize
+                        Dim wX As Double = Math.Cos(exponent) ' N.B. this step of the algorithm suffers from the inexact floating point numbers returned from the trigonometric functions Cos and Sin
+                        Dim wY As Double = Math.Sin(exponent)
+
+                        Dim StepSize = LevelSize << 1
+
+                        Dim i As Integer = k
+                        While i < x.Length - 1
+
+                            aiX = x(i)
+                            aiY = y(i)
+
+                            Real1 = wX
+                            Imaginary1 = wY
+                            Real2 = x(i + LevelSize)
+                            Imaginary2 = y(i + LevelSize)
+
+                            'Complex multiplication
+                            TempReal1 = Real1
+                            Real1 = TempReal1 * Real2 - Imaginary1 * Imaginary2
+                            Imaginary1 = TempReal1 * Imaginary2 + Imaginary1 * Real2
+
+                            x(i) = aiX + Real1
+                            y(i) = aiY + Imaginary1
+
+                            x(i + LevelSize) = aiX - Real1
+                            y(i + LevelSize) = aiY - Imaginary1
+
+                            i += StepSize
+
+                        End While
+
+                    Next
+
+                    LevelSize *= 2
+
+                End While
+
+                'Scaling
+                If Direction = FftDirections.Forward And ScaleForwardTransform = True Then
+                    Dim scalingFactor = 1.0 / x.Length
+                    For i = 0 To x.Length - 1
+                        x(i) *= scalingFactor
+                        y(i) *= scalingFactor
+                    Next
+                End If
+
+            End Sub
+
+
+            ''' <summary>
+            ''' Complex Radix-2 FFT- Should be slower than FftRadix since it calls ComplexMultiplication, but a bit clearer in its implementation.
+            ''' </summary>
+            ''' <param name="x">Real data array</param>
+            ''' <param name="y">Imaginary data array</param>
+            ''' <param name="Direction">Transform direction</param>
+            ''' <param name="ScaleForwardTransform"></param>
+            ''' <param name="Reorder">Set to false to skip sample reordering</param>
+            Public Sub FftRadix2_B(ByRef x() As Double, ByRef y() As Double, ByRef Direction As FftDirections, Optional ByVal ScaleForwardTransform As Boolean = True, Optional ByVal Reorder As Boolean = True)
+
+                ' This is a modified VB translation of the MIT licensed code in Mathnet Numerics, See https://github.com/mathnet/mathnet-numerics/blob/306fb068d73f3c3d0e90f6f644b55cddfdeb9a0c/src/Numerics/Providers/FourierTransform/ManagedFourierTransformProvider.Radix2.cs
+
+                Dim ExponentSign As Integer
+                If Direction = FftDirections.Forward Then
+                    ExponentSign = -1
+                ElseIf Direction = FftDirections.Backward Then
+                    ExponentSign = 1
+                Else
+                    Throw New ArgumentException("Unknown FFT direction")
+                End If
+
+                If Reorder = True Then
+
+                    Dim TempX As Double
+                    Dim TempY As Double
+
+                    Dim j As Integer = 0
+                    For i = 0 To x.Length - 2
+
+                        If i < j Then
+                            TempX = x(i)
+                            x(i) = x(j)
+                            x(j) = TempX
+
+                            TempY = y(i)
+                            y(i) = y(j)
+                            y(j) = TempY
+
+                        End If
+
+                        Dim m As Integer = x.Length
+
+                        Do
+                            m >>= 1
+                            j = j Xor m
+                        Loop While (j And m) = 0
+
+                    Next
+
+                End If
+
+                Dim LevelSize As Integer = 1
+                While LevelSize < x.Length
+
+                    For k = 0 To LevelSize - 1
+
+                        Dim exponent = (ExponentSign * k) * Math.PI / LevelSize
+                        Dim wX As Double = Math.Cos(exponent)
+                        Dim wY As Double = Math.Sin(exponent)
+
+                        Dim StepSize = LevelSize << 1
+
+                        Dim i As Integer = k
+                        While i < x.Length - 1
+
+                            Dim aiX = x(i)
+                            Dim aiY = y(i)
+
+                            Dim t = ComplexMultiplication(wX, wY, x(i + LevelSize), y(i + LevelSize))
+
+                            x(i) = aiX + t.Item1
+                            y(i) = aiY + t.Item2
+
+                            x(i + LevelSize) = aiX - t.Item1
+                            y(i + LevelSize) = aiY - t.Item2
+
+                            i += StepSize
+
+                        End While
+
+                    Next
+
+                    LevelSize *= 2
+
+                End While
+
+                'Scaling
+                If Direction = FftDirections.Forward And ScaleForwardTransform = True Then
+                    Dim scalingFactor = 1.0 / x.Length
+                    For i = 0 To x.Length - 1
+                        x(i) *= scalingFactor
+                        y(i) *= scalingFactor
+                    Next
+                End If
+
+            End Sub
+
+            Public Function ComplexMultiplication(ByVal Real1 As Double, ByVal Imaginary1 As Double, ByVal Real2 As Double, ByVal Imaginary2 As Double) As Tuple(Of Double, Double)
+
+                Dim TempReal1 = Real1
+                Real1 = tempReal1 * Real2 - Imaginary1 * Imaginary2
+                Imaginary1 = tempReal1 * Imaginary2 + Imaginary1 * Real2
+
+                Return New Tuple(Of Double, Double)(Real1, Imaginary1)
+
             End Function
 
 
-            Public Function FastFourierTransform(ByVal dir As Integer, ByVal m As Long, ByRef x() As Double, ByRef y() As Double,
-                                   Optional ScaleForwardTransform As Boolean = True)
+            ''' <summary>
+            ''' Complex Radix-2 FFT, performed by copying data to the System.Numerics.Complex type.
+            ''' </summary>
+            ''' <param name="x">Real data array</param>
+            ''' <param name="y">Imaginary data array</param>
+            ''' <param name="Direction">Transform direction</param>
+            ''' <param name="ScaleForwardTransform"></param>
+            ''' <param name="Reorder">Set to false to skip sample reordering</param>
+            Public Sub FftRadix2_CT(ByRef x() As Double, ByRef y() As Double, ByRef Direction As FftDirections, Optional ByVal ScaleForwardTransform As Boolean = True, Optional ByVal Reorder As Boolean = True)
 
-                'Source:
-                'Title of the source chapter:
-                'DFT
-                '(Discrete Fourier Transform)
-                'FFT
-                '(Fast Fourier Transform)
-                'Written by Paul Bourke
-                'June 1993
+                'Copying data to complex type
+                Dim ComplexData(x.Length - 1) As System.Numerics.Complex
+                For i = 0 To x.Length - 1
+                    ComplexData(i) = New Numerics.Complex(x(i), y(i))
+                Next
 
-                'http://paulbourke.net/miscellaneous/dft/  (Aquired 2015-08-14)
+                'Performing fft
+                FftRadix2(ComplexData, Direction, ScaleForwardTransform, Reorder)
 
-                'References cited by Bourke:
-                'Fast Fourier Transforms
-                'Walker, j.S.
-                'CRC Press. 1996 
+                'Copying data back
+                For i = 0 To x.Length - 1
+                    x(i) = ComplexData(i).Real
+                    y(i) = ComplexData(i).Imaginary
+                Next
 
-                'Fast Fourier Transforms: Algorithms
-                'Elliot, D.F.and Rao, k.R.
-                'Academic Press, New York, 1982 
+            End Sub
 
-                'Fast Fourier Transforms And Convolution Algorithms
-                'Nussbaumer, H.J.
-                'Springer, New York, 1982 
+            ''' <summary>
+            ''' Complex Radix-2 FFT, performed directly on a referenced System.Numerics.Complex type array.
+            ''' </summary>
+            ''' <param name="data">The complex input array</param>
+            ''' <param name="Direction">Transform direction</param>
+            ''' <param name="ScaleForwardTransform"></param>
+            ''' <param name="Reorder">Set to false to skip sample reordering</param>
+            Public Sub FftRadix2(ByRef Data() As Numerics.Complex, ByRef Direction As FftDirections, Optional ByVal ScaleForwardTransform As Boolean = True, Optional ByVal Reorder As Boolean = True)
 
-                'Digital Signal Processing
-                'Oppenheimer, A.V.and Shaffer, R.W.
-                'Prentice - Hall, Englewood Cliffs, NJ, 1975 
+                ' This is a modified VB translation of the MIT licensed code in Mathnet Numerics, See https://github.com/mathnet/mathnet-numerics/blob/306fb068d73f3c3d0e90f6f644b55cddfdeb9a0c/src/Numerics/Providers/FourierTransform/ManagedFourierTransformProvider.Radix2.cs
 
-                'Appendix B. FFT (Fast Fourier Transform), contains the code in C. The following is a translation to VB.NET by Erik Witte (August 2015)
+                Dim CurrentStep As Integer = 0
 
-                '
-                '   This computes an in-place complex-to-complex FFT 
-                '   x and y are the real and imaginary arrays of 2^m points.
-                '   dir =  1 gives forward transform
-                '   dir = -1 gives reverse transform 
-
-                Dim n, i, i1, j, k, i2, l, l1, l2 As Long
-                Dim c1, c2, tx, ty, t1, t2, u1, u2, z As Double
-
-                '/* Calculate the number of points */
-                n = 1
-                For i = 0 To m - 1
-                    n *= 2
-                Next i
-
-
-                '/* Do the bit reversal */
-                i2 = n >> 1
-                j = 0
-                For i = 0 To n - 2
-                    If (i < j) Then
-                        tx = x(i)
-                        ty = y(i)
-                        x(i) = x(j)
-                        y(i) = y(j)
-                        x(j) = tx
-                        y(j) = ty
-                    End If
-                    k = i2
-
-                    While k <= j
-                        j -= k
-                        k >>= 1
-                    End While
-                    j += k
-                Next i
-
-                '/* Compute the FFT */
-                c1 = -1.0
-                c2 = 0.0
-                l2 = 1
-                For l = 0 To m - 1
-                    l1 = l2
-                    l2 <<= 1
-                    u1 = 1.0
-                    u2 = 0.0
-                    For j = 0 To l1 - 1
-                        For i = j To n - 1 Step l2
-                            i1 = i + l1
-                            t1 = u1 * x(i1) - u2 * y(i1)
-                            t2 = u1 * y(i1) + u2 * x(i1)
-                            x(i1) = x(i) - t1
-                            y(i1) = y(i) - t2
-                            x(i) += t1
-                            y(i) += t2
-                        Next i
-                        z = u1 * c1 - u2 * c2
-                        u2 = u1 * c2 + u2 * c1
-                        u1 = z
-                    Next j
-                    c2 = Math.Sqrt((1.0 - c1) / 2.0)
-                    If dir = 1 Then c2 = -c2
-                    c1 = Math.Sqrt((1.0 + c1) / 2.0)
-                Next l
-
-                '/* Scaling for forward transform */
-                If dir = 1 And ScaleForwardTransform = True Then
-                    For i = 0 To n - 1
-                        x(i) /= n
-                        y(i) /= n
-                    Next i
+                Dim ExponentSign As Integer
+                If Direction = FftDirections.Forward Then
+                    ExponentSign = -1
+                ElseIf Direction = FftDirections.Backward Then
+                    ExponentSign = 1
+                Else
+                    Throw New ArgumentException("Unknown FFT direction")
                 End If
 
-                Return True
-            End Function
+                If Reorder = True Then
+                    Dim TempSample As Numerics.Complex
+
+                    Dim j As Integer = 0
+                    For i = 0 To Data.Length - 2
+
+                        If i < j Then
+                            TempSample = Data(i)
+                            Data(i) = Data(j)
+                            Data(j) = TempSample
+                        End If
+
+                        Dim m As Integer = Data.Length
+
+                        Do
+                            m >>= 1
+                            j = j Xor m
+                        Loop While (j And m) = 0
+
+                    Next
+                End If
+
+                Dim levelSize As Integer = 1
+                While levelSize < Data.Length
+
+                    For k = 0 To levelSize - 1
+
+                        Dim exponent = (ExponentSign * k) * Math.PI / levelSize
+                        Dim w = New System.Numerics.Complex(Math.Cos(exponent), Math.Sin(exponent))
+
+                        Dim stepSize = levelSize << 1
+
+                        Dim i As Integer = k
+                        While i < Data.Length - 1
+
+                            Dim ai = Data(i)
+                            Dim t = w * Data(i + levelSize)
+                            Data(i) = ai + t
+                            Data(i + levelSize) = ai - t
+
+                            CurrentStep += 1
+
+                            i += stepSize
+
+                        End While
+
+                    Next
+
+                    levelSize *= 2
+
+                End While
+
+                'Scaling
+                If Direction = FftDirections.Forward And ScaleForwardTransform = True Then
+                    Dim scalingFactor = 1.0 / Data.Length
+                    For i = 0 To Data.Length - 1
+                        Data(i) *= scalingFactor
+                        CurrentStep += 1
+                    Next
+                End If
+
+            End Sub
+
+            'Private Sub Radix2Reorder(ByRef samples() As Numerics.Complex)
+
+            '    ' This is a VB translation of the MIT licensed code in Mathnet Numerics, See https://github.com/mathnet/mathnet-numerics/blob/306fb068d73f3c3d0e90f6f644b55cddfdeb9a0c/src/Numerics/Providers/FourierTransform/ManagedFourierTransformProvider.Radix2.cs
+
+            '    Dim TempSample As Numerics.Complex
+
+            '    Dim j = 0
+            '    For i = 0 To samples.Length - 2
+
+            '        If i < j Then
+
+            '            TempSample = samples(i)
+            '            samples(i) = samples(j)
+            '            samples(j) = TempSample
+            '        End If
+
+            '        Dim m As Integer = samples.Length
+
+            '        Do
+            '            m >>= 1
+            '            j = j Xor m
+            '        Loop While (j And m) = 0
+
+            '    Next
+
+            'End Sub
+
+            'Private Sub Radix2Step(ByRef samples As System.Numerics.Complex(), ByVal exponentSign As Integer, ByVal levelSize As Integer, ByVal k As Integer)
+
+            '    ' This is a VB translation of the MIT licensed code in Mathnet Numerics, See https://github.com/mathnet/mathnet-numerics/blob/306fb068d73f3c3d0e90f6f644b55cddfdeb9a0c/src/Numerics/Providers/FourierTransform/ManagedFourierTransformProvider.Radix2.cs
+
+            '    Dim exponent = (exponentSign * k) * Math.PI / levelSize
+            '    Dim w = New System.Numerics.Complex(Math.Cos(exponent), Math.Sin(exponent))
+
+            '    Dim stepSize = levelSize << 1
+
+            '    Dim i As Integer = k
+            '    While i < samples.Length - 1
+
+            '        Dim ai = samples(i)
+            '        Dim t = w * samples(i + levelSize)
+            '        samples(i) = ai + t
+            '        samples(i + levelSize) = ai - t
+
+            '        i += stepSize
+
+            '    End While
+
+            'End Sub
 
 
             ''' <summary>
@@ -5161,7 +5340,7 @@ Namespace Audio
                     TargetSound.FFT = SpectralAnalysis(TargetSound, FftFormat)
                     TargetSound.FFT.CalculateAmplitudeSpectrum(False, False, False)
 
-                    'Calculate Average power spectrum of all timw windows and store the result in the first time window (of each channel)
+                    'Calculate Average power spectrum of all time windows and store the result in the first time window (of each channel)
                     For c = 1 To TargetSound.WaveFormat.Channels
 
                         'Summing coefficient values
@@ -5189,7 +5368,7 @@ Namespace Audio
                 If InputSound Is Nothing Then Return Nothing
 
                 'Referencing the target spectrum (using only the spectrum of channel 1)
-                Dim TargetSpectrum() As Single = TargetSound.FFT.AmplitudeSpectrum(1, 0).WindowData
+                Dim TargetSpectrum() As Double = TargetSound.FFT.AmplitudeSpectrum(1, 0).WindowData
 
                 'Getting the spectrum of the signal
                 InputSound.FFT = SpectralAnalysis(InputSound, FftFormat)
@@ -5383,7 +5562,7 @@ Namespace Audio
                                         Next
 
                                         'Calculates forward FFT for the IR (Skipping the forward transform scaling)
-                                        FastFourierTransform(1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), dftIR_Bin_x, dftIR_Bin_y, False)
+                                        FastFourierTransform(FftDirections.Forward, dftIR_Bin_x, dftIR_Bin_y, False)
 
                                         'Starts convolution one window at a time
                                         Dim readSample As Integer = 0
@@ -5403,7 +5582,7 @@ Namespace Audio
                                             Next
 
                                             'Calculates forward FFT for the current sound window
-                                            FastFourierTransform(1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), dftSoundBin_x, dftSoundBin_y)
+                                            FastFourierTransform(FftDirections.Forward, dftSoundBin_x, dftSoundBin_y)
 
                                             'performs complex multiplications
                                             Dim tempDftSoundBin_x As Double = 0
@@ -5414,7 +5593,7 @@ Namespace Audio
                                             Next
 
                                             'Calculates inverse FFT
-                                            FastFourierTransform(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), dftSoundBin_x, dftSoundBin_y)
+                                            FastFourierTransform(FftDirections.Backward, dftSoundBin_x, dftSoundBin_y)
 
                                             'Puts the convoluted sound in the output array
                                             For sample = 0 To fftFormat.FftWindowSize - 1
@@ -5617,7 +5796,7 @@ Namespace Audio
                                         Next
 
                                         'Calculates forward FFT for the IR (Skipping the forward transform scaling)
-                                        FastFourierTransform(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftIR_Bin_x, DftIR_Bin_y, False)
+                                        FastFourierTransform(FftDirections.Forward, DftIR_Bin_x, DftIR_Bin_y, False)
 
                                         'Starts convolution one time window at a time, using the add-overlap method
                                         Dim readSample As Integer = 0
@@ -5637,7 +5816,7 @@ Namespace Audio
                                             Next
 
                                             'Calculates forward FFT for the current sound window
-                                            FastFourierTransform(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSoundBin_x, DftSoundBin_y)
+                                            FastFourierTransform(FftDirections.Forward, DftSoundBin_x, DftSoundBin_y)
 
                                             'performs complex multiplications
                                             Dim tempDftSoundBin_x As Single = 0
@@ -5648,7 +5827,7 @@ Namespace Audio
                                             Next
 
                                             'Calculates inverse FFT
-                                            FastFourierTransform(-1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSoundBin_x, DftSoundBin_y)
+                                            FastFourierTransform(FftDirections.Backward, DftSoundBin_x, DftSoundBin_y)
 
                                             'Puts the convoluted sound in the output array
                                             For sample = 0 To FftFormat.FftWindowSize - 1
@@ -5754,7 +5933,7 @@ Namespace Audio
                         Next
 
                         'Calculates forward FFT for sound 1
-                        FastFourierTransform(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSound1_x_Bin, DftSound1_y_Bin, False)
+                        FastFourierTransform(FftDirections.Forward, DftSound1_x_Bin, DftSound1_y_Bin, False)
 
 
                         'Copies the Sound 2IR samples into DftSound2_x_Bin
@@ -5770,7 +5949,7 @@ Namespace Audio
 
 
                         'Calculates forward FFT for Sound 2
-                        FastFourierTransform(1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSound2_x_Bin, DftSound2_y_Bin, True)
+                        FastFourierTransform(FftDirections.Forward, DftSound2_x_Bin, DftSound2_y_Bin, True)
 
 
                         'Performs complex division
@@ -5800,7 +5979,7 @@ Namespace Audio
                         Next
 
                         'Calculates inverse FFT
-                        FastFourierTransform(-1, Utils.getBase_n_Log(FftFormat.FftWindowSize, 2), DftSound1_x_Bin, DftSound1_y_Bin)
+                        FastFourierTransform(FftDirections.Backward, DftSound1_x_Bin, DftSound1_y_Bin)
 
                         'Puts the convoluted sound in the output array
                         Dim OutputChannelArray(DftSound1_x_Bin.Length - 1) As Single
@@ -7977,8 +8156,8 @@ Namespace Audio
 
                             For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
 
-                                Dim magnitudeArray(fftFormat.FftWindowSize - 1) As Single
-                                Dim phaseArray(fftFormat.FftWindowSize - 1) As Single
+                                Dim magnitudeArray(fftFormat.FftWindowSize - 1) As Double
+                                Dim phaseArray(fftFormat.FftWindowSize - 1) As Double
 
                                 Select Case IRType
                                     Case FilterType.RandomPhase
@@ -8168,7 +8347,7 @@ Namespace Audio
                                 'getRectangualForm(magnitudeArray, phaseArray, FFT_X, FFT_Y)
 
                                 'Performing an inverse dft on the magnitude and phase arrays
-                                DSP.TransformationsExt.FastFourierTransform(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData, outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData)
+                                DSP.TransformationsExt.FastFourierTransform(DSP.FftDirections.Backward, outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData, outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData)
 
                                 'Shifting + truncating
                                 Dim kernelArray(kernelSize - 1) As Single
@@ -8314,8 +8493,8 @@ Namespace Audio
                     Select Case waveFormat.BitDepth
                         Case 16, 32
 
-                            Dim magnitudeArray(fftFormat.FftWindowSize - 1) As Single
-                            Dim phaseArray(fftFormat.FftWindowSize - 1) As Single
+                            Dim magnitudeArray(fftFormat.FftWindowSize - 1) As Double
+                            Dim phaseArray(fftFormat.FftWindowSize - 1) As Double
 
                             If FrequencyResponse.Count > 0 Then
 
@@ -8414,10 +8593,7 @@ Namespace Audio
                             Next
 
                             'Performing an inverse dft on the magnitude and phase arrays
-                            DSP.TransformationsExt.FastFourierTransform(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), X_Re, X_Im)
-
-                            'Out-commented code for FFT with Single datatype
-                            'DSP.Transformations.FastFourierTransform(-1, getBase_n_Log(fftFormat.FftWindowSize, 2), outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData, outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData)
+                            DSP.TransformationsExt.FastFourierTransform(DSP.FftDirections.Backward, X_Re, X_Im)
 
                             'Shifting + truncating
                             Dim kernelArray(kernelSize - 1) As Single
@@ -8533,9 +8709,7 @@ Namespace Audio
                     Dim temporaryIMX(fftFormat.FftWindowSize - 1) As Double
 
                     'Performing an inverse dft on the magnitudes
-                    'FastFourierTransform(-1, getBaseTwoLog(fftFormat.FftWindowSize), averageMagnitudes, temporaryIMX)
-
-                    DSP.FastFourierTransform(-1, Utils.Math.getBase_n_Log(fftFormat.FftWindowSize, 2), averageMagnitudes, temporaryIMX)
+                    DSP.FastFourierTransform(DSP.FftDirections.Backward, averageMagnitudes, temporaryIMX)
 
                     'Shifting + truncate
                     Dim kernelArray(kernelSize - 1) As Single
@@ -8690,7 +8864,7 @@ Namespace Audio
                     Next
 
                     'Calculating spectral subtraction
-                    Dim SubtractionMagnitudes(fftFormat.FftWindowSize - 1) As Single
+                    Dim SubtractionMagnitudes(fftFormat.FftWindowSize - 1) As Double
                     For n = 0 To fftFormat.FftWindowSize - 1
                         'converting to and from dB, limiting band gain to MaxBandGain
                         'Dim s1Level = dBConversion(averageMagnitudes_s1(n), dBConversionDirection.to_dB, InputSound1.WaveFormat)
@@ -8751,10 +8925,10 @@ Namespace Audio
                     End If
 
                     'Since the phase can be set to 0, the real part of the signal is equal to the magnitudes
-                    Dim temporaryIMX(fftFormat.FftWindowSize - 1) As Single
+                    Dim temporaryIMX(fftFormat.FftWindowSize - 1) As Double
 
                     'Performing an inverse dft on the magnitudes
-                    DSP.FastFourierTransform(-1, Utils.getBase_n_Log(fftFormat.FftWindowSize, 2), SubtractionMagnitudes, temporaryIMX)
+                    DSP.FastFourierTransform(DSP.FftDirections.Backward, SubtractionMagnitudes, temporaryIMX)
 
                     'Shifting + truncate
                     Dim kernelArray(kernelSize - 1) As Single

@@ -366,7 +366,8 @@ Namespace Audio
                                                 Optional ByVal StartSample As Integer = 0, Optional ByVal SectionLength As Integer? = Nothing,
                                                 Optional ByRef LoudestWindowStartSample As Integer = 0,
                                                 Optional ByVal Frequencyweighting As FrequencyWeightings = FrequencyWeightings.Z,
-                                                Optional ByVal ZeroPadToWindowSize As Boolean = False) As Double
+                                                Optional ByVal ZeroPadToWindowSize As Boolean = False,
+                                                    Optional ByRef WindowLevels As List(Of Double) = Nothing) As Double
 
 
                 CheckAndCorrectSectionLength(InputSound.WaveData.SampleData(Channel).Length, StartSample, SectionLength)
@@ -445,6 +446,11 @@ Namespace Audio
                         LeftToUpdate -= 1
                     End If
 
+                    'Stroring the CurrentSumOfSquares in WindowLevels
+                    If WindowLevels IsNot Nothing Then
+                        WindowLevels.Add(CurrentSumOfSquares)
+                    End If
+
                     'Updating and storing the loudest window start sample
                     If CurrentSumOfSquares > HighestSumOfSquares Then
                         HighestSumOfSquares = CurrentSumOfSquares
@@ -455,6 +461,19 @@ Namespace Audio
 
                 'Adding the section length removed prior to the initial start sample to LoudestWindowStartSample
                 LoudestWindowStartSample += InitialStartSample
+
+                If WindowLevels IsNot Nothing Then
+                    'Calulating the RMS level in dB for the WindowLevels 
+                    Dim dBList As New List(Of Double)
+                    For Each SuMOfSquareValue In WindowLevels
+                        If SuMOfSquareValue > 0 Then
+                            dBList.Add(dBConversion(Math.Sqrt(SuMOfSquareValue / WindowSize), dBConversionDirection.to_dB, TempSound.WaveFormat))
+                        Else
+                            dBList.Add(Double.NegativeInfinity)
+                        End If
+                    Next
+                    WindowLevels = dBList
+                End If
 
                 'Calulating the RMS level in dB
                 If HighestSumOfSquares > 0 Then
