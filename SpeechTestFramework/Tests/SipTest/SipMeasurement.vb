@@ -197,9 +197,10 @@ Namespace SipTest
         Public Sub PreMixTestTrialSoundsOnNewTread(ByRef SelectedTransducer As AudioSystemSpecification,
                                          ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                                          ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
-                                         Optional ByVal StopAfter As Integer? = 10)
+                                         Optional ByVal StopAfter As Integer? = 10, Optional SameRandomSeed As Integer? = Nothing, Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing)
 
-            Dim NewTestTrialSoundMixClass = New TestTrialSoundMixerOnNewThread(Me, SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, StopAfter)
+            Dim NewTestTrialSoundMixClass = New TestTrialSoundMixerOnNewThread(Me, SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech,
+                                                                               StopAfter, SameRandomSeed, FixedMaskerIndices)
 
 
         End Sub
@@ -215,10 +216,14 @@ Namespace SipTest
             Public UseBackgroundSpeech As Boolean
             Public StopAfter As Integer? = 10
 
+            Public SameRandomSeed As Integer? = Nothing
+            Public FixedMaskerIndices As List(Of Integer) = Nothing
+
             Public Sub New(ByRef SipMeasurement As SipMeasurement, ByRef SelectedTransducer As AudioSystemSpecification,
                                          ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                                          ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
-                                         Optional ByVal StopAfter As Integer? = 10)
+                                         Optional ByVal StopAfter As Integer? = 10,
+                           Optional SameRandomSeed As Integer? = Nothing, Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing)
 
                 Me.SipMeasurement = SipMeasurement
                 Me.SelectedTransducer = SelectedTransducer
@@ -229,6 +234,9 @@ Namespace SipTest
                 Me.UseBackgroundSpeech = UseBackgroundSpeech
                 Me.StopAfter = StopAfter
 
+                Me.SameRandomSeed = SameRandomSeed
+                Me.FixedMaskerIndices = FixedMaskerIndices
+
                 Dim NewTread As New Threading.Thread(AddressOf DoWork)
                 NewTread.IsBackground = True
                 NewTread.Start()
@@ -236,7 +244,8 @@ Namespace SipTest
             End Sub
 
             Public Sub DoWork()
-                SipMeasurement.PreMixTestTrialSounds(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, StopAfter)
+                SipMeasurement.PreMixTestTrialSounds(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, StopAfter,
+                                                     SameRandomSeed, FixedMaskerIndices)
             End Sub
 
         End Class
@@ -244,7 +253,7 @@ Namespace SipTest
         Public Sub PreMixTestTrialSounds(ByRef SelectedTransducer As AudioSystemSpecification,
                                          ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                                          ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
-                                         Optional ByVal StopAfter As Integer? = 10)
+                                         Optional ByVal StopAfter As Integer? = 10, Optional SameRandomSeed As Integer? = Nothing, Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing)
 
             Dim MixedCount As Integer = 0
             Dim RemainingPlannedTrials = PlannedTrials.GetRange(0, PlannedTrials.Count)
@@ -257,10 +266,27 @@ Namespace SipTest
                 End If
             End If
 
+            Dim LastListId As String = ""
+
             For Each Trial In RemainingPlannedTrials
 
+                If SameRandomSeed.HasValue Then
+
+                    If LastListId <> "" Then
+                        LastListId = Trial.SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).Id
+                    Else
+                        If LastListId <> Trial.SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).Id Then
+                            'Incrementing SameRandomSeed by 1 to get a new random value for the new list
+                            SameRandomSeed += 1
+                        End If
+                    End If
+
+                        'Forces the same random series for every trial in the same list level (to force the background sound sections in all trials)
+                        SipMeasurementRandomizer = New Random(SameRandomSeed)
+                End If
+
                 If Trial.TestTrialSound Is Nothing Then
-                    Trial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+                    Trial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices)
                     MixedCount += 1
 
                     If LogToConsole = True Then
@@ -382,7 +408,7 @@ Namespace SipTest
             'Adding already tested trials
             For i = 0 To ObservedTrials.Count - 1
                 Select Case TestProcedure.TestParadigm
-                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                    Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                         Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & ObservedTrials(i).TargetStimulusLocation.ActualLocation.HorizontalAzimuth)  'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                     Case Else
                         Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
@@ -395,7 +421,7 @@ Namespace SipTest
             For i = 0 To PlannedTrials.Count - 1
 
                 Select Case TestProcedure.TestParadigm
-                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                    Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                         Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & PlannedTrials(i).TargetStimulusLocation.ActualLocation.HorizontalAzimuth) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                     Case Else
                         Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
@@ -1225,7 +1251,8 @@ Namespace SipTest
 
         Public Sub MixSound(ByRef SelectedTransducer As AudioSystemSpecification,
                             ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
-                            ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean)
+                            ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
+                            Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing)
 
             Try
 
@@ -1239,7 +1266,13 @@ Namespace SipTest
                 Dim SoundWaveFormat As Audio.Formats.WaveFormat = Nothing
 
                 'Getting maskers
-                Dim SelectedMaskerIndices = Utils.SampleWithoutReplacement(2, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer)
+                Dim SelectedMaskerIndices As Integer()
+                If FixedMaskerIndices Is Nothing Then
+                    SelectedMaskerIndices = Utils.SampleWithoutReplacement(2, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer)
+                Else
+                    If FixedMaskerIndices.Count <> 2 Then Throw New ArgumentException("FixedMaskerIndices must be either Nothing or contain two integers.")
+                    SelectedMaskerIndices = FixedMaskerIndices.ToArray
+                End If
                 Dim Masker1 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(0)))
                 Dim Masker2 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(1)))
 
@@ -1300,7 +1333,7 @@ Namespace SipTest
 
                 'Adding more backgrounds
                 Select Case ParentTestUnit.ParentMeasurement.TestProcedure.TestParadigm
-                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                    Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                         'Background 3
                         Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
                                 BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
@@ -1338,7 +1371,7 @@ Namespace SipTest
                 Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
                 Dim BackgroundNonSpeechDucking = Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel)
                 'TODO: There is some bug here, causing the BackgroundNonSpeech to suddenly pop up a few decibels!!! Lines outcommented until solved:
-                MsgBox("Check bug here somewhere!")
+                'MsgBox("Check bug here somewhere!")
                 'DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
                 'DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
                 DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, 0, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
@@ -1617,6 +1650,7 @@ Namespace SipTest
     Public Enum Testparadigm
         Quick
         Slow
+        Directional2
         Directional3
         Directional5
     End Enum
@@ -1641,6 +1675,10 @@ Namespace SipTest
             TargetStimulusLocations.Add(Testparadigm.Slow, {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}})
 
             TargetStimulusLocations.Add(Testparadigm.Quick, {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}})
+
+            TargetStimulusLocations.Add(Testparadigm.Directional2, {
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -15},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 15}})
 
             TargetStimulusLocations.Add(Testparadigm.Directional3, {
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},

@@ -120,9 +120,10 @@ Partial Class SipTestGui
         Me.SelectTransducer_Label = New System.Windows.Forms.Label()
         Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.Operation_ProgressBarWithText = New SpeechTestFramework.ProgressBarWithText()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.Operation_ProgressBarWithText = New SpeechTestFramework.ProgressBarWithText()
+        Me.CreateSounds_Button = New System.Windows.Forms.Button()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.Test_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -385,6 +386,7 @@ Partial Class SipTestGui
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.MostDifficultItems_Button, 3, 7)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PlannedTestLength_TextBox, 2, 10)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TableLayoutPanel2, 2, 8)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.CreateSounds_Button, 3, 9)
         Me.TestSettings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestSettings_TableLayoutPanel.Location = New System.Drawing.Point(3, 3)
         Me.TestSettings_TableLayoutPanel.Name = "TestSettings_TableLayoutPanel"
@@ -1324,6 +1326,18 @@ Partial Class SipTestGui
         Me.Panel1.Size = New System.Drawing.Size(1318, 5)
         Me.Panel1.TabIndex = 2
         '
+        'Operation_ProgressBarWithText
+        '
+        Me.Operation_ProgressBarWithText.CustomText = ""
+        Me.Operation_ProgressBarWithText.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Operation_ProgressBarWithText.Location = New System.Drawing.Point(3, 593)
+        Me.Operation_ProgressBarWithText.Name = "Operation_ProgressBarWithText"
+        Me.Operation_ProgressBarWithText.Size = New System.Drawing.Size(1318, 20)
+        Me.Operation_ProgressBarWithText.Step = 1
+        Me.Operation_ProgressBarWithText.TabIndex = 3
+        Me.Operation_ProgressBarWithText.TextFont = New System.Drawing.Font("Microsoft Sans Serif", 8.25!)
+        Me.Operation_ProgressBarWithText.TextMode = SpeechTestFramework.ProgressBarWithText.TextModes.CustomText
+        '
         'MenuStrip1
         '
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AboutToolStripMenuItem})
@@ -1340,17 +1354,14 @@ Partial Class SipTestGui
         Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(52, 20)
         Me.AboutToolStripMenuItem.Text = "About"
         '
-        'Operation_ProgressBarWithText
+        'CreateSounds_Button
         '
-        Me.Operation_ProgressBarWithText.CustomText = ""
-        Me.Operation_ProgressBarWithText.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Operation_ProgressBarWithText.Location = New System.Drawing.Point(3, 593)
-        Me.Operation_ProgressBarWithText.Name = "Operation_ProgressBarWithText"
-        Me.Operation_ProgressBarWithText.Size = New System.Drawing.Size(1318, 20)
-        Me.Operation_ProgressBarWithText.Step = 1
-        Me.Operation_ProgressBarWithText.TabIndex = 3
-        Me.Operation_ProgressBarWithText.TextFont = New System.Drawing.Font("Microsoft Sans Serif", 8.25!)
-        Me.Operation_ProgressBarWithText.TextMode = SpeechTestFramework.ProgressBarWithText.TextModes.CustomText
+        Me.CreateSounds_Button.Location = New System.Drawing.Point(429, 374)
+        Me.CreateSounds_Button.Name = "CreateSounds_Button"
+        Me.CreateSounds_Button.Size = New System.Drawing.Size(52, 23)
+        Me.CreateSounds_Button.TabIndex = 18
+        Me.CreateSounds_Button.Text = "Generate sounds"
+        Me.CreateSounds_Button.UseVisualStyleBackColor = True
         '
         'SipTestGui
         '
@@ -1490,4 +1501,5 @@ Partial Class SipTestGui
     Friend WithEvents Resume_Label As Windows.Forms.Label
     Friend WithEvents KeyboardShortcutContainer_Panel As Windows.Forms.Panel
     Friend WithEvents Operation_ProgressBarWithText As ProgressBarWithText
+    Friend WithEvents CreateSounds_Button As Windows.Forms.Button
 End Class

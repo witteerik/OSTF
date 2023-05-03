@@ -36,7 +36,7 @@ Public Class SipTestGui
     Private CustomPresetCount As Integer = 1
     Private AvailableMediaSets As MediaSetLibrary
     Private AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 60}
-    Private AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
+    Private AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15}
     ''' <summary>
     ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
     ''' </summary>
@@ -292,6 +292,7 @@ Public Class SipTestGui
         'Adding values in Testparadigm_ComboBox
         Testparadigm_ComboBox.Items.Add(Testparadigm.Quick)
         Testparadigm_ComboBox.Items.Add(Testparadigm.Slow)
+        Testparadigm_ComboBox.Items.Add(Testparadigm.Directional2)
         Testparadigm_ComboBox.Items.Add(Testparadigm.Directional3)
         Testparadigm_ComboBox.Items.Add(Testparadigm.Directional5)
         Testparadigm_ComboBox.SelectedIndex = 0
@@ -867,7 +868,7 @@ Public Class SipTestGui
 
             'TODO: Calling GetTargetAzimuths only to ensure that the Actual Azimuths needed for presentation in the TestTrialTable exist. This should probably be done in some other way... (Only applies to the Directional3 and Directional5 Testparadigms)
             Select Case SelectedTestparadigm
-                Case Testparadigm.Directional3, Testparadigm.Directional5
+                Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                     CurrentSipTestMeasurement.GetTargetAzimuths()
             End Select
 
@@ -960,10 +961,10 @@ Public Class SipTestGui
         'Sets the measurement datetime
         CurrentSipTestMeasurement.MeasurementDateTime = DateTime.Now
 
-        'Getting NeededTargetAzimuths for the Directional3 and Directional5 Testparadigms
+        'Getting NeededTargetAzimuths for the Directional2, Directional3 and Directional5 Testparadigms
         Dim NeededTargetAzimuths As List(Of Double) = Nothing
         Select Case SelectedTestparadigm
-            Case Testparadigm.Directional3, Testparadigm.Directional5
+            Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                 NeededTargetAzimuths = CurrentSipTestMeasurement.GetTargetAzimuths()
         End Select
 
@@ -977,7 +978,7 @@ Public Class SipTestGui
                         Case Testparadigm.Quick, Testparadigm.Slow
                             PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
 
-                        Case Testparadigm.Directional3, Testparadigm.Directional5
+                        Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                             PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoiceDirection, NeededTargetAzimuths)
                     End Select
                 End If
@@ -989,7 +990,7 @@ Public Class SipTestGui
                             PcParticipantForm.UpdateType(PcTesteeForm.TaskType.ForcedChoice)
                         End If
 
-                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                    Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
 
                         If PcParticipantForm.CurrentTaskType <> PcTesteeForm.TaskType.ForcedChoiceDirection Then
                             PcParticipantForm.UpdateType(PcTesteeForm.TaskType.ForcedChoiceDirection, NeededTargetAzimuths)
@@ -1020,7 +1021,7 @@ Public Class SipTestGui
             Case ScreenType.Bluetooth
 
                 Select Case SelectedTestparadigm
-                    Case Testparadigm.Directional3, Testparadigm.Directional5
+                    Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                         ShowMessageBox("Bluetooth screen is not yet implemented for the Directional3 and Directional5 test paradigms. Use the PC screen instead.", "SiP-test")
                         Exit Sub
                 End Select
@@ -1178,7 +1179,7 @@ Public Class SipTestGui
     End Sub
 
 
-    Public Function CreateInitialSound() As Audio.Sound
+    Public Function CreateInitialSound(Optional ByVal Duration As Double? = Nothing) As Audio.Sound
 
         Try
 
@@ -1199,7 +1200,13 @@ Public Class SipTestGui
             SoundWaveFormat = BackgroundNonSpeech_Sound.WaveFormat
 
             'Sets a total pretest sound length
-            Dim TrialSoundLength As Integer = (PretestSoundDuration + 4) * CurrentSampleRate 'Adds 4 seconds to allow for potential delay caused by the mixing time of the first test trial sounds
+            Dim TrialSoundLength As Integer
+            If Duration.HasValue Then
+                TrialSoundLength = Duration * SoundWaveFormat.SampleRate
+            Else
+                TrialSoundLength = (PretestSoundDuration + 4) * CurrentSampleRate 'Adds 4 seconds to allow for potential delay caused by the mixing time of the first test trial sounds
+            End If
+
 
             'Copies copies random sections of the background non-speech sound into two sounds
             Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
@@ -1336,7 +1343,7 @@ Public Class SipTestGui
         Select Case SelectedTestparadigm
             Case Testparadigm.Quick, Testparadigm.Slow
                 CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
-            Case Testparadigm.Directional3, Testparadigm.Directional5
+            Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                 CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") & vbTab & CurrentSipTrial.TargetStimulusLocation.ActualLocation.HorizontalAzimuth
         End Select
 
@@ -1422,8 +1429,8 @@ Public Class SipTestGui
             Else
 
                 Select Case SelectedTestparadigm
-                    Case Testparadigm.Directional3, Testparadigm.Directional5
-                        Throw New Exception("Simulation is not implemented for Testparadigm Directional3 and Directional5")
+                    Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
+                        Throw New Exception("Simulation is not implemented for Testparadigm Directiona2, Directional3 and Directional5")
                 End Select
 
                 'Simulating a respons directly without displaying anything on the screen
@@ -1605,7 +1612,7 @@ Public Class SipTestGui
         Dim ResponseScreenPosition As Integer? = Nothing
 
         Select Case SelectedTestparadigm
-            Case Testparadigm.Directional3, Testparadigm.Directional5
+            Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                 For n = 0 To TestWordAlternatives.Count - 1
                     If TestWordAlternatives(n).Item1 & vbTab & TestWordAlternatives(n).Item2.HorizontalAzimuth = CorrectResponse Then TestWordScreenPosition = n
                 Next
@@ -2472,6 +2479,22 @@ Public Class SipTestGui
                 'Temporarily overriding the BackgroundNonspeechRealisticLevel 
                 'SelectedMediaSet.BackgroundNonspeechRealisticLevel = 65
 
+            Case Testparadigm.Directional2
+
+                InterTrialInterval = 1
+                ResponseAlternativeDelay = 0.5
+                PretestSoundDuration = 5
+                MinimumStimulusOnsetTime = 0.5 ' Earlier, when this variable directed the test words instead of maskers its value was 1.5. Having maskers of 3 seconds with the test word centralized, should be approximately the same as 0.3.
+                MaximumStimulusOnsetTime = 0.5 ' Earlier, when this variable directed the test words instead of maskers its value was 2
+                TrialSoundMaxDuration = 5 ' TODO: Optimize by shortening this time
+                UseVisualQue = False
+                UseBackgroundSpeech = False
+                MaximumResponseTime = 4
+                ShowProgressIndication = True
+                'Temporarily overriding the BackgroundNonspeechRealisticLevel 
+                'SelectedMediaSet.BackgroundNonspeechRealisticLevel = 65
+
+
         End Select
 
         TryCalculatePsychometricFunction()
@@ -2489,7 +2512,99 @@ Public Class SipTestGui
 
 #End Region
 
+    Private Sub CreateSiPStimuli()
 
+        Try
+
+            'Creates a new test and updates the psychometric function diagram
+            CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
+            CurrentSipTestMeasurement.SelectedAudiogramData = SelectedAudiogramData
+            CurrentSipTestMeasurement.HearingAidGain = SelectedHearingAidGain
+            CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
+            CurrentSipTestMeasurement.TestProcedure.TestParadigm = SelectedTestparadigm
+
+            CurrentSipTestMeasurement.TestProcedure.RandomizeOrder = False
+
+            'Test length was updated, adds test trials to the measurement
+            CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName)
+
+            'Calculates the psychometric function
+            Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction(SelectedReferenceLevel)
+
+            Dim PNRs(PsychoMetricFunction.Count - 1) As Single
+            Dim PredictedScores(PsychoMetricFunction.Count - 1) As Single
+            Dim LowerCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
+            Dim UpperCriticalBoundary(PsychoMetricFunction.Count - 1) As Single
+
+            Dim n As Integer = 0
+            For Each kvp In PsychoMetricFunction
+                PNRs(n) = kvp.Key
+                PredictedScores(n) = kvp.Value.Item1
+                LowerCriticalBoundary(n) = kvp.Value.Item2
+                UpperCriticalBoundary(n) = kvp.Value.Item3
+                n += 1
+            Next
+
+            'Creates a no-gain psychometric function (to be compared with a gain-based function)
+            Dim NoGain_PredictedScores As New List(Of Single)
+
+            Test_TableLayoutPanel.Enabled = True
+
+            'Updates the psychometric function diagram
+            DisplayPredictedPsychometricCurve(PNRs, PredictedScores, LowerCriticalBoundary, UpperCriticalBoundary, NoGain_PredictedScores)
+
+            'Displayes the planned test length
+            PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
+
+            'TODO: Calling GetTargetAzimuths only to ensure that the Actual Azimuths needed for presentation in the TestTrialTable exist. This should probably be done in some other way... (Only applies to the Directional3 and Directional5 Testparadigms)
+            Select Case SelectedTestparadigm
+                Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
+                    CurrentSipTestMeasurement.GetTargetAzimuths()
+            End Select
+
+            UpdateTestTrialTable()
+
+            'Applying the SelectedReferenceLevel, SelectedPnr and the SelectedTestDescription
+            CurrentSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
+
+            CurrentSipTestMeasurement.Description = SelectedTestDescription
+
+            'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds
+            Dim InitialSound As Audio.Sound = CreateInitialSound(3)
+
+            'Mixing all sounds 
+            Dim SameRandomSeed As Integer? = 42
+            Dim FixedMaskerIndices As List(Of Integer) = New List(Of Integer) From {0, 1}
+            CurrentSipTestMeasurement.PreMixTestTrialSounds(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech,
+                                                                      Nothing, SameRandomSeed, FixedMaskerIndices)
+
+
+            'Saving sounds to file 
+
+            InitialSound.WriteWaveFile("C:\Temp\SiP\InitialSund.wav")
+
+            For n = 0 To CurrentSipTestMeasurement.PlannedTrials.Count - 1
+
+                Dim CurrentTrial = CurrentSipTestMeasurement.PlannedTrials(n)
+                Dim FileName = CurrentTrial.SpeechMaterialComponent.Id & "_" & CurrentTrial.MediaSet.MediaSetName & "_Az_" & CurrentTrial.TargetStimulusLocation.HorizontalAzimuth & "_PNR_" & CurrentTrial.PNR & ".wav"
+                CurrentTrial.TestTrialSound.WriteWaveFile("C:\Temp\SiP\" & FileName)
+
+            Next
+
+
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+        End Try
+
+
+    End Sub
+
+    Private Sub CreateSounds_Button_Click(sender As Object, e As EventArgs) Handles CreateSounds_Button.Click
+
+        CreateSiPStimuli()
+
+    End Sub
 End Class
 
 

@@ -10,6 +10,7 @@ Preset = Måttlig_A: sitt_sytt_sött, hall_pall_tall, paj_pall_pang, kil_fil_sil
 Preset = Måttlig_B_Fallande: tuff_tuss_tusch, sopp_sått_sort, kval_kvarn_kvav, fyr_skyr_syr
 Preset = Grav_A: sarg_sorg_sörj, mår_mor_mur, hyf_hys_hyrs, kval_kvarn_kvar, tugg_tum_tung
 Preset = Grav_B_Fallande: mark_märk_mörk, farm_charm_larm, red_räd_Ryd, ed_led_ned, sock_sått_sort
+Preset = QuickSiP: mark_märk_mörk, kval_kvarn_kvar, fyr_skyr_syr, tuff_tuss_tusch
 Preset = Alla ord: // If left empty all components (except practise components) are added
 Preset = Kil-fil-sil: kil_fil_sil
 Preset = Farm-charm-larm: farm_charm_larm
