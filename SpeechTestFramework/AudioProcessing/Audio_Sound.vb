@@ -1009,9 +1009,15 @@ Namespace Audio
                 writer.Write(WaveFormat.FmtBlockAlign)
                 writer.Write(WaveFormat.BitDepth)
 
+                Dim HasiXmlNodes As Boolean = False
+                If iXmlNodes IsNot Nothing Then
+                    If iXmlNodes.Count > 0 Then
+                        HasiXmlNodes = True
+                    End If
+                End If
 
                 'Writing iXML chunk
-                If iXmlNodes IsNot Nothing Or SMA IsNot Nothing Then
+                If (HasiXmlNodes = True) Or SMA IsNot Nothing Then
 
                     'Noting start position
                     Dim iXMLChunkStartByte As Integer = writer.BaseStream.Position
@@ -1548,6 +1554,9 @@ Namespace Audio
 
                                         ElseIf smaReader.Name = "CHANNEL" Then
 
+                                            'resets the CurrentSentence value
+                                            CurrentSentence = -1
+
                                             'New channel
                                             CurrentChannel += 1
                                             NewSMA.AddChannelData()
@@ -1563,7 +1572,7 @@ Namespace Audio
                                                         'Just ignores the head node
 
                                                     ElseIf smaChannelReader.Name = "SEGMENTATION_COMPLETED" Then
-                                                        Dim value As Integer
+                                                        Dim value As Boolean
                                                         If smaChannelReader.Read() Then
                                                             If Boolean.TryParse(smaChannelReader.Value.Trim(), value) = True Then
                                                                 NewSMA.ChannelData(CurrentChannel).SegmentationCompleted = value
@@ -1693,7 +1702,7 @@ Namespace Audio
                                                                     CurrentWord = -1
 
                                                                 ElseIf smaSentenceReader.Name = "SEGMENTATION_COMPLETED" Then
-                                                                    Dim value As Integer
+                                                                    Dim value As Boolean
                                                                     If smaSentenceReader.Read() Then
                                                                         If Boolean.TryParse(smaSentenceReader.Value.Trim(), value) = True Then
                                                                             NewSMA.ChannelData(CurrentChannel)(CurrentSentence).SegmentationCompleted = value
@@ -1823,7 +1832,7 @@ Namespace Audio
                                                                                 CurrentPhone = -1
 
                                                                             ElseIf smaWordReader.Name = "SEGMENTATION_COMPLETED" Then
-                                                                                Dim value As Integer
+                                                                                Dim value As Boolean
                                                                                 If smaWordReader.Read() Then
                                                                                     If Boolean.TryParse(smaWordReader.Value.Trim(), value) = True Then
                                                                                         NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).SegmentationCompleted = value
@@ -1950,7 +1959,7 @@ Namespace Audio
                                                                                             'Just ignores the head node
 
                                                                                         ElseIf smaPhoneReader.Name = "SEGMENTATION_COMPLETED" Then
-                                                                                            Dim value As Integer
+                                                                                            Dim value As Boolean
                                                                                             If smaPhoneReader.Read() Then
                                                                                                 If Boolean.TryParse(smaPhoneReader.Value.Trim(), value) = True Then
                                                                                                     NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord)(CurrentPhone).SegmentationCompleted = value

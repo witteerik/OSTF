@@ -79,6 +79,7 @@ Partial Class SipTestGui
         Me.Testparadigm_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Testparadigm_Label = New System.Windows.Forms.Label()
         Me.TestLengthComboBox = New System.Windows.Forms.ComboBox()
+        Me.CreateSounds_Button = New System.Windows.Forms.Button()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.ProportionCorrectTextBox = New System.Windows.Forms.TextBox()
         Me.MeasurementProgressBar = New System.Windows.Forms.ProgressBar()
@@ -123,7 +124,6 @@ Partial Class SipTestGui
         Me.Operation_ProgressBarWithText = New SpeechTestFramework.ProgressBarWithText()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.CreateSounds_Button = New System.Windows.Forms.Button()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.Test_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
@@ -763,6 +763,15 @@ Partial Class SipTestGui
         Me.TestLengthComboBox.Size = New System.Drawing.Size(147, 21)
         Me.TestLengthComboBox.TabIndex = 6
         '
+        'CreateSounds_Button
+        '
+        Me.CreateSounds_Button.Location = New System.Drawing.Point(429, 374)
+        Me.CreateSounds_Button.Name = "CreateSounds_Button"
+        Me.CreateSounds_Button.Size = New System.Drawing.Size(52, 23)
+        Me.CreateSounds_Button.TabIndex = 18
+        Me.CreateSounds_Button.Text = "Generate sounds"
+        Me.CreateSounds_Button.UseVisualStyleBackColor = True
+        '
         'TableLayoutPanel4
         '
         Me.TableLayoutPanel4.ColumnCount = 4
@@ -1353,15 +1362,6 @@ Partial Class SipTestGui
         Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
         Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(52, 20)
         Me.AboutToolStripMenuItem.Text = "About"
-        '
-        'CreateSounds_Button
-        '
-        Me.CreateSounds_Button.Location = New System.Drawing.Point(429, 374)
-        Me.CreateSounds_Button.Name = "CreateSounds_Button"
-        Me.CreateSounds_Button.Size = New System.Drawing.Size(52, 23)
-        Me.CreateSounds_Button.TabIndex = 18
-        Me.CreateSounds_Button.Text = "Generate sounds"
-        Me.CreateSounds_Button.UseVisualStyleBackColor = True
         '
         'SipTestGui
         '
