@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32901.82
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OSTF_Android_TelePromter", "OSTF_Android_TelePromter.csproj", "{80E27FD7-7525-4FDD-8780-33091714B175}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{80E27FD7-7525-4FDD-8780-33091714B175}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80E27FD7-7525-4FDD-8780-33091714B175}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80E27FD7-7525-4FDD-8780-33091714B175}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{80E27FD7-7525-4FDD-8780-33091714B175}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80E27FD7-7525-4FDD-8780-33091714B175}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80E27FD7-7525-4FDD-8780-33091714B175}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3686090B-B44C-4C8C-B6FD-8517F4DF1A8E}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/BT_linearLayout"
+        android:visibility="visible">
+
+        <Button
+            android:text="Step 1. Activate bluetooth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/BT1_Button" />
+
+        <Button
+            android:text="Step 2. Make connectable to PC"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/BT2_Button" />
+
+        <Button
+            android:text="Step 3. Search for this unit from the PC"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/BT3_Button" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/Promter_linearLayout"
+        android:visibility="gone"
+        android:weightSum="6">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:id="@+id/linearLayout2"
+            android:layout_height="0px"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout3"
+                android:weightSum="2">
+
+                <Button
+                    android:text="Mirror"
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Mirror_Button"
+                    android:layout_weight="1"/>
+
+                <Button
+                    android:text="De-mirror"
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/Demirror_Button"
+                    android:layout_weight="1"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <TextView
+            android:text="Text"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:id="@+id/Promter_TextView"
+            android:textColor="@android:color/white"
+            android:textAlignment="center"
+            android:layout_weight="4"
+            app:autoSizeTextType="uniform"
+            app:autoSizeStepGranularity="1px"
+            app:autoSizeMaxTextSize="120px"
+            app:autoSizeMinTextSize="1px" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:id="@+id/RecCircle_LinearLayout"
+            android:layout_height="0px"
+            android:layout_weight="1">
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>
