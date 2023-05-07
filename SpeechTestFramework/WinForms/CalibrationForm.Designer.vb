@@ -41,14 +41,14 @@ Partial Class CalibrationForm
         Me.SoundSystem_RichTextBox = New System.Windows.Forms.RichTextBox()
         Me.Splitter1 = New System.Windows.Forms.Splitter()
         Me.Help_Button = New System.Windows.Forms.Button()
+        Me.Label7 = New System.Windows.Forms.Label()
+        Me.FrequencyWeighting_ComboBox = New System.Windows.Forms.ComboBox()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ViewAvailableSoundDevicesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.Label7 = New System.Windows.Forms.Label()
-        Me.FrequencyWeighting_ComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
@@ -276,6 +276,27 @@ Partial Class CalibrationForm
         Me.Help_Button.Text = "Help"
         Me.Help_Button.UseVisualStyleBackColor = True
         '
+        'Label7
+        '
+        Me.TableLayoutPanel1.SetColumnSpan(Me.Label7, 2)
+        Me.Label7.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label7.Location = New System.Drawing.Point(3, 78)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(240, 26)
+        Me.Label7.TabIndex = 27
+        Me.Label7.Text = "Frequency weighting:"
+        Me.Label7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'FrequencyWeighting_ComboBox
+        '
+        Me.TableLayoutPanel1.SetColumnSpan(Me.FrequencyWeighting_ComboBox, 2)
+        Me.FrequencyWeighting_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.FrequencyWeighting_ComboBox.FormattingEnabled = True
+        Me.FrequencyWeighting_ComboBox.Location = New System.Drawing.Point(249, 81)
+        Me.FrequencyWeighting_ComboBox.Name = "FrequencyWeighting_ComboBox"
+        Me.FrequencyWeighting_ComboBox.Size = New System.Drawing.Size(240, 21)
+        Me.FrequencyWeighting_ComboBox.TabIndex = 28
+        '
         'MenuStrip1
         '
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem})
@@ -315,27 +336,6 @@ Partial Class CalibrationForm
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
         Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(226, 22)
         Me.ExitToolStripMenuItem.Text = "Exit"
-        '
-        'Label7
-        '
-        Me.TableLayoutPanel1.SetColumnSpan(Me.Label7, 2)
-        Me.Label7.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label7.Location = New System.Drawing.Point(3, 78)
-        Me.Label7.Name = "Label7"
-        Me.Label7.Size = New System.Drawing.Size(240, 26)
-        Me.Label7.TabIndex = 27
-        Me.Label7.Text = "Frequency weighting:"
-        Me.Label7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'FrequencyWeighting_ComboBox
-        '
-        Me.TableLayoutPanel1.SetColumnSpan(Me.FrequencyWeighting_ComboBox, 2)
-        Me.FrequencyWeighting_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.FrequencyWeighting_ComboBox.FormattingEnabled = True
-        Me.FrequencyWeighting_ComboBox.Location = New System.Drawing.Point(249, 81)
-        Me.FrequencyWeighting_ComboBox.Name = "FrequencyWeighting_ComboBox"
-        Me.FrequencyWeighting_ComboBox.Size = New System.Drawing.Size(240, 21)
-        Me.FrequencyWeighting_ComboBox.TabIndex = 28
         '
         'CalibrationForm
         '

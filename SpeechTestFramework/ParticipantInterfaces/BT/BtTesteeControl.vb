@@ -20,14 +20,14 @@ Public Class BtTesteeControl
     End Property
 
 
-    Public Function Initialize(ByVal UUID As String, ByVal PIN As String, ByVal Language As Utils.Languages) As Boolean
+    Public Function Initialize(ByVal UUID As String, ByVal PIN As String, ByVal Language As Utils.Languages, ByVal AppName As String) As Boolean
 
         Dim Failed As Boolean = False
 
         If BtTabletTalker Is Nothing Then
 
             BtTabletTalker = New BtTabletTalker(Me, UUID, PIN, Language)
-            If BtTabletTalker.EstablishBtConnection() = False Then Failed = True
+            If BtTabletTalker.EstablishBtConnection(AppName) = False Then Failed = True
 
         Else
             If BtTabletTalker.TrySendData() = False Then Failed = True

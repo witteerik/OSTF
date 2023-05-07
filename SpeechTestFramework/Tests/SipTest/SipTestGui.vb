@@ -2195,7 +2195,7 @@ Public Class SipTestGui
             'Creating a new BtTesteeControl (This should be reused as long as the connection is open!)
             MyBtTesteeControl = New BtTesteeControl()
 
-            If MyBtTesteeControl.Initialize(Bt_UUID, Bt_PIN, GuiLanguage) = False Then
+            If MyBtTesteeControl.Initialize(Bt_UUID, Bt_PIN, GuiLanguage, "SiP-tablet") = False Then
                 Failed = True
             End If
 

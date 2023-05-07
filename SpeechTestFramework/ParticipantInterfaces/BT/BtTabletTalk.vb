@@ -52,19 +52,19 @@ Public Class BtTabletTalker
 
     End Sub
 
-    Public Function EstablishBtConnection() As Boolean
+    Public Function EstablishBtConnection(ByVal AppName As String) As Boolean
 
         Dim Instructions As String = ""
         Select Case Language
             Case Utils.Constants.Languages.Swedish
-                Instructions = "Du behöver en surfplatta med appen SiP-tablet installerad." & vbCrLf & vbCrLf &
-                    "Steg 1. Starta appen SiP-tablet på suftplattan och följ instruktionerna." & vbCrLf &
+                Instructions = "Du behöver en surfplatta med appen " & AppName & " installerad." & vbCrLf & vbCrLf &
+                    "Steg 1. Starta appen " & AppName & " på suftplattan och följ instruktionerna." & vbCrLf &
                     "Steg 2. Klicka sedan på knappen Sök nedan, och välj din enhet när den dyker upp i listan." & vbCrLf &
                     "Steg 3. Klicka till sist på OK nedan, eller Cancel för att avbryta."
 
             Case Utils.Constants.Languages.English
-                Instructions = "You will need a tablet with the appen SiP-tablet installed." & vbCrLf & vbCrLf &
-                    "Step 1. Start the app SiP-tablet on your tablet and follow the instructions." & vbCrLf &
+                Instructions = "You will need a tablet with the appen " & AppName & " installed." & vbCrLf & vbCrLf &
+                    "Step 1. Start the app " & AppName & " on your tablet and follow the instructions." & vbCrLf &
                     "Step 2. Then click on the button Search below, and select you unit when it appears in the list." & vbCrLf &
                     "Step 3. Finally click OK, or Cancel to abort."
 
@@ -118,28 +118,35 @@ Public Class BtTabletTalker
     ''' <returns></returns>
     Public Function PairAndConnectDevice(ByRef SelectedBtDevice As BluetoothDeviceInfo) As Integer
 
-        If SelectedBtDevice Is Nothing Then Return 1
+        Try
 
-        'Pairing
-        If SelectedBtDevice.Authenticated = False Then
-            If InTheHand.Net.Bluetooth.BluetoothSecurity.PairRequest(SelectedBtDevice.DeviceAddress, PIN) = False Then Return 2
-        End If
+            If SelectedBtDevice Is Nothing Then Return 1
 
-        'Connecting
-        BtClient = New BluetoothClient
-        BtClient.Connect(SelectedBtDevice.DeviceAddress, New Guid(UUID))
+            'Pairing
+            If SelectedBtDevice.Authenticated = False Then
+                If InTheHand.Net.Bluetooth.BluetoothSecurity.PairRequest(SelectedBtDevice.DeviceAddress, PIN) = False Then Return 2
+            End If
 
-        If BtClient.Connected = True Then
-            BtStream = BtClient.GetStream
-        Else
+            'Connecting
+            BtClient = New BluetoothClient
+            BtClient.Connect(SelectedBtDevice.DeviceAddress, New Guid(UUID))
+
+            If BtClient.Connected = True Then
+                BtStream = BtClient.GetStream
+            Else
+                Return 3
+            End If
+
+            'Starting read and write threads
+            Dim bluetoothReadThread = New Threading.Thread(AddressOf BtReadThread)
+            bluetoothReadThread.Start()
+
+            Return 0
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
             Return 3
-        End If
-
-        'Starting read and write threads
-        Dim bluetoothReadThread = New Threading.Thread(AddressOf BtReadThread)
-        bluetoothReadThread.Start()
-
-        Return 0
+        End Try
 
     End Function
 

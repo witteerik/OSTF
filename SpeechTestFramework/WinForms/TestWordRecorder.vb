@@ -756,7 +756,17 @@ Public Class SpeechMaterialRecorder
                 Next
 
                 If AnyIndexFound = False Then
+
+                    'Inactivating the recording indicator on the teleprompter and dispays a message
+                    If MyBtTesteeControl IsNot Nothing Then
+                        If TelepromterActive = True Then
+                            MyBtTesteeControl.BtTabletTalker.SendBtMessage("NR")
+                            MyBtTesteeControl.BtTabletTalker.SendBtMessage("Msg|" & "-----")
+                        End If
+                    End If
+
                     MsgBox("No more unrecorded items/sentences can be found.")
+
                     Return False
                 End If
             End If
@@ -767,10 +777,26 @@ Public Class SpeechMaterialRecorder
         Select Case TempIndex
             Case < MinSoundSentenceSelectionIndex()
 
+                'Inactivating the recording indicator on the teleprompter and dispays a message
+                If MyBtTesteeControl IsNot Nothing Then
+                    If TelepromterActive = True Then
+                        MyBtTesteeControl.BtTabletTalker.SendBtMessage("NR")
+                        MyBtTesteeControl.BtTabletTalker.SendBtMessage("Msg|" & "l<<")
+                    End If
+                End If
+
                 MsgBox("Selected sentence index too low (you've already at the first sentence)")
                 Return False
 
             Case > MaxSoundSentenceSelectionIndex()
+
+                'Inactivating the recording indicator on the teleprompter and dispays a message
+                If MyBtTesteeControl IsNot Nothing Then
+                    If TelepromterActive = True Then
+                        MyBtTesteeControl.BtTabletTalker.SendBtMessage("NR")
+                        MyBtTesteeControl.BtTabletTalker.SendBtMessage("Msg|" & ">>l")
+                    End If
+                End If
 
                 MsgBox("Selected sentence file index too high (you've already at the last sentence)")
                 Return False
@@ -805,6 +831,13 @@ Public Class SpeechMaterialRecorder
                         Spelling_AutoHeightTextBox.Text = CurrentlyLoadedSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).FindOrthographicForm
                         Transcription_AutoHeightTextBox.Text = CurrentlyLoadedSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).FindPhoneticForm
                         LabelsLoaded = True
+
+                        If MyBtTesteeControl IsNot Nothing Then
+                            If TelepromterActive = True Then
+                                MyBtTesteeControl.BtTabletTalker.SendBtMessage("Msg|" & Spelling_AutoHeightTextBox.Text)
+                            End If
+                        End If
+
                     End If
                 End If
             End If
@@ -1002,6 +1035,8 @@ Public Class SpeechMaterialRecorder
                         HasSound = True
                         SoundPlayer.SwapOutputSounds(CurrentSentencesForRecording(CurrentSentenceIndex).Item2)
 
+                        StopPlayback_Button.Enabled = True
+
                     End If
                 End If
             End If
@@ -1011,6 +1046,22 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
+    Private Sub StopListenButton_Click(sender As Object, e As EventArgs) Handles StopPlayback_Button.Click
+
+        If CurrentSentencesForRecording IsNot Nothing Then
+            If CurrentSentenceIndex < CurrentSentencesForRecording.Count Then
+                If CurrentSentencesForRecording(CurrentSentenceIndex).Item2 IsNot Nothing Then
+                    If CurrentSentencesForRecording(CurrentSentenceIndex).Item2.WaveData.SampleData(RecordingChannel).Length > 0 Then
+
+                        SoundPlayer.SwapOutputSounds(Nothing)
+                        StopPlayback_Button.Enabled = False
+
+                    End If
+                End If
+            End If
+        End If
+
+    End Sub
 
 
 #Region "Recording Loop"
@@ -1032,6 +1083,11 @@ Public Class SpeechMaterialRecorder
                 RecordingLabel.BackColor = Drawing.Color.DarkGray
                 RecordingLabel.Text = "Not recording"
 
+                If MyBtTesteeControl IsNot Nothing Then
+                    If TelepromterActive = True Then
+                        MyBtTesteeControl.BtTabletTalker.SendBtMessage("NR")
+                    End If
+                End If
 
                 MainTabControl.TabPages(1).Enabled = True
                 MenuStrip1.Enabled = True
@@ -1053,6 +1109,11 @@ Public Class SpeechMaterialRecorder
                 RecordingLabel.Text = "Recording"
                 ListenButton.Enabled = False
 
+                If MyBtTesteeControl IsNot Nothing Then
+                    If TelepromterActive = True Then
+                        MyBtTesteeControl.BtTabletTalker.SendBtMessage("R")
+                    End If
+                End If
 
                 MainTabControl.TabPages(1).Enabled = False
                 MenuStrip1.Enabled = False
@@ -1654,11 +1715,15 @@ Public Class SpeechMaterialRecorder
         If SelectedTransducer.CanPlay = True And SelectedTransducer.CanRecord = True Then
             '(At this stage the sound player will be started, if not already done.)
             OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.4, SelectedTransducer.Mixer,, True, True)
-            MainTabControl.Enabled = True
 
-            StartRecordingButton.Focus()
+            Lock_Button.Enabled = True
+            Unlock_Button.Enabled = False
+
         Else
-            MainTabControl.Enabled = False
+
+            Lock_Button.Enabled = False
+            Unlock_Button.Enabled = True
+
             MsgBox("Unable to start the player using the selected transducer (Does the selected sound device doesn't have enough input and output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
         End If
 
@@ -1686,6 +1751,8 @@ Public Class SpeechMaterialRecorder
 
 
     Private Sub SpeechMaterialRecorder_KeyDown(sender As Object, e As KeyEventArgs) Handles MyBase.KeyDown
+
+        If MainTabControl.Enabled = False Then Exit Sub
 
         Select Case e.KeyData
             Case Keys.Next, Keys.Right
@@ -1851,8 +1918,149 @@ Public Class SpeechMaterialRecorder
     End Sub
 
 
+#Region "BT_TelePromter"
 
 
+    Private ReadOnly Bt_UUID As String = "056435e9-cfdd-4fb3-8cc8-9a4eb21c439c" 'Created with https://www.uuidgenerator.net/
+    Private ReadOnly Bt_PIN As String = "1234"
+    Private MyBtTesteeControl As BtTesteeControl = Nothing
+
+
+    Private Sub ConnectToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ConnectToolStripMenuItem.Click
+
+        Dim Failed As Boolean = False
+        If MyBtTesteeControl Is Nothing Then
+
+            'MyBtTabletTalker = New BtTabletTalker(Me, Bt_UUID, Bt_PIN)
+            'If MyBtTabletTalker.EstablishBtConnection() = False Then Failed = True
+
+            'Creating a new BtTesteeControl (This should be reused as long as the connection is open!)
+            MyBtTesteeControl = New BtTesteeControl()
+
+            If MyBtTesteeControl.Initialize(Bt_UUID, Bt_PIN, Utils.Constants.Languages.English, "OSTF Android Telepromter") = False Then
+                Failed = True
+            End If
+
+        Else
+            If MyBtTesteeControl.BtTabletTalker.TrySendData() = False Then Failed = True
+        End If
+
+        If Failed = True Then
+            MsgBox("No bluetooth unit could be connected. Please try again!")
+            MyBtTesteeControl = Nothing
+            DisconnectWirelessScreen()
+            BtLamp.State = Lamp.States.Disabled
+            Exit Sub
+        Else
+            TelepromterActive = True
+            BtLamp.State = Lamp.States.On
+        End If
+
+        DisconnectToolStripMenuItem.Enabled = False
+
+        'Calling UseBtScreen to set things up
+        UseBtScreen()
+
+    End Sub
+
+    Private Sub DisconnectToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DisconnectToolStripMenuItem.Click
+        DisconnectWirelessScreen()
+    End Sub
+
+    Private Sub DisconnectWirelessScreen()
+
+        TelepromterActive = False
+
+        If MyBtTesteeControl IsNot Nothing Then
+            Try
+                MyBtTesteeControl.BtTabletTalker.DisconnectBT()
+                MyBtTesteeControl.BtTabletTalker.Dispose()
+                MyBtTesteeControl.BtTabletTalker = Nothing
+                MyBtTesteeControl = Nothing
+            Catch ex As Exception
+                MyBtTesteeControl = Nothing
+            End Try
+        End If
+
+        ConnectToolStripMenuItem.Enabled = True
+
+        BtLamp.State = Lamp.States.Disabled
+
+    End Sub
+
+    Private TelepromterActive As Boolean = False
+
+    Private Sub UseBtScreen()
+
+        Dim Failed As Boolean = False
+        Try
+            If MyBtTesteeControl.BtTabletTalker.TrySendData = True Then
+                TelepromterActive = True
+
+                'Inactivating the recording indicator on the teleprompter
+                If MyBtTesteeControl IsNot Nothing Then
+                    If TelepromterActive = True Then
+
+                        MyBtTesteeControl.BtTabletTalker.SendBtMessage("NR")
+
+                        If Spelling_AutoHeightTextBox.Text.Trim <> "" Then
+                            'Updating the telepromter with the presented spelling
+                            MyBtTesteeControl.BtTabletTalker.SendBtMessage("Msg|" & Spelling_AutoHeightTextBox.Text)
+                        End If
+
+                    End If
+                End If
+
+                'Enabling the AvailableTestsComboBox if not already done
+                DisconnectToolStripMenuItem.Enabled = True
+
+            Else
+                Failed = True
+                TelepromterActive = False
+            End If
+        Catch ex As Exception
+            Failed = True
+            TelepromterActive = False
+        End Try
+
+        If Failed = True Then
+            MsgBox("Lost bluetooth connection to the telepromter!")
+
+            ' Calls DisconnectWirelessScreen to set correct enabled status of all controls
+            DisconnectWirelessScreen()
+
+        End If
+
+    End Sub
+
+    Private Sub Lock_Button_Click(sender As Object, e As EventArgs) Handles Lock_Button.Click
+
+        SoundFileSelection_FlowLayoutPanel.Enabled = False
+        SoundSettings_TableLayoutPanel.Enabled = False
+        MainTabControl.Enabled = True
+
+        Lock_Button.Enabled = False
+        Unlock_Button.Enabled = True
+
+        StartRecordingButton.Focus()
+
+    End Sub
+
+    Private Sub Unlock_Button_Click(sender As Object, e As EventArgs) Handles Unlock_Button.Click
+
+        SoundFileSelection_FlowLayoutPanel.Enabled = True
+        SoundSettings_TableLayoutPanel.Enabled = True
+        MainTabControl.Enabled = False
+
+        Unlock_Button.Enabled = False
+        Lock_Button.Enabled = True
+
+        FileComboBox.Focus()
+
+    End Sub
+
+
+#End Region
 
 
     ''Global exception handler, could be placed in the application that imports the library, but does not work direcly in the Library
