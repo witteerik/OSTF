@@ -1803,6 +1803,14 @@ Public Class SpeechMaterialRecorder
         RecordingLabel.Update()
         Me.Enabled = False
 
+        'Hiding the text in wait mode
+        If MyBtTesteeControl IsNot Nothing Then
+            If TelepromterActive = True Then
+                MyBtTesteeControl.BtTabletTalker.SendBtMessage("Msg| ")
+            End If
+        End If
+
+
     End Sub
 
     Private Sub LeaveWaitMode()
@@ -1949,11 +1957,16 @@ Public Class SpeechMaterialRecorder
             MsgBox("No bluetooth unit could be connected. Please try again!")
             MyBtTesteeControl = Nothing
             DisconnectWirelessScreen()
-            BtLamp.State = Lamp.States.Disabled
+
+            ToolStrip_BT_StatusLabel.Text = "Telepromter (BT): Not connected"
+            ToolStrip_BT_StatusLabel.BackColor = System.Drawing.Color.Red
+
             Exit Sub
         Else
             TelepromterActive = True
-            BtLamp.State = Lamp.States.On
+
+            ToolStrip_BT_StatusLabel.Text = "Telepromter (BT): Connected"
+            ToolStrip_BT_StatusLabel.BackColor = System.Drawing.Color.Green
         End If
 
         DisconnectToolStripMenuItem.Enabled = False
@@ -1984,7 +1997,8 @@ Public Class SpeechMaterialRecorder
 
         ConnectToolStripMenuItem.Enabled = True
 
-        BtLamp.State = Lamp.States.Disabled
+        ToolStrip_BT_StatusLabel.Text = "Telepromter (BT): Not connected"
+        ToolStrip_BT_StatusLabel.BackColor = System.Drawing.SystemColors.Control
 
     End Sub
 
@@ -1997,10 +2011,10 @@ Public Class SpeechMaterialRecorder
             If MyBtTesteeControl.BtTabletTalker.TrySendData = True Then
                 TelepromterActive = True
 
-                'Inactivating the recording indicator on the teleprompter
                 If MyBtTesteeControl IsNot Nothing Then
                     If TelepromterActive = True Then
 
+                        'Inactivating the recording indicator on the teleprompter
                         MyBtTesteeControl.BtTabletTalker.SendBtMessage("NR")
 
                         If Spelling_AutoHeightTextBox.Text.Trim <> "" Then

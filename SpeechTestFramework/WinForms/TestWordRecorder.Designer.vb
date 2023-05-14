@@ -100,9 +100,6 @@ Partial Class SpeechMaterialRecorder
         Me.StartRecordingButton = New System.Windows.Forms.Button()
         Me.ListenButton = New System.Windows.Forms.Button()
         Me.StopRecordingButton = New System.Windows.Forms.Button()
-        Me.TableLayoutPanel6 = New System.Windows.Forms.TableLayoutPanel()
-        Me.BtLamp = New SpeechTestFramework.Lamp()
-        Me.Label3 = New System.Windows.Forms.Label()
         Me.StopPlayback_Button = New System.Windows.Forms.Button()
         Me.SegmentationTab = New System.Windows.Forms.TabPage()
         Me.SegmentationPanel = New System.Windows.Forms.Panel()
@@ -123,6 +120,8 @@ Partial Class SpeechMaterialRecorder
         Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Lock_Button = New System.Windows.Forms.Button()
         Me.Unlock_Button = New System.Windows.Forms.Button()
+        Me.ToolStripStatusLabel6 = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.ToolStrip_BT_StatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         Me.MainTabControl.SuspendLayout()
@@ -136,7 +135,6 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel3.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
         Me.TableLayoutPanel4.SuspendLayout()
-        Me.TableLayoutPanel6.SuspendLayout()
         Me.SegmentationTab.SuspendLayout()
         Me.SoundFileSelection_FlowLayoutPanel.SuspendLayout()
         CType(Me.MainSplitContainer, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -456,7 +454,8 @@ Partial Class SpeechMaterialRecorder
         '
         'StatusStrip1
         '
-        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.preQueLabel, Me.ToolStripStatusLabel2, Me.AutoRecordingStatusLabel, Me.ToolStripStatusLabel1, Me.BackgroundSoundStatusLabel, Me.ToolStripStatusLabel5, Me.PresentationLevelToolStripStatusLabel, Me.ToolStripStatusLabel4, Me.BackgroundLevel_ToolStripStatusLabel, Me.ToolStripStatusLabel3, Me.SoundFilePathStatusLabel})
+        Me.StatusStrip1.BackColor = System.Drawing.SystemColors.Control
+        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStrip_BT_StatusLabel, Me.ToolStripStatusLabel6, Me.preQueLabel, Me.ToolStripStatusLabel2, Me.AutoRecordingStatusLabel, Me.ToolStripStatusLabel1, Me.BackgroundSoundStatusLabel, Me.ToolStripStatusLabel5, Me.PresentationLevelToolStripStatusLabel, Me.ToolStripStatusLabel4, Me.BackgroundLevel_ToolStripStatusLabel, Me.ToolStripStatusLabel3, Me.SoundFilePathStatusLabel})
         Me.StatusStrip1.Location = New System.Drawing.Point(0, 479)
         Me.StatusStrip1.Name = "StatusStrip1"
         Me.StatusStrip1.Size = New System.Drawing.Size(1236, 22)
@@ -578,7 +577,6 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel1.Controls.Add(Me.StartRecordingButton, 0, 1)
         Me.TableLayoutPanel1.Controls.Add(Me.ListenButton, 2, 1)
         Me.TableLayoutPanel1.Controls.Add(Me.StopRecordingButton, 1, 1)
-        Me.TableLayoutPanel1.Controls.Add(Me.TableLayoutPanel6, 4, 1)
         Me.TableLayoutPanel1.Controls.Add(Me.StopPlayback_Button, 3, 1)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
@@ -784,44 +782,6 @@ Partial Class SpeechMaterialRecorder
         Me.StopRecordingButton.Text = "Stop recording"
         Me.StopRecordingButton.UseVisualStyleBackColor = True
         '
-        'TableLayoutPanel6
-        '
-        Me.TableLayoutPanel6.ColumnCount = 2
-        Me.TableLayoutPanel6.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel6.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel6.Controls.Add(Me.BtLamp, 1, 0)
-        Me.TableLayoutPanel6.Controls.Add(Me.Label3, 0, 0)
-        Me.TableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel6.Location = New System.Drawing.Point(623, 297)
-        Me.TableLayoutPanel6.Name = "TableLayoutPanel6"
-        Me.TableLayoutPanel6.RowCount = 1
-        Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel6.Size = New System.Drawing.Size(136, 34)
-        Me.TableLayoutPanel6.TabIndex = 4
-        '
-        'BtLamp
-        '
-        Me.BtLamp.BackColor = System.Drawing.Color.White
-        Me.BtLamp.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BtLamp.Location = New System.Drawing.Point(71, 3)
-        Me.BtLamp.Name = "BtLamp"
-        Me.BtLamp.Shape = SpeechTestFramework.Lamp.Shapes.Circle
-        Me.BtLamp.ShapeSize = 0.8!
-        Me.BtLamp.Size = New System.Drawing.Size(62, 28)
-        Me.BtLamp.State = SpeechTestFramework.Lamp.States.Disabled
-        Me.BtLamp.TabIndex = 0
-        Me.BtLamp.Text = "Lamp1"
-        '
-        'Label3
-        '
-        Me.Label3.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label3.Location = New System.Drawing.Point(3, 0)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(62, 34)
-        Me.Label3.TabIndex = 1
-        Me.Label3.Text = "BT:"
-        Me.Label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        '
         'StopPlayback_Button
         '
         Me.StopPlayback_Button.Dock = System.Windows.Forms.DockStyle.Fill
@@ -839,7 +799,7 @@ Partial Class SpeechMaterialRecorder
         Me.SegmentationTab.Location = New System.Drawing.Point(4, 22)
         Me.SegmentationTab.Name = "SegmentationTab"
         Me.SegmentationTab.Padding = New System.Windows.Forms.Padding(3)
-        Me.SegmentationTab.Size = New System.Drawing.Size(1228, 331)
+        Me.SegmentationTab.Size = New System.Drawing.Size(1228, 340)
         Me.SegmentationTab.TabIndex = 1
         Me.SegmentationTab.Text = "Segmentation"
         Me.SegmentationTab.UseVisualStyleBackColor = True
@@ -849,7 +809,7 @@ Partial Class SpeechMaterialRecorder
         Me.SegmentationPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SegmentationPanel.Location = New System.Drawing.Point(3, 3)
         Me.SegmentationPanel.Name = "SegmentationPanel"
-        Me.SegmentationPanel.Size = New System.Drawing.Size(1222, 325)
+        Me.SegmentationPanel.Size = New System.Drawing.Size(1222, 334)
         Me.SegmentationPanel.TabIndex = 0
         '
         'ItemProgressBar
@@ -1063,6 +1023,18 @@ Partial Class SpeechMaterialRecorder
         Me.Unlock_Button.Text = "Unlock"
         Me.Unlock_Button.UseVisualStyleBackColor = True
         '
+        'ToolStripStatusLabel6
+        '
+        Me.ToolStripStatusLabel6.Name = "ToolStripStatusLabel6"
+        Me.ToolStripStatusLabel6.Size = New System.Drawing.Size(10, 17)
+        Me.ToolStripStatusLabel6.Text = "|"
+        '
+        'ToolStrip_BT_StatusLabel
+        '
+        Me.ToolStrip_BT_StatusLabel.Name = "ToolStrip_BT_StatusLabel"
+        Me.ToolStrip_BT_StatusLabel.Size = New System.Drawing.Size(178, 17)
+        Me.ToolStrip_BT_StatusLabel.Text = "Telepromter (BT): Not connected"
+        '
         'SpeechMaterialRecorder
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1091,7 +1063,6 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel2.ResumeLayout(False)
         Me.TableLayoutPanel4.ResumeLayout(False)
         Me.TableLayoutPanel4.PerformLayout()
-        Me.TableLayoutPanel6.ResumeLayout(False)
         Me.SegmentationTab.ResumeLayout(False)
         Me.SoundFileSelection_FlowLayoutPanel.ResumeLayout(False)
         Me.SoundFileSelection_FlowLayoutPanel.PerformLayout()
@@ -1199,13 +1170,12 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents RecordingStopDelay_ToolStripComboBox As Windows.Forms.ToolStripComboBox
     Friend WithEvents ShowSpellingToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents ShowTranscriptionToolStripMenuItem As Windows.Forms.ToolStripMenuItem
-    Friend WithEvents TableLayoutPanel6 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents BtLamp As Lamp
-    Friend WithEvents Label3 As Windows.Forms.Label
     Friend WithEvents TelepromterBTToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents ConnectToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents DisconnectToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents Lock_Button As Windows.Forms.Button
     Friend WithEvents Unlock_Button As Windows.Forms.Button
     Friend WithEvents StopPlayback_Button As Windows.Forms.Button
+    Friend WithEvents ToolStripStatusLabel6 As Windows.Forms.ToolStripStatusLabel
+    Friend WithEvents ToolStrip_BT_StatusLabel As Windows.Forms.ToolStripStatusLabel
 End Class

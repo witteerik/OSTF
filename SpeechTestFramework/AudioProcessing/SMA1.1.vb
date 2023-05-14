@@ -539,7 +539,7 @@ Namespace Audio
                         Dim IterationStart As Integer = Math.Min(1024, WindowLevelList.Count - 1)
                         For w = IterationStart To LoudestWindowStartSample - 1
                             If WindowLevelList(w) > SilenceLevel Then
-                                StartSample = w + Math.Floor(InitialPadding * SentenceSoundCopy.WaveFormat.SampleRate)
+                                StartSample = Math.Min(w + Math.Floor(InitialPadding * SentenceSoundCopy.WaveFormat.SampleRate), SentenceSoundCopy.WaveData.SampleData(CurrentChannel).Length - 1)
                                 Exit For
                             End If
                         Next
@@ -548,7 +548,7 @@ Namespace Audio
                         Dim IterationStart2 As Integer = Math.Max(0, WindowLevelList.Count - 1 - 1024)
                         For w = IterationStart2 To LoudestWindowStartSample + 1 Step -1
                             If WindowLevelList(w) > SilenceLevel Then
-                                EndSample = w + Math.Ceiling(FinalPadding * SentenceSoundCopy.WaveFormat.SampleRate)
+                                EndSample = Math.Min(w + WindowSize + Math.Ceiling(FinalPadding * SentenceSoundCopy.WaveFormat.SampleRate), SentenceSoundCopy.WaveData.SampleData(CurrentChannel).Length - 1)
                                 Exit For
                             End If
                         Next

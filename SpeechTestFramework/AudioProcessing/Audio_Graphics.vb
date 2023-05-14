@@ -111,19 +111,26 @@ Namespace Audio
             Private PaddingTime As Single        'padding time should be in seconds
             Private InterSentenceTime As Single
 
-            Public Function SetPaddingTime(ByVal PaddingSeconds As Single)
-                PaddingTime = Math.Max(0, PaddingSeconds)
-            End Function
+            Public Sub SetPaddingTime(ByVal PaddingSeconds As Single)
+                Me.PaddingTime = Math.Max(0, PaddingSeconds)
+            End Sub
 
-            Public Function SetInterSentenceTime(ByVal InterSentenceTimeSeconds As Single)
-                InterSentenceTimeSeconds = Math.Max(0, InterSentenceTimeSeconds)
-            End Function
+            Public Sub SetInterSentenceTime(ByVal InterSentenceTimeSeconds As Single)
+                Me.InterSentenceTime = Math.Max(0, InterSentenceTimeSeconds)
+            End Sub
+
 
             Private SetSegmentationToZeroCrossings As Boolean
 
             Private CurrentSegmentationItem As Audio.Sound.SpeechMaterialAnnotation.SmaComponent = Nothing
 
             Private AllSegmentationComponents As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+
+            'Auto segmentation
+            Private AutoSegmentation_InitialPadding As Double = 0
+            Private AutoSegmentation_FinalPadding As Double = 0
+            Private AutoSegmentation_SetToZeroCrossings As Boolean = True
+            Private AutoSegmentation_SilenceDefinition As Double = 25
 
             'Buttons
             Public ShowPlaySoundButton As Boolean
@@ -713,6 +720,16 @@ Namespace Audio
                         .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                     AddHandler AutoCropButton.Click, AddressOf AutoSetSentenceSegmentation
                     SegmentationItemsPanel.Controls.Add(AutoCropButton)
+
+                    Dim AutoSegmentation_SilenceDefinition_ComboBox As New ComboBox
+                    Dim LevelList As New List(Of Double) From {10, 15, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 40}
+                    For Each item In LevelList
+                        AutoSegmentation_SilenceDefinition_ComboBox.Items.Add(item)
+                    Next
+                    AddHandler AutoSegmentation_SilenceDefinition_ComboBox.SelectedValueChanged, AddressOf AutoSegmentation_SilenceDefinition_ComboBox_SelectedValueChanged
+                    AutoSegmentation_SilenceDefinition_ComboBox.SelectedIndex = 13
+                    AutoSegmentation_SilenceDefinition = AutoSegmentation_SilenceDefinition_ComboBox.SelectedItem
+                    SegmentationItemsPanel.Controls.Add(AutoSegmentation_SilenceDefinition_ComboBox)
                 End If
 
                 If ShowFadeIntervalsButton = True Then
@@ -2320,12 +2337,7 @@ Namespace Audio
                         'Moves the sentence start and end positions based on the audio, but only if the segmentations of all sentence level components are validated
                         If CurrentSound.SMA.ChannelData(CurrentChannel).AllChildSegmentationsCompleted = True Then
 
-                            Dim InitialPadding As Double = 0
-                            Dim FinalPadding As Double = 0
-                            Dim SilenceDefinition As Double = 25
-                            Dim SetToZeroCrossings As Boolean = True
-
-                            CurrentSound.SMA.DetectSpeechBoundaries(CurrentChannel, InitialPadding, FinalPadding, SilenceDefinition, SetToZeroCrossings)
+                            CurrentSound.SMA.DetectSpeechBoundaries(CurrentChannel, AutoSegmentation_InitialPadding, AutoSegmentation_FinalPadding, AutoSegmentation_SilenceDefinition, AutoSegmentation_SetToZeroCrossings)
 
                         Else
                             MsgBox("Unable to fix the sentences level auto segmentation due to incomplete initial boundary segmentation. (You need to first set approximate sentence segmentation).")
@@ -2342,7 +2354,15 @@ Namespace Audio
 
             End Sub
 
+            Private Sub AutoSegmentation_SilenceDefinition_ComboBox_SelectedValueChanged(sender As Object, e As EventArgs)
 
+                Dim CastSender = DirectCast(sender, ComboBox)
+
+                If CastSender.SelectedItem = Nothing Then Exit Sub
+
+                AutoSegmentation_SilenceDefinition = CastSender.SelectedItem
+
+            End Sub
 
             Private Sub SetInitialPeak()
 
