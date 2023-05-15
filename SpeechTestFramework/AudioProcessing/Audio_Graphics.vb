@@ -497,32 +497,32 @@ Namespace Audio
 
                 'This sub handles clicking on the sentence labels
                 CurrentSentenceIndex = sender.name
-                    CurrentWordIndex = 0
-                    CurrentPhonemeIndex = 0
+                CurrentWordIndex = 0
+                CurrentPhonemeIndex = 0
 
-                    'Resets the colors of the buttons
-                    For Each item As Control In SentenceSelectorPanel.Controls
-                        item.BackColor = Color.White
-                    Next
-                    For Each item As Control In WordSelectorPanel.Controls
-                        item.BackColor = Color.White
-                    Next
-                    For Each item As Control In PhonemeSelectorPanel.Controls
-                        item.BackColor = Color.White
-                    Next
+                'Resets the colors of the buttons
+                For Each item As Control In SentenceSelectorPanel.Controls
+                    item.BackColor = Color.White
+                Next
+                For Each item As Control In WordSelectorPanel.Controls
+                    item.BackColor = Color.White
+                Next
+                For Each item As Control In PhonemeSelectorPanel.Controls
+                    item.BackColor = Color.White
+                Next
 
-                    sender.BackColor = Color.LightGreen
+                sender.BackColor = Color.LightGreen
 
-                    'Setting the current segmentation item
-                    CurrentSegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)
+                'Setting the current segmentation item
+                CurrentSegmentationItem = CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex)
 
-                    AddSegmentationControls()
+                AddSegmentationControls()
 
-                    If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 0 Then
-                        AddWords()
-                    End If
+                If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count > 0 Then
+                    AddWords()
+                End If
 
-                    InvalidateGraphics()
+                InvalidateGraphics()
 
                 'Also plays the item on right click
                 If e IsNot Nothing Then
@@ -716,20 +716,27 @@ Namespace Audio
 
                 Dim ShowAutoDetectSentencesIntervalsButton As Boolean = True
                 If ShowAutoDetectSentencesIntervalsButton = True Then
+                    Dim AutoSegmentation_SilenceCriteriaLabel As New Label With {.Text = "Auto-detection silence criterion (dB):", .Width = 190, .TextAlign = ContentAlignment.MiddleRight}
+                    SegmentationItemsPanel.Controls.Add(AutoSegmentation_SilenceCriteriaLabel)
+
+                    Dim AutoSegmentation_SilenceDefinition_ComboBox As New ComboBox
+                    Dim LevelList As New List(Of Double)
+                    For Level = 6 To 60 Step 3
+                        LevelList.Add(Level)
+                    Next
+                    For Each item In LevelList
+                        AutoSegmentation_SilenceDefinition_ComboBox.Items.Add(item)
+                    Next
+                    AddHandler AutoSegmentation_SilenceDefinition_ComboBox.SelectedValueChanged, AddressOf AutoSegmentation_SilenceDefinition_ComboBox_SelectedValueChanged
+                    AutoSegmentation_SilenceDefinition_ComboBox.SelectedIndex = 10
+                    AutoSegmentation_SilenceDefinition = AutoSegmentation_SilenceDefinition_ComboBox.SelectedItem
+                    SegmentationItemsPanel.Controls.Add(AutoSegmentation_SilenceDefinition_ComboBox)
+
                     Dim AutoCropButton As New Button With {.Text = "Auto-detect sentence start/end", .TextAlign = ContentAlignment.MiddleCenter,
                         .AutoSize = False, .Font = CurrentFont, .Width = WideButtonWidth, .Height = ButtonHeight, .Margin = CurrentMargin}
                     AddHandler AutoCropButton.Click, AddressOf AutoSetSentenceSegmentation
                     SegmentationItemsPanel.Controls.Add(AutoCropButton)
 
-                    Dim AutoSegmentation_SilenceDefinition_ComboBox As New ComboBox
-                    Dim LevelList As New List(Of Double) From {10, 15, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 35, 40}
-                    For Each item In LevelList
-                        AutoSegmentation_SilenceDefinition_ComboBox.Items.Add(item)
-                    Next
-                    AddHandler AutoSegmentation_SilenceDefinition_ComboBox.SelectedValueChanged, AddressOf AutoSegmentation_SilenceDefinition_ComboBox_SelectedValueChanged
-                    AutoSegmentation_SilenceDefinition_ComboBox.SelectedIndex = 13
-                    AutoSegmentation_SilenceDefinition = AutoSegmentation_SilenceDefinition_ComboBox.SelectedItem
-                    SegmentationItemsPanel.Controls.Add(AutoSegmentation_SilenceDefinition_ComboBox)
                 End If
 
                 If ShowFadeIntervalsButton = True Then
@@ -1325,6 +1332,11 @@ Namespace Audio
                                 End Select
 
                                 If SegmentationStartText = "" Then SegmentationStartText = "Start"
+
+                                'Adding start time, if available
+                                If CurrentSegmentationItem.StartTime > 0 Then
+                                    SegmentationStartText &= vbCrLf & "(" & Math.Round(CurrentSegmentationItem.StartTime, 3) & " s)"
+                                End If
 
                                 'Putting the string at the top of the background panel
                                 g.DrawString(SegmentationStartText,
