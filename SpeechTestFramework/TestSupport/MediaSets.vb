@@ -1,4 +1,6 @@
 ﻿'A class that can store MediaSets
+Imports SpeechTestFramework.Audio.DSP
+
 Public Class MediaSetLibrary
     Inherits List(Of MediaSet)
 
@@ -1346,7 +1348,7 @@ Public Class MediaSet
     ''' </summary>
     ''' <param name="ConcatenationLevel">The higher linguistic level (summary level) for which the resulting spectrum levels are calculated.</param>
     ''' <param name="SegmentsLevel">The (lower) linguistic level from which the sections to be concatenaded are taken.</param>
-    ''' <param name="OnlyContrastingSegments">If set to true, only contrasting speech material components (e.g. contrasting phonemes in minimal pairs) will be included in the spectrum level calculations.</param>
+    ''' <param name="OnlyLinguisticallyContrastingSegments">If set to true, only contrasting speech material components (e.g. contrasting phonemes in minimal pairs) will be included in the spectrum level calculations.</param>
     ''' <param name="SoundChannel">The audio / wave file channel in which the speech is recorded (channel 1, for mono sounds).</param>
     ''' <param name="SkipPractiseComponents">If set to true, speech material components marksed as practise components will be skipped in the spectrum level calculations.</param>
     ''' <param name="MinimumComponentDuration">An optional minimum duration (in seconds) of each included component. If the recorded sound of a component is shorter, it will be zero-padded to the indicated duration.</param>
@@ -1355,7 +1357,7 @@ Public Class MediaSet
     ''' <param name="RemoveDcComponent">If set to true, the DC component of the concatenated sounds will be set to zero prior to spectrum level calculations.</param>
     Public Sub CalculateConcatenatedComponentSpectrumLevels(ByVal ConcatenationLevel As SpeechMaterialComponent.LinguisticLevels,
                                                    ByVal SegmentsLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                   ByVal OnlyContrastingSegments As Boolean,
+                                                   ByVal OnlyLinguisticallyContrastingSegments As Boolean,
                                                    ByVal SoundChannel As Integer,
                                                    ByVal SkipPractiseComponents As Boolean,
                                                             Optional ByVal MinimumComponentDuration As Double = 0,
@@ -1383,7 +1385,7 @@ Public Class MediaSet
         For Each SummaryComponent In SummaryComponents
 
             'Getting concatenated sounds
-            Dim ConcatenatedSound = SummaryComponent.GetConcatenatedComponentsSound(Me, SegmentsLevel, OnlyContrastingSegments, SoundChannel, SkipPractiseComponents, MinimumComponentDuration, ComponentCrossFadeDuration,
+            Dim ConcatenatedSound = SummaryComponent.GetConcatenatedComponentsSound(Me, SegmentsLevel, OnlyLinguisticallyContrastingSegments, SoundChannel, SkipPractiseComponents, MinimumComponentDuration, ComponentCrossFadeDuration,
                                                             FadeConcatenatedSound, RemoveDcComponent)
 
             'Calculates spectrum levels
@@ -1534,13 +1536,14 @@ Public Class MediaSet
     End Sub
 
 
-    Public Sub CalculateAverageMaxLevelOfContrastingComponents(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
+    Public Sub CalculateAverageMaxLevelOfCousinComponents(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
                                                                ByVal ContrastLevel As SpeechMaterialComponent.LinguisticLevels,
                                                                ByVal SoundChannel As Integer,
                                                                ByVal SkipPractiseComponents As Boolean,
                                                                Optional ByVal IntegrationTime As Double = 0.05,
                                                                Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
-                                                               Optional ByVal VariableName As String = "RLxs")
+                                                               Optional ByVal VariableName As String = "RLxs",
+                                                               Optional ByVal OnlyLinguisticContrasts As Boolean = True)
 
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
@@ -1565,9 +1568,11 @@ Public Class MediaSet
                     End If
                 End If
 
-                'Determine if is contraisting component??
-                If TargetComponents(c).IsContrastingComponent = False Then
-                    Continue For
+                'Determine if is linguistically contraisting component??
+                If OnlyLinguisticContrasts = True Then
+                    If TargetComponents(c).IsContrastingComponent = False Then
+                        Continue For
+                    End If
                 End If
 
                 For i = 0 To MediaAudioItems - 1
@@ -1634,6 +1639,7 @@ Public Class MediaSet
         Me.WriteCustomVariables()
 
     End Sub
+
 
 
     Public Sub CalculateAverageDurationOfContrastingComponents(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
@@ -1703,7 +1709,7 @@ Public Class MediaSet
     ''' <param name="FrequencyWeighting"></param>
     ''' <param name="VariableName"></param>
     ''' <param name="IncludePractiseComponents"></param>
-    ''' <param name="UniquePrimaryStringRepresenations">If set to true, only the first occurence of a set of components that have the same PrimaryStringRepresentation will be included. This can be used to include multiple instantiations of the same component one once.</param>
+    ''' <param name="UniquePrimaryStringRepresenations">If set to true, only the first occurence of a set of components that have the same PrimaryStringRepresentation will be included. This can be used to include multiple instantiations of the same component only once.</param>
     Public Sub CalculateComponentLevel(ByVal TargetComponentsLevel As SpeechMaterialComponent.LinguisticLevels,
                                                                ByVal SoundChannel As Integer,
                                                                Optional ByVal IntegrationTime As Double = 0,
@@ -1821,6 +1827,71 @@ Public Class MediaSet
 
             'Stores the value as a custom media set variable
             SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, AverageLevel)
+
+        Next
+
+        'Finally writes the results to file
+        Me.WriteCustomVariables()
+
+    End Sub
+
+
+
+
+
+    ''' <summary>
+    ''' Calculates spectrum levels for all items at TargetComponentsLevel in the current MediaSet, by concatenating all sound sections representing each target level component.
+    ''' </summary>
+    ''' <param name="TargetComponentsLevel"></param>
+    ''' <param name="SoundChannel"></param>
+    ''' <param name="OnlyLinguisticallyContrastingSegments"></param>
+    ''' <param name="SkipPractiseComponents"></param>
+    ''' <param name="MinimumComponentDuration"></param>
+    ''' <param name="ComponentCrossFadeDuration"></param>
+    ''' <param name="FadeConcatenatedSound"></param>
+    ''' <param name="RemoveDcComponent"></param>
+    ''' <param name="VariableNamePrefix"></param>
+    ''' <param name="dBSPL_FSdifference"></param>
+    Public Sub CalculateSpectrumlevels(ByVal TargetComponentsLevel As SpeechMaterialComponent.LinguisticLevels,
+                                       ByVal SoundChannel As Integer,
+                                       ByVal OnlyLinguisticallyContrastingSegments As Boolean,
+                                       ByVal SkipPractiseComponents As Boolean,
+                                       Optional ByVal MinimumComponentDuration As Double = 0,
+                                       Optional ByVal ComponentCrossFadeDuration As Double = 0.001,
+                                       Optional ByVal FadeConcatenatedSound As Boolean = True,
+                                       Optional ByVal RemoveDcComponent As Boolean = True,
+                                       Optional ByVal VariableNamePrefix As String = "SLs",
+                                       Optional ByRef dBSPL_FSdifference As Double? = Nothing)
+
+        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+        'Clears previously loaded sounds
+        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        Dim TargetComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLevel)
+
+        For Each TargetComponent In TargetComponents
+
+            Dim ConcatenatedSound = TargetComponent.GetConcatenatedComponentsSound(Me, TargetComponentsLevel, OnlyLinguisticallyContrastingSegments, SoundChannel, SkipPractiseComponents, MinimumComponentDuration, ComponentCrossFadeDuration,
+                                                            FadeConcatenatedSound, RemoveDcComponent, True)
+
+            If ConcatenatedSound Is Nothing Then Continue For
+
+            Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+            Dim ReusableFftFormat As Audio.Formats.FftFormat = Nothing
+
+            Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatenatedSound, SoundChannel, BandBank, ReusableFftFormat,,, dBSPL_FSdifference)
+
+            'Stores the value as a custom media set variable
+            'The outcommented lines can be used to get the old SiP-test component IDs
+            'Dim OldSipName As String = "X_" & TargetComponent.ParentComponent.PrimaryStringRepresentation.ToLower & " (" & TargetComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).PrimaryStringRepresentation & ")"
+            'TargetComponent.SetCategoricalMediaSetVariableValue(Me, "OldSipName", OldSipName)
+            'TargetComponent.SetNumericMediaSetVariableValue(Me, "PhonemeIndex", TargetComponent.GetSelfIndex)
+
+            For i = 0 To BandBank.Count - 1
+                Dim VariableName As String = VariableNamePrefix & "_" & Math.Round(BandBank(i).CentreFrequency).ToString("00000")
+                TargetComponent.SetNumericMediaSetVariableValue(Me, VariableName, SpectrumLevels(i))
+            Next
 
         Next
 
@@ -2126,6 +2197,7 @@ Public Class MediaSet
             'Getting the concatenated sounds
             Dim ConcatenatedSound = SummaryComponent.GetConcatenatedComponentsSound(Me, SegmentsLevel, OnlyContrastingSegments, SoundChannel, SkipPractiseComponents, MinimumSegmentDuration, ComponentCrossFadeDuration,
                                                             FadeConcatenatedSound, RemoveSegmentDcComponents)
+
             'Storing it along with its speech material component
             MasterConcatList.Add(New Tuple(Of SpeechMaterialComponent, Audio.Sound)(SummaryComponent, ConcatenatedSound))
         Next

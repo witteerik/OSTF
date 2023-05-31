@@ -2823,4 +2823,30 @@
         CalibSoundStereo.WriteWaveFile("C:\Temp\Calib\Calibration_Stereo.wav")
 
     End Sub
+
+    Private Sub Button16_Click_1(sender As Object, e As EventArgs) Handles Button16.Click
+
+        Dim [Step] As Integer = 1
+
+        Select Case [Step]
+            Case 1
+                'Step 1
+                Dim MeasurementSignal = SpeechTestFramework.Audio.GenerateSound.CreateIRMeasurementSignal(New SpeechTestFramework.Audio.Formats.WaveFormat(48000, 32, 1),,,,,, )
+
+                SpeechTestFramework.Audio.AudioIOs.SaveToWaveFile(MeasurementSignal.Item1,,,,,, "MeasurementSignal_B")
+                SpeechTestFramework.Audio.AudioIOs.SaveToWaveFile(MeasurementSignal.Item2,,,,,, "ProcessingSignal_B")
+
+            Case 2
+                'Step 2
+                'Dim OriginalSweep = SpeechTestFramework.Audio.AudioIOs.ReadWaveFile("C:\EriksDokument\TestPhonemeMaskers\TestEnvironments\IR_Kitchen\ProcessingSignal.wav")
+                Dim OriginalSweep = SpeechTestFramework.Audio.AudioIOs.ReadWaveFile("C:\EriksDokument\TestPhonemeMaskers\TestEnvironments\IR_Kitchen\ProcessingSignal_B.wav")
+                Dim RecordedKitchenSweepSignal = SpeechTestFramework.Audio.AudioIOs.ReadWaveFile("C:\EriksDokument\TestPhonemeMaskers\TestEnvironments\IR_Kitchen\Kitchen_Sweep_Recording.wav")
+                RecordedKitchenSweepSignal = SpeechTestFramework.Audio.GenerateSound.PostProcessMeasuredIRSweep(RecordedKitchenSweepSignal,,,,,,,,,,, True, True)
+                Dim Impulse = SpeechTestFramework.Audio.DSP.ConvertSineSweepToImpulse(OriginalSweep, RecordedKitchenSweepSignal, , 4, True)
+                SpeechTestFramework.Audio.AudioIOs.SaveToWaveFile(Impulse,,,,, "Kitchen_IR")
+
+        End Select
+
+
+    End Sub
 End Class

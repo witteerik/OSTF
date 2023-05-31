@@ -689,7 +689,7 @@ Public Class SpeechMaterialComponent
     ''' Returns a sound containing a concatenation of all sound recordings at the specified SectionsLevel within the current speech material component.
     ''' </summary>
     ''' <param name="SegmentsLevel">The (lower) linguistic level from which the sections to be concatenaded are taken.</param>
-    ''' <param name="OnlyContrastingSegments">If set to true, only contrasting speech material components (e.g. contrasting phonemes in minimal pairs) will be included in the spectrum level calculations.</param>
+    ''' <param name="OnlyLinguisticallyContrastingSegments">If set to true, only contrasting speech material components (e.g. contrasting phonemes in minimal pairs) will be included in the spectrum level calculations.</param>
     ''' <param name="SoundChannel">The audio / wave file channel in which the speech is recorded (channel 1, for mono sounds).</param>
     ''' <param name="SkipPractiseComponents">If set to true, speech material components marksed as practise components will be skipped in the spectrum level calculations.</param>
     ''' <param name="MinimumSegmentDuration">An optional minimum duration (in seconds) of each included component. If the recorded sound of a component is shorter, it will be zero-padded to the indicated duration.</param>
@@ -698,16 +698,17 @@ Public Class SpeechMaterialComponent
     ''' <param name="RemoveDcComponent">If set to true, the DC component of the concatenated sounds will be set to zero prior to spectrum level calculations.</param>
     Public Function GetConcatenatedComponentsSound(ByRef MediaSet As MediaSet,
                                                    ByVal SegmentsLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                   ByVal OnlyContrastingSegments As Boolean,
+                                                   ByVal OnlyLinguisticallyContrastingSegments As Boolean,
                                                    ByVal SoundChannel As Integer,
                                                    ByVal SkipPractiseComponents As Boolean,
                                                    Optional ByVal MinimumSegmentDuration As Double = 0,
                                                    Optional ByVal ComponentCrossFadeDuration As Double = 0.001,
                                                    Optional ByVal FadeConcatenatedSound As Boolean = True,
-                                                   Optional ByVal RemoveDcComponent As Boolean = True) As Audio.Sound
+                                                   Optional ByVal RemoveDcComponent As Boolean = True,
+                                                   Optional ByVal IncludeSelf As Boolean = False) As Audio.Sound
 
 
-        Dim TargetComponents = Me.GetAllDescenentsAtLevel(SegmentsLevel)
+        Dim TargetComponents = Me.GetAllDescenentsAtLevel(SegmentsLevel, IncludeSelf)
 
         'Get the SMA components representing the sound sections of all target components
         Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
@@ -720,7 +721,7 @@ Public Class SpeechMaterialComponent
                 End If
             End If
 
-            If OnlyContrastingSegments = True Then
+            If OnlyLinguisticallyContrastingSegments = True Then
                 'Determine if is contraisting component??
                 If TargetComponents(c).IsContrastingComponent = False Then
                     Continue For
@@ -765,6 +766,114 @@ Public Class SpeechMaterialComponent
         If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(ConcatenatedSound)
 
         Return ConcatenatedSound
+
+    End Function
+
+    ''' <summary>
+    ''' Returns a list of sounds containing a concatenations of all sound recordings at the specified SectionsLevel within the current speech material component.
+    ''' </summary>
+    ''' <param name="SegmentsLevel">The (lower) linguistic level from which the sections to be concatenaded are taken.</param>
+    ''' <param name="OnlyLinguisticallyContrastingSegments">If set to true, only contrasting speech material components (e.g. contrasting phonemes in minimal pairs) will be included in the spectrum level calculations.</param>
+    ''' <param name="SoundChannel">The audio / wave file channel in which the speech is recorded (channel 1, for mono sounds).</param>
+    ''' <param name="SkipPractiseComponents">If set to true, speech material components marksed as practise components will be skipped in the spectrum level calculations.</param>
+    ''' <param name="MinimumSegmentDuration">An optional minimum duration (in seconds) of each included component. If the recorded sound of a component is shorter, it will be zero-padded to the indicated duration.</param>
+    ''' <param name="ComponentCrossFadeDuration">A duration by which the sections for concatenations will be cross-faded prior to spectrum level calculations.</param>
+    ''' <param name="FadeConcatenatedSound">If set to true, the concatenated sounds will be slightly faded initially and finally (in order to avoid impulse-like onsets and offsets) prior to spectrum level calculations.</param>
+    ''' <param name="RemoveDcComponent">If set to true, the DC component of the concatenated sounds will be set to zero prior to spectrum level calculations.</param>
+    Public Function GetConcatenatedComponentsSounds(ByRef MediaSet As MediaSet,
+                                                   ByVal SegmentsLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                   ByVal OnlyLinguisticallyContrastingSegments As Boolean,
+                                                   ByVal SoundChannel As Integer,
+                                                   ByVal SkipPractiseComponents As Boolean,
+                                                   Optional ByVal MinimumSegmentDuration As Double = 0,
+                                                   Optional ByVal ComponentCrossFadeDuration As Double = 0.001,
+                                                   Optional ByVal FadeConcatenatedSound As Boolean = True,
+                                                   Optional ByVal RemoveDcComponent As Boolean = True) As List(Of Audio.Sound)
+
+        Throw New Exception("This function has not yet been debugged!")
+
+        Dim DescenentComponents = Me.GetAllDescenentsAtLevel(SegmentsLevel)
+
+        Dim CousinComponentList As New SortedList(Of Integer, List(Of SpeechMaterialComponent))
+
+        'Splitting up into list of cousin components
+        For c = 0 To DescenentComponents.Count - 1
+            Dim SelfIndex = DescenentComponents(c).GetSelfIndex()
+            If SelfIndex IsNot Nothing Then
+                If CousinComponentList.ContainsKey(SelfIndex) = False Then CousinComponentList.Add(SelfIndex, New List(Of SpeechMaterialComponent))
+                CousinComponentList(SelfIndex).Add(DescenentComponents(c))
+            Else
+                CousinComponentList.Add(-1, New List(Of SpeechMaterialComponent) From {DescenentComponents(c)})
+            End If
+        Next
+
+        Dim OutputSounds As New List(Of Audio.Sound)
+        For Each kvp In CousinComponentList
+
+            Dim TargetComponents = kvp.Value
+
+            'Get the SMA components representing the sound sections of all target components
+            Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+
+            For c = 0 To TargetComponents.Count - 1
+
+                If SkipPractiseComponents = True Then
+                    If TargetComponents(c).IsPractiseComponent = True Then
+                        Continue For
+                    End If
+                End If
+
+                If OnlyLinguisticallyContrastingSegments = True Then
+                    'Determine if is contraisting component??
+                    If TargetComponents(c).IsContrastingComponent = False Then
+                        Continue For
+                    End If
+                End If
+
+                For i = 0 To MediaSet.MediaAudioItems - 1
+                    CurrentSmaComponentList.AddRange(TargetComponents(c).GetCorrespondingSmaComponent(MediaSet, i, SoundChannel, Not SkipPractiseComponents))
+                Next
+
+            Next
+
+            'Skipping to next Summary component if no
+            If CurrentSmaComponentList.Count = 0 Then Continue For
+
+            'Getting the actual sound sections
+            Dim SoundSectionList As New List(Of Audio.Sound)
+            Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+            For Each SmaComponent In CurrentSmaComponentList
+
+                Dim SoundSegment = SmaComponent.GetSoundFileSection(SoundChannel)
+                If MinimumSegmentDuration > 0 Then
+                    SoundSegment.ZeroPad(MinimumSegmentDuration, True)
+                End If
+                SoundSectionList.Add(SoundSegment)
+
+                'Getting the WaveFormat from the first available sound
+                If WaveFormat Is Nothing Then WaveFormat = SoundSegment.WaveFormat
+
+            Next
+
+            'Concatenates the sounds
+            Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(SoundSectionList, False,,,,, ComponentCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
+
+            'Fading very slightly to avoid initial and final impulses
+            If FadeConcatenatedSound = True Then
+                Audio.DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, Audio.DSP.FadeSlopeType.Linear)
+                Audio.DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, Audio.DSP.FadeSlopeType.Linear)
+            End If
+
+            'Removing DC-component
+            If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(ConcatenatedSound)
+
+            OutputSounds.Add(ConcatenatedSound)
+
+        Next
+
+        If OutputSounds.Count = 0 Then Return Nothing
+
+        Return OutputSounds
 
     End Function
 

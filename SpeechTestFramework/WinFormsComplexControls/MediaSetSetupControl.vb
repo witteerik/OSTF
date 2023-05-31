@@ -485,14 +485,19 @@
     Private Sub SipTestLevels_Button_Click(sender As Object, e As EventArgs) Handles SipTestLevels_Button.Click
 
         SelectedMediaSet.CalculateConcatenatedComponentSpectrumLevels(SpeechMaterialComponent.LinguisticLevels.Sentence, SpeechMaterialComponent.LinguisticLevels.Phoneme, True, 1, False)
+        'N.B. This can instead be called (and stored) on the phoneme level using:
+        'SelectedMediaSet.CalculateSpectrumlevels(SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, True, False,)
 
-        SelectedMediaSet.CalculateAverageMaxLevelOfContrastingComponents(SpeechMaterialComponent.LinguisticLevels.List, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, False)
+        SelectedMediaSet.CalculateAverageMaxLevelOfCousinComponents(SpeechMaterialComponent.LinguisticLevels.List, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, False)
 
         SelectedMediaSet.CalculateComponentLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection, 1, ,,,, True)
 
         SelectedMediaSet.CalculateComponentLevel(SpeechMaterialComponent.LinguisticLevels.Sentence, 1)
 
         SelectedMediaSet.CalculateAverageDurationOfContrastingComponents(SpeechMaterialComponent.LinguisticLevels.Sentence, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1)
+
+        'This can be used to get spectrum levels for any linguistic level
+        'SelectedMediaSet.CalculateSpectrumlevels(SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, False, False)
 
     End Sub
 
