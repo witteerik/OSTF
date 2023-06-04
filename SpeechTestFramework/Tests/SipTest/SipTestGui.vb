@@ -2512,9 +2512,25 @@ Public Class SipTestGui
 
 #End Region
 
-    Private Sub CreateSiPStimuli()
+    Private Sub CreateSiPStimuli(Optional ByVal OutputFolder As String = "D:\") '"C:\Temp")
+
+        MsgBox("Sounds and data will be exported to the folder " & OutputFolder)
 
         Try
+
+            'Overriding some stuff
+            Dim MixQuickSiPSounds As Boolean = False
+            If MixQuickSiPSounds = False Then
+                InterTrialInterval = 0
+                ResponseAlternativeDelay = 0
+                PretestSoundDuration = 2
+                MinimumStimulusOnsetTime = 0
+                MaximumStimulusOnsetTime = 0
+                TrialSoundMaxDuration = 3 ' TODO: Optimize by shortening this time
+                UseBackgroundSpeech = False
+                MaximumResponseTime = 1
+            End If
+
 
             'Creates a new test and updates the psychometric function diagram
             CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
@@ -2564,33 +2580,144 @@ Public Class SipTestGui
 
             UpdateTestTrialTable()
 
-            'Applying the SelectedReferenceLevel, SelectedPnr and the SelectedTestDescription
-            CurrentSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
+            Dim DataList As New List(Of String)
 
-            CurrentSipTestMeasurement.Description = SelectedTestDescription
+            Dim HeadingRow As New List(Of String)
+            HeadingRow.Add("Name")
+            HeadingRow.Add("MediaSet.MediaSetName")
+            HeadingRow.Add("SpeechMaterialComponent.Id")
+            HeadingRow.Add("TargetStimulusLocation.HorizontalAzimuth")
+            HeadingRow.Add("SelectedMediaIndex")
+            HeadingRow.Add("SelectedMasker1Index")
+            HeadingRow.Add("SelectedMasker2Index")
+            HeadingRow.Add("Masker1.HorizontalAzimuth")
+            HeadingRow.Add("Masker2.HorizontalAzimuth")
+            HeadingRow.Add("PNR")
+            HeadingRow.Add("ReferenceContrastingPhonemesLevel_SPL")
+            HeadingRow.Add("ReferenceSpeechMaterialLevel_SPL")
+            HeadingRow.Add("ReferenceTestWordLevel_SPL")
+            HeadingRow.Add("Reference_SPL")
+            HeadingRow.Add("TargetMasking_SPL")
+            HeadingRow.Add("TestWordLevel")
+            HeadingRow.Add("TestWordLevelLimit")
+            HeadingRow.Add("TestWordStartTime")
+            HeadingRow.Add("PrimaryStringRepresentation")
 
-            'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds
-            Dim InitialSound As Audio.Sound = CreateInitialSound(3)
-
-            'Mixing all sounds 
-            Dim SameRandomSeed As Integer? = 42
-            Dim FixedMaskerIndices As List(Of Integer) = New List(Of Integer) From {0, 1}
-            CurrentSipTestMeasurement.PreMixTestTrialSounds(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech,
-                                                                      Nothing, SameRandomSeed, FixedMaskerIndices)
+            HeadingRow.AddRange(CurrentSipTestMeasurement.PlannedTrials(0).SpeechMaterialComponent.GetNumericVariableNames())
+            HeadingRow.AddRange(CurrentSipTestMeasurement.PlannedTrials(0).SpeechMaterialComponent.GetCategoricalVariableNames())
+            DataList.Add(String.Join(vbTab, HeadingRow))
 
 
-            'Saving sounds to file 
+            Dim RunSeveralPnrs As Boolean = True
 
-            InitialSound.WriteWaveFile("C:\Temp\SiP\InitialSund.wav")
+            Dim RunPnrList As New List(Of Double)
+            If RunSeveralPnrs = False Then
+                RunPnrList.Add(SelectedPnr)
+            Else
+                For i = -10 To 15
+                    RunPnrList.Add(i)
+                Next
+            End If
 
-            For n = 0 To CurrentSipTestMeasurement.PlannedTrials.Count - 1
+            For Each RunPnr In RunPnrList
 
-                Dim CurrentTrial = CurrentSipTestMeasurement.PlannedTrials(n)
-                Dim FileName = CurrentTrial.SpeechMaterialComponent.Id & "_" & CurrentTrial.MediaSet.MediaSetName & "_Az_" & CurrentTrial.TargetStimulusLocation.HorizontalAzimuth & "_PNR_" & CurrentTrial.PNR & ".wav"
-                CurrentTrial.TestTrialSound.WriteWaveFile("C:\Temp\SiP\" & FileName)
+
+                'Applying the SelectedReferenceLevel, SelectedPnr and the SelectedTestDescription
+                CurrentSipTestMeasurement.SetLevels(SelectedReferenceLevel, RunPnr)
+
+
+                CurrentSipTestMeasurement.Description = SelectedTestDescription
+
+                'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds
+                Dim InitialSound As Audio.Sound = CreateInitialSound(3)
+
+                'Mixing all sounds
+                If MixQuickSiPSounds = True Then
+                    Dim SameRandomSeed As Integer? = 42
+                    Dim FixedMaskerIndices As List(Of Integer) = New List(Of Integer) From {0, 1}
+                    Dim FixedSpeechIndex As Integer? = Nothing
+                    CurrentSipTestMeasurement.PreMixTestTrialSounds(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech,
+                                                                          Nothing, SameRandomSeed, FixedMaskerIndices, FixedSpeechIndex)
+                End If
+
+
+                'Saving sounds to file 
+                InitialSound.WriteWaveFile(IO.Path.Combine(OutputFolder, "SiP\InitialSund.wav"))
+
+
+                For i = 0 To Me.SelectedMediaSet.MediaAudioItems - 1
+
+                    If MixQuickSiPSounds = True Then
+                        If i = 1 Then Exit For
+                    End If
+
+                    For n = 0 To CurrentSipTestMeasurement.PlannedTrials.Count - 1
+
+                        Dim CurrentTrial = CurrentSipTestMeasurement.PlannedTrials(n)
+
+                        If MixQuickSiPSounds = False Then
+                            CurrentTrial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, Nothing, i)
+                        End If
+
+                        Dim FileName As String
+                        Select Case SelectedTestparadigm
+                            Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
+                                FileName = CurrentTrial.MediaSet.MediaSetName & "_" & CurrentTrial.SpeechMaterialComponent.Id &
+                            "_Az_" & CurrentTrial.TargetStimulusLocation.HorizontalAzimuth &
+                            "_Speech_" & CurrentTrial.SelectedMediaIndex &
+                            "_Maskers_" & CurrentTrial.SelectedMaskerIndices(0) & "_" & CurrentTrial.SelectedMaskerIndices(1) &
+                            "_PNR_" & CurrentTrial.PNR & ".wav"
+
+                            Case Else
+                                FileName = CurrentTrial.MediaSet.MediaSetName & "_" & CurrentTrial.SpeechMaterialComponent.Id &
+                            "_Speech_" & CurrentTrial.SelectedMediaIndex &
+                            "_Maskers_" & CurrentTrial.SelectedMaskerIndices(0) & "_" & CurrentTrial.SelectedMaskerIndices(1) &
+                            "_PNR_" & CurrentTrial.PNR & ".wav"
+                        End Select
+
+                        FileName = IO.Path.Combine("PNR_" & RunPnr.ToString, FileName)
+
+                        CurrentTrial.TestTrialSound.WriteWaveFile(IO.Path.Combine(OutputFolder, "SiP", FileName))
+
+                        Dim DataRow As New List(Of String)
+                        DataRow.Add(FileName)
+                        DataRow.Add(CurrentTrial.MediaSet.MediaSetName)
+                        DataRow.Add(CurrentTrial.SpeechMaterialComponent.Id)
+                        DataRow.Add(CurrentTrial.TargetStimulusLocation.HorizontalAzimuth)
+                        DataRow.Add(CurrentTrial.SelectedMediaIndex)
+                        DataRow.Add(CurrentTrial.SelectedMaskerIndices(0))
+                        DataRow.Add(CurrentTrial.SelectedMaskerIndices(1))
+                        DataRow.Add(-30) 'Masker 1 azimuth. Still hard coded also in mixing function. Should be changed!
+                        DataRow.Add(30) ''Masker 2 azimuth. Still hard coded also in mixing function. Should be changed!
+                        DataRow.Add(Math.Round(CurrentTrial.PNR, 2))
+                        DataRow.Add(Math.Round(CurrentTrial.ReferenceContrastingPhonemesLevel_SPL, 2))
+                        DataRow.Add(Math.Round(CurrentTrial.ReferenceSpeechMaterialLevel_SPL, 2))
+                        DataRow.Add(Math.Round(CurrentTrial.ReferenceTestWordLevel_SPL, 2))
+                        DataRow.Add(Math.Round(CurrentTrial.Reference_SPL, 2))
+                        DataRow.Add(Math.Round(CurrentTrial.TargetMasking_SPL.Value, 2))
+                        DataRow.Add(Math.Round(CurrentTrial.TestWordLevel.Value, 2))
+                        DataRow.Add(Math.Round(CurrentTrial.TestWordLevelLimit, 2))
+                        DataRow.Add(Math.Round(CurrentTrial.TestWordStartTime, 2))
+                        DataRow.Add(CurrentTrial.SpeechMaterialComponent.PrimaryStringRepresentation)
+
+                        Dim NumVars = CurrentTrial.SpeechMaterialComponent.GetNumericVariableNames()
+                        For Each NumVar In NumVars
+                            DataRow.Add(CurrentTrial.SpeechMaterialComponent.GetNumericVariableValue(NumVar))
+                        Next
+
+                        Dim CatVars = CurrentTrial.SpeechMaterialComponent.GetCategoricalVariableNames
+                        For Each CatVar In CatVars
+                            DataRow.Add(CurrentTrial.SpeechMaterialComponent.GetCategoricalVariableValue(CatVar))
+                        Next
+
+                        DataList.Add(String.Join(vbTab, DataRow))
+
+                    Next
+                Next
+
+                Utils.SendInfoToLog(String.Join(vbCrLf, DataList), "SoundData", IO.Path.Combine(OutputFolder, "SiP"), True, True, True)
 
             Next
-
 
 
         Catch ex As Exception

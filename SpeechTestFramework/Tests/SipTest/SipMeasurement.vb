@@ -253,7 +253,8 @@ Namespace SipTest
         Public Sub PreMixTestTrialSounds(ByRef SelectedTransducer As AudioSystemSpecification,
                                          ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                                          ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
-                                         Optional ByVal StopAfter As Integer? = 10, Optional SameRandomSeed As Integer? = Nothing, Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing)
+                                         Optional ByVal StopAfter As Integer? = 10, Optional SameRandomSeed As Integer? = Nothing,
+                                         Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing)
 
             Dim MixedCount As Integer = 0
             Dim RemainingPlannedTrials = PlannedTrials.GetRange(0, PlannedTrials.Count)
@@ -281,12 +282,12 @@ Namespace SipTest
                         End If
                     End If
 
-                        'Forces the same random series for every trial in the same list level (to force the background sound sections in all trials)
-                        SipMeasurementRandomizer = New Random(SameRandomSeed)
+                    'Forces the same random series for every trial in the same list level (to force the background sound sections in all trials)
+                    SipMeasurementRandomizer = New Random(SameRandomSeed)
                 End If
 
                 If Trial.TestTrialSound Is Nothing Then
-                    Trial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices)
+                    Trial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices, FixedSpeechIndex)
                     MixedCount += 1
 
                     If LogToConsole = True Then
@@ -1081,7 +1082,9 @@ Namespace SipTest
         ''' <returns></returns>
         Public ReadOnly Property SpeechMaterialComponent As SpeechMaterialComponent
 
-        Public ReadOnly Property SelectedMediaIndex As Integer
+        Public Property SelectedMediaIndex As Integer
+
+        Public Property SelectedMaskerIndices As New List(Of Integer)
 
         ''' <summary>
         ''' Holds a reference to the MediaSet used in the trial.
@@ -1252,7 +1255,7 @@ Namespace SipTest
         Public Sub MixSound(ByRef SelectedTransducer As AudioSystemSpecification,
                             ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                             ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
-                            Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing)
+                            Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing)
 
             Try
 
@@ -1266,12 +1269,12 @@ Namespace SipTest
                 Dim SoundWaveFormat As Audio.Formats.WaveFormat = Nothing
 
                 'Getting maskers
-                Dim SelectedMaskerIndices As Integer()
+                SelectedMaskerIndices.Clear()
                 If FixedMaskerIndices Is Nothing Then
-                    SelectedMaskerIndices = Utils.SampleWithoutReplacement(2, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer)
+                    SelectedMaskerIndices.AddRange(Utils.SampleWithoutReplacement(2, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer))
                 Else
                     If FixedMaskerIndices.Count <> 2 Then Throw New ArgumentException("FixedMaskerIndices must be either Nothing or contain two integers.")
-                    SelectedMaskerIndices = FixedMaskerIndices.ToArray
+                    SelectedMaskerIndices.AddRange(FixedMaskerIndices)
                 End If
                 Dim Masker1 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(0)))
                 Dim Masker2 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(1)))
@@ -1289,7 +1292,13 @@ Namespace SipTest
                 Dim MaskerCentralizedSectionLength = MaskersLength - MaskerFadeInLength - MaskerFadeOutLength
 
                 'Randomizing a masker start time, and stores it in TestWordStartTime 
-                Dim MaskerStartTime = SipMeasurementRandomizer.Next(Math.Round(MinimumStimulusOnsetTime * 1000), Math.Round(MaximumStimulusOnsetTime * 1000)) / 1000
+
+                Dim MaskerStartTime As Double
+                If MinimumStimulusOnsetTime = MaximumStimulusOnsetTime Then
+                    MaskerStartTime = MinimumStimulusOnsetTime
+                Else
+                    MaskerStartTime = SipMeasurementRandomizer.Next(Math.Round(MinimumStimulusOnsetTime * 1000), Math.Round(MaximumStimulusOnsetTime * 1000)) / 1000
+                End If
                 Dim MaskersStartSample As Integer = MaskerStartTime * CurrentSampleRate
 
                 'Calculating a sample region in by which the sound level of the maskers should be defined (Called Centralized Region in Witte's thesis)
@@ -1297,7 +1306,8 @@ Namespace SipTest
                 Dim MaskersStartMeasureLength As Integer = MaskerCentralizedSectionLength
 
                 'Selects a recording index, and gets the corresponding sound
-                'Dim SelectedMediaIndex As Integer = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
+                'Updating SelectedMediaIndex if FixedSpeechIndex is set. SelectedMediaIndex is otherwise set randomly when the trial is created
+                If FixedSpeechIndex.HasValue Then SelectedMediaIndex = FixedSpeechIndex
                 Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1)
 
                 'Stores the length of the test word sound
