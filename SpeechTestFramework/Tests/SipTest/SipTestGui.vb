@@ -2642,7 +2642,7 @@ Public Class SipTestGui
 
 
                 'Saving sounds to file 
-                InitialSound.WriteWaveFile(IO.Path.Combine(OutputFolder, "SiP\InitialSund.wav"))
+                InitialSound.WriteWaveFile(IO.Path.Combine(OutputFolder, "SiP\InitialSound.wav"))
 
 
                 For i = 0 To Me.SelectedMediaSet.MediaAudioItems - 1
