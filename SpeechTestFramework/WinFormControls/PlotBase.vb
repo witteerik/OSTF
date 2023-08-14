@@ -239,6 +239,17 @@ Namespace WinFormControls
 
         End Sub
 
+        Private Sub AddTestPoints()
+
+            'Adding some PointSeries
+            PointSeries.Add(New PointSerie With {.Color = Color.Red, .PointSize = 5, .Type = PointSerie.PointTypes.Cross, .XValues = {1, 2, 3, 4}, .YValues = {1, 2, 3, 4}})
+            Lines.Add(New Line With {.Color = Color.Green, .Dashed = False, .LineWidth = 1, .XValues = {1, 2, 3, 4}, .YValues = {1, 2, 3, 4}})
+            XaxisTickPositions = New List(Of Single) From {1, 2, 3, 4}
+            YaxisTickPositions = New List(Of Single) From {1, 2, 3, 4}
+
+        End Sub
+
+
         Public Function PlotAreaMarginLeft() As Single
             Return PlotAreaRelativeMarginLeft * ClientRectangle.Width
         End Function
@@ -366,7 +377,6 @@ Namespace WinFormControls
                 For Each l In XaxisTickPositions
                     Dim x As Single = XValueToCoordinate(l)
                     If x >= PlotAreaLeft() And x <= PlotAreaRight() Then
-
                         e.Graphics.DrawLine(New Pen(GridLineColor, ProportionOfPlotWidth), x, PlotAreaTop() - TickExtension, x, PlotAreaTop() + TickExtension)
                     End If
 
@@ -522,22 +532,22 @@ Namespace WinFormControls
                         Case PointSerie.PointTypes.FilledCircle
                             For n = 0 To DrawLength - 1
                                 If Single.IsNaN(PS.YValues(n)) = True Then Continue For
-                                e.Graphics.FillEllipse(CurrentBrush, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) + HalfCurrentSize, CurrentSize, CurrentSize)
+                                e.Graphics.FillEllipse(CurrentBrush, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) - HalfCurrentSize, CurrentSize, CurrentSize)
                             Next
                         Case PointSerie.PointTypes.OpenCircle
                             For n = 0 To DrawLength - 1
                                 If Single.IsNaN(PS.YValues(n)) = True Then Continue For
-                                e.Graphics.DrawArc(CurrentPen, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) + HalfCurrentSize, CurrentSize, CurrentSize, 0, 360)
+                                e.Graphics.DrawArc(CurrentPen, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) - HalfCurrentSize, CurrentSize, CurrentSize, 0, 360)
                             Next
                         Case PointSerie.PointTypes.Rectangle
                             For n = 0 To DrawLength - 1
                                 If Single.IsNaN(PS.YValues(n)) = True Then Continue For
-                                e.Graphics.DrawRectangle(CurrentPen, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) + HalfCurrentSize, CurrentSize, CurrentSize)
+                                e.Graphics.DrawRectangle(CurrentPen, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) - HalfCurrentSize, CurrentSize, CurrentSize)
                             Next
                         Case PointSerie.PointTypes.FilledRectangle
                             For n = 0 To DrawLength - 1
                                 If Single.IsNaN(PS.YValues(n)) = True Then Continue For
-                                e.Graphics.FillRectangle(CurrentBrush, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) + HalfCurrentSize, CurrentSize, CurrentSize)
+                                e.Graphics.FillRectangle(CurrentBrush, XValueToCoordinate(PS.XValues(n)) - HalfCurrentSize, YValueToCoordinate(PS.YValues(n)) - HalfCurrentSize, CurrentSize, CurrentSize)
                             Next
 
                     End Select

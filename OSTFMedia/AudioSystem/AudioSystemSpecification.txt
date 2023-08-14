@@ -9,6 +9,7 @@ InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
 
 BufferSize = 1024 // Must be powers of 2
 
+
 <New transducer>
 Name = 5 speaker array
 PresentationType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
@@ -43,6 +44,8 @@ SoundSourceDistances = 0, 0 // Values available for Sound field simulation are: 
 HardwareOutputChannels = 1, 2
 CalibrationGain = 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
+
+
 
 <New transducer>
 Name = Simulated sound field (SennheiserHD25_1)

@@ -1713,6 +1713,10 @@ Public Class SpeechMaterialRecorder
         SelectedTransducer = Transducer_ComboBox.SelectedItem
 
         If SelectedTransducer.CanPlay = True And SelectedTransducer.CanRecord = True Then
+
+            ' Forcing output on all channels
+            SelectedTransducer.Mixer.DirectMonoToAllChannels()
+
             '(At this stage the sound player will be started, if not already done.)
             OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.4, SelectedTransducer.Mixer,, True, True)
 
@@ -1732,7 +1736,7 @@ Public Class SpeechMaterialRecorder
     Private Sub StartSoundPlayer()
 
         'Selects the samplerate, bitdepth and encoding for use (based on the recording format)
-        OstfBase.SoundPlayer.ChangePlayerSettings(, RecordingWaveFormat.SampleRate, RecordingWaveFormat.BitDepth, RecordingWaveFormat.Encoding,,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.Duplex, False, False)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, RecordingWaveFormat.SampleRate, RecordingWaveFormat.BitDepth, RecordingWaveFormat.Encoding,, , Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.Duplex, False, False)
 
         Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
         If LocalAvailableTransducers.Count = 0 Then

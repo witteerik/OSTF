@@ -39,15 +39,6 @@ Partial Class Form4
         Me.Button13 = New System.Windows.Forms.Button()
         Me.Button14 = New System.Windows.Forms.Button()
         Me.Button15 = New System.Windows.Forms.Button()
-        Me.TestWordLabel1 = New SpeechTestFramework.TestWordLabel()
-        Me.Audiogram2 = New SpeechTestFramework.WinFormControls.Audiogram()
-        Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
-        Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
-        Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem2 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
@@ -62,11 +53,22 @@ Partial Class Form4
         Me.HLSIM_Button = New System.Windows.Forms.Button()
         Me.CreateCalib_Button = New System.Windows.Forms.Button()
         Me.Button16 = New System.Windows.Forms.Button()
+        Me.PlotBase1 = New SpeechTestFramework.WinFormControls.PlotBase()
+        Me.TestWordLabel1 = New SpeechTestFramework.TestWordLabel()
+        Me.Audiogram2 = New SpeechTestFramework.WinFormControls.Audiogram()
+        Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
+        Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
+        Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
+        Me.ResponseGuiItem2 = New SpeechTestFramework.ResponseGuiItem()
+        Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
+        Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
+        Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
+        Me.TableLayoutPanel1.SuspendLayout()
+        Me.FlowLayoutPanel1.SuspendLayout()
+        CType(Me.PlotBase1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.ResponseGuiItemTable1.SuspendLayout()
-        Me.TableLayoutPanel1.SuspendLayout()
-        Me.FlowLayoutPanel1.SuspendLayout()
         Me.SuspendLayout()
         '
         'Button1
@@ -213,6 +215,183 @@ Partial Class Form4
         Me.Button15.Text = "Stop player"
         Me.Button15.UseVisualStyleBackColor = True
         '
+        'TableLayoutPanel1
+        '
+        Me.TableLayoutPanel1.ColumnCount = 2
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel1.Controls.Add(Me.Label1, 0, 0)
+        Me.TableLayoutPanel1.Controls.Add(Me.TextBox1, 0, 1)
+        Me.TableLayoutPanel1.Location = New System.Drawing.Point(486, 247)
+        Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
+        Me.TableLayoutPanel1.RowCount = 2
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 34.67742!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 65.32258!))
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(182, 248)
+        Me.TableLayoutPanel1.TabIndex = 23
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Location = New System.Drawing.Point(3, 0)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(80, 86)
+        Me.Label1.TabIndex = 0
+        Me.Label1.Text = " Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Lab" &
+    "el1 Label1 Label1 Label1 Label1 Label1 Label1 Label1"
+        '
+        'TextBox1
+        '
+        Me.TextBox1.Location = New System.Drawing.Point(3, 89)
+        Me.TextBox1.Name = "TextBox1"
+        Me.TextBox1.Size = New System.Drawing.Size(85, 20)
+        Me.TextBox1.TabIndex = 1
+        '
+        'FlowLayoutPanel1
+        '
+        Me.FlowLayoutPanel1.Controls.Add(Me.Label2)
+        Me.FlowLayoutPanel1.Controls.Add(Me.Label3)
+        Me.FlowLayoutPanel1.Location = New System.Drawing.Point(200, 304)
+        Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
+        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(245, 162)
+        Me.FlowLayoutPanel1.TabIndex = 24
+        '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(3, 0)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(220, 52)
+        Me.Label2.TabIndex = 1
+        Me.Label2.Text = " Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Lab" &
+    "el1 Label1 Label1 Label1 Label1 Label1 Label1 Label1"
+        '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Location = New System.Drawing.Point(3, 52)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(220, 52)
+        Me.Label3.TabIndex = 2
+        Me.Label3.Text = " Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Lab" &
+    "el1 Label1 Label1 Label1 Label1 Label1 Label1 Label1"
+        '
+        'HINTfixButton
+        '
+        Me.HINTfixButton.Location = New System.Drawing.Point(370, 151)
+        Me.HINTfixButton.Name = "HINTfixButton"
+        Me.HINTfixButton.Size = New System.Drawing.Size(98, 23)
+        Me.HINTfixButton.TabIndex = 25
+        Me.HINTfixButton.Text = "HINTfixButton"
+        Me.HINTfixButton.UseVisualStyleBackColor = True
+        '
+        'HINTfixButton2
+        '
+        Me.HINTfixButton2.Location = New System.Drawing.Point(370, 180)
+        Me.HINTfixButton2.Name = "HINTfixButton2"
+        Me.HINTfixButton2.Size = New System.Drawing.Size(98, 23)
+        Me.HINTfixButton2.TabIndex = 26
+        Me.HINTfixButton2.Text = "HINTfixButton2"
+        Me.HINTfixButton2.UseVisualStyleBackColor = True
+        '
+        'HINTfixButton3
+        '
+        Me.HINTfixButton3.Location = New System.Drawing.Point(370, 209)
+        Me.HINTfixButton3.Name = "HINTfixButton3"
+        Me.HINTfixButton3.Size = New System.Drawing.Size(98, 23)
+        Me.HINTfixButton3.TabIndex = 27
+        Me.HINTfixButton3.Text = "HINTfixButton3"
+        Me.HINTfixButton3.UseVisualStyleBackColor = True
+        '
+        'MoveFilesButton
+        '
+        Me.MoveFilesButton.Location = New System.Drawing.Point(796, 34)
+        Me.MoveFilesButton.Name = "MoveFilesButton"
+        Me.MoveFilesButton.Size = New System.Drawing.Size(134, 23)
+        Me.MoveFilesButton.TabIndex = 28
+        Me.MoveFilesButton.Text = "MoveFiles"
+        Me.MoveFilesButton.UseVisualStyleBackColor = True
+        '
+        'Button17
+        '
+        Me.Button17.Location = New System.Drawing.Point(796, 63)
+        Me.Button17.Name = "Button17"
+        Me.Button17.Size = New System.Drawing.Size(134, 23)
+        Me.Button17.TabIndex = 29
+        Me.Button17.Text = "CorrectFileNames"
+        Me.Button17.UseVisualStyleBackColor = True
+        '
+        'HLSIM_Button
+        '
+        Me.HLSIM_Button.Location = New System.Drawing.Point(968, 34)
+        Me.HLSIM_Button.Name = "HLSIM_Button"
+        Me.HLSIM_Button.Size = New System.Drawing.Size(75, 23)
+        Me.HLSIM_Button.TabIndex = 30
+        Me.HLSIM_Button.Text = "HLSIM"
+        Me.HLSIM_Button.UseVisualStyleBackColor = True
+        '
+        'CreateCalib_Button
+        '
+        Me.CreateCalib_Button.Location = New System.Drawing.Point(968, 73)
+        Me.CreateCalib_Button.Name = "CreateCalib_Button"
+        Me.CreateCalib_Button.Size = New System.Drawing.Size(75, 23)
+        Me.CreateCalib_Button.TabIndex = 31
+        Me.CreateCalib_Button.Text = "Create Calib"
+        Me.CreateCalib_Button.UseVisualStyleBackColor = True
+        '
+        'Button16
+        '
+        Me.Button16.Location = New System.Drawing.Point(25, 413)
+        Me.Button16.Name = "Button16"
+        Me.Button16.Size = New System.Drawing.Size(75, 23)
+        Me.Button16.TabIndex = 32
+        Me.Button16.Text = "Test HRTF"
+        Me.Button16.UseVisualStyleBackColor = True
+        '
+        'PlotBase1
+        '
+        Me.PlotBase1.BackColor = System.Drawing.SystemColors.Window
+        Me.PlotBase1.DashedGridLineColor = System.Drawing.Color.Gray
+        Me.PlotBase1.GridLineColor = System.Drawing.Color.Gray
+        Me.PlotBase1.Location = New System.Drawing.Point(566, 102)
+        Me.PlotBase1.Name = "PlotBase1"
+        Me.PlotBase1.PlotAreaBorder = True
+        Me.PlotBase1.PlotAreaBorderColor = System.Drawing.Color.DarkGray
+        Me.PlotBase1.PlotAreaRelativeMarginBottom = 0.1!
+        Me.PlotBase1.PlotAreaRelativeMarginLeft = 0.1!
+        Me.PlotBase1.PlotAreaRelativeMarginRight = 0.1!
+        Me.PlotBase1.PlotAreaRelativeMarginTop = 0.1!
+        Me.PlotBase1.Size = New System.Drawing.Size(516, 377)
+        Me.PlotBase1.TabIndex = 33
+        Me.PlotBase1.TabStop = False
+        Me.PlotBase1.XaxisDashedGridLinePositions = CType(resources.GetObject("PlotBase1.XaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
+        Me.PlotBase1.XaxisDrawBottom = True
+        Me.PlotBase1.XaxisDrawTop = False
+        Me.PlotBase1.XaxisGridLinePositions = CType(resources.GetObject("PlotBase1.XaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
+        Me.PlotBase1.XaxisTextPositions = CType(resources.GetObject("PlotBase1.XaxisTextPositions"), System.Collections.Generic.List(Of Single))
+        Me.PlotBase1.XaxisTextSize = 1.0!
+        Me.PlotBase1.XaxisTextValues = Nothing
+        Me.PlotBase1.XaxisTickHeight = 2.0!
+        Me.PlotBase1.XaxisTickPositions = CType(resources.GetObject("PlotBase1.XaxisTickPositions"), System.Collections.Generic.List(Of Single))
+        Me.PlotBase1.XlimMax = 10.0!
+        Me.PlotBase1.XlimMin = 0!
+        Me.PlotBase1.Xlog = False
+        Me.PlotBase1.XlogBase = 2.0!
+        Me.PlotBase1.YaxisDashedGridLinePositions = CType(resources.GetObject("PlotBase1.YaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
+        Me.PlotBase1.YaxisDrawLeft = True
+        Me.PlotBase1.YaxisDrawRight = False
+        Me.PlotBase1.YaxisGridLinePositions = CType(resources.GetObject("PlotBase1.YaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
+        Me.PlotBase1.YaxisTextPositions = CType(resources.GetObject("PlotBase1.YaxisTextPositions"), System.Collections.Generic.List(Of Single))
+        Me.PlotBase1.YaxisTextSize = 1.0!
+        Me.PlotBase1.YaxisTextValues = Nothing
+        Me.PlotBase1.YaxisTickPositions = CType(resources.GetObject("PlotBase1.YaxisTickPositions"), System.Collections.Generic.List(Of Single))
+        Me.PlotBase1.YaxisTickWidth = 2.0!
+        Me.PlotBase1.YlimMax = 10.0!
+        Me.PlotBase1.YlimMin = 0!
+        Me.PlotBase1.Ylog = False
+        Me.PlotBase1.YlogBase = 10.0!
+        Me.PlotBase1.Yreversed = False
+        '
         'TestWordLabel1
         '
         Me.TestWordLabel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(40, Byte), Integer), CType(CType(40, Byte), Integer), CType(CType(40, Byte), Integer))
@@ -232,7 +411,7 @@ Partial Class Form4
         Me.Audiogram2.DashedGridLineColor = System.Drawing.Color.Gray
         Me.Audiogram2.GridLineColor = System.Drawing.Color.Gray
         Me.Audiogram2.HideAudiogramLines = False
-        Me.Audiogram2.Location = New System.Drawing.Point(692, 169)
+        Me.Audiogram2.Location = New System.Drawing.Point(734, 371)
         Me.Audiogram2.Name = "Audiogram2"
         Me.Audiogram2.PlotAreaBorder = True
         Me.Audiogram2.PlotAreaBorderColor = System.Drawing.Color.DarkGray
@@ -241,7 +420,7 @@ Partial Class Form4
         Me.Audiogram2.PlotAreaRelativeMarginRight = 0.1!
         Me.Audiogram2.PlotAreaRelativeMarginTop = 0.1!
         Me.Audiogram2.RightClickMode = SpeechTestFramework.WinFormControls.Audiogram.RightClickActions.ShowAudiogramDialog
-        Me.Audiogram2.Size = New System.Drawing.Size(390, 345)
+        Me.Audiogram2.Size = New System.Drawing.Size(348, 143)
         Me.Audiogram2.TabIndex = 18
         Me.Audiogram2.TabStop = False
         Me.Audiogram2.XaxisDashedGridLinePositions = CType(resources.GetObject("Audiogram2.XaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
@@ -396,145 +575,13 @@ Partial Class Form4
         Me.ResponseGuiItem5.TabIndex = 4
         Me.ResponseGuiItem5.Text = "ResponseGuiItem5"
         '
-        'TableLayoutPanel1
-        '
-        Me.TableLayoutPanel1.ColumnCount = 2
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel1.Controls.Add(Me.Label1, 0, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.TextBox1, 0, 1)
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(486, 247)
-        Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
-        Me.TableLayoutPanel1.RowCount = 2
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 34.67742!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 65.32258!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(357, 248)
-        Me.TableLayoutPanel1.TabIndex = 23
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(3, 0)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(150, 65)
-        Me.Label1.TabIndex = 0
-        Me.Label1.Text = " Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Lab" &
-    "el1 Label1 Label1 Label1 Label1 Label1 Label1 Label1"
-        '
-        'TextBox1
-        '
-        Me.TextBox1.Location = New System.Drawing.Point(3, 89)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(100, 20)
-        Me.TextBox1.TabIndex = 1
-        '
-        'FlowLayoutPanel1
-        '
-        Me.FlowLayoutPanel1.Controls.Add(Me.Label2)
-        Me.FlowLayoutPanel1.Controls.Add(Me.Label3)
-        Me.FlowLayoutPanel1.Location = New System.Drawing.Point(200, 304)
-        Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
-        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(245, 162)
-        Me.FlowLayoutPanel1.TabIndex = 24
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(3, 0)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(220, 52)
-        Me.Label2.TabIndex = 1
-        Me.Label2.Text = " Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Lab" &
-    "el1 Label1 Label1 Label1 Label1 Label1 Label1 Label1"
-        '
-        'Label3
-        '
-        Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(3, 52)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(220, 52)
-        Me.Label3.TabIndex = 2
-        Me.Label3.Text = " Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Lab" &
-    "el1 Label1 Label1 Label1 Label1 Label1 Label1 Label1"
-        '
-        'HINTfixButton
-        '
-        Me.HINTfixButton.Location = New System.Drawing.Point(370, 151)
-        Me.HINTfixButton.Name = "HINTfixButton"
-        Me.HINTfixButton.Size = New System.Drawing.Size(98, 23)
-        Me.HINTfixButton.TabIndex = 25
-        Me.HINTfixButton.Text = "HINTfixButton"
-        Me.HINTfixButton.UseVisualStyleBackColor = True
-        '
-        'HINTfixButton2
-        '
-        Me.HINTfixButton2.Location = New System.Drawing.Point(370, 180)
-        Me.HINTfixButton2.Name = "HINTfixButton2"
-        Me.HINTfixButton2.Size = New System.Drawing.Size(98, 23)
-        Me.HINTfixButton2.TabIndex = 26
-        Me.HINTfixButton2.Text = "HINTfixButton2"
-        Me.HINTfixButton2.UseVisualStyleBackColor = True
-        '
-        'HINTfixButton3
-        '
-        Me.HINTfixButton3.Location = New System.Drawing.Point(370, 209)
-        Me.HINTfixButton3.Name = "HINTfixButton3"
-        Me.HINTfixButton3.Size = New System.Drawing.Size(98, 23)
-        Me.HINTfixButton3.TabIndex = 27
-        Me.HINTfixButton3.Text = "HINTfixButton3"
-        Me.HINTfixButton3.UseVisualStyleBackColor = True
-        '
-        'MoveFilesButton
-        '
-        Me.MoveFilesButton.Location = New System.Drawing.Point(796, 34)
-        Me.MoveFilesButton.Name = "MoveFilesButton"
-        Me.MoveFilesButton.Size = New System.Drawing.Size(134, 23)
-        Me.MoveFilesButton.TabIndex = 28
-        Me.MoveFilesButton.Text = "MoveFiles"
-        Me.MoveFilesButton.UseVisualStyleBackColor = True
-        '
-        'Button17
-        '
-        Me.Button17.Location = New System.Drawing.Point(796, 63)
-        Me.Button17.Name = "Button17"
-        Me.Button17.Size = New System.Drawing.Size(134, 23)
-        Me.Button17.TabIndex = 29
-        Me.Button17.Text = "CorrectFileNames"
-        Me.Button17.UseVisualStyleBackColor = True
-        '
-        'HLSIM_Button
-        '
-        Me.HLSIM_Button.Location = New System.Drawing.Point(968, 34)
-        Me.HLSIM_Button.Name = "HLSIM_Button"
-        Me.HLSIM_Button.Size = New System.Drawing.Size(75, 23)
-        Me.HLSIM_Button.TabIndex = 30
-        Me.HLSIM_Button.Text = "HLSIM"
-        Me.HLSIM_Button.UseVisualStyleBackColor = True
-        '
-        'CreateCalib_Button
-        '
-        Me.CreateCalib_Button.Location = New System.Drawing.Point(968, 73)
-        Me.CreateCalib_Button.Name = "CreateCalib_Button"
-        Me.CreateCalib_Button.Size = New System.Drawing.Size(75, 23)
-        Me.CreateCalib_Button.TabIndex = 31
-        Me.CreateCalib_Button.Text = "Create Calib"
-        Me.CreateCalib_Button.UseVisualStyleBackColor = True
-        '
-        'Button16
-        '
-        Me.Button16.Location = New System.Drawing.Point(25, 413)
-        Me.Button16.Name = "Button16"
-        Me.Button16.Size = New System.Drawing.Size(75, 23)
-        Me.Button16.TabIndex = 32
-        Me.Button16.Text = "Test HRTF"
-        Me.Button16.UseVisualStyleBackColor = True
-        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.PlotBase1)
         Me.Controls.Add(Me.Button16)
         Me.Controls.Add(Me.CreateCalib_Button)
         Me.Controls.Add(Me.HLSIM_Button)
@@ -567,13 +614,14 @@ Partial Class Form4
         Me.Controls.Add(Me.Button1)
         Me.Name = "Form4"
         Me.Text = "Form4"
-        CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.ResponseGuiItemTable1.ResumeLayout(False)
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.TableLayoutPanel1.PerformLayout()
         Me.FlowLayoutPanel1.ResumeLayout(False)
         Me.FlowLayoutPanel1.PerformLayout()
+        CType(Me.PlotBase1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.ResponseGuiItemTable1.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -617,4 +665,5 @@ Partial Class Form4
     Friend WithEvents HLSIM_Button As Button
     Friend WithEvents CreateCalib_Button As Button
     Friend WithEvents Button16 As Button
+    Friend WithEvents PlotBase1 As SpeechTestFramework.WinFormControls.PlotBase
 End Class

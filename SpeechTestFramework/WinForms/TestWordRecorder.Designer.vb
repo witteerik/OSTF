@@ -70,6 +70,8 @@ Partial Class SpeechMaterialRecorder
         Me.ConnectToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.DisconnectToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
+        Me.ToolStrip_BT_StatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.ToolStripStatusLabel6 = New System.Windows.Forms.ToolStripStatusLabel()
         Me.preQueLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.ToolStripStatusLabel2 = New System.Windows.Forms.ToolStripStatusLabel()
         Me.AutoRecordingStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
@@ -120,8 +122,6 @@ Partial Class SpeechMaterialRecorder
         Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Lock_Button = New System.Windows.Forms.Button()
         Me.Unlock_Button = New System.Windows.Forms.Button()
-        Me.ToolStripStatusLabel6 = New System.Windows.Forms.ToolStripStatusLabel()
-        Me.ToolStrip_BT_StatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         Me.MainTabControl.SuspendLayout()
@@ -461,6 +461,18 @@ Partial Class SpeechMaterialRecorder
         Me.StatusStrip1.Size = New System.Drawing.Size(1236, 22)
         Me.StatusStrip1.TabIndex = 1
         Me.StatusStrip1.Text = "StatusStrip1"
+        '
+        'ToolStrip_BT_StatusLabel
+        '
+        Me.ToolStrip_BT_StatusLabel.Name = "ToolStrip_BT_StatusLabel"
+        Me.ToolStrip_BT_StatusLabel.Size = New System.Drawing.Size(178, 17)
+        Me.ToolStrip_BT_StatusLabel.Text = "Telepromter (BT): Not connected"
+        '
+        'ToolStripStatusLabel6
+        '
+        Me.ToolStripStatusLabel6.Name = "ToolStripStatusLabel6"
+        Me.ToolStripStatusLabel6.Size = New System.Drawing.Size(10, 17)
+        Me.ToolStripStatusLabel6.Text = "|"
         '
         'preQueLabel
         '
@@ -1022,18 +1034,6 @@ Partial Class SpeechMaterialRecorder
         Me.Unlock_Button.TabIndex = 13
         Me.Unlock_Button.Text = "Unlock"
         Me.Unlock_Button.UseVisualStyleBackColor = True
-        '
-        'ToolStripStatusLabel6
-        '
-        Me.ToolStripStatusLabel6.Name = "ToolStripStatusLabel6"
-        Me.ToolStripStatusLabel6.Size = New System.Drawing.Size(10, 17)
-        Me.ToolStripStatusLabel6.Text = "|"
-        '
-        'ToolStrip_BT_StatusLabel
-        '
-        Me.ToolStrip_BT_StatusLabel.Name = "ToolStrip_BT_StatusLabel"
-        Me.ToolStrip_BT_StatusLabel.Size = New System.Drawing.Size(178, 17)
-        Me.ToolStrip_BT_StatusLabel.Text = "Telepromter (BT): Not connected"
         '
         'SpeechMaterialRecorder
         '

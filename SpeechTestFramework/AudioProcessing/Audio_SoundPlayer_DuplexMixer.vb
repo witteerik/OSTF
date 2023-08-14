@@ -104,13 +104,13 @@ Namespace Audio
                 OutputRouting.Clear()
 
                 For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfOutputChannels
-                    OutputRouting.Add(c, 0)
+                    OutputRouting.Add(c, 1)
                 Next
 
                 InputRouting.Clear()
 
                 For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfInputChannels
-                    InputRouting.Add(c, 0)
+                    InputRouting.Add(c, 1)
                 Next
             End Sub
 

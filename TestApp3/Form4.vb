@@ -9,6 +9,12 @@
 
         Me.Audiogram2.AudiogramData = New SpeechTestFramework.AudiogramData
 
+        Me.PlotBase1.AddTestPoints()
+        Me.PlotBase1.YlimMin = 0
+        Me.PlotBase1.YlimMax = 5
+        Me.PlotBase1.XlimMin = 0
+        Me.PlotBase1.XlimMax = 5
+
     End Sub
 
 
