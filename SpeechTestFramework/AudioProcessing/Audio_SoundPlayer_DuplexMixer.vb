@@ -658,33 +658,29 @@ Namespace Audio
             End Property
 
 
+            Public Enum SupportedIrDatabases
+                wierstorf2011
+                ARC_Harcellen_KEMAR
+            End Enum
 
-
-            Public SupportedSimulatedLoudspeakerDistances As New SortedList(Of String, List(Of Double)) From {{"wierstorf2011", New List(Of Double) From {0.5, 1.0R, 2.0R, 3.0R}}}
+            Public SupportedSimulatedLoudspeakerDistances As New SortedList(Of SupportedIrDatabases, List(Of Double)) From {
+                {SupportedIrDatabases.wierstorf2011, New List(Of Double) From {0.5, 1.0R, 2.0R, 3.0R}},
+                {SupportedIrDatabases.ARC_Harcellen_KEMAR, New List(Of Double) From {1.45}}}
 
             Public CurrentSimulatorWaveFormat As Audio.Formats.WaveFormat = Nothing
             Public CurrentSimulatorLoadspeakerDistance As Double? = Nothing
 
-            Public Sub SetupDirectionalSimulator(ByVal SimulatedLoadspeakerDistance As Double, ByVal WaveFormat As Audio.Formats.WaveFormat)
+            Public Sub SetupDirectionalSimulator(ByVal SimulatedLoadspeakerDistance As Double,
+                                                 ByVal WaveFormat As Audio.Formats.WaveFormat,
+                                                 ByVal IrDatabase As SupportedIrDatabases)
 
-                If Not SupportedSimulatedLoudspeakerDistances("wierstorf2011").Contains(SimulatedLoadspeakerDistance) Then Throw New NotImplementedException("The selected speaker distance (" & SimulatedLoadspeakerDistance & " meters) is not available for sound field simulation.")
+                If Not SupportedSimulatedLoudspeakerDistances(IrDatabase).Contains(SimulatedLoadspeakerDistance) Then Throw New NotImplementedException("The selected speaker distance (" & SimulatedLoadspeakerDistance & " meters) is not available for sound field simulation.")
 
                 Select Case WaveFormat.BitDepth
                     Case 32
                         'Ok!
                     Case Else
                         Throw New NotImplementedException("Directional simulation is unfortunately not supported for audio file bit dephts of " & WaveFormat.BitDepth)
-                End Select
-
-                'Getting the folder
-                Dim CurrentIrDatabasePath As String
-                Select Case WaveFormat.SampleRate
-                    Case 44100
-                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, "wierstorf2011\44100Hz")
-                    Case 48000
-                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, "wierstorf2011\48000Hz")
-                    Case Else
-                        Throw New NotImplementedException("Directional simulation is unfortunately not supported for the samplerate " & WaveFormat.SampleRate)
                 End Select
 
                 'Creating a file name
@@ -700,9 +696,36 @@ Namespace Audio
                         HeadphoneTypeString = "SennheiserHD25_"
                 End Select
 
-                Dim CurrentIrFileName As String = "QU_KEMAR_anechoic_" & HeadphoneTypeString & SimulatedLoadspeakerDistance.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) & "m.wav"
+                Dim CurrentIrDatabasePath As String = ""
+                Select Case IrDatabase
+                    Case SupportedIrDatabases.wierstorf2011
+                        'Getting the folder
 
-                DirectionalSimulator = New DirectionalSimulation(IO.Path.Combine(CurrentIrDatabasePath, CurrentIrFileName))
+                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, IrDatabase.ToString,
+                                                                WaveFormat.SampleRate.ToString & "Hz", "QU_KEMAR_anechoic_" &
+                                                                HeadphoneTypeString & SimulatedLoadspeakerDistance.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) & "m.wav")
+
+                        If IO.File.Exists(CurrentIrDatabasePath) = False Then
+                            Throw New NotImplementedException("Directional simulation format is not supported (missing impulse respomnse file (" & CurrentIrDatabasePath & ")")
+                        End If
+
+                    Case SupportedIrDatabases.ARC_Harcellen_KEMAR
+
+                        'Getting the folder
+                        If HeadphoneTypeString = "" Then HeadphoneTypeString = "UnspecifiedHeadphones"
+                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, IrDatabase.ToString, WaveFormat.SampleRate.ToString & "Hz", HeadphoneTypeString)
+
+                        If IO.Directory.Exists(CurrentIrDatabasePath) = False Then
+                            Throw New NotImplementedException("Directional simulation format is not supported (missing impulse respomnse file folder (" & CurrentIrDatabasePath & ")")
+                        End If
+
+                    Case Else
+                        Throw New NotImplementedException("Unknown impulse response database for directional simulation: " & IrDatabase)
+
+                End Select
+
+
+                DirectionalSimulator = New DirectionalSimulation(CurrentIrDatabasePath, IrDatabase)
 
 
                 CurrentSimulatorWaveFormat = WaveFormat

@@ -179,7 +179,7 @@ Namespace Audio
                 If IncludeHeadings = True Then
                     Return String.Join(vbTab, HeadingList) & vbCrLf & String.Join(vbCrLf, OutputList)
                 Else
-                    Return String.Join(vbTab, OutputList)
+                    Return String.Join(vbCrLf, OutputList)
                 End If
 
             End Function

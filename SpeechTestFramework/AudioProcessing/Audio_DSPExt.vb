@@ -2879,7 +2879,7 @@ Namespace Audio
             ''' <param name="sectionLength"></param>
             Public Sub CropSection(ByRef InputSound As Sound,
                          Optional ByVal StartSample As Integer = 0,
-                               Optional ByVal SectionLength As Integer = -1)
+                               Optional ByVal SectionLength As Integer? = Nothing)
 
                 Try
 
@@ -2919,7 +2919,7 @@ Namespace Audio
             ''' <param name="SectionLength"></param>
             Public Sub DeleteSection(ByRef InputSound As Sound,
                          Optional ByVal StartSample As Integer = 0,
-                               Optional ByVal SectionLength As Integer = -1)
+                               Optional ByVal SectionLength As Integer? = Nothing)
 
                 Try
 
@@ -3053,7 +3053,7 @@ Namespace Audio
             ''' <param name="SectionLength"></param>
             Public Sub InsertSilentSection(ByRef InputSound As Sound,
                          Optional ByVal StartSample As Integer = 0,
-                               Optional ByVal SectionLength As Integer = -1)
+                               Optional ByVal SectionLength As Integer? = Nothing)
 
                 Try
 

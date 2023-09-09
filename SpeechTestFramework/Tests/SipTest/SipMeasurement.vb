@@ -86,7 +86,8 @@ Namespace SipTest
             'TODO: If media set is not selected we could randomize between the available ones...
 
             Dim CurrentTargetLocations = TestProcedure.TargetStimulusLocations(Me.TestProcedure.TestParadigm)
-
+            Dim MaskerLocations = TestProcedure.MaskerLocations(Me.TestProcedure.TestParadigm)
+            Dim BackgroundLocations = TestProcedure.BackgroundLocations(Me.TestProcedure.TestParadigm)
 
             Select Case TestProcedure.AdaptiveType
                 Case AdaptiveTypes.Fixed
@@ -106,12 +107,12 @@ Namespace SipTest
 
                                 If MediaSetName <> "" Then
                                     'Adding from the selected media set
-                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), TargetLocation)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), TargetLocation, MaskerLocations, BackgroundLocations)
                                     TestUnits.Add(NewTestUnit)
                                 Else
                                     'Adding from random media sets
                                     Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
-                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), TargetLocation)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), TargetLocation, MaskerLocations, BackgroundLocations)
                                     TestUnits.Add(NewTestUnit)
                                 End If
 
@@ -154,12 +155,12 @@ Namespace SipTest
 
                                 If MediaSetName <> "" Then
                                     'Adding from the selected media set
-                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), TargetLocation)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), TargetLocation, MaskerLocations, BackgroundLocations)
                                     TestUnits.Add(NewTestUnit)
                                 Else
                                     'Adding from random media sets
                                     Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
-                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), TargetLocation)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), TargetLocation, MaskerLocations, BackgroundLocations)
                                     TestUnits.Add(NewTestUnit)
                                 End If
 
@@ -671,6 +672,20 @@ Namespace SipTest
             Headings.Add("PresentedTargetLocation_Distance")
             Headings.Add("PresentedTargetLocation_HorizontalAzimuth")
             Headings.Add("PresentedTargetLocation_Elevation")
+
+            Headings.Add("IntendedMaskerLocations_Distance")
+            Headings.Add("IntendedMaskerLocations_HorizontalAzimuth")
+            Headings.Add("IntendedMaskerLocations_Elevation")
+            Headings.Add("PresentedMaskerLocations_Distance")
+            Headings.Add("PresentedMaskerLocations_HorizontalAzimuth")
+            Headings.Add("PresentedMaskerLocations_Elevation")
+            Headings.Add("IntendedBackgroundLocations_Distance")
+            Headings.Add("IntendedBackgroundLocations_HorizontalAzimuth")
+            Headings.Add("IntendedBackgroundLocations_Elevation")
+            Headings.Add("PresentedBackgroundLocations_Distance")
+            Headings.Add("PresentedBackgroundLocations_HorizontalAzimuth")
+            Headings.Add("PresentedBackgroundLocations_Elevation")
+
             Headings.Add("Response")
             Headings.Add("Result")
             Headings.Add("ResponseTime")
@@ -718,6 +733,54 @@ Namespace SipTest
                 TrialList.Add(Trial.TargetStimulusLocation.ActualLocation.Distance)
                 TrialList.Add(Trial.TargetStimulusLocation.ActualLocation.HorizontalAzimuth)
                 TrialList.Add(Trial.TargetStimulusLocation.ActualLocation.Elevation)
+
+                If Trial.MaskerLocations.Length > 0 Then
+                    Dim Distances As New List(Of String)
+                    Dim HorizontalAzimuths As New List(Of String)
+                    Dim Elevations As New List(Of String)
+                    Dim ActualDistances As New List(Of String)
+                    Dim ActualHorizontalAzimuths As New List(Of String)
+                    Dim ActualElevations As New List(Of String)
+                    For i = 0 To Trial.MaskerLocations.Length - 1
+                        Distances.Add(Trial.MaskerLocations(i).Distance)
+                        HorizontalAzimuths.Add(Trial.MaskerLocations(i).HorizontalAzimuth)
+                        Elevations.Add(Trial.MaskerLocations(i).Elevation)
+                        If Trial.MaskerLocations(i).ActualLocation Is Nothing Then Trial.MaskerLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                        ActualDistances.Add(Trial.MaskerLocations(i).ActualLocation.Distance)
+                        ActualHorizontalAzimuths.Add(Trial.MaskerLocations(i).ActualLocation.HorizontalAzimuth)
+                        ActualElevations.Add(Trial.MaskerLocations(i).ActualLocation.Elevation)
+                    Next
+                    TrialList.Add(String.Join(";", Distances))
+                    TrialList.Add(String.Join(";", HorizontalAzimuths))
+                    TrialList.Add(String.Join(";", Elevations))
+                    TrialList.Add(String.Join(";", ActualDistances))
+                    TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
+                    TrialList.Add(String.Join(";", ActualElevations))
+                End If
+
+                If Trial.BackgroundLocations.Length > 0 Then
+                    Dim Distances As New List(Of String)
+                    Dim HorizontalAzimuths As New List(Of String)
+                    Dim Elevations As New List(Of String)
+                    Dim ActualDistances As New List(Of String)
+                    Dim ActualHorizontalAzimuths As New List(Of String)
+                    Dim ActualElevations As New List(Of String)
+                    For i = 0 To Trial.BackgroundLocations.Length - 1
+                        Distances.Add(Trial.BackgroundLocations(i).Distance)
+                        HorizontalAzimuths.Add(Trial.BackgroundLocations(i).HorizontalAzimuth)
+                        Elevations.Add(Trial.BackgroundLocations(i).Elevation)
+                        If Trial.BackgroundLocations(i).ActualLocation Is Nothing Then Trial.BackgroundLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                        ActualDistances.Add(Trial.BackgroundLocations(i).ActualLocation.Distance)
+                        ActualHorizontalAzimuths.Add(Trial.BackgroundLocations(i).ActualLocation.HorizontalAzimuth)
+                        ActualElevations.Add(Trial.BackgroundLocations(i).ActualLocation.Elevation)
+                    Next
+                    TrialList.Add(String.Join(";", Distances))
+                    TrialList.Add(String.Join(";", HorizontalAzimuths))
+                    TrialList.Add(String.Join(";", Elevations))
+                    TrialList.Add(String.Join(";", ActualDistances))
+                    TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
+                    TrialList.Add(String.Join(";", ActualElevations))
+                End If
 
                 TrialList.Add(Trial.Response)
                 TrialList.Add(Trial.Result.ToString)
@@ -865,6 +928,10 @@ Namespace SipTest
                 Dim PDL As Double = LineColumns(c)
                 c += 1
 
+                'TODO, these need to be exported and imported. Values are semicolon delimited.
+                Dim MaskerLocations As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+                Dim BackgroundLocations As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+
                 'Checks, for every data row, that the participant ID is correct, and exits otherwise (in order not to mistakingly mix data from different participants when importing measurments)
                 If Loaded_ParticipantID <> ParticipantID Then
                     MsgBox("The participant ID in the imported files differ from the selected participant. Aborts data import.", MsgBoxStyle.Exclamation, "Differing participant IDs")
@@ -884,7 +951,7 @@ Namespace SipTest
                 'Getting the SpeechMaterialComponent, media set and (re-)creates the test trial
                 Dim SpeechMaterialComponent = ParentTestSpecification.SpeechMaterial.GetComponentById(SpeechMaterialComponentID)
                 Dim MediaSet = ParentTestSpecification.MediaSets.GetMediaSet(MediaSetName)
-                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, TargetLocation, Randomizer)
+                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, TargetLocation, MaskerLocations.ToArray, BackgroundLocations.ToArray, Randomizer)
 
                 'Stores the remaining test trial data
                 'NewTestTrial.PresentationOrder = PresentationOrder 'This is not stored as the export/import should always be ordered in the presentation order, as they are read from and stored into the ObservedTrials object!
@@ -988,7 +1055,9 @@ Namespace SipTest
             Me.ParentMeasurement = ParentMeasurement
         End Sub
 
-        Public Sub PlanTrials(ByRef MediaSet As MediaSet, ByVal TargetLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+        Public Sub PlanTrials(ByRef MediaSet As MediaSet, ByVal TargetLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation,
+                              ByVal MaskerLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
+                              ByVal BackgroundLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation())
 
             PlannedTrials.Clear()
 
@@ -997,7 +1066,7 @@ Namespace SipTest
 
                     'For n = 1 To ParentMeasurement.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
                     For c = 0 To SpeechMaterialComponents.Count - 1
-                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet, TargetLocation, ParentMeasurement.Randomizer)
+                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet, TargetLocation, MaskerLocations, BackgroundLocations, ParentMeasurement.Randomizer)
                         PlannedTrials.Add(NewTrial)
                     Next
 
@@ -1125,16 +1194,30 @@ Namespace SipTest
         ''' </summary>
         Public TargetStimulusLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
 
+        ''' <summary>
+        ''' Holds the location of the maskers
+        ''' </summary>
+        Public MaskerLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
+
+        ''' <summary>
+        ''' Holds the location of the background sounds
+        ''' </summary>
+        Public BackgroundLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
+
         Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
                        ByRef SpeechMaterialComponent As SpeechMaterialComponent,
                        ByRef MediaSet As MediaSet,
-                       ByRef TargetStimulusLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation,
+                       ByVal TargetStimulusLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation,
+                       ByVal MaskerLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
+                       ByVal BackgroundLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
                        ByRef SipMeasurementRandomizer As Random)
 
             Me.ParentTestUnit = ParentTestUnit
             Me.SpeechMaterialComponent = SpeechMaterialComponent
             Me.MediaSet = MediaSet
             Me.TargetStimulusLocation = TargetStimulusLocation
+            Me.MaskerLocations = MaskerLocations
+            Me.BackgroundLocations = BackgroundLocations
 
             'Setting some levels
             Dim Fs2Spl As Double = Audio.Standard_dBFS_dBSPL_Difference
@@ -1270,26 +1353,44 @@ Namespace SipTest
 
                 'Getting maskers
                 SelectedMaskerIndices.Clear()
+
+                Dim NumberOfMaskers As Integer = MaskerLocations.Length
+
                 If FixedMaskerIndices Is Nothing Then
-                    SelectedMaskerIndices.AddRange(Utils.SampleWithoutReplacement(2, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer))
+                    SelectedMaskerIndices.AddRange(Utils.SampleWithoutReplacement(NumberOfMaskers, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer))
                 Else
-                    If FixedMaskerIndices.Count <> 2 Then Throw New ArgumentException("FixedMaskerIndices must be either Nothing or contain two integers.")
+                    If FixedMaskerIndices.Count <> NumberOfMaskers Then Throw New ArgumentException("FixedMaskerIndices must be either Nothing or contain " & NumberOfMaskers & " integers.")
                     SelectedMaskerIndices.AddRange(FixedMaskerIndices)
                 End If
-                Dim Masker1 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(0)))
-                Dim Masker2 As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(1)))
 
-                'Stores the sample rate and the wave format
-                Dim CurrentSampleRate As Integer = Masker1.WaveFormat.SampleRate
-                SoundWaveFormat = Masker1.WaveFormat
-
-                'Getting the lengths of the maskers (Assuming same lengths of all maskers)
-                Dim MaskersLength As Integer = Masker1.WaveData.SampleData(1).Length
-
+                Dim CurrentSampleRate As Integer
+                Dim MaskersLength As Integer
                 'Getting the length of the fade-in region before the centralized section (assuming all masker in the test word group to have the same specifications)
-                Dim MaskerFadeInLength As Integer = Masker1.SMA.ChannelData(1)(0)(0).Length ' Should be stored as the length of the first word in the first sentence
-                Dim MaskerFadeOutLength As Integer = Masker1.SMA.ChannelData(1)(0)(2).Length ' Should be stored as the length of the third (and last) word in the first sentence
-                Dim MaskerCentralizedSectionLength = MaskersLength - MaskerFadeInLength - MaskerFadeOutLength
+                Dim MaskerFadeInLength As Integer
+                Dim MaskerFadeOutLength As Integer
+                Dim MaskerCentralizedSectionLength As Integer
+
+                Dim Maskers As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
+                For MaskerIndex = 0 To NumberOfMaskers - 1
+                    Dim Masker As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(MaskerIndex)))
+
+                    If MaskerIndex = 0 Then
+                        'Stores the sample rate and the wave format
+                        CurrentSampleRate = Masker.WaveFormat.SampleRate
+                        SoundWaveFormat = Masker.WaveFormat
+
+                        'Getting the lengths of the maskers (Assuming same lengths of all maskers)
+                        MaskersLength = Masker.WaveData.SampleData(1).Length
+
+                        'Getting the length of the fade-in region before the centralized section (assuming all masker in the test word group to have the same specifications)
+                        MaskerFadeInLength = Masker.SMA.ChannelData(1)(0)(0).Length ' Should be stored as the length of the first word in the first sentence
+                        MaskerFadeOutLength = Masker.SMA.ChannelData(1)(0)(2).Length ' Should be stored as the length of the third (and last) word in the first sentence
+                        MaskerCentralizedSectionLength = MaskersLength - MaskerFadeInLength - MaskerFadeOutLength
+
+                    End If
+
+                    Maskers.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(Masker, MaskerLocations(MaskerIndex)))
+                Next
 
                 'Randomizing a masker start time, and stores it in TestWordStartTime 
 
@@ -1331,29 +1432,13 @@ Namespace SipTest
                 'Getting a background non-speech sound, and copies random sections of it into two sounds
                 Dim BackgroundNonSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundNonspeechSound(Me.MediaSet, 0)
                 Dim Backgrounds As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
-                'Background 1
-                Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
+                Dim NumberOfBackgrounds As Integer = BackgroundLocations.Length
+                For BackgroundIndex = 0 To NumberOfBackgrounds - 1
+                    'Getting a background sound and location
+                    Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
                                 BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
-                                New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}))
-
-                'Background 2
-                Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
-                                BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
-                                New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}))
-
-                'Adding more backgrounds
-                Select Case ParentTestUnit.ParentMeasurement.TestProcedure.TestParadigm
-                    Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                        'Background 3
-                        Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
-                                BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
-                                New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135}))
-
-                        'Background 4
-                        Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
-                                BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
-                                New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135}))
-                End Select
+                    BackgroundLocations(BackgroundIndex)))
+                Next
 
                 'Getting a background speech sound, if needed, and copies a random section of it into a single sound
                 Dim BackgroundSpeechSelection As Audio.Sound = Nothing
@@ -1394,14 +1479,13 @@ Namespace SipTest
                 LevelGroup += 1
 
                 'Adds the Maskers, with fade and location specifications
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker1, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Masker2, 1, Me.TargetMasking_SPL, LevelGroup, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                For MaskerIndex = 0 To Maskers.Count - 1
+                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Maskers(MaskerIndex).Item1, 1, Me.TargetMasking_SPL, LevelGroup, Maskers(MaskerIndex).Item2, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                Next
                 LevelGroup += 1
 
                 'Adds the background (non-speech) signals, with fade, duck and location specifications
                 For BackgroundIndex = 0 To Backgrounds.Count - 1
-
-                    'ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Backgrounds(BackgroundIndex).Item1, 1, BackgroundNonSpeechDucking, LevelGroup, Backgrounds(BackgroundIndex).Item2, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
                     ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Backgrounds(BackgroundIndex).Item1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, Backgrounds(BackgroundIndex).Item2, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
                 Next
                 LevelGroup += 1
@@ -1421,11 +1505,12 @@ Namespace SipTest
                 If SelectedTransducer.PresentationType = PresentationTypes.SimulatedSoundField Then
                     If SelectedTransducer.Mixer.CurrentSimulatorWaveFormat Is Nothing Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance Is Nothing Then
                         'Initiating the simulator
-                        SelectedTransducer.Mixer.SetupDirectionalSimulator(1, SoundWaveFormat)
+                        'TODO: the delection of IR-database should probably not be hard coded here!
+                        SelectedTransducer.Mixer.SetupDirectionalSimulator(1.45, SoundWaveFormat, Audio.PortAudioVB.DuplexMixer.SupportedIrDatabases.ARC_Harcellen_KEMAR)
                     Else
-                        If SoundWaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, True) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1 Then
+                        If SoundWaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, True) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1.45 Then
                             'Updating the simulator
-                            SelectedTransducer.Mixer.SetupDirectionalSimulator(1, SoundWaveFormat)
+                            SelectedTransducer.Mixer.SetupDirectionalSimulator(1.45, SoundWaveFormat, Audio.PortAudioVB.DuplexMixer.SupportedIrDatabases.ARC_Harcellen_KEMAR)
                         End If
                     End If
                 End If
@@ -1659,6 +1744,7 @@ Namespace SipTest
         Directional2
         Directional3
         Directional5
+        FlexibleLocations
     End Enum
 
     Public Class TestProcedure
@@ -1673,23 +1759,59 @@ Namespace SipTest
 
         Public ReadOnly Property TargetStimulusLocations As New SortedList(Of Testparadigm, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation())
 
+        Public ReadOnly Property MaskerLocations As New SortedList(Of Testparadigm, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation())
+
+        Public ReadOnly Property BackgroundLocations As New SortedList(Of Testparadigm, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation())
+
         Public Sub New(ByVal AdaptiveType As AdaptiveTypes, ByVal TestParadigm As Testparadigm)
             Me.AdaptiveType = AdaptiveType
             Me.TestParadigm = TestParadigm
 
             'Setting up TargetStimulusLocations
+            'TestParadigm Slow
             TargetStimulusLocations.Add(Testparadigm.Slow, {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}})
+            MaskerLocations.Add(Testparadigm.Slow, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+            BackgroundLocations.Add(Testparadigm.Slow, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
 
+            'Testparadigm.Quick
             TargetStimulusLocations.Add(Testparadigm.Quick, {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}})
+            MaskerLocations.Add(Testparadigm.Quick, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+            BackgroundLocations.Add(Testparadigm.Quick, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
 
             TargetStimulusLocations.Add(Testparadigm.Directional2, {
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -15},
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 15}})
+            MaskerLocations.Add(Testparadigm.Directional2, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+            BackgroundLocations.Add(Testparadigm.Directional2, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45}})
+
 
             TargetStimulusLocations.Add(Testparadigm.Directional3, {
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0},
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+            MaskerLocations.Add(Testparadigm.Directional3, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+            BackgroundLocations.Add(Testparadigm.Directional3, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45}})
+
 
             TargetStimulusLocations.Add(Testparadigm.Directional5, {
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90},
@@ -1697,8 +1819,64 @@ Namespace SipTest
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0},
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30},
             New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90}})
+            MaskerLocations.Add(Testparadigm.Directional5, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+            BackgroundLocations.Add(Testparadigm.Directional5, {
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45}})
 
 
+        End Sub
+
+        ''' <summary>
+        ''' Sets the supplied horizontal azimuths to the TestParadigm key in the TargetStimulusLocations object, overwriting any previous values.
+        ''' </summary>
+        ''' <param name="Testparadigm"></param>
+        ''' <param name="HorizontalAzimuths"></param>
+        Public Sub SetTargetStimulusLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double))
+            If _TargetStimulusLocations.ContainsKey(TestParadigm) Then
+                _TargetStimulusLocations.Remove(TestParadigm)
+            End If
+            Dim SourceLocationArrayList As New List(Of Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+            For Each HorizontalAzimuth In HorizontalAzimuths
+                SourceLocationArrayList.Add(New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = HorizontalAzimuth})
+            Next
+            _TargetStimulusLocations.Add(TestParadigm, SourceLocationArrayList.ToArray)
+        End Sub
+
+        ''' <summary>
+        ''' Sets the supplied horizontal azimuths to the TestParadigm key in the MaskerLocations object, overwriting any previous values.
+        ''' </summary>
+        ''' <param name="Testparadigm"></param>
+        ''' <param name="HorizontalAzimuths"></param>
+        Public Sub SetMaskerLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double))
+            If _MaskerLocations.ContainsKey(TestParadigm) Then
+                _MaskerLocations.Remove(TestParadigm)
+            End If
+            Dim SourceLocationArrayList As New List(Of Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+            For Each HorizontalAzimuth In HorizontalAzimuths
+                SourceLocationArrayList.Add(New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = HorizontalAzimuth})
+            Next
+            _MaskerLocations.Add(TestParadigm, SourceLocationArrayList.ToArray)
+        End Sub
+
+        ''' <summary>
+        ''' Sets the supplied horizontal azimuths to the TestParadigm key in the BackgroundLocations object, overwriting any previous values.
+        ''' </summary>
+        ''' <param name="Testparadigm"></param>
+        ''' <param name="HorizontalAzimuths"></param>
+        Public Sub SetBackgroundLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double))
+            If _BackgroundLocations.ContainsKey(TestParadigm) Then
+                _BackgroundLocations.Remove(TestParadigm)
+            End If
+            Dim SourceLocationArrayList As New List(Of Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+            For Each HorizontalAzimuth In HorizontalAzimuths
+                SourceLocationArrayList.Add(New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = HorizontalAzimuth})
+            Next
+            _BackgroundLocations.Add(TestParadigm, SourceLocationArrayList.ToArray)
         End Sub
 
     End Class

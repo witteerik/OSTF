@@ -119,6 +119,13 @@
     <Compile Include="Settings\OSTFMediaFolderDialog.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Tests\SipTest\SipTestGui_2023.Designer.vb">
+      <DependentUpon>SipTestGui_2023.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Tests\SipTest\SipTestGui_2023.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Utils\ImpulseResponseCustomFunctions.vb" />
     <Compile Include="WinFormControls\GainDiagramSettingsDialog.Designer.vb">
       <DependentUpon>GainDiagramSettingsDialog.vb</DependentUpon>
     </Compile>
@@ -409,6 +416,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\OSTFMediaFolderDialog.resx">
       <DependentUpon>OSTFMediaFolderDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tests\SipTest\SipTestGui_2023.resx">
+      <DependentUpon>SipTestGui_2023.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormControls\GainDiagramSettingsDialog.resx">
       <DependentUpon>GainDiagramSettingsDialog.vb</DependentUpon>

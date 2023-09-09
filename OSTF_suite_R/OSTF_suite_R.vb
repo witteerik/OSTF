@@ -46,6 +46,22 @@ Public Class OSTF_suite_R
 
     End Sub
 
+    Private Sub Launch_SiP_SE_ExA_R_Button_Click(sender As Object, e As EventArgs) Handles Launch_SiP_SE_ExA_R_Button.Click
+
+        If CheckApplicationRunning() = False Then
+            Try
+                'Loads the Swedish SiP test in research mode
+                CurrentApplicationForm = New SpeechTestFramework.SipTestGui_2023("Swedish SiP-test", SpeechTestFramework.Utils.Constants.UserTypes.Research, SpeechTestFramework.Utils.Constants.Languages.English, False)
+                CurrentApplicationForm.Show()
+            Catch ex As Exception
+                MsgBox("The following error occurred: " & ex.ToString, MsgBoxStyle.Critical, "Error!")
+            End Try
+        Else
+            MsgBox("Only one application is allowed to run at the same time! Close the other OSTF application and try again!", MsgBoxStyle.Information, "Another OSTF application is currently running")
+        End If
+
+    End Sub
+
     Private Sub Launch_SpeechMaterialCreator_Button_Click(sender As Object, e As EventArgs) Handles Launch_SpeechMaterialCreator_Button.Click
 
         If CheckApplicationRunning() = False Then

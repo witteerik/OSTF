@@ -1840,7 +1840,7 @@ Public Class SpeechMaterialRecorder
         End If
 
         For n = 0 To SoundFilesForEditing.Count - 1
-            Dim SoundPath = SoundFilesForEditing(CurrentSoundFileIndex).Item1
+            Dim SoundPath = SoundFilesForEditing(n).Item1
             Dim TempSound = Audio.AudioIOs.ReadWaveFile(SoundPath)
             If n = 0 Then
                 ExportList.Add(TempSound.SMA.ToString(True))
@@ -1865,7 +1865,7 @@ Public Class SpeechMaterialRecorder
         End If
 
         For n = 0 To SoundFilesForEditing.Count - 1
-            Dim SoundPath = SoundFilesForEditing(CurrentSoundFileIndex).Item1
+            Dim SoundPath = SoundFilesForEditing(n).Item1
             Dim TempSound = Audio.AudioIOs.ReadWaveFile(SoundPath)
             If n = 0 Then
                 ExportList.Add(TempSound.SMA.GetSentenceSegmentationsString(True))

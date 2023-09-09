@@ -9,7 +9,7 @@
 
         Me.Audiogram2.AudiogramData = New SpeechTestFramework.AudiogramData
 
-        Me.PlotBase1.AddTestPoints()
+        'Me.PlotBase1.AddTestPoints()
         Me.PlotBase1.YlimMin = 0
         Me.PlotBase1.YlimMax = 5
         Me.PlotBase1.XlimMin = 0
@@ -575,7 +575,7 @@
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30})
 
-        MyMixer.SetupDirectionalSimulator(1, Sound_Background.WaveFormat)
+        MyMixer.SetupDirectionalSimulator(1, Sound_Background.WaveFormat, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SupportedIrDatabases.wierstorf2011)
 
         Dim OutputSound = MyMixer.CreateSoundScene(ItemList)
 
@@ -2852,6 +2852,20 @@
                 SpeechTestFramework.Audio.AudioIOs.SaveToWaveFile(Impulse,,,,, "Kitchen_IR")
 
         End Select
+
+
+    End Sub
+
+    Private Sub Button18_Click(sender As Object, e As EventArgs) Handles Button18.Click
+        SpeechTestFramework.ImpulseResponseCustomFunctions.MeasureIrGain("C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones_Long\KEMAR_0_L.wav",
+                                                                         "C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones_Long\Test")
+    End Sub
+
+    Private Sub Button19_Click(sender As Object, e As EventArgs) Handles Button19.Click
+
+        Dim Paths = SpeechTestFramework.Utils.GetFilesIncludingAllSubdirectories("C:\SwedishSiBTest\SoundFiles\Stad\TWRB")
+
+        SpeechTestFramework.Utils.SendInfoToLog(String.Join(vbCrLf, Paths), "Subpaths", "C:\Temp")
 
 
     End Sub

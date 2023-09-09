@@ -63,6 +63,8 @@ Partial Class Form4
         Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
         Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
+        Me.Button18 = New System.Windows.Forms.Button()
+        Me.Button19 = New System.Windows.Forms.Button()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.FlowLayoutPanel1.SuspendLayout()
         CType(Me.PlotBase1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -575,12 +577,32 @@ Partial Class Form4
         Me.ResponseGuiItem5.TabIndex = 4
         Me.ResponseGuiItem5.Text = "ResponseGuiItem5"
         '
+        'Button18
+        '
+        Me.Button18.Location = New System.Drawing.Point(25, 472)
+        Me.Button18.Name = "Button18"
+        Me.Button18.Size = New System.Drawing.Size(75, 23)
+        Me.Button18.TabIndex = 34
+        Me.Button18.Text = "Ir-Button"
+        Me.Button18.UseVisualStyleBackColor = True
+        '
+        'Button19
+        '
+        Me.Button19.Location = New System.Drawing.Point(25, 502)
+        Me.Button19.Name = "Button19"
+        Me.Button19.Size = New System.Drawing.Size(75, 23)
+        Me.Button19.TabIndex = 35
+        Me.Button19.Text = "Path button"
+        Me.Button19.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button19)
+        Me.Controls.Add(Me.Button18)
         Me.Controls.Add(Me.PlotBase1)
         Me.Controls.Add(Me.Button16)
         Me.Controls.Add(Me.CreateCalib_Button)
@@ -666,4 +688,6 @@ Partial Class Form4
     Friend WithEvents CreateCalib_Button As Button
     Friend WithEvents Button16 As Button
     Friend WithEvents PlotBase1 As SpeechTestFramework.WinFormControls.PlotBase
+    Friend WithEvents Button18 As Button
+    Friend WithEvents Button19 As Button
 End Class
