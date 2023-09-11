@@ -36,7 +36,7 @@ Public Class SipTestGui_2023
     Private AvailableBackgroundAzimuths As New List(Of Double) From {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180}
     Private AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4}
     Private AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
-    Private AvailableSimultaneousNoisesCount As New List(Of Integer) From {1, 2}
+    Private AvailableSimultaneousNoisesCount As New List(Of Integer) From {1, 2, 3, 4, 5}
     ''' <summary>
     ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
     ''' </summary>

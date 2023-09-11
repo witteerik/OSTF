@@ -980,6 +980,7 @@ Partial Class SipTestGui_2023
         '
         'MaskerAzimuth_FlowLayoutPanel
         '
+        Me.MaskerAzimuth_FlowLayoutPanel.AutoScroll = True
         Me.MaskerAzimuth_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.MaskerAzimuth_FlowLayoutPanel.Location = New System.Drawing.Point(189, 311)
         Me.MaskerAzimuth_FlowLayoutPanel.Name = "MaskerAzimuth_FlowLayoutPanel"
@@ -988,6 +989,7 @@ Partial Class SipTestGui_2023
         '
         'BackgroundAzimuth_FlowLayoutPanel
         '
+        Me.BackgroundAzimuth_FlowLayoutPanel.AutoScroll = True
         Me.BackgroundAzimuth_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.BackgroundAzimuth_FlowLayoutPanel.Location = New System.Drawing.Point(189, 455)
         Me.BackgroundAzimuth_FlowLayoutPanel.Name = "BackgroundAzimuth_FlowLayoutPanel"
