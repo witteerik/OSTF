@@ -1,0 +1,8 @@
+Editing made from original IR files:
+ 2156 samples removed from beginning original files (moving start of 0 degrees IR to 0,004393939 seconds, representing 1.45 m in 330 m/s sound speed)
+ faded in first 100 samples
+ shortening the IRs to 8192 samples (0.17 s)
+ fading out end (100 last samples)
+ converting to 32 bit float sample format
+
+(N.B. The file KEMAR_90_R.wav was originally exported from MATLAB in 32-bit format (to avoid clipping), while the others were exported in 24 bit format.)

@@ -60,3 +60,5 @@ The following modifications have been made:
      - Conversion from the original 16-bit encoding to 32-bit IEEE floating point encoding.
      - Splitting left and right channels into separate sound files.
      - Addition of Speech Material Annotation (SMA) iXML wave chunks for linguistic segmentations of the sound files.
+
+- HRTF recordings from The Audiological Research Centre in Örebro, Sweden. These recordings are available from https://osf.io/89n34/ under a CC-BY 4.0 International License https://creativecommons.org/licenses/by/4.0/. Copyright (c) 2023, Tobias Åslund.
