@@ -36,6 +36,8 @@ Public Class SipTestGui_2023
     Private AvailableBackgroundAzimuths As New List(Of Double) From {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180}
     Private AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4}
     Private AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
+    Private BmldTargetModes As New List(Of String) From {"R", "L", "0", "π"} ' For Right, Left, Zero, Pi,
+    Private BmldNoiseModes As New List(Of String) From {"R", "L", "0", "π", "U"} ' For Right, Left, Zero, Pi, Uncorrelated (i.e. different noises binaurally)
     Private AvailableSimultaneousNoisesCount As New List(Of Integer) From {1, 2, 3, 4, 5}
     ''' <summary>
     ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
@@ -241,6 +243,15 @@ Public Class SipTestGui_2023
         'Adding sound source azimuth values - background
         For Each Azimuth In AvailableBackgroundAzimuths
             BackgroundAzimuth_FlowLayoutPanel.Controls.Add(New CheckBox With {.Text = Azimuth})
+        Next
+
+        'Adding Target and Noise modes for BMLD
+        For Each Value In BmldTargetModes
+            BmldSignalMode_ComboBox.Items.Add(Value)
+        Next
+
+        For Each Value In BmldNoiseModes
+            BmldNoiseMode_ComboBox.Items.Add(Value)
         Next
 
         SetLanguageStrings(GuiLanguage)
@@ -1935,4 +1946,41 @@ Public Class SipTestGui_2023
 
     End Sub
 
+    Private Sub ComboBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles BmldSignalMode_ComboBox.SelectedIndexChanged
+        SetBmldString()
+    End Sub
+
+    Private Sub MaskerAndBackgroundPhase_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles BmldNoiseMode_ComboBox.SelectedIndexChanged
+        SetBmldString()
+    End Sub
+
+    Private Sub SetBmldString()
+
+        If BmldSignalMode_ComboBox.SelectedItem IsNot Nothing And BmldNoiseMode_ComboBox.SelectedItem IsNot Nothing Then
+
+            BmldMode_RichTextBox.Clear()
+
+            BmldMode_RichTextBox.Text = "S" & BmldSignalMode_ComboBox.SelectedItem & " N" & BmldNoiseMode_ComboBox.SelectedItem
+
+            BmldMode_RichTextBox.Select(0, 1)
+            BmldMode_RichTextBox.SelectionFont = New Font("Arial", 12, FontStyle.Italic)
+
+            BmldMode_RichTextBox.Select(1, 1)
+            BmldMode_RichTextBox.SelectionCharOffset = -6
+            BmldMode_RichTextBox.SelectionFont = New Font("Arial", 7, FontStyle.Italic)
+
+            BmldMode_RichTextBox.Select(3, 1)
+            BmldMode_RichTextBox.SelectionFont = New Font("Arial", 12, FontStyle.Italic)
+
+            BmldMode_RichTextBox.Select(4, 1)
+            BmldMode_RichTextBox.SelectionCharOffset = -6
+            BmldMode_RichTextBox.SelectionFont = New Font("Arial", 7, FontStyle.Italic)
+
+        End If
+
+    End Sub
+
+    Private Sub StopTest(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
+
+    End Sub
 End Class
