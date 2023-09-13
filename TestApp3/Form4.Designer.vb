@@ -65,6 +65,7 @@ Partial Class Form4
         Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
         Me.Button18 = New System.Windows.Forms.Button()
         Me.Button19 = New System.Windows.Forms.Button()
+        Me.Button20 = New System.Windows.Forms.Button()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.FlowLayoutPanel1.SuspendLayout()
         CType(Me.PlotBase1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -595,12 +596,22 @@ Partial Class Form4
         Me.Button19.Text = "Path button"
         Me.Button19.UseVisualStyleBackColor = True
         '
+        'Button20
+        '
+        Me.Button20.Location = New System.Drawing.Point(107, 501)
+        Me.Button20.Name = "Button20"
+        Me.Button20.Size = New System.Drawing.Size(143, 23)
+        Me.Button20.TabIndex = 36
+        Me.Button20.Text = "Test deconvolution"
+        Me.Button20.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button20)
         Me.Controls.Add(Me.Button19)
         Me.Controls.Add(Me.Button18)
         Me.Controls.Add(Me.PlotBase1)
@@ -690,4 +701,5 @@ Partial Class Form4
     Friend WithEvents PlotBase1 As SpeechTestFramework.WinFormControls.PlotBase
     Friend WithEvents Button18 As Button
     Friend WithEvents Button19 As Button
+    Friend WithEvents Button20 As Button
 End Class

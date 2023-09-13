@@ -5561,8 +5561,8 @@ Namespace Audio
                                             dftIR_Bin_y(sample) = 0
                                         Next
 
-                                        'Calculates forward FFT for the IR (Skipping the forward transform scaling)
-                                        FastFourierTransform(FftDirections.Forward, dftIR_Bin_x, dftIR_Bin_y, False)
+                                        'Calculates forward FFT for the IR 
+                                        FastFourierTransform(FftDirections.Forward, dftIR_Bin_x, dftIR_Bin_y, True)
 
                                         'Starts convolution one window at a time
                                         Dim readSample As Integer = 0
@@ -5581,8 +5581,8 @@ Namespace Audio
                                                 dftSoundBin_y(sample) = 0
                                             Next
 
-                                            'Calculates forward FFT for the current sound window
-                                            FastFourierTransform(FftDirections.Forward, dftSoundBin_x, dftSoundBin_y)
+                                            'Calculates forward FFT for the current sound window (Skipping the forward transform scaling on x instead of h, for optimization (the results of the complex multiplication should be the same))
+                                            FastFourierTransform(FftDirections.Forward, dftSoundBin_x, dftSoundBin_y, False)
 
                                             'performs complex multiplications
                                             Dim tempDftSoundBin_x As Double = 0
@@ -5795,8 +5795,8 @@ Namespace Audio
                                             DftIR_Bin_x(sample) = IRArray(sample)
                                         Next
 
-                                        'Calculates forward FFT for the IR (Skipping the forward transform scaling)
-                                        FastFourierTransform(FftDirections.Forward, DftIR_Bin_x, DftIR_Bin_y, False)
+                                        'Calculates forward FFT for the IR
+                                        FastFourierTransform(FftDirections.Forward, DftIR_Bin_x, DftIR_Bin_y, True)
 
                                         'Starts convolution one time window at a time, using the add-overlap method
                                         Dim readSample As Integer = 0
@@ -5815,8 +5815,8 @@ Namespace Audio
                                                 DftSoundBin_y(sample) = 0
                                             Next
 
-                                            'Calculates forward FFT for the current sound window
-                                            FastFourierTransform(FftDirections.Forward, DftSoundBin_x, DftSoundBin_y)
+                                            'Calculates forward FFT for the current sound window (Skipping the forward transform scaling on x instead of h, for optimization (the results of the complex multiplication should be the same))
+                                            FastFourierTransform(FftDirections.Forward, DftSoundBin_x, DftSoundBin_y, False)
 
                                             'performs complex multiplications
                                             Dim tempDftSoundBin_x As Single = 0
@@ -5880,12 +5880,11 @@ Namespace Audio
             End Function
 
 
+
             Public Function Deconvolution(ByVal InputSound As Sound, ByVal ImpulseResponse As Sound,
                                  Optional ByRef FftFormat As Formats.FftFormat = Nothing, Optional ByVal InputSoundChannel As Integer? = Nothing,
-                                  Optional ByVal StartSample As Integer = 0, Optional ByVal SectionLength As Integer? = Nothing,
                                       Optional ByVal LowerCutoffFrequency As Double? = Nothing, Optional ByVal UpperCutoffFrequency As Double? = Nothing,
-                                      Optional InActivateWarnings As Boolean = False, Optional ByVal ShiftTruncateWindowAndScale As Boolean = True,
-                                      Optional ByVal OutputLength As Integer = 48000) As Sound
+                                      Optional InActivateWarnings As Boolean = False) As Sound
 
                 Try
 
@@ -5905,51 +5904,40 @@ Namespace Audio
                         End If
 
                         'Referencing the current channel array, and noting its original length
-                        Dim Sound1ChannelArray() As Single = InputSound.WaveData.SampleData(c)
-                        Dim Sound2ChannelArray() As Single = ImpulseResponse.WaveData.SampleData(ImpulseResponseChannel)
+                        Dim InputSoundChannelArray() As Single = InputSound.WaveData.SampleData(c)
+                        Dim IrChannelArray() As Single = ImpulseResponse.WaveData.SampleData(ImpulseResponseChannel)
 
-                        Dim OriginalChannelLength As Integer = Sound1ChannelArray.Length
+                        Dim OriginalChannelLength As Integer = InputSoundChannelArray.Length
+                        CheckAndAdjustFFTSize(FftFormat.FftWindowSize, Math.Max(InputSoundChannelArray.Length, IrChannelArray.Length), InActivateWarnings)
 
-                        CheckAndAdjustFFTSize(FftFormat.FftWindowSize, 8 * Math.Max(Sound1ChannelArray.Length, Sound2ChannelArray.Length), InActivateWarnings)
+                        'Creats dft bins for the IR
+                        Dim DftIR_x_Bin(FftFormat.FftWindowSize - 1) As Double
+                        Dim DftIR_y_Bin(FftFormat.FftWindowSize - 1) As Double
 
-
-                        'Creats dft bins
-                        Dim DftSound1_x_Bin(FftFormat.FftWindowSize - 1) As Double
-                        Dim DftSound1_y_Bin(FftFormat.FftWindowSize - 1) As Double
-                        Dim DftSound2_x_Bin(FftFormat.FftWindowSize - 1) As Double
-                        Dim DftSound2_y_Bin(FftFormat.FftWindowSize - 1) As Double
-
-
-                        'Copies sound 1 data into DftSound1_x_Bin, putting zero-padding initially
-                        Dim Sound1ReadSample As Integer = 0
-                        'For sample = 0 To FftFormat.FftWindowSize - InputChannelArray.Length - 1
-                        '    DftSoundBin_x(sample) = 0
-                        '    DftSoundBin_y(sample) = 0
-                        'Next
-                        For sample = FftFormat.FftWindowSize - Sound1ChannelArray.Length To FftFormat.FftWindowSize - 1
-                            DftSound1_x_Bin(sample) = Sound1ChannelArray(Sound1ReadSample)
-                            Sound1ReadSample += 1
-                            'DftSoundBin_y(sample) = 0
-                        Next
-
-                        'Calculates forward FFT for sound 1
-                        FastFourierTransform(FftDirections.Forward, DftSound1_x_Bin, DftSound1_y_Bin, False)
-
-
-                        'Copies the Sound 2IR samples into DftSound2_x_Bin
-                        'For sample = 0 To Sound2ChannelArray.Length - 1
-                        '    DftSound2_x_Bin(sample) = Sound2ChannelArray(sample)
-                        'Next
-                        Dim Sound2ReadSample As Integer = 0
-                        For sample = FftFormat.FftWindowSize - Sound2ChannelArray.Length To FftFormat.FftWindowSize - 1
-                            DftSound2_x_Bin(sample) = Sound2ChannelArray(Sound2ReadSample)
-                            Sound2ReadSample += 1
-                            'DftSoundBin_y(sample) = 0
+                        'Copies the IR  samples into DftIR_x_Bin
+                        Dim IrReadSample As Integer = 0
+                        For sample = 0 To IrChannelArray.Length - 1
+                            DftIR_x_Bin(sample) = IrChannelArray(IrReadSample)
+                            IrReadSample += 1
                         Next
 
 
-                        'Calculates forward FFT for Sound 2
-                        FastFourierTransform(FftDirections.Forward, DftSound2_x_Bin, DftSound2_y_Bin, True)
+                        'Calculates forward FFT for the IR
+                        FastFourierTransform(FftDirections.Forward, DftIR_x_Bin, DftIR_y_Bin, False)
+
+
+                        'Creats dft bins for the input sound
+                        Dim DftInputSound_x_Bin(FftFormat.FftWindowSize - 1) As Double
+                        Dim DftInputSound_y_Bin(FftFormat.FftWindowSize - 1) As Double
+
+                        'Copies input sound data into DftInputSound_x_Bin, putting zero-padding initially
+                        Dim InputSoundReadSample As Integer = 0
+                        For sample = 0 To InputSoundChannelArray.Length - 1
+                            DftInputSound_x_Bin(sample) = InputSoundChannelArray(sample)
+                        Next
+
+                        'Calculates forward FFT for the input sound
+                        FastFourierTransform(FftDirections.Forward, DftInputSound_x_Bin, DftInputSound_y_Bin, True)
 
 
                         'Performs complex division
@@ -5968,72 +5956,188 @@ Namespace Audio
 
                             'z1=a+bi z2=c+di 
                             'z1/z2 = (ac+bd)/(c^2+d^2) + (bc-ad)/(c^2+d^2)i
-                            Dim cm_a As Double = DftSound1_x_Bin(n)
-                            Dim cm_b As Double = DftSound1_y_Bin(n)
-                            Dim cm_c As Double = DftSound2_x_Bin(n)
-                            Dim cm_d As Double = DftSound2_y_Bin(n)
+                            Dim cm_a As Double = DftInputSound_x_Bin(n)
+                            Dim cm_b As Double = DftInputSound_y_Bin(n)
+                            Dim cm_c As Double = DftIR_x_Bin(n)
+                            Dim cm_d As Double = DftIR_y_Bin(n)
 
-                            DftSound1_x_Bin(n) = (cm_a * cm_c + cm_b * cm_d) / (cm_c ^ 2 + cm_d ^ 2)
-                            DftSound1_y_Bin(n) = (cm_b * cm_c - cm_a * cm_d) / (cm_c ^ 2 + cm_d ^ 2)
+                            DftInputSound_x_Bin(n) = (cm_a * cm_c + cm_b * cm_d) / (cm_c ^ 2 + cm_d ^ 2)
+                            DftInputSound_y_Bin(n) = (cm_b * cm_c - cm_a * cm_d) / (cm_c ^ 2 + cm_d ^ 2)
 
                         Next
 
                         'Calculates inverse FFT
-                        FastFourierTransform(FftDirections.Backward, DftSound1_x_Bin, DftSound1_y_Bin)
+                        FastFourierTransform(FftDirections.Backward, DftInputSound_x_Bin, DftInputSound_y_Bin)
 
                         'Puts the convoluted sound in the output array
-                        Dim OutputChannelArray(DftSound1_x_Bin.Length - 1) As Single
-                        For s = 0 To DftSound1_x_Bin.Length - 1
-                            OutputChannelArray(s) = DftSound1_x_Bin(s)
+                        Dim OutputChannelArray(Math.Min(OriginalChannelLength, DftInputSound_x_Bin.Length) - 1) As Single
+                        For s = 0 To OutputChannelArray.Length - 1
+                            OutputChannelArray(s) = DftInputSound_x_Bin(s)
                         Next
 
 
-                        If ShiftTruncateWindowAndScale = True Then
-
-
-                            'Reference which this code is based on:
-                            'The Scientist And Engineer's Guide to
-                            'Digital Signal Processing
-                            'By Steven W. Smith, Ph.D.
-                            'http://www.dspguide.com/ch17/1.htm
-
-
-                            'Shifting + truncating
-                            Dim kernelArray(OutputLength - 1) As Single
-                            Dim WriteIndex As Integer = 0
-                            For n = 0 To OutputLength / 2 - 1
-                                kernelArray(WriteIndex) = OutputChannelArray(OutputChannelArray.Length - (OutputLength / 2 - n))
-                                WriteIndex += 1
-                            Next
-                            For n = 0 To OutputLength / 2 - 1
-                                kernelArray(WriteIndex) = OutputChannelArray(n)
-                                WriteIndex += 1
-                            Next
-
-                            'Windowing
-                            WindowingFunction(kernelArray, WindowingType.Hamming)
-
-                            'Scaling (to sum=1)
-                            Dim Sum As Double = kernelArray.Sum
-                            If Sum <> 0 Then
-                                For n = 0 To kernelArray.Length - 1
-                                    kernelArray(n) /= Sum
-                                Next
-                            End If
-
-                            outputSound.WaveData.SampleData(c) = kernelArray
-
-                        Else
-
-                            outputSound.WaveData.SampleData(c) = OutputChannelArray
-
-                        End If
-
-
+                        outputSound.WaveData.SampleData(c) = OutputChannelArray
 
                     Next
 
                     Return outputSound
+
+
+                Catch ex As Exception
+                    AudioError(ex.ToString)
+                    Return Nothing
+                End Try
+
+
+            End Function
+
+
+
+            Public Function DeconvolutionOverlapAdd(ByVal inputSound As Sound, ByVal impulseResponse As Sound,
+                                  ByRef fftFormat As Formats.FftFormat, Optional ByVal inputSoundChannel As Integer? = Nothing,
+                                           Optional ByVal LowerCutoffFrequency As Double? = Nothing, Optional ByVal UpperCutoffFrequency As Double? = Nothing,
+                                  Optional InActivateWarnings As Boolean = False) As Sound
+
+                Throw New NotImplementedException("This function is not working yet!")
+
+                Try
+
+                    Dim IRChannel As Integer = 1
+
+                    Dim outputSound As New Sound(inputSound.WaveFormat)
+                    Dim AudioOutputConstructor As New AudioOutputConstructor(inputSound.WaveFormat, inputSoundChannel)
+                    outputSound.FFT = New FftData(inputSound.WaveFormat, fftFormat)
+                    Dim FS As Double = inputSound.WaveFormat.PositiveFullScale
+
+                    'Main section
+                    Select Case inputSound.WaveFormat.BitDepth
+                        Case 16, 32
+                            For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
+
+                                'Copies the impulse response to a new array of double
+                                Dim tempArray() As Single = impulseResponse.WaveData.SampleData(IRChannel)
+                                Dim IRArray(tempArray.Length - 1) As Double
+                                For n = 0 To IRArray.Length - 1
+                                    IRArray(n) = tempArray(n)
+                                Next
+
+
+                                'Referencing the current channel array, and noting its original length
+                                Dim tempInputSoundArray() As Single = inputSound.WaveData.SampleData(c)
+                                Dim originalInputLength As Integer = tempInputSoundArray.Length
+
+                                'Frequency domain deconvolution (complex division)
+
+                                'Reference: This frequency domain calculation is based on the overlap-add method as
+                                'described in Bateman, A. & Paterson-Stephens, I. (2002). The DSP Handbook. Algorithms, Applications and Design Techniques.
+                                'chapter 7, pp 451-453.
+
+                                CheckAndAdjustFFTSize(fftFormat.FftWindowSize, (IRArray.Length * 2), InActivateWarnings)
+
+                                Dim sliceLength As Integer = fftFormat.FftWindowSize / 2
+
+                                'Copies the input array to a new array, if needed, also extends the input array to a whole number multiple of the length of the sound data that goes into each dft
+                                Dim numberOfWindows As Integer = Int(tempInputSoundArray.Length / sliceLength)
+                                If tempInputSoundArray.Length Mod sliceLength > 0 Then numberOfWindows += 1
+
+                                Dim inputArray(tempInputSoundArray.Length - 1) As Single
+                                For n = 0 To tempInputSoundArray.Length - 1
+                                    inputArray(n) = tempInputSoundArray(n)
+                                Next
+
+
+                                'Creates dft bins
+                                Dim dftIR_Bin_x(fftFormat.FftWindowSize - 1) As Double
+                                Dim dftIR_Bin_y(fftFormat.FftWindowSize - 1) As Double
+
+                                'Creates the zero-padded IR array
+                                For sample = 0 To IRArray.Length - 1
+                                    dftIR_Bin_x(sample) = IRArray(sample)
+                                Next
+
+                                'Calculates forward FFT for the IR (Skipping the forward transform scaling)
+                                FastFourierTransform(FftDirections.Forward, dftIR_Bin_x, dftIR_Bin_y, False)
+
+                                'Starts convolution one window at a time
+                                Dim readSample As Integer = 0
+                                Dim writeSample As Integer = 0
+                                Dim OutputChannelSampleArray(inputArray.Length - 1) As Single
+
+                                For windowNumber = 0 To numberOfWindows - 2 'Step 2
+
+                                    Dim dftSoundBin_x(fftFormat.FftWindowSize - 1) As Double
+                                    Dim dftSoundBin_y(fftFormat.FftWindowSize - 1) As Double
+
+                                    'Creates a zero-padded sound array with the length of the dft windows size ()
+                                    For sample = 0 To sliceLength - 1
+                                        dftSoundBin_x(sample) = inputArray(readSample)
+                                        readSample += 1
+                                    Next
+
+                                    'Calculates forward FFT for the current sound window
+                                    FastFourierTransform(FftDirections.Forward, dftSoundBin_x, dftSoundBin_y, True)
+
+                                    Dim StartIndex As Integer = 0
+                                    Dim EndIndex As Integer = fftFormat.FftWindowSize - 1
+
+                                    If LowerCutoffFrequency IsNot Nothing Then
+                                        StartIndex = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, LowerCutoffFrequency, inputSound.WaveFormat.SampleRate, fftFormat.FftWindowSize, Utils.roundingMethods.alwaysUp)
+                                    End If
+
+                                    If UpperCutoffFrequency IsNot Nothing Then
+                                        EndIndex = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, UpperCutoffFrequency, inputSound.WaveFormat.SampleRate, fftFormat.FftWindowSize, Utils.roundingMethods.alwaysDown)
+                                    End If
+
+                                    For n = StartIndex To EndIndex
+
+                                        ''performs complex multiplications (to instead do convolution)
+                                        'Dim tempDftSoundBin_x As Double = 0
+                                        'tempDftSoundBin_x = dftSoundBin_x(n) 'stores this value so that it does not get overwritten in the following line (it needs to be used also two lines below)
+                                        'dftSoundBin_x(n) = tempDftSoundBin_x * dftIR_Bin_x(n) - dftSoundBin_y(n) * dftIR_Bin_y(n)
+                                        'dftSoundBin_y(n) = tempDftSoundBin_x * dftIR_Bin_y(n) + dftSoundBin_y(n) * dftIR_Bin_x(n)
+
+
+                                        'Performs complex division
+                                        'z1=a+bi z2=c+di 
+                                        'z1/z2 = (ac+bd)/(c^2+d^2) + (bc-ad)/(c^2+d^2)i
+                                        Dim cm_a As Double = dftSoundBin_x(n) 'DftSound1_x_Bin(n)
+                                        Dim cm_b As Double = dftSoundBin_y(n) ' DftSound1_y_Bin(n)
+                                        Dim cm_c As Double = dftIR_Bin_x(n) ' DftSound2_x_Bin(n)
+                                        Dim cm_d As Double = dftIR_Bin_y(n) ' DftSound2_y_Bin(n)
+
+                                        dftSoundBin_x(n) = (cm_a * cm_c + cm_b * cm_d) / (cm_c ^ 2 + cm_d ^ 2)
+                                        dftSoundBin_y(n) = (cm_b * cm_c - cm_a * cm_d) / (cm_c ^ 2 + cm_d ^ 2)
+
+                                    Next
+
+
+                                    'Calculates inverse FFT
+                                    FastFourierTransform(FftDirections.Backward, dftSoundBin_x, dftSoundBin_y)
+
+                                    'Puts the convoluted sound in the output array
+                                    For sample = 0 To sliceLength - 1
+                                        OutputChannelSampleArray(writeSample) += dftSoundBin_x(sample)
+                                        writeSample += 1
+                                    Next
+                                    'writeSample -= sliceLength
+
+                                Next
+
+                                'Referencin the sound array in the output sound
+                                outputSound.WaveData.SampleData(c) = OutputChannelSampleArray
+
+
+                                'Increasing impulse response channel if the impulse response has more than 1 channel.
+                                If impulseResponse.WaveFormat.Channels > 1 Then IRChannel += 1
+
+                            Next
+
+                            Return outputSound
+
+                        Case Else
+                            Throw New NotImplementedException(inputSound.WaveFormat.BitDepth & " bit depth is not yet supported.")
+                            Return Nothing
+                    End Select
 
 
                 Catch ex As Exception

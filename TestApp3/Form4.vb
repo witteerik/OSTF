@@ -2869,4 +2869,34 @@
 
 
     End Sub
+
+    Private Sub Button20_Click(sender As Object, e As EventArgs) Handles Button20.Click
+
+        Dim InputSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSiPTest\Media\Unechoic-Talker1-RVE\TestWordRecordings\L02S03_blund\M_000_000_blund.wav")
+        'InputSound.ZeroPad(2.0R, 2.0R)
+        InputSound.WriteWaveFile("C:\Temp5\OrigSound.wav")
+        Dim IR = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones\KEMAR_60_R.wav")
+        IR.RemoveUnparsedWaveChunks()
+        IR.WriteWaveFile("C:\Temp5\IR.wav")
+
+        Dim ConvSound = SpeechTestFramework.Audio.DSP.FIRFilter(InputSound, IR, New SpeechTestFramework.Audio.Formats.FftFormat)
+        ConvSound.WriteWaveFile("C:\Temp5\ConvSound.wav")
+
+        'Dim RevIR = SpeechTestFramework.Audio.DSP.ReverseSound(IR)
+        'RevIR.RemoveUnparsedWaveChunks()
+        'RevIR.WriteWaveFile("C:\Temp5\RevIR.wav")
+
+        'ConvSound = SpeechTestFramework.Audio.DSP.ReverseSound(ConvSound)
+
+        'Dim DeConvSound2 = SpeechTestFramework.Audio.DSP.Deconvolution2(ConvSound, IR, New SpeechTestFramework.Audio.Formats.FftFormat)
+        'DeConvSound2 = SpeechTestFramework.Audio.DSP.ReverseSound(DeConvSound)
+        'DeConvSound2.WriteWaveFile("C:\Temp5\DeConvSound2.wav")
+
+        Dim DeConvSound = SpeechTestFramework.Audio.DSP.Deconvolution(ConvSound, IR)
+        'DeConvSound = SpeechTestFramework.Audio.DSP.ReverseSound(DeConvSound)
+        DeConvSound.WriteWaveFile("C:\Temp5\DeConvSound.wav")
+
+
+
+    End Sub
 End Class
