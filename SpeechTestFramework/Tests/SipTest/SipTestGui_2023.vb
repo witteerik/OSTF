@@ -39,6 +39,7 @@ Public Class SipTestGui_2023
     Private BmldTargetModes As New List(Of String) From {"R", "L", "0", "π"} ' For Right, Left, Zero, Pi,
     Private BmldNoiseModes As New List(Of String) From {"R", "L", "0", "π", "U"} ' For Right, Left, Zero, Pi, Uncorrelated (i.e. different noises binaurally)
     Private AvailableSimultaneousNoisesCount As New List(Of Integer) From {1, 2, 3, 4, 5}
+    Private ReadOnly DefaultSelectedSimultaneousNoisesCountIndex As Integer = 1
     ''' <summary>
     ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
     ''' </summary>
@@ -197,13 +198,17 @@ Public Class SipTestGui_2023
         For Each RefLevel In AvailableReferenceLevels
             ReferenceLevelComboBox.Items.Add(RefLevel)
         Next
-        ReferenceLevelComboBox.SelectedIndex = DefaultReferenceLevelIndex
+        If DefaultReferenceLevelIndex < ReferenceLevelComboBox.Items.Count Then
+            ReferenceLevelComboBox.SelectedIndex = DefaultReferenceLevelIndex
+        End If
 
         'Adding a default noise count 
         For Each NoiseCount In AvailableSimultaneousNoisesCount
             SimultaneousNoisesCount_ComboBox.Items.Add(NoiseCount)
         Next
-        SimultaneousNoisesCount_ComboBox.SelectedIndex = SimultaneousNoisesCount_ComboBox.Items.Count - 1
+        If DefaultSelectedSimultaneousNoisesCountIndex < SimultaneousNoisesCount_ComboBox.Items.Count Then
+            SimultaneousNoisesCount_ComboBox.SelectedIndex = DefaultSelectedSimultaneousNoisesCountIndex
+        End If
 
         'Adding available preset names
         AvailablePresetsNames = SpeechMaterial.Presets.Keys.ToList
@@ -215,7 +220,9 @@ Public Class SipTestGui_2023
 
         'Adding available test situations
         For Each TestSituation In AvailableMediaSets
-            Situations_FlowLayoutPanel.Controls.Add(New CheckBox With {.Text = TestSituation.MediaSetName})
+            Dim NewCheckBox = New CheckBox With {.Text = TestSituation.MediaSetName}
+            AddHandler NewCheckBox.CheckedChanged, AddressOf TryCreateSipTestMeasurement
+            Situations_FlowLayoutPanel.Controls.Add(NewCheckBox)
         Next
 
         'Adding available test length reduplications
@@ -227,22 +234,30 @@ Public Class SipTestGui_2023
 
         'Adding possible PNR values
         For Each PNR In AvailablePNRs
-            PNRs_FlowLayoutPanel.Controls.Add(New CheckBox With {.Text = PNR})
+            Dim NewCheckBox = New CheckBox With {.Text = PNR}
+            AddHandler NewCheckBox.CheckedChanged, AddressOf TryCreateSipTestMeasurement
+            PNRs_FlowLayoutPanel.Controls.Add(NewCheckBox)
         Next
 
         'Adding sound source azimuth values - target
         For Each Azimuth In AvailableTargetAzimuths
-            SpeechAzimuth_FlowLayoutPanel.Controls.Add(New CheckBox With {.Text = Azimuth})
+            Dim NewCheckBox = New CheckBox With {.Text = Azimuth}
+            AddHandler NewCheckBox.CheckedChanged, AddressOf TryCreateSipTestMeasurement
+            SpeechAzimuth_FlowLayoutPanel.Controls.Add(NewCheckBox)
         Next
 
         'Adding sound source azimuth values - masker
         For Each Azimuth In AvailableMaskerAzimuths
-            MaskerAzimuth_FlowLayoutPanel.Controls.Add(New CheckBox With {.Text = Azimuth})
+            Dim NewCheckBox = New CheckBox With {.Text = Azimuth}
+            AddHandler NewCheckBox.CheckedChanged, AddressOf TryCreateSipTestMeasurement
+            MaskerAzimuth_FlowLayoutPanel.Controls.Add(NewCheckBox)
         Next
 
         'Adding sound source azimuth values - background
         For Each Azimuth In AvailableBackgroundAzimuths
-            BackgroundAzimuth_FlowLayoutPanel.Controls.Add(New CheckBox With {.Text = Azimuth})
+            Dim NewCheckBox = New CheckBox With {.Text = Azimuth}
+            AddHandler NewCheckBox.CheckedChanged, AddressOf TryCreateSipTestMeasurement
+            BackgroundAzimuth_FlowLayoutPanel.Controls.Add(NewCheckBox)
         Next
 
         'Adding Target and Noise modes for BMLD
@@ -380,6 +395,8 @@ Public Class SipTestGui_2023
             Test_TableLayoutPanel.Enabled = True
         End If
 
+        TryCreateSipTestMeasurement()
+
     End Sub
 
     Private Sub DirectionalSimulationSet_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_ComboBox.SelectedIndexChanged
@@ -394,6 +411,22 @@ Public Class SipTestGui_2023
         Else
             SelectedTransducer.ClearSelectedDirectionalSimulationSet()
         End If
+
+        'Adding available simulation distances
+        Dim AvailableDistances = SelectedTransducer.GetAvailableDirectionalSimulationSetDistances(SelectedItem)
+        SimulatedDistance_ComboBox.Items.Clear()
+        For Each Distance In AvailableDistances
+            SimulatedDistance_ComboBox.Items.Add(Distance)
+        Next
+        If SimulatedDistance_ComboBox.Items.Count > 0 Then SimulatedDistance_ComboBox.SelectedIndex = 0
+
+        TryCreateSipTestMeasurement()
+
+    End Sub
+
+    Private Sub SimulatedDistance_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SimulatedDistance_ComboBox.SelectedIndexChanged
+
+        TryCreateSipTestMeasurement()
 
     End Sub
 
@@ -618,9 +651,6 @@ Public Class SipTestGui_2023
             Next
             If SelectedPNRs.Count = 0 Then Exit Sub
 
-            'Prepares the operation progress bar
-            Test_TableLayoutPanel.Enabled = False
-
             'Creates a new test and updates the psychometric function diagram
             CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
             CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
@@ -628,47 +658,63 @@ Public Class SipTestGui_2023
 
             If SelectedTestparadigm = Testparadigm.FlexibleLocations Then
 
-                Dim LocalSpeechLocations As New List(Of Double)
+                If SimulatedDistance_ComboBox.SelectedItem Is Nothing Then Exit Sub
+
+                Dim LocalSpeechAzimuths As New List(Of Double)
+                Dim LocalSpeechElevations As New List(Of Double)
+                Dim LocalSpeechDistances As New List(Of Double)
                 For Each Control In SpeechAzimuth_FlowLayoutPanel.Controls
                     Dim CurrentControl As CheckBox = TryCast(Control, CheckBox)
                     If CurrentControl IsNot Nothing Then
                         If CurrentControl.Checked = True Then
-                            LocalSpeechLocations.Add(CurrentControl.Text)
+                            LocalSpeechAzimuths.Add(CurrentControl.Text)
+                            LocalSpeechElevations.Add(0)
+                            LocalSpeechDistances.Add(SimulatedDistance_ComboBox.SelectedItem)
                         End If
                     End If
                 Next
-                CurrentSipTestMeasurement.TestProcedure.SetTargetStimulusLocations(SelectedTestparadigm, LocalSpeechLocations)
+                CurrentSipTestMeasurement.TestProcedure.SetTargetStimulusLocations(SelectedTestparadigm, LocalSpeechAzimuths, LocalSpeechElevations, LocalSpeechDistances)
 
-                Dim LocalMaskerLocations As New List(Of Double)
+                Dim LocalMaskerAzimuths As New List(Of Double)
+                Dim LocalMaskerElevations As New List(Of Double)
+                Dim LocalMaskerDistances As New List(Of Double)
                 For Each Control In MaskerAzimuth_FlowLayoutPanel.Controls
                     Dim CurrentControl As CheckBox = TryCast(Control, CheckBox)
                     If CurrentControl IsNot Nothing Then
                         If CurrentControl.Checked = True Then
-                            LocalMaskerLocations.Add(CurrentControl.Text)
+                            LocalMaskerAzimuths.Add(CurrentControl.Text)
+                            LocalMaskerElevations.Add(0)
+                            LocalMaskerDistances.Add(SimulatedDistance_ComboBox.SelectedItem)
                         End If
                     End If
                 Next
-                CurrentSipTestMeasurement.TestProcedure.SetMaskerLocations(SelectedTestparadigm, LocalMaskerLocations)
+                CurrentSipTestMeasurement.TestProcedure.SetMaskerLocations(SelectedTestparadigm, LocalMaskerAzimuths, LocalMaskerElevations, LocalMaskerDistances)
 
-                Dim LocalBackgroundLocations As New List(Of Double)
+                Dim LocalBackgroundAzimuths As New List(Of Double)
+                Dim LocalBackgroundElevations As New List(Of Double)
+                Dim LocalBackgroundDistances As New List(Of Double)
                 For Each Control In BackgroundAzimuth_FlowLayoutPanel.Controls
                     Dim CurrentControl As CheckBox = TryCast(Control, CheckBox)
                     If CurrentControl IsNot Nothing Then
                         If CurrentControl.Checked = True Then
-                            LocalBackgroundLocations.Add(CurrentControl.Text)
+                            LocalBackgroundAzimuths.Add(CurrentControl.Text)
+                            LocalBackgroundElevations.Add(0)
+                            LocalBackgroundDistances.Add(SimulatedDistance_ComboBox.SelectedItem)
                         End If
                     End If
                 Next
-                CurrentSipTestMeasurement.TestProcedure.SetBackgroundLocations(SelectedTestparadigm, LocalBackgroundLocations)
+                CurrentSipTestMeasurement.TestProcedure.SetBackgroundLocations(SelectedTestparadigm, LocalBackgroundAzimuths, LocalBackgroundElevations, LocalBackgroundDistances)
 
             End If
 
-
+            'Checking if enough maskers where selected
+            If NumberOfSimultaneousMaskers > CurrentSipTestMeasurement.TestProcedure.MaskerLocations(SelectedTestparadigm).Count Then
+                MsgBox("Select more masker locations of fewer maskers!", MsgBoxStyle.Information, "Not enough masker locations selected!")
+                Exit Sub
+            End If
 
             'Setting up test trials to run
             PlanTestTrials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, NumberOfSimultaneousMaskers, RandomSeed_IntegerParsingTextBox.Value)
-
-            Test_TableLayoutPanel.Enabled = True
 
             'Displayes the planned test length
             PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
@@ -1991,11 +2037,9 @@ Public Class SipTestGui_2023
             BmldMode_RichTextBox.SelectionCharOffset = -6
             BmldMode_RichTextBox.SelectionFont = New Font("Arial", 7, FontStyle.Italic)
 
+            TryCreateSipTestMeasurement()
+
         End If
-
-    End Sub
-
-    Private Sub StopTest(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
 
     End Sub
 

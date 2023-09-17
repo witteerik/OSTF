@@ -64,6 +64,15 @@ Public Class DirectionalSimulation
         Return OutputList
     End Function
 
+    Public Function GetAvailableDirectionalSimulationSetDistances(ByVal DirectionalSimulationSetName As String) As SortedSet(Of Double)
+        Dim OutputList As New SortedSet(Of Double)
+        If BinauralImpulseReponseSets.ContainsKey(DirectionalSimulationSetName) Then
+            Return BinauralImpulseReponseSets(DirectionalSimulationSetName).GetAllOccurringDistances
+        End If
+        Return OutputList
+    End Function
+
+
 End Class
 
 Public Class BinauralImpulseReponseSet
@@ -226,6 +235,15 @@ Public Class BinauralImpulseReponseSet
 
     End Function
 
+    Public Function GetAllOccurringDistances() As SortedSet(Of Double)
+
+        Dim Output As New SortedSet(Of Double)
+        For Each IR In StereoKernels
+            Output.Add(IR.Value.Item1.GetSphericalDistance())
+        Next
+        Return Output
+
+    End Function
 
     Public Class Point3D
 

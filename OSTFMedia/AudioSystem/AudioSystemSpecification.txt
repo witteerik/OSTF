@@ -44,7 +44,7 @@ LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 
 <New transducer>
-Name = Simulated sound field (SennheiserHD25_1)
+Name = Simulated sound field
 PresentationType = SimulatedSoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
 LoudspeakerAzimuths = -90, 90 
 LoudspeakerElevations = 0,0 // Not yet implemented

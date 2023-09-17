@@ -465,6 +465,18 @@ Public Module OstfBase
             Me._SelectedDirectionalSimulationSetName = ""
         End Sub
 
+        Public Function GetAvailableDirectionalSimulationSetDistances(ByVal DirectionalSimulationSetName As String) As SortedSet(Of Double)
+
+            Dim OutputList As New SortedSet(Of Double)
+            If PresentationType = PresentationTypes.SimulatedSoundField Then
+                Return DirectionalSimulator.GetAvailableDirectionalSimulationSetDistances(DirectionalSimulationSetName)
+            End If
+
+            Return OutputList
+
+        End Function
+
+
         Public Sub SetupMixer()
             'Setting up the mixer
             Mixer = New Audio.PortAudioVB.DuplexMixer(Me)

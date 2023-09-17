@@ -1757,62 +1757,62 @@ Namespace SipTest
             'TestParadigm Slow
             TargetStimulusLocations.Add(Testparadigm.Slow, {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}})
             MaskerLocations.Add(Testparadigm.Slow, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30, .Elevation = 0, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
             BackgroundLocations.Add(Testparadigm.Slow, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
 
             'Testparadigm.Quick
             TargetStimulusLocations.Add(Testparadigm.Quick, {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0}})
             MaskerLocations.Add(Testparadigm.Quick, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
             BackgroundLocations.Add(Testparadigm.Quick, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
 
             TargetStimulusLocations.Add(Testparadigm.Directional2, {
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -15},
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 15}})
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -15, .Distance = 1},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 15, .Distance = 1}})
             MaskerLocations.Add(Testparadigm.Directional2, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
             BackgroundLocations.Add(Testparadigm.Directional2, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45, .Distance = 1}})
 
 
             TargetStimulusLocations.Add(Testparadigm.Directional3, {
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0},
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
             MaskerLocations.Add(Testparadigm.Directional3, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
             BackgroundLocations.Add(Testparadigm.Directional3, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45, .Distance = 1}})
 
 
             TargetStimulusLocations.Add(Testparadigm.Directional5, {
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90},
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0},
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30},
-            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90}})
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1},
+            New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1}})
             MaskerLocations.Add(Testparadigm.Directional5, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
             BackgroundLocations.Add(Testparadigm.Directional5, {
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135},
-                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45}})
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135, .Distance = 1},
+                                New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45, .Distance = 1}})
 
 
         End Sub
@@ -1822,14 +1822,27 @@ Namespace SipTest
         ''' </summary>
         ''' <param name="Testparadigm"></param>
         ''' <param name="HorizontalAzimuths"></param>
-        Public Sub SetTargetStimulusLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double))
+        Public Sub SetTargetStimulusLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double), Optional ByVal Elevations As List(Of Double) = Nothing, Optional ByVal Distances As List(Of Double) = Nothing)
             If _TargetStimulusLocations.ContainsKey(TestParadigm) Then
                 _TargetStimulusLocations.Remove(TestParadigm)
             End If
             Dim SourceLocationArrayList As New List(Of Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
-            For Each HorizontalAzimuth In HorizontalAzimuths
-                SourceLocationArrayList.Add(New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = HorizontalAzimuth})
+
+            If Elevations IsNot Nothing Then
+                If Elevations.Count <> HorizontalAzimuths.Count Then Throw New ArgumentException("Unequal lengths of parameters!")
+            End If
+
+            If Distances IsNot Nothing Then
+                If Distances.Count <> HorizontalAzimuths.Count Then Throw New ArgumentException("Unequal lengths of parameters!")
+            End If
+
+            For i = 0 To HorizontalAzimuths.Count - 1
+                Dim NewLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = HorizontalAzimuths(i)}
+                If Elevations IsNot Nothing Then NewLocation.Elevation = Elevations(i)
+                If Distances IsNot Nothing Then NewLocation.Distance = Distances(i)
+                SourceLocationArrayList.Add(NewLocation)
             Next
+
             _TargetStimulusLocations.Add(TestParadigm, SourceLocationArrayList.ToArray)
         End Sub
 
@@ -1838,14 +1851,27 @@ Namespace SipTest
         ''' </summary>
         ''' <param name="Testparadigm"></param>
         ''' <param name="HorizontalAzimuths"></param>
-        Public Sub SetMaskerLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double))
+        Public Sub SetMaskerLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double), Optional ByVal Elevations As List(Of Double) = Nothing, Optional ByVal Distances As List(Of Double) = Nothing)
             If _MaskerLocations.ContainsKey(TestParadigm) Then
                 _MaskerLocations.Remove(TestParadigm)
             End If
             Dim SourceLocationArrayList As New List(Of Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
-            For Each HorizontalAzimuth In HorizontalAzimuths
-                SourceLocationArrayList.Add(New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = HorizontalAzimuth})
+
+            If Elevations IsNot Nothing Then
+                If Elevations.Count <> HorizontalAzimuths.Count Then Throw New ArgumentException("Unequal lengths of parameters!")
+            End If
+
+            If Distances IsNot Nothing Then
+                If Distances.Count <> HorizontalAzimuths.Count Then Throw New ArgumentException("Unequal lengths of parameters!")
+            End If
+
+            For i = 0 To HorizontalAzimuths.Count - 1
+                Dim NewLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = HorizontalAzimuths(i)}
+                If Elevations IsNot Nothing Then NewLocation.Elevation = Elevations(i)
+                If Distances IsNot Nothing Then NewLocation.Distance = Distances(i)
+                SourceLocationArrayList.Add(NewLocation)
             Next
+
             _MaskerLocations.Add(TestParadigm, SourceLocationArrayList.ToArray)
         End Sub
 
@@ -1854,14 +1880,27 @@ Namespace SipTest
         ''' </summary>
         ''' <param name="Testparadigm"></param>
         ''' <param name="HorizontalAzimuths"></param>
-        Public Sub SetBackgroundLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double))
+        Public Sub SetBackgroundLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double), Optional ByVal Elevations As List(Of Double) = Nothing, Optional ByVal Distances As List(Of Double) = Nothing)
             If _BackgroundLocations.ContainsKey(TestParadigm) Then
                 _BackgroundLocations.Remove(TestParadigm)
             End If
             Dim SourceLocationArrayList As New List(Of Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
-            For Each HorizontalAzimuth In HorizontalAzimuths
-                SourceLocationArrayList.Add(New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = HorizontalAzimuth})
+
+            If Elevations IsNot Nothing Then
+                If Elevations.Count <> HorizontalAzimuths.Count Then Throw New ArgumentException("Unequal lengths of parameters!")
+            End If
+
+            If Distances IsNot Nothing Then
+                If Distances.Count <> HorizontalAzimuths.Count Then Throw New ArgumentException("Unequal lengths of parameters!")
+            End If
+
+            For i = 0 To HorizontalAzimuths.Count - 1
+                Dim NewLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = HorizontalAzimuths(i)}
+                If Elevations IsNot Nothing Then NewLocation.Elevation = Elevations(i)
+                If Distances IsNot Nothing Then NewLocation.Distance = Distances(i)
+                SourceLocationArrayList.Add(NewLocation)
             Next
+
             _BackgroundLocations.Add(TestParadigm, SourceLocationArrayList.ToArray)
         End Sub
 
