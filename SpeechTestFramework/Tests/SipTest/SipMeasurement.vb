@@ -1501,20 +1501,6 @@ Namespace SipTest
                 If LogToConsole = True Then Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
                 MixStopWatch.Restart()
 
-                'Initiating the sound field simulator if needed
-                If SelectedTransducer.PresentationType = PresentationTypes.SimulatedSoundField Then
-                    If SelectedTransducer.Mixer.CurrentSimulatorWaveFormat Is Nothing Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance Is Nothing Then
-                        'Initiating the simulator
-                        'TODO: the delection of IR-database should probably not be hard coded here!
-                        SelectedTransducer.Mixer.SetupDirectionalSimulator(1.45, SoundWaveFormat, Audio.PortAudioVB.DuplexMixer.SupportedIrDatabases.ARC_Harcellen_KEMAR)
-                    Else
-                        If SoundWaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, True) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1.45 Then
-                            'Updating the simulator
-                            SelectedTransducer.Mixer.SetupDirectionalSimulator(1.45, SoundWaveFormat, Audio.PortAudioVB.DuplexMixer.SupportedIrDatabases.ARC_Harcellen_KEMAR)
-                        End If
-                    End If
-                End If
-
                 'Creating the mix by calling CreateSoundScene of the current Mixer
                 Dim MixedTestTrialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
 

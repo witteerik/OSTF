@@ -354,11 +354,24 @@ Public Class SipTestGui_2023
 
     Private Sub Transducer_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Transducer_ComboBox.SelectedIndexChanged
 
+        DirectionalSimulationSet_ComboBox.Items.Clear()
+
         SelectedTransducer = Transducer_ComboBox.SelectedItem
 
         If SelectedTransducer.CanPlay = True Then
             '(At this stage the sound player will be started, if not already done.)
             OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.4, SelectedTransducer.Mixer,, True, True)
+
+            'Adding available DirectionalSimulationSets
+            Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+            Dim AvailableSets = SelectedTransducer.GetAvailableDirectionalSimulationSets(TempWaveformat.SampleRate)
+            For Each Item In AvailableSets
+                DirectionalSimulationSet_ComboBox.Items.Add(Item)
+            Next
+            If DirectionalSimulationSet_ComboBox.Items.Count > 1 Then
+                DirectionalSimulationSet_ComboBox.SelectedIndex = 0
+            End If
+
         Else
             MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
         End If
@@ -368,6 +381,22 @@ Public Class SipTestGui_2023
         End If
 
     End Sub
+
+    Private Sub DirectionalSimulationSet_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_ComboBox.SelectedIndexChanged
+
+        Dim SelectedItem = DirectionalSimulationSet_ComboBox.SelectedItem
+        If SelectedItem IsNot Nothing Then
+            Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+            If SelectedTransducer.TrySetSelectedDirectionalSimulationSet(SelectedItem, TempWaveformat.SampleRate) = False Then
+                'Well this shold not happen...
+                SelectedTransducer.ClearSelectedDirectionalSimulationSet()
+            End If
+        Else
+            SelectedTransducer.ClearSelectedDirectionalSimulationSet()
+        End If
+
+    End Sub
+
 
     Private Sub KeyDetection(sender As Object, e As KeyEventArgs) Handles PcParticipantForm.KeyUp, MyBase.KeyUp
 
@@ -1039,20 +1068,6 @@ Public Class SipTestGui_2023
             MixStopWatch.Stop()
             If LogToConsole = True Then Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
             MixStopWatch.Restart()
-
-            'Initiating the sound field simulator if needed
-            If SelectedTransducer.PresentationType = PresentationTypes.SimulatedSoundField Then
-                If SelectedTransducer.Mixer.CurrentSimulatorWaveFormat Is Nothing Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance Is Nothing Then
-                    'Initiating the simulator
-                    'TODO: the delection of IR-database should probably not be hard coded here!
-                    SelectedTransducer.Mixer.SetupDirectionalSimulator(1.45, SoundWaveFormat, Audio.PortAudioVB.DuplexMixer.SupportedIrDatabases.ARC_Harcellen_KEMAR)
-                Else
-                    If SoundWaveFormat.IsEqual(SelectedTransducer.Mixer.CurrentSimulatorWaveFormat, False, True, True, True) = False Or SelectedTransducer.Mixer.CurrentSimulatorLoadspeakerDistance <> 1 Then
-                        'Updating the simulator
-                        SelectedTransducer.Mixer.SetupDirectionalSimulator(1.45, SoundWaveFormat, Audio.PortAudioVB.DuplexMixer.SupportedIrDatabases.ARC_Harcellen_KEMAR)
-                    End If
-                End If
-            End If
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
             Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
@@ -1983,4 +1998,5 @@ Public Class SipTestGui_2023
     Private Sub StopTest(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
 
     End Sub
+
 End Class

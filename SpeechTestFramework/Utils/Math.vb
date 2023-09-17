@@ -1615,6 +1615,40 @@ Namespace Utils
             Return Radians * 180 / System.Math.PI
         End Function
 
+        ''' <summary>
+        ''' Unwraps the indicated angle into the range -180 (is lower than) Azimuth (which is equal to or lower than) 180 degrees.
+        ''' </summary>
+        ''' <param name="Angle">The angle in degrees</param>
+        ''' <returns></returns>
+        Public Function UnwrapAngle(ByVal Angle As Integer) As Integer
+
+            'Gets the remainder when dividing by 360
+            Dim UnwrappedAngle As Integer
+            Dim Div = System.Math.DivRem(Angle, 360, UnwrappedAngle)
+
+            'Sets the Azimuth in the following range: -180 < Azimuth <= 180
+            If UnwrappedAngle > 180 Then UnwrappedAngle -= 360
+
+            Return UnwrappedAngle
+        End Function
+
+        ''' <summary>
+        ''' Unwraps the indicated angle into the range -180 (is lower than) Azimuth (which is equal to or lower than) 180 degrees.
+        ''' </summary>
+        ''' <param name="Angle">The angle in degrees</param>
+        ''' <returns></returns>
+        Public Function UnwrapAngle(ByVal Angle As Double) As Double
+
+            'Gets the remainder when dividing by 360
+            Dim UnwrappedAngle As Double = Angle Mod 360
+
+            'Sets the Azimuth in the following range: -180 < Azimuth <= 180
+            If UnwrappedAngle > 180 Then UnwrappedAngle -= 360
+
+            Return UnwrappedAngle
+        End Function
+
+
     End Module
 
 End Namespace

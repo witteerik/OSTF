@@ -71,9 +71,9 @@ Namespace Audio
 
                         Me.HardwareOutputChannelSpeakerLocations.Add(ParentTransducerSpecification.HardwareOutputChannels(i),
                                                                  New SoundSourceLocation With {
-                                                                 .HorizontalAzimuth = ParentTransducerSpecification.SoundSourceAzimuths(i),
-                                                                 .Elevation = ParentTransducerSpecification.SoundSourceElevations(i),
-                                                                 .Distance = ParentTransducerSpecification.SoundSourceDistances(i)})
+                                                                 .HorizontalAzimuth = ParentTransducerSpecification.LoudspeakerAzimuths(i),
+                                                                 .Elevation = ParentTransducerSpecification.LoudspeakerElevations(i),
+                                                                 .Distance = ParentTransducerSpecification.LoudspeakerDistances(i)})
                     Next
 
                     'Sets calibration
@@ -85,7 +85,7 @@ Namespace Audio
                     SetLinearInput()
 
                 Catch ex As Exception
-                    MsgBox("An error occurred! The following error message may be relevant: " & vbCrLf & ex.Message & vbCrLf & vbCrLf & "If the above error message is not relevant, make sure you have the correct (and equal) number of values for a) HardwareOutputChannels, b) SoundSourceAzimuths, c) SoundSourceElevations, d) SoundSourceDistances and e) CalibrationGain in the AudioSystemSpecification.txt file!", MsgBoxStyle.Critical, "Error: " & ex.ToString)
+                    MsgBox("An error occurred! The following error message may be relevant: " & vbCrLf & ex.Message & vbCrLf & vbCrLf & "If the above error message is not relevant, make sure you have the correct (and equal) number of values for a) HardwareOutputChannels, b) LoudspeakerAzimuths, c) LoudspeakerElevations, d) LoudspeakerDistances and e) CalibrationGain in the AudioSystemSpecification.txt file!", MsgBoxStyle.Critical, "Error: " & ex.ToString)
                 End Try
 
             End Sub
@@ -378,7 +378,8 @@ Namespace Audio
                         Case PresentationTypes.SimulatedSoundField
 
                             'Simulating the speaker locations into stereo headphones
-                            SimulateSoundSourceLocation(SoundSceneItemList)
+                            If ParentTransducerSpecification.SelectedDirectionalSimulationSetName = "" Then Throw New Exception("Expected a ParentTransducerSpecification.SelectedDirectionalSimulationSetName but saw an empty string!")
+                            SimulateSoundSourceLocation(ParentTransducerSpecification.SelectedDirectionalSimulationSetName, SoundSceneItemList)
 
                             'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
                             OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
@@ -542,7 +543,7 @@ Namespace Audio
                 Dim Azimuth As Integer = SoundSourceLocation.HorizontalAzimuth
 
                 'Unwraps the Azimuth into the range: -180 < Azimuth <= 180
-                Dim UnwrappedAzimuth = UnwrapAngle(Azimuth)
+                Dim UnwrappedAzimuth = Utils.UnwrapAngle(Azimuth)
 
                 Dim DistanceList As New List(Of Tuple(Of Integer, SoundSourceLocation, Double)) ' Channel, SpeakerAzimuth, distance
 
@@ -625,115 +626,11 @@ Namespace Audio
             End Function
 
             ''' <summary>
-            ''' Unwraps the indicated angle into the range -180 (is lower than) Azimuth (which is equal to or lower than) 180 degrees.
-            ''' </summary>
-            ''' <param name="Angle">The angle in degrees</param>
-            ''' <returns></returns>
-            Private Shared Function UnwrapAngle(ByVal Angle As Integer) As Integer
-
-                'Gets the remainder when dividing by 360
-                Dim UnwrappedAngle As Integer
-                Dim Div = Math.DivRem(Angle, 360, UnwrappedAngle)
-
-                'Sets the Azimuth in the following range: -180 < Azimuth <= 180
-                If UnwrappedAngle > 180 Then UnwrappedAngle -= 360
-
-                Return UnwrappedAngle
-            End Function
-
-
-            ''' <summary>
             ''' Re-usable fft format for FIR-filtering
             ''' </summary>
             Private MyFftFormat As Audio.Formats.FftFormat = New Formats.FftFormat
 
-            Public DirectionalSimulator As DirectionalSimulation = Nothing
-
-            Private _TransducerName As HeadphonesName
-
-            Public ReadOnly Property TransducerName As HeadphonesName
-                Get
-                    Return _TransducerName
-                End Get
-            End Property
-
-
-            Public Enum SupportedIrDatabases
-                wierstorf2011
-                ARC_Harcellen_KEMAR
-            End Enum
-
-            Public SupportedSimulatedLoudspeakerDistances As New SortedList(Of SupportedIrDatabases, List(Of Double)) From {
-                {SupportedIrDatabases.wierstorf2011, New List(Of Double) From {0.5, 1.0R, 2.0R, 3.0R}},
-                {SupportedIrDatabases.ARC_Harcellen_KEMAR, New List(Of Double) From {1.45}}}
-
-            Public CurrentSimulatorWaveFormat As Audio.Formats.WaveFormat = Nothing
-            Public CurrentSimulatorLoadspeakerDistance As Double? = Nothing
-
-            Public Sub SetupDirectionalSimulator(ByVal SimulatedLoadspeakerDistance As Double,
-                                                 ByVal WaveFormat As Audio.Formats.WaveFormat,
-                                                 ByVal IrDatabase As SupportedIrDatabases)
-
-                If Not SupportedSimulatedLoudspeakerDistances(IrDatabase).Contains(SimulatedLoadspeakerDistance) Then Throw New NotImplementedException("The selected speaker distance (" & SimulatedLoadspeakerDistance & " meters) is not available for sound field simulation.")
-
-                Select Case WaveFormat.BitDepth
-                    Case 32
-                        'Ok!
-                    Case Else
-                        Throw New NotImplementedException("Directional simulation is unfortunately not supported for audio file bit dephts of " & WaveFormat.BitDepth)
-                End Select
-
-                'Creating a file name
-                Dim HeadphoneTypeString As String = ""
-                Select Case TransducerName
-                    Case HeadphonesName.Unspecified
-                        HeadphoneTypeString = ""
-                    Case HeadphonesName.AKGK271MKII
-                        HeadphoneTypeString = "AKGK271_"
-                    Case HeadphonesName.AKGK601
-                        HeadphoneTypeString = "AKGK601_"
-                    Case HeadphonesName.SennheiserHD25_1
-                        HeadphoneTypeString = "SennheiserHD25_"
-                End Select
-
-                Dim CurrentIrDatabasePath As String = ""
-                Select Case IrDatabase
-                    Case SupportedIrDatabases.wierstorf2011
-                        'Getting the folder
-
-                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, IrDatabase.ToString,
-                                                                WaveFormat.SampleRate.ToString & "Hz", "QU_KEMAR_anechoic_" &
-                                                                HeadphoneTypeString & SimulatedLoadspeakerDistance.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) & "m.wav")
-
-                        If IO.File.Exists(CurrentIrDatabasePath) = False Then
-                            Throw New NotImplementedException("Directional simulation format is not supported (missing impulse respomnse file (" & CurrentIrDatabasePath & ")")
-                        End If
-
-                    Case SupportedIrDatabases.ARC_Harcellen_KEMAR
-
-                        'Getting the folder
-                        If HeadphoneTypeString = "" Then HeadphoneTypeString = "UnspecifiedHeadphones"
-                        CurrentIrDatabasePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, IrDatabase.ToString, WaveFormat.SampleRate.ToString & "Hz", HeadphoneTypeString)
-
-                        If IO.Directory.Exists(CurrentIrDatabasePath) = False Then
-                            Throw New NotImplementedException("Directional simulation format is not supported (missing impulse respomnse file folder (" & CurrentIrDatabasePath & ")")
-                        End If
-
-                    Case Else
-                        Throw New NotImplementedException("Unknown impulse response database for directional simulation: " & IrDatabase)
-
-                End Select
-
-
-                DirectionalSimulator = New DirectionalSimulation(CurrentIrDatabasePath, IrDatabase)
-
-
-                CurrentSimulatorWaveFormat = WaveFormat
-                CurrentSimulatorLoadspeakerDistance = SimulatedLoadspeakerDistance
-
-            End Sub
-
-            Private Sub SimulateSoundSourceLocation(ByRef SoundSceneItemList As List(Of SoundSceneItem))
+            Private Sub SimulateSoundSourceLocation(ByVal ImpulseReponseSetName As String, ByRef SoundSceneItemList As List(Of SoundSceneItem))
 
                 For Each SoundSceneItem In SoundSceneItemList
 
@@ -756,15 +653,16 @@ Namespace Audio
                         Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(1), NewSound.WaveData.SampleData(1), OriginalSoundLength)
                         Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(1), NewSound.WaveData.SampleData(2), OriginalSoundLength)
 
-                        'TODO: elevation and distance is not supported here
-
                         'Attains a copy of the appropriate directional FIR-filter kernel
-                        Dim CurrentKernel = DirectionalSimulator.GetStereoKernel(SoundSceneItem.SourceLocation.HorizontalAzimuth).CreateSoundDataCopy
+                        Dim SelectedSimulationPoint = DirectionalSimulator.GetStereoKernel(ImpulseReponseSetName, SoundSceneItem.SourceLocation.HorizontalAzimuth, SoundSceneItem.SourceLocation.Elevation, SoundSceneItem.SourceLocation.Distance)
+                        Dim CurrentKernel = SelectedSimulationPoint.Item2.CreateSoundDataCopy
+                        Dim SelectedActualPoint = SelectedSimulationPoint.Item1
 
-                        'TODO: actual location values used should be stored in SoundSceneItem.SourceLocation.ActualLocation
-                        'For now, just copies the values to ActualLocation, as the current simulator supports 360 degrees in 1-degree steps
-                        If SoundSceneItem.SourceLocation.ActualLocation Is Nothing Then SoundSceneItem.SourceLocation.ActualLocation = New SoundSourceLocation
-                        SoundSceneItem.SourceLocation.ActualLocation.HorizontalAzimuth = SoundSceneItem.SourceLocation.HorizontalAzimuth
+                        'Storing the actual values available in the simulator
+                        SoundSceneItem.SourceLocation.ActualLocation = New SoundSourceLocation
+                        SoundSceneItem.SourceLocation.ActualLocation.HorizontalAzimuth = SelectedActualPoint.GetSphericalAzimuth
+                        SoundSceneItem.SourceLocation.ActualLocation.Elevation = SelectedActualPoint.GetSphericalElevation
+                        SoundSceneItem.SourceLocation.ActualLocation.Distance = SelectedActualPoint.GetSphericalDistance
 
                         'Applies gain to the kernel (this is more efficient than applying gain to the whole sound array)
                         'TODO. The following can be utilized to optimize the need for setting level by array looping, when using sound feild simulation

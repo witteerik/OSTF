@@ -1,0 +1,34 @@
+Name = ARC - Harcellen - KEMAR - 48kHz					
+ImpulseResponseSubFolder = Data\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones					
+SampleRate = 48000					
+					
+<AvailableSourceLocations> 					
+// AvailableSourceLocations are specified as: File [tab] Channel [tab] Ear [tab] Azimuth [tab] Elevation [tab] Distance [tab], with one location per row					
+// Note that Channel is the channel number within the File in which the impulse response for the corresponding Azimuth, Elevation and Distance for ear Ear is stored. 					
+// Ear should have the values either L or R, for left and right respectively					
+					
+//File	Channel	Ear	Azimuth	Elevation	Distance
+KEMAR_0_L.wav	1	L	0	0	1.45
+KEMAR_0_R.wav	1	R	0	0	1.45
+KEMAR_30_L.wav	1	L	30	0	1.45
+KEMAR_30_R.wav	1	R	30	0	1.45
+KEMAR_60_L.wav	1	L	60	0	1.45
+KEMAR_60_R.wav	1	R	60	0	1.45
+KEMAR_90_L.wav	1	L	90	0	1.45
+KEMAR_90_R.wav	1	R	90	0	1.45
+KEMAR_120_L.wav	1	L	120	0	1.45
+KEMAR_120_R.wav	1	R	120	0	1.45
+KEMAR_150_L.wav	1	L	150	0	1.45
+KEMAR_150_R.wav	1	R	150	0	1.45
+KEMAR_180_L.wav	1	L	180	0	1.45
+KEMAR_180_R.wav	1	R	180	0	1.45
+KEMAR_210_L.wav	1	L	210	0	1.45
+KEMAR_210_R.wav	1	R	210	0	1.45
+KEMAR_240_L.wav	1	L	240	0	1.45
+KEMAR_240_R.wav	1	R	240	0	1.45
+KEMAR_270_L.wav	1	L	270	0	1.45
+KEMAR_270_R.wav	1	R	270	0	1.45
+KEMAR_300_L.wav	1	L	300	0	1.45
+KEMAR_300_R.wav	1	R	300	0	1.45
+KEMAR_330_L.wav	1	L	330	0	1.45
+KEMAR_330_R.wav	1	R	330	0	1.45
