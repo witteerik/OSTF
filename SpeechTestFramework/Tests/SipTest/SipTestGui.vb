@@ -1331,7 +1331,8 @@ Public Class SipTestGui
             Case Testparadigm.Quick, Testparadigm.Slow
                 CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
             Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") & vbTab & CurrentSipTrial.TargetStimulusLocation.ActualLocation.HorizontalAzimuth
+                'TODO: the following line only uses the first of possible target stimulus locations
+                CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") & vbTab & CurrentSipTrial.TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth
         End Select
 
         'Collects the response alternatives
@@ -1339,7 +1340,8 @@ Public Class SipTestGui
         Dim TempList As New List(Of SpeechMaterialComponent)
         CurrentSipTrial.SpeechMaterialComponent.IsContrastingComponent(,, TempList)
         For Each ContrastingComponent In TempList
-            TestWordAlternatives.Add(New Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(ContrastingComponent.GetCategoricalVariableValue("Spelling"), CurrentSipTrial.TargetStimulusLocation.ActualLocation))
+            'TODO: the following line only uses the first of each possible contrasting response alternative stimulus locations
+            TestWordAlternatives.Add(New Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(ContrastingComponent.GetCategoricalVariableValue("Spelling"), CurrentSipTrial.TargetStimulusLocations(0).ActualLocation))
         Next
 
         'Randomizing the order
@@ -2573,7 +2575,7 @@ Public Class SipTestGui
             HeadingRow.Add("Name")
             HeadingRow.Add("MediaSet.MediaSetName")
             HeadingRow.Add("SpeechMaterialComponent.Id")
-            HeadingRow.Add("TargetStimulusLocation.HorizontalAzimuth")
+            HeadingRow.Add("TargetStimulusLocations.HorizontalAzimuth")
             HeadingRow.Add("SelectedMediaIndex")
             HeadingRow.Add("SelectedMasker1Index")
             HeadingRow.Add("SelectedMasker2Index")
@@ -2650,7 +2652,7 @@ Public Class SipTestGui
                         Select Case SelectedTestparadigm
                             Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                                 FileName = CurrentTrial.MediaSet.MediaSetName & "_" & CurrentTrial.SpeechMaterialComponent.Id &
-                            "_Az_" & CurrentTrial.TargetStimulusLocation.HorizontalAzimuth &
+                            "_Az_" & CurrentTrial.TargetStimulusLocations(0).HorizontalAzimuth &
                             "_Speech_" & CurrentTrial.SelectedMediaIndex &
                             "_Maskers_" & CurrentTrial.SelectedMaskerIndices(0) & "_" & CurrentTrial.SelectedMaskerIndices(1) &
                             "_PNR_" & CurrentTrial.PNR & ".wav"
@@ -2670,7 +2672,7 @@ Public Class SipTestGui
                         DataRow.Add(FileName)
                         DataRow.Add(CurrentTrial.MediaSet.MediaSetName)
                         DataRow.Add(CurrentTrial.SpeechMaterialComponent.Id)
-                        DataRow.Add(CurrentTrial.TargetStimulusLocation.HorizontalAzimuth)
+                        DataRow.Add(CurrentTrial.TargetStimulusLocations(0).HorizontalAzimuth)
                         DataRow.Add(CurrentTrial.SelectedMediaIndex)
                         DataRow.Add(CurrentTrial.SelectedMaskerIndices(0))
                         DataRow.Add(CurrentTrial.SelectedMaskerIndices(1))

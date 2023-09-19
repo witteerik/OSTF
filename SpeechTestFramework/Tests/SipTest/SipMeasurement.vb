@@ -411,7 +411,7 @@ Namespace SipTest
             For i = 0 To ObservedTrials.Count - 1
                 Select Case TestProcedure.TestParadigm
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                        Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & ObservedTrials(i).TargetStimulusLocation.ActualLocation.HorizontalAzimuth)  'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & ObservedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth)  'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                     Case Else
                         Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                 End Select
@@ -424,7 +424,7 @@ Namespace SipTest
 
                 Select Case TestProcedure.TestParadigm
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                        Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & PlannedTrials(i).TargetStimulusLocation.ActualLocation.HorizontalAzimuth) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & PlannedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                     Case Else
                         Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                 End Select
@@ -725,14 +725,38 @@ Namespace SipTest
                 TrialList.Add(Trial.EstimatedSuccessProbability(False))
                 TrialList.Add(Trial.AdjustedSuccessProbability)
 
-                TrialList.Add(Trial.TargetStimulusLocation.Distance)
-                TrialList.Add(Trial.TargetStimulusLocation.HorizontalAzimuth)
-                TrialList.Add(Trial.TargetStimulusLocation.Elevation)
+                'TrialList.Add(Trial.TargetStimulusLocations.Distance)
+                'TrialList.Add(Trial.TargetStimulusLocations.HorizontalAzimuth)
+                'TrialList.Add(Trial.TargetStimulusLocations.Elevation)
 
-                If Trial.TargetStimulusLocation.ActualLocation Is Nothing Then Trial.TargetStimulusLocation.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-                TrialList.Add(Trial.TargetStimulusLocation.ActualLocation.Distance)
-                TrialList.Add(Trial.TargetStimulusLocation.ActualLocation.HorizontalAzimuth)
-                TrialList.Add(Trial.TargetStimulusLocation.ActualLocation.Elevation)
+                'If Trial.TargetStimulusLocations.ActualLocation Is Nothing Then Trial.TargetStimulusLocations.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                'TrialList.Add(Trial.TargetStimulusLocations.ActualLocation.Distance)
+                'TrialList.Add(Trial.TargetStimulusLocations.ActualLocation.HorizontalAzimuth)
+                'TrialList.Add(Trial.TargetStimulusLocations.ActualLocation.Elevation)
+
+                If Trial.TargetStimulusLocations.Length > 0 Then
+                    Dim Distances As New List(Of String)
+                    Dim HorizontalAzimuths As New List(Of String)
+                    Dim Elevations As New List(Of String)
+                    Dim ActualDistances As New List(Of String)
+                    Dim ActualHorizontalAzimuths As New List(Of String)
+                    Dim ActualElevations As New List(Of String)
+                    For i = 0 To Trial.TargetStimulusLocations.Length - 1
+                        Distances.Add(Trial.TargetStimulusLocations(i).Distance)
+                        HorizontalAzimuths.Add(Trial.TargetStimulusLocations(i).HorizontalAzimuth)
+                        Elevations.Add(Trial.TargetStimulusLocations(i).Elevation)
+                        If Trial.TargetStimulusLocations(i).ActualLocation Is Nothing Then Trial.TargetStimulusLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                        ActualDistances.Add(Trial.TargetStimulusLocations(i).ActualLocation.Distance)
+                        ActualHorizontalAzimuths.Add(Trial.TargetStimulusLocations(i).ActualLocation.HorizontalAzimuth)
+                        ActualElevations.Add(Trial.TargetStimulusLocations(i).ActualLocation.Elevation)
+                    Next
+                    TrialList.Add(String.Join(";", Distances))
+                    TrialList.Add(String.Join(";", HorizontalAzimuths))
+                    TrialList.Add(String.Join(";", Elevations))
+                    TrialList.Add(String.Join(";", ActualDistances))
+                    TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
+                    TrialList.Add(String.Join(";", ActualElevations))
+                End If
 
                 If Trial.MaskerLocations.Length > 0 Then
                     Dim Distances As New List(Of String)
@@ -903,20 +927,44 @@ Namespace SipTest
                 c += 1
                 Dim AdjustedSuccessProbability As Double = LineColumns(c)
                 c += 1
-                Dim TargetLocation = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-                TargetLocation.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-                TargetLocation.Distance = LineColumns(c)
+
+                Dim TargetLocations = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+                'TODO: The code below, importing target locations, is not optimal, and will crash if the number of semicolon delimited values differ (if someone has tampered with the exported file)
+                Dim TargetLocationDistances = LineColumns(c).Trim.Split(";")
+                For t = 0 To TargetLocationDistances.Length - 1
+                    TargetLocations.Add(New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+                Next
+                For t = 0 To TargetLocationDistances.Length - 1
+                    TargetLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                    TargetLocations(i).Distance = TargetLocationDistances(i)
+                Next
                 c += 1
-                TargetLocation.HorizontalAzimuth = LineColumns(c)
+                Dim TargetLocationHorizontalAzimuths = LineColumns(c).Trim.Split(";")
+                For t = 0 To TargetLocationHorizontalAzimuths.Length - 1
+                    TargetLocations(t).HorizontalAzimuth = LineColumns(c)
+                Next
                 c += 1
-                TargetLocation.Elevation = LineColumns(c)
+                Dim TargetLocationElevations = LineColumns(c).Trim.Split(";")
+                For t = 0 To TargetLocationElevations.Length - 1
+                    TargetLocations(t).Elevation = LineColumns(c)
+                Next
                 c += 1
-                TargetLocation.ActualLocation.Distance = LineColumns(c)
+                Dim TargetLocationActualLocationDistances = LineColumns(c).Trim.Split(";")
+                For t = 0 To TargetLocationActualLocationDistances.Length - 1
+                    TargetLocations(t).ActualLocation.Distance = LineColumns(c)
+                Next
                 c += 1
-                TargetLocation.ActualLocation.HorizontalAzimuth = LineColumns(c)
+                Dim TargetLocationActualLocationHorizontalAzimuths = LineColumns(c).Trim.Split(";")
+                For t = 0 To TargetLocationActualLocationHorizontalAzimuths.Length - 1
+                    TargetLocations(t).ActualLocation.HorizontalAzimuth = LineColumns(c)
+                Next
                 c += 1
-                TargetLocation.ActualLocation.Elevation = LineColumns(c)
+                Dim TargetLocationActualLocationElevations = LineColumns(c).Trim.Split(";")
+                For t = 0 To TargetLocationActualLocationElevations.Length - 1
+                    TargetLocations(t).ActualLocation.Elevation = LineColumns(c)
+                Next
                 c += 1
+
                 Dim Response As String = LineColumns(c)
                 c += 1
                 Dim Result As SipTest.PossibleResults = [Enum].Parse(GetType(SipTest.PossibleResults), LineColumns(c))
@@ -951,7 +999,7 @@ Namespace SipTest
                 'Getting the SpeechMaterialComponent, media set and (re-)creates the test trial
                 Dim SpeechMaterialComponent = ParentTestSpecification.SpeechMaterial.GetComponentById(SpeechMaterialComponentID)
                 Dim MediaSet = ParentTestSpecification.MediaSets.GetMediaSet(MediaSetName)
-                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, TargetLocation, MaskerLocations.ToArray, BackgroundLocations.ToArray, Randomizer)
+                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, TargetLocations.ToArray, MaskerLocations.ToArray, BackgroundLocations.ToArray, Randomizer)
 
                 'Stores the remaining test trial data
                 'NewTestTrial.PresentationOrder = PresentationOrder 'This is not stored as the export/import should always be ordered in the presentation order, as they are read from and stored into the ObservedTrials object!
@@ -1020,13 +1068,18 @@ Namespace SipTest
             Dim AvailableTargetDirections As New SortedSet(Of Double)
 
             For Each PlannedTrial In PlannedTrials
-                AvailableTargetDirections.Add(PlannedTrial.TargetStimulusLocation.HorizontalAzimuth)
+                For i = 0 To PlannedTrial.TargetStimulusLocations.Length - 1
 
-                'TODO we must adjust these to the available and speakers in the selected transducer
+                    AvailableTargetDirections.Add(PlannedTrial.TargetStimulusLocations(i).HorizontalAzimuth)
 
-                'Adding tha actual azimuth
-                PlannedTrial.TargetStimulusLocation.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-                PlannedTrial.TargetStimulusLocation.ActualLocation.HorizontalAzimuth = PlannedTrial.TargetStimulusLocation.HorizontalAzimuth
+                    'TODO we must adjust these to the available and speakers in the selected transducer
+
+                    'Adding tha actual azimuth
+                    PlannedTrial.TargetStimulusLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                    PlannedTrial.TargetStimulusLocations(i).ActualLocation.HorizontalAzimuth = PlannedTrial.TargetStimulusLocations(i).HorizontalAzimuth
+
+                Next
+
             Next
 
 
@@ -1066,7 +1119,7 @@ Namespace SipTest
 
                     'For n = 1 To ParentMeasurement.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
                     For c = 0 To SpeechMaterialComponents.Count - 1
-                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet, TargetLocation, MaskerLocations, BackgroundLocations, ParentMeasurement.Randomizer)
+                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet, {TargetLocation}, MaskerLocations, BackgroundLocations, ParentMeasurement.Randomizer)
                         PlannedTrials.Add(NewTrial)
                     Next
 
@@ -1190,9 +1243,9 @@ Namespace SipTest
         Public TestWordCompletedTime As Double
 
         ''' <summary>
-        ''' Holds the location of the target
+        ''' Holds the location(s) of the target(s)
         ''' </summary>
-        Public TargetStimulusLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+        Public TargetStimulusLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
 
         ''' <summary>
         ''' Holds the location of the maskers
@@ -1204,10 +1257,35 @@ Namespace SipTest
         ''' </summary>
         Public BackgroundLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
 
+        ''' <summary>
+        ''' Determines whether the trial is a binaural masking level difference (BMLD) trial.
+        ''' </summary>
+        Public IsBmldTrial As Boolean
+
+        ''' <summary>
+        ''' If IsBmldTrial is true, determines the BMLD signal mode
+        ''' </summary>
+        Public BmldSignalMode As BmldModes
+
+        ''' <summary>
+        ''' If IsBmldTrial is true, determines the BMLD noise mode
+        ''' </summary>
+        Public BmldNoiseMode As BmldModes
+
+        ''' <summary>
+        ''' Creates a new SiP-test trial in directional mode
+        ''' </summary>
+        ''' <param name="ParentTestUnit"></param>
+        ''' <param name="SpeechMaterialComponent"></param>
+        ''' <param name="MediaSet"></param>
+        ''' <param name="TargetStimulusLocations"></param>
+        ''' <param name="MaskerLocations"></param>
+        ''' <param name="BackgroundLocations"></param>
+        ''' <param name="SipMeasurementRandomizer"></param>
         Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
                        ByRef SpeechMaterialComponent As SpeechMaterialComponent,
                        ByRef MediaSet As MediaSet,
-                       ByVal TargetStimulusLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation,
+                       ByVal TargetStimulusLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
                        ByVal MaskerLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
                        ByVal BackgroundLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
                        ByRef SipMeasurementRandomizer As Random)
@@ -1215,7 +1293,7 @@ Namespace SipTest
             Me.ParentTestUnit = ParentTestUnit
             Me.SpeechMaterialComponent = SpeechMaterialComponent
             Me.MediaSet = MediaSet
-            Me.TargetStimulusLocation = TargetStimulusLocation
+            Me.TargetStimulusLocations = TargetStimulusLocations
             Me.MaskerLocations = MaskerLocations
             Me.BackgroundLocations = BackgroundLocations
 
@@ -1231,6 +1309,88 @@ Namespace SipTest
             'SelectedMediaIndex = 0
             'MsgBox("Re-insert randomizer!")
             SelectedMediaIndex = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
+
+        End Sub
+
+        ''' <summary>
+        ''' Creates a new SiP-test trial in BMLD mode
+        ''' </summary>
+        ''' <param name="ParentTestUnit"></param>
+        ''' <param name="SpeechMaterialComponent"></param>
+        ''' <param name="MediaSet"></param>
+        ''' <param name="SipMeasurementRandomizer"></param>
+        Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
+                       ByRef SpeechMaterialComponent As SpeechMaterialComponent,
+                       ByRef MediaSet As MediaSet,
+                       ByRef SignalMode As BmldModes,
+                       ByRef NoiseMode As BmldModes,
+                       ByRef SipMeasurementRandomizer As Random)
+
+            IsBmldTrial = True
+
+            Me.ParentTestUnit = ParentTestUnit
+            Me.SpeechMaterialComponent = SpeechMaterialComponent
+            Me.MediaSet = MediaSet
+            Me.BmldSignalMode = SignalMode
+            Me.BmldNoiseMode = NoiseMode
+
+            'Setting some levels
+            Dim Fs2Spl As Double = Audio.Standard_dBFS_dBSPL_Difference
+
+            'Calculating levels
+            ReferenceSpeechMaterialLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection).GetNumericMediaSetVariableValue(MediaSet, "Lc")
+            ReferenceTestWordLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
+            ReferenceContrastingPhonemesLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, "RLxs")
+
+            'Randomizing the SelectedMediaIndex 
+            'SelectedMediaIndex = 0
+            'MsgBox("Re-insert randomizer!")
+            SelectedMediaIndex = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
+
+            'Setting up signal and masker locations
+            Select Case BmldSignalMode
+                Case BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted
+                    TargetStimulusLocations = {
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0},
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
+
+                Case BmldModes.LeftOnly
+                    TargetStimulusLocations = {
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0}}
+
+                Case BmldModes.RightOnly
+                    TargetStimulusLocations = {
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
+
+            End Select
+
+            Select Case BmldNoiseMode
+                Case BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated
+                    MaskerLocations = {
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0},
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
+
+                    BackgroundLocations = {
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0},
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
+
+                Case BmldModes.LeftOnly
+                    MaskerLocations = {
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0}}
+
+                    BackgroundLocations = {
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0}}
+
+                Case BmldModes.RightOnly
+                    MaskerLocations = {
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
+
+                    BackgroundLocations = {
+                        New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
+
+            End Select
+
+
 
         End Sub
 
@@ -1392,6 +1552,23 @@ Namespace SipTest
                     Maskers.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(Masker, MaskerLocations(MaskerIndex)))
                 Next
 
+                'Modifying the maskers for BMLD
+                If IsBmldTrial = True Then
+                    Select Case BmldNoiseMode
+                        Case BmldModes.BinauralSamePhase
+                            'Copying masker 1 to masker 2, making them identical
+                            Array.Copy(Maskers(0).Item1.WaveData.SampleData(1), Maskers(1).Item1.WaveData.SampleData(1), Maskers(0).Item1.WaveData.SampleData(1).Length)
+                        Case BmldModes.BinauralPhaseInverted
+                            'Copying masker 1 to masker 2 and inverting masker 2, making them identical but phase inverted
+                            Dim SourceArray = Maskers(0).Item1.WaveData.SampleData(1)
+                            Dim TargetArray(SourceArray.Length - 1) As Single
+                            For s = 0 To SourceArray.Length - 1
+                                TargetArray(s) = -SourceArray(s)
+                            Next
+                            Maskers(1).Item1.WaveData.SampleData(1) = TargetArray
+                    End Select
+                End If
+
                 'Randomizing a masker start time, and stores it in TestWordStartTime 
 
                 Dim MaskerStartTime As Double
@@ -1409,10 +1586,39 @@ Namespace SipTest
                 'Selects a recording index, and gets the corresponding sound
                 'Updating SelectedMediaIndex if FixedSpeechIndex is set. SelectedMediaIndex is otherwise set randomly when the trial is created
                 If FixedSpeechIndex.HasValue Then SelectedMediaIndex = FixedSpeechIndex
-                Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1)
+                Dim Targets As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
+                Dim NumberOfTargets As Integer = Me.TargetStimulusLocations.Length
+                Dim TestWordLength As Integer
+                For TargetIndex = 0 To NumberOfTargets - 1
+                    'TODO: Here the same signal is taken for all locations. If different signals are needed in different locations, this should be modified
+                    Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1)
 
-                'Stores the length of the test word sound
-                Dim TestWordLength As Integer = TestWordSound.WaveData.SampleData(1).Length
+                    If TargetIndex = 0 Then
+                        'Stores the length of the test word sound
+                        TestWordLength = TestWordSound.WaveData.SampleData(1).Length
+                    End If
+
+                    Targets.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(TestWordSound, Me.TargetStimulusLocations(TargetIndex)))
+                Next
+
+                'Modifying the targets for BMLD
+                If IsBmldTrial = True Then
+                    Select Case BmldSignalMode
+                        Case BmldModes.BinauralSamePhase
+                        'The same signal will already be in all Targets indices (see above)
+                        ''If changed the following code could be used
+                        ''Copying signal 1 to signal 2, making them identical
+                        'Array.Copy(Targets(0).Item1.WaveData.SampleData(1), Targets(1).Item1.WaveData.SampleData(1), Targets(0).Item1.WaveData.SampleData(1).Length)
+                        Case BmldModes.BinauralPhaseInverted
+                            'Copying signal 1 to signal 2 and inverting signal 2, making them identical but phase inverted
+                            Dim SourceArray = Targets(0).Item1.WaveData.SampleData(1)
+                            Dim TargetArray(SourceArray.Length - 1) As Single
+                            For s = 0 To SourceArray.Length - 1
+                                TargetArray(s) = -SourceArray(s)
+                            Next
+                            Targets(1).Item1.WaveData.SampleData(1) = TargetArray
+                    End Select
+                End If
 
                 'Calculating test word start sample, syncronized with the centre of the maskers
                 Dim TestWordStartSample As Integer = MaskersStartSample + MaskersLength / 2 - TestWordLength / 2
@@ -1435,16 +1641,55 @@ Namespace SipTest
                 Dim NumberOfBackgrounds As Integer = BackgroundLocations.Length
                 For BackgroundIndex = 0 To NumberOfBackgrounds - 1
                     'Getting a background sound and location
+                    'TODO: we should make sure the start time for copying the sounds here differ by several seconds (and can be kept exactly the same for BMLD testing) 
                     Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
-                                BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength),
-                    BackgroundLocations(BackgroundIndex)))
+                            BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength), BackgroundLocations(BackgroundIndex)))
                 Next
 
+                'Modifying the backgrounds for BMLD
+                If IsBmldTrial = True Then
+                    Select Case BmldNoiseMode
+                        Case BmldModes.BinauralSamePhase
+                            'Copying masker 1 to masker 2, making them identical
+                            Array.Copy(Backgrounds(0).Item1.WaveData.SampleData(1), Backgrounds(1).Item1.WaveData.SampleData(1), Backgrounds(0).Item1.WaveData.SampleData(1).Length)
+                        Case BmldModes.BinauralPhaseInverted
+                            'Copying masker 1 to masker 2 and inverting masker 2, making them identical but phase inverted
+                            Dim SourceArray = Backgrounds(0).Item1.WaveData.SampleData(1)
+                            Dim TargetArray(SourceArray.Length - 1) As Single
+                            For s = 0 To SourceArray.Length - 1
+                                TargetArray(s) = -SourceArray(s)
+                            Next
+                            Backgrounds(1).Item1.WaveData.SampleData(1) = TargetArray
+                    End Select
+                End If
+
                 'Getting a background speech sound, if needed, and copies a random section of it into a single sound
-                Dim BackgroundSpeechSelection As Audio.Sound = Nothing
+                Dim BackgroundSpeechSelections As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
+                'For now skipping with BMLD
                 If UseBackgroundSpeech = True Then
                     Dim BackgroundSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundSpeechSound(Me.MediaSet, 0)
-                    BackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                    For TargetIndex = 0 To NumberOfTargets - 1
+                        'TODO: we should make sure the start time for copying the sounds here differ by several seconds (and can be kept exactly the same for BMLD testing) 
+                        Dim CurrentBackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+                        BackgroundSpeechSelections.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(CurrentBackgroundSpeechSelection, Me.TargetStimulusLocations(TargetIndex)))
+                    Next
+
+                    'Modifying the BackgroundSpeechSelections for BMLD
+                    If IsBmldTrial = True Then
+                        Select Case BmldSignalMode
+                            Case BmldModes.BinauralSamePhase
+                                'Copying signal 1 to signal 2, making them identical
+                                Array.Copy(BackgroundSpeechSelections(0).Item1.WaveData.SampleData(1), BackgroundSpeechSelections(1).Item1.WaveData.SampleData(1), BackgroundSpeechSelections(0).Item1.WaveData.SampleData(1).Length)
+                            Case BmldModes.BinauralPhaseInverted
+                                'Copying signal 1 to signal 2 and inverting signal 2, making them identical but phase inverted
+                                Dim SourceArray = BackgroundSpeechSelections(0).Item1.WaveData.SampleData(1)
+                                Dim TargetArray(SourceArray.Length - 1) As Single
+                                For s = 0 To SourceArray.Length - 1
+                                    TargetArray(s) = -SourceArray(s)
+                                Next
+                                BackgroundSpeechSelections(1).Item1.WaveData.SampleData(1) = TargetArray
+                        End Select
+                    End If
                 End If
 
                 'Sets up fading specifications for the test word
@@ -1475,24 +1720,37 @@ Namespace SipTest
 
                 'Adds the test word signal, with fade and location specifications
                 Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
-                ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(TestWordSound, 1, Me.TestWordLevel, LevelGroup, Me.TargetStimulusLocation, TestWordStartSample,,,, FadeSpecs_TestWord))
+                For TargetIndex = 0 To Targets.Count - 1
+                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Targets(TargetIndex).Item1, 1, Me.TestWordLevel, LevelGroup, Targets(TargetIndex).Item2, TestWordStartSample,,,, FadeSpecs_TestWord))
+                    'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
+                    If IsBmldTrial = True And TargetIndex < Targets.Count - 1 Then LevelGroup += 1
+                Next
                 LevelGroup += 1
 
                 'Adds the Maskers, with fade and location specifications
                 For MaskerIndex = 0 To Maskers.Count - 1
                     ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Maskers(MaskerIndex).Item1, 1, Me.TargetMasking_SPL, LevelGroup, Maskers(MaskerIndex).Item2, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                    'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
+                    If IsBmldTrial = True And MaskerIndex < Maskers.Count - 1 Then LevelGroup += 1
                 Next
                 LevelGroup += 1
 
                 'Adds the background (non-speech) signals, with fade, duck and location specifications
                 For BackgroundIndex = 0 To Backgrounds.Count - 1
                     ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Backgrounds(BackgroundIndex).Item1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, Backgrounds(BackgroundIndex).Item2, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
+                    'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
+                    If IsBmldTrial = True And BackgroundIndex < Backgrounds.Count - 1 Then LevelGroup += 1
                 Next
                 LevelGroup += 1
 
                 'Adds the background (speech) signal, with fade, duck and location specifications
                 If UseBackgroundSpeech = True Then
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelection, 1, Me.ContextRegionSpeech_SPL, LevelGroup, Me.TargetStimulusLocation, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
+                    For TargetIndex = 0 To BackgroundSpeechSelections.Count - 1
+                        'TODO: Here LevelGroup needs to be incremented if ears are measured separately as in BMLD! Possibly also on other similar places, as with the noise...
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelections(TargetIndex).Item1, 1, Me.ContextRegionSpeech_SPL, LevelGroup, BackgroundSpeechSelections(TargetIndex).Item2, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
+                        'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
+                        If IsBmldTrial = True And TargetIndex < BackgroundSpeechSelections.Count - 1 Then LevelGroup += 1
+                    Next
                     LevelGroup += 1
                 End If
 
@@ -1731,6 +1989,7 @@ Namespace SipTest
         Directional3
         Directional5
         FlexibleLocations
+        BMLD
     End Enum
 
     Public Class TestProcedure
@@ -1822,7 +2081,9 @@ Namespace SipTest
         ''' </summary>
         ''' <param name="Testparadigm"></param>
         ''' <param name="HorizontalAzimuths"></param>
-        Public Sub SetTargetStimulusLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double), Optional ByVal Elevations As List(Of Double) = Nothing, Optional ByVal Distances As List(Of Double) = Nothing)
+        Public Sub SetTargetStimulusLocations(ByVal TestParadigm As Testparadigm, ByVal HorizontalAzimuths As List(Of Double),
+                                              Optional ByVal Elevations As List(Of Double) = Nothing, Optional ByVal Distances As List(Of Double) = Nothing)
+
             If _TargetStimulusLocations.ContainsKey(TestParadigm) Then
                 _TargetStimulusLocations.Remove(TestParadigm)
             End If
