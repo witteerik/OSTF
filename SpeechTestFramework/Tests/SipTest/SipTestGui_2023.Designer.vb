@@ -27,6 +27,7 @@ Partial Class SipTestGui_2023
         Dim DataGridViewCellStyle5 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(SipTestGui_2023))
         Dim DataGridViewCellStyle6 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle7 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
         Dim DataGridViewCellStyle8 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
@@ -116,6 +117,12 @@ Partial Class SipTestGui_2023
         Me.BmldNoiseMode_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.BmldMode_RichTextBox = New System.Windows.Forms.RichTextBox()
+        Me.CustomMode1_TabPage = New System.Windows.Forms.TabPage()
+        Me.TableLayoutPanel7 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Label9 = New System.Windows.Forms.Label()
+        Me.DirectionalSimulationSet_C1_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.Custom_SNC_TextBox = New System.Windows.Forms.TextBox()
+        Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
         Me.CompletedTests_Label = New System.Windows.Forms.Label()
         Me.CurrentSessionResults_DataGridView = New System.Windows.Forms.DataGridView()
@@ -123,7 +130,6 @@ Partial Class SipTestGui_2023
         Me.TestLengthColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.ResultColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.CompareColumnSession = New System.Windows.Forms.DataGridViewCheckBoxColumn()
-        Me.CustomMode1_TabPage = New System.Windows.Forms.TabPage()
         Me.Top_TableLayoutPanel.SuspendLayout()
         Me.SoundSettings_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
@@ -143,6 +149,8 @@ Partial Class SipTestGui_2023
         Me.TableLayoutPanel3.SuspendLayout()
         Me.BmldModeTabPage.SuspendLayout()
         Me.TableLayoutPanel6.SuspendLayout()
+        Me.CustomMode1_TabPage.SuspendLayout()
+        Me.TableLayoutPanel7.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
         CType(Me.CurrentSessionResults_DataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -1213,6 +1221,76 @@ Partial Class SipTestGui_2023
         Me.BmldMode_RichTextBox.TabIndex = 5
         Me.BmldMode_RichTextBox.Text = ""
         '
+        'CustomMode1_TabPage
+        '
+        Me.CustomMode1_TabPage.Controls.Add(Me.TableLayoutPanel7)
+        Me.CustomMode1_TabPage.Location = New System.Drawing.Point(4, 22)
+        Me.CustomMode1_TabPage.Name = "CustomMode1_TabPage"
+        Me.CustomMode1_TabPage.Size = New System.Drawing.Size(577, 292)
+        Me.CustomMode1_TabPage.TabIndex = 2
+        Me.CustomMode1_TabPage.Text = "Custom 1"
+        Me.CustomMode1_TabPage.UseVisualStyleBackColor = True
+        '
+        'TableLayoutPanel7
+        '
+        Me.TableLayoutPanel7.ColumnCount = 2
+        Me.TableLayoutPanel7.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 58.23223!))
+        Me.TableLayoutPanel7.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 41.76777!))
+        Me.TableLayoutPanel7.Controls.Add(Me.Label9, 0, 0)
+        Me.TableLayoutPanel7.Controls.Add(Me.DirectionalSimulationSet_C1_ComboBox, 1, 0)
+        Me.TableLayoutPanel7.Controls.Add(Me.Custom_SNC_TextBox, 1, 1)
+        Me.TableLayoutPanel7.Controls.Add(Me.TextBox2, 0, 1)
+        Me.TableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel7.Location = New System.Drawing.Point(0, 0)
+        Me.TableLayoutPanel7.Name = "TableLayoutPanel7"
+        Me.TableLayoutPanel7.RowCount = 2
+        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
+        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel7.Size = New System.Drawing.Size(577, 292)
+        Me.TableLayoutPanel7.TabIndex = 0
+        '
+        'Label9
+        '
+        Me.Label9.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label9.Location = New System.Drawing.Point(3, 0)
+        Me.Label9.Name = "Label9"
+        Me.Label9.Size = New System.Drawing.Size(329, 21)
+        Me.Label9.TabIndex = 31
+        Me.Label9.Text = "Directional simulation set"
+        Me.Label9.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'DirectionalSimulationSet_C1_ComboBox
+        '
+        Me.DirectionalSimulationSet_C1_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.DirectionalSimulationSet_C1_ComboBox.FormattingEnabled = True
+        Me.DirectionalSimulationSet_C1_ComboBox.Location = New System.Drawing.Point(335, 0)
+        Me.DirectionalSimulationSet_C1_ComboBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.DirectionalSimulationSet_C1_ComboBox.Name = "DirectionalSimulationSet_C1_ComboBox"
+        Me.DirectionalSimulationSet_C1_ComboBox.Size = New System.Drawing.Size(242, 21)
+        Me.DirectionalSimulationSet_C1_ComboBox.TabIndex = 32
+        '
+        'Custom_SNC_TextBox
+        '
+        Me.Custom_SNC_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Custom_SNC_TextBox.Location = New System.Drawing.Point(338, 24)
+        Me.Custom_SNC_TextBox.Multiline = True
+        Me.Custom_SNC_TextBox.Name = "Custom_SNC_TextBox"
+        Me.Custom_SNC_TextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.Custom_SNC_TextBox.Size = New System.Drawing.Size(236, 265)
+        Me.Custom_SNC_TextBox.TabIndex = 34
+        Me.Custom_SNC_TextBox.Text = "0 | 0" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "-30 | 30" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "0 | -90" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "0 | 90" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "P | U" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "R | R" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
+        '
+        'TextBox2
+        '
+        Me.TextBox2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TextBox2.Location = New System.Drawing.Point(3, 24)
+        Me.TextBox2.Multiline = True
+        Me.TextBox2.Name = "TextBox2"
+        Me.TextBox2.ReadOnly = True
+        Me.TextBox2.Size = New System.Drawing.Size(329, 265)
+        Me.TextBox2.TabIndex = 35
+        Me.TextBox2.Text = resources.GetString("TextBox2.Text")
+        '
         'TableLayoutPanel5
         '
         Me.TableLayoutPanel5.ColumnCount = 1
@@ -1305,15 +1383,6 @@ Partial Class SipTestGui_2023
         Me.CompareColumnSession.Name = "CompareColumnSession"
         Me.CompareColumnSession.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
         '
-        'CustomMode1_TabPage
-        '
-        Me.CustomMode1_TabPage.Location = New System.Drawing.Point(4, 22)
-        Me.CustomMode1_TabPage.Name = "CustomMode1_TabPage"
-        Me.CustomMode1_TabPage.Size = New System.Drawing.Size(577, 292)
-        Me.CustomMode1_TabPage.TabIndex = 2
-        Me.CustomMode1_TabPage.Text = "Custom 1"
-        Me.CustomMode1_TabPage.UseVisualStyleBackColor = True
-        '
         'SipTestGui_2023
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1350,6 +1419,9 @@ Partial Class SipTestGui_2023
         Me.TableLayoutPanel3.ResumeLayout(False)
         Me.BmldModeTabPage.ResumeLayout(False)
         Me.TableLayoutPanel6.ResumeLayout(False)
+        Me.CustomMode1_TabPage.ResumeLayout(False)
+        Me.TableLayoutPanel7.ResumeLayout(False)
+        Me.TableLayoutPanel7.PerformLayout()
         Me.TableLayoutPanel5.ResumeLayout(False)
         CType(Me.CurrentSessionResults_DataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
@@ -1451,4 +1523,9 @@ Partial Class SipTestGui_2023
     Friend WithEvents SimulatedDistance_Label As Windows.Forms.Label
     Friend WithEvents SimulatedDistance_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents CustomMode1_TabPage As Windows.Forms.TabPage
+    Friend WithEvents TableLayoutPanel7 As Windows.Forms.TableLayoutPanel
+    Friend WithEvents Label9 As Windows.Forms.Label
+    Friend WithEvents DirectionalSimulationSet_C1_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents Custom_SNC_TextBox As Windows.Forms.TextBox
+    Friend WithEvents TextBox2 As Windows.Forms.TextBox
 End Class

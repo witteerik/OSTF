@@ -450,6 +450,32 @@ Public Class SipTestGui_2023
 
     End Sub
 
+    Private Sub DirectionalSimulationSet_C1_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_C1_ComboBox.SelectedIndexChanged
+
+        Dim SelectedItem = DirectionalSimulationSet_C1_ComboBox.SelectedItem
+        If SelectedItem IsNot Nothing Then
+            Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+            If SelectedTransducer.TrySetSelectedDirectionalSimulationSet(SelectedItem, TempWaveformat.SampleRate) = False Then
+                'Well this shold not happen...
+                SelectedTransducer.ClearSelectedDirectionalSimulationSet()
+            End If
+        Else
+            SelectedTransducer.ClearSelectedDirectionalSimulationSet()
+        End If
+
+        TryCreateSipTestMeasurement()
+
+    End Sub
+
+    Private Sub Custom_SNC_TextBox_KeyUp(sender As Object, e As KeyEventArgs) Handles Custom_SNC_TextBox.KeyUp
+
+        If e.KeyValue = Keys.Enter Then
+            TryCreateSipTestMeasurement()
+        End If
+
+    End Sub
+
+
     Private Sub SimulatedDistance_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SimulatedDistance_ComboBox.SelectedIndexChanged
 
         TryCreateSipTestMeasurement()
@@ -813,13 +839,88 @@ Public Class SipTestGui_2023
 
                     Dim BlockTypes As New List(Of Tuple(Of Object, Object))
 
-                    Dim InputLines
+                    Dim InputLines = Custom_SNC_TextBox.Lines
 
-                    PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, RandomSeed_IntegerParsingTextBox.Value)
+                    For LineIndex = 0 To InputLines.Length - 1
 
+                        Dim Line As String = InputLines(LineIndex)
+
+                        If Line.Trim = "" Then Continue For
+                        If Line.Trim.StartsWith("//") = "" Then Continue For
+
+                        Dim DataPart = Line.Trim.Split({"//"}, StringSplitOptions.None)(0).Trim
+                        Dim DataSplit = DataPart.Split("|")
+
+                        If DataSplit.Length <> 2 Then
+                            MsgBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line)
+                            Exit Sub
+                        End If
+
+                        Dim SignalPart As String = DataSplit(0)
+                        Dim NoisePart As String = DataSplit(1)
+
+                        Dim SignalItem As Object
+                        Dim NoiseItem As Object
+
+                        'Parsing signal
+                        Select Case SignalPart
+                            Case "R"
+                                SignalItem = BmldModes.RightOnly
+                            Case "L"
+                                SignalItem = BmldModes.LeftOnly
+                            Case "Z"
+                                SignalItem = BmldModes.BinauralSamePhase
+                            Case "P"
+                                SignalItem = BmldModes.BinauralPhaseInverted
+                            Case "U"
+                                MsgBox("U (uncorrelated) is not a valid characterization of the signal.")
+                                Exit Sub
+                            Case Else
+                                'It should be numeric
+                                Dim ParsedValue As Double
+                                If Double.TryParse(SignalPart.Replace(",", "."), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, ParsedValue) = False Then
+                                    MsgBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line & " Unable to parse the expression " & SignalPart & " as a numeric value.")
+                                    Exit Sub
+                                End If
+                                SignalItem = ParsedValue
+                        End Select
+
+                        'Parsing noise
+                        Select Case NoisePart
+                            Case "R"
+                                NoiseItem = BmldModes.RightOnly
+                            Case "L"
+                                NoiseItem = BmldModes.LeftOnly
+                            Case "Z"
+                                NoiseItem = BmldModes.BinauralSamePhase
+                            Case "P"
+                                NoiseItem = BmldModes.BinauralPhaseInverted
+                            Case "U"
+                                NoiseItem = BmldModes.BinauralUncorrelated
+                            Case Else
+                                'It should be numeric
+                                Dim ParsedValue As Double
+                                If Double.TryParse(NoisePart.Replace(",", "."), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, ParsedValue) = False Then
+                                    MsgBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line & " Unable to parse the expression " & NoisePart & " as a numeric value.")
+                                    Exit Sub
+                                End If
+                                NoiseItem = ParsedValue
+                        End Select
+
+                        If SignalItem.GetType <> NoiseItem.GetType Then
+                            MsgBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line & " Directional azimuths cannot be combined with BMLD modes.")
+                            Exit Sub
+                        End If
+
+                        BlockTypes.Add(New Tuple(Of Object, Object)(SignalItem, NoiseItem))
+
+                    Next
+
+                    If BlockTypes.Count = 0 Then Exit Sub
+
+                    PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, 2, RandomSeed_IntegerParsingTextBox.Value)
 
             End Select
-
 
 
             'Displayes the planned test length
@@ -994,7 +1095,7 @@ Public Class SipTestGui_2023
     ''' <param name="RandomSeed"></param>
     Private Shared Function PlanCustom1Trials(ByRef SipTestMeasurement As SipMeasurement, ByVal ReferenceLevel As Double, ByVal PresetName As String,
                                       ByVal SelectedMediaSets As List(Of MediaSet), ByVal SelectedPNRs As List(Of Double), ByVal BlockTypes As List(Of Tuple(Of Object, Object)),
-                                      Optional ByVal RandomSeed As Integer? = Nothing) As Boolean
+                                              ByVal NumberOfIndicatorTrials As Integer, Optional ByVal RandomSeed As Integer? = Nothing) As Boolean
 
         'Creating a new random if seed is supplied
         If RandomSeed.HasValue Then SipTestMeasurement.Randomizer = New Random(RandomSeed)
@@ -1033,9 +1134,9 @@ Public Class SipTestGui_2023
                 CurrentBlockIsBMLD = True
             End If
 
-            Dim TargetStimulusLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
-            Dim MaskerLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
-            Dim BackgroundLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
+            Dim TargetStimulusLocations() As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+            Dim MaskerLocations() As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+            Dim BackgroundLocations() As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
             Dim SignalMode As BmldModes
             Dim NoiseMode As BmldModes
 
@@ -1104,10 +1205,26 @@ Public Class SipTestGui_2023
             End If
 
             'Inserting indicator trials initially in the block
-            SipTestMeasurement.ParentTestSpecification.SpeechMaterial.DrawRandomDescendentsAtLevel(2, SpeechMaterialComponent.LinguisticLevels.Sentence, False, SipTestMeasurement.Randomizer)
+            Dim IndicatorTrialSMCs = SipTestMeasurement.ParentTestSpecification.SpeechMaterial.DrawRandomDescendentsAtLevel(NumberOfIndicatorTrials, SpeechMaterialComponent.LinguisticLevels.Sentence, False, SipTestMeasurement.Randomizer)
+            For Each SMC In IndicatorTrialSMCs
 
-            'IsTestTrial = False
+                Dim RandomMediaSetIndex = Utils.SampleWithoutReplacement(1, 0, SelectedMediaSets.Count, SipTestMeasurement.Randomizer)
+                Dim IndicatorTrialPNR = SelectedPNRs.Max
 
+                Dim NewTrial As SipTrial
+
+                If CurrentBlockIsBMLD = False Then
+                    NewTrial = New SipTrial(NewTestUnit, SMC, SelectedMediaSets(RandomMediaSetIndex(0)), TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                Else
+                    NewTrial = New SipTrial(NewTestUnit, SMC, SelectedMediaSets(RandomMediaSetIndex(0)), SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+                End If
+
+                'Notes that this is not a test trial
+                NewTrial.IsTestTrial = True
+                NewTrial.SetLevels(ReferenceLevel, IndicatorTrialPNR)
+                NewTestUnit.PlannedTrials.Insert(0, NewTrial)
+
+            Next
 
         Next
 
@@ -2366,4 +2483,5 @@ Public Class SipTestGui_2023
     Private Sub StopTest(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
 
     End Sub
+
 End Class

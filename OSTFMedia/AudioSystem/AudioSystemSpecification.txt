@@ -12,7 +12,6 @@ BufferSize = 1024 // Must be powers of 2
 
 <New transducer>
 Name = 5 speaker array
-PresentationType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
 LoudspeakerAzimuths = 0, 30, 120, -120, -30
 LoudspeakerElevations = 0,0,0,0,0 // Not yet implemented
 LoudspeakerDistances = 0,0,0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
@@ -21,10 +20,8 @@ CalibrationGain = 0, 0, 0, 0, 0 //Sets the calibration gain applied to the speak
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 
-
 <New transducer>
 Name = 3 speaker array
-PresentationType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
 LoudspeakerAzimuths = -30, 0, 30 
 LoudspeakerElevations = 0,0,0 // Not yet implemented
 LoudspeakerDistances = 0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
@@ -34,7 +31,6 @@ LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
 Name = Headphones
-PresentationType = Headphones // SoundField, SimulatedSoundField, Headphones, Ambisonics
 LoudspeakerAzimuths = -90, 90 
 LoudspeakerElevations = 0, 0 // Not yet implemented
 LoudspeakerDistances = 0, 0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
@@ -45,7 +41,6 @@ LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
 Name = Simulated sound field
-PresentationType = SimulatedSoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
 LoudspeakerAzimuths = -90, 90 
 LoudspeakerElevations = 0,0 // Not yet implemented
 LoudspeakerDistances = 0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
@@ -55,7 +50,6 @@ LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
 Name = 8 speaker array
-PresentationType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
 LoudspeakerAzimuths = 0, 45, 90, 135, 180, -135, -90, -45
 LoudspeakerElevations = 0,0,0,0,0,0,0,0 // Not yet implemented
 LoudspeakerDistances = 0,0,0,0,0,0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
@@ -65,7 +59,6 @@ LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
 Name = 12 speaker array
-PresentationType = SoundField // SoundField, SimulatedSoundField, Headphones, Ambisonics
 LoudspeakerAzimuths = 0, 30, 60, 90, 120, 150, 180, -150, -120, -90, -60, -30
 LoudspeakerElevations = 0,0,0,0,0,0,0,0,0,0,0,0 // Not yet implemented
 LoudspeakerDistances = 0,0,0,0,0,0,0,0,0,0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)

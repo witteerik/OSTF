@@ -129,6 +129,22 @@
   <metadata name="ResultColumn.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
+  <data name="TextBox2.Text" xml:space="preserve">
+    <value>Signal-Noise-Characteristics
+
+Usage:
+-One block per row
+-A block can be either directional or BMLD.
+-If directional, specifiy signal and masker azimuths.
+-If BMLD, specify R, L, Z or P for signal and R, L, Z, P or U for noise.
+-Use values delimited by vertical bars ( | ).
+-Use // for comments
+
+Example:
+0 | 0 // Signal and noise front the front
+-30 | 30 // Signal from -30 degrees and noise from 30 degrees
+P | U // Signal phase inverted and noise uncorrelated</value>
+  </data>
   <metadata name="TestDescriptionColumnSession.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
