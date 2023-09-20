@@ -2254,6 +2254,35 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    ''' <summary>
+    ''' Draws random descendents at the indicated level.
+    ''' </summary>
+    ''' <param name="Max">The maximum number of descendents to draw. If Max descentants do not exist, all available descendents will be drawn.</param>
+    ''' <param name="RequestedDescendentComponentLevel"></param>
+    ''' <param name="IncludeSelf"></param>
+    ''' <returns></returns>
+    Public Function DrawRandomDescendentsAtLevel(ByVal Max As Integer, ByVal RequestedDescendentComponentLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                 Optional IncludeSelf As Boolean = False, Optional ByRef Randomizer As Random = Nothing) As List(Of SpeechMaterialComponent)
+
+        If Randomizer Is Nothing Then
+            Randomizer = Me.Randomizer
+        End If
+
+        Dim AllDescenents = GetAllDescenentsAtLevel(RequestedDescendentComponentLevel, IncludeSelf)
+
+        Dim Output As New List(Of SpeechMaterialComponent)
+
+        Dim n As Integer = Math.Max(AllDescenents.Count, Max)
+
+        Dim RandomIndices = Utils.SampleWithoutReplacement(n, 0, AllDescenents.Count, Randomizer)
+        For i = 0 To RandomIndices.Length - 1
+            Output.Add(AllDescenents(i))
+        Next
+
+        Return Output
+
+    End Function
+
     Public Function GetSelfOrAncestorOrDescendentsAtLevel(ByVal RequestedDescendentComponentLevel As SpeechMaterialComponent.LinguisticLevels) As List(Of SpeechMaterialComponent)
 
         If LinguisticLevel = RequestedDescendentComponentLevel Then Return New List(Of SpeechMaterialComponent) From {Me}

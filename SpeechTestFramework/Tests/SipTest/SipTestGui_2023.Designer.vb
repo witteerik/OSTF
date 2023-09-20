@@ -123,6 +123,7 @@ Partial Class SipTestGui_2023
         Me.TestLengthColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.ResultColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.CompareColumnSession = New System.Windows.Forms.DataGridViewCheckBoxColumn()
+        Me.CustomMode1_TabPage = New System.Windows.Forms.TabPage()
         Me.Top_TableLayoutPanel.SuspendLayout()
         Me.SoundSettings_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
@@ -957,6 +958,7 @@ Partial Class SipTestGui_2023
         Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.TestMode_TabControl, 2)
         Me.TestMode_TabControl.Controls.Add(Me.DirectionalModeTabPage)
         Me.TestMode_TabControl.Controls.Add(Me.BmldModeTabPage)
+        Me.TestMode_TabControl.Controls.Add(Me.CustomMode1_TabPage)
         Me.TestMode_TabControl.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestMode_TabControl.Location = New System.Drawing.Point(3, 3)
         Me.TestMode_TabControl.Name = "TestMode_TabControl"
@@ -1303,6 +1305,15 @@ Partial Class SipTestGui_2023
         Me.CompareColumnSession.Name = "CompareColumnSession"
         Me.CompareColumnSession.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
         '
+        'CustomMode1_TabPage
+        '
+        Me.CustomMode1_TabPage.Location = New System.Drawing.Point(4, 22)
+        Me.CustomMode1_TabPage.Name = "CustomMode1_TabPage"
+        Me.CustomMode1_TabPage.Size = New System.Drawing.Size(577, 292)
+        Me.CustomMode1_TabPage.TabIndex = 2
+        Me.CustomMode1_TabPage.Text = "Custom 1"
+        Me.CustomMode1_TabPage.UseVisualStyleBackColor = True
+        '
         'SipTestGui_2023
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1439,4 +1450,5 @@ Partial Class SipTestGui_2023
     Friend WithEvents DirectionalSimulationSet_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents SimulatedDistance_Label As Windows.Forms.Label
     Friend WithEvents SimulatedDistance_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents CustomMode1_TabPage As Windows.Forms.TabPage
 End Class

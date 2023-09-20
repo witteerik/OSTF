@@ -35,6 +35,7 @@ Public Class SipTestGui_2023
     Public Enum TestModes
         Directional
         BMLD
+        Custom1
     End Enum
 
     Public TestMode As TestModes = TestModes.Directional
@@ -413,6 +414,8 @@ Public Class SipTestGui_2023
             TestMode = TestModes.BMLD
         ElseIf e.TabPage.Name = "DirectionalModeTabPage" Then
             TestMode = TestModes.Directional
+        ElseIf e.TabPage.Name = "CustomMode1_TabPage" Then
+            TestMode = TestModes.Custom1
         Else
             Throw New Exception("Unknown tabpage name. This is surely a bug!")
         End If
@@ -804,6 +807,17 @@ Public Class SipTestGui_2023
                     PlanBmldTestTrials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs,
                                        BmldSignalMode, BmldNoiseMode, RandomSeed_IntegerParsingTextBox.Value)
 
+                Case TestModes.Custom1
+
+                    'Read input from textbox
+
+                    Dim BlockTypes As New List(Of Tuple(Of Object, Object))
+
+                    Dim InputLines
+
+                    PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, RandomSeed_IntegerParsingTextBox.Value)
+
+
             End Select
 
 
@@ -966,6 +980,156 @@ Public Class SipTestGui_2023
 
     End Sub
 
+
+
+    ''' <summary>
+    ''' 
+    ''' </summary>
+    ''' <param name="SipTestMeasurement"></param>
+    ''' <param name="ReferenceLevel"></param>
+    ''' <param name="PresetName"></param>
+    ''' <param name="SelectedMediaSets"></param>
+    ''' <param name="SelectedPNRs"></param>
+    ''' <param name="BlockTypes">Block types should contain tuples of two objects, where the first indicate the signal and the second the noise. The object can be either a double representing an sound source azimuth or a string representing a BMLD mode. </param>
+    ''' <param name="RandomSeed"></param>
+    Private Shared Function PlanCustom1Trials(ByRef SipTestMeasurement As SipMeasurement, ByVal ReferenceLevel As Double, ByVal PresetName As String,
+                                      ByVal SelectedMediaSets As List(Of MediaSet), ByVal SelectedPNRs As List(Of Double), ByVal BlockTypes As List(Of Tuple(Of Object, Object)),
+                                      Optional ByVal RandomSeed As Integer? = Nothing) As Boolean
+
+        'Creating a new random if seed is supplied
+        If RandomSeed.HasValue Then SipTestMeasurement.Randomizer = New Random(RandomSeed)
+
+        'Getting the preset
+        Dim Preset = SipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets(PresetName)
+
+        'Clearing any trials that may have been planned by a previous call
+        SipTestMeasurement.ClearTrials()
+
+
+        'Randomizing the order of blocks
+        Dim RandomizedBlockTypes As New List(Of Tuple(Of Object, Object))
+        Dim RandomIndices = Utils.SampleWithoutReplacement(BlockTypes.Count, 0, BlockTypes.Count, SipTestMeasurement.Randomizer)
+        For i = 0 To RandomIndices.Length - 1
+            RandomizedBlockTypes.Add(BlockTypes(i))
+        Next
+        BlockTypes = RandomizedBlockTypes
+
+        For Each BlockType In BlockTypes
+
+            'Creating and adding a test unit for each block
+            Dim NewTestUnit = New SiPTestUnit(SipTestMeasurement)
+            SipTestMeasurement.TestUnits.Add(NewTestUnit)
+
+            'Checking that both signal and noise have the same type
+            If BlockType.Item1.GetType <> BlockType.Item2.GetType Then
+                MsgBox("The following incorrect specification of blocks was detected: " & BlockType.Item1.ToString & " " & BlockType.Item2.ToString)
+                SipTestMeasurement.ClearTrials()
+                Return False
+            End If
+
+            'Getting the type of block
+            Dim CurrentBlockIsBMLD As Boolean = False
+            If TypeOf (BlockType.Item1) Is BmldModes Then
+                CurrentBlockIsBMLD = True
+            End If
+
+            Dim TargetStimulusLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
+            Dim MaskerLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
+            Dim BackgroundLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation()
+            Dim SignalMode As BmldModes
+            Dim NoiseMode As BmldModes
+
+            If CurrentBlockIsBMLD = False Then
+
+                'Parsing the signal and masker locations
+                Dim SignalLocation As Double = BlockType.Item1
+                Dim MaskerLocation As Double = BlockType.Item2
+
+                'Directional stimulation
+                TargetStimulusLocations = {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = SignalLocation, .Elevation = 0, .Distance = 1}}
+                MaskerLocations = {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = MaskerLocation, .Elevation = 0, .Distance = 1}}
+
+                'Adding a number of background sounds
+                BackgroundLocations = {
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45, .Elevation = 0, .Distance = 1},
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135, .Elevation = 0, .Distance = 1},
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135, .Elevation = 0, .Distance = 1},
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45, .Elevation = 0, .Distance = 1}}
+
+            Else
+
+                'BMLD stimulation, storing the current mode
+                SignalMode = BlockType.Item1
+                NoiseMode = BlockType.Item2
+            End If
+
+            'Creating test trials
+            For Each PresetComponent In Preset
+                For Each MediaSet In SelectedMediaSets
+                    For Each PNR In SelectedPNRs
+
+                        For Repetition = 1 To SipTestMeasurement.TestProcedure.LengthReduplications
+
+                            Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+                            NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
+
+                            For c = 0 To NewTestUnit.SpeechMaterialComponents.Count - 1
+
+                                Dim NewTrial As SipTrial
+
+                                If CurrentBlockIsBMLD = False Then
+                                    NewTrial = New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                                Else
+                                    NewTrial = New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+                                End If
+
+                                NewTrial.SetLevels(ReferenceLevel, PNR)
+                                NewTestUnit.PlannedTrials.Add(NewTrial)
+                            Next
+
+                        Next
+                    Next
+                Next
+            Next
+
+            'Randomizing the order of test trials within the block
+            If SipTestMeasurement.TestProcedure.RandomizeOrder = True Then
+                Dim RandomList As New List(Of SipTrial)
+                Do Until NewTestUnit.PlannedTrials.Count = 0
+                    Dim RandomIndex As Integer = SipTestMeasurement.Randomizer.Next(0, NewTestUnit.PlannedTrials.Count)
+                    RandomList.Add(NewTestUnit.PlannedTrials(RandomIndex))
+                    NewTestUnit.PlannedTrials.RemoveAt(RandomIndex)
+                Loop
+                NewTestUnit.PlannedTrials = RandomList
+            End If
+
+            'Inserting indicator trials initially in the block
+            SipTestMeasurement.ParentTestSpecification.SpeechMaterial.DrawRandomDescendentsAtLevel(2, SpeechMaterialComponent.LinguisticLevels.Sentence, False, SipTestMeasurement.Randomizer)
+
+            'IsTestTrial = False
+
+
+        Next
+
+        'Adding the trials SipTestMeasurement (from which they can be drawn during testing)
+        For Each Unit In SipTestMeasurement.TestUnits
+            For Each Trial In Unit.PlannedTrials
+                SipTestMeasurement.PlannedTrials.Add(Trial)
+            Next
+        Next
+
+        ''Randomizing the order
+        'If SipTestMeasurement.TestProcedure.RandomizeOrder = True Then
+        '    Dim RandomList As New List(Of SipTrial)
+        '    Do Until SipTestMeasurement.PlannedTrials.Count = 0
+        '        Dim RandomIndex As Integer = SipTestMeasurement.Randomizer.Next(0, SipTestMeasurement.PlannedTrials.Count)
+        '        RandomList.Add(SipTestMeasurement.PlannedTrials(RandomIndex))
+        '        SipTestMeasurement.PlannedTrials.RemoveAt(RandomIndex)
+        '    Loop
+        '    SipTestMeasurement.PlannedTrials = RandomList
+        'End If
+
+    End Function
 
 
     Private Sub TestDescriptionTextBox_TextChanged(sender As Object, e As EventArgs) Handles TestDescriptionTextBox.TextChanged
@@ -2199,5 +2363,7 @@ Public Class SipTestGui_2023
 
     End Sub
 
+    Private Sub StopTest(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
 
+    End Sub
 End Class

@@ -690,6 +690,7 @@ Namespace SipTest
             Headings.Add("Result")
             Headings.Add("ResponseTime")
             Headings.Add("ResponseAlternativeCount")
+            Headings.Add("IsTestTrial")
             Headings.Add("PhonemeDiscriminabilityLevel")
 
             'Plus write-only stuff
@@ -810,6 +811,7 @@ Namespace SipTest
                 TrialList.Add(Trial.Result.ToString)
                 TrialList.Add(Trial.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
                 TrialList.Add(Trial.ResponseAlternativeCount)
+                TrialList.Add(Trial.IsTestTrial.ToString)
                 TrialList.Add(Trial.PhonemeDiscriminabilityLevel(False))
 
                 'Plus write-only stuff
@@ -973,6 +975,8 @@ Namespace SipTest
                 c += 1
                 Dim ResponseAlternativeCount As Integer = LineColumns(c)
                 c += 1
+                Dim IsTestTrial As Boolean = Boolean.Parse(LineColumns(c))
+                c += 1
                 Dim PDL As Double = LineColumns(c)
                 c += 1
 
@@ -1011,6 +1015,7 @@ Namespace SipTest
                 NewTestTrial.Result = Result
                 NewTestTrial.ResponseTime = ResponseTime
                 NewTestTrial.ResponseAlternativeCount = ResponseAlternativeCount
+                NewTestTrial.IsTestTrial = IsTestTrial
                 NewTestTrial.SetPhonemeDiscriminabilityLevelExternally(PDL)
 
                 'Adding the loaded trial into ObservedTrials
@@ -1233,6 +1238,12 @@ Namespace SipTest
 
         Public Property AdjustedSuccessProbability As Double
         Public Property ResponseAlternativeCount As Integer
+
+        ''' <summary>
+        ''' Indicates whether the trial is a real test trial or not (e.g. a practise trial)
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property IsTestTrial As Boolean = True
 
         ''' <summary>
         ''' An object that can hold test trial sounds that can be mixed in advance.
