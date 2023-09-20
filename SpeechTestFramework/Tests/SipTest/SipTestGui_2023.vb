@@ -38,6 +38,7 @@ Public Class SipTestGui_2023
         Custom1
     End Enum
 
+    Private NoSimulationString As String = "No simulation"
     Public TestMode As TestModes = TestModes.Directional
     Private AvailableTargetAzimuths As New List(Of Double) From {-90, -60, -30, 0, 30, 60, 90}
     Private AvailableMaskerAzimuths As New List(Of Double) From {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180}
@@ -134,6 +135,7 @@ Public Class SipTestGui_2023
     Delegate Sub NoArgDelegate()
     Delegate Sub StringArgReturningVoidDelegate([String] As String)
 
+    Public SelectedSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
 
     Public Sub New()
         MyClass.New("Swedish SiP-test", Utils.Constants.UserTypes.Research, Utils.Constants.Languages.English, True)
@@ -324,6 +326,8 @@ Public Class SipTestGui_2023
                 Resume_Label.Text = "Återuppta test = R"
                 Stop_Label.Text = "Stoppa test = S"
 
+                NoSimulationString = "Ingen simulering"
+
             Case Else
 
                 'English is default
@@ -352,6 +356,8 @@ Public Class SipTestGui_2023
                 Resume_Label.Text = "Resume test = R"
                 Stop_Label.Text = "Stop test = S"
 
+                NoSimulationString = "No simulation"
+
         End Select
 
 
@@ -379,6 +385,7 @@ Public Class SipTestGui_2023
     Private Sub Transducer_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Transducer_ComboBox.SelectedIndexChanged
 
         DirectionalSimulationSet_ComboBox.Items.Clear()
+        DirectionalSimulationSet_C1_ComboBox.Items.Clear()
 
         SelectedTransducer = Transducer_ComboBox.SelectedItem
 
@@ -388,13 +395,14 @@ Public Class SipTestGui_2023
 
             'Adding available DirectionalSimulationSets
             Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
-            Dim AvailableSets = SelectedTransducer.GetAvailableDirectionalSimulationSets(TempWaveformat.SampleRate)
+            Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer, TempWaveformat.SampleRate)
+            AvailableSets.Insert(0, NoSimulationString)
             For Each Item In AvailableSets
                 DirectionalSimulationSet_ComboBox.Items.Add(Item)
+                DirectionalSimulationSet_C1_ComboBox.Items.Add(Item)
             Next
-            If DirectionalSimulationSet_ComboBox.Items.Count > 1 Then
-                DirectionalSimulationSet_ComboBox.SelectedIndex = 0
-            End If
+            DirectionalSimulationSet_ComboBox.SelectedIndex = 0
+            DirectionalSimulationSet_C1_ComboBox.SelectedIndex = 0
 
         Else
             MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
@@ -427,24 +435,34 @@ Public Class SipTestGui_2023
 
     Private Sub DirectionalSimulationSet_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_ComboBox.SelectedIndexChanged
 
+        SimulatedDistance_ComboBox.Items.Clear()
+
         Dim SelectedItem = DirectionalSimulationSet_ComboBox.SelectedItem
         If SelectedItem IsNot Nothing Then
-            Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
-            If SelectedTransducer.TrySetSelectedDirectionalSimulationSet(SelectedItem, TempWaveformat.SampleRate) = False Then
-                'Well this shold not happen...
-                SelectedTransducer.ClearSelectedDirectionalSimulationSet()
-            End If
-        Else
-            SelectedTransducer.ClearSelectedDirectionalSimulationSet()
-        End If
 
-        'Adding available simulation distances
-        Dim AvailableDistances = SelectedTransducer.GetAvailableDirectionalSimulationSetDistances(SelectedItem)
-        SimulatedDistance_ComboBox.Items.Clear()
-        For Each Distance In AvailableDistances
-            SimulatedDistance_ComboBox.Items.Add(Distance)
-        Next
-        If SimulatedDistance_ComboBox.Items.Count > 0 Then SimulatedDistance_ComboBox.SelectedIndex = 0
+            If SelectedItem = NoSimulationString Then
+                DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+                SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
+            Else
+                Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+                SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
+                If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate) = False Then
+                    'Well this shold not happen...
+                    DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+                    SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
+                End If
+            End If
+
+            'Adding available simulation distances
+            Dim AvailableDistances = DirectionalSimulator.GetAvailableDirectionalSimulationSetDistances(SelectedItem)
+            For Each Distance In AvailableDistances
+                SimulatedDistance_ComboBox.Items.Add(Distance)
+            Next
+            If SimulatedDistance_ComboBox.Items.Count > 0 Then SimulatedDistance_ComboBox.SelectedIndex = 0
+
+        Else
+            DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+        End If
 
         TryCreateSipTestMeasurement()
 
@@ -454,13 +472,21 @@ Public Class SipTestGui_2023
 
         Dim SelectedItem = DirectionalSimulationSet_C1_ComboBox.SelectedItem
         If SelectedItem IsNot Nothing Then
-            Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
-            If SelectedTransducer.TrySetSelectedDirectionalSimulationSet(SelectedItem, TempWaveformat.SampleRate) = False Then
-                'Well this shold not happen...
-                SelectedTransducer.ClearSelectedDirectionalSimulationSet()
+
+            If SelectedItem = NoSimulationString Then
+                DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+            Else
+
+                Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+                If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate) = False Then
+                    'Well this shold not happen...
+                    DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+                End If
+
             End If
+
         Else
-            SelectedTransducer.ClearSelectedDirectionalSimulationSet()
+            DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
         End If
 
         TryCreateSipTestMeasurement()
@@ -788,7 +814,7 @@ Public Class SipTestGui_2023
                     End If
 
                     'Setting up test trials to run
-                    PlanDirectionalTestTrials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, NumberOfSimultaneousMaskers, RandomSeed_IntegerParsingTextBox.Value)
+                    PlanDirectionalTestTrials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, NumberOfSimultaneousMaskers, SelectedSoundPropagationType, RandomSeed_IntegerParsingTextBox.Value)
 
                 Case TestModes.BMLD
 
@@ -830,8 +856,7 @@ Public Class SipTestGui_2023
                             Throw New NotImplementedException("Unknown BMLD noise mode")
                     End Select
 
-                    PlanBmldTestTrials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs,
-                                       BmldSignalMode, BmldNoiseMode, RandomSeed_IntegerParsingTextBox.Value)
+                    PlanBmldTestTrials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BmldSignalMode, BmldNoiseMode, RandomSeed_IntegerParsingTextBox.Value)
 
                 Case TestModes.Custom1
 
@@ -846,7 +871,7 @@ Public Class SipTestGui_2023
                         Dim Line As String = InputLines(LineIndex)
 
                         If Line.Trim = "" Then Continue For
-                        If Line.Trim.StartsWith("//") = "" Then Continue For
+                        If Line.Trim.StartsWith("//") Then Continue For
 
                         Dim DataPart = Line.Trim.Split({"//"}, StringSplitOptions.None)(0).Trim
                         Dim DataSplit = DataPart.Split("|")
@@ -856,8 +881,8 @@ Public Class SipTestGui_2023
                             Exit Sub
                         End If
 
-                        Dim SignalPart As String = DataSplit(0)
-                        Dim NoisePart As String = DataSplit(1)
+                        Dim SignalPart As String = DataSplit(0).Trim
+                        Dim NoisePart As String = DataSplit(1).Trim
 
                         Dim SignalItem As Object
                         Dim NoiseItem As Object
@@ -918,7 +943,9 @@ Public Class SipTestGui_2023
 
                     If BlockTypes.Count = 0 Then Exit Sub
 
-                    PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, 2, RandomSeed_IntegerParsingTextBox.Value)
+                    If PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, 2, RandomSeed_IntegerParsingTextBox.Value) = False Then
+                        Exit Sub
+                    End If
 
             End Select
 
@@ -947,7 +974,7 @@ Public Class SipTestGui_2023
 
     Private Shared Sub PlanDirectionalTestTrials(ByRef SipTestMeasurement As SipMeasurement, ByVal ReferenceLevel As Double, ByVal PresetName As String,
                                       ByVal SelectedMediaSets As List(Of MediaSet), ByVal SelectedPNRs As List(Of Double), ByVal NumberOfSimultaneousMaskers As Integer,
-                                      Optional ByVal RandomSeed As Integer? = Nothing)
+                                                 ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
         'Creating a new random if seed is supplied
         If RandomSeed.HasValue Then SipTestMeasurement.Randomizer = New Random(RandomSeed)
@@ -986,7 +1013,7 @@ Public Class SipTestGui_2023
 
                             For c = 0 To NewTestUnit.SpeechMaterialComponents.Count - 1
                                 'TODO/NB: The following line uses only a single TargetLocation, even though several could in principle be set
-                                Dim NewTrial As New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, {TargetLocation}, CurrentMaskerLocations.ToArray, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                                Dim NewTrial As New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SoundPropagationType, {TargetLocation}, CurrentMaskerLocations.ToArray, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
                                 NewTrial.SetLevels(ReferenceLevel, PNR)
                                 NewTestUnit.PlannedTrials.Add(NewTrial)
                             Next
@@ -1048,7 +1075,7 @@ Public Class SipTestGui_2023
                         NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
                         For c = 0 To NewTestUnit.SpeechMaterialComponents.Count - 1
-                            Dim NewTrial As New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+                            Dim NewTrial As New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
                             NewTrial.SetLevels(ReferenceLevel, PNR)
                             NewTestUnit.PlannedTrials.Add(NewTrial)
                         Next
@@ -1111,7 +1138,7 @@ Public Class SipTestGui_2023
         Dim RandomizedBlockTypes As New List(Of Tuple(Of Object, Object))
         Dim RandomIndices = Utils.SampleWithoutReplacement(BlockTypes.Count, 0, BlockTypes.Count, SipTestMeasurement.Randomizer)
         For i = 0 To RandomIndices.Length - 1
-            RandomizedBlockTypes.Add(BlockTypes(i))
+            RandomizedBlockTypes.Add(BlockTypes(RandomIndices(i)))
         Next
         BlockTypes = RandomizedBlockTypes
 
@@ -1179,9 +1206,9 @@ Public Class SipTestGui_2023
                                 Dim NewTrial As SipTrial
 
                                 If CurrentBlockIsBMLD = False Then
-                                    NewTrial = New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                                    NewTrial = New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SoundPropagationTypes.SimulatedSoundField, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
                                 Else
-                                    NewTrial = New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+                                    NewTrial = New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
                                 End If
 
                                 NewTrial.SetLevels(ReferenceLevel, PNR)
@@ -1214,9 +1241,9 @@ Public Class SipTestGui_2023
                 Dim NewTrial As SipTrial
 
                 If CurrentBlockIsBMLD = False Then
-                    NewTrial = New SipTrial(NewTestUnit, SMC, SelectedMediaSets(RandomMediaSetIndex(0)), TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                    NewTrial = New SipTrial(NewTestUnit, SMC, SelectedMediaSets(RandomMediaSetIndex(0)), SoundPropagationTypes.SimulatedSoundField, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
                 Else
-                    NewTrial = New SipTrial(NewTestUnit, SMC, SelectedMediaSets(RandomMediaSetIndex(0)), SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+                    NewTrial = New SipTrial(NewTestUnit, SMC, SelectedMediaSets(RandomMediaSetIndex(0)), SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
                 End If
 
                 'Notes that this is not a test trial
@@ -1245,6 +1272,8 @@ Public Class SipTestGui_2023
         '    Loop
         '    SipTestMeasurement.PlannedTrials = RandomList
         'End If
+
+        Return True
 
     End Function
 
@@ -1551,7 +1580,7 @@ Public Class SipTestGui_2023
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
+            Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, SelectedSoundPropagationType)
 
             If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 

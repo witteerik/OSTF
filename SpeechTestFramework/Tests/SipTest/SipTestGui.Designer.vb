@@ -124,6 +124,10 @@ Partial Class SipTestGui
         Me.CompareColumnSession = New System.Windows.Forms.DataGridViewCheckBoxColumn()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.DirectionalSimulationSet_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.SimulatedDistance_ComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.TableLayoutPanel16.SuspendLayout()
         Me.SoundDevice_Panel.SuspendLayout()
@@ -174,7 +178,7 @@ Partial Class SipTestGui
         Me.TableLayoutPanel16.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100.0!))
         Me.TableLayoutPanel16.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel16.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 366.0!))
-        Me.TableLayoutPanel16.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 325.0!))
+        Me.TableLayoutPanel16.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 411.0!))
         Me.TableLayoutPanel16.Controls.Add(Me.ParticipantID_Label, 0, 0)
         Me.TableLayoutPanel16.Controls.Add(Me.ParticipantIdTextBox, 1, 0)
         Me.TableLayoutPanel16.Controls.Add(Me.ParticipantLock_Button, 2, 0)
@@ -228,20 +232,24 @@ Partial Class SipTestGui
         Me.SoundDevice_Panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.SoundDevice_Panel.Controls.Add(Me.SoundSettings_TableLayoutPanel)
         Me.SoundDevice_Panel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SoundDevice_Panel.Location = New System.Drawing.Point(993, 0)
+        Me.SoundDevice_Panel.Location = New System.Drawing.Point(907, 0)
         Me.SoundDevice_Panel.Margin = New System.Windows.Forms.Padding(0)
         Me.SoundDevice_Panel.Name = "SoundDevice_Panel"
-        Me.SoundDevice_Panel.Size = New System.Drawing.Size(325, 56)
+        Me.SoundDevice_Panel.Size = New System.Drawing.Size(411, 56)
         Me.SoundDevice_Panel.TabIndex = 9
         '
         'SoundSettings_TableLayoutPanel
         '
         Me.SoundSettings_TableLayoutPanel.ColumnCount = 3
-        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 95.0!))
-        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
+        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
+        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
         Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.SelectTransducer_Label, 0, 0)
         Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.Transducer_ComboBox, 0, 1)
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.Label1, 1, 0)
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.Label2, 2, 0)
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.DirectionalSimulationSet_ComboBox, 1, 1)
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.SimulatedDistance_ComboBox, 2, 1)
         Me.SoundSettings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SoundSettings_TableLayoutPanel.Enabled = False
         Me.SoundSettings_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
@@ -249,28 +257,26 @@ Partial Class SipTestGui
         Me.SoundSettings_TableLayoutPanel.RowCount = 2
         Me.SoundSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.SoundSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.SoundSettings_TableLayoutPanel.Size = New System.Drawing.Size(323, 54)
+        Me.SoundSettings_TableLayoutPanel.Size = New System.Drawing.Size(409, 54)
         Me.SoundSettings_TableLayoutPanel.TabIndex = 0
         '
         'SelectTransducer_Label
         '
-        Me.SoundSettings_TableLayoutPanel.SetColumnSpan(Me.SelectTransducer_Label, 3)
         Me.SelectTransducer_Label.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SelectTransducer_Label.Location = New System.Drawing.Point(3, 0)
         Me.SelectTransducer_Label.Name = "SelectTransducer_Label"
-        Me.SelectTransducer_Label.Size = New System.Drawing.Size(317, 27)
+        Me.SelectTransducer_Label.Size = New System.Drawing.Size(130, 27)
         Me.SelectTransducer_Label.TabIndex = 0
         Me.SelectTransducer_Label.Text = "Select transducer"
         Me.SelectTransducer_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
         'Transducer_ComboBox
         '
-        Me.SoundSettings_TableLayoutPanel.SetColumnSpan(Me.Transducer_ComboBox, 3)
         Me.Transducer_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Transducer_ComboBox.FormattingEnabled = True
         Me.Transducer_ComboBox.Location = New System.Drawing.Point(3, 30)
         Me.Transducer_ComboBox.Name = "Transducer_ComboBox"
-        Me.Transducer_ComboBox.Size = New System.Drawing.Size(317, 21)
+        Me.Transducer_ComboBox.Size = New System.Drawing.Size(130, 21)
         Me.Transducer_ComboBox.TabIndex = 1
         '
         'Screen_TableLayoutPanel
@@ -284,7 +290,7 @@ Partial Class SipTestGui
         Me.Screen_TableLayoutPanel.Controls.Add(Me.PcScreen_TableLayoutPanel, 1, 0)
         Me.Screen_TableLayoutPanel.Controls.Add(Me.BtScreen_TableLayoutPanel, 1, 1)
         Me.Screen_TableLayoutPanel.Enabled = False
-        Me.Screen_TableLayoutPanel.Location = New System.Drawing.Point(630, 3)
+        Me.Screen_TableLayoutPanel.Location = New System.Drawing.Point(544, 3)
         Me.Screen_TableLayoutPanel.Name = "Screen_TableLayoutPanel"
         Me.Screen_TableLayoutPanel.RowCount = 2
         Me.Screen_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -1362,6 +1368,44 @@ Partial Class SipTestGui
         Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(52, 20)
         Me.AboutToolStripMenuItem.Text = "About"
         '
+        'Label1
+        '
+        Me.Label1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label1.Location = New System.Drawing.Point(139, 0)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(130, 27)
+        Me.Label1.TabIndex = 2
+        Me.Label1.Text = "Directional simulation set"
+        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Label2
+        '
+        Me.Label2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label2.Location = New System.Drawing.Point(275, 0)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(131, 27)
+        Me.Label2.TabIndex = 3
+        Me.Label2.Text = "Simulated sound source distance"
+        Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'DirectionalSimulationSet_ComboBox
+        '
+        Me.DirectionalSimulationSet_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.DirectionalSimulationSet_ComboBox.FormattingEnabled = True
+        Me.DirectionalSimulationSet_ComboBox.Location = New System.Drawing.Point(139, 30)
+        Me.DirectionalSimulationSet_ComboBox.Name = "DirectionalSimulationSet_ComboBox"
+        Me.DirectionalSimulationSet_ComboBox.Size = New System.Drawing.Size(130, 21)
+        Me.DirectionalSimulationSet_ComboBox.TabIndex = 4
+        '
+        'SimulatedDistance_ComboBox
+        '
+        Me.SimulatedDistance_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SimulatedDistance_ComboBox.FormattingEnabled = True
+        Me.SimulatedDistance_ComboBox.Location = New System.Drawing.Point(275, 30)
+        Me.SimulatedDistance_ComboBox.Name = "SimulatedDistance_ComboBox"
+        Me.SimulatedDistance_ComboBox.Size = New System.Drawing.Size(131, 21)
+        Me.SimulatedDistance_ComboBox.TabIndex = 5
+        '
         'SipTestGui
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1501,4 +1545,8 @@ Partial Class SipTestGui
     Friend WithEvents KeyboardShortcutContainer_Panel As Windows.Forms.Panel
     Friend WithEvents Operation_ProgressBarWithText As ProgressBarWithText
     Friend WithEvents CreateSounds_Button As Windows.Forms.Button
+    Friend WithEvents Label1 As Windows.Forms.Label
+    Friend WithEvents Label2 As Windows.Forms.Label
+    Friend WithEvents DirectionalSimulationSet_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents SimulatedDistance_ComboBox As Windows.Forms.ComboBox
 End Class

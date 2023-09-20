@@ -2272,11 +2272,11 @@ Public Class SpeechMaterialComponent
 
         Dim Output As New List(Of SpeechMaterialComponent)
 
-        Dim n As Integer = Math.Max(AllDescenents.Count, Max)
+        Dim n As Integer = Math.Min(AllDescenents.Count, Max)
 
         Dim RandomIndices = Utils.SampleWithoutReplacement(n, 0, AllDescenents.Count, Randomizer)
         For i = 0 To RandomIndices.Length - 1
-            Output.Add(AllDescenents(i))
+            Output.Add(AllDescenents(RandomIndices(i)))
         Next
 
         Return Output

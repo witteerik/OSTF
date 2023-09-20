@@ -147,6 +147,8 @@ Public Class SipTestGui
     Delegate Sub NoArgDelegate()
     Delegate Sub StringArgReturningVoidDelegate([String] As String)
 
+    Public SelectedSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
+    Private NoSimulationString As String = "No simulation"
 
     Public Sub New()
         MyClass.New("Swedish SiP-test", Utils.Constants.UserTypes.Research, Utils.Constants.Languages.English, True)
@@ -343,6 +345,8 @@ Public Class SipTestGui
                 Resume_Label.Text = "Återuppta test = R"
                 Stop_Label.Text = "Stoppa test = S"
 
+                NoSimulationString = "Ingen simulering"
+
             Case Else
 
                 'English is default
@@ -385,6 +389,8 @@ Public Class SipTestGui
                 Resume_Label.Text = "Resume test = R"
                 Stop_Label.Text = "Stop test = S"
 
+                NoSimulationString = "No simulation"
+
         End Select
 
 
@@ -411,11 +417,22 @@ Public Class SipTestGui
 
     Private Sub Transducer_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Transducer_ComboBox.SelectedIndexChanged
 
+        DirectionalSimulationSet_ComboBox.Items.Clear()
+
         SelectedTransducer = Transducer_ComboBox.SelectedItem
 
         If SelectedTransducer.CanPlay = True Then
             '(At this stage the sound player will be started, if not already done.)
             OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.4, SelectedTransducer.Mixer,, True, True)
+
+            'Adding available DirectionalSimulationSets
+            Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+            Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer, TempWaveformat.SampleRate)
+            AvailableSets.Insert(0, NoSimulationString)
+            For Each Item In AvailableSets
+                DirectionalSimulationSet_ComboBox.Items.Add(Item)
+            Next
+            DirectionalSimulationSet_ComboBox.SelectedIndex = 0
         Else
             MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
         End If
@@ -424,7 +441,45 @@ Public Class SipTestGui
             Test_TableLayoutPanel.Enabled = True
         End If
 
+        TryCalculatePsychometricFunction()
+
     End Sub
+
+    Private Sub DirectionalSimulationSet_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_ComboBox.SelectedIndexChanged
+
+        SimulatedDistance_ComboBox.Items.Clear()
+
+        Dim SelectedItem = DirectionalSimulationSet_ComboBox.SelectedItem
+        If SelectedItem IsNot Nothing Then
+
+            If SelectedItem = NoSimulationString Then
+                DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+                SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
+            Else
+                Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+                SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
+                If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate) = False Then
+                    'Well this shold not happen...
+                    DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+                    SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
+                End If
+            End If
+
+            'Adding available simulation distances
+            Dim AvailableDistances = DirectionalSimulator.GetAvailableDirectionalSimulationSetDistances(SelectedItem)
+            For Each Distance In AvailableDistances
+                SimulatedDistance_ComboBox.Items.Add(Distance)
+            Next
+            If SimulatedDistance_ComboBox.Items.Count > 0 Then SimulatedDistance_ComboBox.SelectedIndex = 0
+
+        Else
+            DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+        End If
+
+        TryCalculatePsychometricFunction()
+
+    End Sub
+
 
     Private Sub KeyDetection(sender As Object, e As KeyEventArgs) Handles Me.KeyUp, PcParticipantForm.KeyUp
 
@@ -705,7 +760,7 @@ Public Class SipTestGui
 
             Dim TempPreset As New List(Of SpeechMaterialComponent) From {List}
 
-            TempSipTestMeasurement.PlanTestTrials(AvailableMediaSets, TempPreset, SelectedMediaSet.MediaSetName)
+            TempSipTestMeasurement.PlanTestTrials(AvailableMediaSets, TempPreset, SelectedMediaSet.MediaSetName, SelectedSoundPropagationType)
             TempSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
             Dim EstimatedScore = TempSipTestMeasurement.CalculateEstimatedMeanScore(True)
 
@@ -806,7 +861,7 @@ Public Class SipTestGui
             CurrentSipTestMeasurement.TestProcedure.TestParadigm = SelectedTestparadigm
 
             'Test length was updated, adds test trials to the measurement
-            CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName)
+            CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName, SelectedSoundPropagationType)
 
             'Calculates the psychometric function
             Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction(SelectedReferenceLevel)
@@ -841,7 +896,7 @@ Public Class SipTestGui
                 NoGainTemporarySiPTestMeasurement.TestProcedure.TestParadigm = SelectedTestparadigm
 
                 'Test length was updated, adds test trials to the measurement
-                NoGainTemporarySiPTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName)
+                NoGainTemporarySiPTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName, SelectedSoundPropagationType)
 
                 'Calculates the psychometric function
                 Dim NoGain_PsychoMetricFunction = NoGainTemporarySiPTestMeasurement.CalculateEstimatedPsychometricFunction(SelectedReferenceLevel,, True)
@@ -1228,7 +1283,7 @@ Public Class SipTestGui
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
+            Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, SelectedSoundPropagationType)
 
             If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
@@ -2531,7 +2586,7 @@ Public Class SipTestGui
             CurrentSipTestMeasurement.TestProcedure.RandomizeOrder = False
 
             'Test length was updated, adds test trials to the measurement
-            CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName)
+            CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName, SelectedSoundPropagationType)
 
             'Calculates the psychometric function
             Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction(SelectedReferenceLevel)

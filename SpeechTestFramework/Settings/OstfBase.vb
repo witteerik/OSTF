@@ -334,14 +334,6 @@ Public Module OstfBase
             End If
 
             If Line.StartsWith("Name") Then CurrentTransducer.Name = InputFileSupport.GetInputFileValue(Line, True)
-            If Line.StartsWith("PresentationType") Then
-                Dim ParsedValue = InputFileSupport.InputFileEnumValueParsing(Line, GetType(PresentationTypes), AudioSystemSpecificationFilePath, True)
-                If ParsedValue.HasValue Then
-                    CurrentTransducer.PresentationType = ParsedValue
-                Else
-                    Throw New Exception("Missing value for the variable PresentationType in the audio system specification file " & AudioSystemSpecificationFilePath & vbCrLf & "Please manually correct the file and then restart the software! The value of the variable PresentationType should be either of: " & String.Join(",", [Enum].GetNames(GetType(PresentationTypes))))
-                End If
-            End If
             If Line.StartsWith("LoudspeakerAzimuths") Then CurrentTransducer.LoudspeakerAzimuths = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
             If Line.StartsWith("LoudspeakerElevations") Then CurrentTransducer.LoudspeakerElevations = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
             If Line.StartsWith("LoudspeakerDistances") Then CurrentTransducer.LoudspeakerDistances = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
@@ -376,10 +368,9 @@ Public Module OstfBase
 
 
 
-    Public Enum PresentationTypes
-        SoundField
+    Public Enum SoundPropagationTypes
+        PointSpeakers
         SimulatedSoundField
-        Headphones
         Ambisonics
     End Enum
 
@@ -387,25 +378,12 @@ Public Module OstfBase
         Public Property Name As String = "Default"
         Public ReadOnly Property ParentAudioApiSettings As Audio.AudioApiSettings
         Public Property Mixer As Audio.PortAudioVB.DuplexMixer
-        Public Property PresentationType As PresentationTypes = PresentationTypes.SoundField
         Public Property LoudspeakerAzimuths As New List(Of Double) From {-90, 90}
         Public Property LoudspeakerElevations As New List(Of Double) From {0, 0}
         Public Property LoudspeakerDistances As New List(Of Double) From {0, 0}
         Public Property HardwareOutputChannels As New List(Of Integer) From {1, 2}
         Public Property CalibrationGain As New List(Of Double) From {0, 0}
         Public Property LimiterThreshold As Double? = Nothing
-
-        Private _SelectedDirectionalSimulationSetName As String = ""
-
-        ''' <summary>
-        ''' Hold the name of the currently selected directional simulation set
-        ''' </summary>
-        ''' <returns></returns>
-        Public ReadOnly Property SelectedDirectionalSimulationSetName As String
-            Get
-                Return _SelectedDirectionalSimulationSetName
-            End Get
-        End Property
 
         Private _CanPlay As Boolean = False
         Public ReadOnly Property CanPlay As Boolean
@@ -425,57 +403,6 @@ Public Module OstfBase
             Me.ParentAudioApiSettings = ParentAudioApiSettings
 
         End Sub
-
-        Public Function GetAvailableDirectionalSimulationSets(ByVal SampleRate As Integer) As List(Of String)
-
-            Dim OutputList As New List(Of String)
-            If PresentationType = PresentationTypes.SimulatedSoundField Then
-
-                'Requires -90 and 90 (i.e. left and right) loudspeakers
-                'TODO, other requirements?? such as elevation of 0, distance 0 etc?
-                If LoudspeakerAzimuths.Contains(-90) And LoudspeakerAzimuths.Contains(90) Then
-                    Return DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(SampleRate)
-                End If
-            End If
-
-            Return OutputList
-
-        End Function
-
-        ''' <summary>
-        ''' Attempts to set the SelectedDirectionalSimulationSet to DirectionalSimulationSetName based  on the SampleRate. Returns True if success, and False if not possible.
-        ''' </summary>
-        ''' <param name="DirectionalSimulationSetName"></param>
-        ''' <param name="SampleRate"></param>
-        ''' <returns></returns>
-        Public Function TrySetSelectedDirectionalSimulationSet(ByVal DirectionalSimulationSetName As String, ByVal SampleRate As Integer) As Boolean
-
-            Dim AvailableSets = GetAvailableDirectionalSimulationSets(SampleRate)
-            If AvailableSets.Contains(DirectionalSimulationSetName) Then
-                Me._SelectedDirectionalSimulationSetName = DirectionalSimulationSetName
-                Return True
-            End If
-            Return False
-        End Function
-
-        ''' <summary>
-        ''' Clears the SelectedDirectionalSimulationSet.
-        ''' </summary>
-        Public Sub ClearSelectedDirectionalSimulationSet()
-            Me._SelectedDirectionalSimulationSetName = ""
-        End Sub
-
-        Public Function GetAvailableDirectionalSimulationSetDistances(ByVal DirectionalSimulationSetName As String) As SortedSet(Of Double)
-
-            Dim OutputList As New SortedSet(Of Double)
-            If PresentationType = PresentationTypes.SimulatedSoundField Then
-                Return DirectionalSimulator.GetAvailableDirectionalSimulationSetDistances(DirectionalSimulationSetName)
-            End If
-
-            Return OutputList
-
-        End Function
-
 
         Public Sub SetupMixer()
             'Setting up the mixer
@@ -512,7 +439,6 @@ Public Module OstfBase
             Dim OutputList As New List(Of String)
 
             OutputList.Add("Name: " & Name)
-            OutputList.Add("Presentation type: " & PresentationType.ToString)
             OutputList.Add("Loudspeaker azimuths: " & String.Join(", ", LoudspeakerAzimuths))
             OutputList.Add("Hardware output channels: " & String.Join(", ", HardwareOutputChannels))
             OutputList.Add("CalibrationGain: " & String.Join(", ", CalibrationGain))

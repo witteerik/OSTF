@@ -69,16 +69,16 @@ Namespace SipTest
 #Region "Preparation"
 
 
-        Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal PresetName As String, ByVal MediaSetName As String, Optional ByVal RandomSeed As Integer? = Nothing)
+        Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal PresetName As String, ByVal MediaSetName As String, ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
             Dim Preset = ParentTestSpecification.SpeechMaterial.Presets(PresetName)
 
-            PlanTestTrials(AvailableMediaSet, Preset, MediaSetName, RandomSeed)
+            PlanTestTrials(AvailableMediaSet, Preset, MediaSetName, SoundPropagationType, RandomSeed)
 
         End Sub
 
 
-        Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal Preset As List(Of SpeechMaterialComponent), ByVal MediaSetName As String, Optional ByVal RandomSeed As Integer? = Nothing)
+        Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal Preset As List(Of SpeechMaterialComponent), ByVal MediaSetName As String, ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
             ClearTrials()
 
@@ -107,12 +107,12 @@ Namespace SipTest
 
                                 If MediaSetName <> "" Then
                                     'Adding from the selected media set
-                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), TargetLocation, MaskerLocations, BackgroundLocations)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), SoundPropagationType, TargetLocation, MaskerLocations, BackgroundLocations)
                                     TestUnits.Add(NewTestUnit)
                                 Else
                                     'Adding from random media sets
                                     Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
-                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), TargetLocation, MaskerLocations, BackgroundLocations)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), SoundPropagationType, TargetLocation, MaskerLocations, BackgroundLocations)
                                     TestUnits.Add(NewTestUnit)
                                 End If
 
@@ -155,12 +155,12 @@ Namespace SipTest
 
                                 If MediaSetName <> "" Then
                                     'Adding from the selected media set
-                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), TargetLocation, MaskerLocations, BackgroundLocations)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet.GetMediaSet(MediaSetName), SoundPropagationType, TargetLocation, MaskerLocations, BackgroundLocations)
                                     TestUnits.Add(NewTestUnit)
                                 Else
                                     'Adding from random media sets
                                     Dim RandomIndex = Randomizer.Next(0, AvailableMediaSet.Count)
-                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), TargetLocation, MaskerLocations, BackgroundLocations)
+                                    NewTestUnit.PlanTrials(AvailableMediaSet(RandomIndex), SoundPropagationType, TargetLocation, MaskerLocations, BackgroundLocations)
                                     TestUnits.Add(NewTestUnit)
                                 End If
 
@@ -666,6 +666,8 @@ Namespace SipTest
             Headings.Add("PNR")
             Headings.Add("EstimatedSuccessProbability")
             Headings.Add("AdjustedSuccessProbability")
+            Headings.Add("SoundPropagationType")
+
             Headings.Add("IntendedTargetLocation_Distance")
             Headings.Add("IntendedTargetLocation_HorizontalAzimuth")
             Headings.Add("IntendedTargetLocation_Elevation")
@@ -725,6 +727,7 @@ Namespace SipTest
                 TrialList.Add(Trial.PNR)
                 TrialList.Add(Trial.EstimatedSuccessProbability(False))
                 TrialList.Add(Trial.AdjustedSuccessProbability)
+                TrialList.Add(Trial.SoundPropagationType)
 
                 'TrialList.Add(Trial.TargetStimulusLocations.Distance)
                 'TrialList.Add(Trial.TargetStimulusLocations.HorizontalAzimuth)
@@ -929,6 +932,8 @@ Namespace SipTest
                 c += 1
                 Dim AdjustedSuccessProbability As Double = LineColumns(c)
                 c += 1
+                Dim SoundPropagationType As SoundPropagationTypes = [Enum].Parse(GetType(SoundPropagationTypes), LineColumns(c))
+                c += 1
 
                 Dim TargetLocations = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
                 'TODO: The code below, importing target locations, is not optimal, and will crash if the number of semicolon delimited values differ (if someone has tampered with the exported file)
@@ -1003,7 +1008,7 @@ Namespace SipTest
                 'Getting the SpeechMaterialComponent, media set and (re-)creates the test trial
                 Dim SpeechMaterialComponent = ParentTestSpecification.SpeechMaterial.GetComponentById(SpeechMaterialComponentID)
                 Dim MediaSet = ParentTestSpecification.MediaSets.GetMediaSet(MediaSetName)
-                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, TargetLocations.ToArray, MaskerLocations.ToArray, BackgroundLocations.ToArray, Randomizer)
+                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, SoundPropagationType, TargetLocations.ToArray, MaskerLocations.ToArray, BackgroundLocations.ToArray, Randomizer)
 
                 'Stores the remaining test trial data
                 'NewTestTrial.PresentationOrder = PresentationOrder 'This is not stored as the export/import should always be ordered in the presentation order, as they are read from and stored into the ObservedTrials object!
@@ -1113,7 +1118,8 @@ Namespace SipTest
             Me.ParentMeasurement = ParentMeasurement
         End Sub
 
-        Public Sub PlanTrials(ByRef MediaSet As MediaSet, ByVal TargetLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation,
+        Public Sub PlanTrials(ByRef MediaSet As MediaSet, ByVal SoundPropagationType As SoundPropagationTypes,
+            ByVal TargetLocation As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation,
                               ByVal MaskerLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
                               ByVal BackgroundLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation())
 
@@ -1124,7 +1130,7 @@ Namespace SipTest
 
                     'For n = 1 To ParentMeasurement.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
                     For c = 0 To SpeechMaterialComponents.Count - 1
-                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet, {TargetLocation}, MaskerLocations, BackgroundLocations, ParentMeasurement.Randomizer)
+                        Dim NewTrial As New SipTrial(Me, SpeechMaterialComponents(c), MediaSet, SoundPropagationType, {TargetLocation}, MaskerLocations, BackgroundLocations, ParentMeasurement.Randomizer)
                         PlannedTrials.Add(NewTrial)
                     Next
 
@@ -1253,6 +1259,8 @@ Namespace SipTest
         Public TestWordStartTime As Double
         Public TestWordCompletedTime As Double
 
+        Public SoundPropagationType As SoundPropagationTypes
+
         ''' <summary>
         ''' Holds the location(s) of the target(s)
         ''' </summary>
@@ -1296,6 +1304,7 @@ Namespace SipTest
         Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
                        ByRef SpeechMaterialComponent As SpeechMaterialComponent,
                        ByRef MediaSet As MediaSet,
+                       ByRef SoundPropagationType As SoundPropagationTypes,
                        ByVal TargetStimulusLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
                        ByVal MaskerLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
                        ByVal BackgroundLocations As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation(),
@@ -1304,6 +1313,7 @@ Namespace SipTest
             Me.ParentTestUnit = ParentTestUnit
             Me.SpeechMaterialComponent = SpeechMaterialComponent
             Me.MediaSet = MediaSet
+            Me.SoundPropagationType = SoundPropagationType
             Me.TargetStimulusLocations = TargetStimulusLocations
             Me.MaskerLocations = MaskerLocations
             Me.BackgroundLocations = BackgroundLocations
@@ -1333,11 +1343,13 @@ Namespace SipTest
         Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
                        ByRef SpeechMaterialComponent As SpeechMaterialComponent,
                        ByRef MediaSet As MediaSet,
+                       ByVal SoundPropagationType As SoundPropagationTypes,
                        ByRef SignalMode As BmldModes,
                        ByRef NoiseMode As BmldModes,
                        ByRef SipMeasurementRandomizer As Random)
 
             IsBmldTrial = True
+            Me.SoundPropagationType = SoundPropagationType
 
             Me.ParentTestUnit = ParentTestUnit
             Me.SpeechMaterialComponent = SpeechMaterialComponent
@@ -1771,7 +1783,7 @@ Namespace SipTest
                 MixStopWatch.Restart()
 
                 'Creating the mix by calling CreateSoundScene of the current Mixer
-                Dim MixedTestTrialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList)
+                Dim MixedTestTrialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, Me.SoundPropagationType)
 
                 If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 

@@ -232,7 +232,7 @@ Namespace Audio
             End Class
 
 
-            Public Function CreateSoundScene(ByRef Input As List(Of SoundSceneItem), Optional ByVal LimiterThreshold As Double? = 100) As Audio.Sound
+            Public Function CreateSoundScene(ByRef Input As List(Of SoundSceneItem), ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal LimiterThreshold As Double? = 100) As Audio.Sound
 
                 Try
 
@@ -352,10 +352,10 @@ Namespace Audio
 
                     'Inserting/adding sounds to the output sound
                     'OutputSound.
-                    Select Case ParentTransducerSpecification.PresentationType
-                        Case PresentationTypes.SoundField, PresentationTypes.Headphones
+                    Select Case SoundPropagationType
+                        Case SoundPropagationTypes.PointSpeakers
 
-                            'TODO, perhaps PresentationTypes.Headphones should be treated separately?
+                            'TODO, perhaps SoundPropagationTypes.Headphones should be treated separately from sound field speakers?
 
                             'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
                             OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
@@ -371,15 +371,14 @@ Namespace Audio
 
                             Next
 
-                        Case PresentationTypes.Ambisonics
+                        Case SoundPropagationTypes.Ambisonics
 
                             Throw New NotImplementedException("Ambisonics presentation is not yet supported.")
 
-                        Case PresentationTypes.SimulatedSoundField
+                        Case SoundPropagationTypes.SimulatedSoundField
 
                             'Simulating the speaker locations into stereo headphones
-                            If ParentTransducerSpecification.SelectedDirectionalSimulationSetName = "" Then Throw New Exception("Expected a ParentTransducerSpecification.SelectedDirectionalSimulationSetName but saw an empty string!")
-                            SimulateSoundSourceLocation(ParentTransducerSpecification.SelectedDirectionalSimulationSetName, SoundSceneItemList)
+                            SimulateSoundSourceLocation(DirectionalSimulator.SelectedDirectionalSimulationSetName, SoundSceneItemList)
 
                             'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
                             OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)

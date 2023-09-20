@@ -9,16 +9,14 @@ InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
 
 BufferSize = 1024 // Must be powers of 2
 
-
 <New transducer>
-Name = 5 speaker array
-LoudspeakerAzimuths = 0, 30, 120, -120, -30
-LoudspeakerElevations = 0,0,0,0,0 // Not yet implemented
-LoudspeakerDistances = 0,0,0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
-HardwareOutputChannels = 1, 2, 3, 4, 5
-CalibrationGain = 0, 0, 0, 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+Name = Headphones
+LoudspeakerAzimuths = -90, 90 
+LoudspeakerElevations = 0, 0 // Not yet implemented
+LoudspeakerDistances = 0, 0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
+HardwareOutputChannels = 1, 2
+CalibrationGain = 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
-
 
 <New transducer>
 Name = 3 speaker array
@@ -30,22 +28,12 @@ CalibrationGain = 0, 0, 0 //Sets the calibration gain applied to the speaker con
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
-Name = Headphones
-LoudspeakerAzimuths = -90, 90 
-LoudspeakerElevations = 0, 0 // Not yet implemented
-LoudspeakerDistances = 0, 0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
-HardwareOutputChannels = 1, 2
-CalibrationGain = 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
-LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
-
-
-<New transducer>
-Name = Simulated sound field
-LoudspeakerAzimuths = -90, 90 
-LoudspeakerElevations = 0,0 // Not yet implemented
-LoudspeakerDistances = 0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
-HardwareOutputChannels = 1, 2
-CalibrationGain = 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+Name = 5 speaker array
+LoudspeakerAzimuths = 0, 30, 120, -120, -30
+LoudspeakerElevations = 0,0,0,0,0 // Not yet implemented
+LoudspeakerDistances = 0,0,0,0,0 // Values available for Sound field simulation are: 0.5, 1, 2, 3 (meters)
+HardwareOutputChannels = 1, 2, 3, 4, 5
+CalibrationGain = 0, 0, 0, 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>

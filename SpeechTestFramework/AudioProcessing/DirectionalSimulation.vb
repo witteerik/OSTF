@@ -4,6 +4,7 @@ Imports System.Numerics
 Imports MathNet.Numerics
 Imports SpeechTestFramework.Audio.PortAudioVB.DuplexMixer
 Imports SpeechTestFramework.BinauralImpulseReponseSet
+Imports SpeechTestFramework.OstfBase
 
 Public Class DirectionalSimulation
 
@@ -71,6 +72,57 @@ Public Class DirectionalSimulation
         End If
         Return OutputList
     End Function
+
+
+    Public Function GetAvailableDirectionalSimulationSets(ByRef SelectedTransducer As AudioSystemSpecification, ByVal SampleRate As Integer) As List(Of String)
+
+        Dim OutputList As New List(Of String)
+
+        'Requires -90 and 90 (i.e. left and right) loudspeakers
+        'TODO, other requirements?? such as elevation of 0, distance 0 etc?
+        If SelectedTransducer.LoudspeakerAzimuths.Contains(-90) And SelectedTransducer.LoudspeakerAzimuths.Contains(90) Then
+            Return DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(SampleRate)
+        End If
+
+        Return OutputList
+
+    End Function
+
+    ''' <summary>
+    ''' Attempts to set the SelectedDirectionalSimulationSet to DirectionalSimulationSetName based  on the SelectedTransducer and SampleRate. Returns True if success, and False if not possible.
+    ''' </summary>
+    ''' <param name="DirectionalSimulationSetName"></param>
+    ''' <param name="SampleRate"></param>
+    ''' <returns></returns>
+    Public Function TrySetSelectedDirectionalSimulationSet(ByVal DirectionalSimulationSetName As String, ByRef SelectedTransducer As AudioSystemSpecification, ByVal SampleRate As Integer) As Boolean
+
+        Dim AvailableSets = GetAvailableDirectionalSimulationSets(SelectedTransducer, SampleRate)
+        If AvailableSets.Contains(DirectionalSimulationSetName) Then
+            Me._SelectedDirectionalSimulationSetName = DirectionalSimulationSetName
+            Return True
+        End If
+        Return False
+    End Function
+
+    ''' <summary>
+    ''' Clears the SelectedDirectionalSimulationSet.
+    ''' </summary>
+    Public Sub ClearSelectedDirectionalSimulationSet()
+        Me._SelectedDirectionalSimulationSetName = ""
+    End Sub
+
+
+    Private _SelectedDirectionalSimulationSetName As String = ""
+
+    ''' <summary>
+    ''' Hold the name of the currently selected directional simulation set
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property SelectedDirectionalSimulationSetName As String
+        Get
+            Return _SelectedDirectionalSimulationSetName
+        End Get
+    End Property
 
 
 End Class
