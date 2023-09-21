@@ -1383,11 +1383,11 @@ Public Class SipTestGui
 
         'Creates a response string
         Select Case SelectedTestparadigm
-            Case Testparadigm.Quick, Testparadigm.Slow
-                CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
             Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                 'TODO: the following line only uses the first of possible target stimulus locations
                 CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") & vbTab & CurrentSipTrial.TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth
+            Case Else
+                CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
         End Select
 
         'Collects the response alternatives

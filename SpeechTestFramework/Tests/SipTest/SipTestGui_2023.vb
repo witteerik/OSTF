@@ -641,14 +641,14 @@ Public Class SipTestGui_2023
             Case Testparadigm.Quick, Testparadigm.FlexibleLocations
 
                 InterTrialInterval = 0.1
-                ResponseAlternativeDelay = 0
+                ResponseAlternativeDelay = 0.5
                 PretestSoundDuration = 2
                 MinimumStimulusOnsetTime = 0.02
                 MaximumStimulusOnsetTime = 0.1
-                TrialSoundMaxDuration = 4 ' TODO: Optimize by shortening this time
-                UseVisualQue = False
+                TrialSoundMaxDuration = 6 ' TODO: Optimize by shortening this time
+                UseVisualQue = True
                 UseBackgroundSpeech = False
-                MaximumResponseTime = 1
+                MaximumResponseTime = 3
                 ShowProgressIndication = True
 
             Case Testparadigm.Directional3, Testparadigm.Directional5
@@ -1262,17 +1262,6 @@ Public Class SipTestGui_2023
             Next
         Next
 
-        ''Randomizing the order
-        'If SipTestMeasurement.TestProcedure.RandomizeOrder = True Then
-        '    Dim RandomList As New List(Of SipTrial)
-        '    Do Until SipTestMeasurement.PlannedTrials.Count = 0
-        '        Dim RandomIndex As Integer = SipTestMeasurement.Randomizer.Next(0, SipTestMeasurement.PlannedTrials.Count)
-        '        RandomList.Add(SipTestMeasurement.PlannedTrials(RandomIndex))
-        '        SipTestMeasurement.PlannedTrials.RemoveAt(RandomIndex)
-        '    Loop
-        '    SipTestMeasurement.PlannedTrials = RandomList
-        'End If
-
         Return True
 
     End Function
@@ -1680,11 +1669,11 @@ Public Class SipTestGui_2023
 
         'Creates a response string
         Select Case SelectedTestparadigm
-            Case Testparadigm.Quick, Testparadigm.Slow
-                CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
             Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                 'TODO: the following line only uses the first of possible target stimulus locations
                 CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") & vbTab & CurrentSipTrial.TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth
+            Case Else
+                CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
         End Select
 
         'Collects the response alternatives
