@@ -1011,9 +1011,9 @@ Public Class SipTestGui_2023
                             Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
                             NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
-                            For c = 0 To NewTestUnit.SpeechMaterialComponents.Count - 1
+                            For c = 0 To TestWords.Count - 1
                                 'TODO/NB: The following line uses only a single TargetLocation, even though several could in principle be set
-                                Dim NewTrial As New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SoundPropagationType, {TargetLocation}, CurrentMaskerLocations.ToArray, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                                Dim NewTrial As New SipTrial(NewTestUnit, TestWords(c), MediaSet, SoundPropagationType, {TargetLocation}, CurrentMaskerLocations.ToArray, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
                                 NewTrial.SetLevels(ReferenceLevel, PNR)
                                 NewTestUnit.PlannedTrials.Add(NewTrial)
                             Next
@@ -1074,8 +1074,8 @@ Public Class SipTestGui_2023
                         Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
                         NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
-                        For c = 0 To NewTestUnit.SpeechMaterialComponents.Count - 1
-                            Dim NewTrial As New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+                        For c = 0 To TestWords.Count - 1
+                            Dim NewTrial As New SipTrial(NewTestUnit, TestWords(c), MediaSet, SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
                             NewTrial.SetLevels(ReferenceLevel, PNR)
                             NewTestUnit.PlannedTrials.Add(NewTrial)
                         Next
@@ -1129,6 +1129,23 @@ Public Class SipTestGui_2023
 
         'Getting the preset
         Dim Preset = SipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets(PresetName)
+
+        'Creating a collection of test words (i.e. NonTestMaterial) that do not occur in any of the test words groups included in the Preset
+        Dim NonTestMaterial As New List(Of SpeechMaterialComponent)
+        Dim PresetTestWords As New SortedSet(Of String)
+        For Each TWG In Preset
+            For Each TestWord In TWG.ChildComponents
+                PresetTestWords.Add(TestWord.PrimaryStringRepresentation)
+            Next
+        Next
+        Dim WholeMaterial = SipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
+        For Each TWG In WholeMaterial
+            For Each TestWord In TWG.ChildComponents
+                If PresetTestWords.Contains(TestWord.PrimaryStringRepresentation) = False Then
+                    NonTestMaterial.Add(TestWord)
+                End If
+            Next
+        Next
 
         'Clearing any trials that may have been planned by a previous call
         SipTestMeasurement.ClearTrials()
@@ -1193,22 +1210,23 @@ Public Class SipTestGui_2023
 
             'Creating test trials
             For Each PresetComponent In Preset
-                For Each MediaSet In SelectedMediaSets
-                    For Each PNR In SelectedPNRs
 
-                        For Repetition = 1 To SipTestMeasurement.TestProcedure.LengthReduplications
+                'Adding SMCs to the unit
+                Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+                NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
 
-                            Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
-                            NewTestUnit.SpeechMaterialComponents.AddRange(TestWords)
+                For c = 0 To TestWords.Count - 1
 
-                            For c = 0 To NewTestUnit.SpeechMaterialComponents.Count - 1
+                    For Each MediaSet In SelectedMediaSets
+                        For Each PNR In SelectedPNRs
+                            For Repetition = 1 To SipTestMeasurement.TestProcedure.LengthReduplications
 
                                 Dim NewTrial As SipTrial
 
                                 If CurrentBlockIsBMLD = False Then
-                                    NewTrial = New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SoundPropagationTypes.SimulatedSoundField, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                                    NewTrial = New SipTrial(NewTestUnit, TestWords(c), MediaSet, SoundPropagationTypes.SimulatedSoundField, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
                                 Else
-                                    NewTrial = New SipTrial(NewTestUnit, NewTestUnit.SpeechMaterialComponents(c), MediaSet, SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+                                    NewTrial = New SipTrial(NewTestUnit, TestWords(c), MediaSet, SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
                                 End If
 
                                 NewTrial.SetLevels(ReferenceLevel, PNR)
@@ -1232,14 +1250,28 @@ Public Class SipTestGui_2023
             End If
 
             'Inserting indicator trials initially in the block
-            Dim IndicatorTrialSMCs = SipTestMeasurement.ParentTestSpecification.SpeechMaterial.DrawRandomDescendentsAtLevel(NumberOfIndicatorTrials, SpeechMaterialComponent.LinguisticLevels.Sentence, False, SipTestMeasurement.Randomizer)
+            'Checking that we have enough nonused SCMs
+            If NonTestMaterial.Count < NumberOfIndicatorTrials Then
+                MsgBox("There are not enough (" & NonTestMaterial.Count & ") un-used test words to create " & NumberOfIndicatorTrials & " indicator trials.")
+                Return False
+            End If
+
+            'Picking random SMCs for the indicator trials
+            Dim IndicatorTrialSMCs As New List(Of SpeechMaterialComponent)
+            Dim RandomIndicatorTrialSMCIndices = Utils.SampleWithoutReplacement(NumberOfIndicatorTrials, 0, NonTestMaterial.Count, SipTestMeasurement.Randomizer)
+            For i = 0 To RandomIndicatorTrialSMCIndices.Length - 1
+                IndicatorTrialSMCs.Add(NonTestMaterial(RandomIndicatorTrialSMCIndices(i)))
+            Next
+
             For Each SMC In IndicatorTrialSMCs
 
+                'Picking one word from each test word group
                 Dim RandomMediaSetIndex = Utils.SampleWithoutReplacement(1, 0, SelectedMediaSets.Count, SipTestMeasurement.Randomizer)
                 Dim IndicatorTrialPNR = SelectedPNRs.Max
 
                 Dim NewTrial As SipTrial
 
+                'Creating indicator trials
                 If CurrentBlockIsBMLD = False Then
                     NewTrial = New SipTrial(NewTestUnit, SMC, SelectedMediaSets(RandomMediaSetIndex(0)), SoundPropagationTypes.SimulatedSoundField, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
                 Else

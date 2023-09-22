@@ -2260,9 +2260,11 @@ Public Class SpeechMaterialComponent
     ''' <param name="Max">The maximum number of descendents to draw. If Max descentants do not exist, all available descendents will be drawn.</param>
     ''' <param name="RequestedDescendentComponentLevel"></param>
     ''' <param name="IncludeSelf"></param>
+    ''' <param name="ExcludedDescendents">If supplied by the calling code, contains all descendents not drawn.</param>
     ''' <returns></returns>
     Public Function DrawRandomDescendentsAtLevel(ByVal Max As Integer, ByVal RequestedDescendentComponentLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                 Optional IncludeSelf As Boolean = False, Optional ByRef Randomizer As Random = Nothing) As List(Of SpeechMaterialComponent)
+                                                 Optional ByVal IncludeSelf As Boolean = False, Optional ByRef Randomizer As Random = Nothing,
+                                                 Optional ByRef ExcludedDescendents As List(Of SpeechMaterialComponent) = Nothing) As List(Of SpeechMaterialComponent)
 
         If Randomizer Is Nothing Then
             Randomizer = Me.Randomizer
@@ -2278,6 +2280,14 @@ Public Class SpeechMaterialComponent
         For i = 0 To RandomIndices.Length - 1
             Output.Add(AllDescenents(RandomIndices(i)))
         Next
+
+        If ExcludedDescendents IsNot Nothing Then
+            'Adding the descendents not drawn
+            For i = 0 To AllDescenents.Count - 1
+                If RandomIndices.Contains(i) Then Continue For
+                ExcludedDescendents.Add(AllDescenents(i))
+            Next
+        End If
 
         Return Output
 
