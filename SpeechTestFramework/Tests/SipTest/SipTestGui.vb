@@ -418,6 +418,7 @@ Public Class SipTestGui
     Private Sub Transducer_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Transducer_ComboBox.SelectedIndexChanged
 
         DirectionalSimulationSet_ComboBox.Items.Clear()
+        SimulatedDistance_ComboBox.Items.Clear()
 
         SelectedTransducer = Transducer_ComboBox.SelectedItem
 
@@ -448,6 +449,7 @@ Public Class SipTestGui
     Private Sub DirectionalSimulationSet_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_ComboBox.SelectedIndexChanged
 
         SimulatedDistance_ComboBox.Items.Clear()
+        SimulatedDistance_ComboBox.ResetText()
 
         Dim SelectedItem = DirectionalSimulationSet_ComboBox.SelectedItem
         If SelectedItem IsNot Nothing Then
@@ -863,6 +865,17 @@ Public Class SipTestGui
             'Test length was updated, adds test trials to the measurement
             CurrentSipTestMeasurement.PlanTestTrials(AvailableMediaSets, SelectedPresetName, SelectedMediaSet.MediaSetName, SelectedSoundPropagationType)
 
+            'Checks to see if a simulation set is required
+            If SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
+                ShowMessageBox("No directional simulation set selected!")
+                Exit Sub
+            End If
+
+            If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
+                ShowMessageBox("The measurement requires a directional simulation set to be selected!")
+                Exit Sub
+            End If
+
             'Calculates the psychometric function
             Dim PsychoMetricFunction = CurrentSipTestMeasurement.CalculateEstimatedPsychometricFunction(SelectedReferenceLevel)
 
@@ -934,7 +947,7 @@ Public Class SipTestGui
             TestDescriptionTextBox.Focus()
 
         Catch ex As Exception
-            MsgBox(ex.ToString)
+            ShowMessageBox("The following error has occurred: " & ex.ToString)
         End Try
 
     End Sub
@@ -2109,13 +2122,31 @@ Public Class SipTestGui
     ''' This method can be called by the backend in order to display a message box message to the user.
     ''' </summary>
     ''' <param name="Message"></param>
-    Private Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "SiP-testet")
+    Private Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "")
+
+        If Title = "" Then
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    Title = "SiP-testet"
+                Case Else
+                    Title = "SiP-test"
+            End Select
+        End If
 
         MsgBox(Message, MsgBoxStyle.Information, Title)
 
     End Sub
 
-    Private Function ShowYesNoMessageBox(Question As String, Optional Title As String = "SiP-testet") As Boolean
+    Private Function ShowYesNoMessageBox(Question As String, Optional Title As String = "") As Boolean
+
+        If Title = "" Then
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    Title = "SiP-testet"
+                Case Else
+                    Title = "SiP-test"
+            End Select
+        End If
 
         Dim Result = MsgBox(Question, MsgBoxStyle.YesNo, Title)
 
@@ -2248,7 +2279,12 @@ Public Class SipTestGui
         End If
 
         If Failed = True Then
-            MsgBox("Ingen blåtandsenhet kunde anslutas, vänligen försök igen!")
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    ShowMessageBox("Ingen blåtandsenhet kunde anslutas, vänligen försök igen!")
+                Case Utils.Constants.Languages.English
+                    ShowMessageBox("No bluetooth unit could be connected, please try again!")
+            End Select
             MyBtTesteeControl = Nothing
             DisconnectWirelessScreen()
             BtLamp.State = Lamp.States.Disabled
@@ -2308,7 +2344,12 @@ Public Class SipTestGui
         End Try
 
         If Failed = True Then
-            MsgBox("Anslutningen till blåtandsskärmen har gått förlorad.")
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    ShowMessageBox("Anslutningen till blåtandsskärmen har gått förlorad.")
+                Case Utils.Constants.Languages.English
+                    ShowMessageBox("The connected to the bluetooth screen has been lost.")
+            End Select
 
             ' Calls DisconnectWirelessScreen to set correct enabled status of all controls
             DisconnectWirelessScreen()
@@ -2391,7 +2432,7 @@ Public Class SipTestGui
 
         Next
 
-        MsgBox("Simulation Complete")
+        ShowMessageBox("Simulation Complete")
 
     End Sub
 
@@ -2558,7 +2599,7 @@ Public Class SipTestGui
 
     Private Sub CreateSiPStimuli(Optional ByVal OutputFolder As String = "D:\") '"C:\Temp")
 
-        MsgBox("Sounds and data will be exported to the folder " & OutputFolder)
+        ShowMessageBox("Sounds and data will be exported to the folder " & OutputFolder)
 
         Try
 
@@ -2765,7 +2806,7 @@ Public Class SipTestGui
 
 
         Catch ex As Exception
-            MsgBox(ex.ToString)
+            ShowMessageBox("The following error has occurred: " & ex.ToString)
         End Try
 
 

@@ -385,6 +385,7 @@ Public Class SipTestGui_2023
     Private Sub Transducer_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Transducer_ComboBox.SelectedIndexChanged
 
         DirectionalSimulationSet_ComboBox.Items.Clear()
+        SimulatedDistance_ComboBox.Items.Clear()
         DirectionalSimulationSet_C1_ComboBox.Items.Clear()
 
         SelectedTransducer = Transducer_ComboBox.SelectedItem
@@ -436,6 +437,7 @@ Public Class SipTestGui_2023
     Private Sub DirectionalSimulationSet_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_ComboBox.SelectedIndexChanged
 
         SimulatedDistance_ComboBox.Items.Clear()
+        SimulatedDistance_ComboBox.ResetText()
 
         Dim SelectedItem = DirectionalSimulationSet_ComboBox.SelectedItem
         If SelectedItem IsNot Nothing Then
@@ -498,6 +500,12 @@ Public Class SipTestGui_2023
         If e.KeyValue = Keys.Enter Then
             TryCreateSipTestMeasurement()
         End If
+
+    End Sub
+
+    Private Sub Custom_SNC_TextBox_KeyUp(sender As Object, e As EventArgs) Handles Custom_SNC_TextBox.LostFocus
+
+        TryCreateSipTestMeasurement()
 
     End Sub
 
@@ -733,7 +741,7 @@ Public Class SipTestGui_2023
             End If
 
         Catch ex As Exception
-            MsgBox("An unexpected error occurred.")
+            ShowMessageBox("An unexpected error occurred.")
             Return False
         End Try
 
@@ -877,7 +885,7 @@ Public Class SipTestGui_2023
                         Dim DataSplit = DataPart.Split("|")
 
                         If DataSplit.Length <> 2 Then
-                            MsgBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line)
+                            ShowMessageBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line)
                             Exit Sub
                         End If
 
@@ -898,13 +906,13 @@ Public Class SipTestGui_2023
                             Case "P"
                                 SignalItem = BmldModes.BinauralPhaseInverted
                             Case "U"
-                                MsgBox("U (uncorrelated) is not a valid characterization of the signal.")
+                                ShowMessageBox("U (uncorrelated) is not a valid characterization of the signal.")
                                 Exit Sub
                             Case Else
                                 'It should be numeric
                                 Dim ParsedValue As Double
                                 If Double.TryParse(SignalPart.Replace(",", "."), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, ParsedValue) = False Then
-                                    MsgBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line & " Unable to parse the expression " & SignalPart & " as a numeric value.")
+                                    ShowMessageBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line & " Unable to parse the expression " & SignalPart & " as a numeric value.")
                                     Exit Sub
                                 End If
                                 SignalItem = ParsedValue
@@ -926,14 +934,15 @@ Public Class SipTestGui_2023
                                 'It should be numeric
                                 Dim ParsedValue As Double
                                 If Double.TryParse(NoisePart.Replace(",", "."), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, ParsedValue) = False Then
-                                    MsgBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line & " Unable to parse the expression " & NoisePart & " as a numeric value.")
+                                    ShowMessageBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line & " Unable to parse the expression " & NoisePart & " as a numeric value.")
                                     Exit Sub
                                 End If
                                 NoiseItem = ParsedValue
+
                         End Select
 
                         If SignalItem.GetType <> NoiseItem.GetType Then
-                            MsgBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line & " Directional azimuths cannot be combined with BMLD modes.")
+                            ShowMessageBox("Invalid signal-noise-characterization on line " & LineIndex + 1 & ": " & Line & " Directional azimuths cannot be combined with BMLD modes.")
                             Exit Sub
                         End If
 
@@ -949,6 +958,16 @@ Public Class SipTestGui_2023
 
             End Select
 
+            'Checks to see if a simulation set is required
+            If SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
+                ShowMessageBox("No directional simulation set selected!")
+                Exit Sub
+            End If
+
+            If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
+                ShowMessageBox("The measurement requires a directional simulation set to be selected!")
+                Exit Sub
+            End If
 
             'Displayes the planned test length
             PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
@@ -966,7 +985,7 @@ Public Class SipTestGui_2023
             TestDescriptionTextBox.Focus()
 
         Catch ex As Exception
-            MsgBox(ex.ToString)
+            ShowMessageBox("The following error occurred: " & ex.ToString)
         End Try
 
     End Sub
@@ -1167,7 +1186,7 @@ Public Class SipTestGui_2023
 
             'Checking that both signal and noise have the same type
             If BlockType.Item1.GetType <> BlockType.Item2.GetType Then
-                MsgBox("The following incorrect specification of blocks was detected: " & BlockType.Item1.ToString & " " & BlockType.Item2.ToString)
+                MsgBox("The following incorrect specification of blocks was detected: " & BlockType.Item1.ToString & " " & BlockType.Item2.ToString, MsgBoxStyle.Exclamation, "SiP-test")
                 SipTestMeasurement.ClearTrials()
                 Return False
             End If
@@ -1252,7 +1271,7 @@ Public Class SipTestGui_2023
             'Inserting indicator trials initially in the block
             'Checking that we have enough nonused SCMs
             If NonTestMaterial.Count < NumberOfIndicatorTrials Then
-                MsgBox("There are not enough (" & NonTestMaterial.Count & ") un-used test words to create " & NumberOfIndicatorTrials & " indicator trials.")
+                MsgBox("There are not enough (" & NonTestMaterial.Count & ") un-used test words to create " & NumberOfIndicatorTrials & " indicator trials.", MsgBoxStyle.Exclamation, "SiP-test")
                 Return False
             End If
 
@@ -2245,13 +2264,31 @@ Public Class SipTestGui_2023
     ''' This method can be called by the backend in order to display a message box message to the user.
     ''' </summary>
     ''' <param name="Message"></param>
-    Private Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "SiP-testet")
+    Private Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "")
+
+        If Title = "" Then
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    Title = "SiP-testet"
+                Case Else
+                    Title = "SiP-test"
+            End Select
+        End If
 
         MsgBox(Message, MsgBoxStyle.Information, Title)
 
     End Sub
 
-    Private Function ShowYesNoMessageBox(Question As String, Optional Title As String = "SiP-testet") As Boolean
+    Private Function ShowYesNoMessageBox(Question As String, Optional Title As String = "") As Boolean
+
+        If Title = "" Then
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    Title = "SiP-testet"
+                Case Else
+                    Title = "SiP-test"
+            End Select
+        End If
 
         Dim Result = MsgBox(Question, MsgBoxStyle.YesNo, Title)
 
@@ -2262,6 +2299,7 @@ Public Class SipTestGui_2023
         End If
 
     End Function
+
 
 
 #Region "ParticipantScreens"
@@ -2384,7 +2422,13 @@ Public Class SipTestGui_2023
         End If
 
         If Failed = True Then
-            MsgBox("Ingen blåtandsenhet kunde anslutas, vänligen försök igen!")
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    ShowMessageBox("Ingen blåtandsenhet kunde anslutas, vänligen försök igen!")
+                Case Utils.Constants.Languages.English
+                    ShowMessageBox("No bluetooth unit could be connected, please try again!")
+            End Select
+
             MyBtTesteeControl = Nothing
             DisconnectWirelessScreen()
             BtLamp.State = Lamp.States.Disabled
@@ -2444,7 +2488,12 @@ Public Class SipTestGui_2023
         End Try
 
         If Failed = True Then
-            MsgBox("Anslutningen till blåtandsskärmen har gått förlorad.")
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    ShowMessageBox("Anslutningen till blåtandsskärmen har gått förlorad.")
+                Case Utils.Constants.Languages.English
+                    ShowMessageBox("The connected to the bluetooth screen has been lost.")
+            End Select
 
             ' Calls DisconnectWirelessScreen to set correct enabled status of all controls
             DisconnectWirelessScreen()

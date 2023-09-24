@@ -194,6 +194,28 @@ Namespace SipTest
 
         End Sub
 
+        'Looks through all trials and returns True as soon as a trial that requires directional sound field simulation is detected, or false if no trial requires directional sound field simulation.
+        Public Function HasSimulatedSoundFieldTrials()
+
+            For Each Trial In PlannedTrials
+                If Trial.SoundPropagationType = SoundPropagationTypes.SimulatedSoundField Then Return True
+            Next
+
+            For Each Trial In ObservedTrials
+                If Trial.SoundPropagationType = SoundPropagationTypes.SimulatedSoundField Then Return True
+            Next
+
+            For Each TestUnit In TestUnits
+                For Each Trial In TestUnit.PlannedTrials
+                    If Trial.SoundPropagationType = SoundPropagationTypes.SimulatedSoundField Then Return True
+                Next
+                For Each Trial In TestUnit.ObservedTrials
+                    If Trial.SoundPropagationType = SoundPropagationTypes.SimulatedSoundField Then Return True
+                Next
+            Next
+
+            Return False
+        End Function
 
         Public Sub PreMixTestTrialSoundsOnNewTread(ByRef SelectedTransducer As AudioSystemSpecification,
                                          ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
@@ -688,6 +710,10 @@ Namespace SipTest
             Headings.Add("PresentedBackgroundLocations_HorizontalAzimuth")
             Headings.Add("PresentedBackgroundLocations_Elevation")
 
+            Headings.Add("IsBmldTrial")
+            Headings.Add("BmldNoiseMode")
+            Headings.Add("BmldSignalMode")
+
             Headings.Add("Response")
             Headings.Add("Result")
             Headings.Add("ResponseTime")
@@ -725,9 +751,14 @@ Namespace SipTest
                 TrialList.Add(t)
                 TrialList.Add(Trial.Reference_SPL)
                 TrialList.Add(Trial.PNR)
-                TrialList.Add(Trial.EstimatedSuccessProbability(False))
-                TrialList.Add(Trial.AdjustedSuccessProbability)
-                TrialList.Add(Trial.SoundPropagationType)
+                If Trial.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
+                    TrialList.Add(Trial.EstimatedSuccessProbability(False))
+                    TrialList.Add(Trial.AdjustedSuccessProbability)
+                Else
+                    TrialList.Add("No audiogram stored - cannot calculate")
+                    TrialList.Add("No audiogram stored - cannot calculate")
+                End If
+                TrialList.Add(Trial.SoundPropagationType.ToString)
 
                 'TrialList.Add(Trial.TargetStimulusLocations.Distance)
                 'TrialList.Add(Trial.TargetStimulusLocations.HorizontalAzimuth)
@@ -810,12 +841,25 @@ Namespace SipTest
                     TrialList.Add(String.Join(";", ActualElevations))
                 End If
 
+                TrialList.Add(Trial.IsBmldTrial)
+                If Trial.IsBmldTrial = True Then
+                    TrialList.Add(Trial.BmldNoiseMode.ToString)
+                    TrialList.Add(Trial.BmldSignalMode.ToString)
+                Else
+                    TrialList.Add("")
+                    TrialList.Add("")
+                End If
+
                 TrialList.Add(Trial.Response)
                 TrialList.Add(Trial.Result.ToString)
                 TrialList.Add(Trial.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
                 TrialList.Add(Trial.ResponseAlternativeCount)
                 TrialList.Add(Trial.IsTestTrial.ToString)
-                TrialList.Add(Trial.PhonemeDiscriminabilityLevel(False))
+                If Trial.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
+                    TrialList.Add(Trial.PhonemeDiscriminabilityLevel(False))
+                Else
+                    TrialList.Add("No audiogram stored")
+                End If
 
                 'Plus write-only stuff
                 TrialList.Add(Trial.SpeechMaterialComponent.PrimaryStringRepresentation)
@@ -938,38 +982,64 @@ Namespace SipTest
                 Dim TargetLocations = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
                 'TODO: The code below, importing target locations, is not optimal, and will crash if the number of semicolon delimited values differ (if someone has tampered with the exported file)
                 Dim TargetLocationDistances = LineColumns(c).Trim.Split(";")
-                For t = 0 To TargetLocationDistances.Length - 1
-                    TargetLocations.Add(New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
-                Next
-                For t = 0 To TargetLocationDistances.Length - 1
-                    TargetLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-                    TargetLocations(i).Distance = TargetLocationDistances(i)
-                Next
+                If TargetLocationDistances.Length > 0 Then
+                    For t = 0 To TargetLocationDistances.Length - 1
+                        TargetLocations.Add(New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+                    Next
+                    For t = 0 To TargetLocationDistances.Length - 1
+                        TargetLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                        TargetLocations(i).Distance = TargetLocationDistances(i)
+                    Next
+                End If
                 c += 1
                 Dim TargetLocationHorizontalAzimuths = LineColumns(c).Trim.Split(";")
-                For t = 0 To TargetLocationHorizontalAzimuths.Length - 1
-                    TargetLocations(t).HorizontalAzimuth = LineColumns(c)
-                Next
+                If TargetLocationHorizontalAzimuths.Length > 0 Then
+                    For t = 0 To TargetLocationHorizontalAzimuths.Length - 1
+                        TargetLocations(t).HorizontalAzimuth = LineColumns(c)
+                    Next
+                End If
                 c += 1
                 Dim TargetLocationElevations = LineColumns(c).Trim.Split(";")
-                For t = 0 To TargetLocationElevations.Length - 1
-                    TargetLocations(t).Elevation = LineColumns(c)
-                Next
+                If TargetLocationElevations.Length > 0 Then
+                    For t = 0 To TargetLocationElevations.Length - 1
+                        TargetLocations(t).Elevation = LineColumns(c)
+                    Next
+                End If
                 c += 1
                 Dim TargetLocationActualLocationDistances = LineColumns(c).Trim.Split(";")
-                For t = 0 To TargetLocationActualLocationDistances.Length - 1
-                    TargetLocations(t).ActualLocation.Distance = LineColumns(c)
-                Next
+                If TargetLocationActualLocationDistances.Length > 0 Then
+                    For t = 0 To TargetLocationActualLocationDistances.Length - 1
+                        TargetLocations(t).ActualLocation.Distance = LineColumns(c)
+                    Next
+                End If
                 c += 1
                 Dim TargetLocationActualLocationHorizontalAzimuths = LineColumns(c).Trim.Split(";")
-                For t = 0 To TargetLocationActualLocationHorizontalAzimuths.Length - 1
-                    TargetLocations(t).ActualLocation.HorizontalAzimuth = LineColumns(c)
-                Next
+                If TargetLocationActualLocationHorizontalAzimuths.Length > 0 Then
+                    For t = 0 To TargetLocationActualLocationHorizontalAzimuths.Length - 1
+                        TargetLocations(t).ActualLocation.HorizontalAzimuth = LineColumns(c)
+                    Next
+                End If
                 c += 1
                 Dim TargetLocationActualLocationElevations = LineColumns(c).Trim.Split(";")
-                For t = 0 To TargetLocationActualLocationElevations.Length - 1
-                    TargetLocations(t).ActualLocation.Elevation = LineColumns(c)
-                Next
+                If TargetLocationActualLocationElevations.Length > 0 Then
+                    For t = 0 To TargetLocationActualLocationElevations.Length - 1
+                        TargetLocations(t).ActualLocation.Elevation = LineColumns(c)
+                    Next
+                End If
+                c += 1
+
+                Dim IsBmldTrial As Boolean = Boolean.Parse(LineColumns(c))
+                c += 1
+                Dim BmldNoiseMode As BmldModes
+                If LineColumns(c).Trim.Length > 0 Then
+                    BmldNoiseMode = [Enum].Parse(GetType(BmldModes), LineColumns(c))
+                End If
+                c += 1
+
+                Dim BmldSignalMode As BmldModes
+                If LineColumns(c).Trim.Length > 0 Then
+                    BmldSignalMode = [Enum].Parse(GetType(BmldModes), LineColumns(c))
+                End If
                 c += 1
 
                 Dim Response As String = LineColumns(c)
@@ -1008,7 +1078,12 @@ Namespace SipTest
                 'Getting the SpeechMaterialComponent, media set and (re-)creates the test trial
                 Dim SpeechMaterialComponent = ParentTestSpecification.SpeechMaterial.GetComponentById(SpeechMaterialComponentID)
                 Dim MediaSet = ParentTestSpecification.MediaSets.GetMediaSet(MediaSetName)
-                Dim NewTestTrial As New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, SoundPropagationType, TargetLocations.ToArray, MaskerLocations.ToArray, BackgroundLocations.ToArray, Randomizer)
+                Dim NewTestTrial As SipTrial
+                If IsBmldTrial = False Then
+                    NewTestTrial = New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, SoundPropagationType, TargetLocations.ToArray, MaskerLocations.ToArray, BackgroundLocations.ToArray, Randomizer)
+                Else
+                    NewTestTrial = New SipTrial(LoadedTestUnits(ParentTestUnitIndex), SpeechMaterialComponent, MediaSet, SoundPropagationType, BmldSignalMode, BmldNoiseMode, Randomizer)
+                End If
 
                 'Stores the remaining test trial data
                 'NewTestTrial.PresentationOrder = PresentationOrder 'This is not stored as the export/import should always be ordered in the presentation order, as they are read from and stored into the ObservedTrials object!
