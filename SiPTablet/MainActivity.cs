@@ -15,6 +15,7 @@ using System.Threading;
 using Java.Util.Concurrent;
 using System.Text;
 using System.Xml;
+using Android.Graphics.Drawables;
 
 namespace SiPTablet
 {
@@ -119,7 +120,6 @@ namespace SiPTablet
             //button_response1.Typeface = Android.Graphics.Typeface.Create("Verdana", Android.Graphics.TypefaceStyle.Normal);
             //button_response2.Typeface = Android.Graphics.Typeface.Create("Verdana", Android.Graphics.TypefaceStyle.Normal);
 
-
             // Adding event handlers
             button_response1.Click += (sender, e) => ResponseButtonClicked(sender, e);
             button_response2.Click += (sender, e) => ResponseButtonClicked(sender, e);
@@ -133,13 +133,21 @@ namespace SiPTablet
 
             button_Start.Click += (sender, e) => StartButtonClicked(sender, e);
 
-
             // Going to a view
             //string[] testwords = { "hej", "haj", "hoj" };
             //ShowResponseAlternatives(testwords);
             //UpdateSipProgressBar(10, 40);
 
             currentLanguage = Languages.Swedish;
+
+            if (currentLanguage == Languages.Swedish)
+            {
+                button_Start.Text = "Starta testet";
+            }
+            else
+            {
+                button_Start.Text = "Start test";
+            }
 
             PrepareNewConnection();
 
@@ -160,23 +168,15 @@ namespace SiPTablet
             if (hasFocus)
             {
                 // The activity has gained focus and is visible to the user.
-                // You can now access the width of your app's content.
-
-                int buttonWidth = linearLayout_main.Width;
-
                 SetTextSizes();
-
-                //int width = FindViewById<View>(Resource.Id.yourViewId).Width; // Replace with your view's ID
-
-                // Now you can use 'width' as needed.
             }
         }
 
         public void SetTextSizes()
         {
             // Setting appropriate text size
-            int buttonWidth = linearLayout_main.Width;
-            int textSize = buttonWidth / 18;
+            int myWidth = linearLayout_main.Width;
+            int textSize = myWidth / 15;
             button_response1.TextSize = textSize;
             button_response2.TextSize = textSize;
             button_response3.TextSize = textSize;
@@ -185,6 +185,10 @@ namespace SiPTablet
             button_response1.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
             button_response2.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
             button_response3.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
+
+            // Setting appropriate text size
+            int startButtonTextSize = myWidth / 30;
+            button_Start.TextSize = startButtonTextSize;
 
         }
 
@@ -203,11 +207,6 @@ namespace SiPTablet
             var castButton = sender as Button;
             if (castButton != null)
             {
-
-                // Setting their color as well
-                button_response1.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
-                button_response2.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
-                button_response3.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
 
                 // This should send the response to the PC
                 SendBtMessage("TW|" + castButton.Text);
@@ -337,6 +336,25 @@ namespace SiPTablet
             button_response2.Text = responseAlternatives[1];
             button_response3.Text = responseAlternatives[2];
 
+            // Setting their color as well
+            //button_response1.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
+            //button_response2.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
+            //button_response3.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
+
+            // Create a shape drawable with rounded corners
+            GradientDrawable roundedDrawable = new GradientDrawable();
+            roundedDrawable.SetShape(ShapeType.Rectangle);
+            int myWidth = linearLayout_main.Width;
+            float cornerRaduis = myWidth / 45;
+            roundedDrawable.SetCornerRadius(cornerRaduis); // Adjust the corner radius as needed
+            roundedDrawable.SetColor(new Android.Graphics.Color(255, 255, 128)); // Background color of the button
+            //roundedDrawable.SetColor(Android.Graphics.Color.ParseColor("#FF4081")); // Background color of the button
+
+            // Set the custom drawable as the background of the button
+            button_response1.Background = roundedDrawable;
+            button_response2.Background = roundedDrawable;
+            button_response3.Background = roundedDrawable;
+
             // Making sure buttons are visible
             button_response1.Visibility = ViewStates.Visible;
             button_response2.Visibility = ViewStates.Visible;
@@ -359,9 +377,23 @@ namespace SiPTablet
 
         public void FlashResponseAlternatives()
         {
-            button_response1.SetBackgroundColor(Android.Graphics.Color.Red);
-            button_response2.SetBackgroundColor(Android.Graphics.Color.Red);
-            button_response3.SetBackgroundColor(Android.Graphics.Color.Red);
+
+            // Create a shape drawable with rounded corners
+            GradientDrawable roundedDrawable = new GradientDrawable();
+            roundedDrawable.SetShape(ShapeType.Rectangle);
+            int myWidth = linearLayout_main.Width;
+            float cornerRaduis = myWidth / 45;
+            roundedDrawable.SetCornerRadius(cornerRaduis); // Adjust the corner radius as needed
+            roundedDrawable.SetColor(Android.Graphics.Color.Red); // Background color of the button
+
+            // Set the custom drawable as the background of the button
+            button_response1.Background = roundedDrawable;
+            button_response2.Background = roundedDrawable;
+            button_response3.Background = roundedDrawable;
+
+            //button_response1.SetBackgroundColor(Android.Graphics.Color.Red);
+            //button_response2.SetBackgroundColor(Android.Graphics.Color.Red);
+            //button_response3.SetBackgroundColor(Android.Graphics.Color.Red);
         }
 
 
@@ -397,6 +429,11 @@ namespace SiPTablet
 
         public void ShowMessage(string message)
         {
+
+            // Setting appropriate text size
+            int myWidth = linearLayout_main.Width;
+            int textSize = myWidth / 40;
+            textView_Message.TextSize = textSize;
 
             textView_Message.Text = message;
 

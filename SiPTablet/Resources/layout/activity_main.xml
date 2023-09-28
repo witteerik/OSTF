@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/linearLayout_test"
-        android:visibility="gone"
+        android:visibility="visible"
         android:weightSum="9">
 
 <!--          linearLayout_start-->
@@ -137,30 +137,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/linearLayout_testWords"
-                android:visibility="gone"
-                android:weightSum="9">
+                android:visibility="visible"
+                android:weightSum="107">
 
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                    android:layout_weight="7"/>
 
                 <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="3"
-                    android:weightSum="9">
+                    android:layout_weight="43"
+                    android:weightSum="166">
 
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"/>
+                        android:layout_weight="10"/>
 
                     <Button
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="3"
+                        android:layout_weight="68"
                         android:text="Button 1"
                         android:textAllCaps="false"
                         android:fontFamily="Verdana"
@@ -169,12 +169,12 @@
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"/>
+                        android:layout_weight="10"/>
 
                     <Button
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="3"
+                        android:layout_weight="68"
                         android:text="Button 2"
                         android:textAllCaps="false"
                         android:fontFamily="Verdana"
@@ -183,33 +183,31 @@
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"/>
-
+                        android:layout_weight="10"/>
 
                 </LinearLayout>
 
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"/>
-
+                    android:layout_weight="7"/>
 
                 <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="3"
-                    android:weightSum="9">
+                    android:layout_weight="43"
+                    android:weightSum="166">
 
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="3"/>
+                        android:layout_weight="49"/>
 
                     <Button
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="3"
+                        android:layout_weight="68"
                         android:text="Button 3"
                         android:textAllCaps="false"
                         android:fontFamily="Verdana"
@@ -218,14 +216,14 @@
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="3"/>
+                        android:layout_weight="49"/>
 
                 </LinearLayout>
 
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                    android:layout_weight="7"/>
 
             </LinearLayout>
 
