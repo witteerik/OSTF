@@ -162,6 +162,8 @@
                         android:layout_height="match_parent"
                         android:layout_weight="3"
                         android:text="Button 1"
+                        android:textAllCaps="false"
+                        android:fontFamily="Verdana"
                         android:id="@+id/button_response1"/>
 
                     <Space
@@ -174,6 +176,8 @@
                         android:layout_height="match_parent"
                         android:layout_weight="3"
                         android:text="Button 2"
+                        android:textAllCaps="false"
+                        android:fontFamily="Verdana"
                         android:id="@+id/button_response2"/>
 
                     <Space
@@ -207,6 +211,8 @@
                         android:layout_height="match_parent"
                         android:layout_weight="3"
                         android:text="Button 3"
+                        android:textAllCaps="false"
+                        android:fontFamily="Verdana"
                         android:id="@+id/button_response3"/>
 
                     <Space

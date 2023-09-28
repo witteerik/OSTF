@@ -14,6 +14,7 @@ using Java.Lang;
 using System.Threading;
 using Java.Util.Concurrent;
 using System.Text;
+using System.Xml;
 
 namespace SiPTablet
 {
@@ -21,6 +22,8 @@ namespace SiPTablet
         ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape, Immersive = true)]
     public class MainActivity : AppCompatActivity
     {
+
+        LinearLayout linearLayout_main;
 
         LinearLayout linearLayout_menu;
         LinearLayout linearLayout_test;
@@ -65,7 +68,7 @@ namespace SiPTablet
             SetContentView(Resource.Layout.activity_main);
 
             // Referencing objects
-            LinearLayout linearLayout_main = FindViewById<LinearLayout>(Resource.Id.linearLayout_main);
+            linearLayout_main = FindViewById<LinearLayout>(Resource.Id.linearLayout_main);
             linearLayout_menu = FindViewById<LinearLayout>(Resource.Id.linearLayout_menu);
             linearLayout_test = FindViewById<LinearLayout>(Resource.Id.linearLayout_test);
             linearLayout_start = FindViewById<LinearLayout>(Resource.Id.linearLayout_start);
@@ -150,6 +153,42 @@ namespace SiPTablet
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
          }
 
+        public override void OnWindowFocusChanged(bool hasFocus)
+        {
+            base.OnWindowFocusChanged(hasFocus);
+
+            if (hasFocus)
+            {
+                // The activity has gained focus and is visible to the user.
+                // You can now access the width of your app's content.
+
+                int buttonWidth = linearLayout_main.Width;
+
+                SetTextSizes();
+
+                //int width = FindViewById<View>(Resource.Id.yourViewId).Width; // Replace with your view's ID
+
+                // Now you can use 'width' as needed.
+            }
+        }
+
+        public void SetTextSizes()
+        {
+            // Setting appropriate text size
+            int buttonWidth = linearLayout_main.Width;
+            int textSize = buttonWidth / 18;
+            button_response1.TextSize = textSize;
+            button_response2.TextSize = textSize;
+            button_response3.TextSize = textSize;
+
+            // Setting their color as well
+            button_response1.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
+            button_response2.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
+            button_response3.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
+
+        }
+
+
         private void StartButtonClicked(object sender, System.EventArgs e)
         {
 
@@ -165,10 +204,12 @@ namespace SiPTablet
             if (castButton != null)
             {
 
-                // This should send the response to the PC
-                // castButton.Text
-                castButton.SetTextColor(new Android.Graphics.Color(0, 0, 200));
+                // Setting their color as well
+                button_response1.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
+                button_response2.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
+                button_response3.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
 
+                // This should send the response to the PC
                 SendBtMessage("TW|" + castButton.Text);
 
                 if (object.ReferenceEquals(castButton, button_response1) == true)
@@ -290,6 +331,7 @@ namespace SiPTablet
 
         public void ShowResponseAlternatives(string[] responseAlternatives)
         {
+
             // Putting the response alternatives in the text in 
             button_response1.Text = responseAlternatives[0];
             button_response2.Text = responseAlternatives[1];
@@ -299,11 +341,6 @@ namespace SiPTablet
             button_response1.Visibility = ViewStates.Visible;
             button_response2.Visibility = ViewStates.Visible;
             button_response3.Visibility = ViewStates.Visible;
-
-            // Setting their color as well
-            button_response1.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
-            button_response2.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
-            button_response3.SetBackgroundColor(new Android.Graphics.Color(255, 255, 128));
 
             if (IsInTestView == false)
             {
