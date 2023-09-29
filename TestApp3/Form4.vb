@@ -575,9 +575,7 @@
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})
         MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30})
 
-        MyMixer.SetupDirectionalSimulator()
-
-        Dim OutputSound = MyMixer.CreateSoundScene(ItemList)
+        Dim OutputSound = MyMixer.CreateSoundScene(ItemList, SpeechTestFramework.OstfBase.SoundPropagationTypes.SimulatedSoundField)
 
         OutputSound.WriteWaveFile("C:\Temp\OutputSound_S7.wav")
 
@@ -2870,7 +2868,7 @@
 
     End Sub
 
-    Private Sub Button20_Click(sender As Object, e As EventArgs) Handles Button20.Click
+    Private Sub Button20_Click(sender As Object, e As EventArgs) 'Handles Button20.Click
 
         Dim InputSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSiPTest\Media\Unechoic-Talker1-RVE\TestWordRecordings\L02S03_blund\M_000_000_blund.wav")
         'InputSound.ZeroPad(2.0R, 2.0R)
@@ -2899,4 +2897,68 @@
 
 
     End Sub
+
+
+    Private Sub Button20B_Click(sender As Object, e As EventArgs) Handles Button20.Click
+
+        Dim Directions As New List(Of Integer)
+        For d As Integer = -180 To 150 Step 30
+            Directions.Add(d)
+        Next
+
+        Dim InputSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSiPTest\Media\Unechoic-Talker1-RVE\TestWordRecordings\L02S03_blund\M_000_000_blund.wav")
+        InputSound.WriteWaveFile("C:\Temp5\OriginalSound.wav")
+
+        Dim HpIR = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\Temp5\IR_Hårcellen_48000_HATS_AKGK271_best_L.wav")
+        'IR.ZeroPad(1.0R, 1.0R)
+
+        For Each Direction In Directions
+
+            Dim InputSound_L = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\Temp5\BuK_ECEbl_" & Direction & "_L.wav")
+            Dim InputSound_R = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\Temp5\BuK_ECEbl_" & Direction & "_R.wav")
+
+            Dim ConvSound_L1 = SpeechTestFramework.Audio.DSP.FIRFilter(InputSound, InputSound_L, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+            Dim ConvSound_R1 = SpeechTestFramework.Audio.DSP.FIRFilter(InputSound, InputSound_R, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+            Dim OutputSound1 = New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(
+                                                              ConvSound_L1.WaveFormat.SampleRate, ConvSound_L1.WaveFormat.BitDepth, 2))
+            OutputSound1.WaveData.SampleData(1) = ConvSound_L1.WaveData.SampleData(1)
+            OutputSound1.WaveData.SampleData(2) = ConvSound_R1.WaveData.SampleData(1)
+            OutputSound1.WriteWaveFile("C:\Temp5\UncorrectedSound_" & Direction & ".wav")
+
+            InputSound_L.ZeroPad(1.0R, 1.0R)
+            InputSound_R.ZeroPad(1.0R, 1.0R)
+
+            'InputSound_L.RemoveUnparsedWaveChunks()
+            'InputSound_R.RemoveUnparsedWaveChunks()
+
+            'InputSound_L.WriteWaveFile("C:\Temp5\OrigSound_L.wav")
+            'InputSound_R.WriteWaveFile("C:\Temp5\OrigSound_R.wav")
+
+            Dim DeConvSound_L = SpeechTestFramework.Audio.DSP.Deconvolution(InputSound_L, HpIR,,, 100, 22000, True)
+            Dim DeConvSound_R = SpeechTestFramework.Audio.DSP.Deconvolution(InputSound_R, HpIR,,, 100, 22000, True)
+
+            SpeechTestFramework.Audio.DSP.CropSection(DeConvSound_L, 0.9 * DeConvSound_L.WaveFormat.SampleRate, 1 * DeConvSound_L.WaveFormat.SampleRate)
+            SpeechTestFramework.Audio.DSP.CropSection(DeConvSound_R, 0.9 * DeConvSound_R.WaveFormat.SampleRate, 1 * DeConvSound_L.WaveFormat.SampleRate)
+
+            SpeechTestFramework.Audio.DSP.Fade(DeConvSound_L, Nothing, 0,,, 100)
+            SpeechTestFramework.Audio.DSP.Fade(DeConvSound_R, Nothing, 0,,, 100)
+
+            DeConvSound_L.WriteWaveFile("C:\Temp5\AKGK271\BuK_ECEbl_" & Direction & "_L_AKG.wav")
+            DeConvSound_R.WriteWaveFile("C:\Temp5\AKGK271\BuK_ECEbl_" & Direction & "_R_AKG.wav")
+
+
+            Dim ConvSound_L2 = SpeechTestFramework.Audio.DSP.FIRFilter(InputSound, DeConvSound_L, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+            Dim ConvSound_R2 = SpeechTestFramework.Audio.DSP.FIRFilter(InputSound, DeConvSound_R, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+
+            Dim OutputSound2 = New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(
+                                                              ConvSound_L2.WaveFormat.SampleRate, ConvSound_L2.WaveFormat.BitDepth, 2))
+            OutputSound2.WaveData.SampleData(1) = ConvSound_L2.WaveData.SampleData(1)
+            OutputSound2.WaveData.SampleData(2) = ConvSound_R2.WaveData.SampleData(1)
+            OutputSound2.WriteWaveFile("C:\Temp5\CorrectedSound_" & Direction & ".wav")
+
+        Next
+
+
+    End Sub
+
 End Class
