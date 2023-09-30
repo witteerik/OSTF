@@ -1,0 +1,202 @@
+Id	Spelling	Transcription	IsKeyComponent
+C	C	C	N
+L00S00W00	Budskap	 b ² ʉː d . s k ˌ ɑː p 	0
+L00S01W00	Dansgolv	 d ² a nː s . ɡ ˌ ɔ lː v 	0
+L00S02W00	Enhet	 ² eː n . h ˌ eː t 	0
+L00S03W00	Fästman	 f ² ɛ̝ sː t . m ˌ a nː 	0
+L00S04W00	Handduk	 h ² a nː . d ˌ ʉː k 	0
+L00S05W00	Heldag	 h ² eː l . d ˌ ɑː ɡ 	0
+L00S06W00	Hjälpsam	 ʝ ² ɛ̝ lː p . s ˌ a mː 	0
+L00S07W00	Husdjur	 h ² ʉː s . ʝ ˌ ʉː r 	0
+L00S08W00	Inkomst	 ² ɪ ŋː . k ˌ ɔ mː s t 	0
+L00S09W00	Inlagd	 ² ɪ nː . l ˌ a ɡː d 	0
+L00S10W00	Jordbruk	 ʝ ² uː ɖ . b r ˌ ʉː k 	0
+L00S11W00	Kraftfull	 k r ² a fː t . f ˌ ɵ lː 	0
+L00S12W00	Lekfull	 l ² eː k . f ˌ ɵ lː 	0
+L00S13W00	Lätthet	 l ² ɛ̝ tː . h ˌ eː t 	0
+L00S14W00	Matsal	 m ² ɑː t . s ˌ ɑː l 	0
+L00S15W00	Skoltid	 s k ² uː l . t ˌ iː d 	0
+L00S16W00	Soffbord	 s ² ɔ fː . b ˌ uː ɖ 	0
+L00S17W00	Sovrum	 s ² oː v . r ˌ ɵ mː 	0
+L00S18W00	Tillgång	 t ² ɪ lː . ɡ ˌ ɔ ŋː 	0
+L00S19W00	Tilltro	 t ² ɪ lː . t r ˌ uː 	0
+L00S20W00	Trådlös	 t r ² oː d . l ˌ øː s 	0
+L00S21W00	Tänkbar	 t ² ɛ̝ ŋː k . b ˌ ɑː r 	0
+L00S22W00	Uppnå	 ² ɵ pː . n ˌ oː 	0
+L00S23W00	Utgång	 ² ʉː t . ɡ ˌ ɔ ŋː 	0
+L00S24W00	Verktyg	 v ² ɛ̝ rː k . t ˌ yː ɡ 	0
+L01S00W00	Barnvakt	 b ² ɑː ɳ . v ˌ a kː t 	0
+L01S01W00	Slutsålt	 s l ² ʉː t . s ˌ ɔ lː t 	0
+L01S02W00	Godkänd	 ɡ ² uː d . ɕ ˌ ɛ̝ nː d 	0
+L01S03W00	Högljudd	 h ² øː ɡ . ʝ ˌ ɵ dː 	0
+L01S04W00	Farbror	 f ² a rː . b r ˌ ʊ rː 	0
+L01S05W00	Avsnitt	 ² ɑː v . s n ˌ ɪ tː 	0
+L01S06W00	Landsväg	 l ² a nː d s . v ˌ ɛː ɡ 	0
+L01S07W00	Kylskåp	 ɕ ² yː l . s k ˌ oː p 	0
+L01S08W00	Uttryck	 ² ʉː . t r ˌ ʏ kː 	0
+L01S09W00	Parkbänk	 p ² a rː k . b ˌ ɛ̝ ŋː k 	0
+L01S10W00	Inhopp	 ² ɪ nː . h ˌ ɔ pː 	0
+L01S11W00	Tupplur	 t ² ɵ pː . l ˌ ʉː r 	0
+L01S12W00	Blodtryck	 b l ² uː d . t r ˌ ʏ kː 	0
+L01S13W00	Spädbarn	 s p ² ɛː d . b ˌ ɑː ɳ 	0
+L01S14W00	Körkort	 ɕ ² øː r . k ˌ ʊ ʈː 	0
+L01S15W00	Bidrag	 b ² iː . d r ˌ ɑː ɡ 	0
+L01S16W00	Örngott	 ² øː ɳ . ɡ ˌ ɔ tː 	0
+L01S17W00	Domstol	 d ² ʊ mː . s t ˌ uː l 	0
+L01S18W00	Glasburk	 ɡ l ² ɑː s . b ˌ ɵ rː k 	0
+L01S19W00	Tillsätt	 t ² ɪ lː . s ˌ ɛ̝ tː 	0
+L01S20W00	Kortspel	 k ² ʊ ʈː . ʂ p ˌ eː l 	0
+L01S21W00	Fästmö	 f ² ɛ̝ sː t . m ˌ øː 	0
+L01S22W00	Avslut	 ² ɑː v . s l ˌ ʉː t 	0
+L01S23W00	Närhet	 n ² ɛː r . h ˌ eː t 	0
+L01S24W00	Motvind	 m ² uː t . v ˌ ɪ nː d 	0
+L02S00W00	Livsstil	 l ² ɪ fː . s t ˌ iː l 	0
+L02S01W00	Avtal	 ² ɑː v . t ˌ ɑː l 	0
+L02S02W00	Barnbok	 b ² ɑː ɳ . b ˌ uː k 	0
+L02S03W00	Husbil	 h ² ʉː s . b ˌ iː l 	0
+L02S04W00	Jämlikt	 ʝ ² ɛ̝ mː . l ˌ iː k t 	0
+L02S05W00	Förnamn	 f ² øː . ɳ ˌ a mː n 	0
+L02S06W00	Nedstämd	 n ² eː d . s t ˌ ɛ̝ mː d 	0
+L02S07W00	Utskott	 ² ʉː t . s k ˌ ɔ tː 	0
+L02S08W00	Midnatt	 m ² iː d . n ˌ a tː 	0
+L02S09W00	Inställd	 ² ɪ nː . s t ˌ ɛ̝ lː d 	0
+L02S10W00	Landslag	 l ² a nː d s . l ˌ ɑː ɡ 	0
+L02S11W00	Upprörd	 ² ɵ pː . r ˌ øː ɖ 	0
+L02S12W00	Spannmål	 s p ² a nː . m ˌ oː l 	0
+L02S13W00	Brännboll	 b r ² ɛ̝ mː . b ˌ ɔ lː 	0
+L02S14W00	Lärdom	 l ² ɛː . ɖ ˌ ʊ mː 	0
+L02S15W00	Smakråd	 s m ² ɑː k . r ˌ oː d 	0
+L02S16W00	Upptåg	 ² ɵ pː . t ˌ oː ɡ 	0
+L02S17W00	Klassrum	 k l ² a sː . r ˌ ɵ mː 	0
+L02S18W00	Fritid	 f r ² iː . t ˌ iː d 	0
+L02S19W00	Delvis	 d ² eː l . v ˌ iː s 	0
+L02S20W00	Halvår	 h ² a lː v . ˌ oː r 	0
+L02S21W00	Dumhet	 d ² ɵ mː . h ˌ eː t 	0
+L02S22W00	Framgång	 f r ² a mː . ɡ ˌ ɔ ŋː 	0
+L02S23W00	Badhus	 b ² ɑː d . h ˌ ʉː s 	0
+L02S24W00	Tunnbröd	 t ² ɵ mː . b r ˌ øː d 	0
+L03S00W00	Delge	 d ² eː l . ʝ ˌ eː 	0
+L03S01W00	Hjärtslag	 ʝ ² ɛ̝ ʈː . ʂ ɭ ˌ ɑː ɡ 	0
+L03S02W00	Villkor	 v ² ɪ lː . k ˌ oː r 	0
+L03S03W00	Utsatt	 ² ʉː t . s ˌ a tː 	0
+L03S04W00	Årstid	 ² oː ʂ . ʈ ˌ iː d 	0
+L03S05W00	Livrädd	 l ² iː v . r ˌ ɛ̝ dː 	0
+L03S06W00	Kunskap	 k ² ɵ nː . s k ˌ ɑː p 	0
+L03S07W00	Livslängd	 l ² ɪ fː s . l ˌ ɛ̝ ŋː d 	0
+L03S08W00	Klockrent	 k l ² ɔ kː . r ˌ eː n t 	0
+L03S09W00	Noggrann	 n ² uː . ɡ r ˌ a nː 	0
+L03S10W00	Grundlag	 ɡ r ² ɵ nː d . l ˌ ɑː ɡ 	0
+L03S11W00	Läppstift	 l ² ɛ̝ pː . s t ˌ ɪ fː t 	0
+L03S12W00	Flickvän	 f l ² ɪ kː . v ˌ ɛ̝ nː 	0
+L03S13W00	Maträtt	 m ² ɑː t . r ˌ ɛ̝ tː 	0
+L03S14W00	Skönhet	 ɧ ² øː n . h ˌ eː t 	0
+L03S15W00	Tidskrift	 t ² iː d . s k r ˌ ɪ fː t 	0
+L03S16W00	Avbröt	 ² ɑː v . b r ˌ øː t 	0
+L03S17W00	Kundvagn	 k ² ɵ nː d . v ˌ a ŋː n 	0
+L03S18W00	Avfall	 ² ɑː v . f ˌ a lː 	0
+L03S19W00	Småkryp	 s m ² oː . k r ˌ yː p 	0
+L03S20W00	Anställd	 ² a nː . s t ˌ ɛ̝ lː d 	0
+L03S21W00	Använt	 ² a ɱː . v ˌ ɛ̝ nː t 	0
+L03S22W00	Hemlös	 h ² ɛ̝ mː . l ˌ øː s 	0
+L03S23W00	Uppklädd	 ² ɵ pː . k l ˌ ɛ̝ dː 	0
+L03S24W00	Tandsten	 t ² a nː d . s t ˌ eː n 	0
+L04S00W00	Massvis	 m ² a sː . v ˌ iː s 	0
+L04S01W00	Stadsdel	 s t ² a tː s . d ˌ eː l 	0
+L04S02W00	Sparsam	 s p ² ɑː . ʂ ˌ a mː 	0
+L04S03W00	Trötthet	 t r ² ø̞ tː . h ˌ eː t 	0
+L04S04W00	Rödlök	 r ² øː d . l ˌ øː k 	0
+L04S05W00	Visdom	 v ² iː s . d ˌ ʊ mː 	0
+L04S06W00	Regnskog	 r ² ɛ̝ ŋː n . s k ˌ uː ɡ 	0
+L04S07W00	Vitlök	 v ² iː t . l ˌ øː k 	0
+L04S08W00	Storstad	 s t ² uː . ʂ ʈ ˌ ɑː d 	0
+L04S09W00	Intryck	 ² ɪ nː . t r ˌ ʏ kː 	0
+L04S10W00	Lättläst	 l ² ɛ̝ tː . l ˌ ɛː s t 	0
+L04S11W00	Kokbok	 k ² uː k . b ˌ uː k 	0
+L04S12W00	Rundtur	 r ² ɵ nː d . t ˌ ʉː r 	0
+L04S13W00	Bakverk	 b ² ɑː k . v ˌ ɛ̝ rː k 	0
+L04S14W00	Skrivbord	 s k r ² iː v . b ˌ uː ɖ 	0
+L04S15W00	Storhet	 s t ² uː r . h ˌ eː t 	0
+L04S16W00	Motstånd	 m ² uː t . s t ˌ ɔ nː d 	0
+L04S17W00	Frihet	 f r ² iː . h ˌ eː t 	0
+L04S18W00	Badrum	 b ² ɑː d . r ˌ ɵ mː 	0
+L04S19W00	Framtid	 f r ² a mː . t ˌ iː d 	0
+L04S20W00	Ljusblå	 ʝ ² ʉː s . b l ˌ oː 	0
+L04S21W00	Vykort	 v ² yː . k ˌ ʊ ʈː 	0
+L04S22W00	Plånbok	 p l ² oː m . b ˌ uː k 	0
+L04S23W00	Vänskap	 v ² ɛ̝ nː . s k ˌ ɑː p 	0
+L04S24W00	Blomkål	 b l ² ʊ mː . k ˌ oː l 	0
+L05S00W00	Misstag	 m ² ɪ sː . t ˌ ɑː ɡ 	0
+L05S01W00	Istid	 ² iː s . t ˌ iː d 	0
+L05S02W00	Märkbart	 m ² ɛ̝ rː k . b ˌ ɑː ʈ 	0
+L05S03W00	Verksam	 v ² ɛ̝ rː k . s ˌ a mː 	0
+L05S04W00	Fördel	 f ² øː . ɖ ˌ eː l 	0
+L05S05W00	Tandvård	 t ² a nː d . v ˌ oː ɖ 	0
+L05S06W00	Kundtjänst	 k ² ɵ nː d . ɕ ˌ ɛ̝ nː s t 	0
+L05S07W00	Myggbett	 m ² ʏ ɡː . b ˌ ɛ̝ tː 	0
+L05S08W00	Skoskav	 s k ² uː . s k ˌ ɑː v 	0
+L05S09W00	Skonsam	 s k ² uː n . s ˌ a mː 	0
+L05S10W00	Världsbild	 v ² ɛː ɖ ʂ . b ˌ ɪ lː d 	0
+L05S11W00	Inköp	 ² ɪ nː . ɕ ˌ øː p 	0
+L05S12W00	Långsam	 l ² ɔ ŋː . s ˌ a mː 	0
+L05S13W00	Tacksam	 t ² a kː . s ˌ a mː 	0
+L05S14W00	Nyfödd	 n ² yː . f ˌ ø̞ dː 	0
+L05S15W00	Utflykt	 ² ʉː t . f l ˌ ʏ kː t 	0
+L05S16W00	Välkänd	 v ² ɛː l . ɕ ˌ ɛ̝ nː d 	0
+L05S17W00	Farmor	 f ² a rː . m ˌ ʊ rː 	0
+L05S18W00	Fördom	 f ² øː . ɖ ˌ ʊ mː 	0
+L05S19W00	Uppdrag	 ² ɵ pː . d r ˌ ɑː ɡ 	0
+L05S20W00	Uppväxt	 ² ɵ pː . v ˌ ɛ̝ kː s t 	0
+L05S21W00	Hållbar	 h ² ɔ lː . b ˌ ɑː r 	0
+L05S22W00	Avsedd	 ² ɑː v . s ˌ ɛ̝ dː 	0
+L05S23W00	Talman	 t ² ɑː l . m ˌ a nː 	0
+L05S24W00	Dagbok	 d ² ɑː ɡ . b ˌ uː k 	0
+L06S00W00	Baktill	 b ² ɑː k . t ˌ ɪ lː 	0
+L06S01W00	Halsduk	 h ² a lː s . d ˌ ʉː k 	0
+L06S02W00	Sängbord	 s ² ɛ̝ ŋː . b ˌ uː ɖ 	0
+L06S03W00	Valfritt	 v ² ɑː l . f r ˌ ɪ tː 	0
+L06S04W00	Uppstår	 ² ɵ pː . s t ˌ oː r 	0
+L06S05W00	Nyhet	 n ² yː . h ˌ eː t 	0
+L06S06W00	Lekpark	 l ² eː k . p ˌ a rː k 	0
+L06S07W00	Oklar	 ² uː . k l ˌ ɑː r 	0
+L06S08W00	Grannland	 ɡ r ² a nː . l ˌ a nː d 	0
+L06S09W00	Julklapp	 ʝ ² ʉː l . k l ˌ a pː 	0
+L06S10W00	Sårbar	 s ² oː r . b ˌ ɑː r 	0
+L06S11W00	Framstå	 f r ² a mː . s t ˌ oː 	0
+L06S12W00	Dansband	 d ² a nː s . b ˌ a nː d 	0
+L06S13W00	Frispark	 f r ² iː . s p ˌ a rː k 	0
+L06S14W00	Avgjort	 ² ɑː v . ʝ ˌ ʊ ʈː 	0
+L06S15W00	Tidlös	 t ² iː d . l ˌ øː s 	0
+L06S16W00	Uppsikt	 ² ɵ pː . s ˌ ɪ kː t 	0
+L06S17W00	Fotspår	 f ² uː t . s p ˌ oː r 	0
+L06S18W00	Önskvärt	 ² ø̞ nː s k . v ˌ ɛː ʈ 	0
+L06S19W00	Djurpark	 ʝ ² ʉː r . p ˌ a rː k 	0
+L06S20W00	Hänsyn	 h ² ɛː n . s ˌ yː n 	0
+L06S21W00	Filmjölk	 f ² iː l . m ʝ ˌ ø̞ lː k 	0
+L06S22W00	Rumsvarmt	 r ² ɵ mː s . v ˌ a rː m t 	0
+L06S23W00	Flygplan	 f l ² yː ɡ . p l ˌ ɑː n 	0
+L06S24W00	Tandkräm	 t ² a nː d . k r ˌ ɛː m 	0
+L07S00W00	Armband	 ² a rː m . b ˌ a nː d 	0
+L07S01W00	Revben	 r ² eː v . b ˌ eː n 	0
+L07S02W00	Lastbil	 l ² a sː t . b ˌ iː l 	0
+L07S03W00	Blodprov	 b l ² uː d . p r ˌ uː v 	0
+L07S04W00	Brandman	 b r ² a nː d . m ˌ a nː 	0
+L07S05W00	Trappsteg	 t r ² a pː . s t ˌ eː ɡ 	0
+L07S06W00	Bondgård	 b ² ʊ nː d . ɡ ˌ oː ɖ 	0
+L07S07W00	Grönsak	 ɡ r ² øː n . s ˌ ɑː k 	0
+L07S08W00	Tveksam	 t v ² eː k . s ˌ a mː 	0
+L07S09W00	Snabbmat	 s n ² a bː . m ˌ ɑː t 	0
+L07S10W00	Målvakt	 m ² oː l . v ˌ a kː t 	0
+L07S11W00	Uppgav	 ² ɵ pː . ɡ ˌ ɑː v 	0
+L07S12W00	Trygghet	 t r ² ʏ ɡː . h ˌ eː t 	0
+L07S13W00	Inslag	 ² ɪ nː . s l ˌ ɑː ɡ 	0
+L07S14W00	Leksak	 l ² eː k . s ˌ ɑː k 	0
+L07S15W00	Pålägg	 p ² oː . l ˌ ɛ̝ ɡː 	0
+L07S16W00	Bostad	 b ² uː . s t ˌ ɑː d 	0
+L07S17W00	Radhus	 r ² ɑː d . h ˌ ʉː s 	0
+L07S18W00	Ungdom	 ² ɵ ŋː . d ˌ ʊ mː 	0
+L07S19W00	Insats	 ² ɪ nː . s ˌ a tː s 	0
+L07S20W00	Nätverk	 n ² ɛː t . v ˌ ɛ̝ rː k 	0
+L07S21W00	Bröstkorg	 b r ² ø̞ sː t . k ˌ ɔ rː ʝ 	0
+L07S22W00	Måltid	 m ² oː l . t ˌ iː d 	0
+L07S23W00	Gudfar	 ɡ ² ʉː d . f ˌ ɑː r 	0
+L07S24W00	Otur	 ² uː . t ˌ ʉː r 	0
