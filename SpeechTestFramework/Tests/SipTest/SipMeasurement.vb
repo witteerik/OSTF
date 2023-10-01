@@ -1819,7 +1819,7 @@ Namespace SipTest
                 'Adds the test word signal, with fade and location specifications
                 Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
                 For TargetIndex = 0 To Targets.Count - 1
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Targets(TargetIndex).Item1, 1, Me.TestWordLevel, LevelGroup, Targets(TargetIndex).Item2, TestWordStartSample,,,, FadeSpecs_TestWord))
+                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Targets(TargetIndex).Item1, 1, Me.TestWordLevel, LevelGroup, Targets(TargetIndex).Item2, Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Target, TestWordStartSample,,,, FadeSpecs_TestWord))
                     'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
                     If IsBmldTrial = True And TargetIndex < Targets.Count - 1 Then LevelGroup += 1
                 Next
@@ -1827,7 +1827,7 @@ Namespace SipTest
 
                 'Adds the Maskers, with fade and location specifications
                 For MaskerIndex = 0 To Maskers.Count - 1
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Maskers(MaskerIndex).Item1, 1, Me.TargetMasking_SPL, LevelGroup, Maskers(MaskerIndex).Item2, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Maskers(MaskerIndex).Item1, 1, Me.TargetMasking_SPL, LevelGroup, Maskers(MaskerIndex).Item2, Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Masker, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
                     'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
                     If IsBmldTrial = True And MaskerIndex < Maskers.Count - 1 Then LevelGroup += 1
                 Next
@@ -1835,7 +1835,7 @@ Namespace SipTest
 
                 'Adds the background (non-speech) signals, with fade, duck and location specifications
                 For BackgroundIndex = 0 To Backgrounds.Count - 1
-                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Backgrounds(BackgroundIndex).Item1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, Backgrounds(BackgroundIndex).Item2, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
+                    ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Backgrounds(BackgroundIndex).Item1, 1, Me.MediaSet.BackgroundNonspeechRealisticLevel, LevelGroup, Backgrounds(BackgroundIndex).Item2, Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundNonSpeech))
                     'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
                     If IsBmldTrial = True And BackgroundIndex < Backgrounds.Count - 1 Then LevelGroup += 1
                 Next
@@ -1845,7 +1845,7 @@ Namespace SipTest
                 If UseBackgroundSpeech = True Then
                     For TargetIndex = 0 To BackgroundSpeechSelections.Count - 1
                         'TODO: Here LevelGroup needs to be incremented if ears are measured separately as in BMLD! Possibly also on other similar places, as with the noise...
-                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelections(TargetIndex).Item1, 1, Me.ContextRegionSpeech_SPL, LevelGroup, BackgroundSpeechSelections(TargetIndex).Item2, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
+                        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(BackgroundSpeechSelections(TargetIndex).Item1, 1, Me.ContextRegionSpeech_SPL, LevelGroup, BackgroundSpeechSelections(TargetIndex).Item2, Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
                         'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
                         If IsBmldTrial = True And TargetIndex < BackgroundSpeechSelections.Count - 1 Then LevelGroup += 1
                     Next
@@ -1857,8 +1857,57 @@ Namespace SipTest
                 If LogToConsole = True Then Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
                 MixStopWatch.Restart()
 
-                'Creating the mix by calling CreateSoundScene of the current Mixer
-                Dim MixedTestTrialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, Me.SoundPropagationType)
+                Dim MixedTestTrialSound As Audio.Sound
+                Dim TrialSoundOutputFolder As String = IO.Path.Combine(Utils.logFilePath, "TrialSounds")
+
+                Dim ExportSoundFiles As Boolean = True
+                If ExportSoundFiles = False Then
+
+                    'Creating the mix by calling CreateSoundScene of the current Mixer
+                    MixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, Me.SoundPropagationType)
+
+                Else
+
+                    'Increasing the SuperGeneralCounter (TODO: to be removed, since it is too general!), temporarily keeping track of trial mixing order
+                    Utils.SuperGeneralCounter += 1
+
+                    'Creating the mix directly by calling CreateSoundScene of the current Mixer and exporting the sound for comparison with the separately exported sounds below
+                    Dim DoubleCheck As Boolean = False
+                    If DoubleCheck = True Then
+                        Dim TempMixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, Me.SoundPropagationType)
+                        TempMixedTestTrialSound.WriteWaveFile(IO.Path.Combine(TrialSoundOutputFolder, "Trial_" & Utils.SuperGeneralCounter & "_OrignialMix.wav"))
+                    End If
+
+                    'Creating separate sound files for target, maskers, and the final mix
+                    Dim TargetsItems As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+                    Dim NontargetsItems As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+                    For Each Item In ItemList
+                        If Item.Role = Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Target Then
+                            'Collecting the target/s
+                            TargetsItems.Add(Item)
+                        Else
+                            'Collecting the non targets
+                            NontargetsItems.Add(Item)
+                        End If
+                    Next
+
+                    'Creating the target mix by calling CreateSoundScene of the current Mixer
+                    Dim TargetSound = SelectedTransducer.Mixer.CreateSoundScene(TargetsItems, Me.SoundPropagationType)
+
+                    'Creating the non-target mix by calling CreateSoundScene of the current Mixer
+                    Dim NontargetSound = SelectedTransducer.Mixer.CreateSoundScene(NontargetsItems, Me.SoundPropagationType)
+
+                    'Creating the combined mix
+                    MixedTestTrialSound = Audio.DSP.SuperpositionSounds({TargetSound, NontargetSound}.ToList)
+
+                    'Saving the sound files
+                    TargetSound.WriteWaveFile(IO.Path.Combine(TrialSoundOutputFolder, "Trial_" & Utils.SuperGeneralCounter & "_Target.wav"))
+                    NontargetSound.WriteWaveFile(IO.Path.Combine(TrialSoundOutputFolder, "Trial_" & Utils.SuperGeneralCounter & "_Nontargets.wav"))
+                    MixedTestTrialSound.WriteWaveFile(IO.Path.Combine(TrialSoundOutputFolder, "Trial_" & Utils.SuperGeneralCounter & "_Mix.wav"))
+
+                End If
+
+
 
                 If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 

@@ -157,6 +157,18 @@ Namespace Audio
                 ''' </summary>
                 Public LevelGroup As Integer
 
+                Public Enum SoundSceneItemRoles
+                    Target
+                    Masker
+                    BackgroundNonspeech
+                    BackgroundSpeech
+                End Enum
+
+                ''' <summary>
+                ''' Can be used to denote the role of the SoundSceneItem.
+                ''' </summary>
+                Public Role As SoundSceneItemRoles
+
                 Public LevelDefStartSample As Integer?
                 Public LevelDefLength As Integer?
 
@@ -177,6 +189,7 @@ Namespace Audio
                 Public Sub New(ByRef Sound As Audio.Sound, ByVal ReadChannel As Integer,
                                ByVal SoundLevel As Double, ByVal LevelGroup As Integer,
                                ByRef SourceLocation As SoundSourceLocation,
+                               ByVal Role As SoundSceneItemRoles,
                                Optional ByVal InsertSample As Integer = 0,
                                Optional ByVal LevelDefStartSample As Integer? = Nothing, Optional ByVal LevelDefLength As Integer? = Nothing,
                                Optional ByRef SoundLevelFormat As Audio.Formats.SoundLevelFormat = Nothing,
@@ -188,6 +201,7 @@ Namespace Audio
                     Me.SoundLevel = SoundLevel
                     Me.LevelGroup = LevelGroup
                     Me.SourceLocation = SourceLocation
+                    Me.Role = Role
 
                     Me.InsertSample = InsertSample
 
@@ -247,7 +261,7 @@ Namespace Audio
                     For Each Item In Input
                         'Creates a new NewSoundSceneItem 
                         Dim NewSoundSceneItem = New SoundSceneItem(Item.Sound.CopyChannelToMonoSound(Item.ReadChannel), 1, Item.SoundLevel, Item.LevelGroup,
-                                                                Item.SourceLocation,
+                                                                Item.SourceLocation, Item.Role,
                                                                 Item.InsertSample, Item.LevelDefStartSample, Item.LevelDefLength,
                                                                Item.SoundLevelFormat, Item.FadeSpecifications, Item.DuckingSpecifications)
                         'Adds the NewSoundSceneItem 
@@ -296,7 +310,7 @@ Namespace Audio
                             'TODO Equalize level before superpositioning?
 
                             'Adds the measurement sounds into MasterMeasurementSound 
-                            MasterMeasurementSound = Audio.DSP.SuperpositionSounds(GroupMemberMeasurementSounds)
+                            MasterMeasurementSound = Audio.DSP.SuperpositionEqualLengthSounds(GroupMemberMeasurementSounds)
                         Else
                             Throw New ArgumentException("Missing sound in SoundSceneItem.")
                         End If

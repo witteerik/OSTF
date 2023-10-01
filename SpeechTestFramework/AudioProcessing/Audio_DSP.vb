@@ -1265,7 +1265,7 @@ Namespace Audio
             ''' </summary>
             ''' <param name="InputSounds"></param>
             ''' <returns></returns>
-            Public Function SuperpositionSounds(ByRef InputSounds As List(Of Sound)) As Sound
+            Public Function SuperpositionEqualLengthSounds(ByRef InputSounds As List(Of Sound)) As Sound
 
                 If InputSounds.Count = 0 Then Return Nothing
 
@@ -1276,19 +1276,21 @@ Namespace Audio
 
                 Dim OutputSound As New Sound(WaveFormat)
 
+                'Checking length equality of each channel, compared to channel 1 of the first sound
+                Dim ChannelLength As Integer = InputSounds(0).WaveData.SampleData(1).Length
+                For i = 0 To InputSounds.Count - 1
+                    For c = 1 To InputSounds(i).WaveFormat.Channels
+                        If InputSounds(i).WaveData.SampleData(c).Length <> ChannelLength Then Throw New ArgumentException("All sounds need to have the same sample array lengths (in corresponding channels)!")
+                    Next
+                Next
+
                 For Channel = 1 To WaveFormat.Channels
 
-                    'Checking length equality of each channel
-                    Dim ChannelLength As Integer = InputSounds(0).WaveData.SampleData(Channel).Length
-                    For i = 1 To InputSounds.Count - 1
-                        If InputSounds(i).WaveData.SampleData(Channel).Length <> ChannelLength Then Throw New ArgumentException("All sounds need to have the same sample array lengths (in corresponding channels)!")
-                    Next
-
                     Dim NewChannelArray(ChannelLength - 1) As Single
-                    'Copies the first channel
+                    'Copies the first sound
                     Array.Copy(InputSounds(0).WaveData.SampleData(Channel), NewChannelArray, NewChannelArray.Length)
 
-                    'Superpositions the remaining channels
+                    'Superpositions the remaining sounds
                     For i = 1 To InputSounds.Count - 1
                         Dim CurrentChannelArray = InputSounds(i).WaveData.SampleData(Channel)
                         For s = 0 To ChannelLength - 1
@@ -1303,6 +1305,62 @@ Namespace Audio
                 Return OutputSound
 
             End Function
+
+            ''' <summary>
+            ''' Superpositions the input sounds to a new sound. The wave format (including channel count) are required to be the same in all input sounds. The lengths of the different channels, however, need not be the same.
+            ''' </summary>
+            ''' <param name="InputSounds"></param>
+            ''' <returns></returns>
+            Public Function SuperpositionSounds(ByRef InputSounds As List(Of Sound)) As Sound
+
+                If InputSounds.Count = 0 Then Return Nothing
+
+                Dim WaveFormat = InputSounds(0).WaveFormat
+                For i = 1 To InputSounds.Count - 1
+                    If WaveFormat.IsEqual(InputSounds(i).WaveFormat) = False Then Throw New ArgumentException("All wave formats need to be the same!")
+                Next
+
+                Dim OutputSound As New Sound(WaveFormat)
+
+                For c = 1 To WaveFormat.Channels
+
+                    'Getting the sound index and channel length of the longest channel c in all sounds
+                    Dim LongestChannelLength As Integer = 0
+                    Dim LongestSoundIndex As Integer = 0
+                    For i = 0 To InputSounds.Count - 1
+                        If InputSounds(i).WaveData.SampleData(c).Length > LongestChannelLength Then
+                            LongestChannelLength = InputSounds(i).WaveData.SampleData(c).Length
+                            LongestSoundIndex = i
+                        End If
+                    Next
+
+                    'Creates an array in which to store the superpositioned sound
+                    Dim NewChannelArray(LongestChannelLength - 1) As Single
+                    'Copies the longest channel 
+                    Array.Copy(InputSounds(LongestSoundIndex).WaveData.SampleData(c), NewChannelArray, NewChannelArray.Length)
+
+                    'Superpositions all sounds but the longest (which is already added)
+                    For i = 0 To InputSounds.Count - 1
+
+                        'Skipping the longest sound
+                        If i = LongestSoundIndex Then Continue For
+
+                        'Referencing the current channel array
+                        Dim CurrentChannelArray = InputSounds(i).WaveData.SampleData(c)
+                        'Superpositioning sample values until the end of the current channel  in the current sound
+                        For s = 0 To CurrentChannelArray.Length - 1
+                            NewChannelArray(s) += CurrentChannelArray(s)
+                        Next
+                    Next
+
+                    OutputSound.WaveData.SampleData(c) = NewChannelArray
+
+                Next
+
+                Return OutputSound
+
+            End Function
+
 
             ''' <summary>
             ''' Sets the sound level of the indicated section of the indicated sound to a target level.
