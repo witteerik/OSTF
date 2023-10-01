@@ -4,6 +4,8 @@
 'We have To fix the randomizers In the SIPtest. There are randomizers at several levels!
 
 
+'Imports MathNet.Numerics
+
 Namespace SipTest
 
     'N.B. Variable name abbreviations used:
@@ -52,6 +54,11 @@ Namespace SipTest
 
         Friend Randomizer As Random
 
+        Public ExportTrialSoundFiles As Boolean = False
+
+        Public TrialResultsExportFolder As String
+
+
         Public Sub New(ByRef ParticipantID As String, ByRef ParentTestSpecification As SpeechMaterialSpecification,
                        Optional RandomSeed As Integer? = Nothing)
 
@@ -64,6 +71,11 @@ Namespace SipTest
             Me.ParticipantID = ParticipantID
             Me.ParentTestSpecification = ParentTestSpecification
 
+
+        End Sub
+
+        Public Sub SetDefaultExportPath()
+            Me.TrialResultsExportFolder = IO.Path.Combine(Utils.logFilePath, ParentTestSpecification.Name.Replace(" ", "_") & "_" & Description.Replace(" ", "_") & "_" & ParticipantID.Replace(" ", "_"))
         End Sub
 
 #Region "Preparation"
@@ -398,6 +410,9 @@ Namespace SipTest
             PlannedTrials.Remove(TestTrial)
             ParentTestUnit.PlannedTrials.Remove(TestTrial)
 
+            'Increments the number of presented trials, based on the number of trials stored in ObservedTrials so far.
+            TestTrial.PresentationOrder = ObservedTrials.Count
+
         End Sub
 
 
@@ -670,234 +685,21 @@ Namespace SipTest
 
         Public Const NewMeasurementMarker As String = "<New OSFT measurement>"
 
-        Public Function CreateExportString() As String
+        Public Function CreateExportString(Optional ByVal SkipExportOfSoundFiles As Boolean = True) As String
 
             Dim OutputLines As New List(Of String)
 
             OutputLines.Add(NewMeasurementMarker)
 
-            Dim Headings As New List(Of String)
-            Headings.Add("ParticipantID")
-            Headings.Add("MeasurementDateTime")
-            Headings.Add("Description")
-            Headings.Add("TestUnitIndex")
-            Headings.Add("SpeechMaterialComponentID")
-            Headings.Add("MediaSetName")
-            Headings.Add("PresentationOrder")
-            Headings.Add("Reference_SPL")
-            Headings.Add("PNR")
-            Headings.Add("EstimatedSuccessProbability")
-            Headings.Add("AdjustedSuccessProbability")
-            Headings.Add("SoundPropagationType")
-
-            Headings.Add("IntendedTargetLocation_Distance")
-            Headings.Add("IntendedTargetLocation_HorizontalAzimuth")
-            Headings.Add("IntendedTargetLocation_Elevation")
-            Headings.Add("PresentedTargetLocation_Distance")
-            Headings.Add("PresentedTargetLocation_HorizontalAzimuth")
-            Headings.Add("PresentedTargetLocation_Elevation")
-
-            Headings.Add("IntendedMaskerLocations_Distance")
-            Headings.Add("IntendedMaskerLocations_HorizontalAzimuth")
-            Headings.Add("IntendedMaskerLocations_Elevation")
-            Headings.Add("PresentedMaskerLocations_Distance")
-            Headings.Add("PresentedMaskerLocations_HorizontalAzimuth")
-            Headings.Add("PresentedMaskerLocations_Elevation")
-            Headings.Add("IntendedBackgroundLocations_Distance")
-            Headings.Add("IntendedBackgroundLocations_HorizontalAzimuth")
-            Headings.Add("IntendedBackgroundLocations_Elevation")
-            Headings.Add("PresentedBackgroundLocations_Distance")
-            Headings.Add("PresentedBackgroundLocations_HorizontalAzimuth")
-            Headings.Add("PresentedBackgroundLocations_Elevation")
-
-            Headings.Add("IsBmldTrial")
-            Headings.Add("BmldNoiseMode")
-            Headings.Add("BmldSignalMode")
-
-            Headings.Add("Response")
-            Headings.Add("Result")
-            Headings.Add("ResponseTime")
-            Headings.Add("ResponseAlternativeCount")
-            Headings.Add("IsTestTrial")
-            Headings.Add("PhonemeDiscriminabilityLevel")
-
-            'Plus write-only stuff
-            'Headings.Add("CorrectScreenPosition")
-            'Headings.Add("ResponseScreenPosition")
-
-            Headings.Add("PrimaryStringRepresentation")
-
-            Headings.Add("Spelling")
-            Headings.Add("SpellingAFC")
-            Headings.Add("Transcription")
-            Headings.Add("TranscriptionAFC")
-            Headings.Add("Zipf")
-            Headings.Add("PNDP")
-            Headings.Add("PP-Average SSPP")
-
-            OutputLines.Add(String.Join(vbTab, Headings))
+            OutputLines.Add(SipTrial.CreateExportHeadings())
 
             For t = 0 To Me.ObservedTrials.Count - 1
 
                 Dim Trial As SipTrial = Me.ObservedTrials(t)
 
-                Dim TrialList As New List(Of String)
-                TrialList.Add(Me.ParticipantID)
-                TrialList.Add(Me.MeasurementDateTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
-                TrialList.Add(Me.Description)
-                TrialList.Add(GetParentTestUnitIndex(Trial))
-                TrialList.Add(Trial.SpeechMaterialComponent.Id)
-                TrialList.Add(Trial.MediaSet.MediaSetName)
-                TrialList.Add(t)
-                TrialList.Add(Trial.Reference_SPL)
-                TrialList.Add(Trial.PNR)
-                If Trial.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
-                    TrialList.Add(Trial.EstimatedSuccessProbability(False))
-                    TrialList.Add(Trial.AdjustedSuccessProbability)
-                Else
-                    TrialList.Add("No audiogram stored - cannot calculate")
-                    TrialList.Add("No audiogram stored - cannot calculate")
-                End If
-                TrialList.Add(Trial.SoundPropagationType.ToString)
+                Dim TrialExportString = Trial.CreateExportString(SkipExportOfSoundFiles)
 
-                'TrialList.Add(Trial.TargetStimulusLocations.Distance)
-                'TrialList.Add(Trial.TargetStimulusLocations.HorizontalAzimuth)
-                'TrialList.Add(Trial.TargetStimulusLocations.Elevation)
-
-                'If Trial.TargetStimulusLocations.ActualLocation Is Nothing Then Trial.TargetStimulusLocations.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-                'TrialList.Add(Trial.TargetStimulusLocations.ActualLocation.Distance)
-                'TrialList.Add(Trial.TargetStimulusLocations.ActualLocation.HorizontalAzimuth)
-                'TrialList.Add(Trial.TargetStimulusLocations.ActualLocation.Elevation)
-
-                If Trial.TargetStimulusLocations.Length > 0 Then
-                    Dim Distances As New List(Of String)
-                    Dim HorizontalAzimuths As New List(Of String)
-                    Dim Elevations As New List(Of String)
-                    Dim ActualDistances As New List(Of String)
-                    Dim ActualHorizontalAzimuths As New List(Of String)
-                    Dim ActualElevations As New List(Of String)
-                    For i = 0 To Trial.TargetStimulusLocations.Length - 1
-                        Distances.Add(Trial.TargetStimulusLocations(i).Distance)
-                        HorizontalAzimuths.Add(Trial.TargetStimulusLocations(i).HorizontalAzimuth)
-                        Elevations.Add(Trial.TargetStimulusLocations(i).Elevation)
-                        If Trial.TargetStimulusLocations(i).ActualLocation Is Nothing Then Trial.TargetStimulusLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-                        ActualDistances.Add(Trial.TargetStimulusLocations(i).ActualLocation.Distance)
-                        ActualHorizontalAzimuths.Add(Trial.TargetStimulusLocations(i).ActualLocation.HorizontalAzimuth)
-                        ActualElevations.Add(Trial.TargetStimulusLocations(i).ActualLocation.Elevation)
-                    Next
-                    TrialList.Add(String.Join(";", Distances))
-                    TrialList.Add(String.Join(";", HorizontalAzimuths))
-                    TrialList.Add(String.Join(";", Elevations))
-                    TrialList.Add(String.Join(";", ActualDistances))
-                    TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
-                    TrialList.Add(String.Join(";", ActualElevations))
-                End If
-
-                If Trial.MaskerLocations.Length > 0 Then
-                    Dim Distances As New List(Of String)
-                    Dim HorizontalAzimuths As New List(Of String)
-                    Dim Elevations As New List(Of String)
-                    Dim ActualDistances As New List(Of String)
-                    Dim ActualHorizontalAzimuths As New List(Of String)
-                    Dim ActualElevations As New List(Of String)
-                    For i = 0 To Trial.MaskerLocations.Length - 1
-                        Distances.Add(Trial.MaskerLocations(i).Distance)
-                        HorizontalAzimuths.Add(Trial.MaskerLocations(i).HorizontalAzimuth)
-                        Elevations.Add(Trial.MaskerLocations(i).Elevation)
-                        If Trial.MaskerLocations(i).ActualLocation Is Nothing Then Trial.MaskerLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-                        ActualDistances.Add(Trial.MaskerLocations(i).ActualLocation.Distance)
-                        ActualHorizontalAzimuths.Add(Trial.MaskerLocations(i).ActualLocation.HorizontalAzimuth)
-                        ActualElevations.Add(Trial.MaskerLocations(i).ActualLocation.Elevation)
-                    Next
-                    TrialList.Add(String.Join(";", Distances))
-                    TrialList.Add(String.Join(";", HorizontalAzimuths))
-                    TrialList.Add(String.Join(";", Elevations))
-                    TrialList.Add(String.Join(";", ActualDistances))
-                    TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
-                    TrialList.Add(String.Join(";", ActualElevations))
-                End If
-
-                If Trial.BackgroundLocations.Length > 0 Then
-                    Dim Distances As New List(Of String)
-                    Dim HorizontalAzimuths As New List(Of String)
-                    Dim Elevations As New List(Of String)
-                    Dim ActualDistances As New List(Of String)
-                    Dim ActualHorizontalAzimuths As New List(Of String)
-                    Dim ActualElevations As New List(Of String)
-                    For i = 0 To Trial.BackgroundLocations.Length - 1
-                        Distances.Add(Trial.BackgroundLocations(i).Distance)
-                        HorizontalAzimuths.Add(Trial.BackgroundLocations(i).HorizontalAzimuth)
-                        Elevations.Add(Trial.BackgroundLocations(i).Elevation)
-                        If Trial.BackgroundLocations(i).ActualLocation Is Nothing Then Trial.BackgroundLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-                        ActualDistances.Add(Trial.BackgroundLocations(i).ActualLocation.Distance)
-                        ActualHorizontalAzimuths.Add(Trial.BackgroundLocations(i).ActualLocation.HorizontalAzimuth)
-                        ActualElevations.Add(Trial.BackgroundLocations(i).ActualLocation.Elevation)
-                    Next
-                    TrialList.Add(String.Join(";", Distances))
-                    TrialList.Add(String.Join(";", HorizontalAzimuths))
-                    TrialList.Add(String.Join(";", Elevations))
-                    TrialList.Add(String.Join(";", ActualDistances))
-                    TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
-                    TrialList.Add(String.Join(";", ActualElevations))
-                End If
-
-                TrialList.Add(Trial.IsBmldTrial)
-                If Trial.IsBmldTrial = True Then
-                    TrialList.Add(Trial.BmldNoiseMode.ToString)
-                    TrialList.Add(Trial.BmldSignalMode.ToString)
-                Else
-                    TrialList.Add("")
-                    TrialList.Add("")
-                End If
-
-                TrialList.Add(Trial.Response)
-                TrialList.Add(Trial.Result.ToString)
-                TrialList.Add(Trial.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
-                TrialList.Add(Trial.ResponseAlternativeCount)
-                TrialList.Add(Trial.IsTestTrial.ToString)
-                If Trial.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
-                    TrialList.Add(Trial.PhonemeDiscriminabilityLevel(False))
-                Else
-                    TrialList.Add("No audiogram stored")
-                End If
-
-                'Plus write-only stuff
-                TrialList.Add(Trial.SpeechMaterialComponent.PrimaryStringRepresentation)
-                TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
-                TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("SpellingAFC"))
-                TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Transcription"))
-                TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("TranscriptionAFC"))
-
-                Dim Zipf = Trial.SpeechMaterialComponent.GetNumericVariableValue("Z")
-                If Zipf IsNot Nothing Then
-                    TrialList.Add(Zipf)
-                Else
-                    TrialList.Add("")
-                End If
-
-                Dim PNDP = Trial.SpeechMaterialComponent.GetNumericVariableValue("PNDP")
-                If PNDP IsNot Nothing Then
-                    TrialList.Add(PNDP)
-                Else
-                    TrialList.Add("")
-                End If
-
-                Dim PP = Trial.SpeechMaterialComponent.GetNumericVariableValue("PP")
-                If PP IsNot Nothing Then
-                    TrialList.Add(PP)
-                Else
-                    TrialList.Add("")
-                End If
-
-                'TrialList.Add(Trial.CorrectScreenPosition)
-                'TrialList.Add(Trial.ResponseScreenPosition)
-
-                'TODO: ... add more
-
-
-
-
-                OutputLines.Add(String.Join(vbTab, TrialList))
+                OutputLines.Add(TrialExportString)
 
             Next
 
@@ -1279,6 +1081,12 @@ Namespace SipTest
     Public Class SipTrial
 
         ''' <summary>
+        ''' The object should store the order in which the trial was presented, and be set by the code presenting the trial.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property PresentationOrder As Integer
+
+        ''' <summary>
         ''' Holds a reference to the test unit to which the current test trial belongs
         ''' </summary>
         ''' <returns></returns>
@@ -1330,6 +1138,11 @@ Namespace SipTest
         ''' An object that can hold test trial sounds that can be mixed in advance.
         ''' </summary>
         Public TestTrialSound As Audio.Sound = Nothing
+
+        ''' <summary>
+        ''' An list of Tuples that can hold various sound mixes used in the test trial, to be exported to sound file later. Each Sound should be come with a descriptive string (that can be used in the output file name).)
+        ''' </summary>
+        Public TrialSoundsToExport As New List(Of Tuple(Of String, Audio.Sound))
 
         Public TestWordStartTime As Double
         Public TestWordCompletedTime As Double
@@ -1858,24 +1671,19 @@ Namespace SipTest
                 MixStopWatch.Restart()
 
                 Dim MixedTestTrialSound As Audio.Sound
-                Dim TrialSoundOutputFolder As String = IO.Path.Combine(Utils.logFilePath, "TrialSounds")
 
-                Dim ExportSoundFiles As Boolean = True
-                If ExportSoundFiles = False Then
+                If ParentTestUnit.ParentMeasurement.ExportTrialSoundFiles = False Then
 
                     'Creating the mix by calling CreateSoundScene of the current Mixer
                     MixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, Me.SoundPropagationType)
 
                 Else
 
-                    'Increasing the SuperGeneralCounter (TODO: to be removed, since it is too general!), temporarily keeping track of trial mixing order
-                    Utils.SuperGeneralCounter += 1
-
                     'Creating the mix directly by calling CreateSoundScene of the current Mixer and exporting the sound for comparison with the separately exported sounds below
                     Dim DoubleCheck As Boolean = False
                     If DoubleCheck = True Then
                         Dim TempMixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, Me.SoundPropagationType)
-                        TempMixedTestTrialSound.WriteWaveFile(IO.Path.Combine(TrialSoundOutputFolder, "Trial_" & Utils.SuperGeneralCounter & "_OrignialMix.wav"))
+                        TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("OrignialMix", TempMixedTestTrialSound))
                     End If
 
                     'Creating separate sound files for target, maskers, and the final mix
@@ -1900,10 +1708,10 @@ Namespace SipTest
                     'Creating the combined mix
                     MixedTestTrialSound = Audio.DSP.SuperpositionSounds({TargetSound, NontargetSound}.ToList)
 
-                    'Saving the sound files
-                    TargetSound.WriteWaveFile(IO.Path.Combine(TrialSoundOutputFolder, "Trial_" & Utils.SuperGeneralCounter & "_Target.wav"))
-                    NontargetSound.WriteWaveFile(IO.Path.Combine(TrialSoundOutputFolder, "Trial_" & Utils.SuperGeneralCounter & "_Nontargets.wav"))
-                    MixedTestTrialSound.WriteWaveFile(IO.Path.Combine(TrialSoundOutputFolder, "Trial_" & Utils.SuperGeneralCounter & "_Mix.wav"))
+                    'Stores the sounds in TrialSoundsToExport, to be exported later.
+                    TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("TargetSound", TargetSound))
+                    TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("NontargetSound", NontargetSound))
+                    TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("MixedTestTrialSound", MixedTestTrialSound))
 
                 End If
 
@@ -2115,6 +1923,263 @@ Namespace SipTest
 
         End Sub
 
+        Public Sub ExportTrialResult(ByVal IncludeHeadings As Boolean, ByVal SkipExportOfSoundFiles As Boolean)
+
+            Dim FilePath = IO.Path.Combine(Me.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TestResults")
+
+            Dim OutputLines As New List(Of String)
+
+            If IncludeHeadings = True Then
+                OutputLines.Add(SipMeasurement.NewMeasurementMarker)
+                OutputLines.Add(SipTrial.CreateExportHeadings())
+            End If
+
+            Dim TrialExportString = Me.CreateExportString(SkipExportOfSoundFiles)
+
+            OutputLines.Add(TrialExportString)
+
+            Utils.SendInfoToLog(String.Join(vbCrLf, OutputLines), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
+
+        End Sub
+
+        Public Shared Function CreateExportHeadings() As String
+
+            Dim Headings As New List(Of String)
+            Headings.Add("ParticipantID")
+            Headings.Add("MeasurementDateTime")
+            Headings.Add("Description")
+            Headings.Add("TestUnitIndex")
+            Headings.Add("SpeechMaterialComponentID")
+            Headings.Add("MediaSetName")
+            Headings.Add("PresentationOrder")
+            Headings.Add("Reference_SPL")
+            Headings.Add("PNR")
+            Headings.Add("EstimatedSuccessProbability")
+            Headings.Add("AdjustedSuccessProbability")
+            Headings.Add("SoundPropagationType")
+
+            Headings.Add("IntendedTargetLocation_Distance")
+            Headings.Add("IntendedTargetLocation_HorizontalAzimuth")
+            Headings.Add("IntendedTargetLocation_Elevation")
+            Headings.Add("PresentedTargetLocation_Distance")
+            Headings.Add("PresentedTargetLocation_HorizontalAzimuth")
+            Headings.Add("PresentedTargetLocation_Elevation")
+
+            Headings.Add("IntendedMaskerLocations_Distance")
+            Headings.Add("IntendedMaskerLocations_HorizontalAzimuth")
+            Headings.Add("IntendedMaskerLocations_Elevation")
+            Headings.Add("PresentedMaskerLocations_Distance")
+            Headings.Add("PresentedMaskerLocations_HorizontalAzimuth")
+            Headings.Add("PresentedMaskerLocations_Elevation")
+            Headings.Add("IntendedBackgroundLocations_Distance")
+            Headings.Add("IntendedBackgroundLocations_HorizontalAzimuth")
+            Headings.Add("IntendedBackgroundLocations_Elevation")
+            Headings.Add("PresentedBackgroundLocations_Distance")
+            Headings.Add("PresentedBackgroundLocations_HorizontalAzimuth")
+            Headings.Add("PresentedBackgroundLocations_Elevation")
+
+            Headings.Add("IsBmldTrial")
+            Headings.Add("BmldNoiseMode")
+            Headings.Add("BmldSignalMode")
+
+            Headings.Add("Response")
+            Headings.Add("Result")
+            Headings.Add("ResponseTime")
+            Headings.Add("ResponseAlternativeCount")
+            Headings.Add("IsTestTrial")
+            Headings.Add("PhonemeDiscriminabilityLevel")
+
+            'Plus write-only stuff
+            'Headings.Add("CorrectScreenPosition")
+            'Headings.Add("ResponseScreenPosition")
+
+            Headings.Add("PrimaryStringRepresentation")
+
+            Headings.Add("Spelling")
+            Headings.Add("SpellingAFC")
+            Headings.Add("Transcription")
+            Headings.Add("TranscriptionAFC")
+            Headings.Add("Zipf")
+            Headings.Add("PNDP")
+            Headings.Add("PP-Average SSPP")
+
+            Headings.Add("ExportedTrialSoundFiles")
+
+            Return String.Join(vbTab, Headings)
+
+        End Function
+
+        Public Function CreateExportString(Optional ByVal SkipExportOfSoundFiles As Boolean = True) As String
+
+            Dim TrialList As New List(Of String)
+            TrialList.Add(Me.ParentTestUnit.ParentMeasurement.ParticipantID)
+            TrialList.Add(Me.ParentTestUnit.ParentMeasurement.MeasurementDateTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            TrialList.Add(Me.ParentTestUnit.ParentMeasurement.Description)
+            TrialList.Add(Me.ParentTestUnit.ParentMeasurement.GetParentTestUnitIndex(Me))
+            TrialList.Add(Me.SpeechMaterialComponent.Id)
+            TrialList.Add(Me.MediaSet.MediaSetName)
+            TrialList.Add(Me.PresentationOrder)
+            TrialList.Add(Me.Reference_SPL)
+            TrialList.Add(Me.PNR)
+            If Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
+                TrialList.Add(Me.EstimatedSuccessProbability(False))
+                TrialList.Add(Me.AdjustedSuccessProbability)
+            Else
+                TrialList.Add("No audiogram stored - cannot calculate")
+                TrialList.Add("No audiogram stored - cannot calculate")
+            End If
+            TrialList.Add(Me.SoundPropagationType.ToString)
+
+            'TrialList.Add(ME.TargetStimulusLocations.Distance)
+            'TrialList.Add(ME.TargetStimulusLocations.HorizontalAzimuth)
+            'TrialList.Add(ME.TargetStimulusLocations.Elevation)
+
+            'If Me.TargetStimulusLocations.ActualLocation Is Nothing Then Me.TargetStimulusLocations.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+            'TrialList.Add(Me.TargetStimulusLocations.ActualLocation.Distance)
+            'TrialList.Add(Me.TargetStimulusLocations.ActualLocation.HorizontalAzimuth)
+            'TrialList.Add(Me.TargetStimulusLocations.ActualLocation.Elevation)
+
+            If Me.TargetStimulusLocations.Length > 0 Then
+                Dim Distances As New List(Of String)
+                Dim HorizontalAzimuths As New List(Of String)
+                Dim Elevations As New List(Of String)
+                Dim ActualDistances As New List(Of String)
+                Dim ActualHorizontalAzimuths As New List(Of String)
+                Dim ActualElevations As New List(Of String)
+                For i = 0 To Me.TargetStimulusLocations.Length - 1
+                    Distances.Add(Me.TargetStimulusLocations(i).Distance)
+                    HorizontalAzimuths.Add(Me.TargetStimulusLocations(i).HorizontalAzimuth)
+                    Elevations.Add(Me.TargetStimulusLocations(i).Elevation)
+                    If Me.TargetStimulusLocations(i).ActualLocation Is Nothing Then Me.TargetStimulusLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                    ActualDistances.Add(Me.TargetStimulusLocations(i).ActualLocation.Distance)
+                    ActualHorizontalAzimuths.Add(Me.TargetStimulusLocations(i).ActualLocation.HorizontalAzimuth)
+                    ActualElevations.Add(Me.TargetStimulusLocations(i).ActualLocation.Elevation)
+                Next
+                TrialList.Add(String.Join(";", Distances))
+                TrialList.Add(String.Join(";", HorizontalAzimuths))
+                TrialList.Add(String.Join(";", Elevations))
+                TrialList.Add(String.Join(";", ActualDistances))
+                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
+                TrialList.Add(String.Join(";", ActualElevations))
+            End If
+
+            If Me.MaskerLocations.Length > 0 Then
+                Dim Distances As New List(Of String)
+                Dim HorizontalAzimuths As New List(Of String)
+                Dim Elevations As New List(Of String)
+                Dim ActualDistances As New List(Of String)
+                Dim ActualHorizontalAzimuths As New List(Of String)
+                Dim ActualElevations As New List(Of String)
+                For i = 0 To Me.MaskerLocations.Length - 1
+                    Distances.Add(Me.MaskerLocations(i).Distance)
+                    HorizontalAzimuths.Add(Me.MaskerLocations(i).HorizontalAzimuth)
+                    Elevations.Add(Me.MaskerLocations(i).Elevation)
+                    If Me.MaskerLocations(i).ActualLocation Is Nothing Then Me.MaskerLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                    ActualDistances.Add(Me.MaskerLocations(i).ActualLocation.Distance)
+                    ActualHorizontalAzimuths.Add(Me.MaskerLocations(i).ActualLocation.HorizontalAzimuth)
+                    ActualElevations.Add(Me.MaskerLocations(i).ActualLocation.Elevation)
+                Next
+                TrialList.Add(String.Join(";", Distances))
+                TrialList.Add(String.Join(";", HorizontalAzimuths))
+                TrialList.Add(String.Join(";", Elevations))
+                TrialList.Add(String.Join(";", ActualDistances))
+                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
+                TrialList.Add(String.Join(";", ActualElevations))
+            End If
+
+            If Me.BackgroundLocations.Length > 0 Then
+                Dim Distances As New List(Of String)
+                Dim HorizontalAzimuths As New List(Of String)
+                Dim Elevations As New List(Of String)
+                Dim ActualDistances As New List(Of String)
+                Dim ActualHorizontalAzimuths As New List(Of String)
+                Dim ActualElevations As New List(Of String)
+                For i = 0 To Me.BackgroundLocations.Length - 1
+                    Distances.Add(Me.BackgroundLocations(i).Distance)
+                    HorizontalAzimuths.Add(Me.BackgroundLocations(i).HorizontalAzimuth)
+                    Elevations.Add(Me.BackgroundLocations(i).Elevation)
+                    If Me.BackgroundLocations(i).ActualLocation Is Nothing Then Me.BackgroundLocations(i).ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+                    ActualDistances.Add(Me.BackgroundLocations(i).ActualLocation.Distance)
+                    ActualHorizontalAzimuths.Add(Me.BackgroundLocations(i).ActualLocation.HorizontalAzimuth)
+                    ActualElevations.Add(Me.BackgroundLocations(i).ActualLocation.Elevation)
+                Next
+                TrialList.Add(String.Join(";", Distances))
+                TrialList.Add(String.Join(";", HorizontalAzimuths))
+                TrialList.Add(String.Join(";", Elevations))
+                TrialList.Add(String.Join(";", ActualDistances))
+                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
+                TrialList.Add(String.Join(";", ActualElevations))
+            End If
+
+            TrialList.Add(Me.IsBmldTrial)
+            If Me.IsBmldTrial = True Then
+                TrialList.Add(Me.BmldNoiseMode.ToString)
+                TrialList.Add(Me.BmldSignalMode.ToString)
+            Else
+                TrialList.Add("")
+                TrialList.Add("")
+            End If
+
+            TrialList.Add(Me.Response)
+            TrialList.Add(Me.Result.ToString)
+            TrialList.Add(Me.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            TrialList.Add(Me.ResponseAlternativeCount)
+            TrialList.Add(Me.IsTestTrial.ToString)
+            If Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
+                TrialList.Add(Me.PhonemeDiscriminabilityLevel(False))
+            Else
+                TrialList.Add("No audiogram stored")
+            End If
+
+            'Plus write-only stuff
+            TrialList.Add(Me.SpeechMaterialComponent.PrimaryStringRepresentation)
+            TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+            TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("SpellingAFC"))
+            TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("Transcription"))
+            TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("TranscriptionAFC"))
+
+            Dim Zipf = Me.SpeechMaterialComponent.GetNumericVariableValue("Z")
+            If Zipf IsNot Nothing Then
+                TrialList.Add(Zipf)
+            Else
+                TrialList.Add("")
+            End If
+
+            Dim PNDP = Me.SpeechMaterialComponent.GetNumericVariableValue("PNDP")
+            If PNDP IsNot Nothing Then
+                TrialList.Add(PNDP)
+            Else
+                TrialList.Add("")
+            End If
+
+            Dim PP = Me.SpeechMaterialComponent.GetNumericVariableValue("PP")
+            If PP IsNot Nothing Then
+                TrialList.Add(PP)
+            Else
+                TrialList.Add("")
+            End If
+
+            'TrialList.Add(Me.CorrectScreenPosition)
+            'TrialList.Add(Me.ResponseScreenPosition)
+
+            'TODO: ... add more
+
+            'Adding export of sound files,
+            Dim ExportedSoundFilesList As New List(Of String)
+            If SkipExportOfSoundFiles = False Then
+                For i = 0 To Me.TrialSoundsToExport.Count - 1
+                    Dim ExportSound = Me.TrialSoundsToExport(i).Item2
+                    Dim FileName = IO.Path.Combine(Me.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Me.PresentationOrder & "_" & Me.TrialSoundsToExport(i).Item1 & ".wav")
+                    ExportSound.WriteWaveFile(FileName)
+                    ExportedSoundFilesList.Add(FileName)
+                Next
+            End If
+            TrialList.Add(String.Join(";", ExportedSoundFilesList))
+
+            Return String.Join(vbTab, TrialList)
+
+        End Function
+
     End Class
 
     Public Enum PossibleResults
@@ -2122,13 +2187,10 @@ Namespace SipTest
         Incorrect
         Missing
     End Enum
-
-
     Public Enum AdaptiveTypes
         SimpleUpDown
         Fixed
     End Enum
-
     Public Enum Testparadigm
         Quick
         Slow
@@ -2138,15 +2200,10 @@ Namespace SipTest
         FlexibleLocations
         BMLD
     End Enum
-
     Public Class TestProcedure
-
         Public Property AdaptiveType As AdaptiveTypes
-
         Public Property TestParadigm As Testparadigm
-
         Public Property LengthReduplications As Integer?
-
         Public Property RandomizeOrder As Boolean = True
 
         Public ReadOnly Property TargetStimulusLocations As New SortedList(Of Testparadigm, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation())

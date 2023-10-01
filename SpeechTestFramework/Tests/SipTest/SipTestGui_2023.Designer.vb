@@ -123,6 +123,7 @@ Partial Class SipTestGui_2023
         Me.DirectionalSimulationSet_C1_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Custom_SNC_TextBox = New System.Windows.Forms.TextBox()
         Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.ExportTrialSounds_CheckBox = New System.Windows.Forms.CheckBox()
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
         Me.CompletedTests_Label = New System.Windows.Forms.Label()
         Me.CurrentSessionResults_DataGridView = New System.Windows.Forms.DataGridView()
@@ -816,10 +817,11 @@ Partial Class SipTestGui_2023
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.Situations_FlowLayoutPanel, 1, 4)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.PNRs_FlowLayoutPanel, 1, 3)
         Me.TestSettings_TableLayoutPanel.Controls.Add(Me.TestMode_TabControl, 0, 0)
+        Me.TestSettings_TableLayoutPanel.Controls.Add(Me.ExportTrialSounds_CheckBox, 1, 8)
         Me.TestSettings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestSettings_TableLayoutPanel.Location = New System.Drawing.Point(3, 3)
         Me.TestSettings_TableLayoutPanel.Name = "TestSettings_TableLayoutPanel"
-        Me.TestSettings_TableLayoutPanel.RowCount = 8
+        Me.TestSettings_TableLayoutPanel.RowCount = 9
         Me.TestSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70.0!))
         Me.TestSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TestSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
@@ -828,12 +830,13 @@ Partial Class SipTestGui_2023
         Me.TestSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TestSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TestSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
+        Me.TestSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22.0!))
         Me.TestSettings_TableLayoutPanel.Size = New System.Drawing.Size(591, 615)
         Me.TestSettings_TableLayoutPanel.TabIndex = 1
         '
         'ReferenceLevel_Label
         '
-        Me.ReferenceLevel_Label.Location = New System.Drawing.Point(3, 345)
+        Me.ReferenceLevel_Label.Location = New System.Drawing.Point(3, 329)
         Me.ReferenceLevel_Label.Name = "ReferenceLevel_Label"
         Me.ReferenceLevel_Label.Size = New System.Drawing.Size(92, 21)
         Me.ReferenceLevel_Label.TabIndex = 0
@@ -842,7 +845,7 @@ Partial Class SipTestGui_2023
         '
         'Preset_Label
         '
-        Me.Preset_Label.Location = New System.Drawing.Point(3, 324)
+        Me.Preset_Label.Location = New System.Drawing.Point(3, 308)
         Me.Preset_Label.Name = "Preset_Label"
         Me.Preset_Label.Size = New System.Drawing.Size(92, 21)
         Me.Preset_Label.TabIndex = 0
@@ -853,7 +856,7 @@ Partial Class SipTestGui_2023
         '
         Me.PresetComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.PresetComboBox.FormattingEnabled = True
-        Me.PresetComboBox.Location = New System.Drawing.Point(186, 324)
+        Me.PresetComboBox.Location = New System.Drawing.Point(186, 308)
         Me.PresetComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.PresetComboBox.Name = "PresetComboBox"
         Me.PresetComboBox.Size = New System.Drawing.Size(405, 21)
@@ -863,7 +866,7 @@ Partial Class SipTestGui_2023
         '
         Me.ReferenceLevelComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ReferenceLevelComboBox.FormattingEnabled = True
-        Me.ReferenceLevelComboBox.Location = New System.Drawing.Point(186, 345)
+        Me.ReferenceLevelComboBox.Location = New System.Drawing.Point(186, 329)
         Me.ReferenceLevelComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.ReferenceLevelComboBox.Name = "ReferenceLevelComboBox"
         Me.ReferenceLevelComboBox.Size = New System.Drawing.Size(405, 21)
@@ -871,7 +874,7 @@ Partial Class SipTestGui_2023
         '
         'PNR_Label
         '
-        Me.PNR_Label.Location = New System.Drawing.Point(3, 366)
+        Me.PNR_Label.Location = New System.Drawing.Point(3, 350)
         Me.PNR_Label.Name = "PNR_Label"
         Me.PNR_Label.Size = New System.Drawing.Size(92, 21)
         Me.PNR_Label.TabIndex = 0
@@ -880,7 +883,7 @@ Partial Class SipTestGui_2023
         '
         'Situation_Label
         '
-        Me.Situation_Label.Location = New System.Drawing.Point(3, 504)
+        Me.Situation_Label.Location = New System.Drawing.Point(3, 482)
         Me.Situation_Label.Name = "Situation_Label"
         Me.Situation_Label.Size = New System.Drawing.Size(92, 21)
         Me.Situation_Label.TabIndex = 0
@@ -890,7 +893,7 @@ Partial Class SipTestGui_2023
         'PlannedTestLength_TextBox
         '
         Me.PlannedTestLength_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PlannedTestLength_TextBox.Location = New System.Drawing.Point(186, 593)
+        Me.PlannedTestLength_TextBox.Location = New System.Drawing.Point(186, 571)
         Me.PlannedTestLength_TextBox.Margin = New System.Windows.Forms.Padding(0)
         Me.PlannedTestLength_TextBox.Name = "PlannedTestLength_TextBox"
         Me.PlannedTestLength_TextBox.ReadOnly = True
@@ -899,7 +902,7 @@ Partial Class SipTestGui_2023
         '
         'TestLength_Label
         '
-        Me.TestLength_Label.Location = New System.Drawing.Point(3, 593)
+        Me.TestLength_Label.Location = New System.Drawing.Point(3, 571)
         Me.TestLength_Label.Name = "TestLength_Label"
         Me.TestLength_Label.Size = New System.Drawing.Size(92, 21)
         Me.TestLength_Label.TabIndex = 15
@@ -908,7 +911,7 @@ Partial Class SipTestGui_2023
         '
         'Testparadigm_Label
         '
-        Me.Testparadigm_Label.Location = New System.Drawing.Point(3, 572)
+        Me.Testparadigm_Label.Location = New System.Drawing.Point(3, 550)
         Me.Testparadigm_Label.Name = "Testparadigm_Label"
         Me.Testparadigm_Label.Size = New System.Drawing.Size(100, 21)
         Me.Testparadigm_Label.TabIndex = 22
@@ -917,7 +920,7 @@ Partial Class SipTestGui_2023
         '
         'LengthReduplications_Label
         '
-        Me.LengthReduplications_Label.Location = New System.Drawing.Point(3, 551)
+        Me.LengthReduplications_Label.Location = New System.Drawing.Point(3, 529)
         Me.LengthReduplications_Label.Name = "LengthReduplications_Label"
         Me.LengthReduplications_Label.Size = New System.Drawing.Size(92, 21)
         Me.LengthReduplications_Label.TabIndex = 0
@@ -928,7 +931,7 @@ Partial Class SipTestGui_2023
         '
         Me.Testparadigm_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Testparadigm_ComboBox.FormattingEnabled = True
-        Me.Testparadigm_ComboBox.Location = New System.Drawing.Point(186, 572)
+        Me.Testparadigm_ComboBox.Location = New System.Drawing.Point(186, 550)
         Me.Testparadigm_ComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.Testparadigm_ComboBox.Name = "Testparadigm_ComboBox"
         Me.Testparadigm_ComboBox.Size = New System.Drawing.Size(405, 21)
@@ -938,7 +941,7 @@ Partial Class SipTestGui_2023
         '
         Me.TestLengthComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestLengthComboBox.FormattingEnabled = True
-        Me.TestLengthComboBox.Location = New System.Drawing.Point(186, 551)
+        Me.TestLengthComboBox.Location = New System.Drawing.Point(186, 529)
         Me.TestLengthComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.TestLengthComboBox.Name = "TestLengthComboBox"
         Me.TestLengthComboBox.Size = New System.Drawing.Size(405, 21)
@@ -948,7 +951,7 @@ Partial Class SipTestGui_2023
         '
         Me.Situations_FlowLayoutPanel.AutoScroll = True
         Me.Situations_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Situations_FlowLayoutPanel.Location = New System.Drawing.Point(189, 507)
+        Me.Situations_FlowLayoutPanel.Location = New System.Drawing.Point(189, 485)
         Me.Situations_FlowLayoutPanel.Name = "Situations_FlowLayoutPanel"
         Me.Situations_FlowLayoutPanel.Size = New System.Drawing.Size(399, 41)
         Me.Situations_FlowLayoutPanel.TabIndex = 27
@@ -957,9 +960,9 @@ Partial Class SipTestGui_2023
         '
         Me.PNRs_FlowLayoutPanel.AutoScroll = True
         Me.PNRs_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PNRs_FlowLayoutPanel.Location = New System.Drawing.Point(189, 369)
+        Me.PNRs_FlowLayoutPanel.Location = New System.Drawing.Point(189, 353)
         Me.PNRs_FlowLayoutPanel.Name = "PNRs_FlowLayoutPanel"
-        Me.PNRs_FlowLayoutPanel.Size = New System.Drawing.Size(399, 132)
+        Me.PNRs_FlowLayoutPanel.Size = New System.Drawing.Size(399, 126)
         Me.PNRs_FlowLayoutPanel.TabIndex = 28
         '
         'TestMode_TabControl
@@ -972,7 +975,7 @@ Partial Class SipTestGui_2023
         Me.TestMode_TabControl.Location = New System.Drawing.Point(3, 3)
         Me.TestMode_TabControl.Name = "TestMode_TabControl"
         Me.TestMode_TabControl.SelectedIndex = 0
-        Me.TestMode_TabControl.Size = New System.Drawing.Size(585, 318)
+        Me.TestMode_TabControl.Size = New System.Drawing.Size(585, 302)
         Me.TestMode_TabControl.TabIndex = 29
         '
         'DirectionalModeTabPage
@@ -981,7 +984,7 @@ Partial Class SipTestGui_2023
         Me.DirectionalModeTabPage.Location = New System.Drawing.Point(4, 22)
         Me.DirectionalModeTabPage.Name = "DirectionalModeTabPage"
         Me.DirectionalModeTabPage.Padding = New System.Windows.Forms.Padding(3)
-        Me.DirectionalModeTabPage.Size = New System.Drawing.Size(577, 292)
+        Me.DirectionalModeTabPage.Size = New System.Drawing.Size(577, 276)
         Me.DirectionalModeTabPage.TabIndex = 0
         Me.DirectionalModeTabPage.Text = "Directional mode"
         Me.DirectionalModeTabPage.UseVisualStyleBackColor = True
@@ -1014,7 +1017,7 @@ Partial Class SipTestGui_2023
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
-        Me.TableLayoutPanel3.Size = New System.Drawing.Size(571, 286)
+        Me.TableLayoutPanel3.Size = New System.Drawing.Size(571, 270)
         Me.TableLayoutPanel3.TabIndex = 0
         '
         'Label3
@@ -1022,25 +1025,25 @@ Partial Class SipTestGui_2023
         Me.Label3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Label3.Location = New System.Drawing.Point(3, 42)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(170, 74)
+        Me.Label3.Size = New System.Drawing.Size(170, 69)
         Me.Label3.TabIndex = 17
         Me.Label3.Text = "Speech azimuths (degrees)"
         '
         'Label4
         '
         Me.Label4.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label4.Location = New System.Drawing.Point(3, 116)
+        Me.Label4.Location = New System.Drawing.Point(3, 111)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(170, 74)
+        Me.Label4.Size = New System.Drawing.Size(170, 69)
         Me.Label4.TabIndex = 18
         Me.Label4.Text = "Masker azimuths (degrees)"
         '
         'Label1
         '
         Me.Label1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label1.Location = New System.Drawing.Point(3, 190)
+        Me.Label1.Location = New System.Drawing.Point(3, 180)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(170, 74)
+        Me.Label1.Size = New System.Drawing.Size(170, 69)
         Me.Label1.TabIndex = 23
         Me.Label1.Text = "Background azimuths"
         '
@@ -1050,33 +1053,33 @@ Partial Class SipTestGui_2023
         Me.SpeechAzimuth_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SpeechAzimuth_FlowLayoutPanel.Location = New System.Drawing.Point(179, 45)
         Me.SpeechAzimuth_FlowLayoutPanel.Name = "SpeechAzimuth_FlowLayoutPanel"
-        Me.SpeechAzimuth_FlowLayoutPanel.Size = New System.Drawing.Size(389, 68)
+        Me.SpeechAzimuth_FlowLayoutPanel.Size = New System.Drawing.Size(389, 63)
         Me.SpeechAzimuth_FlowLayoutPanel.TabIndex = 24
         '
         'MaskerAzimuth_FlowLayoutPanel
         '
         Me.MaskerAzimuth_FlowLayoutPanel.AutoScroll = True
         Me.MaskerAzimuth_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MaskerAzimuth_FlowLayoutPanel.Location = New System.Drawing.Point(179, 119)
+        Me.MaskerAzimuth_FlowLayoutPanel.Location = New System.Drawing.Point(179, 114)
         Me.MaskerAzimuth_FlowLayoutPanel.Name = "MaskerAzimuth_FlowLayoutPanel"
-        Me.MaskerAzimuth_FlowLayoutPanel.Size = New System.Drawing.Size(389, 68)
+        Me.MaskerAzimuth_FlowLayoutPanel.Size = New System.Drawing.Size(389, 63)
         Me.MaskerAzimuth_FlowLayoutPanel.TabIndex = 25
         '
         'BackgroundAzimuth_FlowLayoutPanel
         '
         Me.BackgroundAzimuth_FlowLayoutPanel.AutoScroll = True
         Me.BackgroundAzimuth_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BackgroundAzimuth_FlowLayoutPanel.Location = New System.Drawing.Point(179, 193)
+        Me.BackgroundAzimuth_FlowLayoutPanel.Location = New System.Drawing.Point(179, 183)
         Me.BackgroundAzimuth_FlowLayoutPanel.Name = "BackgroundAzimuth_FlowLayoutPanel"
-        Me.BackgroundAzimuth_FlowLayoutPanel.Size = New System.Drawing.Size(389, 68)
+        Me.BackgroundAzimuth_FlowLayoutPanel.Size = New System.Drawing.Size(389, 63)
         Me.BackgroundAzimuth_FlowLayoutPanel.TabIndex = 26
         '
         'Label5
         '
         Me.Label5.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label5.Location = New System.Drawing.Point(3, 264)
+        Me.Label5.Location = New System.Drawing.Point(3, 249)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(170, 22)
+        Me.Label5.Size = New System.Drawing.Size(170, 21)
         Me.Label5.TabIndex = 19
         Me.Label5.Text = "Simultaneous maskers (n)"
         '
@@ -1084,7 +1087,7 @@ Partial Class SipTestGui_2023
         '
         Me.SimultaneousMaskersCount_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SimultaneousMaskersCount_ComboBox.FormattingEnabled = True
-        Me.SimultaneousMaskersCount_ComboBox.Location = New System.Drawing.Point(176, 264)
+        Me.SimultaneousMaskersCount_ComboBox.Location = New System.Drawing.Point(176, 249)
         Me.SimultaneousMaskersCount_ComboBox.Margin = New System.Windows.Forms.Padding(0)
         Me.SimultaneousMaskersCount_ComboBox.Name = "SimultaneousMaskersCount_ComboBox"
         Me.SimultaneousMaskersCount_ComboBox.Size = New System.Drawing.Size(395, 21)
@@ -1134,7 +1137,7 @@ Partial Class SipTestGui_2023
         Me.BmldModeTabPage.Location = New System.Drawing.Point(4, 22)
         Me.BmldModeTabPage.Name = "BmldModeTabPage"
         Me.BmldModeTabPage.Padding = New System.Windows.Forms.Padding(3)
-        Me.BmldModeTabPage.Size = New System.Drawing.Size(577, 292)
+        Me.BmldModeTabPage.Size = New System.Drawing.Size(577, 277)
         Me.BmldModeTabPage.TabIndex = 1
         Me.BmldModeTabPage.Text = "BMLD mode"
         Me.BmldModeTabPage.UseVisualStyleBackColor = True
@@ -1158,7 +1161,7 @@ Partial Class SipTestGui_2023
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel6.Size = New System.Drawing.Size(571, 286)
+        Me.TableLayoutPanel6.Size = New System.Drawing.Size(571, 271)
         Me.TableLayoutPanel6.TabIndex = 0
         '
         'Label6
@@ -1227,7 +1230,7 @@ Partial Class SipTestGui_2023
         Me.CustomMode1_TabPage.Controls.Add(Me.TableLayoutPanel7)
         Me.CustomMode1_TabPage.Location = New System.Drawing.Point(4, 22)
         Me.CustomMode1_TabPage.Name = "CustomMode1_TabPage"
-        Me.CustomMode1_TabPage.Size = New System.Drawing.Size(577, 292)
+        Me.CustomMode1_TabPage.Size = New System.Drawing.Size(577, 277)
         Me.CustomMode1_TabPage.TabIndex = 2
         Me.CustomMode1_TabPage.Text = "Custom 1"
         Me.CustomMode1_TabPage.UseVisualStyleBackColor = True
@@ -1247,7 +1250,7 @@ Partial Class SipTestGui_2023
         Me.TableLayoutPanel7.RowCount = 2
         Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel7.Size = New System.Drawing.Size(577, 292)
+        Me.TableLayoutPanel7.Size = New System.Drawing.Size(577, 277)
         Me.TableLayoutPanel7.TabIndex = 0
         '
         'Label9
@@ -1277,7 +1280,7 @@ Partial Class SipTestGui_2023
         Me.Custom_SNC_TextBox.Multiline = True
         Me.Custom_SNC_TextBox.Name = "Custom_SNC_TextBox"
         Me.Custom_SNC_TextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.Custom_SNC_TextBox.Size = New System.Drawing.Size(236, 265)
+        Me.Custom_SNC_TextBox.Size = New System.Drawing.Size(236, 250)
         Me.Custom_SNC_TextBox.TabIndex = 34
         Me.Custom_SNC_TextBox.Text = "0 | 0" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "-30 | 30" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "0 | -90" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "0 | 90" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "P | U" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "R | R" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
         '
@@ -1288,9 +1291,21 @@ Partial Class SipTestGui_2023
         Me.TextBox2.Multiline = True
         Me.TextBox2.Name = "TextBox2"
         Me.TextBox2.ReadOnly = True
-        Me.TextBox2.Size = New System.Drawing.Size(329, 265)
+        Me.TextBox2.Size = New System.Drawing.Size(329, 250)
         Me.TextBox2.TabIndex = 35
         Me.TextBox2.Text = resources.GetString("TextBox2.Text")
+        '
+        'ExportTrialSounds_CheckBox
+        '
+        Me.ExportTrialSounds_CheckBox.AutoSize = True
+        Me.ExportTrialSounds_CheckBox.Checked = True
+        Me.ExportTrialSounds_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.ExportTrialSounds_CheckBox.Location = New System.Drawing.Point(189, 595)
+        Me.ExportTrialSounds_CheckBox.Name = "ExportTrialSounds_CheckBox"
+        Me.ExportTrialSounds_CheckBox.Size = New System.Drawing.Size(132, 17)
+        Me.ExportTrialSounds_CheckBox.TabIndex = 30
+        Me.ExportTrialSounds_CheckBox.Text = "Export test trial sounds"
+        Me.ExportTrialSounds_CheckBox.UseVisualStyleBackColor = True
         '
         'TableLayoutPanel5
         '
@@ -1529,4 +1544,5 @@ Partial Class SipTestGui_2023
     Friend WithEvents DirectionalSimulationSet_C1_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents Custom_SNC_TextBox As Windows.Forms.TextBox
     Friend WithEvents TextBox2 As Windows.Forms.TextBox
+    Friend WithEvents ExportTrialSounds_CheckBox As Windows.Forms.CheckBox
 End Class

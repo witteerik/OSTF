@@ -1129,7 +1129,11 @@ Public Class SipTestGui
             'Applying the SelectedReferenceLevel, SelectedPnr and the SelectedTestDescription
             CurrentSipTestMeasurement.SetLevels(SelectedReferenceLevel, SelectedPnr)
 
+            'Storing the test description
             CurrentSipTestMeasurement.Description = SelectedTestDescription
+
+            'Setting the default export path
+            CurrentSipTestMeasurement.SetDefaultExportPath()
 
             'Things seemed to be in order,
             'Starting the test

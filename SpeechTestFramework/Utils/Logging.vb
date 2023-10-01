@@ -39,8 +39,6 @@ Namespace Utils
 
         Public LoggingSpinLock As New Threading.SpinLock
 
-        Public SuperGeneralCounter As Integer = 0
-
         Public Sub SendInfoToLog(ByVal message As String,
                                  Optional ByVal LogFileNameWithoutExtension As String = "",
                                  Optional LogFileTemporaryPath As String = "",

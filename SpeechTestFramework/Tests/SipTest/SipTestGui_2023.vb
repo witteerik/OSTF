@@ -503,7 +503,7 @@ Public Class SipTestGui_2023
 
     End Sub
 
-    Private Sub Custom_SNC_TextBox_KeyUp(sender As Object, e As EventArgs) Handles Custom_SNC_TextBox.LostFocus
+    Private Sub Custom_SNC_TextBox_KeyUp(sender As Object, e As EventArgs) Handles Custom_SNC_TextBox.LostFocus, Custom_SNC_TextBox.KeyUp
 
         TryCreateSipTestMeasurement()
 
@@ -756,10 +756,13 @@ Public Class SipTestGui_2023
             If CheckRequiredInputSettings() = False Then Exit Sub
 
 
-            'Creates a new test and updates the psychometric function diagram
+            'Creates a new test 
             CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
             CurrentSipTestMeasurement.TestProcedure.LengthReduplications = SelectedLengthReduplications
             CurrentSipTestMeasurement.TestProcedure.TestParadigm = SelectedTestparadigm
+
+            'Stores whether to export tets trial sounds
+            CurrentSipTestMeasurement.ExportTrialSoundFiles = ExportTrialSounds_CheckBox.Checked
 
             Select Case TestMode
                 Case TestModes.Directional
@@ -1457,7 +1460,11 @@ Public Class SipTestGui_2023
                 SipMeasurementRandomizer = New Random
             End If
 
+            'Storing the test description
             CurrentSipTestMeasurement.Description = SelectedTestDescription
+
+            'Setting the default export path
+            CurrentSipTestMeasurement.SetDefaultExportPath()
 
             'Things seemed to be in order,
             'Starting the test
@@ -1972,8 +1979,15 @@ Public Class SipTestGui_2023
         'Stores the response
         CurrentSipTrial.Response = ResponseString
 
-        'Moves the trials to from planned to observed trials so thatr it doesn't get presented again
+        'Moves the trials to from planned to observed trials so that it doesn't get presented again
         CurrentSipTestMeasurement.MoveTrialToHistory(CurrentSipTrial)
+
+        'Exports the result
+        If CurrentSipTestMeasurement.ObservedTrials.Count = 1 Then
+            CurrentSipTrial.ExportTrialResult(True, Not CurrentSipTestMeasurement.ExportTrialSoundFiles)
+        Else
+            CurrentSipTrial.ExportTrialResult(False, Not CurrentSipTestMeasurement.ExportTrialSoundFiles)
+        End If
 
         'Updates the progress bar
         If ShowProgressIndication = True Then
