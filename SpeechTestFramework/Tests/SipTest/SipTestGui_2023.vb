@@ -8,7 +8,7 @@ Public Class SipTestGui_2023
     ''' <summary>
     ''' Set to false to show all available test modes
     ''' </summary>
-    Private DisableExtraTestModes As Boolean = False
+    Private DisableExtraTestModes As Boolean = True
 
     Public ReadOnly Property IsStandAlone As Boolean
 
@@ -48,13 +48,15 @@ Public Class SipTestGui_2023
     Private AvailableTargetAzimuths As New List(Of Double) From {-90, -60, -30, 0, 30, 60, 90}
     Private AvailableMaskerAzimuths As New List(Of Double) From {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180}
     Private AvailableBackgroundAzimuths As New List(Of Double) From {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180}
-    Private AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4}
-    Private AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
+    'Private AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4}
+    Private AvailableLengthReduplications As New List(Of Integer) From {1, 2}
+    'Private AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
+    Private AvailablePNRs As New List(Of Double) From {-20, -16, -10, -3, 4, 11}
     Private BmldTargetModeStrings As New List(Of String) From {"R", "L", "0", "π"} ' For Right, Left, Zero, Pi,
     Private BmldNoiseModeStrings As New List(Of String) From {"R", "L", "0", "π", "U"} ' For Right, Left, Zero, Pi, Uncorrelated (i.e. different noises binaurally)
 
     Private AvailableSimultaneousNoisesCount As New List(Of Integer) From {1, 2, 3, 4, 5}
-    Private ReadOnly DefaultSelectedSimultaneousNoisesCountIndex As Integer = 1
+    Private ReadOnly DefaultSelectedSimultaneousNoisesCountIndex As Integer = 0
     ''' <summary>
     ''' Holds the (zero-based) index of the default reference level in the AvailableReferenceLevels object
     ''' </summary>
