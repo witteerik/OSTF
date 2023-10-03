@@ -39,7 +39,7 @@ Public Class DirectionalSimulation
 
 
     ''' <summary>
-    ''' Searches the imuplse response set and returns the binaural impulse response available closest the the indicated azimuth, elevation and distance.
+    ''' Searches the impulse response set and returns the binaural impulse response available closest the the indicated azimuth, elevation and distance.
     ''' </summary>
     ''' <param name="Azimuth">The azimuth (phi)</param>
     ''' <param name="Elevation">The elevation (or inclination, theta), relative to the horizontal plane</param>
@@ -61,6 +61,14 @@ Public Class DirectionalSimulation
             If BinauralImpulseReponseSet.Value.SampleRate = SampleRate Then
                 OutputList.Add(BinauralImpulseReponseSet.Value.Name)
             End If
+        Next
+        Return OutputList
+    End Function
+
+    Public Function GetAvailableDirectionalSimulationSetNames() As List(Of String)
+        Dim OutputList As New List(Of String)
+        For Each BinauralImpulseReponseSet In BinauralImpulseReponseSets
+            OutputList.Add(BinauralImpulseReponseSet.Value.Name)
         Next
         Return OutputList
     End Function
@@ -88,6 +96,20 @@ Public Class DirectionalSimulation
 
     End Function
 
+    Public Function GetAvailableDirectionalSimulationSets(ByRef SelectedTransducer As AudioSystemSpecification) As List(Of String)
+
+        Dim OutputList As New List(Of String)
+
+        'Requires -90 and 90 (i.e. left and right) loudspeakers
+        'TODO, other requirements?? such as elevation of 0, distance 0 etc?
+        If SelectedTransducer.LoudspeakerAzimuths.Contains(-90) And SelectedTransducer.LoudspeakerAzimuths.Contains(90) Then
+            Return DirectionalSimulator.GetAvailableDirectionalSimulationSetNames()
+        End If
+
+        Return OutputList
+
+    End Function
+
     ''' <summary>
     ''' Attempts to set the SelectedDirectionalSimulationSet to DirectionalSimulationSetName based  on the SelectedTransducer and SampleRate. Returns True if success, and False if not possible.
     ''' </summary>
@@ -97,6 +119,21 @@ Public Class DirectionalSimulation
     Public Function TrySetSelectedDirectionalSimulationSet(ByVal DirectionalSimulationSetName As String, ByRef SelectedTransducer As AudioSystemSpecification, ByVal SampleRate As Integer) As Boolean
 
         Dim AvailableSets = GetAvailableDirectionalSimulationSets(SelectedTransducer, SampleRate)
+        If AvailableSets.Contains(DirectionalSimulationSetName) Then
+            Me._SelectedDirectionalSimulationSetName = DirectionalSimulationSetName
+            Return True
+        End If
+        Return False
+    End Function
+
+    ''' <summary>
+    ''' Attempts to set the SelectedDirectionalSimulationSet to DirectionalSimulationSetName based  on the SelectedTransducer. Returns True if success, and False if not possible.
+    ''' </summary>
+    ''' <param name="DirectionalSimulationSetName"></param>
+    ''' <returns></returns>
+    Public Function TrySetSelectedDirectionalSimulationSet(ByVal DirectionalSimulationSetName As String, ByRef SelectedTransducer As AudioSystemSpecification) As Boolean
+
+        Dim AvailableSets = GetAvailableDirectionalSimulationSets(SelectedTransducer)
         If AvailableSets.Contains(DirectionalSimulationSetName) Then
             Me._SelectedDirectionalSimulationSetName = DirectionalSimulationSetName
             Return True
@@ -123,6 +160,20 @@ Public Class DirectionalSimulation
             Return _SelectedDirectionalSimulationSetName
         End Get
     End Property
+
+    Public Function IsActive() As Boolean
+        If SelectedDirectionalSimulationSetName = "" Then
+            Return False
+        Else
+            Return True
+        End If
+    End Function
+
+    Public Function GetAllDirectionalSimulationSets() As SortedList(Of String, BinauralImpulseReponseSet)
+
+        Return BinauralImpulseReponseSets
+
+    End Function
 
 
 End Class
@@ -176,7 +227,7 @@ Public Class BinauralImpulseReponseSet
                 'Parsing line
                 Dim LineSplit = Line.Trim.Trim(vbTab).Split(vbTab)
 
-                If LineSplit.Length <> ExpectedColumnCount Then Throw New ArgumentException("The file " & ImpulseResponseSetSpecificationFile & " contains a bad structure at line " & LineRead & "(There should be " & ExpectedColumnCount & " tab delimited columns.")
+                If LineSplit.Length < ExpectedColumnCount Then Throw New ArgumentException("The file " & ImpulseResponseSetSpecificationFile & " contains a bad structure at line " & LineRead & "(There should be " & ExpectedColumnCount & " tab delimited columns.")
 
                 Dim SoundFile As String = LineSplit(0).Trim
                 Dim ImpulseResponseInputChannel As String = InputFileSupport.InputFileIntegerValueParsing(LineSplit(1).Trim, False, ImpulseResponseSetSpecificationFile)
@@ -249,6 +300,27 @@ Public Class BinauralImpulseReponseSet
 
             End If
 
+        Next
+
+        'Adjusting calibration gain so that a signal with a C-weighted spectrum gets zero dB filter gain when the IR is used as a kernel in a convolution filter, in the front position (azimuth = 0, elevation = 0).
+        'For this the average gain of the left and the right ear IRs (in the front prosition) is used. 
+        'Each distance is modified separately, so that simulated level (i.e. the level in the headphones) gets independent of distance.
+        Dim CalibrationOffSets = CalculateFrontalIrGains()
+        For Each Distance_OffSetValue In CalibrationOffSets
+
+            Dim CurrentDistance = Distance_OffSetValue.Item1
+            Dim CurrentCalibrationOffSet = Distance_OffSetValue.Item2
+
+            'N.B. this code will fail if an occurring distance lack a front position!
+
+            For Each Kernel In StereoKernels
+                If Kernel.Value.Item1.GetSphericalDistance = CurrentDistance Then
+
+                    'Attenuating by the calibration offset (to get zero dB filter gain for a signal with a C-weighted spectrum)
+                    Audio.DSP.AmplifySection(Kernel.Value.Item2, -CurrentCalibrationOffSet)
+
+                End If
+            Next
         Next
 
     End Sub
@@ -449,5 +521,119 @@ Public Class BinauralImpulseReponseSet
                                             ModelFormat.Encoding)
 
     End Function
+
+    Public Function CalculateFrontalIrGains(Optional ByVal ExportSoundFiles As Boolean = False) As List(Of Tuple(Of Double, Double))
+
+        Dim GainList As New List(Of Tuple(Of Double, Double))
+
+        Dim Distances = GetAllOccurringDistances()
+
+        For Each Distance In Distances
+
+            Dim ClosestPointSound = GetClosestPoint(0, 0, Distance).Item2
+
+            Dim LeftValue = CalculateIrGain(Me.Name & "L" & Distance, ClosestPointSound, 1, ExportSoundFiles)
+            Dim RightValue = CalculateIrGain(Me.Name & "R" & Distance, ClosestPointSound, 2, ExportSoundFiles)
+            Dim Average = {LeftValue, RightValue}.Average
+
+            GainList.Add(New Tuple(Of Double, Double)(Distance, Average))
+
+        Next
+
+        Return GainList
+
+    End Function
+
+    'Public Function CalculateAverageIrGain(Optional ByVal ExportSoundFiles As Boolean = False) As Double
+
+    '    Dim GainList As New List(Of Double)
+
+    '    For Each Kernel In StereoKernels
+
+    '        GainList.Add(CalculateIrGain((Me.Name & Kernel.Value.Item1.GetSphericalAzimuth).Replace(" ", "_"), Kernel.Value.Item2, 1, ExportSoundFiles))
+    '        GainList.Add(CalculateIrGain((Me.Name & Kernel.Value.Item1.GetSphericalAzimuth).Replace(" ", "_"), Kernel.Value.Item2, 2, ExportSoundFiles))
+
+    '    Next
+
+    '    Return GainList.Average
+
+    'End Function
+
+
+    Public Shared Function CalculateIrGain(ByVal IrName As String, ByRef IR As Audio.Sound, ByVal Channel As Integer, Optional ByVal ExportSoundFiles As Boolean = False) As Double
+
+        Dim MonoWaveFormat = New Audio.Formats.WaveFormat(IR.WaveFormat.SampleRate, IR.WaveFormat.BitDepth, 1,, IR.WaveFormat.Encoding)
+
+        'Copies the channel of interest in the IR to a mono sound
+        Dim IrSound As New Audio.Sound(MonoWaveFormat)
+        IrSound.WaveData.SampleData(1) = IR.WaveData.SampleData(Channel)
+
+        'Notes the length of the IR
+        Dim IrLength As Integer = IrSound.WaveData.SampleData(1).Length
+
+        'Creates a delta pulse measurement sound
+        Dim TestSound = SpeechTestFramework.Audio.GenerateSound.CreateSilence(MonoWaveFormat,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+        TestSound.WaveData.SampleData(1)(IrLength * 2) = 1
+
+        'Filters it with a C-weighting, to avoid low and high frequency influences
+        TestSound = Audio.DSP.IIRFilter(TestSound, Audio.BasicAudioEnums.FrequencyWeightings.C)
+
+        'Measures the pre filter level
+        Dim PreLevel As Double = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(TestSound, 1, IrLength, 3 * IrLength)
+
+        'Runs convolution
+        Dim ConvolutedSound = SpeechTestFramework.Audio.DSP.FIRFilter(TestSound, IrSound, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+
+        'Gets the post-convolution level
+        Dim PostLevel = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConvolutedSound, 1, IrLength, 3 * IrLength)
+
+        'Calculates the gain
+        Dim FilterGain As Double = PostLevel - PreLevel
+
+        If ExportSoundFiles = True Then
+            TestSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "OriginalSound.wav"))
+            ConvolutedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "ConvolutedSound.wav"))
+        End If
+
+        Return FilterGain
+
+    End Function
+
+
+    'Public Shared Function CalculateIrGain_UsingWarble(ByVal IrName As String, ByRef IR As Audio.Sound, ByVal Channel As Integer, Optional ByVal ExportSoundFiles As Boolean = False) As Double
+
+    '    Dim MonoWaveFormat = New Audio.Formats.WaveFormat(IR.WaveFormat.SampleRate, IR.WaveFormat.BitDepth, 1,, IR.WaveFormat.Encoding)
+
+    '    'Copies the channel of interest in the IR to a mono sound
+    '    Dim IrSound As New Audio.Sound(MonoWaveFormat)
+    '    IrSound.WaveData.SampleData(1) = IR.WaveData.SampleData(Channel)
+
+    '    'Notes the length of the IR
+    '    Dim IrLength As Integer = IrSound.WaveData.SampleData(1).Length
+
+    '    'Creates a warble tone at 1 kHz (measurement sound)
+    '    Dim TestSound = Audio.GenerateSound.CreateFrequencyModulatedSineWave(MonoWaveFormat, 1, 1000, 0.5, 20, 0.125,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+
+    '    'Measures the pre filter level
+    '    Dim PreLevel As Double = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(TestSound, 1, IrLength, 3 * IrLength)
+
+    '    'Runs convolution
+    '    Dim ConvolutedSound = SpeechTestFramework.Audio.DSP.FIRFilter(TestSound, IrSound, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+
+    '    'Gets the post-convolution level
+    '    Dim PostLevel = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConvolutedSound, 1, IrLength, 3 * IrLength)
+
+    '    'Calculates the gain
+    '    Dim FilterGain As Double = PostLevel - PreLevel
+
+    '    If ExportSoundFiles = True Then
+    '        TestSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "OriginalSound.wav"))
+    '        ConvolutedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "ConvolutedSound.wav"))
+    '    End If
+
+    '    Return FilterGain
+
+    'End Function
+
 
 End Class

@@ -1,5 +1,5 @@
 Name = ARC - Harcellen - KEMAR - 48kHz					
-ImpulseResponseSubFolder = Data\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones					
+ImpulseResponseSubFolder = Data\ARC\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones					
 SampleRate = 48000					
 					
 <AvailableSourceLocations> 					

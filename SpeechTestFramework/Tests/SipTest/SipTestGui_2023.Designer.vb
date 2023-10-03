@@ -48,14 +48,12 @@ Partial Class SipTestGui_2023
         Me.BtScreen_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.ConnectBluetoothScreen_Button = New System.Windows.Forms.Button()
         Me.DisconnectBtScreen_Button = New System.Windows.Forms.Button()
-        Me.BtLamp = New SpeechTestFramework.Lamp()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExportResultsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.Operation_ProgressBarWithText = New SpeechTestFramework.ProgressBarWithText()
         Me.Test_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.ProportionCorrectTextBox = New System.Windows.Forms.TextBox()
@@ -66,13 +64,10 @@ Partial Class SipTestGui_2023
         Me.ResultColumn = New System.Windows.Forms.DataGridViewImageColumn()
         Me.CorrectCount_Label = New System.Windows.Forms.Label()
         Me.ProportionCorrect_Label = New System.Windows.Forms.Label()
-        Me.Start_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.CorrectCountTextBox = New System.Windows.Forms.TextBox()
         Me.TestDescriptionTextBox = New System.Windows.Forms.TextBox()
         Me.TestDescription_Label = New System.Windows.Forms.Label()
         Me.RandomSeed_Label = New System.Windows.Forms.Label()
-        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.KeyboardShortcutContainer_Panel = New System.Windows.Forms.Panel()
         Me.KeybordShortcut_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.Pause_Label = New System.Windows.Forms.Label()
@@ -95,6 +90,12 @@ Partial Class SipTestGui_2023
         Me.Situations_FlowLayoutPanel = New System.Windows.Forms.FlowLayoutPanel()
         Me.PNRs_FlowLayoutPanel = New System.Windows.Forms.FlowLayoutPanel()
         Me.TestMode_TabControl = New System.Windows.Forms.TabControl()
+        Me.CustomMode1_TabPage = New System.Windows.Forms.TabPage()
+        Me.TableLayoutPanel7 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Label9 = New System.Windows.Forms.Label()
+        Me.DirectionalSimulationSet_C1_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.Custom_SNC_TextBox = New System.Windows.Forms.TextBox()
+        Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.DirectionalModeTabPage = New System.Windows.Forms.TabPage()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label3 = New System.Windows.Forms.Label()
@@ -117,12 +118,6 @@ Partial Class SipTestGui_2023
         Me.BmldNoiseMode_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.BmldMode_RichTextBox = New System.Windows.Forms.RichTextBox()
-        Me.CustomMode1_TabPage = New System.Windows.Forms.TabPage()
-        Me.TableLayoutPanel7 = New System.Windows.Forms.TableLayoutPanel()
-        Me.Label9 = New System.Windows.Forms.Label()
-        Me.DirectionalSimulationSet_C1_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.Custom_SNC_TextBox = New System.Windows.Forms.TextBox()
-        Me.TextBox2 = New System.Windows.Forms.TextBox()
         Me.ExportTrialSounds_CheckBox = New System.Windows.Forms.CheckBox()
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
         Me.CompletedTests_Label = New System.Windows.Forms.Label()
@@ -131,6 +126,11 @@ Partial Class SipTestGui_2023
         Me.TestLengthColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.ResultColumnSession = New System.Windows.Forms.DataGridViewTextBoxColumn()
         Me.CompareColumnSession = New System.Windows.Forms.DataGridViewCheckBoxColumn()
+        Me.BtLamp = New SpeechTestFramework.Lamp()
+        Me.Operation_ProgressBarWithText = New SpeechTestFramework.ProgressBarWithText()
+        Me.Start_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
+        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.Top_TableLayoutPanel.SuspendLayout()
         Me.SoundSettings_TableLayoutPanel.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
@@ -146,12 +146,12 @@ Partial Class SipTestGui_2023
         Me.KeybordShortcut_TableLayoutPanel.SuspendLayout()
         Me.TestSettings_TableLayoutPanel.SuspendLayout()
         Me.TestMode_TabControl.SuspendLayout()
+        Me.CustomMode1_TabPage.SuspendLayout()
+        Me.TableLayoutPanel7.SuspendLayout()
         Me.DirectionalModeTabPage.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
         Me.BmldModeTabPage.SuspendLayout()
         Me.TableLayoutPanel6.SuspendLayout()
-        Me.CustomMode1_TabPage.SuspendLayout()
-        Me.TableLayoutPanel7.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
         CType(Me.CurrentSessionResults_DataGridView, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -385,19 +385,6 @@ Partial Class SipTestGui_2023
         Me.DisconnectBtScreen_Button.Text = "Koppla från BT-skärm"
         Me.DisconnectBtScreen_Button.UseVisualStyleBackColor = True
         '
-        'BtLamp
-        '
-        Me.BtLamp.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BtLamp.Location = New System.Drawing.Point(559, 1)
-        Me.BtLamp.Margin = New System.Windows.Forms.Padding(1)
-        Me.BtLamp.Name = "BtLamp"
-        Me.BtLamp.Shape = SpeechTestFramework.Lamp.Shapes.Circle
-        Me.BtLamp.ShapeSize = 0.8!
-        Me.BtLamp.Size = New System.Drawing.Size(51, 20)
-        Me.BtLamp.State = SpeechTestFramework.Lamp.States.Disabled
-        Me.BtLamp.TabIndex = 3
-        Me.BtLamp.Text = "Lamp1"
-        '
         'MenuStrip1
         '
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.AboutToolStripMenuItem})
@@ -454,18 +441,6 @@ Partial Class SipTestGui_2023
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(1599, 5)
         Me.Panel1.TabIndex = 3
-        '
-        'Operation_ProgressBarWithText
-        '
-        Me.Operation_ProgressBarWithText.CustomText = ""
-        Me.Operation_ProgressBarWithText.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Operation_ProgressBarWithText.Location = New System.Drawing.Point(3, 703)
-        Me.Operation_ProgressBarWithText.Name = "Operation_ProgressBarWithText"
-        Me.Operation_ProgressBarWithText.Size = New System.Drawing.Size(1599, 23)
-        Me.Operation_ProgressBarWithText.Step = 1
-        Me.Operation_ProgressBarWithText.TabIndex = 4
-        Me.Operation_ProgressBarWithText.TextFont = New System.Drawing.Font("Microsoft Sans Serif", 8.25!)
-        Me.Operation_ProgressBarWithText.TextMode = SpeechTestFramework.ProgressBarWithText.TextModes.CustomText
         '
         'Test_TableLayoutPanel
         '
@@ -645,18 +620,6 @@ Partial Class SipTestGui_2023
         Me.ProportionCorrect_Label.Text = "Proportion correct"
         Me.ProportionCorrect_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'Start_AudioButton
-        '
-        Me.TableLayoutPanel4.SetColumnSpan(Me.Start_AudioButton, 2)
-        Me.Start_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Start_AudioButton.Enabled = False
-        Me.Start_AudioButton.Location = New System.Drawing.Point(3, 45)
-        Me.Start_AudioButton.Name = "Start_AudioButton"
-        Me.Start_AudioButton.Size = New System.Drawing.Size(232, 34)
-        Me.Start_AudioButton.TabIndex = 10
-        Me.Start_AudioButton.UseVisualStyleBackColor = True
-        Me.Start_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
-        '
         'CorrectCountTextBox
         '
         Me.TableLayoutPanel4.SetColumnSpan(Me.CorrectCountTextBox, 2)
@@ -701,29 +664,6 @@ Partial Class SipTestGui_2023
         Me.RandomSeed_Label.TabIndex = 7
         Me.RandomSeed_Label.Text = "Random seed (optional):"
         Me.RandomSeed_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'RandomSeed_IntegerParsingTextBox
-        '
-        Me.TableLayoutPanel4.SetColumnSpan(Me.RandomSeed_IntegerParsingTextBox, 3)
-        Me.RandomSeed_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(100, 21)
-        Me.RandomSeed_IntegerParsingTextBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
-        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(378, 20)
-        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 8
-        '
-        'Stop_AudioButton
-        '
-        Me.TableLayoutPanel4.SetColumnSpan(Me.Stop_AudioButton, 2)
-        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Stop_AudioButton.Enabled = False
-        Me.Stop_AudioButton.Location = New System.Drawing.Point(241, 45)
-        Me.Stop_AudioButton.Name = "Stop_AudioButton"
-        Me.Stop_AudioButton.Size = New System.Drawing.Size(234, 34)
-        Me.Stop_AudioButton.TabIndex = 11
-        Me.Stop_AudioButton.UseVisualStyleBackColor = True
-        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
         '
         'KeyboardShortcutContainer_Panel
         '
@@ -968,15 +908,85 @@ Partial Class SipTestGui_2023
         'TestMode_TabControl
         '
         Me.TestSettings_TableLayoutPanel.SetColumnSpan(Me.TestMode_TabControl, 2)
+        Me.TestMode_TabControl.Controls.Add(Me.CustomMode1_TabPage)
         Me.TestMode_TabControl.Controls.Add(Me.DirectionalModeTabPage)
         Me.TestMode_TabControl.Controls.Add(Me.BmldModeTabPage)
-        Me.TestMode_TabControl.Controls.Add(Me.CustomMode1_TabPage)
         Me.TestMode_TabControl.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TestMode_TabControl.Location = New System.Drawing.Point(3, 3)
         Me.TestMode_TabControl.Name = "TestMode_TabControl"
         Me.TestMode_TabControl.SelectedIndex = 0
         Me.TestMode_TabControl.Size = New System.Drawing.Size(585, 302)
         Me.TestMode_TabControl.TabIndex = 29
+        '
+        'CustomMode1_TabPage
+        '
+        Me.CustomMode1_TabPage.Controls.Add(Me.TableLayoutPanel7)
+        Me.CustomMode1_TabPage.Location = New System.Drawing.Point(4, 22)
+        Me.CustomMode1_TabPage.Name = "CustomMode1_TabPage"
+        Me.CustomMode1_TabPage.Size = New System.Drawing.Size(577, 276)
+        Me.CustomMode1_TabPage.TabIndex = 2
+        Me.CustomMode1_TabPage.Text = "Custom 1"
+        Me.CustomMode1_TabPage.UseVisualStyleBackColor = True
+        '
+        'TableLayoutPanel7
+        '
+        Me.TableLayoutPanel7.ColumnCount = 2
+        Me.TableLayoutPanel7.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 58.23223!))
+        Me.TableLayoutPanel7.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 41.76777!))
+        Me.TableLayoutPanel7.Controls.Add(Me.Label9, 0, 0)
+        Me.TableLayoutPanel7.Controls.Add(Me.DirectionalSimulationSet_C1_ComboBox, 1, 0)
+        Me.TableLayoutPanel7.Controls.Add(Me.Custom_SNC_TextBox, 1, 1)
+        Me.TableLayoutPanel7.Controls.Add(Me.TextBox2, 0, 1)
+        Me.TableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel7.Location = New System.Drawing.Point(0, 0)
+        Me.TableLayoutPanel7.Name = "TableLayoutPanel7"
+        Me.TableLayoutPanel7.RowCount = 2
+        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
+        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel7.Size = New System.Drawing.Size(577, 276)
+        Me.TableLayoutPanel7.TabIndex = 0
+        '
+        'Label9
+        '
+        Me.Label9.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label9.Location = New System.Drawing.Point(3, 0)
+        Me.Label9.Name = "Label9"
+        Me.Label9.Size = New System.Drawing.Size(329, 21)
+        Me.Label9.TabIndex = 31
+        Me.Label9.Text = "Directional simulation set"
+        Me.Label9.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'DirectionalSimulationSet_C1_ComboBox
+        '
+        Me.DirectionalSimulationSet_C1_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.DirectionalSimulationSet_C1_ComboBox.FormattingEnabled = True
+        Me.DirectionalSimulationSet_C1_ComboBox.Location = New System.Drawing.Point(335, 0)
+        Me.DirectionalSimulationSet_C1_ComboBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.DirectionalSimulationSet_C1_ComboBox.Name = "DirectionalSimulationSet_C1_ComboBox"
+        Me.DirectionalSimulationSet_C1_ComboBox.Size = New System.Drawing.Size(242, 21)
+        Me.DirectionalSimulationSet_C1_ComboBox.TabIndex = 32
+        '
+        'Custom_SNC_TextBox
+        '
+        Me.Custom_SNC_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Custom_SNC_TextBox.Location = New System.Drawing.Point(338, 24)
+        Me.Custom_SNC_TextBox.Multiline = True
+        Me.Custom_SNC_TextBox.Name = "Custom_SNC_TextBox"
+        Me.Custom_SNC_TextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.Custom_SNC_TextBox.Size = New System.Drawing.Size(236, 249)
+        Me.Custom_SNC_TextBox.TabIndex = 34
+        Me.Custom_SNC_TextBox.Text = "0 | 0" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "-30 | 30" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "0 | -90" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "0 | 90" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "P | U" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "R | R" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
+        '
+        'TextBox2
+        '
+        Me.TextBox2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TextBox2.Location = New System.Drawing.Point(3, 24)
+        Me.TextBox2.Multiline = True
+        Me.TextBox2.Name = "TextBox2"
+        Me.TextBox2.ReadOnly = True
+        Me.TextBox2.Size = New System.Drawing.Size(329, 249)
+        Me.TextBox2.TabIndex = 35
+        Me.TextBox2.Text = resources.GetString("TextBox2.Text")
         '
         'DirectionalModeTabPage
         '
@@ -1137,7 +1147,7 @@ Partial Class SipTestGui_2023
         Me.BmldModeTabPage.Location = New System.Drawing.Point(4, 22)
         Me.BmldModeTabPage.Name = "BmldModeTabPage"
         Me.BmldModeTabPage.Padding = New System.Windows.Forms.Padding(3)
-        Me.BmldModeTabPage.Size = New System.Drawing.Size(577, 277)
+        Me.BmldModeTabPage.Size = New System.Drawing.Size(577, 276)
         Me.BmldModeTabPage.TabIndex = 1
         Me.BmldModeTabPage.Text = "BMLD mode"
         Me.BmldModeTabPage.UseVisualStyleBackColor = True
@@ -1161,7 +1171,7 @@ Partial Class SipTestGui_2023
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel6.Size = New System.Drawing.Size(571, 271)
+        Me.TableLayoutPanel6.Size = New System.Drawing.Size(571, 270)
         Me.TableLayoutPanel6.TabIndex = 0
         '
         'Label6
@@ -1224,76 +1234,6 @@ Partial Class SipTestGui_2023
         Me.BmldMode_RichTextBox.Size = New System.Drawing.Size(389, 34)
         Me.BmldMode_RichTextBox.TabIndex = 5
         Me.BmldMode_RichTextBox.Text = ""
-        '
-        'CustomMode1_TabPage
-        '
-        Me.CustomMode1_TabPage.Controls.Add(Me.TableLayoutPanel7)
-        Me.CustomMode1_TabPage.Location = New System.Drawing.Point(4, 22)
-        Me.CustomMode1_TabPage.Name = "CustomMode1_TabPage"
-        Me.CustomMode1_TabPage.Size = New System.Drawing.Size(577, 277)
-        Me.CustomMode1_TabPage.TabIndex = 2
-        Me.CustomMode1_TabPage.Text = "Custom 1"
-        Me.CustomMode1_TabPage.UseVisualStyleBackColor = True
-        '
-        'TableLayoutPanel7
-        '
-        Me.TableLayoutPanel7.ColumnCount = 2
-        Me.TableLayoutPanel7.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 58.23223!))
-        Me.TableLayoutPanel7.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 41.76777!))
-        Me.TableLayoutPanel7.Controls.Add(Me.Label9, 0, 0)
-        Me.TableLayoutPanel7.Controls.Add(Me.DirectionalSimulationSet_C1_ComboBox, 1, 0)
-        Me.TableLayoutPanel7.Controls.Add(Me.Custom_SNC_TextBox, 1, 1)
-        Me.TableLayoutPanel7.Controls.Add(Me.TextBox2, 0, 1)
-        Me.TableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel7.Location = New System.Drawing.Point(0, 0)
-        Me.TableLayoutPanel7.Name = "TableLayoutPanel7"
-        Me.TableLayoutPanel7.RowCount = 2
-        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
-        Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel7.Size = New System.Drawing.Size(577, 277)
-        Me.TableLayoutPanel7.TabIndex = 0
-        '
-        'Label9
-        '
-        Me.Label9.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label9.Location = New System.Drawing.Point(3, 0)
-        Me.Label9.Name = "Label9"
-        Me.Label9.Size = New System.Drawing.Size(329, 21)
-        Me.Label9.TabIndex = 31
-        Me.Label9.Text = "Directional simulation set"
-        Me.Label9.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'DirectionalSimulationSet_C1_ComboBox
-        '
-        Me.DirectionalSimulationSet_C1_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.DirectionalSimulationSet_C1_ComboBox.FormattingEnabled = True
-        Me.DirectionalSimulationSet_C1_ComboBox.Location = New System.Drawing.Point(335, 0)
-        Me.DirectionalSimulationSet_C1_ComboBox.Margin = New System.Windows.Forms.Padding(0)
-        Me.DirectionalSimulationSet_C1_ComboBox.Name = "DirectionalSimulationSet_C1_ComboBox"
-        Me.DirectionalSimulationSet_C1_ComboBox.Size = New System.Drawing.Size(242, 21)
-        Me.DirectionalSimulationSet_C1_ComboBox.TabIndex = 32
-        '
-        'Custom_SNC_TextBox
-        '
-        Me.Custom_SNC_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Custom_SNC_TextBox.Location = New System.Drawing.Point(338, 24)
-        Me.Custom_SNC_TextBox.Multiline = True
-        Me.Custom_SNC_TextBox.Name = "Custom_SNC_TextBox"
-        Me.Custom_SNC_TextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.Custom_SNC_TextBox.Size = New System.Drawing.Size(236, 250)
-        Me.Custom_SNC_TextBox.TabIndex = 34
-        Me.Custom_SNC_TextBox.Text = "0 | 0" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "-30 | 30" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "0 | -90" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "0 | 90" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "P | U" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "R | R" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10)
-        '
-        'TextBox2
-        '
-        Me.TextBox2.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TextBox2.Location = New System.Drawing.Point(3, 24)
-        Me.TextBox2.Multiline = True
-        Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.ReadOnly = True
-        Me.TextBox2.Size = New System.Drawing.Size(329, 250)
-        Me.TextBox2.TabIndex = 35
-        Me.TextBox2.Text = resources.GetString("TextBox2.Text")
         '
         'ExportTrialSounds_CheckBox
         '
@@ -1399,6 +1339,66 @@ Partial Class SipTestGui_2023
         Me.CompareColumnSession.Name = "CompareColumnSession"
         Me.CompareColumnSession.Resizable = System.Windows.Forms.DataGridViewTriState.[False]
         '
+        'BtLamp
+        '
+        Me.BtLamp.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BtLamp.Location = New System.Drawing.Point(559, 1)
+        Me.BtLamp.Margin = New System.Windows.Forms.Padding(1)
+        Me.BtLamp.Name = "BtLamp"
+        Me.BtLamp.Shape = SpeechTestFramework.Lamp.Shapes.Circle
+        Me.BtLamp.ShapeSize = 0.8!
+        Me.BtLamp.Size = New System.Drawing.Size(51, 20)
+        Me.BtLamp.State = SpeechTestFramework.Lamp.States.Disabled
+        Me.BtLamp.TabIndex = 3
+        Me.BtLamp.Text = "Lamp1"
+        '
+        'Operation_ProgressBarWithText
+        '
+        Me.Operation_ProgressBarWithText.CustomText = ""
+        Me.Operation_ProgressBarWithText.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Operation_ProgressBarWithText.Location = New System.Drawing.Point(3, 703)
+        Me.Operation_ProgressBarWithText.Name = "Operation_ProgressBarWithText"
+        Me.Operation_ProgressBarWithText.Size = New System.Drawing.Size(1599, 23)
+        Me.Operation_ProgressBarWithText.Step = 1
+        Me.Operation_ProgressBarWithText.TabIndex = 4
+        Me.Operation_ProgressBarWithText.TextFont = New System.Drawing.Font("Microsoft Sans Serif", 8.25!)
+        Me.Operation_ProgressBarWithText.TextMode = SpeechTestFramework.ProgressBarWithText.TextModes.CustomText
+        '
+        'Start_AudioButton
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.Start_AudioButton, 2)
+        Me.Start_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Start_AudioButton.Enabled = False
+        Me.Start_AudioButton.Location = New System.Drawing.Point(3, 45)
+        Me.Start_AudioButton.Name = "Start_AudioButton"
+        Me.Start_AudioButton.Size = New System.Drawing.Size(232, 34)
+        Me.Start_AudioButton.TabIndex = 10
+        Me.Start_AudioButton.UseVisualStyleBackColor = True
+        Me.Start_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
+        '
+        'RandomSeed_IntegerParsingTextBox
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.RandomSeed_IntegerParsingTextBox, 3)
+        Me.RandomSeed_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(100, 21)
+        Me.RandomSeed_IntegerParsingTextBox.Margin = New System.Windows.Forms.Padding(0)
+        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
+        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(378, 20)
+        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 8
+        '
+        'Stop_AudioButton
+        '
+        Me.TableLayoutPanel4.SetColumnSpan(Me.Stop_AudioButton, 2)
+        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Stop_AudioButton.Enabled = False
+        Me.Stop_AudioButton.Location = New System.Drawing.Point(241, 45)
+        Me.Stop_AudioButton.Name = "Stop_AudioButton"
+        Me.Stop_AudioButton.Size = New System.Drawing.Size(234, 34)
+        Me.Stop_AudioButton.TabIndex = 11
+        Me.Stop_AudioButton.UseVisualStyleBackColor = True
+        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
+        '
         'SipTestGui_2023
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1431,13 +1431,13 @@ Partial Class SipTestGui_2023
         Me.TestSettings_TableLayoutPanel.ResumeLayout(False)
         Me.TestSettings_TableLayoutPanel.PerformLayout()
         Me.TestMode_TabControl.ResumeLayout(False)
+        Me.CustomMode1_TabPage.ResumeLayout(False)
+        Me.TableLayoutPanel7.ResumeLayout(False)
+        Me.TableLayoutPanel7.PerformLayout()
         Me.DirectionalModeTabPage.ResumeLayout(False)
         Me.TableLayoutPanel3.ResumeLayout(False)
         Me.BmldModeTabPage.ResumeLayout(False)
         Me.TableLayoutPanel6.ResumeLayout(False)
-        Me.CustomMode1_TabPage.ResumeLayout(False)
-        Me.TableLayoutPanel7.ResumeLayout(False)
-        Me.TableLayoutPanel7.PerformLayout()
         Me.TableLayoutPanel5.ResumeLayout(False)
         CType(Me.CurrentSessionResults_DataGridView, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)

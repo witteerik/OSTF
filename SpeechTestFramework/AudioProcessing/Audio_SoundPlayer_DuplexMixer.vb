@@ -307,8 +307,6 @@ Namespace Audio
                             MasterMeasurementSound = GroupMemberMeasurementSounds(0)
                         ElseIf GroupMemberMeasurementSounds.Count > 1 Then
 
-                            'TODO Equalize level before superpositioning?
-
                             'Adds the measurement sounds into MasterMeasurementSound 
                             MasterMeasurementSound = Audio.DSP.SuperpositionEqualLengthSounds(GroupMemberMeasurementSounds)
                         Else

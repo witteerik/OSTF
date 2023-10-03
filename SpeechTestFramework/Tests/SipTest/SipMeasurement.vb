@@ -1680,36 +1680,74 @@ Namespace SipTest
                 Else
 
                     'Creating the mix directly by calling CreateSoundScene of the current Mixer and exporting the sound for comparison with the separately exported sounds below
-                    Dim DoubleCheck As Boolean = False
-                    If DoubleCheck = True Then
+                    Dim ExportAllItemTypes As Boolean = True
+                    If ExportAllItemTypes = True Then
                         Dim TempMixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, Me.SoundPropagationType)
-                        TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("OrignialMix", TempMixedTestTrialSound))
+                        TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("OriginalMix", TempMixedTestTrialSound))
                     End If
 
                     'Creating separate sound files for target, maskers, and the final mix
-                    Dim TargetsItems As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
-                    Dim NontargetsItems As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+                    Dim Target_Items As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+                    Dim Masker_Items As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+                    Dim BackgroundNonspeech_Items As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+                    Dim BackgroundSpeech_Items As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+                    Dim Nontarget_Items As New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+
                     For Each Item In ItemList
+
                         If Item.Role = Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Target Then
                             'Collecting the target/s
-                            TargetsItems.Add(Item)
+                            Target_Items.Add(Item)
                         Else
                             'Collecting the non targets
-                            NontargetsItems.Add(Item)
+                            Nontarget_Items.Add(Item)
                         End If
+
+                        If ExportAllItemTypes = True Then
+                            Select Case Item.Role
+                                Case Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Masker
+                                    'Collecting the maskers/s
+                                    Masker_Items.Add(Item)
+                                Case Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech
+                                    'Collecting the BackgroundNonspeech item/s
+                                    BackgroundNonspeech_Items.Add(Item)
+                                Case Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech
+                                    'Collecting the BackgroundSpeech item/s
+                                    BackgroundSpeech_Items.Add(Item)
+                            End Select
+                        End If
+
                     Next
 
                     'Creating the target mix by calling CreateSoundScene of the current Mixer
-                    Dim TargetSound = SelectedTransducer.Mixer.CreateSoundScene(TargetsItems, Me.SoundPropagationType)
+                    Dim TargetSound = SelectedTransducer.Mixer.CreateSoundScene(Target_Items, Me.SoundPropagationType)
+
+                    Dim MaskerItemsSound As Audio.Sound = Nothing
+                    If Masker_Items.Count > 0 Then
+                        MaskerItemsSound = SelectedTransducer.Mixer.CreateSoundScene(Masker_Items, Me.SoundPropagationType)
+                    End If
+
+                    Dim BackgroundNonspeechItemsSound As Audio.Sound = Nothing
+                    If BackgroundNonspeech_Items.Count > 0 Then
+                        BackgroundNonspeechItemsSound = SelectedTransducer.Mixer.CreateSoundScene(BackgroundNonspeech_Items, Me.SoundPropagationType)
+                    End If
+
+                    Dim BackgroundSpeechItemsSound As Audio.Sound = Nothing
+                    If BackgroundSpeech_Items.Count > 0 Then
+                        BackgroundSpeechItemsSound = SelectedTransducer.Mixer.CreateSoundScene(BackgroundSpeech_Items, Me.SoundPropagationType)
+                    End If
 
                     'Creating the non-target mix by calling CreateSoundScene of the current Mixer
-                    Dim NontargetSound = SelectedTransducer.Mixer.CreateSoundScene(NontargetsItems, Me.SoundPropagationType)
+                    Dim NontargetSound = SelectedTransducer.Mixer.CreateSoundScene(Nontarget_Items, Me.SoundPropagationType)
 
                     'Creating the combined mix
                     MixedTestTrialSound = Audio.DSP.SuperpositionSounds({TargetSound, NontargetSound}.ToList)
 
                     'Stores the sounds in TrialSoundsToExport, to be exported later.
                     TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("TargetSound", TargetSound))
+                    If MaskerItemsSound IsNot Nothing Then TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("MaskersSound", MaskerItemsSound))
+                    If BackgroundNonspeechItemsSound IsNot Nothing Then TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("BackgroundNonspeechSound", BackgroundNonspeechItemsSound))
+                    If BackgroundSpeechItemsSound IsNot Nothing Then TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("BackgroundSpeechSound", BackgroundSpeechItemsSound))
                     TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("NontargetSound", NontargetSound))
                     TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("MixedTestTrialSound", MixedTestTrialSound))
 

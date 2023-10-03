@@ -43,12 +43,18 @@ Partial Class CalibrationForm
         Me.Help_Button = New System.Windows.Forms.Button()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.FrequencyWeighting_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.DirectionalSimulationSet_Label = New System.Windows.Forms.Label()
+        Me.DirectionalSimulationSet_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.SimulatedDistance_Label = New System.Windows.Forms.Label()
+        Me.SimulatedDistance_ComboBox = New System.Windows.Forms.ComboBox()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ViewAvailableSoundDevicesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RightChannel_Label = New System.Windows.Forms.Label()
+        Me.SelectedHardWareOutputChannel_Right_ComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
@@ -57,9 +63,9 @@ Partial Class CalibrationForm
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.CalibrationSignal_RichTextBox, 2)
         Me.CalibrationSignal_RichTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.CalibrationSignal_RichTextBox.Location = New System.Drawing.Point(3, 193)
+        Me.CalibrationSignal_RichTextBox.Location = New System.Drawing.Point(3, 271)
         Me.CalibrationSignal_RichTextBox.Name = "CalibrationSignal_RichTextBox"
-        Me.CalibrationSignal_RichTextBox.Size = New System.Drawing.Size(240, 222)
+        Me.CalibrationSignal_RichTextBox.Size = New System.Drawing.Size(240, 144)
         Me.CalibrationSignal_RichTextBox.TabIndex = 19
         Me.CalibrationSignal_RichTextBox.Text = ""
         '
@@ -68,7 +74,7 @@ Partial Class CalibrationForm
         Me.TableLayoutPanel1.SetColumnSpan(Me.CalibrationLevel_ComboBox, 2)
         Me.CalibrationLevel_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.CalibrationLevel_ComboBox.FormattingEnabled = True
-        Me.CalibrationLevel_ComboBox.Location = New System.Drawing.Point(249, 55)
+        Me.CalibrationLevel_ComboBox.Location = New System.Drawing.Point(249, 107)
         Me.CalibrationLevel_ComboBox.Name = "CalibrationLevel_ComboBox"
         Me.CalibrationLevel_ComboBox.Size = New System.Drawing.Size(240, 21)
         Me.CalibrationLevel_ComboBox.TabIndex = 18
@@ -78,7 +84,7 @@ Partial Class CalibrationForm
         Me.Label3.AutoSize = True
         Me.TableLayoutPanel1.SetColumnSpan(Me.Label3, 2)
         Me.Label3.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label3.Location = New System.Drawing.Point(3, 52)
+        Me.Label3.Location = New System.Drawing.Point(3, 104)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(240, 26)
         Me.Label3.TabIndex = 17
@@ -88,7 +94,7 @@ Partial Class CalibrationForm
         'StopSignal_Button
         '
         Me.StopSignal_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StopSignal_Button.Location = New System.Drawing.Point(372, 133)
+        Me.StopSignal_Button.Location = New System.Drawing.Point(372, 211)
         Me.StopSignal_Button.Name = "StopSignal_Button"
         Me.StopSignal_Button.Size = New System.Drawing.Size(117, 24)
         Me.StopSignal_Button.TabIndex = 16
@@ -97,7 +103,7 @@ Partial Class CalibrationForm
         'PlaySignal_Button
         '
         Me.PlaySignal_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PlaySignal_Button.Location = New System.Drawing.Point(249, 133)
+        Me.PlaySignal_Button.Location = New System.Drawing.Point(249, 211)
         Me.PlaySignal_Button.Name = "PlaySignal_Button"
         Me.PlaySignal_Button.Size = New System.Drawing.Size(117, 24)
         Me.PlaySignal_Button.TabIndex = 15
@@ -140,7 +146,7 @@ Partial Class CalibrationForm
         Me.TableLayoutPanel1.SetColumnSpan(Me.SelectedHardWareOutputChannel_ComboBox, 2)
         Me.SelectedHardWareOutputChannel_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SelectedHardWareOutputChannel_ComboBox.FormattingEnabled = True
-        Me.SelectedHardWareOutputChannel_ComboBox.Location = New System.Drawing.Point(249, 107)
+        Me.SelectedHardWareOutputChannel_ComboBox.Location = New System.Drawing.Point(249, 159)
         Me.SelectedHardWareOutputChannel_ComboBox.Name = "SelectedHardWareOutputChannel_ComboBox"
         Me.SelectedHardWareOutputChannel_ComboBox.Size = New System.Drawing.Size(240, 21)
         Me.SelectedHardWareOutputChannel_ComboBox.TabIndex = 12
@@ -150,7 +156,7 @@ Partial Class CalibrationForm
         Me.Label1.AutoSize = True
         Me.TableLayoutPanel1.SetColumnSpan(Me.Label1, 2)
         Me.Label1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label1.Location = New System.Drawing.Point(3, 104)
+        Me.Label1.Location = New System.Drawing.Point(3, 156)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(240, 26)
         Me.Label1.TabIndex = 11
@@ -164,29 +170,38 @@ Partial Class CalibrationForm
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.0!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.0!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.0!))
-        Me.TableLayoutPanel1.Controls.Add(Me.StopSignal_Button, 3, 5)
-        Me.TableLayoutPanel1.Controls.Add(Me.CalibrationLevel_ComboBox, 2, 2)
-        Me.TableLayoutPanel1.Controls.Add(Me.PlaySignal_Button, 2, 5)
-        Me.TableLayoutPanel1.Controls.Add(Me.SelectedHardWareOutputChannel_ComboBox, 2, 4)
-        Me.TableLayoutPanel1.Controls.Add(Me.Label3, 0, 2)
-        Me.TableLayoutPanel1.Controls.Add(Me.Label2, 0, 1)
-        Me.TableLayoutPanel1.Controls.Add(Me.CalibrationSignal_ComboBox, 2, 1)
-        Me.TableLayoutPanel1.Controls.Add(Me.Label1, 0, 4)
+        Me.TableLayoutPanel1.Controls.Add(Me.StopSignal_Button, 3, 8)
+        Me.TableLayoutPanel1.Controls.Add(Me.CalibrationLevel_ComboBox, 2, 4)
+        Me.TableLayoutPanel1.Controls.Add(Me.PlaySignal_Button, 2, 8)
+        Me.TableLayoutPanel1.Controls.Add(Me.SelectedHardWareOutputChannel_ComboBox, 2, 6)
+        Me.TableLayoutPanel1.Controls.Add(Me.Label3, 0, 4)
+        Me.TableLayoutPanel1.Controls.Add(Me.Label1, 0, 6)
         Me.TableLayoutPanel1.Controls.Add(Me.Label5, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.Transducer_ComboBox, 2, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.Label4, 0, 7)
-        Me.TableLayoutPanel1.Controls.Add(Me.Label6, 2, 7)
-        Me.TableLayoutPanel1.Controls.Add(Me.CalibrationSignal_RichTextBox, 0, 8)
-        Me.TableLayoutPanel1.Controls.Add(Me.SoundSystem_RichTextBox, 2, 8)
-        Me.TableLayoutPanel1.Controls.Add(Me.Close_Button, 0, 9)
-        Me.TableLayoutPanel1.Controls.Add(Me.Splitter1, 0, 6)
-        Me.TableLayoutPanel1.Controls.Add(Me.Help_Button, 0, 5)
-        Me.TableLayoutPanel1.Controls.Add(Me.Label7, 0, 3)
-        Me.TableLayoutPanel1.Controls.Add(Me.FrequencyWeighting_ComboBox, 2, 3)
+        Me.TableLayoutPanel1.Controls.Add(Me.Label4, 0, 10)
+        Me.TableLayoutPanel1.Controls.Add(Me.Label6, 2, 10)
+        Me.TableLayoutPanel1.Controls.Add(Me.CalibrationSignal_RichTextBox, 0, 11)
+        Me.TableLayoutPanel1.Controls.Add(Me.SoundSystem_RichTextBox, 2, 11)
+        Me.TableLayoutPanel1.Controls.Add(Me.Close_Button, 0, 12)
+        Me.TableLayoutPanel1.Controls.Add(Me.Splitter1, 0, 9)
+        Me.TableLayoutPanel1.Controls.Add(Me.Help_Button, 0, 8)
+        Me.TableLayoutPanel1.Controls.Add(Me.Label7, 0, 5)
+        Me.TableLayoutPanel1.Controls.Add(Me.FrequencyWeighting_ComboBox, 2, 5)
+        Me.TableLayoutPanel1.Controls.Add(Me.DirectionalSimulationSet_Label, 0, 2)
+        Me.TableLayoutPanel1.Controls.Add(Me.DirectionalSimulationSet_ComboBox, 2, 2)
+        Me.TableLayoutPanel1.Controls.Add(Me.SimulatedDistance_Label, 0, 3)
+        Me.TableLayoutPanel1.Controls.Add(Me.SimulatedDistance_ComboBox, 2, 3)
+        Me.TableLayoutPanel1.Controls.Add(Me.Label2, 0, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.CalibrationSignal_ComboBox, 2, 1)
+        Me.TableLayoutPanel1.Controls.Add(Me.RightChannel_Label, 0, 7)
+        Me.TableLayoutPanel1.Controls.Add(Me.SelectedHardWareOutputChannel_Right_ComboBox, 2, 7)
         Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 24)
         Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
-        Me.TableLayoutPanel1.RowCount = 10
+        Me.TableLayoutPanel1.RowCount = 13
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
@@ -226,7 +241,7 @@ Partial Class CalibrationForm
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.Label4, 2)
         Me.Label4.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label4.Location = New System.Drawing.Point(3, 170)
+        Me.Label4.Location = New System.Drawing.Point(3, 248)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(240, 20)
         Me.Label4.TabIndex = 20
@@ -237,7 +252,7 @@ Partial Class CalibrationForm
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.Label6, 2)
         Me.Label6.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label6.Location = New System.Drawing.Point(249, 170)
+        Me.Label6.Location = New System.Drawing.Point(249, 248)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(240, 20)
         Me.Label6.TabIndex = 23
@@ -248,9 +263,9 @@ Partial Class CalibrationForm
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.SoundSystem_RichTextBox, 2)
         Me.SoundSystem_RichTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SoundSystem_RichTextBox.Location = New System.Drawing.Point(249, 193)
+        Me.SoundSystem_RichTextBox.Location = New System.Drawing.Point(249, 271)
         Me.SoundSystem_RichTextBox.Name = "SoundSystem_RichTextBox"
-        Me.SoundSystem_RichTextBox.Size = New System.Drawing.Size(240, 222)
+        Me.SoundSystem_RichTextBox.Size = New System.Drawing.Size(240, 144)
         Me.SoundSystem_RichTextBox.TabIndex = 24
         Me.SoundSystem_RichTextBox.Text = ""
         '
@@ -260,7 +275,7 @@ Partial Class CalibrationForm
         Me.TableLayoutPanel1.SetColumnSpan(Me.Splitter1, 4)
         Me.Splitter1.Cursor = System.Windows.Forms.Cursors.HSplit
         Me.Splitter1.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Splitter1.Location = New System.Drawing.Point(3, 163)
+        Me.Splitter1.Location = New System.Drawing.Point(3, 241)
         Me.Splitter1.Name = "Splitter1"
         Me.Splitter1.Size = New System.Drawing.Size(486, 3)
         Me.Splitter1.TabIndex = 25
@@ -269,7 +284,7 @@ Partial Class CalibrationForm
         'Help_Button
         '
         Me.Help_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Help_Button.Location = New System.Drawing.Point(3, 133)
+        Me.Help_Button.Location = New System.Drawing.Point(3, 211)
         Me.Help_Button.Name = "Help_Button"
         Me.Help_Button.Size = New System.Drawing.Size(117, 24)
         Me.Help_Button.TabIndex = 26
@@ -280,7 +295,7 @@ Partial Class CalibrationForm
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.Label7, 2)
         Me.Label7.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label7.Location = New System.Drawing.Point(3, 78)
+        Me.Label7.Location = New System.Drawing.Point(3, 130)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(240, 26)
         Me.Label7.TabIndex = 27
@@ -292,10 +307,54 @@ Partial Class CalibrationForm
         Me.TableLayoutPanel1.SetColumnSpan(Me.FrequencyWeighting_ComboBox, 2)
         Me.FrequencyWeighting_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.FrequencyWeighting_ComboBox.FormattingEnabled = True
-        Me.FrequencyWeighting_ComboBox.Location = New System.Drawing.Point(249, 81)
+        Me.FrequencyWeighting_ComboBox.Location = New System.Drawing.Point(249, 133)
         Me.FrequencyWeighting_ComboBox.Name = "FrequencyWeighting_ComboBox"
         Me.FrequencyWeighting_ComboBox.Size = New System.Drawing.Size(240, 21)
         Me.FrequencyWeighting_ComboBox.TabIndex = 28
+        '
+        'DirectionalSimulationSet_Label
+        '
+        Me.DirectionalSimulationSet_Label.AutoSize = True
+        Me.TableLayoutPanel1.SetColumnSpan(Me.DirectionalSimulationSet_Label, 2)
+        Me.DirectionalSimulationSet_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.DirectionalSimulationSet_Label.Location = New System.Drawing.Point(3, 52)
+        Me.DirectionalSimulationSet_Label.Name = "DirectionalSimulationSet_Label"
+        Me.DirectionalSimulationSet_Label.Size = New System.Drawing.Size(240, 26)
+        Me.DirectionalSimulationSet_Label.TabIndex = 29
+        Me.DirectionalSimulationSet_Label.Text = "Directional simulation set (optional):"
+        Me.DirectionalSimulationSet_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'DirectionalSimulationSet_ComboBox
+        '
+        Me.TableLayoutPanel1.SetColumnSpan(Me.DirectionalSimulationSet_ComboBox, 2)
+        Me.DirectionalSimulationSet_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.DirectionalSimulationSet_ComboBox.FormattingEnabled = True
+        Me.DirectionalSimulationSet_ComboBox.Location = New System.Drawing.Point(249, 55)
+        Me.DirectionalSimulationSet_ComboBox.Name = "DirectionalSimulationSet_ComboBox"
+        Me.DirectionalSimulationSet_ComboBox.Size = New System.Drawing.Size(240, 21)
+        Me.DirectionalSimulationSet_ComboBox.TabIndex = 30
+        '
+        'SimulatedDistance_Label
+        '
+        Me.SimulatedDistance_Label.AutoSize = True
+        Me.TableLayoutPanel1.SetColumnSpan(Me.SimulatedDistance_Label, 2)
+        Me.SimulatedDistance_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SimulatedDistance_Label.Location = New System.Drawing.Point(3, 78)
+        Me.SimulatedDistance_Label.Name = "SimulatedDistance_Label"
+        Me.SimulatedDistance_Label.Size = New System.Drawing.Size(240, 26)
+        Me.SimulatedDistance_Label.TabIndex = 31
+        Me.SimulatedDistance_Label.Text = "Simulated sound source distance (optional):"
+        Me.SimulatedDistance_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'SimulatedDistance_ComboBox
+        '
+        Me.TableLayoutPanel1.SetColumnSpan(Me.SimulatedDistance_ComboBox, 2)
+        Me.SimulatedDistance_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SimulatedDistance_ComboBox.FormattingEnabled = True
+        Me.SimulatedDistance_ComboBox.Location = New System.Drawing.Point(249, 81)
+        Me.SimulatedDistance_ComboBox.Name = "SimulatedDistance_ComboBox"
+        Me.SimulatedDistance_ComboBox.Size = New System.Drawing.Size(240, 21)
+        Me.SimulatedDistance_ComboBox.TabIndex = 32
         '
         'MenuStrip1
         '
@@ -336,6 +395,28 @@ Partial Class CalibrationForm
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
         Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(226, 22)
         Me.ExitToolStripMenuItem.Text = "Exit"
+        '
+        'RightChannel_Label
+        '
+        Me.RightChannel_Label.AutoSize = True
+        Me.TableLayoutPanel1.SetColumnSpan(Me.RightChannel_Label, 2)
+        Me.RightChannel_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RightChannel_Label.Location = New System.Drawing.Point(3, 182)
+        Me.RightChannel_Label.Name = "RightChannel_Label"
+        Me.RightChannel_Label.Size = New System.Drawing.Size(240, 26)
+        Me.RightChannel_Label.TabIndex = 33
+        Me.RightChannel_Label.Text = "Select calibration signal output channel (Right):"
+        Me.RightChannel_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'SelectedHardWareOutputChannel_Right_ComboBox
+        '
+        Me.TableLayoutPanel1.SetColumnSpan(Me.SelectedHardWareOutputChannel_Right_ComboBox, 2)
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.FormattingEnabled = True
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.Location = New System.Drawing.Point(249, 185)
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.Name = "SelectedHardWareOutputChannel_Right_ComboBox"
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.Size = New System.Drawing.Size(240, 21)
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.TabIndex = 34
         '
         'CalibrationForm
         '
@@ -383,4 +464,10 @@ Partial Class CalibrationForm
     Friend WithEvents ExitToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents Label7 As Windows.Forms.Label
     Friend WithEvents FrequencyWeighting_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents DirectionalSimulationSet_Label As Windows.Forms.Label
+    Friend WithEvents DirectionalSimulationSet_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents SimulatedDistance_Label As Windows.Forms.Label
+    Friend WithEvents SimulatedDistance_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents RightChannel_Label As Windows.Forms.Label
+    Friend WithEvents SelectedHardWareOutputChannel_Right_ComboBox As Windows.Forms.ComboBox
 End Class

@@ -22,7 +22,6 @@ Partial Class Form4
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form4))
         Me.Button1 = New System.Windows.Forms.Button()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.Button3 = New System.Windows.Forms.Button()
@@ -39,12 +38,6 @@ Partial Class Form4
         Me.Button13 = New System.Windows.Forms.Button()
         Me.Button14 = New System.Windows.Forms.Button()
         Me.Button15 = New System.Windows.Forms.Button()
-        Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
-        Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
-        Me.Label2 = New System.Windows.Forms.Label()
-        Me.Label3 = New System.Windows.Forms.Label()
         Me.HINTfixButton = New System.Windows.Forms.Button()
         Me.HINTfixButton2 = New System.Windows.Forms.Button()
         Me.HINTfixButton3 = New System.Windows.Forms.Button()
@@ -53,25 +46,10 @@ Partial Class Form4
         Me.HLSIM_Button = New System.Windows.Forms.Button()
         Me.CreateCalib_Button = New System.Windows.Forms.Button()
         Me.Button16 = New System.Windows.Forms.Button()
-        Me.PlotBase1 = New SpeechTestFramework.WinFormControls.PlotBase()
-        Me.TestWordLabel1 = New SpeechTestFramework.TestWordLabel()
-        Me.Audiogram2 = New SpeechTestFramework.WinFormControls.Audiogram()
-        Me.Audiogram1 = New SpeechTestFramework.WinFormControls.Audiogram()
-        Me.ResponseGuiItemTable1 = New SpeechTestFramework.ResponseGuiItemTable()
-        Me.ResponseGuiItem1 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem2 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem3 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem4 = New SpeechTestFramework.ResponseGuiItem()
-        Me.ResponseGuiItem5 = New SpeechTestFramework.ResponseGuiItem()
         Me.Button18 = New System.Windows.Forms.Button()
         Me.Button19 = New System.Windows.Forms.Button()
         Me.Button20 = New System.Windows.Forms.Button()
-        Me.TableLayoutPanel1.SuspendLayout()
-        Me.FlowLayoutPanel1.SuspendLayout()
-        CType(Me.PlotBase1, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.ResponseGuiItemTable1.SuspendLayout()
+        Me.Button21 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -218,67 +196,6 @@ Partial Class Form4
         Me.Button15.Text = "Stop player"
         Me.Button15.UseVisualStyleBackColor = True
         '
-        'TableLayoutPanel1
-        '
-        Me.TableLayoutPanel1.ColumnCount = 2
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel1.Controls.Add(Me.Label1, 0, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.TextBox1, 0, 1)
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(486, 247)
-        Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
-        Me.TableLayoutPanel1.RowCount = 2
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 34.67742!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 65.32258!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(182, 248)
-        Me.TableLayoutPanel1.TabIndex = 23
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(3, 0)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(80, 86)
-        Me.Label1.TabIndex = 0
-        Me.Label1.Text = " Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Lab" &
-    "el1 Label1 Label1 Label1 Label1 Label1 Label1 Label1"
-        '
-        'TextBox1
-        '
-        Me.TextBox1.Location = New System.Drawing.Point(3, 89)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(85, 20)
-        Me.TextBox1.TabIndex = 1
-        '
-        'FlowLayoutPanel1
-        '
-        Me.FlowLayoutPanel1.Controls.Add(Me.Label2)
-        Me.FlowLayoutPanel1.Controls.Add(Me.Label3)
-        Me.FlowLayoutPanel1.Location = New System.Drawing.Point(200, 304)
-        Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
-        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(245, 162)
-        Me.FlowLayoutPanel1.TabIndex = 24
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(3, 0)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(220, 52)
-        Me.Label2.TabIndex = 1
-        Me.Label2.Text = " Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Lab" &
-    "el1 Label1 Label1 Label1 Label1 Label1 Label1 Label1"
-        '
-        'Label3
-        '
-        Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(3, 52)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(220, 52)
-        Me.Label3.TabIndex = 2
-        Me.Label3.Text = " Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Label1 Lab" &
-    "el1 Label1 Label1 Label1 Label1 Label1 Label1 Label1"
-        '
         'HINTfixButton
         '
         Me.HINTfixButton.Location = New System.Drawing.Point(370, 151)
@@ -351,233 +268,6 @@ Partial Class Form4
         Me.Button16.Text = "Test HRTF"
         Me.Button16.UseVisualStyleBackColor = True
         '
-        'PlotBase1
-        '
-        Me.PlotBase1.BackColor = System.Drawing.SystemColors.Window
-        Me.PlotBase1.DashedGridLineColor = System.Drawing.Color.Gray
-        Me.PlotBase1.GridLineColor = System.Drawing.Color.Gray
-        Me.PlotBase1.Location = New System.Drawing.Point(566, 102)
-        Me.PlotBase1.Name = "PlotBase1"
-        Me.PlotBase1.PlotAreaBorder = True
-        Me.PlotBase1.PlotAreaBorderColor = System.Drawing.Color.DarkGray
-        Me.PlotBase1.PlotAreaRelativeMarginBottom = 0.1!
-        Me.PlotBase1.PlotAreaRelativeMarginLeft = 0.1!
-        Me.PlotBase1.PlotAreaRelativeMarginRight = 0.1!
-        Me.PlotBase1.PlotAreaRelativeMarginTop = 0.1!
-        Me.PlotBase1.Size = New System.Drawing.Size(516, 377)
-        Me.PlotBase1.TabIndex = 33
-        Me.PlotBase1.TabStop = False
-        Me.PlotBase1.XaxisDashedGridLinePositions = CType(resources.GetObject("PlotBase1.XaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.PlotBase1.XaxisDrawBottom = True
-        Me.PlotBase1.XaxisDrawTop = False
-        Me.PlotBase1.XaxisGridLinePositions = CType(resources.GetObject("PlotBase1.XaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.PlotBase1.XaxisTextPositions = CType(resources.GetObject("PlotBase1.XaxisTextPositions"), System.Collections.Generic.List(Of Single))
-        Me.PlotBase1.XaxisTextSize = 1.0!
-        Me.PlotBase1.XaxisTextValues = Nothing
-        Me.PlotBase1.XaxisTickHeight = 2.0!
-        Me.PlotBase1.XaxisTickPositions = CType(resources.GetObject("PlotBase1.XaxisTickPositions"), System.Collections.Generic.List(Of Single))
-        Me.PlotBase1.XlimMax = 10.0!
-        Me.PlotBase1.XlimMin = 0!
-        Me.PlotBase1.Xlog = False
-        Me.PlotBase1.XlogBase = 2.0!
-        Me.PlotBase1.YaxisDashedGridLinePositions = CType(resources.GetObject("PlotBase1.YaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.PlotBase1.YaxisDrawLeft = True
-        Me.PlotBase1.YaxisDrawRight = False
-        Me.PlotBase1.YaxisGridLinePositions = CType(resources.GetObject("PlotBase1.YaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.PlotBase1.YaxisTextPositions = CType(resources.GetObject("PlotBase1.YaxisTextPositions"), System.Collections.Generic.List(Of Single))
-        Me.PlotBase1.YaxisTextSize = 1.0!
-        Me.PlotBase1.YaxisTextValues = Nothing
-        Me.PlotBase1.YaxisTickPositions = CType(resources.GetObject("PlotBase1.YaxisTickPositions"), System.Collections.Generic.List(Of Single))
-        Me.PlotBase1.YaxisTickWidth = 2.0!
-        Me.PlotBase1.YlimMax = 10.0!
-        Me.PlotBase1.YlimMin = 0!
-        Me.PlotBase1.Ylog = False
-        Me.PlotBase1.YlogBase = 10.0!
-        Me.PlotBase1.Yreversed = False
-        '
-        'TestWordLabel1
-        '
-        Me.TestWordLabel1.BackColor = System.Drawing.Color.FromArgb(CType(CType(40, Byte), Integer), CType(CType(40, Byte), Integer), CType(CType(40, Byte), Integer))
-        Me.TestWordLabel1.Font = New System.Drawing.Font("Verdana", 30.0!)
-        Me.TestWordLabel1.ForeColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
-        Me.TestWordLabel1.Location = New System.Drawing.Point(519, 34)
-        Me.TestWordLabel1.Name = "TestWordLabel1"
-        Me.TestWordLabel1.Size = New System.Drawing.Size(139, 79)
-        Me.TestWordLabel1.TabIndex = 22
-        Me.TestWordLabel1.Text = "Word"
-        Me.TestWordLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'Audiogram2
-        '
-        Me.Audiogram2.AudiogramData = Nothing
-        Me.Audiogram2.BackColor = System.Drawing.SystemColors.Window
-        Me.Audiogram2.DashedGridLineColor = System.Drawing.Color.Gray
-        Me.Audiogram2.GridLineColor = System.Drawing.Color.Gray
-        Me.Audiogram2.HideAudiogramLines = False
-        Me.Audiogram2.Location = New System.Drawing.Point(734, 371)
-        Me.Audiogram2.Name = "Audiogram2"
-        Me.Audiogram2.PlotAreaBorder = True
-        Me.Audiogram2.PlotAreaBorderColor = System.Drawing.Color.DarkGray
-        Me.Audiogram2.PlotAreaRelativeMarginBottom = 0.05!
-        Me.Audiogram2.PlotAreaRelativeMarginLeft = 0.1!
-        Me.Audiogram2.PlotAreaRelativeMarginRight = 0.1!
-        Me.Audiogram2.PlotAreaRelativeMarginTop = 0.1!
-        Me.Audiogram2.RightClickMode = SpeechTestFramework.WinFormControls.Audiogram.RightClickActions.ShowAudiogramDialog
-        Me.Audiogram2.Size = New System.Drawing.Size(348, 143)
-        Me.Audiogram2.TabIndex = 18
-        Me.Audiogram2.TabStop = False
-        Me.Audiogram2.XaxisDashedGridLinePositions = CType(resources.GetObject("Audiogram2.XaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram2.XaxisDrawBottom = False
-        Me.Audiogram2.XaxisDrawTop = True
-        Me.Audiogram2.XaxisGridLinePositions = CType(resources.GetObject("Audiogram2.XaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram2.XaxisTextPositions = CType(resources.GetObject("Audiogram2.XaxisTextPositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram2.XaxisTextSize = 8.0!
-        Me.Audiogram2.XaxisTextValues = New String() {"125", "250", "500", "1k", "2k", "4k", "8k"}
-        Me.Audiogram2.XaxisTickHeight = 2.0!
-        Me.Audiogram2.XaxisTickPositions = CType(resources.GetObject("Audiogram2.XaxisTickPositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram2.XlimMax = 8000.0!
-        Me.Audiogram2.XlimMin = 125.0!
-        Me.Audiogram2.Xlog = True
-        Me.Audiogram2.XlogBase = 2.0!
-        Me.Audiogram2.YaxisDashedGridLinePositions = CType(resources.GetObject("Audiogram2.YaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram2.YaxisDrawLeft = True
-        Me.Audiogram2.YaxisDrawRight = True
-        Me.Audiogram2.YaxisGridLinePositions = CType(resources.GetObject("Audiogram2.YaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram2.YaxisTextPositions = CType(resources.GetObject("Audiogram2.YaxisTextPositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram2.YaxisTextSize = 8.0!
-        Me.Audiogram2.YaxisTextValues = New String() {"0", "20", "40", "60", "80", "100"}
-        Me.Audiogram2.YaxisTickPositions = CType(resources.GetObject("Audiogram2.YaxisTickPositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram2.YaxisTickWidth = 2.0!
-        Me.Audiogram2.YlimMax = 110.0!
-        Me.Audiogram2.YlimMin = -10.0!
-        Me.Audiogram2.Ylog = False
-        Me.Audiogram2.YlogBase = 10.0!
-        Me.Audiogram2.Yreversed = True
-        '
-        'Audiogram1
-        '
-        Me.Audiogram1.AudiogramData = Nothing
-        Me.Audiogram1.BackColor = System.Drawing.SystemColors.Window
-        Me.Audiogram1.DashedGridLineColor = System.Drawing.Color.Gray
-        Me.Audiogram1.GridLineColor = System.Drawing.Color.Gray
-        Me.Audiogram1.HideAudiogramLines = False
-        Me.Audiogram1.Location = New System.Drawing.Point(22, 264)
-        Me.Audiogram1.Name = "Audiogram1"
-        Me.Audiogram1.PlotAreaBorder = True
-        Me.Audiogram1.PlotAreaBorderColor = System.Drawing.Color.DarkGray
-        Me.Audiogram1.PlotAreaRelativeMarginBottom = 0.05!
-        Me.Audiogram1.PlotAreaRelativeMarginLeft = 0.1!
-        Me.Audiogram1.PlotAreaRelativeMarginRight = 0.1!
-        Me.Audiogram1.PlotAreaRelativeMarginTop = 0.1!
-        Me.Audiogram1.RightClickMode = SpeechTestFramework.WinFormControls.Audiogram.RightClickActions.NoAction
-        Me.Audiogram1.Size = New System.Drawing.Size(151, 132)
-        Me.Audiogram1.TabIndex = 7
-        Me.Audiogram1.TabStop = False
-        Me.Audiogram1.XaxisDashedGridLinePositions = CType(resources.GetObject("Audiogram1.XaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram1.XaxisDrawBottom = False
-        Me.Audiogram1.XaxisDrawTop = True
-        Me.Audiogram1.XaxisGridLinePositions = CType(resources.GetObject("Audiogram1.XaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram1.XaxisTextPositions = CType(resources.GetObject("Audiogram1.XaxisTextPositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram1.XaxisTextSize = 8.0!
-        Me.Audiogram1.XaxisTextValues = New String() {"125", "250", "500", "1k", "2k", "4k", "8k"}
-        Me.Audiogram1.XaxisTickHeight = 2.0!
-        Me.Audiogram1.XaxisTickPositions = CType(resources.GetObject("Audiogram1.XaxisTickPositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram1.XlimMax = 8000.0!
-        Me.Audiogram1.XlimMin = 125.0!
-        Me.Audiogram1.Xlog = True
-        Me.Audiogram1.XlogBase = 2.0!
-        Me.Audiogram1.YaxisDashedGridLinePositions = CType(resources.GetObject("Audiogram1.YaxisDashedGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram1.YaxisDrawLeft = True
-        Me.Audiogram1.YaxisDrawRight = True
-        Me.Audiogram1.YaxisGridLinePositions = CType(resources.GetObject("Audiogram1.YaxisGridLinePositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram1.YaxisTextPositions = CType(resources.GetObject("Audiogram1.YaxisTextPositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram1.YaxisTextSize = 8.0!
-        Me.Audiogram1.YaxisTextValues = New String() {"0", "20", "40", "60", "80", "100"}
-        Me.Audiogram1.YaxisTickPositions = CType(resources.GetObject("Audiogram1.YaxisTickPositions"), System.Collections.Generic.List(Of Single))
-        Me.Audiogram1.YaxisTickWidth = 2.0!
-        Me.Audiogram1.YlimMax = 110.0!
-        Me.Audiogram1.YlimMin = -10.0!
-        Me.Audiogram1.Ylog = False
-        Me.Audiogram1.YlogBase = 10.0!
-        Me.Audiogram1.Yreversed = True
-        '
-        'ResponseGuiItemTable1
-        '
-        Me.ResponseGuiItemTable1.ColumnCount = 3
-        Me.ResponseGuiItemTable1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 82.0!))
-        Me.ResponseGuiItemTable1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 82.0!))
-        Me.ResponseGuiItemTable1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 82.0!))
-        Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem1, 0, 0)
-        Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem2, 1, 0)
-        Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem3, 0, 1)
-        Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem4, 2, 0)
-        Me.ResponseGuiItemTable1.Controls.Add(Me.ResponseGuiItem5, 2, 1)
-        Me.ResponseGuiItemTable1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize
-        Me.ResponseGuiItemTable1.Location = New System.Drawing.Point(22, 12)
-        Me.ResponseGuiItemTable1.Name = "ResponseGuiItemTable1"
-        Me.ResponseGuiItemTable1.RowCount = 2
-        Me.ResponseGuiItemTable1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 98.0!))
-        Me.ResponseGuiItemTable1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 98.0!))
-        Me.ResponseGuiItemTable1.Size = New System.Drawing.Size(246, 196)
-        Me.ResponseGuiItemTable1.StackedControls = False
-        Me.ResponseGuiItemTable1.StackOrientation = SpeechTestFramework.ResponseGuiItemTable.VisualStackOrientations.Horizontal
-        Me.ResponseGuiItemTable1.TabIndex = 2
-        '
-        'ResponseGuiItem1
-        '
-        Me.ResponseGuiItem1.Location = New System.Drawing.Point(3, 3)
-        Me.ResponseGuiItem1.Name = "ResponseGuiItem1"
-        Me.ResponseGuiItem1.NonSelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem1.ResponseString = Nothing
-        Me.ResponseGuiItem1.SelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem1.Size = New System.Drawing.Size(75, 23)
-        Me.ResponseGuiItem1.TabIndex = 0
-        Me.ResponseGuiItem1.Text = "ResponseGuiItem1"
-        '
-        'ResponseGuiItem2
-        '
-        Me.ResponseGuiItem2.Location = New System.Drawing.Point(85, 3)
-        Me.ResponseGuiItem2.Name = "ResponseGuiItem2"
-        Me.ResponseGuiItem2.NonSelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem2.ResponseString = Nothing
-        Me.ResponseGuiItem2.SelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem2.Size = New System.Drawing.Size(75, 23)
-        Me.ResponseGuiItem2.TabIndex = 1
-        Me.ResponseGuiItem2.Text = "ResponseGuiItem2"
-        '
-        'ResponseGuiItem3
-        '
-        Me.ResponseGuiItem3.Location = New System.Drawing.Point(3, 101)
-        Me.ResponseGuiItem3.Name = "ResponseGuiItem3"
-        Me.ResponseGuiItem3.NonSelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem3.ResponseString = Nothing
-        Me.ResponseGuiItem3.SelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem3.Size = New System.Drawing.Size(75, 23)
-        Me.ResponseGuiItem3.TabIndex = 2
-        Me.ResponseGuiItem3.Text = "ResponseGuiItem3"
-        '
-        'ResponseGuiItem4
-        '
-        Me.ResponseGuiItem4.Location = New System.Drawing.Point(167, 3)
-        Me.ResponseGuiItem4.Name = "ResponseGuiItem4"
-        Me.ResponseGuiItem4.NonSelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem4.ResponseString = Nothing
-        Me.ResponseGuiItem4.SelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem4.Size = New System.Drawing.Size(75, 23)
-        Me.ResponseGuiItem4.TabIndex = 3
-        Me.ResponseGuiItem4.Text = "ResponseGuiItem4"
-        '
-        'ResponseGuiItem5
-        '
-        Me.ResponseGuiItem5.Location = New System.Drawing.Point(167, 101)
-        Me.ResponseGuiItem5.Name = "ResponseGuiItem5"
-        Me.ResponseGuiItem5.NonSelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem5.ResponseString = Nothing
-        Me.ResponseGuiItem5.SelectedColor = System.Drawing.Color.Empty
-        Me.ResponseGuiItem5.Size = New System.Drawing.Size(75, 23)
-        Me.ResponseGuiItem5.TabIndex = 4
-        Me.ResponseGuiItem5.Text = "ResponseGuiItem5"
-        '
         'Button18
         '
         Me.Button18.Location = New System.Drawing.Point(25, 472)
@@ -605,16 +295,25 @@ Partial Class Form4
         Me.Button20.Text = "Test deconvolution"
         Me.Button20.UseVisualStyleBackColor = True
         '
+        'Button21
+        '
+        Me.Button21.Location = New System.Drawing.Point(512, 471)
+        Me.Button21.Name = "Button21"
+        Me.Button21.Size = New System.Drawing.Size(260, 23)
+        Me.Button21.TabIndex = 37
+        Me.Button21.Text = "Export test phoneme times"
+        Me.Button21.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button21)
         Me.Controls.Add(Me.Button20)
         Me.Controls.Add(Me.Button19)
         Me.Controls.Add(Me.Button18)
-        Me.Controls.Add(Me.PlotBase1)
         Me.Controls.Add(Me.Button16)
         Me.Controls.Add(Me.CreateCalib_Button)
         Me.Controls.Add(Me.HLSIM_Button)
@@ -623,13 +322,9 @@ Partial Class Form4
         Me.Controls.Add(Me.HINTfixButton3)
         Me.Controls.Add(Me.HINTfixButton2)
         Me.Controls.Add(Me.HINTfixButton)
-        Me.Controls.Add(Me.FlowLayoutPanel1)
-        Me.Controls.Add(Me.TableLayoutPanel1)
-        Me.Controls.Add(Me.TestWordLabel1)
         Me.Controls.Add(Me.Button15)
         Me.Controls.Add(Me.Button14)
         Me.Controls.Add(Me.Button13)
-        Me.Controls.Add(Me.Audiogram2)
         Me.Controls.Add(Me.Button12)
         Me.Controls.Add(Me.Button11)
         Me.Controls.Add(Me.Button10)
@@ -640,35 +335,18 @@ Partial Class Form4
         Me.Controls.Add(Me.Button5)
         Me.Controls.Add(Me.Button4)
         Me.Controls.Add(Me.SiP_Button)
-        Me.Controls.Add(Me.Audiogram1)
         Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.Button2)
-        Me.Controls.Add(Me.ResponseGuiItemTable1)
         Me.Controls.Add(Me.Button1)
         Me.Name = "Form4"
         Me.Text = "Form4"
-        Me.TableLayoutPanel1.ResumeLayout(False)
-        Me.TableLayoutPanel1.PerformLayout()
-        Me.FlowLayoutPanel1.ResumeLayout(False)
-        Me.FlowLayoutPanel1.PerformLayout()
-        CType(Me.PlotBase1, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.Audiogram2, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.Audiogram1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.ResponseGuiItemTable1.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
 
     Friend WithEvents Button1 As Button
-    Friend WithEvents ResponseGuiItemTable1 As SpeechTestFramework.ResponseGuiItemTable
-    Friend WithEvents ResponseGuiItem1 As SpeechTestFramework.ResponseGuiItem
-    Friend WithEvents ResponseGuiItem2 As SpeechTestFramework.ResponseGuiItem
-    Friend WithEvents ResponseGuiItem3 As SpeechTestFramework.ResponseGuiItem
-    Friend WithEvents ResponseGuiItem4 As SpeechTestFramework.ResponseGuiItem
-    Friend WithEvents ResponseGuiItem5 As SpeechTestFramework.ResponseGuiItem
     Friend WithEvents Button2 As Button
     Friend WithEvents Button3 As Button
-    Friend WithEvents Audiogram1 As SpeechTestFramework.WinFormControls.Audiogram
     Friend WithEvents SiP_Button As Button
     Friend WithEvents Button4 As Button
     Friend WithEvents Button5 As Button
@@ -679,17 +357,9 @@ Partial Class Form4
     Friend WithEvents Button10 As Button
     Friend WithEvents Button11 As Button
     Friend WithEvents Button12 As Button
-    Friend WithEvents Audiogram2 As SpeechTestFramework.WinFormControls.Audiogram
     Friend WithEvents Button13 As Button
     Friend WithEvents Button14 As Button
     Friend WithEvents Button15 As Button
-    Friend WithEvents TestWordLabel1 As SpeechTestFramework.TestWordLabel
-    Friend WithEvents TableLayoutPanel1 As TableLayoutPanel
-    Friend WithEvents Label1 As Label
-    Friend WithEvents TextBox1 As TextBox
-    Friend WithEvents FlowLayoutPanel1 As FlowLayoutPanel
-    Friend WithEvents Label2 As Label
-    Friend WithEvents Label3 As Label
     Friend WithEvents HINTfixButton As Button
     Friend WithEvents HINTfixButton2 As Button
     Friend WithEvents HINTfixButton3 As Button
@@ -698,8 +368,8 @@ Partial Class Form4
     Friend WithEvents HLSIM_Button As Button
     Friend WithEvents CreateCalib_Button As Button
     Friend WithEvents Button16 As Button
-    Friend WithEvents PlotBase1 As SpeechTestFramework.WinFormControls.PlotBase
     Friend WithEvents Button18 As Button
     Friend WithEvents Button19 As Button
     Friend WithEvents Button20 As Button
+    Friend WithEvents Button21 As Button
 End Class

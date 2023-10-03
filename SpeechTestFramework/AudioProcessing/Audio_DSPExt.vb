@@ -9265,6 +9265,229 @@ Namespace Audio
             End Function
 
 
+
+            ''' <summary>
+            ''' 
+            ''' </summary>
+            ''' <param name="InputSound"></param>
+            ''' <param name="startSample_s1"></param>
+            ''' <param name="sectionLength_s1"></param>
+            ''' <param name="startSample_s2"></param>
+            ''' <param name="sectionLength_s2"></param>
+            ''' <param name="fftFormat"></param>
+            ''' <param name="kernelSize"></param>
+            ''' <param name="channel"></param>
+            ''' <param name="LowerCutoffFrequency">'If set, gain below the indicated frequency will be 0 dB.</param>
+            ''' <param name="UpperCutoffFrequency">'If set, gain above the indicated frequency will be 0 dB.</param>
+            ''' <returns></returns>
+            Public Function GetImpulseResponseForFrequencyResponseFlattening(ByRef InputSound As Sound,
+                                                                 Optional ByVal startSample_s1 As Integer = 0, Optional ByVal sectionLength_s1 As Integer? = Nothing,
+                                                                 Optional ByVal startSample_s2 As Integer = 0, Optional ByVal sectionLength_s2 As Integer? = Nothing,
+                                                                 Optional ByRef fftFormat As Formats.FftFormat = Nothing,
+                                                                 Optional ByVal kernelSize As Integer = 4000,
+                                                                 Optional ByVal channel As Integer? = Nothing,
+                                                                 Optional ByVal MaxBandGain As Double? = 20,
+                                                                 Optional ByVal MaxBandAttenuation As Double? = 20,
+                                                                 Optional ByVal LowerCutoffFrequency As Double? = Nothing,
+                                                                 Optional ByVal UpperCutoffFrequency As Double? = Nothing) As Sound ' Optional normalizingSpectralMagnidutes As Boolean = True
+
+                Throw New NotImplementedException("This function is not yet ready to be used!")
+
+                'Reference which this code is based on:
+                'The Scientist And Engineer's Guide to
+                'Digital Signal Processing
+                'By Steven W. Smith, Ph.D.
+                'http://www.dspguide.com/ch17/1.htm
+
+                'Checks sounds
+                'CheckAndCorrectSectionLength (on the lines below) was outcommented on 2022-03-29. Instead the calling code need to be responsible for sending the correct startSample and sectionLength
+                'CheckAndCorrectSectionLength(InputSound1.WaveData.ShortestChannelSampleCount, startSample_s1, sectionLength_s1)
+                'CheckAndCorrectSectionLength(InputSound2.WaveData.ShortestChannelSampleCount, startSample_s2, sectionLength_s2)
+
+
+                'Prepares an outout sound
+                Dim outputSound As New Sound(InputSound.WaveFormat)
+                Dim AudioOutputConstructor As New AudioOutputConstructor(InputSound.WaveFormat, channel)
+
+                'Checks that kernel size is not larger than fftSize, increases fftSize is that is the case
+                If kernelSize > fftFormat.FftWindowSize Then
+                    CheckAndAdjustFFTSize(fftFormat.FftWindowSize, kernelSize)
+                End If
+
+                'Main section
+                'Ser till att windowSize alltid är ett jämnt tal
+                If fftFormat.FftWindowSize Mod 2 = 1 Then fftFormat.FftWindowSize += 1
+
+                'Creating a flat spectrum sound
+                'Dim FlatSpectrumSound = Audio.GenerateSound.CreateWhiteNoise(InputSound.WaveFormat, ,, InputSound.WaveData.LongestChannelSampleCount, TimeUnits.samples)
+                Dim FlatSpectrumSound = Audio.GenerateSound.CreateSilence(InputSound.WaveFormat,  , InputSound.WaveData.LongestChannelSampleCount, TimeUnits.samples)
+                'Setting the levels of FlatSpectrumSound to be equal to sound 1
+                For c = 1 To FlatSpectrumSound.WaveFormat.Channels
+                    FlatSpectrumSound.WaveData.SampleData(c)(Math.Floor(FlatSpectrumSound.WaveData.SampleData(c).Length / 2)) = 1
+                    DSP.MeasureAndAdjustSectionLevel(FlatSpectrumSound, DSP.MeasureSectionLevel(FlatSpectrumSound, c), c)
+                Next
+
+                'Analysing input sounds
+                'Performs a dft on the input file
+                FlatSpectrumSound.FFT = DSP.SpectralAnalysis(FlatSpectrumSound, fftFormat, , startSample_s1, sectionLength_s1)
+                InputSound.FFT = DSP.SpectralAnalysis(InputSound, fftFormat, , startSample_s2, sectionLength_s2)
+
+                'Calculating magnitudes
+                FlatSpectrumSound.FFT.CalculateAmplitudeSpectrum(True, True, True)
+                InputSound.FFT.CalculateAmplitudeSpectrum(True, True, True)
+
+                For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
+
+                    'Calculates average magnitudes
+                    'Sound1
+                    Dim BinSpectrum_1(FlatSpectrumSound.FFT.FftFormat.FftWindowSize - 1) As Single
+                    For k = 0 To FlatSpectrumSound.FFT.AmplitudeSpectrum(c, 0).WindowData.Length - 1
+
+                        For TimeWindow = 0 To FlatSpectrumSound.FFT.WindowCount(c) - 1
+
+                            'Converting spectral magnitudes to power. Summing spectral power. 
+                            'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10((Math.Sqrt(2) * AmplitudeSpectrum(channel, TimeWindow).WindowData(k)) / Math.Sqrt(2))) / 10)
+                            'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10(AmplitudeSpectrum(channel, TimeWindow).WindowData(k))) / 10)
+                            'Simplified to:
+                            BinSpectrum_1(k) += 100 ^ (Math.Log10(FlatSpectrumSound.FFT.AmplitudeSpectrum(c, TimeWindow).WindowData(k)))
+
+                        Next
+
+                        'Taking the quare root to convert power spectrum to amplitude spectrum, and divides by WindowCount(Channel) to average the value of the time windows
+                        BinSpectrum_1(k) = Math.Sqrt(BinSpectrum_1(k) / FlatSpectrumSound.FFT.WindowCount(c))
+
+                        'Converting to dB
+                        BinSpectrum_1(k) = dBConversion(BinSpectrum_1(k), dBConversionDirection.to_dB,
+                                              FlatSpectrumSound.WaveFormat, dBTypes.SoundPressure)
+
+                    Next
+
+
+                    'Sound2 
+                    'Calculates average magnitudes
+                    'Sound2
+                    Dim BinSpectrum_2(InputSound.FFT.FftFormat.FftWindowSize - 1) As Single
+                    For k = 0 To InputSound.FFT.AmplitudeSpectrum(c, 0).WindowData.Length - 1
+
+                        For TimeWindow = 0 To InputSound.FFT.WindowCount(c) - 1
+
+                            'Converting spectral magnitudes to power. Summing spectral power. 
+                            'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10((Math.Sqrt(2) * AmplitudeSpectrum(channel, TimeWindow).WindowData(k)) / Math.Sqrt(2))) / 10)
+                            'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10(AmplitudeSpectrum(channel, TimeWindow).WindowData(k))) / 10)
+                            'Simplified to:
+                            BinSpectrum_2(k) += 100 ^ (Math.Log10(InputSound.FFT.AmplitudeSpectrum(c, TimeWindow).WindowData(k)))
+
+                        Next
+
+                        'Taking the quare root to convert power spectrum to amplitude spectrum, and divides by WindowCount(Channel) to average the value of the time windows
+                        BinSpectrum_2(k) = Math.Sqrt(BinSpectrum_2(k) / InputSound.FFT.WindowCount(c))
+
+                        'Converting to dB
+                        BinSpectrum_2(k) = dBConversion(BinSpectrum_2(k), dBConversionDirection.to_dB,
+                                              InputSound.WaveFormat, dBTypes.SoundPressure)
+
+                    Next
+
+                    'Calculating needed gain 
+                    Dim SubtractionMagnitudes(fftFormat.FftWindowSize - 1) As Double
+                    For n = 0 To fftFormat.FftWindowSize - 1
+                        'converting to and from dB, limiting band gain to MaxBandGain
+                        'Dim s1Level = dBConversion(averageMagnitudes_s1(n), dBConversionDirection.to_dB, InputSound1.WaveFormat)
+                        'Dim s2Level = dBConversion(averageMagnitudes_s2(n), dBConversionDirection.to_dB, InputSound1.WaveFormat)
+
+                        Dim s1Level = BinSpectrum_1(n)
+                        Dim s2Level = BinSpectrum_2(n)
+
+                        Dim TargetGain As Double = s1Level - s2Level
+                        If MaxBandGain.HasValue Then TargetGain = Math.Min(MaxBandGain.Value, TargetGain)
+                        If MaxBandAttenuation.HasValue Then TargetGain = Math.Max(-MaxBandAttenuation.Value, TargetGain)
+                        SubtractionMagnitudes(n) = dBConversion(TargetGain, dBConversionDirection.from_dB, FlatSpectrumSound.WaveFormat)
+
+                    Next
+
+                    'Overriding any values below and above the cut-off frequencies with zero
+                    If LowerCutoffFrequency.HasValue Then
+
+                        'Calculating the cut-off bin index
+                        Dim LowerCutoffBin As Integer = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex,
+                                                                              LowerCutoffFrequency.Value,
+                                                                              FlatSpectrumSound.WaveFormat.SampleRate,
+                                                                              fftFormat.FftWindowSize, Utils.roundingMethods.alwaysDown)
+
+                        Dim NoGainValue As Double = dBConversion(0, dBConversionDirection.from_dB, FlatSpectrumSound.WaveFormat)
+
+                        For PositiveBinIndex = 0 To LowerCutoffBin - 1
+
+                            'Positive frequencies
+                            SubtractionMagnitudes(PositiveBinIndex) = NoGainValue
+
+                            'Negative frequencies
+                            Dim NegativeBinIndex As Integer = fftFormat.FftWindowSize - 1 - PositiveBinIndex
+                            SubtractionMagnitudes(NegativeBinIndex) = NoGainValue
+                        Next
+                    End If
+
+                    If UpperCutoffFrequency.HasValue Then
+
+                        'Calculating the cut-off bin index
+                        Dim UpperCutoffBin As Integer = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex,
+                                                                              UpperCutoffFrequency.Value,
+                                                                              FlatSpectrumSound.WaveFormat.SampleRate,
+                                                                              fftFormat.FftWindowSize, Utils.roundingMethods.alwaysDown)
+
+                        Dim NoGainValue As Double = dBConversion(0, dBConversionDirection.from_dB, FlatSpectrumSound.WaveFormat)
+
+                        For PositiveBinIndex = UpperCutoffBin To fftFormat.FftWindowSize / 2 - 1
+
+                            'Positive frequencies
+                            SubtractionMagnitudes(PositiveBinIndex) = NoGainValue
+
+                            'Negative frequencies
+                            Dim NegativeBinIndex As Integer = fftFormat.FftWindowSize - 1 - PositiveBinIndex
+                            SubtractionMagnitudes(NegativeBinIndex) = NoGainValue
+                        Next
+                    End If
+
+                    'Since the phase can be set to 0, the real part of the signal is equal to the magnitudes
+                    Dim temporaryIMX(fftFormat.FftWindowSize - 1) As Double
+
+                    'Performing an inverse dft on the magnitudes
+                    DSP.FastFourierTransform(DSP.FftDirections.Backward, SubtractionMagnitudes, temporaryIMX)
+
+                    'Shifting + truncate
+                    Dim kernelArray(kernelSize - 1) As Single
+                    Dim index As Integer = 0
+                    For n = 0 To kernelSize / 2 - 1
+                        kernelArray(index) = SubtractionMagnitudes(fftFormat.FftWindowSize - (kernelSize / 2 - n))
+                        index += 1
+                    Next
+                    For n = 0 To kernelSize / 2 - 1
+                        kernelArray(index) = SubtractionMagnitudes(n)
+                        index += 1
+                    Next
+
+                    'Windowing
+                    WindowingFunction(kernelArray, WindowingType.Hamming)
+
+                    'Scaling the kernel sample values by fft length
+                    For n = 0 To kernelArray.Length - 1
+                        kernelArray(n) /= fftFormat.FftWindowSize
+                    Next
+
+                    'Storing output sound
+                    outputSound.WaveData.SampleData(c) = kernelArray
+
+                Next
+
+                'Resetting InputSound.FFT
+                FlatSpectrumSound.FFT = Nothing
+                InputSound.FFT = Nothing
+
+                Return outputSound
+
+            End Function
+
+
             Public Function GetIrArrayFromSound(ByRef InputSound As Sound,
                                             ByRef StepSize As Integer, ByRef SectionLengths As Integer,
                                             ByRef FftFormat As Formats.FftFormat, ByVal KernelSize As Integer,

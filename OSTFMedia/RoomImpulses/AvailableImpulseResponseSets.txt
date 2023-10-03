@@ -1,6 +1,9 @@
 // This file should list paths to ImpulseResponseSetSpecification text files (paths should be relative to the RoomImpulses OSTFMedia folder)
 
-ImpulseResponseSetSpecifications/ARC_Harcellen_KEMAR_48k - kopia.txt
+//ImpulseResponseSetSpecifications/OL-HEAD_BuK_ECEbl_AKGK271.txt // This corrected version is unreliable so far!
+ImpulseResponseSetSpecifications/OL-HEAD_BuK_ECEbl.txt
+ImpulseResponseSetSpecifications/ARC_Harcellen_HATS_48k.txt
+ImpulseResponseSetSpecifications/ARC_Harcellen_KEMAR_48k.txt
 ImpulseResponseSetSpecifications/Wierstorf_2011_Unechoic_44.1k.txt
 ImpulseResponseSetSpecifications/Wierstorf_2011_Unechoic_48k.txt
 ImpulseResponseSetSpecifications/Wierstorf_2011_Unechoic_AKGK271_44.1k.txt

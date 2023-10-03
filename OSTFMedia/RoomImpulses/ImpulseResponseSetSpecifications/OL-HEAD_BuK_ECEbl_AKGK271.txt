@@ -1,0 +1,34 @@
+Name = OL-HEAD_BuK_ECEbl - AKGK271 - 48kHz					
+ImpulseResponseSubFolder = Data\OL-HEAD\OL-HEAD_BuK_ECEbl\48000\AKGK271					
+SampleRate = 48000					
+					
+<AvailableSourceLocations> 					
+// AvailableSourceLocations are specified as: File [tab] Channel [tab] Ear [tab] Azimuth [tab] Elevation [tab] Distance [tab], with one location per row					
+// Note that Channel is the channel number within the File in which the impulse response for the corresponding Azimuth, Elevation and Distance for ear Ear is stored. 					
+// Ear should have the values either L or R, for left and right respectively					
+					
+//File	Channel	Ear	Azimuth	Elevation	Distance
+C:\Temp5\AKGK271\BuK_ECEbl_0_L_AKG.wav	1	L	0	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_0_R_AKG.wav	1	R	0	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_30_L_AKG.wav	1	L	30	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-30_L_AKG.wav	1	L	-30	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_30_R_AKG.wav	1	R	30	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-30_R_AKG.wav	1	R	-30	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_60_L_AKG.wav	1	L	60	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-60_L_AKG.wav	1	L	-60	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_60_R_AKG.wav	1	R	60	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-60_R_AKG.wav	1	R	-60	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_90_L_AKG.wav	1	L	90	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-90_L_AKG.wav	1	L	-90	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_90_R_AKG.wav	1	R	90	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-90_R_AKG.wav	1	R	-90	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_120_L_AKG.wav	1	L	120	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-120_L_AKG.wav	1	L	-120	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_120_R_AKG.wav	1	R	120	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-120_R_AKG.wav	1	R	-120	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_150_L_AKG.wav	1	L	150	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-150_L_AKG.wav	1	L	-150	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_150_R_AKG.wav	1	R	150	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-150_R_AKG.wav	1	R	-150	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-180_L_AKG.wav	1	L	-180	0	3
+C:\Temp5\AKGK271\BuK_ECEbl_-180_R_AKG.wav	1	R	-180	0	3

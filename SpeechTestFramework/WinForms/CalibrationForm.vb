@@ -1,14 +1,21 @@
-﻿Public Class CalibrationForm
+﻿Imports SpeechTestFramework.Audio
+Imports SpeechTestFramework.Audio.Formats
+
+Public Class CalibrationForm
 
     Public ReadOnly Property IsStandAlone As Boolean
 
-    Private SelectedHardwareOutputChannel As Integer
+    Private SelectedHardwareOutputChannel As Integer ' Left channel if used with sound field simulation, otherwise just the output channel
+    Private SelectedHardwareOutputChannel_Right As Integer ' Only used with field simulation
+
     Private SelectedLevel As Double
     Private CalibrationFileDescriptions As New SortedList(Of String, String)
     Private SelectedTransducer As AudioSystemSpecification = Nothing
     Private UserType As Utils.UserTypes
 
     Private CalibrationFilesDirectory As String = ""
+
+    Private NoSimulationString As String = "No simulation"
 
     Public Sub New()
         MyClass.New(Utils.Constants.UserTypes.Research, True)
@@ -48,6 +55,21 @@
 
 
     Private Sub CalibrationForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        'Adding transducers
+        Dim TempWaveFormat As New Audio.Formats.WaveFormat(48000, 32, 1,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding,,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+
+        Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
+        If LocalAvailableTransducers.Count = 0 Then
+            MsgBox("Unable to start the application since no sound transducers could be found!", MsgBoxStyle.Critical, "Calibration")
+        End If
+
+        'Adding transducers to the combobox, and selects the first one
+        For Each Transducer In LocalAvailableTransducers
+            Transducer_ComboBox.Items.Add(Transducer)
+        Next
+        Transducer_ComboBox.SelectedIndex = 0
 
         'Adding signals
         CalibrationFilesDirectory = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.CalibrationSignalSubDirectory)
@@ -94,21 +116,6 @@
         Next
         CalibrationLevel_ComboBox.SelectedItem = 70
 
-        'Adding transducers
-        Dim TempWaveFormat As New Audio.Formats.WaveFormat(48000, 32, 1,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
-        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding,,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
-
-        Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
-        If LocalAvailableTransducers.Count = 0 Then
-            MsgBox("Unable to start the application since no sound transducers could be found!", MsgBoxStyle.Critical, "Calibration")
-        End If
-
-        'Adding transducers to the combobox, and selects the first one
-        For Each Transducer In LocalAvailableTransducers
-            Transducer_ComboBox.Items.Add(Transducer)
-        Next
-        Transducer_ComboBox.SelectedIndex = 0
-
     End Sub
 
     Public Sub AddInternallyGeneratedSounds()
@@ -141,6 +148,7 @@
 
     End Sub
 
+
     Private Sub Transducer_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Transducer_ComboBox.SelectedIndexChanged
 
         SoundSystem_RichTextBox.Text = ""
@@ -151,6 +159,7 @@
             '(At this stage the sound player will be started, if not already done.)
             OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.3, SelectedTransducer.Mixer,, True, True)
             PlaySignal_Button.Enabled = True
+
         Else
             MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
             PlaySignal_Button.Enabled = False
@@ -161,14 +170,23 @@
 
         'Adding channels
         SelectedHardWareOutputChannel_ComboBox.Items.Clear()
+        SelectedHardWareOutputChannel_Right_ComboBox.Items.Clear()
         For Each c In SelectedTransducer.Mixer.OutputRouting.Keys
             SelectedHardWareOutputChannel_ComboBox.Items.Add(c)
+            SelectedHardWareOutputChannel_Right_ComboBox.Items.Add(c)
         Next
-        If SelectedHardWareOutputChannel_ComboBox.Items.Count > 0 Then SelectedHardWareOutputChannel_ComboBox.SelectedIndex = 0
+        If SelectedHardWareOutputChannel_ComboBox.Items.Count > 0 Then
+            SelectedHardWareOutputChannel_ComboBox.SelectedIndex = 0
+        End If
+        If SelectedHardWareOutputChannel_Right_ComboBox.Items.Count > 1 Then
+            SelectedHardWareOutputChannel_Right_ComboBox.SelectedIndex = 1
+        End If
 
     End Sub
 
     Private Sub CalibrationSignal_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles CalibrationSignal_ComboBox.SelectedIndexChanged
+
+        If SelectedTransducer Is Nothing Then Exit Sub
 
         CalibrationSignal_RichTextBox.Text = ""
 
@@ -190,9 +208,57 @@
                 FrequencyWeighting_ComboBox.Enabled = False
             End If
 
+            'Clearing previously added DirectionalSimulationSets
+            DirectionalSimulationSet_ComboBox.Items.Clear()
+            SimulatedDistance_ComboBox.Items.Clear()
+
+            'Adding available DirectionalSimulationSets
+            Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer, SelectedCalibrationSound.WaveFormat.SampleRate)
+            AvailableSets.Insert(0, NoSimulationString)
+            For Each Item In AvailableSets
+                DirectionalSimulationSet_ComboBox.Items.Add(Item)
+            Next
+            DirectionalSimulationSet_ComboBox.SelectedIndex = 0
+
         End If
 
     End Sub
+
+    Private Sub DirectionalSimulationSet_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_ComboBox.SelectedIndexChanged
+
+        SimulatedDistance_ComboBox.Items.Clear()
+        SimulatedDistance_ComboBox.ResetText()
+
+        Dim SelectedItem = DirectionalSimulationSet_ComboBox.SelectedItem
+        If SelectedItem IsNot Nothing Then
+
+            If SelectedItem = NoSimulationString Then
+                DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+                SelectedHardWareOutputChannel_Right_ComboBox.Enabled = False
+                RightChannel_Label.Enabled = False
+                'SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
+            Else
+                'SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
+                DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer)
+                SelectedHardWareOutputChannel_Right_ComboBox.Enabled = True
+                RightChannel_Label.Enabled = True
+            End If
+
+            'Adding available simulation distances
+            Dim AvailableDistances = DirectionalSimulator.GetAvailableDirectionalSimulationSetDistances(SelectedItem)
+            For Each Distance In AvailableDistances
+                SimulatedDistance_ComboBox.Items.Add(Distance)
+            Next
+            If SimulatedDistance_ComboBox.Items.Count > 0 Then SimulatedDistance_ComboBox.SelectedIndex = 0
+
+        Else
+            DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+        End If
+
+    End Sub
+
+
+
 
     Private Sub CalibrationLevel_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles CalibrationLevel_ComboBox.SelectedIndexChanged
         SelectedLevel = CalibrationLevel_ComboBox.SelectedItem
@@ -200,6 +266,10 @@
 
     Private Sub SelectedChannelComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SelectedHardWareOutputChannel_ComboBox.SelectedIndexChanged
         SelectedHardwareOutputChannel = SelectedHardWareOutputChannel_ComboBox.SelectedItem
+    End Sub
+
+    Private Sub SelectedRightChannelComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SelectedHardWareOutputChannel_Right_ComboBox.SelectedIndexChanged
+        SelectedHardwareOutputChannel_Right = SelectedHardWareOutputChannel_Right_ComboBox.SelectedItem
     End Sub
 
 
@@ -239,9 +309,36 @@
                 Audio.DSP.Fade(CalibrationSound, Nothing, 0, 1, 0, 0.02 * CalibrationSound.WaveFormat.SampleRate, Audio.DSP.Transformations.FadeSlopeType.Smooth)
                 Audio.DSP.Fade(CalibrationSound, 0, Nothing, 1, -0.02 * CalibrationSound.WaveFormat.SampleRate, Nothing, Audio.DSP.FadeSlopeType.Smooth)
 
-                'Putting the sound in the intended channel
-                Dim PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, CalibrationSound.WaveFormat.Encoding))
-                PlaySound.WaveData.SampleData(SelectedTransducer.Mixer.OutputRouting(SelectedHardwareOutputChannel)) = CalibrationSound.WaveData.SampleData(1)
+                Dim PlaySound As Audio.Sound = Nothing
+
+                If DirectionalSimulator.IsActive = True Then
+
+                    Dim SelectedSimulatedDistance As Double
+                    Dim SimulationKernel = DirectionalSimulator.GetStereoKernel(DirectionalSimulator.SelectedDirectionalSimulationSetName, 0, 0, SelectedSimulatedDistance)
+                    Dim CurrentKernel = SimulationKernel.Item2.CreateSoundDataCopy
+
+                    Dim StereoCalibrationSound = New Audio.Sound(New WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, 2,, CalibrationSound.WaveFormat.Encoding))
+                    Dim LeftChannelSound = CalibrationSound.CreateSoundDataCopy()
+                    Dim RightChannelSound = CalibrationSound.CreateSoundDataCopy()
+                    StereoCalibrationSound.WaveData.SampleData(1) = LeftChannelSound.WaveData.SampleData(1)
+                    StereoCalibrationSound.WaveData.SampleData(2) = RightChannelSound.WaveData.SampleData(1)
+
+                    'Applies FIR-filtering
+                    Dim FilteredSound = Audio.DSP.FIRFilter(StereoCalibrationSound, CurrentKernel, New Formats.FftFormat,,,,,, True)
+
+                    'Putting the sound in the intended channels
+                    PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(FilteredSound.WaveFormat.SampleRate, FilteredSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, FilteredSound.WaveFormat.Encoding))
+                    PlaySound.WaveData.SampleData(SelectedTransducer.Mixer.OutputRouting(SelectedHardwareOutputChannel)) = FilteredSound.WaveData.SampleData(1)
+                    PlaySound.WaveData.SampleData(SelectedTransducer.Mixer.OutputRouting(SelectedHardwareOutputChannel_Right)) = FilteredSound.WaveData.SampleData(2)
+
+                Else
+
+                    'Putting the sound in the intended channel
+                    PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, CalibrationSound.WaveFormat.Encoding))
+                    PlaySound.WaveData.SampleData(SelectedTransducer.Mixer.OutputRouting(SelectedHardwareOutputChannel)) = CalibrationSound.WaveData.SampleData(1)
+
+                End If
+
 
                 'Plays the sound
                 SoundPlayer.SwapOutputSounds(PlaySound)

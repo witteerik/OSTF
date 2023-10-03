@@ -1,4 +1,6 @@
-﻿Public Class Form4
+﻿Imports SpeechTestFramework
+
+Public Class Form4
 
     Dim SoundPlayer As SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer
 
@@ -6,14 +8,6 @@
 
         'Initializing the OSTF 
         SpeechTestFramework.InitializeOSTF()
-
-        Me.Audiogram2.AudiogramData = New SpeechTestFramework.AudiogramData
-
-        'Me.PlotBase1.AddTestPoints()
-        Me.PlotBase1.YlimMin = 0
-        Me.PlotBase1.YlimMax = 5
-        Me.PlotBase1.XlimMin = 0
-        Me.PlotBase1.XlimMax = 5
 
     End Sub
 
@@ -232,7 +226,7 @@
 
     End Sub
 
-    Private Sub Audiogram1_MouseHover(sender As Object, e As EventArgs) Handles Audiogram1.MouseHover
+    Private Sub Audiogram1_MouseHover(sender As Object, e As EventArgs)
 
     End Sub
 
@@ -682,7 +676,7 @@
 
     End Sub
 
-    Private Sub TestWordLabel1_Click(sender As Object, e As EventArgs) Handles TestWordLabel1.Click
+    Private Sub TestWordLabel1_Click(sender As Object, e As EventArgs)
 
         Dim DirForm = New Form
         DirForm.Width = 800
@@ -2899,7 +2893,7 @@
     End Sub
 
 
-    Private Sub Button20B_Click(sender As Object, e As EventArgs) Handles Button20.Click
+    Private Sub Button20B_Click(sender As Object, e As EventArgs) 'Handles Button20.Click
 
         Dim Directions As New List(Of Integer)
         For d As Integer = -180 To 150 Step 30
@@ -2961,4 +2955,110 @@
 
     End Sub
 
+    Private Sub Button20C_Click(sender As Object, e As EventArgs) Handles Button20.Click
+
+        Dim InputSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSiPTest\Media\Unechoic-Talker1-RVE\TestWordRecordings\L02S03_blund\M_000_000_blund.wav")
+
+        'Dim IrFftFormat As New SpeechTestFramework.Audio.Formats.FftFormat(4096,,, SpeechTestFramework.Audio.WindowingType.Hamming, False)
+
+        'Dim CorrectionKernel = SpeechTestFramework.Audio.GenerateSound.GetImpulseResponseForFrequencyResponseFlattening(InputSound,,,,, IrFftFormat,,, 70, 20, 100, 10000)
+
+        'CorrectionKernel.WriteWaveFile("C:\Temp5\CorrectionKernel.wav")
+
+        'Exit Sub
+
+        Dim FrontalGainsList As New List(Of String)
+        Dim AverageGainsList As New List(Of String)
+        Dim DS = SpeechTestFramework.DirectionalSimulator
+        Dim DSS = DS.GetAllDirectionalSimulationSets
+        For Each KVP In DSS
+            If KVP.Value.SampleRate <> 48000 Then Continue For
+            Dim Results = KVP.Value.CalculateFrontalIrGains(True)
+            For Each Result In Results
+                FrontalGainsList.Add(Result.Item1 & ": " & Result.Item2)
+            Next
+
+            'AverageGainsList.Add(KVP.Key & "_" & KVP.Value.CalculateAverageIrGain(True))
+
+        Next
+
+        SpeechTestFramework.Utils.SendInfoToLog("FrontalGainsList" & vbCrLf & String.Join(vbCrLf, FrontalGainsList), "IrGainList")
+        SpeechTestFramework.Utils.SendInfoToLog("AverageGainsList" & vbCrLf & String.Join(vbCrLf, AverageGainsList), "IrGainList")
+
+        MsgBox(String.Join(vbCrLf, FrontalGainsList))
+
+        Exit Sub
+
+        Dim Direction As Integer = 0
+
+        Dim IR = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\Temp5\BuK_ECEbl_" & Direction & "_L.wav")
+
+        Dim Duration As Double = 10
+
+        'Dim InputSound = SpeechTestFramework.Audio.GenerateSound.CreateWhiteNoise(IR.WaveFormat,,, Duration)
+
+        Dim PreLevel As Double = -30
+
+        SpeechTestFramework.Audio.DSP.MeasureAndAdjustSectionLevel(InputSound, PreLevel)
+
+        Dim ConvSound = SpeechTestFramework.Audio.DSP.FIRFilter(InputSound, IR, New SpeechTestFramework.Audio.Formats.FftFormat)
+
+        Dim PostLevel = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConvSound, 1, ConvSound.WaveFormat.SampleRate * 1, ConvSound.WaveFormat.SampleRate * (Duration - 2))
+
+        Dim FilterGain = PostLevel - PreLevel
+
+        InputSound.WriteWaveFile("C:\Temp5\Noise.wav")
+        ConvSound.WriteWaveFile("C:\Temp5\NoiseFiltered.wav")
+
+        MsgBox("FilterGain: " & FilterGain)
+
+    End Sub
+
+    Private Sub Button21_Click(sender As Object, e As EventArgs) Handles Button21.Click
+
+
+        'Initializing all components
+        OstfBase.LoadAvailableTestSpecifications()
+
+        Dim SpeechMaterialName = "Swedish SiP-test"
+
+        Dim SelectedTest As SpeechMaterialSpecification = Nothing
+        For Each ts In OstfBase.AvailableTests
+            If ts.Name = SpeechMaterialName Then
+                SelectedTest = ts
+                Exit For
+            End If
+        Next
+
+        Dim SpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(SelectedTest.GetSpeechMaterialFilePath, SelectedTest.GetTestRootPath)
+        SpeechMaterial.ParentTestSpecification = SelectedTest
+        SelectedTest.SpeechMaterial = SpeechMaterial
+
+        'Loading media sets
+        SpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
+        Dim AvailableMediaSets = SpeechMaterial.ParentTestSpecification.MediaSets
+        Dim SelectedMediaSet = AvailableMediaSets(0)
+
+        Dim AllPhonemes = SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+
+        Dim OutputList As New List(Of String)
+        For Each Phoneme In AllPhonemes
+
+            If Phoneme.IsContrastingComponent = True Then
+                For soundIndex = 0 To SelectedMediaSet.MediaAudioItems - 1
+                    Dim SMA_Component = Phoneme.GetCorrespondingSmaComponent(SelectedMediaSet, soundIndex, 1, True)
+
+                    Dim StartSample = SMA_Component(0).StartSample
+                    Dim Length = SMA_Component(0).Length
+                    OutputList.Add(Phoneme.ParentComponent.ParentComponent.Id & "R" & soundIndex & vbTab & Phoneme.Id & "R" & soundIndex & vbTab & StartSample & vbTab & Length & vbTab &
+                                   SMA_Component(0).PhoneticForm & vbTab & Phoneme.ParentComponent.PrimaryStringRepresentation)
+
+                Next
+            End If
+
+        Next
+
+        SpeechTestFramework.Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), "ExportedTestPhonemeTimes")
+
+    End Sub
 End Class

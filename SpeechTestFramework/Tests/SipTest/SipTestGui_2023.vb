@@ -5,6 +5,11 @@ Imports System.Drawing
 
 Public Class SipTestGui_2023
 
+    ''' <summary>
+    ''' Set to false to show all available test modes
+    ''' </summary>
+    Private DisableExtraTestModes As Boolean = False
+
     Public ReadOnly Property IsStandAlone As Boolean
 
     ''' <summary>
@@ -293,6 +298,20 @@ Public Class SipTestGui_2023
         Testparadigm_ComboBox.Items.Add(Testparadigm.Directional5)
         Testparadigm_ComboBox.SelectedIndex = 0
 
+        If DisableExtraTestModes = True Then
+
+            'Removing the extra tabs in TestMode_TabControl
+            TestMode_TabControl.Controls.Remove(DirectionalModeTabPage)
+            TestMode_TabControl.Controls.Remove(BmldModeTabPage)
+
+            'Disabling the extra tabs in TestMode_TabControl
+            'DirectionalModeTabPage.Enabled = False
+            'BmldModeTabPage.Enabled = False
+
+            'Setting the test mode to Custom1
+            TestMode = TestModes.Custom1
+        End If
+
     End Sub
 
 
@@ -417,7 +436,10 @@ Public Class SipTestGui_2023
 
     End Sub
 
+
     Private Sub TestMode_TabControl_Selected(sender As Object, e As TabControlEventArgs) Handles TestMode_TabControl.Selected
+
+        If DisableExtraTestModes = True Then Exit Sub
 
         If e.TabPage.Name = "BmldModeTabPage" Then
             TestMode = TestModes.BMLD
@@ -449,7 +471,7 @@ Public Class SipTestGui_2023
                 Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
                 SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
                 If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate) = False Then
-                    'Well this shold not happen...
+                    'Well this should not happen...
                     DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
                     SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
                 End If
@@ -1218,10 +1240,10 @@ Public Class SipTestGui_2023
 
                 'Adding a number of background sounds
                 BackgroundLocations = {
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45, .Elevation = 0, .Distance = 1},
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135, .Elevation = 0, .Distance = 1},
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135, .Elevation = 0, .Distance = 1},
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45, .Elevation = 0, .Distance = 1}}
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 60, .Elevation = 0, .Distance = 1},
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 150, .Elevation = 0, .Distance = 1},
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -150, .Elevation = 0, .Distance = 1},
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -60, .Elevation = 0, .Distance = 1}}
 
             Else
 
@@ -1301,7 +1323,7 @@ Public Class SipTestGui_2023
                 End If
 
                 'Notes that this is not a test trial
-                NewTrial.IsTestTrial = True
+                NewTrial.IsTestTrial = False
                 NewTrial.SetLevels(ReferenceLevel, IndicatorTrialPNR)
                 NewTestUnit.PlannedTrials.Insert(0, NewTrial)
 
