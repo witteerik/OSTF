@@ -1140,6 +1140,11 @@ Namespace SipTest
         Public TestTrialSound As Audio.Sound = Nothing
 
         ''' <summary>
+        ''' A list that can hold non-presented (hypothical) test trials containing the contrasting alternatives.
+        ''' </summary>
+        Public PseudoTrials As List(Of SipTrial)
+
+        ''' <summary>
         ''' An list of Tuples that can hold various sound mixes used in the test trial, to be exported to sound file later. Each Sound should be come with a descriptive string (that can be used in the output file name).)
         ''' </summary>
         Public TrialSoundsToExport As New List(Of Tuple(Of String, Audio.Sound))
@@ -1401,6 +1406,12 @@ Namespace SipTest
                 'Decreasing the ContextRegionForegroundLevel_SPL to ContextSpeechLimit
                 ContextRegionSpeech_SPL -= Difference
 
+            End If
+
+            If PseudoTrials IsNot Nothing Then
+                For Each NonpresentedAlternativeTrial In PseudoTrials
+                    NonpresentedAlternativeTrial.SetLevels(ReferenceLevel, PNR)
+                Next
             End If
 
         End Sub
@@ -1680,7 +1691,7 @@ Namespace SipTest
                 Else
 
                     'Creating the mix directly by calling CreateSoundScene of the current Mixer and exporting the sound for comparison with the separately exported sounds below
-                    Dim ExportAllItemTypes As Boolean = True
+                    Dim ExportAllItemTypes As Boolean = False
                     If ExportAllItemTypes = True Then
                         Dim TempMixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, Me.SoundPropagationType)
                         TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("OriginalMix", TempMixedTestTrialSound))
@@ -1762,6 +1773,13 @@ Namespace SipTest
                 'CompensateHearingLoss
 
                 TestTrialSound = MixedTestTrialSound
+
+                'Mixing non-presented trials as well
+                If PseudoTrials IsNot Nothing Then
+                    For Each NonpresentedAlternativeTrial In PseudoTrials
+                        NonpresentedAlternativeTrial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices, FixedSpeechIndex)
+                    Next
+                End If
 
             Catch ex As Exception
                 Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
@@ -2207,10 +2225,24 @@ Namespace SipTest
             If SkipExportOfSoundFiles = False Then
                 For i = 0 To Me.TrialSoundsToExport.Count - 1
                     Dim ExportSound = Me.TrialSoundsToExport(i).Item2
-                    Dim FileName = IO.Path.Combine(Me.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Me.PresentationOrder & "_" & Me.TrialSoundsToExport(i).Item1 & ".wav")
+                    Dim FileName = IO.Path.Combine(Me.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Me.PresentationOrder & "_" & Me.TrialSoundsToExport(i).Item1 & "_" & Me.SpeechMaterialComponent.Id & ".wav")
                     ExportSound.WriteWaveFile(FileName)
                     ExportedSoundFilesList.Add(FileName)
                 Next
+
+                If PseudoTrials IsNot Nothing Then
+                    For Each PseudoTrial In PseudoTrials
+
+                        For i = 0 To PseudoTrial.TrialSoundsToExport.Count - 1
+                            Dim ExportSound = PseudoTrial.TrialSoundsToExport(i).Item2
+                            Dim FileName = IO.Path.Combine(Me.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Me.PresentationOrder & "_Pseudo_" & PseudoTrial.TrialSoundsToExport(i).Item1 & "_" & PseudoTrial.SpeechMaterialComponent.Id & ".wav")
+                            ExportSound.WriteWaveFile(FileName)
+                            ExportedSoundFilesList.Add(FileName)
+                        Next
+
+                    Next
+                End If
+
             End If
             TrialList.Add(String.Join(";", ExportedSoundFilesList))
 

@@ -1279,8 +1279,28 @@ Public Class SipTestGui_2023
 
                                 If CurrentBlockIsBMLD = False Then
                                     NewTrial = New SipTrial(NewTestUnit, TestWords(c), MediaSet, SoundPropagationTypes.SimulatedSoundField, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+
+                                    'Adding non-presented trials with contrasting alternatives
+                                    NewTrial.PseudoTrials = New List(Of SipTrial)
+                                    Dim ContrastingAlternatives = TestWords(c).GetSiblingsExcludingSelf
+                                    For Each ContrastingAlternative In ContrastingAlternatives
+                                        Dim NonpresentedTrial = New SipTrial(NewTestUnit, ContrastingAlternative, MediaSet, SoundPropagationTypes.SimulatedSoundField, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                                        NonpresentedTrial.IsTestTrial = False
+                                        NewTrial.PseudoTrials.Add(NonpresentedTrial)
+                                    Next
+
                                 Else
                                     NewTrial = New SipTrial(NewTestUnit, TestWords(c), MediaSet, SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+
+                                    'Adding non-presented trials with contrasting alternatives
+                                    NewTrial.PseudoTrials = New List(Of SipTrial)
+                                    Dim ContrastingAlternatives = TestWords(c).GetSiblingsExcludingSelf
+                                    For Each ContrastingAlternative In ContrastingAlternatives
+                                        Dim NonpresentedTrial = New SipTrial(NewTestUnit, ContrastingAlternative, MediaSet, SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+                                        NonpresentedTrial.IsTestTrial = False
+                                        NewTrial.PseudoTrials.Add(NonpresentedTrial)
+                                    Next
+
                                 End If
 
                                 NewTrial.SetLevels(ReferenceLevel, PNR)
