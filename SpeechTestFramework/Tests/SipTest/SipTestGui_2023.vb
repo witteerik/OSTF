@@ -1433,23 +1433,18 @@ Public Class SipTestGui_2023
             Case ScreenType.Pc
 
                 'Creating a new participant form (and ParticipantControl) if none exist
-                If PcParticipantForm Is Nothing Then
+                If CheckPcScreen() = False Then
                     Select Case SelectedTestparadigm
-                        Case Testparadigm.Quick, Testparadigm.Slow
-                            PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
-
                         Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                             PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoiceDirection, NeededTargetAzimuths)
+
+                        Case Else
+                            PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
                     End Select
                 End If
 
 
                 Select Case SelectedTestparadigm
-                    Case Testparadigm.Quick, Testparadigm.Slow, Testparadigm.FlexibleLocations
-                        If PcParticipantForm.CurrentTaskType <> PcTesteeForm.TaskType.ForcedChoice Then
-                            PcParticipantForm.UpdateType(PcTesteeForm.TaskType.ForcedChoice)
-                        End If
-
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
 
                         If PcParticipantForm.CurrentTaskType <> PcTesteeForm.TaskType.ForcedChoiceDirection Then
@@ -1468,8 +1463,10 @@ Public Class SipTestGui_2023
                         End If
 
                     Case Else
-                        'This will be an other type, not yet implemented
-                        Throw New NotImplementedException
+
+                        If PcParticipantForm.CurrentTaskType <> PcTesteeForm.TaskType.ForcedChoice Then
+                            PcParticipantForm.UpdateType(PcTesteeForm.TaskType.ForcedChoice)
+                        End If
 
                 End Select
 
@@ -1494,6 +1491,7 @@ Public Class SipTestGui_2023
         Start_AudioButton.Enabled = True
 
     End Sub
+
 
     Private Sub TryStartTest(sender As Object, e As EventArgs) Handles ParticipantControl.StartedByTestee, Start_AudioButton.Click
 
@@ -1521,18 +1519,19 @@ Public Class SipTestGui_2023
             'Things seemed to be in order,
             'Starting the test
 
+            If CheckPcScreen() = True Then
+                PcParticipantForm.LockCursorToForm()
+                PcParticipantForm.SetResponseMode(PcResponseMode)
+            Else
+                ShowMessageBox("Did you close the participant screen? Please try again, without closing it.")
+                TryEnableTestStart()
+                Exit Sub
+            End If
+
             TogglePlayButton(False)
             Stop_AudioButton.Enabled = True
 
             LockSettingsPanels()
-
-            If CurrentScreenType = ScreenType.Pc Then
-                'Locks the cursor to the form
-                If PcParticipantForm IsNot Nothing Then
-                    PcParticipantForm.LockCursorToForm()
-                    PcParticipantForm.SetResponseMode(PcResponseMode)
-                End If
-            End If
 
             If sender Is ParticipantControl Then
                 Utils.SendInfoToLog("Test started by administrator")
@@ -1555,6 +1554,21 @@ Public Class SipTestGui_2023
         End If
 
     End Sub
+
+    Private Function CheckPcScreen() As Boolean
+
+        If CurrentScreenType = ScreenType.Pc Then
+            'Locks the cursor to the form
+            If PcParticipantForm IsNot Nothing Then
+                If PcParticipantForm.IsDisposed = True Then
+                    Return False
+                End If
+            Else
+                Return False
+            End If
+        End If
+        Return True
+    End Function
 
     Private Sub StopTest() Handles Stop_AudioButton.Click
         If TestIsStarted = True Then
@@ -2419,7 +2433,7 @@ Public Class SipTestGui_2023
             'Clearing items in the Screen_ComboBox
             PcScreen_ComboBox.Items.Clear()
 
-            If PcParticipantForm IsNot Nothing Then
+            If CheckPcScreen() = True Then
                 PcParticipantForm.Close()
                 PcParticipantForm.Dispose()
                 PcParticipantForm = Nothing
@@ -2436,7 +2450,7 @@ Public Class SipTestGui_2023
             PcResponseMode = Utils.Constants.ResponseModes.MouseClick
         End If
 
-        If PcParticipantForm IsNot Nothing Then
+        If CheckPcScreen() = True Then
             PcParticipantForm.SetResponseMode(PcResponseMode)
         End If
 
@@ -2448,7 +2462,7 @@ Public Class SipTestGui_2023
         If CurrentScreenType = ScreenType.Pc Then
 
             'Creating a new participant form (and ParticipantControl) if none exist
-            If PcParticipantForm Is Nothing Then
+            If CheckPcScreen() = False Then
                 PcParticipantForm = New PcTesteeForm(PcTesteeForm.TaskType.ForcedChoice)
                 ParticipantControl = PcParticipantForm.ParticipantControl
             End If
@@ -2576,7 +2590,7 @@ Public Class SipTestGui_2023
 
         'Closing the PcResponseForm
         Try
-            If PcParticipantForm IsNot Nothing Then
+            If CheckPcScreen() = True Then
                 PcParticipantForm.Close()
             End If
         Catch ex As Exception
