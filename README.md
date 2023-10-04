@@ -61,4 +61,7 @@ The following modifications have been made:
      - Splitting left and right channels into separate sound files.
      - Addition of Speech Material Annotation (SMA) iXML wave chunks for linguistic segmentations of the sound files.
 
-- HRTF recordings from The Audiological Research Centre in Örebro, Sweden. These recordings are available from https://osf.io/89n34/ under a CC-BY 4.0 International License https://creativecommons.org/licenses/by/4.0/. Copyright (c) 2023, Tobias Åslund.
+- Sets of different HRTF recordings from The Audiological Research Centre in Örebro, Sweden. These recordings are available from https://osf.io/89n34/ under a CC-BY 4.0 International License https://creativecommons.org/licenses/by/4.0/. Copyright (c) 2023, Tobias Åslund, Tobias Danneleit and Erik Witte (for different sets, and modifications).
+
+- A selection of HRTF recordings from the Oldenburg Hearing Device (OlHeaD) HRTF Database, available from https://uol.de/mediphysik/downloads/hearingdevicehrtfs under the CC BY-NC-SA 4.0 license. 
+     F. Denk, S.M.A. Ernst, S.D. Ewert and B. Kollmeier (2018) Adapting hearing devices to the individual ear acoustics: Database and target response correction functions for various device styles. Trends in Hearing, vol 22, p. 1-19. DOI: 10.1177/2331216518779313

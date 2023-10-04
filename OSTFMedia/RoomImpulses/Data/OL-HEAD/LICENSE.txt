@@ -1,0 +1,10 @@
+The files in this folder and subfolders are licensed under the
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+F. Denk, S.M.A. Ernst, S.D. Ewert and B. Kollmeier (2018) Adapting hearing devices to the
+individual ear acoustics: Database and target response correction functions for various device
+styles. Trends in Hearing, vol 22, p. 1-19. DOI: 10.1177/2331216518779313
+
+Original material available at https://uol.de/mediphysik/downloads/hearingdevicehrtfs

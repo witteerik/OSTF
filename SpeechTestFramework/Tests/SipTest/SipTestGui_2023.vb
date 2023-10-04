@@ -49,7 +49,7 @@ Public Class SipTestGui_2023
     Private AvailableMaskerAzimuths As New List(Of Double) From {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180}
     Private AvailableBackgroundAzimuths As New List(Of Double) From {-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180}
     'Private AvailableLengthReduplications As New List(Of Integer) From {1, 2, 3, 4}
-    Private AvailableLengthReduplications As New List(Of Integer) From {1, 2}
+    Private AvailableLengthReduplications As New List(Of Integer) From {1}
     'Private AvailablePNRs As New List(Of Double) From {-15, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 15}
     Private AvailablePNRs As New List(Of Double) From {-20, -16, -10, -3, 4, 11}
     Private BmldTargetModeStrings As New List(Of String) From {"R", "L", "0", "π"} ' For Right, Left, Zero, Pi,
@@ -234,7 +234,6 @@ Public Class SipTestGui_2023
         For Each Preset In AvailablePresetsNames
             PresetComboBox.Items.Add(Preset)
         Next
-        'We don't select a default here...?? 
 
         'Adding available test situations
         For Each TestSituation In AvailableMediaSets
@@ -242,17 +241,24 @@ Public Class SipTestGui_2023
             AddHandler NewCheckBox.CheckedChanged, AddressOf TryCreateSipTestMeasurement
             Situations_FlowLayoutPanel.Controls.Add(NewCheckBox)
         Next
+        If Situations_FlowLayoutPanel.Controls.Count > 0 Then
+            'Checks the first CheckBox
+            DirectCast(Situations_FlowLayoutPanel.Controls(0), CheckBox).Checked = True
+        End If
+
 
         'Adding available test length reduplications
         TestLengthComboBox.Items.Clear()
         For Each TestLength In AvailableLengthReduplications
             TestLengthComboBox.Items.Add(TestLength)
         Next
-        'We don't select a default here...?? 
+        If TestLengthComboBox.Items.Count > 0 Then
+            TestLengthComboBox.SelectedIndex = 0
+        End If
 
         'Adding possible PNR values
         For Each PNR In AvailablePNRs
-            Dim NewCheckBox = New CheckBox With {.Text = PNR}
+            Dim NewCheckBox = New CheckBox With {.Text = PNR, .Checked = True}
             AddHandler NewCheckBox.CheckedChanged, AddressOf TryCreateSipTestMeasurement
             PNRs_FlowLayoutPanel.Controls.Add(NewCheckBox)
         Next
@@ -293,11 +299,13 @@ Public Class SipTestGui_2023
 
         'Adding values in Testparadigm_ComboBox
         Testparadigm_ComboBox.Items.Add(Testparadigm.FlexibleLocations)
-        Testparadigm_ComboBox.Items.Add(Testparadigm.Quick)
-        Testparadigm_ComboBox.Items.Add(Testparadigm.Slow)
-        Testparadigm_ComboBox.Items.Add(Testparadigm.Directional2)
-        Testparadigm_ComboBox.Items.Add(Testparadigm.Directional3)
-        Testparadigm_ComboBox.Items.Add(Testparadigm.Directional5)
+        If DisableExtraTestModes = False Then
+            Testparadigm_ComboBox.Items.Add(Testparadigm.Quick)
+            Testparadigm_ComboBox.Items.Add(Testparadigm.Slow)
+            Testparadigm_ComboBox.Items.Add(Testparadigm.Directional2)
+            Testparadigm_ComboBox.Items.Add(Testparadigm.Directional3)
+            Testparadigm_ComboBox.Items.Add(Testparadigm.Directional5)
+        End If
         Testparadigm_ComboBox.SelectedIndex = 0
 
         If DisableExtraTestModes = True Then
