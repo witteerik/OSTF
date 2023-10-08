@@ -314,6 +314,13 @@ Public Class CalibrationForm
                 If DirectionalSimulator.IsActive = True Then
 
                     Dim SelectedSimulatedDistance As Double
+                    If SimulatedDistance_ComboBox.SelectedItem IsNot Nothing Then
+                        SelectedSimulatedDistance = SimulatedDistance_ComboBox.SelectedItem
+                    Else
+                        MsgBox("Please select a directional simulation distance!")
+                        Exit Sub
+                    End If
+
                     Dim SimulationKernel = DirectionalSimulator.GetStereoKernel(DirectionalSimulator.SelectedDirectionalSimulationSetName, 0, 0, SelectedSimulatedDistance)
                     Dim CurrentKernel = SimulationKernel.Item2.CreateSoundDataCopy
 

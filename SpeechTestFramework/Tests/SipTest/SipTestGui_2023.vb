@@ -685,7 +685,7 @@ Public Class SipTestGui_2023
                 PretestSoundDuration = 2
                 MinimumStimulusOnsetTime = 0.02
                 MaximumStimulusOnsetTime = 0.1
-                TrialSoundMaxDuration = 6 ' TODO: Optimize by shortening this time
+                TrialSoundMaxDuration = 7 ' TODO: Optimize by shortening this time
                 UseVisualQue = True
                 UseBackgroundSpeech = False
                 MaximumResponseTime = 3

@@ -330,9 +330,13 @@ Public Class BinauralImpulseReponseSet
     ''' </summary>
     ''' <param name="Azimuth">The azimuth (phi)</param>
     ''' <param name="Elevation">The elevation (or inclination, theta), relative to the horizontal plane</param>
-    ''' <param name="Distance">The distance (or radius, r)</param>
+    ''' <param name="Distance">The distance (or radius, r). Must be a non-zero positive value.</param>
     ''' <returns>Returns a tuple containing the selected 3D-point and the corresponding binaural impulse response.</returns>
     Public Function GetClosestPoint(ByVal Azimuth As Double, ByVal Elevation As Double, ByVal Distance As Double) As Tuple(Of Point3D, Audio.Sound)
+
+        If Distance <= 0 Then
+            Throw New ArgumentException("Distance cannot be zero (or lower) in directional simulation.")
+        End If
 
         Dim TargetPoint As New Point3D
         TargetPoint.SetBySpherical(Azimuth, Elevation, Distance)

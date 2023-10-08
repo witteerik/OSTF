@@ -3110,7 +3110,7 @@ Public Class Form4
 
     Public Sub Testlibostfdsp()
 
-        Dim TotL As Integer = 2 ^ 10
+        Dim TotL As Integer = 2 ^ 18
 
         Dim Input1 = SpeechTestFramework.Audio.GenerateSound.CreateWhiteNoise(New Audio.Formats.WaveFormat(48000, 32, 1),,, TotL, Audio.BasicAudioEnums.TimeUnits.samples)
 
