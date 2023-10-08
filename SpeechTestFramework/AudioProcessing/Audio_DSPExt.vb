@@ -4928,7 +4928,30 @@ Namespace Audio
             Public Sub FastFourierTransform(ByVal Direction As FftDirections, ByRef x() As Double, ByRef y() As Double,
                                    Optional ScaleForwardTransform As Boolean = True, Optional ByVal Reorder As Boolean = True)
 
-                FftRadix2(x, y, Direction, ScaleForwardTransform, Reorder)
+
+                If OstfBase.UseOptimizationLibraries = False Then
+                    FftRadix2(x, y, Direction, ScaleForwardTransform, Reorder)
+
+                Else
+
+                    Dim dir As Integer
+                    Select Case Direction
+                        Case FftDirections.Forward
+                            dir = 1
+                        Case FftDirections.Backward
+                            dir = -1
+                        Case Else
+                            Throw New ArgumentException("Unknown value for Direction!")
+                    End Select
+
+                    'Ensures that x and y have the same length
+                    If x.Length <> y.Length Then
+                        Throw New ArgumentException("The x and y arrays need to have the same length in FastFourierTransform!")
+                    End If
+
+                    LibOstfDsp_VB.fft_complex(x, y, x.Length, dir, Reorder, ScaleForwardTransform)
+
+                End If
 
             End Sub
 

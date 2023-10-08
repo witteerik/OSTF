@@ -108,6 +108,7 @@
     <Compile Include="AudioProcessing\PortAudioVB.vb" />
     <Compile Include="AudioProcessing\SMA1.0.vb" />
     <Compile Include="AudioProcessing\SMA1.1.vb" />
+    <Compile Include="libostfdsp_VB.vb" />
     <Compile Include="ParticipantInterfaces\PC\DirectionalForcedChoiceControl.Designer.vb">
       <DependentUpon>DirectionalForcedChoiceControl.vb</DependentUpon>
     </Compile>

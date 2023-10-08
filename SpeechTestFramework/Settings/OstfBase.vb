@@ -2,6 +2,10 @@
 
 Public Module OstfBase
 
+    'Optimization libraries
+    Public Property UseOptimizationLibraries As Boolean = True ' This can be used to determin if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
+
+
     ' Program location
     Public Property MediaRootDirectory As String = "" '= IO.Path.Combine("C:\", "OSTFMedia") 'Indicates the root path. Other paths given in the project setting files are relative (subpaths) to this path only if they begin with .\ otherwise they are taken as absolute paths.
     Public Property DefaultMediaRootFolderName As String = "OSTFMedia"
@@ -58,6 +62,11 @@ Public Module OstfBase
         OstfIsInitialized = True
 
         Try
+
+            '' Initialize FFTW with multi-threading support
+            'FftwVB.fftw_init_threads()
+
+
             'Initializing the port audio library
             If Audio.PortAudio.Pa_GetDeviceCount = Audio.PortAudio.PaError.paNotInitialized Then
                 Dim Pa_Initialize_ReturnValue = Audio.PortAudio.Pa_Initialize
@@ -161,6 +170,11 @@ Public Module OstfBase
     ''' This sub needs to be called when closing the last OSTF application.
     ''' </summary>
     Public Sub TerminateOSTF()
+
+        '' Cleans up  FFTW 
+        'FftwVB.fftw_cleanup_threads()
+        'FftwVB.fftw_cleanup()
+
 
         'Disposing the sound player. 
         If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()

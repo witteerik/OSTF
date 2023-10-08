@@ -2046,7 +2046,7 @@ Public Class SipTestGui_2023
         CurrentSipTrial.Response = ResponseString
 
         'Moves the trials to from planned to observed trials so that it doesn't get presented again
-        CurrentSipTestMeasurement.MoveTrialToHistory(CurrentSipTrial)
+        CurrentSipTestMeasurement.MoveTrialToHistory(CurrentSipTrial, False)
 
         'Exports the result
         If CurrentSipTestMeasurement.ObservedTrials.Count = 1 Then
@@ -2054,6 +2054,9 @@ Public Class SipTestGui_2023
         Else
             CurrentSipTrial.ExportTrialResult(False, Not CurrentSipTestMeasurement.ExportTrialSoundFiles)
         End If
+
+        'Removes sounds from the current test trial (as its no longer needed)
+        CurrentSipTrial.RemoveSounds()
 
         'Updates the progress bar
         If ShowProgressIndication = True Then

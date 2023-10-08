@@ -1,4 +1,6 @@
-﻿Imports SpeechTestFramework
+﻿Imports System.Diagnostics.Eventing
+Imports System.Runtime.InteropServices
+Imports SpeechTestFramework
 
 Public Class Form4
 
@@ -3014,7 +3016,7 @@ Public Class Form4
 
     End Sub
 
-    Private Sub Button21_Click(sender As Object, e As EventArgs) Handles Button21.Click
+    Private Sub Button21_Click(sender As Object, e As EventArgs) 'Handles Button21.Click
 
 
         'Initializing all components
@@ -3061,4 +3063,94 @@ Public Class Form4
         SpeechTestFramework.Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), "ExportedTestPhonemeTimes")
 
     End Sub
+
+
+    Private Sub Button21B_Click(sender As Object, e As EventArgs) 'Handles Button21.Click
+
+
+        'Initializing all components
+        OstfBase.LoadAvailableTestSpecifications()
+
+        Dim SpeechMaterialName = "Swedish SiP-test"
+
+        Dim SelectedTest As SpeechMaterialSpecification = Nothing
+        For Each ts In OstfBase.AvailableTests
+            If ts.Name = SpeechMaterialName Then
+                SelectedTest = ts
+                Exit For
+            End If
+        Next
+
+        Dim SpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(SelectedTest.GetSpeechMaterialFilePath, SelectedTest.GetTestRootPath)
+        SpeechMaterial.ParentTestSpecification = SelectedTest
+        SelectedTest.SpeechMaterial = SpeechMaterial
+
+        'Loading media sets
+        SpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
+        Dim AvailableMediaSets = SpeechMaterial.ParentTestSpecification.MediaSets
+        Dim SelectedMediaSet = AvailableMediaSets(0)
+
+        'Dim ListSMAObject = SpeechMaterial.GetCorrespondingSmaComponent(SelectedMediaSet, 1, 1, False)
+
+        Dim OutputSound = SpeechMaterial.GetSound(SelectedMediaSet, 1, 1)
+
+        'Dim SoundList As New List(Of Audio.Sound)
+        'For Each Sound In ListSMAObject
+        '    Dim CurrentSound = Sound.GetSoundFileSection(1, False)
+        '    SoundList.Add(CurrentSound)
+        '    SoundList.Add(Audio.GenerateSound.CreateSilence(CurrentSound.WaveFormat))
+        'Next
+
+        'Dim OutputSound = SpeechTestFramework.Audio.DSP.ConcatenateSounds(SoundList)
+
+        OutputSound.WriteWaveFile(IO.Path.Combine(SpeechTestFramework.Utils.logFilePath, "SiP_test_male_rec1s_B.wav"))
+
+    End Sub
+
+
+    Public Sub Testlibostfdsp()
+
+        Dim TotL As Integer = 2 ^ 10
+
+        Dim Input1 = SpeechTestFramework.Audio.GenerateSound.CreateWhiteNoise(New Audio.Formats.WaveFormat(48000, 32, 1),,, TotL, Audio.BasicAudioEnums.TimeUnits.samples)
+
+        Dim s1 = Input1.WaveData.SampleData(1)
+        Dim x1(s1.Length - 1) As Double
+        Dim x2(s1.Length - 1) As Double
+        For s = 0 To s1.Length - 1
+            x1(s) = s1(s)
+            x2(s) = s1(s)
+        Next
+        Dim y1(x1.Length - 1) As Double
+        Dim y2(x2.Length - 1) As Double
+
+
+        SpeechTestFramework.OstfBase.UseOptimizationLibraries = False
+
+        Dim StopWatch1 As New Stopwatch
+        StopWatch1.Start()
+        SpeechTestFramework.Audio.DSP.FastFourierTransform(Audio.DSP.TransformationsExt.FftDirections.Forward, x1, y1)
+        'Input1.FFT = SpeechTestFramework.Audio.DSP.SpectralAnalysis(Input1, FFT)
+        Dim Time1 = StopWatch1.Elapsed
+
+        SpeechTestFramework.OstfBase.UseOptimizationLibraries = True
+
+        Dim StopWatch2 As New Stopwatch
+        StopWatch2.Start()
+        SpeechTestFramework.Audio.DSP.FastFourierTransform(Audio.DSP.TransformationsExt.FftDirections.Forward, x1, y1)
+        'Input2.FFT = SpeechTestFramework.Audio.DSP.SpectralAnalysis(Input2, FFT)
+        Dim Time2 = StopWatch2.Elapsed
+
+        MsgBox(Time1.TotalMilliseconds & " " & Time2.TotalMilliseconds)
+
+
+    End Sub
+
+
+    Private Sub Testlibostfdsp_Button_Click(sender As Object, e As EventArgs) Handles Button21.Click
+
+        Testlibostfdsp()
+
+    End Sub
+
 End Class

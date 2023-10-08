@@ -392,13 +392,8 @@ Namespace SipTest
         ''' Moves the referenced test trial from the PlannedTrials to ObservedTrials objects, both in the parent TestUnit and in the parent SipMeasurement. This way it will not be presented again.
         ''' </summary>
         ''' <param name="TestTrial"></param>
-        ''' <param name="RemoveSound">If True, removes the TestTrialSound in the referenced trial.</param>
-        Public Sub MoveTrialToHistory(ByRef TestTrial As SipTrial, Optional ByVal RemoveSound As Boolean = True)
-
-            If RemoveSound = True Then
-                'Removes the sound, since it's not going to be used again (and could take up quite some memory if kept...)
-                If TestTrial.TestTrialSound IsNot Nothing Then TestTrial.TestTrialSound = Nothing
-            End If
+        ''' <param name="RemoveSounds">If True, removes the TestTrialSound in the referenced trial.</param>
+        Public Sub MoveTrialToHistory(ByRef TestTrial As SipTrial, Optional ByVal RemoveSounds As Boolean = True)
 
             Dim ParentTestUnit = TestTrial.ParentTestUnit
 
@@ -412,6 +407,10 @@ Namespace SipTest
 
             'Increments the number of presented trials, based on the number of trials stored in ObservedTrials so far.
             TestTrial.PresentationOrder = ObservedTrials.Count
+
+            If RemoveSounds = True Then
+                TestTrial.RemoveSounds()
+            End If
 
         End Sub
 
@@ -1422,6 +1421,10 @@ Namespace SipTest
                             ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
                             Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing)
 
+            If TestTrialSound IsNot Nothing Then
+                MsgBox("!")
+            End If
+
             Try
 
                 'Setting up the SiP-trial sound mix
@@ -2249,6 +2252,35 @@ Namespace SipTest
             Return String.Join(vbTab, TrialList)
 
         End Function
+
+        'Removes all sounds from the trial free up memory
+        Public Sub RemoveSounds()
+
+            'Removes the sound, since it's not going to be used again (and could take up quite some memory if kept...)
+            If TestTrialSound IsNot Nothing Then TestTrialSound = Nothing
+
+            If TrialSoundsToExport IsNot Nothing Then
+                For i = 0 To TrialSoundsToExport.Count - 1
+                    TrialSoundsToExport(i) = New Tuple(Of String, Audio.Sound)(TrialSoundsToExport(i).Item1, Nothing)
+                Next
+            End If
+
+            'And also the pseudo trial sounds if any
+            If PseudoTrials IsNot Nothing Then
+                For Each PseudoTrial In PseudoTrials
+                    If PseudoTrial.TestTrialSound IsNot Nothing Then PseudoTrial.TestTrialSound = Nothing
+
+                    If PseudoTrial.TrialSoundsToExport IsNot Nothing Then
+                        For i = 0 To PseudoTrial.TrialSoundsToExport.Count - 1
+                            PseudoTrial.TrialSoundsToExport(i) = New Tuple(Of String, Audio.Sound)(PseudoTrial.TrialSoundsToExport(i).Item1, Nothing)
+                        Next
+                    End If
+                Next
+            End If
+
+        End Sub
+
+
 
     End Class
 
