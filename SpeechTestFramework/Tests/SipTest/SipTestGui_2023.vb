@@ -1519,34 +1519,36 @@ Public Class SipTestGui_2023
             'Things seemed to be in order,
             'Starting the test
 
-            If CheckPcScreen() = True Then
-                PcParticipantForm.LockCursorToForm()
-                PcParticipantForm.SetResponseMode(PcResponseMode)
-            Else
-                ShowMessageBox("Did you close the participant screen? Please try again, without closing it.")
-                TryEnableTestStart()
-                Exit Sub
+            If CurrentScreenType = ScreenType.Pc Then
+                If CheckPcScreen() = True Then
+                    PcParticipantForm.LockCursorToForm()
+                    PcParticipantForm.SetResponseMode(PcResponseMode)
+                Else
+                    ShowMessageBox("Did you close the participant screen? Please try again, without closing it.")
+                    TryEnableTestStart()
+                    Exit Sub
+                End If
             End If
 
             TogglePlayButton(False)
-            Stop_AudioButton.Enabled = True
+                Stop_AudioButton.Enabled = True
 
-            LockSettingsPanels()
+                LockSettingsPanels()
 
-            If sender Is ParticipantControl Then
-                Utils.SendInfoToLog("Test started by administrator")
-            ElseIf sender Is ParticipantControl Then
-                Utils.SendInfoToLog("Test started by testee")
-            End If
+                If sender Is ParticipantControl Then
+                    Utils.SendInfoToLog("Test started by administrator")
+                ElseIf sender Is ParticipantControl Then
+                    Utils.SendInfoToLog("Test started by testee")
+                End If
 
-            TestIsStarted = True
+                TestIsStarted = True
 
 
-            InitiateTestByPlayingSound()
+                InitiateTestByPlayingSound()
 
-        Else
-            'Test is started
-            If TestIsPaused = True Then
+            Else
+                'Test is started
+                If TestIsPaused = True Then
                 ResumeTesting()
             Else
                 PauseTesting()
