@@ -141,6 +141,8 @@ Public Class SipTestGui_2023
     'Delegate subs
     Delegate Sub NoArgDelegate()
     Delegate Sub StringArgReturningVoidDelegate([String] As String)
+    Delegate Sub ResultDelegate(ResponseString As String, ResponseTime As TimeSpan)
+
 
     Public SelectedSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
 
@@ -355,6 +357,9 @@ Public Class SipTestGui_2023
                 Resume_Label.Text = "Återuppta test = R"
                 Stop_Label.Text = "Stoppa test = S"
 
+                ScrollToPresented_CheckBox.Text = "Auto-skrolla till testord"
+                PauseOnNextNonTrial_CheckBox.Text = "Pausa innan nästa icke-test-ord"
+
                 NoSimulationString = "Ingen simulering"
 
             Case Else
@@ -384,6 +389,9 @@ Public Class SipTestGui_2023
                 Pause_Label.Text = "Pause test = P"
                 Resume_Label.Text = "Resume test = R"
                 Stop_Label.Text = "Stop test = S"
+
+                ScrollToPresented_CheckBox.Text = "Auto scroll to test word"
+                PauseOnNextNonTrial_CheckBox.Text = "Pause on next non-test trial"
 
                 NoSimulationString = "No simulation"
 
@@ -1013,7 +1021,7 @@ Public Class SipTestGui_2023
                     CurrentSipTestMeasurement.GetTargetAzimuths()
             End Select
 
-            UpdateTestTrialTable()
+            UpdateTestTrialTable(ScrollToPresented_CheckBox.Checked)
             UpdateTestProgress()
 
             'Initiates the test
@@ -1531,24 +1539,24 @@ Public Class SipTestGui_2023
             End If
 
             TogglePlayButton(False)
-                Stop_AudioButton.Enabled = True
+            Stop_AudioButton.Enabled = True
 
-                LockSettingsPanels()
+            LockSettingsPanels()
 
-                If sender Is ParticipantControl Then
-                    Utils.SendInfoToLog("Test started by administrator")
-                ElseIf sender Is ParticipantControl Then
-                    Utils.SendInfoToLog("Test started by testee")
-                End If
+            If sender Is ParticipantControl Then
+                Utils.SendInfoToLog("Test started by administrator")
+            ElseIf sender Is ParticipantControl Then
+                Utils.SendInfoToLog("Test started by testee")
+            End If
 
-                TestIsStarted = True
+            TestIsStarted = True
 
 
-                InitiateTestByPlayingSound()
+            InitiateTestByPlayingSound()
 
-            Else
-                'Test is started
-                If TestIsPaused = True Then
+        Else
+            'Test is started
+            If TestIsPaused = True Then
                 ResumeTesting()
             Else
                 PauseTesting()
@@ -1743,7 +1751,7 @@ Public Class SipTestGui_2023
         End If
 
         'Updates the GUI table
-        UpdateTestTrialTable()
+        UpdateTestTrialTable(ScrollToPresented_CheckBox.Checked)
         UpdateTestProgress()
 
         'Gets the next stimulus
@@ -1993,6 +2001,17 @@ Public Class SipTestGui_2023
 
     Private Sub StoreResult(ByVal ResponseString As String, ByVal ResponseTime As TimeSpan)
 
+        If Me.InvokeRequired = True Then
+            Dim d As New ResultDelegate(AddressOf StoreResult_Unsafe)
+            Me.Invoke(d, New Object() {ResponseString, ResponseTime})
+        Else
+            StoreResult_Unsafe(ResponseString, ResponseTime)
+        End If
+
+    End Sub
+
+    Private Sub StoreResult_Unsafe(ByVal ResponseString As String, ByVal ResponseTime As TimeSpan)
+
         'Converting the response time to seconds
         Dim CurrentResponseTime As Integer = ResponseTime.TotalMilliseconds
 
@@ -2065,10 +2084,38 @@ Public Class SipTestGui_2023
             ParticipantControl.UpdateTestFormProgressbar(CurrentSipTestMeasurement.ObservedTrials.Count, CurrentSipTestMeasurement.ObservedTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count)
         End If
 
+        'Checking if need to pause
+        'Gets the next stimulus
+        Dim NextTrial = CurrentSipTestMeasurement.GetNextTrial()
+
+        'Pauses test if admin checked the PauseOnNextNonTrial_CheckBox, and if the trial is not a test trial
+        If NextTrial IsNot Nothing Then
+            If NextTrial.IsTestTrial = False Then
+                If PauseOnNextNonTrial_CheckBox.Checked = True Then
+
+                    'Pauses testing
+                    PauseTesting()
+
+                    'Deselects the PauseOnNextNonTrial_CheckBox
+                    PauseOnNextNonTrial_CheckBox.Checked = False
+
+                    'Updates the GUI table
+                    UpdateTestTrialTable(ScrollToPresented_CheckBox.Checked)
+                    UpdateTestProgress()
+
+                    Exit Sub
+
+                End If
+            End If
+        End If
+
         'Starting the next trial
         PrepareAndLaunchTrial_ThreadSafe()
 
     End Sub
+
+
+
 
     Private Sub FinalizeTesting()
 
@@ -2179,6 +2226,7 @@ Public Class SipTestGui_2023
         HideVisualQueTimer.Stop()
         ShowResponseAlternativesTimer.Stop()
         MaxResponseTimeTimer.Stop()
+
     End Sub
 
     Private Sub UpdateTestProgress()
@@ -2205,7 +2253,7 @@ Public Class SipTestGui_2023
         End If
     End Sub
 
-    Private Sub UpdateTestTrialTable()
+    Private Sub UpdateTestTrialTable(Optional ByVal ScrollToTestWord As Boolean = True)
 
         Dim GetGuiTableData = CurrentSipTestMeasurement.GetGuiTableData()
 
@@ -2214,8 +2262,14 @@ Public Class SipTestGui_2023
         Dim ResultResponseTypes() As SipTest.PossibleResults = GetGuiTableData.ResponseType.ToArray
         Dim UpdateRow As Integer? = GetGuiTableData.UpdateRow
         Dim SelectionRow As Integer? = GetGuiTableData.SelectionRow
-        Dim FirstRowToDisplayInScrollmode As Integer? = GetGuiTableData.FirstRowToDisplayInScrollmode
+        Dim FirstRowToDisplayInScrollmode As Integer? = Nothing
 
+        If ScrollToTestWord = True Then
+            FirstRowToDisplayInScrollmode = GetGuiTableData.FirstRowToDisplayInScrollmode
+        Else
+            FirstRowToDisplayInScrollmode = TestTrialDataGridView.FirstDisplayedScrollingRowIndex
+            If FirstRowToDisplayInScrollmode < 0 Then FirstRowToDisplayInScrollmode = Nothing
+        End If
 
         'Checking input arguments
         If TestWords.Length <> Responses.Length Or TestWords.Length <> ResultResponseTypes.Length Then
@@ -2297,8 +2351,10 @@ Public Class SipTestGui_2023
         'Clears any selection first
         TestTrialDataGridView.ClearSelection()
         If SelectionRow.HasValue Then
-            'Selects the first column of the SelectionRow
-            TestTrialDataGridView.Rows(SelectionRow).Cells(0).Selected = True
+            If SelectionRow < TestTrialDataGridView.Rows.Count Then
+                'Selects the first column of the SelectionRow
+                TestTrialDataGridView.Rows(SelectionRow).Cells(0).Selected = True
+            End If
         End If
 
         'Scrolls to the indicated FirstRowToDisplayInScrollmode
@@ -2668,7 +2724,13 @@ Public Class SipTestGui_2023
 
     End Sub
 
-    Private Sub StopTest(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
+    Private Sub ScrollToPresented_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles ScrollToPresented_CheckBox.CheckedChanged
+
+        If ScrollToPresented_CheckBox.Checked = True Then
+            If CurrentSipTestMeasurement IsNot Nothing Then
+                UpdateTestTrialTable(ScrollToPresented_CheckBox.Checked)
+            End If
+        End If
 
     End Sub
 

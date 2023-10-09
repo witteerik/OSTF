@@ -445,11 +445,20 @@ Namespace SipTest
 
             'Adding already tested trials
             For i = 0 To ObservedTrials.Count - 1
+
+                Dim TestWordPrefix As String = ""
+                Dim TestWordSuffix As String = ""
+
+                If ObservedTrials(i).IsTestTrial = False Then
+                    TestWordPrefix = "( "
+                    TestWordSuffix = " )"
+                End If
+
                 Select Case TestProcedure.TestParadigm
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                        Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & ObservedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth)  'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(TestWordPrefix & ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & ObservedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth & TestWordSuffix)  'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                     Case Else
-                        Output.TestWords.Add(ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(TestWordPrefix & ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & TestWordSuffix) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                 End Select
                 Output.Responses.Add(ObservedTrials(i).Response.Replace(vbTab, ", "))
                 Output.ResponseType.Add(ObservedTrials(i).Result)
@@ -458,24 +467,39 @@ Namespace SipTest
             'Adding trials yet to be tested
             For i = 0 To PlannedTrials.Count - 1
 
+                Dim TestWordPrefix As String = ""
+                Dim TestWordSuffix As String = ""
+
+                If PlannedTrials(i).IsTestTrial = False Then
+                    TestWordPrefix = "( "
+                    TestWordSuffix = " )"
+                End If
+
                 Select Case TestProcedure.TestParadigm
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                        Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & PlannedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(TestWordPrefix & PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & PlannedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth & TestWordSuffix) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                     Case Else
-                        Output.TestWords.Add(PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(TestWordPrefix & PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & TestWordSuffix) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
                 End Select
                 Output.Responses.Add("")
                 Output.ResponseType.Add(PossibleResults.Missing)
             Next
 
-            Dim LastPresentedTrialIndex As Integer = ObservedTrials.Count - 1
-            Output.SelectionRow = Math.Max(0, LastPresentedTrialIndex)
+            'Getting the index of the last presented trial
+            Dim LastPresentedTrialIndex As Integer = ObservedTrials.Count
+            'Setting the selection to the next trial, limited by the total number of trials
+            Output.SelectionRow = Math.Min(PlannedTrials.Count + ObservedTrials.Count - 1, LastPresentedTrialIndex)
             Output.FirstRowToDisplayInScrollmode = Math.Max(0, LastPresentedTrialIndex - 7)
 
             'Overriding values if no rows exist
             If PlannedTrials.Count = 0 And ObservedTrials.Count = 0 Then
                 Output.SelectionRow = Nothing
                 Output.FirstRowToDisplayInScrollmode = Nothing
+            End If
+
+            'And also if do not select any row if all trials have been testet
+            If PlannedTrials.Count = 0 Then
+                Output.SelectionRow = Nothing
             End If
 
             Return Output
