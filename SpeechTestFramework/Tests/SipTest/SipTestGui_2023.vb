@@ -913,7 +913,7 @@ Public Class SipTestGui_2023
 
                     'Read input from textbox
 
-                    Dim BlockTypes As New List(Of Tuple(Of Object, Object))
+                    Dim BlockTypes As New List(Of Tuple(Of Object, Object, String))
 
                     Dim InputLines = Custom_SNC_TextBox.Lines
 
@@ -989,7 +989,7 @@ Public Class SipTestGui_2023
                             Exit Sub
                         End If
 
-                        BlockTypes.Add(New Tuple(Of Object, Object)(SignalItem, NoiseItem))
+                        BlockTypes.Add(New Tuple(Of Object, Object, String)(SignalItem, NoiseItem, DataPart))
 
                     Next
 
@@ -1180,10 +1180,10 @@ Public Class SipTestGui_2023
     ''' <param name="PresetName"></param>
     ''' <param name="SelectedMediaSets"></param>
     ''' <param name="SelectedPNRs"></param>
-    ''' <param name="BlockTypes">Block types should contain tuples of two objects, where the first indicate the signal and the second the noise. The object can be either a double representing an sound source azimuth or a string representing a BMLD mode. </param>
+    ''' <param name="BlockTypes">Block types should contain tuples of two objects and one string, where the first object indicate the signal, the second object the noise, and the string is a descriptive block name. The object can be either a double representing an sound source azimuth or a string representing a BMLD mode. </param>
     ''' <param name="RandomSeed"></param>
     Private Shared Function PlanCustom1Trials(ByRef SipTestMeasurement As SipMeasurement, ByVal ReferenceLevel As Double, ByVal PresetName As String,
-                                      ByVal SelectedMediaSets As List(Of MediaSet), ByVal SelectedPNRs As List(Of Double), ByVal BlockTypes As List(Of Tuple(Of Object, Object)),
+                                      ByVal SelectedMediaSets As List(Of MediaSet), ByVal SelectedPNRs As List(Of Double), ByVal BlockTypes As List(Of Tuple(Of Object, Object, String)),
                                               ByVal NumberOfIndicatorTrials As Integer, Optional ByVal RandomSeed As Integer? = Nothing) As Boolean
 
         'Creating a new random if seed is supplied
@@ -1214,7 +1214,7 @@ Public Class SipTestGui_2023
 
 
         'Randomizing the order of blocks
-        Dim RandomizedBlockTypes As New List(Of Tuple(Of Object, Object))
+        Dim RandomizedBlockTypes As New List(Of Tuple(Of Object, Object, String))
         Dim RandomIndices = Utils.SampleWithoutReplacement(BlockTypes.Count, 0, BlockTypes.Count, SipTestMeasurement.Randomizer)
         For i = 0 To RandomIndices.Length - 1
             RandomizedBlockTypes.Add(BlockTypes(RandomIndices(i)))
@@ -1224,7 +1224,7 @@ Public Class SipTestGui_2023
         For Each BlockType In BlockTypes
 
             'Creating and adding a test unit for each block
-            Dim NewTestUnit = New SiPTestUnit(SipTestMeasurement)
+            Dim NewTestUnit = New SiPTestUnit(SipTestMeasurement, BlockType.Item3)
             SipTestMeasurement.TestUnits.Add(NewTestUnit)
 
             'Checking that both signal and noise have the same type

@@ -439,7 +439,7 @@ Namespace SipTest
 
         End Function
 
-        Public Function GetGuiTableData() As GuiTableData
+        Public Function GetGuiTableData(Optional ByVal ShowUnit As Boolean = True, Optional ByVal ShowPnr As Boolean = True) As GuiTableData
 
             Dim Output As New GuiTableData
 
@@ -453,6 +453,16 @@ Namespace SipTest
                     TestWordPrefix = "( "
                     TestWordSuffix = " )"
                 End If
+
+                'Adding unit description
+                If ShowUnit = True Then
+                    If ObservedTrials(i).ParentTestUnit IsNot Nothing Then
+                        TestWordSuffix = TestWordSuffix & " / [" & ObservedTrials(i).ParentTestUnit.Description & "]"
+                    End If
+                End If
+
+                'Adding also PNR
+                If ShowPnr = True Then TestWordSuffix = TestWordSuffix & " / " & ObservedTrials(i).PNR
 
                 Select Case TestProcedure.TestParadigm
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
@@ -474,6 +484,16 @@ Namespace SipTest
                     TestWordPrefix = "( "
                     TestWordSuffix = " )"
                 End If
+
+                'Adding unit description
+                If ShowUnit = True Then
+                    If PlannedTrials(i).ParentTestUnit IsNot Nothing Then
+                        TestWordSuffix = TestWordSuffix & " / [" & PlannedTrials(i).ParentTestUnit.Description & "]"
+                    End If
+                End If
+
+                'Adding also PNR
+                If ShowPnr = True Then TestWordSuffix = TestWordSuffix & " / " & PlannedTrials(i).PNR
 
                 Select Case TestProcedure.TestParadigm
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
@@ -787,6 +807,8 @@ Namespace SipTest
                 c += 1
                 Dim ParentTestUnitIndex As Integer = LineColumns(c)
                 c += 1
+                Dim ParentTestUnitDescription As String = LineColumns(c)
+                c += 1
                 Dim SpeechMaterialComponentID As String = LineColumns(c)
                 c += 1
                 Dim MediaSetName As String = LineColumns(c)
@@ -912,6 +934,7 @@ Namespace SipTest
 
                 'Stores the remaining test trial data
                 'NewTestTrial.PresentationOrder = PresentationOrder 'This is not stored as the export/import should always be ordered in the presentation order, as they are read from and stored into the ObservedTrials object!
+                NewTestTrial.ParentTestUnit.Description = ParentTestUnitDescription
                 NewTestTrial.Reference_SPL = Reference_SPL
                 NewTestTrial.PNR = PNR
                 NewTestTrial.OverideEstimatedSuccessProbabilityValue(EstimatedSuccessProbability)
@@ -1004,6 +1027,8 @@ Namespace SipTest
 
     Public Class SiPTestUnit
 
+        Public Property Description As String = ""
+
         Public Property ParentMeasurement As SipMeasurement
 
         Public Property SpeechMaterialComponents As New List(Of SpeechMaterialComponent)
@@ -1014,8 +1039,9 @@ Namespace SipTest
 
         Public Property AdaptiveValue As Double
 
-        Public Sub New(ByRef ParentMeasurement As SipMeasurement)
+        Public Sub New(ByRef ParentMeasurement As SipMeasurement, Optional ByVal Description As String = "")
             Me.ParentMeasurement = ParentMeasurement
+            Me.Description = Description
         End Sub
 
         Public Sub PlanTrials(ByRef MediaSet As MediaSet, ByVal SoundPropagationType As SoundPropagationTypes,
@@ -2032,6 +2058,7 @@ Namespace SipTest
             Headings.Add("MeasurementDateTime")
             Headings.Add("Description")
             Headings.Add("TestUnitIndex")
+            Headings.Add("TestUnitDescription")
             Headings.Add("SpeechMaterialComponentID")
             Headings.Add("MediaSetName")
             Headings.Add("PresentationOrder")
@@ -2099,6 +2126,7 @@ Namespace SipTest
             TrialList.Add(Me.ParentTestUnit.ParentMeasurement.MeasurementDateTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
             TrialList.Add(Me.ParentTestUnit.ParentMeasurement.Description)
             TrialList.Add(Me.ParentTestUnit.ParentMeasurement.GetParentTestUnitIndex(Me))
+            TrialList.Add(Me.ParentTestUnit.Description)
             TrialList.Add(Me.SpeechMaterialComponent.Id)
             TrialList.Add(Me.MediaSet.MediaSetName)
             TrialList.Add(Me.PresentationOrder)
