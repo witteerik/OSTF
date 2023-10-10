@@ -649,8 +649,11 @@ Namespace SipTest
 
                 'Gets the number of response alternatives
                 Dim ResponseAlternativeCount As Integer = 0
-                ObservedTrials(n).SpeechMaterialComponent.IsContrastingComponent(, ResponseAlternativeCount)
-                ObservedTrials(n).ResponseAlternativeCount = ResponseAlternativeCount
+                If ObservedTrials(n).DetermineResponseAlternativeCount() = True Then
+                    ResponseAlternativeCount = ObservedTrials(n).ResponseAlternativeCount
+                Else
+                    Throw New Exception("Unable to determine the number of response alternatives!")
+                End If
 
                 'Calulates the floors of the psychometric functions (of each trial) based on the number of response alternatives
                 If ResponseAlternativeCount > 0 Then
@@ -1175,7 +1178,35 @@ Namespace SipTest
         Public Property ResponseMoment As DateTime
 
         Public Property AdjustedSuccessProbability As Double
-        Public Property ResponseAlternativeCount As Integer
+
+        Public Function DetermineResponseAlternativeCount() As Boolean
+
+            If SpeechMaterialComponent Is Nothing Then Return False
+
+            'Gets the number of response contrasting alternatives
+            Dim TempCount As Integer = 0
+            SpeechMaterialComponent.IsContrastingComponent(, TempCount)
+            _ResponseAlternativeCount = TempCount
+
+            Return True
+        End Function
+
+        Private _ResponseAlternativeCount As Integer? = Nothing
+        Public Property ResponseAlternativeCount As Integer?
+            Get
+                If _ResponseAlternativeCount Is Nothing Then
+                    If DetermineResponseAlternativeCount() = True Then
+                        Return _ResponseAlternativeCount
+                    Else
+                        Return Nothing
+                    End If
+                End If
+            End Get
+            Set(value As Integer?)
+                _ResponseAlternativeCount = value
+            End Set
+        End Property
+
 
         ''' <summary>
         ''' Indicates whether the trial is a real test trial or not (e.g. a practise trial)
@@ -1194,9 +1225,20 @@ Namespace SipTest
         Public PseudoTrials As List(Of SipTrial)
 
         ''' <summary>
-        ''' An list of Tuples that can hold various sound mixes used in the test trial, to be exported to sound file later. Each Sound should be come with a descriptive string (that can be used in the output file name).)
+        ''' A list of Tuples that can hold various sound mixes used in the test trial, to be exported to sound file later. Each Sound should be come with a descriptive string (that can be used in the output file name).)
         ''' </summary>
         Public TrialSoundsToExport As New List(Of Tuple(Of String, Audio.Sound))
+
+        ''' <summary>
+        ''' A list of gain applied to all different SoundSceneItems in the presented TestTrial
+        ''' </summary>
+        Public GainList As New SortedList(Of Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles, List(Of String))
+
+        'Strings that hold information about the (random) sound, and sound section, selections made in MixSound (for export purposes only)
+        Public SelectedTargetIndexString As String = ""
+        Public SelectedMaskerIndicesString As String = ""
+        Public BackgroundStartSamplesString As String = ""
+        Public BackgroundSpeechStartSamplesString As String = ""
 
         Public TestWordStartTime As Double
         Public TestWordCompletedTime As Double
@@ -1471,9 +1513,6 @@ Namespace SipTest
                             ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
                             Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing)
 
-            If TestTrialSound IsNot Nothing Then
-                MsgBox("!")
-            End If
 
             Try
 
@@ -1612,13 +1651,15 @@ Namespace SipTest
 
                 'Getting a background non-speech sound, and copies random sections of it into two sounds
                 Dim BackgroundNonSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundNonspeechSound(Me.MediaSet, 0)
-                Dim Backgrounds As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
+                Dim Backgrounds As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation, Integer)) ' N.B. The Item3 holds the start sample of the section taken out of the source sound
                 Dim NumberOfBackgrounds As Integer = BackgroundLocations.Length
                 For BackgroundIndex = 0 To NumberOfBackgrounds - 1
                     'Getting a background sound and location
                     'TODO: we should make sure the start time for copying the sounds here differ by several seconds (and can be kept exactly the same for BMLD testing) 
-                    Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(
-                            BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength), BackgroundLocations(BackgroundIndex)))
+                    Dim BackgroundStartSample As Integer = SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2)
+                    Backgrounds.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation, Integer)(
+                            BackgroundNonSpeech_Sound.CopySection(1, BackgroundStartSample, TrialSoundLength),
+                            BackgroundLocations(BackgroundIndex), BackgroundStartSample))
                 Next
 
                 'Modifying the backgrounds for BMLD
@@ -1638,15 +1679,16 @@ Namespace SipTest
                     End Select
                 End If
 
-                'Getting a background speech sound, if needed, and copies a random section of it into a single sound
-                Dim BackgroundSpeechSelections As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
+                'Getting a background speech sound, if needed, and copies a random section of it into a single sound. The (random) start sample is stored in Item3, for export to sound files.
+                Dim BackgroundSpeechSelections As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation, Integer))
                 'For now skipping with BMLD
                 If UseBackgroundSpeech = True Then
                     Dim BackgroundSpeech_Sound As Audio.Sound = Me.SpeechMaterialComponent.GetBackgroundSpeechSound(Me.MediaSet, 0)
                     For TargetIndex = 0 To NumberOfTargets - 1
                         'TODO: we should make sure the start time for copying the sounds here differ by several seconds (and can be kept exactly the same for BMLD testing) 
-                        Dim CurrentBackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
-                        BackgroundSpeechSelections.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(CurrentBackgroundSpeechSelection, Me.TargetStimulusLocations(TargetIndex)))
+                        Dim StartSample As Integer = SipMeasurementRandomizer.Next(0, BackgroundSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2)
+                        Dim CurrentBackgroundSpeechSelection = BackgroundSpeech_Sound.CopySection(1, StartSample, TrialSoundLength)
+                        BackgroundSpeechSelections.Add(New Tuple(Of Audio.Sound, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation, Integer)(CurrentBackgroundSpeechSelection, Me.TargetStimulusLocations(TargetIndex), StartSample))
                     Next
 
                     'Modifying the BackgroundSpeechSelections for BMLD
@@ -1808,6 +1850,27 @@ Namespace SipTest
                     MixedTestTrialSound = Audio.DSP.SuperpositionSounds({TargetSound, NontargetSound}.ToList)
 
                     'Stores the sounds in TrialSoundsToExport, to be exported later.
+
+                    'Add target and masker sound file indices, as well as background start samples (i.e. the first samples at which each file was read from the source background sould file)
+                    SelectedTargetIndexString = SelectedMediaIndex
+                    SelectedMaskerIndicesString = String.Join("_", SelectedMaskerIndices)
+                    BackgroundStartSamplesString = ""
+                    Dim BackgroundStartSamplesList As New List(Of Integer)
+                    For Each Background In Backgrounds
+                        BackgroundStartSamplesList.Add(Background.Item3)
+                    Next
+                    BackgroundStartSamplesString = String.Join("_", BackgroundStartSamplesList)
+
+                    BackgroundSpeechStartSamplesString = ""
+                    Dim BackgroundSpeechSectionSampleList As New List(Of Integer)
+                    For Each BackgroundSpeechSection In BackgroundSpeechSelections
+                        BackgroundSpeechSectionSampleList.Add(BackgroundSpeechSection.Item3)
+                    Next
+                    If BackgroundSpeechSectionSampleList.Count > 0 Then
+                        BackgroundSpeechStartSamplesString = String.Join("_", BackgroundSpeechSectionSampleList)
+                    End If
+
+                    'Storing the sounds
                     TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("TargetSound", TargetSound))
                     If MaskerItemsSound IsNot Nothing Then TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("MaskersSound", MaskerItemsSound))
                     If BackgroundNonspeechItemsSound IsNot Nothing Then TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("BackgroundNonspeechSound", BackgroundNonspeechItemsSound))
@@ -1817,7 +1880,21 @@ Namespace SipTest
 
                 End If
 
-
+                'Getting the applied gain for all items
+                GainList.Clear()
+                GainList.Add(Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Target, New List(Of String))
+                GainList.Add(Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Masker, New List(Of String))
+                GainList.Add(Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, New List(Of String))
+                GainList.Add(Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech, New List(Of String))
+                For Each Item In ItemList
+                    If Item.AppliedGain IsNot Nothing Then
+                        If Item.AppliedGain.Value.HasValue Then
+                            GainList(Item.Role).Add(Math.Round(Item.AppliedGain.Value.Value, 1))
+                        Else
+                            GainList(Item.Role).Add("NA")
+                        End If
+                    End If
+                Next
 
                 If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
@@ -2062,8 +2139,12 @@ Namespace SipTest
             Headings.Add("SpeechMaterialComponentID")
             Headings.Add("MediaSetName")
             Headings.Add("PresentationOrder")
+            Headings.Add("ReferenceSpeechMaterialLevel_SPL")
             Headings.Add("Reference_SPL")
             Headings.Add("PNR")
+            Headings.Add("TargetMasking_SPL")
+            Headings.Add("TestWordLevelLimit")
+            Headings.Add("ContextSpeechLimit")
             Headings.Add("EstimatedSuccessProbability")
             Headings.Add("AdjustedSuccessProbability")
             Headings.Add("SoundPropagationType")
@@ -2099,21 +2180,38 @@ Namespace SipTest
             Headings.Add("IsTestTrial")
             Headings.Add("PhonemeDiscriminabilityLevel")
 
-            'Plus write-only stuff
-            'Headings.Add("CorrectScreenPosition")
-            'Headings.Add("ResponseScreenPosition")
-
             Headings.Add("PrimaryStringRepresentation")
 
             Headings.Add("Spelling")
             Headings.Add("SpellingAFC")
             Headings.Add("Transcription")
             Headings.Add("TranscriptionAFC")
-            Headings.Add("Zipf")
-            Headings.Add("PNDP")
-            Headings.Add("PP-Average SSPP")
+            Headings.Add("PseudoTrialIds")
+            Headings.Add("PseudoTrialSpellings")
 
             Headings.Add("ExportedTrialSoundFiles")
+
+            Headings.Add("TargetTrial_SelectedTargetSoundIndex")
+            Headings.Add("TargetTrial_SelectedMaskerSoundIndices")
+            Headings.Add("TargetTrial_BackgroundNonspeechSoundStartSamples")
+            Headings.Add("TargetTrial_BackgroundSpeechSoundStartSamples")
+
+            Headings.Add("PseudoTrials_SelectedTargetSoundIndex")
+            Headings.Add("PseudoTrials_SelectedMaskerSoundIndices")
+            Headings.Add("PseudoTrials_BackgroundNonspeechSoundStartSamples")
+            Headings.Add("PseudoTrials_BackgroundSpeechSoundStartSamples")
+
+            Headings.Add("TargetTrial_ContextRegionSpeech_SPL")
+            Headings.Add("TargetTrial_TestWordLevel")
+            Headings.Add("TargetTrial_ReferenceTestWordLevel_SPL")
+
+            Headings.Add("PseudoTrials_ContextRegionSpeech_SPL")
+            Headings.Add("PseudoTrials_TestWordLevel")
+            Headings.Add("PseudoTrials_ReferenceTestWordLevel_SPL")
+            Headings.Add("ReferenceContrastingPhonemesLevel_SPL")
+
+            Headings.Add("TargetTrial_Gains")
+            Headings.Add("PseudoTrials_Gains")
 
             Return String.Join(vbTab, Headings)
 
@@ -2130,8 +2228,18 @@ Namespace SipTest
             TrialList.Add(Me.SpeechMaterialComponent.Id)
             TrialList.Add(Me.MediaSet.MediaSetName)
             TrialList.Add(Me.PresentationOrder)
+            TrialList.Add(Me.ReferenceSpeechMaterialLevel_SPL)
             TrialList.Add(Me.Reference_SPL)
             TrialList.Add(Me.PNR)
+            If TargetMasking_SPL.HasValue = True Then
+                TrialList.Add(TargetMasking_SPL)
+            Else
+                TrialList.Add("NA")
+            End If
+            TrialList.Add(TestWordLevelLimit)
+            TrialList.Add(ContextSpeechLimit)
+
+
             If Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
                 TrialList.Add(Me.EstimatedSuccessProbability(False))
                 TrialList.Add(Me.AdjustedSuccessProbability)
@@ -2249,31 +2357,14 @@ Namespace SipTest
             TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("Transcription"))
             TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("TranscriptionAFC"))
 
-            Dim Zipf = Me.SpeechMaterialComponent.GetNumericVariableValue("Z")
-            If Zipf IsNot Nothing Then
-                TrialList.Add(Zipf)
-            Else
-                TrialList.Add("")
-            End If
-
-            Dim PNDP = Me.SpeechMaterialComponent.GetNumericVariableValue("PNDP")
-            If PNDP IsNot Nothing Then
-                TrialList.Add(PNDP)
-            Else
-                TrialList.Add("")
-            End If
-
-            Dim PP = Me.SpeechMaterialComponent.GetNumericVariableValue("PP")
-            If PP IsNot Nothing Then
-                TrialList.Add(PP)
-            Else
-                TrialList.Add("")
-            End If
-
-            'TrialList.Add(Me.CorrectScreenPosition)
-            'TrialList.Add(Me.ResponseScreenPosition)
-
-            'TODO: ... add more
+            Dim PseudoTrialIds As New List(Of String)
+            Dim PseudoTrialSpellings As New List(Of String)
+            For Each PseudoTrial In PseudoTrials
+                PseudoTrialIds.Add(PseudoTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+                PseudoTrialSpellings.Add(PseudoTrial.SpeechMaterialComponent.Id)
+            Next
+            TrialList.Add(String.Join("; ", PseudoTrialIds))
+            TrialList.Add(String.Join("; ", PseudoTrialSpellings))
 
             'Adding export of sound files,
             Dim ExportedSoundFilesList As New List(Of String)
@@ -2300,6 +2391,70 @@ Namespace SipTest
 
             End If
             TrialList.Add(String.Join(";", ExportedSoundFilesList))
+
+            TrialList.Add(SelectedTargetIndexString)
+            TrialList.Add(SelectedMaskerIndicesString)
+            TrialList.Add(BackgroundStartSamplesString)
+            TrialList.Add(BackgroundSpeechStartSamplesString)
+
+            Dim PseudoTrial_SelectedTargetIndexStringList As New List(Of String)
+            Dim PseudoTrial_SelectedMaskerIndicesStringList As New List(Of String)
+            Dim PseudoTrial_BackgroundStartSamplesStringList As New List(Of String)
+            Dim PseudoTrial_BackgroundSpeechStartSamplesStringList As New List(Of String)
+            For Each PseduTrial In PseudoTrials
+                PseudoTrial_SelectedTargetIndexStringList.Add(PseduTrial.SelectedTargetIndexString)
+                PseudoTrial_SelectedMaskerIndicesStringList.Add(PseduTrial.SelectedMaskerIndicesString)
+                PseudoTrial_BackgroundStartSamplesStringList.Add(PseduTrial.BackgroundStartSamplesString)
+                PseudoTrial_BackgroundSpeechStartSamplesStringList.Add(PseduTrial.BackgroundSpeechStartSamplesString)
+            Next
+            TrialList.Add(String.Join(";", PseudoTrial_SelectedTargetIndexStringList))
+            TrialList.Add(String.Join(";", PseudoTrial_SelectedMaskerIndicesStringList))
+            TrialList.Add(String.Join(";", PseudoTrial_BackgroundStartSamplesStringList))
+            TrialList.Add(String.Join(";", PseudoTrial_BackgroundSpeechStartSamplesStringList))
+
+            TrialList.Add(ContextRegionSpeech_SPL)
+            If TestWordLevel.HasValue = True Then
+                TrialList.Add(TestWordLevel)
+            Else
+                TrialList.Add("NA")
+            End If
+            TrialList.Add(ReferenceTestWordLevel_SPL)
+            TrialList.Add(ReferenceContrastingPhonemesLevel_SPL)
+
+            Dim ContextRegionSpeech_SPL_List As New List(Of String)
+            Dim TestWordLevel_List As New List(Of String)
+            Dim ReferenceTestWordLevel_SPL_List As New List(Of String)
+            Dim ReferenceContrastingPhonemesLevel_SPL_List As New List(Of String)
+            For Each PseduTrial In PseudoTrials
+                ContextRegionSpeech_SPL_List.Add(PseduTrial.ContextRegionSpeech_SPL)
+                If PseduTrial.TestWordLevel.HasValue = True Then
+                    TestWordLevel_List.Add(PseduTrial.TestWordLevel)
+                Else
+                    TestWordLevel_List.Add("NA")
+                End If
+                ReferenceTestWordLevel_SPL_List.Add(PseduTrial.ReferenceTestWordLevel_SPL)
+                ReferenceContrastingPhonemesLevel_SPL_List.Add(PseduTrial.ReferenceContrastingPhonemesLevel_SPL)
+            Next
+            TrialList.Add(String.Join(";", ContextRegionSpeech_SPL_List))
+            TrialList.Add(String.Join(";", TestWordLevel_List))
+            TrialList.Add(String.Join(";", ReferenceTestWordLevel_SPL_List))
+            TrialList.Add(String.Join(";", ReferenceContrastingPhonemesLevel_SPL_List))
+
+            Dim TargetTrialGains As New List(Of String)
+            For Each Item In GainList
+                TargetTrialGains.Add(Item.Key.ToString & ": " & String.Join(";", Item.Value))
+            Next
+            TrialList.Add(String.Join(" / ", TargetTrialGains))
+
+            Dim PseudoTrialsGains As New List(Of String)
+            For pseudoTrialIndex = 0 To PseudoTrials.Count - 1
+                Dim PseudoTrialGains As New List(Of String)
+                For Each Item In PseudoTrials(pseudoTrialIndex).GainList
+                    PseudoTrialGains.Add(Item.Key.ToString & ": " & String.Join(";", Item.Value))
+                Next
+                PseudoTrialsGains.Add(String.Join(" / ", PseudoTrialGains))
+            Next
+            TrialList.Add(String.Join(" | ", PseudoTrialsGains))
 
             Return String.Join(vbTab, TrialList)
 

@@ -510,22 +510,58 @@ Public Class SipTestGui_2023
 
     End Sub
 
+    'Private Sub DirectionalSimulationSet_C1_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_C1_ComboBox.SelectedIndexChanged
+
+    '    Dim SelectedItem = DirectionalSimulationSet_C1_ComboBox.SelectedItem
+    '    If SelectedItem IsNot Nothing Then
+
+    '        If SelectedItem = NoSimulationString Then
+    '            DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+    '        Else
+
+    '            Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+    '            If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate) = False Then
+    '                'Well this shold not happen...
+    '                DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+    '            End If
+
+    '        End If
+
+    '    Else
+    '        DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+    '    End If
+
+    '    TryCreateSipTestMeasurement()
+
+    'End Sub
+
     Private Sub DirectionalSimulationSet_C1_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_C1_ComboBox.SelectedIndexChanged
+
+        SimulatedDistance_C1_ComboBox.Items.Clear()
+        SimulatedDistance_C1_ComboBox.ResetText()
 
         Dim SelectedItem = DirectionalSimulationSet_C1_ComboBox.SelectedItem
         If SelectedItem IsNot Nothing Then
 
             If SelectedItem = NoSimulationString Then
                 DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+                SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
             Else
-
                 Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
+                SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
                 If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate) = False Then
-                    'Well this shold not happen...
+                    'Well this should not happen...
                     DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
+                    SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
                 End If
-
             End If
+
+            'Adding available simulation distances
+            Dim AvailableDistances = DirectionalSimulator.GetAvailableDirectionalSimulationSetDistances(SelectedItem)
+            For Each Distance In AvailableDistances
+                SimulatedDistance_C1_ComboBox.Items.Add(Distance)
+            Next
+            If SimulatedDistance_C1_ComboBox.Items.Count > 0 Then SimulatedDistance_C1_ComboBox.SelectedIndex = 0
 
         Else
             DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
@@ -550,7 +586,7 @@ Public Class SipTestGui_2023
     End Sub
 
 
-    Private Sub SimulatedDistance_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SimulatedDistance_ComboBox.SelectedIndexChanged
+    Private Sub SimulatedDistance_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles SimulatedDistance_ComboBox.SelectedIndexChanged, SimulatedDistance_C1_ComboBox.SelectedIndexChanged
 
         TryCreateSipTestMeasurement()
 
@@ -561,6 +597,12 @@ Public Class SipTestGui_2023
 
         'Use this method to tigger actions by pressing a keyboard key during active testing, when PcScreen is used, and mouse is therefore used by the testee.
         'MsgBox("Key pressed: " & e.KeyData)
+
+        'Keyboard shortcut should not work in BT mode, therefore exits sub
+        If CurrentScreenType = ScreenType.Bluetooth Then
+            e.Handled = True
+            Exit Sub
+        End If
 
         'Triggering these functions only if a test is started, and then also notes that the event is handled
         If TestIsStarted = True Then
@@ -995,7 +1037,7 @@ Public Class SipTestGui_2023
 
                     If BlockTypes.Count = 0 Then Exit Sub
 
-                    If PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, 2, RandomSeed_IntegerParsingTextBox.Value) = False Then
+                    If PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, 2, RandomSeed_IntegerParsingTextBox.Value, SimulatedDistance_ComboBox.SelectedItem) = False Then
                         Exit Sub
                     End If
 
@@ -1184,7 +1226,7 @@ Public Class SipTestGui_2023
     ''' <param name="RandomSeed"></param>
     Private Shared Function PlanCustom1Trials(ByRef SipTestMeasurement As SipMeasurement, ByVal ReferenceLevel As Double, ByVal PresetName As String,
                                       ByVal SelectedMediaSets As List(Of MediaSet), ByVal SelectedPNRs As List(Of Double), ByVal BlockTypes As List(Of Tuple(Of Object, Object, String)),
-                                              ByVal NumberOfIndicatorTrials As Integer, Optional ByVal RandomSeed As Integer? = Nothing) As Boolean
+                                              ByVal NumberOfIndicatorTrials As Integer, Optional ByVal RandomSeed As Integer? = Nothing, Optional SelectedSimulationDistance As Double = 1) As Boolean
 
         'Creating a new random if seed is supplied
         If RandomSeed.HasValue Then SipTestMeasurement.Randomizer = New Random(RandomSeed)
@@ -1253,15 +1295,15 @@ Public Class SipTestGui_2023
                 Dim MaskerLocation As Double = BlockType.Item2
 
                 'Directional stimulation
-                TargetStimulusLocations = {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = SignalLocation, .Elevation = 0, .Distance = 1}}
-                MaskerLocations = {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = MaskerLocation, .Elevation = 0, .Distance = 1}}
+                TargetStimulusLocations = {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = SignalLocation, .Elevation = 0, .Distance = SelectedSimulationDistance}}
+                MaskerLocations = {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = MaskerLocation, .Elevation = 0, .Distance = SelectedSimulationDistance}}
 
                 'Adding a number of background sounds
                 BackgroundLocations = {
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 60, .Elevation = 0, .Distance = 1},
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 150, .Elevation = 0, .Distance = 1},
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -150, .Elevation = 0, .Distance = 1},
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -60, .Elevation = 0, .Distance = 1}}
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 60, .Elevation = 0, .Distance = SelectedSimulationDistance},
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 150, .Elevation = 0, .Distance = SelectedSimulationDistance},
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -150, .Elevation = 0, .Distance = SelectedSimulationDistance},
+                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -60, .Elevation = 0, .Distance = SelectedSimulationDistance}}
 
             Else
 
@@ -1356,8 +1398,28 @@ Public Class SipTestGui_2023
                 'Creating indicator trials
                 If CurrentBlockIsBMLD = False Then
                     NewTrial = New SipTrial(NewTestUnit, SMC, SelectedMediaSets(RandomMediaSetIndex(0)), SoundPropagationTypes.SimulatedSoundField, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+
+                    'Adding non-presented trials with contrasting alternatives
+                    NewTrial.PseudoTrials = New List(Of SipTrial)
+                    Dim ContrastingAlternatives = SMC.GetSiblingsExcludingSelf
+                    For Each ContrastingAlternative In ContrastingAlternatives
+                        Dim NonpresentedTrial = New SipTrial(NewTestUnit, ContrastingAlternative, SelectedMediaSets(RandomMediaSetIndex(0)), SoundPropagationTypes.SimulatedSoundField, TargetStimulusLocations, MaskerLocations, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                        NonpresentedTrial.IsTestTrial = False
+                        NewTrial.PseudoTrials.Add(NonpresentedTrial)
+                    Next
+
                 Else
                     NewTrial = New SipTrial(NewTestUnit, SMC, SelectedMediaSets(RandomMediaSetIndex(0)), SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+
+                    'Adding non-presented trials with contrasting alternatives
+                    NewTrial.PseudoTrials = New List(Of SipTrial)
+                    Dim ContrastingAlternatives = SMC.GetSiblingsExcludingSelf
+                    For Each ContrastingAlternative In ContrastingAlternatives
+                        Dim NonpresentedTrial = New SipTrial(NewTestUnit, ContrastingAlternative, SelectedMediaSets(RandomMediaSetIndex(0)), SoundPropagationTypes.PointSpeakers, SignalMode, NoiseMode, NewTestUnit.ParentMeasurement.Randomizer)
+                        NonpresentedTrial.IsTestTrial = False
+                        NewTrial.PseudoTrials.Add(NonpresentedTrial)
+                    Next
+
                 End If
 
                 'Notes that this is not a test trial
@@ -2491,6 +2553,9 @@ Public Class SipTestGui_2023
             'Preselects the first screen (which will also create the PC participant form!)
             If PcScreen_ComboBox.Items.Count > 0 Then PcScreen_ComboBox.SelectedIndex = 0
 
+            'Shows the shortcut layout
+            KeybordShortcut_TableLayoutPanel.Visible = True
+
         End If
 
     End Sub
@@ -2515,6 +2580,9 @@ Public Class SipTestGui_2023
                 PcParticipantForm.Dispose()
                 PcParticipantForm = Nothing
             End If
+
+            'Hides the shortcut layout (should not be available in BT mode)
+            KeybordShortcut_TableLayoutPanel.Visible = True
 
         End If
 
@@ -2750,4 +2818,7 @@ Public Class SipTestGui_2023
 
     End Sub
 
+    Private Sub StopTest(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
+
+    End Sub
 End Class

@@ -186,6 +186,11 @@ Namespace Audio
                 ''' </summary>
                 Public DuckingSpecifications As List(Of Audio.DSP.FadeSpecifications)
 
+                ''' <summary>
+                ''' Should store the gain applied to the SoundSceneItem (prior to speaker calibration or sound field simulation) 
+                ''' </summary>
+                Public AppliedGain As New Utils.ReferencedNullableOfDouble
+
                 Public Sub New(ByRef Sound As Audio.Sound, ByVal ReadChannel As Integer,
                                ByVal SoundLevel As Double, ByVal LevelGroup As Integer,
                                ByRef SourceLocation As SoundSourceLocation,
@@ -194,7 +199,8 @@ Namespace Audio
                                Optional ByVal LevelDefStartSample As Integer? = Nothing, Optional ByVal LevelDefLength As Integer? = Nothing,
                                Optional ByRef SoundLevelFormat As Audio.Formats.SoundLevelFormat = Nothing,
                                Optional ByRef FadeSpecifications As List(Of Audio.DSP.FadeSpecifications) = Nothing,
-                               Optional ByRef DuckingSpecifications As List(Of Audio.DSP.FadeSpecifications) = Nothing)
+                               Optional ByRef DuckingSpecifications As List(Of Audio.DSP.FadeSpecifications) = Nothing,
+                               Optional ByRef AppliedGain As Utils.ReferencedNullableOfDouble = Nothing)
 
                     Me.Sound = Sound
                     Me.ReadChannel = ReadChannel
@@ -210,6 +216,11 @@ Namespace Audio
 
                     Me.FadeSpecifications = FadeSpecifications
                     Me.DuckingSpecifications = DuckingSpecifications
+                    If AppliedGain IsNot Nothing Then
+                        Me.AppliedGain = AppliedGain
+                    Else
+                        Me.AppliedGain = New Utils.ReferencedNullableOfDouble
+                    End If
 
                     'Setting a defeult average Z-weighted sound level format, if none is supplied.
                     If SoundLevelFormat IsNot Nothing Then
@@ -255,15 +266,17 @@ Namespace Audio
 
                     'Copy sounds so that their individual sample data in the selected channel to a new (mono) sound so that the sample data may be changed without changing the original sound,
                     ' and addes them in a new list of SoundSceneItem, which should henceforth be used instead of the Input object.
-                    ' However SourceLocation is referenced, as it revieces its ActualLocation value as part of the algorithm
-                    ' TODO: SoundLevelFormat, FadeSpecifications, and DuckingSpecifications is still used and not copied! May be allright?!
+                    ' However SourceLocation is referenced, as it revieces its ActualLocation value as part of the algorithm.
+                    ' Also AppliedGain is referenced as the gain is calculated below (the gain is kept so that its value can be exported)
+                    ' TODO: SoundLevelFormat, FadeSpecifications, DuckingSpecifications and AppliedGain is still used and not copied! 
+                    ' 
                     Dim SoundSceneItemList As New List(Of SoundSceneItem)
                     For Each Item In Input
                         'Creates a new NewSoundSceneItem 
                         Dim NewSoundSceneItem = New SoundSceneItem(Item.Sound.CopyChannelToMonoSound(Item.ReadChannel), 1, Item.SoundLevel, Item.LevelGroup,
                                                                 Item.SourceLocation, Item.Role,
                                                                 Item.InsertSample, Item.LevelDefStartSample, Item.LevelDefLength,
-                                                               Item.SoundLevelFormat, Item.FadeSpecifications, Item.DuckingSpecifications)
+                                                               Item.SoundLevelFormat, Item.FadeSpecifications, Item.DuckingSpecifications, Item.AppliedGain)
                         'Adds the NewSoundSceneItem 
                         SoundSceneItemList.Add(NewSoundSceneItem)
 
@@ -326,7 +339,12 @@ Namespace Audio
 
                         'Applying the same gain to all sounds in the group
                         For Each Member In GroupMembers
+
+                            'Applies the gain
                             Audio.DSP.AmplifySection(Member.Sound, NeededGain, 1)
+
+                            'Storing the applied gain
+                            Member.AppliedGain.Value = NeededGain
                         Next
                     Next
 
