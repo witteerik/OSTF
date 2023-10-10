@@ -775,6 +775,9 @@ Namespace SipTest
 
         Public Shared Function ParseImportLines(ByVal ImportLines() As String, ByRef Randomizer As Random, ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional ByVal ParticipantID As String = "") As SipMeasurement
 
+            MsgBox("Parsing on SiP-test scores are temporarily inactivated.")
+            Return Nothing
+
             Dim Output As SipMeasurement = Nothing
 
             Dim LoadedTestUnits As New SortedList(Of Integer, SiPTestUnit)
@@ -1168,6 +1171,20 @@ Namespace SipTest
 
         'The result of a test trial
         Public Property Result As PossibleResults
+
+        ''' <summary>
+        ''' Returns the result converted to a binary score (1=correct, 0=wrong or missing)
+        ''' </summary>
+        ''' <returns></returns>
+        Public ReadOnly Property Score As Integer
+            Get
+                If Result = PossibleResults.Correct Then
+                    Return 1
+                Else
+                    Return 0
+                End If
+            End Get
+        End Property
 
         ''' <summary>
         ''' The response time in milliseconds
@@ -2140,6 +2157,7 @@ Namespace SipTest
             Headings.Add("MediaSetName")
             Headings.Add("PresentationOrder")
             Headings.Add("ReferenceSpeechMaterialLevel_SPL")
+            Headings.Add("ReferenceContrastingPhonemesLevel_SPL")
             Headings.Add("Reference_SPL")
             Headings.Add("PNR")
             Headings.Add("TargetMasking_SPL")
@@ -2175,6 +2193,7 @@ Namespace SipTest
 
             Headings.Add("Response")
             Headings.Add("Result")
+            Headings.Add("Score")
             Headings.Add("ResponseTime")
             Headings.Add("ResponseAlternativeCount")
             Headings.Add("IsTestTrial")
@@ -2189,7 +2208,8 @@ Namespace SipTest
             Headings.Add("PseudoTrialIds")
             Headings.Add("PseudoTrialSpellings")
 
-            Headings.Add("ExportedTrialSoundFiles")
+            Headings.Add("TargetTrial_ExportedTrialSoundFiles")
+            Headings.Add("PseudoTrials_ExportedTrialSoundFiles")
 
             Headings.Add("TargetTrial_SelectedTargetSoundIndex")
             Headings.Add("TargetTrial_SelectedMaskerSoundIndices")
@@ -2208,7 +2228,6 @@ Namespace SipTest
             Headings.Add("PseudoTrials_ContextRegionSpeech_SPL")
             Headings.Add("PseudoTrials_TestWordLevel")
             Headings.Add("PseudoTrials_ReferenceTestWordLevel_SPL")
-            Headings.Add("ReferenceContrastingPhonemesLevel_SPL")
 
             Headings.Add("TargetTrial_Gains")
             Headings.Add("PseudoTrials_Gains")
@@ -2229,6 +2248,7 @@ Namespace SipTest
             TrialList.Add(Me.MediaSet.MediaSetName)
             TrialList.Add(Me.PresentationOrder)
             TrialList.Add(Me.ReferenceSpeechMaterialLevel_SPL)
+            TrialList.Add(Me.ReferenceContrastingPhonemesLevel_SPL)
             TrialList.Add(Me.Reference_SPL)
             TrialList.Add(Me.PNR)
             If TargetMasking_SPL.HasValue = True Then
@@ -2239,7 +2259,6 @@ Namespace SipTest
             TrialList.Add(TestWordLevelLimit)
             TrialList.Add(ContextSpeechLimit)
 
-
             If Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
                 TrialList.Add(Me.EstimatedSuccessProbability(False))
                 TrialList.Add(Me.AdjustedSuccessProbability)
@@ -2248,15 +2267,6 @@ Namespace SipTest
                 TrialList.Add("No audiogram stored - cannot calculate")
             End If
             TrialList.Add(Me.SoundPropagationType.ToString)
-
-            'TrialList.Add(ME.TargetStimulusLocations.Distance)
-            'TrialList.Add(ME.TargetStimulusLocations.HorizontalAzimuth)
-            'TrialList.Add(ME.TargetStimulusLocations.Elevation)
-
-            'If Me.TargetStimulusLocations.ActualLocation Is Nothing Then Me.TargetStimulusLocations.ActualLocation = New Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-            'TrialList.Add(Me.TargetStimulusLocations.ActualLocation.Distance)
-            'TrialList.Add(Me.TargetStimulusLocations.ActualLocation.HorizontalAzimuth)
-            'TrialList.Add(Me.TargetStimulusLocations.ActualLocation.Elevation)
 
             If Me.TargetStimulusLocations.Length > 0 Then
                 Dim Distances As New List(Of String)
@@ -2280,6 +2290,10 @@ Namespace SipTest
                 TrialList.Add(String.Join(";", ActualDistances))
                 TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
                 TrialList.Add(String.Join(";", ActualElevations))
+            Else
+                For n = 1 To 6
+                    TrialList.Add("")
+                Next
             End If
 
             If Me.MaskerLocations.Length > 0 Then
@@ -2304,6 +2318,10 @@ Namespace SipTest
                 TrialList.Add(String.Join(";", ActualDistances))
                 TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
                 TrialList.Add(String.Join(";", ActualElevations))
+            Else
+                For n = 1 To 6
+                    TrialList.Add("")
+                Next
             End If
 
             If Me.BackgroundLocations.Length > 0 Then
@@ -2328,6 +2346,10 @@ Namespace SipTest
                 TrialList.Add(String.Join(";", ActualDistances))
                 TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
                 TrialList.Add(String.Join(";", ActualElevations))
+            Else
+                For n = 1 To 6
+                    TrialList.Add("")
+                Next
             End If
 
             TrialList.Add(Me.IsBmldTrial)
@@ -2341,6 +2363,7 @@ Namespace SipTest
 
             TrialList.Add(Me.Response)
             TrialList.Add(Me.Result.ToString)
+            TrialList.Add(Me.Score)
             TrialList.Add(Me.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
             TrialList.Add(Me.ResponseAlternativeCount)
             TrialList.Add(Me.IsTestTrial.ToString)
@@ -2350,7 +2373,6 @@ Namespace SipTest
                 TrialList.Add("No audiogram stored")
             End If
 
-            'Plus write-only stuff
             TrialList.Add(Me.SpeechMaterialComponent.PrimaryStringRepresentation)
             TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
             TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("SpellingAFC"))
@@ -2375,22 +2397,23 @@ Namespace SipTest
                     ExportSound.WriteWaveFile(FileName)
                     ExportedSoundFilesList.Add(FileName)
                 Next
+            End If
+            TrialList.Add(String.Join(";", ExportedSoundFilesList))
 
+            Dim ExportedPseudoTrialSoundFilesList As New List(Of String)
+            If SkipExportOfSoundFiles = False Then
                 If PseudoTrials IsNot Nothing Then
                     For Each PseudoTrial In PseudoTrials
-
                         For i = 0 To PseudoTrial.TrialSoundsToExport.Count - 1
                             Dim ExportSound = PseudoTrial.TrialSoundsToExport(i).Item2
                             Dim FileName = IO.Path.Combine(Me.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Me.PresentationOrder & "_Pseudo_" & PseudoTrial.TrialSoundsToExport(i).Item1 & "_" & PseudoTrial.SpeechMaterialComponent.Id & ".wav")
                             ExportSound.WriteWaveFile(FileName)
-                            ExportedSoundFilesList.Add(FileName)
+                            ExportedPseudoTrialSoundFilesList.Add(FileName)
                         Next
-
                     Next
                 End If
-
             End If
-            TrialList.Add(String.Join(";", ExportedSoundFilesList))
+            TrialList.Add(String.Join(";", ExportedPseudoTrialSoundFilesList))
 
             TrialList.Add(SelectedTargetIndexString)
             TrialList.Add(SelectedMaskerIndicesString)
@@ -2419,12 +2442,10 @@ Namespace SipTest
                 TrialList.Add("NA")
             End If
             TrialList.Add(ReferenceTestWordLevel_SPL)
-            TrialList.Add(ReferenceContrastingPhonemesLevel_SPL)
 
             Dim ContextRegionSpeech_SPL_List As New List(Of String)
             Dim TestWordLevel_List As New List(Of String)
             Dim ReferenceTestWordLevel_SPL_List As New List(Of String)
-            Dim ReferenceContrastingPhonemesLevel_SPL_List As New List(Of String)
             For Each PseduTrial In PseudoTrials
                 ContextRegionSpeech_SPL_List.Add(PseduTrial.ContextRegionSpeech_SPL)
                 If PseduTrial.TestWordLevel.HasValue = True Then
@@ -2433,12 +2454,10 @@ Namespace SipTest
                     TestWordLevel_List.Add("NA")
                 End If
                 ReferenceTestWordLevel_SPL_List.Add(PseduTrial.ReferenceTestWordLevel_SPL)
-                ReferenceContrastingPhonemesLevel_SPL_List.Add(PseduTrial.ReferenceContrastingPhonemesLevel_SPL)
             Next
             TrialList.Add(String.Join(";", ContextRegionSpeech_SPL_List))
             TrialList.Add(String.Join(";", TestWordLevel_List))
             TrialList.Add(String.Join(";", ReferenceTestWordLevel_SPL_List))
-            TrialList.Add(String.Join(";", ReferenceContrastingPhonemesLevel_SPL_List))
 
             Dim TargetTrialGains As New List(Of String)
             For Each Item In GainList

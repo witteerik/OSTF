@@ -182,7 +182,7 @@ Public Class SipTestGui_2023
                 UserTypeString = ""
         End Select
 
-        Me.Text = SpeechMaterialName & " - " & UserTypeString
+        Me.Text = SpeechMaterialName & " - " & "Binaural mode (SiP-B)" & " - " & UserTypeString
 
     End Sub
 
@@ -463,7 +463,7 @@ Public Class SipTestGui_2023
             TestMode = TestModes.BMLD
         ElseIf e.TabPage.Name = "DirectionalModeTabPage" Then
             TestMode = TestModes.Directional
-        ElseIf e.TabPage.Name = "CustomMode1_TabPage" Then
+        ElseIf e.TabPage.Name = "BinauralSettings_TabPage" Then
             TestMode = TestModes.Custom1
         Else
             Throw New Exception("Unknown tabpage name. This is surely a bug!")
@@ -953,6 +953,8 @@ Public Class SipTestGui_2023
 
                 Case TestModes.Custom1
 
+                    If SimulatedDistance_C1_ComboBox.SelectedItem Is Nothing Then Exit Sub
+
                     'Read input from textbox
 
                     Dim BlockTypes As New List(Of Tuple(Of Object, Object, String))
@@ -1037,7 +1039,7 @@ Public Class SipTestGui_2023
 
                     If BlockTypes.Count = 0 Then Exit Sub
 
-                    If PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, 2, RandomSeed_IntegerParsingTextBox.Value, SimulatedDistance_ComboBox.SelectedItem) = False Then
+                    If PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, 2, RandomSeed_IntegerParsingTextBox.Value, SimulatedDistance_C1_ComboBox.SelectedItem) = False Then
                         Exit Sub
                     End If
 

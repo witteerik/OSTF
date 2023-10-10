@@ -29,10 +29,10 @@ Partial Class OSTF_suite_R
         Me.SetMediaFolderLocationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CloseToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Launch_SiP_SE_ExA_R_Button = New System.Windows.Forms.Button()
         Me.Launch_SiP_SE_R_Button = New System.Windows.Forms.Button()
         Me.Launch_SpeechMaterialCreator_Button = New System.Windows.Forms.Button()
         Me.Launch_SoundLevelCalibration_Button = New System.Windows.Forms.Button()
-        Me.Launch_SiP_SE_ExA_R_Button = New System.Windows.Forms.Button()
         Me.MenuStrip1.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.SuspendLayout()
@@ -91,6 +91,19 @@ Partial Class OSTF_suite_R
         Me.TableLayoutPanel1.Size = New System.Drawing.Size(1264, 297)
         Me.TableLayoutPanel1.TabIndex = 1
         '
+        'Launch_SiP_SE_ExA_R_Button
+        '
+        Me.Launch_SiP_SE_ExA_R_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Launch_SiP_SE_ExA_R_Button.Image = Global.OSTF_suite_R.My.Resources.Resources.ic_launcher
+        Me.Launch_SiP_SE_ExA_R_Button.ImageAlign = System.Drawing.ContentAlignment.TopCenter
+        Me.Launch_SiP_SE_ExA_R_Button.Location = New System.Drawing.Point(319, 3)
+        Me.Launch_SiP_SE_ExA_R_Button.Name = "Launch_SiP_SE_ExA_R_Button"
+        Me.Launch_SiP_SE_ExA_R_Button.Size = New System.Drawing.Size(310, 291)
+        Me.Launch_SiP_SE_ExA_R_Button.TabIndex = 3
+        Me.Launch_SiP_SE_ExA_R_Button.Text = "Swedish SiP-test – Binaural mode" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(SiP-B, Research version)"
+        Me.Launch_SiP_SE_ExA_R_Button.TextAlign = System.Drawing.ContentAlignment.BottomCenter
+        Me.Launch_SiP_SE_ExA_R_Button.UseVisualStyleBackColor = True
+        '
         'Launch_SiP_SE_R_Button
         '
         Me.Launch_SiP_SE_R_Button.Dock = System.Windows.Forms.DockStyle.Fill
@@ -129,19 +142,6 @@ Partial Class OSTF_suite_R
         Me.Launch_SoundLevelCalibration_Button.Text = "OSTF" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Sound Level Calibration" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Research version)"
         Me.Launch_SoundLevelCalibration_Button.TextAlign = System.Drawing.ContentAlignment.BottomCenter
         Me.Launch_SoundLevelCalibration_Button.UseVisualStyleBackColor = True
-        '
-        'Launch_SiP_SE_ExA_R_Button
-        '
-        Me.Launch_SiP_SE_ExA_R_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Launch_SiP_SE_ExA_R_Button.Image = Global.OSTF_suite_R.My.Resources.Resources.ic_launcher
-        Me.Launch_SiP_SE_ExA_R_Button.ImageAlign = System.Drawing.ContentAlignment.TopCenter
-        Me.Launch_SiP_SE_ExA_R_Button.Location = New System.Drawing.Point(319, 3)
-        Me.Launch_SiP_SE_ExA_R_Button.Name = "Launch_SiP_SE_ExA_R_Button"
-        Me.Launch_SiP_SE_ExA_R_Button.Size = New System.Drawing.Size(310, 291)
-        Me.Launch_SiP_SE_ExA_R_Button.TabIndex = 3
-        Me.Launch_SiP_SE_ExA_R_Button.Text = "Swedish SiP-test" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Experimental version A)"
-        Me.Launch_SiP_SE_ExA_R_Button.TextAlign = System.Drawing.ContentAlignment.BottomCenter
-        Me.Launch_SiP_SE_ExA_R_Button.UseVisualStyleBackColor = True
         '
         'OSTF_suite_R
         '
