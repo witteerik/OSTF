@@ -16,6 +16,7 @@ using Java.Util.Concurrent;
 using System.Text;
 using System.Xml;
 using Android.Graphics.Drawables;
+using System.Reflection.Emit;
 
 namespace SiPTablet
 {
@@ -45,7 +46,6 @@ namespace SiPTablet
 
         TextView textView_Message;
 
-        
         Button MenuButton1;
         Button MenuButton2;
         Button MenuButton3;

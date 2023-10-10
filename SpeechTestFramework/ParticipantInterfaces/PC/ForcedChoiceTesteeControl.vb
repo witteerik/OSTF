@@ -23,12 +23,10 @@ Public Class ForcedChoiceTesteeControl
     Friend WithEvents TestSurfacePictureBox As New PictureBox
     Private CircleBrush As Drawing.SolidBrush = New Drawing.SolidBrush(ItemColor)
 
-    Friend WithEvents StartButton As New TestWordLabel(Me, ItemColor) With {.Text = "START"}
+    Friend WithEvents StartButton As New TestWordLabel(Me, ItemColor) With {.Text = "START", .Visible = False} ' Hides the startbutton until ActivateStartButton is called 
     Friend WithEvents PauseButton As New TestWordLabel(Me, ItemColor, 14) With {.Text = "Paus", .Visible = False}
     Friend MessageLabel As New TestWordLabel(Me, ItemColor) With {.Visible = False}
     Friend WithEvents TestFormProgressBar As New ProgressBar_Old(Me, ItemColor, DarkGreyBackColor) With {.Visible = True, .Dock = DockStyle.Bottom}
-
-    Private WithEvents HideResponseButtonsAfterClickTimer As New Timers.Timer With {.Interval = 500}
 
     Public Event StartedByTestee(sender As Object, e As EventArgs) Implements ITesteeControl.StartedByTestee
     Public Event ResponseGiven(ByVal Response As String) Implements ITesteeControl.ResponseGiven
@@ -48,13 +46,31 @@ Public Class ForcedChoiceTesteeControl
         'TestSurfacePictureBox.Controls.Add(MessageLabel)
         TestSurfacePictureBox.Controls.Add(TestFormProgressBar)
 
-
     End Sub
 
 
     Private Sub StartButton_Click(sender As Object, e As EventArgs) Handles StartButton.Click
         RaiseEvent StartedByTestee(sender, e)
     End Sub
+
+    ''' <summary>
+    ''' Call this to add the startbutton to the control
+    ''' </summary>
+    Public Sub ActivateStartButton_TreadSafe()
+
+        If StartButton.InvokeRequired = True Then
+            Dim d As New NoArgReturningVoidDelegate(AddressOf ActivateStartButton_Unsafe)
+            Invoke(d)
+        Else
+            ActivateStartButton_Unsafe()
+        End If
+
+    End Sub
+
+    Public Sub ActivateStartButton_Unsafe()
+        StartButton.Visible = True
+    End Sub
+
 
 
 #Region "Trial presentation"
@@ -211,8 +227,8 @@ Public Class ForcedChoiceTesteeControl
         'Updates the TestSurfacePictureBox layout
         TestSurfacePictureBox.Update()
 
-        'Starts the timer that will remove also the clicked button
-        HideResponseButtonsAfterClickTimer.Start()
+        ''Starts the timer that will remove also the clicked button
+        'HideResponseButtonsAfterClickTimer.Start()
 
         'Sending result to controller
 
@@ -221,10 +237,20 @@ Public Class ForcedChoiceTesteeControl
     End Sub
 
 
-    Private Sub HideResponseButtonsAfterClickTimer_Tick() Handles HideResponseButtonsAfterClickTimer.Elapsed
-        HideResponseButtonsAfterClickTimer.Stop()
-        ResetTestItemPanel()
-    End Sub
+    'Private Sub HideResponseButtonsAfterClickTimer_Tick() Handles HideResponseButtonsAfterClickTimer.Elapsed
+
+    '    HideResponseButtonsAfterClickTimer.Stop()
+
+    '    Exit Sub
+
+    '    Dim InitialControlCount As Integer = TestSurfacePictureBox.Controls.Count
+
+    '    'Exits sub if there is only one control. Since this is likely a message box which should probably not be removed.
+    '    If InitialControlCount = 1 Then Exit Sub
+
+    '    ResetTestItemPanel()
+
+    'End Sub
 
 
     Private Sub ResponseTimesOut() Implements ITesteeControl.ResponseTimesOut
@@ -259,6 +285,7 @@ Public Class ForcedChoiceTesteeControl
             Dim CurrentControl = TryCast(Control, TestWordLabel)
             If CurrentControl IsNot Nothing Then
                 CurrentControl.BackColor = Color.Red
+                CurrentControl.Refresh()
             End If
 
         Next
@@ -273,7 +300,7 @@ Public Class ForcedChoiceTesteeControl
         Try
 
             If Me.TestSurfacePictureBox.InvokeRequired Then
-                Dim d As New NoArgReturningVoidDelegate(AddressOf ResetTestItemPanel)
+                Dim d As New NoArgReturningVoidDelegate(AddressOf ResetTestWordPanel_Unsafe)
                 Me.Invoke(d)
             Else
                 Me.ResetTestWordPanel_Unsafe()

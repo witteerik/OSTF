@@ -1492,16 +1492,32 @@ Public Class SipTestGui_2023
                 End Select
 
                 ParticipantControl = MyBtTesteeControl
-                MyBtTesteeControl.StartNewTestSession()
+                'Select Case GuiLanguage
+                '    Case Utils.Constants.Languages.Swedish
+                '        ParticipantControl.ShowMessage("Testet börjar strax")
+                '    Case Utils.Constants.Languages.English
+                '        ParticipantControl.ShowMessage("The test is about to start")
+                'End Select
+
+
+                'MyBtTesteeControl.StartNewTestSession() ' Inactivates the startbutton on the ParticipantControl by commenting out MyBtTesteeControl.StartNewTestSession()
 
         End Select
+
+        Select Case GuiLanguage
+            Case Utils.Constants.Languages.Swedish
+                ParticipantControl.ShowMessage("Testet börjar strax")
+            Case Utils.Constants.Languages.English
+                ParticipantControl.ShowMessage("The test is about to start")
+        End Select
+
 
         Start_AudioButton.Enabled = True
 
     End Sub
 
 
-    Private Sub TryStartTest(sender As Object, e As EventArgs) Handles ParticipantControl.StartedByTestee, Start_AudioButton.Click
+    Private Sub TryStartTest(sender As Object, e As EventArgs) Handles Start_AudioButton.Click ', ParticipantControl.StartedByTestee ' Started by Testee is commented out, we propbably shouldn't use it.
 
         If TestIsStarted = False Then
 

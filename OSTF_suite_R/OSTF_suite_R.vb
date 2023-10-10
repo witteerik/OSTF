@@ -51,7 +51,7 @@ Public Class OSTF_suite_R
         If CheckApplicationRunning() = False Then
             Try
                 'Loads the Swedish SiP test in research mode
-                CurrentApplicationForm = New SpeechTestFramework.SipTestGui_2023("Swedish SiP-test", SpeechTestFramework.Utils.Constants.UserTypes.Research, SpeechTestFramework.Utils.Constants.Languages.English, False)
+                CurrentApplicationForm = New SpeechTestFramework.SipTestGui_2023("Swedish SiP-test", SpeechTestFramework.Utils.Constants.UserTypes.Research, SpeechTestFramework.Utils.Constants.Languages.Swedish, False)
                 CurrentApplicationForm.Show()
             Catch ex As Exception
                 MsgBox("The following error occurred: " & ex.ToString, MsgBoxStyle.Critical, "Error!")
