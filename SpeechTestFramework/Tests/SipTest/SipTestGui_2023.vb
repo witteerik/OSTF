@@ -40,7 +40,7 @@ Public Class SipTestGui_2023
     Public Enum TestModes
         Directional
         BMLD
-        Custom1
+        Binaural
     End Enum
 
     Private NoSimulationString As String = "No simulation"
@@ -320,8 +320,8 @@ Public Class SipTestGui_2023
             'DirectionalModeTabPage.Enabled = False
             'BmldModeTabPage.Enabled = False
 
-            'Setting the test mode to Custom1
-            TestMode = TestModes.Custom1
+            'Setting the test mode to Binaural
+            TestMode = TestModes.Binaural
         End If
 
     End Sub
@@ -464,7 +464,7 @@ Public Class SipTestGui_2023
         ElseIf e.TabPage.Name = "DirectionalModeTabPage" Then
             TestMode = TestModes.Directional
         ElseIf e.TabPage.Name = "BinauralSettings_TabPage" Then
-            TestMode = TestModes.Custom1
+            TestMode = TestModes.Binaural
         Else
             Throw New Exception("Unknown tabpage name. This is surely a bug!")
         End If
@@ -951,7 +951,7 @@ Public Class SipTestGui_2023
 
                     PlanBmldTestTrials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BmldSignalMode, BmldNoiseMode, RandomSeed_IntegerParsingTextBox.Value)
 
-                Case TestModes.Custom1
+                Case TestModes.Binaural
 
                     If SimulatedDistance_C1_ComboBox.SelectedItem Is Nothing Then Exit Sub
 
@@ -1039,7 +1039,7 @@ Public Class SipTestGui_2023
 
                     If BlockTypes.Count = 0 Then Exit Sub
 
-                    If PlanCustom1Trials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, 2, RandomSeed_IntegerParsingTextBox.Value, SimulatedDistance_C1_ComboBox.SelectedItem) = False Then
+                    If PlanBinauralTrials(CurrentSipTestMeasurement, SelectedReferenceLevel, SelectedPresetName, SelectedMediaSets, SelectedPNRs, BlockTypes, 2, RandomSeed_IntegerParsingTextBox.Value, SimulatedDistance_C1_ComboBox.SelectedItem) = False Then
                         Exit Sub
                     End If
 
@@ -1226,7 +1226,7 @@ Public Class SipTestGui_2023
     ''' <param name="SelectedPNRs"></param>
     ''' <param name="BlockTypes">Block types should contain tuples of two objects and one string, where the first object indicate the signal, the second object the noise, and the string is a descriptive block name. The object can be either a double representing an sound source azimuth or a string representing a BMLD mode. </param>
     ''' <param name="RandomSeed"></param>
-    Private Shared Function PlanCustom1Trials(ByRef SipTestMeasurement As SipMeasurement, ByVal ReferenceLevel As Double, ByVal PresetName As String,
+    Private Shared Function PlanBinauralTrials(ByRef SipTestMeasurement As SipMeasurement, ByVal ReferenceLevel As Double, ByVal PresetName As String,
                                       ByVal SelectedMediaSets As List(Of MediaSet), ByVal SelectedPNRs As List(Of Double), ByVal BlockTypes As List(Of Tuple(Of Object, Object, String)),
                                               ByVal NumberOfIndicatorTrials As Integer, Optional ByVal RandomSeed As Integer? = Nothing, Optional SelectedSimulationDistance As Double = 1) As Boolean
 
