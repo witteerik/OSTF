@@ -510,30 +510,6 @@ Public Class SipTestGui_2023
 
     End Sub
 
-    'Private Sub DirectionalSimulationSet_C1_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_C1_ComboBox.SelectedIndexChanged
-
-    '    Dim SelectedItem = DirectionalSimulationSet_C1_ComboBox.SelectedItem
-    '    If SelectedItem IsNot Nothing Then
-
-    '        If SelectedItem = NoSimulationString Then
-    '            DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
-    '        Else
-
-    '            Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
-    '            If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate) = False Then
-    '                'Well this shold not happen...
-    '                DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
-    '            End If
-
-    '        End If
-
-    '    Else
-    '        DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
-    '    End If
-
-    '    TryCreateSipTestMeasurement()
-
-    'End Sub
 
     Private Sub DirectionalSimulationSet_C1_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles DirectionalSimulationSet_C1_ComboBox.SelectedIndexChanged
 
@@ -574,6 +550,7 @@ Public Class SipTestGui_2023
     Private Sub Custom_SNC_TextBox_KeyUp(sender As Object, e As KeyEventArgs) Handles Custom_SNC_TextBox.KeyUp
 
         If e.KeyValue = Keys.Enter Then
+            If e.Modifiers = Keys.ShiftKey Then Exit Sub
             TryCreateSipTestMeasurement()
         End If
 
@@ -1481,7 +1458,7 @@ Public Class SipTestGui_2023
 
         If SelectedTransducer.CanPlay = False Then
             'Aborts if the SelectedTransducer cannot be used to play sound
-            MsgBox("Unable To play sound Using the selected transducer!", MsgBoxStyle.Exclamation, "Sound player Error")
+            ShowMessageBox("Unable To play sound Using the selected transducer!", "Sound player Error")
             Exit Sub
         End If
 
@@ -2560,6 +2537,8 @@ Public Class SipTestGui_2023
 
         End If
 
+        TryCreateSipTestMeasurement()
+
     End Sub
 
     '    Private Sub BtScreen_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles BtScreen_RadioButton.CheckedChanged
@@ -2584,9 +2563,11 @@ Public Class SipTestGui_2023
             End If
 
             'Hides the shortcut layout (should not be available in BT mode)
-            KeybordShortcut_TableLayoutPanel.Visible = True
+            KeybordShortcut_TableLayoutPanel.Visible = False
 
         End If
+
+        TryCreateSipTestMeasurement()
 
     End Sub
 
