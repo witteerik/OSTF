@@ -1529,6 +1529,7 @@ Public Class SipTestGui_2023
                 Select Case SelectedTestparadigm
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
                         ShowMessageBox("Bluetooth screen Is Not yet implemented For the Directional3 And Directional5 test paradigms. Use the PC screen instead.", "SiP-test")
+                        TryCreateSipTestMeasurement()
                         Exit Sub
                 End Select
 
@@ -1543,7 +1544,20 @@ Public Class SipTestGui_2023
 
                 'MyBtTesteeControl.StartNewTestSession() ' Inactivates the startbutton on the ParticipantControl by commenting out MyBtTesteeControl.StartNewTestSession()
 
+
+            Case Else
+
+                ShowMessageBox("No response interface selected.", "SiP-test")
+                TryCreateSipTestMeasurement()
+                Exit Sub
+
         End Select
+
+        If ParticipantControl Is Nothing Then
+            ShowMessageBox("No response interface selected / connected.", "SiP-test")
+            TryCreateSipTestMeasurement()
+            Exit Sub
+        End If
 
         Select Case GuiLanguage
             Case Utils.Constants.Languages.Swedish

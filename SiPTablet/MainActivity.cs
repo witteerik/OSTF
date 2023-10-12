@@ -51,6 +51,8 @@ namespace SiPTablet
         Button MenuButton3;
         Button MenuButton4;
 
+        private bool responseTimeIsOut = false;
+
         private bool IsInTestView = false;
 
         private Languages currentLanguage = Languages.English;
@@ -208,6 +210,10 @@ namespace SiPTablet
             if (castButton != null)
             {
 
+                // Processes block only if the reponse time is not out
+                if (responseTimeIsOut == false)
+                {
+
                 // This should send the response to the PC
                 SendBtMessage("TW|" + castButton.Text);
 
@@ -231,6 +237,8 @@ namespace SiPTablet
                     // Hiding buttons 1 and 2
                     button_response1.Visibility = ViewStates.Invisible;
                     button_response2.Visibility = ViewStates.Invisible;
+                }
+                
                 }
             }
         }
@@ -317,7 +325,7 @@ namespace SiPTablet
             if (IsInTestView == false)
             {
                 ShowTest();
-            }  
+            }
 
             linearLayout_start.Visibility = Android.Views.ViewStates.Visible;
             linearLayout_message.Visibility = Android.Views.ViewStates.Gone;
@@ -378,6 +386,7 @@ namespace SiPTablet
         public void FlashResponseAlternatives()
         {
 
+
             // Create a shape drawable with rounded corners
             GradientDrawable roundedDrawable = new GradientDrawable();
             roundedDrawable.SetShape(ShapeType.Rectangle);
@@ -390,7 +399,7 @@ namespace SiPTablet
             button_response1.Background = roundedDrawable;
             button_response2.Background = roundedDrawable;
             button_response3.Background = roundedDrawable;
-
+            
             //button_response1.SetBackgroundColor(Android.Graphics.Color.Red);
             //button_response2.SetBackgroundColor(Android.Graphics.Color.Red);
             //button_response3.SetBackgroundColor(Android.Graphics.Color.Red);
@@ -441,6 +450,7 @@ namespace SiPTablet
             {
                 ShowTest();
             }
+
 
             linearLayout_start.Visibility = Android.Views.ViewStates.Gone;
             linearLayout_message.Visibility = Android.Views.ViewStates.Visible;
@@ -802,18 +812,34 @@ namespace SiPTablet
                         break;
 
                     case "M":
+
+                        // Resets responseTimeIsOut to false
+                        responseTimeIsOut = false;
+
                         ShowMenu();
                         break;
 
                     case "S":
+
+                        // Resets responseTimeIsOut to false
+                        responseTimeIsOut = false;
+
                         ShowStart();
                         break;
 
-                    case "Msg":                                                                      
+                    case "Msg":
+
+                        // Resets responseTimeIsOut to false
+                        responseTimeIsOut = false;
+
                         ShowMessage(messageParts[1]);
                         break;
 
                     case "TW":
+
+                        // Resets responseTimeIsOut to false
+                        responseTimeIsOut = false;
+
                         string[] responseAlternatives = new string[3];
                         responseAlternatives[0] = messageParts[1];
                         responseAlternatives[1] = messageParts[2];
@@ -839,10 +865,16 @@ namespace SiPTablet
                         break;
 
                     case "F":
+                        // Sets responseTimeIsOut to true
+                        responseTimeIsOut = true;
+
                         FlashResponseAlternatives();
                         break;
 
                     case "C":
+                        // Resets responseTimeIsOut to false
+                        responseTimeIsOut = false;
+
                         ShowCircle();
                         break;
 
