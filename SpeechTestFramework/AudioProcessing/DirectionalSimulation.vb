@@ -45,7 +45,7 @@ Public Class DirectionalSimulation
     ''' <param name="Elevation">The elevation (or inclination, theta), relative to the horizontal plane</param>
     ''' <param name="Distance">The distance (or radius, r)</param>
     ''' <returns>Returns a tuple containing the selected 3D-point and the corresponding binaural impulse response.</returns>
-    Public Function GetStereoKernel(ByVal ImpulseReponseSetName As String, ByVal Azimuth As Double, ByVal Elevation As Double, ByVal Distance As Double) As Tuple(Of Point3D, Audio.Sound)
+    Public Function GetStereoKernel(ByVal ImpulseReponseSetName As String, ByVal Azimuth As Double, ByVal Elevation As Double, ByVal Distance As Double) As StereoKernel
 
         If BinauralImpulseReponseSets.ContainsKey(ImpulseReponseSetName) = False Then
             Throw New Exception("Unable to locate the ImpulseReponseSet with the name: " & ImpulseReponseSetName)
@@ -178,12 +178,87 @@ Public Class DirectionalSimulation
 
 End Class
 
+Public Class StereoKernel
+    Public Name As String
+    Public Point As Point3D
+    Public BinauralIR As Audio.Sound
+    Public BinauralDelay As New BinauralDelay
+    Private Function GetExportName()
+        Return Name.Replace("<", "_").Replace(">", "_").Replace(",", "_").Replace(" ", "_")
+    End Function
+
+    Public Sub CalculateBinauralDelay(ByVal IrSetName As String, Optional ByVal ExportSoundFiles As Boolean = False)
+
+        'Gets the wave format
+        Dim MonoWaveFormat = New Audio.Formats.WaveFormat(BinauralIR.WaveFormat.SampleRate, BinauralIR.WaveFormat.BitDepth, 1,, BinauralIR.WaveFormat.Encoding)
+
+        For Channel As Integer = 1 To 2
+
+            'Copies the channel of interest in the IR to a mono sound
+            Dim IrSound As New Audio.Sound(MonoWaveFormat)
+            IrSound.WaveData.SampleData(1) = BinauralIR.WaveData.SampleData(Channel)
+
+            'Notes the length of the IR
+            Dim IrLength As Integer = IrSound.WaveData.SampleData(1).Length
+
+            'Creates a delta pulse measurement sound
+            Dim TestSound = SpeechTestFramework.Audio.GenerateSound.CreateSilence(MonoWaveFormat,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+            Dim DeltaIndex As Integer = IrLength * 2
+            TestSound.WaveData.SampleData(1)(DeltaIndex) = 1
+
+            'Runs convolution
+            Dim ConvolutedSound = SpeechTestFramework.Audio.DSP.FIRFilter(TestSound, IrSound, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+
+            'Gets the peak sample of the convoluted delta pulse
+            Dim MaxValue = ConvolutedSound.WaveData.SampleData(1).Max()
+            Dim MinValue = ConvolutedSound.WaveData.SampleData(1).Min()
+            Dim PeakIndex As Integer = 0
+            If Math.Abs(MaxValue) > Math.Abs(MinValue) Then
+                PeakIndex = ConvolutedSound.WaveData.SampleData(1).ToList.IndexOf(MaxValue)
+            Else
+                PeakIndex = ConvolutedSound.WaveData.SampleData(1).ToList.IndexOf(MinValue)
+            End If
+
+            Dim Delay As Integer = PeakIndex - DeltaIndex
+
+            'Limiting Delay to non-negative values
+            Delay = Math.Max(0, Delay)
+
+            'Storing the delay
+            If Channel = 1 Then
+                BinauralDelay.LeftDelay = Delay
+            Else
+                BinauralDelay.RightDelay = Delay
+            End If
+
+            If ExportSoundFiles = True Then
+                TestSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrDelays", IrSetName & "_" & GetExportName() & "Channel_" & Channel & "_Delay_" & Delay & "_OriginalSound.wav"))
+                ConvolutedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrDelays", IrSetName & "_" & GetExportName() & "Channel_" & Channel & "_Delay_" & Delay & "_ConvolutedSound.wav"))
+            End If
+
+        Next
+
+    End Sub
+
+
+End Class
+
+Public Class BinauralDelay
+    Public LeftDelay As Integer
+    Public RightDelay As Integer
+
+    Public Function GetMeanDelay() As Integer
+        Return Math.Floor((LeftDelay + RightDelay) / 2)
+    End Function
+
+End Class
+
 Public Class BinauralImpulseReponseSet
 
     Public Property Name As String = ""
     Public Property SampleRate As Integer = -1
 
-    Private StereoKernels As New SortedList(Of String, Tuple(Of Point3D, Audio.Sound))
+    Private StereoKernels As New SortedList(Of String, StereoKernel)
 
     Public Sub New(ByVal ImpulseResponseSetSpecificationFile As String)
 
@@ -288,14 +363,14 @@ Public Class BinauralImpulseReponseSet
                 If StereoKernels.ContainsKey(PointString) = False Then
                     'Adding a new sound in the appropriate stereo format
                     Dim NewSound As New Audio.Sound(GetStereoKernelFormat(CurrentInputSound.WaveFormat))
-                    StereoKernels.Add(PointString, New Tuple(Of Point3D, Audio.Sound)(NewPoint, NewSound))
+                    StereoKernels.Add(PointString, New StereoKernel With {.Name = PointString, .Point = NewPoint, .BinauralIR = NewSound})
                 End If
 
                 'Adding the sound data
                 If Ear = "L" Then
-                    StereoKernels(PointString).Item2.WaveData.SampleData(1) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
+                    StereoKernels(PointString).BinauralIR.WaveData.SampleData(1) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
                 Else
-                    StereoKernels(PointString).Item2.WaveData.SampleData(2) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
+                    StereoKernels(PointString).BinauralIR.WaveData.SampleData(2) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
                 End If
 
             End If
@@ -314,13 +389,18 @@ Public Class BinauralImpulseReponseSet
             'N.B. this code will fail if an occurring distance lack a front position!
 
             For Each Kernel In StereoKernels
-                If Kernel.Value.Item1.GetSphericalDistance = CurrentDistance Then
+                If Kernel.Value.Point.GetSphericalDistance = CurrentDistance Then
 
                     'Attenuating by the calibration offset (to get zero dB filter gain for a signal with a C-weighted spectrum)
-                    Audio.DSP.AmplifySection(Kernel.Value.Item2, -CurrentCalibrationOffSet)
+                    Audio.DSP.AmplifySection(Kernel.Value.BinauralIR, -CurrentCalibrationOffSet)
 
                 End If
             Next
+        Next
+
+        'Calculating the BinauralDelay
+        For Each Kernel In StereoKernels
+            Kernel.Value.CalculateBinauralDelay(Name)
         Next
 
     End Sub
@@ -332,7 +412,7 @@ Public Class BinauralImpulseReponseSet
     ''' <param name="Elevation">The elevation (or inclination, theta), relative to the horizontal plane</param>
     ''' <param name="Distance">The distance (or radius, r). Must be a non-zero positive value.</param>
     ''' <returns>Returns a tuple containing the selected 3D-point and the corresponding binaural impulse response.</returns>
-    Public Function GetClosestPoint(ByVal Azimuth As Double, ByVal Elevation As Double, ByVal Distance As Double) As Tuple(Of Point3D, Audio.Sound)
+    Public Function GetClosestPoint(ByVal Azimuth As Double, ByVal Elevation As Double, ByVal Distance As Double) As StereoKernel
 
         If Distance <= 0 Then
             Throw New ArgumentException("Distance cannot be zero (or lower) in directional simulation.")
@@ -343,23 +423,21 @@ Public Class BinauralImpulseReponseSet
         Dim CartesianPoint = TargetPoint.GetCartesianLocation
 
         'Searching for the closest point
-        Dim ClosestPoint As Point3D = Nothing
-        Dim ClosestPointSound As Audio.Sound = Nothing
         Dim SmallestDistance As Single = Single.MaxValue
+        Dim ClosestStereoKernel As StereoKernel = Nothing
         For Each CandidatePoint In StereoKernels
 
             'Calculating the distance between the target point and the current candidate point
-            Dim CurrentDistance = Vector3.Distance(TargetPoint.GetCartesianLocation, CandidatePoint.Value.Item1.GetCartesianLocation)
+            Dim CurrentDistance = Vector3.Distance(TargetPoint.GetCartesianLocation, CandidatePoint.Value.Point.GetCartesianLocation)
 
             'Stores the candidate point if closer than all previous
             If CurrentDistance < SmallestDistance Then
-                ClosestPoint = CandidatePoint.Value.Item1
-                ClosestPointSound = CandidatePoint.Value.Item2
                 SmallestDistance = CurrentDistance
+                ClosestStereoKernel = CandidatePoint.Value
             End If
         Next
 
-        Return New Tuple(Of Point3D, Audio.Sound)(ClosestPoint, ClosestPointSound)
+        Return ClosestStereoKernel
 
     End Function
 
@@ -367,7 +445,7 @@ Public Class BinauralImpulseReponseSet
 
         Dim Output As New SortedSet(Of Double)
         For Each IR In StereoKernels
-            Output.Add(IR.Value.Item1.GetSphericalDistance())
+            Output.Add(IR.Value.Point.GetSphericalDistance())
         Next
         Return Output
 
@@ -534,7 +612,7 @@ Public Class BinauralImpulseReponseSet
 
         For Each Distance In Distances
 
-            Dim ClosestPointSound = GetClosestPoint(0, 0, Distance).Item2
+            Dim ClosestPointSound = GetClosestPoint(0, 0, Distance).BinauralIR
 
             Dim LeftValue = CalculateIrGain(Me.Name & "L" & Distance, ClosestPointSound, 1, ExportSoundFiles)
             Dim RightValue = CalculateIrGain(Me.Name & "R" & Distance, ClosestPointSound, 2, ExportSoundFiles)
@@ -547,6 +625,7 @@ Public Class BinauralImpulseReponseSet
         Return GainList
 
     End Function
+
 
     'Public Function CalculateAverageIrGain(Optional ByVal ExportSoundFiles As Boolean = False) As Double
 

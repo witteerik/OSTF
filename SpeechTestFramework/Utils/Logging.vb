@@ -23,6 +23,7 @@
 
 Imports System.IO
 Imports System.Threading
+Imports System.Windows.Forms
 
 Namespace Utils
     Public Module Logging
@@ -180,6 +181,35 @@ Namespace Utils
             End If
 
         End Function
+
+        Public Sub SetLogFolder()
+
+            Dim SuggestedLogFolder As String = Utils.logFilePath
+
+0:
+
+            Dim fbd As New FolderBrowserDialog
+            fbd.Description = "Select the log / export folder you want to use!"
+            fbd.SelectedPath = SuggestedLogFolder
+            Dim DialogResult = fbd.ShowDialog()
+            If DialogResult <> DialogResult.OK Then
+                MsgBox("No folder selected! Click OK to try again!", MsgBoxStyle.Exclamation, "Unable to set the log folder")
+                GoTo 0
+            End If
+
+            'Checking that the folder is valid
+            If IO.Directory.Exists(SuggestedLogFolder) Then
+                SuggestedLogFolder = fbd.SelectedPath
+                MsgBox("Log / export folder was successfully set to: " & vbCrLf & vbCrLf & SuggestedLogFolder, MsgBoxStyle.Information, "OSTF")
+            Else
+                MsgBox("Could not locate the selected folder! Click OK to try again!", MsgBoxStyle.Exclamation, "Unable to set the log folder")
+                GoTo 0
+            End If
+
+            'Actually storing the log folder
+            Utils.logFilePath = SuggestedLogFolder
+
+        End Sub
 
     End Module
 

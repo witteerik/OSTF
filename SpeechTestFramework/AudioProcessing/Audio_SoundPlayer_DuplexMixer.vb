@@ -250,6 +250,11 @@ Namespace Audio
                 Public Elevation As Double = 0
 
                 ''' <summary>
+                ''' The delay caused by the distance between the real or simulated loudspeakers and the ear-canal entrances of the listener.
+                ''' </summary>
+                Public BinauralDelay As New BinauralDelay
+
+                ''' <summary>
                 ''' After presentation, this object should hold the actual location of the presented sound source as limited by the available speakers or limitations of the sound field simulator used.
                 ''' </summary>
                 Public ActualLocation As SoundSourceLocation
@@ -683,15 +688,17 @@ Namespace Audio
                         Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(1), NewSound.WaveData.SampleData(2), OriginalSoundLength)
 
                         'Attains a copy of the appropriate directional FIR-filter kernel
-                        Dim SelectedSimulationPoint = DirectionalSimulator.GetStereoKernel(ImpulseReponseSetName, SoundSceneItem.SourceLocation.HorizontalAzimuth, SoundSceneItem.SourceLocation.Elevation, SoundSceneItem.SourceLocation.Distance)
-                        Dim CurrentKernel = SelectedSimulationPoint.Item2.CreateSoundDataCopy
-                        Dim SelectedActualPoint = SelectedSimulationPoint.Item1
+                        Dim SelectedSimulationKernel = DirectionalSimulator.GetStereoKernel(ImpulseReponseSetName, SoundSceneItem.SourceLocation.HorizontalAzimuth, SoundSceneItem.SourceLocation.Elevation, SoundSceneItem.SourceLocation.Distance)
+                        Dim CurrentKernel = SelectedSimulationKernel.BinauralIR.CreateSoundDataCopy
+                        Dim SelectedActualPoint = SelectedSimulationKernel.Point
+                        Dim SelectedActualBinauralDelay = SelectedSimulationKernel.BinauralDelay
 
                         'Storing the actual values available in the simulator
                         SoundSceneItem.SourceLocation.ActualLocation = New SoundSourceLocation
                         SoundSceneItem.SourceLocation.ActualLocation.HorizontalAzimuth = SelectedActualPoint.GetSphericalAzimuth
                         SoundSceneItem.SourceLocation.ActualLocation.Elevation = SelectedActualPoint.GetSphericalElevation
                         SoundSceneItem.SourceLocation.ActualLocation.Distance = SelectedActualPoint.GetSphericalDistance
+                        SoundSceneItem.SourceLocation.ActualLocation.BinauralDelay = SelectedSimulationKernel.BinauralDelay
 
                         'Applies gain to the kernel (this is more efficient than applying gain to the whole sound array)
                         'TODO. The following can be utilized to optimize the need for setting level by array looping, when using sound feild simulation

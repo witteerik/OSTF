@@ -189,6 +189,9 @@ Public Class SipTestGui_2023
 
     Private Sub SipTestGui_2023_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
+        'Setting the logfile path
+        Utils.SetLogFolder()
+
         'Initializing all components
         OstfBase.LoadAvailableTestSpecifications()
 

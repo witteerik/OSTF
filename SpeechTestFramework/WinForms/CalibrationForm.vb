@@ -322,7 +322,7 @@ Public Class CalibrationForm
                     End If
 
                     Dim SimulationKernel = DirectionalSimulator.GetStereoKernel(DirectionalSimulator.SelectedDirectionalSimulationSetName, 0, 0, SelectedSimulatedDistance)
-                    Dim CurrentKernel = SimulationKernel.Item2.CreateSoundDataCopy
+                    Dim CurrentKernel = SimulationKernel.BinauralIR.CreateSoundDataCopy
 
                     Dim StereoCalibrationSound = New Audio.Sound(New WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, 2,, CalibrationSound.WaveFormat.Encoding))
                     Dim LeftChannelSound = CalibrationSound.CreateSoundDataCopy()

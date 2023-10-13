@@ -1237,6 +1237,11 @@ Namespace SipTest
         Public TestTrialSound As Audio.Sound = Nothing
 
         ''' <summary>
+        ''' Holds the start sample of the target signal within the test trial sound (without any delay caused by room simulation)
+        ''' </summary>
+        Public TargetStartSample As Integer
+
+        ''' <summary>
         ''' A list that can hold non-presented (hypothical) test trials containing the contrasting alternatives.
         ''' </summary>
         Public PseudoTrials As List(Of SipTrial)
@@ -1928,6 +1933,9 @@ Namespace SipTest
                     Next
                 End If
 
+                'Stores the testword start sample
+                Me.TargetStartSample = TestWordStartSample
+
             Catch ex As Exception
                 Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             End Try
@@ -2174,6 +2182,8 @@ Namespace SipTest
             Headings.Add("PresentedTargetLocation_Distance")
             Headings.Add("PresentedTargetLocation_HorizontalAzimuth")
             Headings.Add("PresentedTargetLocation_Elevation")
+            Headings.Add("PresentedTargetLocation_BinauralDelay_Left")
+            Headings.Add("PresentedTargetLocation_BinauralDelay_Right")
 
             Headings.Add("IntendedMaskerLocations_Distance")
             Headings.Add("IntendedMaskerLocations_HorizontalAzimuth")
@@ -2181,12 +2191,17 @@ Namespace SipTest
             Headings.Add("PresentedMaskerLocations_Distance")
             Headings.Add("PresentedMaskerLocations_HorizontalAzimuth")
             Headings.Add("PresentedMaskerLocations_Elevation")
+            Headings.Add("PresentedMaskerLocation_BinauralDelay_Left")
+            Headings.Add("PresentedMaskerLocation_BinauralDelay_Right")
+
             Headings.Add("IntendedBackgroundLocations_Distance")
             Headings.Add("IntendedBackgroundLocations_HorizontalAzimuth")
             Headings.Add("IntendedBackgroundLocations_Elevation")
             Headings.Add("PresentedBackgroundLocations_Distance")
             Headings.Add("PresentedBackgroundLocations_HorizontalAzimuth")
             Headings.Add("PresentedBackgroundLocations_Elevation")
+            Headings.Add("PresentedBackgroundLocation_BinauralDelay_Left")
+            Headings.Add("PresentedBackgroundLocation_BinauralDelay_Right")
 
             Headings.Add("IsBmldTrial")
             Headings.Add("BmldNoiseMode")
@@ -2229,6 +2244,13 @@ Namespace SipTest
             Headings.Add("PseudoTrials_ContextRegionSpeech_SPL")
             Headings.Add("PseudoTrials_TestWordLevel")
             Headings.Add("PseudoTrials_ReferenceTestWordLevel_SPL")
+
+            Headings.Add("TargetStartSample")
+            Headings.Add("PseudoTrials_TargetStartSample")
+            Headings.Add("TestPhonemeStartSample")
+            Headings.Add("TestPhonemelength")
+            Headings.Add("PseudoTrials_TP_StartSamples")
+            Headings.Add("PseudoTrials_TP_Length")
 
             Headings.Add("TargetTrial_Gains")
             Headings.Add("PseudoTrials_Gains")
@@ -2277,6 +2299,8 @@ Namespace SipTest
                 Dim ActualDistances As New List(Of String)
                 Dim ActualHorizontalAzimuths As New List(Of String)
                 Dim ActualElevations As New List(Of String)
+                Dim ActualBinauralDelay_Left As New List(Of String)
+                Dim ActualBinauralDelay_Right As New List(Of String)
                 For i = 0 To Me.TargetStimulusLocations.Length - 1
                     Distances.Add(Me.TargetStimulusLocations(i).Distance)
                     HorizontalAzimuths.Add(Me.TargetStimulusLocations(i).HorizontalAzimuth)
@@ -2285,6 +2309,8 @@ Namespace SipTest
                     ActualDistances.Add(Me.TargetStimulusLocations(i).ActualLocation.Distance)
                     ActualHorizontalAzimuths.Add(Me.TargetStimulusLocations(i).ActualLocation.HorizontalAzimuth)
                     ActualElevations.Add(Me.TargetStimulusLocations(i).ActualLocation.Elevation)
+                    ActualBinauralDelay_Left.Add(Me.TargetStimulusLocations(i).ActualLocation.BinauralDelay.LeftDelay)
+                    ActualBinauralDelay_Right.Add(Me.TargetStimulusLocations(i).ActualLocation.BinauralDelay.LeftDelay)
                 Next
                 TrialList.Add(String.Join(";", Distances))
                 TrialList.Add(String.Join(";", HorizontalAzimuths))
@@ -2292,8 +2318,10 @@ Namespace SipTest
                 TrialList.Add(String.Join(";", ActualDistances))
                 TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
                 TrialList.Add(String.Join(";", ActualElevations))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
             Else
-                For n = 1 To 6
+                For n = 1 To 8
                     TrialList.Add("")
                 Next
             End If
@@ -2305,6 +2333,8 @@ Namespace SipTest
                 Dim ActualDistances As New List(Of String)
                 Dim ActualHorizontalAzimuths As New List(Of String)
                 Dim ActualElevations As New List(Of String)
+                Dim ActualBinauralDelay_Left As New List(Of String)
+                Dim ActualBinauralDelay_Right As New List(Of String)
                 For i = 0 To Me.MaskerLocations.Length - 1
                     Distances.Add(Me.MaskerLocations(i).Distance)
                     HorizontalAzimuths.Add(Me.MaskerLocations(i).HorizontalAzimuth)
@@ -2313,6 +2343,8 @@ Namespace SipTest
                     ActualDistances.Add(Me.MaskerLocations(i).ActualLocation.Distance)
                     ActualHorizontalAzimuths.Add(Me.MaskerLocations(i).ActualLocation.HorizontalAzimuth)
                     ActualElevations.Add(Me.MaskerLocations(i).ActualLocation.Elevation)
+                    ActualBinauralDelay_Left.Add(Me.MaskerLocations(i).ActualLocation.BinauralDelay.LeftDelay)
+                    ActualBinauralDelay_Right.Add(Me.MaskerLocations(i).ActualLocation.BinauralDelay.LeftDelay)
                 Next
                 TrialList.Add(String.Join(";", Distances))
                 TrialList.Add(String.Join(";", HorizontalAzimuths))
@@ -2320,8 +2352,10 @@ Namespace SipTest
                 TrialList.Add(String.Join(";", ActualDistances))
                 TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
                 TrialList.Add(String.Join(";", ActualElevations))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
             Else
-                For n = 1 To 6
+                For n = 1 To 8
                     TrialList.Add("")
                 Next
             End If
@@ -2333,6 +2367,8 @@ Namespace SipTest
                 Dim ActualDistances As New List(Of String)
                 Dim ActualHorizontalAzimuths As New List(Of String)
                 Dim ActualElevations As New List(Of String)
+                Dim ActualBinauralDelay_Left As New List(Of String)
+                Dim ActualBinauralDelay_Right As New List(Of String)
                 For i = 0 To Me.BackgroundLocations.Length - 1
                     Distances.Add(Me.BackgroundLocations(i).Distance)
                     HorizontalAzimuths.Add(Me.BackgroundLocations(i).HorizontalAzimuth)
@@ -2341,6 +2377,8 @@ Namespace SipTest
                     ActualDistances.Add(Me.BackgroundLocations(i).ActualLocation.Distance)
                     ActualHorizontalAzimuths.Add(Me.BackgroundLocations(i).ActualLocation.HorizontalAzimuth)
                     ActualElevations.Add(Me.BackgroundLocations(i).ActualLocation.Elevation)
+                    ActualBinauralDelay_Left.Add(Me.BackgroundLocations(i).ActualLocation.BinauralDelay.LeftDelay)
+                    ActualBinauralDelay_Right.Add(Me.BackgroundLocations(i).ActualLocation.BinauralDelay.LeftDelay)
                 Next
                 TrialList.Add(String.Join(";", Distances))
                 TrialList.Add(String.Join(";", HorizontalAzimuths))
@@ -2348,8 +2386,10 @@ Namespace SipTest
                 TrialList.Add(String.Join(";", ActualDistances))
                 TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
                 TrialList.Add(String.Join(";", ActualElevations))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
             Else
-                For n = 1 To 6
+                For n = 1 To 8
                     TrialList.Add("")
                 Next
             End If
@@ -2461,6 +2501,32 @@ Namespace SipTest
             TrialList.Add(String.Join(";", TestWordLevel_List))
             TrialList.Add(String.Join(";", ReferenceTestWordLevel_SPL_List))
 
+            'Target Startsamples
+            TrialList.Add(TargetStartSample)
+            Dim PseudoTrials_TargetStartSample As New List(Of String)
+            For Each PseduTrial In PseudoTrials
+                PseudoTrials_TargetStartSample.Add(PseduTrial.TargetStartSample)
+            Next
+            TrialList.Add(String.Join(";", PseudoTrials_TargetStartSample))
+
+            'Test phoneme start sample and length
+            Dim TP_SaD = GetTestPhonemeStartAndLength()
+            Dim TestPhonemeStartSample As Integer = TP_SaD.Item1
+            Dim TestPhonemelength As Integer = TP_SaD.Item2
+            TrialList.Add(TestPhonemeStartSample)
+            TrialList.Add(TestPhonemelength)
+
+            Dim PseudoTrials_TP_StartSamples As New List(Of String)
+            Dim PseudoTrials_TP_Length As New List(Of String)
+            For pseudoTrialIndex = 0 To PseudoTrials.Count - 1
+                Dim PS_TP_SaD = PseudoTrials(pseudoTrialIndex).GetTestPhonemeStartAndLength()
+                PseudoTrials_TP_StartSamples.Add(PS_TP_SaD.Item1)
+                PseudoTrials_TP_Length.Add(PS_TP_SaD.Item2)
+            Next
+            TrialList.Add(String.Join(";", PseudoTrials_TP_StartSamples))
+            TrialList.Add(String.Join(";", PseudoTrials_TP_Length))
+
+            'Gains
             Dim TargetTrialGains As New List(Of String)
             For Each Item In GainList
                 TargetTrialGains.Add(Item.Key.ToString & ": " & String.Join(";", Item.Value))
@@ -2478,6 +2544,26 @@ Namespace SipTest
             TrialList.Add(String.Join(" | ", PseudoTrialsGains))
 
             Return String.Join(vbTab, TrialList)
+
+        End Function
+
+        Private Function GetTestPhonemeStartAndLength() As Tuple(Of Integer, Integer)
+
+            Dim TestPhonemeStartSample As Integer
+            Dim TestPhonemeLength As Integer
+            Dim ChildPhonemes = Me.SpeechMaterialComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+            For Each ChildPhoneme In ChildPhonemes
+                If ChildPhoneme.IsContrastingComponent = True Then
+                    Dim TestPhonemeSma = ChildPhoneme.GetCorrespondingSmaComponent(Me.MediaSet, Me.SelectedMediaIndex, 1, True)
+                    If TestPhonemeSma.Count > 0 Then
+                        TestPhonemeStartSample = TestPhonemeSma(0).StartSample
+                        TestPhonemelength = TestPhonemeSma(0).Length
+                    End If
+                    Exit For
+                End If
+            Next
+
+            Return New Tuple(Of Integer, Integer)(TestPhonemeStartSample, TestPhonemeLength)
 
         End Function
 

@@ -94,9 +94,8 @@
     <Reference Include="MathNet.Numerics">
       <HintPath>..\SpeechTestFramework\bin\Release\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="SpeechTestFramework, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\SpeechTestFramework\bin\Release\SpeechTestFramework.dll</HintPath>
+    <Reference Include="SpeechTestFramework">
+      <HintPath>..\SpeechTestFramework\bin\Debug\SpeechTestFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
