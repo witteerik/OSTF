@@ -395,22 +395,29 @@ Public Class SpeechMaterialComponent
     ''' <param name="Index"></param>
     ''' <param name="SoundChannel"></param>
     ''' <param name="CrossFadeLength">The length (in sample) of a cross-fade section.</param>
+    ''' <param name="InitialMargin">If referenced in the calling code, returns the number of samples prior to the first sample in the first sound file used in for returning the SMC soundv.</param>
     ''' <returns></returns>
-    Public Function GetSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer, Optional CrossFadeLength As Integer? = Nothing) As Audio.Sound
+    Public Function GetSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer, Optional CrossFadeLength As Integer? = Nothing, Optional ByRef InitialMargin As Integer = 0) As Audio.Sound
+
+        'Setting initial margin to -1 to signal that it has not been set
+        InitialMargin = -1
 
         Dim CorrespondingSmaComponentList = GetCorrespondingSmaComponent(MediaSet, Index, SoundChannel, True)
 
         If CorrespondingSmaComponentList.Count = 0 Then
             Return Nothing
         ElseIf CorrespondingSmaComponentList.Count = 1 Then
-            Return CorrespondingSmaComponentList(0).GetSoundFileSection(SoundChannel)
+            Return CorrespondingSmaComponentList(0).GetSoundFileSection(SoundChannel,, InitialMargin)
         Else
             Dim SoundList As New List(Of Audio.Sound)
             For Each SmaComponent In CorrespondingSmaComponentList
-                SoundList.Add(SmaComponent.GetSoundFileSection(SoundChannel))
+                SoundList.Add(SmaComponent.GetSoundFileSection(SoundChannel,, InitialMargin))
             Next
             Return Audio.DSP.ConcatenateSounds(SoundList, ,,,,, CrossFadeLength)
         End If
+
+        'Changing InitialMargin to 0 if it was never set
+        If InitialMargin < 0 Then InitialMargin = 0
 
     End Function
 

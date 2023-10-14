@@ -1158,6 +1158,11 @@ Namespace SipTest
         Public Property SelectedMaskerIndices As New List(Of Integer)
 
         ''' <summary>
+        ''' After sound has been mixed, holds the initial margins of the target sounds (used for export purposes)
+        ''' </summary>
+        Public TargetInitialMargins As New List(Of Integer)
+
+        ''' <summary>
         ''' Holds a reference to the MediaSet used in the trial.
         ''' </summary>
         ''' <returns></returns>
@@ -1625,9 +1630,14 @@ Namespace SipTest
                 Dim Targets As New List(Of Tuple(Of Audio.Sound, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
                 Dim NumberOfTargets As Integer = Me.TargetStimulusLocations.Length
                 Dim TestWordLength As Integer
+                TargetInitialMargins = New List(Of Integer)
                 For TargetIndex = 0 To NumberOfTargets - 1
                     'TODO: Here the same signal is taken for all locations. If different signals are needed in different locations, this should be modified
-                    Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1)
+                    Dim InitialMargin As Integer = 0
+                    Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1,, InitialMargin)
+
+                    'Storing the initial margin
+                    Me.TargetInitialMargins.Add(InitialMargin)
 
                     If TargetIndex = 0 Then
                         'Stores the length of the test word sound
@@ -2310,7 +2320,7 @@ Namespace SipTest
                     ActualHorizontalAzimuths.Add(Me.TargetStimulusLocations(i).ActualLocation.HorizontalAzimuth)
                     ActualElevations.Add(Me.TargetStimulusLocations(i).ActualLocation.Elevation)
                     ActualBinauralDelay_Left.Add(Me.TargetStimulusLocations(i).ActualLocation.BinauralDelay.LeftDelay)
-                    ActualBinauralDelay_Right.Add(Me.TargetStimulusLocations(i).ActualLocation.BinauralDelay.LeftDelay)
+                    ActualBinauralDelay_Right.Add(Me.TargetStimulusLocations(i).ActualLocation.BinauralDelay.RightDelay)
                 Next
                 TrialList.Add(String.Join(";", Distances))
                 TrialList.Add(String.Join(";", HorizontalAzimuths))
@@ -2344,7 +2354,7 @@ Namespace SipTest
                     ActualHorizontalAzimuths.Add(Me.MaskerLocations(i).ActualLocation.HorizontalAzimuth)
                     ActualElevations.Add(Me.MaskerLocations(i).ActualLocation.Elevation)
                     ActualBinauralDelay_Left.Add(Me.MaskerLocations(i).ActualLocation.BinauralDelay.LeftDelay)
-                    ActualBinauralDelay_Right.Add(Me.MaskerLocations(i).ActualLocation.BinauralDelay.LeftDelay)
+                    ActualBinauralDelay_Right.Add(Me.MaskerLocations(i).ActualLocation.BinauralDelay.RightDelay)
                 Next
                 TrialList.Add(String.Join(";", Distances))
                 TrialList.Add(String.Join(";", HorizontalAzimuths))
@@ -2378,7 +2388,7 @@ Namespace SipTest
                     ActualHorizontalAzimuths.Add(Me.BackgroundLocations(i).ActualLocation.HorizontalAzimuth)
                     ActualElevations.Add(Me.BackgroundLocations(i).ActualLocation.Elevation)
                     ActualBinauralDelay_Left.Add(Me.BackgroundLocations(i).ActualLocation.BinauralDelay.LeftDelay)
-                    ActualBinauralDelay_Right.Add(Me.BackgroundLocations(i).ActualLocation.BinauralDelay.LeftDelay)
+                    ActualBinauralDelay_Right.Add(Me.BackgroundLocations(i).ActualLocation.BinauralDelay.RightDelay)
                 Next
                 TrialList.Add(String.Join(";", Distances))
                 TrialList.Add(String.Join(";", HorizontalAzimuths))
@@ -2510,18 +2520,20 @@ Namespace SipTest
             TrialList.Add(String.Join(";", PseudoTrials_TargetStartSample))
 
             'Test phoneme start sample and length
-            Dim TP_SaD = GetTestPhonemeStartAndLength()
-            Dim TestPhonemeStartSample As Integer = TP_SaD.Item1
-            Dim TestPhonemelength As Integer = TP_SaD.Item2
+            If TargetInitialMargins.Count = 0 Then TargetInitialMargins.Add(0) ' Adding an initial margin of zero if for some reason empty
+            Dim TP_SaL = GetTestPhonemeStartAndLength(TargetInitialMargins(0)) ' N.B. / TODO: Here initial margins are assumed only for one target. Need to be changed if several targets with different initial marginsa are to be used.
+            Dim TestPhonemeStartSample As Integer = TP_SaL.Item1
+            Dim TestPhonemelength As Integer = TP_SaL.Item2
             TrialList.Add(TestPhonemeStartSample)
             TrialList.Add(TestPhonemelength)
 
             Dim PseudoTrials_TP_StartSamples As New List(Of String)
             Dim PseudoTrials_TP_Length As New List(Of String)
             For pseudoTrialIndex = 0 To PseudoTrials.Count - 1
-                Dim PS_TP_SaD = PseudoTrials(pseudoTrialIndex).GetTestPhonemeStartAndLength()
-                PseudoTrials_TP_StartSamples.Add(PS_TP_SaD.Item1)
-                PseudoTrials_TP_Length.Add(PS_TP_SaD.Item2)
+                If PseudoTrials(pseudoTrialIndex).TargetInitialMargins.Count = 0 Then PseudoTrials(pseudoTrialIndex).TargetInitialMargins.Add(0) ' Adding an initial margin of zero if for some reason empty
+                Dim PS_TP_SaL = PseudoTrials(pseudoTrialIndex).GetTestPhonemeStartAndLength(PseudoTrials(pseudoTrialIndex).TargetInitialMargins(0)) ' N.B. / TODO: Here initial margins are assumed only for one target. Need to be changed if several targets with different initial marginsa are to be used.
+                PseudoTrials_TP_StartSamples.Add(PS_TP_SaL.Item1)
+                PseudoTrials_TP_Length.Add(PS_TP_SaL.Item2)
             Next
             TrialList.Add(String.Join(";", PseudoTrials_TP_StartSamples))
             TrialList.Add(String.Join(";", PseudoTrials_TP_Length))
@@ -2547,7 +2559,7 @@ Namespace SipTest
 
         End Function
 
-        Private Function GetTestPhonemeStartAndLength() As Tuple(Of Integer, Integer)
+        Private Function GetTestPhonemeStartAndLength(Optional ByVal InitialMargin As Integer = 0) As Tuple(Of Integer, Integer)
 
             Dim TestPhonemeStartSample As Integer
             Dim TestPhonemeLength As Integer
@@ -2556,8 +2568,8 @@ Namespace SipTest
                 If ChildPhoneme.IsContrastingComponent = True Then
                     Dim TestPhonemeSma = ChildPhoneme.GetCorrespondingSmaComponent(Me.MediaSet, Me.SelectedMediaIndex, 1, True)
                     If TestPhonemeSma.Count > 0 Then
-                        TestPhonemeStartSample = TestPhonemeSma(0).StartSample
-                        TestPhonemelength = TestPhonemeSma(0).Length
+                        TestPhonemeStartSample = TestPhonemeSma(0).StartSample - InitialMargin
+                        TestPhonemeLength = TestPhonemeSma(0).Length
                     End If
                     Exit For
                 End If

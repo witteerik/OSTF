@@ -1945,8 +1945,9 @@ Namespace Audio
                 ''' <summary>
                 ''' Creates new (mono) sound containing the portion of the ParentSound that the current instance of SmaComponent represent, based on the available segmentation data. (The output sound does not contain the SMA object.)
                 ''' </summary>
+                ''' <param name="InitialMargin">If referenced by the calling code, and holds a negative number, returns the number of samples prior to the first sample. </param>
                 ''' <returns></returns>
-                Public Function GetSoundFileSection(ByVal CurrentChannel As Integer, Optional ByVal SupressWarnings As Boolean = False) As Audio.Sound
+                Public Function GetSoundFileSection(ByVal CurrentChannel As Integer, Optional ByVal SupressWarnings As Boolean = False, Optional ByRef InitialMargin As Integer = -1) As Audio.Sound
 
                     'Checks that the needed instances exist
                     If ParentSMA Is Nothing Then
@@ -1989,6 +1990,9 @@ Namespace Audio
 
                     'Creates a new sound
                     Dim OutputSound = New Audio.Sound(New Formats.WaveFormat(ParentSMA.ParentSound.WaveFormat.SampleRate, ParentSMA.ParentSound.WaveFormat.BitDepth, 1, , ParentSMA.ParentSound.WaveFormat.Encoding))
+
+                    'Stores the initial margin (i.e., the number of samples prior to the first sample retrieved), only if it has not been set
+                    If InitialMargin < 0 Then InitialMargin = StartSample
 
                     'Copies data
                     OutputSound.WaveData.SampleData(1) = ParentSMA.ParentSound.WaveData.SampleData(CurrentChannel).ToList.GetRange(StartSample, Length).ToArray
