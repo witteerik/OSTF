@@ -1226,7 +1226,16 @@ Public Class SipTestGui_2023
         Next
         Dim WholeMaterial = SipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
         For Each TWG In WholeMaterial
+
+            'Skipping practise trials
+            'If TWG.IsPractiseComponent = True Then Continue For
+            If TWG.IsPractiseComponent = False Then Continue For
+
             For Each TestWord In TWG.ChildComponents
+
+                'Skipping practise trials
+                'If TestWord.IsPractiseComponent = True Then Continue For
+                If TestWord.IsPractiseComponent = False Then Continue For
                 If PresetTestWords.Contains(TestWord.PrimaryStringRepresentation) = False Then
                     NonTestMaterial.Add(TestWord)
                 End If
