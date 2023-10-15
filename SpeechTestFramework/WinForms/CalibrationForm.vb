@@ -331,7 +331,9 @@ Public Class CalibrationForm
                     StereoCalibrationSound.WaveData.SampleData(2) = RightChannelSound.WaveData.SampleData(1)
 
                     'Applies FIR-filtering
+                    'StereoCalibrationSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "CalibSound_PreDirFilter"))
                     Dim FilteredSound = Audio.DSP.FIRFilter(StereoCalibrationSound, CurrentKernel, New Formats.FftFormat,,,,,, True)
+                    'FilteredSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "CalibSound_PostDirFilter"))
 
                     'Putting the sound in the intended channels
                     PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(FilteredSound.WaveFormat.SampleRate, FilteredSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, FilteredSound.WaveFormat.Encoding))
@@ -346,6 +348,8 @@ Public Class CalibrationForm
 
                 End If
 
+                'PlaySound = Audio.DSP.IIRFilter(PlaySound, FrequencyWeightings.C)
+                'PlaySound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "CalibSound_NS_C"))
 
                 'Plays the sound
                 SoundPlayer.SwapOutputSounds(PlaySound)

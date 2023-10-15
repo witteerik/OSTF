@@ -477,6 +477,23 @@ Namespace Audio
 
         End Function
 
+        ''' <summary>
+        ''' Inverts the sound in the indicated channel. Throws an error if the indicated channel number is higher than the channel count in the WaveFormat object of the sound.
+        ''' </summary>
+        ''' <param name="Channel"></param>
+        Public Sub InvertChannel(ByVal Channel As Integer)
+
+            If Channel < 1 Then Throw New ArgumentException("The channel value cannot be lower than 1!")
+            If Channel > WaveFormat.Channels Then Throw New ArgumentException("The current sound object does not have " & Channel & " channels!")
+
+            Dim ArrayToInvert = WaveData.SampleData(Channel)
+            For s = 0 To ArrayToInvert.Length - 1
+                ArrayToInvert(s) = -ArrayToInvert(s)
+            Next
+
+        End Sub
+
+
         <Serializable>
         Class LocalWaveData
 

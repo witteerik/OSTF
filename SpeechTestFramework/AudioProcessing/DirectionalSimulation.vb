@@ -183,9 +183,130 @@ Public Class StereoKernel
     Public Point As Point3D
     Public BinauralIR As Audio.Sound
     Public BinauralDelay As New BinauralDelay
+
+    Private _ZeroPhaseEquivalent As StereoKernel = Nothing
+    Public ReadOnly Property ZeroPhaseEquivalent() As StereoKernel
+        Get
+
+            If _ZeroPhaseEquivalent Is Nothing Then
+                CalculateZeroPhaseEquivalentKernel()
+            End If
+            Return _ZeroPhaseEquivalent
+
+        End Get
+    End Property
+
+    Private _TwoLeftEarsKernel As StereoKernel = Nothing
+    Public ReadOnly Property TwoLeftEarsKernel() As StereoKernel
+        Get
+
+            If _TwoLeftEarsKernel Is Nothing Then
+                CreateTwoSameEarsKernels()
+            End If
+            Return _TwoLeftEarsKernel
+
+        End Get
+    End Property
+
+    Private _TwoRightEarsKernel As StereoKernel = Nothing
+    Public ReadOnly Property TwoRightEarsKernel() As StereoKernel
+        Get
+
+            If _TwoRightEarsKernel Is Nothing Then
+                CreateTwoSameEarsKernels()
+            End If
+            Return _TwoRightEarsKernel
+
+        End Get
+    End Property
+
     Private Function GetExportName()
         Return Name.Replace("<", "_").Replace(">", "_").Replace(",", "_").Replace(" ", "_")
     End Function
+
+    Public Sub CreateTwoSameEarsKernels()
+
+        'Creating a new stereo kernel, with references to some object in the parent kernel
+        _TwoLeftEarsKernel = New StereoKernel With {.Name = Me.Name & "_2LE", .Point = Me.Point, .BinauralIR = New Audio.Sound(BinauralIR.WaveFormat), .BinauralDelay = New BinauralDelay With {.LeftDelay = Me.BinauralDelay.LeftDelay, .RightDelay = Me.BinauralDelay.LeftDelay}}
+        _TwoRightEarsKernel = New StereoKernel With {.Name = Me.Name & "_2RE", .Point = Me.Point, .BinauralIR = New Audio.Sound(BinauralIR.WaveFormat), .BinauralDelay = New BinauralDelay With {.LeftDelay = Me.BinauralDelay.RightDelay, .RightDelay = Me.BinauralDelay.RightDelay}}
+
+        'Creating two copies (not references) of the audio data in the BinauralIR
+        Dim TempIrCopy1 = BinauralIR.CreateSoundDataCopy
+        Dim TempIrCopy2 = BinauralIR.CreateSoundDataCopy
+
+        'And puts the left side data of both copies into the BinauralIR of the _TwoLeftEarsKernel
+        _TwoLeftEarsKernel.BinauralIR.WaveData.SampleData(1) = TempIrCopy1.WaveData.SampleData(1)
+        _TwoLeftEarsKernel.BinauralIR.WaveData.SampleData(2) = TempIrCopy2.WaveData.SampleData(1)
+
+        'And puts the right side data of both copies into the BinauralIR of the _TwoRightEarsKernel
+        _TwoRightEarsKernel.BinauralIR.WaveData.SampleData(1) = TempIrCopy1.WaveData.SampleData(2)
+        _TwoRightEarsKernel.BinauralIR.WaveData.SampleData(2) = TempIrCopy2.WaveData.SampleData(2)
+
+    End Sub
+
+    Private Sub CalculateZeroPhaseEquivalentKernel()
+
+        'Gets the wave format
+        Dim MonoWaveFormat = New Audio.Formats.WaveFormat(BinauralIR.WaveFormat.SampleRate, BinauralIR.WaveFormat.BitDepth, 1,, BinauralIR.WaveFormat.Encoding)
+
+        'Gets a copy of the BinauralIR
+        Dim TempIrCopy = BinauralIR.CreateSoundDataCopy
+
+        'Creating a new stereo kernel, with references to some object in the parent kernel
+        _ZeroPhaseEquivalent = New StereoKernel With {.Name = Me.Name & "_ZPE", .Point = Me.Point, .BinauralIR = New Audio.Sound(BinauralIR.WaveFormat)}
+
+        For Channel = 1 To 2
+
+            Dim IrChannelCopy As New Audio.Sound(MonoWaveFormat)
+
+            IrChannelCopy.WaveData.SampleData(1) = TempIrCopy.WaveData.SampleData(Channel)
+
+            Dim KernelSize = IrChannelCopy.WaveData.SampleData(1).Length
+
+            Dim ZeroPhaseIR = Audio.GenerateSound.GetImpulseResponseFromSound(IrChannelCopy, New Audio.Formats.FftFormat(2 ^ 12), KernelSize * 2)
+
+            'Use both to filter a sound and add gain to ZeroPhaseIR based on the resulting level difference
+
+            'Notes the length of the IR
+            Dim IrLength As Integer = IrChannelCopy.WaveData.SampleData(1).Length
+
+            'Creates a delta pulse measurement sound
+            Dim DeltaPulse_TestSound = SpeechTestFramework.Audio.GenerateSound.CreateSilence(MonoWaveFormat,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+            DeltaPulse_TestSound.WaveData.SampleData(1)(IrLength * 2) = 1
+
+            'Measures the pre filter level
+            Dim PreLevel As Double = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(DeltaPulse_TestSound, 1, IrLength, 3 * IrLength)
+
+            'Runs convolution
+            Dim IR_ConvolutedSound = SpeechTestFramework.Audio.DSP.FIRFilter(DeltaPulse_TestSound, IrChannelCopy, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+            Dim ZP_IR_ConvolutedSound = SpeechTestFramework.Audio.DSP.FIRFilter(DeltaPulse_TestSound, ZeroPhaseIR, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+
+            'Gets the post-convolution level
+            Dim PostLevel_IR = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(IR_ConvolutedSound, 1, IrLength, 3 * IrLength)
+            Dim PostLevel_ZP_IR = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ZP_IR_ConvolutedSound, 1, IrLength, 3 * IrLength)
+
+            'Calculates the gain
+            Dim IR_FilterGain As Double = PostLevel_IR - PreLevel
+            Dim ZP_IR_FilterGain As Double = PostLevel_ZP_IR - PreLevel
+
+            Dim Difference = ZP_IR_FilterGain - IR_FilterGain
+
+            Audio.DSP.AmplifySection(ZeroPhaseIR, -Difference)
+
+            'ZeroPhaseIR.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ZeroPhaseIR.wav"))
+            'IrChannelCopy.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrChannelCopy.wav"))
+
+            If Channel = 1 Then
+                _ZeroPhaseEquivalent.BinauralIR.WaveData.SampleData(1) = ZeroPhaseIR.WaveData.SampleData(1)
+            Else
+                _ZeroPhaseEquivalent.BinauralIR.WaveData.SampleData(2) = ZeroPhaseIR.WaveData.SampleData(1)
+            End If
+
+        Next
+
+        _ZeroPhaseEquivalent.CalculateBinauralDelay("", False) ' TODO: To get the right export name, we need a refernce to the parent BinauralSimulationSet here.
+
+    End Sub
 
     Public Sub CalculateBinauralDelay(ByVal IrSetName As String, Optional ByVal ExportSoundFiles As Boolean = False)
 
@@ -398,10 +519,20 @@ Public Class BinauralImpulseReponseSet
             Next
         Next
 
+        'Dim CalibrationOffSetsCheck = CalculateFrontalIrGains()
+
+
         'Calculating the BinauralDelay
         For Each Kernel In StereoKernels
             Kernel.Value.CalculateBinauralDelay(Name)
         Next
+
+        'Also preparing SameEarsKernels
+        For Each Kernel In StereoKernels
+            Kernel.Value.CreateTwoSameEarsKernels()
+        Next
+
+
 
     End Sub
 
@@ -618,6 +749,10 @@ Public Class BinauralImpulseReponseSet
             Dim RightValue = CalculateIrGain(Me.Name & "R" & Distance, ClosestPointSound, 2, ExportSoundFiles)
             Dim Average = {LeftValue, RightValue}.Average
 
+            'Dim LeftValue_B = CalculateIrGain_UsingNoise(Me.Name & "L" & Distance, ClosestPointSound, 1, ExportSoundFiles)
+            'Dim RightValue_B = CalculateIrGain_UsingNoise(Me.Name & "R" & Distance, ClosestPointSound, 2, ExportSoundFiles)
+            'Dim Average_B = {LeftValue_B, RightValue_B}.Average
+
             GainList.Add(New Tuple(Of Double, Double)(Distance, Average))
 
         Next
@@ -717,6 +852,49 @@ Public Class BinauralImpulseReponseSet
     '    Return FilterGain
 
     'End Function
+
+
+    Public Shared Function CalculateIrGain_UsingNoise(ByVal IrName As String, ByRef IR As Audio.Sound, ByVal Channel As Integer, Optional ByVal ExportSoundFiles As Boolean = False) As Double
+
+        Dim MonoWaveFormat = New Audio.Formats.WaveFormat(IR.WaveFormat.SampleRate, IR.WaveFormat.BitDepth, 1,, IR.WaveFormat.Encoding)
+
+        'Copies the channel of interest in the IR to a mono sound
+        Dim IrSound As New Audio.Sound(MonoWaveFormat)
+        IrSound.WaveData.SampleData(1) = IR.WaveData.SampleData(Channel)
+
+        'Notes the length of the IR
+        Dim IrLength As Integer = IrSound.WaveData.SampleData(1).Length
+
+        'Creates a warble tone at 1 kHz (measurement sound)
+        Dim TestSound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\CalibrationSignals\Pink_noise.wav")
+        'Dim TestSound = Audio.GenerateSound.CreateWhiteNoise(MonoWaveFormat, 1, , IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+        'Dim TestSound = Audio.GenerateSound.CreateFrequencyModulatedSineWave(MonoWaveFormat, 1, 1000, 0.5, 20, 0.125,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+
+        'Filters it with a C-weighting, to avoid low and high frequency influences
+        TestSound = Audio.DSP.IIRFilter(TestSound, Audio.BasicAudioEnums.FrequencyWeightings.C)
+
+        'Measures the pre filter level
+        'Dim PreLevel As Double = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(TestSound, 1, IrLength, 3 * IrLength)
+        Dim PreLevel As Double = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(TestSound, 1)
+
+        'Runs convolution
+        Dim ConvolutedSound = SpeechTestFramework.Audio.DSP.FIRFilter(TestSound, IrSound, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+
+        'Gets the post-convolution level
+        'Dim PostLevel = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConvolutedSound, 1, IrLength, 3 * IrLength)
+        Dim PostLevel = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConvolutedSound, 1)
+
+        'Calculates the gain
+        Dim FilterGain As Double = PostLevel - PreLevel
+
+        If ExportSoundFiles = True Then
+            TestSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "OriginalSound.wav"))
+            ConvolutedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "ConvolutedSound.wav"))
+        End If
+
+        Return FilterGain
+
+    End Function
 
 
 End Class
