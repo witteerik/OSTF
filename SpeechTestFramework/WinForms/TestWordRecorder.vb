@@ -1421,6 +1421,9 @@ Public Class SpeechMaterialRecorder
                     'Storing the start time
                     CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).StartTime = ReferenceStartTimeList(s)
 
+                    'Validating the segmentation of the recorded part
+                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).SegmentationCompleted = True
+
                 Next
 
                 'Manually sets IsChanged so that the sound gets saved when swapping sounds.
