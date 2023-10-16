@@ -1720,14 +1720,10 @@ Public Class SpeechMaterialRecorder
             '(At this stage the sound player will be started, if not already done.)
             OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.4, SelectedTransducer.Mixer,, True, True)
 
-            Lock_Button.Enabled = True
-            Unlock_Button.Enabled = False
-
-        Else
-
-            Lock_Button.Enabled = False
+            MainTabControl.Enabled = True
             Unlock_Button.Enabled = True
 
+        Else
             MsgBox("Unable to start the player using the selected transducer (Does the selected sound device doesn't have enough input and output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
         End If
 
@@ -2051,16 +2047,12 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub Lock_Button_Click(sender As Object, e As EventArgs) Handles Lock_Button.Click
+
+    Private Sub LockTopPanel(sender As Object, e As EventArgs) Handles StartRecordingButton.Click
 
         SoundFileSelection_FlowLayoutPanel.Enabled = False
         SoundSettings_TableLayoutPanel.Enabled = False
         MainTabControl.Enabled = True
-
-        Lock_Button.Enabled = False
-        Unlock_Button.Enabled = True
-
-        StartRecordingButton.Focus()
 
     End Sub
 
@@ -2068,12 +2060,24 @@ Public Class SpeechMaterialRecorder
 
         SoundFileSelection_FlowLayoutPanel.Enabled = True
         SoundSettings_TableLayoutPanel.Enabled = True
-        MainTabControl.Enabled = False
-
-        Unlock_Button.Enabled = False
-        Lock_Button.Enabled = True
 
         FileComboBox.Focus()
+
+    End Sub
+
+    Private Sub PreviousRecording(sender As Object, e As EventArgs) Handles Rec_PreviousItemButton.Click
+
+    End Sub
+
+    Private Sub NextRecording(sender As Object, e As EventArgs) Handles Rec_NextItemButton.Click
+
+    End Sub
+
+    Private Sub StartNewRecording(sender As Object, e As EventArgs) Handles StartRecordingButton.Click
+
+    End Sub
+
+    Private Sub StopRecordingManually(sender As Object, e As EventArgs) Handles StopRecordingButton.Click
 
     End Sub
 

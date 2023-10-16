@@ -3153,4 +3153,101 @@ Public Class Form4
 
     End Sub
 
+    Private Sub Button22_Click(sender As Object, e As EventArgs) Handles Button22.Click
+
+        Dim WorkFolder As String = ""
+        Dim WorkFolderSuffix As String = ""
+        Dim AddSilence As Boolean = False
+
+        Dim WordListFiles = {"sour", "mouse", "shirt", "turn", "keg", "hush", "thumb", "get", "bean", "wire", "fall", "match", "pike", "lore",
+            "late", "dead", "rat", "page", "neat", "burn", "wash", "team", "said", "lid", "sell", "nice", "cab", "lose", "bone", "gin", "nag", "far",
+            "jar", "tell", "kill", "reach", "mill", "dip", "shack", "yes", "vine", "pool", "should", "lean", "week", "limb", "tire", "sub", "pass", "sale",
+            "lot", "shall", "phone", "chat", "search", "love", "shout", "gap", "rag", "join", "ton", "mob", "name", "goose", "learn", "ripe", "such",
+            "vote", "note", "young", "doll", "third", "wheat", "king", "bite", "seize", "raid", "tough", "knock", "walk", "gas", "fail", "lease", "which",
+            "youth", "size", "take", "keep", "mode", "long", "pearl", "thought", "beg", "numb", "hash", "luck", "chief", "near", "rot", "shawl"}
+
+        Dim SoundList As New List(Of SpeechTestFramework.Audio.Sound)
+        Dim SilentSound As Audio.Sound = Nothing
+        For Each Filename In WordListFiles
+            Dim CurrentWord = SpeechTestFramework.Audio.Sound.LoadWaveFile(IO.Path.Combine(WorkFolder, WorkFolderSuffix, Filename & ".wav"))
+            If AddSilence = True Then If SilentSound Is Nothing Then SilentSound = Audio.GenerateSound.CreateSilence(CurrentWord.WaveFormat, 1, 1)
+            If AddSilence = True Then SoundList.Add(SilentSound)
+            SoundList.Add(CurrentWord)
+        Next
+        If AddSilence = True Then SoundList.Add(SilentSound)
+
+        Dim ConcatenatedSound = SpeechTestFramework.Audio.DSP.ConcatenateSounds(SoundList)
+
+        Dim Z_WeightedLevel = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConcatenatedSound, 1)
+
+        Dim C_WeightedLevel = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConcatenatedSound, 1, ,,,, Audio.BasicAudioEnums.FrequencyWeightings.C)
+
+        ConcatenatedSound.WriteWaveFile(WorkFolder & "NU6.wav")
+
+        Dim WordListFiles_SiP = {”hy”, “hyf”, “hys”, “hyrs”, “arm”, “farm”, “charm”, “larm”, “yr”, “fyr”, “skyr”, “syr”, “å”, “få”, “sjå”, “så”, “all”, “hall”, “pall”, “tall”, “il”, “kil”, “fil”, “sil”, “ur”, “bur”, “dur”, “mur”}
+
+        Dim SiPSoundList As New List(Of SpeechTestFramework.Audio.Sound)
+        Dim SilentSound_SiP As Audio.Sound = Nothing
+        Dim Check As Boolean = True
+        For Each Filename In WordListFiles_SiP
+            Dim CurrentWord As Audio.Sound = Nothing
+            If Check = False Then
+                CurrentWord = SpeechTestFramework.Audio.Sound.LoadWaveFile(IO.Path.Combine(WorkFolder & "SiP-A\Sounds_F", Filename & ".wav"))
+            Else
+                CurrentWord = SpeechTestFramework.Audio.Sound.LoadWaveFile(IO.Path.Combine(WorkFolder & "SiP-A\Sounds_F_Calib", Filename & ".wav"))
+            End If
+
+            Dim SMA = CurrentWord.SMA.ChannelData(1)(0)
+            Dim Sound = SMA.GetSoundFileSection(1)
+            If AddSilence = True Then If SilentSound_SiP Is Nothing Then SilentSound_SiP = Audio.GenerateSound.CreateSilence(Sound.WaveFormat, 1, 1)
+            If AddSilence = True Then SiPSoundList.Add(SilentSound_SiP)
+            SiPSoundList.Add(Sound)
+        Next
+        If AddSilence = True Then SiPSoundList.Add(SilentSound_SiP)
+
+        Dim ConcatenatedSound_SiP = SpeechTestFramework.Audio.DSP.ConcatenateSounds(SiPSoundList)
+
+        Dim Z_WeightedLevel_SiP = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConcatenatedSound_SiP, 1)
+
+        Dim C_WeightedLevel_SiP = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConcatenatedSound_SiP, 1, ,,,, Audio.BasicAudioEnums.FrequencyWeightings.C)
+
+        Dim C_WeightedDifference = C_WeightedLevel - C_WeightedLevel_SiP
+
+        ConcatenatedSound_SiP.WriteWaveFile(WorkFolder & "SiP.wav")
+
+        For Each Filename In WordListFiles_SiP
+            Dim CurrentWord As Audio.Sound = Nothing
+            If Check = False Then
+                CurrentWord = SpeechTestFramework.Audio.Sound.LoadWaveFile(IO.Path.Combine(WorkFolder & "SiP-A\Sounds_F", Filename & ".wav"))
+            Else
+                CurrentWord = SpeechTestFramework.Audio.Sound.LoadWaveFile(IO.Path.Combine(WorkFolder & "SiP-A\Sounds_F_Calib", Filename & ".wav"))
+            End If
+            Audio.DSP.AmplifySection(CurrentWord, C_WeightedDifference)
+            If Check = False Then
+                CurrentWord.WriteWaveFile(IO.Path.Combine(WorkFolder & "SiP-A\Sounds_F_Calib", Filename & ".wav"))
+            Else
+                CurrentWord.SMA = Nothing
+                CurrentWord.WriteWaveFile(IO.Path.Combine(WorkFolder & "SiP-A\Sounds_F_Calib_NoSMA", Filename & ".wav"))
+            End If
+        Next
+
+        MsgBox("NU6: Z:" & Z_WeightedLevel & " C: " & C_WeightedLevel & vbCrLf &
+               "SiP: Z:" & Z_WeightedLevel_SiP & " C: " & C_WeightedLevel_SiP)
+
+    End Sub
+
+    Private Sub Button23_Click(sender As Object, e As EventArgs) Handles Button23.Click
+
+        Dim WorkFolder As String = ""
+
+        Dim WordListFiles = {”hy”, “hyf”, “hys”, “hyrs”, “arm”, “farm”, “charm”, “larm”, “yr”, “fyr”, “skyr”, “syr”, “å”, “få”, “sjå”, “så”, “all”, “hall”, “pall”, “tall”, “il”, “kil”, “fil”, “sil”, “ur”, “bur”, “dur”, “mur”}
+
+        Dim Prefix = "M_000_000_"
+
+        For Each Filename In WordListFiles
+            IO.File.Copy(IO.Path.Combine(WorkFolder, "SiP-A\Speaker 1 - Male voice", Prefix & Filename & ".wav"), IO.Path.Combine(WorkFolder, "SiP-A\Sounds_M", Filename & ".wav"))
+        Next
+
+
+    End Sub
 End Class

@@ -50,6 +50,8 @@ Partial Class Form4
         Me.Button19 = New System.Windows.Forms.Button()
         Me.Button20 = New System.Windows.Forms.Button()
         Me.Button21 = New System.Windows.Forms.Button()
+        Me.Button22 = New System.Windows.Forms.Button()
+        Me.Button23 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -304,12 +306,32 @@ Partial Class Form4
         Me.Button21.Text = "Export test phoneme times"
         Me.Button21.UseVisualStyleBackColor = True
         '
+        'Button22
+        '
+        Me.Button22.Location = New System.Drawing.Point(832, 471)
+        Me.Button22.Name = "Button22"
+        Me.Button22.Size = New System.Drawing.Size(75, 23)
+        Me.Button22.TabIndex = 38
+        Me.Button22.Text = "Button22"
+        Me.Button22.UseVisualStyleBackColor = True
+        '
+        'Button23
+        '
+        Me.Button23.Location = New System.Drawing.Point(928, 471)
+        Me.Button23.Name = "Button23"
+        Me.Button23.Size = New System.Drawing.Size(75, 23)
+        Me.Button23.TabIndex = 39
+        Me.Button23.Text = "Button23"
+        Me.Button23.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button23)
+        Me.Controls.Add(Me.Button22)
         Me.Controls.Add(Me.Button21)
         Me.Controls.Add(Me.Button20)
         Me.Controls.Add(Me.Button19)
@@ -372,4 +394,6 @@ Partial Class Form4
     Friend WithEvents Button19 As Button
     Friend WithEvents Button20 As Button
     Friend WithEvents Button21 As Button
+    Friend WithEvents Button22 As Button
+    Friend WithEvents Button23 As Button
 End Class
