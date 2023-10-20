@@ -1,6 +1,8 @@
 ﻿Imports System.Diagnostics.Eventing
 Imports System.Runtime.InteropServices
 Imports SpeechTestFramework
+Imports SpeechTestFramework.OstfBase
+Imports SpeechTestFramework.SipTest
 
 Public Class Form4
 
@@ -3248,6 +3250,176 @@ Public Class Form4
             IO.File.Copy(IO.Path.Combine(WorkFolder, "SiP-A\Speaker 1 - Male voice", Prefix & Filename & ".wav"), IO.Path.Combine(WorkFolder, "SiP-A\Sounds_M", Filename & ".wav"))
         Next
 
+
+    End Sub
+
+    Private Sub Button24_Click(sender As Object, e As EventArgs) Handles Button24.Click
+
+        'Initializing all components
+        OstfBase.LoadAvailableTestSpecifications()
+
+        Dim SpeechMaterialName = "Swedish SiP-test"
+
+        Dim SelectedTest As SpeechMaterialSpecification = Nothing
+        For Each ts In OstfBase.AvailableTests
+            If ts.Name = SpeechMaterialName Then
+                SelectedTest = ts
+                Exit For
+            End If
+        Next
+
+        Dim SpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(SelectedTest.GetSpeechMaterialFilePath, SelectedTest.GetTestRootPath)
+        SpeechMaterial.ParentTestSpecification = SelectedTest
+        SelectedTest.SpeechMaterial = SpeechMaterial
+
+        'Loading media sets
+        SpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
+        Dim AvailableMediaSets = SpeechMaterial.ParentTestSpecification.MediaSets
+        Dim SelectedMediaSet = AvailableMediaSets(1)
+
+        Dim TWGs = SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
+
+        For Each TWG In TWGs
+
+            'Getting concatenated sounds
+            Dim ConcatenatedSound = TWG.GetConcatenatedComponentsSound(SelectedMediaSet, SpeechMaterialComponent.LinguisticLevels.Phoneme, True, 1, False, 0, 0, False, True)
+
+            ConcatenatedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "TWG_Noises", TWG.PrimaryStringRepresentation & ".wav"))
+
+            Dim TWG_Noise = Audio.GenerateSound.GetSpectrallyModulatedNoiseFromFile(ConcatenatedSound, 1024 * 4,,, True)
+
+            TWG_Noise.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "TWG_Noises", TWG.PrimaryStringRepresentation & "_LTASS.wav"))
+
+        Next
+
+
+    End Sub
+
+
+    Private Sub Button25_Click_1(sender As Object, e As EventArgs) Handles Button25.Click
+
+        Dim rnd = New Random
+
+        'Initializing all components
+        OstfBase.LoadAvailableTestSpecifications()
+
+        Dim SpeechMaterialName = "Swedish SiP-test"
+
+        Dim SelectedTest As SpeechMaterialSpecification = Nothing
+        For Each ts In OstfBase.AvailableTests
+            If ts.Name = SpeechMaterialName Then
+                SelectedTest = ts
+                Exit For
+            End If
+        Next
+
+        Dim SpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(SelectedTest.GetSpeechMaterialFilePath, SelectedTest.GetTestRootPath)
+        SpeechMaterial.ParentTestSpecification = SelectedTest
+        SelectedTest.SpeechMaterial = SpeechMaterial
+
+        'Loading media sets
+        SpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
+        Dim AvailableMediaSets = SpeechMaterial.ParentTestSpecification.MediaSets
+
+
+        Dim SiPMeasurement = New SipTest.SipMeasurement("TrialSoundGeneration", SpeechMaterial.ParentTestSpecification)
+
+        'Clearing any trials that may have been planned by a previous call
+        SiPMeasurement.ClearTrials()
+
+        SiPMeasurement.TestProcedure.TestParadigm = Testparadigm.Slow
+
+        'Getting the sound source locations
+        'Getting the sound source locations
+        Dim TargetLocations = SiPMeasurement.TestProcedure.TargetStimulusLocations(SiPMeasurement.TestProcedure.TestParadigm)
+        Dim MaskerLocations = SiPMeasurement.TestProcedure.MaskerLocations(SiPMeasurement.TestProcedure.TestParadigm)
+        Dim BackgroundLocations = SiPMeasurement.TestProcedure.BackgroundLocations(SiPMeasurement.TestProcedure.TestParadigm)
+
+        Dim AvaliableTransducers = OstfBase.AvaliableTransducers
+        Dim SelectedTransducer = AvaliableTransducers(0)
+
+        Dim TestWords = SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+
+        Dim InterTrialInterval = 1
+        Dim ResponseAlternativeDelay = 0.5
+        Dim PretestSoundDuration = 5
+        Dim MinimumStimulusOnsetTime = 0.3 ' Earlier, when this variable directed the test words instead of maskers its value was 1.5. Having maskers of 3 seconds with the test word centralized, should be approximately the same as 0.3.
+        Dim MaximumStimulusOnsetTime = 0.8 ' Earlier, when this variable directed the test words instead of maskers its value was 2
+        Dim TrialSoundMaxDuration = 7 ' TODO: Optimize by shortening this time
+        Dim UseVisualQue = True
+        Dim UseBackgroundSpeech = True
+        Dim MaximumResponseTime = 4
+        Dim ShowProgressIndication = True
+
+        OstfBase.DirectionalSimulator.TrySetSelectedDirectionalSimulationSet("ARC - Harcellen - HATS - 48kHz", SelectedTransducer)
+
+        Dim WordsList As New SortedList(Of Double, List(Of String)) From {
+            {-2.0R, New List(Of String)},
+            {6.0R, New List(Of String)}}
+
+        Dim PNRSoundList As New SortedList(Of Double, List(Of Audio.Sound)) From {
+            {-2.0R, New List(Of Audio.Sound)},
+            {6.0R, New List(Of Audio.Sound)}}
+
+
+        For twi = 0 To TestWords.Count - 1
+
+            Dim TestWord = TestWords(twi)
+
+            'Skipping a proportion of test words randomly
+            If rnd.NextDouble > 0.1 Then Continue For
+
+            'Randomizing the media set to use
+            Dim SelectedMediaSet = AvailableMediaSets(rnd.Next(0, 2))
+
+            For Each PNR_kvp In PNRSoundList
+
+                Dim NewTrial As New SipTrial(New SiPTestUnit(SiPMeasurement), TestWord, SelectedMediaSet, SoundPropagationTypes.SimulatedSoundField,
+                                     TargetLocations, MaskerLocations, BackgroundLocations, rnd)
+
+                NewTrial.SetLevels(SpeechTestFramework.Audio.RaisedVocalEffortLevel, PNR_kvp.Key)
+
+                NewTrial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, rnd, TrialSoundMaxDuration, UseBackgroundSpeech)
+
+                PNR_kvp.Value.Add(NewTrial.TestTrialSound)
+
+                'Cropping off the last second
+                Audio.DSP.CropSection(NewTrial.TestTrialSound, 0, TrialSoundMaxDuration * NewTrial.TestTrialSound.WaveFormat.SampleRate)
+
+                NewTrial.TestTrialSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "SipTrialSounds", "TrialSound_" & twi + 1 & "_PNR_" & PNR_kvp.Key & ".wav"))
+
+                WordsList(PNR_kvp.Key).Add(TestWord.GetCategoricalVariableValue("Spelling"))
+            Next
+
+        Next
+
+        'Getting concatenated sounds
+        For Each PNR_kvp In PNRSoundList
+
+            Dim PRN = PNR_kvp.Key
+            Dim SoundList As New List(Of Audio.Sound)
+            For Each Sound In PNRSoundList(PRN)
+                SoundList.Add(Sound.CreateSoundDataCopy)
+            Next
+
+            Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(SoundList,,,,,, 48000)
+            ConcatenatedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "SipTrialSounds", "Demo_of_SiP_test_trial_sounds_at_" & PRN & ".wav"))
+
+            Utils.SendInfoToLog("Exported test words: " & String.Join(", ", WordsList(PRN)),, IO.Path.Combine(Utils.logFilePath, "SipTrialSounds"))
+        Next
+
+
+    End Sub
+
+    Private Sub Button26_Click(sender As Object, e As EventArgs) Handles Button26.Click
+
+        Dim Input = Audio.Sound.LoadWaveFile("C:\SpeechTestFrameworkLog\SipTrialSounds\Demo_of_SiP_test_trial_sounds_at_-2_testwords_tugg-tung-sil-syr-sarg-rött-tuss-å.wav")
+        Input.SMA = Nothing
+        Input.WriteWaveFile("C:\SpeechTestFrameworkLog\SipTrialSounds\Demo_of_SiP_test_trial_sounds_at_-2_testwords_tugg-tung-sil-syr-sarg-rött-tuss-å_NoSMA.wav")
+
+        Dim Input2 = Audio.Sound.LoadWaveFile("C:\SpeechTestFrameworkLog\SipTrialSounds\Demo_of_SiP_test_trial_sounds_at_6_testwords_tugg-tung-sil-syr-sarg-rött-tuss-å.wav")
+        Input2.SMA = Nothing
+        Input2.WriteWaveFile("C:\SpeechTestFrameworkLog\SipTrialSounds\Demo_of_SiP_test_trial_sounds_at_6_testwords_tugg-tung-sil-syr-sarg-rött-tuss-å_NoSMA.wav")
 
     End Sub
 End Class

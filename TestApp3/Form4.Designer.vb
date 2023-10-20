@@ -52,6 +52,9 @@ Partial Class Form4
         Me.Button21 = New System.Windows.Forms.Button()
         Me.Button22 = New System.Windows.Forms.Button()
         Me.Button23 = New System.Windows.Forms.Button()
+        Me.Button24 = New System.Windows.Forms.Button()
+        Me.Button25 = New System.Windows.Forms.Button()
+        Me.Button26 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -308,7 +311,7 @@ Partial Class Form4
         '
         'Button22
         '
-        Me.Button22.Location = New System.Drawing.Point(832, 471)
+        Me.Button22.Location = New System.Drawing.Point(778, 471)
         Me.Button22.Name = "Button22"
         Me.Button22.Size = New System.Drawing.Size(75, 23)
         Me.Button22.TabIndex = 38
@@ -317,12 +320,39 @@ Partial Class Form4
         '
         'Button23
         '
-        Me.Button23.Location = New System.Drawing.Point(928, 471)
+        Me.Button23.Location = New System.Drawing.Point(859, 471)
         Me.Button23.Name = "Button23"
         Me.Button23.Size = New System.Drawing.Size(75, 23)
         Me.Button23.TabIndex = 39
         Me.Button23.Text = "Button23"
         Me.Button23.UseVisualStyleBackColor = True
+        '
+        'Button24
+        '
+        Me.Button24.Location = New System.Drawing.Point(954, 471)
+        Me.Button24.Name = "Button24"
+        Me.Button24.Size = New System.Drawing.Size(75, 23)
+        Me.Button24.TabIndex = 40
+        Me.Button24.Text = "Button24"
+        Me.Button24.UseVisualStyleBackColor = True
+        '
+        'Button25
+        '
+        Me.Button25.Location = New System.Drawing.Point(954, 500)
+        Me.Button25.Name = "Button25"
+        Me.Button25.Size = New System.Drawing.Size(75, 23)
+        Me.Button25.TabIndex = 41
+        Me.Button25.Text = "Button25"
+        Me.Button25.UseVisualStyleBackColor = True
+        '
+        'Button26
+        '
+        Me.Button26.Location = New System.Drawing.Point(1035, 500)
+        Me.Button26.Name = "Button26"
+        Me.Button26.Size = New System.Drawing.Size(75, 23)
+        Me.Button26.TabIndex = 42
+        Me.Button26.Text = "Button26"
+        Me.Button26.UseVisualStyleBackColor = True
         '
         'Form4
         '
@@ -330,6 +360,9 @@ Partial Class Form4
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button26)
+        Me.Controls.Add(Me.Button25)
+        Me.Controls.Add(Me.Button24)
         Me.Controls.Add(Me.Button23)
         Me.Controls.Add(Me.Button22)
         Me.Controls.Add(Me.Button21)
@@ -396,4 +429,7 @@ Partial Class Form4
     Friend WithEvents Button21 As Button
     Friend WithEvents Button22 As Button
     Friend WithEvents Button23 As Button
+    Friend WithEvents Button24 As Button
+    Friend WithEvents Button25 As Button
+    Friend WithEvents Button26 As Button
 End Class

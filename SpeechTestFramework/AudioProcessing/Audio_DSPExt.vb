@@ -9617,14 +9617,15 @@ Namespace Audio
             Public Function GetSpectrallyModulatedNoiseFromFile(ByVal InputSound As Sound,
                                                                    Optional ByVal KernelSize As Integer = 512,
                                                             Optional ByVal CrossFadeLength As Integer = 0,
-                                                           Optional ByVal ValidateSoundLevel As Boolean = True) As Sound
+                                                           Optional ByVal ValidateSoundLevel As Boolean = True,
+                                                                Optional ByRef InActivateWarnings As Boolean = False) As Sound
 
                 'Measuring input sound level (channel 1 only)
                 Dim InputLevel As Double
                 If ValidateSoundLevel Then InputLevel = DSP.MeasureSectionLevel(InputSound, 1)
 
                 'Setting up a suitable fft format
-                Dim FftFormat As New Formats.FftFormat()
+                Dim FftFormat As New Formats.FftFormat(KernelSize,,,, InActivateWarnings)
                 Dim Ir = GetImpulseResponseFromSound(InputSound, FftFormat, KernelSize)
 
                 'Creating a noise
