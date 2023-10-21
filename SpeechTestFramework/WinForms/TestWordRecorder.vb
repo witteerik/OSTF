@@ -1408,7 +1408,7 @@ Public Class SpeechMaterialRecorder
                 CurrentlyLoadedSoundFile = CurrentlyRecordedSentences
                 CurrentlyLoadedSoundFile.SMA = CurrentSMA
 
-                'Sets the SMA sentnce level StartSample and Length values
+                'Sets the SMA sentence level StartSample and Length values
                 CurrentlyLoadedSoundFile.SMA = CurrentSMA
                 For s = 0 To CurrentlyLoadedSoundFile.SMA.ChannelData(1).Count - 1
                     CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).StartSample = StartSamplesList(s)
@@ -1421,8 +1421,13 @@ Public Class SpeechMaterialRecorder
                     'Storing the start time
                     CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).StartTime = ReferenceStartTimeList(s)
 
-                    'Validating the segmentation of the recorded part
-                    CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).SegmentationCompleted = True
+                    'Validating the segmentation of the recorded part if section length is longer than 0
+                    If SectionLengthsList(s) > 0 Then
+                        CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).SetSegmentationCompleted(True, True)
+                    Else
+                        'And removes validation if the recorded length is zero
+                        CurrentlyLoadedSoundFile.SMA.ChannelData(1)(s).SetSegmentationCompleted(False, True)
+                    End If
 
                 Next
 

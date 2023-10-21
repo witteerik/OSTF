@@ -1592,7 +1592,7 @@ Namespace Audio
                                                         Dim value As Boolean
                                                         If smaChannelReader.Read() Then
                                                             If Boolean.TryParse(smaChannelReader.Value.Trim(), value) = True Then
-                                                                NewSMA.ChannelData(CurrentChannel).SegmentationCompleted = value
+                                                                NewSMA.ChannelData(CurrentChannel).SetSegmentationCompleted(value, False, False)
                                                             End If
                                                         End If
 
@@ -1722,7 +1722,7 @@ Namespace Audio
                                                                     Dim value As Boolean
                                                                     If smaSentenceReader.Read() Then
                                                                         If Boolean.TryParse(smaSentenceReader.Value.Trim(), value) = True Then
-                                                                            NewSMA.ChannelData(CurrentChannel)(CurrentSentence).SegmentationCompleted = value
+                                                                            NewSMA.ChannelData(CurrentChannel)(CurrentSentence).SetSegmentationCompleted(value, False, False)
                                                                         End If
                                                                     End If
 
@@ -1852,7 +1852,7 @@ Namespace Audio
                                                                                 Dim value As Boolean
                                                                                 If smaWordReader.Read() Then
                                                                                     If Boolean.TryParse(smaWordReader.Value.Trim(), value) = True Then
-                                                                                        NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).SegmentationCompleted = value
+                                                                                        NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).SetSegmentationCompleted(value, False, False)
                                                                                     End If
                                                                                 End If
 
@@ -1979,7 +1979,7 @@ Namespace Audio
                                                                                             Dim value As Boolean
                                                                                             If smaPhoneReader.Read() Then
                                                                                                 If Boolean.TryParse(smaPhoneReader.Value.Trim(), value) = True Then
-                                                                                                    NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord)(CurrentPhone).SegmentationCompleted = value
+                                                                                                    NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord)(CurrentPhone).SetSegmentationCompleted(value, False, False)
                                                                                                 End If
                                                                                             End If
 
@@ -2125,7 +2125,7 @@ Namespace Audio
                 'Sets the value of SegmentationCompleted to true at all levels if loaded from version 1.0, as the SegmentationCompleted property was introcudes in version 1.1
                 If NewSMA.ReadFromVersion = "1.0" Then
                     For c = 1 To NewSMA.ChannelCount
-                        NewSMA.ChannelData(c).SetSegmentationCompleted(True, True)
+                        NewSMA.ChannelData(c).SetSegmentationCompleted(True, False, True)
                     Next
                 End If
 

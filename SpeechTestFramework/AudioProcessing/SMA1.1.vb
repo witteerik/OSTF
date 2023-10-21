@@ -1027,7 +1027,20 @@ Namespace Audio
 
                 Public Property SmaTag As SpeechMaterialAnnotation.SmaTags
 
-                Public Property SegmentationCompleted As Boolean = False
+                Private _SegmentationCompleted As Boolean = False
+
+                Public ReadOnly Property SegmentationCompleted As Boolean
+                    Get
+
+                        'Always returns True for channel level Sma tags, at these need not be validated as they should always correspond to the start (i.e. 0) and length the wave channel data array
+                        If Me.SmaTag = SmaTags.CHANNEL Then
+                            _SegmentationCompleted = True
+                        End If
+
+                        Return _SegmentationCompleted
+
+                    End Get
+                End Property
 
                 Public Property OrthographicForm As String = ""
                 Public Property PhoneticForm As String = ""
@@ -1648,101 +1661,139 @@ Namespace Audio
 
                 End Function
 
-                Public Function GetUnbrokenLineOfAncestorsWithoutSiblings() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                'Public Function GetUnbrokenLineOfAncestorsWithoutSiblings() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
 
-                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
-                    If ParentComponent IsNot Nothing Then
-                        If ParentComponent.GetNumberOfSiblingsExcludingSelf = 0 Then
-                            OutputList.AddRange(ParentComponent)
-                            OutputList.AddRange(ParentComponent.GetUnbrokenLineOfAncestorsWithoutSiblings)
+                '    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                '    If ParentComponent IsNot Nothing Then
+                '        If ParentComponent.GetNumberOfSiblingsExcludingSelf = 0 Then
+                '            OutputList.AddRange(ParentComponent)
+                '            OutputList.AddRange(ParentComponent.GetUnbrokenLineOfAncestorsWithoutSiblings)
+                '        End If
+                '    End If
+
+                '    Return OutputList
+
+                'End Function
+
+
+                Public Sub GetUnbrokenLineOfAncestorsWithSingleChild(ByRef ResultList As List(Of Sound.SpeechMaterialAnnotation.SmaComponent))
+
+                    If Me.GetNumberOfSiblingsExcludingSelf = 0 Then
+                        If Me.ParentComponent IsNot Nothing Then
+                            ResultList.Add(Me.ParentComponent)
+                            Me.ParentComponent.GetUnbrokenLineOfAncestorsWithSingleChild(ResultList)
                         End If
                     End If
 
-                    Return OutputList
+                End Sub
 
-                End Function
 
-                ''' <summary>
-                ''' Returns all SmaComponents that locically share the same StartSample value as the current instance of SmaComponent 
-                ''' </summary>
-                ''' <returns></returns>
-                Public Function GetDependentSegmentationsStarts() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
-                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
-                    OutputList.AddRange(GetDependentSegmentationsStarts(HierarchicalDirections.Upwards))
-                    OutputList.AddRange(GetDependentSegmentationsStarts(HierarchicalDirections.Downwards))
-                    Return OutputList
-                End Function
+                Public Sub GetUnbrokenLineOfDescendentsWithSingleChild(ByRef ResultList As List(Of Sound.SpeechMaterialAnnotation.SmaComponent))
 
-                Private Function GetDependentSegmentationsStarts(ByVal HierarchicalDirection As HierarchicalDirections) As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    If Me.Count = 1 Then
+                        ResultList.Add(Me(0))
+                        Me(0).GetUnbrokenLineOfDescendentsWithSingleChild(ResultList)
+                    End If
 
-                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                End Sub
 
-                    OutputList.Add(Me)
+                Public Sub GetUnbrokenLineOfFirstbornDescendents(ByRef ResultList As List(Of Sound.SpeechMaterialAnnotation.SmaComponent))
 
-                    'Cascading up or down
-                    Select Case HierarchicalDirection
-                        Case HierarchicalDirections.Upwards
+                    If Me.Count > 0 Then
+                        ResultList.Add(Me(0))
+                        Me(0).GetUnbrokenLineOfFirstbornDescendents(ResultList)
+                    End If
 
-                            Dim SelfIndex = GetSelfIndex()
-                            If SelfIndex.HasValue Then
-                                If SelfIndex = 0 Then
-                                    OutputList.AddRange(ParentComponent.GetDependentSegmentationsStarts(HierarchicalDirection))
-                                End If
-                            End If
+                End Sub
 
-                        Case HierarchicalDirections.Downwards
+                Public Sub GetUnbrokenLineOfLastbornDescendents(ByRef ResultList As List(Of Sound.SpeechMaterialAnnotation.SmaComponent))
 
-                            If Me.Count > 0 Then
-                                OutputList.AddRange(Me(0).GetDependentSegmentationsStarts(HierarchicalDirection))
-                            End If
+                    If Me.Count > 0 Then
+                        ResultList.Add(Me(Me.Count - 1))
+                        Me(Me.Count - 1).GetUnbrokenLineOfLastbornDescendents(ResultList)
+                    End If
 
-                    End Select
+                End Sub
 
-                    Return OutputList
+                '''' <summary>
+                '''' Returns all SmaComponents that locically share the same StartSample value as the current instance of SmaComponent 
+                '''' </summary>
+                '''' <returns></returns>
+                'Public Function GetDependentSegmentationsStarts() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                '    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                '    OutputList.AddRange(GetDependentSegmentationsStarts(HierarchicalDirections.Upwards))
+                '    OutputList.AddRange(GetDependentSegmentationsStarts(HierarchicalDirections.Downwards))
+                '    Return OutputList
+                'End Function
 
-                End Function
+                'Private Function GetDependentSegmentationsStarts(ByVal HierarchicalDirection As HierarchicalDirections) As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
 
-                ''' <summary>
-                ''' Returns all SmaComponents that locically share the same end time as the current instance of SmaComponent 
-                ''' </summary>
-                ''' <returns></returns>
-                Public Function GetDependentSegmentationsEnds() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
-                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
-                    OutputList.AddRange(GetDependentSegmentationsEnds(HierarchicalDirections.Upwards))
-                    OutputList.AddRange(GetDependentSegmentationsEnds(HierarchicalDirections.Downwards))
-                    Return OutputList
-                End Function
+                '    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
 
-                Public Function GetDependentSegmentationsEnds(ByVal HierarchicalDirection As HierarchicalDirections) As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                '    'Cascading up or down
+                '    Select Case HierarchicalDirection
+                '        Case HierarchicalDirections.Upwards
 
-                    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                '            If Me.SmaTag = SmaTags.CHANNEL Then Return OutputList
 
-                    OutputList.Add(Me)
+                '            Dim SelfIndex = GetSelfIndex()
+                '            If SelfIndex.HasValue Then
+                '                If SelfIndex = 0 Then
+                '                    OutputList.AddRange(ParentComponent.GetDependentSegmentationsStarts(HierarchicalDirection))
+                '                End If
+                '            End If
 
-                    'Cascading up or down
-                    Select Case HierarchicalDirection
-                        Case HierarchicalDirections.Upwards
+                '        Case HierarchicalDirections.Downwards
 
-                            Dim SelfIndex = GetSelfIndex()
-                            If SelfIndex.HasValue Then
-                                Dim SiblingCount = GetSiblings.Count
-                                If SelfIndex = SiblingCount - 1 Then
-                                    'The current instance is the last of its same level components
-                                    OutputList.AddRange(ParentComponent.GetDependentSegmentationsEnds(HierarchicalDirection))
-                                End If
-                            End If
+                '            If Me.Count > 0 Then
+                '                OutputList.AddRange(Me(0).GetDependentSegmentationsStarts(HierarchicalDirection))
+                '            End If
 
-                        Case HierarchicalDirections.Downwards
+                '    End Select
 
-                            If Me.Count > 0 Then
-                                OutputList.AddRange(Me(Me.Count - 1).GetDependentSegmentationsEnds(HierarchicalDirection))
-                            End If
+                '    Return OutputList
 
-                    End Select
+                'End Function
 
-                    Return OutputList
+                '''' <summary>
+                '''' Returns all SmaComponents that locically share the same end time as the current instance of SmaComponent 
+                '''' </summary>
+                '''' <returns></returns>
+                'Public Function GetDependentSegmentationsEnds() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                '    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                '    OutputList.AddRange(GetDependentSegmentationsEnds(HierarchicalDirections.Upwards))
+                '    OutputList.AddRange(GetDependentSegmentationsEnds(HierarchicalDirections.Downwards))
+                '    Return OutputList
+                'End Function
 
-                End Function
+                'Public Function GetDependentSegmentationsEnds(ByVal HierarchicalDirection As HierarchicalDirections) As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+
+                '    Dim OutputList As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+
+                '    'Cascading up or down
+                '    Select Case HierarchicalDirection
+                '        Case HierarchicalDirections.Upwards
+
+                '            Dim SelfIndex = GetSelfIndex()
+                '            If SelfIndex.HasValue Then
+                '                Dim SiblingCount = GetSiblings.Count
+                '                If SelfIndex = SiblingCount - 1 Then
+                '                    'The current instance is the last of its same level components
+                '                    OutputList.AddRange(ParentComponent.GetDependentSegmentationsEnds(HierarchicalDirection))
+                '                End If
+                '            End If
+
+                '        Case HierarchicalDirections.Downwards
+
+                '            If Me.Count > 0 Then
+                '                OutputList.AddRange(Me(Me.Count - 1).GetDependentSegmentationsEnds(HierarchicalDirection))
+                '            End If
+
+                '    End Select
+
+                '    Return OutputList
+
+                'End Function
 
                 Public Sub AlignSegmentationStartsAcrossLevels(ByVal SoundLength As Integer)
 
@@ -1778,7 +1829,10 @@ Namespace Audio
                 ''' <param name="HierarchicalDirection"></param>
                 Private Sub AlignSegmentationStarts(ByVal NewStartSample As Integer, ByVal SoundLength As Integer, ByVal HierarchicalDirection As HierarchicalDirections)
 
-                    MoveStart(NewStartSample, SoundLength)
+                    ' Moving the start, unless the current level channel
+                    If Me.SmaTag <> SmaTags.CHANNEL Then
+                        MoveStart(NewStartSample, SoundLength)
+                    End If
 
                     'Cascading up or down
                     Select Case HierarchicalDirection
@@ -1842,26 +1896,32 @@ Namespace Audio
                 ''' <param name="HierarchicalDirection"></param>
                 Private Sub AlignSegmentationEnds(ByVal NewExclusiveEndSample As Integer, ByVal HierarchicalDirection As HierarchicalDirections)
 
-                    Dim TempStartSample As Integer = Math.Max(0, StartSample) ' Needed since default (onset) StartSample value is -1
-                    Dim MyExclusiveEndSample As Integer = TempStartSample + Length
+                    ' Moving the end, unless the current level channel
+                    If Me.SmaTag <> SmaTags.CHANNEL Then
 
-                    Dim EndSampleChange As Integer = NewExclusiveEndSample - MyExclusiveEndSample
-                    'A positive value of EndSampleChange represent a forward shift, and vice versa
+                        Dim TempStartSample As Integer = Math.Max(0, StartSample) ' Needed since default (onset) StartSample value is -1
+                        Dim MyExclusiveEndSample As Integer = TempStartSample + Length
 
-                    'Changing the length
-                    MyExclusiveEndSample += EndSampleChange
+                        Dim EndSampleChange As Integer = NewExclusiveEndSample - MyExclusiveEndSample
+                        'A positive value of EndSampleChange represent a forward shift, and vice versa
 
-                    Dim NewLengthValue As Integer = (MyExclusiveEndSample - 1) - TempStartSample
+                        'Changing the length
+                        MyExclusiveEndSample += EndSampleChange
 
-                    'Moves the start sample (and sets length to zero) if the new length would have to be reduced below zero.
-                    If NewLengthValue < 0 Then
-                        TempStartSample += NewLengthValue
-                        NewLengthValue = 0
+                        Dim NewLengthValue As Integer = (MyExclusiveEndSample - 1) - TempStartSample
+
+                        'Moves the start sample (and sets length to zero) if the new length would have to be reduced below zero.
+                        If NewLengthValue < 0 Then
+                            TempStartSample += NewLengthValue
+                            NewLengthValue = 0
+                        End If
+
+                        'Storing the new values
+                        StartSample = TempStartSample
+                        Length = NewLengthValue
+
                     End If
 
-                    'Storing the new values
-                    StartSample = TempStartSample
-                    Length = NewLengthValue
 
                     'Cascading up or down
                     Select Case HierarchicalDirection
@@ -1933,14 +1993,99 @@ Namespace Audio
                 ''' </summary>
                 ''' <param name="Value"></param>
                 ''' <param name="CascadeToAllDescendants"></param>
-                Public Sub SetSegmentationCompleted(ByVal Value As Boolean, ByVal CascadeToAllDescendants As Boolean)
-                    SegmentationCompleted = Value
+                Public Sub SetSegmentationCompleted(ByVal Value As Boolean, Optional ByVal InferToDependentComponents As Boolean = True, Optional ByVal CascadeToAllDescendants As Boolean = False)
+
+                    'Skipping if SmaTag is Channel, since channels should always be validated
+                    If Me.SmaTag = SmaTags.CHANNEL Then Exit Sub
+
+                    _SegmentationCompleted = Value
+
                     If CascadeToAllDescendants = True Then
                         For Each child In Me
-                            child.SetSegmentationCompleted(Value, CascadeToAllDescendants)
+                            child.SetSegmentationCompleted(Value, False, CascadeToAllDescendants)
                         Next
                     End If
+
+                    If InferToDependentComponents = True Then
+
+                        If InferToDependentComponents Then
+
+                            SetValidationValueOfDependentAncestors(Value)
+                            SetValidationValueOfDependentDescendents(Value)
+
+                        End If
+
+
+                        ''Gets all dependent segmentations starts 
+                        'Dim DependentSegmentations = Me.GetDependentSegmentationsStarts
+
+                        ''And all dependent segmentations ends
+                        'DependentSegmentations.AddRange(Me.GetDependentSegmentationsEnds)
+
+                        'For Each DependentSegmentation In DependentSegmentations
+                        '    DependentSegmentation.SetSegmentationCompleted(Value, False, False)
+                        'Next
+                    End If
+
                 End Sub
+
+
+                Private Sub SetValidationValueOfDependentAncestors(ByVal ValidationValue As Boolean)
+
+                    'Validates all members of an UnbrokenLineOfAncestorsWithSingleChild 
+                    Dim UnbrokenLineOfAncestorsWithSingleChild As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                    Me.GetUnbrokenLineOfAncestorsWithSingleChild(UnbrokenLineOfAncestorsWithSingleChild)
+                    For Each SmaComponent In UnbrokenLineOfAncestorsWithSingleChild
+                        SmaComponent.SetSegmentationCompleted(ValidationValue, False, False)
+                    Next
+
+                    'Sets validation values upwards
+                    Dim Siblings = GetSiblings()
+                    If Siblings IsNot Nothing Then
+                        'Means there is a parent
+
+                        'Exiting if ValidationValue = True either the firstborn or lastborn sibling component is not validated
+                        If ValidationValue = True Then
+                            If Siblings(0).SegmentationCompleted = False Or Siblings(Siblings.Count - 1).SegmentationCompleted = False Then
+                                'Not both of the start and end of the sibling series are validated.
+                                Exit Sub
+                            End If
+                        End If
+
+                        'Setting parent validation value
+                        ParentComponent.SetSegmentationCompleted(ValidationValue, False, False)
+
+                        'Validating recursively upwards
+                        ParentComponent.SetValidationValueOfDependentAncestors(ValidationValue)
+
+                    End If
+
+                End Sub
+
+                Private Sub SetValidationValueOfDependentDescendents(ByVal ValidationValue As Boolean)
+
+                    If ValidationValue = True Then
+
+                        'Sets validation value of all members of an UnbrokenLineOfDescendentsWithSingleChild
+                        Dim UnbrokenLineOfDescendentsWithSingleChild As New List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
+                        Me.GetUnbrokenLineOfDescendentsWithSingleChild(UnbrokenLineOfDescendentsWithSingleChild)
+                        For Each SmaComponent In UnbrokenLineOfDescendentsWithSingleChild
+                            SmaComponent.SetSegmentationCompleted(ValidationValue, False, False)
+                        Next
+
+                    Else
+
+                        'Invalidates all descendents
+                        Dim AllDescendents = GetAllDescentantComponents()
+                        For Each SmaComponent In AllDescendents
+                            SmaComponent.SetSegmentationCompleted(ValidationValue, False, False)
+                        Next
+
+                    End If
+
+                End Sub
+
+
 
                 ''' <summary>
                 ''' Creates new (mono) sound containing the portion of the ParentSound that the current instance of SmaComponent represent, based on the available segmentation data. (The output sound does not contain the SMA object.)

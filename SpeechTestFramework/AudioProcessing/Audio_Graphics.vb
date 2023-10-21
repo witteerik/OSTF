@@ -445,18 +445,21 @@ Namespace Audio
                     WordSelectorPanel.Controls.Add(WordLabel)
                 Next
 
-                'If there is only one word in the current sentence, selecting it right away. Otherwise, emptying the phoneme box (otherwise the previously shown phonemes will be shown there)
-                Dim ClearPhonemes As Boolean = True
-                If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count = 1 Then
-                    If WordSelectorPanel.Controls.Count = 1 Then
-                        WordLabelButtonClick(WordSelectorPanel.Controls.Item(0), Nothing)
-                        ClearPhonemes = False
-                    End If
-                End If
+                'The outcommented code below does not work as intended, as it gets impossible to select the sentence level component of a single word sentence. Therefore the auto-selection of single words is skipped.
+                ''If there is only one word in the current sentence, selecting it right away. Otherwise, emptying the phoneme box (otherwise the previously shown phonemes will be shown there)
+                'Dim ClearPhonemes As Boolean = True
+                'If CurrentSound.SMA.ChannelData(CurrentChannel)(CurrentSentenceIndex).Count = 1 Then
+                '    If WordSelectorPanel.Controls.Count = 1 Then
+                '        WordLabelButtonClick(WordSelectorPanel.Controls.Item(0), Nothing)
+                '        ClearPhonemes = False
+                '    End If
+                'End If
+                'If ClearPhonemes = True Then
+                '    PhonemeSelectorPanel.Controls.Clear()
+                'End If
 
-                If ClearPhonemes = True Then
-                    PhonemeSelectorPanel.Controls.Clear()
-                End If
+                'Clears the phoneme box
+                PhonemeSelectorPanel.Controls.Clear()
 
             End Sub
 
@@ -1581,11 +1584,7 @@ Namespace Audio
                     CurrentSegmentationItem.AlignSegmentationStartsAcrossLevels(CurrentSound.WaveData.SampleData(CurrentChannel).Length)
                 End If
 
-                'Setting all dependent segmentations to SegmentationCompleted = False
-                Dim DependentSegmentations = CurrentSegmentationItem.GetDependentSegmentationsStarts
-                For Each DependentSegmentation In DependentSegmentations
-                    DependentSegmentation.SegmentationCompleted = False
-                Next
+                CurrentSegmentationItem.SetSegmentationCompleted(False, True)
 
                 'Updates the controls in the side segmentation panel, to ensure they show the correct validated status
                 UpdateSideSegmentationPanelControls()
@@ -1613,11 +1612,8 @@ Namespace Audio
                     CurrentSegmentationItem.AlignSegmentationEndsAcrossLevels()
                 End If
 
-                'Setting all dependent segmentations to SegmentationCompleted = False
-                Dim DependentSegmentations = CurrentSegmentationItem.GetDependentSegmentationsEnds
-                For Each DependentSegmentation In DependentSegmentations
-                    DependentSegmentation.SegmentationCompleted = False
-                Next
+
+                CurrentSegmentationItem.SetSegmentationCompleted(False, True)
 
                 'Updates the controls in the side segmentation panel, to ensure they show the correct validated status
                 UpdateSideSegmentationPanelControls()
@@ -1631,7 +1627,7 @@ Namespace Audio
                 If CurrentSegmentationItem IsNot Nothing Then
 
                     'Invadates the segmentation, if graphically modified
-                    CurrentSegmentationItem.SegmentationCompleted = False
+                    CurrentSegmentationItem.SetSegmentationCompleted(False, True)
 
                     If SetSegmentationToZeroCrossings Then
                         Dim StartSample As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
@@ -1653,7 +1649,7 @@ Namespace Audio
                 If CurrentSegmentationItem IsNot Nothing Then
 
                     'Invadates the segmentation, if graphically modified
-                    CurrentSegmentationItem.SegmentationCompleted = False
+                    CurrentSegmentationItem.SetSegmentationCompleted(False, True)
 
                     If SetSegmentationToZeroCrossings Then
                         Dim EndSample As Integer = DisplayStart_Sample + e.X * SampleToPixelScale
@@ -2495,20 +2491,20 @@ Namespace Audio
 
                         If CheckItemEndOrders(Siblings) = False Then Exit Sub
 
-                        'Validates the segmentation of the siblings and all members of an UnbrokenLineOfAncestorsWithoutSiblings
+                        'Validates the segmentation of the siblings 
                         For Each item In Siblings
-                            item.SegmentationCompleted = True
+                            item.SetSegmentationCompleted(True, True)
                         Next
 
-                        Dim UnbrokenLineOfAncestorsWithoutSiblings = CurrentSegmentationItem.GetUnbrokenLineOfAncestorsWithoutSiblings()
-                        For Each Item In UnbrokenLineOfAncestorsWithoutSiblings
-                            Item.SegmentationCompleted = True
-                        Next
-
-                        'Updates the controls in the side segmentation panel
-                        UpdateSideSegmentationPanelControls()
-
+                    Else
+                        'There is no parent, we're at the top of the hierachy.
+                        'Validates instead directly on CurrentSegmentationItem
+                        CurrentSegmentationItem.SetSegmentationCompleted(True, True)
                     End If
+
+                    'Updates the controls in the side segmentation panel
+                    UpdateSideSegmentationPanelControls()
+
                 End If
 
             End Sub
@@ -2522,7 +2518,7 @@ Namespace Audio
 
                 For i = 0 To Items.Count - 2
                     If Items(i).StartSample >= Items(i + 1).StartSample Then
-                        MsgBox("The start position of item " & Items(i + 1).GetStringRepresentation & " must be later than the start postion of " & Items(i + 1).GetStringRepresentation)
+                        MsgBox("The start position of item " & Items(i + 1).GetStringRepresentation & " must be later than the start postion of " & Items(i).GetStringRepresentation)
                         Return False
                     End If
                 Next
@@ -2560,7 +2556,7 @@ Namespace Audio
 
                 For i = 0 To Items.Count - 2
                     If Items(i).StartSample + Items(i).Length >= Items(i + 1).StartSample + Items(i + 1).Length Then
-                        MsgBox("The end position of item " & Items(i + 1).GetStringRepresentation & " must be later than the end postion of " & Items(i + 1).GetStringRepresentation)
+                        MsgBox("The end position of item " & Items(i).GetStringRepresentation & " must not be later than the end postion of " & Items(i + 1).GetStringRepresentation)
                         Return False
                     End If
                 Next
