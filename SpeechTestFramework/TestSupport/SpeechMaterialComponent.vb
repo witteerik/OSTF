@@ -650,6 +650,9 @@ Public Class SpeechMaterialComponent
             Dim CurrentSmaComponent = SoundFileObject.SMA.GetSmaComponentByIndexSeries(SelfIndices, MediaSet.AudioFileLinguisticLevel, SoundChannel)
             Output.Add(CurrentSmaComponent)
 
+            'Stores / updates the file paths from which the SMA was read
+            CurrentSmaComponent.SourceFilePath = SoundPath
+
         Next
 
         Return Output
@@ -1008,6 +1011,23 @@ Public Class SpeechMaterialComponent
         Return SoundLibrary
     End Function
 
+    ''' <summary>
+    ''' Saves all loaded sounds to their original location.
+    ''' </summary>
+    ''' <param name="SaveOnlyModified"></param>
+    Public Sub SaveAllLoadedSounds(Optional ByVal SaveOnlyModified As Boolean = True)
+
+        For Each CurrentSound In SoundLibrary
+            If SaveOnlyModified = True Then
+                If CurrentSound.Value.IsChanged = False Then
+                    Continue For
+                End If
+            End If
+
+            CurrentSound.Value.WriteWaveFile(CurrentSound.Key)
+        Next
+
+    End Sub
 
     Public Function GetImage(ByVal Path) As Drawing.Bitmap
 

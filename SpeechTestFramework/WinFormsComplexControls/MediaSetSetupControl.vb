@@ -114,6 +114,11 @@
             If SelectedMediaSet IsNot Nothing Then
                 EditSpecification_TableLayoutPanel.Enabled = True
                 SaveMediaSetSpecification_Button.Enabled = True
+                EditSoundFile_TabControl.Enabled = True
+            Else
+                EditSpecification_TableLayoutPanel.Enabled = False
+                SaveMediaSetSpecification_Button.Enabled = False
+                EditSoundFile_TabControl.Enabled = False
             End If
 
         Else
@@ -415,13 +420,15 @@
         End If
 
         'Launching sound level adjustment algoritms
-        If NaturalLevelsAlgorithm_Checkbox.Checked = True Then
-            SelectedMediaSet.SetNaturalLevels(SpeechLevelSPL_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration) ' N.B. 'TemporalIntegration is zero for long-time average
+        If VpNormalization_Checkbox.Checked = True Then
+            SelectedMediaSet.SetVpNormalizedLevels(CDbl(SpeechLevelSPL_DoubleParsingTextBox.Value), SpeechLevelFrequencyWeighting, TemporalIntegration) ' N.B. 'TemporalIntegration is zero for long-time average
+            MsgBox("Finished adjusting the speech sound levels.", MsgBoxStyle.Information, "Speech level ")
         Else
-            SelectedMediaSet.SetSpeechLevels(SpeechLevelSPL_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration)
+            If SelectedMediaSet.SetSpeechLevels(SpeechLevelFS_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration, SpeechMaterialComponent.LinguisticLevels.Sentence) = True Then
+                MsgBox("Finished adjusting the speech sound levels.", MsgBoxStyle.Information, "Speech level ")
+            End If
         End If
 
-        MsgBox("Finished adjusting the speech sound levels.", MsgBoxStyle.Information, "Speech level ")
 
     End Sub
 
@@ -490,9 +497,9 @@
 
         SelectedMediaSet.CalculateAverageMaxLevelOfCousinComponents(SpeechMaterialComponent.LinguisticLevels.List, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, False)
 
-        SelectedMediaSet.CalculateComponentLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection, 1, ,,,, True)
+        SelectedMediaSet.CalculateOrSetComponentLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection, 1, ,,,, True)
 
-        SelectedMediaSet.CalculateComponentLevel(SpeechMaterialComponent.LinguisticLevels.Sentence, 1)
+        SelectedMediaSet.CalculateOrSetComponentLevel(SpeechMaterialComponent.LinguisticLevels.Sentence, 1)
 
         SelectedMediaSet.CalculateAverageDurationOfContrastingComponents(SpeechMaterialComponent.LinguisticLevels.Sentence, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1)
 
@@ -521,6 +528,8 @@
         'SelectedMediaSet.TemporaryFunction_RenameMaskerFolder()
 
     End Sub
+
+
 End Class
 
 

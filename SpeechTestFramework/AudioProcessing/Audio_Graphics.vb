@@ -2333,6 +2333,9 @@ Namespace Audio
                     CurrentSegmentationItem.InferSiblingLengths()
                 End If
 
+                'Updates the controls in the side segmentation panel, to ensure they show the correct validated status
+                UpdateSideSegmentationPanelControls()
+
                 UpdateLayout()
 
             End Sub
@@ -2554,10 +2557,19 @@ Namespace Audio
             ''' <returns></returns>
             Private Function CheckItemEndOrders(ByRef Items As List(Of Sound.SpeechMaterialAnnotation.SmaComponent))
 
+                Dim AllowOneOverlap As Boolean = False
+
                 For i = 0 To Items.Count - 2
-                    If Items(i).StartSample + Items(i).Length >= Items(i + 1).StartSample + Items(i + 1).Length Then
-                        MsgBox("The end position of item " & Items(i).GetStringRepresentation & " must not be later than the end postion of " & Items(i + 1).GetStringRepresentation)
-                        Return False
+                    If AllowOneOverlap = True Then
+                        If Items(i).StartSample + Items(i).Length >= Items(i + 1).StartSample + Items(i + 1).Length Then
+                            MsgBox("The end position of item " & Items(i).GetStringRepresentation & " must precede the end postion of " & Items(i + 1).GetStringRepresentation)
+                            Return False
+                        End If
+                    Else
+                        If Items(i).StartSample + Items(i).Length > Items(i + 1).StartSample Then
+                            MsgBox("The end position of item " & Items(i).GetStringRepresentation & " must precede the start postion of " & Items(i + 1).GetStringRepresentation)
+                            Return False
+                        End If
                     End If
                 Next
 

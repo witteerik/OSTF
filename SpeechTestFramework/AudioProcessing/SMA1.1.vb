@@ -2,6 +2,7 @@
 Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.Xml
 Imports System.Globalization.CultureInfo
+Imports SpeechTestFramework.SpeechMaterialComponent
 
 Namespace Audio
 
@@ -57,8 +58,8 @@ Namespace Audio
                 End Set
             End Property
 
-            Public Sub AddChannelData()
-                _ChannelData.Add(New SmaComponent(Me, SmaTags.CHANNEL, Nothing))
+            Public Sub AddChannelData(Optional ByVal SourceFilePath As String = "")
+                _ChannelData.Add(New SmaComponent(Me, SmaTags.CHANNEL, Nothing, SourceFilePath))
             End Sub
 
             Public Sub AddChannelData(ByRef NewSmaChannelData As SmaComponent)
@@ -1098,12 +1099,18 @@ Namespace Audio
 
                 Private Shared DefaultNotMeasuredValue As String = "Not measured"
 
-                Public Sub New(ByRef ParentSMA As SpeechMaterialAnnotation, ByVal SmaLevel As SmaTags, ByRef ParentComponent As SmaComponent)
+                ''' <summary>
+                ''' If applicable, holds the file path to the file from which the current instance of SmaComponent was read
+                ''' </summary>
+                Public SourceFilePath As String = ""
+
+                Public Sub New(ByRef ParentSMA As SpeechMaterialAnnotation, ByVal SmaLevel As SmaTags, ByRef ParentComponent As SmaComponent, Optional ByVal SourceWaveFilePath As String = "")
                     Me.ParentSMA = ParentSMA
                     Me.ParentComponent = ParentComponent
                     Me.SmaTag = SmaLevel
                     Me.FrequencyWeighting = ParentSMA.GetFrequencyWeighting
                     Me.TimeWeighting = ParentSMA.GetTimeWeighting
+                    Me.SourceFilePath = SourceWaveFilePath
                 End Sub
 
                 Public Function GetFrequencyWeighting() As FrequencyWeightings
@@ -1964,6 +1971,33 @@ Namespace Audio
 
                 End Function
 
+                Public Sub GetHierarchicalSelfIndexSerie(ByRef HierarchicalSelfIndexSerie As List(Of String))
+
+                    If Me.ParentComponent Is Nothing Then
+                        Exit Sub
+                    Else
+
+                        'Calls GetHierarchicalSelfIndexSerie on the parent
+                        Me.ParentComponent.GetHierarchicalSelfIndexSerie(HierarchicalSelfIndexSerie)
+
+                    End If
+
+                    Dim LinguisticLevelString As String = ""
+                    Select Case Me.SmaTag
+                        Case SmaTags.CHANNEL
+                            LinguisticLevelString = "C"
+                        Case SmaTags.SENTENCE
+                            LinguisticLevelString = "S"
+                        Case SmaTags.WORD
+                            LinguisticLevelString = "W"
+                        Case SmaTags.PHONE
+                            LinguisticLevelString = "P"
+                    End Select
+
+                    HierarchicalSelfIndexSerie.Add(LinguisticLevelString & Me.GetSelfIndex)
+
+                End Sub
+
                 Public Function GetSiblings() As List(Of Sound.SpeechMaterialAnnotation.SmaComponent)
                     If ParentComponent IsNot Nothing Then
                         Return ParentComponent.ToList
@@ -1981,8 +2015,16 @@ Namespace Audio
                     If Siblings IsNot Nothing Then
                         For i = 0 To Siblings.Count - 2
 
+                            Dim PreviousLength As Integer = Siblings(i).Length
+
                             'Locks the length of sibling i to the start position (-1) of the sibling i+1
                             Siblings(i).Length = Siblings(i + 1).StartSample - Siblings(i).StartSample
+
+                            If Siblings(i).Length <> PreviousLength Then
+                                'Invalidating segmentation if the length was changed
+                                Siblings(i).SetSegmentationCompleted(False, True)
+                            End If
+
                         Next
                     End If
 
@@ -2085,6 +2127,55 @@ Namespace Audio
 
                 End Sub
 
+                ''' <summary>
+                ''' 
+                ''' </summary>
+                ''' <param name="CurrentChannel"></param>
+                ''' <returns>Returns True if all checks passed, and False if any check did not pass.</returns>
+                Private Function CheckSoundDataAvailability(ByVal CurrentChannel As Integer, ByVal SupressWarnings As Boolean) As Boolean
+
+                    'Checks that the needed instances exist
+                    If ParentSMA Is Nothing Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The current instance of SmaComponent does not have a ParentSMA object.")
+                        Return False
+                    End If
+                    If ParentSMA.ParentSound Is Nothing Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The ParentSMA does not have a ParentSound object.")
+                        Return False
+                    End If
+                    If CurrentChannel > ParentSMA.ParentSound.WaveFormat.Channels Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The ParentSMA.ParentSound object does not have " & CurrentChannel & " channels!")
+                        Return False
+                    End If
+                    If CurrentChannel > ParentSMA.ChannelCount Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The ParentSMA object does not have " & CurrentChannel & " channels!")
+                        Return False
+                    End If
+
+                    'Checks that sound data exists at the indicated sampleindices
+                    If StartSample < 0 Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: Start sample cannot be lower than zero!")
+                        Return False
+                    End If
+
+                    If Length < 0 Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: Length of a section cannot lower than zero!")
+                        Return False
+                    End If
+
+                    If Length = 0 Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: Length of a section cannot be zero!")
+                        Return False
+                    End If
+
+                    If StartSample + Length > ParentSMA.ParentSound.WaveData.SampleData(CurrentChannel).Length Then
+                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The requested data is outside the range of the sound parent sound!")
+                        Return False
+                    End If
+
+                    Return True
+
+                End Function
 
 
                 ''' <summary>
@@ -2094,42 +2185,7 @@ Namespace Audio
                 ''' <returns></returns>
                 Public Function GetSoundFileSection(ByVal CurrentChannel As Integer, Optional ByVal SupressWarnings As Boolean = False, Optional ByRef InitialMargin As Integer = -1) As Audio.Sound
 
-                    'Checks that the needed instances exist
-                    If ParentSMA Is Nothing Then
-                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The current instance of SmaComponent does not have a ParentSMA object.")
-                        Return Nothing
-                    End If
-                    If ParentSMA.ParentSound Is Nothing Then
-                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The ParentSMA does not have a ParentSound object.")
-                        Return Nothing
-                    End If
-                    If CurrentChannel > ParentSMA.ParentSound.WaveFormat.Channels Then
-                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The ParentSMA.ParentSound object does not have " & CurrentChannel & " channels!")
-                        Return Nothing
-                    End If
-                    If CurrentChannel > ParentSMA.ChannelCount Then
-                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The ParentSMA object does not have " & CurrentChannel & " channels!")
-                        Return Nothing
-                    End If
-
-                    'Checks that sound data exists at the indicated sampleindices
-                    If StartSample < 0 Then
-                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: Start sample cannot be lower than zero!")
-                        Return Nothing
-                    End If
-
-                    If Length < 0 Then
-                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: Length of a section cannot lower than zero!")
-                        Return Nothing
-                    End If
-
-                    If Length = 0 Then
-                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: Length of a section cannot be zero!")
-                        Return Nothing
-                    End If
-
-                    If StartSample + Length > ParentSMA.ParentSound.WaveData.SampleData(CurrentChannel).Length Then
-                        If SupressWarnings = False Then MsgBox("GetSoundFileSection: The requested data is outside the range of the sound parent sound!")
+                    If CheckSoundDataAvailability(CurrentChannel, SupressWarnings) = False Then
                         Return Nothing
                     End If
 
@@ -2217,6 +2273,81 @@ Namespace Audio
                 End Function
 
 
+                ''' <summary>
+                ''' 
+                ''' </summary>
+                ''' <param name="Gain"></param>
+                Public Sub ApplyGain(ByVal Gain As Double, Optional ByVal CurrentChannel As Integer = 1, Optional ByVal SupressWarnings As Boolean = False, Optional SoftEdgeGain As Boolean = True, Optional SoftEdgeSamples As Integer = 100)
+
+                    If CheckSoundDataAvailability(CurrentChannel, SupressWarnings) = True Then
+
+                        If SoftEdgeGain = True Then
+
+                            'Calculates the amount of possible fade length, limiting it by SoftEdgeSamples and a tenth of the length of the SmaComponent
+                            Dim FadeLength As Integer = Math.Min(SoftEdgeSamples, Math.Floor(Length / 10))
+                            If FadeLength = 0 Then
+                                'Amplifies the whole section
+                                Audio.DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample, Length)
+                            Else
+
+                                'Fades in and out during fade length number of samples
+                                Audio.DSP.Fade(ParentSMA.ParentSound, 0, -Gain, CurrentChannel, StartSample, FadeLength)
+                                Audio.DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample + FadeLength, Length - 2 * FadeLength)
+                                Audio.DSP.Fade(ParentSMA.ParentSound, 0, -Gain, CurrentChannel, Length - FadeLength, FadeLength)
+
+                            End If
+
+                        Else
+                            'Applies gain
+                            Audio.DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample, Length)
+                        End If
+
+                        ParentSMA.ParentSound.SetIsChangedManually(True)
+
+                    Else
+                        MsgBox("Unable to apply gain to the SMA component " & Me.GetStringRepresentation())
+                    End If
+
+                End Sub
+
+                ''' <summary>
+                ''' Cretates a identifier string that points to the sound section of the sound file containing the audio data
+                ''' </summary>
+                ''' <param name="SoundFilePathString">As the SmaComponent may not always know the wave file from which is was read, the calling code can insteda supply the path here.</param>
+                ''' <returns></returns>
+                Public Function CreateUniqueSoundSectionIdentifier(Optional ByVal SoundFilePathString As String = "") As String
+
+                    Dim OutputList As New List(Of String)
+
+                    If SoundFilePathString = "" Then
+                        If SourceFilePath <> "" Then
+                            OutputList.Add(SourceFilePath)
+                        Else
+                            'Attempts to find the path from the sound file
+                            If ParentSMA Is Nothing Then
+                                OutputList.Add("NoParent")
+                            Else
+                                If ParentSMA.ParentSound Is Nothing Then
+                                    OutputList.Add("NoParentSound")
+                                Else
+                                    OutputList.Add(ParentSMA.ParentSound.FileName)
+                                End If
+                            End If
+                        End If
+                    Else
+                        'Using the string supplied by the calling code
+                        OutputList.Add(SoundFilePathString)
+                    End If
+
+                    Dim HierarchicalSelfIndexSerie As New List(Of String)
+                    Me.GetHierarchicalSelfIndexSerie(HierarchicalSelfIndexSerie)
+                    OutputList.Add(String.Concat(HierarchicalSelfIndexSerie))
+
+                    Return String.Join("_", OutputList)
+
+                End Function
+
+
             End Class
 
             Public Function GetSmaComponentByIndexSeries(ByVal IndexSeries As SpeechMaterialComponent.ComponentIndices, ByVal AudioFileLinguisticLevel As SpeechMaterialComponent.LinguisticLevels, ByVal SoundChannel As Integer) As SmaComponent
@@ -2224,8 +2355,8 @@ Namespace Audio
                 'Correcting the indices below AudioFileLinguisticLevel
                 If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.List Then IndexSeries.ListIndex = 0 'There is only list per recording
                 If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Sentence Then IndexSeries.SentenceIndex = 0 'There is only one sentence per recording
-                If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Word Then IndexSeries.WordIndex = 0 'There is only list per recording
-                If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Phoneme Then IndexSeries.PhoneIndex = 0 'There is only list per recording
+                If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Word Then IndexSeries.WordIndex = 0 'There is only word per recording
+                If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Phoneme Then IndexSeries.PhoneIndex = 0 'There is only phoneme per recording
 
                 If SoundChannel > Me.ChannelCount Then
                     Return Nothing
@@ -2255,8 +2386,6 @@ Namespace Audio
 
 
             End Function
-
-
 
         End Class
 

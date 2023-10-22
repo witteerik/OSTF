@@ -1508,7 +1508,7 @@ Namespace Audio
 
         End Function
 
-        Public Shared Function ParseiXMLString(ByVal fileStream As MemoryStream) As Tuple(Of Sound.SpeechMaterialAnnotation, List(Of Tuple(Of String, String)))
+        Public Shared Function ParseiXMLString(ByVal fileStream As MemoryStream, Optional ByVal SourceFilePath As String = "") As Tuple(Of Sound.SpeechMaterialAnnotation, List(Of Tuple(Of String, String)))
 
             Dim NewSMA As New Sound.SpeechMaterialAnnotation()
 
@@ -1576,7 +1576,7 @@ Namespace Audio
 
                                             'New channel
                                             CurrentChannel += 1
-                                            NewSMA.AddChannelData()
+                                            NewSMA.AddChannelData(SourceFilePath)
 
                                             'Reading the SMA channel subtree
                                             Dim smaChannelReader = smaReader.ReadSubtree()
@@ -1703,7 +1703,7 @@ Namespace Audio
 
                                                         'New sentence
                                                         CurrentSentence += 1
-                                                        NewSMA.ChannelData(CurrentChannel).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.SENTENCE, NewSMA.ChannelData(CurrentChannel)))
+                                                        NewSMA.ChannelData(CurrentChannel).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.SENTENCE, NewSMA.ChannelData(CurrentChannel), SourceFilePath))
 
                                                         'Reading the SMA sentence subtree
                                                         Dim smaSentenceReader = smaChannelReader.ReadSubtree()
@@ -1833,7 +1833,7 @@ Namespace Audio
 
                                                                     ' A new word
                                                                     CurrentWord += 1
-                                                                    NewSMA.ChannelData(CurrentChannel)(CurrentSentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.WORD, NewSMA.ChannelData(CurrentChannel)(CurrentSentence)))
+                                                                    NewSMA.ChannelData(CurrentChannel)(CurrentSentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.WORD, NewSMA.ChannelData(CurrentChannel)(CurrentSentence), SourceFilePath))
 
                                                                     'Reading the SMA word subtree
                                                                     Dim smaWordReader = smaSentenceReader.ReadSubtree()
@@ -1963,7 +1963,7 @@ Namespace Audio
 
                                                                                 'A new phone
                                                                                 CurrentPhone += 1
-                                                                                NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.PHONE, NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord)))
+                                                                                NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(NewSMA, SpeechMaterialAnnotation.SmaTags.PHONE, NewSMA.ChannelData(CurrentChannel)(CurrentSentence)(CurrentWord), SourceFilePath))
 
                                                                                 'Reading the SMA phone subtree
                                                                                 Dim smaPhoneReader = smaWordReader.ReadSubtree()
