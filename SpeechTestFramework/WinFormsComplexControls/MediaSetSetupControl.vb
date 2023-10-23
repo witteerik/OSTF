@@ -590,11 +590,14 @@
         Dim SoundChannel As Integer = 1
         Dim UniquePrimaryStringRepresenations As Boolean = False
 
-        Dim Padding As Integer = Math.Floor(NewSoundFilePadding_IntegerParsingTextBox.Value.Value * SelectedMediaSet.WaveFileSampleRate)
-        Dim InterStimulusIntervalLength As Integer = Math.Floor(NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Value.Value * SelectedMediaSet.WaveFileSampleRate)
+        Dim Padding As Integer = Math.Floor((NewSoundFilePadding_IntegerParsingTextBox.Value.Value / 1000) * SelectedMediaSet.WaveFileSampleRate)
+        Dim InterStimulusIntervalLength As Integer = Math.Floor((NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Value.Value / 1000) * SelectedMediaSet.WaveFileSampleRate)
 
         SelectedMediaSet.CopySoundsToNewMediaSet(NewMediaSet, Padding, InterStimulusIntervalLength, SoundChannel,, UniquePrimaryStringRepresenations)
 
+        NewMediaSet.WriteCustomVariables()
+
+        NewMediaSet.WriteToFile()
 
     End Sub
 

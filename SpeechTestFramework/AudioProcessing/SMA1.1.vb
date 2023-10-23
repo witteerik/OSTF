@@ -2453,6 +2453,18 @@ Namespace Audio
                     Return newSmaComponent
                 End Function
 
+                'Moves the start position of all child sma components nSamples without concidering the actual sound boundaries
+                Public Sub TimeShift(ByRef nSamples As Integer)
+
+                    StartSample += nSamples
+
+                    For Each ChildComponent In Me
+                        ChildComponent.TimeShift(nSamples)
+                    Next
+
+                End Sub
+
+
             End Class
 
             Public Function GetSmaComponentByIndexSeries(ByVal IndexSeries As SpeechMaterialComponent.ComponentIndices, ByVal AudioFileLinguisticLevel As SpeechMaterialComponent.LinguisticLevels, ByVal SoundChannel As Integer) As SmaComponent
@@ -2491,6 +2503,15 @@ Namespace Audio
 
 
             End Function
+
+            'Moves the start position of all child sma components nSamples without concidering the actual sound boundaries
+            Public Sub TimeShift(ByRef nSamples As Integer)
+
+                For Channel = 1 To Me.ChannelCount
+                    Me.ChannelData(1).TimeShift(nSamples)
+                Next
+
+            End Sub
 
         End Class
 

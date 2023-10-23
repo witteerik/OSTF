@@ -411,6 +411,7 @@ Public Class SpeechMaterialComponent
         InitialMargin = -1
 
         Dim ReturnSound As Audio.Sound = Nothing
+        Dim CumulativeTimeShift As Integer = 0
 
         If Paddinglength.HasValue Then
             If Paddinglength <= 0 Then Paddinglength = Nothing
@@ -424,11 +425,15 @@ Public Class SpeechMaterialComponent
 
         If CorrespondingSmaComponentList.Count = 0 Then
             Return Nothing
-        ElseIf CorrespondingSmaComponentList.Count = 1 Then
-            ReturnSound = CorrespondingSmaComponentList(0).GetSoundFileSection(SoundChannel, SupressWarnings, InitialMargin)
-            If ReturnSound IsNot Nothing Then
-                If RectifySmaComponents = True Then ReturnSound.SMA = CorrespondingSmaComponentList(0).ReturnIsolatedSMA
-            End If
+
+            'This section should not be necessary, as the below block does the same (and also with padding)
+            'ElseIf CorrespondingSmaComponentList.Count = 1 Then
+
+            '    ReturnSound = CorrespondingSmaComponentList(0).GetSoundFileSection(SoundChannel, SupressWarnings, InitialMargin)
+
+            '    If ReturnSound IsNot Nothing Then
+            '        If RectifySmaComponents = True Then ReturnSound.SMA = CorrespondingSmaComponentList(0).ReturnIsolatedSMA
+            '    End If
 
         Else
             Dim SoundList As New List(Of Audio.Sound)
@@ -444,17 +449,26 @@ Public Class SpeechMaterialComponent
 
                 'Creating a padding sound if needed
                 If Paddinglength.HasValue Then
-                    If Paddinglength Is Nothing Then
+                    If PaddingSound Is Nothing Then
                         PaddingSound = Audio.GenerateSound.CreateSilence(CurrentComponentSound.WaveFormat,, Paddinglength.Value, Audio.BasicAudioEnums.TimeUnits.samples)
                     End If
-
-                    'Adding the padding sound
-                    SoundList.Add(SilentInterStimulusSound)
+                    If i = 0 Then
+                        'Adding initial padding sound
+                        SoundList.Add(PaddingSound)
+                        'Shifts the time by the length of the inserted silence
+                        CumulativeTimeShift += PaddingSound.WaveData.SampleData(SoundChannel).Length
+                    End If
                 End If
 
                 'Adding sound and Sma component
                 SoundList.Add(CurrentComponentSound)
-                If RectifySmaComponents = True Then SmaList.Add(SmaComponent.ReturnIsolatedSMA)
+                If RectifySmaComponents = True Then
+                    Dim IsolatedSMA = SmaComponent.ReturnIsolatedSMA
+                    IsolatedSMA.TimeShift(CumulativeTimeShift)
+                    SmaList.Add(IsolatedSMA)
+                End If
+                'Shifts the time with the length of the added sound
+                CumulativeTimeShift += CurrentComponentSound.WaveData.SampleData(SoundChannel).Length
 
                 'Adding inter-stimulus sound if needed, but not after the last component
                 If InterComponentlength.HasValue Then
@@ -466,6 +480,8 @@ Public Class SpeechMaterialComponent
 
                         'Adding the interstimulus sound
                         SoundList.Add(SilentInterStimulusSound)
+                        'Shifts the time by the length of the inserted silence
+                        CumulativeTimeShift += SilentInterStimulusSound.WaveData.SampleData(SoundChannel).Length
                     End If
                 End If
 
@@ -473,7 +489,7 @@ Public Class SpeechMaterialComponent
 
             'Adding the final padding sound if needed
             If Paddinglength.HasValue Then
-                SoundList.Add(SilentInterStimulusSound)
+                SoundList.Add(PaddingSound)
             End If
 
             Dim RectifiedSMA As Audio.Sound.SpeechMaterialAnnotation = Nothing
@@ -524,6 +540,7 @@ Public Class SpeechMaterialComponent
             End If
 
             If RectifySmaComponents = True Then
+
                 'TODO: This is not finished.
                 'We also need to 
 

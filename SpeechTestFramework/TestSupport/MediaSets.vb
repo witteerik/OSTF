@@ -117,7 +117,7 @@ Public Class MediaSet
 
         Dim DefaultOutputDirectory As String = ParentTestSpecification.GetAvailableTestSituationsDirectory()
 
-        'Creates the diurectory if it doesn't exist
+        'Creates the directory if it doesn't exist
         If IO.Directory.Exists(DefaultOutputDirectory) = False Then IO.Directory.CreateDirectory(DefaultOutputDirectory)
 
         Dim OutputPath As String = Utils.GetSaveFilePath(ParentTestSpecification.GetAvailableTestSituationsDirectory(), "NewMediaSet", {".txt"}, "Supply a media set specification file name")
