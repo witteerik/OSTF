@@ -2109,6 +2109,38 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
+    Private Sub EnforceValidationInLoadedSoundToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EnforceValidationInLoadedSoundToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
+
+                CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(True)
+
+            Else
+                MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
+            End If
+        Else
+            MsgBox("No sound loaded!", MsgBoxStyle.Information, "Failed to change validation states")
+        End If
+
+    End Sub
+
+    Private Sub InvalidateEverythingInLoadedSoundToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InvalidateEverythingInLoadedSoundToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
+
+                CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(False)
+
+            Else
+                MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
+            End If
+        Else
+            MsgBox("No sound loaded!", MsgBoxStyle.Information, "Failed to change validation states")
+        End If
+
+    End Sub
+
 
 #End Region
 

@@ -228,6 +228,9 @@
 
         WaveFileEncoding_ComboBox.SelectedItem = SelectedMediaSet.WaveFileEncoding.ToString
 
+        'And also adding to other controls
+        CurrentMediaSetLinguisticLevel_TextBox.Text = SelectedMediaSet.AudioFileLinguisticLevel.ToString
+
     End Sub
 
     Private Sub SaveMediaSetSpecification_Button_Click(sender As Object, e As EventArgs) Handles SaveMediaSetSpecification_Button.Click

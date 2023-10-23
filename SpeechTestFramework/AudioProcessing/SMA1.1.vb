@@ -2513,6 +2513,16 @@ Namespace Audio
 
             End Sub
 
+            ''' <summary>
+            ''' Enforces the validation value to all SmaComponents in the current SMA object
+            ''' </summary>
+            ''' <param name="ValidationValue"></param>
+            Public Sub EnforceValidationValue(ByVal ValidationValue As Boolean)
+                For Channel = 1 To Me.ChannelCount
+                    Me.ChannelData(1).SetSegmentationCompleted(ValidationValue, False, True)
+                Next
+            End Sub
+
         End Class
 
     End Class

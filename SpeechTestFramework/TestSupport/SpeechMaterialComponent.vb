@@ -445,7 +445,10 @@ Public Class SpeechMaterialComponent
                 Dim SmaComponent = CorrespondingSmaComponentList(i)
 
                 'Getting the sound
-                Dim CurrentComponentSound = SmaComponent.GetSoundFileSection(SoundChannel,, InitialMargin)
+                Dim TempInitialMargin As Integer = -1
+                Dim CurrentComponentSound = SmaComponent.GetSoundFileSection(SoundChannel,, TempInitialMargin)
+                'Setting this only the first time, TempInitialMargin can be used locally in every loop 
+                If InitialMargin < 0 Then InitialMargin = TempInitialMargin
 
                 'Creating a padding sound if needed
                 If Paddinglength.HasValue Then
@@ -455,24 +458,40 @@ Public Class SpeechMaterialComponent
                     If i = 0 Then
                         'Adding initial padding sound
                         SoundList.Add(PaddingSound)
+
                         'Shifts the time by the length of the inserted silence
                         CumulativeTimeShift += PaddingSound.WaveData.SampleData(SoundChannel).Length
+
+                        If CrossFadeLength.HasValue Then
+                            'Shifts the time backwards by CrossFadeLength
+                            CumulativeTimeShift -= CrossFadeLength
+                        End If
+
                     End If
                 End If
 
                 'Adding sound and Sma component
                 SoundList.Add(CurrentComponentSound)
+
+                If CrossFadeLength.HasValue Then
+                    'Shifts the time backwards by CrossFadeLength
+                    CumulativeTimeShift -= CrossFadeLength
+                End If
+
+                'Shifts the current SMA
                 If RectifySmaComponents = True Then
                     Dim IsolatedSMA = SmaComponent.ReturnIsolatedSMA
-                    IsolatedSMA.TimeShift(CumulativeTimeShift)
+                    'Shifts time in the SMA based on the CumulativeTimeShift minus the current SMA margin
+                    IsolatedSMA.TimeShift(CumulativeTimeShift - TempInitialMargin)
                     SmaList.Add(IsolatedSMA)
                 End If
+
                 'Shifts the time with the length of the added sound
                 CumulativeTimeShift += CurrentComponentSound.WaveData.SampleData(SoundChannel).Length
 
                 'Adding inter-stimulus sound if needed, but not after the last component
                 If InterComponentlength.HasValue Then
-                    If i = CorrespondingSmaComponentList.Count - 1 Then
+                    If i <> CorrespondingSmaComponentList.Count - 1 Then
                         'Creating a inter-stimulus sound if needed
                         If SilentInterStimulusSound Is Nothing Then
                             SilentInterStimulusSound = Audio.GenerateSound.CreateSilence(CurrentComponentSound.WaveFormat,, InterComponentlength.Value, Audio.BasicAudioEnums.TimeUnits.samples)
@@ -480,8 +499,15 @@ Public Class SpeechMaterialComponent
 
                         'Adding the interstimulus sound
                         SoundList.Add(SilentInterStimulusSound)
+
                         'Shifts the time by the length of the inserted silence
                         CumulativeTimeShift += SilentInterStimulusSound.WaveData.SampleData(SoundChannel).Length
+
+                        If CrossFadeLength.HasValue Then
+                            'Shifts the time backwards by CrossFadeLength
+                            CumulativeTimeShift -= CrossFadeLength
+                        End If
+
                     End If
                 End If
 
@@ -501,7 +527,7 @@ Public Class SpeechMaterialComponent
                 Select Case CorrespondingSmaComponentList(0).SmaTag
                     Case SmaTags.CHANNEL
 
-                        'No need to do anything?
+                        'No need to do anything here?
 
                     Case SmaTags.SENTENCE
 
@@ -539,17 +565,21 @@ Public Class SpeechMaterialComponent
                 End Select
             End If
 
-            If RectifySmaComponents = True Then
-
-                'TODO: This is not finished.
-                'We also need to 
-
-            End If
-
+            'Creating the concatenated output sound
             If SoundList.Count > 0 Then
                 ReturnSound = Audio.DSP.ConcatenateSounds(SoundList, ,,,,, CrossFadeLength)
                 If ReturnSound IsNot Nothing Then
-                    If RectifySmaComponents = True Then ReturnSound.SMA = RectifiedSMA
+                    If RectifySmaComponents = True Then
+
+                        'Referencing the RectifiedSMA as the SMA object of the ReturnSound, and the ReturnSound as the ParentSound of the RectifiedSMA object.
+                        ReturnSound.SMA = RectifiedSMA
+                        RectifiedSMA.ParentSound = ReturnSound
+
+                        'Setting channel start sample to 0 and length to the actual sound length
+                        RectifiedSMA.ChannelData(SoundChannel).StartSample = 0
+                        RectifiedSMA.ChannelData(SoundChannel).Length = RectifiedSMA.ParentSound.WaveData.SampleData(SoundChannel).Length
+
+                    End If
                 End If
             End If
 
@@ -1566,7 +1596,7 @@ Public Class SpeechMaterialComponent
 
         'Finally writes the results to file
         'Ask if overwrite or save to new location
-        Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
+        Dim res = MsgBox("Do you want to overwrite any existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
         If res = MsgBoxResult.Yes Then
 
             'Saving updated files
@@ -1622,7 +1652,7 @@ Public Class SpeechMaterialComponent
 
         'Finally writes the results to file
         'Ask if overwrite or save to new location
-        Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
+        Dim res = MsgBox("Do you want to overwrite any existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
         If res = MsgBoxResult.Yes Then
 
             'Saving updated files

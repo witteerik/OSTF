@@ -120,7 +120,13 @@ Public Class MediaSet
         'Creates the directory if it doesn't exist
         If IO.Directory.Exists(DefaultOutputDirectory) = False Then IO.Directory.CreateDirectory(DefaultOutputDirectory)
 
-        Dim OutputPath As String = Utils.GetSaveFilePath(ParentTestSpecification.GetAvailableTestSituationsDirectory(), "NewMediaSet", {".txt"}, "Supply a media set specification file name")
+        Dim SuggestedFilename As String = ""
+        If Me.MediaSetName = "" Then
+            SuggestedFilename = "NewMediaSet"
+        Else
+            SuggestedFilename = Me.MediaSetName.Replace(" ", "_")
+        End If
+        Dim OutputPath As String = Utils.GetSaveFilePath(ParentTestSpecification.GetAvailableTestSituationsDirectory(), SuggestedFilename, {".txt"}, "Supply a media set specification file name")
 
         If OutputPath = "" Then
             MsgBox("No filename supplied.", MsgBoxStyle.Information, "Saving media set specification")
@@ -175,7 +181,7 @@ Public Class MediaSet
 
 
         'Ask if overwrite or save to new location
-        Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
+        Dim res = MsgBox("Do you want to overwrite any existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
         If res = MsgBoxResult.Yes Then
 
             OutputDirectory = IO.Path.Combine(ParentTestSpecification.GetTestRootPath, GetCustomVariablesDirectory())

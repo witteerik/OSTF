@@ -235,7 +235,7 @@
 
         'Saving updated files
         'Ask if overwrite or save to new location
-        Dim res = MsgBox("Do you want to overwrite the existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
+        Dim res = MsgBox("Do you want to overwrite any existing files? Select NO to save the new files to a new location?", MsgBoxStyle.YesNo, "Overwrite existing files?")
         If res = MsgBoxResult.Yes Then
 
             'Saving updated files
