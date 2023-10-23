@@ -2348,6 +2348,111 @@ Namespace Audio
                 End Function
 
 
+                Public Function ReturnIsolatedSMA() As SpeechMaterialAnnotation
+
+                    Dim SmaCopy = Me.ParentSMA.CreateCopy
+                    SmaCopy._ChannelData.Clear()
+                    SmaCopy.AddChannelData()
+
+                    Dim ParentChannelCopy As SmaComponent = Nothing
+
+                    Select Case Me.SmaTag
+                        Case SmaTags.PHONE
+
+                            Dim SmaPhoneCopy = Me.CreateCopy
+                            SmaPhoneCopy.ParentSMA = SmaCopy
+
+                            Dim ParentWordCopy = Me.ParentComponent.CreateCopy
+                            ParentWordCopy.ParentSMA = SmaCopy
+                            ParentWordCopy.Clear()
+
+                            Dim ParentSentenceCopy = Me.ParentComponent.ParentComponent.CreateCopy
+                            ParentSentenceCopy.ParentSMA = SmaCopy
+                            ParentSentenceCopy.Clear()
+
+                            ParentChannelCopy = Me.ParentComponent.ParentComponent.ParentComponent.CreateCopy
+                            ParentChannelCopy.ParentSMA = SmaCopy
+                            ParentChannelCopy.Clear()
+
+                            SmaPhoneCopy.ParentComponent = ParentWordCopy
+                            ParentWordCopy.ParentComponent = ParentSentenceCopy
+                            ParentSentenceCopy.ParentComponent = ParentChannelCopy
+
+                            ParentWordCopy.Add(SmaPhoneCopy)
+                            ParentSentenceCopy.Add(ParentWordCopy)
+                            ParentChannelCopy.Add(ParentSentenceCopy)
+
+                        Case SmaTags.WORD
+
+                            Dim ParentWordCopy = Me.CreateCopy
+                            ParentWordCopy.ParentSMA = SmaCopy
+
+                            Dim ParentSentenceCopy = Me.ParentComponent.CreateCopy
+                            ParentSentenceCopy.ParentSMA = SmaCopy
+                            ParentSentenceCopy.Clear()
+                            ParentSentenceCopy.Add(ParentWordCopy)
+
+                            ParentChannelCopy = Me.ParentComponent.ParentComponent.CreateCopy
+                            ParentChannelCopy.ParentSMA = SmaCopy
+                            ParentChannelCopy.Clear()
+                            ParentChannelCopy.Add(ParentSentenceCopy)
+
+                            ParentWordCopy.ParentComponent = ParentSentenceCopy
+                            ParentSentenceCopy.ParentComponent = ParentChannelCopy
+
+
+                        Case SmaTags.SENTENCE
+
+                            Dim ParentSentenceCopy = Me.CreateCopy
+                            ParentSentenceCopy.ParentSMA = SmaCopy
+
+                            ParentChannelCopy = Me.ParentComponent.CreateCopy
+                            ParentChannelCopy.ParentSMA = SmaCopy
+                            ParentChannelCopy.Clear()
+                            ParentChannelCopy.Add(ParentSentenceCopy)
+
+                            ParentSentenceCopy.ParentComponent = ParentChannelCopy
+
+
+                        Case SmaTags.CHANNEL
+
+                            ParentChannelCopy = Me.ParentComponent.CreateCopy
+                            ParentChannelCopy.ParentSMA = SmaCopy
+
+                    End Select
+
+                    'Connecting to the SMA channel data
+                    SmaCopy.ChannelData(1) = ParentChannelCopy
+
+                    Return SmaCopy
+
+                End Function
+
+
+
+                ''' <summary>
+                ''' Creates a new SmaComponent which is a deep copy of the original, by using serialization.
+                ''' </summary>
+                ''' <returns></returns>
+                Public Function CreateCopy() As SmaComponent
+
+                    'Creating an output object
+                    Dim newSmaComponent As SmaComponent
+
+                    'Serializing to memorystream
+                    Dim serializedMe As New MemoryStream
+                    Dim serializer As New BinaryFormatter
+                    serializer.Serialize(serializedMe, Me)
+
+                    'Deserializing to new object
+                    serializedMe.Position = 0
+                    newSmaComponent = CType(serializer.Deserialize(serializedMe), SmaComponent)
+                    serializedMe.Close()
+
+                    'Returning the new object
+                    Return newSmaComponent
+                End Function
+
             End Class
 
             Public Function GetSmaComponentByIndexSeries(ByVal IndexSeries As SpeechMaterialComponent.ComponentIndices, ByVal AudioFileLinguisticLevel As SpeechMaterialComponent.LinguisticLevels, ByVal SoundChannel As Integer) As SmaComponent

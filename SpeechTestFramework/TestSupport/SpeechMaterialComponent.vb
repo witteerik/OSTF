@@ -1,5 +1,7 @@
 ﻿Imports System.Globalization
+Imports SpeechTestFramework.Audio.Sound.SpeechMaterialAnnotation
 
+<Serializable>
 Public Class SpeechMaterialComponent
 
     ''' <summary>
@@ -397,27 +399,149 @@ Public Class SpeechMaterialComponent
     ''' <param name="CrossFadeLength">The length (in sample) of a cross-fade section.</param>
     ''' <param name="InitialMargin">If referenced in the calling code, returns the number of samples prior to the first sample in the first sound file used in for returning the SMC soundv.</param>
     ''' <returns></returns>
-    Public Function GetSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer, Optional CrossFadeLength As Integer? = Nothing, Optional ByRef InitialMargin As Integer = 0) As Audio.Sound
+    Public Function GetSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer,
+                             Optional ByVal CrossFadeLength As Integer? = Nothing,
+                             Optional ByVal Paddinglength As Integer? = Nothing,
+                             Optional ByVal InterComponentlength As Integer? = Nothing,
+                             Optional ByRef InitialMargin As Integer = 0,
+                             Optional ByVal RectifySmaComponents As Boolean = False,
+                             Optional ByVal SupressWarnings As Boolean = False) As Audio.Sound
 
         'Setting initial margin to -1 to signal that it has not been set
         InitialMargin = -1
+
+        Dim ReturnSound As Audio.Sound = Nothing
+
+        If Paddinglength.HasValue Then
+            If Paddinglength <= 0 Then Paddinglength = Nothing
+        End If
+
+        If InterComponentlength.HasValue Then
+            If InterComponentlength <= 0 Then InterComponentlength = Nothing
+        End If
 
         Dim CorrespondingSmaComponentList = GetCorrespondingSmaComponent(MediaSet, Index, SoundChannel, True)
 
         If CorrespondingSmaComponentList.Count = 0 Then
             Return Nothing
         ElseIf CorrespondingSmaComponentList.Count = 1 Then
-            Return CorrespondingSmaComponentList(0).GetSoundFileSection(SoundChannel,, InitialMargin)
+            ReturnSound = CorrespondingSmaComponentList(0).GetSoundFileSection(SoundChannel, SupressWarnings, InitialMargin)
+            If ReturnSound IsNot Nothing Then
+                If RectifySmaComponents = True Then ReturnSound.SMA = CorrespondingSmaComponentList(0).ReturnIsolatedSMA
+            End If
+
         Else
             Dim SoundList As New List(Of Audio.Sound)
-            For Each SmaComponent In CorrespondingSmaComponentList
-                SoundList.Add(SmaComponent.GetSoundFileSection(SoundChannel,, InitialMargin))
+            Dim SmaList As New List(Of Audio.Sound.SpeechMaterialAnnotation)
+            Dim PaddingSound As Audio.Sound = Nothing
+            Dim SilentInterStimulusSound As Audio.Sound = Nothing
+            For i = 0 To CorrespondingSmaComponentList.Count - 1
+
+                Dim SmaComponent = CorrespondingSmaComponentList(i)
+
+                'Getting the sound
+                Dim CurrentComponentSound = SmaComponent.GetSoundFileSection(SoundChannel,, InitialMargin)
+
+                'Creating a padding sound if needed
+                If Paddinglength.HasValue Then
+                    If Paddinglength Is Nothing Then
+                        PaddingSound = Audio.GenerateSound.CreateSilence(CurrentComponentSound.WaveFormat,, Paddinglength.Value, Audio.BasicAudioEnums.TimeUnits.samples)
+                    End If
+
+                    'Adding the padding sound
+                    SoundList.Add(SilentInterStimulusSound)
+                End If
+
+                'Adding sound and Sma component
+                SoundList.Add(CurrentComponentSound)
+                If RectifySmaComponents = True Then SmaList.Add(SmaComponent.ReturnIsolatedSMA)
+
+                'Adding inter-stimulus sound if needed, but not after the last component
+                If InterComponentlength.HasValue Then
+                    If i = CorrespondingSmaComponentList.Count - 1 Then
+                        'Creating a inter-stimulus sound if needed
+                        If SilentInterStimulusSound Is Nothing Then
+                            SilentInterStimulusSound = Audio.GenerateSound.CreateSilence(CurrentComponentSound.WaveFormat,, InterComponentlength.Value, Audio.BasicAudioEnums.TimeUnits.samples)
+                        End If
+
+                        'Adding the interstimulus sound
+                        SoundList.Add(SilentInterStimulusSound)
+                    End If
+                End If
+
             Next
-            Return Audio.DSP.ConcatenateSounds(SoundList, ,,,,, CrossFadeLength)
+
+            'Adding the final padding sound if needed
+            If Paddinglength.HasValue Then
+                SoundList.Add(SilentInterStimulusSound)
+            End If
+
+            Dim RectifiedSMA As Audio.Sound.SpeechMaterialAnnotation = Nothing
+            If RectifySmaComponents = True Then
+
+                'Referencing the first item in the sma list as the SMA
+                RectifiedSMA = SmaList(0)
+
+                Select Case CorrespondingSmaComponentList(0).SmaTag
+                    Case SmaTags.CHANNEL
+
+                        'No need to do anything?
+
+                    Case SmaTags.SENTENCE
+
+                        For i = 1 To SmaList.Count - 1
+                            'Adding the remaining items on the sentence level
+                            Dim CurrentSentence = SmaList(i).ChannelData(SoundChannel)(0)
+                            'Referencing the correct objects
+                            RectifiedSMA.ChannelData(SoundChannel).Add(CurrentSentence)
+                            CurrentSentence.ParentComponent = RectifiedSMA.ChannelData(SoundChannel)
+                            CurrentSentence.ParentSMA = RectifiedSMA
+                        Next
+
+                    Case SmaTags.WORD
+
+                        For i = 1 To SmaList.Count - 1
+                            'Adding the remaining items on the word level
+                            Dim CurrentWord = SmaList(i).ChannelData(SoundChannel)(0)
+                            'Referencing the correct objects
+                            RectifiedSMA.ChannelData(SoundChannel)(0).Add(CurrentWord)
+                            CurrentWord.ParentComponent = RectifiedSMA.ChannelData(SoundChannel)(0)
+                            CurrentWord.ParentSMA = RectifiedSMA
+                        Next
+
+                    Case SmaTags.PHONE
+
+                        For i = 1 To SmaList.Count - 1
+                            'Adding the remaining items on the phone level
+                            Dim CurrentPhone = SmaList(i).ChannelData(SoundChannel)(0)(0)
+                            'Referencing the correct objects
+                            RectifiedSMA.ChannelData(SoundChannel)(0)(0).Add(CurrentPhone)
+                            CurrentPhone.ParentComponent = RectifiedSMA.ChannelData(SoundChannel)(0)(0)
+                            CurrentPhone.ParentSMA = RectifiedSMA
+                        Next
+
+                End Select
+            End If
+
+            If RectifySmaComponents = True Then
+                'TODO: This is not finished.
+                'We also need to 
+
+            End If
+
+            If SoundList.Count > 0 Then
+                ReturnSound = Audio.DSP.ConcatenateSounds(SoundList, ,,,,, CrossFadeLength)
+                If ReturnSound IsNot Nothing Then
+                    If RectifySmaComponents = True Then ReturnSound.SMA = RectifiedSMA
+                End If
+            End If
+
         End If
 
         'Changing InitialMargin to 0 if it was never set
         If InitialMargin < 0 Then InitialMargin = 0
+
+        Return ReturnSound
 
     End Function
 

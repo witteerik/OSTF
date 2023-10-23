@@ -35,6 +35,13 @@
             'Auto-selects the sentence level as default
             SpeechLevelLinguisticLevel_ComboBox.SelectedIndex = 2
 
+            'Adding linguistic levels for the modified linguistic level of sound files function
+            ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
+            ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
+            ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
+            ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+
             'Adding supported bit depths
             WaveFileBitDepth_ComboBox.Items.Add(16)
             WaveFileBitDepth_ComboBox.Items.Add(32)
@@ -541,6 +548,55 @@
 
     End Sub
 
+    Private Sub CreateModifiedMediaSet_Button_Click(sender As Object, e As EventArgs) Handles CreateModifiedMediaSet_Button.Click
+
+        'Getting values
+        If ModifiedMediaSetLinguisticLevel_ComboBox.SelectedItem Is Nothing Then
+            MsgBox("Please indicate a linguistic level for the sound files to create!", MsgBoxStyle.Exclamation, "Sound file linguistic levels")
+            Exit Sub
+        End If
+
+        If ModifiedMediaSetName_TextBox.Text = "" Then
+            MsgBox("Please enter a name for the modified media set!", MsgBoxStyle.Exclamation, "Sound file linguistic levels")
+            Exit Sub
+        End If
+
+        If NewSoundFilePadding_IntegerParsingTextBox.Value Is Nothing Then
+            MsgBox("Please indicate padding duration (silence before and after the speech components) for the new sound files!", MsgBoxStyle.Exclamation, "Sound file linguistic levels")
+            Exit Sub
+        End If
+
+        If NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Value Is Nothing Then
+            MsgBox("Please indicate an inter-stimulus interval (i.e. silence between the speech components) for the new sound files!", MsgBoxStyle.Exclamation, "Sound file linguistic levels")
+            Exit Sub
+        End If
+
+        'Creating a deep copy of the current media set
+        Dim NewMediaSet = SelectedMediaSet.CreateCopy
+
+        'Setting changed values
+        NewMediaSet.MediaSetName = ModifiedMediaSetName_TextBox.Text
+        NewMediaSet.AudioFileLinguisticLevel = ModifiedMediaSetLinguisticLevel_ComboBox.SelectedItem
+
+        'Inferring other values
+        If NewMediaSet.BackgroundNonspeechParentFolder <> "" Then NewMediaSet.BackgroundNonspeechParentFolder = IO.Path.Combine("Media", NewMediaSet.MediaSetName, "BackgroundNonspeech")
+        If NewMediaSet.BackgroundSpeechParentFolder <> "" Then NewMediaSet.BackgroundSpeechParentFolder = IO.Path.Combine("Media", NewMediaSet.MediaSetName, "BackgroundSpeech")
+        NewMediaSet.CustomVariablesFolder = IO.Path.Combine("Media", NewMediaSet.MediaSetName, "CustomVariables")
+        NewMediaSet.MaskerParentFolder = IO.Path.Combine("Media", NewMediaSet.MediaSetName, "Maskers")
+        NewMediaSet.MediaParentFolder = IO.Path.Combine("Media", NewMediaSet.MediaSetName, "TestWordRecordings")
+        If NewMediaSet.PrototypeMediaParentFolder <> "" Then NewMediaSet.PrototypeMediaParentFolder = IO.Path.Combine("Media", NewMediaSet.MediaSetName, "PrototypeRecordings")
+
+        'Copying sound files
+        Dim SoundChannel As Integer = 1
+        Dim UniquePrimaryStringRepresenations As Boolean = False
+
+        Dim Padding As Integer = Math.Floor(NewSoundFilePadding_IntegerParsingTextBox.Value.Value * SelectedMediaSet.WaveFileSampleRate)
+        Dim InterStimulusIntervalLength As Integer = Math.Floor(NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Value.Value * SelectedMediaSet.WaveFileSampleRate)
+
+        SelectedMediaSet.CopySoundsToNewMediaSet(NewMediaSet, Padding, InterStimulusIntervalLength, SoundChannel,, UniquePrimaryStringRepresenations)
+
+
+    End Sub
 
 End Class
 

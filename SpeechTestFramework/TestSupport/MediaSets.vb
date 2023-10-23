@@ -1,7 +1,11 @@
 ﻿'A class that can store MediaSets
+Imports SpeechTestFramework.Audio
+Imports System.IO
+Imports System.Runtime.Serialization.Formatters.Binary
 Imports SpeechTestFramework.Audio.DSP
 Imports SpeechTestFramework.Audio.Sound.SpeechMaterialAnnotation
 
+<Serializable>
 Public Class MediaSetLibrary
     Inherits List(Of MediaSet)
 
@@ -23,6 +27,7 @@ Public Class MediaSetLibrary
 
 End Class
 
+<Serializable>
 Public Class MediaSet
 
     'Public Const DefaultMediaFolderName As String = "Media"
@@ -1932,7 +1937,71 @@ Public Class MediaSet
 
     End Function
 
+    ''' <summary>
+    ''' 
+    ''' </summary>
+    ''' <param name="NewMediaSet"></param>
+    ''' <param name="SoundChannel"></param>
+    ''' <param name="UniquePrimaryStringRepresenations"></param>
+    ''' <param name="AllowIncompleteSegmentations"></param>
+    ''' <returns>Returns True if successfull, or otherwise False.</returns>
+    Public Function CopySoundsToNewMediaSet(ByRef NewMediaSet As MediaSet,
+                                            ByVal Padding As Integer,
+                                            ByVal InterStimulusIntervalLength As Integer,
+                                            ByVal SoundChannel As Integer,
+                                            Optional ByVal CrossFadeLength As Integer? = Nothing,
+                                            Optional ByVal UniquePrimaryStringRepresenations As Boolean = False,
+                                            Optional ByVal AllowIncompleteSegmentations As Boolean = True) As Boolean
 
+
+        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+        'Clears previously loaded sounds
+        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(NewMediaSet.AudioFileLinguisticLevel)
+
+        'Checks for which components segmentation is marked as incomplete for all items at the TargetComponentsLinguisticLevel
+        Dim IncompletedSegmentationsIndices As New SortedSet(Of Integer)
+
+        For SCI = 0 To SummaryComponents.Count - 1
+
+            Dim SummaryComponent = SummaryComponents(SCI)
+
+            'Get the SMA components representing the sound sections of all target components
+            Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+            For i = 0 To MediaAudioItems - 1
+
+                'Creating the appropriate sound path
+                Dim NewFullMediaFolderPath = IO.Path.Combine(ParentTestSpecification.GetTestRootPath, NewMediaSet.MediaParentFolder, SummaryComponent.GetMediaFolderName)
+                Dim NewSoundFilePath = IO.Path.Combine(NewFullMediaFolderPath, "Sound" & i.ToString("00"))
+
+                'Getting the sound
+                Dim CurrentComponentSound = SummaryComponent.GetSound(Me, i, SoundChannel, CrossFadeLength, Padding, InterStimulusIntervalLength,, True, True)
+
+                If CurrentComponentSound IsNot Nothing Then
+                    'Writes to wave file
+                    CurrentComponentSound.WriteWaveFile(NewSoundFilePath)
+
+                Else
+                    If AllowIncompleteSegmentations = False Then
+                        MsgBox("Unable to create the needed sound files due to incomplete Speech Material Annotation (SMA) segmentation on the target linguistic level (" & NewMediaSet.AudioFileLinguisticLevel.ToString & ") in redoring index " & i & " of the following speech material component: " & vbCrLf & vbCrLf & SummaryComponent.PrimaryStringRepresentation, MsgBoxStyle.Exclamation, "Incomplete SMA segmentation")
+                        Return False
+                    Else
+                        IncompletedSegmentationsIndices.Add(SCI)
+                    End If
+                End If
+            Next
+        Next
+
+        If IncompletedSegmentationsIndices.Count > 0 Then
+            MsgBox("Unable to create sound files for " & IncompletedSegmentationsIndices.Count & " out of " & SummaryComponents.Count &
+                   " speech material components. Likely due to incomplete / unvalidated segmentation on the " & NewMediaSet.AudioFileLinguisticLevel.ToString & " (linguistic) level.", MsgBoxStyle.Exclamation, "Incomplete processing!")
+        End If
+
+        Return True
+
+    End Function
 
     ''' <summary>
     ''' Calculates spectrum levels for all items at TargetComponentsLevel in the current MediaSet, by concatenating all sound sections representing each target level component.
@@ -3397,7 +3466,28 @@ Public Class MediaSet
 
     End Sub
 
+    ''' <summary>
+    ''' Creates a new MediaSet which is a deep copy of the original, by using serialization.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function CreateCopy() As MediaSet
 
+        'Creating an output object
+        Dim newMediaSet As MediaSet
+
+        'Serializing to memorystream
+        Dim serializedMe As New MemoryStream
+        Dim serializer As New BinaryFormatter
+        serializer.Serialize(serializedMe, Me)
+
+        'Deserializing to new object
+        serializedMe.Position = 0
+        newMediaSet = CType(serializer.Deserialize(serializedMe), MediaSet)
+        serializedMe.Close()
+
+        'Returning the new object
+        Return newMediaSet
+    End Function
 
 End Class
 
