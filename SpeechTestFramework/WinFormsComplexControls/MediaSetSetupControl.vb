@@ -26,6 +26,14 @@
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
+            'Adding linguistic levels for the speech level adjustment function
+            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
+            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
+            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
+            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+            'Auto-selects the sentence level as default
+            SpeechLevelLinguisticLevel_ComboBox.SelectedIndex = 2
 
             'Adding supported bit depths
             WaveFileBitDepth_ComboBox.Items.Add(16)
@@ -422,13 +430,17 @@
         'Launching sound level adjustment algoritms
         If VpNormalization_Checkbox.Checked = True Then
             SelectedMediaSet.SetVpNormalizedLevels(CDbl(SpeechLevelSPL_DoubleParsingTextBox.Value), SpeechLevelFrequencyWeighting, TemporalIntegration) ' N.B. 'TemporalIntegration is zero for long-time average
-            MsgBox("Finished adjusting the speech sound levels.", MsgBoxStyle.Information, "Speech level ")
         Else
-            If SelectedMediaSet.SetSpeechLevels(SpeechLevelFS_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration, SpeechMaterialComponent.LinguisticLevels.Sentence) = True Then
-                MsgBox("Finished adjusting the speech sound levels.", MsgBoxStyle.Information, "Speech level ")
+            Dim TargetLinguisticLevel As SpeechMaterialComponent.LinguisticLevels
+            If SpeechLevelLinguisticLevel_ComboBox.SelectedItem Is Nothing Then
+                MsgBox("You must select the linguistic level for which you want to set the sound level!", MsgBoxStyle.Exclamation, "Missing linguistic level")
+                Exit Sub
             End If
+            TargetLinguisticLevel = SpeechLevelLinguisticLevel_ComboBox.SelectedItem
+            SelectedMediaSet.SetSpeechLevels(SpeechLevelFS_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration, TargetLinguisticLevel)
         End If
 
+        MsgBox("Finished adjusting the speech sound levels.", MsgBoxStyle.Information, "Speech level ")
 
     End Sub
 

@@ -85,6 +85,21 @@ Partial Class SpeechMaterialRecorder
         Me.SoundFilePathStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.MainTabControl = New System.Windows.Forms.TabControl()
         Me.RecordingTab = New System.Windows.Forms.TabPage()
+        Me.RecordingTabMainSplitContainer = New System.Windows.Forms.SplitContainer()
+        Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
+        Me.TopRecordingControlPanel = New System.Windows.Forms.Panel()
+        Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
+        Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
+        Me.RecordingLabel = New System.Windows.Forms.Label()
+        Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Rec_PreviousItemButton = New System.Windows.Forms.Button()
+        Me.Rec_PreviousNRItemButton = New System.Windows.Forms.Button()
+        Me.Rec_NextItemButton = New System.Windows.Forms.Button()
+        Me.Rec_NextNRItemButton = New System.Windows.Forms.Button()
+        Me.StartRecordingButton = New System.Windows.Forms.Button()
+        Me.ListenButton = New System.Windows.Forms.Button()
+        Me.StopRecordingButton = New System.Windows.Forms.Button()
+        Me.StopPlayback_Button = New System.Windows.Forms.Button()
         Me.SegmentationTab = New System.Windows.Forms.TabPage()
         Me.SegmentationPanel = New System.Windows.Forms.Panel()
         Me.ItemProgressBar = New System.Windows.Forms.ProgressBar()
@@ -103,28 +118,23 @@ Partial Class SpeechMaterialRecorder
         Me.SelectTransducer_Label = New System.Windows.Forms.Label()
         Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Unlock_Button = New System.Windows.Forms.Button()
-        Me.RecordingTabMainSplitContainer = New System.Windows.Forms.SplitContainer()
-        Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.InputChannel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.RecordingSoundLevelMeter = New SpeechTestFramework.Audio.Graphics.SoundLevelMeter()
-        Me.TopRecordingControlPanel = New System.Windows.Forms.Panel()
-        Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
-        Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
-        Me.RecordingLabel = New System.Windows.Forms.Label()
-        Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.Transcription_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
         Me.Spelling_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
-        Me.Rec_PreviousItemButton = New System.Windows.Forms.Button()
-        Me.Rec_PreviousNRItemButton = New System.Windows.Forms.Button()
-        Me.Rec_NextItemButton = New System.Windows.Forms.Button()
-        Me.Rec_NextNRItemButton = New System.Windows.Forms.Button()
-        Me.StartRecordingButton = New System.Windows.Forms.Button()
-        Me.ListenButton = New System.Windows.Forms.Button()
-        Me.StopRecordingButton = New System.Windows.Forms.Button()
-        Me.StopPlayback_Button = New System.Windows.Forms.Button()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         Me.MainTabControl.SuspendLayout()
         Me.RecordingTab.SuspendLayout()
+        CType(Me.RecordingTabMainSplitContainer, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.RecordingTabMainSplitContainer.Panel1.SuspendLayout()
+        Me.RecordingTabMainSplitContainer.SuspendLayout()
+        Me.TableLayoutPanel1.SuspendLayout()
+        Me.TopRecordingControlPanel.SuspendLayout()
+        Me.TableLayoutPanel3.SuspendLayout()
+        Me.TableLayoutPanel2.SuspendLayout()
+        Me.TableLayoutPanel4.SuspendLayout()
         Me.SegmentationTab.SuspendLayout()
         Me.SoundFileSelection_FlowLayoutPanel.SuspendLayout()
         CType(Me.MainSplitContainer, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -134,15 +144,7 @@ Partial Class SpeechMaterialRecorder
         Me.GroupBox1.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
         Me.SoundSettings_TableLayoutPanel.SuspendLayout()
-        CType(Me.RecordingTabMainSplitContainer, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.RecordingTabMainSplitContainer.Panel1.SuspendLayout()
-        Me.RecordingTabMainSplitContainer.SuspendLayout()
-        Me.TableLayoutPanel1.SuspendLayout()
         CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.TopRecordingControlPanel.SuspendLayout()
-        Me.TableLayoutPanel3.SuspendLayout()
-        Me.TableLayoutPanel2.SuspendLayout()
-        Me.TableLayoutPanel4.SuspendLayout()
         Me.SuspendLayout()
         '
         'MenuStrip1
@@ -151,7 +153,7 @@ Partial Class SpeechMaterialRecorder
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System
-        Me.MenuStrip1.Size = New System.Drawing.Size(1236, 24)
+        Me.MenuStrip1.Size = New System.Drawing.Size(1107, 24)
         Me.MenuStrip1.TabIndex = 0
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -455,9 +457,9 @@ Partial Class SpeechMaterialRecorder
         '
         Me.StatusStrip1.BackColor = System.Drawing.SystemColors.Control
         Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStrip_BT_StatusLabel, Me.ToolStripStatusLabel6, Me.preQueLabel, Me.ToolStripStatusLabel2, Me.AutoRecordingStatusLabel, Me.ToolStripStatusLabel1, Me.BackgroundSoundStatusLabel, Me.ToolStripStatusLabel5, Me.PresentationLevelToolStripStatusLabel, Me.ToolStripStatusLabel4, Me.BackgroundLevel_ToolStripStatusLabel, Me.ToolStripStatusLabel3, Me.SoundFilePathStatusLabel})
-        Me.StatusStrip1.Location = New System.Drawing.Point(0, 479)
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 490)
         Me.StatusStrip1.Name = "StatusStrip1"
-        Me.StatusStrip1.Size = New System.Drawing.Size(1236, 22)
+        Me.StatusStrip1.Size = New System.Drawing.Size(1107, 22)
         Me.StatusStrip1.TabIndex = 1
         Me.StatusStrip1.Text = "StatusStrip1"
         '
@@ -548,8 +550,8 @@ Partial Class SpeechMaterialRecorder
         Me.MainTabControl.Location = New System.Drawing.Point(0, 0)
         Me.MainTabControl.Name = "MainTabControl"
         Me.MainTabControl.SelectedIndex = 0
-        Me.MainTabControl.Size = New System.Drawing.Size(1236, 366)
-        Me.MainTabControl.TabIndex = 2
+        Me.MainTabControl.Size = New System.Drawing.Size(1107, 379)
+        Me.MainTabControl.TabIndex = 16
         '
         'RecordingTab
         '
@@ -557,230 +559,10 @@ Partial Class SpeechMaterialRecorder
         Me.RecordingTab.Location = New System.Drawing.Point(4, 22)
         Me.RecordingTab.Name = "RecordingTab"
         Me.RecordingTab.Padding = New System.Windows.Forms.Padding(3)
-        Me.RecordingTab.Size = New System.Drawing.Size(1228, 340)
+        Me.RecordingTab.Size = New System.Drawing.Size(1099, 353)
         Me.RecordingTab.TabIndex = 0
         Me.RecordingTab.Text = "Recording"
         Me.RecordingTab.UseVisualStyleBackColor = True
-        '
-        'SegmentationTab
-        '
-        Me.SegmentationTab.Controls.Add(Me.SegmentationPanel)
-        Me.SegmentationTab.Location = New System.Drawing.Point(4, 22)
-        Me.SegmentationTab.Name = "SegmentationTab"
-        Me.SegmentationTab.Padding = New System.Windows.Forms.Padding(3)
-        Me.SegmentationTab.Size = New System.Drawing.Size(1228, 340)
-        Me.SegmentationTab.TabIndex = 1
-        Me.SegmentationTab.Text = "Segmentation"
-        Me.SegmentationTab.UseVisualStyleBackColor = True
-        '
-        'SegmentationPanel
-        '
-        Me.SegmentationPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SegmentationPanel.Location = New System.Drawing.Point(3, 3)
-        Me.SegmentationPanel.Name = "SegmentationPanel"
-        Me.SegmentationPanel.Size = New System.Drawing.Size(1222, 334)
-        Me.SegmentationPanel.TabIndex = 0
-        '
-        'ItemProgressBar
-        '
-        Me.ItemProgressBar.Location = New System.Drawing.Point(139, 12)
-        Me.ItemProgressBar.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.ItemProgressBar.Name = "ItemProgressBar"
-        Me.ItemProgressBar.Size = New System.Drawing.Size(100, 17)
-        Me.ItemProgressBar.TabIndex = 2
-        '
-        'ItemProgressLabel
-        '
-        Me.ItemProgressLabel.AutoSize = True
-        Me.ItemProgressLabel.Location = New System.Drawing.Point(245, 14)
-        Me.ItemProgressLabel.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.ItemProgressLabel.Name = "ItemProgressLabel"
-        Me.ItemProgressLabel.Size = New System.Drawing.Size(59, 13)
-        Me.ItemProgressLabel.TabIndex = 3
-        Me.ItemProgressLabel.Text = "Item X of Y"
-        Me.ItemProgressLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'FileComboBox
-        '
-        Me.FileComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.FileComboBox.FormattingEnabled = True
-        Me.FileComboBox.Location = New System.Drawing.Point(310, 12)
-        Me.FileComboBox.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.FileComboBox.Name = "FileComboBox"
-        Me.FileComboBox.Size = New System.Drawing.Size(121, 21)
-        Me.FileComboBox.TabIndex = 4
-        '
-        'SoundFileSelection_FlowLayoutPanel
-        '
-        Me.SoundFileSelection_FlowLayoutPanel.BackColor = System.Drawing.Color.Transparent
-        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.Label1)
-        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.FileName_Label)
-        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.Label2)
-        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.ItemProgressBar)
-        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.ItemProgressLabel)
-        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.FileComboBox)
-        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.Top_PreviousFileButton)
-        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.Top_NextFileButton)
-        Me.SoundFileSelection_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SoundFileSelection_FlowLayoutPanel.Location = New System.Drawing.Point(3, 3)
-        Me.SoundFileSelection_FlowLayoutPanel.Name = "SoundFileSelection_FlowLayoutPanel"
-        Me.SoundFileSelection_FlowLayoutPanel.Padding = New System.Windows.Forms.Padding(5, 10, 5, 10)
-        Me.TableLayoutPanel5.SetRowSpan(Me.SoundFileSelection_FlowLayoutPanel, 2)
-        Me.SoundFileSelection_FlowLayoutPanel.Size = New System.Drawing.Size(696, 60)
-        Me.SoundFileSelection_FlowLayoutPanel.TabIndex = 3
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(8, 14)
-        Me.Label1.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(52, 13)
-        Me.Label1.TabIndex = 0
-        Me.Label1.Text = "Filename:"
-        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'FileName_Label
-        '
-        Me.FileName_Label.AutoSize = True
-        Me.FileName_Label.Location = New System.Drawing.Point(66, 14)
-        Me.FileName_Label.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.FileName_Label.Name = "FileName_Label"
-        Me.FileName_Label.Size = New System.Drawing.Size(52, 13)
-        Me.FileName_Label.TabIndex = 1
-        Me.FileName_Label.Text = "File name"
-        Me.FileName_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(124, 14)
-        Me.Label2.Margin = New System.Windows.Forms.Padding(3, 4, 3, 4)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(9, 13)
-        Me.Label2.TabIndex = 8
-        Me.Label2.Text = "|"
-        Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'Top_PreviousFileButton
-        '
-        Me.Top_PreviousFileButton.Location = New System.Drawing.Point(437, 12)
-        Me.Top_PreviousFileButton.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Top_PreviousFileButton.Name = "Top_PreviousFileButton"
-        Me.Top_PreviousFileButton.Size = New System.Drawing.Size(86, 23)
-        Me.Top_PreviousFileButton.TabIndex = 9
-        Me.Top_PreviousFileButton.Text = "Previous file"
-        Me.Top_PreviousFileButton.UseVisualStyleBackColor = True
-        '
-        'Top_NextFileButton
-        '
-        Me.Top_NextFileButton.Location = New System.Drawing.Point(529, 12)
-        Me.Top_NextFileButton.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
-        Me.Top_NextFileButton.Name = "Top_NextFileButton"
-        Me.Top_NextFileButton.Size = New System.Drawing.Size(86, 23)
-        Me.Top_NextFileButton.TabIndex = 10
-        Me.Top_NextFileButton.Text = "Next file"
-        Me.Top_NextFileButton.UseVisualStyleBackColor = True
-        '
-        'MainSplitContainer
-        '
-        Me.MainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MainSplitContainer.Location = New System.Drawing.Point(0, 24)
-        Me.MainSplitContainer.Name = "MainSplitContainer"
-        Me.MainSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal
-        '
-        'MainSplitContainer.Panel1
-        '
-        Me.MainSplitContainer.Panel1.Controls.Add(Me.GroupBox1)
-        '
-        'MainSplitContainer.Panel2
-        '
-        Me.MainSplitContainer.Panel2.Controls.Add(Me.MainTabControl)
-        Me.MainSplitContainer.Size = New System.Drawing.Size(1236, 455)
-        Me.MainSplitContainer.SplitterDistance = 85
-        Me.MainSplitContainer.TabIndex = 5
-        '
-        'GroupBox1
-        '
-        Me.GroupBox1.BackColor = System.Drawing.SystemColors.ControlLightLight
-        Me.GroupBox1.Controls.Add(Me.TableLayoutPanel5)
-        Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox1.Location = New System.Drawing.Point(0, 0)
-        Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(1236, 85)
-        Me.GroupBox1.TabIndex = 0
-        Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "Current item"
-        '
-        'TableLayoutPanel5
-        '
-        Me.TableLayoutPanel5.ColumnCount = 3
-        Me.TableLayoutPanel5.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel5.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 313.0!))
-        Me.TableLayoutPanel5.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 215.0!))
-        Me.TableLayoutPanel5.Controls.Add(Me.SoundSettings_TableLayoutPanel, 1, 0)
-        Me.TableLayoutPanel5.Controls.Add(Me.SoundFileSelection_FlowLayoutPanel, 0, 0)
-        Me.TableLayoutPanel5.Controls.Add(Me.Unlock_Button, 2, 0)
-        Me.TableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel5.Location = New System.Drawing.Point(3, 16)
-        Me.TableLayoutPanel5.Name = "TableLayoutPanel5"
-        Me.TableLayoutPanel5.RowCount = 2
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel5.Size = New System.Drawing.Size(1230, 66)
-        Me.TableLayoutPanel5.TabIndex = 4
-        '
-        'SoundSettings_TableLayoutPanel
-        '
-        Me.SoundSettings_TableLayoutPanel.ColumnCount = 3
-        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 95.0!))
-        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.SelectTransducer_Label, 0, 0)
-        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.Transducer_ComboBox, 0, 1)
-        Me.SoundSettings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SoundSettings_TableLayoutPanel.Location = New System.Drawing.Point(705, 3)
-        Me.SoundSettings_TableLayoutPanel.Name = "SoundSettings_TableLayoutPanel"
-        Me.SoundSettings_TableLayoutPanel.RowCount = 2
-        Me.TableLayoutPanel5.SetRowSpan(Me.SoundSettings_TableLayoutPanel, 2)
-        Me.SoundSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.SoundSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.SoundSettings_TableLayoutPanel.Size = New System.Drawing.Size(307, 60)
-        Me.SoundSettings_TableLayoutPanel.TabIndex = 11
-        '
-        'SelectTransducer_Label
-        '
-        Me.SoundSettings_TableLayoutPanel.SetColumnSpan(Me.SelectTransducer_Label, 3)
-        Me.SelectTransducer_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SelectTransducer_Label.Location = New System.Drawing.Point(3, 0)
-        Me.SelectTransducer_Label.Name = "SelectTransducer_Label"
-        Me.SelectTransducer_Label.Size = New System.Drawing.Size(301, 30)
-        Me.SelectTransducer_Label.TabIndex = 0
-        Me.SelectTransducer_Label.Text = "Select audio transducer"
-        Me.SelectTransducer_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        '
-        'Transducer_ComboBox
-        '
-        Me.SoundSettings_TableLayoutPanel.SetColumnSpan(Me.Transducer_ComboBox, 3)
-        Me.Transducer_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Transducer_ComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.Transducer_ComboBox.FormattingEnabled = True
-        Me.Transducer_ComboBox.Location = New System.Drawing.Point(3, 33)
-        Me.Transducer_ComboBox.Name = "Transducer_ComboBox"
-        Me.Transducer_ComboBox.Size = New System.Drawing.Size(301, 21)
-        Me.Transducer_ComboBox.TabIndex = 1
-        '
-        'Unlock_Button
-        '
-        Me.Unlock_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Unlock_Button.Enabled = False
-        Me.Unlock_Button.Location = New System.Drawing.Point(1018, 3)
-        Me.Unlock_Button.Name = "Unlock_Button"
-        Me.TableLayoutPanel5.SetRowSpan(Me.Unlock_Button, 2)
-        Me.Unlock_Button.Size = New System.Drawing.Size(209, 60)
-        Me.Unlock_Button.TabIndex = 13
-        Me.Unlock_Button.Text = "Unlock panel"
-        Me.Unlock_Button.UseVisualStyleBackColor = True
         '
         'RecordingTabMainSplitContainer
         '
@@ -791,8 +573,8 @@ Partial Class SpeechMaterialRecorder
         'RecordingTabMainSplitContainer.Panel1
         '
         Me.RecordingTabMainSplitContainer.Panel1.Controls.Add(Me.TableLayoutPanel1)
-        Me.RecordingTabMainSplitContainer.Size = New System.Drawing.Size(1222, 334)
-        Me.RecordingTabMainSplitContainer.SplitterDistance = 762
+        Me.RecordingTabMainSplitContainer.Size = New System.Drawing.Size(1093, 347)
+        Me.RecordingTabMainSplitContainer.SplitterDistance = 681
         Me.RecordingTabMainSplitContainer.TabIndex = 0
         '
         'TableLayoutPanel1
@@ -815,23 +597,8 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel1.RowCount = 2
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(762, 334)
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(681, 347)
         Me.TableLayoutPanel1.TabIndex = 3
-        '
-        'RecordingSoundLevelMeter
-        '
-        Me.RecordingSoundLevelMeter.Activated = False
-        Me.RecordingSoundLevelMeter.BackColor = System.Drawing.Color.White
-        Me.RecordingSoundLevelMeter.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.RecordingSoundLevelMeter.FullScaleLevel = 0!
-        Me.RecordingSoundLevelMeter.Location = New System.Drawing.Point(623, 3)
-        Me.RecordingSoundLevelMeter.maxLevel = 12.0!
-        Me.RecordingSoundLevelMeter.minLevel = -100.0!
-        Me.RecordingSoundLevelMeter.Name = "RecordingSoundLevelMeter"
-        Me.RecordingSoundLevelMeter.Size = New System.Drawing.Size(136, 288)
-        Me.RecordingSoundLevelMeter.TabIndex = 0
-        Me.RecordingSoundLevelMeter.TabStop = False
-        Me.RecordingSoundLevelMeter.WarningLevel = -4.0!
         '
         'TopRecordingControlPanel
         '
@@ -842,7 +609,7 @@ Partial Class SpeechMaterialRecorder
         Me.TopRecordingControlPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TopRecordingControlPanel.Location = New System.Drawing.Point(3, 3)
         Me.TopRecordingControlPanel.Name = "TopRecordingControlPanel"
-        Me.TopRecordingControlPanel.Size = New System.Drawing.Size(614, 288)
+        Me.TopRecordingControlPanel.Size = New System.Drawing.Size(530, 301)
         Me.TopRecordingControlPanel.TabIndex = 0
         '
         'TableLayoutPanel3
@@ -857,7 +624,7 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel3.RowCount = 2
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.72603!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 85.27397!))
-        Me.TableLayoutPanel3.Size = New System.Drawing.Size(610, 284)
+        Me.TableLayoutPanel3.Size = New System.Drawing.Size(526, 297)
         Me.TableLayoutPanel3.TabIndex = 15
         '
         'TableLayoutPanel2
@@ -872,7 +639,7 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel2.Name = "TableLayoutPanel2"
         Me.TableLayoutPanel2.RowCount = 1
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel2.Size = New System.Drawing.Size(604, 35)
+        Me.TableLayoutPanel2.Size = New System.Drawing.Size(520, 37)
         Me.TableLayoutPanel2.TabIndex = 14
         '
         'RecordingLabel
@@ -882,10 +649,10 @@ Partial Class SpeechMaterialRecorder
         Me.RecordingLabel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.RecordingLabel.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.RecordingLabel.ForeColor = System.Drawing.Color.Blue
-        Me.RecordingLabel.Location = New System.Drawing.Point(204, 4)
+        Me.RecordingLabel.Location = New System.Drawing.Point(176, 4)
         Me.RecordingLabel.Margin = New System.Windows.Forms.Padding(3, 4, 3, 3)
         Me.RecordingLabel.Name = "RecordingLabel"
-        Me.RecordingLabel.Size = New System.Drawing.Size(195, 28)
+        Me.RecordingLabel.Size = New System.Drawing.Size(167, 30)
         Me.RecordingLabel.TabIndex = 7
         Me.RecordingLabel.Text = "Not recording"
         Me.RecordingLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
@@ -903,13 +670,348 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel4.Controls.Add(Me.Rec_NextItemButton, 2, 0)
         Me.TableLayoutPanel4.Controls.Add(Me.Rec_NextNRItemButton, 2, 1)
         Me.TableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel4.Location = New System.Drawing.Point(3, 44)
+        Me.TableLayoutPanel4.Location = New System.Drawing.Point(3, 46)
         Me.TableLayoutPanel4.Name = "TableLayoutPanel4"
         Me.TableLayoutPanel4.RowCount = 2
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel4.Size = New System.Drawing.Size(604, 237)
+        Me.TableLayoutPanel4.Size = New System.Drawing.Size(520, 248)
         Me.TableLayoutPanel4.TabIndex = 15
+        '
+        'Rec_PreviousItemButton
+        '
+        Me.Rec_PreviousItemButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Rec_PreviousItemButton.Location = New System.Drawing.Point(3, 3)
+        Me.Rec_PreviousItemButton.Name = "Rec_PreviousItemButton"
+        Me.Rec_PreviousItemButton.Size = New System.Drawing.Size(84, 118)
+        Me.Rec_PreviousItemButton.TabIndex = 9
+        Me.Rec_PreviousItemButton.Text = "Previous item"
+        Me.Rec_PreviousItemButton.UseVisualStyleBackColor = True
+        '
+        'Rec_PreviousNRItemButton
+        '
+        Me.Rec_PreviousNRItemButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Rec_PreviousNRItemButton.Location = New System.Drawing.Point(3, 127)
+        Me.Rec_PreviousNRItemButton.Name = "Rec_PreviousNRItemButton"
+        Me.Rec_PreviousNRItemButton.Size = New System.Drawing.Size(84, 118)
+        Me.Rec_PreviousNRItemButton.TabIndex = 11
+        Me.Rec_PreviousNRItemButton.Text = "Previous non-recorded item"
+        Me.Rec_PreviousNRItemButton.UseVisualStyleBackColor = True
+        '
+        'Rec_NextItemButton
+        '
+        Me.Rec_NextItemButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Rec_NextItemButton.Location = New System.Drawing.Point(433, 3)
+        Me.Rec_NextItemButton.Name = "Rec_NextItemButton"
+        Me.Rec_NextItemButton.Size = New System.Drawing.Size(84, 118)
+        Me.Rec_NextItemButton.TabIndex = 8
+        Me.Rec_NextItemButton.Text = "Next item"
+        Me.Rec_NextItemButton.UseVisualStyleBackColor = True
+        '
+        'Rec_NextNRItemButton
+        '
+        Me.Rec_NextNRItemButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Rec_NextNRItemButton.Location = New System.Drawing.Point(433, 127)
+        Me.Rec_NextNRItemButton.Name = "Rec_NextNRItemButton"
+        Me.Rec_NextNRItemButton.Size = New System.Drawing.Size(84, 118)
+        Me.Rec_NextNRItemButton.TabIndex = 10
+        Me.Rec_NextNRItemButton.Text = "Next non-recorded item"
+        Me.Rec_NextNRItemButton.UseVisualStyleBackColor = True
+        '
+        'StartRecordingButton
+        '
+        Me.StartRecordingButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StartRecordingButton.Location = New System.Drawing.Point(3, 310)
+        Me.StartRecordingButton.Name = "StartRecordingButton"
+        Me.StartRecordingButton.Size = New System.Drawing.Size(128, 34)
+        Me.StartRecordingButton.TabIndex = 7
+        Me.StartRecordingButton.Text = "Start recording"
+        Me.StartRecordingButton.UseVisualStyleBackColor = True
+        '
+        'ListenButton
+        '
+        Me.ListenButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ListenButton.Location = New System.Drawing.Point(271, 310)
+        Me.ListenButton.Name = "ListenButton"
+        Me.ListenButton.Size = New System.Drawing.Size(128, 34)
+        Me.ListenButton.TabIndex = 13
+        Me.ListenButton.Text = "Play"
+        Me.ListenButton.UseVisualStyleBackColor = True
+        '
+        'StopRecordingButton
+        '
+        Me.StopRecordingButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StopRecordingButton.Location = New System.Drawing.Point(137, 310)
+        Me.StopRecordingButton.Name = "StopRecordingButton"
+        Me.StopRecordingButton.Size = New System.Drawing.Size(128, 34)
+        Me.StopRecordingButton.TabIndex = 12
+        Me.StopRecordingButton.Text = "Stop recording"
+        Me.StopRecordingButton.UseVisualStyleBackColor = True
+        '
+        'StopPlayback_Button
+        '
+        Me.StopPlayback_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.StopPlayback_Button.Enabled = False
+        Me.StopPlayback_Button.Location = New System.Drawing.Point(405, 310)
+        Me.StopPlayback_Button.Name = "StopPlayback_Button"
+        Me.StopPlayback_Button.Size = New System.Drawing.Size(128, 34)
+        Me.StopPlayback_Button.TabIndex = 14
+        Me.StopPlayback_Button.Text = "Stop playback"
+        Me.StopPlayback_Button.UseVisualStyleBackColor = True
+        '
+        'SegmentationTab
+        '
+        Me.SegmentationTab.Controls.Add(Me.SegmentationPanel)
+        Me.SegmentationTab.Location = New System.Drawing.Point(4, 22)
+        Me.SegmentationTab.Name = "SegmentationTab"
+        Me.SegmentationTab.Padding = New System.Windows.Forms.Padding(3)
+        Me.SegmentationTab.Size = New System.Drawing.Size(1099, 353)
+        Me.SegmentationTab.TabIndex = 1
+        Me.SegmentationTab.Text = "Segmentation"
+        Me.SegmentationTab.UseVisualStyleBackColor = True
+        '
+        'SegmentationPanel
+        '
+        Me.SegmentationPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SegmentationPanel.Location = New System.Drawing.Point(3, 3)
+        Me.SegmentationPanel.Name = "SegmentationPanel"
+        Me.SegmentationPanel.Size = New System.Drawing.Size(1093, 347)
+        Me.SegmentationPanel.TabIndex = 0
+        '
+        'ItemProgressBar
+        '
+        Me.ItemProgressBar.Location = New System.Drawing.Point(139, 7)
+        Me.ItemProgressBar.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.ItemProgressBar.Name = "ItemProgressBar"
+        Me.ItemProgressBar.Size = New System.Drawing.Size(100, 21)
+        Me.ItemProgressBar.TabIndex = 2
+        '
+        'ItemProgressLabel
+        '
+        Me.ItemProgressLabel.AutoSize = True
+        Me.ItemProgressLabel.Location = New System.Drawing.Point(245, 10)
+        Me.ItemProgressLabel.Margin = New System.Windows.Forms.Padding(3, 5, 3, 5)
+        Me.ItemProgressLabel.Name = "ItemProgressLabel"
+        Me.ItemProgressLabel.Size = New System.Drawing.Size(59, 13)
+        Me.ItemProgressLabel.TabIndex = 3
+        Me.ItemProgressLabel.Text = "Item X of Y"
+        Me.ItemProgressLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'FileComboBox
+        '
+        Me.FileComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.FileComboBox.FormattingEnabled = True
+        Me.FileComboBox.Location = New System.Drawing.Point(310, 7)
+        Me.FileComboBox.Margin = New System.Windows.Forms.Padding(3, 2, 3, 2)
+        Me.FileComboBox.Name = "FileComboBox"
+        Me.FileComboBox.Size = New System.Drawing.Size(121, 21)
+        Me.FileComboBox.TabIndex = 1
+        '
+        'SoundFileSelection_FlowLayoutPanel
+        '
+        Me.SoundFileSelection_FlowLayoutPanel.AutoScroll = True
+        Me.SoundFileSelection_FlowLayoutPanel.BackColor = System.Drawing.Color.Transparent
+        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.Label1)
+        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.FileName_Label)
+        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.Label2)
+        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.ItemProgressBar)
+        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.ItemProgressLabel)
+        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.FileComboBox)
+        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.Top_PreviousFileButton)
+        Me.SoundFileSelection_FlowLayoutPanel.Controls.Add(Me.Top_NextFileButton)
+        Me.SoundFileSelection_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SoundFileSelection_FlowLayoutPanel.Location = New System.Drawing.Point(3, 3)
+        Me.SoundFileSelection_FlowLayoutPanel.Name = "SoundFileSelection_FlowLayoutPanel"
+        Me.SoundFileSelection_FlowLayoutPanel.Padding = New System.Windows.Forms.Padding(5)
+        Me.TableLayoutPanel5.SetRowSpan(Me.SoundFileSelection_FlowLayoutPanel, 2)
+        Me.SoundFileSelection_FlowLayoutPanel.Size = New System.Drawing.Size(567, 58)
+        Me.SoundFileSelection_FlowLayoutPanel.TabIndex = 3
+        '
+        'Label1
+        '
+        Me.Label1.Location = New System.Drawing.Point(8, 8)
+        Me.Label1.Margin = New System.Windows.Forms.Padding(3)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(52, 17)
+        Me.Label1.TabIndex = 0
+        Me.Label1.Text = "Filename:"
+        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'FileName_Label
+        '
+        Me.FileName_Label.AutoSize = True
+        Me.FileName_Label.Location = New System.Drawing.Point(66, 10)
+        Me.FileName_Label.Margin = New System.Windows.Forms.Padding(3, 5, 3, 5)
+        Me.FileName_Label.Name = "FileName_Label"
+        Me.FileName_Label.Size = New System.Drawing.Size(52, 13)
+        Me.FileName_Label.TabIndex = 1
+        Me.FileName_Label.Text = "File name"
+        Me.FileName_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'Label2
+        '
+        Me.Label2.Location = New System.Drawing.Point(124, 5)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(9, 21)
+        Me.Label2.TabIndex = 8
+        Me.Label2.Text = "|"
+        Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'Top_PreviousFileButton
+        '
+        Me.Top_PreviousFileButton.Location = New System.Drawing.Point(437, 6)
+        Me.Top_PreviousFileButton.Margin = New System.Windows.Forms.Padding(3, 1, 3, 1)
+        Me.Top_PreviousFileButton.Name = "Top_PreviousFileButton"
+        Me.Top_PreviousFileButton.Size = New System.Drawing.Size(86, 23)
+        Me.Top_PreviousFileButton.TabIndex = 2
+        Me.Top_PreviousFileButton.Text = "Previous file"
+        Me.Top_PreviousFileButton.UseVisualStyleBackColor = True
+        '
+        'Top_NextFileButton
+        '
+        Me.Top_NextFileButton.Location = New System.Drawing.Point(8, 31)
+        Me.Top_NextFileButton.Margin = New System.Windows.Forms.Padding(3, 1, 3, 1)
+        Me.Top_NextFileButton.Name = "Top_NextFileButton"
+        Me.Top_NextFileButton.Size = New System.Drawing.Size(86, 23)
+        Me.Top_NextFileButton.TabIndex = 3
+        Me.Top_NextFileButton.Text = "Next file"
+        Me.Top_NextFileButton.UseVisualStyleBackColor = True
+        '
+        'MainSplitContainer
+        '
+        Me.MainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MainSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1
+        Me.MainSplitContainer.Location = New System.Drawing.Point(0, 24)
+        Me.MainSplitContainer.Name = "MainSplitContainer"
+        Me.MainSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal
+        '
+        'MainSplitContainer.Panel1
+        '
+        Me.MainSplitContainer.Panel1.Controls.Add(Me.GroupBox1)
+        '
+        'MainSplitContainer.Panel2
+        '
+        Me.MainSplitContainer.Panel2.Controls.Add(Me.MainTabControl)
+        Me.MainSplitContainer.Size = New System.Drawing.Size(1107, 466)
+        Me.MainSplitContainer.SplitterDistance = 83
+        Me.MainSplitContainer.TabIndex = 5
+        '
+        'GroupBox1
+        '
+        Me.GroupBox1.BackColor = System.Drawing.SystemColors.ControlLightLight
+        Me.GroupBox1.Controls.Add(Me.TableLayoutPanel5)
+        Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.GroupBox1.Location = New System.Drawing.Point(0, 0)
+        Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Size = New System.Drawing.Size(1107, 83)
+        Me.GroupBox1.TabIndex = 0
+        Me.GroupBox1.TabStop = False
+        Me.GroupBox1.Text = "Current item"
+        '
+        'TableLayoutPanel5
+        '
+        Me.TableLayoutPanel5.ColumnCount = 3
+        Me.TableLayoutPanel5.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.TableLayoutPanel5.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 313.0!))
+        Me.TableLayoutPanel5.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 215.0!))
+        Me.TableLayoutPanel5.Controls.Add(Me.SoundSettings_TableLayoutPanel, 1, 0)
+        Me.TableLayoutPanel5.Controls.Add(Me.SoundFileSelection_FlowLayoutPanel, 0, 0)
+        Me.TableLayoutPanel5.Controls.Add(Me.Unlock_Button, 2, 0)
+        Me.TableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TableLayoutPanel5.Location = New System.Drawing.Point(3, 16)
+        Me.TableLayoutPanel5.Name = "TableLayoutPanel5"
+        Me.TableLayoutPanel5.RowCount = 2
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel5.Size = New System.Drawing.Size(1101, 64)
+        Me.TableLayoutPanel5.TabIndex = 4
+        '
+        'SoundSettings_TableLayoutPanel
+        '
+        Me.SoundSettings_TableLayoutPanel.ColumnCount = 2
+        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.SoundSettings_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 118.0!))
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.SelectTransducer_Label, 0, 0)
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.Transducer_ComboBox, 0, 1)
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.Label3, 1, 0)
+        Me.SoundSettings_TableLayoutPanel.Controls.Add(Me.InputChannel_ComboBox, 1, 1)
+        Me.SoundSettings_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SoundSettings_TableLayoutPanel.Location = New System.Drawing.Point(576, 3)
+        Me.SoundSettings_TableLayoutPanel.Name = "SoundSettings_TableLayoutPanel"
+        Me.SoundSettings_TableLayoutPanel.RowCount = 2
+        Me.TableLayoutPanel5.SetRowSpan(Me.SoundSettings_TableLayoutPanel, 2)
+        Me.SoundSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.SoundSettings_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.SoundSettings_TableLayoutPanel.Size = New System.Drawing.Size(307, 58)
+        Me.SoundSettings_TableLayoutPanel.TabIndex = 11
+        '
+        'SelectTransducer_Label
+        '
+        Me.SelectTransducer_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SelectTransducer_Label.Location = New System.Drawing.Point(3, 0)
+        Me.SelectTransducer_Label.Name = "SelectTransducer_Label"
+        Me.SelectTransducer_Label.Size = New System.Drawing.Size(183, 29)
+        Me.SelectTransducer_Label.TabIndex = 0
+        Me.SelectTransducer_Label.Text = "Select audio transducer"
+        Me.SelectTransducer_Label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        '
+        'Transducer_ComboBox
+        '
+        Me.Transducer_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Transducer_ComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.Transducer_ComboBox.FormattingEnabled = True
+        Me.Transducer_ComboBox.ItemHeight = 13
+        Me.Transducer_ComboBox.Location = New System.Drawing.Point(3, 32)
+        Me.Transducer_ComboBox.Name = "Transducer_ComboBox"
+        Me.Transducer_ComboBox.Size = New System.Drawing.Size(183, 21)
+        Me.Transducer_ComboBox.TabIndex = 4
+        '
+        'Unlock_Button
+        '
+        Me.Unlock_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Unlock_Button.Enabled = False
+        Me.Unlock_Button.Location = New System.Drawing.Point(889, 3)
+        Me.Unlock_Button.Name = "Unlock_Button"
+        Me.TableLayoutPanel5.SetRowSpan(Me.Unlock_Button, 2)
+        Me.Unlock_Button.Size = New System.Drawing.Size(209, 58)
+        Me.Unlock_Button.TabIndex = 6
+        Me.Unlock_Button.Text = "Unlock panel"
+        Me.Unlock_Button.UseVisualStyleBackColor = True
+        '
+        'Label3
+        '
+        Me.Label3.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label3.Location = New System.Drawing.Point(192, 0)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(112, 29)
+        Me.Label3.TabIndex = 2
+        Me.Label3.Text = "Select input channel"
+        Me.Label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'InputChannel_ComboBox
+        '
+        Me.InputChannel_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.InputChannel_ComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.InputChannel_ComboBox.FormattingEnabled = True
+        Me.InputChannel_ComboBox.Location = New System.Drawing.Point(192, 32)
+        Me.InputChannel_ComboBox.Name = "InputChannel_ComboBox"
+        Me.InputChannel_ComboBox.Size = New System.Drawing.Size(112, 21)
+        Me.InputChannel_ComboBox.TabIndex = 5
+        '
+        'RecordingSoundLevelMeter
+        '
+        Me.RecordingSoundLevelMeter.Activated = False
+        Me.RecordingSoundLevelMeter.BackColor = System.Drawing.Color.White
+        Me.RecordingSoundLevelMeter.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RecordingSoundLevelMeter.FullScaleLevel = 0!
+        Me.RecordingSoundLevelMeter.Location = New System.Drawing.Point(539, 3)
+        Me.RecordingSoundLevelMeter.maxLevel = 12.0!
+        Me.RecordingSoundLevelMeter.minLevel = -100.0!
+        Me.RecordingSoundLevelMeter.Name = "RecordingSoundLevelMeter"
+        Me.RecordingSoundLevelMeter.Size = New System.Drawing.Size(139, 301)
+        Me.RecordingSoundLevelMeter.TabIndex = 0
+        Me.RecordingSoundLevelMeter.TabStop = False
+        Me.RecordingSoundLevelMeter.WarningLevel = -4.0!
         '
         'Transcription_AutoHeightTextBox
         '
@@ -917,12 +1019,12 @@ Partial Class SpeechMaterialRecorder
         Me.Transcription_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.Transcription_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Top
         Me.Transcription_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Transcription_AutoHeightTextBox.Location = New System.Drawing.Point(93, 128)
+        Me.Transcription_AutoHeightTextBox.Location = New System.Drawing.Point(93, 134)
         Me.Transcription_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 10, 3, 3)
         Me.Transcription_AutoHeightTextBox.Multiline = True
         Me.Transcription_AutoHeightTextBox.Name = "Transcription_AutoHeightTextBox"
         Me.Transcription_AutoHeightTextBox.ReadOnly = True
-        Me.Transcription_AutoHeightTextBox.Size = New System.Drawing.Size(418, 26)
+        Me.Transcription_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
         Me.Transcription_AutoHeightTextBox.TabIndex = 5
         Me.Transcription_AutoHeightTextBox.Text = "Transcription"
         Me.Transcription_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
@@ -933,102 +1035,21 @@ Partial Class SpeechMaterialRecorder
         Me.Spelling_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.Spelling_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Bottom
         Me.Spelling_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Spelling_AutoHeightTextBox.Location = New System.Drawing.Point(93, 82)
+        Me.Spelling_AutoHeightTextBox.Location = New System.Drawing.Point(93, 88)
         Me.Spelling_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 3, 3, 10)
         Me.Spelling_AutoHeightTextBox.Multiline = True
         Me.Spelling_AutoHeightTextBox.Name = "Spelling_AutoHeightTextBox"
         Me.Spelling_AutoHeightTextBox.ReadOnly = True
-        Me.Spelling_AutoHeightTextBox.Size = New System.Drawing.Size(418, 26)
+        Me.Spelling_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
         Me.Spelling_AutoHeightTextBox.TabIndex = 0
         Me.Spelling_AutoHeightTextBox.Text = "Spelling"
         Me.Spelling_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        '
-        'Rec_PreviousItemButton
-        '
-        Me.Rec_PreviousItemButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Rec_PreviousItemButton.Location = New System.Drawing.Point(3, 3)
-        Me.Rec_PreviousItemButton.Name = "Rec_PreviousItemButton"
-        Me.Rec_PreviousItemButton.Size = New System.Drawing.Size(84, 112)
-        Me.Rec_PreviousItemButton.TabIndex = 1
-        Me.Rec_PreviousItemButton.Text = "Previous item"
-        Me.Rec_PreviousItemButton.UseVisualStyleBackColor = True
-        '
-        'Rec_PreviousNRItemButton
-        '
-        Me.Rec_PreviousNRItemButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Rec_PreviousNRItemButton.Location = New System.Drawing.Point(3, 121)
-        Me.Rec_PreviousNRItemButton.Name = "Rec_PreviousNRItemButton"
-        Me.Rec_PreviousNRItemButton.Size = New System.Drawing.Size(84, 113)
-        Me.Rec_PreviousNRItemButton.TabIndex = 2
-        Me.Rec_PreviousNRItemButton.Text = "Previous non-recorded item"
-        Me.Rec_PreviousNRItemButton.UseVisualStyleBackColor = True
-        '
-        'Rec_NextItemButton
-        '
-        Me.Rec_NextItemButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Rec_NextItemButton.Location = New System.Drawing.Point(517, 3)
-        Me.Rec_NextItemButton.Name = "Rec_NextItemButton"
-        Me.Rec_NextItemButton.Size = New System.Drawing.Size(84, 112)
-        Me.Rec_NextItemButton.TabIndex = 3
-        Me.Rec_NextItemButton.Text = "Next item"
-        Me.Rec_NextItemButton.UseVisualStyleBackColor = True
-        '
-        'Rec_NextNRItemButton
-        '
-        Me.Rec_NextNRItemButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Rec_NextNRItemButton.Location = New System.Drawing.Point(517, 121)
-        Me.Rec_NextNRItemButton.Name = "Rec_NextNRItemButton"
-        Me.Rec_NextNRItemButton.Size = New System.Drawing.Size(84, 113)
-        Me.Rec_NextNRItemButton.TabIndex = 4
-        Me.Rec_NextNRItemButton.Text = "Next non-recorded item"
-        Me.Rec_NextNRItemButton.UseVisualStyleBackColor = True
-        '
-        'StartRecordingButton
-        '
-        Me.StartRecordingButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StartRecordingButton.Location = New System.Drawing.Point(3, 297)
-        Me.StartRecordingButton.Name = "StartRecordingButton"
-        Me.StartRecordingButton.Size = New System.Drawing.Size(149, 34)
-        Me.StartRecordingButton.TabIndex = 0
-        Me.StartRecordingButton.Text = "Start recording"
-        Me.StartRecordingButton.UseVisualStyleBackColor = True
-        '
-        'ListenButton
-        '
-        Me.ListenButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ListenButton.Location = New System.Drawing.Point(313, 297)
-        Me.ListenButton.Name = "ListenButton"
-        Me.ListenButton.Size = New System.Drawing.Size(149, 34)
-        Me.ListenButton.TabIndex = 1
-        Me.ListenButton.Text = "Play"
-        Me.ListenButton.UseVisualStyleBackColor = True
-        '
-        'StopRecordingButton
-        '
-        Me.StopRecordingButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StopRecordingButton.Location = New System.Drawing.Point(158, 297)
-        Me.StopRecordingButton.Name = "StopRecordingButton"
-        Me.StopRecordingButton.Size = New System.Drawing.Size(149, 34)
-        Me.StopRecordingButton.TabIndex = 3
-        Me.StopRecordingButton.Text = "Stop recording"
-        Me.StopRecordingButton.UseVisualStyleBackColor = True
-        '
-        'StopPlayback_Button
-        '
-        Me.StopPlayback_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.StopPlayback_Button.Enabled = False
-        Me.StopPlayback_Button.Location = New System.Drawing.Point(468, 297)
-        Me.StopPlayback_Button.Name = "StopPlayback_Button"
-        Me.StopPlayback_Button.Size = New System.Drawing.Size(149, 34)
-        Me.StopPlayback_Button.TabIndex = 5
-        Me.StopPlayback_Button.Text = "Stop playback"
-        Me.StopPlayback_Button.UseVisualStyleBackColor = True
         '
         'SpeechMaterialRecorder
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1236, 501)
+        Me.ClientSize = New System.Drawing.Size(1107, 512)
         Me.Controls.Add(Me.MainSplitContainer)
         Me.Controls.Add(Me.StatusStrip1)
         Me.Controls.Add(Me.MenuStrip1)
@@ -1042,6 +1063,15 @@ Partial Class SpeechMaterialRecorder
         Me.StatusStrip1.PerformLayout()
         Me.MainTabControl.ResumeLayout(False)
         Me.RecordingTab.ResumeLayout(False)
+        Me.RecordingTabMainSplitContainer.Panel1.ResumeLayout(False)
+        CType(Me.RecordingTabMainSplitContainer, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.RecordingTabMainSplitContainer.ResumeLayout(False)
+        Me.TableLayoutPanel1.ResumeLayout(False)
+        Me.TopRecordingControlPanel.ResumeLayout(False)
+        Me.TableLayoutPanel3.ResumeLayout(False)
+        Me.TableLayoutPanel2.ResumeLayout(False)
+        Me.TableLayoutPanel4.ResumeLayout(False)
+        Me.TableLayoutPanel4.PerformLayout()
         Me.SegmentationTab.ResumeLayout(False)
         Me.SoundFileSelection_FlowLayoutPanel.ResumeLayout(False)
         Me.SoundFileSelection_FlowLayoutPanel.PerformLayout()
@@ -1052,16 +1082,7 @@ Partial Class SpeechMaterialRecorder
         Me.GroupBox1.ResumeLayout(False)
         Me.TableLayoutPanel5.ResumeLayout(False)
         Me.SoundSettings_TableLayoutPanel.ResumeLayout(False)
-        Me.RecordingTabMainSplitContainer.Panel1.ResumeLayout(False)
-        CType(Me.RecordingTabMainSplitContainer, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.RecordingTabMainSplitContainer.ResumeLayout(False)
-        Me.TableLayoutPanel1.ResumeLayout(False)
         CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.TopRecordingControlPanel.ResumeLayout(False)
-        Me.TableLayoutPanel3.ResumeLayout(False)
-        Me.TableLayoutPanel2.ResumeLayout(False)
-        Me.TableLayoutPanel4.ResumeLayout(False)
-        Me.TableLayoutPanel4.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -1166,4 +1187,6 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents StopPlayback_Button As Windows.Forms.Button
     Friend WithEvents ToolStripStatusLabel6 As Windows.Forms.ToolStripStatusLabel
     Friend WithEvents ToolStrip_BT_StatusLabel As Windows.Forms.ToolStripStatusLabel
+    Friend WithEvents Label3 As Windows.Forms.Label
+    Friend WithEvents InputChannel_ComboBox As Windows.Forms.ComboBox
 End Class

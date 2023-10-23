@@ -1724,7 +1724,7 @@ Public Class MediaSet
                                                  Optional ByVal IncludePractiseComponents As Boolean = True,
                                                  Optional ByVal UniquePrimaryStringRepresenations As Boolean = False,
                                                  Optional ByVal TargetSoundLevel As Double? = Nothing,
-                                                 Optional SkipAfterComponents_ForDebugOnly As Integer? = Nothing) As Boolean
+                                                 Optional ByVal AllowIncompleteSegmentations As Boolean = True) As Boolean
 
 
         If TargetSoundLevel IsNot Nothing Then
@@ -1738,9 +1738,12 @@ Public Class MediaSet
 
         Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLinguisticLevel)
 
-        'Ensures that segmentation is marked as complete for all items at the TargetComponentsLinguisticLevel
-        Dim NumComponentsDone As Integer = 0
-        For Each SummaryComponent In SummaryComponents
+        'Checks for which components segmentation is marked as incomplete for all items at the TargetComponentsLinguisticLevel
+        Dim IncompletedSegmentationsIndices As New SortedSet(Of Integer)
+
+        For SCI = 0 To SummaryComponents.Count - 1
+
+            Dim SummaryComponent = SummaryComponents(SCI)
 
             'Get the SMA components representing the sound sections of all target components
             Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
@@ -1750,22 +1753,36 @@ Public Class MediaSet
 
             For Each SmaComponent In CurrentSmaComponentList
                 If SmaComponent.SegmentationCompleted = False Then
-                    MsgBox("Unable to calculate or set component sound levels due to incomplete Speech Material Annotation (SMA) segmentation on the target linguistic level (" & TargetComponentsLinguisticLevel.ToString & ") in the following sound file: " & vbCrLf & vbCrLf & SmaComponent.SourceFilePath, MsgBoxStyle.Exclamation, "Incomplete SMA segmentation")
-                    Return False
+                    If AllowIncompleteSegmentations = False Then
+                        MsgBox("Unable to calculate or set component sound levels due to incomplete Speech Material Annotation (SMA) segmentation on the target linguistic level (" & TargetComponentsLinguisticLevel.ToString & ") in the following sound file: " & vbCrLf & vbCrLf & SmaComponent.SourceFilePath, MsgBoxStyle.Exclamation, "Incomplete SMA segmentation")
+                        Return False
+                    Else
+                        IncompletedSegmentationsIndices.Add(SCI)
+                    End If
                 End If
             Next
-
-            If SkipAfterComponents_ForDebugOnly.HasValue Then
-                NumComponentsDone += 1
-                If NumComponentsDone >= SkipAfterComponents_ForDebugOnly.Value Then Exit For
-            End If
-
         Next
 
 
         Dim UniqueSoundSectionIdentifiers As New SortedSet(Of String)
-        NumComponentsDone = 0
-        For Each SummaryComponent In SummaryComponents
+
+        For SCI = 0 To SummaryComponents.Count - 1
+
+            Dim SummaryComponent = SummaryComponents(SCI)
+
+            'Checking if it was a non-segmented component
+            If IncompletedSegmentationsIndices.Contains(SCI) Then
+
+                'Storing the value as Double NaN, as it can not be measure
+                If TargetSoundLevel Is Nothing Then
+                    SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, Double.NaN)
+                Else
+                    SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, Double.NaN)
+                End If
+
+                'And skips to next
+                Continue For
+            End If
 
             'Get the SMA components representing the sound sections of all target components
             Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
@@ -1896,11 +1913,6 @@ Public Class MediaSet
                 SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, NeededGain)
             End If
 
-            If SkipAfterComponents_ForDebugOnly.HasValue Then
-                NumComponentsDone += 1
-                If NumComponentsDone >= SkipAfterComponents_ForDebugOnly.Value Then Exit For
-            End If
-
         Next
 
         'Finally writes the results to file
@@ -1909,6 +1921,11 @@ Public Class MediaSet
         'Also saves the files
         If TargetSoundLevel IsNot Nothing Then
             ParentTestSpecification.SpeechMaterial.SaveAllLoadedSounds(True)
+        End If
+
+        If IncompletedSegmentationsIndices.Count > 0 Then
+            MsgBox("Unable to calculate or set the level for " & IncompletedSegmentationsIndices.Count & " out of " & SummaryComponents.Count &
+                   " speech material components. Likely due to incomplete / unvalidated segmentation on the " & TargetComponentsLinguisticLevel.ToString & " (linguistic) level.", MsgBoxStyle.Exclamation, "Incomplete processing!")
         End If
 
         Return True
@@ -3371,14 +3388,14 @@ Public Class MediaSet
 
 
 
-    Public Function SetSpeechLevels(ByVal TargetLevel As Double, ByVal FrequencyWeighting As Audio.FrequencyWeightings, ByVal TemporalIntegration As Double?, ByVal LinguisticLevel As SpeechMaterialComponent.LinguisticLevels) As Boolean
+    Public Sub SetSpeechLevels(ByVal TargetLevel As Double, ByVal FrequencyWeighting As Audio.FrequencyWeightings, ByVal TemporalIntegration As Double?, ByVal LinguisticLevel As SpeechMaterialComponent.LinguisticLevels)
 
         If TemporalIntegration.HasValue = False Then TemporalIntegration = 0
 
-        Return Me.CalculateOrSetComponentLevel(LinguisticLevel, 1, TemporalIntegration, FrequencyWeighting,,,, TargetLevel)
+        Me.CalculateOrSetComponentLevel(LinguisticLevel, 1, TemporalIntegration, FrequencyWeighting,,,, TargetLevel, True)
 
 
-    End Function
+    End Sub
 
 
 

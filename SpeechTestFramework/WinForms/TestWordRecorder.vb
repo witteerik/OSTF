@@ -1731,6 +1731,18 @@ Public Class SpeechMaterialRecorder
             MainTabControl.Enabled = True
             Unlock_Button.Enabled = True
 
+            InputChannel_ComboBox.SelectedItem = Nothing
+            InputChannel_ComboBox.SelectedText = ""
+            If SelectedTransducer.ParentAudioApiSettings.NumberOfInputChannels.HasValue Then
+                For c As Integer = 1 To SelectedTransducer.ParentAudioApiSettings.NumberOfInputChannels.Value
+                    InputChannel_ComboBox.Items.Add(c)
+                Next
+                'Selects the first channel as default
+                If InputChannel_ComboBox.Items.Count > 0 Then
+                    InputChannel_ComboBox.SelectedIndex = 0
+                End If
+            End If
+
         Else
             MsgBox("Unable to start the player using the selected transducer (Does the selected sound device doesn't have enough input and output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure")
         End If
@@ -2086,6 +2098,14 @@ Public Class SpeechMaterialRecorder
     End Sub
 
     Private Sub StopRecordingManually(sender As Object, e As EventArgs) Handles StopRecordingButton.Click
+
+    End Sub
+
+    Private Sub InputChannel_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles InputChannel_ComboBox.SelectedIndexChanged
+
+        If InputChannel_ComboBox.SelectedItem IsNot Nothing Then
+            RecordingChannel = InputChannel_ComboBox.SelectedItem
+        End If
 
     End Sub
 
