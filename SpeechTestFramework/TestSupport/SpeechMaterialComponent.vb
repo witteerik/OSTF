@@ -405,7 +405,9 @@ Public Class SpeechMaterialComponent
                              Optional ByVal InterComponentlength As Integer? = Nothing,
                              Optional ByRef InitialMargin As Integer = 0,
                              Optional ByVal RectifySmaComponents As Boolean = False,
-                             Optional ByVal SupressWarnings As Boolean = False) As Audio.Sound
+                             Optional ByVal SupressWarnings As Boolean = False,
+                             Optional ByVal RandomizeOrder As Boolean = False,
+                             Optional ByVal RandomSeed As Integer? = Nothing) As Audio.Sound
 
         'Setting initial margin to -1 to signal that it has not been set
         InitialMargin = -1
@@ -440,6 +442,19 @@ Public Class SpeechMaterialComponent
             Dim SmaList As New List(Of Audio.Sound.SpeechMaterialAnnotation)
             Dim PaddingSound As Audio.Sound = Nothing
             Dim SilentInterStimulusSound As Audio.Sound = Nothing
+
+            If RandomizeOrder = True Then
+                'Randomizing order of Sma components
+                Dim TempSummaryComponents As New List(Of SmaComponent)
+                Dim Randomizer As New Random(RandomSeed)
+                Do Until CorrespondingSmaComponentList.Count = 0
+                    Dim RandomIndex As Integer = Randomizer.Next(0, CorrespondingSmaComponentList.Count)
+                    TempSummaryComponents.Add(CorrespondingSmaComponentList(RandomIndex))
+                    CorrespondingSmaComponentList.RemoveAt(RandomIndex)
+                Loop
+                CorrespondingSmaComponentList = TempSummaryComponents
+            End If
+
             For i = 0 To CorrespondingSmaComponentList.Count - 1
 
                 Dim SmaComponent = CorrespondingSmaComponentList(i)

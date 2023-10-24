@@ -27,7 +27,7 @@
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
             'Adding linguistic levels for the speech level adjustment function
-            'SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection) ' TODO: It's not possible to convert to ListCollection lince a ListCollection cannot fit within the SMA (v1.1) specification.
+            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
             SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
             SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
             SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
@@ -36,7 +36,7 @@
             SpeechLevelLinguisticLevel_ComboBox.SelectedIndex = 2
 
             'Adding linguistic levels for the modified linguistic level of sound files function
-            ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
+            'ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection) ' TODO: It's not possible to convert to ListCollection lince a ListCollection cannot fit within the SMA (v1.1) specification.
             ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
             ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
             ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)

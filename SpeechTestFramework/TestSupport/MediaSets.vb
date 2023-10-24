@@ -152,6 +152,7 @@ Public Class MediaSet
         OutputList.Add("MediaParentFolder = " & MediaParentFolder)
         OutputList.Add("MaskerParentFolder = " & MaskerParentFolder)
         OutputList.Add("BackgroundNonspeechParentFolder = " & BackgroundNonspeechParentFolder)
+        OutputList.Add("BackgroundNonspeechRealisticLevel = " & BackgroundNonspeechRealisticLevel)
         OutputList.Add("BackgroundSpeechParentFolder = " & BackgroundSpeechParentFolder)
         OutputList.Add("PrototypeMediaParentFolder = " & PrototypeMediaParentFolder)
         OutputList.Add("MasterPrototypeRecordingPath = " & MasterPrototypeRecordingPath)
@@ -1971,18 +1972,6 @@ Public Class MediaSet
         'Checks for which components segmentation is marked as incomplete for all items at the TargetComponentsLinguisticLevel
         Dim IncompletedSegmentationsIndices As New SortedSet(Of Integer)
 
-        Dim TempSummaryComponents As New List(Of SpeechMaterialComponent)
-        If RandomizeOrder = True Then
-            'Randomizing order of summary components
-            Dim Randomizer As New Random(RandomSeed)
-            Do Until SummaryComponents.Count = 0
-                Dim RandomIndex As Integer = Randomizer.Next(0, SummaryComponents.Count)
-                TempSummaryComponents.Add(SummaryComponents(RandomIndex))
-                SummaryComponents.RemoveAt(RandomIndex)
-            Loop
-            SummaryComponents = TempSummaryComponents
-        End If
-
         For SCI = 0 To SummaryComponents.Count - 1
 
             Dim SummaryComponent = SummaryComponents(SCI)
@@ -1996,7 +1985,7 @@ Public Class MediaSet
                 Dim NewSoundFilePath = IO.Path.Combine(NewFullMediaFolderPath, "Sound" & i.ToString("00"))
 
                 'Getting the sound
-                Dim CurrentComponentSound = SummaryComponent.GetSound(Me, i, SoundChannel, CrossFadeLength, Padding, InterStimulusIntervalLength,, True, True)
+                Dim CurrentComponentSound = SummaryComponent.GetSound(Me, i, SoundChannel, CrossFadeLength, Padding, InterStimulusIntervalLength,, True, True, RandomizeOrder, RandomSeed)
 
                 If CurrentComponentSound IsNot Nothing Then
                     'Writes to wave file
