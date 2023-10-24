@@ -4,6 +4,7 @@ Imports System.IO
 Imports System.Runtime.Serialization.Formatters.Binary
 Imports SpeechTestFramework.Audio.DSP
 Imports SpeechTestFramework.Audio.Sound.SpeechMaterialAnnotation
+Imports SpeechTestFramework.SipTest
 
 <Serializable>
 Public Class MediaSetLibrary
@@ -1948,27 +1949,39 @@ Public Class MediaSet
     ''' </summary>
     ''' <param name="NewMediaSet"></param>
     ''' <param name="SoundChannel"></param>
-    ''' <param name="UniquePrimaryStringRepresenations"></param>
     ''' <param name="AllowIncompleteSegmentations"></param>
     ''' <returns>Returns True if successfull, or otherwise False.</returns>
     Public Function CopySoundsToNewMediaSet(ByRef NewMediaSet As MediaSet,
+                                            ByVal SoundChannel As Integer,
                                             ByVal Padding As Integer,
                                             ByVal InterStimulusIntervalLength As Integer,
-                                            ByVal SoundChannel As Integer,
-                                            Optional ByVal CrossFadeLength As Integer? = Nothing,
-                                            Optional ByVal UniquePrimaryStringRepresenations As Boolean = False,
+                                            ByVal CrossFadeLength As Integer,
+                                            ByVal IncludeTestItems As Boolean,
+                                            ByVal IncludePractiseItems As Boolean,
+                                            ByVal RandomizeOrder As Boolean,
+                                            Optional ByVal RandomSeed As Integer? = Nothing,
                                             Optional ByVal AllowIncompleteSegmentations As Boolean = True) As Boolean
 
-
-        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
         'Clears previously loaded sounds
         ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
 
-        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(NewMediaSet.AudioFileLinguisticLevel)
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(NewMediaSet.AudioFileLinguisticLevel, Not IncludePractiseItems, Not IncludeTestItems)
 
         'Checks for which components segmentation is marked as incomplete for all items at the TargetComponentsLinguisticLevel
         Dim IncompletedSegmentationsIndices As New SortedSet(Of Integer)
+
+        Dim TempSummaryComponents As New List(Of SpeechMaterialComponent)
+        If RandomizeOrder = True Then
+            'Randomizing order of summary components
+            Dim Randomizer As New Random(RandomSeed)
+            Do Until SummaryComponents.Count = 0
+                Dim RandomIndex As Integer = Randomizer.Next(0, SummaryComponents.Count)
+                TempSummaryComponents.Add(SummaryComponents(RandomIndex))
+                SummaryComponents.RemoveAt(RandomIndex)
+            Loop
+            SummaryComponents = TempSummaryComponents
+        End If
 
         For SCI = 0 To SummaryComponents.Count - 1
 

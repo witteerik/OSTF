@@ -124,6 +124,11 @@ Partial Class MediaSetSetupControl
         Me.ModifiedMediaSetLinguisticLevel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label37 = New System.Windows.Forms.Label()
         Me.CreateModifiedMediaSet_Button = New System.Windows.Forms.Button()
+        Me.IncludeTestItems_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.IncludePractiseItems_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.RandomizeOrder_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.Label38 = New System.Windows.Forms.Label()
+        Me.Label39 = New System.Windows.Forms.Label()
         Me.LoadOstaMediaSetControl1 = New SpeechTestFramework.LoadOstaMediaSetControl()
         Me.LoadOstaTestSpecificationControl1 = New SpeechTestFramework.LoadOstaTestSpecificationControl()
         Me.TalkerAge_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
@@ -141,6 +146,8 @@ Partial Class MediaSetSetupControl
         Me.SmaTemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.NewSoundFilePadding_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.CrossfadeDuration_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -1258,8 +1265,9 @@ Partial Class MediaSetSetupControl
         '
         Me.TableLayoutPanel8.BackColor = System.Drawing.SystemColors.Control
         Me.TableLayoutPanel8.ColumnCount = 2
-        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 59.60591!))
+        Me.TableLayoutPanel8.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40.39409!))
+        Me.TableLayoutPanel8.Controls.Add(Me.RandomizeOrder_CheckBox, 1, 9)
         Me.TableLayoutPanel8.Controls.Add(Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox, 1, 5)
         Me.TableLayoutPanel8.Controls.Add(Me.Label36, 0, 4)
         Me.TableLayoutPanel8.Controls.Add(Me.RichTextBox1, 0, 0)
@@ -1271,12 +1279,23 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel8.Controls.Add(Me.ModifiedMediaSetLinguisticLevel_ComboBox, 1, 2)
         Me.TableLayoutPanel8.Controls.Add(Me.Label37, 0, 5)
         Me.TableLayoutPanel8.Controls.Add(Me.NewSoundFilePadding_IntegerParsingTextBox, 1, 4)
-        Me.TableLayoutPanel8.Controls.Add(Me.CreateModifiedMediaSet_Button, 0, 6)
+        Me.TableLayoutPanel8.Controls.Add(Me.CreateModifiedMediaSet_Button, 0, 11)
+        Me.TableLayoutPanel8.Controls.Add(Me.IncludePractiseItems_CheckBox, 1, 8)
+        Me.TableLayoutPanel8.Controls.Add(Me.IncludeTestItems_CheckBox, 1, 7)
+        Me.TableLayoutPanel8.Controls.Add(Me.Label38, 0, 6)
+        Me.TableLayoutPanel8.Controls.Add(Me.CrossfadeDuration_IntegerParsingTextBox, 1, 6)
+        Me.TableLayoutPanel8.Controls.Add(Me.Label39, 0, 10)
+        Me.TableLayoutPanel8.Controls.Add(Me.RandomSeed_IntegerParsingTextBox, 1, 10)
         Me.TableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel8.Location = New System.Drawing.Point(3, 3)
         Me.TableLayoutPanel8.Name = "TableLayoutPanel8"
-        Me.TableLayoutPanel8.RowCount = 8
-        Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 72.0!))
+        Me.TableLayoutPanel8.RowCount = 13
+        Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 80.0!))
+        Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel8.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
@@ -1290,9 +1309,9 @@ Partial Class MediaSetSetupControl
         'Label36
         '
         Me.Label36.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label36.Location = New System.Drawing.Point(3, 147)
+        Me.Label36.Location = New System.Drawing.Point(3, 155)
         Me.Label36.Name = "Label36"
-        Me.Label36.Size = New System.Drawing.Size(298, 25)
+        Me.Label36.Size = New System.Drawing.Size(357, 25)
         Me.Label36.TabIndex = 7
         Me.Label36.Text = "New sound file padding (ms)"
         Me.Label36.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -1305,16 +1324,16 @@ Partial Class MediaSetSetupControl
         Me.RichTextBox1.Location = New System.Drawing.Point(3, 3)
         Me.RichTextBox1.Name = "RichTextBox1"
         Me.RichTextBox1.ReadOnly = True
-        Me.RichTextBox1.Size = New System.Drawing.Size(603, 66)
+        Me.RichTextBox1.Size = New System.Drawing.Size(603, 74)
         Me.RichTextBox1.TabIndex = 0
         Me.RichTextBox1.Text = resources.GetString("RichTextBox1.Text")
         '
         'Label33
         '
         Me.Label33.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label33.Location = New System.Drawing.Point(3, 72)
+        Me.Label33.Location = New System.Drawing.Point(3, 80)
         Me.Label33.Name = "Label33"
-        Me.Label33.Size = New System.Drawing.Size(298, 25)
+        Me.Label33.Size = New System.Drawing.Size(357, 25)
         Me.Label33.TabIndex = 1
         Me.Label33.Text = "Current linguistic level of sound files"
         Me.Label33.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -1322,9 +1341,9 @@ Partial Class MediaSetSetupControl
         'Label34
         '
         Me.Label34.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label34.Location = New System.Drawing.Point(3, 97)
+        Me.Label34.Location = New System.Drawing.Point(3, 105)
         Me.Label34.Name = "Label34"
-        Me.Label34.Size = New System.Drawing.Size(298, 25)
+        Me.Label34.Size = New System.Drawing.Size(357, 25)
         Me.Label34.TabIndex = 2
         Me.Label34.Text = "New linguistic level of sound files"
         Me.Label34.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -1332,9 +1351,9 @@ Partial Class MediaSetSetupControl
         'Label35
         '
         Me.Label35.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label35.Location = New System.Drawing.Point(3, 122)
+        Me.Label35.Location = New System.Drawing.Point(3, 130)
         Me.Label35.Name = "Label35"
-        Me.Label35.Size = New System.Drawing.Size(298, 25)
+        Me.Label35.Size = New System.Drawing.Size(357, 25)
         Me.Label35.TabIndex = 3
         Me.Label35.Text = "Name of new media set"
         Me.Label35.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -1342,35 +1361,35 @@ Partial Class MediaSetSetupControl
         'ModifiedMediaSetName_TextBox
         '
         Me.ModifiedMediaSetName_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ModifiedMediaSetName_TextBox.Location = New System.Drawing.Point(307, 125)
+        Me.ModifiedMediaSetName_TextBox.Location = New System.Drawing.Point(366, 133)
         Me.ModifiedMediaSetName_TextBox.Name = "ModifiedMediaSetName_TextBox"
-        Me.ModifiedMediaSetName_TextBox.Size = New System.Drawing.Size(299, 20)
+        Me.ModifiedMediaSetName_TextBox.Size = New System.Drawing.Size(240, 20)
         Me.ModifiedMediaSetName_TextBox.TabIndex = 4
         '
         'CurrentMediaSetLinguisticLevel_TextBox
         '
         Me.CurrentMediaSetLinguisticLevel_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.CurrentMediaSetLinguisticLevel_TextBox.Location = New System.Drawing.Point(307, 75)
+        Me.CurrentMediaSetLinguisticLevel_TextBox.Location = New System.Drawing.Point(366, 83)
         Me.CurrentMediaSetLinguisticLevel_TextBox.Name = "CurrentMediaSetLinguisticLevel_TextBox"
         Me.CurrentMediaSetLinguisticLevel_TextBox.ReadOnly = True
-        Me.CurrentMediaSetLinguisticLevel_TextBox.Size = New System.Drawing.Size(299, 20)
+        Me.CurrentMediaSetLinguisticLevel_TextBox.Size = New System.Drawing.Size(240, 20)
         Me.CurrentMediaSetLinguisticLevel_TextBox.TabIndex = 5
         '
         'ModifiedMediaSetLinguisticLevel_ComboBox
         '
         Me.ModifiedMediaSetLinguisticLevel_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ModifiedMediaSetLinguisticLevel_ComboBox.FormattingEnabled = True
-        Me.ModifiedMediaSetLinguisticLevel_ComboBox.Location = New System.Drawing.Point(307, 100)
+        Me.ModifiedMediaSetLinguisticLevel_ComboBox.Location = New System.Drawing.Point(366, 108)
         Me.ModifiedMediaSetLinguisticLevel_ComboBox.Name = "ModifiedMediaSetLinguisticLevel_ComboBox"
-        Me.ModifiedMediaSetLinguisticLevel_ComboBox.Size = New System.Drawing.Size(299, 21)
+        Me.ModifiedMediaSetLinguisticLevel_ComboBox.Size = New System.Drawing.Size(240, 21)
         Me.ModifiedMediaSetLinguisticLevel_ComboBox.TabIndex = 6
         '
         'Label37
         '
         Me.Label37.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label37.Location = New System.Drawing.Point(3, 172)
+        Me.Label37.Location = New System.Drawing.Point(3, 180)
         Me.Label37.Name = "Label37"
-        Me.Label37.Size = New System.Drawing.Size(298, 25)
+        Me.Label37.Size = New System.Drawing.Size(357, 25)
         Me.Label37.TabIndex = 8
         Me.Label37.Text = "New sound file inter-stimulus interval (ms)"
         Me.Label37.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -1379,12 +1398,67 @@ Partial Class MediaSetSetupControl
         '
         Me.TableLayoutPanel8.SetColumnSpan(Me.CreateModifiedMediaSet_Button, 2)
         Me.CreateModifiedMediaSet_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.CreateModifiedMediaSet_Button.Location = New System.Drawing.Point(3, 200)
+        Me.CreateModifiedMediaSet_Button.Location = New System.Drawing.Point(3, 333)
         Me.CreateModifiedMediaSet_Button.Name = "CreateModifiedMediaSet_Button"
         Me.CreateModifiedMediaSet_Button.Size = New System.Drawing.Size(603, 29)
         Me.CreateModifiedMediaSet_Button.TabIndex = 11
         Me.CreateModifiedMediaSet_Button.Text = "Create modified media set"
         Me.CreateModifiedMediaSet_Button.UseVisualStyleBackColor = True
+        '
+        'IncludeTestItems_CheckBox
+        '
+        Me.IncludeTestItems_CheckBox.AutoSize = True
+        Me.IncludeTestItems_CheckBox.Checked = True
+        Me.IncludeTestItems_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.IncludeTestItems_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.IncludeTestItems_CheckBox.Location = New System.Drawing.Point(366, 233)
+        Me.IncludeTestItems_CheckBox.Name = "IncludeTestItems_CheckBox"
+        Me.IncludeTestItems_CheckBox.Size = New System.Drawing.Size(240, 19)
+        Me.IncludeTestItems_CheckBox.TabIndex = 15
+        Me.IncludeTestItems_CheckBox.Text = "Include test items"
+        Me.IncludeTestItems_CheckBox.UseVisualStyleBackColor = True
+        '
+        'IncludePractiseItems_CheckBox
+        '
+        Me.IncludePractiseItems_CheckBox.AutoSize = True
+        Me.IncludePractiseItems_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.IncludePractiseItems_CheckBox.Location = New System.Drawing.Point(366, 258)
+        Me.IncludePractiseItems_CheckBox.Name = "IncludePractiseItems_CheckBox"
+        Me.IncludePractiseItems_CheckBox.Size = New System.Drawing.Size(240, 19)
+        Me.IncludePractiseItems_CheckBox.TabIndex = 16
+        Me.IncludePractiseItems_CheckBox.Text = "Include practise items"
+        Me.IncludePractiseItems_CheckBox.UseVisualStyleBackColor = True
+        '
+        'RandomizeOrder_CheckBox
+        '
+        Me.RandomizeOrder_CheckBox.AutoSize = True
+        Me.RandomizeOrder_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RandomizeOrder_CheckBox.Location = New System.Drawing.Point(366, 283)
+        Me.RandomizeOrder_CheckBox.Name = "RandomizeOrder_CheckBox"
+        Me.RandomizeOrder_CheckBox.Size = New System.Drawing.Size(240, 19)
+        Me.RandomizeOrder_CheckBox.TabIndex = 17
+        Me.RandomizeOrder_CheckBox.Text = "Randomize order"
+        Me.RandomizeOrder_CheckBox.UseVisualStyleBackColor = True
+        '
+        'Label38
+        '
+        Me.Label38.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label38.Location = New System.Drawing.Point(3, 205)
+        Me.Label38.Name = "Label38"
+        Me.Label38.Size = New System.Drawing.Size(357, 25)
+        Me.Label38.TabIndex = 18
+        Me.Label38.Text = "Crossfade duration (ms)"
+        Me.Label38.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'Label39
+        '
+        Me.Label39.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label39.Location = New System.Drawing.Point(3, 305)
+        Me.Label39.Name = "Label39"
+        Me.Label39.Size = New System.Drawing.Size(357, 25)
+        Me.Label39.TabIndex = 20
+        Me.Label39.Text = "(Optional) Random seed, to re-use same random order (can be empty)"
+        Me.Label39.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'LoadOstaMediaSetControl1
         '
@@ -1532,9 +1606,9 @@ Partial Class MediaSetSetupControl
         '
         Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Location = New System.Drawing.Point(307, 175)
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Location = New System.Drawing.Point(366, 183)
         Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Name = "NewSoundFile_InterStimulusInterval_IntegerParsingTextBox"
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Size = New System.Drawing.Size(299, 20)
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
         Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.TabIndex = 10
         Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Text = "4000"
         Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
@@ -1543,12 +1617,32 @@ Partial Class MediaSetSetupControl
         '
         Me.NewSoundFilePadding_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.NewSoundFilePadding_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.NewSoundFilePadding_IntegerParsingTextBox.Location = New System.Drawing.Point(307, 150)
+        Me.NewSoundFilePadding_IntegerParsingTextBox.Location = New System.Drawing.Point(366, 158)
         Me.NewSoundFilePadding_IntegerParsingTextBox.Name = "NewSoundFilePadding_IntegerParsingTextBox"
-        Me.NewSoundFilePadding_IntegerParsingTextBox.Size = New System.Drawing.Size(299, 20)
+        Me.NewSoundFilePadding_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
         Me.NewSoundFilePadding_IntegerParsingTextBox.TabIndex = 9
         Me.NewSoundFilePadding_IntegerParsingTextBox.Text = "0"
         Me.NewSoundFilePadding_IntegerParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'CrossfadeDuration_IntegerParsingTextBox
+        '
+        Me.CrossfadeDuration_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.CrossfadeDuration_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.CrossfadeDuration_IntegerParsingTextBox.Location = New System.Drawing.Point(366, 208)
+        Me.CrossfadeDuration_IntegerParsingTextBox.Name = "CrossfadeDuration_IntegerParsingTextBox"
+        Me.CrossfadeDuration_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
+        Me.CrossfadeDuration_IntegerParsingTextBox.TabIndex = 19
+        Me.CrossfadeDuration_IntegerParsingTextBox.Text = "0"
+        Me.CrossfadeDuration_IntegerParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'RandomSeed_IntegerParsingTextBox
+        '
+        Me.RandomSeed_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(366, 308)
+        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
+        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
+        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 21
         '
         'MediaSetSetupControl
         '
@@ -1707,4 +1801,11 @@ Partial Class MediaSetSetupControl
     Friend WithEvents Label37 As Windows.Forms.Label
     Friend WithEvents NewSoundFilePadding_IntegerParsingTextBox As IntegerParsingTextBox
     Friend WithEvents CreateModifiedMediaSet_Button As Windows.Forms.Button
+    Friend WithEvents RandomizeOrder_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents IncludeTestItems_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents IncludePractiseItems_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents Label38 As Windows.Forms.Label
+    Friend WithEvents CrossfadeDuration_IntegerParsingTextBox As IntegerParsingTextBox
+    Friend WithEvents Label39 As Windows.Forms.Label
+    Friend WithEvents RandomSeed_IntegerParsingTextBox As IntegerParsingTextBox
 End Class

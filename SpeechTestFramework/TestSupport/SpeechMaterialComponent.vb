@@ -462,10 +462,11 @@ Public Class SpeechMaterialComponent
                         'Shifts the time by the length of the inserted silence
                         CumulativeTimeShift += PaddingSound.WaveData.SampleData(SoundChannel).Length
 
-                        If CrossFadeLength.HasValue Then
-                            'Shifts the time backwards by CrossFadeLength
-                            CumulativeTimeShift -= CrossFadeLength
-                        End If
+                        'We should not time shift the first sound..., or?
+                        'If CrossFadeLength.HasValue Then
+                        '    'Shifts the time backwards by CrossFadeLength
+                        '    CumulativeTimeShift -= CrossFadeLength
+                        'End If
 
                     End If
                 End If
@@ -661,6 +662,8 @@ Public Class SpeechMaterialComponent
                 ComponentIndices.SentenceIndex = Me.GetSelfIndex
             Case LinguisticLevels.List
                 ComponentIndices.ListIndex = Me.GetSelfIndex
+                'Case LinguisticLevels.ListCollection
+                '    ComponentIndices.ListCollectionIndex = Me.GetSelfIndex
             Case Else
                 'If it's a ListCollection, the ComponentIndices are simply returned as it will have neither an index nor a parent
                 Return ComponentIndices
@@ -674,6 +677,16 @@ Public Class SpeechMaterialComponent
     End Function
 
     Public Class ComponentIndices
+
+        'Public Property ListCollectionIndex As Integer
+        '    Get
+        '        Return IndexList(LinguisticLevels.ListCollection)
+        '    End Get
+        '    Set(value As Integer)
+        '        IndexList(LinguisticLevels.ListCollection) = value
+        '    End Set
+        'End Property
+
         Public Property ListIndex As Integer
             Get
                 Return IndexList(LinguisticLevels.List)
@@ -723,6 +736,7 @@ Public Class SpeechMaterialComponent
         End Sub
 
         Public Function HasPhoneIndex() As Boolean
+            'If ListCollectionIndex > -1 And ListIndex > -1 And SentenceIndex > -1 And WordIndex > -1 And PhoneIndex > -1 Then
             If ListIndex > -1 And SentenceIndex > -1 And WordIndex > -1 And PhoneIndex > -1 Then
                 Return True
             Else
@@ -731,6 +745,7 @@ Public Class SpeechMaterialComponent
         End Function
 
         Public Function HasWordIndex() As Boolean
+            'If ListCollectionIndex > -1 And ListIndex > -1 And SentenceIndex > -1 And WordIndex > -1 Then
             If ListIndex > -1 And SentenceIndex > -1 And WordIndex > -1 Then
                 Return True
             Else
@@ -739,6 +754,7 @@ Public Class SpeechMaterialComponent
         End Function
 
         Public Function HasSentenceIndex() As Boolean
+            'If ListCollectionIndex > -1 And ListIndex > -1 And SentenceIndex > -1 Then
             If ListIndex > -1 And SentenceIndex > -1 Then
                 Return True
             Else
@@ -747,12 +763,21 @@ Public Class SpeechMaterialComponent
         End Function
 
         Public Function HasListIndex() As Boolean
+            'If ListCollectionIndex > -1 And ListIndex > -1 Then
             If ListIndex > -1 Then
                 Return True
             Else
                 Return False
             End If
         End Function
+
+        'Public Function HasListCollectionIndex() As Boolean
+        '    If ListCollectionIndex > -1 Then
+        '        Return True
+        '    Else
+        '        Return False
+        '    End If
+        'End Function
 
     End Class
 
@@ -1700,7 +1725,13 @@ Public Class SpeechMaterialComponent
     ''' <returns></returns>
     Public Function GetSelfIndex() As Integer?
 
-        If ParentComponent Is Nothing Then Return Nothing
+        If ParentComponent Is Nothing Then
+            'If Me.LinguisticLevel = LinguisticLevels.ListCollection Then
+            '    Return 0
+            'Else
+            Return Nothing
+            'End If
+        End If
 
         Dim Siblings = GetSiblings()
         For s = 0 To Siblings.Count - 1
@@ -2059,11 +2090,22 @@ Public Class SpeechMaterialComponent
         Return OutputList
     End Function
 
-    Public Function GetAllRelativesAtLevel(ByVal Level As SpeechMaterialComponent.LinguisticLevels) As List(Of SpeechMaterialComponent)
+    Public Function GetAllRelativesAtLevel(ByVal Level As SpeechMaterialComponent.LinguisticLevels,
+                                           Optional ByVal ExcludePractiseComponents As Boolean = False,
+                                           Optional ByVal ExcludeTestComponents As Boolean = False) As List(Of SpeechMaterialComponent)
         'Creates a list
         Dim OutputList As New List(Of SpeechMaterialComponent)
         Dim AllRelatives = GetAllRelatives()
         For Each Component In AllRelatives
+
+            If ExcludePractiseComponents = True Then
+                If Component.IsPractiseComponent = True Then Continue For
+            End If
+
+            If ExcludeTestComponents = True Then
+                If Component.IsPractiseComponent = False Then Continue For
+            End If
+
             If Component.LinguisticLevel = Level Then OutputList.Add(Component)
         Next
         Return OutputList

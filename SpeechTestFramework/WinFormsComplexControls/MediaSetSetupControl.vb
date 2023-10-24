@@ -27,7 +27,7 @@
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
             'Adding linguistic levels for the speech level adjustment function
-            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
+            'SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection) ' TODO: It's not possible to convert to ListCollection lince a ListCollection cannot fit within the SMA (v1.1) specification.
             SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
             SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
             SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
@@ -574,6 +574,16 @@
             Exit Sub
         End If
 
+        If CrossfadeDuration_IntegerParsingTextBox.Value Is Nothing Then
+            MsgBox("Please indicate a crossfade duration (can be zero, if you don't want any crossfading) for the new sound files!", MsgBoxStyle.Exclamation, "Sound file linguistic levels")
+            Exit Sub
+        End If
+
+        If IncludePractiseItems_CheckBox.Checked = False And IncludeTestItems_CheckBox.Checked = False Then
+            MsgBox("Please include either test or practise items, or both!", MsgBoxStyle.Exclamation, "Sound file linguistic levels")
+            Exit Sub
+        End If
+
         'Creating a deep copy of the current media set
         Dim NewMediaSet = SelectedMediaSet.CreateCopy
 
@@ -591,12 +601,18 @@
 
         'Copying sound files
         Dim SoundChannel As Integer = 1
-        Dim UniquePrimaryStringRepresenations As Boolean = False
 
         Dim Padding As Integer = Math.Floor((NewSoundFilePadding_IntegerParsingTextBox.Value.Value / 1000) * SelectedMediaSet.WaveFileSampleRate)
         Dim InterStimulusIntervalLength As Integer = Math.Floor((NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Value.Value / 1000) * SelectedMediaSet.WaveFileSampleRate)
+        Dim CrossfadeLength As Integer = Math.Floor((CrossfadeDuration_IntegerParsingTextBox.Value.Value / 1000) * SelectedMediaSet.WaveFileSampleRate)
 
-        SelectedMediaSet.CopySoundsToNewMediaSet(NewMediaSet, Padding, InterStimulusIntervalLength, SoundChannel,, UniquePrimaryStringRepresenations)
+        Dim RandomSeed As Integer? = Nothing
+        If RandomSeed_IntegerParsingTextBox.Value IsNot Nothing Then
+            RandomSeed = RandomSeed_IntegerParsingTextBox.Value.Value
+        End If
+
+        SelectedMediaSet.CopySoundsToNewMediaSet(NewMediaSet, SoundChannel, Padding, InterStimulusIntervalLength, CrossfadeLength,
+                                                 IncludeTestItems_CheckBox.Checked, IncludePractiseItems_CheckBox.Checked, RandomizeOrder_CheckBox.Checked, RandomSeed, True)
 
         NewMediaSet.WriteCustomVariables()
 
