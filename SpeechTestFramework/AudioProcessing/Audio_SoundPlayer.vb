@@ -22,7 +22,15 @@ Namespace Audio
         Public Class OverlappingSoundPlayer
             Implements IDisposable
 
+            Private ApproachingEndOfBufferAlert_BufferCount As Integer
+            Public Property RaisePlaybackBufferTickEvents As Boolean
+            Public Property RaiseRecordingBufferTickEvents As Boolean
+
             Public Event MessageFromPlayer(ByVal Message As String)
+
+            Public Event NewRecordingBuffer(ByVal Buffer As Single())
+
+            Public Event PlaybackBufferTick()
 
             Private Mixer As DuplexMixer
 
@@ -69,14 +77,12 @@ Namespace Audio
                                                                                      CallbackSpinLock.Enter(SpinLockTaken)
 
                                                                                      'INPUT SOUND
-
-                                                                                     If RecordingIsActive = True Then
+                                                                                     If RecordingIsActive = True Or (MonitorRecordingBuffer = True And SoundDirection <> SoundDirections.PlaybackOnly) Then
                                                                                          'Getting input sound
-
-                                                                                         'This need to be changed for real time recording, the audio need to be converted to Sound format, or maybe it could be fixed after stoppong the recording?
                                                                                          Dim InputBuffer(RecordingBuffer.Length - 1) As Single
                                                                                          Marshal.Copy(input, InputBuffer, 0, FramesPerBuffer * NumberOfInputChannels)
                                                                                          InputBufferHistory.Add(InputBuffer)
+                                                                                         If RaiseRecordingBufferTickEvents = True Then RaiseEvent NewRecordingBuffer(InputBuffer)
                                                                                      End If
 
 
@@ -310,6 +316,7 @@ Namespace Audio
                                                                                          End Select
                                                                                      End If
 
+                                                                                     If RaisePlaybackBufferTickEvents = True Then RaiseEvent PlaybackBufferTick()
 
                                                                                      Return PortAudio.PaStreamCallbackResult.paContinue
 
@@ -460,6 +467,7 @@ Namespace Audio
 
             Private RecordingIsActive As Boolean
             Private PlaybackIsActive As Boolean
+            Public Property MonitorRecordingBuffer As Boolean
 
             Private _IsClippingInactivated As Boolean = False
             Public ReadOnly Property IsClippingInactivated As Boolean
@@ -468,8 +476,6 @@ Namespace Audio
                 End Get
             End Property
 
-            Private ApproachingEndOfBufferAlert_BufferCount As Integer
-            Private IsBufferTickActive As Boolean
 
             Public Enum SoundDirections
                 PlaybackOnly
@@ -482,11 +488,15 @@ Namespace Audio
                    Optional ByVal StopAtOutputSoundEnd As Boolean = False,
                    Optional ByVal InactivateClipping As Boolean = False,
                    Optional ByVal ApproachingEndOfBufferAlert_BufferCount As Integer = 1,
-                   Optional ByVal ActivateBufferTicks As Boolean = False)
+                   Optional ByVal RaisePlaybackBufferTickEvents As Boolean = False,
+                           Optional ByVal RaiseRecordingBufferTickEvents As Boolean = False,
+                           Optional ByVal MonitorRecordingBuffer As Boolean = False)
 
-                Me.IsBufferTickActive = ActivateBufferTicks
+                Me.RaisePlaybackBufferTickEvents = RaisePlaybackBufferTickEvents
+                Me.RaiseRecordingBufferTickEvents = RaiseRecordingBufferTickEvents
                 Me.ApproachingEndOfBufferAlert_BufferCount = ApproachingEndOfBufferAlert_BufferCount
                 Me.StopAtOutputSoundEnd = StopAtOutputSoundEnd
+                Me.MonitorRecordingBuffer = MonitorRecordingBuffer
 
                 Try
 

@@ -2605,18 +2605,60 @@ Namespace Audio
         Public Class SoundLevelMeter
             Inherits PictureBox
 
-            Public Property minLevel As Single = -100
-            Public Property maxLevel As Single = +12
+            Private _MinLevel As Single = -100
+            Public Property MinLevel As Single
+                Get
+                    Return _MinLevel
+                End Get
+                Set(value As Single)
+                    'Setting the value of _MinLevel 
+                    _MinLevel = value
+
+                    'Updating _dBRange
+                    _dBRange = Math.Abs(_MaxLevel - _MinLevel)
+                End Set
+            End Property
+
+            Private _MaxLevel As Single = +12
+            Public Property MaxLevel As Single
+                Get
+                    Return _MaxLevel
+                End Get
+                Set(value As Single)
+                    'Setting the value of _MaxLevel 
+                    _MaxLevel = value
+
+                    'Updating _dBRange
+                    _dBRange = Math.Abs(_MaxLevel - _MinLevel)
+                End Set
+            End Property
+
+            Private _dBRange As Single
+            Public ReadOnly Property dBRange As Single
+                Get
+                    Return _dBRange
+                End Get
+            End Property
+
             Public Property FullScaleLevel As Single = 0
             Public Property WarningLevel As Single = -4
-            Private Property currentLevel As Single = minLevel
-            Private Property memoryPeakLevel As Single
-            Private currentLevelHeightInPixels As Single
+            Private Property CurrentLevel As Single = MinLevel
+            Private Property MemoryPeakLevel As Single
+            Private CurrentLevelHeightInPixels As Single
             Private FullScaleLevelHeightInPixels As Single
             Private WarningLevelHeightInPixels As Single
-            Private memoryPeakLevelHeightInPixels As Single
-            Private maxMemory As New List(Of Single)
+            Private MemoryPeakLevelHeightInPixels As Single
+            Private MaxMemory As New List(Of Single)
             Public Property Activated As Boolean = False
+
+            Public GreyBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.SystemColors.Control))
+            Public GreenBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Green))
+            Public RedBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Red))
+            Public YellowBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Yellow))
+
+            Public BlackPen As New System.Drawing.Pen(System.Drawing.Color.Black, 1)
+            Public GrayPen As New System.Drawing.Pen(System.Drawing.Color.Gray, 1)
+            Public RedPen As New System.Drawing.Pen(System.Drawing.Color.Red, 1)
 
             Public Sub New()
 
@@ -2624,24 +2666,26 @@ Namespace Audio
 
                 Me.BackColor = Color.White
 
-                setPeakLevelMemoryItemCount()
+                SetPeakLevelMemoryItemCount()
 
             End Sub
 
-            Public Sub setPeakLevelMemoryItemCount(Optional ItemCount As Integer = 10)
+            Public Sub SetPeakLevelMemoryItemCount(Optional ItemCount As Integer = 30)
+
+                MaxMemory.Clear()
 
                 For memoryItems = 0 To ItemCount - 1
-                    maxMemory.Add(minLevel)
+                    MaxMemory.Add(MinLevel)
                 Next
 
             End Sub
 
             Public Sub UpdateLevel(newLevel As Single)
 
-                currentLevel = newLevel
+                CurrentLevel = newLevel
 
-                maxMemory.Add(currentLevel)
-                maxMemory.RemoveAt(0)
+                MaxMemory.Add(CurrentLevel)
+                MaxMemory.RemoveAt(0)
 
                 'Dim myRectangle As New RectangleF(Left, Top, Width, Height)
                 'Dim myRegion As New Region(myRectangle)
@@ -2651,119 +2695,104 @@ Namespace Audio
             End Sub
 
             Public Sub Activate()
-                AddHandler Me.Paint, AddressOf drawMeter
+                AddHandler Me.Paint, AddressOf DrawMeter
                 Activated = True
             End Sub
 
             Public Sub Inactivate()
-                currentLevel = minLevel
-                For n = 0 To maxMemory.Count - 1
-                    maxMemory(n) = minLevel
+                CurrentLevel = MinLevel
+                For n = 0 To MaxMemory.Count - 1
+                    MaxMemory(n) = MinLevel
                 Next
                 Refresh()
 
-                RemoveHandler Me.Paint, AddressOf drawMeter
+                RemoveHandler Me.Paint, AddressOf DrawMeter
                 Activated = False
             End Sub
 
-            Private Sub drawMeter(ByVal sender As Object, ByVal e As System.Windows.Forms.PaintEventArgs)
+            Private Sub DrawMeter(ByVal sender As Object, ByVal e As System.Windows.Forms.PaintEventArgs)
 
                 Try
 
                     ' Create a local version of the graphics object for the PictureBox.
                     Dim g As System.Drawing.Graphics = e.Graphics
 
-                    Dim dBRange As Single = Math.Abs(maxLevel - minLevel)
-
-
                     'Converting to pixels
-                    currentLevelHeightInPixels = (Height / dBRange) * (currentLevel - minLevel)
-                    FullScaleLevelHeightInPixels = (Height / dBRange) * (FullScaleLevel - minLevel)
-                    WarningLevelHeightInPixels = (Height / dBRange) * (WarningLevel - minLevel)
-                    memoryPeakLevelHeightInPixels = (Height / dBRange) * (maxMemory.Max - minLevel)
+                    CurrentLevelHeightInPixels = (Height / dBRange) * (CurrentLevel - MinLevel)
+                    FullScaleLevelHeightInPixels = (Height / dBRange) * (FullScaleLevel - MinLevel)
+                    WarningLevelHeightInPixels = (Height / dBRange) * (WarningLevel - MinLevel)
+                    MemoryPeakLevelHeightInPixels = (Height / dBRange) * (MaxMemory.Max - MinLevel)
 
-                    Dim greyBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.SystemColors.Control))
-                    Dim greenBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Green))
-                    Dim redBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Red))
-                    Dim yellowBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Yellow))
-
-                    Dim halfWidth As Single = Me.Width / 2
+                    Dim HalfWidth As Single = Me.Width / 2
                     Dim dBLineStartX As Single = (Me.Width / 8) * 3
                     Dim dBLineEndX As Single = (Me.Width / 8) * 5
                     Dim dBStringYCorrection As Single = 5 '8 / 2 ' (Height / Rounding(Math.Abs(dBRange) / 6, AudioEnumerators.roundingMethods.alwaysUp))  '(which is Height / total number of dBs to display)/2
 
-
                     'Drawing backcolor rectangle on the values half in system control color
-                    g.FillRectangle(greyBrush, 0, 0, halfWidth, Height)
+                    g.FillRectangle(GreyBrush, 0, 0, HalfWidth, Height)
 
                     'Draws level rectangles
-                    Select Case currentLevel
+                    Select Case CurrentLevel
                         Case <= WarningLevel
-                            g.FillRectangle(greenBrush, halfWidth, Height - currentLevelHeightInPixels, halfWidth, currentLevelHeightInPixels)
+                            g.FillRectangle(GreenBrush, HalfWidth, Height - CurrentLevelHeightInPixels, HalfWidth, CurrentLevelHeightInPixels)
 
                         Case > WarningLevel
-                            If currentLevel < FullScaleLevel Then
-                                g.FillRectangle(greenBrush, halfWidth, Height - WarningLevelHeightInPixels, halfWidth, WarningLevelHeightInPixels)
-                                g.FillRectangle(yellowBrush, halfWidth, Height - WarningLevelHeightInPixels - (currentLevelHeightInPixels - WarningLevelHeightInPixels), halfWidth, currentLevelHeightInPixels - WarningLevelHeightInPixels)
+                            If CurrentLevel < FullScaleLevel Then
+                                g.FillRectangle(GreenBrush, HalfWidth, Height - WarningLevelHeightInPixels, HalfWidth, WarningLevelHeightInPixels)
+                                g.FillRectangle(YellowBrush, HalfWidth, Height - WarningLevelHeightInPixels - (CurrentLevelHeightInPixels - WarningLevelHeightInPixels), HalfWidth, CurrentLevelHeightInPixels - WarningLevelHeightInPixels)
 
                             Else
-                                g.FillRectangle(greenBrush, halfWidth, Height - WarningLevelHeightInPixels, halfWidth, WarningLevelHeightInPixels)
-                                g.FillRectangle(yellowBrush, halfWidth, Height - FullScaleLevelHeightInPixels, halfWidth, FullScaleLevelHeightInPixels - WarningLevelHeightInPixels)
-                                g.FillRectangle(redBrush, halfWidth, Height - FullScaleLevelHeightInPixels - (currentLevelHeightInPixels - FullScaleLevelHeightInPixels), halfWidth, currentLevelHeightInPixels - FullScaleLevelHeightInPixels)
+                                g.FillRectangle(GreenBrush, HalfWidth, Height - WarningLevelHeightInPixels, HalfWidth, WarningLevelHeightInPixels)
+                                g.FillRectangle(YellowBrush, HalfWidth, Height - FullScaleLevelHeightInPixels, HalfWidth, FullScaleLevelHeightInPixels - WarningLevelHeightInPixels)
+                                g.FillRectangle(RedBrush, HalfWidth, Height - FullScaleLevelHeightInPixels - (CurrentLevelHeightInPixels - FullScaleLevelHeightInPixels), HalfWidth, CurrentLevelHeightInPixels - FullScaleLevelHeightInPixels)
 
                             End If
                     End Select
 
-                    Dim blackPen As New System.Drawing.Pen(System.Drawing.Color.Black, 1)
-                    Dim grayPen As New System.Drawing.Pen(System.Drawing.Color.Gray, 1)
-                    Dim redPen As New System.Drawing.Pen(System.Drawing.Color.Red, 1)
-
-
                     'Drawing zero line
                     g.DrawString((0).ToString, New Font("Arial", 7), Brushes.Blue, New PointF(0, Height - FullScaleLevelHeightInPixels - dBStringYCorrection))
                     Dim zy As Single = Height - FullScaleLevelHeightInPixels
-                    g.DrawLine(blackPen, dBLineStartX, zy, Width, zy)
+                    g.DrawLine(BlackPen, dBLineStartX, zy, Width, zy)
 
                     'Values from zero and above 
-                    Dim valuesFromZeroAndUP As Integer = Utils.Rounding(Math.Abs(maxLevel) / 6, Utils.roundingMethods.alwaysUp)
-                    For n = 1 To valuesFromZeroAndUP
+                    Dim ValuesFromZeroAndUP As Integer = Utils.Rounding(Math.Abs(MaxLevel) / 6, Utils.roundingMethods.alwaysUp)
+                    For n = 1 To ValuesFromZeroAndUP
 
                         'Drawing frequency numbers
                         g.DrawString((n * 6).ToString, New Font("Arial", 7), Brushes.Blue, New PointF(0, Height - FullScaleLevelHeightInPixels - 6 * n * (Height / dBRange) - dBStringYCorrection))
 
                         'Drawing lines
                         Dim y As Single = Height - FullScaleLevelHeightInPixels - 6 * n * (Height / dBRange)
-                        g.DrawLine(blackPen, dBLineStartX, y, dBLineEndX, y)
+                        g.DrawLine(BlackPen, dBLineStartX, y, dBLineEndX, y)
                     Next
 
 
                     'Values below zero 
-                    Dim valuesBelowZero As Integer = Utils.Rounding(Math.Abs(minLevel) / 6, Utils.roundingMethods.alwaysUp)
-                    For n = 0 To valuesBelowZero - 1
+                    Dim ValuesBelowZero As Integer = Utils.Rounding(Math.Abs(MinLevel) / 6, Utils.roundingMethods.alwaysUp)
+                    For n = 0 To ValuesBelowZero - 1
 
                         'Drawing frequency numbers
                         g.DrawString((n * -6).ToString, New Font("Arial", 7), Brushes.Blue, New PointF(0, Height - FullScaleLevelHeightInPixels + 6 * n * (Height / dBRange) - dBStringYCorrection))
 
                         'Drawing lines
                         Dim y As Single = Height - FullScaleLevelHeightInPixels + 6 * n * (Height / dBRange)
-                        g.DrawLine(blackPen, dBLineStartX, y, dBLineEndX, y)
+                        g.DrawLine(BlackPen, dBLineStartX, y, dBLineEndX, y)
 
                     Next
 
                     'Drawing memoryPeakLevel
-                    Dim my As Single = Height - memoryPeakLevelHeightInPixels
-                    g.DrawLine(redPen, halfWidth, my, Width, my)
+                    Dim MemoryY As Single = Height - MemoryPeakLevelHeightInPixels
+                    g.DrawLine(RedPen, HalfWidth, MemoryY, Width, MemoryY)
 
                     'Drawing separator line
-                    g.DrawLine(grayPen, halfWidth + 1, 0, halfWidth + 1, Height)
-                    g.DrawLine(blackPen, halfWidth, 0, halfWidth, Height)
+                    g.DrawLine(GrayPen, HalfWidth + 1, 0, HalfWidth + 1, Height)
+                    g.DrawLine(BlackPen, HalfWidth, 0, HalfWidth, Height)
 
                 Catch ex As Exception
-                    MsgBox(ex.ToString)
+                    'MsgBox(ex.ToString)
                 End Try
 
             End Sub
-
 
         End Class
 

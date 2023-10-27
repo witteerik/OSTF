@@ -23,17 +23,15 @@ Public Module OstfBase
 
     Public Property AvailableTests As New List(Of SpeechMaterialSpecification)
 
-    Private _SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
-
     ''' <summary>
     ''' The SoundPlayer shared between all OSTF applications. Each application that uses it, is responsible of initiating it, with the settings required by the specific application. As well as disposing it when the application is closed.
     ''' </summary>
-    Public ReadOnly Property SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
-        Get
-            If _SoundPlayer Is Nothing Then _SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
-            Return _SoundPlayer
-        End Get
-    End Property
+    Public WithEvents SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
+
+    Public Function InitializeSoundPlayer() As Boolean
+        SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
+        Return SoundPlayerIsInitialized()
+    End Function
 
     Public Function SoundPlayerIsInitialized() As Boolean
         Return _SoundPlayer IsNot Nothing
@@ -103,6 +101,9 @@ Public Module OstfBase
                     Throw New Exception("Unable to locate the OSTF media folder! Cannot start the application.")
                 End If
             End If
+
+            'Initializing the sound player
+            InitializeSoundPlayer()
 
         Catch ex As Exception
             Throw New Exception("The following error occurred when trying to initialize OSTF:" & vbCrLf & vbCrLf & ex.ToString)

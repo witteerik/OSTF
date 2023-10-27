@@ -130,14 +130,11 @@ Namespace Audio
                         Case SoundMeasurementType.AbsolutePeakAmplitude
                             'Calculates the absolute max amplitude of the section
 
-                            Dim peak_pos As Double '= inputArray.Max (Detekterar peakvärdet för hela Arrayen) 
-                            Dim peak_neg As Double '= inputArray.Min
+                            Dim LocalArrayCopy(sectionLength - 1) As Single
+                            Array.Copy(MeasurementArray, LocalArrayCopy, sectionLength.Value)
 
-                            'Detekterar peakvärdet för sectionen
-                            For n = startSample To startSample + sectionLength - 1
-                                If MeasurementArray(n) > peak_pos Then peak_pos = MeasurementArray(n)
-                                If MeasurementArray(n) < peak_neg Then peak_neg = MeasurementArray(n)
-                            Next
+                            Dim peak_pos As Double = LocalArrayCopy.Max
+                            Dim peak_neg As Double = LocalArrayCopy.Min
 
                             Dim peak As Double = 0
 
@@ -154,6 +151,35 @@ Namespace Audio
                                 Case SoundDataUnit.linear
                                     Return peak
                             End Select
+
+                        'Old code
+                        'Case SoundMeasurementType.AbsolutePeakAmplitude
+                        '    'Calculates the absolute max amplitude of the section
+
+                        '    Dim peak_pos As Double '= inputArray.Max (Detekterar peakvärdet för hela Arrayen) 
+                        '    Dim peak_neg As Double '= inputArray.Min
+
+                        '    'Detekterar peakvärdet för sectionen
+                        '    For n = startSample To startSample + sectionLength - 1
+                        '        If MeasurementArray(n) > peak_pos Then peak_pos = MeasurementArray(n)
+                        '        If MeasurementArray(n) < peak_neg Then peak_neg = MeasurementArray(n)
+                        '    Next
+
+                        '    Dim peak As Double = 0
+
+                        '    If peak_pos > -peak_neg Then
+                        '        peak = peak_pos
+                        '    Else
+                        '        peak = -peak_neg
+                        '    End If
+
+                        '    Select Case outputUnit
+                        '        Case SoundDataUnit.dB
+                        '            Dim sectionLevel As Double = dBConversion(peak, dBConversionDirection.to_dB, InputSound.WaveFormat)
+                        '            Return sectionLevel
+                        '        Case SoundDataUnit.linear
+                        '            Return peak
+                        '    End Select
 
                         Case SoundMeasurementType.averageAbsoluteAmplitude
 

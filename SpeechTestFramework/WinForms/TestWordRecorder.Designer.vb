@@ -90,11 +90,14 @@ Partial Class SpeechMaterialRecorder
         Me.RecordingTab = New System.Windows.Forms.TabPage()
         Me.RecordingTabMainSplitContainer = New System.Windows.Forms.SplitContainer()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
+        Me.RecordingSoundLevelMeter = New SpeechTestFramework.Audio.Graphics.SoundLevelMeter()
         Me.TopRecordingControlPanel = New System.Windows.Forms.Panel()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
         Me.RecordingLabel = New System.Windows.Forms.Label()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Transcription_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
+        Me.Spelling_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
         Me.Rec_PreviousItemButton = New System.Windows.Forms.Button()
         Me.Rec_PreviousNRItemButton = New System.Windows.Forms.Button()
         Me.Rec_NextItemButton = New System.Windows.Forms.Button()
@@ -123,9 +126,7 @@ Partial Class SpeechMaterialRecorder
         Me.Label3 = New System.Windows.Forms.Label()
         Me.InputChannel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Unlock_Button = New System.Windows.Forms.Button()
-        Me.RecordingSoundLevelMeter = New SpeechTestFramework.Audio.Graphics.SoundLevelMeter()
-        Me.Transcription_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
-        Me.Spelling_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
+        Me.SLM_BackgroundWorker = New System.ComponentModel.BackgroundWorker()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         Me.MainTabControl.SuspendLayout()
@@ -134,6 +135,7 @@ Partial Class SpeechMaterialRecorder
         Me.RecordingTabMainSplitContainer.Panel1.SuspendLayout()
         Me.RecordingTabMainSplitContainer.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
+        CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TopRecordingControlPanel.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
@@ -147,7 +149,6 @@ Partial Class SpeechMaterialRecorder
         Me.GroupBox1.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
         Me.SoundSettings_TableLayoutPanel.SuspendLayout()
-        CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'MenuStrip1
@@ -622,6 +623,21 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel1.Size = New System.Drawing.Size(681, 347)
         Me.TableLayoutPanel1.TabIndex = 3
         '
+        'RecordingSoundLevelMeter
+        '
+        Me.RecordingSoundLevelMeter.Activated = False
+        Me.RecordingSoundLevelMeter.BackColor = System.Drawing.Color.White
+        Me.RecordingSoundLevelMeter.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RecordingSoundLevelMeter.FullScaleLevel = 0!
+        Me.RecordingSoundLevelMeter.Location = New System.Drawing.Point(539, 3)
+        Me.RecordingSoundLevelMeter.MaxLevel = 12.0!
+        Me.RecordingSoundLevelMeter.MinLevel = -100.0!
+        Me.RecordingSoundLevelMeter.Name = "RecordingSoundLevelMeter"
+        Me.RecordingSoundLevelMeter.Size = New System.Drawing.Size(139, 301)
+        Me.RecordingSoundLevelMeter.TabIndex = 0
+        Me.RecordingSoundLevelMeter.TabStop = False
+        Me.RecordingSoundLevelMeter.WarningLevel = -4.0!
+        '
         'TopRecordingControlPanel
         '
         Me.TopRecordingControlPanel.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
@@ -699,6 +715,38 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel4.Size = New System.Drawing.Size(520, 248)
         Me.TableLayoutPanel4.TabIndex = 15
+        '
+        'Transcription_AutoHeightTextBox
+        '
+        Me.Transcription_AutoHeightTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Transcription_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.Transcription_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Transcription_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Transcription_AutoHeightTextBox.Location = New System.Drawing.Point(93, 134)
+        Me.Transcription_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 10, 3, 3)
+        Me.Transcription_AutoHeightTextBox.Multiline = True
+        Me.Transcription_AutoHeightTextBox.Name = "Transcription_AutoHeightTextBox"
+        Me.Transcription_AutoHeightTextBox.ReadOnly = True
+        Me.Transcription_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
+        Me.Transcription_AutoHeightTextBox.TabIndex = 5
+        Me.Transcription_AutoHeightTextBox.Text = "Transcription"
+        Me.Transcription_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        '
+        'Spelling_AutoHeightTextBox
+        '
+        Me.Spelling_AutoHeightTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Spelling_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.Spelling_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Bottom
+        Me.Spelling_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Spelling_AutoHeightTextBox.Location = New System.Drawing.Point(93, 88)
+        Me.Spelling_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 3, 3, 10)
+        Me.Spelling_AutoHeightTextBox.Multiline = True
+        Me.Spelling_AutoHeightTextBox.Name = "Spelling_AutoHeightTextBox"
+        Me.Spelling_AutoHeightTextBox.ReadOnly = True
+        Me.Spelling_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
+        Me.Spelling_AutoHeightTextBox.TabIndex = 0
+        Me.Spelling_AutoHeightTextBox.Text = "Spelling"
+        Me.Spelling_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'Rec_PreviousItemButton
         '
@@ -1020,53 +1068,6 @@ Partial Class SpeechMaterialRecorder
         Me.Unlock_Button.Text = "Unlock panel"
         Me.Unlock_Button.UseVisualStyleBackColor = True
         '
-        'RecordingSoundLevelMeter
-        '
-        Me.RecordingSoundLevelMeter.Activated = False
-        Me.RecordingSoundLevelMeter.BackColor = System.Drawing.Color.White
-        Me.RecordingSoundLevelMeter.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.RecordingSoundLevelMeter.FullScaleLevel = 0!
-        Me.RecordingSoundLevelMeter.Location = New System.Drawing.Point(539, 3)
-        Me.RecordingSoundLevelMeter.maxLevel = 12.0!
-        Me.RecordingSoundLevelMeter.minLevel = -100.0!
-        Me.RecordingSoundLevelMeter.Name = "RecordingSoundLevelMeter"
-        Me.RecordingSoundLevelMeter.Size = New System.Drawing.Size(139, 301)
-        Me.RecordingSoundLevelMeter.TabIndex = 0
-        Me.RecordingSoundLevelMeter.TabStop = False
-        Me.RecordingSoundLevelMeter.WarningLevel = -4.0!
-        '
-        'Transcription_AutoHeightTextBox
-        '
-        Me.Transcription_AutoHeightTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
-        Me.Transcription_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.Transcription_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Transcription_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Transcription_AutoHeightTextBox.Location = New System.Drawing.Point(93, 134)
-        Me.Transcription_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 10, 3, 3)
-        Me.Transcription_AutoHeightTextBox.Multiline = True
-        Me.Transcription_AutoHeightTextBox.Name = "Transcription_AutoHeightTextBox"
-        Me.Transcription_AutoHeightTextBox.ReadOnly = True
-        Me.Transcription_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
-        Me.Transcription_AutoHeightTextBox.TabIndex = 5
-        Me.Transcription_AutoHeightTextBox.Text = "Transcription"
-        Me.Transcription_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        '
-        'Spelling_AutoHeightTextBox
-        '
-        Me.Spelling_AutoHeightTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
-        Me.Spelling_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.Spelling_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.Spelling_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Spelling_AutoHeightTextBox.Location = New System.Drawing.Point(93, 88)
-        Me.Spelling_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 3, 3, 10)
-        Me.Spelling_AutoHeightTextBox.Multiline = True
-        Me.Spelling_AutoHeightTextBox.Name = "Spelling_AutoHeightTextBox"
-        Me.Spelling_AutoHeightTextBox.ReadOnly = True
-        Me.Spelling_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
-        Me.Spelling_AutoHeightTextBox.TabIndex = 0
-        Me.Spelling_AutoHeightTextBox.Text = "Spelling"
-        Me.Spelling_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        '
         'SpeechMaterialRecorder
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1089,6 +1090,7 @@ Partial Class SpeechMaterialRecorder
         CType(Me.RecordingTabMainSplitContainer, System.ComponentModel.ISupportInitialize).EndInit()
         Me.RecordingTabMainSplitContainer.ResumeLayout(False)
         Me.TableLayoutPanel1.ResumeLayout(False)
+        CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TopRecordingControlPanel.ResumeLayout(False)
         Me.TableLayoutPanel3.ResumeLayout(False)
         Me.TableLayoutPanel2.ResumeLayout(False)
@@ -1104,7 +1106,6 @@ Partial Class SpeechMaterialRecorder
         Me.GroupBox1.ResumeLayout(False)
         Me.TableLayoutPanel5.ResumeLayout(False)
         Me.SoundSettings_TableLayoutPanel.ResumeLayout(False)
-        CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -1214,4 +1215,5 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents EnforceValidationInLoadedSoundToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents InvalidateEverythingInLoadedSoundToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents UsePrototypeRecordingsToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents SLM_BackgroundWorker As ComponentModel.BackgroundWorker
 End Class

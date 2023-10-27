@@ -4,6 +4,8 @@ Imports System.Windows.Forms.Control
 
 Public Class SpeechMaterialRecorder
 
+    Private WithEvents LocalSoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
+
     Private MediaSet As MediaSet = Nothing
 
     ''' <summary>
@@ -23,6 +25,8 @@ Public Class SpeechMaterialRecorder
     ''' The sound channel on which to record. Could be set in the menu!
     ''' </summary>
     Private RecordingChannel As Integer = 1
+
+    Private LastSoundPlayerBuffer As Audio.Sound = Nothing
 
     Private RandomItemOrder As Boolean = True
 
@@ -153,6 +157,14 @@ Public Class SpeechMaterialRecorder
         End Get
         Set(value As Boolean)
             _ShowSoundLevelMeter = value
+
+            'Activates the meter
+            If value = True Then
+                If RecordingSoundLevelMeter IsNot Nothing Then RecordingSoundLevelMeter.Activate()
+            Else
+                If RecordingSoundLevelMeter IsNot Nothing Then RecordingSoundLevelMeter.Inactivate()
+            End If
+
             ToggleSoundLevelMeteronoffToolStripMenuItem.Checked = _ShowSoundLevelMeter
         End Set
     End Property
@@ -247,6 +259,11 @@ Public Class SpeechMaterialRecorder
 
         'Storing the startup time. This is then used as reference for any recordings done in the current session
         StartUpTime = DateTime.Now
+
+        'Referencing the OstfBase.SoundPlayer locally in LocalSoundPlayer 
+        LocalSoundPlayer = OstfBase.SoundPlayer
+        LocalSoundPlayer.RaiseRecordingBufferTickEvents = True
+        LocalSoundPlayer.MonitorRecordingBuffer = True
 
     End Sub
 
@@ -343,7 +360,7 @@ Public Class SpeechMaterialRecorder
         Next
         RecordingStopDelay_ToolStripComboBox.SelectedIndex = 5
 
-        'ShowSoundLevelMeter
+        ShowSoundLevelMeter = True
 
         ShowSpellingLabel = True
         ShowTranscriptionLabel = True
@@ -1030,23 +1047,30 @@ Public Class SpeechMaterialRecorder
         BackgroundSound_SoundLevelFormat.SelectFormatWithGui()
     End Sub
 
+    Private Delegate Sub NoArgDelegate()
+    Private Sub UpdateSoundLevelMeter()
+        If Me.InvokeRequired Then
+            Dim d As NoArgDelegate = New NoArgDelegate(AddressOf UpdateSoundLevelMeter_Unsafe)
+            d.Invoke()
+        Else
+            UpdateSoundLevelMeter_Unsafe()
+        End If
+    End Sub
 
-    Private Sub UpdateSoundLevelMeter(ByRef NewBuffer As Audio.Sound)
+    Private Sub UpdateSoundLevelMeter_Unsafe()
 
-        'NB this should be done on a background thread!
+        'Updating meter data
+        If LastSoundPlayerBuffer IsNot Nothing And RecordingSoundLevelMeter IsNot Nothing Then
 
-        If RecordingSoundLevelMeter.Activated = True Then
+            RecordingSoundLevelMeter.MinLevel = -100
+            RecordingSoundLevelMeter.MaxLevel = 12
 
-            'Updating meter data
-            RecordingSoundLevelMeter.minLevel = -100
-            RecordingSoundLevelMeter.maxLevel = 12
-            Dim peakLevel As Double = Audio.DSP.MeasureSectionLevel(NewBuffer, 1,,, Audio.AudioManagement.SoundDataUnit.linear, Audio.AudioManagement.SoundMeasurementType.AbsolutePeakAmplitude)
-            If peakLevel = 0 Then
-                RecordingSoundLevelMeter.UpdateLevel(RecordingSoundLevelMeter.minLevel)
+            Dim PeakLevel As Double? = Audio.DSP.MeasureSectionLevel(LastSoundPlayerBuffer, 1,,, Audio.AudioManagement.SoundDataUnit.linear, Audio.AudioManagement.SoundMeasurementType.AbsolutePeakAmplitude)
+            If PeakLevel.HasValue Then
+                RecordingSoundLevelMeter.UpdateLevel(Audio.dBConversion(PeakLevel, Audio.AudioManagement.dBConversionDirection.to_dB, RecordingWaveFormat))
             Else
-                RecordingSoundLevelMeter.UpdateLevel(Audio.dBConversion(peakLevel, Audio.AudioManagement.dBConversionDirection.to_dB, RecordingWaveFormat))
+                RecordingSoundLevelMeter.UpdateLevel(RecordingSoundLevelMeter.MinLevel)
             End If
-
         End If
 
     End Sub
@@ -1367,6 +1391,18 @@ Public Class SpeechMaterialRecorder
         Catch ex As Exception
             MsgBox(ex.ToString)
         End Try
+
+    End Sub
+
+    Private Sub SoundPlayerBufferTick(ByVal Buffer As Single()) Handles LocalSoundPlayer.NewRecordingBuffer
+
+        If RecordingSoundLevelMeter.Activated = True Then
+            If Buffer.Length > 0 Then
+                If LastSoundPlayerBuffer Is Nothing Then LastSoundPlayerBuffer = New Audio.Sound(RecordingWaveFormat)
+                LastSoundPlayerBuffer.WaveData.SampleData(1) = Buffer
+                UpdateSoundLevelMeter()
+            End If
+        End If
 
     End Sub
 
@@ -2190,6 +2226,7 @@ Public Class SpeechMaterialRecorder
         End If
 
     End Sub
+
 
 
 
