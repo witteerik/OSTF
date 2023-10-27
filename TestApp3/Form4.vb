@@ -69,7 +69,7 @@ Public Class Form4
 
                 'NewMediaSet.CopySoundFiles(CompleteSpeechMaterial, IO.Path.Combine(SpeechTestFramework.Utils.logFilePath, "MediaSet2"))
 
-                NewMediaSet.RecordAndEditAudioMediaFiles(SpeechTestFramework.MediaSet.SpeechMaterialRecorderLoadOptions.LoadAllSounds, SpeechTestFramework.MediaSet.PrototypeRecordingOptions.None)
+                NewMediaSet.RecordAndEditAudioMediaFiles(SpeechTestFramework.MediaSet.SpeechMaterialRecorderLoadOptions.LoadAllSounds, True, SpeechTestFramework.MediaSet.PrototypeRecordingOptions.None)
 
                 'NewMediaSet.CreateLackingAudioMediaFiles(CompleteSpeechMaterial)
 

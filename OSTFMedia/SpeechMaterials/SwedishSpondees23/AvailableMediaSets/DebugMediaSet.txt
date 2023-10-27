@@ -1,0 +1,26 @@
+// This is an OSTA media set specification file
+MediaSetName = DebugMediaSet
+TalkerName = EW
+TalkerGender = Male
+TalkerAge = 43
+TalkerDialect = 
+VoiceType = 
+AudioFileLinguisticLevel = List
+SharedMaskersLevel = ListCollection
+MediaAudioItems = 1
+MaskerAudioItems = 1
+MediaImageItems = 0
+MaskerImageItems = 0
+CustomVariablesFolder = Media\DebugMediaSet\CustomVariables
+MediaParentFolder = Media\DebugMediaSet\TestWordRecordings
+MaskerParentFolder = Media\DebugMediaSet\Maskers
+BackgroundNonspeechParentFolder = 
+BackgroundSpeechParentFolder = 
+PrototypeMediaParentFolder = 
+MasterPrototypeRecordingPath = Media\MasterPrototypeRecording.wav
+PrototypeRecordingLevel = 65
+LombardNoisePath = Media\Pink_noise.wav
+LombardNoiseLevel = 65
+WaveFileSampleRate = 48000
+WaveFileBitDepth = 32
+WaveFileEncoding = IeeeFloatingPoints

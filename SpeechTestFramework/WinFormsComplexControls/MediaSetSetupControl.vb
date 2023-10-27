@@ -384,8 +384,6 @@
             Exit Sub
         End If
 
-        'Here we could also check for other things such as Lombard recordings folder etc, but skipps this for now...
-
         'Parsing user input settings
         Dim PrototypeRecordingOptions As SpeechTestFramework.MediaSet.PrototypeRecordingOptions
         If MasterPrototypeRecording_RadioButton.Checked = True Then
@@ -397,7 +395,7 @@
         End If
 
 
-        SelectedMediaSet.RecordAndEditAudioMediaFiles(SpeechTestFramework.MediaSet.SpeechMaterialRecorderLoadOptions.LoadAllSounds, PrototypeRecordingOptions, RandomOrder_CheckBox.Checked)
+        SelectedMediaSet.RecordAndEditAudioMediaFiles(SpeechTestFramework.MediaSet.SpeechMaterialRecorderLoadOptions.LoadAllSounds, RandomOrder_CheckBox.Checked, PrototypeRecordingOptions)
 
 
     End Sub
@@ -619,6 +617,7 @@
         NewMediaSet.WriteToFile()
 
     End Sub
+
 
 End Class
 

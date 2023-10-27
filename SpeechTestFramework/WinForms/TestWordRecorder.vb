@@ -95,18 +95,21 @@ Public Class SpeechMaterialRecorder
 
     Private RecordingWaveFormat As Audio.Formats.WaveFormat
 
-    Private _UseAuditoryPrequeing As Boolean = False
-    Private Property UseAuditoryPrequeing As Boolean
+
+    Private _UsePrototypeRecordings As Boolean = False
+    Private Property UsePrototypeRecordings As Boolean
         Get
-            Return _UseAuditoryPrequeing
+            Return _UsePrototypeRecordings
         End Get
         Set(value As Boolean)
-            _UseAuditoryPrequeing = value
-            AuditoryPrequeingToolStripMenuItem.Checked = _UseAuditoryPrequeing
-            If _UseAuditoryPrequeing = True Then
-                preQueLabel.Text = "Pre-queing: On"
+
+            _UsePrototypeRecordings = value
+            UsePrototypeRecordingsToolStripMenuItem.Checked = _UsePrototypeRecordings
+
+            If _UsePrototypeRecordings = True Then
+                PrototypeRecordingLabel.Text = "Prototype recordings: On"
             Else
-                preQueLabel.Text = "Pre-queing: Off"
+                PrototypeRecordingLabel.Text = "Prototype recordings: Off"
             End If
         End Set
     End Property
@@ -249,7 +252,9 @@ Public Class SpeechMaterialRecorder
 
     Public Sub New(ByRef MediaSet As MediaSet,
                    ByRef EditItems As List(Of Tuple(Of String, String)),
-                   Optional ByVal RandomItemOrder As Boolean = True)
+                   ByVal RandomItemOrder As Boolean,
+                   ByVal PrototypeRecordingOption As MediaSet.PrototypeRecordingOptions,
+                   ByVal InactivateLombardNoise As Boolean)
 
         Me.New()
 
@@ -263,6 +268,12 @@ Public Class SpeechMaterialRecorder
 
         ' Add any initialization after the InitializeComponent() call.
         Me.SoundFilesForEditing = EditItems
+
+        'Inactivates the prototype recording option if no prototype recordings are available
+        If PrototypeRecordingOption = MediaSet.PrototypeRecordingOptions.None Then UsePrototypeRecordingsToolStripMenuItem.Enabled = False
+
+        'Inactivates background / Lombard noise
+        If InactivateLombardNoise = True Then ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Enabled = False
 
         SetDefaultValues()
 
@@ -364,6 +375,12 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
+    Private CurrentPrototypeRecordingIndexAgreement As PrototypeRecordingIndexAgreementModes
+    Private Enum PrototypeRecordingIndexAgreementModes
+        AgreeWithRecordingIndex
+        AlwaysFirstIndex
+    End Enum
+
 
     Private Function LoadSoundFile(ByVal FilePath As String, Optional ByVal PrototypeRecordingFilePath As String = "") As Boolean
 
@@ -396,9 +413,19 @@ Public Class SpeechMaterialRecorder
         'Also loading the sentences for recording
         'Checking that the number of sentences agrees if prototype recording is used ( this could be improved by checking that all SMA levels agree
         If PrototypeRecordingFilePath <> "" Then
-            If CurrentlyLoadedSoundFile.SMA.ChannelData(1).Count <> CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1).Count Then
-                MsgBox("The number of sentence level SMA components differs between recordings: " & vbCrLf & FilePath & vbCrLf & PrototypeRecordingFilePath)
-                Return False
+
+            'Inferring CurrentPrototypeRecordingIndexAgreement from the number of items at the sentence level
+            Dim PrototypeItemsAtSentenceLevel As Integer = CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1).Count
+            If PrototypeItemsAtSentenceLevel = CurrentlyLoadedSoundFile.SMA.ChannelData(1).Count Then
+                CurrentPrototypeRecordingIndexAgreement = PrototypeRecordingIndexAgreementModes.AgreeWithRecordingIndex
+            Else
+                If PrototypeItemsAtSentenceLevel = 1 Then
+                    CurrentPrototypeRecordingIndexAgreement = PrototypeRecordingIndexAgreementModes.AlwaysFirstIndex
+                Else
+                    MsgBox("There is a problem with the number of segmented items in the SMA annotation of the prototype recording on the sentence (linguistic) level. There should either be one or " &
+                           PrototypeItemsAtSentenceLevel & " segmented speech material components at the sentence level." & vbCrLf & vbCrLf & "Inactivating prototype recordings!")
+                    UsePrototypeRecordings = False
+                End If
             End If
         End If
 
@@ -561,6 +588,10 @@ Public Class SpeechMaterialRecorder
 
     Private Sub FileComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles FileComboBox.SelectedIndexChanged
         SelectSoundFileIndex(FileComboBox.SelectedIndex)
+
+        'Disables auto recording when a new file is loaded
+        AutoStartRecording = False
+
     End Sub
 
     Private Sub SelectSoundFileIndex(ByVal NewIndex As Integer)
@@ -1229,10 +1260,14 @@ Public Class SpeechMaterialRecorder
             End If
 
             'Taking a random section of the sound
-            Dim MaskerDuration As Single = 15
+            Dim MaskerDuration As Single = 14
             Dim MaskerLength As Integer = MaskerDuration * BackgroundSound.WaveFormat.SampleRate
 
-            Dim Chl1_2Rnd = rnd.Next(0, BackgroundSound.WaveData.SampleData(1).Length - MaskerLength - 50)
+            If BackgroundSound.WaveData.SampleData(1).Length / BackgroundSound.WaveFormat.SampleRate < (MaskerDuration + 1) Then
+                MsgBox("The Lombart masker sound specified in the selected media set is too short. It should hava a duration of at least " & MaskerDuration + 1 & " seconds.")
+            End If
+
+            Dim Chl1_2Rnd = rnd.Next(0, BackgroundSound.WaveData.SampleData(1).Length - MaskerLength - 2)
             CurrentMasker = New Audio.Sound(BackgroundSound.WaveFormat)
             CurrentMasker.WaveData.SampleData(1) = BackgroundSound.WaveData.SampleData(1).ToList.GetRange(Chl1_2Rnd, MaskerLength).ToArray
             CurrentMasker.WaveData.SampleData(2) = BackgroundSound.WaveData.SampleData(2).ToList.GetRange(Chl1_2Rnd, MaskerLength).ToArray
@@ -1244,9 +1279,17 @@ Public Class SpeechMaterialRecorder
 
 
         'Plays the specified sound
-        If UseAuditoryPrequeing = True Then
+        If UsePrototypeRecordings = True Then
 
-            Dim PrototypeSoundCopy As Audio.Sound = CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).GetSoundFileSection(1)
+            Dim PrototypeSoundCopy As Audio.Sound = Nothing
+
+            Select Case CurrentPrototypeRecordingIndexAgreement
+                Case PrototypeRecordingIndexAgreementModes.AgreeWithRecordingIndex
+                    PrototypeSoundCopy = CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(CurrentSentencesForRecording(CurrentSentenceIndex).Item1).GetSoundFileSection(1)
+                Case PrototypeRecordingIndexAgreementModes.AlwaysFirstIndex
+                    PrototypeSoundCopy = CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(0).GetSoundFileSection(1)
+            End Select
+
 
             'Duplicating channels into stereo
             Dim PrototypeSoundCopy_Stereo = New Audio.Sound(New Audio.Formats.WaveFormat(PrototypeSoundCopy.WaveFormat.SampleRate,
@@ -1278,7 +1321,15 @@ Public Class SpeechMaterialRecorder
 
             SoundPlayer.SwapOutputSounds(PrototypeSoundCopy_Stereo)
 
-            StartRecordingTimer.Interval = 50 + 1000 * CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(CurrentSentenceIndex).Length / CurrentlyLoadedPrototypeRecordingSoundFile.WaveFormat.SampleRate
+
+            Select Case CurrentPrototypeRecordingIndexAgreement
+                Case PrototypeRecordingIndexAgreementModes.AgreeWithRecordingIndex
+                    StartRecordingTimer.Interval = 50 + 1000 * CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(CurrentSentenceIndex).Length / CurrentlyLoadedPrototypeRecordingSoundFile.WaveFormat.SampleRate
+                Case PrototypeRecordingIndexAgreementModes.AlwaysFirstIndex
+                    StartRecordingTimer.Interval = 50 + 1000 * CurrentlyLoadedPrototypeRecordingSoundFile.SMA.ChannelData(1)(0).Length / CurrentlyLoadedPrototypeRecordingSoundFile.WaveFormat.SampleRate
+            End Select
+
+
             StartRecordingTimer.Start()
 
         Else
@@ -1475,7 +1526,7 @@ Public Class SpeechMaterialRecorder
         JumpToUnrecorded = False
 
         If IsRecording = True Then
-            NextItemTimer.Interval = delayBeforeStoppingRecording
+            NextItemTimer.Interval = DelayBeforeStoppingRecording
             NextItemTimer.Start()
         Else
             SelectNextSentenceForRecording()
@@ -1489,7 +1540,7 @@ Public Class SpeechMaterialRecorder
         JumpToUnrecorded = True
 
         If IsRecording = True Then
-            NextItemTimer.Interval = delayBeforeStoppingRecording
+            NextItemTimer.Interval = DelayBeforeStoppingRecording
             NextItemTimer.Start()
         Else
             SelectNextSentenceForRecording()
@@ -1503,7 +1554,7 @@ Public Class SpeechMaterialRecorder
         JumpToUnrecorded = True
 
         If IsRecording = True Then
-            NextItemTimer.Interval = delayBeforeStoppingRecording
+            NextItemTimer.Interval = DelayBeforeStoppingRecording
             NextItemTimer.Start()
         Else
             SelectNextSentenceForRecording()
@@ -1611,9 +1662,8 @@ Public Class SpeechMaterialRecorder
         ShowTranscriptionLabel = Not ShowTranscriptionLabel
     End Sub
 
-
-    Private Sub AuditoryPrequeingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AuditoryPrequeingToolStripMenuItem.Click
-        UseAuditoryPrequeing = Not UseAuditoryPrequeing
+    Private Sub UsePrototypeRecordingsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles UsePrototypeRecordingsToolStripMenuItem.Click
+        UsePrototypeRecordings = Not UsePrototypeRecordings
     End Sub
 
     Private Sub StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Click
@@ -2140,6 +2190,8 @@ Public Class SpeechMaterialRecorder
         End If
 
     End Sub
+
+
 
 
 #End Region

@@ -37,7 +37,7 @@ Partial Class SpeechMaterialRecorder
         Me.SetFontOfPhoneticTranscriptionsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ShowSpellingToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ShowTranscriptionToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.AuditoryPrequeingToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.UsePrototypeRecordingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToggleSoundLevelMeteronoffToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -66,13 +66,16 @@ Partial Class SpeechMaterialRecorder
         Me.CurrentFile_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CurrentFile_AllSegmentations_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.CurrentFile_SentenceTimes_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ValidationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.EnforceValidationInLoadedSoundToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TelepromterBTToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ConnectToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.DisconnectToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
         Me.ToolStrip_BT_StatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.ToolStripStatusLabel6 = New System.Windows.Forms.ToolStripStatusLabel()
-        Me.preQueLabel = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.PrototypeRecordingLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.ToolStripStatusLabel2 = New System.Windows.Forms.ToolStripStatusLabel()
         Me.AutoRecordingStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.ToolStripStatusLabel1 = New System.Windows.Forms.ToolStripStatusLabel()
@@ -87,14 +90,11 @@ Partial Class SpeechMaterialRecorder
         Me.RecordingTab = New System.Windows.Forms.TabPage()
         Me.RecordingTabMainSplitContainer = New System.Windows.Forms.SplitContainer()
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
-        Me.RecordingSoundLevelMeter = New SpeechTestFramework.Audio.Graphics.SoundLevelMeter()
         Me.TopRecordingControlPanel = New System.Windows.Forms.Panel()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
         Me.RecordingLabel = New System.Windows.Forms.Label()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
-        Me.Transcription_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
-        Me.Spelling_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
         Me.Rec_PreviousItemButton = New System.Windows.Forms.Button()
         Me.Rec_PreviousNRItemButton = New System.Windows.Forms.Button()
         Me.Rec_NextItemButton = New System.Windows.Forms.Button()
@@ -123,9 +123,9 @@ Partial Class SpeechMaterialRecorder
         Me.Label3 = New System.Windows.Forms.Label()
         Me.InputChannel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Unlock_Button = New System.Windows.Forms.Button()
-        Me.ValidationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.EnforceValidationInLoadedSoundToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RecordingSoundLevelMeter = New SpeechTestFramework.Audio.Graphics.SoundLevelMeter()
+        Me.Transcription_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
+        Me.Spelling_AutoHeightTextBox = New SpeechTestFramework.AutoHeightTextBox()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         Me.MainTabControl.SuspendLayout()
@@ -134,7 +134,6 @@ Partial Class SpeechMaterialRecorder
         Me.RecordingTabMainSplitContainer.Panel1.SuspendLayout()
         Me.RecordingTabMainSplitContainer.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
-        CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TopRecordingControlPanel.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
         Me.TableLayoutPanel2.SuspendLayout()
@@ -148,6 +147,7 @@ Partial Class SpeechMaterialRecorder
         Me.GroupBox1.SuspendLayout()
         Me.TableLayoutPanel5.SuspendLayout()
         Me.SoundSettings_TableLayoutPanel.SuspendLayout()
+        CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'MenuStrip1
@@ -195,7 +195,7 @@ Partial Class SpeechMaterialRecorder
         '
         'RecordingSettingsMenu
         '
-        Me.RecordingSettingsMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FontSizeToolStripMenuItem, Me.SetFontsToolStripMenuItem, Me.ShowSpellingToolStripMenuItem, Me.ShowTranscriptionToolStripMenuItem, Me.AuditoryPrequeingToolStripMenuItem, Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem, Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem, Me.ToggleSoundLevelMeteronoffToolStripMenuItem, Me.RecordingStopDelayToolStripMenuItem})
+        Me.RecordingSettingsMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FontSizeToolStripMenuItem, Me.SetFontsToolStripMenuItem, Me.ShowSpellingToolStripMenuItem, Me.ShowTranscriptionToolStripMenuItem, Me.UsePrototypeRecordingsToolStripMenuItem, Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem, Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem, Me.ToggleSoundLevelMeteronoffToolStripMenuItem, Me.RecordingStopDelayToolStripMenuItem})
         Me.RecordingSettingsMenu.Name = "RecordingSettingsMenu"
         Me.RecordingSettingsMenu.Size = New System.Drawing.Size(61, 20)
         Me.RecordingSettingsMenu.Text = "Settings"
@@ -204,7 +204,7 @@ Partial Class SpeechMaterialRecorder
         '
         Me.FontSizeToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.IncreaseFontSizeToolStripMenuItem, Me.DecreaseFontSizeToolStripMenuItem})
         Me.FontSizeToolStripMenuItem.Name = "FontSizeToolStripMenuItem"
-        Me.FontSizeToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.FontSizeToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
         Me.FontSizeToolStripMenuItem.Text = "Font size"
         '
         'IncreaseFontSizeToolStripMenuItem
@@ -223,7 +223,7 @@ Partial Class SpeechMaterialRecorder
         '
         Me.SetFontsToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.SetFontOfSpellingsToolStripMenuItem, Me.SetFontOfPhoneticTranscriptionsToolStripMenuItem})
         Me.SetFontsToolStripMenuItem.Name = "SetFontsToolStripMenuItem"
-        Me.SetFontsToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.SetFontsToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
         Me.SetFontsToolStripMenuItem.Text = "Set fonts"
         '
         'SetFontOfSpellingsToolStripMenuItem
@@ -241,44 +241,44 @@ Partial Class SpeechMaterialRecorder
         'ShowSpellingToolStripMenuItem
         '
         Me.ShowSpellingToolStripMenuItem.Name = "ShowSpellingToolStripMenuItem"
-        Me.ShowSpellingToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.ShowSpellingToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
         Me.ShowSpellingToolStripMenuItem.Text = "Show spelling"
         '
         'ShowTranscriptionToolStripMenuItem
         '
         Me.ShowTranscriptionToolStripMenuItem.Name = "ShowTranscriptionToolStripMenuItem"
-        Me.ShowTranscriptionToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.ShowTranscriptionToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
         Me.ShowTranscriptionToolStripMenuItem.Text = "Show transcription"
         '
-        'AuditoryPrequeingToolStripMenuItem
+        'UsePrototypeRecordingsToolStripMenuItem
         '
-        Me.AuditoryPrequeingToolStripMenuItem.Name = "AuditoryPrequeingToolStripMenuItem"
-        Me.AuditoryPrequeingToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
-        Me.AuditoryPrequeingToolStripMenuItem.Text = "Use auditory pre-queing"
+        Me.UsePrototypeRecordingsToolStripMenuItem.Name = "UsePrototypeRecordingsToolStripMenuItem"
+        Me.UsePrototypeRecordingsToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
+        Me.UsePrototypeRecordingsToolStripMenuItem.Text = "Use prototype recordings"
         '
         'StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem
         '
         Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Name = "StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem"
-        Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
         Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem.Text = "Use auto-recording on next/previous"
         '
         'ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem
         '
         Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Name = "ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem"
-        Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
-        Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Text = "Use background sound while recording"
+        Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
+        Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem.Text = "Use background (Lombard) sound while recording"
         '
         'ToggleSoundLevelMeteronoffToolStripMenuItem
         '
         Me.ToggleSoundLevelMeteronoffToolStripMenuItem.Name = "ToggleSoundLevelMeteronoffToolStripMenuItem"
-        Me.ToggleSoundLevelMeteronoffToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.ToggleSoundLevelMeteronoffToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
         Me.ToggleSoundLevelMeteronoffToolStripMenuItem.Text = "Show sound level meter"
         '
         'RecordingStopDelayToolStripMenuItem
         '
         Me.RecordingStopDelayToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RecordingStopDelay_ToolStripComboBox})
         Me.RecordingStopDelayToolStripMenuItem.Name = "RecordingStopDelayToolStripMenuItem"
-        Me.RecordingStopDelayToolStripMenuItem.Size = New System.Drawing.Size(281, 22)
+        Me.RecordingStopDelayToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
         Me.RecordingStopDelayToolStripMenuItem.Text = "Recording stop delay"
         '
         'RecordingStopDelay_ToolStripComboBox
@@ -437,6 +437,25 @@ Partial Class SpeechMaterialRecorder
         Me.CurrentFile_SentenceTimes_ToolStripMenuItem.Size = New System.Drawing.Size(169, 22)
         Me.CurrentFile_SentenceTimes_ToolStripMenuItem.Text = "Sentence times"
         '
+        'ValidationToolStripMenuItem
+        '
+        Me.ValidationToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.EnforceValidationInLoadedSoundToolStripMenuItem, Me.InvalidateEverythingInLoadedSoundToolStripMenuItem})
+        Me.ValidationToolStripMenuItem.Name = "ValidationToolStripMenuItem"
+        Me.ValidationToolStripMenuItem.Size = New System.Drawing.Size(248, 22)
+        Me.ValidationToolStripMenuItem.Text = "Validation"
+        '
+        'EnforceValidationInLoadedSoundToolStripMenuItem
+        '
+        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Name = "EnforceValidationInLoadedSoundToolStripMenuItem"
+        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Size = New System.Drawing.Size(272, 22)
+        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Text = "Enforce validation in loaded sound"
+        '
+        'InvalidateEverythingInLoadedSoundToolStripMenuItem
+        '
+        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Name = "InvalidateEverythingInLoadedSoundToolStripMenuItem"
+        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Size = New System.Drawing.Size(272, 22)
+        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Text = "Invalidate everything in loaded sound"
+        '
         'TelepromterBTToolStripMenuItem
         '
         Me.TelepromterBTToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ConnectToolStripMenuItem, Me.DisconnectToolStripMenuItem})
@@ -459,7 +478,7 @@ Partial Class SpeechMaterialRecorder
         'StatusStrip1
         '
         Me.StatusStrip1.BackColor = System.Drawing.SystemColors.Control
-        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStrip_BT_StatusLabel, Me.ToolStripStatusLabel6, Me.preQueLabel, Me.ToolStripStatusLabel2, Me.AutoRecordingStatusLabel, Me.ToolStripStatusLabel1, Me.BackgroundSoundStatusLabel, Me.ToolStripStatusLabel5, Me.PresentationLevelToolStripStatusLabel, Me.ToolStripStatusLabel4, Me.BackgroundLevel_ToolStripStatusLabel, Me.ToolStripStatusLabel3, Me.SoundFilePathStatusLabel})
+        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStrip_BT_StatusLabel, Me.ToolStripStatusLabel6, Me.PrototypeRecordingLabel, Me.ToolStripStatusLabel2, Me.AutoRecordingStatusLabel, Me.ToolStripStatusLabel1, Me.BackgroundSoundStatusLabel, Me.ToolStripStatusLabel5, Me.PresentationLevelToolStripStatusLabel, Me.ToolStripStatusLabel4, Me.BackgroundLevel_ToolStripStatusLabel, Me.ToolStripStatusLabel3, Me.SoundFilePathStatusLabel})
         Me.StatusStrip1.Location = New System.Drawing.Point(0, 490)
         Me.StatusStrip1.Name = "StatusStrip1"
         Me.StatusStrip1.Size = New System.Drawing.Size(1107, 22)
@@ -478,11 +497,11 @@ Partial Class SpeechMaterialRecorder
         Me.ToolStripStatusLabel6.Size = New System.Drawing.Size(10, 17)
         Me.ToolStripStatusLabel6.Text = "|"
         '
-        'preQueLabel
+        'PrototypeRecordingLabel
         '
-        Me.preQueLabel.Name = "preQueLabel"
-        Me.preQueLabel.Size = New System.Drawing.Size(89, 17)
-        Me.preQueLabel.Text = "Pre-queing: Off"
+        Me.PrototypeRecordingLabel.Name = "PrototypeRecordingLabel"
+        Me.PrototypeRecordingLabel.Size = New System.Drawing.Size(136, 17)
+        Me.PrototypeRecordingLabel.Text = "Prototype recording: Off"
         '
         'ToolStripStatusLabel2
         '
@@ -603,21 +622,6 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel1.Size = New System.Drawing.Size(681, 347)
         Me.TableLayoutPanel1.TabIndex = 3
         '
-        'RecordingSoundLevelMeter
-        '
-        Me.RecordingSoundLevelMeter.Activated = False
-        Me.RecordingSoundLevelMeter.BackColor = System.Drawing.Color.White
-        Me.RecordingSoundLevelMeter.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.RecordingSoundLevelMeter.FullScaleLevel = 0!
-        Me.RecordingSoundLevelMeter.Location = New System.Drawing.Point(539, 3)
-        Me.RecordingSoundLevelMeter.maxLevel = 12.0!
-        Me.RecordingSoundLevelMeter.minLevel = -100.0!
-        Me.RecordingSoundLevelMeter.Name = "RecordingSoundLevelMeter"
-        Me.RecordingSoundLevelMeter.Size = New System.Drawing.Size(139, 301)
-        Me.RecordingSoundLevelMeter.TabIndex = 0
-        Me.RecordingSoundLevelMeter.TabStop = False
-        Me.RecordingSoundLevelMeter.WarningLevel = -4.0!
-        '
         'TopRecordingControlPanel
         '
         Me.TopRecordingControlPanel.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
@@ -695,38 +699,6 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel4.Size = New System.Drawing.Size(520, 248)
         Me.TableLayoutPanel4.TabIndex = 15
-        '
-        'Transcription_AutoHeightTextBox
-        '
-        Me.Transcription_AutoHeightTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
-        Me.Transcription_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.Transcription_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Transcription_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Transcription_AutoHeightTextBox.Location = New System.Drawing.Point(93, 134)
-        Me.Transcription_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 10, 3, 3)
-        Me.Transcription_AutoHeightTextBox.Multiline = True
-        Me.Transcription_AutoHeightTextBox.Name = "Transcription_AutoHeightTextBox"
-        Me.Transcription_AutoHeightTextBox.ReadOnly = True
-        Me.Transcription_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
-        Me.Transcription_AutoHeightTextBox.TabIndex = 5
-        Me.Transcription_AutoHeightTextBox.Text = "Transcription"
-        Me.Transcription_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
-        '
-        'Spelling_AutoHeightTextBox
-        '
-        Me.Spelling_AutoHeightTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
-        Me.Spelling_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
-        Me.Spelling_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.Spelling_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Spelling_AutoHeightTextBox.Location = New System.Drawing.Point(93, 88)
-        Me.Spelling_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 3, 3, 10)
-        Me.Spelling_AutoHeightTextBox.Multiline = True
-        Me.Spelling_AutoHeightTextBox.Name = "Spelling_AutoHeightTextBox"
-        Me.Spelling_AutoHeightTextBox.ReadOnly = True
-        Me.Spelling_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
-        Me.Spelling_AutoHeightTextBox.TabIndex = 0
-        Me.Spelling_AutoHeightTextBox.Text = "Spelling"
-        Me.Spelling_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'Rec_PreviousItemButton
         '
@@ -1048,24 +1020,52 @@ Partial Class SpeechMaterialRecorder
         Me.Unlock_Button.Text = "Unlock panel"
         Me.Unlock_Button.UseVisualStyleBackColor = True
         '
-        'ValidationToolStripMenuItem
+        'RecordingSoundLevelMeter
         '
-        Me.ValidationToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.EnforceValidationInLoadedSoundToolStripMenuItem, Me.InvalidateEverythingInLoadedSoundToolStripMenuItem})
-        Me.ValidationToolStripMenuItem.Name = "ValidationToolStripMenuItem"
-        Me.ValidationToolStripMenuItem.Size = New System.Drawing.Size(248, 22)
-        Me.ValidationToolStripMenuItem.Text = "Validation"
+        Me.RecordingSoundLevelMeter.Activated = False
+        Me.RecordingSoundLevelMeter.BackColor = System.Drawing.Color.White
+        Me.RecordingSoundLevelMeter.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RecordingSoundLevelMeter.FullScaleLevel = 0!
+        Me.RecordingSoundLevelMeter.Location = New System.Drawing.Point(539, 3)
+        Me.RecordingSoundLevelMeter.maxLevel = 12.0!
+        Me.RecordingSoundLevelMeter.minLevel = -100.0!
+        Me.RecordingSoundLevelMeter.Name = "RecordingSoundLevelMeter"
+        Me.RecordingSoundLevelMeter.Size = New System.Drawing.Size(139, 301)
+        Me.RecordingSoundLevelMeter.TabIndex = 0
+        Me.RecordingSoundLevelMeter.TabStop = False
+        Me.RecordingSoundLevelMeter.WarningLevel = -4.0!
         '
-        'EnforceValidationInLoadedSoundToolStripMenuItem
+        'Transcription_AutoHeightTextBox
         '
-        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Name = "EnforceValidationInLoadedSoundToolStripMenuItem"
-        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Size = New System.Drawing.Size(272, 22)
-        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Text = "Enforce validation in loaded sound"
+        Me.Transcription_AutoHeightTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Transcription_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.Transcription_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Transcription_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Transcription_AutoHeightTextBox.Location = New System.Drawing.Point(93, 134)
+        Me.Transcription_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 10, 3, 3)
+        Me.Transcription_AutoHeightTextBox.Multiline = True
+        Me.Transcription_AutoHeightTextBox.Name = "Transcription_AutoHeightTextBox"
+        Me.Transcription_AutoHeightTextBox.ReadOnly = True
+        Me.Transcription_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
+        Me.Transcription_AutoHeightTextBox.TabIndex = 5
+        Me.Transcription_AutoHeightTextBox.Text = "Transcription"
+        Me.Transcription_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
-        'InvalidateEverythingInLoadedSoundToolStripMenuItem
+        'Spelling_AutoHeightTextBox
         '
-        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Name = "InvalidateEverythingInLoadedSoundToolStripMenuItem"
-        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Size = New System.Drawing.Size(272, 22)
-        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Text = "Invalidate everything in loaded sound"
+        Me.Spelling_AutoHeightTextBox.BackColor = System.Drawing.Color.FromArgb(CType(CType(255, Byte), Integer), CType(CType(255, Byte), Integer), CType(CType(128, Byte), Integer))
+        Me.Spelling_AutoHeightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None
+        Me.Spelling_AutoHeightTextBox.Dock = System.Windows.Forms.DockStyle.Bottom
+        Me.Spelling_AutoHeightTextBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 16.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Spelling_AutoHeightTextBox.Location = New System.Drawing.Point(93, 88)
+        Me.Spelling_AutoHeightTextBox.Margin = New System.Windows.Forms.Padding(3, 3, 3, 10)
+        Me.Spelling_AutoHeightTextBox.Multiline = True
+        Me.Spelling_AutoHeightTextBox.Name = "Spelling_AutoHeightTextBox"
+        Me.Spelling_AutoHeightTextBox.ReadOnly = True
+        Me.Spelling_AutoHeightTextBox.Size = New System.Drawing.Size(334, 26)
+        Me.Spelling_AutoHeightTextBox.TabIndex = 0
+        Me.Spelling_AutoHeightTextBox.Text = "Spelling"
+        Me.Spelling_AutoHeightTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'SpeechMaterialRecorder
         '
@@ -1089,7 +1089,6 @@ Partial Class SpeechMaterialRecorder
         CType(Me.RecordingTabMainSplitContainer, System.ComponentModel.ISupportInitialize).EndInit()
         Me.RecordingTabMainSplitContainer.ResumeLayout(False)
         Me.TableLayoutPanel1.ResumeLayout(False)
-        CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TopRecordingControlPanel.ResumeLayout(False)
         Me.TableLayoutPanel3.ResumeLayout(False)
         Me.TableLayoutPanel2.ResumeLayout(False)
@@ -1105,6 +1104,7 @@ Partial Class SpeechMaterialRecorder
         Me.GroupBox1.ResumeLayout(False)
         Me.TableLayoutPanel5.ResumeLayout(False)
         Me.SoundSettings_TableLayoutPanel.ResumeLayout(False)
+        CType(Me.RecordingSoundLevelMeter, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -1113,7 +1113,7 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents MenuStrip1 As Windows.Forms.MenuStrip
     Friend WithEvents FileToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents StatusStrip1 As Windows.Forms.StatusStrip
-    Friend WithEvents preQueLabel As Windows.Forms.ToolStripStatusLabel
+    Friend WithEvents PrototypeRecordingLabel As Windows.Forms.ToolStripStatusLabel
     Friend WithEvents SoundFilePathStatusLabel As Windows.Forms.ToolStripStatusLabel
     Friend WithEvents MainTabControl As Windows.Forms.TabControl
     Friend WithEvents RecordingTab As Windows.Forms.TabPage
@@ -1125,7 +1125,6 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents SetFontsToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents SetFontOfSpellingsToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents SetFontOfPhoneticTranscriptionsToolStripMenuItem As Windows.Forms.ToolStripMenuItem
-    Friend WithEvents AuditoryPrequeingToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents AudioSettingsToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents SegmentationToolStripMenuItem As Windows.Forms.ToolStripMenuItem
@@ -1214,4 +1213,5 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents ValidationToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents EnforceValidationInLoadedSoundToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents InvalidateEverythingInLoadedSoundToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents UsePrototypeRecordingsToolStripMenuItem As Windows.Forms.ToolStripMenuItem
 End Class

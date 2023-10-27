@@ -774,7 +774,12 @@ Public Class MediaSet
     Public Function CreateLackingAudioMediaFiles(ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
                                                  Optional SupressUnnecessaryMessages As Boolean = False) As Tuple(Of Integer, Integer)
 
+
         Dim ExpectedAudioPaths = GetAllSpeechMaterialComponentAudioPaths(PrototypeRecordingOption)
+
+        If ExpectedAudioPaths Is Nothing Then
+            Return Nothing
+        End If
 
         Dim FilesCreated As Integer = 0
 
@@ -829,11 +834,38 @@ Public Class MediaSet
 
 
     Public Sub RecordAndEditAudioMediaFiles(ByVal SpeechMaterialRecorderSoundFileLoadOption As SpeechMaterialRecorderLoadOptions,
-                                            ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
-                                            Optional ByRef RandomItemOrder As Boolean = True)
+                                            ByVal RandomItemOrder As Boolean,
+                                            ByVal PrototypeRecordingOption As PrototypeRecordingOptions)
+
+        'Checking Lombard noise path exists and tha the noise has the correct samplerate
+        Dim InactivateLombardNoise As Boolean = False
+        If LombardNoisePath = "" Then
+            InactivateLombardNoise = True
+        Else
+
+            'Checks the supplied lombart noise file and its format
+            Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+            Dim LombardNoiseFullPath As String = IO.Path.Combine(CurrentTestRootPath, LombardNoisePath)
+
+            If IO.File.Exists(LombardNoiseFullPath) = False Then
+                MsgBox("Unable to find the Lombard-noise sound file specified in the current media set (" & LombardNoiseFullPath & ")" & vbCrLf & "If you choose to continue the Lombard background noise function in the speech material recorder will be disabled.")
+                InactivateLombardNoise = True
+            Else
+                Dim LombardNoise = Audio.Sound.LoadWaveFile(LombardNoiseFullPath)
+                If CheckSoundFileFormat(LombardNoise, LombardNoiseFullPath) = False Then
+                    MsgBox("If you choose to continue, the Lombard background noise function in the speech material recorder will be disabled.")
+                    InactivateLombardNoise = True
+                End If
+            End If
+        End If
 
         'Checks first that all expected sound files exist
-        Dim FilesStillLacking = CreateLackingAudioMediaFiles(PrototypeRecordingOption, True).Item2
+        Dim ResultFrom_CreateLackingAudioMediaFiles = CreateLackingAudioMediaFiles(PrototypeRecordingOption, True)
+        If ResultFrom_CreateLackingAudioMediaFiles Is Nothing Then
+            Exit Sub
+        End If
+
+        Dim FilesStillLacking = ResultFrom_CreateLackingAudioMediaFiles.Item2
 
         If FilesStillLacking > 0 Then
             MsgBox("All audio files needed were not created. Exiting RecordAudioMediaFiles.")
@@ -845,7 +877,9 @@ Public Class MediaSet
 
         Dim FilesForRecordAndEdit As New List(Of Tuple(Of String, String))
 
+
         'Parsing through all sound files (without storing them in memory) and stores the paths to be included in the recorder GUI
+        Dim SkipFurtherPrototypeRecordingChecking As Boolean = False
         For Each soundFileTuple In AudioPaths.Item1
 
             Dim LoadedSound = Audio.Sound.LoadWaveFile(soundFileTuple.Item1)
@@ -862,6 +896,39 @@ Public Class MediaSet
             If CheckSoundFileFormat(LoadedSound, soundFileTuple.Item1) = False Then
                 'TODO: Lets this through for now, but it may be good to offer a chioce to update the format???
             End If
+
+            Select Case PrototypeRecordingOption
+                Case PrototypeRecordingOptions.MasterPrototypeRecording, PrototypeRecordingOptions.PrototypeRecordings
+
+                    If SkipFurtherPrototypeRecordingChecking = False Then
+
+                        'Tries to load the prototype recording
+                        If IO.File.Exists(soundFileTuple.Item2) = True Then
+                            Dim CurrentPrototypeRecording = Audio.Sound.LoadWaveFile(soundFileTuple.Item2)
+
+                            'Checks the waveformat of the sound
+                            If CheckSoundFileFormat(CurrentPrototypeRecording, soundFileTuple.Item2) = False Then
+                                Exit Sub
+                            End If
+
+                        Else
+                            If PrototypeRecordingOption = PrototypeRecordingOptions.MasterPrototypeRecording Then
+                                MsgBox("Unable to locate the master prototype recording at " & soundFileTuple.Item2)
+                                Exit Sub
+                            Else
+                                MsgBox("Unable to locate the master prototype recording at " & soundFileTuple.Item2)
+                                Exit Sub
+                            End If
+
+                        End If
+
+                        If PrototypeRecordingOption = PrototypeRecordingOptions.MasterPrototypeRecording Then
+                            'Only checks the master prototype recording once, as it should be the same for all items
+                            SkipFurtherPrototypeRecordingChecking = True
+                        End If
+                    End If
+
+            End Select
 
             Select Case SpeechMaterialRecorderSoundFileLoadOption
                 Case SpeechMaterialRecorderLoadOptions.LoadAllSounds
@@ -890,8 +957,7 @@ Public Class MediaSet
         Next
 
         'Launches the Recorder GUI
-
-        Dim RecorderGUI As New SpeechMaterialRecorder(Me, FilesForRecordAndEdit, RandomItemOrder)
+        Dim RecorderGUI As New SpeechMaterialRecorder(Me, FilesForRecordAndEdit, RandomItemOrder, PrototypeRecordingOption, InactivateLombardNoise)
 
         RecorderGUI.Show()
 
