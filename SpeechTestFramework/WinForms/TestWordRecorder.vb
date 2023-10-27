@@ -264,6 +264,8 @@ Public Class SpeechMaterialRecorder
         LocalSoundPlayer = OstfBase.SoundPlayer
         LocalSoundPlayer.RaiseRecordingBufferTickEvents = True
         LocalSoundPlayer.MonitorRecordingBuffer = True
+        'Inactivate PortAudio-internal clipping (however, it seems not to work... maybe it depends on the hardware in some way?)
+        LocalSoundPlayer.ChangePlayerSettings(,,,,,,,,, False)
 
     End Sub
 
@@ -905,9 +907,9 @@ Public Class SpeechMaterialRecorder
                 'Resetting sound display
                 If RecordingTabMainSplitContainer.Panel2.Controls.Count > 0 Then RecordingTabMainSplitContainer.Panel2.Controls.RemoveAt(0)
 
-                Dim waveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2)
-                waveDrawer.Dock = Windows.Forms.DockStyle.Fill
-                RecordingTabMainSplitContainer.Panel2.Controls.Add(waveDrawer)
+                Dim WaveDrawer As New Audio.Graphics.SoundEditor(CurrentSentencesForRecording(CurrentSentenceIndex).Item2,,,,,,,,,,,,,,,,, 1.1, True)
+                WaveDrawer.Dock = Windows.Forms.DockStyle.Fill
+                RecordingTabMainSplitContainer.Panel2.Controls.Add(WaveDrawer)
                 HasSound = True
                 ListenButton.Enabled = True
 

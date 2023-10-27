@@ -81,7 +81,7 @@ Namespace Audio
                                                                                          'Getting input sound
                                                                                          Dim InputBuffer(RecordingBuffer.Length - 1) As Single
                                                                                          Marshal.Copy(input, InputBuffer, 0, FramesPerBuffer * NumberOfInputChannels)
-                                                                                         InputBufferHistory.Add(InputBuffer)
+                                                                                         If RecordingIsActive = True Then InputBufferHistory.Add(InputBuffer)
                                                                                          If RaiseRecordingBufferTickEvents = True Then RaiseEvent NewRecordingBuffer(InputBuffer)
                                                                                      End If
 
@@ -563,7 +563,8 @@ Namespace Audio
                                             Optional ByRef Mixer As DuplexMixer = Nothing,
                                             Optional ByVal SoundDirection As SoundDirections? = Nothing,
                                             Optional ByVal ReOpenStream As Boolean = True,
-                                            Optional ByVal ReStartStream As Boolean = True)
+                                            Optional ByVal ReStartStream As Boolean = True,
+                                            Optional ByVal ClippingIsActivated As Boolean? = Nothing)
 
                 Dim WasStreamOpen As Boolean = False
                 Dim WasPlaying As Boolean = False
@@ -621,6 +622,10 @@ Namespace Audio
                     End Select
                 End If
 
+                'Adjusting clipping
+                If ClippingIsActivated.HasValue Then
+                    _IsClippingInactivated = Not ClippingIsActivated
+                End If
 
                 'Re-opens stream if it was open upon calling this function
                 If WasStreamOpen = True Or ReOpenStream = True Then

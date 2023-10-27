@@ -85,9 +85,13 @@ Namespace Audio
             Private SampleToPixelScale As Single
             Private WavePointsArray(1, 0) As Single 'used for long sounds, holding the max and min values of for a section of the wave file, in order to draw a vertical line, one pixel wide, between them, repressenting the wave form.
             Private WaveLinePointArray() As System.Drawing.PointF = {} 'used for short sounds
+            Private FS_TopLine() As System.Drawing.PointF = {New PointF(0, 0), New PointF(0, 0)}
+            Private FS_BottomLine() As System.Drawing.PointF = {New PointF(0, 0), New PointF(0, 0)}
             Private NormalizedWavePointsArray(1, 0) As Single 'used for long sounds
             Private NormalizedWaveLinePointArray() As System.Drawing.PointF = {} 'used for short sounds
             Private SelectionCopy() As Single
+            Public ReadOnly FullScaleMarginFactor As Double
+            Public Property DrawFullScaleLines As Boolean
 
             'Wave settings
             Private DrawEverySampleLimitFactor As Integer = 10 '    2000  'TODO: One of the update functions is not synchonized!!! 'This is a factor that sets how many more samples than pixels there should be on the screen in order to swap wave drawing technique
@@ -160,11 +164,12 @@ Namespace Audio
             'Setting things up
             Public Sub New(ByRef InputSound As Sound, Optional ByVal StartSample As Integer = 0, Optional ByVal LengthInSamples As Integer? = Nothing, Optional ByVal ViewChannel As Integer = 1,
                            Optional ByVal UseItemSegmentation As Boolean = False, Optional ByVal ShowSpectrogram As Boolean = False,
-                    Optional ByRef SpectrogramFormat As Formats.SpectrogramFormat = Nothing, Optional ByRef PaddingTime As Single = 0.5, Optional ByRef InterSentenceTime As Single = 4,
-                    Optional ByRef DrawNormalizedWave As Boolean = False, Optional ByRef SetSegmentationToZeroCrossings As Boolean = True,
+                           Optional ByRef SpectrogramFormat As Formats.SpectrogramFormat = Nothing, Optional ByRef PaddingTime As Single = 0.5, Optional ByRef InterSentenceTime As Single = 4,
+                           Optional ByRef DrawNormalizedWave As Boolean = False, Optional ByRef SetSegmentationToZeroCrossings As Boolean = True,
                            Optional ByRef ShowPlaySoundButton As Boolean = True, Optional ShowInferLengthsButton As Boolean = True,
-                    Optional ByRef ShowNextUnvalidatedItemButtons As Boolean = True, Optional ByRef ShowValidateSegmentationButton As Boolean = True,
-                           Optional ByRef ShowFadePaddingButton As Boolean = True, Optional ByRef ShowFadeIntervalsButton As Boolean = True)
+                           Optional ByRef ShowNextUnvalidatedItemButtons As Boolean = True, Optional ByRef ShowValidateSegmentationButton As Boolean = True,
+                           Optional ByRef ShowFadePaddingButton As Boolean = True, Optional ByRef ShowFadeIntervalsButton As Boolean = True,
+                           Optional ByRef FullScaleMarginFactor As Double = 1, Optional ByRef DrawFullScaleLines As Boolean = False)
 
                 Me.CurrentSound = InputSound
                 Me.DisplayStart_Sample = StartSample
@@ -175,6 +180,8 @@ Namespace Audio
                 Me.PaddingTime = PaddingTime
                 Me.InterSentenceTime = InterSentenceTime
                 Me.DrawNormalizedWave = DrawNormalizedWave
+                Me.FullScaleMarginFactor = FullScaleMarginFactor
+                Me.DrawFullScaleLines = DrawFullScaleLines
                 'Me.AudioApiSettings = AudioApiSettings
 
                 'If Me.AudioApiSettings IsNot Nothing Then SetupSoundPlayer()
@@ -197,9 +204,7 @@ Namespace Audio
                 SoundBackUp = CurrentSound.CreateCopy
 
                 'Setting full scale
-                FS_pos = CurrentSound.WaveFormat.PositiveFullScale
-
-
+                FS_pos = CurrentSound.WaveFormat.PositiveFullScale * FullScaleMarginFactor
 
                 'Setting up layout
                 Me.Orientation = Orientation.Vertical
@@ -857,6 +862,15 @@ Namespace Audio
                     Dim YscaleToPixel_Wave As Single
                     YscaleToPixel_Wave = (WaveArea.Height / 2) / FS_pos
 
+                    'Storing the full scale line points
+                    If DrawFullScaleLines = True Then
+                        Dim TruePFS_pixel = ((WaveArea.Height) / 2) - CurrentSound.WaveFormat.PositiveFullScale * YscaleToPixel_Wave
+                        Dim TrueNFS_pixel = ((WaveArea.Height) / 2) - CurrentSound.WaveFormat.NegativeFullScale * YscaleToPixel_Wave
+                        FS_TopLine(0) = New PointF(0, TruePFS_pixel)
+                        FS_TopLine(1) = New PointF(WaveArea.Width, TruePFS_pixel)
+                        FS_BottomLine(0) = New PointF(0, TrueNFS_pixel)
+                        FS_BottomLine(1) = New PointF(WaveArea.Width, TrueNFS_pixel)
+                    End If
 
                     'Updating wave data - Chosing method to update depending on the size of the sound to display
                     Select Case DisplayLength_Samples
@@ -1097,6 +1111,21 @@ Namespace Audio
                     Dim point2 As New System.Drawing.Point(WaveArea.Width, WaveArea.Height / 2)
                     g.DrawLine(blackPen, point1, point2)
 
+                    'Drawing fullscale lines
+                    If DrawFullScaleLines = True Then
+
+                        Dim GrayDashedPen As New System.Drawing.Pen(System.Drawing.Color.Black, 1)
+                        GrayDashedPen.DashPattern = {8, 8}
+
+                        g.DrawLine(GrayDashedPen, FS_TopLine(0), FS_TopLine(1))
+                        g.DrawLine(GrayDashedPen, FS_BottomLine(0), FS_BottomLine(1))
+
+                        'Drawing the fullscale string value next to the FS lines
+                        g.DrawString(CurrentSound.WaveFormat.PositiveFullScale.ToString, New Font("Arial", 12), Brushes.Gray, FS_TopLine(0),
+                                     New StringFormat With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Near})
+                        g.DrawString(CurrentSound.WaveFormat.NegativeFullScale.ToString, New Font("Arial", 12), Brushes.Gray, FS_BottomLine(0),
+                                     New StringFormat With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Far})
+                    End If
 
                     'Draws wave form
                     Select Case DisplayLength_Samples
@@ -2605,6 +2634,8 @@ Namespace Audio
         Public Class SoundLevelMeter
             Inherits PictureBox
 
+            Private ValuesBelowZero As Integer = 1
+
             Private _MinLevel As Single = -100
             Public Property MinLevel As Single
                 Get
@@ -2613,6 +2644,9 @@ Namespace Audio
                 Set(value As Single)
                     'Setting the value of _MinLevel 
                     _MinLevel = value
+
+                    'Updating ValuesBelowZero 
+                    ValuesBelowZero = Utils.Rounding(Math.Abs(MinLevel) / 6, Utils.roundingMethods.alwaysUp)
 
                     'Updating _dBRange
                     _dBRange = Math.Abs(_MaxLevel - _MinLevel)
@@ -2651,20 +2685,24 @@ Namespace Audio
             Private MaxMemory As New List(Of Single)
             Public Property Activated As Boolean = False
 
-            Public GreyBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.SystemColors.Control))
-            Public GreenBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Green))
-            Public RedBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Red))
-            Public YellowBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Yellow))
+            Private GreyBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.SystemColors.Control))
+            Private GreenBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Green))
+            Private RedBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Red))
+            Private YellowBrush As New Drawing.SolidBrush(Drawing.Color.FromArgb(128, Drawing.Color.Yellow))
 
-            Public BlackPen As New System.Drawing.Pen(System.Drawing.Color.Black, 1)
-            Public GrayPen As New System.Drawing.Pen(System.Drawing.Color.Gray, 1)
-            Public RedPen As New System.Drawing.Pen(System.Drawing.Color.Red, 1)
+            Private BlackPen As New System.Drawing.Pen(System.Drawing.Color.Black, 2)
+            Private GrayPen As New System.Drawing.Pen(System.Drawing.Color.Gray, 2)
+            Private RedPen As New System.Drawing.Pen(System.Drawing.Color.Red, 2)
+            Private LevelFont = New Font("Arial", 10)
 
             Public Sub New()
 
                 MyBase.New
 
                 Me.BackColor = Color.White
+
+                'Calling MinLevel to ensure that ValuesBelowZero has a valid value
+                MinLevel = -100
 
                 SetPeakLevelMemoryItemCount()
 
@@ -2750,7 +2788,7 @@ Namespace Audio
                     End Select
 
                     'Drawing zero line
-                    g.DrawString((0).ToString, New Font("Arial", 7), Brushes.Blue, New PointF(0, Height - FullScaleLevelHeightInPixels - dBStringYCorrection))
+                    g.DrawString((0).ToString, LevelFont, Brushes.Blue, New PointF(0, Height - FullScaleLevelHeightInPixels - dBStringYCorrection))
                     Dim zy As Single = Height - FullScaleLevelHeightInPixels
                     g.DrawLine(BlackPen, dBLineStartX, zy, Width, zy)
 
@@ -2758,8 +2796,8 @@ Namespace Audio
                     Dim ValuesFromZeroAndUP As Integer = Utils.Rounding(Math.Abs(MaxLevel) / 6, Utils.roundingMethods.alwaysUp)
                     For n = 1 To ValuesFromZeroAndUP
 
-                        'Drawing frequency numbers
-                        g.DrawString((n * 6).ToString, New Font("Arial", 7), Brushes.Blue, New PointF(0, Height - FullScaleLevelHeightInPixels - 6 * n * (Height / dBRange) - dBStringYCorrection))
+                        'Drawing numbers
+                        g.DrawString((n * 6).ToString, LevelFont, Brushes.Blue, New PointF(0, Height - FullScaleLevelHeightInPixels - 6 * n * (Height / dBRange) - dBStringYCorrection))
 
                         'Drawing lines
                         Dim y As Single = Height - FullScaleLevelHeightInPixels - 6 * n * (Height / dBRange)
@@ -2768,11 +2806,10 @@ Namespace Audio
 
 
                     'Values below zero 
-                    Dim ValuesBelowZero As Integer = Utils.Rounding(Math.Abs(MinLevel) / 6, Utils.roundingMethods.alwaysUp)
                     For n = 0 To ValuesBelowZero - 1
 
-                        'Drawing frequency numbers
-                        g.DrawString((n * -6).ToString, New Font("Arial", 7), Brushes.Blue, New PointF(0, Height - FullScaleLevelHeightInPixels + 6 * n * (Height / dBRange) - dBStringYCorrection))
+                        'Drawing  numbers
+                        g.DrawString((n * -6).ToString, LevelFont, Brushes.Blue, New PointF(0, Height - FullScaleLevelHeightInPixels + 6 * n * (Height / dBRange) - dBStringYCorrection))
 
                         'Drawing lines
                         Dim y As Single = Height - FullScaleLevelHeightInPixels + 6 * n * (Height / dBRange)
