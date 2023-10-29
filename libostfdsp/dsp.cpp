@@ -3,13 +3,78 @@
 #include <utility>
 #include "dsp.h"  
 #include <iostream>
+#include <algorithm>
+#include <cmath>
 
-void multiplyArrayBy(float* values, int size, float factor) {
-
-        for (int i = 0; i < size; i++) {
-            values[i] *= factor;
-        }
+int multiplyFloatArray(float* values, int size, float factor) {
+    return multiplyFloatArraySection(values, size, factor, 0, size);
 }
+
+int multiplyFloatArraySection(float* values, int arraySize, float factor, int startIndex, int sectionLength) {
+
+    int clippedCount = 0;
+    double newValue = 0;
+    double limitedValue = 0;
+    double min = -FLT_MAX;
+    double max = FLT_MAX;
+
+    // Returning if arraySize was zero or below
+    if (arraySize < 1)
+    {
+        return clippedCount;
+    } 
+
+    // Limiting the start index to positive values and the length of the array
+    startIndex = std::clamp(startIndex, 0, arraySize-1);
+
+    // Limiting sectionLength to positive values and the length of the array
+    sectionLength = std::clamp(sectionLength, 0, arraySize - startIndex);
+
+    for (int i = startIndex; i < startIndex + sectionLength; i++) {
+        // calculating the new value
+        newValue = values[i] * factor;
+
+        // limiting the new value within the boundaries of float
+        limitedValue = std::clamp(newValue, min, max);
+
+        // Noting if clipping occurred
+        if (newValue != limitedValue) {
+            clippedCount++;
+        }
+
+        // Storing the limited value
+        values[i] = limitedValue;
+
+    }
+
+    // Returns the number of clipped samples
+    return clippedCount;
+}
+
+
+double calculateFloatSumOfSquare(float* values, int arraySize, int startIndex, int sectionLength) {
+
+    // Limiting the start index to positive values and the length of the array
+    startIndex = std::clamp(startIndex, 0, arraySize - 1);
+
+    // Limiting sectionLength to positive values and the length of the array
+    sectionLength = std::clamp(sectionLength, 0, arraySize - startIndex);
+
+    double SumOfSquare = 0;
+    float power = 2;
+
+    for (int i = startIndex; i < startIndex + sectionLength; i++) {
+
+        // calculating the new value
+        SumOfSquare += pow(values[i], power);
+
+    }
+
+    // Returning the sum of squares
+    return SumOfSquare;
+
+}
+
 
 void addTwoFloatArrays(float* array1, float* array2, int size) {
 

@@ -175,10 +175,10 @@
     <Content Include="InvisibleCursor.cur">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="libostfdsp_x64.dll">
+    <Content Include="libostfdsp_Win32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="libostfdsp_x86.dll">
+    <Content Include="libostfdsp_x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="local_settings.txt">

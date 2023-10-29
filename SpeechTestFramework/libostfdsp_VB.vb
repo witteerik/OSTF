@@ -1,32 +1,75 @@
-﻿Imports System.Drawing
-Imports System.Runtime.InteropServices
+﻿Imports System.Runtime.InteropServices
 
 Public Class LibOstfDsp_VB
 
-    <DllImport("libostfdsp_x64.dll", EntryPoint:="multiplyArrayBy", CallingConvention:=CallingConvention.Cdecl)>
-    Private Shared Function multiplyArrayBy_64(values As Single(), size As Integer, factor As Single) As Boolean
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="multiplyFloatArray", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function multiplyFloatArray_64(values As Single(), size As Integer, factor As Single) As Boolean
     End Function
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="multiplyFloatArray", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function multiplyFloatArray_32(values As Single(), size As Integer, factor As Single) As Boolean
+    End Function
+
+    Public Shared Function multiplyFloatArray(values As Single(), size As Integer, factor As Single) As Boolean
+        'Checking whether a 32-bit or 64-bit environment is running
+        If IntPtr.Size = 4 Then
+            Return multiplyFloatArray_32(values, size, factor)
+        Else
+            Return multiplyFloatArray_64(values, size, factor)
+        End If
+    End Function
+
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="multiplyFloatArraySection", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function multiplyFloatArraySection_64(values As Single(), arraySize As Integer, factor As Single, startIndex As Integer, length As Integer) As Integer
+    End Function
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="multiplyFloatArraySection", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function multiplyFloatArraySection_32(values As Single(), arraySize As Integer, factor As Single, startIndex As Integer, length As Integer) As Integer
+    End Function
+
+    Public Shared Function multiplyFloatArraySection(values As Single(), arraySize As Integer, factor As Single, startIndex As Integer, length As Integer) As Integer
+
+        Dim ClippedSamplesCount As Integer = 0
+
+        'Checking whether a 32-bit or 64-bit environment is running
+        If IntPtr.Size = 4 Then
+            ClippedSamplesCount = multiplyFloatArraySection_32(values, arraySize, factor, startIndex, length)
+        Else
+            ClippedSamplesCount = multiplyFloatArraySection_64(values, arraySize, factor, startIndex, length)
+        End If
+
+        Return ClippedSamplesCount
+
+    End Function
+
+
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="calculateFloatSumOfSquare", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function calculateFloatSumOfSquare_64(values As Single(), arraySize As Integer, startIndex As Integer, sectionLength As Integer) As Double
+    End Function
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="calculateFloatSumOfSquare", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function calculateFloatSumOfSquare_32(values As Single(), arraySize As Integer, startIndex As Integer, sectionLength As Integer) As Double
+    End Function
+
+    Public Shared Function calculateFloatSumOfSquare(values As Single(), arraySize As Integer, startIndex As Integer, sectionLength As Integer) As Double
+
+        Dim SumOfSquare As Double = 0
+
+        'Checking whether a 32-bit or 64-bit environment is running
+        If IntPtr.Size = 4 Then
+            SumOfSquare = calculateFloatSumOfSquare_32(values, arraySize, startIndex, sectionLength)
+        Else
+            SumOfSquare = calculateFloatSumOfSquare_64(values, arraySize, startIndex, sectionLength)
+        End If
+
+        Return SumOfSquare
+
+    End Function
+
 
     <DllImport("libostfdsp_x64.dll", EntryPoint:="addTwoFloatArrays", CallingConvention:=CallingConvention.Cdecl)>
     Private Shared Function addTwoFloatArrays_64(array1 As Single(), array2 As Single(), size As Integer) As Boolean
     End Function
 
-    Public Shared Function multiplyArrayBy(values As Single(), size As Integer, factor As Single) As Boolean
-        'Checking whether a 32-bit or 64-bit environment is running
-        If IntPtr.Size = 4 Then
-            Return multiplyArrayBy_32(values, size, factor)
-        Else
-            Return multiplyArrayBy_64(values, size, factor)
-        End If
-    End Function
-
-
-    <DllImport("libostfdsp_x64.dll", EntryPoint:="fft_complex", CallingConvention:=CallingConvention.Cdecl)>
-    Private Shared Sub fft_complex_64(real As Double(), imag As Double(), size As Integer, Optional direction As Integer = 1, Optional reorder As Boolean = True, Optional scaleForwardTransform As Boolean = True)
-    End Sub
-
-    <DllImport("libostfdsp_x86.dll", EntryPoint:="multiplyArrayBy", CallingConvention:=CallingConvention.Cdecl)>
-    Private Shared Function multiplyArrayBy_32(values As Single(), size As Integer, factor As Single) As Boolean
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="addTwoFloatArrays", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function addTwoFloatArrays_32(array1 As Single(), array2 As Single(), size As Integer) As Boolean
     End Function
 
     Public Shared Function addTwoFloatArrays(array1 As Single(), array2 As Single(), size As Integer) As Boolean
@@ -39,11 +82,11 @@ Public Class LibOstfDsp_VB
     End Function
 
 
-    <DllImport("libostfdsp_x86.dll", EntryPoint:="addTwoFloatArrays", CallingConvention:=CallingConvention.Cdecl)>
-    Private Shared Function addTwoFloatArrays_32(array1 As Single(), array2 As Single(), size As Integer) As Boolean
-    End Function
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="fft_complex", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub fft_complex_64(real As Double(), imag As Double(), size As Integer, Optional direction As Integer = 1, Optional reorder As Boolean = True, Optional scaleForwardTransform As Boolean = True)
+    End Sub
 
-    <DllImport("libostfdsp_x86.dll", EntryPoint:="fft_complex", CallingConvention:=CallingConvention.Cdecl)>
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="fft_complex", CallingConvention:=CallingConvention.Cdecl)>
     Private Shared Sub fft_complex_32(real As Double(), imag As Double(), size As Integer, Optional direction As Integer = 1, Optional reorder As Boolean = True, Optional scaleForwardTransform As Boolean = True)
     End Sub
 

@@ -14,6 +14,7 @@ Public Class OSTF_suite_R
         Launch_SpeechMaterialCreator_Button.Text = "OSTF" & vbCr & "Speech Material Creator"
         Launch_SoundLevelCalibration_Button.Text = "OSTF" & vbCr & "Sound Level Calibration" & vbCr & "(Research version)"
 
+
     End Sub
 
     Public Function CheckApplicationRunning() As Boolean

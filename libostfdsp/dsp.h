@@ -3,7 +3,11 @@
 
 #define FFT_H __declspec(dllexport)
 
-extern "C" FFT_H void multiplyArrayBy(float* values, int size, float factor);
+extern "C" FFT_H int multiplyFloatArray(float* values, int size, float factor);
+
+extern "C" FFT_H int multiplyFloatArraySection(float* values, int arraySize, float factor, int startIndex, int sectionLength);
+
+extern "C" FFT_H double	calculateFloatSumOfSquare(float* values, int arraySize, int startIndex, int sectionLength);
 
 extern "C" FFT_H void addTwoFloatArrays(
 	float* array1, // Pointer to the first input/output data array. Upon return this corresponding data array contains the sum of the values in array1 and array2.

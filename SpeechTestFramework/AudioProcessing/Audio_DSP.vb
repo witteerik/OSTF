@@ -42,8 +42,8 @@ Namespace Audio
             ''' </summary>
             ''' <param name="InputSound"></param>
             ''' <param name="channel"></param>
-            ''' <param name="startSample"></param>
-            ''' <param name="sectionLength"></param>
+            ''' <param name="StartSample"></param>
+            ''' <param name="SectionLength"></param>
             ''' <param name="outputUnit"></param>
             ''' <param name="SoundMeasurementType"></param>
             ''' <param name="Frequencyweighting">The frequency Weighting to be applied before the sound measurement.</param>
@@ -51,7 +51,7 @@ Namespace Audio
             ''' <param name="LinearSquareData">If ReturnLinearMeanSquareData is set to True, LinearSquareData will contain item1 = linear sum of square, and item2 = length of the measurement section in samples.</param>
             ''' <returns></returns>
             Public Function MeasureSectionLevel(ByRef InputSound As Sound, ByVal channel As Integer,
-                                            Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing,
+                                            Optional ByVal StartSample As Integer = 0, Optional ByVal SectionLength As Integer? = Nothing,
                                             Optional ByVal outputUnit As SoundDataUnit = SoundDataUnit.dB,
                                             Optional ByVal SoundMeasurementType As SoundMeasurementType = SoundMeasurementType.RMS,
                                             Optional ByVal Frequencyweighting As FrequencyWeightings = FrequencyWeightings.Z,
@@ -60,7 +60,7 @@ Namespace Audio
 
                 Try
 
-                    CheckAndCorrectSectionLength(InputSound.WaveData.SampleData(channel).Length, startSample, sectionLength)
+                    CheckAndCorrectSectionLength(InputSound.WaveData.SampleData(channel).Length, StartSample, SectionLength)
 
                     'Preparing an array to do measurements on
                     Dim MeasurementArray() As Single
@@ -72,9 +72,9 @@ Namespace Audio
                     Else
                         'Preparing a new sound with only the measurement section, to be filterred
                         Dim tempSound As New Sound(InputSound.WaveFormat)
-                        ReDim MeasurementArray(sectionLength - 1)
-                        For s = startSample To startSample + sectionLength - 1
-                            MeasurementArray(s - startSample) = InputSound.WaveData.SampleData(channel)(s)
+                        ReDim MeasurementArray(SectionLength - 1)
+                        For s = StartSample To StartSample + SectionLength - 1
+                            MeasurementArray(s - StartSample) = InputSound.WaveData.SampleData(channel)(s)
                         Next
                         tempSound.WaveData.SampleData(channel) = MeasurementArray
 
@@ -89,7 +89,7 @@ Namespace Audio
                         MeasurementArray = tempSound.WaveData.SampleData(channel)
 
                         'Setting startsample to 0 since all sound before the startsample has been excluded from MeasurementArray
-                        startSample = 0
+                        StartSample = 0
 
                     End If
 
@@ -101,23 +101,41 @@ Namespace Audio
 
                             'Calculates RMS value of the section
 
-                            Dim AccumulativeSoundLevel As Double
-                            For n = startSample To startSample + sectionLength - 1
-                                AccumulativeSoundLevel = AccumulativeSoundLevel + MeasurementArray(n) ^ 2
-                            Next
+                            Dim RMS As Double? = Nothing
 
-                            'Returns the mean square (MR) if ReturnLinearMeanSquareData is True
-                            If ReturnLinearMeanSquareData = True Then
+                            Dim SumOfSquare As Double = 0
 
-                                'Stores LinearSquareData
-                                LinearSquareData = New Tuple(Of Double, Integer)(AccumulativeSoundLevel, sectionLength)
+                            If OstfBase.UseOptimizationLibraries = False Then
 
-                                'Returns the ReturnLinearMeanSquareData
-                                Return AccumulativeSoundLevel / sectionLength
+                                'Accumulating the sum of squares value
+                                For n = StartSample To StartSample + SectionLength - 1
+                                    SumOfSquare += MeasurementArray(n) ^ 2
+                                Next
+
+                            Else
+
+                                'Calculating the sum of sqares in libostfdsp
+                                SumOfSquare = LibOstfDsp_VB.calculateFloatSumOfSquare(MeasurementArray, MeasurementArray.Length, StartSample, SectionLength)
+
                             End If
 
-                            'Calculates RMS
-                            Dim RMS = (AccumulativeSoundLevel / sectionLength) ^ (1 / 2)
+
+                            'Returns the mean square (MR) if ReturnLinearMeanSquareData is True
+                            If ReturnLinearMeanSquareData = False Then
+
+                                'Calculates RMS
+                                RMS = (SumOfSquare / SectionLength) ^ (1 / 2)
+
+                            Else
+
+                                'Stores LinearSquareData
+                                LinearSquareData = New Tuple(Of Double, Integer)(SumOfSquare, SectionLength)
+
+                                'Returns the ReturnLinearMeanSquareData
+                                Return SumOfSquare / SectionLength
+
+                            End If
+
 
                             Select Case outputUnit
                                 Case SoundDataUnit.dB
@@ -130,8 +148,8 @@ Namespace Audio
                         Case SoundMeasurementType.AbsolutePeakAmplitude
                             'Calculates the absolute max amplitude of the section
 
-                            Dim LocalArrayCopy(sectionLength - 1) As Single
-                            Array.Copy(MeasurementArray, LocalArrayCopy, sectionLength.Value)
+                            Dim LocalArrayCopy(SectionLength - 1) As Single
+                            Array.Copy(MeasurementArray, LocalArrayCopy, SectionLength.Value)
 
                             Dim peak_pos As Double = LocalArrayCopy.Max
                             Dim peak_neg As Double = LocalArrayCopy.Min
@@ -188,11 +206,11 @@ Namespace Audio
 
                             'MsgBox(inputArray.Length & " " & startSample & " " & sectionLength)
 
-                            For n = startSample To startSample + sectionLength - 1
+                            For n = StartSample To StartSample + SectionLength - 1
                                 AccumulativeSoundLevel = AccumulativeSoundLevel + Math.Abs(MeasurementArray(n))
                             Next
 
-                            Dim averageAbsoluteAmplitude = AccumulativeSoundLevel / sectionLength
+                            Dim averageAbsoluteAmplitude = AccumulativeSoundLevel / SectionLength
 
                             Select Case outputUnit
                                 Case SoundDataUnit.dB
@@ -567,7 +585,7 @@ Namespace Audio
             ''' <param name="StartSample">Start sample of the section to be amplified.</param>
             ''' <param name="SectionLength">Length (in samples) of the section to be amplified.</param>
             ''' <param name="GainUnit">The unit of the gain paramameter (dB or linear)</param>
-            ''' <returns>Returns the number samples whose value exceeded the value range of the Single data type (such value are set to Single.maxvalue or .minvalue), or vbNull if something else went wrong.</returns>
+            ''' <returns>Returns the number samples whose value exceeded the value range of the Single data type (such value are set to Single.maxvalue or .minvalue).</returns>
             Public Function AmplifySection(ByRef InputSound As Sound, ByVal Gain As Double,
                                        Optional ByVal Channel As Integer? = Nothing,
                                        Optional ByVal StartSample As Integer = 0, Optional ByVal SectionLength As Integer? = Nothing,
@@ -577,7 +595,7 @@ Namespace Audio
 
                     Dim AudioOutputConstructor As New AudioOutputConstructor(InputSound.WaveFormat, Channel)
 
-                    Dim totalDistortedSamples As Double = 0
+                    Dim totalDistortedSamples As Integer = 0
 
                     'Main section
                     For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
@@ -607,21 +625,38 @@ Namespace Audio
                         Dim CorrectedSectionLength = SectionLength
                         CheckAndCorrectSectionLength(SoundArray.Length, CorrectedStartSample, CorrectedSectionLength)
 
-                        For n = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
-                            If SoundArray(n) * gainFactor > Single.MaxValue Then
-                                SoundArray(n) = Single.MaxValue
-                                distorsion = True
-                                distorsionSampleCount += 1
+                        If OstfBase.UseOptimizationLibraries = False Then
 
-                            ElseIf SoundArray(n) * gainFactor < Single.MinValue Then
-                                SoundArray(n) = Single.MinValue
-                                distorsion = True
-                                distorsionSampleCount += 1
+                            Dim CurrentValue As Double = 0
+                            For n = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
 
-                            Else
-                                SoundArray(n) *= gainFactor
+                                CurrentValue = SoundArray(n) * gainFactor
+
+                                If CurrentValue > Single.MaxValue Then
+                                    SoundArray(n) = Single.MaxValue
+                                    distorsion = True
+                                    distorsionSampleCount += 1
+
+                                ElseIf CurrentValue < Single.MinValue Then
+                                    SoundArray(n) = Single.MinValue
+                                    distorsion = True
+                                    distorsionSampleCount += 1
+
+                                Else
+                                    SoundArray(n) = CurrentValue 
+                                End If
+                            Next
+
+                        Else
+
+                            'Calling libostfdsp function multiplyFloatArraySection
+                            distorsionSampleCount += LibOstfDsp_VB.multiplyFloatArraySection(SoundArray, SoundArray.Length, gainFactor, CorrectedStartSample, CorrectedSectionLength)
+
+                            If distorsionSampleCount > 0 Then
+                                distorsion = True
                             End If
-                        Next
+
+                        End If
 
                         If distorsion = True Then
                             AudioError("Distorsion occurred for " & distorsionSampleCount & " samples in AmplifySection", "Warning!")

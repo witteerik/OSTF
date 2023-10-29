@@ -3422,4 +3422,47 @@ Public Class Form4
         Input2.WriteWaveFile("C:\SpeechTestFrameworkLog\SipTrialSounds\Demo_of_SiP_test_trial_sounds_at_6_testwords_tugg-tung-sil-syr-sarg-rött-tuss-å_NoSMA.wav")
 
     End Sub
+
+    Private Sub Button27_Click(sender As Object, e As EventArgs) Handles Button27.Click
+
+        Dim TestSound = Audio.GenerateSound.CreateWhiteNoise(New Audio.Formats.WaveFormat(48000, 32, 1), 1, 0.2, 3000)
+        'TestSound.WaveData.SampleData(1) = {1, 1, 1, 1}
+        Dim TestSoundCopy1 = TestSound.CreateCopy
+        Dim TestSoundCopy2 = TestSound.CreateCopy
+        Dim Gain As Double = 50
+
+        Dim Level1 = Audio.DSP.MeasureSectionLevel(TestSound, 1)
+
+        OstfBase.UseOptimizationLibraries = False
+
+        Dim timer1 = New Stopwatch
+        Dim timer2 = New Stopwatch
+
+        timer1.Start()
+
+        Audio.DSP.AmplifySection(TestSoundCopy1, Gain)
+        Dim t1 = timer1.ElapsedMilliseconds
+
+        Dim Level2 = Audio.DSP.MeasureSectionLevel(TestSoundCopy1, 1)
+
+
+        OstfBase.UseOptimizationLibraries = True
+
+        timer2.Start()
+
+        Audio.DSP.AmplifySection(TestSoundCopy2, Gain)
+        Dim t2 = timer2.ElapsedMilliseconds
+        Dim Level3 = Audio.DSP.MeasureSectionLevel(TestSoundCopy2, 1)
+
+
+        Console.WriteLine(Level2)
+        Console.WriteLine(Level3)
+
+        Console.WriteLine(Level2 - Level1)
+        Console.WriteLine(Level3 - Level1)
+
+        Dim x = 1
+
+
+    End Sub
 End Class
