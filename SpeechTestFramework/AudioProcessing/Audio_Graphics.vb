@@ -1873,7 +1873,7 @@ Namespace Audio
 
             End Sub
 
-            Private Sub UpdateSideSegmentationPanelControls()
+            Public Sub UpdateSideSegmentationPanelControls()
 
                 'Updates the layout of the controls in SentenceSelectorPanel, in order to ensure they show correct Validated state
                 For Each control As Control In SentenceSelectorPanel.Controls

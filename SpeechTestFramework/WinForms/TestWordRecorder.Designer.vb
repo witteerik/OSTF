@@ -68,7 +68,15 @@ Partial Class SpeechMaterialRecorder
         Me.CurrentFile_SentenceTimes_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ValidationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.EnforceValidationInLoadedSoundToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ValidateAllLinguisticLevels_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ValidateSentenceLevel_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ValidateWordLevel_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ValidatePhonemeLevel_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.InvalidateEverythingInLoadedSoundToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.InvalidateAllLinguisticLevels_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.InvalidateSentenceLevel_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.InvalidateWordLevel_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.InvalidatePhonemeLevel_ToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TelepromterBTToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ConnectToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.DisconnectToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -404,7 +412,7 @@ Partial Class SpeechMaterialRecorder
         '
         Me.AllSoundsFiles_ToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllSoundsFiles_AllSegmentations_ToolStripMenuItem, Me.AllSoundsFiles_SentenceTimes_ToolStripMenuItem})
         Me.AllSoundsFiles_ToolStripMenuItem.Name = "AllSoundsFiles_ToolStripMenuItem"
-        Me.AllSoundsFiles_ToolStripMenuItem.Size = New System.Drawing.Size(148, 22)
+        Me.AllSoundsFiles_ToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
         Me.AllSoundsFiles_ToolStripMenuItem.Text = "All sound files"
         '
         'AllSoundsFiles_AllSegmentations_ToolStripMenuItem
@@ -423,7 +431,7 @@ Partial Class SpeechMaterialRecorder
         '
         Me.CurrentFile_ToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.CurrentFile_AllSegmentations_ToolStripMenuItem, Me.CurrentFile_SentenceTimes_ToolStripMenuItem})
         Me.CurrentFile_ToolStripMenuItem.Name = "CurrentFile_ToolStripMenuItem"
-        Me.CurrentFile_ToolStripMenuItem.Size = New System.Drawing.Size(148, 22)
+        Me.CurrentFile_ToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
         Me.CurrentFile_ToolStripMenuItem.Text = "Current file"
         '
         'CurrentFile_AllSegmentations_ToolStripMenuItem
@@ -447,15 +455,65 @@ Partial Class SpeechMaterialRecorder
         '
         'EnforceValidationInLoadedSoundToolStripMenuItem
         '
+        Me.EnforceValidationInLoadedSoundToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ValidateAllLinguisticLevels_ToolStripMenuItem, Me.ValidateSentenceLevel_ToolStripMenuItem, Me.ValidateWordLevel_ToolStripMenuItem, Me.ValidatePhonemeLevel_ToolStripMenuItem})
         Me.EnforceValidationInLoadedSoundToolStripMenuItem.Name = "EnforceValidationInLoadedSoundToolStripMenuItem"
-        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Size = New System.Drawing.Size(272, 22)
-        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Text = "Enforce validation in loaded sound"
+        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Size = New System.Drawing.Size(333, 22)
+        Me.EnforceValidationInLoadedSoundToolStripMenuItem.Text = "Enforce segmentation validation in loaded sound"
+        '
+        'ValidateAllLinguisticLevels_ToolStripMenuItem
+        '
+        Me.ValidateAllLinguisticLevels_ToolStripMenuItem.Name = "ValidateAllLinguisticLevels_ToolStripMenuItem"
+        Me.ValidateAllLinguisticLevels_ToolStripMenuItem.Size = New System.Drawing.Size(196, 22)
+        Me.ValidateAllLinguisticLevels_ToolStripMenuItem.Text = "All linguistic levels"
+        '
+        'ValidateSentenceLevel_ToolStripMenuItem
+        '
+        Me.ValidateSentenceLevel_ToolStripMenuItem.Name = "ValidateSentenceLevel_ToolStripMenuItem"
+        Me.ValidateSentenceLevel_ToolStripMenuItem.Size = New System.Drawing.Size(196, 22)
+        Me.ValidateSentenceLevel_ToolStripMenuItem.Text = "Down to sentence level"
+        '
+        'ValidateWordLevel_ToolStripMenuItem
+        '
+        Me.ValidateWordLevel_ToolStripMenuItem.Name = "ValidateWordLevel_ToolStripMenuItem"
+        Me.ValidateWordLevel_ToolStripMenuItem.Size = New System.Drawing.Size(196, 22)
+        Me.ValidateWordLevel_ToolStripMenuItem.Text = "Down to word level"
+        '
+        'ValidatePhonemeLevel_ToolStripMenuItem
+        '
+        Me.ValidatePhonemeLevel_ToolStripMenuItem.Name = "ValidatePhonemeLevel_ToolStripMenuItem"
+        Me.ValidatePhonemeLevel_ToolStripMenuItem.Size = New System.Drawing.Size(196, 22)
+        Me.ValidatePhonemeLevel_ToolStripMenuItem.Text = "Down to phone level"
         '
         'InvalidateEverythingInLoadedSoundToolStripMenuItem
         '
+        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.InvalidateAllLinguisticLevels_ToolStripMenuItem, Me.InvalidateSentenceLevel_ToolStripMenuItem, Me.InvalidateWordLevel_ToolStripMenuItem, Me.InvalidatePhonemeLevel_ToolStripMenuItem})
         Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Name = "InvalidateEverythingInLoadedSoundToolStripMenuItem"
-        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Size = New System.Drawing.Size(272, 22)
-        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Text = "Invalidate everything in loaded sound"
+        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Size = New System.Drawing.Size(333, 22)
+        Me.InvalidateEverythingInLoadedSoundToolStripMenuItem.Text = "Invalidate segmentation in the loaded sound"
+        '
+        'InvalidateAllLinguisticLevels_ToolStripMenuItem
+        '
+        Me.InvalidateAllLinguisticLevels_ToolStripMenuItem.Name = "InvalidateAllLinguisticLevels_ToolStripMenuItem"
+        Me.InvalidateAllLinguisticLevels_ToolStripMenuItem.Size = New System.Drawing.Size(196, 22)
+        Me.InvalidateAllLinguisticLevels_ToolStripMenuItem.Text = "All linguistic levels"
+        '
+        'InvalidateSentenceLevel_ToolStripMenuItem
+        '
+        Me.InvalidateSentenceLevel_ToolStripMenuItem.Name = "InvalidateSentenceLevel_ToolStripMenuItem"
+        Me.InvalidateSentenceLevel_ToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.InvalidateSentenceLevel_ToolStripMenuItem.Text = "Up to sentence level"
+        '
+        'InvalidateWordLevel_ToolStripMenuItem
+        '
+        Me.InvalidateWordLevel_ToolStripMenuItem.Name = "InvalidateWordLevel_ToolStripMenuItem"
+        Me.InvalidateWordLevel_ToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.InvalidateWordLevel_ToolStripMenuItem.Text = "Up to word level"
+        '
+        'InvalidatePhonemeLevel_ToolStripMenuItem
+        '
+        Me.InvalidatePhonemeLevel_ToolStripMenuItem.Name = "InvalidatePhonemeLevel_ToolStripMenuItem"
+        Me.InvalidatePhonemeLevel_ToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.InvalidatePhonemeLevel_ToolStripMenuItem.Text = "On phone level"
         '
         'TelepromterBTToolStripMenuItem
         '
@@ -607,7 +665,7 @@ Partial Class SpeechMaterialRecorder
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.0!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.0!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.0!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80.0!))
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 81.0!))
         Me.TableLayoutPanel1.Controls.Add(Me.RecordingSoundLevelMeter, 4, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.TopRecordingControlPanel, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.StartRecordingButton, 0, 1)
@@ -1216,4 +1274,12 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents InvalidateEverythingInLoadedSoundToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents UsePrototypeRecordingsToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents SLM_BackgroundWorker As ComponentModel.BackgroundWorker
+    Friend WithEvents ValidateAllLinguisticLevels_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ValidateSentenceLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ValidateWordLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ValidatePhonemeLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents InvalidateAllLinguisticLevels_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents InvalidateSentenceLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents InvalidateWordLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents InvalidatePhonemeLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
 End Class

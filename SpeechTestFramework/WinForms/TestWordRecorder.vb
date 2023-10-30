@@ -2197,12 +2197,13 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub EnforceValidationInLoadedSoundToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EnforceValidationInLoadedSoundToolStripMenuItem.Click
+    Private Sub ValidateAllLinguisticLevels_ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ValidateAllLinguisticLevels_ToolStripMenuItem.Click
 
         If CurrentlyLoadedSoundFile IsNot Nothing Then
             If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
 
                 CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(True)
+                UpdateSegmentationSideControl()
 
             Else
                 MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
@@ -2213,12 +2214,64 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub InvalidateEverythingInLoadedSoundToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InvalidateEverythingInLoadedSoundToolStripMenuItem.Click
+    Private Sub ValidateSentenceLevel_ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ValidateSentenceLevel_ToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
+
+                CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(True, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE)
+                UpdateSegmentationSideControl()
+
+            Else
+                MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
+            End If
+        Else
+            MsgBox("No sound loaded!", MsgBoxStyle.Information, "Failed to change validation states")
+        End If
+
+    End Sub
+
+    Private Sub ValidateWordLevel_ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ValidateWordLevel_ToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
+
+                CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(True, Audio.Sound.SpeechMaterialAnnotation.SmaTags.WORD)
+                UpdateSegmentationSideControl()
+
+            Else
+                MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
+            End If
+        Else
+            MsgBox("No sound loaded!", MsgBoxStyle.Information, "Failed to change validation states")
+        End If
+
+    End Sub
+
+    Private Sub ValidatePhonemeLevel_ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ValidatePhonemeLevel_ToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
+
+                CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(True, Audio.Sound.SpeechMaterialAnnotation.SmaTags.PHONE)
+                UpdateSegmentationSideControl()
+
+            Else
+                MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
+            End If
+        Else
+            MsgBox("No sound loaded!", MsgBoxStyle.Information, "Failed to change validation states")
+        End If
+
+    End Sub
+
+    Private Sub InvalidateAllLinguisticLevels_ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InvalidateAllLinguisticLevels_ToolStripMenuItem.Click
 
         If CurrentlyLoadedSoundFile IsNot Nothing Then
             If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
 
                 CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(False)
+                UpdateSegmentationSideControl()
 
             Else
                 MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
@@ -2230,6 +2283,66 @@ Public Class SpeechMaterialRecorder
     End Sub
 
 
+
+    Private Sub InvalidateSentenceLevel_ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InvalidateSentenceLevel_ToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
+
+                CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(False,, Audio.Sound.SpeechMaterialAnnotation.SmaTags.SENTENCE)
+                UpdateSegmentationSideControl()
+
+            Else
+                MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
+            End If
+        Else
+            MsgBox("No sound loaded!", MsgBoxStyle.Information, "Failed to change validation states")
+        End If
+
+    End Sub
+
+    Private Sub InvalidateWordLevel_ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InvalidateWordLevel_ToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
+
+                CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(False, , Audio.Sound.SpeechMaterialAnnotation.SmaTags.WORD)
+                UpdateSegmentationSideControl()
+
+            Else
+                MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
+            End If
+        Else
+            MsgBox("No sound loaded!", MsgBoxStyle.Information, "Failed to change validation states")
+        End If
+
+    End Sub
+
+    Private Sub InvalidatePhonemeLevel_ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles InvalidatePhonemeLevel_ToolStripMenuItem.Click
+
+        If CurrentlyLoadedSoundFile IsNot Nothing Then
+            If CurrentlyLoadedSoundFile.SMA IsNot Nothing Then
+
+                CurrentlyLoadedSoundFile.SMA.EnforceValidationValue(False,, Audio.Sound.SpeechMaterialAnnotation.SmaTags.PHONE)
+                UpdateSegmentationSideControl()
+
+            Else
+                MsgBox("The loaded sound lacks segmentation data!", MsgBoxStyle.Information, "Failed to change validation states")
+            End If
+        Else
+            MsgBox("No sound loaded!", MsgBoxStyle.Information, "Failed to change validation states")
+        End If
+
+    End Sub
+
+    Private Sub UpdateSegmentationSideControl()
+        If SegmentationPanel.Controls.Count > 0 Then
+            Dim CurrentWaveDrawer = TryCast(SegmentationPanel.Controls(0), Audio.Graphics.SoundEditor)
+            If CurrentWaveDrawer IsNot Nothing Then
+                CurrentWaveDrawer.UpdateSideSegmentationPanelControls()
+            End If
+        End If
+    End Sub
 
 
 

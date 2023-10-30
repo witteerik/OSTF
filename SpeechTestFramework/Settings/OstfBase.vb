@@ -302,13 +302,13 @@ Public Module OstfBase
             If OutputDeviceNames Is Nothing Then OutputDeviceNames = New List(Of String)
             If InputDeviceNames Is Nothing Then InputDeviceNames = New List(Of String)
 
-            MsgBox("Unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
+            MsgBox("The Open Speech Test Framework (OSTF) was unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
                 "Output device: " & OutputDeviceName & vbCrLf &
                 "Output devices: " & String.Join(", ", OutputDeviceNames) & vbCrLf &
                 "Input device: " & InputDeviceName & vbCrLf &
                 "Input devices: " & String.Join(", ", InputDeviceNames) & vbCrLf & vbCrLf &
                 "Click OK to manually select audio input/output devices." & vbCrLf & vbCrLf &
-                "IMPORTANT: Sound tranducer calibration and/or routing may not be correct when manually selected sound devices are used!", MsgBoxStyle.Exclamation, "Sound device not found!")
+                "IMPORTANT: Sound tranducer calibration and/or routing may not be correct when manually selected sound devices are used!", MsgBoxStyle.Exclamation, "OSTF sound device not found!")
 
             Dim NewAudioSettingsDialog As New AudioSettingsDialog()
             Dim AudioSettingsDialogResult = NewAudioSettingsDialog.ShowDialog()

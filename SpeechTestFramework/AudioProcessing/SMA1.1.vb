@@ -2069,16 +2069,24 @@ Namespace Audio
                 ''' </summary>
                 ''' <param name="Value"></param>
                 ''' <param name="CascadeToAllDescendants"></param>
-                Public Sub SetSegmentationCompleted(ByVal Value As Boolean, Optional ByVal InferToDependentComponents As Boolean = True, Optional ByVal CascadeToAllDescendants As Boolean = False)
+                ''' <param name="LowestSmaLevel">The linguistic level at which to stop validating (highest is CHANNEL and lowest is PHONE)</param>
+                Public Sub SetSegmentationCompleted(ByVal Value As Boolean, Optional ByVal InferToDependentComponents As Boolean = True,
+                                                    Optional ByVal CascadeToAllDescendants As Boolean = False,
+                                                    Optional ByVal LowestSmaLevel As SmaTags = SmaTags.PHONE,
+                                                    Optional ByVal HighestSmaLevel As SmaTags = SmaTags.CHANNEL)
 
-                    'Skipping if SmaTag is Channel, since channels should always be validated
-                    If Me.SmaTag = SmaTags.CHANNEL Then Exit Sub
+                    'Skipping setting the value if SmaTag is Channel, since channels should always be validated
+                    If Me.SmaTag <> SmaTags.CHANNEL Then
 
-                    _SegmentationCompleted = Value
+                        If Me.SmaTag <= LowestSmaLevel And Me.SmaTag >= HighestSmaLevel Then
+                            'Changing the validation value only if the current linguistic level is at or below HighestSmaLevel and at or above LowestSmaLevel
+                            _SegmentationCompleted = Value
+                        End If
+                    End If
 
                     If CascadeToAllDescendants = True Then
                         For Each child In Me
-                            child.SetSegmentationCompleted(Value, False, CascadeToAllDescendants)
+                            child.SetSegmentationCompleted(Value, False, CascadeToAllDescendants, LowestSmaLevel, HighestSmaLevel)
                         Next
                     End If
 
@@ -2557,6 +2565,18 @@ Namespace Audio
             Public Sub EnforceValidationValue(ByVal ValidationValue As Boolean)
                 For Channel = 1 To Me.ChannelCount
                     Me.ChannelData(1).SetSegmentationCompleted(ValidationValue, False, True)
+                Next
+            End Sub
+
+            ''' <summary>
+            ''' Enforces the validation value to all SmaComponents in the current SMA object
+            ''' </summary>
+            ''' <param name="ValidationValue"></param>
+            Public Sub EnforceValidationValue(ByVal ValidationValue As Boolean,
+                                              Optional ByVal LowestSmaLevel As SmaTags = SmaTags.PHONE,
+                                              Optional ByVal HighestSmaLevel As SmaTags = SmaTags.CHANNEL)
+                For Channel = 1 To Me.ChannelCount
+                    Me.ChannelData(1).SetSegmentationCompleted(ValidationValue, False, True, LowestSmaLevel, HighestSmaLevel)
                 Next
             End Sub
 
