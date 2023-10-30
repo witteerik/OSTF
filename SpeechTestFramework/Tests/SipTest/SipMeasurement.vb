@@ -1639,7 +1639,7 @@ Namespace SipTest
                 For TargetIndex = 0 To NumberOfTargets - 1
                     'TODO: Here the same signal is taken for all locations. If different signals are needed in different locations, this should be modified
                     Dim InitialMargin As Integer = 0
-                    Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1, , InitialMargin)
+                    Dim TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin)
 
                     'Storing the initial margin
                     Me.TargetInitialMargins.Add(InitialMargin)

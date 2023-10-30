@@ -1960,7 +1960,7 @@ Public Class MediaSet
             For i = 0 To MediaAudioItems - 1
                 CurrentSmaComponentList.AddRange(SummaryComponent.GetCorrespondingSmaComponent(Me, i, SoundChannel, IncludePractiseComponents, UniquePrimaryStringRepresenations))
 
-                Dim CurrentIndexSound = SummaryComponent.GetSound(Me, i, SoundChannel, ,,, True)
+                Dim CurrentIndexSound = SummaryComponent.GetSound(Me, i, SoundChannel, ,,,,, True,,,, True)
                 If CurrentIndexSound Is Nothing Then
 
                     If AllowIncompleteSegmentations = False Then
@@ -2010,14 +2010,14 @@ Public Class MediaSet
 
             For i = 0 To MediaAudioItems - 1
                 Dim CurrentIndexSoundSmaComponents As New List(Of SmaComponent)
-                Dim CurrentIndexSound = SummaryComponent.GetSound(Me, i, SoundChannel, , , CurrentIndexSoundSmaComponents)
+                Dim CurrentIndexSound = SummaryComponent.GetSound(Me, i, SoundChannel,,,,,,,,, CurrentIndexSoundSmaComponents, True)
 
                 'Measure sound level
                 Dim AverageLevel As Double
                 If IntegrationTime = 0 Then
                     AverageLevel = Audio.DSP.MeasureSectionLevel(CurrentIndexSound, SoundChannel, FrequencyWeighting)
                 Else
-                    AverageLevel = Audio.DSP.GetLevelOfLoudestWindow(CurrentIndexSound, SoundChannel, CurrentIndexSound.WaveFormat.SampleRate * IntegrationTime,,,, FrequencyWeighting, True)
+                    AverageLevel = Audio.DSP.GetLevelOfLoudestWindow(CurrentIndexSound, SoundChannel, Math.Round(CurrentIndexSound.WaveFormat.SampleRate * IntegrationTime * 0.001),,,, FrequencyWeighting, True)
                 End If
 
                 'Calculates needed gain to reach TargetSoundLevel
@@ -2107,7 +2107,7 @@ Public Class MediaSet
                 Dim NewSoundFilePath = IO.Path.Combine(NewFullMediaFolderPath, "Sound" & i.ToString("00"))
 
                 'Getting the sound
-                Dim CurrentComponentSound = SummaryComponent.GetSoundConcatenation(Me, i, SoundChannel, CrossFadeLength, Padding, InterStimulusIntervalLength,, True, True, RandomizeOrder, RandomSeed)
+                Dim CurrentComponentSound = SummaryComponent.GetSound(Me, i, SoundChannel, CrossFadeLength, Padding, InterStimulusIntervalLength,, True, True, RandomizeOrder, RandomSeed)
 
                 If CurrentComponentSound IsNot Nothing Then
                     'Writes to wave file
