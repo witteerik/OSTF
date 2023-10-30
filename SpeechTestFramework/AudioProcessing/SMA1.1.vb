@@ -1045,8 +1045,42 @@ Namespace Audio
 
                 Public Property OrthographicForm As String = ""
                 Public Property PhoneticForm As String = ""
-                Public Property StartSample As Integer = -1
-                Public Property Length As Integer = 0
+                Private _StartSample As Integer = -1
+                Public Property StartSample As Integer
+                    Get
+                        If Me.SmaTag = SmaTags.CHANNEL Then
+                            'Channels start should always be 0
+                            Return 0
+                        Else
+                            Return _StartSample
+                        End If
+                    End Get
+                    Set(value As Integer)
+                        _StartSample = value
+                    End Set
+                End Property
+
+                Private _Length As Integer = 0
+                Public Property Length As Integer
+                    Get
+                        'Channels should return sound channel length, or 0 if no sound exist
+                        Dim LocalLength As Integer = _Length
+                        If Me.SmaTag = SmaTags.CHANNEL Then
+                            If ParentSMA IsNot Nothing Then
+                                If ParentSMA.ParentSound IsNot Nothing Then
+                                    Dim SmaChannel As Integer? = 1 '= Me.GetSelfIndex' TODO: Here we should specifiy the appropriate sound channel, but as of now, there is no way to get it. Use channel = 1 instead. This will break down if Sma annotations have multiple channels!
+                                    If SmaChannel.HasValue Then
+                                        LocalLength = ParentSMA.ParentSound.WaveData.SampleData(SmaChannel).Length
+                                    End If
+                                End If
+                            End If
+                        End If
+                        Return LocalLength
+                    End Get
+                    Set(value As Integer)
+                        _Length = value
+                    End Set
+                End Property
 
                 'Sound level properties. Nothing if never set
                 Public Property UnWeightedLevel As Double? = Nothing

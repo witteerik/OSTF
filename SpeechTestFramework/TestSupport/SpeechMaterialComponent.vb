@@ -398,8 +398,51 @@ Public Class SpeechMaterialComponent
     ''' <param name="SoundChannel"></param>
     ''' <param name="CrossFadeLength">The length (in sample) of a cross-fade section.</param>
     ''' <param name="InitialMargin">If referenced in the calling code, returns the number of samples prior to the first sample in the first sound file used in for returning the SMC soundv.</param>
+    ''' <param name="SoundSourceSmaComponents">If referenced in the calling code, contains a list of the source sma components from which the sound was loaded.</param>
     ''' <returns></returns>
-    Public Function GetSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer,
+    Public Function GetSound(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer, Optional CrossFadeLength As Integer? = Nothing, Optional ByRef InitialMargin As Integer = 0,
+                             Optional ByRef SoundSourceSmaComponents As List(Of SmaComponent) = Nothing, Optional ByVal SupressWarnings As Boolean = False) As Audio.Sound
+
+        'Setting initial margin to -1 to signal that it has not been set
+        InitialMargin = -1
+
+        Dim CorrespondingSmaComponentList = GetCorrespondingSmaComponent(MediaSet, Index, SoundChannel, True)
+
+        'Referencing CorrespondingSmaComponentList
+        SoundSourceSmaComponents = CorrespondingSmaComponentList
+
+        If CorrespondingSmaComponentList.Count = 0 Then
+            Return Nothing
+        ElseIf CorrespondingSmaComponentList.Count = 1 Then
+            Return CorrespondingSmaComponentList(0).GetSoundFileSection(SoundChannel, SupressWarnings, InitialMargin)
+        Else
+            Dim SoundList As New List(Of Audio.Sound)
+            For Each SmaComponent In CorrespondingSmaComponentList
+                Dim CurrentSound = SmaComponent.GetSoundFileSection(SoundChannel, SupressWarnings, InitialMargin)
+                'Returns nothing if any sound could not be loaded
+                If CurrentSound Is Nothing Then Return Nothing
+                SoundList.Add(CurrentSound)
+            Next
+            Return Audio.DSP.ConcatenateSounds(SoundList, ,,,,, CrossFadeLength)
+        End If
+
+        'Changing InitialMargin to 0 if it was never set
+        If InitialMargin < 0 Then InitialMargin = 0
+
+    End Function
+
+
+    ''' <summary>
+    ''' Returns the audio representing the speech material component as a new Audio.Sound. If the recordings of the component is split between different sound files, a concatenated (using optional overlap/crossfade period) sound is returned.
+    ''' </summary>
+    ''' <param name="MediaSet"></param>
+    ''' <param name="Index"></param>
+    ''' <param name="SoundChannel"></param>
+    ''' <param name="CrossFadeLength">The length (in sample) of a cross-fade section.</param>
+    ''' <param name="InitialMargin">If referenced in the calling code, returns the number of samples prior to the first sample in the first sound file used in for returning the SMC soundv.</param>
+    ''' <param name="SoundSourceSmaComponents">If referenced in the calling code, contains a list of the source sma components from which the sound was loaded.</param>
+    ''' <returns></returns>
+    Public Function GetSoundConcatenation(ByRef MediaSet As MediaSet, ByVal Index As Integer, ByVal SoundChannel As Integer,
                              Optional ByVal CrossFadeLength As Integer? = Nothing,
                              Optional ByVal Paddinglength As Integer? = Nothing,
                              Optional ByVal InterComponentlength As Integer? = Nothing,
@@ -407,7 +450,8 @@ Public Class SpeechMaterialComponent
                              Optional ByVal RectifySmaComponents As Boolean = False,
                              Optional ByVal SupressWarnings As Boolean = False,
                              Optional ByVal RandomizeOrder As Boolean = False,
-                             Optional ByVal RandomSeed As Integer? = Nothing) As Audio.Sound
+                             Optional ByVal RandomSeed As Integer? = Nothing,
+                             Optional ByRef SoundSourceSmaComponents As List(Of SmaComponent) = Nothing) As Audio.Sound
 
         'Setting initial margin to -1 to signal that it has not been set
         InitialMargin = -1
@@ -459,9 +503,16 @@ Public Class SpeechMaterialComponent
 
                 Dim SmaComponent = CorrespondingSmaComponentList(i)
 
+                'Stores the Source Sma component
+                If SoundSourceSmaComponents IsNot Nothing Then SoundSourceSmaComponents.Add(SmaComponent)
+
                 'Getting the sound
                 Dim TempInitialMargin As Integer = -1
-                Dim CurrentComponentSound = SmaComponent.GetSoundFileSection(SoundChannel,, TempInitialMargin)
+                Dim CurrentComponentSound = SmaComponent.GetSoundFileSection(SoundChannel, SupressWarnings, TempInitialMargin)
+
+                'Returns nothing if any sound could not be loaded
+                If CurrentComponentSound Is Nothing Then Return Nothing
+
                 'Setting this only the first time, TempInitialMargin can be used locally in every loop 
                 If InitialMargin < 0 Then InitialMargin = TempInitialMargin
 

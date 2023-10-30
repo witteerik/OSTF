@@ -5,6 +5,7 @@ Imports System.Runtime.Serialization.Formatters.Binary
 Imports SpeechTestFramework.Audio.DSP
 Imports SpeechTestFramework.Audio.Sound.SpeechMaterialAnnotation
 Imports SpeechTestFramework.SipTest
+Imports SpeechTestFramework.Audio.Formats
 
 <Serializable>
 Public Class MediaSetLibrary
@@ -1783,85 +1784,32 @@ Public Class MediaSet
     End Sub
 
     ''' <summary>
-    ''' Calculates, or sets, the sound level of all components at the TargetComponentsLinguisticLevel. If TargetSoundLevel is left to Nothing, then calculation of the levels will be performed (without any amplification applied). 
-    ''' If TargetSoundLevel is ginen a value, then the sound levels of the components at the TargetComponentsLinguisticLevel will be set to TargetSoundLevel, and instead of the level, the applied gain will be reported in the custom variable file, with the suffix "_ag" added to the VariableName argument.
+    ''' 
     ''' </summary>
-    ''' <param name="TargetComponentsLinguisticLevel"></param>
+    ''' <param name="TargetComponentsLevel"></param>
     ''' <param name="SoundChannel"></param>
     ''' <param name="IntegrationTime"></param>
     ''' <param name="FrequencyWeighting"></param>
     ''' <param name="VariableName"></param>
     ''' <param name="IncludePractiseComponents"></param>
     ''' <param name="UniquePrimaryStringRepresenations">If set to true, only the first occurence of a set of components that have the same PrimaryStringRepresentation will be included. This can be used to include multiple instantiations of the same component only once.</param>
-    ''' <param name="TargetSoundLevel"></param>
-    ''' <returns>Returns True if successfull, or otherwise False.</returns>    
-    Public Function CalculateOrSetComponentLevel(ByVal TargetComponentsLinguisticLevel As SpeechMaterialComponent.LinguisticLevels,
-                                                 ByVal SoundChannel As Integer,
-                                                 Optional ByVal IntegrationTime As Double = 0,
-                                                 Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
-                                                 Optional ByVal VariableName As String = "Lc",
-                                                 Optional ByVal IncludePractiseComponents As Boolean = True,
-                                                 Optional ByVal UniquePrimaryStringRepresenations As Boolean = False,
-                                                 Optional ByVal TargetSoundLevel As Double? = Nothing,
-                                                 Optional ByVal AllowIncompleteSegmentations As Boolean = True) As Boolean
+    Public Sub CalculateComponentLevel(ByVal TargetComponentsLevel As SpeechMaterialComponent.LinguisticLevels,
+                                                               ByVal SoundChannel As Integer,
+                                                               Optional ByVal IntegrationTime As Double = 0,
+                                                               Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
+                                                               Optional ByVal VariableName As String = "Lc",
+                                       Optional ByVal IncludePractiseComponents As Boolean = False,
+                                       Optional ByVal UniquePrimaryStringRepresenations As Boolean = False)
 
-
-        If TargetSoundLevel IsNot Nothing Then
-            VariableName = VariableName & "_ag"
-        End If
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
         'Clears previously loaded sounds
         ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
 
-        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLinguisticLevel)
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLevel)
 
-        'Checks for which components segmentation is marked as incomplete for all items at the TargetComponentsLinguisticLevel
-        Dim IncompletedSegmentationsIndices As New SortedSet(Of Integer)
-
-        For SCI = 0 To SummaryComponents.Count - 1
-
-            Dim SummaryComponent = SummaryComponents(SCI)
-
-            'Get the SMA components representing the sound sections of all target components
-            Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
-            For i = 0 To MediaAudioItems - 1
-                CurrentSmaComponentList.AddRange(SummaryComponent.GetCorrespondingSmaComponent(Me, i, SoundChannel, IncludePractiseComponents, UniquePrimaryStringRepresenations))
-            Next
-
-            For Each SmaComponent In CurrentSmaComponentList
-                If SmaComponent.SegmentationCompleted = False Then
-                    If AllowIncompleteSegmentations = False Then
-                        MsgBox("Unable to calculate or set component sound levels due to incomplete Speech Material Annotation (SMA) segmentation on the target linguistic level (" & TargetComponentsLinguisticLevel.ToString & ") in the following sound file: " & vbCrLf & vbCrLf & SmaComponent.SourceFilePath, MsgBoxStyle.Exclamation, "Incomplete SMA segmentation")
-                        Return False
-                    Else
-                        IncompletedSegmentationsIndices.Add(SCI)
-                    End If
-                End If
-            Next
-        Next
-
-
-        Dim UniqueSoundSectionIdentifiers As New SortedSet(Of String)
-
-        For SCI = 0 To SummaryComponents.Count - 1
-
-            Dim SummaryComponent = SummaryComponents(SCI)
-
-            'Checking if it was a non-segmented component
-            If IncompletedSegmentationsIndices.Contains(SCI) Then
-
-                'Storing the value as Double NaN, as it can not be measure
-                If TargetSoundLevel Is Nothing Then
-                    SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, Double.NaN)
-                Else
-                    SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, Double.NaN)
-                End If
-
-                'And skips to next
-                Continue For
-            End If
+        For Each SummaryComponent In SummaryComponents
 
             'Get the SMA components representing the sound sections of all target components
             Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
@@ -1893,7 +1841,6 @@ Public Class MediaSet
 
             'Storing the average level
             Dim AverageLevel As Double
-            Dim NeededGain As Double
             If SoundLevelList.Count > 0 Then
 
                 If IntegrationTime = 0 Then
@@ -1957,50 +1904,159 @@ Public Class MediaSet
 
                 End If
 
-                'Adjusting to the target level
-                If TargetSoundLevel IsNot Nothing Then
-                    'Calculates needed gain to reach TargetSoundLevel
-                    NeededGain = TargetSoundLevel - AverageLevel
-
-                    For Each SmaComponent In CurrentSmaComponentList
-
-                        'Gets the unique identifier for the SmaComponent
-                        'As this will not be correct if several SmaComponents pointing to the same sound file section has been added to the list, as then amplification will be applied more than once to the same sound file section, we here check if the section has already been added
-                        Dim Current_UniqueSoundSectionIdentifier = SmaComponent.CreateUniqueSoundSectionIdentifier(SmaComponent.SourceFilePath)
-
-                        'Applies gain only if not already done
-                        If UniqueSoundSectionIdentifiers.Contains(Current_UniqueSoundSectionIdentifier) = False Then
-
-                            'Adds the identifier
-                            UniqueSoundSectionIdentifiers.Add(Current_UniqueSoundSectionIdentifier)
-
-                            'Applies the gain
-                            SmaComponent.ApplyGain(NeededGain)
-                        End If
-                    Next
-                End If
-
             Else
                 AverageLevel = Double.NegativeInfinity
             End If
 
-            If TargetSoundLevel Is Nothing Then
-                'Stores the AverageLevel value as a custom media set variable
-                SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, AverageLevel)
-            Else
-                'Stores the NeededGain value as a custom media set variable
-                SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, NeededGain)
-            End If
+            'Stores the value as a custom media set variable
+            SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, AverageLevel)
 
         Next
 
         'Finally writes the results to file
         Me.WriteCustomVariables()
 
-        'Also saves the files
-        If TargetSoundLevel IsNot Nothing Then
-            ParentTestSpecification.SpeechMaterial.SaveAllLoadedSounds(True)
-        End If
+    End Sub
+
+    ''' <summary>
+    ''' Sets, the sound level of all components at the TargetComponentsLinguisticLevel. The applied gain will be reported in the custom variable file, with the variable name VariableName.
+    ''' </summary>
+    ''' <param name="TargetComponentsLinguisticLevel"></param>
+    ''' <param name="TargetSoundLevel"></param>
+    ''' <param name="SoundChannel"></param>
+    ''' <param name="IntegrationTime"></param>
+    ''' <param name="FrequencyWeighting"></param>
+    ''' <param name="VariableName"></param>
+    ''' <param name="IncludePractiseComponents"></param>
+    ''' <param name="UniquePrimaryStringRepresenations">If set to true, only the first occurence of a set of components that have the same PrimaryStringRepresentation will be included. This can be used to include multiple instantiations of the same component only once.</param>
+    ''' <returns>Returns True if successfull, or otherwise False.</returns>    
+    Public Function SetComponentLevel(ByVal TargetComponentsLinguisticLevel As SpeechMaterialComponent.LinguisticLevels,
+                                      ByVal TargetSoundLevel As Double,
+                                      ByVal SoundChannel As Integer,
+                                      Optional ByVal IntegrationTime As Double = 0,
+                                      Optional ByVal FrequencyWeighting As Audio.FrequencyWeightings = Audio.FrequencyWeightings.Z,
+                                      Optional ByVal VariableName As String = "Lc_Ag",
+                                      Optional ByVal IncludePractiseComponents As Boolean = True,
+                                      Optional ByVal UniquePrimaryStringRepresenations As Boolean = False,
+                                      Optional ByVal AllowIncompleteSegmentations As Boolean = True) As Boolean
+
+
+        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+        'Clears previously loaded sounds
+        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLinguisticLevel)
+
+        'Checks for which components segmentation is marked as incomplete for all items at the TargetComponentsLinguisticLevel
+        Dim IncompletedSegmentationsIndices As New SortedSet(Of Integer)
+
+        For SCI = 0 To SummaryComponents.Count - 1
+
+            Dim SummaryComponent = SummaryComponents(SCI)
+
+            'Get the SMA components representing the sound sections of all target components
+            Dim CurrentSmaComponentList As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+            For i = 0 To MediaAudioItems - 1
+                CurrentSmaComponentList.AddRange(SummaryComponent.GetCorrespondingSmaComponent(Me, i, SoundChannel, IncludePractiseComponents, UniquePrimaryStringRepresenations))
+
+                Dim CurrentIndexSound = SummaryComponent.GetSound(Me, i, SoundChannel, ,,, True)
+                If CurrentIndexSound Is Nothing Then
+
+                    If AllowIncompleteSegmentations = False Then
+                        MsgBox("Unable to calculate or set component sound levels due to lacking recording (index: " & i & ") of the following speech material component: " & SummaryComponent.PrimaryStringRepresentation, MsgBoxStyle.Exclamation, "Missing recording")
+                        Return False
+                    Else
+                        IncompletedSegmentationsIndices.Add(SCI)
+                        Continue For
+                    End If
+                End If
+            Next
+
+            If IncompletedSegmentationsIndices.Contains(SCI) = False Then
+                For Each SmaComponent In CurrentSmaComponentList
+                    If SmaComponent.SegmentationCompleted = False Then
+                        If AllowIncompleteSegmentations = False Then
+                            MsgBox("Unable to calculate or set component sound levels due to incomplete Speech Material Annotation (SMA) segmentation on the target linguistic level (" & TargetComponentsLinguisticLevel.ToString & ") in the following sound file: " & vbCrLf & vbCrLf & SmaComponent.SourceFilePath, MsgBoxStyle.Exclamation, "Incomplete SMA segmentation")
+                            Return False
+                        Else
+                            IncompletedSegmentationsIndices.Add(SCI)
+                        End If
+                    End If
+                Next
+            End If
+        Next
+
+
+        Dim UniqueSoundSectionIdentifiers As New SortedSet(Of String)
+
+        For SCI = 0 To SummaryComponents.Count - 1
+
+            Dim SummaryComponent = SummaryComponents(SCI)
+
+            'Checking if it was a non-segmented component
+            If IncompletedSegmentationsIndices.Contains(SCI) Then
+
+                ''Storing the value as Double NaN, as it can not be measure
+                'If TargetSoundLevel Is Nothing Then
+                '    SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, Double.NaN)
+                'Else
+                '    SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, Double.NaN)
+                'End If
+
+                'And skips to next
+                Continue For
+            End If
+
+            For i = 0 To MediaAudioItems - 1
+                Dim CurrentIndexSoundSmaComponents As New List(Of SmaComponent)
+                Dim CurrentIndexSound = SummaryComponent.GetSound(Me, i, SoundChannel, , , CurrentIndexSoundSmaComponents)
+
+                'Measure sound level
+                Dim AverageLevel As Double
+                If IntegrationTime = 0 Then
+                    AverageLevel = Audio.DSP.MeasureSectionLevel(CurrentIndexSound, SoundChannel, FrequencyWeighting)
+                Else
+                    AverageLevel = Audio.DSP.GetLevelOfLoudestWindow(CurrentIndexSound, SoundChannel, CurrentIndexSound.WaveFormat.SampleRate * IntegrationTime,,,, FrequencyWeighting, True)
+                End If
+
+                'Calculates needed gain to reach TargetSoundLevel
+                Dim NeededGain As Double = TargetSoundLevel - AverageLevel
+
+                'Add the same amount of gain to all sma components
+                For Each SmaComponent In CurrentIndexSoundSmaComponents
+
+                    'Gets the unique identifier for the SmaComponent
+                    'As this will not be correct if several SmaComponents pointing to the same sound file section has been added to the list, as then amplification will be applied more than once to the same sound file section, we here check if the section has already been added
+                    Dim Current_UniqueSoundSectionIdentifier = SmaComponent.CreateUniqueSoundSectionIdentifier(SmaComponent.SourceFilePath)
+
+                    'Applies gain only if not already done
+                    If UniqueSoundSectionIdentifiers.Contains(Current_UniqueSoundSectionIdentifier) = False Then
+
+                        'Adds the identifier
+                        UniqueSoundSectionIdentifiers.Add(Current_UniqueSoundSectionIdentifier)
+
+                        'Applies the gain
+                        SmaComponent.ApplyGain(NeededGain)
+                    End If
+                Next
+            Next
+        Next
+
+        'And save the sma components back to file
+        ParentTestSpecification.SpeechMaterial.SaveAllLoadedSounds(True)
+
+        'If TargetSoundLevel Is Nothing Then
+        '        'Stores the AverageLevel value as a custom media set variable
+        '        SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, AverageLevel)
+        '    Else
+        '        'Stores the NeededGain value as a custom media set variable
+        '        SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, NeededGain)
+        '    End If
+
+        ''Finally writes the results to file
+        'Me.WriteCustomVariables()
+
 
         If IncompletedSegmentationsIndices.Count > 0 Then
             MsgBox("Unable to calculate or set the level for " & IncompletedSegmentationsIndices.Count & " out of " & SummaryComponents.Count &
@@ -2051,7 +2107,7 @@ Public Class MediaSet
                 Dim NewSoundFilePath = IO.Path.Combine(NewFullMediaFolderPath, "Sound" & i.ToString("00"))
 
                 'Getting the sound
-                Dim CurrentComponentSound = SummaryComponent.GetSound(Me, i, SoundChannel, CrossFadeLength, Padding, InterStimulusIntervalLength,, True, True, RandomizeOrder, RandomSeed)
+                Dim CurrentComponentSound = SummaryComponent.GetSoundConcatenation(Me, i, SoundChannel, CrossFadeLength, Padding, InterStimulusIntervalLength,, True, True, RandomizeOrder, RandomSeed)
 
                 If CurrentComponentSound IsNot Nothing Then
                     'Writes to wave file
@@ -3535,7 +3591,7 @@ Public Class MediaSet
 
         If TemporalIntegration.HasValue = False Then TemporalIntegration = 0
 
-        Me.CalculateOrSetComponentLevel(LinguisticLevel, 1, TemporalIntegration, FrequencyWeighting,,,, TargetLevel, True)
+        Me.SetComponentLevel(LinguisticLevel, TargetLevel, 1, TemporalIntegration, FrequencyWeighting,,,, True)
 
 
     End Sub

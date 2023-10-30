@@ -517,9 +517,9 @@
 
         SelectedMediaSet.CalculateAverageMaxLevelOfCousinComponents(SpeechMaterialComponent.LinguisticLevels.List, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, False)
 
-        SelectedMediaSet.CalculateOrSetComponentLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection, 1, ,,,, True)
+        SelectedMediaSet.CalculateComponentLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection, 1, ,,,, True)
 
-        SelectedMediaSet.CalculateOrSetComponentLevel(SpeechMaterialComponent.LinguisticLevels.Sentence, 1)
+        SelectedMediaSet.CalculateComponentLevel(SpeechMaterialComponent.LinguisticLevels.Sentence, 1)
 
         SelectedMediaSet.CalculateAverageDurationOfContrastingComponents(SpeechMaterialComponent.LinguisticLevels.Sentence, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1)
 

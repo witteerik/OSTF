@@ -9,7 +9,7 @@ Public Class LibOstfDsp_VB
     Private Shared Function multiplyFloatArray_32(values As Single(), size As Integer, factor As Single) As Boolean
     End Function
 
-    Public Shared Function multiplyFloatArray(values As Single(), size As Integer, factor As Single) As Boolean
+    Public Shared Function MultiplyFloatArray(values As Single(), size As Integer, factor As Single) As Boolean
         'Checking whether a 32-bit or 64-bit environment is running
         If IntPtr.Size = 4 Then
             Return multiplyFloatArray_32(values, size, factor)
@@ -25,7 +25,7 @@ Public Class LibOstfDsp_VB
     Private Shared Function multiplyFloatArraySection_32(values As Single(), arraySize As Integer, factor As Single, startIndex As Integer, length As Integer) As Integer
     End Function
 
-    Public Shared Function multiplyFloatArraySection(values As Single(), arraySize As Integer, factor As Single, startIndex As Integer, length As Integer) As Integer
+    Public Shared Function MultiplyFloatArraySection(values As Single(), arraySize As Integer, factor As Single, startIndex As Integer, length As Integer) As Integer
 
         Dim ClippedSamplesCount As Integer = 0
 
@@ -48,7 +48,7 @@ Public Class LibOstfDsp_VB
     Private Shared Function calculateFloatSumOfSquare_32(values As Single(), arraySize As Integer, startIndex As Integer, sectionLength As Integer) As Double
     End Function
 
-    Public Shared Function calculateFloatSumOfSquare(values As Single(), arraySize As Integer, startIndex As Integer, sectionLength As Integer) As Double
+    Public Shared Function CalculateFloatSumOfSquare(values As Single(), arraySize As Integer, startIndex As Integer, sectionLength As Integer) As Double
 
         Dim SumOfSquare As Double = 0
 
@@ -72,7 +72,7 @@ Public Class LibOstfDsp_VB
     Private Shared Function addTwoFloatArrays_32(array1 As Single(), array2 As Single(), size As Integer) As Boolean
     End Function
 
-    Public Shared Function addTwoFloatArrays(array1 As Single(), array2 As Single(), size As Integer) As Boolean
+    Public Shared Function AddTwoFloatArrays(array1 As Single(), array2 As Single(), size As Integer) As Boolean
         'Checking whether a 32-bit or 64-bit environment is running
         If IntPtr.Size = 4 Then
             Return addTwoFloatArrays_32(array1, array2, size)
@@ -90,7 +90,7 @@ Public Class LibOstfDsp_VB
     Private Shared Sub fft_complex_32(real As Double(), imag As Double(), size As Integer, Optional direction As Integer = 1, Optional reorder As Boolean = True, Optional scaleForwardTransform As Boolean = True)
     End Sub
 
-    Public Shared Sub fft_complex(real As Double(), imag As Double(), size As Integer, Optional direction As Integer = 1, Optional reorder As Boolean = True, Optional scaleForwardTransform As Boolean = True)
+    Public Shared Sub Fft_complex(real As Double(), imag As Double(), size As Integer, Optional direction As Integer = 1, Optional reorder As Boolean = True, Optional scaleForwardTransform As Boolean = True)
         'Checking whether a 32-bit or 64-bit environment is running
         If IntPtr.Size = 4 Then
             fft_complex_32(real, imag, size, direction, reorder, scaleForwardTransform)
