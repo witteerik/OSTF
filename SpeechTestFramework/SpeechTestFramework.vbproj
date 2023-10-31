@@ -515,6 +515,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WinForms\TestWordRecorder.resx">
       <DependentUpon>TestWordRecorder.vb</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

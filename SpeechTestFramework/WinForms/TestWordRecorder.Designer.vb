@@ -134,7 +134,6 @@ Partial Class SpeechMaterialRecorder
         Me.Label3 = New System.Windows.Forms.Label()
         Me.InputChannel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Unlock_Button = New System.Windows.Forms.Button()
-        Me.SLM_BackgroundWorker = New System.ComponentModel.BackgroundWorker()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         Me.MainTabControl.SuspendLayout()
@@ -1273,7 +1272,6 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents EnforceValidationInLoadedSoundToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents InvalidateEverythingInLoadedSoundToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents UsePrototypeRecordingsToolStripMenuItem As Windows.Forms.ToolStripMenuItem
-    Friend WithEvents SLM_BackgroundWorker As ComponentModel.BackgroundWorker
     Friend WithEvents ValidateAllLinguisticLevels_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents ValidateSentenceLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents ValidateWordLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem

@@ -188,19 +188,15 @@ Namespace Utils
 
 0:
 
-            Dim fbd As New FolderBrowserDialog
-            fbd.Description = "Select the log / export folder you want to use!"
-            fbd.SelectedPath = SuggestedLogFolder
-            Dim DialogResult = fbd.ShowDialog()
-            If DialogResult <> DialogResult.OK Then
+            Dim SelectedFolder = OstfGui.GetFolder(SuggestedLogFolder, "Select the log / export folder you want to use!")
+            If SelectedFolder = "" Then
                 MsgBox("No folder selected! Click OK to try again!", MsgBoxStyle.Exclamation, "Unable to set the log folder")
                 GoTo 0
             End If
 
             'Checking that the folder is valid
-            If IO.Directory.Exists(fbd.SelectedPath) Then
-                'Storing the folder in
-                SuggestedLogFolder = fbd.SelectedPath
+            If IO.Directory.Exists(SelectedFolder) Then
+                SuggestedLogFolder = SelectedFolder
                 MsgBox("Log / export folder was successfully set to: " & vbCrLf & vbCrLf & SuggestedLogFolder, MsgBoxStyle.Information, "OSTF")
             Else
                 MsgBox("Could not locate the selected folder! Click OK to try again!", MsgBoxStyle.Exclamation, "Unable to set the log folder")
