@@ -14,7 +14,7 @@ The OSTF source code (available at https://github.com/witteerik/OSTF) is license
 
 MIT/X11 License
 
-Copyright (c) 2022 Erik Witte
+Copyright (c) 2023 Erik Witte
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -22,7 +22,9 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-The OSTF uses the following 3:rd party software libraries licenced under the MIT/X11 or a compatible license.
+The OSTF uses the MAUI library CommunityToolkit.Maui.MediaElement, which is generally under the MIT license, but some of its dependencies are licensed under the Apache-2.0 license (which should be compatible with the MIT license).
+
+The OSTF also uses the following 3:rd party software libraries licenced under the MIT/X11 or a compatible license.
 
  - PortAudio. 
 The OSTF uses PortAudio Portable Real-Time Audio Library, v. 19, 

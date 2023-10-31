@@ -31,9 +31,9 @@ Namespace Audio
 
             ReadOnly Property IsPlaying As Boolean
 
-            Sub SetOverlapDuration(ByVal Duration As Single)
+            Sub SetOverlapDuration(ByVal Duration As Double)
 
-            Function GetOverlapDuration() As Single
+            Function GetOverlapDuration() As Double
 
             ''' <summary>
             ''' Swaps the current output sound to a new, using crossfading between ths sounds.

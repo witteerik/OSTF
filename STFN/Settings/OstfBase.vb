@@ -68,7 +68,7 @@ Public Module OstfBase
 
         Try
 
-            MediaRootDirectory = MediaRootDirectory
+            OstfBase.MediaRootDirectory = MediaRootDirectory
 
             'ReadMediaRootDirectory(StartupPath)
 

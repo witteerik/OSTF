@@ -18,6 +18,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="2.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Reference Include="STFN">
 	    <HintPath>..\STFN\bin\Debug\net7.0\STFN.dll</HintPath>
 	  </Reference>
