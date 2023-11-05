@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Maui.Core.Primitives;
+﻿using CommunityToolkit.Maui.Core.Primitives;
 using CommunityToolkit.Maui.Views;
 using STFN.Audio;
 using STFN.Audio.SoundPlayers;
 
 namespace STFM
 {
-    internal class SoundPlayer : iSoundPlayer
+    public class SoundPlayer : iSoundPlayer
     {
 
-        MediaElement mediaElement1 = null;
-        MediaElement mediaElement2 = null;
+        public MediaElement mediaElement1 = null;
+        public MediaElement mediaElement2 = null;
         int lastStartedMediaPlayer = 2;
-
+        double overlapDuration = 1;
+        double overlapGranuality = 0.05;
         string InfoText = "";
 
         private bool raisePlaybackBufferTickEvents = false;
@@ -39,7 +35,7 @@ namespace STFM
             get { return IsPlaying; }
         }
 
-        public SoundPlayer(Microsoft.Maui.Controls.AbsoluteLayout ParentContainer)
+        public SoundPlayer(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer)
         {
             mediaElement1 = new MediaElement { ShouldShowPlaybackControls = false };
             mediaElement2 = new MediaElement { ShouldShowPlaybackControls = false };
@@ -56,56 +52,36 @@ namespace STFM
             mediaElement2.MediaEnded += MediaEnded_Handler;
             mediaElement2.StateChanged += MediaStateChanged_Handler;
 
+            mediaElement1.HeightRequest = 200;
+            mediaElement1.WidthRequest = 400;
+            mediaElement2.HeightRequest = 200;
+            mediaElement2.WidthRequest = 400;
+
             ParentContainer.Children.Add(mediaElement1);
             ParentContainer.Children.Add(mediaElement2);
 
+            ParentContainer.BackgroundColor = Colors.Beige;
+
         }
 
-        event iSoundPlayer.MessageFromPlayerEventHandler iSoundPlayer.MessageFromPlayer
-        {
-            add
-            {
-                throw new NotImplementedException();
-            }
 
-            remove
-            {
-                throw new NotImplementedException();
-            }
+        void iSoundPlayer.SetOverlapDuration(double Duration)
+        {
+            overlapDuration = Duration;
         }
 
-        void MediaFail_Handler(object sender, MediaFailedEventArgs e)
+        double iSoundPlayer.GetOverlapDuration()
         {
-            InfoText = InfoText + "\n" + e.ErrorMessage;
-            UpdateInfoText_Safe();
+            return overlapDuration;
+        }
+        void iSoundPlayer.SetOverlapGranuality(double Granuality)
+        {
+            overlapGranuality = Granuality;
         }
 
-        void MediaOpened_Handler(object sender, EventArgs e)
+        double iSoundPlayer.GetOverlapGranuality()
         {
-            InfoText = InfoText + "\n" + "Loaded sound";
-            UpdateInfoText_Safe();
-        }
-
-        void MediaEnded_Handler(object sender, EventArgs e)
-        {
-            InfoText = InfoText + "\n" + "Media ended";
-            UpdateInfoText_Safe();
-        }
-
-        void MediaStateChanged_Handler(object sender, MediaStateChangedEventArgs e)
-        {
-            InfoText = InfoText + "\n" + "New state: " + e.NewState.ToString();
-            UpdateInfoText_Safe();
-        }
-
-        void UpdateInfoText_Safe()
-        {
-            MainThread.BeginInvokeOnMainThread(UpdateInfoText);
-        }
-        
-        void UpdateInfoText()
-        {
-            //InfoLabel.Text = InfoText;
+            return overlapGranuality;
         }
 
         public void PlaySound( string soundFilePath)
@@ -162,8 +138,8 @@ namespace STFM
         // Crossfade from mediaElement1 to mediaElement2 over 1 seconds
         async void Crossfade()
         {
-            double fadeDuration = 1; // 5 seconds
-            double step = 0.05; // Adjust step for smoother or faster crossfade
+            double fadeDuration = overlapDuration; // using a local variable here so that fadeDuration never gets changed in the middle of a crossfade loop
+            double step = overlapGranuality; // using a local variable here so that overlapGranuality never gets changed in the middle of a crossfade loop // Adjust step for smoother or faster crossfade
 
             if (lastStartedMediaPlayer == 1)
             {
@@ -176,7 +152,7 @@ namespace STFM
                 {
                     mediaElement1.Volume = 1 - t;
                     mediaElement2.Volume = t;
-                    await Task.Delay((int)(fadeDuration * 1000 * step));
+                    await Task.Delay((int)(overlapDuration * 1000 * step));
                 }
 
                 mediaElement1.Stop();
@@ -201,19 +177,8 @@ namespace STFM
                 mediaElement1.Volume = 1; // Ensure volume is max for mediaElement2
 
             }
-
         }
 
-        double overlapDuration = 1;
-        void iSoundPlayer.SetOverlapDuration(double Duration)
-        {
-            overlapDuration = Duration;
-        }
-
-        double iSoundPlayer.GetOverlapDuration()
-        {
-            return overlapDuration;
-        }
 
         bool iSoundPlayer.SwapOutputSounds(ref Sound NewOutputSound)
         {
@@ -235,6 +200,10 @@ namespace STFM
                 string cacheDir = Microsoft.Maui.Storage.FileSystem.Current.CacheDirectory;
                 string TempSoundPath = Path.Combine(cacheDir, CurrentTempSoundFileName);
 
+                // Removing the iXML Chunk (Apparently the MediaElement player cannot handle it...)
+                NewOutputSound.SMA = null;
+
+                // Saving the file to cache memory
                 NewOutputSound.WriteWaveFile(ref TempSoundPath);
 
                 PlaySound(TempSoundPath);
@@ -251,6 +220,55 @@ namespace STFM
         {
             throw new NotImplementedException();
         }
+
+        event iSoundPlayer.MessageFromPlayerEventHandler iSoundPlayer.MessageFromPlayer
+        {
+            add
+            {
+                throw new NotImplementedException();
+            }
+
+            remove
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        void MediaFail_Handler(object sender, MediaFailedEventArgs e)
+        {
+            InfoText = InfoText + "\n" + e.ErrorMessage;
+            UpdateInfoText_Safe();
+        }
+
+        void MediaOpened_Handler(object sender, EventArgs e)
+        {
+            InfoText = InfoText + "\n" + "Loaded sound";
+            UpdateInfoText_Safe();
+        }
+
+        void MediaEnded_Handler(object sender, EventArgs e)
+        {
+            InfoText = InfoText + "\n" + "Media ended";
+            UpdateInfoText_Safe();
+        }
+
+        void MediaStateChanged_Handler(object sender, MediaStateChangedEventArgs e)
+        {
+            InfoText = InfoText + "\n" + "New state: " + e.NewState.ToString();
+            UpdateInfoText_Safe();
+        }
+
+        void UpdateInfoText_Safe()
+        {
+            MainThread.BeginInvokeOnMainThread(UpdateInfoText);
+        }
+
+        void UpdateInfoText()
+        {
+            //InfoLabel.Text = InfoText;
+        }
+
+
     }
 
 }

@@ -378,6 +378,16 @@ Public Class MediaSet
 
         Next
 
+        'Normalizing paths read from file
+        Output.BackgroundNonspeechParentFolder = Utils.NormalizeCrossPlatformPath(Output.BackgroundNonspeechParentFolder)
+        Output.BackgroundSpeechParentFolder = Utils.NormalizeCrossPlatformPath(Output.BackgroundSpeechParentFolder)
+        Output.CustomVariablesFolder = Utils.NormalizeCrossPlatformPath(Output.CustomVariablesFolder)
+        Output.LombardNoisePath = Utils.NormalizeCrossPlatformPath(Output.LombardNoisePath)
+        Output.MaskerParentFolder = Utils.NormalizeCrossPlatformPath(Output.MaskerParentFolder)
+        Output.MasterPrototypeRecordingPath = Utils.NormalizeCrossPlatformPath(Output.MasterPrototypeRecordingPath)
+        Output.MediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.MediaParentFolder)
+        Output.PrototypeMediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.PrototypeMediaParentFolder)
+
         'Also loading custom variables
         If Output IsNot Nothing Then
             Output.LoadCustomVariables()
@@ -386,7 +396,6 @@ Public Class MediaSet
         Return Output
 
     End Function
-
 
 
     'Public Sub SetSipValues(ByVal Voice As Integer)

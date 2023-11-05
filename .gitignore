@@ -352,3 +352,7 @@ MigrationBackup/
 
 # Temporary Eikholt materials
 OSTFMedia/SpeechMaterials/SwedishEikholtTest/
+
+# Temporary PB50 and Swedish Spondee materials
+OSTFMedia/SpeechMaterials/SwedishPB23/
+OSTFMedia/SpeechMaterials/SwedishSpondees23/

@@ -31,9 +31,21 @@ Namespace Audio
 
             ReadOnly Property IsPlaying As Boolean
 
+            ''' <summary>
+            ''' Set the crossfade duration (in seconds)
+            ''' </summary>
+            ''' <param name="Duration"></param>
             Sub SetOverlapDuration(ByVal Duration As Double)
 
             Function GetOverlapDuration() As Double
+
+            ''' <summary>
+            ''' Set to adjust the ovelap level adjustment step size for smoother or faster crossfade (in seconds)
+            ''' </summary>
+            ''' <param name="Granuality"></param>
+            Sub SetOverlapGranuality(ByVal Granuality As Double)
+
+            Function GetOverlapGranuality() As Double
 
             ''' <summary>
             ''' Swaps the current output sound to a new, using crossfading between ths sounds.

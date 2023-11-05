@@ -748,7 +748,7 @@
         Dim MarkColor As Drawing.Color = Drawing.Color.FromArgb(248, 108, 108)
 
         Dim n As Integer = 0
-        Do Until n = EditRichTextBox.TextLength - 1
+        Do Until n >= EditRichTextBox.TextLength - 1
 
             EditRichTextBox.Select(n, 3)
 

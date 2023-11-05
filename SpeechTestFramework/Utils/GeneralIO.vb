@@ -789,7 +789,54 @@ SavingFile: Dim ofd As New OpenFileDialog
 
         End Function
 
+
+        Public Sub ReplaceCharsInFileSystemEntries(ByVal StartDirectory As String, Optional ByVal ReplacementList As SortedList(Of String, String) = Nothing)
+            If ReplacementList Is Nothing Then
+                ' Initialize the ReplacementList if not provided
+                ReplacementList = New SortedList(Of String, String)
+                ReplacementList.Add("å", "aa")
+                ReplacementList.Add("ä", "ae")
+                ReplacementList.Add("ö", "oe")
+            End If
+
+            ' Replace characters in the StartDirectory
+            ReplaceCharsInDirectory(StartDirectory, ReplacementList)
+        End Sub
+
+        Private Sub ReplaceCharsInDirectory(ByVal directoryPath As String, ByVal replacementList As SortedList(Of String, String))
+            ' Process files in the current directory
+            For Each filePath As String In Directory.GetFiles(directoryPath)
+                Dim fileName As String = Path.GetFileName(filePath)
+                Dim updatedFileName As String = ReplaceCharacters(fileName, replacementList)
+                If fileName <> updatedFileName Then
+                    Dim newFilePath As String = Path.Combine(directoryPath, updatedFileName)
+                    File.Move(filePath, newFilePath)
+                End If
+            Next
+
+            ' Process subdirectories recursively
+            For Each subdirectoryPath As String In Directory.GetDirectories(directoryPath)
+                Dim updatedSubdirectoryPath As String = ReplaceCharacters(subdirectoryPath, replacementList)
+                If subdirectoryPath <> updatedSubdirectoryPath Then
+                    Directory.Move(subdirectoryPath, updatedSubdirectoryPath)
+                End If
+
+                ' Recursive call to process subdirectory
+                ReplaceCharsInDirectory(updatedSubdirectoryPath, replacementList)
+            Next
+        End Sub
+
+        Private Function ReplaceCharacters(ByVal input As String, ByVal replacementList As SortedList(Of String, String)) As String
+            Dim output As String = input
+            For Each kvp In replacementList
+                output = output.Replace(kvp.Key, kvp.Value)
+            Next
+            Return output
+        End Function
+
+
     End Module
+
 
     Public Class Utf8ToByteStringConverter
 

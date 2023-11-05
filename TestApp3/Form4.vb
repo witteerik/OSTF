@@ -3465,4 +3465,10 @@ Public Class Form4
 
 
     End Sub
+
+    Private Sub Button28_Click(sender As Object, e As EventArgs) Handles Button28.Click
+
+        SpeechTestFramework.Utils.ReplaceCharsInFileSystemEntries("C:\EriksDokument\source\repos\OSTF\OSTFMedia_M")
+
+    End Sub
 End Class

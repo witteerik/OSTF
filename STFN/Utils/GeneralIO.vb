@@ -744,6 +744,26 @@ Namespace Utils
 
         End Function
 
+        Public Function NormalizeCrossPlatformPath(ByVal InputPath As String) As String
+
+            Dim InputHasInitialDoubleBackslash As Boolean = False
+            If InputPath.StartsWith("\\") Then InputHasInitialDoubleBackslash = True
+
+            InputPath = InputPath.Replace("\", "/")
+            InputPath = InputPath.Replace("//", "/")
+            InputPath = InputPath.Replace("///", "/")
+
+            InputPath = IO.Path.Combine(InputPath.Split("/"))
+
+            If InputHasInitialDoubleBackslash = True Then
+                'Reinserting the initial double backslash
+                InputPath = "\\" & InputPath
+            End If
+
+            Return InputPath
+
+        End Function
+
     End Module
 
     Public Class Utf8ToByteStringConverter

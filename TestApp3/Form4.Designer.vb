@@ -56,6 +56,7 @@ Partial Class Form4
         Me.Button25 = New System.Windows.Forms.Button()
         Me.Button26 = New System.Windows.Forms.Button()
         Me.Button27 = New System.Windows.Forms.Button()
+        Me.Button28 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -364,12 +365,22 @@ Partial Class Form4
         Me.Button27.Text = "Button27"
         Me.Button27.UseVisualStyleBackColor = True
         '
+        'Button28
+        '
+        Me.Button28.Location = New System.Drawing.Point(489, 383)
+        Me.Button28.Name = "Button28"
+        Me.Button28.Size = New System.Drawing.Size(75, 54)
+        Me.Button28.TabIndex = 44
+        Me.Button28.Text = "Replace chars in OSTFMedia"
+        Me.Button28.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button28)
         Me.Controls.Add(Me.Button27)
         Me.Controls.Add(Me.Button26)
         Me.Controls.Add(Me.Button25)
@@ -444,4 +455,5 @@ Partial Class Form4
     Friend WithEvents Button25 As Button
     Friend WithEvents Button26 As Button
     Friend WithEvents Button27 As Button
+    Friend WithEvents Button28 As Button
 End Class
