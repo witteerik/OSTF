@@ -32,6 +32,9 @@
 	  <MauiXaml Update="Views\AudiogramView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\OptionsSipTestView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\SpeechTestView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

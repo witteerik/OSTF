@@ -8,13 +8,8 @@
 
     <drawable:SpeechTestView
                     x:Name="MySpeechTest"
-                    WidthRequest="500"
-                    HeightRequest="500">
-        <!--VerticalOptions="Fill"
-                    HorizontalOptions="Fill"-->
-        
-       
-
+                    VerticalOptions="Fill"
+                    HorizontalOptions="Fill">
     </drawable:SpeechTestView>
 
 
