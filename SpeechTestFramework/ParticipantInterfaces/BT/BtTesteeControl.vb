@@ -1,5 +1,4 @@
-﻿
-Imports SpeechTestFramework.Audio.PortAudioVB
+﻿Imports SpeechTestFramework.Audio.SoundScene
 
 Public Class BtTesteeControl
     Implements ITesteeControl, IBtTestController
@@ -54,7 +53,7 @@ Public Class BtTesteeControl
     End Sub
 
 
-    Public Sub ShowResponseAlternatives(ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
+    Public Sub ShowResponseAlternatives(ResponseAlternatives As List(Of Tuple(Of String, SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
 
         Dim ResponseAlternativeSpellings As New List(Of String)
         For Each ResponseAlternative In ResponseAlternatives

@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Maui.Core.Primitives;
 using CommunityToolkit.Maui.Views;
 using STFN.Audio;
+using STFN.Audio.Formats;
 using STFN.Audio.SoundPlayers;
+using STFN.Audio.SoundScene;
 
 namespace STFM
 {
@@ -180,7 +182,7 @@ namespace STFM
         }
 
 
-        bool iSoundPlayer.SwapOutputSounds(ref Sound NewOutputSound)
+        bool iSoundPlayer.SwapOutputSounds(ref Sound NewOutputSound, bool Record, bool AppendRecordedSound)
         {
 
             if (NewOutputSound != null)
@@ -268,7 +270,41 @@ namespace STFM
             //InfoLabel.Text = InfoText;
         }
 
+        Sound iSoundPlayer.GetRecordedSound(bool ClearRecordingBuffer)
+        {
+            throw new NotImplementedException("The STFM Sound player cannot yet record sound!");
+        }
 
+        void iSoundPlayer.ChangePlayerSettings(ref AudioApiSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, ref DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
+        {
+            // Ignored!
+        }
+
+        void iSoundPlayer.CloseStream()
+        {
+            // No need to close the stream, but stops the sound, if called
+            if (mediaElement1 != null)
+            {
+                mediaElement1.Stop();
+            }
+            if (mediaElement2 != null)
+            {
+                mediaElement2.Stop();
+            }
+        }
+
+        void iSoundPlayer.Dispose()
+        {
+            // Ignored, but stops the sound, if called
+            if (mediaElement1 != null)
+            {
+                mediaElement1.Stop();
+            }
+            if (mediaElement2 != null)
+            {
+                mediaElement2.Stop();
+            }
+        }
     }
 
 }

@@ -1840,7 +1840,7 @@ Public Class SpeechMaterialRecorder
     Private Sub StartSoundPlayer()
 
         'Selects the samplerate, bitdepth and encoding for use (based on the recording format)
-        OstfBase.SoundPlayer.ChangePlayerSettings(, RecordingWaveFormat.SampleRate, RecordingWaveFormat.BitDepth, RecordingWaveFormat.Encoding,, , Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.Duplex, False, False)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, RecordingWaveFormat.SampleRate, RecordingWaveFormat.BitDepth, RecordingWaveFormat.Encoding,, , Audio.SoundPlayers.iSoundPlayer.SoundDirections.Duplex, False, False)
 
         Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
         If LocalAvailableTransducers.Count = 0 Then

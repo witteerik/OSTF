@@ -1,6 +1,6 @@
-﻿Imports System.Windows.Forms
+﻿Imports SpeechTestFramework.Audio.SoundScene
+Imports System.Windows.Forms
 Imports System.Drawing
-Imports SpeechTestFramework.Audio.PortAudioVB
 
 Public Class DirectionalForcedChoiceControl
     Implements ITesteeControl
@@ -15,7 +15,7 @@ Public Class DirectionalForcedChoiceControl
     Delegate Sub NoArgReturningVoidDelegate()
     Delegate Sub StringArgReturningVoidDelegate([String] As String)
     Delegate Sub ListOfStringArgReturningVoidDelegate(StringList As List(Of String))
-    Delegate Sub ListOfStringLocationTupleArgReturningVoidDelegate(StringList As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
+    Delegate Sub ListOfStringLocationTupleArgReturningVoidDelegate(StringList As List(Of Tuple(Of String, SoundSourceLocation)))
     Delegate Sub ProgressBarArgReturningVoidDelegate(ByVal Value As Integer, ByVal Maximum As Integer, ByVal Minimum As Integer)
 
     Public Sub New()
@@ -99,7 +99,7 @@ Public Class DirectionalForcedChoiceControl
 
     End Function
 
-    Public Sub AddItems(ByVal ItemList As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
+    Public Sub AddItems(ByVal ItemList As List(Of Tuple(Of String, SoundSourceLocation)))
 
         For i = 0 To ItemList.Count - 1
 
@@ -420,7 +420,7 @@ Public Class DirectionalForcedChoiceControl
     ''' Displays the response alternatives in a thread safe way.
     ''' </summary>
     ''' <param name="ResponseAlternatives"></param>
-    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
+    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of Tuple(Of String, SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
 
         Try
             If Me.InvokeRequired Then
@@ -435,7 +435,7 @@ Public Class DirectionalForcedChoiceControl
 
     End Sub
 
-    Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
+    Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of Tuple(Of String, SoundSourceLocation)))
         AddItems(ResponseAlternatives)
     End Sub
 

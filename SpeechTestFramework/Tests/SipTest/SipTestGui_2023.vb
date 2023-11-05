@@ -1,4 +1,5 @@
-﻿Imports SpeechTestFramework.SipTest
+﻿Imports SpeechTestFramework.Audio.SoundScene
+Imports SpeechTestFramework.SipTest
 Imports SpeechTestFramework.WinFormControls
 Imports System.Windows.Forms
 Imports System.Drawing
@@ -124,7 +125,7 @@ Public Class SipTestGui_2023
     ''' Holds the time of the presentation of the response alternatives
     ''' </summary>
     Private ResponseAlternativesPresentationTime As DateTime
-    Private TestWordAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
+    Private TestWordAlternatives As List(Of Tuple(Of String, SoundSourceLocation))
     Private CorrectResponse As String = ""
     Private CurrentTrialSoundIsReady As Boolean = False
     Private CurrentTrialIsLaunched As Boolean = False ' A variable that holds a value indicating if the current trial was started by the StartTrialTimer, or if it should be started directly from prepare sound. (This construction is needed as the sound may not always be created before the next trial should start. If that happens the trial starts as soon as the sound is ready to be played.)
@@ -407,7 +408,7 @@ Public Class SipTestGui_2023
 
         'Selects the wave format for use (doing it this way means that the wave format MUST be the same in all available MediaSets)
         Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
-        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveformat.SampleRate, TempWaveformat.BitDepth, TempWaveformat.Encoding,, , Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveformat.SampleRate, TempWaveformat.BitDepth, TempWaveformat.Encoding,, , Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, False, False)
 
         Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
         If LocalAvailableTransducers.Count = 0 Then
@@ -1083,7 +1084,7 @@ Public Class SipTestGui_2023
                     For Each TargetLocation In CurrentTargetLocations
 
                         'Drawing two random MaskerLocations
-                        Dim CurrentMaskerLocations As New List(Of Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)
+                        Dim CurrentMaskerLocations As New List(Of SoundSourceLocation)
                         Dim SelectedMaskerIndices As New List(Of Integer)
                         SelectedMaskerIndices.AddRange(Utils.SampleWithoutReplacement(NumberOfSimultaneousMaskers, 0, MaskerLocations.Length, SipTestMeasurement.Randomizer))
                         For Each RandomIndex In SelectedMaskerIndices
@@ -1273,9 +1274,9 @@ Public Class SipTestGui_2023
                 CurrentBlockIsBMLD = True
             End If
 
-            Dim TargetStimulusLocations() As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-            Dim MaskerLocations() As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
-            Dim BackgroundLocations() As SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation
+            Dim TargetStimulusLocations() As SoundSourceLocation
+            Dim MaskerLocations() As SoundSourceLocation
+            Dim BackgroundLocations() As SoundSourceLocation
             Dim SignalMode As BmldModes
             Dim NoiseMode As BmldModes
 
@@ -1286,15 +1287,15 @@ Public Class SipTestGui_2023
                 Dim MaskerLocation As Double = BlockType.Item2
 
                 'Directional stimulation
-                TargetStimulusLocations = {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = SignalLocation, .Elevation = 0, .Distance = SelectedSimulationDistance}}
-                MaskerLocations = {New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = MaskerLocation, .Elevation = 0, .Distance = SelectedSimulationDistance}}
+                TargetStimulusLocations = {New SoundSourceLocation With {.HorizontalAzimuth = SignalLocation, .Elevation = 0, .Distance = SelectedSimulationDistance}}
+                MaskerLocations = {New SoundSourceLocation With {.HorizontalAzimuth = MaskerLocation, .Elevation = 0, .Distance = SelectedSimulationDistance}}
 
                 'Adding a number of background sounds
                 BackgroundLocations = {
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 60, .Elevation = 0, .Distance = SelectedSimulationDistance},
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 150, .Elevation = 0, .Distance = SelectedSimulationDistance},
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -150, .Elevation = 0, .Distance = SelectedSimulationDistance},
-                    New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -60, .Elevation = 0, .Distance = SelectedSimulationDistance}}
+                    New SoundSourceLocation With {.HorizontalAzimuth = 60, .Elevation = 0, .Distance = SelectedSimulationDistance},
+                    New SoundSourceLocation With {.HorizontalAzimuth = 150, .Elevation = 0, .Distance = SelectedSimulationDistance},
+                    New SoundSourceLocation With {.HorizontalAzimuth = -150, .Elevation = 0, .Distance = SelectedSimulationDistance},
+                    New SoundSourceLocation With {.HorizontalAzimuth = -60, .Elevation = 0, .Distance = SelectedSimulationDistance}}
 
             Else
 
@@ -1746,7 +1747,7 @@ Public Class SipTestGui_2023
             MixStopWatch.Start()
 
             'Sets a List of SoundSceneItem in which to put the sounds to mix
-            Dim ItemList = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+            Dim ItemList = New List(Of SoundSceneItem)
 
             Dim SoundWaveFormat As Audio.Formats.WaveFormat = Nothing
 
@@ -1777,12 +1778,12 @@ Public Class SipTestGui_2023
 
             'Adds the background (non-speech) signals, with fade, duck and location specifications
             Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
-            ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background1, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup,
-                                                                                              New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30},
-                                                                                              Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech, 0,,,, FadeSpecs_Background))
-            ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Background2, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup,
-                                                                                              New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30},
-                                                                                              Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background))
+            ItemList.Add(New SoundSceneItem(Background1, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup,
+                                                                                              New SoundSourceLocation With {.HorizontalAzimuth = -30},
+                                                                                              SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech, 0,,,, FadeSpecs_Background))
+            ItemList.Add(New SoundSceneItem(Background2, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup,
+                                                                                              New SoundSourceLocation With {.HorizontalAzimuth = 30},
+                                                                                              SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background))
             LevelGroup += 1
 
             MixStopWatch.Stop()
@@ -1898,17 +1899,17 @@ Public Class SipTestGui_2023
         End Select
 
         'Collects the response alternatives
-        TestWordAlternatives = New List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
+        TestWordAlternatives = New List(Of Tuple(Of String, SoundSourceLocation))
         Dim TempList As New List(Of SpeechMaterialComponent)
         CurrentSipTrial.SpeechMaterialComponent.IsContrastingComponent(,, TempList)
         For Each ContrastingComponent In TempList
             'TODO: the following line only uses the first of each possible contrasting response alternative stimulus locations
-            TestWordAlternatives.Add(New Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)(ContrastingComponent.GetCategoricalVariableValue("Spelling"), CurrentSipTrial.TargetStimulusLocations(0).ActualLocation))
+            TestWordAlternatives.Add(New Tuple(Of String, SoundSourceLocation)(ContrastingComponent.GetCategoricalVariableValue("Spelling"), CurrentSipTrial.TargetStimulusLocations(0).ActualLocation))
         Next
 
         'Randomizing the order
         Dim AlternativesCount As Integer = TestWordAlternatives.Count
-        Dim TempList2 As New List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))
+        Dim TempList2 As New List(Of Tuple(Of String, SoundSourceLocation))
         For n = 0 To AlternativesCount - 1
             Dim RandomIndex As Integer = SipMeasurementRandomizer.Next(0, TestWordAlternatives.Count)
             TempList2.Add(TestWordAlternatives(RandomIndex))

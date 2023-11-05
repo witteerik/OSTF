@@ -58,7 +58,7 @@ Public Class CalibrationForm
 
         'Adding transducers
         Dim TempWaveFormat As New Audio.Formats.WaveFormat(48000, 32, 1,, Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints)
-        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding,,, Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+        OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding,,, Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, False, False)
 
         Dim LocalAvailableTransducers = OstfBase.AvaliableTransducers
         If LocalAvailableTransducers.Count = 0 Then

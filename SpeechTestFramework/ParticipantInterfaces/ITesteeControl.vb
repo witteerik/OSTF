@@ -1,5 +1,5 @@
 ﻿Public Interface ITesteeControl
-    Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
+    Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of Tuple(Of String, SpeechTestFramework.Audio.SoundScene.SoundSourceLocation)))
     Sub ShowVisualQue()
     Sub HideVisualQue()
     Sub ResponseTimesOut()

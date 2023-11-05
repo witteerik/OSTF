@@ -3,7 +3,7 @@ Imports System.Runtime.InteropServices
 Imports SpeechTestFramework
 Imports SpeechTestFramework.OstfBase
 Imports SpeechTestFramework.SipTest
-
+Imports SpeechTestFramework.Audio.SoundScene
 Public Class Form4
 
     Dim SoundPlayer As SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer
@@ -541,7 +541,7 @@ Public Class Form4
         Dim Sound_Background3 = Sound_Background.CopySection(1, Randomizer.Next(0, Sound_Background.WaveData.SampleData(1).Length - TargetLength - 2), TargetLength)
         Dim Sound_Background4 = Sound_Background.CopySection(1, Randomizer.Next(0, Sound_Background.WaveData.SampleData(1).Length - TargetLength - 2), TargetLength)
 
-        Dim ItemList = New List(Of SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem)
+        Dim ItemList = New List(Of SoundSceneItem)
 
         Dim FadeSpecs_Background = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
         FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, 10000))
@@ -559,19 +559,19 @@ Public Class Form4
         DuckSpecs.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, -3, 48000, 48000))
         DuckSpecs.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(-3, 0, 3 * 48000, 48000))
 
-        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Background1, 1, 60, 1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -45}, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background, DuckSpecs))
-        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Background2, 1, 60, 1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 45}, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background, DuckSpecs))
-        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Background3, 1, 60, 1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -135}, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background, DuckSpecs))
-        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Background4, 1, 60, 1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 135}, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background, DuckSpecs))
-        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_TestWord, 1, 70, 2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 15}, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Target, 48000 * 2,,,, FadeSpecs_Speech))
-        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Masker1, 1, 65, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 120}, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Masker, 48000,,,, FadeSpecs_Maskers))
-        ItemList.Add(New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem(Sound_Masker2, 1, 65, 3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 130}, SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSceneItem.SoundSceneItemRoles.Masker, 48000,,,, FadeSpecs_Maskers))
+        ItemList.Add(New SoundSceneItem(Sound_Background1, 1, 60, 1, New SoundSourceLocation With {.HorizontalAzimuth = -45}, SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background, DuckSpecs))
+        ItemList.Add(New SoundSceneItem(Sound_Background2, 1, 60, 1, New SoundSourceLocation With {.HorizontalAzimuth = 45}, SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background, DuckSpecs))
+        ItemList.Add(New SoundSceneItem(Sound_Background3, 1, 60, 1, New SoundSourceLocation With {.HorizontalAzimuth = -135}, SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background, DuckSpecs))
+        ItemList.Add(New SoundSceneItem(Sound_Background4, 1, 60, 1, New SoundSourceLocation With {.HorizontalAzimuth = 135}, SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background, DuckSpecs))
+        ItemList.Add(New SoundSceneItem(Sound_TestWord, 1, 70, 2, New SoundSourceLocation With {.HorizontalAzimuth = 15}, SoundSceneItem.SoundSceneItemRoles.Target, 48000 * 2,,,, FadeSpecs_Speech))
+        ItemList.Add(New SoundSceneItem(Sound_Masker1, 1, 65, 3, New SoundSourceLocation With {.HorizontalAzimuth = 120}, SoundSceneItem.SoundSceneItemRoles.Masker, 48000,,,, FadeSpecs_Maskers))
+        ItemList.Add(New SoundSceneItem(Sound_Masker2, 1, 65, 3, New SoundSourceLocation With {.HorizontalAzimuth = 130}, SoundSceneItem.SoundSceneItemRoles.Masker, 48000,,,, FadeSpecs_Maskers))
 
-        Dim MyMixer = New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer()
+        Dim MyMixer = New SpeechTestFramework.Audio.SoundScene.DuplexMixer()
         'MyMixer.SetLinearOutput()
-        MyMixer.HardwareOutputChannelSpeakerLocations.Add(1, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = -30})
-        MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 0})
-        MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SpeechTestFramework.Audio.PortAudioVB.DuplexMixer.SoundSourceLocation With {.HorizontalAzimuth = 30})
+        MyMixer.HardwareOutputChannelSpeakerLocations.Add(1, New SoundSourceLocation With {.HorizontalAzimuth = -30})
+        MyMixer.HardwareOutputChannelSpeakerLocations.Add(2, New SoundSourceLocation With {.HorizontalAzimuth = 0})
+        MyMixer.HardwareOutputChannelSpeakerLocations.Add(3, New SoundSourceLocation With {.HorizontalAzimuth = 30})
 
         Dim OutputSound = MyMixer.CreateSoundScene(ItemList, SpeechTestFramework.OstfBase.SoundPropagationTypes.SimulatedSoundField)
 
@@ -665,7 +665,7 @@ Public Class Form4
         Exit Sub
 
 
-        SpeechTestFramework.SoundPlayer.ChangePlayerSettings(, OutputSound.WaveFormat.SampleRate, OutputSound.WaveFormat.BitDepth, OutputSound.WaveFormat.Encoding,,, SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer.SoundDirections.PlaybackOnly, False, False)
+        SpeechTestFramework.SoundPlayer.ChangePlayerSettings(, OutputSound.WaveFormat.SampleRate, OutputSound.WaveFormat.BitDepth, OutputSound.WaveFormat.Encoding,,, Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, False, False)
         SpeechTestFramework.SoundPlayer.ChangePlayerSettings(Transducer.ParentAudioApiSettings, ,,, 0.4, Transducer.Mixer,, True, True)
         SpeechTestFramework.SoundPlayer.SwapOutputSounds(OutputSound)
 

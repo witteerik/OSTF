@@ -1,4 +1,4 @@
-﻿
+﻿Imports SpeechTestFramework.Audio.SoundScene
 Imports System.Windows.Forms
 Imports System.Drawing
 
@@ -10,7 +10,7 @@ Public Class SerialChoiceTesteeControl
     Delegate Sub NoArgReturningVoidDelegate()
     Delegate Sub StringArgReturningVoidDelegate([String] As String)
     Delegate Sub ListOfStringArgReturningVoidDelegate(StringList As List(Of String))
-    Delegate Sub ListOfStringLocationTupleArgReturningVoidDelegate(StringList As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
+    Delegate Sub ListOfStringLocationTupleArgReturningVoidDelegate(StringList As List(Of Tuple(Of String, SoundSourceLocation)))
     Delegate Sub ProgressBarArgReturningVoidDelegate(ByVal Value As Integer, ByVal Maximum As Integer, ByVal Minimum As Integer)
 
 
@@ -80,7 +80,7 @@ Public Class SerialChoiceTesteeControl
     ''' Displays the response alternatives in a thread safe way.
     ''' </summary>
     ''' <param name="ResponseAlternatives"></param>
-    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
+    Private Sub ShowResponseAlternatives(ByVal ResponseAlternatives As List(Of Tuple(Of String, SoundSourceLocation))) Implements ITesteeControl.ShowResponseAlternatives
 
         Try
 
@@ -97,7 +97,7 @@ Public Class SerialChoiceTesteeControl
 
     End Sub
 
-    Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of Tuple(Of String, Audio.PortAudioVB.DuplexMixer.SoundSourceLocation)))
+    Private Sub ShowResponseAlternatives_UnSafe(ByVal ResponseAlternatives As List(Of Tuple(Of String, SoundSourceLocation)))
 
         ResetTestItemPanel()
 

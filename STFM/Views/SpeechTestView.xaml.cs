@@ -128,6 +128,16 @@ public partial class SpeechTestView : ContentView, IDrawable
                     var newOptionsSipTestView = new OptionsSipTestView();
                     TestOptionsGrid.Children.Add(newOptionsSipTestView);
                     CurrentTestOptionsView = newOptionsSipTestView;
+
+                    var newResponseTestView = new MafcDragDropView();
+                    TestReponseGrid.Children.Add(newResponseTestView);
+
+                    newResponseTestView.AddDefaultSources();
+
+                    string[] stringArray = new string[] { "apple", "banana", "cherry", "date" };
+
+                    newResponseTestView.AddResponseAlternatives(stringArray);
+
                     break;
 
                 default:

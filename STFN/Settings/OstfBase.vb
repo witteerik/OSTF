@@ -153,12 +153,12 @@ Public Module OstfBase
         Dim LinesRead As Integer = 0
         Dim InputLines() As String = System.IO.File.ReadAllLines(AudioSystemSpecificationFilePath, System.Text.Encoding.UTF8)
 
-        'Dim ApiName As String = "MME"
-        'Dim OutputDeviceName As String = "Högtalare (2- Realtek(R) Audio)"
-        'Dim OutputDeviceNames As New List(Of String) ' Used for MME multiple device support
-        'Dim InputDeviceName As String = ""
-        'Dim InputDeviceNames As New List(Of String) ' Used for MME multiple device support
-        'Dim BufferSize As Integer = 2048
+        Dim ApiName As String = "MME"
+        Dim OutputDeviceName As String = "Högtalare (2- Realtek(R) Audio)"
+        Dim OutputDeviceNames As New List(Of String) ' Used for MME multiple device support
+        Dim InputDeviceName As String = ""
+        Dim InputDeviceNames As New List(Of String) ' Used for MME multiple device support
+        Dim BufferSize As Integer = 2048
 
 
         For i = 0 To InputLines.Length - 1
@@ -175,74 +175,76 @@ Public Module OstfBase
             End If
             If Line = "<New transducer>" Then Exit For
 
-            'If Line.StartsWith("ApiName") Then ApiName = InputFileSupport.GetInputFileValue(Line, True)
-            'If Line.Replace(" ", "").StartsWith("OutputDevice=") Then OutputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
-            'If Line.Replace(" ", "").StartsWith("OutputDevices=") Then OutputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
-            'If Line.Replace(" ", "").StartsWith("InputDevice=") Then InputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
-            'If Line.Replace(" ", "").StartsWith("InputDevices=") Then InputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
-            'If Line.StartsWith("BufferSize") Then BufferSize = InputFileSupport.InputFileIntegerValueParsing(Line, True, AudioSystemSpecificationFilePath)
+            If Line.StartsWith("ApiName") Then ApiName = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.Replace(" ", "").StartsWith("OutputDevice=") Then OutputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.Replace(" ", "").StartsWith("OutputDevices=") Then OutputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
+            If Line.Replace(" ", "").StartsWith("InputDevice=") Then InputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.Replace(" ", "").StartsWith("InputDevices=") Then InputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
+            If Line.StartsWith("BufferSize") Then BufferSize = InputFileSupport.InputFileIntegerValueParsing(Line, True, AudioSystemSpecificationFilePath)
 
         Next
 
-        'Dim DeviceLoadSuccess As Boolean = True
-        'If OutputDeviceName = "" And InputDeviceName = "" And OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
-        '    'No device names have been specified
-        '    DeviceLoadSuccess = False
-        'End If
+        Dim DeviceLoadSuccess As Boolean = True
+        If OutputDeviceName = "" And InputDeviceName = "" And OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
+            'No device names have been specified
+            DeviceLoadSuccess = False
+        End If
 
-        'If ApiName <> "MME" Then
-        '    If OutputDeviceNames IsNot Nothing Or InputDeviceNames IsNot Nothing Then
-        '        DeviceLoadSuccess = False
-        '        MsgBox("When specifying multiple sound (input or output) devices in the file " & AudioSystemSpecificationFilePath & ", the sound API must be MME ( not " & ApiName & ")!", MsgBoxStyle.Exclamation, "Sound device specification error!")
-        '    End If
-        'End If
+        If ApiName <> "MME" Then
+            If OutputDeviceNames IsNot Nothing Or InputDeviceNames IsNot Nothing Then
+                DeviceLoadSuccess = False
+                MsgBox("When specifying multiple sound (input or output) devices in the file " & AudioSystemSpecificationFilePath & ", the sound API must be MME ( not " & ApiName & ")!", MsgBoxStyle.Exclamation, "Sound device specification error!")
+            End If
+        End If
 
-        'If OutputDeviceNames IsNot Nothing And OutputDeviceName <> "" Then
-        '    DeviceLoadSuccess = False
-        '    MsgBox("Either (not both) of single or multiple sound output devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
-        'End If
+        If OutputDeviceNames IsNot Nothing And OutputDeviceName <> "" Then
+            DeviceLoadSuccess = False
+            MsgBox("Either (not both) of single or multiple sound output devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
+        End If
 
-        'If InputDeviceNames IsNot Nothing And InputDeviceName <> "" Then
-        '    DeviceLoadSuccess = False
-        '    MsgBox("Either (not both) of single or multiple sound input devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
-        'End If
+        If InputDeviceNames IsNot Nothing And InputDeviceName <> "" Then
+            DeviceLoadSuccess = False
+            MsgBox("Either (not both) of single or multiple sound input devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
+        End If
 
-        ''Tries to setup the AudioApiSettings using the loaded data
-        'Dim AudioApiSettings As New Audio.AudioApiSettings
-        'If DeviceLoadSuccess = True Then
-        '    If ApiName = "ASIO" Then
-        '        DeviceLoadSuccess = AudioApiSettings.SetAsioSoundDevice(OutputDeviceName, BufferSize)
-        '    Else
-        '        If OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
-        '            DeviceLoadSuccess = AudioApiSettings.SetNonAsioSoundDevice(ApiName, OutputDeviceName, InputDeviceName, BufferSize)
-        '        Else
-        '            DeviceLoadSuccess = AudioApiSettings.SetMmeMultipleDevices(InputDeviceNames, OutputDeviceNames, BufferSize)
-        '        End If
-        '    End If
-        'End If
+        'Tries to setup the AudioApiSettings using the loaded data
+        Dim AudioApiSettings As New Audio.AudioApiSettings
+        If DeviceLoadSuccess = True Then
+            If ApiName = "ASIO" Then
+                DeviceLoadSuccess = AudioApiSettings.SetAsioSoundDevice(OutputDeviceName, BufferSize)
+            Else
+                If OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
+                    DeviceLoadSuccess = AudioApiSettings.SetNonAsioSoundDevice(ApiName, OutputDeviceName, InputDeviceName, BufferSize)
+                Else
+                    DeviceLoadSuccess = AudioApiSettings.SetMmeMultipleDevices(InputDeviceNames, OutputDeviceNames, BufferSize)
+                End If
+            End If
+        End If
 
-        'If DeviceLoadSuccess = False Then
+        If DeviceLoadSuccess = False Then
 
-        '    If OutputDeviceNames Is Nothing Then OutputDeviceNames = New List(Of String)
-        '    If InputDeviceNames Is Nothing Then InputDeviceNames = New List(Of String)
+            If OutputDeviceNames Is Nothing Then OutputDeviceNames = New List(Of String)
+            If InputDeviceNames Is Nothing Then InputDeviceNames = New List(Of String)
 
-        '    MsgBox("The Open Speech Test Framework (OSTF) was unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
-        '        "Output device: " & OutputDeviceName & vbCrLf &
-        '        "Output devices: " & String.Join(", ", OutputDeviceNames) & vbCrLf &
-        '        "Input device: " & InputDeviceName & vbCrLf &
-        '        "Input devices: " & String.Join(", ", InputDeviceNames) & vbCrLf & vbCrLf &
-        '        "Click OK to manually select audio input/output devices." & vbCrLf & vbCrLf &
-        '        "IMPORTANT: Sound tranducer calibration and/or routing may not be correct when manually selected sound devices are used!", MsgBoxStyle.Exclamation, "OSTF sound device not found!")
+            MsgBox("The Open Speech Test Framework (OSTF) was unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
+                "Output device: " & OutputDeviceName & vbCrLf &
+                "Output devices: " & String.Join(", ", OutputDeviceNames) & vbCrLf &
+                "Input device: " & InputDeviceName & vbCrLf &
+                "Input devices: " & String.Join(", ", InputDeviceNames) & vbCrLf & vbCrLf &
+                "Click OK to manually select audio input/output devices." & vbCrLf & vbCrLf &
+                "IMPORTANT: Sound tranducer calibration and/or routing may not be correct when manually selected sound devices are used!", MsgBoxStyle.Exclamation, "OSTF sound device not found!")
 
-        '    Dim NewAudioSettingsDialog As New AudioSettingsDialog()
-        '    Dim AudioSettingsDialogResult = NewAudioSettingsDialog.ShowDialog()
-        '    If AudioSettingsDialogResult = Windows.Forms.DialogResult.OK Then
-        '        AudioApiSettings = NewAudioSettingsDialog.CurrentAudioApiSettings
-        '    Else
-        '        MsgBox("You pressed cancel. Default sound settings will be used", MsgBoxStyle.Exclamation, "Select sound device!")
-        '        AudioApiSettings.SelectDefaultAudioDevice()
-        '    End If
-        'End If
+            'Using default settings, as their is not yet any GUI for selecting settings such as the NET FrameWork AudioSettingsDialog 
+
+            'Dim NewAudioSettingsDialog As New AudioSettingsDialog()
+            'Dim AudioSettingsDialogResult = NewAudioSettingsDialog.ShowDialog()
+            'If AudioSettingsDialogResult = Windows.Forms.DialogResult.OK Then
+            '    AudioApiSettings = NewAudioSettingsDialog.CurrentAudioApiSettings
+            'Else
+            '    MsgBox("You pressed cancel. Default sound settings will be used", MsgBoxStyle.Exclamation, "Select sound device!")
+            AudioApiSettings.SelectDefaultAudioDevice()
+            'End If
+        End If
 
         'Reads the remains of the file
         _AvaliableTransducers = New List(Of AudioSystemSpecification)
@@ -261,12 +263,12 @@ Public Module OstfBase
             If Line = "<New transducer>" Then
                 If CurrentTransducer Is Nothing Then
                     'Creates the first transducer
-                    CurrentTransducer = New AudioSystemSpecification() 'AudioApiSettings)
+                    CurrentTransducer = New AudioSystemSpecification(AudioApiSettings)
                 Else
                     'Stores the transducer
                     _AvaliableTransducers.Add(CurrentTransducer)
                     'Creates a new one
-                    CurrentTransducer = New AudioSystemSpecification() 'AudioApiSettings)
+                    CurrentTransducer = New AudioSystemSpecification(AudioApiSettings)
                 End If
             End If
 
@@ -284,11 +286,11 @@ Public Module OstfBase
         If CurrentTransducer IsNot Nothing Then _AvaliableTransducers.Add(CurrentTransducer)
 
         'Adding a default transducer if none were sucessfully read
-        If _AvaliableTransducers.Count = 0 Then _AvaliableTransducers.Add(New AudioSystemSpecification) '(AudioApiSettings))
+        If _AvaliableTransducers.Count = 0 Then _AvaliableTransducers.Add(New AudioSystemSpecification(AudioApiSettings))
 
-        'For Each Transducer In _AvaliableTransducers
-        '    Transducer.SetupMixer()
-        'Next
+        For Each Transducer In _AvaliableTransducers
+            Transducer.SetupMixer()
+        Next
 
         'Checking calibration gain values and issues warnings if calibration gain is above 30 dB
         For Each Transducer In _AvaliableTransducers
@@ -313,8 +315,8 @@ Public Module OstfBase
 
     Public Class AudioSystemSpecification
         Public Property Name As String = "Default"
-        'Public ReadOnly Property ParentAudioApiSettings As Audio.AudioApiSettings
-        'Public Property Mixer As Audio.SoundPlayers.DuplexMixer
+        Public ReadOnly Property ParentAudioApiSettings As Audio.AudioApiSettings
+        Public Property Mixer As STFN.Audio.SoundScene.DuplexMixer
         Public Property LoudspeakerAzimuths As New List(Of Double) From {-90, 90}
         Public Property LoudspeakerElevations As New List(Of Double) From {0, 0}
         Public Property LoudspeakerDistances As New List(Of Double) From {0, 0}
@@ -336,33 +338,33 @@ Public Module OstfBase
             End Get
         End Property
 
-        'Public Sub New(ByRef ParentAudioApiSettings As Audio.AudioApiSettings)
-        '    Me.ParentAudioApiSettings = ParentAudioApiSettings
+        Public Sub New(ByRef ParentAudioApiSettings As Audio.AudioApiSettings)
+            Me.ParentAudioApiSettings = ParentAudioApiSettings
 
-        'End Sub
+        End Sub
 
-        'Public Sub SetupMixer()
-        '    'Setting up the mixer
-        '    Mixer = New Audio.SoundPlayers.DuplexMixer(Me)
+        Public Sub SetupMixer()
+            'Setting up the mixer
+            Mixer = New Audio.SoundScene.DuplexMixer(Me)
 
-        '    CheckCanPlayRecord()
+            CheckCanPlayRecord()
 
-        'End Sub
-        'Public Sub CheckCanPlayRecord()
+        End Sub
+        Public Sub CheckCanPlayRecord()
 
-        '    'Checks if the transducerss will play/record
-        '    If Me.Mixer.OutputRouting.Keys.Count > 0 And Me.ParentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
-        '        If Me.Mixer.OutputRouting.Keys.Max <= Me.ParentAudioApiSettings.NumberOfOutputChannels Then
-        '            Me._CanPlay = True
-        '        End If
-        '    End If
-        '    If Me.Mixer.InputRouting.Keys.Count > 0 And Me.ParentAudioApiSettings.NumberOfInputChannels.HasValue = True Then
-        '        If Me.Mixer.InputRouting.Keys.Max <= Me.ParentAudioApiSettings.NumberOfInputChannels Then
-        '            Me._CanRecord = True
-        '        End If
-        '    End If
+            'Checks if the transducerss will play/record
+            If Me.Mixer.OutputRouting.Keys.Count > 0 And Me.ParentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
+                If Me.Mixer.OutputRouting.Keys.Max <= Me.ParentAudioApiSettings.NumberOfOutputChannels Then
+                    Me._CanPlay = True
+                End If
+            End If
+            If Me.Mixer.InputRouting.Keys.Count > 0 And Me.ParentAudioApiSettings.NumberOfInputChannels.HasValue = True Then
+                If Me.Mixer.InputRouting.Keys.Max <= Me.ParentAudioApiSettings.NumberOfInputChannels Then
+                    Me._CanRecord = True
+                End If
+            End If
 
-        'End Sub
+        End Sub
 
         Public Overrides Function ToString() As String
             If Name <> "" Then

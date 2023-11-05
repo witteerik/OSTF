@@ -1,6 +1,8 @@
 ﻿Imports System.Runtime.InteropServices
 Imports System.Threading
 Imports System.Windows.Forms
+Imports SpeechTestFramework.Audio.SoundPlayers
+Imports SpeechTestFramework.Audio.SoundScene
 
 Namespace Audio
 
@@ -16,17 +18,115 @@ Namespace Audio
     '    End Interface
     'End Namespace
 
+    Namespace SoundPlayers
+
+        Public Interface iSoundPlayer
+
+            Enum FadeTypes
+                Linear
+                Smooth
+            End Enum
+
+            Enum SoundDirections
+                PlaybackOnly
+                RecordingOnly
+                Duplex
+            End Enum
+
+            Event MessageFromPlayer(ByVal Message As String)
+
+            Property RaisePlaybackBufferTickEvents As Boolean
+
+            Property EqualPowerCrossFade As Boolean
+
+            ''' <summary>
+            ''' Set the crossfade duration (in seconds)
+            ''' </summary>
+            ''' <param name="Duration"></param>
+            Sub SetOverlapDuration(ByVal Duration As Double)
+
+            Function GetOverlapDuration() As Double
+
+            ''' <summary>
+            ''' Set to adjust the ovelap level adjustment step size for smoother or faster crossfade (in seconds)
+            ''' </summary>
+            ''' <param name="Granuality"></param>
+            Sub SetOverlapGranuality(ByVal Granuality As Double)
+
+            Function GetOverlapGranuality() As Double
+
+            ReadOnly Property IsPlaying As Boolean
+
+            ''' <summary>
+            ''' Swaps the current output sound to a new, using crossfading between ths sounds.
+            ''' </summary>
+            ''' <param name="NewOutputSound"></param>
+            ''' <returns>Returns True if successful, or False if unsuccessful.</returns>
+            Function SwapOutputSounds(ByRef NewOutputSound As Sound, Optional ByVal Record As Boolean = False, Optional ByVal AppendRecordedSound As Boolean = False) As Boolean
+
+            ''' <summary>
+            ''' Stops recording (but playback continues) and gets the sound recorded so far.
+            ''' </summary>
+            ''' <param name="ClearRecordingBuffer">Set to True to clear the buffer of recorded sound after the sound has been retrieved. Set to False to keep the recorded sound in memory, whereby it at at later time using a repeated call to GetRecordedSound.</param>
+            ''' <returns></returns>
+            Function GetRecordedSound(Optional ByVal ClearRecordingBuffer As Boolean = True) As Sound
+
+            ''' <summary>
+            ''' Fades out of the output sound (The fade out will occur during OverlapFadeLength +1 samples.
+            ''' </summary>
+            Sub FadeOutPlayback()
+
+            ''' <summary>
+            ''' Can be used to change player settings. Not needed in all sound players, and will be ignored if not needed.
+            ''' </summary>
+            ''' <param name="AudioApiSettings"></param>
+            ''' <param name="SampleRate"></param>
+            ''' <param name="BitDepth"></param>
+            ''' <param name="Encoding"></param>
+            ''' <param name="OverlapDuration"></param>
+            ''' <param name="Mixer"></param>
+            ''' <param name="SoundDirection"></param>
+            ''' <param name="ReOpenStream"></param>
+            ''' <param name="ReStartStream"></param>
+            ''' <param name="ClippingIsActivated"></param>
+            Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
+                                Optional ByVal SampleRate As Integer? = Nothing,
+                                Optional ByVal BitDepth As Integer? = Nothing,
+                                Optional ByVal Encoding As Audio.Formats.WaveFormat.WaveFormatEncodings? = Nothing,
+                                Optional ByVal OverlapDuration As Double? = Nothing,
+                                Optional ByRef Mixer As DuplexMixer = Nothing,
+                                Optional ByVal SoundDirection As SoundDirections? = Nothing,
+                                Optional ByVal ReOpenStream As Boolean = True,
+                                Optional ByVal ReStartStream As Boolean = True,
+                                Optional ByVal ClippingIsActivated As Boolean? = Nothing)
+
+
+            ''' <summary>
+            ''' Can be called to close the sound stream (and of course also stop playing) in sound players that don't close the stream automatically. All players should stop playing upon this call.
+            ''' </summary>
+            Sub CloseStream()
+
+            ''' <summary>
+            ''' Can be used to Dispose soundplayers that need to be displosed. Will be ignored in sound players that do not have to be disposed.
+            ''' </summary>
+            Sub Dispose()
+
+        End Interface
+
+
+    End Namespace
+
 
     Namespace PortAudioVB
 
         Public Class OverlappingSoundPlayer
-            Implements IDisposable
+            Implements IDisposable, Audio.SoundPlayers.iSoundPlayer
 
             Private ApproachingEndOfBufferAlert_BufferCount As Integer
-            Public Property RaisePlaybackBufferTickEvents As Boolean
+            Public Property RaisePlaybackBufferTickEvents As Boolean Implements iSoundPlayer.RaisePlaybackBufferTickEvents
             Public Property RaiseRecordingBufferTickEvents As Boolean
 
-            Public Event MessageFromPlayer(ByVal Message As String)
+            Public Event MessageFromPlayer(ByVal Message As String) Implements iSoundPlayer.MessageFromPlayer
 
             Public Event NewRecordingBuffer(ByVal Buffer As Single())
 
@@ -77,7 +177,7 @@ Namespace Audio
                                                                                      CallbackSpinLock.Enter(SpinLockTaken)
 
                                                                                      'INPUT SOUND
-                                                                                     If RecordingIsActive = True Or (MonitorRecordingBuffer = True And SoundDirection <> SoundDirections.PlaybackOnly) Then
+                                                                                     If RecordingIsActive = True Or (MonitorRecordingBuffer = True And SoundDirection <> iSoundPlayer.SoundDirections.PlaybackOnly) Then
                                                                                          'Getting input sound
                                                                                          Dim InputBuffer(RecordingBuffer.Length - 1) As Single
                                                                                          Marshal.Copy(input, InputBuffer, 0, FramesPerBuffer * NumberOfInputChannels)
@@ -341,7 +441,7 @@ Namespace Audio
                                                                              End Function
 
 
-            Private SoundDirection As SoundDirections
+            Private SoundDirection As iSoundPlayer.SoundDirections
             Private NumberOfOutputChannels As Integer
             Private NumberOfInputChannels As Integer
 
@@ -364,7 +464,17 @@ Namespace Audio
             Private SilentSound As BufferHolder()
 
             Private OverlappingSounds As Boolean = False
-            Private EqualPowerCrossFade As Boolean = True
+
+            Private _EqualPowerCrossFade As Boolean = True
+            Public Property EqualPowerCrossFade As Boolean Implements iSoundPlayer.EqualPowerCrossFade
+                Get
+                    Return _EqualPowerCrossFade
+                End Get
+                Set(value As Boolean)
+                    _EqualPowerCrossFade = value
+                End Set
+            End Property
+
             Public Enum FadeTypes
                 Linear
                 Smooth
@@ -452,7 +562,7 @@ Namespace Audio
 
 
             Private _IsPlaying As Boolean = False
-            Public ReadOnly Property IsPlaying As Boolean
+            Public ReadOnly Property IsPlaying As Boolean Implements iSoundPlayer.IsPlaying
                 Get
                     Return _IsPlaying
                 End Get
@@ -476,12 +586,6 @@ Namespace Audio
                 End Get
             End Property
 
-
-            Public Enum SoundDirections
-                PlaybackOnly
-                RecordingOnly
-                Duplex
-            End Enum
 
             Public Sub New(Optional ByVal LoggingEnabled As Boolean = False,
                    Optional ByVal MessagesEnabled As Boolean = False,
@@ -561,10 +665,10 @@ Namespace Audio
                                             Optional ByVal Encoding As Audio.Formats.WaveFormat.WaveFormatEncodings? = Nothing,
                                             Optional ByVal OverlapDuration As Double? = Nothing,
                                             Optional ByRef Mixer As DuplexMixer = Nothing,
-                                            Optional ByVal SoundDirection As SoundDirections? = Nothing,
+                                            Optional ByVal SoundDirection As iSoundPlayer.SoundDirections? = Nothing,
                                             Optional ByVal ReOpenStream As Boolean = True,
                                             Optional ByVal ReStartStream As Boolean = True,
-                                            Optional ByVal ClippingIsActivated As Boolean? = Nothing)
+                                            Optional ByVal ClippingIsActivated As Boolean? = Nothing) Implements SoundPlayers.iSoundPlayer.ChangePlayerSettings
 
                 Dim WasStreamOpen As Boolean = False
                 Dim WasPlaying As Boolean = False
@@ -608,13 +712,13 @@ Namespace Audio
                     'Setting PlaybackIsActive depending on the SoundDirection
                     'RecordingIsActive is set to False until playing starts
                     Select Case SoundDirection
-                        Case SoundDirections.PlaybackOnly
+                        Case iSoundPlayer.SoundDirections.PlaybackOnly
                             PlaybackIsActive = True
                             RecordingIsActive = False
-                        Case SoundDirections.RecordingOnly
+                        Case iSoundPlayer.SoundDirections.RecordingOnly
                             PlaybackIsActive = False
                             RecordingIsActive = False
-                        Case SoundDirections.Duplex
+                        Case iSoundPlayer.SoundDirections.Duplex
                             PlaybackIsActive = True
                             RecordingIsActive = False
                         Case Else
@@ -697,11 +801,11 @@ Namespace Audio
             End Sub
 
 
-            Private Sub SetOverlapDuration(ByVal Duration As Single)
+            Private Sub SetOverlapDuration(ByVal Duration As Double) Implements iSoundPlayer.SetOverlapDuration
                 OverlapFrameCount = SampleRate * Duration
             End Sub
 
-            Public Function GetOverlapDuration() As Single
+            Public Function GetOverlapDuration() As Double Implements iSoundPlayer.GetOverlapDuration
                 Return _OverlapFrameCount / SampleRate
             End Function
 
@@ -712,7 +816,7 @@ Namespace Audio
             ''' <param name="NewOutputSound"></param>
             ''' <param name="Record">Activates recording if set to True in Duxplex and RecordingOnly modes.</param>
             ''' <returns>Returns True if successful, or False if unsuccessful.</returns>
-            Public Function SwapOutputSounds(ByRef NewOutputSound As Sound, Optional ByVal Record As Boolean = False, Optional ByVal AppendRecordedSound As Boolean = False) As Boolean
+            Public Function SwapOutputSounds(ByRef NewOutputSound As Sound, Optional ByVal Record As Boolean = False, Optional ByVal AppendRecordedSound As Boolean = False) As Boolean Implements iSoundPlayer.SwapOutputSounds
 
                 'Fading out playback if the new output sound is Nothing (but continues to record sound if recording is active)
                 If NewOutputSound Is Nothing Then
@@ -1078,7 +1182,7 @@ Namespace Audio
             ''' <summary>
             ''' Fades out of the output sound (The fade out will occur during OverlapFadeLength +1 samples.
             ''' </summary>
-            Public Sub FadeOutPlayback()
+            Public Sub FadeOutPlayback() Implements iSoundPlayer.FadeOutPlayback
 
                 'Doing fade out by swapping to SilentSound
                 NewSound = SilentSound
@@ -1090,7 +1194,7 @@ Namespace Audio
             ''' </summary>
             Private Sub ActivateRecording()
 
-                If SoundDirection = SoundDirections.RecordingOnly Or SoundDirection = SoundDirections.Duplex Then
+                If SoundDirection = iSoundPlayer.SoundDirections.RecordingOnly Or SoundDirection = iSoundPlayer.SoundDirections.Duplex Then
                     RecordingIsActive = True
                 Else
                     RecordingIsActive = False
@@ -1167,7 +1271,7 @@ Namespace Audio
 
 
 
-            Public Sub CloseStream()
+            Public Sub CloseStream() Implements iSoundPlayer.CloseStream
 
                 'Colsing the stream if not stopped
                 StopStream()
@@ -1308,15 +1412,15 @@ Namespace Audio
 
 
                 Select Case SoundDirection
-                    Case SoundDirections.PlaybackOnly
+                    Case iSoundPlayer.SoundDirections.PlaybackOnly
                         _IsStreamOpen = Not HasPaError("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
                                                                        Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
-                    Case SoundDirections.RecordingOnly
+                    Case iSoundPlayer.SoundDirections.RecordingOnly
                         _IsStreamOpen = Not HasPaError("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters),
                                                                       Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
 
-                    Case SoundDirections.Duplex
+                    Case iSoundPlayer.SoundDirections.Duplex
                         _IsStreamOpen = Not HasPaError("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Me.FramesPerBuffer, Flag,
                                                                    Me.paStreamCallback, data), True)
                 End Select
@@ -1344,7 +1448,7 @@ Namespace Audio
             ''' </summary>
             ''' <param name="ClearRecordingBuffer">Set to True to clear the buffer of recorded sound after the sound has been retrieved. Set to False to keep the recorded sound in memory, whereby it at at later time using a repeated call to GetRecordedSound.</param>
             ''' <returns></returns>
-            Public Function GetRecordedSound(Optional ByVal ClearRecordingBuffer As Boolean = True) As Sound
+            Public Function GetRecordedSound(Optional ByVal ClearRecordingBuffer As Boolean = True) As Sound Implements iSoundPlayer.GetRecordedSound
 
                 Log("Attemting to get recorded sound")
 
@@ -1594,12 +1698,25 @@ Namespace Audio
             End Sub
 
             ' This code added by Visual Basic to correctly implement the disposable pattern.
-            Public Sub Dispose() Implements IDisposable.Dispose
+            Public Sub Dispose() Implements IDisposable.Dispose, iSoundPlayer.Dispose
                 ' Do not change this code.  Put cleanup code in Dispose(disposing As Boolean) above.
                 Dispose(True)
                 ' TODO: uncomment the following line if Finalize() is overridden above.
                 GC.SuppressFinalize(Me)
             End Sub
+
+
+            ''' <summary>
+            ''' SetOverlapGranuality is ignored in this sound player, since it's using crossfade samplewise granuality by default
+            ''' </summary>
+            ''' <param name="Granuality"></param>
+            Public Sub SetOverlapGranuality(Granuality As Double) Implements iSoundPlayer.SetOverlapGranuality
+                ' Ignored by the in this sound player, sinse it's using samplewise granuality by default
+            End Sub
+
+            Public Function GetOverlapGranuality() As Double Implements iSoundPlayer.GetOverlapGranuality
+                Return 1 / SampleRate
+            End Function
 
 #End Region
 

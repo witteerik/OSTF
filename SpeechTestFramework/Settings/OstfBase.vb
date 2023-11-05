@@ -26,7 +26,7 @@ Public Module OstfBase
     ''' <summary>
     ''' The SoundPlayer shared between all OSTF applications. Each application that uses it, is responsible of initiating it, with the settings required by the specific application. As well as disposing it when the application is closed.
     ''' </summary>
-    Public WithEvents SoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
+    Public WithEvents SoundPlayer As Audio.SoundPlayers.iSoundPlayer
 
     Public Function InitializeSoundPlayer() As Boolean
         SoundPlayer = New Audio.PortAudioVB.OverlappingSoundPlayer(False, False, False, False)
@@ -390,7 +390,7 @@ Public Module OstfBase
     Public Class AudioSystemSpecification
         Public Property Name As String = "Default"
         Public ReadOnly Property ParentAudioApiSettings As Audio.AudioApiSettings
-        Public Property Mixer As Audio.PortAudioVB.DuplexMixer
+        Public Property Mixer As Audio.SoundScene.DuplexMixer
         Public Property LoudspeakerAzimuths As New List(Of Double) From {-90, 90}
         Public Property LoudspeakerElevations As New List(Of Double) From {0, 0}
         Public Property LoudspeakerDistances As New List(Of Double) From {0, 0}
@@ -419,7 +419,7 @@ Public Module OstfBase
 
         Public Sub SetupMixer()
             'Setting up the mixer
-            Mixer = New Audio.PortAudioVB.DuplexMixer(Me)
+            Mixer = New Audio.SoundScene.DuplexMixer(Me)
 
             CheckCanPlayRecord()
 

@@ -6,10 +6,10 @@
 
 'Imports MathNet.Numerics
 
-Imports SpeechTestFramework.Audio
-Imports SpeechTestFramework.Audio.SoundScene
-Imports SpeechTestFramework.Audio.Formats
-Imports SpeechTestFramework.Audio.PortAudioVB.DuplexMixer
+Imports STFN.Audio
+Imports STFN.Audio.SoundScene
+Imports STFN.Audio.Formats
+Imports STFN.Audio.PortAudioVB.DuplexMixer
 
 Namespace SipTest
 
@@ -674,7 +674,7 @@ Namespace SipTest
             Dim LocalAverageScore = GetAverageObservedScore()
 
             'Creates adjusted estimates
-            Dim AdjustedEstimates = SpeechTestFramework.CriticalDifferences.AdjustSuccessProbabilities(UnadjustedEstimates.ToArray, LocalAverageScore, Floors.ToArray)
+            Dim AdjustedEstimates = STFN.CriticalDifferences.AdjustSuccessProbabilities(UnadjustedEstimates.ToArray, LocalAverageScore, Floors.ToArray)
             For n = 0 To Me.ObservedTrials.Count - 1
                 Me.ObservedTrials(n).AdjustedSuccessProbability = AdjustedEstimates(n)
             Next
@@ -1726,30 +1726,30 @@ Namespace SipTest
                 End If
 
                 'Sets up fading specifications for the test word
-                Dim FadeSpecs_TestWord = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
-                FadeSpecs_TestWord.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+                Dim FadeSpecs_TestWord = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+                FadeSpecs_TestWord.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                FadeSpecs_TestWord.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
 
                 'Sets up fading specifications for the maskers
-                Dim FadeSpecs_Maskers = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, MaskerFadeInLength))
-                FadeSpecs_Maskers.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -MaskerFadeOutLength))
+                Dim FadeSpecs_Maskers = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+                FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, MaskerFadeInLength))
+                FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -MaskerFadeOutLength))
 
                 'Sets up fading specifications for the background signals
-                Dim FadeSpecs_Background = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
-                FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+                Dim FadeSpecs_Background = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+                FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
+                FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
                 'Sets up ducking specifications for the background (non-speech) signals
-                Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                Dim DuckSpecs_BackgroundNonSpeech = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
                 BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel))
-                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
-                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
+                DuckSpecs_BackgroundNonSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
+                DuckSpecs_BackgroundNonSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
 
                 'Sets up ducking specifications for the background (speech) signals
-                Dim DuckSpecs_BackgroundSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
-                DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, Math.Max(0, TestWordStartSample - CurrentSampleRate * 1), Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)))
-                DuckSpecs_BackgroundSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, Math.Max(0, TestWordCompletedSample + CurrentSampleRate * 0.5), Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 1)))
+                Dim DuckSpecs_BackgroundSpeech = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+                DuckSpecs_BackgroundSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, Math.Max(0, TestWordStartSample - CurrentSampleRate * 1), Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)))
+                DuckSpecs_BackgroundSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, Math.Max(0, TestWordCompletedSample + CurrentSampleRate * 0.5), Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 1)))
 
                 'Adds the test word signal, with fade and location specifications
                 Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
