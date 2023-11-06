@@ -6,7 +6,6 @@
              xmlns:drawable="clr-namespace:STFM.Views;assembly=STFM" >
 
     
-
     <drawable:SpeechTestView
                     x:Name="MySpeechTest"
                     VerticalOptions="Fill"
