@@ -400,6 +400,23 @@ Namespace Audio
             End Function
 
             ''' <summary>
+            ''' Calculating band level from spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+            ''' </summary>
+            ''' <param name="SpectrumLevel_SPL"></param>
+            ''' <param name="BandWidth"></param>
+            ''' <returns></returns>
+            Public Function SpectrumLevel2BandLevel(ByVal SpectrumLevel_SPL As Double, ByVal BandWidth As Double) As Double
+
+                'Calculating band level from the spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+                'Return BandLevel_SPL - 10 * Math.Log10(BandWidth / 1)
+                'SpectrumLevel_SPL = BandLevel_SPL - 10 * Math.Log10(BandWidth / 1)
+                'SpectrumLevel_SPL +10 * Math.Log10(BandWidth / 1) = BandLevel_SPL 
+
+                Return SpectrumLevel_SPL + 10 * Math.Log10(BandWidth / 1)
+
+            End Function
+
+            ''' <summary>
             ''' Returns the RMS of the window with the highest RMS value.
             ''' </summary>
             ''' <param name="InputSound">The sound to measure.</param>

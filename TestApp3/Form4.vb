@@ -3468,7 +3468,20 @@ Public Class Form4
 
     Private Sub Button28_Click(sender As Object, e As EventArgs) Handles Button28.Click
 
-        SpeechTestFramework.Utils.ReplaceCharsInFileSystemEntries("C:\EriksDokument\source\repos\OSTF\OSTFMedia_M")
+        'SpeechTestFramework.Utils.ReplaceCharsInFileSystemEntries("C:\EriksDokument\source\repos\OSTF\OSTFMedia_M")
+
+    End Sub
+
+    Private Sub Button29_Click(sender As Object, e As EventArgs) Handles Button29.Click
+
+        'Testing HL simulator
+        Dim InputSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSiPTest\Media\Unechoic-Talker1-RVE\TestWordRecordings\L02S03_blund\M_000_000_blund.wav")
+
+        Dim HLS = New SpeechTestFramework.Audio.HearinglossSimulator_NoiseBased()
+
+        Dim SimulatedSound = HLS.Simulate(InputSound)
+
+        SimulatedSound.WriteWaveFile(System.IO.Path.Combine(Utils.logFilePath, "SimSound1.wav"))
 
     End Sub
 End Class

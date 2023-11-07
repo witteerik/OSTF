@@ -21,9 +21,9 @@ namespace OstfTabletSuite
         private async void OnCounterClicked(object sender, EventArgs e)
         {
 
-            await STFM.StfmBase.InitiateSTFM(STF_VerticalStackLayout);
+            //await STFM.StfmBase.InitiateSTFM(STF_VerticalStackLayout);
 
-            STFM.StfmBase.SetupTest();
+            //STFM.StfmBase.SetupTest();
 
 
             //count++;

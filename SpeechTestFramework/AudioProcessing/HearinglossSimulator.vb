@@ -1,5 +1,195 @@
 ﻿Namespace Audio
 
+
+    Public Class HearinglossSimulator_NoiseBased
+
+        Public ReadOnly Property SimulatedAudiogram As AudiogramData
+
+        Private BestSideCriticalBandFrequencyThresholds(20) As Double
+
+        Public AnalysisWindowLength As Integer = 4096
+
+        Public FirKernelLength As Integer = 4096
+
+        Public BandBank As Audio.DSP.BandBank
+
+        Public Sub New(Optional ByRef SimulatedAudiogram As AudiogramData = Nothing)
+
+            If SimulatedAudiogram Is Nothing Then
+                SimulatedAudiogram = New AudiogramData
+                SimulatedAudiogram.CreateTypicalAudiogramData(AudiogramData.BisgaardAudiograms.S3)
+            End If
+
+            'Creates the SII critical band bank
+            BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+
+            Me.SimulatedAudiogram = SimulatedAudiogram
+
+            'Calculating CB values
+            SimulatedAudiogram.InterpolateCriticalBandValues()
+
+            ' Storing the best side critical band thresholds
+            For i = 0 To 20
+                BestSideCriticalBandFrequencyThresholds(i) = Math.Min(SimulatedAudiogram.Cb_Left_AC(i), SimulatedAudiogram.Cb_Right_AC(i))
+            Next
+
+        End Sub
+
+        ''' <summary>
+        ''' Returns a new sound in which noise simulating the (best side) hearing thresholds is mixed with the original sound in SourceSound. 
+        ''' Note that the FS sound level in the SourceSound should be Standard_dBFS_dBSPL_Difference (100) dB lower than the intended real world sound level in dB SPL.
+        ''' </summary>
+        ''' <param name="SourceSound"></param>
+        Public Function Simulate(ByRef SourceSound As Audio.Sound, Optional ByVal SupressWarnings As Boolean = False) As Audio.Sound
+
+            If SupressWarnings = False Then
+                If SourceSound.WaveFormat.Channels <> 1 Then
+                    MsgBox("Only the first (left) sound channel will be used to simulate hearing loss!")
+                End If
+            End If
+
+            'Getting the noise kernel
+            Dim NoiseKernel = GetNoiseKernel(SourceSound.WaveFormat)
+
+            'Creates a warble tone at 1 kHz (measurement sound)
+            Dim InternalNoiseSound = Audio.GenerateSound.CreateWhiteNoise(SourceSound.WaveFormat, 1, , SourceSound.WaveData.SampleData(1).Length, Audio.BasicAudioEnums.TimeUnits.samples)
+
+            'Runs convolution with the kernel
+            Dim NoiseSound = SpeechTestFramework.Audio.DSP.FIRFilter(InternalNoiseSound, NoiseKernel, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+
+            'Mixing the sounds
+            Dim OutputSound As New Audio.Sound(SourceSound.WaveFormat)
+            Dim SourceSoundArray = SourceSound.WaveData.SampleData(1)
+            Dim NoiseSoundArray = NoiseSound.WaveData.SampleData(1)
+            Dim TargetSoundArray(SourceSoundArray.Length - 1) As Single
+            For s = 0 To SourceSoundArray.Length - 1
+                TargetSoundArray(s) = SourceSoundArray(s) + NoiseSoundArray(s)
+            Next
+            OutputSound.WaveData.SampleData(1) = TargetSoundArray
+
+            Return OutputSound
+        End Function
+
+        Public Function GetNoiseKernel(ByVal WaveFormat As Formats.WaveFormat) As Audio.Sound
+
+            'Getting the internal noise representing the hearing loss
+
+            Dim SpectrumLevels As New List(Of Tuple(Of Double, Double, Double))
+            Dim InternalNoise = CalculateInternalNoiseBandLevels(BestSideCriticalBandFrequencyThresholds, False, SpectrumLevels)
+
+            Dim FrequencyRepsonse As New List(Of Tuple(Of Single, Single))
+
+            For i = 0 To 20
+                FrequencyRepsonse.Add(New Tuple(Of Single, Single)(SpectrumLevels(i).Item1, InternalNoise(i)))
+            Next
+
+            Dim NoiseKernel = Audio.GenerateSound.CreateCustumImpulseResponse(FrequencyRepsonse, Nothing, WaveFormat, New Formats.FftFormat(,,,, True), FirKernelLength)
+
+            'Calibrating the kernel
+            CalibrateKernel(NoiseKernel, SpectrumLevels(7).Item2, True)
+
+            Return NoiseKernel
+
+        End Function
+
+        Public Sub CalibrateKernel(ByRef KernelSound As Audio.Sound, ByVal ReferenceInternalNoiseSpectrumLevelAt1000Hz As Integer, Optional ByVal ExportSoundFiles As Boolean = False)
+
+            'Notes the length of the IR
+            Dim IrLength As Integer = KernelSound.WaveData.SampleData(1).Length
+
+            'Creates a warble tone at 1 kHz (measurement sound)
+            Dim TestSound = Audio.GenerateSound.CreateWhiteNoise(KernelSound.WaveFormat, 1, , IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+
+            'Runs convolution with the kernel
+            Dim ConvolutedSound = SpeechTestFramework.Audio.DSP.FIRFilter(TestSound, KernelSound, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+
+            ' Now the kernel gain should be adjusted so that it generates a ReferenceInternalNoiseSpectrumLevelAt1000Hz at 1kHz
+            Dim PreAdjustmentMeasurementSound = ConvolutedSound.CopySection(1, IrLength, 3 * IrLength)
+            Dim PreLevels = SpeechTestFramework.Audio.DSP.CalculateSpectrumLevels(PreAdjustmentMeasurementSound, 1, ,,,, Audio.Standard_dBFS_dBSPL_Difference)
+
+            'Calculates th needed gain
+            Dim GainNeeded = ReferenceInternalNoiseSpectrumLevelAt1000Hz - PreLevels(7) - Audio.Standard_dBFS_dBSPL_Difference
+
+            'Applies the needed gain to the kernel
+            Audio.DSP.AmplifySection(KernelSound, GainNeeded)
+
+            If ExportSoundFiles = True Then
+                KernelSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "HLSim_Kernel_Calib_Kernel.wav"))
+                'PreAdjustmentMeasurementSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "HLSim_Kernel_Calib_ConvolutedSound.wav"))
+            End If
+
+        End Sub
+
+        ''' <summary>
+        ''' Calculates reference internal noise band levels
+        ''' </summary>
+        ''' <param name="T_">Equivalent hearing threshold level (in each critical band)</param>
+        ''' <param name="Binaural"></param>
+        ''' <returns></returns>
+        Public Function CalculateInternalNoiseBandLevels(ByVal T_ As Double(), ByVal Binaural As Boolean, ByRef SpectrumLevels As List(Of Tuple(Of Double, Double, Double))) As Double()
+
+            'Cloning the input arrays, so that they don't get modified by the function
+            Dim T__Copy As Double() = T_.Clone
+
+            '  Critical band specifications according to table 1 in ANSI S3.5-1997
+            '   Centre frequencies
+            Dim F As Double() = {150, 250, 350, 450, 570, 700, 840, 1000, 1170, 1370, 1600, 1850,
+                 2150, 2500, 2900, 3400, 4000, 4800, 5800, 7000, 8500}
+
+            '  Lower limits
+            Dim l As Double() = {100, 200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720,
+               2000, 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700}
+
+            '  Upper limits
+            Dim h As Double() = {200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000,
+                 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700, 9500}
+
+            '  Bandwidths
+            Dim CBW(20) As Double
+            For i = 0 To 20
+                CBW(i) = h(i) - l(i)
+            Next
+
+            'Step 6
+            If Binaural = True Then
+                For i = 0 To 20
+                    T__Copy(i) -= 1.7
+                Next
+            End If
+
+            'Step 7
+            '  Reference internal noise spectrum
+            Dim X As Double() = {1.5, -3.9, -7.2, -8.9, -10.3, -11.4, -12.0, -12.5, -13.2, -14.0, -15.4,
+                  -16.9, -18.8, -21.2, -23.2, -24.9, -25.9, -24.2, -19.0, -11.7, -6.0}
+
+            '  # Calculating Equivalent internal noise spectrum
+            Dim X_(20) As Double
+
+            For i = 0 To 20
+                X_(i) = X(i) + T__Copy(i)
+            Next
+
+            'Storing the centre band frequencies, spectrum levels and band widths SpectrumLevels
+            For i = 0 To 20
+                SpectrumLevels.Add(New Tuple(Of Double, Double, Double)(F(i), X_(i), CBW(i)))
+            Next
+
+            'Converting to band levels
+            Dim BandLevels(20) As Double
+            For i = 0 To 20
+                BandLevels(i) = Audio.DSP.SpectrumLevel2BandLevel(X_(i), CBW(i))
+            Next
+
+            Return BandLevels
+
+        End Function
+
+
+
+    End Class
+
+
+
     Public Class HearinglossSimulator_CB
 
         Public ReadOnly Property ListenerAudiogram As AudiogramData
