@@ -129,6 +129,9 @@ Public Class SpeechMaterialRecorder
             If _AutoStartRecording = True Then
                 AutoRecordingStatusLabel.Text = "Auto-recording: On"
             Else
+                'Stopping any active timers (may not be needed)
+                NextItemTimer.Stop()
+                StartRecordingTimer.Stop()
                 AutoRecordingStatusLabel.Text = "Auto-recording: Off"
             End If
         End Set
@@ -1565,6 +1568,9 @@ Public Class SpeechMaterialRecorder
 
     Private Sub NextRecording() Handles Rec_NextItemButton.Click
 
+        NextItemTimer.Stop()
+        StartRecordingTimer.Stop()
+
         ChangeSentenceDirection = IndexChangeDirections.Next
         JumpToUnrecorded = False
 
@@ -1580,6 +1586,9 @@ Public Class SpeechMaterialRecorder
 
     Private Sub PreviousRecording() Handles Rec_PreviousItemButton.Click
 
+        NextItemTimer.Stop()
+        StartRecordingTimer.Stop()
+
         ChangeSentenceDirection = IndexChangeDirections.Previous
         JumpToUnrecorded = False
 
@@ -1593,6 +1602,9 @@ Public Class SpeechMaterialRecorder
     End Sub
 
     Private Sub NextNonRecorded() Handles Rec_NextNRItemButton.Click
+
+        NextItemTimer.Stop()
+        StartRecordingTimer.Stop()
 
         ChangeSentenceDirection = IndexChangeDirections.Next
         JumpToUnrecorded = True
@@ -1608,6 +1620,9 @@ Public Class SpeechMaterialRecorder
 
     Private Sub PreviousNonRecorded() Handles Rec_PreviousNRItemButton.Click
 
+        NextItemTimer.Stop()
+        StartRecordingTimer.Stop()
+
         ChangeSentenceDirection = IndexChangeDirections.Previous
         JumpToUnrecorded = True
 
@@ -1622,8 +1637,10 @@ Public Class SpeechMaterialRecorder
 
     Private Sub NextItemTimer_Tick() Handles NextItemTimer.Tick
 
+        NextItemTimer.Stop()
+        StartRecordingTimer.Stop()
+
         If IsRecording = True Then
-            NextItemTimer.Stop()
 
             LeaveWaitMode()
 
@@ -1639,6 +1656,9 @@ Public Class SpeechMaterialRecorder
     End Sub
 
     Private Sub StopRecordingManually() Handles StopRecordingButton.Click
+
+        NextItemTimer.Stop()
+        StartRecordingTimer.Stop()
 
         If IsRecording = True Then
             StopRecording()
@@ -1883,6 +1903,32 @@ Public Class SpeechMaterialRecorder
         If MainTabControl.Enabled = False Then Exit Sub
 
         Select Case e.KeyData
+
+            'We should have keys here that exist on a "laser-pointer" but is not Down and Up, since they don't work well, as they also interact with the GUI controls
+            'Case Keys.Down
+            '    If IsRecording = False Then
+
+            '        If NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Checked = False Then
+            '            'Stopping recording and moves to next
+            '            NextRecording()
+            '        Else
+            '            'Stopping recording and moves to next non-recorded
+            '            NextNonRecorded()
+            '        End If
+            '    End If
+
+            'Case Keys.Up
+            '    If IsRecording = False Then
+
+            '        If NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Checked = False Then
+            '            'Skipping to previous item
+            '            PreviousRecording()
+            '        Else
+            '            'Skipping to previous non-recorded item
+            '            PreviousNonRecorded()
+            '        End If
+            '    End If
+
             Case Keys.Next, Keys.Right
 
                 If IsRecording = True Then
@@ -1928,6 +1974,8 @@ Public Class SpeechMaterialRecorder
                     End If
 
                 End If
+
+                e.Handled = True
 
         End Select
 
@@ -2379,6 +2427,14 @@ Public Class SpeechMaterialRecorder
                 CurrentWaveDrawer.UpdateSideSegmentationPanelControls()
             End If
         End If
+    End Sub
+
+    Private Sub StopRunningTimersToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StopRunningTimersToolStripMenuItem.Click
+
+        'Stops any running timers (should this every happen, it shouldn't...., but just in case....)
+        NextItemTimer.Stop()
+        StartRecordingTimer.Stop()
+
     End Sub
 
 

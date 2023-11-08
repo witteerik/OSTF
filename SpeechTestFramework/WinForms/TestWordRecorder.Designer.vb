@@ -43,6 +43,7 @@ Partial Class SpeechMaterialRecorder
         Me.ToggleSoundLevelMeteronoffToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.RecordingStopDelayToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.RecordingStopDelay_ToolStripComboBox = New System.Windows.Forms.ToolStripComboBox()
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AudioSettingsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.PresentationLevelToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.PresentationLevel_ToolStripComboBox = New System.Windows.Forms.ToolStripComboBox()
@@ -134,7 +135,7 @@ Partial Class SpeechMaterialRecorder
         Me.Label3 = New System.Windows.Forms.Label()
         Me.InputChannel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Unlock_Button = New System.Windows.Forms.Button()
-        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StopRunningTimersToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         Me.MainTabControl.SuspendLayout()
@@ -161,7 +162,7 @@ Partial Class SpeechMaterialRecorder
         '
         'MenuStrip1
         '
-        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.RecordingSettingsMenu, Me.AudioSettingsToolStripMenuItem, Me.SegmentationToolStripMenuItem, Me.TelepromterBTToolStripMenuItem})
+        Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.RecordingSettingsMenu, Me.AudioSettingsToolStripMenuItem, Me.SegmentationToolStripMenuItem, Me.TelepromterBTToolStripMenuItem, Me.StopRunningTimersToolStripMenuItem})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System
@@ -294,6 +295,13 @@ Partial Class SpeechMaterialRecorder
         '
         Me.RecordingStopDelay_ToolStripComboBox.Name = "RecordingStopDelay_ToolStripComboBox"
         Me.RecordingStopDelay_ToolStripComboBox.Size = New System.Drawing.Size(121, 23)
+        '
+        'NextpreviousNonrecordedOnPageUpdownToolStripMenuItem
+        '
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.CheckOnClick = True
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Name = "NextpreviousNonrecordedOnPageUpdownToolStripMenuItem"
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Text = "Next/previous non-recorded on page up/down"
         '
         'AudioSettingsToolStripMenuItem
         '
@@ -1126,12 +1134,11 @@ Partial Class SpeechMaterialRecorder
         Me.Unlock_Button.Text = "Unlock panel"
         Me.Unlock_Button.UseVisualStyleBackColor = True
         '
-        'NextpreviousNonrecordedOnPageUpdownToolStripMenuItem
+        'StopRunningTimersToolStripMenuItem
         '
-        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.CheckOnClick = True
-        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Name = "NextpreviousNonrecordedOnPageUpdownToolStripMenuItem"
-        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
-        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Text = "Next/previous non-recorded on page up/down"
+        Me.StopRunningTimersToolStripMenuItem.Name = "StopRunningTimersToolStripMenuItem"
+        Me.StopRunningTimersToolStripMenuItem.Size = New System.Drawing.Size(124, 20)
+        Me.StopRunningTimersToolStripMenuItem.Text = "Stop running timers"
         '
         'SpeechMaterialRecorder
         '
@@ -1289,4 +1296,5 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents InvalidateWordLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents InvalidatePhonemeLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents NextpreviousNonrecordedOnPageUpdownToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents StopRunningTimersToolStripMenuItem As Windows.Forms.ToolStripMenuItem
 End Class
