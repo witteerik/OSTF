@@ -815,7 +815,13 @@ Public Class SpeechMaterialRecorder
                         End If
                     End If
 
-                    MsgBox("No more unrecorded items/sentences can be found.")
+                    If AutoStartRecording = True Then
+                        'Disables auto recording when a new file is loaded
+                        AutoStartRecording = False
+                        MsgBox("No more unrecorded items/sentences can be found. Turning off autorecording.")
+                    Else
+                        MsgBox("No more unrecorded items/sentences can be found.")
+                    End If
 
                     Return False
                 End If
@@ -835,7 +841,14 @@ Public Class SpeechMaterialRecorder
                     End If
                 End If
 
-                MsgBox("Selected sentence index too low (you've already at the first sentence)")
+                If AutoStartRecording = True Then
+                    'Disables auto recording when a new file is loaded
+                    AutoStartRecording = False
+                    MsgBox("Selected sentence index too low (you've already at the first sentence). Turning off autorecording.")
+                Else
+                    MsgBox("Selected sentence index too low (you've already at the first sentence)")
+                End If
+
                 Return False
 
             Case > MaxSoundSentenceSelectionIndex()
@@ -848,7 +861,14 @@ Public Class SpeechMaterialRecorder
                     End If
                 End If
 
-                MsgBox("Selected sentence file index too high (you've already at the last sentence)")
+                If AutoStartRecording = True Then
+                    'Disables auto recording when a new file is loaded
+                    AutoStartRecording = False
+                    MsgBox("Selected sentence file index too high (you've already at the last sentence). Turning off autorecording.")
+                Else
+                    MsgBox("Selected sentence file index too high (you've already at the last sentence)")
+                End If
+
                 Return False
 
             Case Else
@@ -1572,7 +1592,7 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub Rec_NextNRItemButton_Click(sender As Object, e As EventArgs) Handles Rec_NextNRItemButton.Click
+    Private Sub NextNonRecorded() Handles Rec_NextNRItemButton.Click
 
         ChangeSentenceDirection = IndexChangeDirections.Next
         JumpToUnrecorded = True
@@ -1586,7 +1606,7 @@ Public Class SpeechMaterialRecorder
 
     End Sub
 
-    Private Sub Rec_PreviousNRItemButton_Click(sender As Object, e As EventArgs) Handles Rec_PreviousNRItemButton.Click
+    Private Sub PreviousNonRecorded() Handles Rec_PreviousNRItemButton.Click
 
         ChangeSentenceDirection = IndexChangeDirections.Previous
         JumpToUnrecorded = True
@@ -1867,8 +1887,17 @@ Public Class SpeechMaterialRecorder
 
                 If IsRecording = True Then
 
-                    'Stopping recording and moves to next
-                    NextRecording()
+                    If NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Checked = False Then
+
+                        'Stopping recording and moves to next
+                        NextRecording()
+
+                    Else
+
+                        'Stopping recording and moves to next non-recorded
+                        NextNonRecorded()
+
+                    End If
 
                 Else
 
@@ -1886,11 +1915,19 @@ Public Class SpeechMaterialRecorder
 
                 Else
 
-                    'Skipping to previous item
-                    PreviousRecording()
+                    If NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Checked = False Then
+
+                        'Skipping to previous item
+                        PreviousRecording()
+
+                    Else
+
+                        'Skipping to previous non-recorded item
+                        PreviousNonRecorded()
+
+                    End If
 
                 End If
-
 
         End Select
 

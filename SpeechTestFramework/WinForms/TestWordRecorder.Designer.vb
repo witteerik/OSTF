@@ -134,6 +134,7 @@ Partial Class SpeechMaterialRecorder
         Me.Label3 = New System.Windows.Forms.Label()
         Me.InputChannel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Unlock_Button = New System.Windows.Forms.Button()
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.MenuStrip1.SuspendLayout()
         Me.StatusStrip1.SuspendLayout()
         Me.MainTabControl.SuspendLayout()
@@ -203,7 +204,7 @@ Partial Class SpeechMaterialRecorder
         '
         'RecordingSettingsMenu
         '
-        Me.RecordingSettingsMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FontSizeToolStripMenuItem, Me.SetFontsToolStripMenuItem, Me.ShowSpellingToolStripMenuItem, Me.ShowTranscriptionToolStripMenuItem, Me.UsePrototypeRecordingsToolStripMenuItem, Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem, Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem, Me.ToggleSoundLevelMeteronoffToolStripMenuItem, Me.RecordingStopDelayToolStripMenuItem})
+        Me.RecordingSettingsMenu.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FontSizeToolStripMenuItem, Me.SetFontsToolStripMenuItem, Me.ShowSpellingToolStripMenuItem, Me.ShowTranscriptionToolStripMenuItem, Me.UsePrototypeRecordingsToolStripMenuItem, Me.StartRecordingAutomaticallyOnNextpreviousToolStripMenuItem, Me.ToggleBackgroundSoundWhileRecordingonoffToolStripMenuItem, Me.ToggleSoundLevelMeteronoffToolStripMenuItem, Me.RecordingStopDelayToolStripMenuItem, Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem})
         Me.RecordingSettingsMenu.Name = "RecordingSettingsMenu"
         Me.RecordingSettingsMenu.Size = New System.Drawing.Size(61, 20)
         Me.RecordingSettingsMenu.Text = "Settings"
@@ -411,7 +412,7 @@ Partial Class SpeechMaterialRecorder
         '
         Me.AllSoundsFiles_ToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.AllSoundsFiles_AllSegmentations_ToolStripMenuItem, Me.AllSoundsFiles_SentenceTimes_ToolStripMenuItem})
         Me.AllSoundsFiles_ToolStripMenuItem.Name = "AllSoundsFiles_ToolStripMenuItem"
-        Me.AllSoundsFiles_ToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.AllSoundsFiles_ToolStripMenuItem.Size = New System.Drawing.Size(148, 22)
         Me.AllSoundsFiles_ToolStripMenuItem.Text = "All sound files"
         '
         'AllSoundsFiles_AllSegmentations_ToolStripMenuItem
@@ -430,7 +431,7 @@ Partial Class SpeechMaterialRecorder
         '
         Me.CurrentFile_ToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.CurrentFile_AllSegmentations_ToolStripMenuItem, Me.CurrentFile_SentenceTimes_ToolStripMenuItem})
         Me.CurrentFile_ToolStripMenuItem.Name = "CurrentFile_ToolStripMenuItem"
-        Me.CurrentFile_ToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.CurrentFile_ToolStripMenuItem.Size = New System.Drawing.Size(148, 22)
         Me.CurrentFile_ToolStripMenuItem.Text = "Current file"
         '
         'CurrentFile_AllSegmentations_ToolStripMenuItem
@@ -493,7 +494,7 @@ Partial Class SpeechMaterialRecorder
         'InvalidateAllLinguisticLevels_ToolStripMenuItem
         '
         Me.InvalidateAllLinguisticLevels_ToolStripMenuItem.Name = "InvalidateAllLinguisticLevels_ToolStripMenuItem"
-        Me.InvalidateAllLinguisticLevels_ToolStripMenuItem.Size = New System.Drawing.Size(196, 22)
+        Me.InvalidateAllLinguisticLevels_ToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
         Me.InvalidateAllLinguisticLevels_ToolStripMenuItem.Text = "All linguistic levels"
         '
         'InvalidateSentenceLevel_ToolStripMenuItem
@@ -1125,6 +1126,13 @@ Partial Class SpeechMaterialRecorder
         Me.Unlock_Button.Text = "Unlock panel"
         Me.Unlock_Button.UseVisualStyleBackColor = True
         '
+        'NextpreviousNonrecordedOnPageUpdownToolStripMenuItem
+        '
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.CheckOnClick = True
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Name = "NextpreviousNonrecordedOnPageUpdownToolStripMenuItem"
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Size = New System.Drawing.Size(340, 22)
+        Me.NextpreviousNonrecordedOnPageUpdownToolStripMenuItem.Text = "Next/previous non-recorded on page up/down"
+        '
         'SpeechMaterialRecorder
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1280,4 +1288,5 @@ Partial Class SpeechMaterialRecorder
     Friend WithEvents InvalidateSentenceLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents InvalidateWordLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
     Friend WithEvents InvalidatePhonemeLevel_ToolStripMenuItem As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents NextpreviousNonrecordedOnPageUpdownToolStripMenuItem As Windows.Forms.ToolStripMenuItem
 End Class
