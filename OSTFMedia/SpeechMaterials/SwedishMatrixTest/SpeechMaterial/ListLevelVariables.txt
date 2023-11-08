@@ -1,0 +1,23 @@
+Id	ListName
+C	C
+L00	Lista 0 original
+L01	Lista 1
+L02	Lista 2
+L03	Lista 3
+L04	Lista 4
+L05	Lista 5
+L06	Lista 6
+L07	Lista 7
+L08	Lista 8
+L09	Lista 9
+L10	Lista 10
+L11	Lista 11
+L12	Lista 12
+L13	Lista 13
+L14	Lista 14
+L15	Lista 15
+L16	Lista 16
+L17	Lista 17
+L18	Lista 18
+L19	Lista 19
+L20	Lista 20 träning

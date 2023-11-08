@@ -1,0 +1,1052 @@
+Id	Spelling	Transcription	IsKeyComponent
+C	C	C	N
+L00S00W00	Karin	 k ² ɑː . r ɪ n 	0
+L00S00W01	gav	 gav 	0
+L00S00W02	två	 två 	0
+L00S00W03	gamla	 gamla 	0
+L00S00W04	knappar	 knappar 	0
+L00S01W00	Britta	 b r ² ɪ tː . a 	0
+L00S01W01	höll	 höll 	0
+L00S01W02	tre	 tre 	0
+L00S01W03	hela	 hela 	0
+L00S01W04	bollar	 bollar 	0
+L00S02W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L00S02W01	ser	 ser 	0
+L00S02W02	fyra	 fyra 	0
+L00S02W03	stora	 stora 	0
+L00S02W04	vantar	 vantar 	0
+L00S03W00	Peter	 p ˈ eː . t e̞ r 	0
+L00S03W01	köpte	 köpte 	0
+L00S03W02	sex	 sex 	0
+L00S03W03	nya	 nya 	0
+L00S03W04	pennor	 pennor 	0
+L00S04W00	Svante	 s v ² a nː . t e̞ 	0
+L00S04W01	lånar	 lånar 	0
+L00S04W02	sju	 sju 	0
+L00S04W03	vackra	 vackra 	0
+L00S04W04	korgar	 korgar 	0
+L00S05W00	Jonas	 ʝ ² uː . n a s 	0
+L00S05W01	ägde	 ägde 	0
+L00S05W02	åtta	 åtta 	0
+L00S05W03	mörka	 mörka 	0
+L00S05W04	skålar	 skålar 	0
+L00S06W00	Elsa	 ² ɛ̝ lː . s a 	0
+L00S06W01	flyttar	 flyttar 	0
+L00S06W02	nio	 nio 	0
+L00S06W03	ljusa	 ljusa 	0
+L00S06W04	mössor	 mössor 	0
+L00S07W00	Anna	 ² a nː . a 	0
+L00S07W01	visar	 visar 	0
+L00S07W02	elva	 elva 	0
+L00S07W03	fina	 fina 	0
+L00S07W04	dukar	 dukar 	0
+L00S08W00	Bosse	 b ² ʊ sː . e̞ 	0
+L00S08W01	har	 har 	0
+L00S08W02	tolv	 tolv 	0
+L00S08W03	lätta	 lätta 	0
+L00S08W04	ringar	 ringar 	0
+L00S09W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L00S09W01	tog	 tog 	0
+L00S09W02	arton	 arton 	0
+L00S09W03	svarta	 svarta 	0
+L00S09W04	lådor	 lådor 	0
+L01S00W00	Britta	 b r ² ɪ tː . a 	0
+L01S00W01	tog	 tog 	0
+L01S00W02	åtta	 åtta 	0
+L01S00W03	hela	 hela 	0
+L01S00W04	vantar	 vantar 	0
+L01S01W00	Karin	 k ² ɑː . r ɪ n 	0
+L01S01W01	har	 har 	0
+L01S01W02	fyra	 fyra 	0
+L01S01W03	nya	 nya 	0
+L01S01W04	ringar	 ringar 	0
+L01S02W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L01S02W01	visar	 visar 	0
+L01S02W02	nio	 nio 	0
+L01S02W03	mörka	 mörka 	0
+L01S02W04	dukar	 dukar 	0
+L01S03W00	Bosse	 b ² ʊ sː . e̞ 	0
+L01S03W01	köpte	 köpte 	0
+L01S03W02	sju	 sju 	0
+L01S03W03	vackra	 vackra 	0
+L01S03W04	bollar	 bollar 	0
+L01S04W00	Anna	 ² a nː . a 	0
+L01S04W01	flyttar	 flyttar 	0
+L01S04W02	sex	 sex 	0
+L01S04W03	gamla	 gamla 	0
+L01S04W04	korgar	 korgar 	0
+L01S05W00	Elsa	 ² ɛ̝ lː . s a 	0
+L01S05W01	ägde	 ägde 	0
+L01S05W02	arton	 arton 	0
+L01S05W03	svarta	 svarta 	0
+L01S05W04	knappar	 knappar 	0
+L01S06W00	Peter	 p ˈ eː . t e̞ r 	0
+L01S06W01	ser	 ser 	0
+L01S06W02	elva	 elva 	0
+L01S06W03	stora	 stora 	0
+L01S06W04	lådor	 lådor 	0
+L01S07W00	Jonas	 ʝ ² uː . n a s 	0
+L01S07W01	höll	 höll 	0
+L01S07W02	tre	 tre 	0
+L01S07W03	lätta	 lätta 	0
+L01S07W04	pennor	 pennor 	0
+L01S08W00	Svante	 s v ² a nː . t e̞ 	0
+L01S08W01	gav	 gav 	0
+L01S08W02	två	 två 	0
+L01S08W03	fina	 fina 	0
+L01S08W04	skålar	 skålar 	0
+L01S09W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L01S09W01	lånar	 lånar 	0
+L01S09W02	tolv	 tolv 	0
+L01S09W03	ljusa	 ljusa 	0
+L01S09W04	mössor	 mössor 	0
+L02S00W00	Elsa	 ² ɛ̝ lː . s a 	0
+L02S00W01	ägde	 ägde 	0
+L02S00W02	nio	 nio 	0
+L02S00W03	fina	 fina 	0
+L02S00W04	pennor	 pennor 	0
+L02S01W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L02S01W01	lånar	 lånar 	0
+L02S01W02	två	 två 	0
+L02S01W03	gamla	 gamla 	0
+L02S01W04	lådor	 lådor 	0
+L02S02W00	Bosse	 b ² ʊ sː . e̞ 	0
+L02S02W01	gav	 gav 	0
+L02S02W02	sju	 sju 	0
+L02S02W03	mörka	 mörka 	0
+L02S02W04	bollar	 bollar 	0
+L02S03W00	Britta	 b r ² ɪ tː . a 	0
+L02S03W01	visar	 visar 	0
+L02S03W02	arton	 arton 	0
+L02S03W03	stora	 stora 	0
+L02S03W04	knappar	 knappar 	0
+L02S04W00	Peter	 p ˈ eː . t e̞ r 	0
+L02S04W01	flyttar	 flyttar 	0
+L02S04W02	åtta	 åtta 	0
+L02S04W03	ljusa	 ljusa 	0
+L02S04W04	skålar	 skålar 	0
+L02S05W00	Svante	 s v ² a nː . t e̞ 	0
+L02S05W01	tog	 tog 	0
+L02S05W02	tolv	 tolv 	0
+L02S05W03	hela	 hela 	0
+L02S05W04	dukar	 dukar 	0
+L02S06W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L02S06W01	har	 har 	0
+L02S06W02	elva	 elva 	0
+L02S06W03	lätta	 lätta 	0
+L02S06W04	korgar	 korgar 	0
+L02S07W00	Karin	 k ² ɑː . r ɪ n 	0
+L02S07W01	höll	 höll 	0
+L02S07W02	fyra	 fyra 	0
+L02S07W03	vackra	 vackra 	0
+L02S07W04	mössor	 mössor 	0
+L02S08W00	Jonas	 ʝ ² uː . n a s 	0
+L02S08W01	köpte	 köpte 	0
+L02S08W02	sex	 sex 	0
+L02S08W03	nya	 nya 	0
+L02S08W04	vantar	 vantar 	0
+L02S09W00	Anna	 ² a nː . a 	0
+L02S09W01	ser	 ser 	0
+L02S09W02	tre	 tre 	0
+L02S09W03	svarta	 svarta 	0
+L02S09W04	ringar	 ringar 	0
+L03S00W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L03S00W01	ser	 ser 	0
+L03S00W02	tolv	 tolv 	0
+L03S00W03	svarta	 svarta 	0
+L03S00W04	skålar	 skålar 	0
+L03S01W00	Jonas	 ʝ ² uː . n a s 	0
+L03S01W01	flyttar	 flyttar 	0
+L03S01W02	sju	 sju 	0
+L03S01W03	ljusa	 ljusa 	0
+L03S01W04	lådor	 lådor 	0
+L03S02W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L03S02W01	köpte	 köpte 	0
+L03S02W02	fyra	 fyra 	0
+L03S02W03	hela	 hela 	0
+L03S02W04	mössor	 mössor 	0
+L03S03W00	Elsa	 ² ɛ̝ lː . s a 	0
+L03S03W01	lånar	 lånar 	0
+L03S03W02	tre	 tre 	0
+L03S03W03	mörka	 mörka 	0
+L03S03W04	vantar	 vantar 	0
+L03S04W00	Karin	 k ² ɑː . r ɪ n 	0
+L03S04W01	visar	 visar 	0
+L03S04W02	åtta	 åtta 	0
+L03S04W03	gamla	 gamla 	0
+L03S04W04	dukar	 dukar 	0
+L03S05W00	Bosse	 b ² ʊ sː . e̞ 	0
+L03S05W01	ägde	 ägde 	0
+L03S05W02	sex	 sex 	0
+L03S05W03	vackra	 vackra 	0
+L03S05W04	ringar	 ringar 	0
+L03S06W00	Peter	 p ˈ eː . t e̞ r 	0
+L03S06W01	gav	 gav 	0
+L03S06W02	två	 två 	0
+L03S06W03	stora	 stora 	0
+L03S06W04	bollar	 bollar 	0
+L03S07W00	Britta	 b r ² ɪ tː . a 	0
+L03S07W01	tog	 tog 	0
+L03S07W02	arton	 arton 	0
+L03S07W03	nya	 nya 	0
+L03S07W04	pennor	 pennor 	0
+L03S08W00	Svante	 s v ² a nː . t e̞ 	0
+L03S08W01	har	 har 	0
+L03S08W02	nio	 nio 	0
+L03S08W03	fina	 fina 	0
+L03S08W04	knappar	 knappar 	0
+L03S09W00	Anna	 ² a nː . a 	0
+L03S09W01	höll	 höll 	0
+L03S09W02	elva	 elva 	0
+L03S09W03	lätta	 lätta 	0
+L03S09W04	korgar	 korgar 	0
+L04S00W00	Peter	 p ˈ eː . t e̞ r 	0
+L04S00W01	köpte	 köpte 	0
+L04S00W02	två	 två 	0
+L04S00W03	fina	 fina 	0
+L04S00W04	knappar	 knappar 	0
+L04S01W00	Bosse	 b ² ʊ sː . e̞ 	0
+L04S01W01	gav	 gav 	0
+L04S01W02	sex	 sex 	0
+L04S01W03	nya	 nya 	0
+L04S01W04	dukar	 dukar 	0
+L04S02W00	Britta	 b r ² ɪ tː . a 	0
+L04S02W01	flyttar	 flyttar 	0
+L04S02W02	fyra	 fyra 	0
+L04S02W03	lätta	 lätta 	0
+L04S02W04	vantar	 vantar 	0
+L04S03W00	Anna	 ² a nː . a 	0
+L04S03W01	höll	 höll 	0
+L04S03W02	tre	 tre 	0
+L04S03W03	vackra	 vackra 	0
+L04S03W04	ringar	 ringar 	0
+L04S04W00	Svante	 s v ² a nː . t e̞ 	0
+L04S04W01	visar	 visar 	0
+L04S04W02	åtta	 åtta 	0
+L04S04W03	stora	 stora 	0
+L04S04W04	pennor	 pennor 	0
+L04S05W00	Karin	 k ² ɑː . r ɪ n 	0
+L04S05W01	tog	 tog 	0
+L04S05W02	tolv	 tolv 	0
+L04S05W03	mörka	 mörka 	0
+L04S05W04	lådor	 lådor 	0
+L04S06W00	Elsa	 ² ɛ̝ lː . s a 	0
+L04S06W01	lånar	 lånar 	0
+L04S06W02	arton	 arton 	0
+L04S06W03	hela	 hela 	0
+L04S06W04	bollar	 bollar 	0
+L04S07W00	Jonas	 ʝ ² uː . n a s 	0
+L04S07W01	ser	 ser 	0
+L04S07W02	elva	 elva 	0
+L04S07W03	svarta	 svarta 	0
+L04S07W04	mössor	 mössor 	0
+L04S08W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L04S08W01	ägde	 ägde 	0
+L04S08W02	nio	 nio 	0
+L04S08W03	gamla	 gamla 	0
+L04S08W04	korgar	 korgar 	0
+L04S09W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L04S09W01	har	 har 	0
+L04S09W02	sju	 sju 	0
+L04S09W03	ljusa	 ljusa 	0
+L04S09W04	skålar	 skålar 	0
+L05S00W00	Jonas	 ʝ ² uː . n a s 	0
+L05S00W01	visar	 visar 	0
+L05S00W02	arton	 arton 	0
+L05S00W03	lätta	 lätta 	0
+L05S00W04	korgar	 korgar 	0
+L05S01W00	Anna	 ² a nː . a 	0
+L05S01W01	gav	 gav 	0
+L05S01W02	sju	 sju 	0
+L05S01W03	fina	 fina 	0
+L05S01W04	ringar	 ringar 	0
+L05S02W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L05S02W01	köpte	 köpte 	0
+L05S02W02	sex	 sex 	0
+L05S02W03	hela	 hela 	0
+L05S02W04	knappar	 knappar 	0
+L05S03W00	Svante	 s v ² a nː . t e̞ 	0
+L05S03W01	tog	 tog 	0
+L05S03W02	nio	 nio 	0
+L05S03W03	ljusa	 ljusa 	0
+L05S03W04	dukar	 dukar 	0
+L05S04W00	Bosse	 b ² ʊ sː . e̞ 	0
+L05S04W01	höll	 höll 	0
+L05S04W02	tre	 tre 	0
+L05S04W03	mörka	 mörka 	0
+L05S04W04	vantar	 vantar 	0
+L05S05W00	Britta	 b r ² ɪ tː . a 	0
+L05S05W01	har	 har 	0
+L05S05W02	fyra	 fyra 	0
+L05S05W03	vackra	 vackra 	0
+L05S05W04	skålar	 skålar 	0
+L05S06W00	Karin	 k ² ɑː . r ɪ n 	0
+L05S06W01	ägde	 ägde 	0
+L05S06W02	åtta	 åtta 	0
+L05S06W03	nya	 nya 	0
+L05S06W04	lådor	 lådor 	0
+L05S07W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L05S07W01	lånar	 lånar 	0
+L05S07W02	tolv	 tolv 	0
+L05S07W03	stora	 stora 	0
+L05S07W04	mössor	 mössor 	0
+L05S08W00	Elsa	 ² ɛ̝ lː . s a 	0
+L05S08W01	ser	 ser 	0
+L05S08W02	två	 två 	0
+L05S08W03	svarta	 svarta 	0
+L05S08W04	pennor	 pennor 	0
+L05S09W00	Peter	 p ˈ eː . t e̞ r 	0
+L05S09W01	flyttar	 flyttar 	0
+L05S09W02	elva	 elva 	0
+L05S09W03	gamla	 gamla 	0
+L05S09W04	bollar	 bollar 	0
+L06S00W00	Elsa	 ² ɛ̝ lː . s a 	0
+L06S00W01	flyttar	 flyttar 	0
+L06S00W02	tre	 tre 	0
+L06S00W03	stora	 stora 	0
+L06S00W04	mössor	 mössor 	0
+L06S01W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L06S01W01	tog	 tog 	0
+L06S01W02	nio	 nio 	0
+L06S01W03	vackra	 vackra 	0
+L06S01W04	skålar	 skålar 	0
+L06S02W00	Britta	 b r ² ɪ tː . a 	0
+L06S02W01	lånar	 lånar 	0
+L06S02W02	tolv	 tolv 	0
+L06S02W03	lätta	 lätta 	0
+L06S02W04	ringar	 ringar 	0
+L06S03W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L06S03W01	har	 har 	0
+L06S03W02	sju	 sju 	0
+L06S03W03	hela	 hela 	0
+L06S03W04	vantar	 vantar 	0
+L06S04W00	Svante	 s v ² a nː . t e̞ 	0
+L06S04W01	höll	 höll 	0
+L06S04W02	arton	 arton 	0
+L06S04W03	nya	 nya 	0
+L06S04W04	bollar	 bollar 	0
+L06S05W00	Jonas	 ʝ ² uː . n a s 	0
+L06S05W01	köpte	 köpte 	0
+L06S05W02	två	 två 	0
+L06S05W03	gamla	 gamla 	0
+L06S05W04	lådor	 lådor 	0
+L06S06W00	Bosse	 b ² ʊ sː . e̞ 	0
+L06S06W01	visar	 visar 	0
+L06S06W02	åtta	 åtta 	0
+L06S06W03	fina	 fina 	0
+L06S06W04	dukar	 dukar 	0
+L06S07W00	Karin	 k ² ɑː . r ɪ n 	0
+L06S07W01	ägde	 ägde 	0
+L06S07W02	fyra	 fyra 	0
+L06S07W03	mörka	 mörka 	0
+L06S07W04	korgar	 korgar 	0
+L06S08W00	Anna	 ² a nː . a 	0
+L06S08W01	gav	 gav 	0
+L06S08W02	sex	 sex 	0
+L06S08W03	svarta	 svarta 	0
+L06S08W04	pennor	 pennor 	0
+L06S09W00	Peter	 p ˈ eː . t e̞ r 	0
+L06S09W01	ser	 ser 	0
+L06S09W02	elva	 elva 	0
+L06S09W03	ljusa	 ljusa 	0
+L06S09W04	knappar	 knappar 	0
+L07S00W00	Karin	 k ² ɑː . r ɪ n 	0
+L07S00W01	flyttar	 flyttar 	0
+L07S00W02	åtta	 åtta 	0
+L07S00W03	fina	 fina 	0
+L07S00W04	korgar	 korgar 	0
+L07S01W00	Britta	 b r ² ɪ tː . a 	0
+L07S01W01	ser	 ser 	0
+L07S01W02	fyra	 fyra 	0
+L07S01W03	lätta	 lätta 	0
+L07S01W04	pennor	 pennor 	0
+L07S02W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L07S02W01	höll	 höll 	0
+L07S02W02	tre	 tre 	0
+L07S02W03	svarta	 svarta 	0
+L07S02W04	mössor	 mössor 	0
+L07S03W00	Peter	 p ˈ eː . t e̞ r 	0
+L07S03W01	ägde	 ägde 	0
+L07S03W02	elva	 elva 	0
+L07S03W03	stora	 stora 	0
+L07S03W04	vantar	 vantar 	0
+L07S04W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L07S04W01	tog	 tog 	0
+L07S04W02	sex	 sex 	0
+L07S04W03	mörka	 mörka 	0
+L07S04W04	dukar	 dukar 	0
+L07S05W00	Svante	 s v ² a nː . t e̞ 	0
+L07S05W01	lånar	 lånar 	0
+L07S05W02	sju	 sju 	0
+L07S05W03	hela	 hela 	0
+L07S05W04	ringar	 ringar 	0
+L07S06W00	Jonas	 ʝ ² uː . n a s 	0
+L07S06W01	visar	 visar 	0
+L07S06W02	två	 två 	0
+L07S06W03	ljusa	 ljusa 	0
+L07S06W04	lådor	 lådor 	0
+L07S07W00	Bosse	 b ² ʊ sː . e̞ 	0
+L07S07W01	har	 har 	0
+L07S07W02	arton	 arton 	0
+L07S07W03	nya	 nya 	0
+L07S07W04	bollar	 bollar 	0
+L07S08W00	Anna	 ² a nː . a 	0
+L07S08W01	gav	 gav 	0
+L07S08W02	nio	 nio 	0
+L07S08W03	vackra	 vackra 	0
+L07S08W04	knappar	 knappar 	0
+L07S09W00	Elsa	 ² ɛ̝ lː . s a 	0
+L07S09W01	köpte	 köpte 	0
+L07S09W02	tolv	 tolv 	0
+L07S09W03	gamla	 gamla 	0
+L07S09W04	skålar	 skålar 	0
+L08S00W00	Svante	 s v ² a nː . t e̞ 	0
+L08S00W01	tog	 tog 	0
+L08S00W02	åtta	 åtta 	0
+L08S00W03	fina	 fina 	0
+L08S00W04	bollar	 bollar 	0
+L08S01W00	Anna	 ² a nː . a 	0
+L08S01W01	lånar	 lånar 	0
+L08S01W02	nio	 nio 	0
+L08S01W03	lätta	 lätta 	0
+L08S01W04	korgar	 korgar 	0
+L08S02W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L08S02W01	har	 har 	0
+L08S02W02	elva	 elva 	0
+L08S02W03	stora	 stora 	0
+L08S02W04	vantar	 vantar 	0
+L08S03W00	Peter	 p ˈ eː . t e̞ r 	0
+L08S03W01	ägde	 ägde 	0
+L08S03W02	tre	 tre 	0
+L08S03W03	hela	 hela 	0
+L08S03W04	mössor	 mössor 	0
+L08S04W00	Jonas	 ʝ ² uː . n a s 	0
+L08S04W01	gav	 gav 	0
+L08S04W02	tolv	 tolv 	0
+L08S04W03	gamla	 gamla 	0
+L08S04W04	skålar	 skålar 	0
+L08S05W00	Karin	 k ² ɑː . r ɪ n 	0
+L08S05W01	visar	 visar 	0
+L08S05W02	sex	 sex 	0
+L08S05W03	nya	 nya 	0
+L08S05W04	dukar	 dukar 	0
+L08S06W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L08S06W01	flyttar	 flyttar 	0
+L08S06W02	arton	 arton 	0
+L08S06W03	vackra	 vackra 	0
+L08S06W04	pennor	 pennor 	0
+L08S07W00	Bosse	 b ² ʊ sː . e̞ 	0
+L08S07W01	köpte	 köpte 	0
+L08S07W02	sju	 sju 	0
+L08S07W03	ljusa	 ljusa 	0
+L08S07W04	knappar	 knappar 	0
+L08S08W00	Elsa	 ² ɛ̝ lː . s a 	0
+L08S08W01	höll	 höll 	0
+L08S08W02	två	 två 	0
+L08S08W03	svarta	 svarta 	0
+L08S08W04	lådor	 lådor 	0
+L08S09W00	Britta	 b r ² ɪ tː . a 	0
+L08S09W01	ser	 ser 	0
+L08S09W02	fyra	 fyra 	0
+L08S09W03	mörka	 mörka 	0
+L08S09W04	ringar	 ringar 	0
+L09S00W00	Bosse	 b ² ʊ sː . e̞ 	0
+L09S00W01	köpte	 köpte 	0
+L09S00W02	sju	 sju 	0
+L09S00W03	mörka	 mörka 	0
+L09S00W04	bollar	 bollar 	0
+L09S01W00	Jonas	 ʝ ² uː . n a s 	0
+L09S01W01	flyttar	 flyttar 	0
+L09S01W02	tre	 tre 	0
+L09S01W03	stora	 stora 	0
+L09S01W04	korgar	 korgar 	0
+L09S02W00	Svante	 s v ² a nː . t e̞ 	0
+L09S02W01	har	 har 	0
+L09S02W02	tolv	 tolv 	0
+L09S02W03	hela	 hela 	0
+L09S02W04	pennor	 pennor 	0
+L09S03W00	Anna	 ² a nː . a 	0
+L09S03W01	tog	 tog 	0
+L09S03W02	åtta	 åtta 	0
+L09S03W03	ljusa	 ljusa 	0
+L09S03W04	knappar	 knappar 	0
+L09S04W00	Britta	 b r ² ɪ tː . a 	0
+L09S04W01	ägde	 ägde 	0
+L09S04W02	arton	 arton 	0
+L09S04W03	svarta	 svarta 	0
+L09S04W04	ringar	 ringar 	0
+L09S05W00	Peter	 p ˈ eː . t e̞ r 	0
+L09S05W01	höll	 höll 	0
+L09S05W02	nio	 nio 	0
+L09S05W03	nya	 nya 	0
+L09S05W04	lådor	 lådor 	0
+L09S06W00	Elsa	 ² ɛ̝ lː . s a 	0
+L09S06W01	ser	 ser 	0
+L09S06W02	elva	 elva 	0
+L09S06W03	gamla	 gamla 	0
+L09S06W04	skålar	 skålar 	0
+L09S07W00	Karin	 k ² ɑː . r ɪ n 	0
+L09S07W01	visar	 visar 	0
+L09S07W02	fyra	 fyra 	0
+L09S07W03	fina	 fina 	0
+L09S07W04	vantar	 vantar 	0
+L09S08W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L09S08W01	gav	 gav 	0
+L09S08W02	sex	 sex 	0
+L09S08W03	lätta	 lätta 	0
+L09S08W04	dukar	 dukar 	0
+L09S09W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L09S09W01	lånar	 lånar 	0
+L09S09W02	två	 två 	0
+L09S09W03	vackra	 vackra 	0
+L09S09W04	mössor	 mössor 	0
+L10S00W00	Bosse	 b ² ʊ sː . e̞ 	0
+L10S00W01	lånar	 lånar 	0
+L10S00W02	fyra	 fyra 	0
+L10S00W03	vackra	 vackra 	0
+L10S00W04	korgar	 korgar 	0
+L10S01W00	Svante	 s v ² a nː . t e̞ 	0
+L10S01W01	höll	 höll 	0
+L10S01W02	tolv	 tolv 	0
+L10S01W03	svarta	 svarta 	0
+L10S01W04	dukar	 dukar 	0
+L10S02W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L10S02W01	gav	 gav 	0
+L10S02W02	åtta	 åtta 	0
+L10S02W03	ljusa	 ljusa 	0
+L10S02W04	knappar	 knappar 	0
+L10S03W00	Anna	 ² a nː . a 	0
+L10S03W01	flyttar	 flyttar 	0
+L10S03W02	sju	 sju 	0
+L10S03W03	gamla	 gamla 	0
+L10S03W04	pennor	 pennor 	0
+L10S04W00	Karin	 k ² ɑː . r ɪ n 	0
+L10S04W01	ser	 ser 	0
+L10S04W02	tre	 tre 	0
+L10S04W03	fina	 fina 	0
+L10S04W04	bollar	 bollar 	0
+L10S05W00	Britta	 b r ² ɪ tː . a 	0
+L10S05W01	visar	 visar 	0
+L10S05W02	sex	 sex 	0
+L10S05W03	hela	 hela 	0
+L10S05W04	mössor	 mössor 	0
+L10S06W00	Peter	 p ˈ eː . t e̞ r 	0
+L10S06W01	tog	 tog 	0
+L10S06W02	elva	 elva 	0
+L10S06W03	nya	 nya 	0
+L10S06W04	vantar	 vantar 	0
+L10S07W00	Jonas	 ʝ ² uː . n a s 	0
+L10S07W01	har	 har 	0
+L10S07W02	två	 två 	0
+L10S07W03	lätta	 lätta 	0
+L10S07W04	skålar	 skålar 	0
+L10S08W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L10S08W01	köpte	 köpte 	0
+L10S08W02	nio	 nio 	0
+L10S08W03	mörka	 mörka 	0
+L10S08W04	lådor	 lådor 	0
+L10S09W00	Elsa	 ² ɛ̝ lː . s a 	0
+L10S09W01	ägde	 ägde 	0
+L10S09W02	arton	 arton 	0
+L10S09W03	stora	 stora 	0
+L10S09W04	ringar	 ringar 	0
+L11S00W00	Svante	 s v ² a nː . t e̞ 	0
+L11S00W01	lånar	 lånar 	0
+L11S00W02	sex	 sex 	0
+L11S00W03	ljusa	 ljusa 	0
+L11S00W04	lådor	 lådor 	0
+L11S01W00	Peter	 p ˈ eː . t e̞ r 	0
+L11S01W01	höll	 höll 	0
+L11S01W02	sju	 sju 	0
+L11S01W03	fina	 fina 	0
+L11S01W04	skålar	 skålar 	0
+L11S02W00	Bosse	 b ² ʊ sː . e̞ 	0
+L11S02W01	köpte	 köpte 	0
+L11S02W02	nio	 nio 	0
+L11S02W03	hela	 hela 	0
+L11S02W04	bollar	 bollar 	0
+L11S03W00	Jonas	 ʝ ² uː . n a s 	0
+L11S03W01	visar	 visar 	0
+L11S03W02	arton	 arton 	0
+L11S03W03	nya	 nya 	0
+L11S03W04	dukar	 dukar 	0
+L11S04W00	Karin	 k ² ɑː . r ɪ n 	0
+L11S04W01	ser	 ser 	0
+L11S04W02	två	 två 	0
+L11S04W03	mörka	 mörka 	0
+L11S04W04	ringar	 ringar 	0
+L11S05W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L11S05W01	flyttar	 flyttar 	0
+L11S05W02	fyra	 fyra 	0
+L11S05W03	gamla	 gamla 	0
+L11S05W04	korgar	 korgar 	0
+L11S06W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L11S06W01	tog	 tog 	0
+L11S06W02	tolv	 tolv 	0
+L11S06W03	svarta	 svarta 	0
+L11S06W04	vantar	 vantar 	0
+L11S07W00	Anna	 ² a nː . a 	0
+L11S07W01	har	 har 	0
+L11S07W02	elva	 elva 	0
+L11S07W03	stora	 stora 	0
+L11S07W04	pennor	 pennor 	0
+L11S08W00	Britta	 b r ² ɪ tː . a 	0
+L11S08W01	gav	 gav 	0
+L11S08W02	åtta	 åtta 	0
+L11S08W03	lätta	 lätta 	0
+L11S08W04	knappar	 knappar 	0
+L11S09W00	Elsa	 ² ɛ̝ lː . s a 	0
+L11S09W01	ägde	 ägde 	0
+L11S09W02	tre	 tre 	0
+L11S09W03	vackra	 vackra 	0
+L11S09W04	mössor	 mössor 	0
+L12S00W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L12S00W01	gav	 gav 	0
+L12S00W02	elva	 elva 	0
+L12S00W03	ljusa	 ljusa 	0
+L12S00W04	lådor	 lådor 	0
+L12S01W00	Svante	 s v ² a nː . t e̞ 	0
+L12S01W01	lånar	 lånar 	0
+L12S01W02	fyra	 fyra 	0
+L12S01W03	nya	 nya 	0
+L12S01W04	ringar	 ringar 	0
+L12S02W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L12S02W01	ser	 ser 	0
+L12S02W02	arton	 arton 	0
+L12S02W03	gamla	 gamla 	0
+L12S02W04	dukar	 dukar 	0
+L12S03W00	Bosse	 b ² ʊ sː . e̞ 	0
+L12S03W01	köpte	 köpte 	0
+L12S03W02	sex	 sex 	0
+L12S03W03	hela	 hela 	0
+L12S03W04	vantar	 vantar 	0
+L12S04W00	Jonas	 ʝ ² uː . n a s 	0
+L12S04W01	har	 har 	0
+L12S04W02	två	 två 	0
+L12S04W03	lätta	 lätta 	0
+L12S04W04	skålar	 skålar 	0
+L12S05W00	Anna	 ² a nː . a 	0
+L12S05W01	flyttar	 flyttar 	0
+L12S05W02	åtta	 åtta 	0
+L12S05W03	vackra	 vackra 	0
+L12S05W04	pennor	 pennor 	0
+L12S06W00	Elsa	 ² ɛ̝ lː . s a 	0
+L12S06W01	visar	 visar 	0
+L12S06W02	tre	 tre 	0
+L12S06W03	fina	 fina 	0
+L12S06W04	bollar	 bollar 	0
+L12S07W00	Karin	 k ² ɑː . r ɪ n 	0
+L12S07W01	ägde	 ägde 	0
+L12S07W02	nio	 nio 	0
+L12S07W03	stora	 stora 	0
+L12S07W04	knappar	 knappar 	0
+L12S08W00	Peter	 p ˈ eː . t e̞ r 	0
+L12S08W01	tog	 tog 	0
+L12S08W02	tolv	 tolv 	0
+L12S08W03	mörka	 mörka 	0
+L12S08W04	mössor	 mössor 	0
+L12S09W00	Britta	 b r ² ɪ tː . a 	0
+L12S09W01	höll	 höll 	0
+L12S09W02	sju	 sju 	0
+L12S09W03	svarta	 svarta 	0
+L12S09W04	korgar	 korgar 	0
+L13S00W00	Karin	 k ² ɑː . r ɪ n 	0
+L13S00W01	ser	 ser 	0
+L13S00W02	arton	 arton 	0
+L13S00W03	nya	 nya 	0
+L13S00W04	knappar	 knappar 	0
+L13S01W00	Svante	 s v ² a nː . t e̞ 	0
+L13S01W01	ägde	 ägde 	0
+L13S01W02	sju	 sju 	0
+L13S01W03	gamla	 gamla 	0
+L13S01W04	skålar	 skålar 	0
+L13S02W00	Jonas	 ʝ ² uː . n a s 	0
+L13S02W01	gav	 gav 	0
+L13S02W02	åtta	 åtta 	0
+L13S02W03	stora	 stora 	0
+L13S02W04	dukar	 dukar 	0
+L13S03W00	Bosse	 b ² ʊ sː . e̞ 	0
+L13S03W01	köpte	 köpte 	0
+L13S03W02	två	 två 	0
+L13S03W03	mörka	 mörka 	0
+L13S03W04	lådor	 lådor 	0
+L13S04W00	Elsa	 ² ɛ̝ lː . s a 	0
+L13S04W01	har	 har 	0
+L13S04W02	fyra	 fyra 	0
+L13S04W03	fina	 fina 	0
+L13S04W04	bollar	 bollar 	0
+L13S05W00	Anna	 ² a nː . a 	0
+L13S05W01	visar	 visar 	0
+L13S05W02	tre	 tre 	0
+L13S05W03	ljusa	 ljusa 	0
+L13S05W04	pennor	 pennor 	0
+L13S06W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L13S06W01	tog	 tog 	0
+L13S06W02	nio	 nio 	0
+L13S06W03	vackra	 vackra 	0
+L13S06W04	vantar	 vantar 	0
+L13S07W00	Peter	 p ˈ eː . t e̞ r 	0
+L13S07W01	flyttar	 flyttar 	0
+L13S07W02	elva	 elva 	0
+L13S07W03	svarta	 svarta 	0
+L13S07W04	mössor	 mössor 	0
+L13S08W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L13S08W01	lånar	 lånar 	0
+L13S08W02	sex	 sex 	0
+L13S08W03	hela	 hela 	0
+L13S08W04	korgar	 korgar 	0
+L13S09W00	Britta	 b r ² ɪ tː . a 	0
+L13S09W01	höll	 höll 	0
+L13S09W02	tolv	 tolv 	0
+L13S09W03	lätta	 lätta 	0
+L13S09W04	ringar	 ringar 	0
+L14S00W00	Svante	 s v ² a nː . t e̞ 	0
+L14S00W01	ägde	 ägde 	0
+L14S00W02	tre	 tre 	0
+L14S00W03	svarta	 svarta 	0
+L14S00W04	mössor	 mössor 	0
+L14S01W00	Jonas	 ʝ ² uː . n a s 	0
+L14S01W01	visar	 visar 	0
+L14S01W02	åtta	 åtta 	0
+L14S01W03	nya	 nya 	0
+L14S01W04	pennor	 pennor 	0
+L14S02W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L14S02W01	lånar	 lånar 	0
+L14S02W02	två	 två 	0
+L14S02W03	ljusa	 ljusa 	0
+L14S02W04	dukar	 dukar 	0
+L14S03W00	Elsa	 ² ɛ̝ lː . s a 	0
+L14S03W01	köpte	 köpte 	0
+L14S03W02	tolv	 tolv 	0
+L14S03W03	hela	 hela 	0
+L14S03W04	korgar	 korgar 	0
+L14S04W00	Peter	 p ˈ eː . t e̞ r 	0
+L14S04W01	gav	 gav 	0
+L14S04W02	sex	 sex 	0
+L14S04W03	gamla	 gamla 	0
+L14S04W04	knappar	 knappar 	0
+L14S05W00	Karin	 k ² ɑː . r ɪ n 	0
+L14S05W01	ser	 ser 	0
+L14S05W02	elva	 elva 	0
+L14S05W03	mörka	 mörka 	0
+L14S05W04	ringar	 ringar 	0
+L14S06W00	Britta	 b r ² ɪ tː . a 	0
+L14S06W01	höll	 höll 	0
+L14S06W02	sju	 sju 	0
+L14S06W03	lätta	 lätta 	0
+L14S06W04	bollar	 bollar 	0
+L14S07W00	Anna	 ² a nː . a 	0
+L14S07W01	har	 har 	0
+L14S07W02	nio	 nio 	0
+L14S07W03	stora	 stora 	0
+L14S07W04	lådor	 lådor 	0
+L14S08W00	Bosse	 b ² ʊ sː . e̞ 	0
+L14S08W01	tog	 tog 	0
+L14S08W02	arton	 arton 	0
+L14S08W03	fina	 fina 	0
+L14S08W04	skålar	 skålar 	0
+L14S09W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L14S09W01	flyttar	 flyttar 	0
+L14S09W02	fyra	 fyra 	0
+L14S09W03	vackra	 vackra 	0
+L14S09W04	vantar	 vantar 	0
+L15S00W00	Bosse	 b ² ʊ sː . e̞ 	0
+L15S00W01	tog	 tog 	0
+L15S00W02	åtta	 åtta 	0
+L15S00W03	mörka	 mörka 	0
+L15S00W04	pennor	 pennor 	0
+L15S01W00	Elsa	 ² ɛ̝ lː . s a 	0
+L15S01W01	har	 har 	0
+L15S01W02	tolv	 tolv 	0
+L15S01W03	hela	 hela 	0
+L15S01W04	bollar	 bollar 	0
+L15S02W00	Svante	 s v ² a nː . t e̞ 	0
+L15S02W01	gav	 gav 	0
+L15S02W02	nio	 nio 	0
+L15S02W03	fina	 fina 	0
+L15S02W04	korgar	 korgar 	0
+L15S03W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L15S03W01	ägde	 ägde 	0
+L15S03W02	sex	 sex 	0
+L15S03W03	lätta	 lätta 	0
+L15S03W04	knappar	 knappar 	0
+L15S04W00	Anna	 ² a nː . a 	0
+L15S04W01	höll	 höll 	0
+L15S04W02	arton	 arton 	0
+L15S04W03	nya	 nya 	0
+L15S04W04	skålar	 skålar 	0
+L15S05W00	Karin	 k ² ɑː . r ɪ n 	0
+L15S05W01	visar	 visar 	0
+L15S05W02	fyra	 fyra 	0
+L15S05W03	svarta	 svarta 	0
+L15S05W04	ringar	 ringar 	0
+L15S06W00	Jonas	 ʝ ² uː . n a s 	0
+L15S06W01	lånar	 lånar 	0
+L15S06W02	tre	 tre 	0
+L15S06W03	vackra	 vackra 	0
+L15S06W04	lådor	 lådor 	0
+L15S07W00	Britta	 b r ² ɪ tː . a 	0
+L15S07W01	flyttar	 flyttar 	0
+L15S07W02	två	 två 	0
+L15S07W03	gamla	 gamla 	0
+L15S07W04	vantar	 vantar 	0
+L15S08W00	Peter	 p ˈ eː . t e̞ r 	0
+L15S08W01	ser	 ser 	0
+L15S08W02	sju	 sju 	0
+L15S08W03	stora	 stora 	0
+L15S08W04	dukar	 dukar 	0
+L15S09W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L15S09W01	köpte	 köpte 	0
+L15S09W02	elva	 elva 	0
+L15S09W03	ljusa	 ljusa 	0
+L15S09W04	mössor	 mössor 	0
+L16S00W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L16S00W01	visar	 visar 	0
+L16S00W02	nio	 nio 	0
+L16S00W03	ljusa	 ljusa 	0
+L16S00W04	ringar	 ringar 	0
+L16S01W00	Jonas	 ʝ ² uː . n a s 	0
+L16S01W01	ser	 ser 	0
+L16S01W02	två	 två 	0
+L16S01W03	lätta	 lätta 	0
+L16S01W04	bollar	 bollar 	0
+L16S02W00	Bosse	 b ² ʊ sː . e̞ 	0
+L16S02W01	flyttar	 flyttar 	0
+L16S02W02	tolv	 tolv 	0
+L16S02W03	nya	 nya 	0
+L16S02W04	dukar	 dukar 	0
+L16S03W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L16S03W01	gav	 gav 	0
+L16S03W02	sju	 sju 	0
+L16S03W03	svarta	 svarta 	0
+L16S03W04	lådor	 lådor 	0
+L16S04W00	Karin	 k ² ɑː . r ɪ n 	0
+L16S04W01	har	 har 	0
+L16S04W02	åtta	 åtta 	0
+L16S04W03	vackra	 vackra 	0
+L16S04W04	skålar	 skålar 	0
+L16S05W00	Svante	 s v ² a nː . t e̞ 	0
+L16S05W01	lånar	 lånar 	0
+L16S05W02	fyra	 fyra 	0
+L16S05W03	gamla	 gamla 	0
+L16S05W04	korgar	 korgar 	0
+L16S06W00	Peter	 p ˈ eː . t e̞ r 	0
+L16S06W01	köpte	 köpte 	0
+L16S06W02	elva	 elva 	0
+L16S06W03	fina	 fina 	0
+L16S06W04	mössor	 mössor 	0
+L16S07W00	Elsa	 ² ɛ̝ lː . s a 	0
+L16S07W01	höll	 höll 	0
+L16S07W02	sex	 sex 	0
+L16S07W03	stora	 stora 	0
+L16S07W04	pennor	 pennor 	0
+L16S08W00	Britta	 b r ² ɪ tː . a 	0
+L16S08W01	ägde	 ägde 	0
+L16S08W02	arton	 arton 	0
+L16S08W03	hela	 hela 	0
+L16S08W04	knappar	 knappar 	0
+L16S09W00	Anna	 ² a nː . a 	0
+L16S09W01	tog	 tog 	0
+L16S09W02	tre	 tre 	0
+L16S09W03	mörka	 mörka 	0
+L16S09W04	vantar	 vantar 	0
+L17S00W00	Anna	 ² a nː . a 	0
+L17S00W01	har	 har 	0
+L17S00W02	sju	 sju 	0
+L17S00W03	hela	 hela 	0
+L17S00W04	pennor	 pennor 	0
+L17S01W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L17S01W01	gav	 gav 	0
+L17S01W02	elva	 elva 	0
+L17S01W03	lätta	 lätta 	0
+L17S01W04	dukar	 dukar 	0
+L17S02W00	Jonas	 ʝ ² uː . n a s 	0
+L17S02W01	lånar	 lånar 	0
+L17S02W02	fyra	 fyra 	0
+L17S02W03	vackra	 vackra 	0
+L17S02W04	lådor	 lådor 	0
+L17S03W00	Britta	 b r ² ɪ tː . a 	0
+L17S03W01	tog	 tog 	0
+L17S03W02	sex	 sex 	0
+L17S03W03	fina	 fina 	0
+L17S03W04	knappar	 knappar 	0
+L17S04W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L17S04W01	visar	 visar 	0
+L17S04W02	nio	 nio 	0
+L17S04W03	mörka	 mörka 	0
+L17S04W04	vantar	 vantar 	0
+L17S05W00	Bosse	 b ² ʊ sː . e̞ 	0
+L17S05W01	köpte	 köpte 	0
+L17S05W02	arton	 arton 	0
+L17S05W03	gamla	 gamla 	0
+L17S05W04	skålar	 skålar 	0
+L17S06W00	Karin	 k ² ɑː . r ɪ n 	0
+L17S06W01	ser	 ser 	0
+L17S06W02	två	 två 	0
+L17S06W03	svarta	 svarta 	0
+L17S06W04	ringar	 ringar 	0
+L17S07W00	Peter	 p ˈ eː . t e̞ r 	0
+L17S07W01	flyttar	 flyttar 	0
+L17S07W02	tre	 tre 	0
+L17S07W03	ljusa	 ljusa 	0
+L17S07W04	bollar	 bollar 	0
+L17S08W00	Svante	 s v ² a nː . t e̞ 	0
+L17S08W01	ägde	 ägde 	0
+L17S08W02	åtta	 åtta 	0
+L17S08W03	stora	 stora 	0
+L17S08W04	korgar	 korgar 	0
+L17S09W00	Elsa	 ² ɛ̝ lː . s a 	0
+L17S09W01	höll	 höll 	0
+L17S09W02	tolv	 tolv 	0
+L17S09W03	nya	 nya 	0
+L17S09W04	mössor	 mössor 	0
+L18S00W00	Anna	 ² a nː . a 	0
+L18S00W01	gav	 gav 	0
+L18S00W02	sju	 sju 	0
+L18S00W03	ljusa	 ljusa 	0
+L18S00W04	bollar	 bollar 	0
+L18S01W00	Elsa	 ² ɛ̝ lː . s a 	0
+L18S01W01	köpte	 köpte 	0
+L18S01W02	två	 två 	0
+L18S01W03	vackra	 vackra 	0
+L18S01W04	knappar	 knappar 	0
+L18S02W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L18S02W01	visar	 visar 	0
+L18S02W02	elva	 elva 	0
+L18S02W03	stora	 stora 	0
+L18S02W04	lådor	 lådor 	0
+L18S03W00	Bosse	 b ² ʊ sː . e̞ 	0
+L18S03W01	höll	 höll 	0
+L18S03W02	tre	 tre 	0
+L18S03W03	hela	 hela 	0
+L18S03W04	ringar	 ringar 	0
+L18S04W00	Svante	 s v ² a nː . t e̞ 	0
+L18S04W01	lånar	 lånar 	0
+L18S04W02	nio	 nio 	0
+L18S04W03	mörka	 mörka 	0
+L18S04W04	mössor	 mössor 	0
+L18S05W00	Karin	 k ² ɑː . r ɪ n 	0
+L18S05W01	tog	 tog 	0
+L18S05W02	tolv	 tolv 	0
+L18S05W03	lätta	 lätta 	0
+L18S05W04	skålar	 skålar 	0
+L18S06W00	Peter	 p ˈ eː . t e̞ r 	0
+L18S06W01	har	 har 	0
+L18S06W02	åtta	 åtta 	0
+L18S06W03	fina	 fina 	0
+L18S06W04	korgar	 korgar 	0
+L18S07W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L18S07W01	ser	 ser 	0
+L18S07W02	fyra	 fyra 	0
+L18S07W03	gamla	 gamla 	0
+L18S07W04	vantar	 vantar 	0
+L18S08W00	Jonas	 ʝ ² uː . n a s 	0
+L18S08W01	flyttar	 flyttar 	0
+L18S08W02	sex	 sex 	0
+L18S08W03	svarta	 svarta 	0
+L18S08W04	pennor	 pennor 	0
+L18S09W00	Britta	 b r ² ɪ tː . a 	0
+L18S09W01	ägde	 ägde 	0
+L18S09W02	arton	 arton 	0
+L18S09W03	nya	 nya 	0
+L18S09W04	dukar	 dukar 	0
+L19S00W00	Britta	 b r ² ɪ tː . a 	0
+L19S00W01	ägde	 ägde 	0
+L19S00W02	elva	 elva 	0
+L19S00W03	vackra	 vackra 	0
+L19S00W04	lådor	 lådor 	0
+L19S01W00	Bosse	 b ² ʊ sː . e̞ 	0
+L19S01W01	tog	 tog 	0
+L19S01W02	tolv	 tolv 	0
+L19S01W03	gamla	 gamla 	0
+L19S01W04	ringar	 ringar 	0
+L19S02W00	Peter	 p ˈ eː . t e̞ r 	0
+L19S02W01	gav	 gav 	0
+L19S02W02	åtta	 åtta 	0
+L19S02W03	fina	 fina 	0
+L19S02W04	knappar	 knappar 	0
+L19S03W00	Karin	 k ² ɑː . r ɪ n 	0
+L19S03W01	köpte	 köpte 	0
+L19S03W02	tre	 tre 	0
+L19S03W03	ljusa	 ljusa 	0
+L19S03W04	mössor	 mössor 	0
+L19S04W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L19S04W01	visar	 visar 	0
+L19S04W02	sju	 sju 	0
+L19S04W03	lätta	 lätta 	0
+L19S04W04	dukar	 dukar 	0
+L19S05W00	Jonas	 ʝ ² uː . n a s 	0
+L19S05W01	lånar	 lånar 	0
+L19S05W02	sex	 sex 	0
+L19S05W03	mörka	 mörka 	0
+L19S05W04	bollar	 bollar 	0
+L19S06W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L19S06W01	har	 har 	0
+L19S06W02	nio	 nio 	0
+L19S06W03	svarta	 svarta 	0
+L19S06W04	vantar	 vantar 	0
+L19S07W00	Svante	 s v ² a nː . t e̞ 	0
+L19S07W01	flyttar	 flyttar 	0
+L19S07W02	arton	 arton 	0
+L19S07W03	stora	 stora 	0
+L19S07W04	skålar	 skålar 	0
+L19S08W00	Anna	 ² a nː . a 	0
+L19S08W01	ser	 ser 	0
+L19S08W02	två	 två 	0
+L19S08W03	nya	 nya 	0
+L19S08W04	pennor	 pennor 	0
+L19S09W00	Elsa	 ² ɛ̝ lː . s a 	0
+L19S09W01	höll	 höll 	0
+L19S09W02	fyra	 fyra 	0
+L19S09W03	hela	 hela 	0
+L19S09W04	korgar	 korgar 	0
+L20S00W00	Britta	 b r ² ɪ tː . a 	0
+L20S00W01	flyttar	 flyttar 	0
+L20S00W02	åtta	 åtta 	0
+L20S00W03	svarta	 svarta 	0
+L20S00W04	ringar	 ringar 	0
+L20S01W00	Elsa	 ² ɛ̝ lː . s a 	0
+L20S01W01	gav	 gav 	0
+L20S01W02	sex	 sex 	0
+L20S01W03	nya	 nya 	0
+L20S01W04	vantar	 vantar 	0
+L20S02W00	Peter	 p ˈ eː . t e̞ r 	0
+L20S02W01	köpte	 köpte 	0
+L20S02W02	sju	 sju 	0
+L20S02W03	ljusa	 ljusa 	0
+L20S02W04	skålar	 skålar 	0
+L20S03W00	Karin	 k ² ɑː . r ɪ n 	0
+L20S03W01	ägde	 ägde 	0
+L20S03W02	fyra	 fyra 	0
+L20S03W03	vackra	 vackra 	0
+L20S03W04	knappar	 knappar 	0
+L20S04W00	Bosse	 b ² ʊ sː . e̞ 	0
+L20S04W01	visar	 visar 	0
+L20S04W02	tre	 tre 	0
+L20S04W03	lätta	 lätta 	0
+L20S04W04	dukar	 dukar 	0
+L20S05W00	Anna	 ² a nː . a 	0
+L20S05W01	höll	 höll 	0
+L20S05W02	två	 två 	0
+L20S05W03	mörka	 mörka 	0
+L20S05W04	korgar	 korgar 	0
+L20S06W00	Jonas	 ʝ ² uː . n a s 	0
+L20S06W01	lånar	 lånar 	0
+L20S06W02	elva	 elva 	0
+L20S06W03	hela	 hela 	0
+L20S06W04	lådor	 lådor 	0
+L20S07W00	Svante	 s v ² a nː . t e̞ 	0
+L20S07W01	tog	 tog 	0
+L20S07W02	arton	 arton 	0
+L20S07W03	gamla	 gamla 	0
+L20S07W04	bollar	 bollar 	0
+L20S08W00	Gustav	 ɡ ² ɵ sː . t ɑ v 	0
+L20S08W01	ser	 ser 	0
+L20S08W02	nio	 nio 	0
+L20S08W03	fina	 fina 	0
+L20S08W04	pennor	 pennor 	0
+L20S09W00	Märta	 m ² ɛ̝ ʈː . a 	0
+L20S09W01	har	 har 	0
+L20S09W02	tolv	 tolv 	0
+L20S09W03	stora	 stora 	0
+L20S09W04	mössor	 mössor 	0

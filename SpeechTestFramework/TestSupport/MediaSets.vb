@@ -769,7 +769,9 @@ Public Class MediaSet
     End Function
 
     ''' <summary>
-    ''' Checks whether there are missing audio media files, and offers an option to create the files needed. Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.
+    ''' Checks whether there are missing audio media files, and offers an option to create the files needed. 
+    ''' If media files exist in the appropriate location, but lack SMA component, SMA components will be added to the media files, when loaded.
+    ''' Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.
     ''' </summary>
     ''' <returns>Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.</returns>
     Public Function CreateLackingAudioMediaFiles(ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
@@ -782,8 +784,52 @@ Public Class MediaSet
             Return Nothing
         End If
 
-        Dim FilesCreated As Integer = 0
+        Dim FilesWithAddedSmaObject As Integer = 0
 
+        If ExpectedAudioPaths.Item2.Count > 0 Then
+
+            'Checking if the sounds have SMA chunks and adds them if not
+            For Each item In ExpectedAudioPaths.Item2
+
+                Dim ExistingPath = item.Item1
+                Dim Component = item.Item3
+                Dim CurrentSound = Audio.Sound.LoadWaveFile(ExistingPath)
+
+                ' If the loaded file had no SMA chunk, an new one will have been added, in which there are one channel data with no sentences. 
+                ' Checking if this is the case
+                If CurrentSound.SMA IsNot Nothing Then
+                    If CurrentSound.SMA.ChannelData(1).Count > 0 Then
+                        If CurrentSound.SMA.ChannelData(1)(0).Count = 0 Then
+
+                            'Creates a new sound
+                            Dim NewSound = New Audio.Sound(New Audio.Formats.WaveFormat(WaveFileSampleRate, WaveFileBitDepth, CurrentSound.WaveFormat.Channels,, WaveFileEncoding))
+
+                            'Assign SMA values based on all child components!
+                            NewSound.SMA = Component.ConvertToSMA()
+
+                            'Copies the channels to the new sound
+                            For c = 1 To CurrentSound.WaveFormat.Channels
+                                NewSound.WaveData.SampleData(c) = CurrentSound.WaveData.SampleData(c)
+                            Next
+
+                            'Also assigning the SMA parent sound
+                            NewSound.SMA.ParentSound = NewSound
+
+                            'Writing the sound file back again with the added SMA object
+                            If NewSound.WriteWaveFile(ExistingPath) = True Then FilesWithAddedSmaObject += 1
+
+                        End If
+                    End If
+                End If
+            Next
+
+            'Informing the user that iXML SMA chunks were added
+            If FilesWithAddedSmaObject > 0 Then
+                MsgBox("Added iXML SMA (segmentation) chunks to " & FilesWithAddedSmaObject & " wave files in which they were missing.", MsgBoxStyle.Information, "Added SMA objects to wave files")
+            End If
+        End If
+
+        Dim FilesCreated As Integer = 0
         If ExpectedAudioPaths.Item3.Count > 0 Then
 
             Dim MsgResult = MsgBox(ExpectedAudioPaths.Item3.Count & " audio files are missing from media set " & MediaSetName & ". Do you want to prepare new wave files for these components?", MsgBoxStyle.YesNo)
