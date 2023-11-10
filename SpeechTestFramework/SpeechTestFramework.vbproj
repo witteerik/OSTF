@@ -83,6 +83,7 @@
     <Compile Include="AudiologyDatatypes\AudiogramData.vb" />
     <Compile Include="AudiologyDatatypes\AudiologyTypes.vb" />
     <Compile Include="AudiologyDatatypes\HearingAidGainData.vb" />
+    <Compile Include="AudioProcessing\Audio_CalculateSpectrumLevels_Batch.vb" />
     <Compile Include="AudioProcessing\Audio_DSP.vb" />
     <Compile Include="AudioProcessing\Audio_DSPExt.vb" />
     <Compile Include="AudioProcessing\Audio_Ext.vb" />
