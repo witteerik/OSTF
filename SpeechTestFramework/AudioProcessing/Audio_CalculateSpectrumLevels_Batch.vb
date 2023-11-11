@@ -3,6 +3,10 @@ Namespace Audio.DSP
 
     Public Module AudioBatchFunctions
 
+        ''' <summary>
+        ''' 
+        ''' </summary>
+        ''' <param name="SoundChannel">The sound file channel to analyze</param>
         Public Sub CalculateSpectrumLevelsOfSoundFiles(Optional ByVal SoundChannel As Integer = 1)
 
             Dim SoundFolder As String = ""
@@ -74,7 +78,7 @@ Namespace Audio.DSP
                 MsgBox("The following " & UnreadableSounds.Count & " sound files could not be read:" & vbCrLf & String.Join(vbCrLf, UnreadableSounds))
                 Utils.SendInfoToLog("Unreadable sound files when calculating spectum levels:" & vbCrLf & String.Join(vbCrLf, UnreadableSounds), "UnreadableSoundFiles_BatchSpectrumLevels")
             Else
-                MsgBox("All " & SoundFiles.Count & " sounds were sucessfully measured. Please click next to save the measurements results ,to file.")
+                MsgBox("All " & SoundFiles.Count & " sounds were sucessfully measured. Please click next to save the measurements results to file.")
             End If
 
             'Getting the output file

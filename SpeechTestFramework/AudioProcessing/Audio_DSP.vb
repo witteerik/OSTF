@@ -239,12 +239,16 @@ Namespace Audio
             ''' <param name="FftFormat"></param>
             ''' <param name="ActualLowerLimitFrequencyList ">Upon return, contains the actual lower band limits used.</param>
             ''' <param name="ActualUpperLimitFrequencyList">Upon return, contains the actual upper band limits used.</param>
+            ''' <param name="AverageLate">Set to True in order to average dB values across time windows, and False to average linearly across time.</param>
             ''' <returns></returns>
             Public Function CalculateBandLevels(ByRef InputSound As Sound, ByVal Channel As Integer,
                                                 Optional ByRef BandBank As Audio.DSP.BandBank = Nothing,
                                                 Optional ByRef FftFormat As Audio.Formats.FftFormat = Nothing,
                                                 Optional ByRef ActualLowerLimitFrequencyList As List(Of Double) = Nothing,
-                                                Optional ByRef ActualUpperLimitFrequencyList As List(Of Double) = Nothing) As List(Of Double)
+                                                Optional ByRef ActualUpperLimitFrequencyList As List(Of Double) = Nothing,
+                                                Optional ByVal AverageLate As Boolean = True) As List(Of Double)
+
+                '** AverageLate was set to False in Witte's thesis. The defealt is now changed to True.
 
                 Try
 
@@ -278,7 +282,25 @@ Namespace Audio
                                                                           ActualLowerLimitFrequency,
                                                                           ActualUpperLimitFrequency)
 
-                        Dim AverageBandLevel_FS As Double = WindowLevelArray.Average
+                        Dim AverageBandLevel_FS As Double
+
+                        If AverageLate = False Then
+                            AverageBandLevel_FS = WindowLevelArray.Average
+                        Else
+
+                            'Coverting back to linear scael, summing and cnverting back to dB scale
+                            Dim LinearScaleValues = New List(Of Double)
+                            Dim FullScaleValue = InputSound.WaveFormat.PositiveFullScale
+                            For Each dBScaleValue In WindowLevelArray
+                                LinearScaleValues.Add(FullScaleValue * 10 ^ (dBScaleValue / 10))
+                            Next
+                            If LinearScaleValues.Count > 0 Then
+                                AverageBandLevel_FS = 10 * Math.Log10((LinearScaleValues.Sum / LinearScaleValues.Count) / FullScaleValue)
+                            Else
+                                AverageBandLevel_FS = Double.NegativeInfinity ' Setting the value to Double.NegativeInfinity, since no time windows existed (should mean, no sound)
+                            End If
+                        End If
+
                         BandLevelList.Add(AverageBandLevel_FS)
 
                         ActualLowerLimitFrequencyList.Add(ActualLowerLimitFrequency)
