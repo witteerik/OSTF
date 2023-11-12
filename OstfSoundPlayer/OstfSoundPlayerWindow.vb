@@ -231,7 +231,20 @@ Public Class OstfSoundPlayerWindow
             If CurrentControl IsNot Nothing Then
 
                 If SoundsLoaded.ContainsKey(SoundSource.SoundFilePath) = False Then
-                    SoundsLoaded.Add(SoundSource.SoundFilePath, Audio.Sound.LoadWaveFile(SoundSource.SoundFilePath))
+
+                    Dim LoadedSound = Audio.Sound.LoadWaveFile(SoundSource.SoundFilePath)
+
+                    'Changing the bit depth to 32 bit
+                    If LoadedSound.WaveFormat.BitDepth = 16 Then
+                        LoadedSound = LoadedSound.Convert16to32bitSound()
+                    ElseIf LoadedSound.WaveFormat.BitDepth = 32 Then
+                        'This is ok
+                    Else
+                        MsgBox("Unable to read the file " & SoundSource.SoundFilePath & ". File format is not supported!", MsgBoxStyle.Information, "Unsupported file format!")
+                        Exit Sub
+                    End If
+
+                    SoundsLoaded.Add(SoundSource.SoundFilePath, LoadedSound)
                 End If
 
                 Dim CurrentSound = SoundsLoaded(SoundSource.SoundFilePath).CopyChannelToMonoSound(SoundSource.SoundChannel)
