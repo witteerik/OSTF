@@ -448,6 +448,22 @@ Public Module OstfBase
             End If
         End Function
 
+        Public Function GetAvailableSoundSourceLocations() As List(Of Audio.SoundScene.SoundSourceLocation)
+
+            Dim Output As New List(Of Audio.SoundScene.SoundSourceLocation)
+
+            For i = 0 To LoudspeakerAzimuths.Count - 1
+                Output.Add(New Audio.SoundScene.SoundSourceLocation With {
+                           .HorizontalAzimuth = LoudspeakerAzimuths(i),
+                           .Elevation = LoudspeakerElevations(i),
+                           .Distance = LoudspeakerDistances(i)})
+            Next
+
+            Return Output
+
+        End Function
+
+
         Public Function GetDescriptionString() As String
             Dim OutputList As New List(Of String)
 

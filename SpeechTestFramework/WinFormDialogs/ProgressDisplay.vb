@@ -78,6 +78,8 @@ Public Class ProgressDisplay
             End If
 
             ProgressBar1.Value = NewProgressValue
+            ProgressBar1.Invalidate()
+            ProgressBar1.Refresh()
 
             If UseText = True Then
                 ProgressLabel.Text = "Processing item " & NewProgressValue & " of " & MaxValue - MinValue & " " & AddToTitle
@@ -85,6 +87,7 @@ Public Class ProgressDisplay
                 ProgressLabel.Text = ""
             End If
 
+            ProgressLabel.Invalidate()
             ProgressLabel.Refresh()
 
             Me.Invalidate()

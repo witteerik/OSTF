@@ -94,7 +94,6 @@ Namespace Audio
         ''' <returns></returns>
         Private Property UnparsedWaveChunks As New List(Of Byte())
 
-
         ''' <summary>
         ''' Creates a new instance of the Sound class.
         ''' </summary>
@@ -559,7 +558,6 @@ Namespace Audio
                     Return DetermineShortestChannelLength()
                 End Get
             End Property
-
 
             ''' <summary>
             ''' Gets or sets or the sample data of the specified channel (Channel indices are 1-based).

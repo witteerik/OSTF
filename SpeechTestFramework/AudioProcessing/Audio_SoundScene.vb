@@ -719,6 +719,10 @@ Namespace Audio.SoundScene
         ''' </summary>
         Public ActualLocation As SoundSourceLocation
 
+        Public Overrides Function ToString() As String
+            Return "Azimuth: " & Math.Round(HorizontalAzimuth) & "°, Elevation: " & Math.Round(Elevation) & "°, Distance: " & Math.Round(Distance, 2) & "m."
+        End Function
+
     End Class
 
 End Namespace
