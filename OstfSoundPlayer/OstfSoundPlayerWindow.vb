@@ -12,6 +12,8 @@ Public Class OstfSoundPlayerWindow
     Private SoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
     Private MySoundLevelFormat = New Audio.Formats.SoundLevelFormat(Audio.BasicAudioEnums.SoundMeasurementTypes.LoudestSection_Z_Weighted, 0.1)
 
+    Private Rnd As New Random
+
     Private Sub OstfSoundPlayerWindow_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Initializing the OSTF 
@@ -54,6 +56,12 @@ Public Class OstfSoundPlayerWindow
         If Duration_ComboBox.Items.Count > 0 Then
             Duration_ComboBox.SelectedIndex = 0
         End If
+
+        'Setting backcolors
+        Dim TopColorValue As Single = 205
+        Toplevel_TableLayoutPanel.BackColor = Drawing.Color.FromArgb(40, CSng(Rnd.Next(10, TopColorValue)), CSng(Rnd.Next(10, TopColorValue)), CSng(Rnd.Next(10, TopColorValue)))
+        'SoundSource_FlowLayoutPanel.BackColor = Drawing.Color.FromArgb(CSng(Rnd.Next(10, TopColorValue)), CSng(Rnd.Next(10, TopColorValue)), CSng(Rnd.Next(10, TopColorValue)))
+        SoundSource_FlowLayoutPanel.BackColor = Color.WhiteSmoke
 
     End Sub
 
@@ -113,6 +121,10 @@ Public Class OstfSoundPlayerWindow
                         'Adding the control and a event handler to remove it
                         Dim NewSoundControl = New OstfSoundPlayerSourceControl(ColumnStyleList, SoundFilePath, SoundChannel, SoundSourceLocations, AvaliableLevels)
                         AddHandler NewSoundControl.Remove, AddressOf Me.RemoveSound
+
+                        'Setting a random background color on the control
+                        NewSoundControl.SetBackColor(Drawing.Color.FromArgb(20, CSng(Rnd.Next(10, 255)), CSng(Rnd.Next(10, 255)), CSng(Rnd.Next(10, 255))))
+
                         SoundSource_FlowLayoutPanel.Controls.Add(NewSoundControl)
                     Next
 
@@ -128,7 +140,7 @@ Public Class OstfSoundPlayerWindow
             MsgBox("No valid audio output was selected!")
         End If
 
-        OstfSoundPlayerWindow_ResizeEnd(Nothing, Nothing)
+        OstfSoundPlayerWindow_Resize(Nothing, Nothing)
 
         If SoundSource_FlowLayoutPanel.Controls.Count > 1 Then
             Duration_ComboBox.Enabled = True
@@ -145,22 +157,15 @@ Public Class OstfSoundPlayerWindow
         SoundSource_FlowLayoutPanel.Invalidate()
     End Sub
 
-    Private Sub OstfSoundPlayerWindow_ResizeEnd(sender As Object, e As EventArgs) Handles MyBase.ResizeEnd
+    Private Sub OstfSoundPlayerWindow_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
         For Each Control As Control In SoundSource_FlowLayoutPanel.Controls
-            Control.Width = SoundSource_FlowLayoutPanel.Width - 10
+            Control.Width = SoundSource_FlowLayoutPanel.Width - 22
         Next
     End Sub
 
     Private Sub Duration_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Duration_ComboBox.SelectedIndexChanged
         SelectedDurationSeconds = AvaliableDurationsCorrespondingSeconds(Duration_ComboBox.SelectedIndex)
     End Sub
-
-    Private Sub StartSoundPlayer()
-        'Selects the wave format for use (doing it this way means that the wave format MUST be the same in all available MediaSets)
-        'Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
-        'OstfBase.SoundPlayer.ChangePlayerSettings(, TempWaveformat.SampleRate, TempWaveformat.BitDepth, TempWaveformat.Encoding,, , Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, False, False)
-    End Sub
-
 
     Private Sub Play_AudioButton_Click(sender As Object, e As EventArgs) Handles Play_AudioButton.Click
 

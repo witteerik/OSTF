@@ -68,7 +68,17 @@ Public Class OstfSoundPlayerSourceControl
         RaiseEvent Remove(Me)
     End Sub
 
-    Private Sub Content_TableLayoutPanel_Paint(sender As Object, e As PaintEventArgs) Handles Content_TableLayoutPanel.Paint
+    Public Sub SetBackColor(ByVal BackColor As Color)
+
+        Me.BackColor = BackColor
+        Content_TableLayoutPanel.BackColor = BackColor
+        'FileName_TextBox.BackColor = Color.Transparent
+        Channel_Label.BackColor = Color.Transparent
+        'SoundSource_ComboBox.BackColor = BackColor
+        'Level_ComboBox.BackColor = BackColor
+        Repeat_CheckBox.BackColor = Color.Transparent
+        Remove_Button.BackColor = BackColor
 
     End Sub
+
 End Class

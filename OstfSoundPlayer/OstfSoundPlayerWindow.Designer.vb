@@ -22,51 +22,55 @@ Partial Class OstfSoundPlayerWindow
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
+        Me.Toplevel_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Duration_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Play_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
-        Me.AddSounds_Button = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.SoundSource_FlowLayoutPanel = New System.Windows.Forms.FlowLayoutPanel()
         Me.About_Button = New System.Windows.Forms.Button()
         Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.TableLayoutPanel1.SuspendLayout()
+        Me.AddSounds_Button = New System.Windows.Forms.Button()
+        Me.Button2 = New System.Windows.Forms.Button()
+        Me.Toplevel_TableLayoutPanel.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
+        Me.SoundSource_FlowLayoutPanel.SuspendLayout()
         Me.SuspendLayout()
         '
-        'TableLayoutPanel1
+        'Toplevel_TableLayoutPanel
         '
-        Me.TableLayoutPanel1.ColumnCount = 5
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155.0!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155.0!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155.0!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155.0!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel1.Controls.Add(Me.Label1, 0, 2)
-        Me.TableLayoutPanel1.Controls.Add(Me.Duration_ComboBox, 1, 2)
-        Me.TableLayoutPanel1.Controls.Add(Me.Play_AudioButton, 2, 2)
-        Me.TableLayoutPanel1.Controls.Add(Me.Stop_AudioButton, 3, 2)
-        Me.TableLayoutPanel1.Controls.Add(Me.AddSounds_Button, 0, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.GroupBox1, 0, 1)
-        Me.TableLayoutPanel1.Controls.Add(Me.About_Button, 4, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.Transducer_ComboBox, 2, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.Label2, 1, 0)
-        Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
-        Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
-        Me.TableLayoutPanel1.RowCount = 3
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(1009, 422)
-        Me.TableLayoutPanel1.TabIndex = 1
+        Me.Toplevel_TableLayoutPanel.ColumnCount = 6
+        Me.Toplevel_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155.0!))
+        Me.Toplevel_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155.0!))
+        Me.Toplevel_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155.0!))
+        Me.Toplevel_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155.0!))
+        Me.Toplevel_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 155.0!))
+        Me.Toplevel_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.AddSounds_Button, 0, 0)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Label1, 0, 2)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Duration_ComboBox, 1, 2)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Play_AudioButton, 2, 2)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Stop_AudioButton, 3, 2)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.GroupBox1, 0, 1)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.About_Button, 5, 0)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Transducer_ComboBox, 3, 0)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Label2, 1, 0)
+        Me.Toplevel_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Toplevel_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
+        Me.Toplevel_TableLayoutPanel.Name = "Toplevel_TableLayoutPanel"
+        Me.Toplevel_TableLayoutPanel.RowCount = 3
+        Me.Toplevel_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
+        Me.Toplevel_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.Toplevel_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
+        Me.Toplevel_TableLayoutPanel.Size = New System.Drawing.Size(1009, 422)
+        Me.Toplevel_TableLayoutPanel.TabIndex = 1
         '
         'Label1
         '
         Me.Label1.AutoSize = True
+        Me.Label1.BackColor = System.Drawing.Color.Transparent
         Me.Label1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.Location = New System.Drawing.Point(3, 382)
@@ -79,6 +83,7 @@ Partial Class OstfSoundPlayerWindow
         'Duration_ComboBox
         '
         Me.Duration_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Duration_ComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.Duration_ComboBox.Enabled = False
         Me.Duration_ComboBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Duration_ComboBox.FormattingEnabled = True
@@ -109,25 +114,15 @@ Partial Class OstfSoundPlayerWindow
         Me.Stop_AudioButton.UseVisualStyleBackColor = True
         Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
         '
-        'AddSounds_Button
-        '
-        Me.AddSounds_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.AddSounds_Button.Enabled = False
-        Me.AddSounds_Button.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.AddSounds_Button.Location = New System.Drawing.Point(3, 3)
-        Me.AddSounds_Button.Name = "AddSounds_Button"
-        Me.AddSounds_Button.Size = New System.Drawing.Size(149, 34)
-        Me.AddSounds_Button.TabIndex = 4
-        Me.AddSounds_Button.Text = "Add sounds"
-        Me.AddSounds_Button.UseVisualStyleBackColor = True
-        '
         'GroupBox1
         '
-        Me.TableLayoutPanel1.SetColumnSpan(Me.GroupBox1, 5)
+        Me.GroupBox1.BackColor = System.Drawing.Color.Transparent
+        Me.Toplevel_TableLayoutPanel.SetColumnSpan(Me.GroupBox1, 6)
         Me.GroupBox1.Controls.Add(Me.SoundSource_FlowLayoutPanel)
         Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox1.Location = New System.Drawing.Point(3, 43)
         Me.GroupBox1.Name = "GroupBox1"
+        Me.GroupBox1.Padding = New System.Windows.Forms.Padding(6)
         Me.GroupBox1.Size = New System.Drawing.Size(1003, 336)
         Me.GroupBox1.TabIndex = 5
         Me.GroupBox1.TabStop = False
@@ -135,11 +130,12 @@ Partial Class OstfSoundPlayerWindow
         'SoundSource_FlowLayoutPanel
         '
         Me.SoundSource_FlowLayoutPanel.AutoScroll = True
+        Me.SoundSource_FlowLayoutPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+        Me.SoundSource_FlowLayoutPanel.Controls.Add(Me.Button2)
         Me.SoundSource_FlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SoundSource_FlowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown
-        Me.SoundSource_FlowLayoutPanel.Location = New System.Drawing.Point(3, 16)
+        Me.SoundSource_FlowLayoutPanel.Location = New System.Drawing.Point(6, 19)
         Me.SoundSource_FlowLayoutPanel.Name = "SoundSource_FlowLayoutPanel"
-        Me.SoundSource_FlowLayoutPanel.Size = New System.Drawing.Size(997, 317)
+        Me.SoundSource_FlowLayoutPanel.Size = New System.Drawing.Size(991, 311)
         Me.SoundSource_FlowLayoutPanel.TabIndex = 0
         '
         'About_Button
@@ -156,49 +152,83 @@ Partial Class OstfSoundPlayerWindow
         '
         'Transducer_ComboBox
         '
-        Me.TableLayoutPanel1.SetColumnSpan(Me.Transducer_ComboBox, 2)
+        Me.Toplevel_TableLayoutPanel.SetColumnSpan(Me.Transducer_ComboBox, 2)
         Me.Transducer_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Transducer_ComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.Transducer_ComboBox.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Transducer_ComboBox.FormattingEnabled = True
-        Me.Transducer_ComboBox.Location = New System.Drawing.Point(313, 3)
+        Me.Transducer_ComboBox.Location = New System.Drawing.Point(468, 3)
         Me.Transducer_ComboBox.Name = "Transducer_ComboBox"
-        Me.Transducer_ComboBox.Size = New System.Drawing.Size(304, 21)
+        Me.Transducer_ComboBox.Size = New System.Drawing.Size(304, 32)
         Me.Transducer_ComboBox.TabIndex = 7
         '
         'Label2
         '
-        Me.Label2.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Label2.BackColor = System.Drawing.Color.Transparent
+        Me.Toplevel_TableLayoutPanel.SetColumnSpan(Me.Label2, 2)
+        Me.Label2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label2.Location = New System.Drawing.Point(158, 0)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(149, 23)
+        Me.Label2.Size = New System.Drawing.Size(304, 40)
         Me.Label2.TabIndex = 8
         Me.Label2.Text = "Select audio output:"
         Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'AddSounds_Button
+        '
+        Me.AddSounds_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.AddSounds_Button.FlatAppearance.BorderSize = 2
+        Me.AddSounds_Button.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.AddSounds_Button.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.AddSounds_Button.Location = New System.Drawing.Point(3, 3)
+        Me.AddSounds_Button.Name = "AddSounds_Button"
+        Me.AddSounds_Button.Size = New System.Drawing.Size(149, 34)
+        Me.AddSounds_Button.TabIndex = 7
+        Me.AddSounds_Button.Text = "Add sounds"
+        Me.AddSounds_Button.UseVisualStyleBackColor = True
+        '
+        'Button2
+        '
+        Me.Button2.BackColor = System.Drawing.SystemColors.Control
+        Me.Button2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Button2.Enabled = False
+        Me.Button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.Button2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button2.Location = New System.Drawing.Point(3, 3)
+        Me.Button2.Name = "Button2"
+        Me.Button2.Size = New System.Drawing.Size(149, 0)
+        Me.Button2.TabIndex = 8
+        Me.Button2.Text = "Add sounds"
+        Me.Button2.UseVisualStyleBackColor = False
         '
         'OstfSoundPlayerWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1009, 422)
-        Me.Controls.Add(Me.TableLayoutPanel1)
+        Me.Controls.Add(Me.Toplevel_TableLayoutPanel)
         Me.MinimumSize = New System.Drawing.Size(980, 200)
         Me.Name = "OstfSoundPlayerWindow"
         Me.Text = "OSTF sound player"
-        Me.TableLayoutPanel1.ResumeLayout(False)
-        Me.TableLayoutPanel1.PerformLayout()
+        Me.Toplevel_TableLayoutPanel.ResumeLayout(False)
+        Me.Toplevel_TableLayoutPanel.PerformLayout()
         Me.GroupBox1.ResumeLayout(False)
+        Me.SoundSource_FlowLayoutPanel.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
 
-    Friend WithEvents TableLayoutPanel1 As TableLayoutPanel
+    Friend WithEvents Toplevel_TableLayoutPanel As TableLayoutPanel
     Friend WithEvents Label1 As Label
     Friend WithEvents Duration_ComboBox As ComboBox
     Friend WithEvents Play_AudioButton As SpeechTestFramework.WinFormControls.AudioButton
     Friend WithEvents Stop_AudioButton As SpeechTestFramework.WinFormControls.AudioButton
-    Friend WithEvents AddSounds_Button As Button
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents SoundSource_FlowLayoutPanel As FlowLayoutPanel
     Friend WithEvents About_Button As Button
     Friend WithEvents Transducer_ComboBox As ComboBox
     Friend WithEvents Label2 As Label
+    Friend WithEvents AddSounds_Button As Button
+    Friend WithEvents Button2 As Button
 End Class

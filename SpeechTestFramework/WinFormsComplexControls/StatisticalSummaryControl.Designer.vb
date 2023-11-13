@@ -26,6 +26,7 @@ Partial Class StatisticalSummaryControl
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.LoadedSpeechMaterialName_TextBox = New System.Windows.Forms.TextBox()
+        Me.LoadOstaTestSpecificationControl1 = New SpeechTestFramework.LoadOstaTestSpecificationControl()
         Me.Variables_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.Calculate_Button = New System.Windows.Forms.Button()
         Me.SaveButton = New System.Windows.Forms.Button()
@@ -35,7 +36,6 @@ Partial Class StatisticalSummaryControl
         Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
         Me.LevelSelection_GroupBox = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
-        Me.LoadOstaTestSpecificationControl1 = New SpeechTestFramework.LoadOstaTestSpecificationControl()
         Me.GroupBox2.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
@@ -91,6 +91,16 @@ Partial Class StatisticalSummaryControl
         Me.LoadedSpeechMaterialName_TextBox.Size = New System.Drawing.Size(213, 20)
         Me.LoadedSpeechMaterialName_TextBox.TabIndex = 2
         Me.LoadedSpeechMaterialName_TextBox.Text = "No speech material loaded"
+        '
+        'LoadOstaTestSpecificationControl1
+        '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.LoadOstaTestSpecificationControl1, 2)
+        Me.LoadOstaTestSpecificationControl1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LoadOstaTestSpecificationControl1.Location = New System.Drawing.Point(3, 3)
+        Me.LoadOstaTestSpecificationControl1.Name = "LoadOstaTestSpecificationControl1"
+        Me.LoadOstaTestSpecificationControl1.SelectedTestSpecification = Nothing
+        Me.LoadOstaTestSpecificationControl1.Size = New System.Drawing.Size(350, 57)
+        Me.LoadOstaTestSpecificationControl1.TabIndex = 3
         '
         'Variables_TableLayoutPanel
         '
@@ -204,16 +214,6 @@ Partial Class StatisticalSummaryControl
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
         Me.TableLayoutPanel2.Size = New System.Drawing.Size(357, 90)
         Me.TableLayoutPanel2.TabIndex = 0
-        '
-        'LoadOstaTestSpecificationControl1
-        '
-        Me.TableLayoutPanel3.SetColumnSpan(Me.LoadOstaTestSpecificationControl1, 2)
-        Me.LoadOstaTestSpecificationControl1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LoadOstaTestSpecificationControl1.Location = New System.Drawing.Point(3, 3)
-        Me.LoadOstaTestSpecificationControl1.Name = "LoadOstaTestSpecificationControl1"
-        Me.LoadOstaTestSpecificationControl1.SelectedTestSpecification = Nothing
-        Me.LoadOstaTestSpecificationControl1.Size = New System.Drawing.Size(350, 57)
-        Me.LoadOstaTestSpecificationControl1.TabIndex = 3
         '
         'StatisticalSummaryControl
         '
