@@ -169,16 +169,17 @@ Public Class OstfSoundPlayerWindow
 
         Play_AudioButton.Enabled = False
 
-        Dim ProgressDisplay = New SpeechTestFramework.ProgressDisplay
-        ProgressDisplay.Initialize(10, 0, "Mixing sounds, please wait...")
-        ProgressDisplay.Show()
-        ProgressDisplay.Location = New Point(Me.Location.X + Me.Width / 3, Me.Location.Y + Me.Height / 3)
-        ProgressDisplay.UpdateProgress(8)
+        Progress_Label.Visible = True
+        Mix_ProgressBar.Visible = True
+        Progress_Label.Invalidate()
+        Progress_Label.Refresh()
+        Mix_ProgressBar.Invalidate()
+        Mix_ProgressBar.Refresh()
 
         MixSounds()
 
-        ProgressDisplay.Close()
-        ProgressDisplay.Dispose()
+        Progress_Label.Visible = False
+        Mix_ProgressBar.Visible = False
 
         If CurrentPlaySound IsNot Nothing Then
 
@@ -297,4 +298,7 @@ Public Class OstfSoundPlayerWindow
         AboutBox1.Show()
     End Sub
 
+    Private Sub Stop_AudioButton_Click(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
+
+    End Sub
 End Class

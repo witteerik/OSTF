@@ -26,14 +26,16 @@ Partial Class OstfSoundPlayerWindow
         Me.AddSounds_Button = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Duration_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.Play_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
-        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.SoundSource_FlowLayoutPanel = New System.Windows.Forms.FlowLayoutPanel()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.About_Button = New System.Windows.Forms.Button()
         Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label2 = New System.Windows.Forms.Label()
+        Me.Play_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
+        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
+        Me.Mix_ProgressBar = New System.Windows.Forms.ProgressBar()
+        Me.Progress_Label = New System.Windows.Forms.Label()
         Me.Toplevel_TableLayoutPanel.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.SoundSource_FlowLayoutPanel.SuspendLayout()
@@ -57,13 +59,16 @@ Partial Class OstfSoundPlayerWindow
         Me.Toplevel_TableLayoutPanel.Controls.Add(Me.About_Button, 5, 0)
         Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Transducer_ComboBox, 3, 0)
         Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Label2, 1, 0)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Mix_ProgressBar, 5, 3)
+        Me.Toplevel_TableLayoutPanel.Controls.Add(Me.Progress_Label, 5, 2)
         Me.Toplevel_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Toplevel_TableLayoutPanel.Location = New System.Drawing.Point(0, 0)
         Me.Toplevel_TableLayoutPanel.Name = "Toplevel_TableLayoutPanel"
-        Me.Toplevel_TableLayoutPanel.RowCount = 3
+        Me.Toplevel_TableLayoutPanel.RowCount = 4
         Me.Toplevel_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
         Me.Toplevel_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.Toplevel_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
+        Me.Toplevel_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.Toplevel_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
         Me.Toplevel_TableLayoutPanel.Size = New System.Drawing.Size(1009, 422)
         Me.Toplevel_TableLayoutPanel.TabIndex = 1
         '
@@ -89,6 +94,7 @@ Partial Class OstfSoundPlayerWindow
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label1.Location = New System.Drawing.Point(3, 382)
         Me.Label1.Name = "Label1"
+        Me.Toplevel_TableLayoutPanel.SetRowSpan(Me.Label1, 2)
         Me.Label1.Size = New System.Drawing.Size(149, 40)
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "Play duration (s):"
@@ -103,30 +109,9 @@ Partial Class OstfSoundPlayerWindow
         Me.Duration_ComboBox.FormattingEnabled = True
         Me.Duration_ComboBox.Location = New System.Drawing.Point(158, 385)
         Me.Duration_ComboBox.Name = "Duration_ComboBox"
+        Me.Toplevel_TableLayoutPanel.SetRowSpan(Me.Duration_ComboBox, 2)
         Me.Duration_ComboBox.Size = New System.Drawing.Size(149, 32)
         Me.Duration_ComboBox.TabIndex = 1
-        '
-        'Play_AudioButton
-        '
-        Me.Play_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Play_AudioButton.Enabled = False
-        Me.Play_AudioButton.Location = New System.Drawing.Point(313, 385)
-        Me.Play_AudioButton.Name = "Play_AudioButton"
-        Me.Play_AudioButton.Size = New System.Drawing.Size(149, 34)
-        Me.Play_AudioButton.TabIndex = 2
-        Me.Play_AudioButton.UseVisualStyleBackColor = True
-        Me.Play_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
-        '
-        'Stop_AudioButton
-        '
-        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Stop_AudioButton.Enabled = False
-        Me.Stop_AudioButton.Location = New System.Drawing.Point(468, 385)
-        Me.Stop_AudioButton.Name = "Stop_AudioButton"
-        Me.Stop_AudioButton.Size = New System.Drawing.Size(149, 34)
-        Me.Stop_AudioButton.TabIndex = 3
-        Me.Stop_AudioButton.UseVisualStyleBackColor = True
-        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
         '
         'GroupBox1
         '
@@ -203,6 +188,52 @@ Partial Class OstfSoundPlayerWindow
         Me.Label2.Text = "Select audio output:"
         Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
+        'Play_AudioButton
+        '
+        Me.Play_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Play_AudioButton.Enabled = False
+        Me.Play_AudioButton.Location = New System.Drawing.Point(313, 385)
+        Me.Play_AudioButton.Name = "Play_AudioButton"
+        Me.Toplevel_TableLayoutPanel.SetRowSpan(Me.Play_AudioButton, 2)
+        Me.Play_AudioButton.Size = New System.Drawing.Size(149, 34)
+        Me.Play_AudioButton.TabIndex = 2
+        Me.Play_AudioButton.UseVisualStyleBackColor = True
+        Me.Play_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
+        '
+        'Stop_AudioButton
+        '
+        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Stop_AudioButton.Enabled = False
+        Me.Stop_AudioButton.Location = New System.Drawing.Point(468, 385)
+        Me.Stop_AudioButton.Name = "Stop_AudioButton"
+        Me.Toplevel_TableLayoutPanel.SetRowSpan(Me.Stop_AudioButton, 2)
+        Me.Stop_AudioButton.Size = New System.Drawing.Size(149, 34)
+        Me.Stop_AudioButton.TabIndex = 3
+        Me.Stop_AudioButton.UseVisualStyleBackColor = True
+        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
+        '
+        'Mix_ProgressBar
+        '
+        Me.Mix_ProgressBar.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Mix_ProgressBar.Location = New System.Drawing.Point(778, 405)
+        Me.Mix_ProgressBar.Name = "Mix_ProgressBar"
+        Me.Mix_ProgressBar.Size = New System.Drawing.Size(228, 14)
+        Me.Mix_ProgressBar.TabIndex = 9
+        Me.Mix_ProgressBar.Value = 80
+        Me.Mix_ProgressBar.Visible = False
+        '
+        'Progress_Label
+        '
+        Me.Progress_Label.BackColor = System.Drawing.Color.Transparent
+        Me.Progress_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Progress_Label.Location = New System.Drawing.Point(778, 382)
+        Me.Progress_Label.Name = "Progress_Label"
+        Me.Progress_Label.Size = New System.Drawing.Size(228, 20)
+        Me.Progress_Label.TabIndex = 10
+        Me.Progress_Label.Text = "Mixing sounds, please wait..."
+        Me.Progress_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.Progress_Label.Visible = False
+        '
         'OstfSoundPlayerWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -232,4 +263,6 @@ Partial Class OstfSoundPlayerWindow
     Friend WithEvents Label2 As Label
     Friend WithEvents AddSounds_Button As Button
     Friend WithEvents Button2 As Button
+    Friend WithEvents Mix_ProgressBar As ProgressBar
+    Friend WithEvents Progress_Label As Label
 End Class

@@ -34,6 +34,7 @@ Partial Class ProgressDisplay
         Me.ProgressBar1.Name = "ProgressBar1"
         Me.ProgressBar1.Size = New System.Drawing.Size(392, 23)
         Me.ProgressBar1.TabIndex = 0
+        Me.ProgressBar1.Value = 60
         '
         'ProgressLabel
         '
