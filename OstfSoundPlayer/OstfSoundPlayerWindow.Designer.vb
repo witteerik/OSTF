@@ -23,17 +23,17 @@ Partial Class OstfSoundPlayerWindow
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.Toplevel_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
+        Me.AddSounds_Button = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Duration_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Play_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.SoundSource_FlowLayoutPanel = New System.Windows.Forms.FlowLayoutPanel()
+        Me.Button2 = New System.Windows.Forms.Button()
         Me.About_Button = New System.Windows.Forms.Button()
         Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.AddSounds_Button = New System.Windows.Forms.Button()
-        Me.Button2 = New System.Windows.Forms.Button()
         Me.Toplevel_TableLayoutPanel.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.SoundSource_FlowLayoutPanel.SuspendLayout()
@@ -66,6 +66,20 @@ Partial Class OstfSoundPlayerWindow
         Me.Toplevel_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40.0!))
         Me.Toplevel_TableLayoutPanel.Size = New System.Drawing.Size(1009, 422)
         Me.Toplevel_TableLayoutPanel.TabIndex = 1
+        '
+        'AddSounds_Button
+        '
+        Me.AddSounds_Button.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.AddSounds_Button.Enabled = False
+        Me.AddSounds_Button.FlatAppearance.BorderSize = 2
+        Me.AddSounds_Button.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.AddSounds_Button.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.AddSounds_Button.Location = New System.Drawing.Point(3, 3)
+        Me.AddSounds_Button.Name = "AddSounds_Button"
+        Me.AddSounds_Button.Size = New System.Drawing.Size(149, 34)
+        Me.AddSounds_Button.TabIndex = 7
+        Me.AddSounds_Button.Text = "Add sounds"
+        Me.AddSounds_Button.UseVisualStyleBackColor = True
         '
         'Label1
         '
@@ -138,6 +152,20 @@ Partial Class OstfSoundPlayerWindow
         Me.SoundSource_FlowLayoutPanel.Size = New System.Drawing.Size(991, 311)
         Me.SoundSource_FlowLayoutPanel.TabIndex = 0
         '
+        'Button2
+        '
+        Me.Button2.BackColor = System.Drawing.SystemColors.Control
+        Me.Button2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Button2.Enabled = False
+        Me.Button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.Button2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Button2.Location = New System.Drawing.Point(3, 3)
+        Me.Button2.Name = "Button2"
+        Me.Button2.Size = New System.Drawing.Size(149, 0)
+        Me.Button2.TabIndex = 8
+        Me.Button2.Text = "Add sounds"
+        Me.Button2.UseVisualStyleBackColor = False
+        '
         'About_Button
         '
         Me.About_Button.Dock = System.Windows.Forms.DockStyle.Right
@@ -174,33 +202,6 @@ Partial Class OstfSoundPlayerWindow
         Me.Label2.TabIndex = 8
         Me.Label2.Text = "Select audio output:"
         Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        '
-        'AddSounds_Button
-        '
-        Me.AddSounds_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.AddSounds_Button.FlatAppearance.BorderSize = 2
-        Me.AddSounds_Button.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.AddSounds_Button.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.AddSounds_Button.Location = New System.Drawing.Point(3, 3)
-        Me.AddSounds_Button.Name = "AddSounds_Button"
-        Me.AddSounds_Button.Size = New System.Drawing.Size(149, 34)
-        Me.AddSounds_Button.TabIndex = 7
-        Me.AddSounds_Button.Text = "Add sounds"
-        Me.AddSounds_Button.UseVisualStyleBackColor = True
-        '
-        'Button2
-        '
-        Me.Button2.BackColor = System.Drawing.SystemColors.Control
-        Me.Button2.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Button2.Enabled = False
-        Me.Button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        Me.Button2.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button2.Location = New System.Drawing.Point(3, 3)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(149, 0)
-        Me.Button2.TabIndex = 8
-        Me.Button2.Text = "Add sounds"
-        Me.Button2.UseVisualStyleBackColor = False
         '
         'OstfSoundPlayerWindow
         '

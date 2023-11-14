@@ -34,6 +34,8 @@ Namespace Audio
 
             Event MessageFromPlayer(ByVal Message As String)
 
+            Event EndOfSound()
+
             Property RaisePlaybackBufferTickEvents As Boolean
 
             Property EqualPowerCrossFade As Boolean
@@ -55,6 +57,10 @@ Namespace Audio
             Function GetOverlapGranuality() As Double
 
             ReadOnly Property IsPlaying As Boolean
+
+            Event StartedSwappingOutputSounds()
+
+            Event FinishedSwappingOutputSounds()
 
             ''' <summary>
             ''' Swaps the current output sound to a new, using crossfading between ths sounds.
@@ -130,7 +136,9 @@ Namespace Audio
             Public Event NewRecordingBuffer(ByVal Buffer As Single())
 
             Public Event PlaybackBufferTick()
-
+            Public Event StartedSwappingOutputSounds() Implements iSoundPlayer.StartedSwappingOutputSounds
+            Public Event FinishedSwappingOutputSounds() Implements iSoundPlayer.FinishedSwappingOutputSounds
+            Public Event EndOfSound() Implements iSoundPlayer.EndOfSound
             Private Mixer As DuplexMixer
 
             Public Function GetMixer() As DuplexMixer
@@ -213,6 +221,9 @@ Namespace Audio
                                                                                              'Setting CrossFadeProgress to 0 since a new fade period have begun
                                                                                              CrossFadeProgress = 0
 
+                                                                                             'Raising event StartedSwappingOutputSounds
+                                                                                             RaiseEvent StartedSwappingOutputSounds()
+
                                                                                          End If
 
                                                                                          'Checking current positions to see if an EndOfBufferAlert should be sent
@@ -249,6 +260,8 @@ Namespace Audio
                                                                                                      'Sending message to the controller
                                                                                                      'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
 
+                                                                                                     RaiseEvent EndOfSound()
+
                                                                                                      If StopAtOutputSoundEnd = True Then
 
                                                                                                          'Returning the callback to port audio
@@ -273,6 +286,8 @@ Namespace Audio
 
                                                                                                      'Sending message to the controller
                                                                                                      'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
+
+                                                                                                     RaiseEvent EndOfSound()
 
                                                                                                      If StopAtOutputSoundEnd = True Then
 
@@ -348,6 +363,9 @@ Namespace Audio
                                                                                                      'Console.WriteLine("FadeEnd: " & CrossFadeProgress & " " & FadeArrayLength & " " & CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & " " & OverlapFadeInArray.Length & " " & OverlapFadeOutArray.Length)
                                                                                                      CurrentOutputSound = OutputSounds.OutputSoundA
                                                                                                      CrossFadeProgress = 0
+
+                                                                                                     'Raising event FinishedSwappingOutputSounds
+                                                                                                     RaiseEvent FinishedSwappingOutputSounds()
                                                                                                  End If
 
                                                                                              Case OutputSounds.FadingToB
@@ -408,6 +426,10 @@ Namespace Audio
                                                                                                      'Console.WriteLine("FadeEnd: " & CrossFadeProgress & " " & FadeArrayLength & " " & CurrentOutputSound.ToString & " " & PositionA & " " & PositionB & " " & CrossFadeProgress & " " & OverlapFadeInArray.Length & " " & OverlapFadeOutArray.Length)
                                                                                                      CurrentOutputSound = OutputSounds.OutputSoundB
                                                                                                      CrossFadeProgress = 0
+
+                                                                                                     'Raising event FinishedSwappingOutputSounds
+                                                                                                     RaiseEvent FinishedSwappingOutputSounds()
+
                                                                                                  End If
 
                                                                                                  'Case Else 'This is unnecessary as an exception would be thrown already above
@@ -1103,6 +1125,10 @@ Namespace Audio
                         If CurrentOutputSound = OutputSounds.FadingToA Then
                             CurrentOutputSound = OutputSounds.OutputSoundA
                             CrossFadeProgress = 0
+
+                            'Raising event FinishedSwappingOutputSounds
+                            RaiseEvent FinishedSwappingOutputSounds()
+
                         End If
 
                     Case OutputSounds.OutputSoundB, OutputSounds.FadingToB
@@ -1126,6 +1152,10 @@ Namespace Audio
                         If CurrentOutputSound = OutputSounds.FadingToB Then
                             CurrentOutputSound = OutputSounds.OutputSoundB
                             CrossFadeProgress = 0
+
+                            'Raising event FinishedSwappingOutputSounds
+                            RaiseEvent FinishedSwappingOutputSounds()
+
                         End If
 
                     Case Else

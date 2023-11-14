@@ -14,14 +14,12 @@ Public Class OstfSoundPlayerWindow
 
     Private Rnd As New Random
 
+    Public StopTimer_SpinLock As New Threading.SpinLock
+
     Private Sub OstfSoundPlayerWindow_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Initializing the OSTF 
         SpeechTestFramework.InitializeOSTF()
-
-        'Dim Transducer = SpeechTestFramework.OstfBase.AvaliableTransducers
-
-        'Transducer(0).LoudspeakerDistances
 
         For level As Integer = 0 To 80 Step 2
             AvaliableLevels.Add(level)
@@ -77,7 +75,7 @@ Public Class OstfSoundPlayerWindow
             '(At this stage the sound player will be started, if not already done.)
             OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,,, 0.4, SelectedTransducer.Mixer, Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, True, True, True)
         Else
-            MsgBox("Unable to start the sound player using the selected audio settings!", MsgBoxStyle.Exclamation, "Sound player failure")
+            MsgBox("Unable to start the sound player using the selected audio settings!", MsgBoxStyle.Exclamation, "OSTF sound player")
             SelectedTransducer = Nothing
         End If
 
@@ -107,7 +105,7 @@ Public Class OstfSoundPlayerWindow
                 For Each SoundFilePath In SoundFilePaths
 
                     If SoundFilePath = "" Then
-                        MsgBox("No sound file was selected!")
+                        MsgBox("No sound file was selected!", MsgBoxStyle.Information, "OSTF sound player")
                         Exit Sub
                     End If
 
@@ -131,13 +129,13 @@ Public Class OstfSoundPlayerWindow
                 Next
 
             Else
-                MsgBox("No available sound source locations in the selected audio output!")
+                MsgBox("No available sound source locations in the selected audio output!", MsgBoxStyle.Information, "OSTF sound player")
             End If
 
         Else
             AddSounds_Button.Enabled = False
             SoundSource_FlowLayoutPanel.Enabled = False
-            MsgBox("No valid audio output was selected!")
+            MsgBox("No valid audio output was selected!", MsgBoxStyle.Information, "OSTF sound player")
         End If
 
         OstfSoundPlayerWindow_Resize(Nothing, Nothing)
@@ -171,17 +169,16 @@ Public Class OstfSoundPlayerWindow
 
         Play_AudioButton.Enabled = False
 
-        Dim ProgressBar = New SpeechTestFramework.ProgressDisplay
-        ProgressBar.Initialize(10, 0, "Mixing sounds, please wait...", 1, "Mixing sounds, please wait...",, False)
-        ProgressBar.Show()
-        ProgressBar.Location = New Point(Me.Location.X + Me.Width / 3, Me.Location.Y + Me.Height / 3)
-        ProgressBar.UpdateProgress(8)
-        ProgressBar.Invalidate()
+        Dim ProgressDisplay = New SpeechTestFramework.ProgressDisplay
+        ProgressDisplay.Initialize(10, 0, "Mixing sounds, please wait...")
+        ProgressDisplay.Show()
+        ProgressDisplay.Location = New Point(Me.Location.X + Me.Width / 3, Me.Location.Y + Me.Height / 3)
+        ProgressDisplay.UpdateProgress(8)
 
         MixSounds()
 
-        ProgressBar.Close()
-        ProgressBar.Dispose()
+        ProgressDisplay.Close()
+        ProgressDisplay.Dispose()
 
         If CurrentPlaySound IsNot Nothing Then
 
@@ -196,15 +193,29 @@ Public Class OstfSoundPlayerWindow
             Transducer_ComboBox.Enabled = False
             Duration_ComboBox.Enabled = False
 
+            StopTimer.Stop()
+            StopTimer.Interval = Math.Max(100, Math.Ceiling(1000 * (CurrentPlaySound.WaveData.LongestChannelSampleCount / CurrentPlaySound.WaveFormat.SampleRate) + 1)) ' Adding one second to have some margin
+            StopTimer.Start()
+
             Stop_AudioButton.Enabled = True
 
         Else
-            MsgBox("Unable to play the current sounds!")
+            MsgBox("Unable to play the current sounds!", MsgBoxStyle.Information, "OSTF sound player")
         End If
 
     End Sub
 
-    Private Sub Stop_AudioButton_Click(sender As Object, e As EventArgs) Handles Stop_AudioButton.Click
+
+    Private WithEvents StopTimer As New Windows.Forms.Timer
+
+    Private Sub Stop_AudioButton_Click() Handles Stop_AudioButton.Click, StopTimer.Tick
+
+        Dim SpinLockTaken As Boolean = False
+
+        'Attempts to enter a spin lock to avoid multiple thread conflicts when saving to the same file
+        StopTimer_SpinLock.Enter(SpinLockTaken)
+
+        StopTimer.Stop()
 
         OstfBase.SoundPlayer.SwapOutputSounds(Nothing)
         'OstfBase.SoundPlayer.FadeOutPlayback()
@@ -217,6 +228,9 @@ Public Class OstfSoundPlayerWindow
         Duration_ComboBox.Enabled = True
 
         Stop_AudioButton.Enabled = False
+
+        'Releases any spinlock
+        If SpinLockTaken = True Then StopTimer_SpinLock.Exit()
 
     End Sub
 
@@ -245,7 +259,7 @@ Public Class OstfSoundPlayerWindow
                     ElseIf LoadedSound.WaveFormat.BitDepth = 32 Then
                         'This is ok
                     Else
-                        MsgBox("Unable to read the file " & SoundSource.SoundFilePath & ". File format is not supported!", MsgBoxStyle.Information, "Unsupported file format!")
+                        MsgBox("Unable to read the file " & SoundSource.SoundFilePath & ". File format is not supported!", MsgBoxStyle.Information, "OSTF sound player")
                         Exit Sub
                     End If
 
@@ -276,9 +290,11 @@ Public Class OstfSoundPlayerWindow
 
         CurrentPlaySound = SelectedTransducer.Mixer.CreateSoundScene(AllSoundItems, Me.SoundPropagationType)
 
+
     End Sub
 
     Private Sub About_Button_Click(sender As Object, e As EventArgs) Handles About_Button.Click
         AboutBox1.Show()
     End Sub
+
 End Class
