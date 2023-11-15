@@ -3,6 +3,8 @@ namespace STFM.Views;
 public partial class SpeechTestView : ContentView, IDrawable
 {
 
+    private string[] availableTests = new string[] {"Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet"};
+
     RowDefinition originalBottomPanelHeight = null;
     ColumnDefinition originalLeftPanelWidth = null;
     View CurrentTestOptionsView = null;
@@ -31,6 +33,12 @@ public partial class SpeechTestView : ContentView, IDrawable
         StopTestBtn.IsEnabled = false;
         TestReponseGrid.IsEnabled = false;
         TestResultGrid.IsEnabled = false;
+
+        foreach (string test in availableTests)
+        {
+            SpeechTestPicker.Items.Add(test);
+        }
+
 
     }
 
@@ -122,6 +130,22 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             switch (selectedItem)
             {
+                case "Quick SiP":
+
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsSipTestView2 = new OptionsSipTestView();
+                    TestOptionsGrid.Children.Add(newOptionsSipTestView2);
+                    CurrentTestOptionsView = newOptionsSipTestView2;
+
+                    var newResponseTestView2 = new MafcView();
+                    TestReponseGrid.Children.Add(newResponseTestView2);
+
+                    string[] stringArray2 = new string[] { "apple", "banana", "cherry", "date" };
+
+                    newResponseTestView2.AddResponseAlternatives(stringArray2);
+
+                    break;
+
                 case "SiP-testet":
 
                     TestOptionsGrid.Children.Clear();

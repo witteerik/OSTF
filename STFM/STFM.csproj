@@ -29,6 +29,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\MafcView.xaml.cs">
+	    <DependentUpon>MafcView.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\MafcDragDropView.xaml.cs">
 	    <DependentUpon>MafcDragDropView.xaml</DependentUpon>
 	  </Compile>
@@ -36,6 +39,9 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="Views\AudiogramView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\MafcView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\MafcDragDropView.xaml">

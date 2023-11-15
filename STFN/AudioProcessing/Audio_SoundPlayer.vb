@@ -34,8 +34,6 @@ Namespace Audio
 
             Event MessageFromPlayer(ByVal Message As String)
 
-            Event EndOfSound()
-
             Property RaisePlaybackBufferTickEvents As Boolean
 
             Property EqualPowerCrossFade As Boolean
@@ -138,7 +136,7 @@ Namespace Audio
             Public Event PlaybackBufferTick()
             Public Event StartedSwappingOutputSounds() Implements iSoundPlayer.StartedSwappingOutputSounds
             Public Event FinishedSwappingOutputSounds() Implements iSoundPlayer.FinishedSwappingOutputSounds
-            Public Event EndOfSound() Implements iSoundPlayer.EndOfSound
+
             Private Mixer As DuplexMixer
 
             Public Function GetMixer() As DuplexMixer
@@ -260,8 +258,6 @@ Namespace Audio
                                                                                                      'Sending message to the controller
                                                                                                      'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
 
-                                                                                                     RaiseEvent EndOfSound()
-
                                                                                                      If StopAtOutputSoundEnd = True Then
 
                                                                                                          'Returning the callback to port audio
@@ -286,8 +282,6 @@ Namespace Audio
 
                                                                                                      'Sending message to the controller
                                                                                                      'Temporarily outcommented, until better solutions is fixed: SendMessageToController(PlayBack.ISoundPlayerControl.MessagesFromSoundPlayer.EndOfSound)
-
-                                                                                                     RaiseEvent EndOfSound()
 
                                                                                                      If StopAtOutputSoundEnd = True Then
 

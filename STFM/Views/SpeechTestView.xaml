@@ -46,7 +46,7 @@
                     HorizontalOptions="Fill"
                     SelectedIndexChanged="OnSpeechTestPickerSelectedItemChanged">
                
-                <Picker.ItemsSource>
+                <!--<Picker.ItemsSource>
                     <x:Array Type="{x:Type x:String}">
                         <x:String>Svenska HINT</x:String>
                         <x:String>Hagermans meningar (Matrix)</x:String>
@@ -55,7 +55,7 @@
                         <x:String>Quick SiP</x:String>
                         <x:String>SiP-testet</x:String>
                     </x:Array>
-                </Picker.ItemsSource>
+                </Picker.ItemsSource>-->
 
             </Picker>
 

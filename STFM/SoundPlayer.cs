@@ -32,6 +32,10 @@ namespace STFM
         }
 
         bool IsPlaying = false;
+
+        public event iSoundPlayer.StartedSwappingOutputSoundsEventHandler StartedSwappingOutputSounds;
+        public event iSoundPlayer.FinishedSwappingOutputSoundsEventHandler FinishedSwappingOutputSounds;
+
         bool iSoundPlayer.IsPlaying
         {
             get { return IsPlaying; }
@@ -143,6 +147,8 @@ namespace STFM
             double fadeDuration = overlapDuration; // using a local variable here so that fadeDuration never gets changed in the middle of a crossfade loop
             double step = overlapGranuality; // using a local variable here so that overlapGranuality never gets changed in the middle of a crossfade loop // Adjust step for smoother or faster crossfade
 
+            // TODO: Here, the StartedSwappingOutputSounds event should be raised
+
             if (lastStartedMediaPlayer == 1)
             {
 
@@ -179,6 +185,9 @@ namespace STFM
                 mediaElement1.Volume = 1; // Ensure volume is max for mediaElement2
 
             }
+
+            // TODO: Here, the FinishedSwappingOutputSounds event should be raised
+
         }
 
 
