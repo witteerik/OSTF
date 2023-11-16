@@ -45,18 +45,6 @@
                    Grid.Column="0" Grid.ColumnSpan="3"
                     HorizontalOptions="Fill"
                     SelectedIndexChanged="OnSpeechTestPickerSelectedItemChanged">
-               
-                <!--<Picker.ItemsSource>
-                    <x:Array Type="{x:Type x:String}">
-                        <x:String>Svenska HINT</x:String>
-                        <x:String>Hagermans meningar (Matrix)</x:String>
-                        <x:String>Hörtröskel för tal (HTT)</x:String>
-                        <x:String>PB50</x:String>
-                        <x:String>Quick SiP</x:String>
-                        <x:String>SiP-testet</x:String>
-                    </x:Array>
-                </Picker.ItemsSource>-->
-
             </Picker>
 
             <Grid 

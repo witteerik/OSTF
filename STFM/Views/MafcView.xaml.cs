@@ -5,25 +5,22 @@ namespace STFM.Views;
 public partial class MafcView : ContentView
 {
 
+    Grid responseAlternativeGrid = null;
 
     public MafcView()
 	{
 		InitializeComponent();
 
-        ResponseAbsoluteLayout.BackgroundColor = Color.FromRgb(40, 40, 40);
+        MainMafcGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
 
     }
 
-    private void ReportLingusticResult(string RespondedSpelling)
+    private void ReportResult(string RespondedSpelling)
     {
+        clearMainGrid();
+        //clearResponseAlternatives();
 
-        Random rnd = new Random();
-        string[] stringArray2 = new string[] { rnd.Next(1, 100).ToString(), rnd.Next(1, 100).ToString(), rnd.Next(1, 100).ToString() };
-
-        clearResponseAlternatives();
-
-        
-        AddResponseAlternatives(stringArray2);
+        AddResponseAlternatives(new string[] { "1", "2", "3" });
 
         // Storing the raw response
 
@@ -32,20 +29,20 @@ public partial class MafcView : ContentView
     }
 
 
-    public class SoundSource
-    {
-        public string Text = "";
-        public Image SourceImage = null;
-        public double X = 0;
-        public double Y = 0;
-        public double Width = 0.1;
-        public double Height = 0.1;
-        public double Rotation = 0;
-        public Label VisualObject = null;
-    }
-
     public void AddResponseAlternatives(string[] text)
     {
+
+        responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill};
+
+        //responsAlternativeGrid.AddRowDefinition(new RowDefinition(new GridLength(0.5, GridUnitType.Star)));
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        responseAlternativeGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
+
 
         for (int i = 0; i < text.Length; i++)
         {
@@ -54,13 +51,18 @@ public partial class MafcView : ContentView
             {
                 Text = text[i],
                 BackgroundColor = Color.FromRgb(255, 255, 128),
-                Padding = 10
+                Padding = 10,
+                TextColor = Color.FromRgb(40, 40, 40),
+                FontSize = 16,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Fill
             };
 
-            repsonseBtn.TextColor = Color.FromRgb(40, 40, 40);
-            repsonseBtn.FontSize = 16;
-
             repsonseBtn.Clicked += reponseButton_Clicked;
+
+            //responseAlternativeGrid.Add(repsonseBtn);
+
+            //responseAlternativeGrid.Add(repsonseBtn, i, 0);
 
             Frame frame = new Frame
             {
@@ -70,27 +72,14 @@ public partial class MafcView : ContentView
                 Padding = 8,
                 Content = repsonseBtn
             };
-            
-            ResponseAbsoluteLayout.Children.Add(frame);
 
-            var labelAreaWidth = 0.7;
-            var labelSectionMarginProportion = 0.15;
-            var labelHeight = 0.3;
-            var labelAreaVerticalLocation = 0.75;
-
-            var labelSectionWidth = labelAreaWidth / text.Length;
-            var labelSectionMargin = labelSectionWidth * labelSectionMarginProportion;
-            var labelWidth = labelSectionWidth - 2 * labelSectionMargin;
-            var labelX = 0.5 - labelAreaWidth / 2 + i * labelSectionWidth + labelSectionMargin + labelWidth / 2;
-            var labelY = labelAreaVerticalLocation + labelHeight / 2;
-
-            ResponseAbsoluteLayout.SetLayoutBounds(frame, new Rect(labelX, labelY, labelWidth, labelHeight));
-            ResponseAbsoluteLayout.SetLayoutFlags(frame, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.All);
-
+            responseAlternativeGrid.Add(frame, i, 0);
 
         }
-    }
 
+        MainMafcGrid.Add(responseAlternativeGrid, 0, 0);
+
+    }
     private void reponseButton_Clicked(object sender, EventArgs e)
     {
 
@@ -99,7 +88,7 @@ public partial class MafcView : ContentView
         var frame = responseBtn.Parent as Frame;
 
         // Hides all other labels, fokuses the selected one
-        foreach (var child in ResponseAbsoluteLayout.Children)
+        foreach (var child in responseAlternativeGrid.Children)
         {
             if (child is Frame)
             {
@@ -122,13 +111,20 @@ public partial class MafcView : ContentView
         }
 
         // Sends the linguistic response
-            ReportLingusticResult(responseBtn.Text);
+            ReportResult(responseBtn.Text);
 
     }
 
     public void clearResponseAlternatives()
     {
-        ResponseAbsoluteLayout.Children.Clear();
+        responseAlternativeGrid.Clear();
     }
+
+    public void clearMainGrid()
+    {
+        MainMafcGrid.Clear();
+    }
+
+    
 
 }

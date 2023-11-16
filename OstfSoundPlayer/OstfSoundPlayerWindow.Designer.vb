@@ -26,14 +26,14 @@ Partial Class OstfSoundPlayerWindow
         Me.AddSounds_Button = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Duration_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.Play_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
+        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.SoundSource_FlowLayoutPanel = New System.Windows.Forms.FlowLayoutPanel()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.About_Button = New System.Windows.Forms.Button()
         Me.Transducer_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.Play_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
-        Me.Stop_AudioButton = New SpeechTestFramework.WinFormControls.AudioButton()
         Me.Mix_ProgressBar = New System.Windows.Forms.ProgressBar()
         Me.Progress_Label = New System.Windows.Forms.Label()
         Me.Toplevel_TableLayoutPanel.SuspendLayout()
@@ -113,6 +113,30 @@ Partial Class OstfSoundPlayerWindow
         Me.Duration_ComboBox.Size = New System.Drawing.Size(149, 32)
         Me.Duration_ComboBox.TabIndex = 1
         '
+        'Play_AudioButton
+        '
+        Me.Play_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Play_AudioButton.Enabled = False
+        Me.Play_AudioButton.Location = New System.Drawing.Point(313, 385)
+        Me.Play_AudioButton.Name = "Play_AudioButton"
+        Me.Toplevel_TableLayoutPanel.SetRowSpan(Me.Play_AudioButton, 2)
+        Me.Play_AudioButton.Size = New System.Drawing.Size(149, 34)
+        Me.Play_AudioButton.TabIndex = 2
+        Me.Play_AudioButton.UseVisualStyleBackColor = True
+        Me.Play_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
+        '
+        'Stop_AudioButton
+        '
+        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Stop_AudioButton.Enabled = False
+        Me.Stop_AudioButton.Location = New System.Drawing.Point(468, 385)
+        Me.Stop_AudioButton.Name = "Stop_AudioButton"
+        Me.Toplevel_TableLayoutPanel.SetRowSpan(Me.Stop_AudioButton, 2)
+        Me.Stop_AudioButton.Size = New System.Drawing.Size(149, 34)
+        Me.Stop_AudioButton.TabIndex = 3
+        Me.Stop_AudioButton.UseVisualStyleBackColor = True
+        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
+        '
         'GroupBox1
         '
         Me.GroupBox1.BackColor = System.Drawing.Color.Transparent
@@ -187,30 +211,6 @@ Partial Class OstfSoundPlayerWindow
         Me.Label2.TabIndex = 8
         Me.Label2.Text = "Select audio output:"
         Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        '
-        'Play_AudioButton
-        '
-        Me.Play_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Play_AudioButton.Enabled = False
-        Me.Play_AudioButton.Location = New System.Drawing.Point(313, 385)
-        Me.Play_AudioButton.Name = "Play_AudioButton"
-        Me.Toplevel_TableLayoutPanel.SetRowSpan(Me.Play_AudioButton, 2)
-        Me.Play_AudioButton.Size = New System.Drawing.Size(149, 34)
-        Me.Play_AudioButton.TabIndex = 2
-        Me.Play_AudioButton.UseVisualStyleBackColor = True
-        Me.Play_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.Play
-        '
-        'Stop_AudioButton
-        '
-        Me.Stop_AudioButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Stop_AudioButton.Enabled = False
-        Me.Stop_AudioButton.Location = New System.Drawing.Point(468, 385)
-        Me.Stop_AudioButton.Name = "Stop_AudioButton"
-        Me.Toplevel_TableLayoutPanel.SetRowSpan(Me.Stop_AudioButton, 2)
-        Me.Stop_AudioButton.Size = New System.Drawing.Size(149, 34)
-        Me.Stop_AudioButton.TabIndex = 3
-        Me.Stop_AudioButton.UseVisualStyleBackColor = True
-        Me.Stop_AudioButton.ViewMode = SpeechTestFramework.WinFormControls.AudioButton.ViewModes.[Stop]
         '
         'Mix_ProgressBar
         '

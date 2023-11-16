@@ -140,7 +140,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     var newResponseTestView2 = new MafcView();
                     TestReponseGrid.Children.Add(newResponseTestView2);
 
-                    string[] stringArray2 = new string[] { "apple", "banana", "cherry", "date" };
+                    //string[] stringArray2 = new string[] { "apple", "banana", "cherry", "date" };
+                    string[] stringArray2 = new string[] { "apple", "banana", "cherry" };
 
                     newResponseTestView2.AddResponseAlternatives(stringArray2);
 
