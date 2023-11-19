@@ -1,7 +1,11 @@
+using STFN;
+
 namespace STFM.Views;
 
 public partial class SpeechTestView : ContentView, IDrawable
 {
+
+    object newResponseTestView;
 
     private string[] availableTests = new string[] {"Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet"};
 
@@ -123,6 +127,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         var picker = (Picker)sender;
         var selectedItem = picker.SelectedItem;
 
+        string[] testStringArray = new string[] { "apple", "banana", "cherry", "date" };
+
+
         if (selectedItem != null)
         {
 
@@ -130,6 +137,23 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             switch (selectedItem)
             {
+                case "Hörtröskel för tal (HTT)":
+
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsSrtTestView = new OptionsSrtTestView();
+                    TestOptionsGrid.Children.Add(newOptionsSrtTestView);
+                    CurrentTestOptionsView = newOptionsSrtTestView;
+
+                    var newResponseTestView1 = new MAFC_ResponseView();
+                    TestReponseGrid.Children.Add(newResponseTestView1);
+
+                    newResponseTestView1.AddResponseAlternatives(testStringArray);
+
+                    newResponseTestView1.AddDefaultSources();
+
+                    break;
+
+
                 case "Quick SiP":
 
                     TestOptionsGrid.Children.Clear();
@@ -140,10 +164,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     var newResponseTestView2 = new MafcView();
                     TestReponseGrid.Children.Add(newResponseTestView2);
 
-                    //string[] stringArray2 = new string[] { "apple", "banana", "cherry", "date" };
-                    string[] stringArray2 = new string[] { "apple", "banana", "cherry" };
 
-                    newResponseTestView2.AddResponseAlternatives(stringArray2);
+                    newResponseTestView2.AddResponseAlternatives(testStringArray);
 
                     break;
 
@@ -154,14 +176,12 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsSipTestView);
                     CurrentTestOptionsView = newOptionsSipTestView;
 
-                    var newResponseTestView = new MafcDragDropView();
-                    TestReponseGrid.Children.Add(newResponseTestView);
+                    var newResponseTestView3 = new MafcDragDropView();
+                    TestReponseGrid.Children.Add(newResponseTestView3);
 
-                    newResponseTestView.AddDefaultSources();
+                    newResponseTestView3.AddDefaultSources();
 
-                    string[] stringArray = new string[] { "apple", "banana", "cherry", "date" };
-
-                    newResponseTestView.AddResponseAlternatives(stringArray);
+                    newResponseTestView3.AddResponseAlternatives(testStringArray);
 
                     break;
 

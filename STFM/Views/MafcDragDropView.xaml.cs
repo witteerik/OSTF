@@ -1,6 +1,9 @@
+using STFN;
+using STFN.Audio.SoundScene;
+
 namespace STFM.Views;
 
-public partial class MafcDragDropView : ContentView
+public partial class MafcDragDropView 
 {
 
     bool CurrentLinguisticResponseGiven = false;
@@ -21,7 +24,7 @@ public partial class MafcDragDropView : ContentView
 
     }
 
-    public void AddDefaultSources()
+    public  void AddDefaultSources()
     {
         List<SoundSource> soundSources = new List<SoundSource>();
         soundSources.Add(new SoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = SourceLocations.Left });
@@ -62,7 +65,7 @@ public partial class MafcDragDropView : ContentView
 
     private List<SoundSource> CurrentSoundSources = new List<SoundSource>();
 
-    public void AddSourceAlternatives(SoundSource[] soundSources)
+    public  void AddSourceAlternatives(SoundSource[] soundSources)
     {
 
         CurrentSoundSources.Clear();
@@ -102,7 +105,7 @@ public partial class MafcDragDropView : ContentView
     }
 
 
-    public void AddResponseAlternatives(string[] text)
+    public  void AddResponseAlternatives(string[] text)
     {
 
         for (int i = 0; i < text.Length; i++)
@@ -292,4 +295,5 @@ public partial class MafcDragDropView : ContentView
         return SourceLocations.None;
     }
 
+   
 }

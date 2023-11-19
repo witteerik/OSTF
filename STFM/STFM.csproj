@@ -50,6 +50,9 @@
 	  <MauiXaml Update="Views\OptionsSipTestView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\OptionsSrtTestView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\SpeechTestView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

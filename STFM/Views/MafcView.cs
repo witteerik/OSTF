@@ -1,41 +1,40 @@
-using Microsoft.Maui.Controls;
-using STFN;
+﻿using STFN;
 using STFN.Audio.SoundScene;
 
 namespace STFM.Views;
 
-public partial class MafcView 
+public class MAFC_ResponseView : ResponseView
 {
 
+    Grid MainMafcGrid;
     Grid responseAlternativeGrid = null;
 
-    public MafcView ()
-	{
+    public MAFC_ResponseView()
+    {
 
-		InitializeComponent();
+        MainMafcGrid = new Grid
+        {
+            RowDefinitions = { new RowDefinition { Height = new GridLength(1, GridUnitType.Star) } },
+            ColumnDefinitions = { new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) } }
+        };
 
-        MainMafcGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
+        Content = MainMafcGrid;
 
     }
 
-    private void ReportResult(string RespondedSpelling)
+    public override event IResposeView.StartedByTesteeEventHandler StartedByTestee;
+    public override event IResposeView.ResponseGivenEventHandler ResponseGiven;
+
+    public override void AddDefaultSources()
     {
-        clearMainGrid();
-        //clearResponseAlternatives();
 
-        AddResponseAlternatives(new string[] { "1", "2", "3" });
-
-        // Storing the raw response
-
-        // Correcting the response
 
     }
 
-
-    public  void AddResponseAlternatives(string[] text)
+    public override void AddResponseAlternatives(string[] text)
     {
 
-        responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill};
+        responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
 
         //responsAlternativeGrid.AddRowDefinition(new RowDefinition(new GridLength(0.5, GridUnitType.Star)));
         responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -83,11 +82,12 @@ public partial class MafcView
         MainMafcGrid.Add(responseAlternativeGrid, 0, 0);
 
     }
+
     private void reponseButton_Clicked(object sender, EventArgs e)
     {
 
         // Getting the responsed label
-        var responseBtn= sender as Button;
+        var responseBtn = sender as Button;
         var frame = responseBtn.Parent as Frame;
 
         // Hides all other labels, fokuses the selected one
@@ -114,7 +114,20 @@ public partial class MafcView
         }
 
         // Sends the linguistic response
-            ReportResult(responseBtn.Text);
+        ReportResult(responseBtn.Text);
+
+    }
+
+    private void ReportResult(string RespondedSpelling)
+    {
+        clearMainGrid();
+        //clearResponseAlternatives();
+
+        AddResponseAlternatives(new string[] { "1", "2", "3" });
+
+        // Storing the raw response
+
+        // Correcting the response
 
     }
 
@@ -129,4 +142,45 @@ public partial class MafcView
     }
 
 
+
+    public override void HideVisualQue()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ResetTestItemPanel()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ResponseTimesOut()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ShowMessage(string Message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ShowResponseAlternatives(List<string> ResponseAlternatives)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ShowVisualQue()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
+    {
+        throw new NotImplementedException();
+    }
 }
+

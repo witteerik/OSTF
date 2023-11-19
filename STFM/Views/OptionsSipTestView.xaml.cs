@@ -9,6 +9,7 @@ public partial class OptionsSipTestView : ContentView
 	{
 		InitializeComponent();
 
+        pnrLabel.Text = SelectedPNR.ToString();
         pnrSlider.Value = SelectedPNR;
 
     }
