@@ -1,75 +1,49 @@
-using STFN;
+﻿using STFN;
 using STFN.Audio.SoundScene;
 
 namespace STFM.Views;
 
-public partial class MafcDragDropView 
+public class ResponseView_MafcDragDrop : ResponseView
 {
+
+    AbsoluteLayout ResponseAbsoluteLayout;
+    private List<VisualizedSoundSource> CurrentSoundSources = new List<VisualizedSoundSource>();
 
     bool CurrentLinguisticResponseGiven = false;
     bool CurrentDirectionResponseGiven = false;
 
-    public enum SourceLocations
-    {
-        None,
-        Left,
-        Right
-    }
 
-    public MafcDragDropView()
-	{
-		InitializeComponent();
+    public ResponseView_MafcDragDrop()
+    {
+
+        ResponseAbsoluteLayout = new AbsoluteLayout
+        {
+            Margin = 10
+        };
 
         ResponseAbsoluteLayout.BackgroundColor = Color.FromRgb(40, 40, 40);
 
+        Content = ResponseAbsoluteLayout;
+
     }
 
-    public  void AddDefaultSources()
+
+
+
+    public override void AddDefaultSources()
     {
-        List<SoundSource> soundSources = new List<SoundSource>();
-        soundSources.Add(new SoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = SourceLocations.Left });
-        soundSources.Add(new SoundSource { X = 0.7, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = 15, Text = "S2", SourceLocationsName = SourceLocations.Right });
+        List<VisualizedSoundSource> soundSources = new List<VisualizedSoundSource>();
+        soundSources.Add(new VisualizedSoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = SourceLocations.Left });
+        soundSources.Add(new VisualizedSoundSource { X = 0.7, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = 15, Text = "S2", SourceLocationsName = SourceLocations.Right });
 
         AddSourceAlternatives(soundSources.ToArray());
-
     }
 
-    private void ReportLingusticResult(string RespondedSpelling)
-    {
-        // Storing the raw response
-
-        // Correcting the response
-
-    }
-
-    private void ReportDirectionResult(SourceLocations RespondedSourceLocation)
-    {
-        // Storing the raw response
-
-        // Correcting the response
-
-    }
-
-    public class SoundSource
-    {
-        public string Text = "";
-        public Image SourceImage = null;
-        public double X = 0;
-        public double Y = 0;
-        public double Width = 0.1;
-        public double Height = 0.1;
-        public double Rotation = 0;
-        public Label VisualObject = null;
-        public SourceLocations SourceLocationsName;
-    }
-
-    private List<SoundSource> CurrentSoundSources = new List<SoundSource>();
-
-    public  void AddSourceAlternatives(SoundSource[] soundSources)
+    public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
     {
 
         CurrentSoundSources.Clear();
-        foreach (SoundSource source in soundSources)
+        foreach (VisualizedSoundSource source in soundSources)
         {
             CurrentSoundSources.Add(source);
         }
@@ -104,8 +78,7 @@ public partial class MafcDragDropView
 
     }
 
-
-    public  void AddResponseAlternatives(string[] text)
+    public override void AddResponseAlternatives(string[] text)
     {
 
         for (int i = 0; i < text.Length; i++)
@@ -166,6 +139,7 @@ public partial class MafcDragDropView
 
     double tempx = 0;
     double tempy = 0;
+
 
     private void PanGestureRecognizer_PanUpdated(object sender, PanUpdatedEventArgs e)
     {
@@ -295,5 +269,74 @@ public partial class MafcDragDropView
         return SourceLocations.None;
     }
 
+
+    private void ReportLingusticResult(string RespondedSpelling)
+    {
+        // Storing the raw response
+        ResponseGivenEventArgs args = new ResponseGivenEventArgs();
+        args.LinguisticResponse = RespondedSpelling;
+        args.TimeResponded = DateTime.Now;
+
+        // Raising the Response given event in the base class
+        OnResponseGiven(args);
+
+    }
+
+    private void ReportDirectionResult(SourceLocations RespondedSourceLocation)
+    {
+        // Storing the raw response
+        ResponseGivenEventArgs args = new ResponseGivenEventArgs();
+        args.DirectionResponse = RespondedSourceLocation;
+        args.TimeResponded = DateTime.Now;
+
+        // Raising the Response given event in the base class
+        OnResponseGiven(args);
+
+    }
+
+    public override void HideVisualQue()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ResetTestItemPanel()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ResponseTimesOut()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ShowMessage(string Message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ShowResponseAlternatives(List<string> ResponseAlternatives)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ShowVisualQue()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
+    {
+        throw new NotImplementedException();
+    }
+
+
+
    
+
+
 }

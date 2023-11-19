@@ -3,13 +3,14 @@ using STFN.Audio.SoundScene;
 
 namespace STFM.Views;
 
-public class MAFC_ResponseView : ResponseView
+public class ResponseView_Mafc : ResponseView
 {
 
     Grid MainMafcGrid;
     Grid responseAlternativeGrid = null;
 
-    public MAFC_ResponseView()
+
+    public ResponseView_Mafc()
     {
 
         MainMafcGrid = new Grid
@@ -22,8 +23,6 @@ public class MAFC_ResponseView : ResponseView
 
     }
 
-    public override event IResposeView.StartedByTesteeEventHandler StartedByTestee;
-    public override event IResposeView.ResponseGivenEventHandler ResponseGiven;
 
     public override void AddDefaultSources()
     {
@@ -36,7 +35,6 @@ public class MAFC_ResponseView : ResponseView
 
         responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
 
-        //responsAlternativeGrid.AddRowDefinition(new RowDefinition(new GridLength(0.5, GridUnitType.Star)));
         responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
         responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -61,10 +59,6 @@ public class MAFC_ResponseView : ResponseView
             };
 
             repsonseBtn.Clicked += reponseButton_Clicked;
-
-            //responseAlternativeGrid.Add(repsonseBtn);
-
-            //responseAlternativeGrid.Add(repsonseBtn, i, 0);
 
             Frame frame = new Frame
             {
@@ -121,19 +115,21 @@ public class MAFC_ResponseView : ResponseView
     private void ReportResult(string RespondedSpelling)
     {
         clearMainGrid();
-        //clearResponseAlternatives();
-
-        AddResponseAlternatives(new string[] { "1", "2", "3" });
 
         // Storing the raw response
+        ResponseGivenEventArgs args = new ResponseGivenEventArgs();
+        args.LinguisticResponse = RespondedSpelling;
+        args.TimeResponded = DateTime.Now;
 
-        // Correcting the response
+        // Raising the Response given event in the base class
+        OnResponseGiven(args);
 
     }
 
-    public void clearResponseAlternatives()
+
+    private void StartedByTestee_ButtonClicked()
     {
-        responseAlternativeGrid.Clear();
+        OnStartedByTestee(new EventArgs());
     }
 
     public void clearMainGrid()
@@ -143,7 +139,7 @@ public class MAFC_ResponseView : ResponseView
 
 
 
-    public override void HideVisualQue()
+public override void HideVisualQue()
     {
         throw new NotImplementedException();
     }
@@ -179,6 +175,11 @@ public class MAFC_ResponseView : ResponseView
     }
 
     public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
     {
         throw new NotImplementedException();
     }

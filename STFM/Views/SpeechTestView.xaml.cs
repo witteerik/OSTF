@@ -5,7 +5,8 @@ namespace STFM.Views;
 public partial class SpeechTestView : ContentView, IDrawable
 {
 
-    object newResponseTestView;
+    ResponseView TestResponseView;
+    SpeechTest CurrentSpeechTest;
 
     private string[] availableTests = new string[] {"Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet"};
 
@@ -139,49 +140,53 @@ public partial class SpeechTestView : ContentView, IDrawable
             {
                 case "Hörtröskel för tal (HTT)":
 
+                    // Testoptions
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSrtTestView = new OptionsSrtTestView();
                     TestOptionsGrid.Children.Add(newOptionsSrtTestView);
                     CurrentTestOptionsView = newOptionsSrtTestView;
 
-                    var newResponseTestView1 = new MAFC_ResponseView();
-                    TestReponseGrid.Children.Add(newResponseTestView1);
+                    // Speech test
+                    CurrentSpeechTest = new SrtSpeechTest();
 
-                    newResponseTestView1.AddResponseAlternatives(testStringArray);
+                    // Response view
+                    TestResponseView = new ResponseView_Mafc();
+                    TestResponseView.ResponseGiven += TestResponseView_ResponseGiven;
+                    //TestResponseView.StartedByTestee += StartedByTestee;
 
-                    newResponseTestView1.AddDefaultSources();
+                    TestReponseGrid.Children.Add(TestResponseView);
 
-                    break;
-
-
-                case "Quick SiP":
-
-                    TestOptionsGrid.Children.Clear();
-                    var newOptionsSipTestView2 = new OptionsSipTestView();
-                    TestOptionsGrid.Children.Add(newOptionsSipTestView2);
-                    CurrentTestOptionsView = newOptionsSipTestView2;
-
-                    var newResponseTestView2 = new MafcView();
-                    TestReponseGrid.Children.Add(newResponseTestView2);
-
-
-                    newResponseTestView2.AddResponseAlternatives(testStringArray);
+                    TestResponseView.AddResponseAlternatives(testStringArray);
 
                     break;
 
                 case "SiP-testet":
 
                     TestOptionsGrid.Children.Clear();
+                    var newOptionsSipTestView2 = new OptionsSipTestView();
+                    TestOptionsGrid.Children.Add(newOptionsSipTestView2);
+                    CurrentTestOptionsView = newOptionsSipTestView2;
+
+                    TestResponseView = new ResponseView_Mafc();
+                    TestReponseGrid.Children.Add(TestResponseView);
+
+                    TestResponseView.AddResponseAlternatives(testStringArray);
+
+                    break;
+
+                case "Quick SiP":
+
+                    TestOptionsGrid.Children.Clear();
                     var newOptionsSipTestView = new OptionsSipTestView();
                     TestOptionsGrid.Children.Add(newOptionsSipTestView);
                     CurrentTestOptionsView = newOptionsSipTestView;
 
-                    var newResponseTestView3 = new MafcDragDropView();
-                    TestReponseGrid.Children.Add(newResponseTestView3);
+                    TestResponseView = new ResponseView_MafcDragDrop();
+                    TestReponseGrid.Children.Add(TestResponseView);
 
-                    newResponseTestView3.AddDefaultSources();
+                    TestResponseView.AddDefaultSources();
 
-                    newResponseTestView3.AddResponseAlternatives(testStringArray);
+                    TestResponseView.AddResponseAlternatives(testStringArray);
 
                     break;
 
@@ -208,6 +213,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             }
         }
     }
+
+      
 
     private void StartTestBtn_Clicked(object sender, EventArgs e)
     {
@@ -297,4 +304,39 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
+
+
+    void TestResponseView_ResponseGiven(object sender, ResponseGivenEventArgs e)
+    {
+
+        switch (CurrentSpeechTest.HandleResponse(sender, e))
+        {
+            case SpeechTest.HandleResponseOutcomes.ContinueTest:
+
+
+                break;
+
+            case  SpeechTest.HandleResponseOutcomes.CompletedTest: 
+
+                
+                break;
+
+            default:
+                break;
+
+        }
+
+    }
+
+
+    void StartedByTestee(object sender, EventArgs e)
+    {
+        var x = 1;
+
+    }
+
+
 }
+
+
+
