@@ -21,6 +21,8 @@ Public Class OstfSoundPlayerWindow
         'Initializing the OSTF 
         SpeechTestFramework.InitializeOSTF()
 
+        SpeechTestFramework.UseOptimizationLibraries = True
+
         For level As Integer = 0 To 80 Step 2
             AvaliableLevels.Add(level)
         Next
@@ -195,7 +197,7 @@ Public Class OstfSoundPlayerWindow
             Duration_ComboBox.Enabled = False
 
             StopTimer.Stop()
-            StopTimer.Interval = Math.Max(100, Math.Ceiling(1000 * (CurrentPlaySound.WaveData.LongestChannelSampleCount / CurrentPlaySound.WaveFormat.SampleRate) + 1)) ' Adding one second to have some margin
+            StopTimer.Interval = Math.Max(100, Math.Ceiling(1000 * (Math.Min(SelectedDurationSeconds, CurrentPlaySound.WaveData.LongestChannelSampleCount / CurrentPlaySound.WaveFormat.SampleRate) + 1))) ' Adding one second to have some margin
             StopTimer.Start()
 
             Stop_AudioButton.Enabled = True
