@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Layouts;
 
+
 namespace OstfTabletSuite
 {
     public partial class MainPage : ContentPage
@@ -36,7 +37,7 @@ namespace OstfTabletSuite
 
         private void OnCounterClicked2(object sender, EventArgs e)
         {
-            STFM.StfmBase.SetupTest();
+            //STFM.StfmBase.SetupTest();
 
         }
 
@@ -55,7 +56,7 @@ namespace OstfTabletSuite
             //MainPageSoundPlayer.mediaElement1.Play();
 
 
-            STFM.StfmBase.playAgain();
+            //STFM.StfmBase.playAgain();
 
         }
         

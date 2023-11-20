@@ -100,8 +100,17 @@ public partial class SpeechTestView : ContentView, IDrawable
     }
 
 
-    private void NewTestBtn_Clicked(object sender, EventArgs e)
+    private async void NewTestBtn_Clicked(object sender, EventArgs e)
     {
+
+        // Ititializing STFM if not already done
+
+        if (STFM.StfmBase.IsInitialized == false)
+        {
+            // Initializing STFM
+            await STFM.StfmBase.InitializeSTFM(SoundPlayerLayout);
+        }
+
         // Resets the text on the start button, as this may have been changed if test was paused.
         StartTestBtn.Text = "Start";
 
@@ -147,7 +156,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = newOptionsSrtTestView;
 
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest();
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test");
 
                     // Response view
                     TestResponseView = new ResponseView_Mafc();
@@ -308,6 +317,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     void TestResponseView_ResponseGiven(object sender, ResponseGivenEventArgs e)
     {
+
+        CurrentSpeechTest.PrepareNextTrial();
 
         switch (CurrentSpeechTest.HandleResponse(sender, e))
         {
