@@ -28,17 +28,6 @@ public class ResponseView_MafcDragDrop : ResponseView
     }
 
 
-
-
-    public override void AddDefaultSources()
-    {
-        List<VisualizedSoundSource> soundSources = new List<VisualizedSoundSource>();
-        soundSources.Add(new VisualizedSoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = SourceLocations.Left });
-        soundSources.Add(new VisualizedSoundSource { X = 0.7, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = 15, Text = "S2", SourceLocationsName = SourceLocations.Right });
-
-        AddSourceAlternatives(soundSources.ToArray());
-    }
-
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
     {
 
@@ -78,10 +67,10 @@ public class ResponseView_MafcDragDrop : ResponseView
 
     }
 
-    public override void AddResponseAlternatives(string[] text)
+    public override void ShowResponseAlternatives(List<string> text)
     {
 
-        for (int i = 0; i < text.Length; i++)
+        for (int i = 0; i < text.Count; i++)
         {
 
             var label = new Label()
@@ -123,7 +112,7 @@ public class ResponseView_MafcDragDrop : ResponseView
             var labelHeight = 0.3;
             var labelAreaVerticalLocation = 0.75;
 
-            var labelSectionWidth = labelAreaWidth / text.Length;
+            var labelSectionWidth = labelAreaWidth / text.Count;
             var labelSectionMargin = labelSectionWidth * labelSectionMarginProportion;
             var labelWidth = labelSectionWidth - 2 * labelSectionMargin;
             var labelX = 0.5 - labelAreaWidth / 2 + i * labelSectionWidth + labelSectionMargin + labelWidth / 2;
@@ -294,12 +283,7 @@ public class ResponseView_MafcDragDrop : ResponseView
 
     }
 
-    public override void HideVisualQue()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ResetTestItemPanel()
+    public override void HideVisualCue()
     {
         throw new NotImplementedException();
     }
@@ -314,17 +298,13 @@ public class ResponseView_MafcDragDrop : ResponseView
         throw new NotImplementedException();
     }
 
-    public override void ShowResponseAlternatives(List<string> ResponseAlternatives)
-    {
-        throw new NotImplementedException();
-    }
 
     public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
     {
         throw new NotImplementedException();
     }
 
-    public override void ShowVisualQue()
+    public override void ShowVisualCue()
     {
         throw new NotImplementedException();
     }
@@ -334,9 +314,8 @@ public class ResponseView_MafcDragDrop : ResponseView
         throw new NotImplementedException();
     }
 
-
-
-   
-
-
+    public override void HideAllItems()
+    {
+        ResponseAbsoluteLayout.Children.Clear();    
+    }
 }

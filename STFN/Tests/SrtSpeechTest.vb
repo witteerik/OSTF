@@ -37,10 +37,16 @@
 
     Public Overrides Function HandleResponse(sender As Object, e As ResponseGivenEventArgs) As HandleResponseOutcomes
 
+        'Correcting response
+        Dim PresentedThing As String = "CorrectWord"
 
+        If e.LinguisticResponse = PresentedThing Then
+            'Correct
+        Else
+            'Not correct
+        End If
 
-        'Throw New NotImplementedException()
-
+        Return HandleResponseOutcomes.GotoNextTrial
 
     End Function
 

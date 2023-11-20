@@ -63,7 +63,7 @@ Public Class SerialChoiceTesteeControl
     ''' <summary>
     ''' Shows the visual que on the test control.
     ''' </summary>
-    Private Sub ShowVisualQue() Implements ITesteeControl.ShowVisualQue
+    Private Sub ShowVisualCue() Implements ITesteeControl.ShowVisualCue
         DrawVisualQue = True
         RefreshTestSurfacePictureBox()
     End Sub
@@ -71,7 +71,7 @@ Public Class SerialChoiceTesteeControl
     ''' <summary>
     ''' Removes the visual que on the test control.
     ''' </summary>
-    Private Sub HideVisualQue() Implements ITesteeControl.HideVisualQue
+    Private Sub HideVisualCue() Implements ITesteeControl.HideVisualCue
         DrawVisualQue = False
         RefreshTestSurfacePictureBox()
     End Sub

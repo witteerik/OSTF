@@ -440,11 +440,11 @@ Public Class DirectionalForcedChoiceControl
     End Sub
 
 
-    Public Sub ShowVisualQue() Implements ITesteeControl.ShowVisualQue
+    Public Sub ShowVisualCue() Implements ITesteeControl.ShowVisualCue
         'Throw New NotImplementedException("Visual Que is not supported with DirectionalForcedChoiceControl")
     End Sub
 
-    Public Sub HideVisualQue() Implements ITesteeControl.HideVisualQue
+    Public Sub HideVisualCue() Implements ITesteeControl.HideVisualCue
         'Throw New NotImplementedException("Visual Que is not supported with DirectionalForcedChoiceControl")
     End Sub
 

@@ -75,21 +75,21 @@ Public Class ForcedChoiceTesteeControl
 
 #Region "Trial presentation"
 
-    Private DrawVisualQue As Boolean = False
+    Private DrawVisualCue As Boolean = False
 
     ''' <summary>
-    ''' Shows the visual que on the test control.
+    ''' Shows the visual cue on the test control.
     ''' </summary>
-    Private Sub ShowVisualQue() Implements ITesteeControl.ShowVisualQue
-        DrawVisualQue = True
+    Private Sub ShowVisualCue() Implements ITesteeControl.ShowVisualCue
+        DrawVisualCue = True
         RefreshTestSurfacePictureBox()
     End Sub
 
     ''' <summary>
-    ''' Removes the visual que on the test control.
+    ''' Removes the visual cue on the test control.
     ''' </summary>
-    Private Sub HideVisualQue() Implements ITesteeControl.HideVisualQue
-        DrawVisualQue = False
+    Private Sub HideVisualCue() Implements ITesteeControl.HideVisualCue
+        DrawVisualCue = False
         RefreshTestSurfacePictureBox()
     End Sub
 
@@ -429,7 +429,7 @@ Public Class ForcedChoiceTesteeControl
 
     Private Sub DrawCircle(ByVal sender As Object, ByVal e As System.Windows.Forms.PaintEventArgs) Handles TestSurfacePictureBox.Paint
 
-        If DrawVisualQue = True Then
+        If DrawVisualCue = True Then
 
             ' Create a local version of the graphics object for the PictureBox.
             Dim g As System.Drawing.Graphics = e.Graphics

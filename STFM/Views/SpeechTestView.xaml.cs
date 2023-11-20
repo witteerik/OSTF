@@ -180,7 +180,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentResponseView = new ResponseView_Mafc();
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    CurrentResponseView.AddResponseAlternatives(testStringArray);
+                    CurrentResponseView.ShowResponseAlternatives(testStringArray.ToList());
 
                     break;
 
@@ -194,9 +194,9 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentResponseView = new ResponseView_MafcDragDrop();
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    CurrentResponseView.AddDefaultSources();
+                    //CurrentResponseView.AddDefaultSources();
 
-                    CurrentResponseView.AddResponseAlternatives(testStringArray);
+                    //CurrentResponseView.AddResponseAlternatives(testStringArray);
 
                     break;
 
@@ -324,14 +324,14 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     void StartTest()
     {
-        PresentTask();
+        PresentTrial();
     }
 
    
     List<IDispatcherTimer> dispatcherTimers = null;
     TestTrial CurrentTrial = null;
 
-    void PresentTask() {
+    void PresentTrial() {
         
 
         // Prepare next trial should optimally pick the next trial from a cue of preprapared trials to avoid time lag
@@ -382,28 +382,47 @@ public partial class SpeechTestView : ContentView, IDrawable
                     switch (trialEvent.Type)
                     {
                         case ResponseViewEvent.ResponseViewEventTypes.PlaySound:
-                                                        
                             OstfBase.SoundPlayer.SwapOutputSounds(ref CurrentTrial.Sound);
+                            break;
 
-                            break;
                         case ResponseViewEvent.ResponseViewEventTypes.StopSound:
+                            OstfBase.SoundPlayer.FadeOutPlayback();
                             break;
+
                         case ResponseViewEvent.ResponseViewEventTypes.ShowVisualSoundSources:
+                            List<ResponseView. VisualizedSoundSource> soundSources = new List<ResponseView.VisualizedSoundSource>();
+                            soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = SourceLocations.Left });
+                            soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.7, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = 15, Text = "S2", SourceLocationsName = SourceLocations.Right });
+                            CurrentResponseView.AddSourceAlternatives(soundSources.ToArray());
                             break;
+
                         case ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives:
                             Random rnd = new Random();
                             string[] testStrings = new string[] { rnd.Next().ToString(), rnd.Next().ToString(), rnd.Next().ToString() };
-                            CurrentResponseView.AddResponseAlternatives(testStrings);
+                            CurrentResponseView.ShowResponseAlternatives(testStrings.ToList());
+                            break;
 
+                        case ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue:
+                            CurrentResponseView.ShowVisualCue();
                             break;
+
+                        case ResponseViewEvent.ResponseViewEventTypes.HideVisualCue:
+                            CurrentResponseView.HideVisualCue();
+                            break;
+
                         case ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut:
+                            CurrentResponseView.ResponseTimesOut();
                             break;
+
                         case ResponseViewEvent.ResponseViewEventTypes.ShowMessage:
+                            string tempMessage = "This is a temporary message";
+                                CurrentResponseView.ShowMessage(tempMessage);
                             break;
-                        case ResponseViewEvent.ResponseViewEventTypes.HideMessage:
-                            break;
+
                         case ResponseViewEvent.ResponseViewEventTypes.HideAll:
+                            CurrentResponseView.HideAllItems(); 
                             break;
+
                         default:
                             break;
                     }
@@ -420,12 +439,6 @@ public partial class SpeechTestView : ContentView, IDrawable
     }
 
 
-    void handleTrialEventCommand() {
-    
-    
-    }    
-
-
     void RecieveResponse(object sender, ResponseGivenEventArgs e)
     {
 
@@ -440,7 +453,15 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             case SpeechTest.HandleResponseOutcomes.GotoNextTrial:
 
-                PresentTask();
+                // Stops all event timers
+                // Starting the trial
+                foreach (IDispatcherTimer timer in dispatcherTimers)
+                {
+                    timer.Stop();
+                }
+
+                // Presents the next trial 'TODO: should we implement inter-trial interval here?
+                PresentTrial();
 
                 break;
 

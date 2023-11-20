@@ -24,13 +24,7 @@ public class ResponseView_Mafc : ResponseView
     }
 
 
-    public override void AddDefaultSources()
-    {
-
-
-    }
-
-    public override void AddResponseAlternatives(string[] text)
+    public override void ShowResponseAlternatives(List<string> text)
     {
 
         responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
@@ -44,7 +38,7 @@ public class ResponseView_Mafc : ResponseView
         responseAlternativeGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
 
 
-        for (int i = 0; i < text.Length; i++)
+        for (int i = 0; i < text.Count; i++)
         {
 
             var repsonseBtn = new Button()
@@ -139,12 +133,7 @@ public class ResponseView_Mafc : ResponseView
 
 
 
-public override void HideVisualQue()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ResetTestItemPanel()
+public override void HideVisualCue()
     {
         throw new NotImplementedException();
     }
@@ -159,17 +148,12 @@ public override void HideVisualQue()
         throw new NotImplementedException();
     }
 
-    public override void ShowResponseAlternatives(List<string> ResponseAlternatives)
-    {
-        throw new NotImplementedException();
-    }
-
     public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
     {
         throw new NotImplementedException();
     }
 
-    public override void ShowVisualQue()
+    public override void ShowVisualCue()
     {
         throw new NotImplementedException();
     }
@@ -182,6 +166,11 @@ public override void HideVisualQue()
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
     {
         throw new NotImplementedException();
+    }
+
+    public override void HideAllItems()
+    {
+        clearMainGrid();
     }
 }
 

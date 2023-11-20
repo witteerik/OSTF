@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Core.Primitives;
+﻿using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Core.Primitives;
 using CommunityToolkit.Maui.Views;
 using STFN.Audio;
 using STFN.Audio.Formats;
@@ -16,6 +17,7 @@ namespace STFM
         double overlapDuration = 1;
         double overlapGranuality = 0.05;
         string InfoText = "";
+        STFN.Audio.Formats.WaveFormat LastPlayedWaveFormat = null;
 
         private bool raisePlaybackBufferTickEvents = false;
         bool iSoundPlayer.RaisePlaybackBufferTickEvents
@@ -153,6 +155,7 @@ namespace STFM
             if (lastStartedMediaPlayer == 1)
             {
 
+                //mediaElement2.Speed = 0.5; // Funny detail! The speed parameter sound very good!!
                 mediaElement2.Play();
 
                 lastStartedMediaPlayer = 2;
@@ -165,6 +168,8 @@ namespace STFM
                 }
 
                 mediaElement1.Stop();
+                // Setting the Source to null, so that the file can be overwritten on the next swap
+                mediaElement1.Source = null;
                 mediaElement2.Volume = 1; // Ensure volume is max for mediaElement2
 
             }
@@ -183,6 +188,8 @@ namespace STFM
                 }
 
                 mediaElement2.Stop();
+                // Setting the Source to null, so that the file can be overwritten on the next swap
+                mediaElement2.Source = null;
                 mediaElement1.Volume = 1; // Ensure volume is max for mediaElement2
 
             }
@@ -191,8 +198,12 @@ namespace STFM
 
         }
 
-
         bool iSoundPlayer.SwapOutputSounds(ref Sound NewOutputSound, bool Record, bool AppendRecordedSound)
+        {
+            return SwapOutputSounds(ref  NewOutputSound, Record, AppendRecordedSound);
+        }
+
+        bool SwapOutputSounds(ref Sound NewOutputSound, bool Record, bool AppendRecordedSound)
         {
 
             if (NewOutputSound != null)
@@ -215,6 +226,9 @@ namespace STFM
                 // Removing the iXML Chunk (Apparently the MediaElement player cannot handle it...)
                 NewOutputSound.SMA = null;
 
+                // Storing the wave format, for use in fade out
+                LastPlayedWaveFormat = NewOutputSound.WaveFormat;
+
                 // Saving the file to cache memory
                 NewOutputSound.WriteWaveFile(ref TempSoundPath);
 
@@ -223,16 +237,23 @@ namespace STFM
             }
             else
             {
-                return false;
+                FadeOutPlayback();
+                return true;
             }
 
         }
 
         void iSoundPlayer.FadeOutPlayback()
         {
-            throw new NotImplementedException("FadeOutPlayback is not yet implemented");
+            FadeOutPlayback();
         }
 
+
+        void FadeOutPlayback()
+        {
+            Sound silentSound = STFN.Audio.GenerateSound.Signals.CreateSilence(ref LastPlayedWaveFormat, null, overlapDuration * 2);
+            SwapOutputSounds(ref silentSound, false, false); 
+        }
 
         void MediaFail_Handler(object sender, MediaFailedEventArgs e)
         {

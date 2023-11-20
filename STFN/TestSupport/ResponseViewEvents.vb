@@ -14,9 +14,10 @@
             StopSound
             ShowVisualSoundSources
             ShowResponseAlternatives
+            ShowVisualCue
+            HideVisualCue
             ShowResponseTimesOut
             ShowMessage
-            HideMessage
             HideAll
         End Enum
 

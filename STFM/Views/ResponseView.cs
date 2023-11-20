@@ -44,24 +44,20 @@ public abstract class ResponseView : ContentView
 
 
 
-    public abstract void AddResponseAlternatives(string[] text);
-
-    public abstract void AddDefaultSources();
 
     public abstract void AddSourceAlternatives(VisualizedSoundSource[] soundSources);
-
 
     public abstract void ShowResponseAlternatives(List<string> ResponseAlternatives);
 
     public abstract void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives);
 
-    public abstract void ShowVisualQue();
+    public abstract void ShowVisualCue();
 
-    public abstract void HideVisualQue();
+    public abstract void HideVisualCue();
 
     public abstract void ResponseTimesOut();
 
-    public abstract void ResetTestItemPanel();
+    public abstract void HideAllItems();
 
     public abstract void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum);
 

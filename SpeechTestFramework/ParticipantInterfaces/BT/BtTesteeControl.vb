@@ -66,11 +66,11 @@ Public Class BtTesteeControl
 
     End Sub
 
-    Public Sub ShowVisualQue() Implements ITesteeControl.ShowVisualQue
+    Public Sub ShowVisualCue() Implements ITesteeControl.ShowVisualCue
         BtTabletTalker.SendBtMessage("C")
     End Sub
 
-    Public Sub HideVisualQue() Implements ITesteeControl.HideVisualQue
+    Public Sub HideVisualCue() Implements ITesteeControl.HideVisualCue
         BtTabletTalker.SendBtMessage("B")
     End Sub
 

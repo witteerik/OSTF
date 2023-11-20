@@ -3346,7 +3346,7 @@ Public Class Form4
         Dim MinimumStimulusOnsetTime = 0.3 ' Earlier, when this variable directed the test words instead of maskers its value was 1.5. Having maskers of 3 seconds with the test word centralized, should be approximately the same as 0.3.
         Dim MaximumStimulusOnsetTime = 0.8 ' Earlier, when this variable directed the test words instead of maskers its value was 2
         Dim TrialSoundMaxDuration = 7 ' TODO: Optimize by shortening this time
-        Dim UseVisualQue = True
+        Dim UseVisualCue = True
         Dim UseBackgroundSpeech = True
         Dim MaximumResponseTime = 4
         Dim ShowProgressIndication = True

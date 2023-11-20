@@ -78,7 +78,7 @@ Namespace Audio
             ''' <summary>
             ''' Fades out of the output sound (The fade out will occur during OverlapFadeLength +1 samples.
             ''' </summary>
-            Sub FadeOutPlayback()
+            Sub FadeOutPlayback() ' TODO: Perhaps FadeOutPlayback ought to take the Record and AppendRecordedSound parameters as SwapOutputSounds?
 
             ''' <summary>
             ''' Can be used to change player settings. Not needed in all sound players, and will be ignored if not needed.

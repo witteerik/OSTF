@@ -2024,12 +2024,12 @@ Public Class SipTestGui_2023
 
     Private Sub ShowVisualQueTimer_Tick() Handles ShowVisualQueTimer.Elapsed
         ShowVisualQueTimer.Stop()
-        ParticipantControl.ShowVisualQue()
+        ParticipantControl.ShowVisualCue()
     End Sub
 
     Private Sub HideVisualQueTimer_Tick() Handles HideVisualQueTimer.Elapsed
         HideVisualQueTimer.Stop()
-        ParticipantControl.HideVisualQue()
+        ParticipantControl.HideVisualCue()
     End Sub
 
     Private Sub ShowResponseAlternativesTimer_Tick() Handles ShowResponseAlternativesTimer.Elapsed
