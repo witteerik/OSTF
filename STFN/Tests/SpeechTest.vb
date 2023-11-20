@@ -97,18 +97,23 @@
         Return SpeechMaterial.ParentTestSpecification.MediaSets
     End Function
 
+
+
 #Region "MustOverride members used in derived classes"
 
-    Public MustOverride Function PrepareNextTrial() As Boolean
-
-    Public MustOverride Function StartNextTrial() As Boolean
+    Public MustOverride Function GetNextTrial() As TestTrial
 
     Public MustOverride Function HandleResponse(sender As Object, e As ResponseGivenEventArgs) As HandleResponseOutcomes
 
     Public Enum HandleResponseOutcomes
-        ContinueTest
-        CompletedTest
+        ContinueTrial
+        GotoNextTrial
+        TestIsCompleted
     End Enum
+
+    Public MustOverride Function SaveResults() As Boolean
+
+    Public MustOverride Function GetResults() As Object
 
 #End Region
 

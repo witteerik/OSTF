@@ -3241,6 +3241,8 @@ Public Class CustomVariablesDatabase
 
                 Dim UniqueIdentifier As String = LineSplit(0).Trim
 
+                If UniqueIdentifier = "" Then Continue For
+
                 CustomVariablesData.Add(UniqueIdentifier, New SortedList(Of String, Object))
 
                 'Adding variables (getting only as many as there are variables, or tabs)

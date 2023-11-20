@@ -33,6 +33,7 @@ namespace STFM
 
         bool IsPlaying = false;
 
+        public event iSoundPlayer.MessageFromPlayerEventHandler MessageFromPlayer;
         public event iSoundPlayer.StartedSwappingOutputSoundsEventHandler StartedSwappingOutputSounds;
         public event iSoundPlayer.FinishedSwappingOutputSoundsEventHandler FinishedSwappingOutputSounds;
 
@@ -229,21 +230,9 @@ namespace STFM
 
         void iSoundPlayer.FadeOutPlayback()
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("FadeOutPlayback is not yet implemented");
         }
 
-        event iSoundPlayer.MessageFromPlayerEventHandler iSoundPlayer.MessageFromPlayer
-        {
-            add
-            {
-                throw new NotImplementedException();
-            }
-
-            remove
-            {
-                throw new NotImplementedException();
-            }
-        }
 
         void MediaFail_Handler(object sender, MediaFailedEventArgs e)
         {

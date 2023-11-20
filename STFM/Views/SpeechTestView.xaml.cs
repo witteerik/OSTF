@@ -1,11 +1,12 @@
 using STFN;
+using static STFN.ResponseViewEvents;
 
 namespace STFM.Views;
 
 public partial class SpeechTestView : ContentView, IDrawable
 {
 
-    ResponseView TestResponseView;
+    ResponseView CurrentResponseView;
     SpeechTest CurrentSpeechTest;
 
     private string[] availableTests = new string[] {"Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet"};
@@ -159,13 +160,13 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test");
 
                     // Response view
-                    TestResponseView = new ResponseView_Mafc();
-                    TestResponseView.ResponseGiven += TestResponseView_ResponseGiven;
+                    CurrentResponseView = new ResponseView_Mafc();
+                    CurrentResponseView.ResponseGiven += RecieveResponse;
                     //TestResponseView.StartedByTestee += StartedByTestee;
 
-                    TestReponseGrid.Children.Add(TestResponseView);
+                    TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    TestResponseView.AddResponseAlternatives(testStringArray);
+                    //CurrentResponseView.AddResponseAlternatives(testStringArray);
 
                     break;
 
@@ -176,10 +177,10 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsSipTestView2);
                     CurrentTestOptionsView = newOptionsSipTestView2;
 
-                    TestResponseView = new ResponseView_Mafc();
-                    TestReponseGrid.Children.Add(TestResponseView);
+                    CurrentResponseView = new ResponseView_Mafc();
+                    TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    TestResponseView.AddResponseAlternatives(testStringArray);
+                    CurrentResponseView.AddResponseAlternatives(testStringArray);
 
                     break;
 
@@ -190,12 +191,12 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsSipTestView);
                     CurrentTestOptionsView = newOptionsSipTestView;
 
-                    TestResponseView = new ResponseView_MafcDragDrop();
-                    TestReponseGrid.Children.Add(TestResponseView);
+                    CurrentResponseView = new ResponseView_MafcDragDrop();
+                    TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    TestResponseView.AddDefaultSources();
+                    CurrentResponseView.AddDefaultSources();
 
-                    TestResponseView.AddResponseAlternatives(testStringArray);
+                    CurrentResponseView.AddResponseAlternatives(testStringArray);
 
                     break;
 
@@ -251,7 +252,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             SetLeftPanelHide(HideSettingsPanelSwitch.IsToggled);
 
             // Starting the test
-            // ...
+            StartTest();
 
         }
         else
@@ -313,23 +314,140 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
+    // Region run test. These methods should be common between all test types, and thus highly general: Basically, start test, loop over test trials, end test.
 
-
-    void TestResponseView_ResponseGiven(object sender, ResponseGivenEventArgs e)
+    void StartedByTestee(object sender, EventArgs e)
     {
+        StartTest();
+    }
 
-        CurrentSpeechTest.PrepareNextTrial();
+
+    void StartTest()
+    {
+        PresentTask();
+    }
+
+   
+    List<IDispatcherTimer> dispatcherTimers = null;
+    TestTrial CurrentTrial = null;
+
+    void PresentTask() {
+        
+
+        // Prepare next trial should optimally pick the next trial from a cue of preprapared trials to avoid time lag
+        CurrentTrial = CurrentSpeechTest.GetNextTrial();
+
+        dispatcherTimers = new List<IDispatcherTimer>();
+
+        foreach (var trialEvent in CurrentTrial.TrialEventList) {
+
+            //IDispatcherProvider trialProvider = null;
+
+            // Create and setup timer
+            IDispatcherTimer trialEventTimer;     
+            trialEventTimer = Application.Current.Dispatcher.CreateTimer();
+            trialEventTimer.Interval = TimeSpan.FromMilliseconds(trialEvent.TickTime);
+            trialEventTimer.Tick += TrialEventTimer_Tick;
+            trialEventTimer.IsRepeating = false;
+            dispatcherTimers.Add(trialEventTimer);
+
+            // Storing the timer here to be able to comparit later. Bad idea I know! But find no better now...
+            trialEvent.Box = trialEventTimer;
+        }
+
+        // Starting the trial
+        foreach (IDispatcherTimer timer  in dispatcherTimers)
+        {
+            timer.Start();
+        }
+
+    }
+
+
+    void TrialEventTimer_Tick(object sender, EventArgs e)
+    {
+        if (sender != null)
+        {
+            IDispatcherTimer CurrentTimer = (IDispatcherTimer)sender;
+            CurrentTimer.Stop();
+
+
+            foreach (var trialEvent in CurrentTrial.TrialEventList)
+            {
+                if (CurrentTimer == trialEvent.Box)
+                {
+
+                    // Issuing the current trial event
+
+                    switch (trialEvent.Type)
+                    {
+                        case ResponseViewEvent.ResponseViewEventTypes.PlaySound:
+                                                        
+                            OstfBase.SoundPlayer.SwapOutputSounds(ref CurrentTrial.Sound);
+
+                            break;
+                        case ResponseViewEvent.ResponseViewEventTypes.StopSound:
+                            break;
+                        case ResponseViewEvent.ResponseViewEventTypes.ShowVisualSoundSources:
+                            break;
+                        case ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives:
+                            Random rnd = new Random();
+                            string[] testStrings = new string[] { rnd.Next().ToString(), rnd.Next().ToString(), rnd.Next().ToString() };
+                            CurrentResponseView.AddResponseAlternatives(testStrings);
+
+                            break;
+                        case ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut:
+                            break;
+                        case ResponseViewEvent.ResponseViewEventTypes.ShowMessage:
+                            break;
+                        case ResponseViewEvent.ResponseViewEventTypes.HideMessage:
+                            break;
+                        case ResponseViewEvent.ResponseViewEventTypes.HideAll:
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                }
+            }
+
+
+
+            // Calls PresentNextTrial on the main thread
+            //MainThread.BeginInvokeOnMainThread(PresentNextTrial);
+        }
+    }
+
+
+    void handleTrialEventCommand() {
+    
+    
+    }    
+
+
+    void RecieveResponse(object sender, ResponseGivenEventArgs e)
+    {
 
         switch (CurrentSpeechTest.HandleResponse(sender, e))
         {
-            case SpeechTest.HandleResponseOutcomes.ContinueTest:
 
+            case SpeechTest.HandleResponseOutcomes.ContinueTrial:
+                
+                // Doing nothing here, but instead waiting for more responses 
 
                 break;
 
-            case  SpeechTest.HandleResponseOutcomes.CompletedTest: 
+            case SpeechTest.HandleResponseOutcomes.GotoNextTrial:
 
-                
+                PresentTask();
+
+                break;
+
+            case  SpeechTest.HandleResponseOutcomes.TestIsCompleted:
+
+                FinalizeTest();
+
                 break;
 
             default:
@@ -337,14 +455,38 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         }
 
+        // Showing results if results view is visible
+        if (TestResultGrid.IsVisible == true)
+        {
+            var CurrentResults = CurrentSpeechTest.GetResults();
+            PresentResults(CurrentResults);
+        }
+
     }
 
-
-    void StartedByTestee(object sender, EventArgs e)
+    void FinalizeTest()
     {
-        var x = 1;
+
+        CurrentSpeechTest.SaveResults();
+
+        var CurrentResults = CurrentSpeechTest.GetResults();
+
+        PresentResults(CurrentResults);
 
     }
+
+    void PresentResults(Object results)
+    {
+        // Showing result panel
+        SetBottomPanelHide(false);
+
+        // TODO: Present results in some way
+        // Use "results" to generate some kinmd of results view
+
+    }
+
+
+
 
 
 }
