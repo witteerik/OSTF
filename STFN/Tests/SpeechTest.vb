@@ -97,11 +97,69 @@
         Return SpeechMaterial.ParentTestSpecification.MediaSets
     End Function
 
+    Public Shared Randomizer As Random = New Random
+
+#Region "RunningTest"
+
+    Public CurrentTestTrial As TestTrial
+
+#End Region
+
+#Region "TestResults"
+
+    Public Shared Function GetAverageScore(ByVal Trials As IEnumerable(Of TestTrial)) As Double?
+
+        Dim ScoreList As New List(Of Integer)
+        For Each Trial In Trials
+            ScoreList.Add(Trial.Score)
+        Next
+        If ScoreList.Count > 0 Then
+            Return ScoreList.Average
+        Else
+            Return Nothing
+        End If
+
+    End Function
+
+    Public Shared Function GetNumbersOfCorrectTrials(ByVal Trials As IEnumerable(Of TestTrial)) As Double?
+
+        Dim ScoreList As New List(Of Integer)
+        For Each Trial In Trials
+            ScoreList.Add(Trial.Score)
+        Next
+        If ScoreList.Count > 0 Then
+            Return ScoreList.Average
+        Else
+            Return Nothing
+        End If
+
+    End Function
+
+
+
+#End Region
+
+#Region "Settings"
+
+    Public Method As SpeechTestMethods
+    Public RandomizeWordsWithinLists As Boolean = True
+    Public IsFreeRecall As Boolean
+    Public FixedResponseAlternativeCount As Integer = 0
+
+    Public Enum SpeechTestMethods
+        Adaptive
+        ConstantStimuli
+    End Enum
+
+
+#End Region
 
 
 #Region "MustOverride members used in derived classes"
 
     Public MustOverride Function GetNextTrial() As TestTrial
+
+    Public MustOverride Function PrepareNextTrial() As HandleResponseOutcomes
 
     Public MustOverride Function HandleResponse(sender As Object, e As ResponseGivenEventArgs) As HandleResponseOutcomes
 
@@ -109,6 +167,7 @@
         ContinueTrial
         GotoNextTrial
         TestIsCompleted
+        AbortTest
     End Enum
 
     Public MustOverride Function SaveResults() As Boolean

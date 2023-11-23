@@ -2266,6 +2266,22 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    Public Function GetAllRelativesAtLevelExludingSelf(ByVal Level As SpeechMaterialComponent.LinguisticLevels,
+                                           Optional ByVal ExcludePractiseComponents As Boolean = False,
+                                           Optional ByVal ExcludeTestComponents As Boolean = False) As List(Of SpeechMaterialComponent)
+
+        Dim RelativesList = GetAllRelativesAtLevel(Level, ExcludePractiseComponents, ExcludeTestComponents)
+        Dim OutputList As New List(Of SpeechMaterialComponent)
+        For Each item In RelativesList
+            If item IsNot Me Then
+                OutputList.Add(item)
+            End If
+        Next
+        Return OutputList
+
+    End Function
+
+
     Public Shared Function LoadSpeechMaterial(ByVal SpeechMaterialComponentFilePath As String, ByVal TestRootPath As String) As SpeechMaterialComponent
 
         'Gets a file path from the user if none is supplied

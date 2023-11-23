@@ -32,8 +32,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         SpeechTestPicker.IsEnabled = false;
         TestOptionsGrid.IsEnabled = false;
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-        HideSettingsPanelSwitch.IsEnabled = false;
-        HideResultsPanelSwitch.IsEnabled = false;
+        //HideSettingsPanelSwitch.IsEnabled = false;
+        //HideResultsPanelSwitch.IsEnabled = false;
         StartTestBtn.IsEnabled = false;
         PauseTestBtn.IsEnabled = false;
         StopTestBtn.IsEnabled = false;
@@ -56,7 +56,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
-    private void SetBottomPanelHide(bool hide)
+    private void SetBottomPanelShow(bool show)
     {
 
         // Storing the original height specified in the xaml code, so that it can be reused.
@@ -65,20 +65,20 @@ public partial class SpeechTestView : ContentView, IDrawable
             originalBottomPanelHeight = RightSideGrid.RowDefinitions[1];
         }
 
-        if (hide)
-        {
-            TestResultGrid.IsVisible = false;
-            RightSideGrid.RowDefinitions[1] = new RowDefinition(0);
-        }
-        else
+        if (show)
         {
             TestResultGrid.IsVisible = true;
             RightSideGrid.RowDefinitions[1] = originalBottomPanelHeight;
         }
+        else
+        {
+            TestResultGrid.IsVisible = false;
+            RightSideGrid.RowDefinitions[1] = new RowDefinition(0);
+        }
 
     }
 
-    private void SetLeftPanelHide(bool hide)
+    private void SetLeftPanelShow(bool show)
     {
 
         // Storing the original width specified in the xaml code, so that it can be reused.
@@ -87,17 +87,16 @@ public partial class SpeechTestView : ContentView, IDrawable
             originalLeftPanelWidth = MainSpeechTestGrid.ColumnDefinitions[0];
         }
 
-        if (hide)
-        {
-            TestSettingsGrid.IsVisible = false;
-            MainSpeechTestGrid.ColumnDefinitions[0] = new ColumnDefinition(0);
-        }
-        else
+        if (show)
         {
             TestSettingsGrid.IsVisible = true;
             MainSpeechTestGrid.ColumnDefinitions[0] = originalLeftPanelWidth;
         }
-
+        else
+        {
+            TestSettingsGrid.IsVisible = false;
+            MainSpeechTestGrid.ColumnDefinitions[0] = new ColumnDefinition(0);
+        }
     }
 
 
@@ -122,8 +121,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         SpeechTestPicker.IsEnabled = true;
         TestOptionsGrid.IsEnabled = false;
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-        HideSettingsPanelSwitch.IsEnabled = false;
-        HideResultsPanelSwitch.IsEnabled = false;
+        //HideSettingsPanelSwitch.IsEnabled = false;
+        //HideResultsPanelSwitch.IsEnabled = false;
         StartTestBtn.IsEnabled = false;
         PauseTestBtn.IsEnabled = false;
         StopTestBtn.IsEnabled = false;
@@ -150,14 +149,14 @@ public partial class SpeechTestView : ContentView, IDrawable
             {
                 case "Hörtröskel för tal (HTT)":
 
+                    // Speech test
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish Spondees 23");
+
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSrtTestView = new OptionsSrtTestView();
                     TestOptionsGrid.Children.Add(newOptionsSrtTestView);
                     CurrentTestOptionsView = newOptionsSrtTestView;
-
-                    // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test");
 
                     // Response view
                     CurrentResponseView = new ResponseView_Mafc();
@@ -166,11 +165,12 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    //CurrentResponseView.AddResponseAlternatives(testStringArray);
-
                     break;
 
                 case "SiP-testet":
+
+                    // Speech test
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSipTestView2 = new OptionsSipTestView();
@@ -180,11 +180,12 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentResponseView = new ResponseView_Mafc();
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    CurrentResponseView.ShowResponseAlternatives(testStringArray.ToList());
-
                     break;
 
                 case "Quick SiP":
+
+                    // Speech test
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSipTestView = new OptionsSipTestView();
@@ -195,7 +196,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     //CurrentResponseView.AddDefaultSources();
-
                     //CurrentResponseView.AddResponseAlternatives(testStringArray);
 
                     break;
@@ -213,8 +213,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                 SpeechTestPicker.IsEnabled = false;
                 TestOptionsGrid.IsEnabled = true;
                 if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = true; }
-                HideSettingsPanelSwitch.IsEnabled = true;
-                HideResultsPanelSwitch.IsEnabled = true;
+                //HideSettingsPanelSwitch.IsEnabled = true;
+                //HideResultsPanelSwitch.IsEnabled = true;
                 StartTestBtn.IsEnabled = true;
                 PauseTestBtn.IsEnabled = false;
                 StopTestBtn.IsEnabled = false;
@@ -239,8 +239,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             SpeechTestPicker.IsEnabled = false;
             TestOptionsGrid.IsEnabled = false;
             if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-            HideSettingsPanelSwitch.IsEnabled = false;
-            HideResultsPanelSwitch.IsEnabled = false;
+            //HideSettingsPanelSwitch.IsEnabled = false;
+            //HideResultsPanelSwitch.IsEnabled = false;
             StartTestBtn.IsEnabled = false;
             if (testSupportPause) {PauseTestBtn.IsEnabled = true; }
             StopTestBtn.IsEnabled = true;
@@ -248,8 +248,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             TestResultGrid.IsEnabled = true;
 
             // Showing / hiding panels during test
-            SetBottomPanelHide(HideResultsPanelSwitch.IsToggled);
-            SetLeftPanelHide(HideSettingsPanelSwitch.IsToggled);
+            SetBottomPanelShow(CurrentSpeechTest .IsFreeRecall);
+            SetLeftPanelShow(CurrentSpeechTest.IsFreeRecall);
 
             // Starting the test
             StartTest();
@@ -273,8 +273,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         SpeechTestPicker.IsEnabled = false;
         TestOptionsGrid.IsEnabled = false;
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-        HideSettingsPanelSwitch.IsEnabled = false;
-        HideResultsPanelSwitch.IsEnabled = false;
+        //HideSettingsPanelSwitch.IsEnabled = false;
+        //HideResultsPanelSwitch.IsEnabled = false;
         StartTestBtn.IsEnabled = true;
         PauseTestBtn.IsEnabled = false;
         StopTestBtn.IsEnabled = true;
@@ -291,8 +291,8 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Showing panels again
-        SetBottomPanelHide(false);
-        SetLeftPanelHide(false);
+        SetBottomPanelShow(true);
+        SetLeftPanelShow(true);
 
         StartTestBtn.Text = "Start";
 
@@ -301,8 +301,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         SpeechTestPicker.IsEnabled = false;
         TestOptionsGrid.IsEnabled = false;
         if (CurrentTestOptionsView != null){ CurrentTestOptionsView.IsEnabled = false; } 
-        HideSettingsPanelSwitch.IsEnabled = false;
-        HideResultsPanelSwitch.IsEnabled = false;
+        //HideSettingsPanelSwitch.IsEnabled = false;
+        //HideResultsPanelSwitch.IsEnabled = false;
         StartTestBtn.IsEnabled = false;
         PauseTestBtn.IsEnabled = false;
         StopTestBtn.IsEnabled = false;
@@ -335,7 +335,10 @@ public partial class SpeechTestView : ContentView, IDrawable
         
 
         // Prepare next trial should optimally pick the next trial from a cue of preprapared trials to avoid time lag
-        CurrentTrial = CurrentSpeechTest.GetNextTrial();
+        CurrentSpeechTest.PrepareNextTrial();
+
+        // Referencing the current test trial
+        CurrentTrial = CurrentSpeechTest.CurrentTestTrial;
 
         dispatcherTimers = new List<IDispatcherTimer>();
 
@@ -397,9 +400,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives:
-                            Random rnd = new Random();
-                            string[] testStrings = new string[] { rnd.Next().ToString(), rnd.Next().ToString(), rnd.Next().ToString() };
-                            CurrentResponseView.ShowResponseAlternatives(testStrings.ToList());
+                            CurrentResponseView.ShowResponseAlternatives(CurrentTrial.ResponseAlternativeSpellings);
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue:
@@ -499,7 +500,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     void PresentResults(Object results)
     {
         // Showing result panel
-        SetBottomPanelHide(false);
+        SetBottomPanelShow(true);
 
         // TODO: Present results in some way
         // Use "results" to generate some kinmd of results view

@@ -26,12 +26,15 @@ public class ResponseView_Mafc : ResponseView
 
     public override void ShowResponseAlternatives(List<string> text)
     {
+        
+        // Here we should enable selection of table format
+        // Using square for now
 
         responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
 
         responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
@@ -140,7 +143,7 @@ public override void HideVisualCue()
 
     public override void ResponseTimesOut()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public override void ShowMessage(string Message)
