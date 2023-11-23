@@ -157,6 +157,8 @@
 
 #Region "MustOverride members used in derived classes"
 
+    Public MustOverride Function InitializeCurrentTest() As Boolean
+
     Public MustOverride Function GetNextTrial() As TestTrial
 
     Public MustOverride Function PrepareNextTrial() As HandleResponseOutcomes

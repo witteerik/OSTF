@@ -9,7 +9,7 @@ Public Module OstfBase
     Public OstfGui As iOstfGui
 
     'Optimization libraries
-    Public Property UseOptimizationLibraries As Boolean = True ' This can be used to determin if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
+    Public Property UseOptimizationLibraries As Boolean = False ' This can be used to determin if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
 
     ' Log location 
 

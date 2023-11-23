@@ -158,6 +158,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsSrtTestView);
                     CurrentTestOptionsView = newOptionsSrtTestView;
 
+                    CurrentSpeechTest.InitializeCurrentTest();
+
                     // Response view
                     CurrentResponseView = new ResponseView_Mafc();
                     CurrentResponseView.ResponseGiven += RecieveResponse;

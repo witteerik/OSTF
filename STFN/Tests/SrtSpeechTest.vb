@@ -52,16 +52,18 @@
 
         'Some initial settings which should be overridden by the settings editor
         SelectedMediaSet = GetAvailableMediasets(0)
+        StartList = "Lista 1"
+        FixedResponseAlternativeCount = 4
 
     End Sub
 
-    Public Function InitializeCurrentTest() As Boolean
+    Public Overrides Function InitializeCurrentTest() As Boolean
 
         ObservedTrials = New List(Of SrtTrial)
 
         'Adding four lists, starting from the start list
         Dim TempAvailableLists As New List(Of SpeechMaterialComponent)
-        Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence, True, False)
+        Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, True, False)
         For i = 0 To 1
             TempAvailableLists.AddRange(AllLists)
         Next
@@ -152,7 +154,7 @@
 
             'Picking random response alternatives from all available test words
             Dim AllContrastingWords = NextTestWord.GetAllRelativesAtLevelExludingSelf(SpeechMaterialComponent.LinguisticLevels.Sentence, True, False)
-            Dim RandomIndices = Utils.SampleWithoutReplacement(FixedResponseAlternativeCount, 0, AllContrastingWords.Count, Randomizer)
+            Dim RandomIndices = Utils.SampleWithoutReplacement(Math.Max(0, FixedResponseAlternativeCount - 1), 0, AllContrastingWords.Count, Randomizer)
             For Each RandomIndex In RandomIndices
                 ResponseAlternatives.Add(AllContrastingWords(RandomIndex).GetCategoricalVariableValue("Spelling"))
             Next
@@ -163,7 +165,7 @@
 
         'Calculating the speech level
         Dim NextLevelResult = CalculateNextSpeechLevel()
-        If NextLevelResult <> HandleResponseOutcomes.ContinueTrial Then
+        If NextLevelResult <> HandleResponseOutcomes.GotoNextTrial Then
             Return NextLevelResult
         End If
 
@@ -230,29 +232,35 @@
         Else
 
             'We're in the Search stage
-            'Adjusting the speech level, depending on the last response
-            If ObservedTrials.Last.Score = 1 Then
-                NextSpeechLevel -= SearchStageLevelAdjustment
+            'Checking if it's the first trial
+            If ObservedTrials.Count = 0 Then
+                'Do nothing
             Else
-                NextSpeechLevel += SearchStageLevelAdjustment
-            End If
 
-            'Checking first that we're not past the maximum length of the search stage
-            If ObservedTrials.Count >= MaximumSearchStageLength Then
-                Return HandleResponseOutcomes.AbortTest
-            End If
+                'Adjusting the speech level, depending on the last response
+                If ObservedTrials.Last.Score = 1 Then
+                    NextSpeechLevel -= SearchStageLevelAdjustment
+                Else
+                    NextSpeechLevel += SearchStageLevelAdjustment
+                End If
 
-            'We present at least SearchStageMinimumTrialCount trials before we can move to the next stage
-            If ObservedTrials.Count > SearchStageMinimumTrialCount Then
+                'Checking first that we're not past the maximum length of the search stage
+                If ObservedTrials.Count >= MaximumSearchStageLength Then
+                    Return HandleResponseOutcomes.AbortTest
+                End If
 
-                'Checking if we should move to fixed stage 1
-                'Checking the score of the last six trials.
-                Dim LastTrialList = ObservedTrials.GetRange(ObservedTrials.Count - SearchStageMinimumTrialCount, SearchStageMinimumTrialCount)
-                Dim AverageScore = GetAverageScore(LastTrialList)
-                If AverageScore <= 0.5 + SearchStageThresholdDeviation Then
-                    If AverageScore >= 0.5 - SearchStageThresholdDeviation Then
-                        'We've in the target score range. Incrementing test stage
-                        CurrentTestStage = TestStage.Fixed1
+                'We present at least SearchStageMinimumTrialCount trials before we can move to the next stage
+                If ObservedTrials.Count > SearchStageMinimumTrialCount Then
+
+                    'Checking if we should move to fixed stage 1
+                    'Checking the score of the last six trials.
+                    Dim LastTrialList = ObservedTrials.GetRange(ObservedTrials.Count - SearchStageMinimumTrialCount, SearchStageMinimumTrialCount)
+                    Dim AverageScore = GetAverageScore(LastTrialList)
+                    If AverageScore <= 0.5 + SearchStageThresholdDeviation Then
+                        If AverageScore >= 0.5 - SearchStageThresholdDeviation Then
+                            'We've in the target score range. Incrementing test stage
+                            CurrentTestStage = TestStage.Fixed1
+                        End If
                     End If
                 End If
             End If
@@ -264,7 +272,9 @@
 
     Private Sub MixNextTrialSound()
 
-        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+        'Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+
+        Dim TestWordSound = Audio.Sound.LoadWaveFile("C:\Temp10\M_000_004_Klas.wav")
 
         'Setting level
         Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(NextSpeechLevel))

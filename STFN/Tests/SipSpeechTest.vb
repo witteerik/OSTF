@@ -11,6 +11,12 @@
     End Sub
 
 
+    Public Overrides Function InitializeCurrentTest() As Boolean
+        'Not yet used in the current speech test
+        Return True
+    End Function
+
+
     Public Overrides Function GetNextTrial() As TestTrial
 
         Dim TestWords = SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
@@ -64,4 +70,5 @@
         'Not used in the current test type
         Return HandleResponseOutcomes.ContinueTrial
     End Function
+
 End Class
