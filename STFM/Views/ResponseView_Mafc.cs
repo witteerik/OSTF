@@ -66,8 +66,14 @@ public class ResponseView_Mafc : ResponseView
                 Content = repsonseBtn
             };
 
-            responseAlternativeGrid.Add(frame, i, 0);
-
+            if (i < 2)
+            {
+                responseAlternativeGrid.Add(frame, i, 0);
+            }
+            else
+            {
+                responseAlternativeGrid.Add(frame, i-2, 1);
+            }
         }
 
         MainMafcGrid.Add(responseAlternativeGrid, 0, 0);

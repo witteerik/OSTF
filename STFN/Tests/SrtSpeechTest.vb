@@ -22,7 +22,7 @@
 
     Public StartList As String = ""
 
-    Public StartLevel As Double = 0
+    Public StartLevel As Double
 
     Public FixedStageTrialCount As Integer = 10
 
@@ -54,6 +54,7 @@
         SelectedMediaSet = GetAvailableMediasets(0)
         StartList = "Lista 1"
         FixedResponseAlternativeCount = 4
+        StartLevel = 40
 
     End Sub
 
@@ -176,8 +177,8 @@
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 4500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 4700, .Type = ResponseViewEvent.ResponseViewEventTypes.HideAll})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 9500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 9700, .Type = ResponseViewEvent.ResponseViewEventTypes.HideAll})
 
         Return HandleResponseOutcomes.GotoNextTrial
 
@@ -272,9 +273,9 @@
 
     Private Sub MixNextTrialSound()
 
-        'Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
-        Dim TestWordSound = Audio.Sound.LoadWaveFile("C:\Temp10\M_000_004_Klas.wav")
+        'Dim TestWordSound = Audio.Sound.LoadWaveFile("C:\Temp10\M_000_004_Klas.wav")
 
         'Setting level
         Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(NextSpeechLevel))
