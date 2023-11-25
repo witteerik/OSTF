@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="STFM.Views.SpeechTestCalibrationView">
+
+
+    <Grid x:Name="MainSpeechTestGrid">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.001*" />
+            <RowDefinition Height="45" />
+            <RowDefinition Height="45" />
+            <RowDefinition Height="45" />
+            <RowDefinition Height="45" />
+            <RowDefinition Height="45" />
+            <RowDefinition Height="45" />
+            <RowDefinition Height="45" />
+            <RowDefinition Height="46" />
+            <RowDefinition Height="46" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="46" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+
+        <VerticalStackLayout 
+            x:Name="SoundPlayerLayout"
+            Grid.Row="0" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="2">
+        </VerticalStackLayout>
+
+        <Label Text="Select sound system:" Grid.Row="1" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalTextAlignment="Center" Padding="4"></Label>
+        <Label Text="Select calibration signal type:" Grid.Row="2" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalTextAlignment="Center" Padding="4"></Label>
+        <Label Text="Directional simulation set (optional):" Grid.Row="3" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalTextAlignment="Center" Padding="4"></Label>
+        <Label Text="Simulated sound source distance (optional):" Grid.Row="4" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalTextAlignment="Center" Padding="4"></Label>
+        <Label Text="Select calibration signal level:" Grid.Row="5" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalTextAlignment="Center" Padding="4"></Label>
+        <Label Text="Frequency weighting:" Grid.Row="6" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalTextAlignment="Center" Padding="4"></Label>
+        <Label Text="Select calibration signal output channel:" Grid.Row="7" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalTextAlignment="Center" Padding="4"></Label>
+        <Label x:Name="RightChannel_Label" Text="Select calibration signal output channel (Right):" Grid.Row="8" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalTextAlignment="Center" Padding="4"></Label>
+
+        <Picker x:Name="Transducer_ComboBox" Grid.Row="1" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2"></Picker>
+        <Picker x:Name="CalibrationSignal_ComboBox" Grid.Row="2" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2"></Picker>
+        <Picker x:Name="DirectionalSimulationSet_ComboBox" Grid.Row="3" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2"></Picker>
+        <Picker x:Name="SimulatedDistance_ComboBox" Grid.Row="4" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2"></Picker>
+        <Picker x:Name="CalibrationLevel_ComboBox" Grid.Row="5" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2"></Picker>
+        <Picker x:Name="FrequencyWeighting_ComboBox" Grid.Row="6" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2"></Picker>
+        <Picker x:Name="SelectedHardWareOutputChannel_ComboBox" Grid.Row="7" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2"></Picker>
+        <Picker x:Name="SelectedHardWareOutputChannel_Right_ComboBox" Grid.Row="8" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2"></Picker>
+
+        <Button x:Name="Help_Button" Text="Help" Grid.Row="9" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="1"></Button>
+        <Button x:Name="PlaySignal_Button" Text="Play signal" Grid.Row="9" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="1"></Button>
+        <Button x:Name="StopSignal_Button" Text="Stop signal" Grid.Row="9" Grid.RowSpan="1" Grid.Column="3" Grid.ColumnSpan="1"></Button>
+
+        <Label Text="Signal description" Grid.Row="10" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalOptions="Center"></Label>
+        <Label Text="Sound system specifications" Grid.Row="10" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2" HorizontalOptions="Center"></Label>
+
+        <Editor x:Name="CalibrationSignal_RichTextBox" Grid.Row="11" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2"></Editor>
+        <Editor x:Name="SoundSystem_RichTextBox" Grid.Row="11" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2"></Editor>
+
+        <Button x:Name="Close_Button" Text="Close" Grid.Row="12" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="4"></Button>
+
+    </Grid>
+
+</ContentView>

@@ -377,13 +377,35 @@ End Class
 Public Class BinauralImpulseReponseSet
 
     Public Property Name As String = ""
-    Public Property SampleRate As Integer = -1
+    Private _StereoKernels As New SortedList(Of String, StereoKernel)
+    Private Property StereoKernels As SortedList(Of String, StereoKernel)
+        Get
+            If _StereoKernels.Count = 0 Then
+                LoadDirectionalKernels(ImpulseResponseSetSpecificationFile)
+            End If
+            Return _StereoKernels
+        End Get
+        Set(value As SortedList(Of String, StereoKernel))
+            _StereoKernels = value
+        End Set
+    End Property
 
-    Private StereoKernels As New SortedList(Of String, StereoKernel)
+
+    Private _SampleRate As Integer = -1
+    Public ReadOnly Property SampleRate As Integer
+        Get
+            If _StereoKernels.Count = 0 Then
+                LoadDirectionalKernels(ImpulseResponseSetSpecificationFile)
+            End If
+            Return _SampleRate
+        End Get
+    End Property
+
+    Private ImpulseResponseSetSpecificationFile As String
 
     Public Sub New(ByVal ImpulseResponseSetSpecificationFile As String)
 
-        LoadDirectionalKernels(ImpulseResponseSetSpecificationFile)
+        Me.ImpulseResponseSetSpecificationFile = ImpulseResponseSetSpecificationFile
 
     End Sub
 
@@ -414,7 +436,7 @@ Public Class BinauralImpulseReponseSet
             If ReadSourceLocations = False Then
                 If Line.Trim.StartsWith("Name") Then Name = InputFileSupport.GetInputFileValue(Line, True)
                 If Line.Trim.StartsWith("ImpulseResponseSubFolder") Then ImpulseResponseFolder = IO.Path.Combine(OstfBase.RoomImpulsesSubDirectory, InputFileSupport.InputFilePathValueParsing(Line, "", True))
-                If Line.Trim.StartsWith("SampleRate") Then SampleRate = InputFileSupport.InputFileIntegerValueParsing(Line, True, ImpulseResponseSetSpecificationFile)
+                If Line.Trim.StartsWith("SampleRate") Then _SampleRate = InputFileSupport.InputFileIntegerValueParsing(Line, True, ImpulseResponseSetSpecificationFile)
                 If Line.Trim.StartsWith("<AvailableSourceLocations>") Then ReadSourceLocations = True
 
             Else

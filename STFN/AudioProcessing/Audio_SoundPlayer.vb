@@ -21,6 +21,8 @@ Namespace Audio
 
         Public Interface iSoundPlayer
 
+            ReadOnly Property WideFormatSupport As Boolean
+
             Enum FadeTypes
                 Linear
                 Smooth
@@ -601,6 +603,11 @@ Namespace Audio
                 End Get
             End Property
 
+            Public ReadOnly Property WideFormatSupport As Boolean Implements iSoundPlayer.WideFormatSupport
+                Get
+                    Return False
+                End Get
+            End Property
 
             Public Sub New(Optional ByVal LoggingEnabled As Boolean = False,
                    Optional ByVal MessagesEnabled As Boolean = False,

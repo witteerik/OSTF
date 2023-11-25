@@ -47,14 +47,14 @@ Partial Class CalibrationForm
         Me.DirectionalSimulationSet_ComboBox = New System.Windows.Forms.ComboBox()
         Me.SimulatedDistance_Label = New System.Windows.Forms.Label()
         Me.SimulatedDistance_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.RightChannel_Label = New System.Windows.Forms.Label()
+        Me.SelectedHardWareOutputChannel_Right_ComboBox = New System.Windows.Forms.ComboBox()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ViewAvailableSoundDevicesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.RightChannel_Label = New System.Windows.Forms.Label()
-        Me.SelectedHardWareOutputChannel_Right_ComboBox = New System.Windows.Forms.ComboBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
         Me.SuspendLayout()
@@ -356,6 +356,28 @@ Partial Class CalibrationForm
         Me.SimulatedDistance_ComboBox.Size = New System.Drawing.Size(240, 21)
         Me.SimulatedDistance_ComboBox.TabIndex = 32
         '
+        'RightChannel_Label
+        '
+        Me.RightChannel_Label.AutoSize = True
+        Me.TableLayoutPanel1.SetColumnSpan(Me.RightChannel_Label, 2)
+        Me.RightChannel_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RightChannel_Label.Location = New System.Drawing.Point(3, 182)
+        Me.RightChannel_Label.Name = "RightChannel_Label"
+        Me.RightChannel_Label.Size = New System.Drawing.Size(240, 26)
+        Me.RightChannel_Label.TabIndex = 33
+        Me.RightChannel_Label.Text = "Select calibration signal output channel (Right):"
+        Me.RightChannel_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'SelectedHardWareOutputChannel_Right_ComboBox
+        '
+        Me.TableLayoutPanel1.SetColumnSpan(Me.SelectedHardWareOutputChannel_Right_ComboBox, 2)
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.FormattingEnabled = True
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.Location = New System.Drawing.Point(249, 185)
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.Name = "SelectedHardWareOutputChannel_Right_ComboBox"
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.Size = New System.Drawing.Size(240, 21)
+        Me.SelectedHardWareOutputChannel_Right_ComboBox.TabIndex = 34
+        '
         'MenuStrip1
         '
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem})
@@ -395,28 +417,6 @@ Partial Class CalibrationForm
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
         Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(226, 22)
         Me.ExitToolStripMenuItem.Text = "Exit"
-        '
-        'RightChannel_Label
-        '
-        Me.RightChannel_Label.AutoSize = True
-        Me.TableLayoutPanel1.SetColumnSpan(Me.RightChannel_Label, 2)
-        Me.RightChannel_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.RightChannel_Label.Location = New System.Drawing.Point(3, 182)
-        Me.RightChannel_Label.Name = "RightChannel_Label"
-        Me.RightChannel_Label.Size = New System.Drawing.Size(240, 26)
-        Me.RightChannel_Label.TabIndex = 33
-        Me.RightChannel_Label.Text = "Select calibration signal output channel (Right):"
-        Me.RightChannel_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'SelectedHardWareOutputChannel_Right_ComboBox
-        '
-        Me.TableLayoutPanel1.SetColumnSpan(Me.SelectedHardWareOutputChannel_Right_ComboBox, 2)
-        Me.SelectedHardWareOutputChannel_Right_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SelectedHardWareOutputChannel_Right_ComboBox.FormattingEnabled = True
-        Me.SelectedHardWareOutputChannel_Right_ComboBox.Location = New System.Drawing.Point(249, 185)
-        Me.SelectedHardWareOutputChannel_Right_ComboBox.Name = "SelectedHardWareOutputChannel_Right_ComboBox"
-        Me.SelectedHardWareOutputChannel_Right_ComboBox.Size = New System.Drawing.Size(240, 21)
-        Me.SelectedHardWareOutputChannel_Right_ComboBox.TabIndex = 34
         '
         'CalibrationForm
         '

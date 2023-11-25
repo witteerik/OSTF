@@ -17,7 +17,7 @@ namespace STFM
         double overlapDuration = 1;
         double overlapGranuality = 0.05;
         string InfoText = "";
-        STFN.Audio.Formats.WaveFormat LastPlayedWaveFormat = null;
+        STFN.Audio.Formats.WaveFormat LastPlayedWaveFormat = new WaveFormat(48000, 32, 2,"", WaveFormat.WaveFormatEncodings.IeeeFloatingPoints); // Creating a default LastPlayedWaveFormat
 
         private bool raisePlaybackBufferTickEvents = false;
         bool iSoundPlayer.RaisePlaybackBufferTickEvents
@@ -43,6 +43,8 @@ namespace STFM
         {
             get { return IsPlaying; }
         }
+
+        bool iSoundPlayer.WideFormatSupport { get { return true; } }   
 
         public SoundPlayer(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer)
         {

@@ -366,6 +366,10 @@ Public Module OstfBase
 
         End Sub
 
+        Public Sub OverrideCanPlay(ByVal Value As Boolean)
+            _CanPlay = Value
+        End Sub
+
         Public Overrides Function ToString() As String
             If Name <> "" Then
                 Return Name
