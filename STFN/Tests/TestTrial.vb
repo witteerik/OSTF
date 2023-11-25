@@ -23,5 +23,6 @@ Public Class SrtTrial
 
     Public Property AdaptiveStage As SrtSpeechTest.TestStage
 
+    Public SpeechLevel As Double
 
 End Class

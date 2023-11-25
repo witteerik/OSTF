@@ -53,7 +53,7 @@
         Return True
     End Function
 
-    Public Overrides Function GetResults() As Object
+    Public Overrides Function GetResults() As TestResults
         ' Throw New NotImplementedException()
         Return Nothing
     End Function

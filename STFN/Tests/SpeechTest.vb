@@ -176,7 +176,7 @@
 
     Public MustOverride Function SaveResults() As Boolean
 
-    Public MustOverride Function GetResults() As Object
+    Public MustOverride Function GetResults() As TestResults
 
 #End Region
 
