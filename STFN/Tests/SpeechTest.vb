@@ -159,13 +159,15 @@
 
     Public MustOverride Function InitializeCurrentTest() As Boolean
 
-    Public MustOverride Function GetNextTrial() As TestTrial
+    ''' <summary>
+    ''' This method must be implemented in the derived class and must return a decision on what steps to take next. If the next step to take involves a new test trial this method is also responsible for referencing the next test trial in the CurrentTestTrial field.
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    ''' <returns></returns>
+    Public MustOverride Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
 
-    Public MustOverride Function PrepareNextTrial() As HandleResponseOutcomes
-
-    Public MustOverride Function HandleResponse(sender As Object, e As ResponseGivenEventArgs) As HandleResponseOutcomes
-
-    Public Enum HandleResponseOutcomes
+    Public Enum SpeechTestReplies
         ContinueTrial
         GotoNextTrial
         TestIsCompleted

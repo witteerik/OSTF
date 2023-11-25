@@ -120,7 +120,7 @@ public class ResponseView_Mafc : ResponseView
         clearMainGrid();
 
         // Storing the raw response
-        ResponseGivenEventArgs args = new ResponseGivenEventArgs();
+        SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
         args.LinguisticResponse = RespondedSpelling;
         args.TimeResponded = DateTime.Now;
 

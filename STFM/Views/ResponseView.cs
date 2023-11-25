@@ -31,11 +31,11 @@ public abstract class ResponseView : ContentView
     }
 
 
-    public event EventHandler<ResponseGivenEventArgs> ResponseGiven;
+    public event EventHandler<SpeechTestInputEventArgs> ResponseGiven;
 
-    protected virtual void OnResponseGiven(ResponseGivenEventArgs e)
+    protected virtual void OnResponseGiven(SpeechTestInputEventArgs e)
     {
-        EventHandler<ResponseGivenEventArgs> handler = ResponseGiven;
+        EventHandler<SpeechTestInputEventArgs> handler = ResponseGiven;
         if (handler != null)
         {
             handler(this, e);

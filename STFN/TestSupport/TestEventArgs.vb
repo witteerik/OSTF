@@ -1,4 +1,4 @@
-﻿Public Class ResponseGivenEventArgs
+﻿Public Class SpeechTestInputEventArgs
     Inherits EventArgs
 
     Public Property CorrectedResponse As CorrectedResponses

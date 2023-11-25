@@ -113,32 +113,31 @@
     End Function
 
 
-    Public Overrides Function GetNextTrial() As TestTrial
-        'Not used in the current derived class
-        Return Nothing
-    End Function
+    Public Overrides Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
 
+        If e IsNot Nothing Then
 
-    Public Overrides Function HandleResponse(sender As Object, e As ResponseGivenEventArgs) As HandleResponseOutcomes
+            'This is an incoming test trial response
+            'Correcting response
+            If e.LinguisticResponse = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") Then
+                'Correct
+                CurrentTestTrial.Score = 1
+            Else
+                'Not correct
+                CurrentTestTrial.Score = 0
+            End If
 
-        'Correcting response
-        Dim PresentedThing As String = "CorrectWord"
+            ObservedTrials.Add(CurrentTestTrial)
 
-        If e.LinguisticResponse = PresentedThing Then
-            CurrentTestTrial.Score = 1
-            'Correct
         Else
-            'Not correct
-            CurrentTestTrial.Score = 0
+            'Nothing to correct (this should be the start of a new test)
         End If
-
-        ObservedTrials.Add(CurrentTestTrial)
 
         Return PrepareNextTrial()
 
     End Function
 
-    Public Overrides Function PrepareNextTrial() As HandleResponseOutcomes
+    Private Function PrepareNextTrial() As SpeechTestReplies
 
         'Getting next test word
         Dim NextTestWord = PlannedTestWords(ObservedTrials.Count)
@@ -166,7 +165,12 @@
 
         'Calculating the speech level
         Dim NextLevelResult = CalculateNextSpeechLevel()
-        If NextLevelResult <> HandleResponseOutcomes.GotoNextTrial Then
+
+        'Updating test stage (as this may have been changed by CalculateNextSpeechLevel
+        DirectCast(CurrentTestTrial, SrtTrial).AdaptiveStage = CurrentTestStage
+
+        ' Returning if we should not move to the next trial
+        If NextLevelResult <> SpeechTestReplies.GotoNextTrial Then
             Return NextLevelResult
         End If
 
@@ -180,12 +184,12 @@
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 9500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 9700, .Type = ResponseViewEvent.ResponseViewEventTypes.HideAll})
 
-        Return HandleResponseOutcomes.GotoNextTrial
+        Return SpeechTestReplies.GotoNextTrial
 
     End Function
 
 
-    Private Function CalculateNextSpeechLevel() As HandleResponseOutcomes
+    Private Function CalculateNextSpeechLevel() As SpeechTestReplies
 
         'Determines test stage
         Dim TrialsInFixedStage1 As New List(Of SrtTrial)
@@ -197,7 +201,7 @@
 
         'Checking if all trials in fixed stage 2 have been run
         If TrialsInFixedStage2.Count = FixedStageTrialCount Then
-            Return HandleResponseOutcomes.TestIsCompleted
+            Return SpeechTestReplies.TestIsCompleted
         End If
 
         'Checking if fixed stage 1 is complete
@@ -211,7 +215,7 @@
                     Case 0.5
                         'We have exacly 50 % correct in first stage
                         'Quitting the test as the threshold has been detected
-                        Return HandleResponseOutcomes.TestIsCompleted
+                        Return SpeechTestReplies.TestIsCompleted
 
                     Case > 0.5
                         'Decreasing level by InterFixedStageLevelAdjustment
@@ -230,6 +234,9 @@
             Else
                 'We've in the middle of fixed stage 2, no need to alter the level. Just continueing.
             End If
+
+        ElseIf TrialsInFixedStage1.Count > 0 Then
+            'We've in the middle of fixed stage 1, no need to alter the level. Just continueing.
         Else
 
             'We're in the Search stage
@@ -247,7 +254,7 @@
 
                 'Checking first that we're not past the maximum length of the search stage
                 If ObservedTrials.Count >= MaximumSearchStageLength Then
-                    Return HandleResponseOutcomes.AbortTest
+                    Return SpeechTestReplies.AbortTest
                 End If
 
                 'We present at least SearchStageMinimumTrialCount trials before we can move to the next stage
@@ -267,7 +274,7 @@
             End If
         End If
 
-        Return HandleResponseOutcomes.GotoNextTrial
+        Return SpeechTestReplies.GotoNextTrial
 
     End Function
 

@@ -16,8 +16,14 @@
         Return True
     End Function
 
+    Public Overrides Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
 
-    Public Overrides Function GetNextTrial() As TestTrial
+        Throw New NotImplementedException
+
+    End Function
+
+
+    Private Function GetNextTrial() As TestTrial
 
         Dim TestWords = SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
 
@@ -41,20 +47,6 @@
     End Function
 
 
-    Public Overrides Function HandleResponse(sender As Object, e As ResponseGivenEventArgs) As HandleResponseOutcomes
-
-        'Correcting response
-        Dim PresentedThing As String = "CorrectWord"
-
-        If e.LinguisticResponse = PresentedThing Then
-            'Correct
-        Else
-            'Not correct
-        End If
-
-        Return HandleResponseOutcomes.GotoNextTrial
-
-    End Function
 
     Public Overrides Function SaveResults() As Boolean
         'Throw New NotImplementedException()
@@ -66,9 +58,6 @@
         Return Nothing
     End Function
 
-    Public Overrides Function PrepareNextTrial() As HandleResponseOutcomes
-        'Not used in the current test type
-        Return HandleResponseOutcomes.ContinueTrial
-    End Function
+
 
 End Class
