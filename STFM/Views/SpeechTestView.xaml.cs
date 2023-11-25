@@ -7,6 +7,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 {
 
     ResponseView CurrentResponseView;
+    TestResultsView CurrentTestResultsView;
     SpeechTest CurrentSpeechTest;
 
     private string[] availableTests = new string[] {"Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet"};
@@ -380,7 +381,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         if (TestResultGrid.IsVisible == true)
         {
             var CurrentResults = CurrentSpeechTest.GetResults();
-            PresentResults(CurrentResults);
+            ShowResults(CurrentResults);
         }
 
     }
@@ -506,25 +507,35 @@ public partial class SpeechTestView : ContentView, IDrawable
     void FinalizeTest()
     {
 
-        CurrentSpeechTest.SaveResults();
+        TestResults CurrentResults = CurrentSpeechTest.GetResults();
 
-        var CurrentResults = CurrentSpeechTest.GetResults();
+        CurrentSpeechTest.SaveResults(CurrentResults);
 
-        PresentResults(CurrentResults);
+        ShowResults(CurrentResults);
+
+        // Simulating a click on the stop button to show the correct things in the GUI
+        StopTestBtn_Clicked(null, null);
 
     }
 
-    void PresentResults(Object results)
+    void ShowResults(TestResults results)
     {
         // Showing result panel
         SetBottomPanelShow(true);
 
         // TODO: Present results in some way
-        // Use "results" to generate some kinmd of results view
+        // Use "results" to generate some kind of results view
+
+        // Testing with a basic text only view
+        TestResultGrid.Children.Clear();
+        CurrentTestResultsView = new TestResultsView_Text();
+        TestResultGrid.Children.Add(CurrentTestResultsView);
+        CurrentTestResultsView.ShowTestResults(results);
+
+        // Also shows the settings panel
+        SetLeftPanelShow(true);
 
     }
-
-
 
 
 

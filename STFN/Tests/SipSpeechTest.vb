@@ -48,7 +48,7 @@
 
 
 
-    Public Overrides Function SaveResults() As Boolean
+    Public Overrides Function SaveResults(TestResults As TestResults) As Boolean
         'Throw New NotImplementedException()
         Return True
     End Function

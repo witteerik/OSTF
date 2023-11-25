@@ -214,6 +214,7 @@
                 'Evaluating the results of fixed stage 1 
                 Select Case GetAverageScore(TrialsInFixedStage1)
                     Case 0.5
+
                         'We have exacly 50 % correct in first stage
                         'Quitting the test as the threshold has been detected
                         Return SpeechTestReplies.TestIsCompleted
@@ -294,21 +295,17 @@
     End Sub
 
 
-    Public Overrides Function SaveResults() As Boolean
+    Public Overrides Function SaveResults(TestResults As TestResults) As Boolean
 
-        Dim Results = GetResults()
-
-        'Utils.SendInfoToLog("Test stage:" & vbCrLf & String.Join(vbTab, Results.TestStageSerie) & vbCrLf &
-        '                    "Trial score:" & vbCrLf & String.Join(vbTab, Results.ScoreSerie) & vbCrLf &
-        '                    "Speech level:" & vbCrLf & String.Join(vbTab, Results.SpeechLevelSerie) & vbCrLf &
-        '                    "Speech recognition threshold:" & vbCrLf & Results.SpeechRecognitionThreshold)
+        'Not finished!
 
         Return True
     End Function
 
+
     Public Overrides Function GetResults() As TestResults
 
-        Dim Output = New TestResults
+        Dim Output = New TestResults(TestResults.TestResultTypes.SRT)
 
         ' Calculating speech recognition threshold
         Dim TrialsInFixedStage1 As New List(Of SrtTrial)
@@ -326,32 +323,41 @@
             End If
         Next
 
-        Dim Stage1Score = GetAverageScore(TrialsInFixedStage1)
-        Dim Stage2Score = GetAverageScore(TrialsInFixedStage2)
+        If TrialsInFixedStage2.Count > 0 Then
 
-        If Stage2Score = Stage1Score Then
-            'Using the average level
-            Output.SpeechRecognitionThreshold = (Stage1Level + Stage2Level) / 2
-        Else
-            'Interpolating level for 50 % correct score
-            Dim k = (Stage2Level - Stage1Level) / (Stage2Score - Stage1Score)
-            Dim m = Stage1Score / (k * Stage1Level)
-            If k = 0 Then
-                'Using the average level (actually, the levels should be the same if k = 0!)
+            Dim Stage1Score = GetAverageScore(TrialsInFixedStage1)
+            Dim Stage2Score = GetAverageScore(TrialsInFixedStage2)
+
+            If Stage2Score = Stage1Score Then
+                'Using the average level
                 Output.SpeechRecognitionThreshold = (Stage1Level + Stage2Level) / 2
             Else
-                Output.SpeechRecognitionThreshold = (0.5 - m) / k
+                'Interpolating level for 50 % correct score
+                Dim k = (Stage2Level - Stage1Level) / (Stage2Score - Stage1Score)
+                Dim m = Stage1Score / (k * Stage1Level)
+                If k = 0 Then
+                    'Using the average level (actually, the levels should be the same if k = 0!)
+                    Output.SpeechRecognitionThreshold = (Stage1Level + Stage2Level) / 2
+                Else
+                    Output.SpeechRecognitionThreshold = (0.5 - m) / k
+                End If
             End If
+
+        Else
+
+            'This means that the score in the first stage was exactly 50 %
+            'No need for interpolation, just using stage 1 level as the speech recognition threshold
+            Output.SpeechRecognitionThreshold = Stage1Level
         End If
 
-        'Storing the SpeechLevelSerie
-        Output.SpeechLevelSerie = New List(Of Double)
-        Output.TestStageSerie = New List(Of String)
-        Output.ScoreSerie = New List(Of Integer)
+        'Storing the SpeechLevelSeries
+        Output.SpeechLevelSeries = New List(Of Double)
+        Output.TestStageSeries = New List(Of String)
+        Output.ScoreSeries = New List(Of Integer)
         For Each Trial In ObservedTrials
-            Output.SpeechLevelSerie.Add(Trial.SpeechLevel)
-            Output.TestStageSerie.Add(Trial.AdaptiveStage.ToString)
-            Output.ScoreSerie.Add(Trial.Score)
+            Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
+            Output.TestStageSeries.Add(Trial.AdaptiveStage.ToString)
+            Output.ScoreSeries.Add(Trial.Score)
         Next
 
         Return Output
@@ -360,10 +366,40 @@ End Class
 
 Public Class TestResults
 
+    Public ReadOnly TestResultType As TestResultTypes
+
+    Public Enum TestResultTypes
+        SRT
+    End Enum
+
     Public SpeechRecognitionThreshold As Double
-    Public TestStageSerie As List(Of String)
-    Public SpeechLevelSerie As List(Of Double)
-    Public ScoreSerie As List(Of Integer)
+    Public TestStageSeries As List(Of String)
+    Public SpeechLevelSeries As List(Of Double)
+    Public ScoreSeries As List(Of Integer)
+
+    Public Sub New(ByVal TestResultType As TestResultTypes)
+        Me.TestResultType = TestResultType
+    End Sub
+
+    Public Function GetFormattedTestResultsSummaryString() As String
+
+        Dim ResultsRowList = New List(Of String)
+
+        Select Case TestResultType
+            Case TestResultTypes.SRT
+                ResultsRowList.Add("Speech recognition threshold:" & vbCrLf & Math.Round(SpeechRecognitionThreshold) & " dB SPL")
+                ResultsRowList.Add("Test stage:" & vbCrLf & String.Join(vbTab, TestStageSeries))
+                ResultsRowList.Add("Speech level:" & vbCrLf & String.Join(vbTab, SpeechLevelSeries))
+                ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
+
+            Case Else
+
+
+        End Select
+
+        Return String.Join(vbCrLf, ResultsRowList)
+
+    End Function
 
 End Class
 

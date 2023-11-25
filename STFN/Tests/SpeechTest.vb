@@ -174,9 +174,10 @@
         AbortTest
     End Enum
 
-    Public MustOverride Function SaveResults() As Boolean
 
     Public MustOverride Function GetResults() As TestResults
+
+    Public MustOverride Function SaveResults(TestResults As TestResults) As Boolean
 
 #End Region
 
