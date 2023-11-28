@@ -28,6 +28,20 @@ public partial class SpeechTestCalibrationView : ContentView
 
         InitializeSTFM();
 
+        // Edding events
+        Transducer_ComboBox.SelectedIndexChanged += Transducer_ComboBox_SelectedIndexChanged;
+        CalibrationSignal_ComboBox.SelectedIndexChanged += CalibrationSignal_ComboBox_SelectedIndexChanged;
+        DirectionalSimulationSet_ComboBox.SelectedIndexChanged += DirectionalSimulationSet_ComboBox_SelectedIndexChanged;
+        CalibrationLevel_ComboBox.SelectedIndexChanged += CalibrationLevel_ComboBox_SelectedIndexChanged;
+        SelectedHardWareOutputChannel_ComboBox.SelectedIndexChanged += SelectedChannelComboBox_SelectedIndexChanged;
+        SelectedHardWareOutputChannel_Right_ComboBox.SelectedIndexChanged += SelectedRightChannelComboBox_SelectedIndexChanged;
+
+        PlaySignal_Button.Clicked += PlaySignal_Button_Click;
+        StopSignal_Button.Clicked += StopSignal_Button_Click;
+        Close_Button.Clicked += Close_Button_Click;
+        Help_Button.Clicked += Help_Button_Click;
+        Close_Button.Clicked += Close_Button_Click;
+
         // Add any initialization after the InitializeComponent() call.
         this.IsStandAlone = true;
 
@@ -53,6 +67,7 @@ public partial class SpeechTestCalibrationView : ContentView
         //this.Transducer_ComboBox.SelectedIndex = 0;
 
         Transducer_ComboBox.ItemsSource = new List<string> { "Transducer 1" };
+        this.Transducer_ComboBox.SelectedIndex = 0;
 
         // Adding signals
         CalibrationFilesDirectory = System.IO.Path.Combine(STFN.OstfBase.MediaRootDirectory, STFN.OstfBase.CalibrationSignalSubDirectory);
@@ -79,7 +94,8 @@ public partial class SpeechTestCalibrationView : ContentView
         }
 
         // Adding sound files
-        var CalibrationSounds = new List<STFN.Audio.Sound>();
+        List<Sound> CalibrationSounds = new List<Sound>();
+
         foreach (var File in CalibrationFiles)
         {
             if (System.IO.Path.GetExtension(File) == ".wav")
@@ -90,6 +106,14 @@ public partial class SpeechTestCalibrationView : ContentView
                     CalibrationSounds.Add(NewCalibrationSound);
             }
         }
+        // Adding the internally generated sounds and descriptions
+        var InternallyGeneratedSounds = GetInternallyGeneratedSounds();
+        CalibrationSounds.AddRange(InternallyGeneratedSounds.Item1);
+        foreach (var SoundDescription in InternallyGeneratedSounds.Item2)
+        {
+            CalibrationFileDescriptions.Add(SoundDescription.Key, SoundDescription.Value);
+        }
+
 
         // Adding into CalibrationSignal_ComboBox
         this.CalibrationSignal_ComboBox.ItemsSource = CalibrationSounds;
@@ -98,30 +122,13 @@ public partial class SpeechTestCalibrationView : ContentView
             this.CalibrationSignal_ComboBox.SelectedIndex = 0;
         }
 
-        // Adding internally generated sounds 
-        AddInternallyGeneratedSounds();
-
         // Adding levels
         List<double> LevelList = new List<double>();   
-        for (int Level = 40; Level <= 80; Level += 5)
+        for (int Level = 0; Level <= 130; Level += 5)
             LevelList.Add(Level);
 
         this.CalibrationLevel_ComboBox.ItemsSource = LevelList;
-        this.CalibrationLevel_ComboBox.SelectedItem = (object)70;
-
-
-        // Edding events
-        Transducer_ComboBox.SelectedIndexChanged += Transducer_ComboBox_SelectedIndexChanged;
-        CalibrationSignal_ComboBox.SelectedIndexChanged += CalibrationSignal_ComboBox_SelectedIndexChanged;
-        DirectionalSimulationSet_ComboBox.SelectedIndexChanged += DirectionalSimulationSet_ComboBox_SelectedIndexChanged;
-        CalibrationLevel_ComboBox.SelectedIndexChanged += CalibrationLevel_ComboBox_SelectedIndexChanged;
-        SelectedHardWareOutputChannel_ComboBox.SelectedIndexChanged += SelectedChannelComboBox_SelectedIndexChanged;
-        SelectedHardWareOutputChannel_Right_ComboBox.SelectedIndexChanged += SelectedRightChannelComboBox_SelectedIndexChanged;
-
-        PlaySignal_Button.Clicked += PlaySignal_Button_Click;
-        StopSignal_Button.Clicked += StopSignal_Button_Click;
-        Close_Button.Clicked += Close_Button_Click;
-        Help_Button.Clicked += Help_Button_Click;
+        this.CalibrationLevel_ComboBox.SelectedIndex = (int)Math.Floor((double)(CalibrationLevel_ComboBox.ItemsSource.Count/2));
 
     }
 
@@ -137,34 +144,39 @@ public partial class SpeechTestCalibrationView : ContentView
 
     }
 
-    public void AddInternallyGeneratedSounds()
+    public Tuple<List<Sound>, SortedList<string, string>> GetInternallyGeneratedSounds() 
     {
+
+        List<Sound> soundsList= new List<Sound>();
+        SortedList<string, string> descriptionsList= new SortedList<string, string>();
 
         var TempWaveFormat = new STFN.Audio.Formats.WaveFormat(48000, 32, 1, Encoding: STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
 
         var GeneratedWarble = STFN.Audio.GenerateSound.Signals.CreateFrequencyModulatedSineWave(ref TempWaveFormat, 1, 1000d, 0.5m, 20d, 0.125d, duration: 60d);
         GeneratedWarble.FileName = "Internal1";
         GeneratedWarble.Description = "Warble tone (60 s)";
-        this.CalibrationSignal_ComboBox.ItemsSource.Add(GeneratedWarble);
-        CalibrationFileDescriptions.Add("Internal1", "OSTF generated warble tone. The tone is frequency modulated around 1 kHz by ±12.5 %, with a modulation frequency of 20 Hz. Samplerate 48kHz, duration 60 seconds.");
+        soundsList.Add(GeneratedWarble);
+        descriptionsList.Add("Internal1", "OSTF generated warble tone. The tone is frequency modulated around 1 kHz by ±12.5 %, with a modulation frequency of 20 Hz. Samplerate 48kHz, duration 60 seconds.");
 
         var GeneratedSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref TempWaveFormat, 1, 1000d, 0.5m, duration: 60d);
         GeneratedSine.FileName = "Internal2";
         GeneratedSine.Description = "Sine";
-        this.CalibrationSignal_ComboBox.ItemsSource.Add(GeneratedSine);
-        CalibrationFileDescriptions.Add("Internal2", "OSTF generated 1kHz sine. Samplerate 48kHz, duration 60 seconds.");
+        soundsList.Add(GeneratedSine);
+        descriptionsList.Add("Internal2", "OSTF generated 1kHz sine. Samplerate 48kHz, duration 60 seconds.");
 
         var GeneratedSweep1 = STFN.Audio.GenerateSound.SignalsExt.CreateLogSineSweep(ref TempWaveFormat, 1, 20d, 20000d, false, 0.5m, TotalDuration: 15d);
         GeneratedSweep1.FileName = "Internal3";
         GeneratedSweep1.Description = "Sweep";
-        this.CalibrationSignal_ComboBox.ItemsSource.Add(GeneratedSweep1);
-        CalibrationFileDescriptions.Add("Internal3", "OSTF generated log-sine sweep, 20Hz - 20kHz. Samplerate 48kHz, duration 15 seconds.");
+        soundsList.Add(GeneratedSweep1);
+        descriptionsList.Add("Internal3", "OSTF generated log-sine sweep, 20Hz - 20kHz. Samplerate 48kHz, duration 15 seconds.");
 
         var GeneratedSweep2 = STFN.Audio.GenerateSound.SignalsExt.CreateLogSineSweep(ref TempWaveFormat, 1, 20d, 20000d, true, 0.5m, TotalDuration: 15d);
         GeneratedSweep2.FileName = "Internal4";
         GeneratedSweep2.Description = "Sweep (flat)";
-        this.CalibrationSignal_ComboBox.ItemsSource.Add(GeneratedSweep2);
-        CalibrationFileDescriptions.Add("Internal4", "OSTF generated (flat spectrum) log-sine sweep, 20Hz - 20kHz. Samplerate 48kHz, duration 15 seconds.");
+        soundsList.Add(GeneratedSweep2);
+        descriptionsList.Add("Internal4", "OSTF generated (flat spectrum) log-sine sweep, 20Hz - 20kHz. Samplerate 48kHz, duration 15 seconds.");
+
+        return new Tuple<List<Sound>, SortedList<string, string>>(soundsList, descriptionsList);  
 
     }
 
@@ -196,7 +208,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
         else
         {
-            Interaction.MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "Sound player failure");
+            Interaction.MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "SoundDescription player failure");
             this.PlaySignal_Button.IsEnabled = false;
         }
 
@@ -214,8 +226,8 @@ public partial class SpeechTestCalibrationView : ContentView
             SelectedHardWareOutputChannels_Right.Add(c);
         }
 
-        this.SelectedHardWareOutputChannel_Right_ComboBox.ItemsSource = SelectedHardWareOutputChannels;
-        this.SelectedHardWareOutputChannel_ComboBox.ItemsSource = SelectedHardWareOutputChannels_Right;
+        this.SelectedHardWareOutputChannel_ComboBox.ItemsSource = SelectedHardWareOutputChannels;
+        this.SelectedHardWareOutputChannel_Right_ComboBox.ItemsSource = SelectedHardWareOutputChannels_Right;
 
 
         if (this.SelectedHardWareOutputChannel_ComboBox.Items.Count > 0)
@@ -338,7 +350,7 @@ public partial class SpeechTestCalibrationView : ContentView
         {
 
             // Silencing any previously started calibration signal
-            SilenceCalibrationTone();
+            //SilenceCalibrationTone();
 
             if (SelectedTransducer.CanPlay == true)
             {
@@ -424,10 +436,10 @@ public partial class SpeechTestCalibrationView : ContentView
                     // Putting the sound in the intended channel
                     PlaySound = new STFN.Audio.Sound(new STFN.Audio.Formats.WaveFormat((int)CalibrationSound.WaveFormat.SampleRate, (int)CalibrationSound.WaveFormat.BitDepth, (int)SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels(), Encoding: CalibrationSound.WaveFormat.Encoding));
                     PlaySound.WaveData.set_SampleData(SelectedTransducer.Mixer.OutputRouting[SelectedHardwareOutputChannel], CalibrationSound.WaveData.get_SampleData(1));
-                    if (SelectedHardwareOutputChannel_Right > 0)
-                    {
-                        PlaySound.WaveData.set_SampleData(SelectedTransducer.Mixer.OutputRouting[SelectedHardwareOutputChannel_Right], CalibrationSound.WaveData.get_SampleData(1));
-                    }
+                    //if (SelectedHardwareOutputChannel_Right > 0)
+                    //{
+                    //    PlaySound.WaveData.set_SampleData(SelectedTransducer.Mixer.OutputRouting[SelectedHardwareOutputChannel_Right], CalibrationSound.WaveData.get_SampleData(1));
+                    //}
 
                 }
 
@@ -440,7 +452,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
             else
             {
-                Interaction.MsgBox("Unable to start the player using the selected transducer!", MsgBoxStyle.Exclamation, "Sound player failure");
+                Interaction.MsgBox("Unable to start the player using the selected transducer!", MsgBoxStyle.Exclamation, "SoundDescription player failure");
                 this.PlaySignal_Button.IsEnabled = false;
             }
         }
@@ -465,8 +477,14 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private void Close_Button_Click(object sender, EventArgs e)
     {
-        STFN.OstfBase.SoundPlayer.CloseStream();
-        //this.Close();
+
+        if (STFN.OstfBase.SoundPlayer != null)
+        {
+            STFN.OstfBase.SoundPlayer.Dispose();
+        }
+
+        Application.Current.Quit(); 
+
     }
 
     private void Help_Button_Click(object sender, EventArgs e)
@@ -496,7 +514,6 @@ public partial class SpeechTestCalibrationView : ContentView
 
         //InstructionsForm.SetInfo(CalibrationInfoString, "How to calibrate");
         //InstructionsForm.Show();
-
         SoundSystem_RichTextBox.Text = CalibrationInfoString;
 
     }

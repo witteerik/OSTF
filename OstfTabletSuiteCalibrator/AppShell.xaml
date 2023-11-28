@@ -7,7 +7,7 @@
     Shell.FlyoutBehavior="Disabled">
 
     <ShellContent
-        Title="Home"
+        Title="OSTF - Table Suite Calibrator"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 

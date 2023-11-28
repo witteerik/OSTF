@@ -17,7 +17,7 @@ namespace STFM
         double overlapDuration = 1;
         double overlapGranuality = 0.05;
         string InfoText = "";
-        STFN.Audio.Formats.WaveFormat LastPlayedWaveFormat = new WaveFormat(48000, 32, 2,"", WaveFormat.WaveFormatEncodings.IeeeFloatingPoints); // Creating a default LastPlayedWaveFormat
+        STFN.Audio.Formats.WaveFormat LastPlayedWaveFormat = new WaveFormat(48000, 32, 2, "", WaveFormat.WaveFormatEncodings.IeeeFloatingPoints); // Creating a default LastPlayedWaveFormat
 
         private bool raisePlaybackBufferTickEvents = false;
         bool iSoundPlayer.RaisePlaybackBufferTickEvents
@@ -44,7 +44,7 @@ namespace STFM
             get { return IsPlaying; }
         }
 
-        bool iSoundPlayer.WideFormatSupport { get { return true; } }   
+        bool iSoundPlayer.WideFormatSupport { get { return true; } }
 
         public SoundPlayer(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer)
         {
@@ -95,135 +95,25 @@ namespace STFM
             return overlapGranuality;
         }
 
-        public void PlaySound( string soundFilePath)
-        {
-
-            try
-            {
-
-                //string CurrentSoundFileName = TestItems[CurrentTrialIndex].SoundFile;
-                //string cacheDir = Microsoft.Maui.Storage.FileSystem.Current.CacheDirectory;
-                //string TempSoundPath = Path.Combine(cacheDir, CurrentSoundFileName);
-
-                //if (System.IO.File.Exists(TempSoundPath) == false)
-                //{
-                //    await CopySoundFile(Path.Combine("sounds", CurrentSoundFileName), TempSoundPath);
-                //}
-
-                if (lastStartedMediaPlayer == 1)
-                {
-
-                    // Create a temporary file to store the audio data
-                    //string tempFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "temp_audio.mp3");
-
-                    // Write the audio data to the temporary file
-                    //File.WriteAllBytes(tempFilePath, audioBuffer);
-
-                    // Create a Stream from the audio buffer and set it as the MediaElement source.
-                    //Stream stream = new MemoryStream(audioBuffer);
-                    ////mediaElement2.Source = new FileMediaSource { File = "dummy.mp3" };
-                    //mediaElement2.Source = MediaSource.FromStream(() => stream);
-
-                    mediaElement2.Source = new Uri(soundFilePath);
-                }
-                else
-                {
-                    mediaElement1.Source = new Uri(soundFilePath);
-                }
-
-                Crossfade();
-
-            }
-            catch (Exception ex)
-            {
-
-                InfoText = InfoText + "\n" + ex.Message;
-                UpdateInfoText_Safe();
-
-            }
-
-
-        }
-
-
-        // Crossfade from mediaElement1 to mediaElement2 over 1 seconds
-        async void Crossfade()
-        {
-            double fadeDuration = overlapDuration; // using a local variable here so that fadeDuration never gets changed in the middle of a crossfade loop
-            double step = overlapGranuality; // using a local variable here so that overlapGranuality never gets changed in the middle of a crossfade loop // Adjust step for smoother or faster crossfade
-
-            // TODO: Here, the StartedSwappingOutputSounds event should be raised
-
-            if (lastStartedMediaPlayer == 1)
-            {
-
-                //mediaElement2.Speed = 0.5; // Funny detail! The speed parameter sound very good!!
-                mediaElement2.Play();
-
-                lastStartedMediaPlayer = 2;
-
-                for (double t = 0; t < 1; t += step)
-                {
-                    mediaElement1.Volume = 1 - t;
-                    mediaElement2.Volume = t;
-                    await Task.Delay((int)(overlapDuration * 1000 * step));
-                }
-
-                mediaElement1.Stop();
-                // Setting the Source to null, so that the file can be overwritten on the next swap
-                mediaElement1.Source = null;
-                mediaElement2.Volume = 1; // Ensure volume is max for mediaElement2
-
-            }
-            else
-            {
-
-                mediaElement1.Play();
-
-                lastStartedMediaPlayer = 1;
-
-                for (double t = 0; t < 1; t += step)
-                {
-                    mediaElement2.Volume = 1 - t;
-                    mediaElement1.Volume = t;
-                    await Task.Delay((int)(fadeDuration * 1000 * step));
-                }
-
-                mediaElement2.Stop();
-                // Setting the Source to null, so that the file can be overwritten on the next swap
-                mediaElement2.Source = null;
-                mediaElement1.Volume = 1; // Ensure volume is max for mediaElement2
-
-            }
-
-            // TODO: Here, the FinishedSwappingOutputSounds event should be raised
-
-        }
 
         bool iSoundPlayer.SwapOutputSounds(ref Sound NewOutputSound, bool Record, bool AppendRecordedSound)
         {
-            return SwapOutputSounds(ref  NewOutputSound, Record, AppendRecordedSound);
+            return SwapOutputSounds(ref NewOutputSound, Record, AppendRecordedSound);
         }
+
+        static int writtenSounds = 0;
+        static List<string> writtenSoundsList = new List<string>();
 
         bool SwapOutputSounds(ref Sound NewOutputSound, bool Record, bool AppendRecordedSound)
         {
 
             if (NewOutputSound != null)
             {
-
-                string CurrentTempSoundFileName;
-
-                if (lastStartedMediaPlayer == 1)
-                {
-                    CurrentTempSoundFileName = "TempSound2.wav";
-                }
-                else
-                {
-                    CurrentTempSoundFileName = "TempSound1.wav";
-                }
-
-                string cacheDir = Microsoft.Maui.Storage.FileSystem.Current.CacheDirectory;
-                string TempSoundPath = Path.Combine(cacheDir, CurrentTempSoundFileName);
+                // Incrementing writtenSounds 
+                writtenSounds += 1;
+                string currentTempSoundFileName = "TempSound" + writtenSounds.ToString("000000") + ".wav";
+                string cacheDirectory = Microsoft.Maui.Storage.FileSystem.Current.CacheDirectory;
+                string currentTempSoundPath = Path.Combine(cacheDirectory, currentTempSoundFileName);
 
                 // Removing the iXML Chunk (Apparently the MediaElement player cannot handle it...)
                 NewOutputSound.SMA = null;
@@ -232,9 +122,12 @@ namespace STFM
                 LastPlayedWaveFormat = NewOutputSound.WaveFormat;
 
                 // Saving the file to cache memory
-                NewOutputSound.WriteWaveFile(ref TempSoundPath);
+                NewOutputSound.WriteWaveFile(ref currentTempSoundPath);
 
-                PlaySound(TempSoundPath);
+                // Saving the file path for later removal
+                writtenSoundsList.Add(currentTempSoundPath);
+
+                Crossfade(currentTempSoundPath);
                 return true;
             }
             else
@@ -242,6 +135,140 @@ namespace STFM
                 FadeOutPlayback();
                 return true;
             }
+
+        }
+
+
+        //private void PlaySound( string newSoundFilePath)
+        //{
+
+        //    try
+        //    {
+
+        //        //string CurrentSoundFileName = TestItems[CurrentTrialIndex].SoundFile;
+        //        //string cacheDirectory = Microsoft.Maui.Storage.FileSystem.Current.CacheDirectory;
+        //        //string currentTempSoundPath = Path.Combine(cacheDirectory, CurrentSoundFileName);
+
+        //        //if (System.IO.File.Exists(currentTempSoundPath) == false)
+        //        //{
+        //        //    await CopySoundFile(Path.Combine("sounds", CurrentSoundFileName), currentTempSoundPath);
+        //        //}
+
+        //        if (lastStartedMediaPlayer == 1)
+        //        {
+
+        //            // Create a temporary file to store the audio data
+        //            //string tempFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "temp_audio.mp3");
+
+        //            // Write the audio data to the temporary file
+        //            //File.WriteAllBytes(tempFilePath, audioBuffer);
+
+        //            // Create a Stream from the audio buffer and set it as the MediaElement source.
+        //            //Stream stream = new MemoryStream(audioBuffer);
+        //            ////mediaElement2.Source = new FileMediaSource { File = "dummy.mp3" };
+        //            //mediaElement2.Source = MediaSource.FromStream(() => stream);
+
+        //            mediaElement2.Source = new Uri(newSoundFilePath);
+        //        }
+        //        else
+        //        {
+        //            mediaElement1.Source = new Uri(newSoundFilePath);
+        //        }
+
+        //        Crossfade(newSoundFilePath);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        InfoText = InfoText + "\n" + ex.Message;
+        //        UpdateInfoText_Safe();
+
+        //    }
+
+
+        //}
+
+
+        // Crossfade from mediaElement1 to mediaElement2 over 1 seconds
+
+        async void Crossfade(string newSoundFilePath)
+        {
+
+            double fadeDuration = overlapDuration; // using a local variable here so that fadeDuration never gets changed in the middle of a crossfade loop
+            double step = overlapGranuality; // using a local variable here so that overlapGranuality never gets changed in the middle of a crossfade loop // Adjust step for smoother or faster crossfade
+
+            // TODO: Here, the StartedSwappingOutputSounds event should be raised
+
+            if (lastStartedMediaPlayer == 2)
+            {
+                // Fading in player 1
+                // And fading out player 2
+                mediaElement1.Source = new Uri(newSoundFilePath);
+                mediaElement1.Volume = 0;
+                mediaElement1.Play();
+
+                lastStartedMediaPlayer = 1;
+
+                if (fadeDuration > 0)
+                {
+                    // Cross-fading
+                    for (double t = 0; t < 1; t += step)
+                    {
+                        mediaElement1.Volume = t;
+                        mediaElement2.Volume = 1 - t;
+                        await Task.Delay((int)(fadeDuration * 1000 * step));
+                    }
+                }
+
+                // Ensure volume is final values
+                mediaElement1.Volume = 1;
+                mediaElement2.Volume = 0;
+
+                mediaElement2.Stop();
+                // Setting the Source to null, so that the file can be overwritten on the next swap
+                mediaElement2.Source = null;
+
+            }
+            else
+            {
+
+                // Fading in player 2
+                // And fading out player 1
+
+                mediaElement2.Source = new Uri(newSoundFilePath);
+
+                //mediaElement2.Speed = 0.5; // Funny detail! The speed parameter sound very good!!
+                mediaElement2.Volume = 0;
+                mediaElement2.Play();
+
+                lastStartedMediaPlayer = 2;
+
+                if (fadeDuration > 0)
+                {
+                    // Cross-fading
+                    for (double t = 0; t < 1; t += step)
+                    {
+                        mediaElement2.Volume = t;
+                        mediaElement1.Volume = 1 - t;
+                        await Task.Delay((int)(overlapDuration * 1000 * step));
+                    }
+                }
+
+                // Ensure volume is final values
+                mediaElement1.Volume = 0;
+                mediaElement2.Volume = 1;
+
+                mediaElement1.Stop();
+                // Setting the Source to null, so that the file can be overwritten on the next swap
+                mediaElement1.Source = null;
+
+            }
+
+
+
+
+            // TODO: Here, the FinishedSwappingOutputSounds event should be raised
 
         }
 
@@ -253,8 +280,8 @@ namespace STFM
 
         void FadeOutPlayback()
         {
-            Sound silentSound = STFN.Audio.GenerateSound.Signals.CreateSilence(ref LastPlayedWaveFormat, null, overlapDuration * 2);
-            SwapOutputSounds(ref silentSound, false, false); 
+            Sound silentSound = STFN.Audio.GenerateSound.Signals.CreateSilence(ref LastPlayedWaveFormat, null, Math.Max(0.1, overlapDuration * 2));
+            SwapOutputSounds(ref silentSound, false, false);
         }
 
         void MediaFail_Handler(object sender, MediaFailedEventArgs e)
@@ -325,6 +352,24 @@ namespace STFM
             {
                 mediaElement2.Stop();
             }
+
+            // Disconnecting source
+            mediaElement1.Source = null;
+            mediaElement2.Source = null;
+
+            // Clearing temporary files
+            foreach (string file  in writtenSoundsList)
+            {
+                try
+                {
+                    System.IO.File.Delete(file);
+                }
+                catch (Exception)
+                {
+                    // Just ignoring if delet was not possible
+                }
+            }
+
         }
     }
 
