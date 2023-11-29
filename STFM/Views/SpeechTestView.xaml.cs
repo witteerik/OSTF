@@ -107,6 +107,8 @@ public partial class SpeechTestView : ContentView, IDrawable
     private async void NewTestBtn_Clicked(object sender, EventArgs e)
     {
 
+        Messager.ShowMessage("Listen", "This is my message.... take it sleesy!", "OKK");
+
         // Ititializing STFM if not already done
 
         if (STFM.StfmBase.IsInitialized == false)

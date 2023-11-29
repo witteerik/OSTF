@@ -75,7 +75,7 @@ Public Module OstfBase
             'Checks that the folder exists
             If IO.Directory.Exists(MediaRootDirectory) = False Then
 
-                MsgBox("Unable TypeOf locate the media root directory")
+                MsgBox("Unable to locate the media root directory")
 
                 '0:
                 '                Dim NewOSTFMediaFolderDialog As New OSTFMediaFolderDialog
@@ -87,8 +87,13 @@ Public Module OstfBase
 
             'Checks that it seems to be the right (media) folder
             If IO.Directory.Exists(IO.Path.Combine(MediaRootDirectory, AudioSystemSubDirectory)) = False Then
-                Dim MsgResult = MsgBox("It seems like you have selected an incorrect OSTF media folder. The OSTF media folder should for example contain the folder " & AudioSystemSubDirectory & vbCrLf &
+                MsgBox("It seems like you have selected an incorrect OSTF media folder. The OSTF media folder should for example contain the folder " & AudioSystemSubDirectory & vbCrLf &
                                     "Please try again.", MsgBoxStyle.OkCancel, "Unable to find the OSTF media folder!")
+
+                Throw New Exception("Unable to locate the OSTF media folder! Cannot start the application.")
+
+                'Dim MsgResult = MsgBox("It seems like you have selected an incorrect OSTF media folder. The OSTF media folder should for example contain the folder " & AudioSystemSubDirectory & vbCrLf &
+                '                    "Please try again.", MsgBoxStyle.OkCancel, "Unable to find the OSTF media folder!")
                 'If MsgResult = MsgBoxResult.Ok Then
                 '    GoTo 0
                 'Else

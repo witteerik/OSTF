@@ -1,13 +1,24 @@
-﻿namespace OstfTabletSuiteCalibrator
+﻿using STFN;
+
+namespace OstfTabletSuiteCalibrator
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
 
         public MainPage()
         {
             InitializeComponent();
+
+            Messager.NewMessage += DisplayMessage;
+
         }
+
+
+        private async void DisplayMessage(string title, string message, string cancelButtonText)
+        {
+            await DisplayAlert(title, message, cancelButtonText);
+        }
+
 
     }
 }

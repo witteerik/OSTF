@@ -2,7 +2,8 @@
 using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Layouts;
-
+using System.ComponentModel;
+using System.Diagnostics;
 
 namespace OstfTabletSuite
 {
@@ -16,50 +17,25 @@ namespace OstfTabletSuite
         {
             InitializeComponent();
 
-
+            STFN.Messager.NewMessage += DisplayMessage;
+            STFN.Messager.NewQuestion += DisplayBooleanQuestion;
+            
+        }
+        private async void DisplayMessage(string title, string message, string cancelButtonText)
+        {
+            await DisplayAlert(title, message, cancelButtonText);
         }
 
-        private async void OnCounterClicked(object sender, EventArgs e)
+        private async Task<bool> DisplayBooleanQuestion(string title, string question, string acceptButtonText, string cancelButtonText)
         {
 
-            //await STFM.StfmBase.InitiateSTFM(STF_VerticalStackLayout);
+            //See more at https://learn.microsoft.com/en-us/dotnet/maui/user-interface/pop-ups?view=net-maui-8.0
 
-            //STFM.StfmBase.SetupTest();
-
-
-            //count++;
-            //if (count == 1)
-            //    CounterBtn.Text = $"Clicked {count} time";
-            //else
-            //    CounterBtn.Text = $"Clicked {count} times";
-            //SemanticScreenReader.Announce(CounterBtn.Text);
-        }
-
-        private void OnCounterClicked2(object sender, EventArgs e)
-        {
-            //STFM.StfmBase.SetupTest();
+            bool answer = await DisplayAlert(title, question, acceptButtonText, cancelButtonText);
+            return  answer;
 
         }
-
-        private void playAgainClicked2(object sender, EventArgs e)
-        {
-
-            //MainPageSoundPlayer.mediaElement1.Source = new Uri("/data/user/0/com.companyname.ostftabletsuite/cache/TempSound1.wav");
-            //MainPageSoundPlayer.mediaElement2.Source = new Uri("/data/user/0/com.companyname.ostftabletsuite/cache/TempSound2.wav");
-
-            //MainPageSoundPlayer.mediaElement1.Volume = 1;
-
-            //MainPageMediaElement.Source = new Uri("/data/user/0/com.companyname.ostftabletsuite/cache/TempSound2.wav");
-            //MainPageMediaElement.ShouldLoopPlayback = true;
-            //MainPageMediaElement.Play();
-
-            //MainPageSoundPlayer.mediaElement1.Play();
-
-
-            //STFM.StfmBase.playAgain();
-
-        }
-        
 
     }
 }
+

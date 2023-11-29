@@ -176,6 +176,13 @@ public partial class SpeechTestCalibrationView : ContentView
         soundsList.Add(GeneratedSweep2);
         descriptionsList.Add("Internal4", "OSTF generated (flat spectrum) log-sine sweep, 20Hz - 20kHz. Samplerate 48kHz, duration 15 seconds.");
 
+        Random random = new Random();
+        var WhiteNoise = STFN.Audio.GenerateSound.Signals.CreateWhiteNoise(ref TempWaveFormat, 1, 1, 15, BasicAudioEnums.TimeUnits.seconds, ref random);
+        WhiteNoise.FileName = "Internal5";
+        WhiteNoise.Description = "White noise";
+        soundsList.Add(WhiteNoise);
+        descriptionsList.Add("Internal5", "OSTF generated white noise. Samplerate 48kHz, duration 15 seconds.");
+
         return new Tuple<List<Sound>, SortedList<string, string>>(soundsList, descriptionsList);  
 
     }
