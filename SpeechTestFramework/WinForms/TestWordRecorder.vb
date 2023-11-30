@@ -1854,7 +1854,8 @@ Public Class SpeechMaterialRecorder
             SelectedTransducer.Mixer.DirectMonoToAllChannels()
 
             '(At this stage the sound player will be started, if not already done.)
-            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.4, SelectedTransducer.Mixer,, True, True)
+            ' Also changing overlap duration to 25 ms to avoid excessive cross-fading when editing the material
+            OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings,,, , 0.025, SelectedTransducer.Mixer,, True, True)
 
             MainTabControl.Enabled = True
             Unlock_Button.Enabled = True

@@ -146,8 +146,8 @@ Namespace Audio
 
             Private Sub CreateContextMenu()
 
-                Dim menuItemNameList As New List(Of String) From {"Play", "PlayAll", "StopSound", "ZoomOut", "ZoomIn", "ZoomToSelection", "ZoomFull", "SmoothFadeIn", "SmoothFadeOut", "LinearFadeIn", "LinearFadeOut", "SilenceSelection", "SilenceSelectionZeroCross", "Copy", "Cut", "Paste", "Delete", "Crop", "UndoAll", "SetAudioApiSettings"}
-                Dim menuItemTextList As New List(Of String) From {"Play", "Play all", "Stop", "Zoom out", "Zoom in", "Zoom to selection", "Zoom full", "Fade in selection (smooth)", "Fade out selection (smooth)", "Fade in selection (linear)", "Fade out selection (linear)", "Silence selection", "Silence selection (search zero crossings)", "Copy", "Cut", "Paste", "Delete", "Crop", "Undo all", "New audio settings"}
+                Dim menuItemNameList As New List(Of String) From {"Play", "PlayAll", "StopSound", "ZoomOut", "ZoomIn", "ZoomToSelection", "ZoomFull", "Amplify", "Attenuate", "SmoothFadeIn", "SmoothFadeOut", "LinearFadeIn", "LinearFadeOut", "SilenceSelection", "SilenceSelectionZeroCross", "Copy", "Cut", "Paste", "Delete", "Crop", "UndoAll", "SetAudioApiSettings"}
+                Dim menuItemTextList As New List(Of String) From {"Play", "Play all", "Stop", "Zoom out", "Zoom in", "Zoom to selection", "Zoom full", "Amplify (1 dB)", "Attenuate (1 dB)", "Fade in selection (smooth)", "Fade out selection (smooth)", "Fade in selection (linear)", "Fade out selection (linear)", "Silence selection", "Silence selection (search zero crossings)", "Copy", "Cut", "Paste", "Delete", "Crop", "Undo all", "New audio settings"}
 
                 For item = 0 To menuItemNameList.Count - 1
                     Dim menuItem As New ToolStripMenuItem
@@ -1747,6 +1747,10 @@ Namespace Audio
                         ZoomToSelection()
                     Case "ZoomFull"
                         ZoomFull()
+                    Case "Amplify"
+                        AmplifySection(1)
+                    Case "Attenuate"
+                        AmplifySection(-1)
                     Case "SmoothFadeIn"
                         FadeIn(DSP.FadeSlopeType.Smooth)
                     Case "SmoothFadeOut"
@@ -2112,6 +2116,46 @@ Namespace Audio
                 UpdateLayout()
 
             End Sub
+
+
+            ''' <summary>
+            ''' Fades in the selected sound using the indicates fade slope type.
+            ''' </summary>
+            ''' <param name="Gain"></param>
+            Private Sub AmplifySection(ByVal Gain As Double, Optional ByVal SoftEdges As Boolean = True)
+
+                If Not SelectionLength_Sample < 1 Then
+
+                    If SoftEdges = False Then
+                        DSP.Fade(CurrentSound, -Gain, -Gain, CurrentChannel, SelectionStart_Sample, SelectionLength_Sample, DSP.Transformations.FadeSlopeType.Linear)
+                    Else
+
+                        Dim FadeRegionsLength As Integer = Math.Min(Int(SelectionLength_Sample / 4), CurrentSound.WaveFormat.SampleRate / 0.01)
+                        If FadeRegionsLength > 2 Then
+
+                            'Fading in during FadeRegionsLength samples
+                            DSP.Fade(CurrentSound, 0, -Gain, CurrentChannel, SelectionStart_Sample, FadeRegionsLength, DSP.Transformations.FadeSlopeType.Linear)
+                            'Adjusting level of samples in between
+                            DSP.Fade(CurrentSound, -Gain, -Gain, CurrentChannel, SelectionStart_Sample + FadeRegionsLength, SelectionLength_Sample - 2 * FadeRegionsLength, DSP.Transformations.FadeSlopeType.Linear)
+                            'Fading out during FadeRegionsLength samples
+                            DSP.Fade(CurrentSound, -Gain, 0, CurrentChannel, SelectionLength_Sample - FadeRegionsLength, FadeRegionsLength, DSP.Transformations.FadeSlopeType.Linear)
+
+                        Else
+                            'Skipps fading
+                            DSP.Fade(CurrentSound, -Gain, -Gain, CurrentChannel, SelectionStart_Sample, SelectionLength_Sample, DSP.Transformations.FadeSlopeType.Linear)
+                        End If
+                    End If
+
+
+                    'Recalculates spectrogram data, since the waveform have been changed
+                    If ShowSpectrogram = True Then UpdateSpectrogramData()
+
+                    UpdateLayout()
+
+                End If
+
+            End Sub
+
 
             ''' <summary>
             ''' Fades in the selected sound using the indicates fade slope type.

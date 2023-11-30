@@ -11,7 +11,9 @@ Public Module Messager
 
     Public Event NewMessage(ByVal Title As String, ByVal Message As String, ByVal CancelButtonText As String)
 
-    Public Event NewQuestion(ByVal Title As String, ByVal Question As String, ByVal AcceptButtonText As String, ByVal CancelButtonText As String)
+    Public Event NewQuestion(ByVal Title As String, ByVal Question As String, ByVal AcceptButtonText As String, ByVal CancelButtonText As String, ByRef Result As Boolean)
+
+    Public Event QuestionSent As EventHandler(Of QuestionEventArgs)
 
     'Public Event x As Task(Of Boolean)
 
@@ -51,15 +53,44 @@ Public Module Messager
 
     End Sub
 
-    Public Function MsgBoxBooleanQuestion(ByVal Question As String, Optional ByVal Style As MsgBoxStyle = MsgBoxStyle.Information, Optional ByVal Title As String = "",
+    Public Function MsgBoxAcceptQuestion(ByVal Question As String, Optional ByVal Style As MsgBoxStyle = MsgBoxStyle.Information, Optional ByVal Title As String = "",
                                           Optional ByVal AcceptButtonText As String = "Yes", Optional ByVal CancelButtonText As String = "No") As Boolean
 
-        RaiseEvent NewQuestion(Title, Question, AcceptButtonText, CancelButtonText)
+        Dim Result As Boolean = SendQuestionAndWait(Title, Question, AcceptButtonText, CancelButtonText).Result
 
+        Return Result
 
     End Function
 
 
+    Public Function SendQuestionAndWait(title As String, question As String, acceptButtonText As String, cancelButtonText As String) As Task(Of Boolean)
+
+        Dim tcs As New TaskCompletionSource(Of Boolean)()
+
+        RaiseEvent QuestionSent(Nothing, New QuestionEventArgs(title, question, acceptButtonText, cancelButtonText, tcs))
+
+        Return tcs.Task
+
+    End Function
+
 
 End Module
+
+Public Class QuestionEventArgs
+    Inherits EventArgs
+
+    Public Property Title As String
+    Public Property Question As String
+    Public Property AcceptButtonText As String
+    Public Property CancelButtonText As String
+    Public Property TaskCompletionSource As TaskCompletionSource(Of Boolean)
+
+    Public Sub New(title As String, question As String, acceptButtonText As String, cancelButtonText As String, tcs As TaskCompletionSource(Of Boolean))
+        Me.Title = title
+        Me.Question = question
+        Me.AcceptButtonText = acceptButtonText
+        Me.CancelButtonText = cancelButtonText
+        Me.TaskCompletionSource = tcs
+    End Sub
+End Class
 

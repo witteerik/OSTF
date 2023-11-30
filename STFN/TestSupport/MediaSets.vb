@@ -621,9 +621,9 @@ Public Class MediaSet
 
         If ExpectedAudioPaths.Item3.Count > 0 Then
 
-            Dim MsgResult = MsgBox(ExpectedAudioPaths.Item3.Count & " audio files are missing from media set " & MediaSetName & ". Do you want to prepare new wave files for these components?", MsgBoxStyle.YesNo)
-            If MsgResult = MsgBoxResult.Yes Then
-
+            Dim MsgResult = MsgBoxAcceptQuestion(ExpectedAudioPaths.Item3.Count & " audio files are missing from media set " & MediaSetName & ". Do you want to prepare new wave files for these components?", MsgBoxStyle.YesNo)
+            ' TODO: This has not yet been tested. Does the code stop and wait for a response here??? I guess not...
+            If MsgResult = True Then
 
                 For Each item In ExpectedAudioPaths.Item3
 

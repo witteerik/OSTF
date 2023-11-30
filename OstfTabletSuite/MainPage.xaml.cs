@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Layouts;
+using STFN;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -18,23 +19,28 @@ namespace OstfTabletSuite
             InitializeComponent();
 
             STFN.Messager.NewMessage += DisplayMessage;
-            STFN.Messager.NewQuestion += DisplayBooleanQuestion;
-            
+            STFN.Messager.QuestionSent += DisplayBooleanQuestion;
+
         }
+
+
         private async void DisplayMessage(string title, string message, string cancelButtonText)
         {
             await DisplayAlert(title, message, cancelButtonText);
         }
 
-        private async Task<bool> DisplayBooleanQuestion(string title, string question, string acceptButtonText, string cancelButtonText)
+        private async void DisplayBooleanQuestion(object sender, QuestionEventArgs e)
         {
-
+            
             //See more at https://learn.microsoft.com/en-us/dotnet/maui/user-interface/pop-ups?view=net-maui-8.0
 
-            bool answer = await DisplayAlert(title, question, acceptButtonText, cancelButtonText);
-            return  answer;
+            bool answer = await DisplayAlert(e.Title, e.Question, e.AcceptButtonText, e.CancelButtonText);
+
+            e.TaskCompletionSource.SetResult(answer);
 
         }
+
+
 
     }
 }

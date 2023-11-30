@@ -107,7 +107,9 @@ public partial class SpeechTestView : ContentView, IDrawable
     private async void NewTestBtn_Clicked(object sender, EventArgs e)
     {
 
-        Messager.ShowMessage("Listen", "This is my message.... take it sleesy!", "OKK");
+        var res = Messager.MsgBoxAcceptQuestion("Is this a question?", Messager.MsgBoxStyle.Information, "Yes", "No");
+
+        //Messager.MsgBox("This is my message.... take it sleesy!",  Messager.MsgBoxStyle.Information, "Listen", "OKK");
 
         // Ititializing STFM if not already done
 
