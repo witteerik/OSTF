@@ -697,7 +697,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
 
             Public Sub LogSmaData_Batch()
 
-                Dim FilePaths = Utils.GetOpenFilePaths(,, {"wav"}, "Select the wave files to log.")
+                Dim FilePaths = Utils.GetOpenFilePaths(, {"wav"}, "Select the wave files to log.")
 
                 If FilePaths.Length = 0 Then
                     MsgBox("No wave files selected!")
@@ -733,7 +733,7 @@ SavingFile:             Dim sfd As New SaveFileDialog
             Public Sub MeasureSmaData_Batch(Optional ByVal LogResults As Boolean = True, Optional UpdateFiles As Boolean = False,
                                          Optional ByVal SoundLevelFormat As Formats.SoundLevelFormat = Nothing)
 
-                Dim FilePaths = Utils.GetOpenFilePaths(,, {"wav"}, "Select the wave files to measure.")
+                Dim FilePaths = Utils.GetOpenFilePaths(, {"wav"}, "Select the wave files to measure.")
 
                 If FilePaths.Length = 0 Then
                     MsgBox("No wave files selected!")

@@ -205,6 +205,9 @@ namespace STFM
                 // Fading in player 1
                 // And fading out player 2
                 mediaElement1.Source = new Uri(newSoundFilePath);
+
+                //mediaElement1.Speed = 1.5; // Funny detail! The speed parameter sound very good!!
+
                 mediaElement1.Volume = 0;
                 mediaElement1.Play();
 

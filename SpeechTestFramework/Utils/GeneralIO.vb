@@ -134,7 +134,7 @@ SavingFile: Dim ofd As New OpenFileDialog
         Public Sub RemoveStringFromFileNames(ByVal StringToRemove As String, Optional ByVal InitialDirectory As String = "",
                                               Optional fileExtensions() As String = Nothing)
 
-            Dim FileNames = GetOpenFilePaths(InitialDirectory, "", fileExtensions, "Select files to rename", True)
+            Dim FileNames = GetOpenFilePaths(InitialDirectory, fileExtensions, "Select files to rename", True)
 
             'Exiting on cancel press
             If FileNames.Length = 0 Then Exit Sub
@@ -159,7 +159,7 @@ SavingFile: Dim ofd As New OpenFileDialog
         Public Sub AddFileNamePrefix(ByVal StringToAdd As String, Optional ByVal InitialDirectory As String = "",
                                               Optional fileExtensions() As String = Nothing)
 
-            Dim FileNames = GetOpenFilePaths(InitialDirectory, "", fileExtensions, "Select files to rename", True)
+            Dim FileNames = GetOpenFilePaths(InitialDirectory, fileExtensions, "Select files to rename", True)
 
             'Exiting on cancel press
             If FileNames.Length = 0 Then Exit Sub
@@ -185,12 +185,10 @@ SavingFile: Dim ofd As New OpenFileDialog
         ''' Asks the user to supply one or more file paths by using an open file dialog box.
         ''' </summary>
         ''' <param name="directory">Optional initial directory.</param>
-        ''' <param name="fileName">Optional suggested file name</param>
         ''' <param name="fileExtensions">Optional possible extensions</param>
         ''' <param name="BoxTitle">The message/title on the file dialog box</param>
         ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
         Public Function GetOpenFilePaths(Optional directory As String = "",
-                                    Optional fileName As String = "",
                                     Optional fileExtensions() As String = Nothing,
                                     Optional BoxTitle As String = "",
                                     Optional ReturnEmptyStringArrayOnCancel As Boolean = False) As String()
@@ -215,7 +213,6 @@ SavingFile: Dim ofd As New OpenFileDialog
             End If
 
             If Not directory = "" Then ofd.InitialDirectory = directory
-            If Not fileName = "" Then ofd.FileName = fileName
             If Not BoxTitle = "" Then ofd.Title = BoxTitle
 
             Dim result As DialogResult = ofd.ShowDialog()

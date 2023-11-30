@@ -188,7 +188,7 @@ Namespace Utils
 
 0:
 
-            Dim SelectedFolder = OstfGui.GetFolder(SuggestedLogFolder, "Select the log / export folder you want to use!")
+            Dim SelectedFolder = Messager.GetFolder(SuggestedLogFolder, "Select the log / export folder you want to use!").Result
             If SelectedFolder = "" Then
                 MsgBox("No folder selected! Click OK to try again!", MsgBoxStyle.Exclamation, "Unable to set the log folder")
                 GoTo 0

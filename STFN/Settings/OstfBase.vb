@@ -3,10 +3,6 @@ Imports STFN.Audio.SoundPlayers
 
 Public Module OstfBase
 
-    ''' <summary>
-    ''' An interface that should be implemented in the Gui using the STFN library
-    ''' </summary>
-    Public OstfGui As iOstfGui
 
     'Optimization libraries
     Public Property UseOptimizationLibraries As Boolean = False ' This can be used to determin if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.

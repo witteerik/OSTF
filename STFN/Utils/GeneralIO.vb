@@ -42,7 +42,7 @@ Namespace Utils
                                     Optional fileExtensions() As String = Nothing,
                                     Optional BoxTitle As String = "") As String
 
-            Return OstfGui.GetSaveFilePath(directory, fileName, fileExtensions, BoxTitle)
+            Return Messager.GetSaveFilePath(directory, fileName, fileExtensions, BoxTitle).Result
 
             'The OstfGui.GetSaveFilePath should do the following:
             '            Dim filePath As String = ""
@@ -98,7 +98,7 @@ Namespace Utils
                                     Optional BoxTitle As String = "",
                                     Optional ReturnEmptyStringOnCancel As Boolean = False) As String
 
-            Return OstfGui.GetOpenFilePath(directory, fileName, fileExtensions, BoxTitle, ReturnEmptyStringOnCancel)
+            Return Messager.GetOpenFilePath(directory, fileName, fileExtensions, BoxTitle, ReturnEmptyStringOnCancel).Result
 
             'The OstfGui.GetOpenFilePath should do the following:
 
@@ -148,12 +148,11 @@ Namespace Utils
         ''' <param name="BoxTitle">The message/title on the file dialog box</param>
         ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
         Public Function GetOpenFilePaths(Optional directory As String = "",
-                                    Optional fileName As String = "",
                                     Optional fileExtensions() As String = Nothing,
                                     Optional BoxTitle As String = "",
                                     Optional ReturnEmptyStringArrayOnCancel As Boolean = False) As String()
 
-            Return OstfGui.GetOpenFilePaths(directory, fileName, fileExtensions, BoxTitle, ReturnEmptyStringArrayOnCancel)
+            Return Messager.GetOpenFilePaths(directory, fileExtensions, BoxTitle, ReturnEmptyStringArrayOnCancel).Result
 
             'The OstfGui.GetOpenFilePaths should do the following:
 
@@ -497,7 +496,7 @@ Namespace Utils
                                             Optional ByVal readType As TextReadType = TextReadType.readAllLines) As String()
             'Selecting the file path of the txt file, if not allready set
             If filePath = "" Then
-                filePath = OstfGui.GetOpenFilePath(initialDirectory,,, dialogueBoxCommand)
+                filePath = Messager.GetOpenFilePath(initialDirectory,,, dialogueBoxCommand).Result
                 If filePath = "" Then Return Nothing
             End If
 

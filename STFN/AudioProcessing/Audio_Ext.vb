@@ -14,9 +14,9 @@ Namespace Audio
             ''' <param name="directory"></param>
             ''' <param name="fileName"></param>
             ''' <returns>Returns the path to the indicated sound file.</returns>
-            Public Function OpenSoundFileDialog(Optional ByRef directory As String = "", Optional ByRef fileName As String = "") As String
+            Public Async Function OpenSoundFileDialog(Optional ByVal directory As String = "", Optional ByVal fileName As String = "") As Task(Of String)
 
-                Return OstfGui.OpenSoundFileDialog(directory, fileName)
+                Return Await Messager.OpenSoundFileDialog(directory, fileName)
 
                 'The iOstfGui function should do the following
 
@@ -56,7 +56,7 @@ Namespace Audio
                                             Optional ByVal fileFormat As SoundFileFormats = SoundFileFormats.wav) As String
 
 
-                Return OstfGui.SaveSoundFileDialog(directory, fileName, fileFormat)
+                Return Messager.SaveSoundFileDialog(directory, fileName, fileFormat).Result
 
                 'The OstfGui.SaveSoundFileDialog shold do the following:
                 '                Dim filePath As String = ""
@@ -124,7 +124,7 @@ Namespace Audio
                                      Optional ByVal directory As String = "", Optional ByVal fileName As String = "") As Sound
 
                 If filePath = "" Then
-                    filePath = OpenSoundFileDialog(directory, fileName)
+                    filePath = OpenSoundFileDialog(directory, fileName).Result
                 End If
 
                 If filePath = "" Then
