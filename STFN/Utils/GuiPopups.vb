@@ -11,32 +11,12 @@ Public Module Messager
 
     Public Event NewMessage(ByVal Title As String, ByVal Message As String, ByVal CancelButtonText As String)
 
-    Public Event NewQuestion(ByVal Title As String, ByVal Question As String, ByVal AcceptButtonText As String, ByVal CancelButtonText As String, ByRef Result As Boolean)
-
-    Public Event QuestionSent As EventHandler(Of QuestionEventArgs)
-
-    'Public Event x As Task(Of Boolean)
+    Public Event NewQuestion As EventHandler(Of QuestionEventArgs)
 
     Public Enum MsgBoxStyle
-        OkOnly
-        OkCancel
-        AbortRetryIgnore
-        YesNoCancel
-        YesNo
-        RetryCancel
-        Critical
-        Question
-        Exclamation
         Information
-        DefaultButton1
-        DefaultButton2
-        DefaultButton3
-        ApplicationModal
-        SystemModal
-        MsgBoxHelp
-        MsgBoxRight
-        MsgBoxRtlReading
-        MsgBoxSetForeground
+        Exclamation
+        Critical
     End Enum
 
     ''' <summary>
@@ -48,30 +28,32 @@ Public Module Messager
     ''' <param name="CancelButtonText"></param>
     Public Sub MsgBox(ByVal Message As String, Optional ByVal Style As MsgBoxStyle = MsgBoxStyle.Information, Optional ByVal Title As String = "", Optional ByVal CancelButtonText As String = "OK")
 
-        ' For now just the ignoring style argument
-        RaiseEvent NewMessage(Title, Message, CancelButtonText)
+        Select Case Style
+            Case MsgBoxStyle.Information
+
+                RaiseEvent NewMessage(Title, Message, CancelButtonText)
+
+            Case MsgBoxStyle.Exclamation
+
+                'TODO, add some "Exclamation" notice...
+                RaiseEvent NewMessage(Title, Message, CancelButtonText)
+
+        End Select
+
 
     End Sub
 
-    Public Function MsgBoxAcceptQuestion(ByVal Question As String, Optional ByVal Style As MsgBoxStyle = MsgBoxStyle.Information, Optional ByVal Title As String = "",
-                                          Optional ByVal AcceptButtonText As String = "Yes", Optional ByVal CancelButtonText As String = "No") As Boolean
-
-        Dim Result As Boolean = SendQuestionAndWait(Title, Question, AcceptButtonText, CancelButtonText).Result
-
-        Return Result
-
-    End Function
-
-
-    Public Function SendQuestionAndWait(title As String, question As String, acceptButtonText As String, cancelButtonText As String) As Task(Of Boolean)
+    Public Async Function MsgBoxAcceptQuestion(ByVal Question As String, Optional ByVal Title As String = "",
+                                          Optional ByVal AcceptButtonText As String = "Yes", Optional ByVal CancelButtonText As String = "No") As Task(Of Boolean)
 
         Dim tcs As New TaskCompletionSource(Of Boolean)()
 
-        RaiseEvent QuestionSent(Nothing, New QuestionEventArgs(title, question, acceptButtonText, cancelButtonText, tcs))
+        RaiseEvent NewQuestion(Nothing, New QuestionEventArgs(Title, Question, AcceptButtonText, CancelButtonText, tcs))
 
-        Return tcs.Task
+        Return Await tcs.Task
 
     End Function
+
 
 
 End Module

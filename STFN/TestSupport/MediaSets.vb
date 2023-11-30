@@ -607,8 +607,8 @@ Public Class MediaSet
     ''' Checks whether there are missing audio media files, and offers an option to create the files needed. Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.
     ''' </summary>
     ''' <returns>Returns the a tuple containing the number of created files in Item1 and the number files still lacking upon return in Item2.</returns>
-    Public Function CreateLackingAudioMediaFiles(ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
-                                                 Optional SupressUnnecessaryMessages As Boolean = False) As Tuple(Of Integer, Integer)
+    Public Async Function CreateLackingAudioMediaFiles(ByVal PrototypeRecordingOption As PrototypeRecordingOptions,
+                                                 Optional SupressUnnecessaryMessages As Boolean = False) As Task(Of Tuple(Of Integer, Integer))
 
 
         Dim ExpectedAudioPaths = GetAllSpeechMaterialComponentAudioPaths(PrototypeRecordingOption)
@@ -621,7 +621,7 @@ Public Class MediaSet
 
         If ExpectedAudioPaths.Item3.Count > 0 Then
 
-            Dim MsgResult = MsgBoxAcceptQuestion(ExpectedAudioPaths.Item3.Count & " audio files are missing from media set " & MediaSetName & ". Do you want to prepare new wave files for these components?", MsgBoxStyle.YesNo)
+            Dim MsgResult = Await MsgBoxAcceptQuestion(ExpectedAudioPaths.Item3.Count & " audio files are missing from media set " & MediaSetName & ". Do you want to prepare new wave files for these components?")
             ' TODO: This has not yet been tested. Does the code stop and wait for a response here??? I guess not...
             If MsgResult = True Then
 

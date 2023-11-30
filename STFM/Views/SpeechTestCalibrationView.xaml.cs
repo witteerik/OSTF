@@ -519,9 +519,7 @@ public partial class SpeechTestCalibrationView : ContentView
 9. Do the same for all speaker channels.
 10. Restart the app to load the new calibration values and measure the calibration levels again to ensure correct calibration.";
 
-        //InstructionsForm.SetInfo(CalibrationInfoString, "How to calibrate");
-        //InstructionsForm.Show();
-        SoundSystem_RichTextBox.Text = CalibrationInfoString;
+        Messager.MsgBox(CalibrationInfoString, Messager.MsgBoxStyle.Information, "How to calibrate", "Close");
 
     }
 

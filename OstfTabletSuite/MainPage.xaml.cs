@@ -19,7 +19,7 @@ namespace OstfTabletSuite
             InitializeComponent();
 
             STFN.Messager.NewMessage += DisplayMessage;
-            STFN.Messager.QuestionSent += DisplayBooleanQuestion;
+            STFN.Messager.NewQuestion += DisplayBooleanQuestion;
 
         }
 
@@ -31,8 +31,10 @@ namespace OstfTabletSuite
 
         private async void DisplayBooleanQuestion(object sender, QuestionEventArgs e)
         {
-            
+
             //See more at https://learn.microsoft.com/en-us/dotnet/maui/user-interface/pop-ups?view=net-maui-8.0
+
+            var a = 1;
 
             bool answer = await DisplayAlert(e.Title, e.Question, e.AcceptButtonText, e.CancelButtonText);
 
