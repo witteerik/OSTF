@@ -499,7 +499,7 @@
         Dim NewTestSpecification As New SpeechMaterialSpecification(TestId, NewTestSpecificationDirectoryName)
 
         'Noting where to save the test specification
-        Dim TestSpecificationFullPath = IO.Path.Combine(OutputParentFolder, SpeechMaterialSpecification.AvailableSpeechMaterialsDirectory, TestId & "_TestSpecificationFile (Put this in the " & OstfBase.AvailableTestsSubFolder & " folder).txt")
+        Dim TestSpecificationFullPath = IO.Path.Combine(OutputParentFolder, SpeechMaterialSpecification.AvailableSpeechMaterialsDirectory, TestId & "_TestSpecificationFile (Put this in the " & OstfBase.AvailableSpeechMaterialsSubFolder & " folder).txt")
         'Saving the test specification file
         NewTestSpecification.WriteTextFile(TestSpecificationFullPath)
 

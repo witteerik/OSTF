@@ -471,9 +471,9 @@ Namespace SipTest
 
                 Select Case TestProcedure.TestParadigm
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                        Output.TestWords.Add(TestWordPrefix & ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & ObservedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth & TestWordSuffix)  'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(TestWordPrefix & ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & ObservedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth & TestWordSuffix)  'It is also possible to use a custom variable here, such as: ...SpeechMaterial.GetCategoricalVariableValue("Spelling")) 
                     Case Else
-                        Output.TestWords.Add(TestWordPrefix & ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & TestWordSuffix) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(TestWordPrefix & ObservedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & TestWordSuffix) 'It is also possible to use a custom variable here, such as: ...SpeechMaterial.GetCategoricalVariableValue("Spelling")) 
                 End Select
                 Output.Responses.Add(ObservedTrials(i).Response.Replace(vbTab, ", "))
                 Output.ResponseType.Add(ObservedTrials(i).Result)
@@ -502,9 +502,9 @@ Namespace SipTest
 
                 Select Case TestProcedure.TestParadigm
                     Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                        Output.TestWords.Add(TestWordPrefix & PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & PlannedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth & TestWordSuffix) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(TestWordPrefix & PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & ", " & PlannedTrials(i).TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth & TestWordSuffix) 'It is also possible to use a custom variable here, such as: ...SpeechMaterial.GetCategoricalVariableValue("Spelling")) 
                     Case Else
-                        Output.TestWords.Add(TestWordPrefix & PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & TestWordSuffix) 'It is also possible to use a custom variable here, such as: ...SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")) 
+                        Output.TestWords.Add(TestWordPrefix & PlannedTrials(i).SpeechMaterialComponent.PrimaryStringRepresentation & TestWordSuffix) 'It is also possible to use a custom variable here, such as: ...SpeechMaterial.GetCategoricalVariableValue("Spelling")) 
                 End Select
                 Output.Responses.Add("")
                 Output.ResponseType.Add(PossibleResults.Missing)
@@ -933,7 +933,7 @@ Namespace SipTest
                 'Creates a test unit if not existing (and storing it temporarily in LoadedTestUnits
                 If Not LoadedTestUnits.ContainsKey(ParentTestUnitIndex) Then LoadedTestUnits.Add(ParentTestUnitIndex, New SiPTestUnit(Output))
 
-                'Getting the SpeechMaterialComponent, media set and (re-)creates the test trial
+                'Getting the SpeechMaterial, media set and (re-)creates the test trial
                 Dim SpeechMaterialComponent = ParentTestSpecification.SpeechMaterial.GetComponentById(SpeechMaterialComponentID)
                 Dim MediaSet = ParentTestSpecification.MediaSets.GetMediaSet(MediaSetName)
                 Dim NewTestTrial As SipTrial
@@ -1153,7 +1153,7 @@ Namespace SipTest
         Public ReadOnly Property ParentTestUnit As SiPTestUnit
 
         ''' <summary>
-        ''' Holds a reference to the SpeechMaterialComponent presented in the trial.
+        ''' Holds a reference to the SpeechMaterial presented in the trial.
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property SpeechMaterialComponent As SpeechMaterialComponent
@@ -2034,7 +2034,7 @@ Namespace SipTest
             'TODO! Decide whether exact duration of the presented phoneme should be used (slower, but as in Witte,2021) or if average test phoneme duration (for the five exemplar recordings of each word) should be used (a little faster)
             Dim DurationList = Me.SpeechMaterialComponent.GetDurationOfContrastingComponents(Me.MediaSet, SpeechMaterialComponent.LinguisticLevels.Phoneme, Me.SelectedMediaIndex, 1)
             Dim TPD As Double = DurationList(0)
-            'Dim TPD As Double = Me.SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Tc")
+            'Dim TPD As Double = Me.SpeechMaterial.GetNumericMediaSetVariableValue(MediaSet, "Tc")
 
             Dim Z As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("Z")
             Dim iPNDP As Double = 1 / Me.SpeechMaterialComponent.GetNumericVariableValue("PNDP")
@@ -2138,7 +2138,7 @@ Namespace SipTest
             Dim RefLevelDifference As Double = Me.Reference_SPL - ReferenceSpeechMaterialLevel_SPL
 
             'Getting the current gain, compared to the reference test-word and masker levels
-            Dim CurrentSpeechGain As Double = TestWordLevel - ReferenceTestWordLevel_SPL + RefLevelDifference ' SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
+            Dim CurrentSpeechGain As Double = TestWordLevel - ReferenceTestWordLevel_SPL + RefLevelDifference ' SpeechMaterial.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
             If LogToConsole = True Then Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " SpeechGain : " & CurrentSpeechGain)
 
             Dim CurrentMaskerGain As Double = TargetMasking_SPL - ReferenceContrastingPhonemesLevel_SPL + RefLevelDifference 'Audio.Standard_dBFS_To_dBSPL(Common.SipTestReferenceMaskerLevel_FS) 'TODO: In the SiP-test maskers sound files the level is set to -30 dB FS across the whole sounds. A more detailed sound level data could be used instead!

@@ -1,4 +1,21 @@
-﻿Public Class TestTrial
+﻿Public Class TrialHistory
+    Inherits List(Of TestTrial)
+
+
+
+End Class
+
+Public Class TestTrial
+
+    ''' <summary>
+    ''' An unsigned integer value which can be used to store the test block to which the current trial belongs. While test stages should primarily differ in the applied protocol rules, test blocks should primarily differ in tested content.
+    ''' </summary>
+    Public TestBlock As UInteger
+
+    ''' <summary>
+    ''' An unsigned integer value which can be used to store the test stage to which the current trial belongs. While test blocks should primarily differ in tested content, test stages should primarily differ in the protocol rules applied.
+    ''' </summary>
+    Public TestStage As UInteger
 
     Public SpeechMaterialComponent As SpeechMaterialComponent
 
@@ -20,8 +37,6 @@ End Class
 
 Public Class SrtTrial
     Inherits TestTrial
-
-    Public Property AdaptiveStage As SrtSpeechTest.TestStage
 
     Public SpeechLevel As Double
 

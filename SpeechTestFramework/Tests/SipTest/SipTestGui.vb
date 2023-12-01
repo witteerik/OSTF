@@ -195,10 +195,10 @@ Public Class SipTestGui
     Private Sub SipTestGui_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Initializing all components
-        OstfBase.LoadAvailableTestSpecifications()
+        OstfBase.LoadAvailableSpeechMaterialSpecifications()
 
         Dim SelectedTest As SpeechMaterialSpecification = Nothing
-        For Each ts In OstfBase.AvailableTests
+        For Each ts In OstfBase.AvailableSpeechMaterials
             If ts.Name = SpeechMaterialName Then
                 SelectedTest = ts
                 Exit For

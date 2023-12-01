@@ -24,12 +24,12 @@ Public Class Form4
         Select Case test
             Case -1
 
-                SpeechTestFramework.OstfBase.LoadAvailableTestSpecifications()
+                SpeechTestFramework.OstfBase.LoadAvailableSpeechMaterialSpecifications()
                 Dim SelectedTestIndex As Integer = 1
-                SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
-                Dim MySpeechMaterial = SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).SpeechMaterial
-                SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).LoadAvailableMediaSetSpecifications()
-                Dim MyMediaSet = SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).MediaSets(0)
+                SpeechTestFramework.OstfBase.AvailableSpeechMaterials(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
+                Dim MySpeechMaterial = SpeechTestFramework.OstfBase.AvailableSpeechMaterials(SelectedTestIndex).SpeechMaterial
+                SpeechTestFramework.OstfBase.AvailableSpeechMaterials(SelectedTestIndex).LoadAvailableMediaSetSpecifications()
+                Dim MyMediaSet = SpeechTestFramework.OstfBase.AvailableSpeechMaterials(SelectedTestIndex).MediaSets(0)
 
                 Dim TestComponent = MySpeechMaterial.GetAllDescenentsAtLevel(SpeechTestFramework.SpeechMaterialComponent.LinguisticLevels.List)(0)
 
@@ -51,13 +51,13 @@ Public Class Form4
 
             Case 1
 
-                SpeechTestFramework.OstfBase.LoadAvailableTestSpecifications()
+                SpeechTestFramework.OstfBase.LoadAvailableSpeechMaterialSpecifications()
 
                 Dim SelectedTestIndex As Integer = 0
 
-                SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
+                SpeechTestFramework.OstfBase.AvailableSpeechMaterials(SelectedTestIndex).LoadSpeechMaterialComponentsFile()
 
-                Dim CompleteSpeechMaterial = SpeechTestFramework.OstfBase.AvailableTests(SelectedTestIndex).SpeechMaterial
+                Dim CompleteSpeechMaterial = SpeechTestFramework.OstfBase.AvailableSpeechMaterials(SelectedTestIndex).SpeechMaterial
 
                 'Dim CompleteSpeechMaterial = SpeechTestFramework.SpeechMaterialComponent.LoadSpeechMaterial(SpeechTestFramework.OstfBase.CurrentlySelectedTest.SpeechMaterialComponentsSubFilePath)
 
@@ -3022,12 +3022,12 @@ Public Class Form4
 
 
         'Initializing all components
-        OstfBase.LoadAvailableTestSpecifications()
+        OstfBase.LoadAvailableSpeechMaterialSpecifications()
 
         Dim SpeechMaterialName = "Swedish SiP-test"
 
         Dim SelectedTest As SpeechMaterialSpecification = Nothing
-        For Each ts In OstfBase.AvailableTests
+        For Each ts In OstfBase.AvailableSpeechMaterials
             If ts.Name = SpeechMaterialName Then
                 SelectedTest = ts
                 Exit For
@@ -3071,12 +3071,12 @@ Public Class Form4
 
 
         'Initializing all components
-        OstfBase.LoadAvailableTestSpecifications()
+        OstfBase.LoadAvailableSpeechMaterialSpecifications()
 
         Dim SpeechMaterialName = "Swedish SiP-test"
 
         Dim SelectedTest As SpeechMaterialSpecification = Nothing
-        For Each ts In OstfBase.AvailableTests
+        For Each ts In OstfBase.AvailableSpeechMaterials
             If ts.Name = SpeechMaterialName Then
                 SelectedTest = ts
                 Exit For
@@ -3256,12 +3256,12 @@ Public Class Form4
     Private Sub Button24_Click(sender As Object, e As EventArgs) Handles Button24.Click
 
         'Initializing all components
-        OstfBase.LoadAvailableTestSpecifications()
+        OstfBase.LoadAvailableSpeechMaterialSpecifications()
 
         Dim SpeechMaterialName = "Swedish SiP-test"
 
         Dim SelectedTest As SpeechMaterialSpecification = Nothing
-        For Each ts In OstfBase.AvailableTests
+        For Each ts In OstfBase.AvailableSpeechMaterials
             If ts.Name = SpeechMaterialName Then
                 SelectedTest = ts
                 Exit For
@@ -3301,12 +3301,12 @@ Public Class Form4
         Dim rnd = New Random
 
         'Initializing all components
-        OstfBase.LoadAvailableTestSpecifications()
+        OstfBase.LoadAvailableSpeechMaterialSpecifications()
 
         Dim SpeechMaterialName = "Swedish SiP-test"
 
         Dim SelectedTest As SpeechMaterialSpecification = Nothing
-        For Each ts In OstfBase.AvailableTests
+        For Each ts In OstfBase.AvailableSpeechMaterials
             If ts.Name = SpeechMaterialName Then
                 SelectedTest = ts
                 Exit For

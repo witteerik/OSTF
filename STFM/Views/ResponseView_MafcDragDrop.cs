@@ -27,6 +27,15 @@ public class ResponseView_MafcDragDrop : ResponseView
 
     }
 
+    public override void InitializeNewTrial()
+    {
+        StopAllTimers();
+    }
+
+    public override void StopAllTimers()
+    {
+        // This should stop all timers that may be running from a previuos trial
+    }
 
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
     {

@@ -5,8 +5,8 @@
 
 
 
-    Public Sub New(ByVal SpeechMaterialName As String)
-        MyBase.New(SpeechMaterialName)
+    Public Sub New(ByVal SpeechMaterialName As String, ByRef AvailableTestProtocols As TestProtocols)
+        MyBase.New(SpeechMaterialName, AvailableTestProtocols)
 
     End Sub
 

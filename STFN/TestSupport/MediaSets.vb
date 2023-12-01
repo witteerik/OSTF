@@ -51,9 +51,9 @@ Public Class MediaSet
 
 
     'The following variables are used to ensure that there is an appropriate number of media files stored in the locations:
-    'OstaRootPath + MediaSet.MediaParentFolder + SpeechMaterialComponent.MediaFolder
+    'OstaRootPath + MediaSet.MediaParentFolder + SpeechMaterial.MediaFolder
     'and
-    'OstaRootPath + MediaSet.MaskerParentFolder + SpeechMaterialComponent.MaskerFolder
+    'OstaRootPath + MediaSet.MaskerParentFolder + SpeechMaterial.MaskerFolder
     'As well as to determine the number of recordings to create for a speech test if the inbuilt recording and segmentation tool is used.
     Public Property AudioFileLinguisticLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
 
@@ -108,8 +108,8 @@ Public Class MediaSet
     End Enum
 
     'These two should contain the data defined in the TestSituationDatabase associated to the component in the speech material file.
-    Public NumericVariables As New SortedList(Of String, SortedList(Of String, Double)) ' SpeechMaterialComponent Id, Variable name, Variable Value
-    Public CategoricalVariables As New SortedList(Of String, SortedList(Of String, String)) ' SpeechMaterialComponent Id, Variable name, Variable Value
+    Public NumericVariables As New SortedList(Of String, SortedList(Of String, Double)) ' SpeechMaterial Id, Variable name, Variable Value
+    Public CategoricalVariables As New SortedList(Of String, SortedList(Of String, String)) ' SpeechMaterial Id, Variable name, Variable Value
 
 
     Public Function GetCustomVariablesDirectory()
@@ -1569,7 +1569,7 @@ Public Class MediaSet
 
             'Stores the value as a custom media set variable
             'The outcommented lines can be used to get the old SiP-test component IDs
-            'Dim OldSipName As String = "X_" & TargetComponent.ParentComponent.PrimaryStringRepresentation.ToLower & " (" & TargetComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).PrimaryStringRepresentation & ")"
+            'Dim OldSipName As String = "X_" & TargetComponent.ParentComponent.PrimaryStringRepresentation.ToLower & " (" & TargetComponent.GetAncestorAtLevel(SpeechMaterial.LinguisticLevels.List).PrimaryStringRepresentation & ")"
             'TargetComponent.SetCategoricalMediaSetVariableValue(Me, "OldSipName", OldSipName)
             'TargetComponent.SetNumericMediaSetVariableValue(Me, "PhonemeIndex", TargetComponent.GetSelfIndex)
 
@@ -1635,8 +1635,8 @@ Public Class MediaSet
     '                                     Optional ByVal dBSPL_FSdifference As Double? = Nothing)
 
     '    'Temporarily sets the load type of sound files
-    '    Dim AudioFileLoadMode_StartValue = SpeechMaterialComponent.AudioFileLoadMode
-    '    SpeechMaterialComponent.AudioFileLoadMode = SpeechMaterialComponent.MediaFileLoadModes.LoadOnFirstUse
+    '    Dim AudioFileLoadMode_StartValue = SpeechMaterial.AudioFileLoadMode
+    '    SpeechMaterial.AudioFileLoadMode = SpeechMaterial.MediaFileLoadModes.LoadOnFirstUse
 
     '    If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.PortAudioVB.DuplexMixer.Standard_dBFS_dBSPL_Difference
 
@@ -1830,7 +1830,7 @@ Public Class MediaSet
     '    End Try
 
     '    'Resets the load type of sound files to the same type as when the sub was called
-    '    SpeechMaterialComponent.AudioFileLoadMode = AudioFileLoadMode_StartValue
+    '    SpeechMaterial.AudioFileLoadMode = AudioFileLoadMode_StartValue
 
     'End Sub
 

@@ -16,14 +16,14 @@ Public Module OstfBase
 
     Public Property WasStartedFromVisualStudio As Boolean = False
 
-    Public Property AvailableTestsSubFolder As String = "AvailableSpeechMaterials"
+    Public Property AvailableSpeechMaterialsSubFolder As String = "AvailableSpeechMaterials"
     Public Property CalibrationSignalSubDirectory As String = "CalibrationSignals"
     Public Property AudioSystemSubDirectory As String = "AudioSystem"
     Public Property AudioSystemSettingsFile As String = IO.Path.Combine(AudioSystemSubDirectory, "AudioSystemSpecification.txt")
     Public Property RoomImpulsesSubDirectory As String = "RoomImpulses"
     Public Property AvailableImpulseResponseSetsFile As String = IO.Path.Combine(RoomImpulsesSubDirectory, "AvailableImpulseResponseSets.txt")
 
-    Public Property AvailableTests As New List(Of SpeechMaterialSpecification)
+    Public Property AvailableSpeechMaterials As New List(Of SpeechMaterialSpecification)
 
     ''' <summary>
     ''' The SoundPlayer shared between all STFN applications. Each application that uses it, is responsible of initiating it, with the settings required by the specific application. As well as disposing it when the application is closed.
@@ -108,9 +108,9 @@ Public Module OstfBase
 
 
 
-    Public Sub LoadAvailableTestSpecifications()
+    Public Sub LoadAvailableSpeechMaterialSpecifications()
 
-        Dim TestSpecificationFolder As String = IO.Path.Combine(MediaRootDirectory, AvailableTestsSubFolder)
+        Dim TestSpecificationFolder As String = IO.Path.Combine(MediaRootDirectory, AvailableSpeechMaterialsSubFolder)
 
         'Getting .txt files in that folder
         Dim ExistingFiles = IO.Directory.GetFiles(TestSpecificationFolder)
@@ -123,13 +123,13 @@ Public Module OstfBase
         Next
 
         'Clears any tests previously loaded before adding new tests
-        OstfBase.AvailableTests.Clear()
+        OstfBase.AvailableSpeechMaterials.Clear()
 
         For Each TextFileName In TextFileNames
             'Ties to use the text file in order to create a new test specification object, and just skipps it if unsuccessful
-            Dim NewTestSpecification = SpeechMaterialSpecification.LoadTestSpecificationFile(TextFileName)
+            Dim NewTestSpecification = SpeechMaterialSpecification.LoadSpecificationFile(TextFileName)
             If NewTestSpecification IsNot Nothing Then
-                OstfBase.AvailableTests.Add(NewTestSpecification)
+                OstfBase.AvailableSpeechMaterials.Add(NewTestSpecification)
             End If
         Next
 

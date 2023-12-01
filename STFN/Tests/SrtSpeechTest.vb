@@ -1,20 +1,19 @@
-﻿Public Class SrtSpeechTest
+﻿Imports MathNet.Numerics
 
+Public Class SrtSpeechTest
     Inherits SpeechTest
 
+    ''' <summary>
+    ''' This collection contains MaximumNumberOfTestWords which can be used troughout the test, in sequential order.
+    ''' </summary>
     Private PlannedTestWords As List(Of SpeechMaterialComponent)
 
-    Private NextSpeechLevel As Double = 0
+    Private MaximumNumberOfTestWords As Integer = 200
 
-    Private ObservedTrials As List(Of SrtTrial)
 
-    Public Enum TestStage
-        Search
-        Fixed1
-        Fixed2
-    End Enum
 
-    Private CurrentTestStage As TestStage = TestStage.Search
+    Private ObservedTrials As TrialHistory
+
 
 #Region "Settings"
 
@@ -24,51 +23,53 @@
 
     Public StartLevel As Double
 
-    Public FixedStageTrialCount As Integer = 10
-
-    Private _SearchStageMinimumTrialCount As Integer = 6
-    Public Property SearchStageMinimumTrialCount As Integer
-        Get
-            Return _SearchStageMinimumTrialCount
-        End Get
-        Set(value As Integer)
-            'Limiting the value to one or above
-            _SearchStageMinimumTrialCount = Math.Max(1, value)
-        End Set
-    End Property
-
-    Public SearchStageThresholdDeviation As Double = 0.17
-
-    Public MaximumSearchStageLength As Integer = 20
-
-    Public SearchStageLevelAdjustment As Integer = 5
-
-    Public InterFixedStageLevelAdjustment As Double = 10
 
 #End Region
 
-    Public Sub New(ByVal SpeechMaterialName As String)
-        MyBase.New(SpeechMaterialName)
+    Public Sub New(ByVal SpeechMaterialName As String, ByVal AvailableTestProtocols As TestProtocols)
+        MyBase.New(SpeechMaterialName, AvailableTestProtocols)
 
         'Some initial settings which should be overridden by the settings editor
         SelectedMediaSet = GetAvailableMediasets(0)
-        StartList = "Lista 1"
-        FixedResponseAlternativeCount = 4
+        StartList = "Lista 3"
+        FixedResponseAlternativeCount = 6
         StartLevel = 40
+        RandomizeWordsWithinLists = True
+        SelectTestProtocol(AvailableTestProtocols(0))
 
     End Sub
 
     Public Overrides Function InitializeCurrentTest() As Boolean
 
-        ObservedTrials = New List(Of SrtTrial)
+        ObservedTrials = New TrialHistory
 
-        'Adding four lists, starting from the start list
+        CreatePlannedWordsList()
+
+        SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartLevel, .TestStage = 0})
+
+        Return True
+
+    End Function
+
+    Private Function CreatePlannedWordsList() As Boolean
+
+        'Adding NumberOfWordsToAdd words, starting from the start list (excluding practise items), and re-using lists if needed 
         Dim TempAvailableLists As New List(Of SpeechMaterialComponent)
         Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, True, False)
-        For i = 0 To 1
+
+        Dim ListCount As Integer = AllLists.Count
+        Dim TotalWordCount As Integer = 0
+        For Each List In AllLists
+            TotalWordCount += List.ChildComponents.Count ' N.B. We get sentence components here, but in spondee materials, each sentence only contains one word.
+        Next
+
+        'Calculating the number of loops around the material that is needed to get NumberOfWordsToAdd words, and adding one loop to compensate for not starting the adding of words at the first list
+        Dim LoopsNeeded As Integer = Math.Ceiling(TotalWordCount / MaximumNumberOfTestWords) + 1
+        'Adding the number of lists needed 
+        For i = 1 To LoopsNeeded
             TempAvailableLists.AddRange(AllLists)
         Next
-        Dim ListsToAdd As New List(Of SpeechMaterialComponent)
+        'Determines the index of the start list
         Dim SelectedStartListIndex As Integer = -1
         For i = 0 To AllLists.Count - 1
             If AllLists(i).PrimaryStringRepresentation = StartList Then
@@ -76,37 +77,58 @@
                 Exit For
             End If
         Next
+        'Collecting the lists to use, starting with the stat list
         Dim ListsToUse As New List(Of SpeechMaterialComponent)
         If SelectedStartListIndex > -1 Then
-            For i = SelectedStartListIndex To Math.Min(SelectedStartListIndex + 3, AllLists.Count - 1)
+            For i = SelectedStartListIndex To TempAvailableLists.Count - 1
                 ListsToUse.Add(TempAvailableLists(i))
             Next
         Else
             'This should not happen unless there are no lists loaded!
+            Messager.MsgBox("Unable to add test words, probably since the selected speech material only contains " & TotalWordCount & " words!",, "An error occurred!")
             Return False
         End If
 
-        'Adding all planned test words
+        'Adding all planned test words, and stopping after NumberOfWordsToAdd have been added
         PlannedTestWords = New List(Of SpeechMaterialComponent)
+        Dim TargetNumberOfWordsReached As Boolean = False
         For Each List In ListsToUse
             Dim CurrentWords = List.GetChildren()
 
             If RandomizeWordsWithinLists = False Then
-                PlannedTestWords.AddRange(CurrentWords)
+                For Each Word In CurrentWords
+                    PlannedTestWords.Add(Word)
+                    'Checking if enough words have been added
+                    If PlannedTestWords.Count = MaximumNumberOfTestWords Then
+                        TargetNumberOfWordsReached = True
+                        Exit For
+                    End If
+                Next
             Else
                 'Randomizing order
                 Dim RandomizedOrder = Utils.SampleWithoutReplacement(CurrentWords.Count, 0, CurrentWords.Count, Randomizer)
                 For Each RandomIndex In RandomizedOrder
                     PlannedTestWords.Add(CurrentWords(RandomIndex))
+                    'Checking if enough words have been added
+                    If PlannedTestWords.Count = MaximumNumberOfTestWords Then
+                        TargetNumberOfWordsReached = True
+                        Exit For
+                    End If
                 Next
             End If
+
+            If TargetNumberOfWordsReached = True Then
+                'Breaking out of the outer loop if we have enough words
+                Exit For
+            End If
+
         Next
 
-        'Setting the speech level to be presented in the next trial
-        NextSpeechLevel = StartLevel
-
-        'Setting the initial TestStage to Search
-        CurrentTestStage = TestStage.Search
+        'Checing that we really have NumberOfWordsToAdd words
+        If MaximumNumberOfTestWords <> PlannedTestWords.Count Then
+            Messager.MsgBox("The wrong number of test items were added. It should have been " & MaximumNumberOfTestWords & " but instead " & PlannedTestWords.Count & " items were added!",, "An error occurred!")
+            Return False
+        End If
 
         Return True
 
@@ -133,17 +155,29 @@
             'Nothing to correct (this should be the start of a new test)
         End If
 
-        Return PrepareNextTrial()
+
+        'Calculating the speech level
+        Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
+
+        ' Returning if we should not move to the next trial
+        If ProtocolReply.Decision <> SpeechTestReplies.GotoNextTrial Then
+            Return ProtocolReply.Decision
+        Else
+            Return PrepareNextTrial(ProtocolReply)
+        End If
 
     End Function
 
-    Private Function PrepareNextTrial() As SpeechTestReplies
+    Private Function PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction) As SpeechTestReplies
 
+        'Preparing the next trial
         'Getting next test word
         Dim NextTestWord = PlannedTestWords(ObservedTrials.Count)
 
         'Creating a new test trial
-        CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord}
+        CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+            .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+            .TestStage = NextTaskInstruction.TestStage}
 
         If IsFreeRecall Then
             CurrentTestTrial.ResponseAlternativeSpellings = New List(Of String) From {"Rätt", "Fel"}
@@ -163,17 +197,6 @@
             CurrentTestTrial.ResponseAlternativeSpellings = Utils.Shuffle(ResponseAlternatives, Randomizer)
         End If
 
-        'Calculating the speech level
-        Dim NextLevelResult = CalculateNextSpeechLevel()
-
-        'Updating test trial test stage and speech level (as this may have been changed by CalculateNextSpeechLevel
-        DirectCast(CurrentTestTrial, SrtTrial).AdaptiveStage = CurrentTestStage
-        DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel = NextSpeechLevel
-
-        ' Returning if we should not move to the next trial
-        If NextLevelResult <> SpeechTestReplies.GotoNextTrial Then
-            Return NextLevelResult
-        End If
 
         'Mixing trial sound
         MixNextTrialSound()
@@ -182,112 +205,20 @@
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 9500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 9700, .Type = ResponseViewEvent.ResponseViewEventTypes.HideAll})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 5500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 
     End Function
 
 
-    Private Function CalculateNextSpeechLevel() As SpeechTestReplies
-
-        'Determines test stage
-        Dim TrialsInFixedStage1 As New List(Of SrtTrial)
-        Dim TrialsInFixedStage2 As New List(Of SrtTrial)
-        For Each Trial In ObservedTrials
-            If Trial.AdaptiveStage = TestStage.Fixed1 Then TrialsInFixedStage1.Add(Trial)
-            If Trial.AdaptiveStage = TestStage.Fixed2 Then TrialsInFixedStage2.Add(Trial)
-        Next
-
-        'Checking if all trials in fixed stage 2 have been run
-        If TrialsInFixedStage2.Count = FixedStageTrialCount Then
-            Return SpeechTestReplies.TestIsCompleted
-        End If
-
-        'Checking if fixed stage 1 is complete
-        If TrialsInFixedStage1.Count = FixedStageTrialCount Then
-
-            'Check if we have no trials in fixed stage 2
-            If TrialsInFixedStage2.Count = 0 Then
-
-                'Evaluating the results of fixed stage 1 
-                Select Case GetAverageScore(TrialsInFixedStage1)
-                    Case 0.5
-
-                        'We have exacly 50 % correct in first stage
-                        'Quitting the test as the threshold has been detected
-                        Return SpeechTestReplies.TestIsCompleted
-
-                    Case > 0.5
-                        'Decreasing level by InterFixedStageLevelAdjustment
-                        NextSpeechLevel -= InterFixedStageLevelAdjustment
-
-                        'And incrementing Test stage
-                        CurrentTestStage = TestStage.Fixed2
-
-                    Case Else
-                        'Increasing level by InterFixedStageLevelAdjustment
-                        NextSpeechLevel += InterFixedStageLevelAdjustment
-
-                        'And incrementing Test stage
-                        CurrentTestStage = TestStage.Fixed2
-                End Select
-            Else
-                'We've in the middle of fixed stage 2, no need to alter the level. Just continueing.
-            End If
-
-        ElseIf TrialsInFixedStage1.Count > 0 Then
-            'We've in the middle of fixed stage 1, no need to alter the level. Just continueing.
-        Else
-
-            'We're in the Search stage
-            'Checking if it's the first trial
-            If ObservedTrials.Count = 0 Then
-                'Do nothing
-            Else
-
-                'Adjusting the speech level, depending on the last response
-                If ObservedTrials.Last.Score = 1 Then
-                    NextSpeechLevel -= SearchStageLevelAdjustment
-                Else
-                    NextSpeechLevel += SearchStageLevelAdjustment
-                End If
-
-                'Checking first that we're not past the maximum length of the search stage
-                If ObservedTrials.Count >= MaximumSearchStageLength Then
-                    Return SpeechTestReplies.AbortTest
-                End If
-
-                'We present at least SearchStageMinimumTrialCount trials before we can move to the next stage
-                If ObservedTrials.Count > SearchStageMinimumTrialCount Then
-
-                    'Checking if we should move to fixed stage 1
-                    'Checking the score of the last six trials.
-                    Dim LastTrialList = ObservedTrials.GetRange(ObservedTrials.Count - SearchStageMinimumTrialCount, SearchStageMinimumTrialCount)
-                    Dim AverageScore = GetAverageScore(LastTrialList)
-                    If AverageScore <= 0.5 + SearchStageThresholdDeviation Then
-                        If AverageScore >= 0.5 - SearchStageThresholdDeviation Then
-                            'We've in the target score range. Incrementing test stage
-                            CurrentTestStage = TestStage.Fixed1
-                        End If
-                    End If
-                End If
-            End If
-        End If
-
-        Return SpeechTestReplies.GotoNextTrial
-
-    End Function
 
     Private Sub MixNextTrialSound()
 
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
-        'Dim TestWordSound = Audio.Sound.LoadWaveFile("C:\Temp10\M_000_004_Klas.wav")
-
         'Setting level
-        Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(NextSpeechLevel))
+        Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel))
 
         'Copying to stereo and storing in CurrentTestTrial.Sound 
         CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
@@ -304,63 +235,7 @@
 
 
     Public Overrides Function GetResults() As TestResults
-
-        Dim Output = New TestResults(TestResults.TestResultTypes.SRT)
-
-        ' Calculating speech recognition threshold
-        Dim TrialsInFixedStage1 As New List(Of SrtTrial)
-        Dim Stage1Level As Double
-        Dim TrialsInFixedStage2 As New List(Of SrtTrial)
-        Dim Stage2Level As Double
-        For Each Trial In ObservedTrials
-            If Trial.AdaptiveStage = TestStage.Fixed1 Then
-                TrialsInFixedStage1.Add(Trial)
-                Stage1Level = Trial.SpeechLevel
-            End If
-            If Trial.AdaptiveStage = TestStage.Fixed2 Then
-                TrialsInFixedStage2.Add(Trial)
-                Stage2Level = Trial.SpeechLevel
-            End If
-        Next
-
-        If TrialsInFixedStage2.Count > 0 Then
-
-            Dim Stage1Score = GetAverageScore(TrialsInFixedStage1)
-            Dim Stage2Score = GetAverageScore(TrialsInFixedStage2)
-
-            If Stage2Score = Stage1Score Then
-                'Using the average level
-                Output.SpeechRecognitionThreshold = (Stage1Level + Stage2Level) / 2
-            Else
-                'Interpolating level for 50 % correct score
-                Dim k = (Stage2Level - Stage1Level) / (Stage2Score - Stage1Score)
-                Dim m = Stage1Score / (k * Stage1Level)
-                If k = 0 Then
-                    'Using the average level (actually, the levels should be the same if k = 0!)
-                    Output.SpeechRecognitionThreshold = (Stage1Level + Stage2Level) / 2
-                Else
-                    Output.SpeechRecognitionThreshold = (0.5 - m) / k
-                End If
-            End If
-
-        Else
-
-            'This means that the score in the first stage was exactly 50 %
-            'No need for interpolation, just using stage 1 level as the speech recognition threshold
-            Output.SpeechRecognitionThreshold = Stage1Level
-        End If
-
-        'Storing the SpeechLevelSeries
-        Output.SpeechLevelSeries = New List(Of Double)
-        Output.TestStageSeries = New List(Of String)
-        Output.ScoreSeries = New List(Of Integer)
-        For Each Trial In ObservedTrials
-            Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
-            Output.TestStageSeries.Add(Trial.AdaptiveStage.ToString)
-            Output.ScoreSeries.Add(Trial.Score)
-        Next
-
-        Return Output
+        Return SelectedTestProtocol.GetResults(ObservedTrials)
     End Function
 End Class
 

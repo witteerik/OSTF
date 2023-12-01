@@ -53,6 +53,9 @@ namespace STFM
             mediaElement1.IsVisible = false;
             mediaElement2.IsVisible = false;
 
+            mediaElement1.ShouldKeepScreenOn = true;
+            mediaElement2.ShouldKeepScreenOn = true;
+
             mediaElement1.MediaFailed += MediaFail_Handler;
             mediaElement1.MediaOpened += MediaOpened_Handler;
             mediaElement1.MediaEnded += MediaEnded_Handler;
@@ -232,6 +235,7 @@ namespace STFM
                 // Setting the Source to null, so that the file can be overwritten on the next swap
                 mediaElement2.Source = null;
 
+
             }
             else
             {
@@ -267,9 +271,6 @@ namespace STFM
                 mediaElement1.Source = null;
 
             }
-
-
-
 
             // TODO: Here, the FinishedSwappingOutputSounds event should be raised
 
@@ -346,19 +347,25 @@ namespace STFM
 
         void iSoundPlayer.Dispose()
         {
-            // Ignored, but stops the sound, if called
+            // Stops  the sound and disconnects the source
             if (mediaElement1 != null)
             {
                 mediaElement1.Stop();
+                mediaElement1.Source = null;
+
+                // Cleanup MediaElement
+                mediaElement1.Handler?.DisconnectHandler();
+
             }
             if (mediaElement2 != null)
             {
                 mediaElement2.Stop();
-            }
+                mediaElement2.Source = null;
 
-            // Disconnecting source
-            mediaElement1.Source = null;
-            mediaElement2.Source = null;
+                // Cleanup MediaElement
+                mediaElement2.Handler?.DisconnectHandler();
+
+            }
 
             // Clearing temporary files
             foreach (string file  in writtenSoundsList)

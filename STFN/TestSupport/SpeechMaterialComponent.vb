@@ -222,8 +222,8 @@ Public Class SpeechMaterialComponent
     ''' <returns></returns>
     Public Function GetMediaFolderName() As String
 
-        'If LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.ListCollection Then
-        '    Throw New ArgumentException("The linguistic level " & SpeechMaterialComponent.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterialComponent.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
+        'If LinguisticLevel = SpeechMaterial.LinguisticLevels.ListCollection Then
+        '    Throw New ArgumentException("The linguistic level " & SpeechMaterial.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterial.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
         'End If
 
         Return Id & "_" & PrimaryStringRepresentation.Replace(" ", "_")
@@ -232,8 +232,8 @@ Public Class SpeechMaterialComponent
 
     Public Function GetMaskerFolderName() As String
 
-        'If LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.ListCollection Then
-        '    Throw New ArgumentException("The linguistic level " & SpeechMaterialComponent.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterialComponent.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
+        'If LinguisticLevel = SpeechMaterial.LinguisticLevels.ListCollection Then
+        '    Throw New ArgumentException("The linguistic level " & SpeechMaterial.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterial.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
         'End If
 
         Return Id & "_" & PrimaryStringRepresentation.Replace(" ", "_")
@@ -279,7 +279,7 @@ Public Class SpeechMaterialComponent
             Case LinguisticLevels.Phoneme
                 Return "PhonemeLevelVariables.txt"
             Case Else
-                Throw New ArgumentException("Unkown SpeechMaterialComponent.LinguisticLevel")
+                Throw New ArgumentException("Unkown SpeechMaterial.LinguisticLevel")
         End Select
     End Function
 
@@ -1502,7 +1502,7 @@ Public Class SpeechMaterialComponent
     End Function
 
     ''' <summary>
-    ''' Returns all numeric custom variable names separately at different linguistic levels for the current instance of SpeechMaterialComponent and all its descendants.
+    ''' Returns all numeric custom variable names separately at different linguistic levels for the current instance of SpeechMaterial and all its descendants.
     ''' </summary>
     ''' <returns></returns>
     Public Function GetNumericCustomVariableNamesByLinguicticLevel() As SortedList(Of SpeechMaterialComponent.LinguisticLevels, SortedSet(Of String))
@@ -2197,7 +2197,7 @@ Public Class SpeechMaterialComponent
     End Function
 
     ''' <summary>
-    ''' Recursively searches for the SpeechMaterialComponent at the top of the heirachy
+    ''' Recursively searches for the SpeechMaterial at the top of the heirachy
     ''' </summary>
     ''' <returns></returns>
     Public Function GetToplevelAncestor() As SpeechMaterialComponent
@@ -2505,7 +2505,7 @@ Public Class SpeechMaterialComponent
         If PresetSpecifications.Count > 0 Then
 
             For Each PresetSpecification In PresetSpecifications
-                Dim SelectedComponentsList As New SortedList(Of String, SpeechMaterialComponent) ' Where String is SpeechMaterialComponent.Id
+                Dim SelectedComponentsList As New SortedList(Of String, SpeechMaterialComponent) ' Where String is SpeechMaterial.Id
 
                 Dim AllRelatives = GetAllRelatives()
 
@@ -2558,7 +2558,7 @@ Public Class SpeechMaterialComponent
         Else
 
             'If no presets have been defined, a default preset containing all components (except practise components) at the PresetLevel is added
-            Dim SelectedComponentsList As New SortedList(Of String, SpeechMaterialComponent) ' Where String is SpeechMaterialComponent.Id
+            Dim SelectedComponentsList As New SortedList(Of String, SpeechMaterialComponent) ' Where String is SpeechMaterial.Id
             Dim AllRelatives = GetAllRelatives()
 
             For Each Component In AllRelatives
@@ -2621,7 +2621,7 @@ Public Class SpeechMaterialComponent
     ''' Gets all descendants at the specified linguistic level.
     ''' </summary>
     ''' <param name="RequestedDescendentComponentLevel">The specified linguistic level.</param>
-    ''' <param name="IncludeSelf">Set to true, in order to also include the current instance of SpeechMaterialComponent, in case its LinguisticLevel equals the specified linguistic level.</param>
+    ''' <param name="IncludeSelf">Set to true, in order to also include the current instance of SpeechMaterial, in case its LinguisticLevel equals the specified linguistic level.</param>
     ''' <returns></returns>
     Public Function GetAllDescenentsAtLevel(ByVal RequestedDescendentComponentLevel As SpeechMaterialComponent.LinguisticLevels, Optional IncludeSelf As Boolean = False) As List(Of SpeechMaterialComponent)
 

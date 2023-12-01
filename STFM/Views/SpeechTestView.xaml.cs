@@ -158,7 +158,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Hörtröskel för tal (HTT)":
 
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish Spondees 23");
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish Spondees 23", TestProtocols.GetSrtProtocols());
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
@@ -180,7 +180,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "SiP-testet":
 
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test");
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test", TestProtocols.GetSipProtocols());
 
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSipTestView2 = new OptionsSipTestView();
@@ -195,7 +195,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Quick SiP":
 
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test");
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test", TestProtocols.GetSipProtocols());
 
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSipTestView = new OptionsSipTestView();
@@ -258,7 +258,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             TestResultGrid.IsEnabled = true;
 
             // Showing / hiding panels during test
-            SetBottomPanelShow(CurrentSpeechTest .IsFreeRecall);
+            SetBottomPanelShow(CurrentSpeechTest.IsFreeRecall);
             SetLeftPanelShow(CurrentSpeechTest.IsFreeRecall);
 
             // Starting the test
@@ -357,13 +357,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             case SpeechTest.SpeechTestReplies.GotoNextTrial:
 
                 // Stops all event timers
-                if (testTrialEventTimerList != null)
-                {
-                    foreach (IDispatcherTimer timer in testTrialEventTimerList)
-                    {
-                        timer.Stop();
-                    }
-                }
+                StopAllTrialEventTimers();
 
                 // Starting the trial
                 PresentTrial();
@@ -373,6 +367,12 @@ public partial class SpeechTestView : ContentView, IDrawable
             case SpeechTest.SpeechTestReplies.TestIsCompleted:
 
                 FinalizeTest();
+
+                break;
+
+            case SpeechTest.SpeechTestReplies.AbortTest:
+
+                AbortTest();
 
                 break;
 
@@ -392,6 +392,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
     void PresentTrial() {
+
+        // Initializing a new trial, this should always stop any timers in the CurrentResponseView that may still be running from the previuos trial 
+        CurrentResponseView.InitializeNewTrial();
 
         testTrialEventTimerList = new List<IDispatcherTimer>();
 
@@ -507,9 +510,25 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
+    void StopAllTrialEventTimers()
+    {
+        // Stops all event timers
+        if (testTrialEventTimerList != null)
+        {
+            foreach (IDispatcherTimer timer in testTrialEventTimerList)
+            {
+                timer.Stop();
+            }
+        }
+    }
 
     void FinalizeTest()
     {
+
+        // Stopping all timers
+        StopAllTrialEventTimers();
+
+        CurrentResponseView.HideAllItems();
 
         TestResults CurrentResults = CurrentSpeechTest.GetResults();
 
@@ -519,6 +538,31 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         // Simulating a click on the stop button to show the correct things in the GUI
         StopTestBtn_Clicked(null, null);
+
+        Messager.MsgBox("The test is finished", Messager.MsgBoxStyle.Information, "Finished", "OK");
+        //CurrentResponseView.ShowMessage("Test is finished!");
+
+    }
+
+   void  AbortTest()
+    {
+
+        // Stopping all timers
+        StopAllTrialEventTimers();
+
+        CurrentResponseView.HideAllItems();
+
+        TestResults CurrentResults = CurrentSpeechTest.GetResults();
+
+        CurrentSpeechTest.SaveResults(CurrentResults);
+
+        ShowResults(CurrentResults);
+
+        // Simulating a click on the stop button to show the correct things in the GUI
+        StopTestBtn_Clicked(null, null);
+
+        Messager.MsgBox("The test had to be aborted", Messager.MsgBoxStyle.Information, "Aborted", "OK");
+        //CurrentResponseView.ShowMessage("Test is finished!");
 
     }
 

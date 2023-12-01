@@ -58,9 +58,9 @@ Public Class SpeechMaterialSpecification
         Me.DirectoryName = DirectoryName
     End Sub
 
-    Public Shared Function LoadTestSpecificationFile(ByVal TextFileName As String) As SpeechMaterialSpecification
+    Public Shared Function LoadSpecificationFile(ByVal TextFileName As String) As SpeechMaterialSpecification
 
-        Dim FullFilePath As String = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AvailableTestsSubFolder, TextFileName)
+        Dim FullFilePath As String = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AvailableSpeechMaterialsSubFolder, TextFileName)
 
         If IO.File.Exists(FullFilePath) = False Then
             MsgBox("Unable to load the file " & FullFilePath, MsgBoxStyle.Critical, "Loading OSTF test specification file")
@@ -183,7 +183,7 @@ Public Class SpeechMaterialSpecification
 
         Dim OutputList As New List(Of String)
         OutputList.Add("// This file is an OSTF test specification file. Its first non-empty line which is not commented out (using double slashes) must be exacly " & FormatFlag)
-        OutputList.Add("// In order to make the test that this file specifies available in OSTF, put this file in the OSTF sub folder named: " & OstfBase.AvailableTestsSubFolder & ", and the restart the OSTF software.")
+        OutputList.Add("// In order to make the test that this file specifies available in OSTF, put this file in the OSTF sub folder named: " & OstfBase.AvailableSpeechMaterialsSubFolder & ", and the restart the OSTF software.")
         OutputList.Add("")
         OutputList.Add(FormatFlag)
         OutputList.Add("")

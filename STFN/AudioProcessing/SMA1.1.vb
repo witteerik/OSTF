@@ -1663,7 +1663,7 @@ Namespace Audio
                         Case SmaTags.PHONE
                             Return SpeechMaterialComponent.LinguisticLevels.Phoneme
                         Case Else
-                            Throw New Exception("Unable to convert the SmaTag value " & Me.SmaTag & " to SpeechMaterialComponent.LinguisticLevels.")
+                            Throw New Exception("Unable to convert the SmaTag value " & Me.SmaTag & " to SpeechMaterial.LinguisticLevels.")
                     End Select
 
                 End Function
@@ -2513,7 +2513,7 @@ Namespace Audio
             Public Function GetSmaComponentByIndexSeries(ByVal IndexSeries As SpeechMaterialComponent.ComponentIndices, ByVal AudioFileLinguisticLevel As SpeechMaterialComponent.LinguisticLevels, ByVal SoundChannel As Integer) As SmaComponent
 
                 'Correcting the indices below AudioFileLinguisticLevel
-                'If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.ListCollection Then IndexSeries.ListCollectionIndex = 0 'There is only list collection per recording
+                'If AudioFileLinguisticLevel >= SpeechMaterial.LinguisticLevels.ListCollection Then IndexSeries.ListCollectionIndex = 0 'There is only list collection per recording
                 If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.List Then IndexSeries.ListIndex = 0 'There is only list per recording
                 If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Sentence Then IndexSeries.SentenceIndex = 0 'There is only one sentence per recording
                 If AudioFileLinguisticLevel >= SpeechMaterialComponent.LinguisticLevels.Word Then IndexSeries.WordIndex = 0 'There is only word per recording

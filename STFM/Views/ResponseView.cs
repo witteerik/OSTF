@@ -18,8 +18,20 @@ public abstract class ResponseView : ContentView
         //};
     }
 
+    public ReponseAlternativeLayoutTypes ReponseAlternativeLayoutType = ReponseAlternativeLayoutTypes.Flexible;
 
-    public event EventHandler StartedByTestee;
+    public enum ReponseAlternativeLayoutTypes
+    {
+        TopDown,
+        LeftToRight,
+        Matrix,
+        Flexible,
+        Free
+    }
+
+
+
+public event EventHandler StartedByTestee;
 
     protected virtual void OnStartedByTestee(EventArgs e)
     {
@@ -29,6 +41,10 @@ public abstract class ResponseView : ContentView
             handler(this, e);
         }
     }
+
+    public abstract void InitializeNewTrial();
+
+    public abstract void StopAllTimers();
 
 
     public event EventHandler<SpeechTestInputEventArgs> ResponseGiven;

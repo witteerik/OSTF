@@ -194,10 +194,10 @@ Public Class SipTestGui_2023
         Utils.SetLogFolder()
 
         'Initializing all components
-        OstfBase.LoadAvailableTestSpecifications()
+        OstfBase.LoadAvailableSpeechMaterialSpecifications()
 
         Dim SelectedTest As SpeechMaterialSpecification = Nothing
-        For Each ts In OstfBase.AvailableTests
+        For Each ts In OstfBase.AvailableSpeechMaterials
             If ts.Name = SpeechMaterialName Then
                 SelectedTest = ts
                 Exit For
