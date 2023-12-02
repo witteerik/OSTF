@@ -1,6 +1,4 @@
-﻿Imports STFN.SpeechTest
-
-Public Class SrtChaiklinVentry1964
+﻿Public Class SrtChaiklinVentry1964
     Inherits TestProtocol
 
     Public Overrides ReadOnly Property Name As String
@@ -9,7 +7,7 @@ Public Class SrtChaiklinVentry1964
         End Get
     End Property
 
-    Private _StoppingCriterium As StoppingCriteria = StoppingCriteria.AllCorrect
+    Private _StoppingCriterium As StoppingCriteria = StoppingCriteria.AllIncorrect
 
     Public Overrides Property StoppingCriterium As StoppingCriteria
         Get
@@ -19,9 +17,6 @@ Public Class SrtChaiklinVentry1964
             _StoppingCriterium = value
         End Set
     End Property
-
-
-#Region "Protocol-specific settings"
 
     Private TestStageMaxTrialCount As Integer = 6
 
@@ -39,12 +34,9 @@ Public Class SrtChaiklinVentry1964
 
     Private FinalThreshold As Double? = Nothing
 
-#End Region
-
-
     Public Overrides Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
 
-        'Setting the (initial) speech level to be presented in the first trial
+        'Setting the (initial) speech level specified by the calling code
         NextSpeechLevel = InitialTaskInstruction.AdaptiveValue
 
         'Setting a default value for InitialTaskInstruction.AdaptiveStepSize
@@ -66,24 +58,25 @@ Public Class SrtChaiklinVentry1964
 
     End Sub
 
-
     Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
 
         If TrialHistory.Count = 0 Then
             'This is the start of the test, returns the initial settings
-            Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTestReplies.GotoNextTrial}
+            Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
         End If
 
         If CurrentTestStage = 0 Then
             'The ballpark stage
+
             If TrialHistory(TrialHistory.Count - 1).Score = 0 Then
                 CurrentTestStage = 1
-                NextSpeechLevel += EndOfBallParkLevelAdjustment
+                NextSpeechLevel -= EndOfBallParkLevelAdjustment
                 Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
             Else
-                NextSpeechLevel -= BallparkStageAdaptiveStepSize
+                NextSpeechLevel += BallparkStageAdaptiveStepSize
                 Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
             End If
+
         Else
 
             'Getting the scores in all stages presented
@@ -111,8 +104,9 @@ Public Class SrtChaiklinVentry1964
             ElseIf TestStageResults(TestStageResults.Count - 1).Item1 = TestStageMaxTrialCount Then
 
                 'The test stage is complete without reaching the required number of correct trials
+
                 'Setting the SRT to the level above this stage, but only if it's the first time the code reaches this point
-                If FinalThreshold.HasValue = False Then FinalThreshold = NextSpeechLevel - AdaptiveStepSize
+                If FinalThreshold.HasValue = False Then FinalThreshold = NextSpeechLevel + AdaptiveStepSize
 
                 'The method requires that all trials in the last stage are incorrect. Since this work badly with MAFC responses, this implementation allows for skipping of that criterium
                 Select Case StoppingCriterium
@@ -169,4 +163,6 @@ Public Class SrtChaiklinVentry1964
 
         Return Output
     End Function
+
+
 End Class
