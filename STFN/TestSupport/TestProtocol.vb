@@ -8,6 +8,7 @@ Public Class TestProtocols
         Dim Output = New TestProtocols
 
         'Adding suitable protocols
+        Output.Add(New SrtChaiklinVentry1964)
         Output.Add(New SrtExperimentalProtocol)
 
         Return Output
@@ -27,6 +28,7 @@ Public Class TestProtocols
         Dim Output = New TestProtocols
 
         'Adding suitable protocols
+        Output.Add(New SrtChaiklinVentry1964)
         Output.Add(New SrtExperimentalProtocol)
 
         Return Output
@@ -37,6 +39,7 @@ Public Class TestProtocols
         Dim Output = New TestProtocols
 
         'Adding suitable protocols
+        Output.Add(New SrtChaiklinVentry1964)
         Output.Add(New SrtExperimentalProtocol)
 
         Return Output
@@ -49,13 +52,26 @@ Public MustInherit Class TestProtocol
 
     Public MustOverride ReadOnly Property Name As String
 
-    Public MustOverride Sub InitializeProtocol(ByVal InitialTaskInstruction As NextTaskInstruction)
+    Public MustOverride Property StoppingCriterium As StoppingCriteria
+
+    Public Enum StoppingCriteria
+        ThresholdReached
+        AllIncorrect
+        AllCorrect
+        TrialCount
+    End Enum
+
+    Public MustOverride Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
 
     Public MustOverride Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
 
     Public Class NextTaskInstruction
         Public Decision As SpeechTestReplies
-        Public AdaptiveValue As Double
+        ''' <summary>
+        ''' Only used with adaptive test protocols. Upon initiation of a new adatrive TestProtocol, should contain the start value of a variable adaptively modified by the TestProtocol according to an adaptive procedure. Upon return from a TestProtocol, should contain the updated value of the adaptively modified variable.
+        ''' </summary>
+        Public AdaptiveValue As Double? = Nothing
+        Public AdaptiveStepSize As Double? = Nothing
         Public TestStage As UInteger
         Public TestBlock As UInteger
     End Class

@@ -108,7 +108,7 @@ public class ResponseView_Mafc : ResponseView
             case ReponseAlternativeLayoutTypes.Flexible:
 
                 // This option is handled before the Switch statement, and the code should not end up here
-                throw new NotImplementedException("This is a bug! The is something wrong with the uage of Flexible ReponseAlternativeLayoutType. Please report it to the OSTF team!");
+                throw new NotImplementedException("This is a bug! There is something wrong with the usage of Flexible ReponseAlternativeLayoutType. Please report it to the OSTF team!");
 
                 break;
             case ReponseAlternativeLayoutTypes.Free:

@@ -33,7 +33,7 @@ Public Class SrtSpeechTest
         SelectedMediaSet = GetAvailableMediasets(0)
         StartList = "Lista 3"
         FixedResponseAlternativeCount = 6
-        StartLevel = 40
+        StartLevel = 70
         RandomizeWordsWithinLists = True
         SelectTestProtocol(AvailableTestProtocols(0))
 

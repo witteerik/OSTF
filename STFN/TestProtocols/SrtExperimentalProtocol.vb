@@ -10,28 +10,38 @@ Public Class SrtExperimentalProtocol
         End Get
     End Property
 
+    Private _StoppingCriterium As StoppingCriteria = StoppingCriteria.ThresholdReached
+    Public Overrides Property StoppingCriterium As StoppingCriteria
+        Get
+            Return _StoppingCriterium
+        End Get
+        Set(value As StoppingCriteria)
+            _StoppingCriterium = value
+        End Set
+    End Property
+
 #Region "Protocol-specific settings"
 
     Public FixedStageTrialCount As Integer = 5
 
-    Private _SearchStageMinimumTrialCount As Integer = 6
-    Public Property SearchStageMinimumTrialCount As Integer
+    Private _BallparkStageMinimumTrialCount As Integer = 6
+    Public Property BallparkStageMinimumTrialCount As Integer
         Get
-            Return _SearchStageMinimumTrialCount
+            Return _BallparkStageMinimumTrialCount
         End Get
         Set(value As Integer)
             'Limiting the value to one or above
-            _SearchStageMinimumTrialCount = Math.Max(1, value)
+            _BallparkStageMinimumTrialCount = Math.Max(1, value)
         End Set
     End Property
 
-    Public SearchStageThresholdDeviation As Double = 0.17
+    Public BallparkStageThresholdDeviation As Double = 0.17
 
-    Public MaximumSearchStageLength As Integer = 20
+    Public MaximumBallparkStageLength As Integer = 20
 
-    Public SearchStageLevelAdjustment As Integer = 5
+    Public BallparkStageAdaptiveStepSize As Integer = 5
 
-    Public InterFixedStageLevelAdjustment As Double = 10
+    Public InterFixedStageAdaptiveStepSize As Double = 10
 
     Private CurrentTestStage As UInteger = 0
 
@@ -41,13 +51,13 @@ Public Class SrtExperimentalProtocol
 #End Region
 
 
-    Public Overrides Sub InitializeProtocol(ByVal InitialTaskInstruction As NextTaskInstruction)
+    Public Overrides Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
 
-        'Setting the speech level to be presented in the next trial
+        'Setting the (initial) speech level to be presented in the first trial
         NextSpeechLevel = InitialTaskInstruction.AdaptiveValue
 
         'Setting the initial TestStage to 0 (i.e. Ballpark)
-        CurrentTestStage = InitialTaskInstruction.TestStage
+        CurrentTestStage = 0
 
     End Sub
 
@@ -84,14 +94,14 @@ Public Class SrtExperimentalProtocol
 
                     Case > 0.5
                         'Decreasing level by InterFixedStageLevelAdjustment
-                        NextSpeechLevel -= InterFixedStageLevelAdjustment
+                        NextSpeechLevel -= InterFixedStageAdaptiveStepSize
 
                         'And incrementing Test stage
                         CurrentTestStage = 2
 
                     Case Else
                         'Increasing level by InterFixedStageLevelAdjustment
-                        NextSpeechLevel += InterFixedStageLevelAdjustment
+                        NextSpeechLevel += InterFixedStageAdaptiveStepSize
 
                         'And incrementing Test stage
                         CurrentTestStage = 2
@@ -104,7 +114,7 @@ Public Class SrtExperimentalProtocol
             'We've in the middle of fixed stage 1, no need to alter the level. Just continueing.
         Else
 
-            'We're in the Search stage
+            'We're in the ballpark stage
             'Checking if it's the first trial
             If ObservedTrials.Count = 0 Then
                 'Do nothing
@@ -112,25 +122,25 @@ Public Class SrtExperimentalProtocol
 
                 'Adjusting the speech level, depending on the last response
                 If ObservedTrials.Last.Score = 1 Then
-                    NextSpeechLevel -= SearchStageLevelAdjustment
+                    NextSpeechLevel -= BallparkStageAdaptiveStepSize
                 Else
-                    NextSpeechLevel += SearchStageLevelAdjustment
+                    NextSpeechLevel += BallparkStageAdaptiveStepSize
                 End If
 
-                'Checking first that we're not past the maximum length of the search stage
-                If ObservedTrials.Count >= MaximumSearchStageLength Then
+                'Checking first that we're not past the maximum length of the ballpark stage
+                If ObservedTrials.Count >= MaximumBallparkStageLength Then
                     Return New NextTaskInstruction With {.Decision = SpeechTestReplies.AbortTest}
                 End If
 
-                'We present at least SearchStageMinimumTrialCount trials before we can move to the next stage
-                If ObservedTrials.Count > SearchStageMinimumTrialCount Then
+                'We present at least BallparkStageMinimumTrialCount trials before we can move to the next stage
+                If ObservedTrials.Count > BallparkStageMinimumTrialCount Then
 
                     'Checking if we should move to fixed stage 1
                     'Checking the score of the last six trials.
-                    Dim LastTrialList = ObservedTrials.GetRange(ObservedTrials.Count - SearchStageMinimumTrialCount, SearchStageMinimumTrialCount)
+                    Dim LastTrialList = ObservedTrials.GetRange(ObservedTrials.Count - BallparkStageMinimumTrialCount, BallparkStageMinimumTrialCount)
                     Dim AverageScore = GetAverageScore(LastTrialList)
-                    If AverageScore <= 0.5 + SearchStageThresholdDeviation Then
-                        If AverageScore >= 0.5 - SearchStageThresholdDeviation Then
+                    If AverageScore <= 0.5 + BallparkStageThresholdDeviation Then
+                        If AverageScore >= 0.5 - BallparkStageThresholdDeviation Then
                             'We've in the target score range. Incrementing test stage
                             CurrentTestStage = 1
                         End If
