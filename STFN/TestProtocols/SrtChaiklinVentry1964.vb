@@ -7,7 +7,7 @@
         End Get
     End Property
 
-    Private _StoppingCriterium As StoppingCriteria = StoppingCriteria.AllIncorrect
+    Private _StoppingCriterium As StoppingCriteria = StoppingCriteria.ThresholdReached
 
     Public Overrides Property StoppingCriterium As StoppingCriteria
         Get
@@ -70,10 +70,10 @@
 
             If TrialHistory(TrialHistory.Count - 1).Score = 0 Then
                 CurrentTestStage = 1
-                NextSpeechLevel -= EndOfBallParkLevelAdjustment
+                NextSpeechLevel += EndOfBallParkLevelAdjustment
                 Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
             Else
-                NextSpeechLevel += BallparkStageAdaptiveStepSize
+                NextSpeechLevel -= BallparkStageAdaptiveStepSize
                 Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
             End If
 

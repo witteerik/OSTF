@@ -2,6 +2,7 @@
 using STFN;
 using STFN.Audio.SoundScene;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace STFM.Views;
 
@@ -28,7 +29,7 @@ public class ResponseView_Mafc : ResponseView
         MainMafcGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
 
         // Creating a hide-all timer
-        HideAllTimer = Application.Current.Dispatcher.CreateTimer();
+        HideAllTimer = Microsoft.Maui.Controls.Application.Current.Dispatcher.CreateTimer();
         HideAllTimer.Interval = TimeSpan.FromMilliseconds(300);
         HideAllTimer.Tick += HideAllItems;
         HideAllTimer.IsRepeating = false;
@@ -45,10 +46,23 @@ public class ResponseView_Mafc : ResponseView
     }
 
 
-    public override void ShowResponseAlternatives(List<string> responseAlternatives)
+    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
+    {
+        throw new NotImplementedException("Matrix form response alternatives is not yet implemented in the MAFC view");
+    }
+
+    public override void ShowResponseAlternatives(List<List<string>> responseAlternatives)
     {
 
-        int nItems = responseAlternatives.Count;
+        if (responseAlternatives.Count > 1)
+        {
+            throw new ArgumentException("ShowResponseAlternatives is not yet implemented for multidimensional sets of response alternatives");
+        }
+
+        List<string> localResponseAlternatives = responseAlternatives[0];
+
+
+        int nItems = localResponseAlternatives.Count;
         int nRows = 0;
         int nCols = 0;
         bool assymetric = false;
@@ -141,12 +155,12 @@ public class ResponseView_Mafc : ResponseView
         // Creating controls and positioning them in the responseAlternativeGrid
         int currentRow = -1;
         int currentColumn = 0;
-        for (int i = 0; i < responseAlternatives.Count; i++)
+        for (int i = 0; i < localResponseAlternatives.Count; i++)
         {
 
             var repsonseBtn = new Button()
             {
-                Text = responseAlternatives[i],
+                Text = localResponseAlternatives[i],
                 BackgroundColor = Color.FromRgb(255, 255, 128),
                 Padding = 10,
                 TextColor = Color.FromRgb(40, 40, 40),
@@ -344,10 +358,6 @@ public class ResponseView_Mafc : ResponseView
 
     }
 
-    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
-    {
-        throw new NotImplementedException();
-    }
 
     public override void ShowVisualCue()
     {
@@ -373,5 +383,6 @@ public class ResponseView_Mafc : ResponseView
     {
         clearMainGrid();
     }
+
 }
 

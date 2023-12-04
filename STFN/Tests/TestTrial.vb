@@ -31,11 +31,21 @@ Public Class TestTrial
     ''' </summary>
     Public Score As Integer
 
-    Public ResponseAlternativeSpellings As List(Of String)
+    ''' <summary>
+    ''' A matrix holding response alternatives in lists. While a test item with a single set of response alternatives (one dimension) should only use one list, while matrix tests should use several lists.
+    ''' </summary>
+    Public ResponseAlternativeSpellings As List(Of List(Of String))
 
 End Class
 
 Public Class SrtTrial
+    Inherits TestTrial
+
+    Public SpeechLevel As Double
+
+End Class
+
+Public Class MatrixTrial
     Inherits TestTrial
 
     Public SpeechLevel As Double

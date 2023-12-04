@@ -155,6 +155,31 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             switch (selectedItem)
             {
+
+                case "Hagermans meningar (Matrix)":
+                
+
+                    // Speech test
+                    CurrentSpeechTest = new MatrixSpeechTest("Swedish Matrix Test (Hagerman)", TestProtocols.GetSrtProtocols());
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsMatrixTestView = new OptionsSrtTestView();
+                    TestOptionsGrid.Children.Add(newOptionsMatrixTestView);
+                    CurrentTestOptionsView = newOptionsMatrixTestView;
+
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_Matrix();
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    //TestResponseView.StartedByTestee += StartedByTestee;
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    break;
+
+
                 case "Hörtröskel för tal (HTT)":
 
                     // Speech test

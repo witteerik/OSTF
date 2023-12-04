@@ -32,8 +32,8 @@ Public Class SrtSpeechTest
         'Some initial settings which should be overridden by the settings editor
         SelectedMediaSet = GetAvailableMediasets(0)
         StartList = "Lista 3"
-        FixedResponseAlternativeCount = 6
-        StartLevel = 70
+        FixedResponseAlternativeCount = 4
+        StartLevel = 40
         RandomizeWordsWithinLists = True
         SelectTestProtocol(AvailableTestProtocols(0))
 
@@ -180,11 +180,10 @@ Public Class SrtSpeechTest
             .TestStage = NextTaskInstruction.TestStage}
 
         If IsFreeRecall Then
-            CurrentTestTrial.ResponseAlternativeSpellings = New List(Of String) From {"Rätt", "Fel"}
+            CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of String)) From {New List(Of String) From {"Rätt", "Fel"}}
         Else
             'Adding the current word pselling as a response alternative
-            Dim ResponseAlternatives As New List(Of String)
-            ResponseAlternatives.Add(CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+            Dim ResponseAlternatives As New List(Of String) From {CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")}
 
             'Picking random response alternatives from all available test words
             Dim AllContrastingWords = NextTestWord.GetAllRelativesAtLevelExludingSelf(SpeechMaterialComponent.LinguisticLevels.Sentence, True, False)
@@ -194,7 +193,8 @@ Public Class SrtSpeechTest
             Next
 
             'Shuffling the order of response alternatives
-            CurrentTestTrial.ResponseAlternativeSpellings = Utils.Shuffle(ResponseAlternatives, Randomizer)
+            Dim ShuffledResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+            CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of String)) From {ShuffledResponseAlternatives}
         End If
 
 

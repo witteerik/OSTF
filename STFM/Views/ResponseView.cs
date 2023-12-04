@@ -63,7 +63,7 @@ public event EventHandler StartedByTestee;
 
     public abstract void AddSourceAlternatives(VisualizedSoundSource[] soundSources);
 
-    public abstract void ShowResponseAlternatives(List<string> ResponseAlternatives);
+    public abstract void ShowResponseAlternatives(List<List<string>> ResponseAlternatives);
 
     public abstract void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives);
 

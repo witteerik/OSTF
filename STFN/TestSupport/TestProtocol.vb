@@ -8,8 +8,8 @@ Public Class TestProtocols
         Dim Output = New TestProtocols
 
         'Adding suitable protocols
-        Output.Add(New SrtChaiklinFontDixon1967)
         Output.Add(New SrtChaiklinVentry1964)
+        Output.Add(New SrtChaiklinFontDixon1967)
         Output.Add(New SrtExperimentalProtocol)
 
         Return Output
@@ -29,8 +29,8 @@ Public Class TestProtocols
         Dim Output = New TestProtocols
 
         'Adding suitable protocols
-        Output.Add(New SrtChaiklinFontDixon1967)
         Output.Add(New SrtChaiklinVentry1964)
+        Output.Add(New SrtChaiklinFontDixon1967)
         Output.Add(New SrtExperimentalProtocol)
 
         Return Output
@@ -41,8 +41,8 @@ Public Class TestProtocols
         Dim Output = New TestProtocols
 
         'Adding suitable protocols
-        Output.Add(New SrtChaiklinFontDixon1967)
         Output.Add(New SrtChaiklinVentry1964)
+        Output.Add(New SrtChaiklinFontDixon1967)
         Output.Add(New SrtExperimentalProtocol)
 
         Return Output

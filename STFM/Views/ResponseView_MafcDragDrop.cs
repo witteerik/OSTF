@@ -37,6 +37,11 @@ public class ResponseView_MafcDragDrop : ResponseView
         // This should stop all timers that may be running from a previuos trial
     }
 
+    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
+    {
+        throw new NotImplementedException("Matrix form response alternatives is not yet implemented in the MAFC drag-drop view");
+    }
+
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
     {
 
@@ -76,15 +81,22 @@ public class ResponseView_MafcDragDrop : ResponseView
 
     }
 
-    public override void ShowResponseAlternatives(List<string> text)
+    public override void ShowResponseAlternatives(List<List<string>> text)
     {
 
-        for (int i = 0; i < text.Count; i++)
+        if (text.Count > 1)
+        {
+            throw new ArgumentException("ShowResponseAlternatives is not yet implemented for multidimensional sets of response alternatives");
+        }
+
+        List<string> localResponseAlternatives = text[0];
+
+        for (int i = 0; i < localResponseAlternatives.Count; i++)
         {
 
             var label = new Label()
             {
-                Text = text[i],
+                Text = localResponseAlternatives[i],
                 BackgroundColor = Color.FromRgb(255, 255, 128),
                 Padding = 10
             };
@@ -121,7 +133,7 @@ public class ResponseView_MafcDragDrop : ResponseView
             var labelHeight = 0.3;
             var labelAreaVerticalLocation = 0.75;
 
-            var labelSectionWidth = labelAreaWidth / text.Count;
+            var labelSectionWidth = labelAreaWidth / localResponseAlternatives.Count;
             var labelSectionMargin = labelSectionWidth * labelSectionMarginProportion;
             var labelWidth = labelSectionWidth - 2 * labelSectionMargin;
             var labelX = 0.5 - labelAreaWidth / 2 + i * labelSectionWidth + labelSectionMargin + labelWidth / 2;
@@ -308,10 +320,6 @@ public class ResponseView_MafcDragDrop : ResponseView
     }
 
 
-    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
-    {
-        throw new NotImplementedException();
-    }
 
     public override void ShowVisualCue()
     {
@@ -327,4 +335,5 @@ public class ResponseView_MafcDragDrop : ResponseView
     {
         ResponseAbsoluteLayout.Children.Clear();    
     }
+
 }
