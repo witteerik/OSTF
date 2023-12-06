@@ -382,18 +382,24 @@ Namespace Audio
             ''' </summary>
             ''' <param name="ShiftInSamples"></param>
             '''   <param name="FirstSampleToShift">Applies shift to all StartSample values after FirstSampleToShift.</param>
-            Public Sub ShiftSegmentationData(ByVal ShiftInSamples As Integer, ByVal FirstSampleToShift As Integer)
+            Public Sub ShiftSegmentationData(ByVal ShiftInSamples As Integer, ByVal FirstSampleToShift As Integer, Optional ByVal AllowInfinitePositiveShift As Boolean = False)
 
                 For c = 1 To Me.ChannelCount
                     Dim Channel = Me.ChannelData(c)
-                    Dim SoundChannelLength As Integer = ParentSound.WaveData.SampleData(c).Length
-                    ApplyShift(ShiftInSamples, SoundChannelLength, Channel.StartSample, Channel.Length, FirstSampleToShift)
+                    Dim TotalAvailableLength As Integer
+                    If AllowInfinitePositiveShift = True Then
+                        TotalAvailableLength = Integer.MaxValue
+                    Else
+                        TotalAvailableLength = ParentSound.WaveData.SampleData(c).Length
+                    End If
+                    'Shifting channel is no longer needed as its value are always 0 and the sound length
+                    'ApplyShift(ShiftInSamples, SoundChannelLength, Channel.StartSample, Channel.Length, FirstSampleToShift)
                     For Each Sentence In Channel
-                        ApplyShift(ShiftInSamples, SoundChannelLength, Sentence.StartSample, Sentence.Length, FirstSampleToShift)
+                        ApplyShift(ShiftInSamples, TotalAvailableLength, Sentence.StartSample, Sentence.Length, FirstSampleToShift)
                         For Each Word In Sentence
-                            ApplyShift(ShiftInSamples, SoundChannelLength, Word.StartSample, Word.Length, FirstSampleToShift)
+                            ApplyShift(ShiftInSamples, TotalAvailableLength, Word.StartSample, Word.Length, FirstSampleToShift)
                             For Each Phone In Word
-                                ApplyShift(ShiftInSamples, SoundChannelLength, Phone.StartSample, Phone.Length, FirstSampleToShift)
+                                ApplyShift(ShiftInSamples, TotalAvailableLength, Phone.StartSample, Phone.Length, FirstSampleToShift)
                             Next
                         Next
                     Next
@@ -732,7 +738,7 @@ Namespace Audio
                     Dim PreShiftStartSample = ChannelData(CurrentChannel)(s).StartSample
                     AccumulativePostShiftStartSample = FadedMarginLength
                     Dim Shift = AccumulativePostShiftStartSample - PreShiftStartSample
-                    Me.ShiftSegmentationData(Shift, PreShiftStartSample)
+                    Me.ShiftSegmentationData(Shift, PreShiftStartSample, True)
 
                 Next
 
@@ -741,7 +747,7 @@ Namespace Audio
                     Dim PreShiftStartSample = ChannelData(CurrentChannel)(s).StartSample
                     AccumulativePostShiftStartSample += ChannelData(CurrentChannel)(s - 1).Length + IntervalLength
                     Dim Shift = AccumulativePostShiftStartSample - PreShiftStartSample
-                    Me.ShiftSegmentationData(Shift, PreShiftStartSample)
+                    Me.ShiftSegmentationData(Shift, PreShiftStartSample, True)
 
                 Next
 
