@@ -140,21 +140,42 @@ Public Class SrtSpeechTest
         If e IsNot Nothing Then
 
             'This is an incoming test trial response
-            'Correcting response
-            If e.LinguisticResponse = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") Then
-                'Correct
-                CurrentTestTrial.Score = 1
+
+            'Chcking if it's a missing response
+            If e.LinguisticResponse = "" Then
+
+                'Adds the remaining blank/missing reponses, forcing the test to move on
+                Do Until CurrentTestTrial.ScoreList.Count >= CurrentTestTrial.Tasks
+                    CurrentTestTrial.ScoreList.Add(0)
+                Loop
+
             Else
-                'Not correct
-                CurrentTestTrial.Score = 0
+
+                'Corrects the trial response, based on the given response
+                Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
+                Dim CorrectWordsList As New List(Of String)
+                If e.LinguisticResponse = WordsInSentence(CurrentTestTrial.ScoreList.Count).GetCategoricalVariableValue("Spelling") Then
+                    CurrentTestTrial.ScoreList.Add(1)
+                Else
+                    CurrentTestTrial.ScoreList.Add(0)
+                End If
+
             End If
 
+            'Checks if the trial is finished
+            If CurrentTestTrial.ScoreList.Count < CurrentTestTrial.Tasks Then
+                'Returns to continue the trial
+                Return SpeechTestReplies.ContinueTrial
+            End If
+
+            'Adding the test trial
             ObservedTrials.Add(CurrentTestTrial)
 
         Else
             'Nothing to correct (this should be the start of a new test)
         End If
 
+        'TODO: We must store the responses and response times!!!
 
         'Calculating the speech level
         Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
@@ -177,7 +198,8 @@ Public Class SrtSpeechTest
         'Creating a new test trial
         CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
             .SpeechLevel = NextTaskInstruction.AdaptiveValue,
-            .TestStage = NextTaskInstruction.TestStage}
+            .TestStage = NextTaskInstruction.TestStage,
+            .Tasks = 1}
 
         If IsFreeRecall Then
             CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of String)) From {New List(Of String) From {"Rätt", "Fel"}}

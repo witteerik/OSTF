@@ -275,7 +275,7 @@ public class ResponseView_Mafc : ResponseView
         // Storing the raw response
         SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
         args.LinguisticResponse = RespondedSpelling;
-        args.TimeResponded = DateTime.Now;
+        args.LinguisticResponseTime = DateTime.Now;
 
         // Raising the Response given event in the base class
         OnResponseGiven(args);

@@ -285,7 +285,7 @@ public class ResponseView_MafcDragDrop : ResponseView
         // Storing the raw response
         SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
         args.LinguisticResponse = RespondedSpelling;
-        args.TimeResponded = DateTime.Now;
+        args.LinguisticResponseTime = DateTime.Now;
 
         // Raising the Response given event in the base class
         OnResponseGiven(args);
@@ -297,7 +297,7 @@ public class ResponseView_MafcDragDrop : ResponseView
         // Storing the raw response
         SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
         args.DirectionResponse = RespondedSourceLocation;
-        args.TimeResponded = DateTime.Now;
+        args.DirectionResponseTime = DateTime.Now;
 
         // Raising the Response given event in the base class
         OnResponseGiven(args);

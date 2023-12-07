@@ -1,2 +1,3 @@
 Pink_noise.wav = Pink noise created in Audacity. Sample rate 48kHz, duration 60 seconds.
 Warble_tone_(1_kHz).wav = Warble tone from the CD 'Svensk talaudiometri' [Swedish speech audiomatry], 1988, Rev 1. The tone is frequency modulated around 1 kHz by ±12.5 %, with a modulation frequency of 20 Hz. Samplerate 44.1kHz, duration 15 seconds. (Downloaded from https://osf.io/5tybm, CC-BY license.)
+MLS_noise.wav = MLS (Maximum Length Sequence) noise. Sample rate 48kHz, duration 15 seconds.

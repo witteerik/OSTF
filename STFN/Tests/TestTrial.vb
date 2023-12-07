@@ -27,9 +27,28 @@ Public Class TestTrial
     Public Sound As Audio.Sound
 
     ''' <summary>
-    ''' Score equals 1 if correct and 0 if incorrect or missing.
+    ''' Indicates the number of correctly responded tasks.
     ''' </summary>
-    Public Score As Integer
+    Public ScoreList As New List(Of Integer)
+
+    ''' <summary>
+    ''' Indicates if the trial as a whole was correct or not.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property IsCorrect As Boolean
+
+    ''' <summary>
+    ''' Indicate the number of presented tasks.
+    ''' </summary>
+    Public Tasks As UInteger
+
+    Public Function GetProportionTasksCorrect() As Decimal
+        If Tasks > 0 And ScoreList.Count > 0 Then
+            Return ScoreList.Sum / Tasks
+        Else
+            Return 0
+        End If
+    End Function
 
     ''' <summary>
     ''' A matrix holding response alternatives in lists. While a test item with a single set of response alternatives (one dimension) should only use one list, while matrix tests should use several lists.
@@ -45,9 +64,3 @@ Public Class SrtTrial
 
 End Class
 
-Public Class MatrixTrial
-    Inherits TestTrial
-
-    Public SpeechLevel As Double
-
-End Class

@@ -176,20 +176,42 @@ Public Class MatrixSpeechTest
         If e IsNot Nothing Then
 
             'This is an incoming test trial response
-            'Correcting response
-            If e.LinguisticResponse = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") Then
-                'Correct
-                CurrentTestTrial.Score = 1
+
+            'Chcking if it's a missing response
+            If e.LinguisticResponse = "" Then
+
+                'Adds the remaining blank/missing reponses, forcing the test to move on
+                Do Until CurrentTestTrial.ScoreList.Count >= CurrentTestTrial.Tasks
+                    CurrentTestTrial.ScoreList.Add(0)
+                Loop
+
             Else
-                'Not correct
-                CurrentTestTrial.Score = 0
+
+                'Corrects the trial response, based on the given response
+                Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
+                Dim CorrectWordsList As New List(Of String)
+                If e.LinguisticResponse = WordsInSentence(CurrentTestTrial.ScoreList.Count).GetCategoricalVariableValue("Spelling") Then
+                    CurrentTestTrial.ScoreList.Add(1)
+                Else
+                    CurrentTestTrial.ScoreList.Add(0)
+                End If
+
             End If
 
+            'Checks if the trial is finished
+            If CurrentTestTrial.ScoreList.Count < CurrentTestTrial.Tasks Then
+                'Returns to continue the trial
+                Return SpeechTestReplies.ContinueTrial
+            End If
+
+            'Adding the test trial
             ObservedTrials.Add(CurrentTestTrial)
 
         Else
             'Nothing to correct (this should be the start of a new test)
         End If
+
+        'TODO: We must store the responses and response times!!!
 
 
         'Calculating the speech level
@@ -211,9 +233,10 @@ Public Class MatrixSpeechTest
         Dim NextTestSentence = PlannedTestSentences(ObservedTrials.Count)
 
         'Creating a new test trial
-        CurrentTestTrial = New MatrixTrial With {.SpeechMaterialComponent = NextTestSentence,
+        CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
             .SpeechLevel = NextTaskInstruction.AdaptiveValue,
-            .TestStage = NextTaskInstruction.TestStage}
+            .TestStage = NextTaskInstruction.TestStage,
+            .Tasks = 5}
 
         If IsFreeRecall = True Or IsFreeRecall = False Then
             'Think the same code applies in both situations?
@@ -230,17 +253,21 @@ Public Class MatrixSpeechTest
                 ReponseAlternativeList.Add(WordSpellings)
             Next
 
-            'Transpose matrix
-            Dim TransposeMatrix As Boolean = False
+            'Transposing the matrix
+            Dim TransposedMatrix = TransposeMatrix(ReponseAlternativeList)
 
-            'Sort matrix: Maybe we should add a possibiity to sort, randomly or alphabetically here?
+            'Sorting the matrix alphabetically
+            For Each Item In TransposedMatrix
+                Item.Sort()
+            Next
 
-            'Transpose back after sort
+            'Transposing back after sorting
+            Dim ReTransposedMatrix = TransposeMatrix(TransposedMatrix)
 
             'Add other buttons needed
 
             'Adding the list
-            CurrentTestTrial.ResponseAlternativeSpellings = ReponseAlternativeList
+            CurrentTestTrial.ResponseAlternativeSpellings = ReTransposedMatrix
         End If
 
         'Mixing trial sound
@@ -250,12 +277,35 @@ Public Class MatrixSpeechTest
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 5500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 14500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 
     End Function
 
+    Private Function TransposeMatrix(ByVal Matrix As List(Of List(Of String))) As List(Of List(Of String))
+
+        Dim Output As New List(Of List(Of String))
+
+        If Matrix.Count = 0 Then
+            Return Output
+        Else
+            'Adding the second dimension lists
+            For Each Column In Matrix(0)
+                Output.Add(New List(Of String))
+            Next
+        End If
+
+        'Transposing the matrix
+        For OutputRow = 0 To Matrix.Count - 1
+            For OutputColumn = 0 To Output.Count - 1
+                Output(OutputColumn).Add(Matrix(OutputRow)(OutputColumn))
+            Next
+        Next
+
+        Return Output
+
+    End Function
 
 
     Private Sub MixNextTrialSound()
@@ -263,10 +313,13 @@ Public Class MatrixSpeechTest
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
         'Setting level
-        Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, MatrixTrial).SpeechLevel))
+        Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel))
+
+        'Padding the sound by one second, and converting it to sterao
+        Dim PaddedSound = TestWordSound.ZeroPad(1.0R, Nothing, False).ConvertMonoToMultiChannel(2, True)
 
         'Copying to stereo and storing in CurrentTestTrial.Sound 
-        CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
+        CurrentTestTrial.Sound = PaddedSound
 
     End Sub
 

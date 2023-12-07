@@ -14,8 +14,8 @@ namespace STFM
         public MediaElement mediaElement1 = null;
         public MediaElement mediaElement2 = null;
         int lastStartedMediaPlayer = 2;
-        double overlapDuration = 1;
-        double overlapGranuality = 0.05;
+        double overlapDuration = 0.1;
+        double overlapGranuality = 0.01;
         string InfoText = "";
         STFN.Audio.Formats.WaveFormat LastPlayedWaveFormat = new WaveFormat(48000, 32, 2, "", WaveFormat.WaveFormatEncodings.IeeeFloatingPoints); // Creating a default LastPlayedWaveFormat
 

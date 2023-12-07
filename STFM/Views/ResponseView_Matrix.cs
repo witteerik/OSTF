@@ -81,7 +81,7 @@ public class ResponseView_Matrix : ResponseView
 
         // Determining suitable text size (TODO: This is a bad method, since it doesn't care for the lengths of any strings.....
         var myHeight = this.Height;
-        var textSize = Math.Round(myHeight / (2 * nRows));
+        var textSize = Math.Round(myHeight / (2.3 * nRows));
 
         // Creating controls and positioning them in the responseAlternativeGrid
         for (int row = 0; row < nRows; row++)
@@ -96,7 +96,7 @@ public class ResponseView_Matrix : ResponseView
                 {
                     Text = rowList[col],
                     BackgroundColor = Color.FromRgb(255, 255, 128),
-                    Padding = 2,
+                    Padding = 1,
                     TextColor = Color.FromRgb(40, 40, 40),
                     FontSize = textSize,
                     HorizontalOptions = LayoutOptions.Fill,
@@ -108,10 +108,10 @@ public class ResponseView_Matrix : ResponseView
                 Frame frame = new Frame
                 {
                     BorderColor = Colors.Gray,
-                    CornerRadius = 2,
+                    CornerRadius = 1,
                     ClassId = "TWA",
                     Padding = 10,
-                    Margin = 2,
+                    Margin = 1,
                     Content = repsonseBtn
                 };
 
@@ -142,7 +142,7 @@ public class ResponseView_Matrix : ResponseView
                 if (currentFrame.Content is Button)
                 {
                     var button = (Button)buttonParentFrame.Content;
-                    button.Clicked -= reponseButton_Clicked;
+                    //button.Clicked -= reponseButton_Clicked;
                 }
 
                 // Hiding all frames (and buttons) except the one clicked
@@ -150,14 +150,14 @@ public class ResponseView_Matrix : ResponseView
                 {
                     if (currentFrame.ClassId == "TWA")
                     {
-                        currentFrame.IsVisible = false;
+                        //currentFrame.IsVisible = false;
                     }
                 }
                 else
                 {
                     // Modifies the frame color to mark that it's selected
-                    // frame.BorderColor = Color.FromRgb(4, 255, 61);
-                    // frame.BackgroundColor = Color.FromRgb(4, 255, 61);
+                    currentFrame.BorderColor = Color.FromRgb(4, 255, 61);
+                    currentFrame.BackgroundColor = Color.FromRgb(4, 255, 61);
                 }
             }
         }
@@ -173,12 +173,12 @@ public class ResponseView_Matrix : ResponseView
         // Storing the raw response
         SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
         args.LinguisticResponse = RespondedSpelling;
-        args.TimeResponded = DateTime.Now;
+        args.LinguisticResponseTime = DateTime.Now;
 
         // Raising the Response given event in the base class
         OnResponseGiven(args);
 
-        HideAllTimer.Start();
+        //HideAllTimer.Start();
 
     }
 

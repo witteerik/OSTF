@@ -130,7 +130,11 @@
 
         Dim ScoreList As New List(Of Integer)
         For Each Trial In Trials
-            ScoreList.Add(Trial.Score)
+            If Trial.IsCorrect = True Then
+                ScoreList.Add(1)
+            Else
+                ScoreList.Add(0)
+            End If
         Next
         If ScoreList.Count > 0 Then
             Return ScoreList.Average
@@ -144,10 +148,14 @@
 
         Dim ScoreList As New List(Of Integer)
         For Each Trial In Trials
-            ScoreList.Add(Trial.Score)
+            If Trial.IsCorrect = True Then
+                ScoreList.Add(1)
+            Else
+                ScoreList.Add(0)
+            End If
         Next
         If ScoreList.Count > 0 Then
-            Return ScoreList.Average
+            Return ScoreList.Sum
         Else
             Return Nothing
         End If

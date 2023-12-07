@@ -59,10 +59,17 @@
             Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
         End If
 
+        'Corrects the last given response
+        If TrialHistory.Last.GetProportionTasksCorrect > 0 Then
+            TrialHistory.Last.IsCorrect = True
+        Else
+            TrialHistory.Last.IsCorrect = False
+        End If
+
         If CurrentTestStage = 0 Then
             'The ballpark stage
 
-            If TrialHistory(TrialHistory.Count - 1).Score = 1 Then
+            If TrialHistory(TrialHistory.Count - 1).IsCorrect = True Then
                 CurrentTestStage = 1
                 NextSpeechLevel -= EndOfBallParkLevelAdjustment
                 Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
@@ -81,7 +88,9 @@
                 For Each Trial In TrialHistory
                     If Trial.TestStage = stage Then
                         StageTrials += 1
-                        StageScore += Trial.Score
+                        If Trial.IsCorrect = True Then
+                            StageScore += 1
+                        End If
                     End If
                 Next
                 TestStageResults.Add(New Tuple(Of Integer, Integer)(StageTrials, StageScore))
@@ -128,7 +137,11 @@
         For Each Trial As SrtTrial In TrialHistory
             Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
             Output.TestStageSeries.Add(Trial.TestStage)
-            Output.ScoreSeries.Add(Trial.Score)
+            If Trial.IsCorrect = True Then
+                Output.ScoreSeries.Add("Correct")
+            Else
+                Output.ScoreSeries.Add("Incorrect")
+            End If
         Next
 
         Return Output

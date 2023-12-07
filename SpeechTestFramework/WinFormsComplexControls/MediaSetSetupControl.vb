@@ -26,15 +26,6 @@
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
-            'Adding linguistic levels for the speech level adjustment function
-            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
-            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
-            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
-            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
-            SpeechLevelLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
-            'Auto-selects the sentence level as default
-            SpeechLevelLinguisticLevel_ComboBox.SelectedIndex = 2
-
             'Adding linguistic levels for the modified linguistic level of sound files function
             'ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection) ' TODO: It's not possible to convert to ListCollection lince a ListCollection cannot fit within the SMA (v1.1) specification.
             ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
@@ -71,6 +62,13 @@
             'Showing the value of Standard_dBFS_dBSPL_Difference in the Speech level SPL lable
 
             SpeechLevelSPL_Label.Text = "Speech level (dB SPL, [SPL - FS = " & Audio.Standard_dBFS_dBSPL_Difference & " dB])"
+
+            ' Items for the SpeechLevel_TargetLinguisticlevel_ComboBox
+            SpeechLevel_TargetLinguisticlevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
+            SpeechLevel_TargetLinguisticlevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
+            SpeechLevel_TargetLinguisticlevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            SpeechLevel_TargetLinguisticlevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
+            SpeechLevel_TargetLinguisticlevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
             UpdateControlEnabledStatuses()
 
@@ -440,11 +438,11 @@
             SelectedMediaSet.SetVpNormalizedLevels(CDbl(SpeechLevelSPL_DoubleParsingTextBox.Value), SpeechLevelFrequencyWeighting, TemporalIntegration) ' N.B. 'TemporalIntegration is zero for long-time average
         Else
             Dim TargetLinguisticLevel As SpeechMaterialComponent.LinguisticLevels
-            If SpeechLevelLinguisticLevel_ComboBox.SelectedItem Is Nothing Then
+            If SpeechLevel_TargetLinguisticlevel_ComboBox.SelectedItem Is Nothing Then
                 MsgBox("You must select the linguistic level for which you want to set the sound level!", MsgBoxStyle.Exclamation, "Missing linguistic level")
                 Exit Sub
             End If
-            TargetLinguisticLevel = SpeechLevelLinguisticLevel_ComboBox.SelectedItem
+            TargetLinguisticLevel = SpeechLevel_TargetLinguisticlevel_ComboBox.SelectedItem
             SelectedMediaSet.SetSpeechLevels(SpeechLevelFS_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration, TargetLinguisticLevel)
         End If
 
@@ -617,7 +615,6 @@
         NewMediaSet.WriteToFile()
 
     End Sub
-
 
 End Class
 

@@ -64,6 +64,14 @@ Public Class SrtExperimentalProtocol
 
     Public Overrides Function NewResponse(ByRef ObservedTrials As TrialHistory) As NextTaskInstruction
 
+        If ObservedTrials.Count > 0 Then
+            'Corrects the last given response
+            If ObservedTrials.Last.GetProportionTasksCorrect > 0 Then
+                ObservedTrials.Last.IsCorrect = True
+            Else
+                ObservedTrials.Last.IsCorrect = False
+            End If
+        End If
 
         'Determines test stage
         Dim TrialsInFixedStage1 As New List(Of SrtTrial)
@@ -121,7 +129,7 @@ Public Class SrtExperimentalProtocol
             Else
 
                 'Adjusting the speech level, depending on the last response
-                If ObservedTrials.Last.Score = 1 Then
+                If ObservedTrials.Last.IsCorrect = True Then
                     NextSpeechLevel -= BallparkStageAdaptiveStepSize
                 Else
                     NextSpeechLevel += BallparkStageAdaptiveStepSize
@@ -207,7 +215,11 @@ Public Class SrtExperimentalProtocol
         For Each Trial As SrtTrial In ObservedTrials
             Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
             Output.TestStageSeries.Add(Trial.TestStage)
-            Output.ScoreSeries.Add(Trial.Score)
+            If Trial.IsCorrect = True Then
+                Output.ScoreSeries.Add("Correct")
+            Else
+                Output.ScoreSeries.Add("Incorrect")
+            End If
         Next
 
         Return Output

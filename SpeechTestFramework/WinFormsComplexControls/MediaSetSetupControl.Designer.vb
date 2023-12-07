@@ -109,8 +109,8 @@ Partial Class MediaSetSetupControl
         Me.SpeechLevelSPL_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.SpeechLevelFrequencyWeighting_ComboBox = New System.Windows.Forms.ComboBox()
         Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
-        Me.Label32 = New System.Windows.Forms.Label()
-        Me.SpeechLevelLinguisticLevel_ComboBox = New System.Windows.Forms.ComboBox()
+        Me.Label40 = New System.Windows.Forms.Label()
+        Me.SpeechLevel_TargetLinguisticlevel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel6 = New System.Windows.Forms.TableLayoutPanel()
         Me.Label27 = New System.Windows.Forms.Label()
@@ -1033,9 +1033,9 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel5.Location = New System.Drawing.Point(3, 3)
         Me.TableLayoutPanel5.Name = "TableLayoutPanel5"
         Me.TableLayoutPanel5.RowCount = 4
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 210.0!))
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 160.0!))
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 137.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 236.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 156.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 115.0!))
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel5.Size = New System.Drawing.Size(607, 603)
         Me.TableLayoutPanel5.TabIndex = 1
@@ -1046,7 +1046,7 @@ Partial Class MediaSetSetupControl
         Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox1.Location = New System.Drawing.Point(3, 3)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(601, 204)
+        Me.GroupBox1.Size = New System.Drawing.Size(601, 230)
         Me.GroupBox1.TabIndex = 12
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Set speech level"
@@ -1057,18 +1057,18 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel3.ColumnCount = 2
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelFS_DoubleParsingTextBox, 1, 1)
-        Me.TableLayoutPanel3.Controls.Add(Me.Label29, 0, 1)
+        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelFS_DoubleParsingTextBox, 1, 2)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label29, 0, 2)
         Me.TableLayoutPanel3.Controls.Add(Me.ApplySpeechLevels_Button, 0, 6)
-        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelSPL_Label, 0, 0)
-        Me.TableLayoutPanel3.Controls.Add(Me.Label28, 0, 2)
+        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelSPL_Label, 0, 1)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label28, 0, 3)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelTemporalIntegration_CheckBox, 0, 4)
         Me.TableLayoutPanel3.Controls.Add(Me.VpNormalization_Checkbox, 0, 5)
-        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelSPL_DoubleParsingTextBox, 1, 0)
-        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelFrequencyWeighting_ComboBox, 1, 2)
+        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelSPL_DoubleParsingTextBox, 1, 1)
+        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelFrequencyWeighting_ComboBox, 1, 3)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox, 1, 4)
-        Me.TableLayoutPanel3.Controls.Add(Me.Label32, 0, 3)
-        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelLinguisticLevel_ComboBox, 1, 3)
+        Me.TableLayoutPanel3.Controls.Add(Me.Label40, 0, 0)
+        Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevel_TargetLinguisticlevel_ComboBox, 1, 0)
         Me.TableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel3.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
@@ -1081,14 +1081,15 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel3.Size = New System.Drawing.Size(595, 185)
+        Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+        Me.TableLayoutPanel3.Size = New System.Drawing.Size(595, 211)
         Me.TableLayoutPanel3.TabIndex = 0
         '
         'SpeechLevelFS_DoubleParsingTextBox
         '
         Me.SpeechLevelFS_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SpeechLevelFS_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.SpeechLevelFS_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 28)
+        Me.SpeechLevelFS_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 53)
         Me.SpeechLevelFS_DoubleParsingTextBox.Name = "SpeechLevelFS_DoubleParsingTextBox"
         Me.SpeechLevelFS_DoubleParsingTextBox.Size = New System.Drawing.Size(292, 20)
         Me.SpeechLevelFS_DoubleParsingTextBox.TabIndex = 10
@@ -1096,7 +1097,7 @@ Partial Class MediaSetSetupControl
         'Label29
         '
         Me.Label29.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label29.Location = New System.Drawing.Point(3, 25)
+        Me.Label29.Location = New System.Drawing.Point(3, 50)
         Me.Label29.Name = "Label29"
         Me.Label29.Size = New System.Drawing.Size(291, 25)
         Me.Label29.TabIndex = 9
@@ -1117,7 +1118,7 @@ Partial Class MediaSetSetupControl
         'SpeechLevelSPL_Label
         '
         Me.SpeechLevelSPL_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SpeechLevelSPL_Label.Location = New System.Drawing.Point(3, 0)
+        Me.SpeechLevelSPL_Label.Location = New System.Drawing.Point(3, 25)
         Me.SpeechLevelSPL_Label.Name = "SpeechLevelSPL_Label"
         Me.SpeechLevelSPL_Label.Size = New System.Drawing.Size(291, 25)
         Me.SpeechLevelSPL_Label.TabIndex = 1
@@ -1127,7 +1128,7 @@ Partial Class MediaSetSetupControl
         'Label28
         '
         Me.Label28.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label28.Location = New System.Drawing.Point(3, 50)
+        Me.Label28.Location = New System.Drawing.Point(3, 75)
         Me.Label28.Name = "Label28"
         Me.Label28.Size = New System.Drawing.Size(291, 25)
         Me.Label28.TabIndex = 2
@@ -1161,7 +1162,7 @@ Partial Class MediaSetSetupControl
         '
         Me.SpeechLevelSPL_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SpeechLevelSPL_DoubleParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.SpeechLevelSPL_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 3)
+        Me.SpeechLevelSPL_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 28)
         Me.SpeechLevelSPL_DoubleParsingTextBox.Name = "SpeechLevelSPL_DoubleParsingTextBox"
         Me.SpeechLevelSPL_DoubleParsingTextBox.Size = New System.Drawing.Size(292, 20)
         Me.SpeechLevelSPL_DoubleParsingTextBox.TabIndex = 5
@@ -1171,7 +1172,7 @@ Partial Class MediaSetSetupControl
         '
         Me.SpeechLevelFrequencyWeighting_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SpeechLevelFrequencyWeighting_ComboBox.FormattingEnabled = True
-        Me.SpeechLevelFrequencyWeighting_ComboBox.Location = New System.Drawing.Point(300, 53)
+        Me.SpeechLevelFrequencyWeighting_ComboBox.Location = New System.Drawing.Point(300, 78)
         Me.SpeechLevelFrequencyWeighting_ComboBox.Name = "SpeechLevelFrequencyWeighting_ComboBox"
         Me.SpeechLevelFrequencyWeighting_ComboBox.Size = New System.Drawing.Size(292, 21)
         Me.SpeechLevelFrequencyWeighting_ComboBox.TabIndex = 7
@@ -1186,32 +1187,32 @@ Partial Class MediaSetSetupControl
         Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Size = New System.Drawing.Size(292, 20)
         Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.TabIndex = 8
         '
-        'Label32
+        'Label40
         '
-        Me.Label32.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label32.Location = New System.Drawing.Point(3, 75)
-        Me.Label32.Name = "Label32"
-        Me.Label32.Size = New System.Drawing.Size(291, 25)
-        Me.Label32.TabIndex = 11
-        Me.Label32.Text = "Linguistic level"
-        Me.Label32.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.Label40.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label40.Location = New System.Drawing.Point(3, 0)
+        Me.Label40.Name = "Label40"
+        Me.Label40.Size = New System.Drawing.Size(291, 25)
+        Me.Label40.TabIndex = 13
+        Me.Label40.Text = "Target linguistic level:"
+        Me.Label40.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'SpeechLevelLinguisticLevel_ComboBox
+        'SpeechLevel_TargetLinguisticlevel_ComboBox
         '
-        Me.SpeechLevelLinguisticLevel_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SpeechLevelLinguisticLevel_ComboBox.FormattingEnabled = True
-        Me.SpeechLevelLinguisticLevel_ComboBox.Location = New System.Drawing.Point(300, 78)
-        Me.SpeechLevelLinguisticLevel_ComboBox.Name = "SpeechLevelLinguisticLevel_ComboBox"
-        Me.SpeechLevelLinguisticLevel_ComboBox.Size = New System.Drawing.Size(292, 21)
-        Me.SpeechLevelLinguisticLevel_ComboBox.TabIndex = 12
+        Me.SpeechLevel_TargetLinguisticlevel_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SpeechLevel_TargetLinguisticlevel_ComboBox.FormattingEnabled = True
+        Me.SpeechLevel_TargetLinguisticlevel_ComboBox.Location = New System.Drawing.Point(300, 3)
+        Me.SpeechLevel_TargetLinguisticlevel_ComboBox.Name = "SpeechLevel_TargetLinguisticlevel_ComboBox"
+        Me.SpeechLevel_TargetLinguisticlevel_ComboBox.Size = New System.Drawing.Size(292, 21)
+        Me.SpeechLevel_TargetLinguisticlevel_ComboBox.TabIndex = 14
         '
         'GroupBox2
         '
         Me.GroupBox2.Controls.Add(Me.TableLayoutPanel6)
         Me.GroupBox2.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox2.Location = New System.Drawing.Point(3, 213)
+        Me.GroupBox2.Location = New System.Drawing.Point(3, 239)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(601, 154)
+        Me.GroupBox2.Size = New System.Drawing.Size(601, 150)
         Me.GroupBox2.TabIndex = 13
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Measure speech material annotation (SMA) levels "
@@ -1237,7 +1238,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
-        Me.TableLayoutPanel6.Size = New System.Drawing.Size(595, 135)
+        Me.TableLayoutPanel6.Size = New System.Drawing.Size(595, 131)
         Me.TableLayoutPanel6.TabIndex = 0
         '
         'Label27
@@ -1301,9 +1302,9 @@ Partial Class MediaSetSetupControl
         '
         Me.GroupBox3.Controls.Add(Me.TableLayoutPanel7)
         Me.GroupBox3.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox3.Location = New System.Drawing.Point(3, 373)
+        Me.GroupBox3.Location = New System.Drawing.Point(3, 395)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(601, 131)
+        Me.GroupBox3.Size = New System.Drawing.Size(601, 109)
         Me.GroupBox3.TabIndex = 14
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Custom functions"
@@ -1319,7 +1320,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel7.RowCount = 2
         Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel7.Size = New System.Drawing.Size(595, 112)
+        Me.TableLayoutPanel7.Size = New System.Drawing.Size(595, 90)
         Me.TableLayoutPanel7.TabIndex = 0
         '
         'SipTestLevels_Button
@@ -1327,7 +1328,7 @@ Partial Class MediaSetSetupControl
         Me.SipTestLevels_Button.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SipTestLevels_Button.Location = New System.Drawing.Point(3, 3)
         Me.SipTestLevels_Button.Name = "SipTestLevels_Button"
-        Me.SipTestLevels_Button.Size = New System.Drawing.Size(589, 50)
+        Me.SipTestLevels_Button.Size = New System.Drawing.Size(589, 39)
         Me.SipTestLevels_Button.TabIndex = 0
         Me.SipTestLevels_Button.Text = "Calculate SiP-test sounds levels"
         Me.SipTestLevels_Button.UseVisualStyleBackColor = True
@@ -1785,8 +1786,6 @@ Partial Class MediaSetSetupControl
     Friend WithEvents TempButton As Windows.Forms.Button
     Friend WithEvents CustomVariablesFolder_TextBox As Windows.Forms.TextBox
     Friend WithEvents Label31 As Windows.Forms.Label
-    Friend WithEvents Label32 As Windows.Forms.Label
-    Friend WithEvents SpeechLevelLinguisticLevel_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents SoundfileLinguisticLevels_TabPage As Windows.Forms.TabPage
     Friend WithEvents TableLayoutPanel8 As Windows.Forms.TableLayoutPanel
     Friend WithEvents RichTextBox1 As Windows.Forms.RichTextBox
@@ -1808,4 +1807,6 @@ Partial Class MediaSetSetupControl
     Friend WithEvents CrossfadeDuration_IntegerParsingTextBox As IntegerParsingTextBox
     Friend WithEvents Label39 As Windows.Forms.Label
     Friend WithEvents RandomSeed_IntegerParsingTextBox As IntegerParsingTextBox
+    Friend WithEvents Label40 As Windows.Forms.Label
+    Friend WithEvents SpeechLevel_TargetLinguisticlevel_ComboBox As Windows.Forms.ComboBox
 End Class

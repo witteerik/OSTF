@@ -107,7 +107,9 @@
     <Compile Include="OstfSoundPlayerSourceHeadings.Designer.vb">
       <DependentUpon>OstfSoundPlayerSourceHeadings.vb</DependentUpon>
     </Compile>
-    <Compile Include="OstfSoundPlayerSourceHeadings.vb" />
+    <Compile Include="OstfSoundPlayerSourceHeadings.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="OstfSoundPlayerWindow.Designer.vb">
       <DependentUpon>OstfSoundPlayerWindow.vb</DependentUpon>
     </Compile>
