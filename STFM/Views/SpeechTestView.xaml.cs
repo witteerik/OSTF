@@ -170,8 +170,19 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     CurrentSpeechTest.InitializeCurrentTest();
 
+                    // TODO: This line must be moved to an options result code section
+                    CurrentSpeechTest.IsFreeRecall = true;
+
                     // Response view
-                    CurrentResponseView = new ResponseView_Matrix();
+                    if (CurrentSpeechTest.IsFreeRecall)
+                    {
+                        CurrentResponseView = new ResponseView_FreeRecall();
+                    }
+                    else
+                    {
+                        CurrentResponseView = new ResponseView_Matrix();
+                    }
+
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     //TestResponseView.StartedByTestee += StartedByTestee;
 

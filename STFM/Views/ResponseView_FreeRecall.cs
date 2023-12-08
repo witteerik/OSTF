@@ -3,6 +3,7 @@
 using STFN;
 using STFN.Audio.SoundScene;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace STFM.Views;
 
@@ -75,8 +76,7 @@ public class ResponseView_FreeRecall : ResponseView
         }
 
         // Determining suitable text size (TODO: This is a bad method, since it doesn't care for the lengths of any strings.....
-        var myHeight = this.Height;
-        var textSize = Math.Round(myHeight / (4 * nRows));
+        var textSize = Math.Round(this.Width / 25);
 
         // Adding info on the top row
         Grid infoGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
@@ -84,52 +84,77 @@ public class ResponseView_FreeRecall : ResponseView
         infoGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         infoGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         infoGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        infoGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        infoGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        infoGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(6, GridUnitType.Star) });
 
         var yesLabel = new Label()
         {
-            Text = "Yes",
-            BackgroundColor = Color.FromRgb(255, 255, 128),
-            Padding = 10,
+            Text = "✓ = rätt",
+            //BackgroundColor = Color.FromRgb(255, 255, 128),
+            HorizontalTextAlignment = TextAlignment.Start,
+            VerticalTextAlignment = TextAlignment.Start,
+            Padding = 5,
             TextColor = Color.FromRgb(4, 255, 61),
-            FontSize = textSize,
+            FontSize = textSize / 2,
             HorizontalOptions = LayoutOptions.Fill,
             VerticalOptions = LayoutOptions.Fill
         };
 
+        var noLabel = new Label()
+        {
+            Text = "✗ = fel",
+            //BackgroundColor = Color.FromRgb(255, 255, 128),
+            HorizontalTextAlignment = TextAlignment.Start,
+            VerticalTextAlignment = TextAlignment.Start,
+            Padding = 5,
+            TextColor = Colors.Red,
+            FontSize = textSize / 2,
+            HorizontalOptions = LayoutOptions.Fill,
+            VerticalOptions = LayoutOptions.Fill
+        };
 
-        responseAlternativeGrid.Add(infoGrid,0,0);
+        infoGrid.Add(yesLabel, 0, 0);
+        infoGrid.Add(noLabel, 1, 0);
+
+        responseAlternativeGrid.Add(infoGrid, 0, 0);
         responseAlternativeGrid.SetColumnSpan(infoGrid, nCols);
 
         // Creating controls and positioning them in the responseAlternativeGrid
         for (int i = 0; i < localResponseAlternatives.Count; i++)
         {
+            CorrectionButton correctionButton = new CorrectionButton(localResponseAlternatives[i], textSize);
+            responseAlternativeGrid.Add(correctionButton, i, 1);
+        }
 
-            var repsonseBtn = new Button()
+        // Creating controls and positioning them in the responseAlternativeGrid
+        int controlButtons = 1;
+        for (int i = 0; i < controlButtons; i++)
+        {
+
+            var controlButton = new Button()
             {
-                Text = localResponseAlternatives[i],
-                BackgroundColor = Color.FromRgb(255, 255, 128),
+                Text = "Nästa",
+                BackgroundColor = Colors.LightBlue,
                 Padding = 10,
                 TextColor = Color.FromRgb(40, 40, 40),
                 FontSize = textSize,
                 HorizontalOptions = LayoutOptions.Fill,
-                VerticalOptions = LayoutOptions.Fill
+                VerticalOptions = LayoutOptions.Fill,
             };
 
-            repsonseBtn.Clicked += reponseButton_Clicked;
+            controlButton.Clicked += controlButton_Clicked;
 
-            Frame frame = new Frame
+            Frame controlButtonFrame = new Frame
             {
                 BorderColor = Colors.Gray,
                 CornerRadius = 8,
-                ClassId = "TWA",
+                ClassId = "NextButton",
                 Padding = 10,
                 Margin = 4,
-                Content = repsonseBtn
+                Content = controlButton
             };
 
-            responseAlternativeGrid.Add(frame, i, 1);
+            responseAlternativeGrid.Add(controlButtonFrame, 0, 2);
+            responseAlternativeGrid.SetColumnSpan(controlButtonFrame, nCols);
 
         }
 
@@ -137,55 +162,64 @@ public class ResponseView_FreeRecall : ResponseView
 
     }
 
-    private void reponseButton_Clicked(object sender, EventArgs e)
+
+    private void wrapUpTrial()
     {
 
-        // Getting the responsed label
-        var responseBtn = sender as Button;
-        var buttonParentFrame = responseBtn.Parent as Frame;
+        List<string> CorrectResponses = new List<string>();
 
         // Hides all other labels, fokuses the selected one
         foreach (var child in responseAlternativeGrid.Children)
         {
+            if (child is CorrectionButton)
+            {
+                var correctionButton = (CorrectionButton)child;
+                CorrectResponses.Add(correctionButton.GetValue());
+            }
+
             if (child is Frame)
             {
-
-                // Removing the event handlers
                 var currentFrame = (Frame)child;
-                if (currentFrame.Content is Button)
+                if (currentFrame.ClassId == "NextButton")
                 {
-                    var button = (Button)buttonParentFrame.Content;
-                    //button.Clicked -= reponseButton_Clicked;
-                }
-
-                // Hiding all frames (and buttons) except the one clicked
-                if (object.ReferenceEquals(currentFrame, buttonParentFrame) == false)
-                {
-                    if (currentFrame.ClassId == "TWA")
+                    if (currentFrame.Content is Button)
                     {
-                        //currentFrame.IsVisible = false;
+                        // Removing the event handler
+                        var button = (Button)currentFrame.Content;
+                        button.Clicked -= controlButton_Clicked;
                     }
-                }
-                else
-                {
-                    // Modifies the frame color to mark that it's selected
-                    currentFrame.BorderColor = Color.FromRgb(4, 255, 61);
-                    currentFrame.BackgroundColor = Color.FromRgb(4, 255, 61);
                 }
             }
         }
 
+        clearMainGrid();
+
         // Sends the linguistic response
-        ReportResult(responseBtn.Text);
+        ReportResult(CorrectResponses);
 
     }
 
-    private void ReportResult(string RespondedSpelling)
+    private void controlButton_Clicked(object sender, EventArgs e)
+    {
+
+        // Getting the responsed label
+        var controlButton = sender as Button;
+        var controlButtonParentFrame = controlButton.Parent as Frame;
+
+        if (controlButtonParentFrame.ClassId == "NextButton")
+        {
+            wrapUpTrial();
+        }
+
+
+    }
+
+    private void ReportResult(List<string> CorrectResponses)
     {
 
         // Storing the raw response
         SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
-        args.LinguisticResponse = RespondedSpelling;
+        args.LinguisticResponses = CorrectResponses;
         args.LinguisticResponseTime = DateTime.Now;
 
         // Raising the Response given event in the base class
@@ -218,34 +252,19 @@ public class ResponseView_FreeRecall : ResponseView
 
     public override void ResponseTimesOut()
     {
-
-        // Hides all other labels, fokuses the selected one
         foreach (var child in responseAlternativeGrid.Children)
         {
-            if (child is Frame)
+            if (child is CorrectionButton)
             {
-                var frame = (Frame)child;
-                // Modifies the frame color to mark that it's missed
-                // Modifies the frame border color
-                //frame.BorderColor = Colors.LightGray; 
-                //frame.BackgroundColor = Colors.LightGray;
-
-                // Modifies the button color
-                if (frame.Content is Button)
-                {
-                    var button = (Button)frame.Content;
-                    button.BorderColor = Colors.Red;
-                    button.BackgroundColor = Colors.Red;
-
-                    // Also removing the event handler
-                    button.Clicked -= reponseButton_Clicked;
-                }
+                // Removing the event handler and changs the color
+                var correctionButton = (CorrectionButton)child;
+                correctionButton.RemoveHandler();
+                correctionButton.TurnRed();
             }
         }
 
-        // Reporting an empty response (indicating missing response)
-        ReportResult("");
-
+        // Auto wrapping up the trial
+        wrapUpTrial();
     }
 
     public override void ShowMessage(string Message)
@@ -300,4 +319,111 @@ public class ResponseView_FreeRecall : ResponseView
     }
 
 }
+
+public class CorrectionButton : Grid
+{
+
+    private Label indicatorLabel;
+    private Button repsonseButton;
+    private Frame repsonseButtonFrame;
+    private bool isMarkedCorrect = false;
+
+    public CorrectionButton(string text, double textSize)
+    {
+
+        this.HorizontalOptions = LayoutOptions.Fill;
+        this.VerticalOptions = LayoutOptions.Fill;
+        this.BackgroundColor = Color.FromRgb(40, 40, 40);
+        this.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        this.AddRowDefinition(new RowDefinition { Height = new GridLength(0.8, GridUnitType.Star) });
+        this.AddRowDefinition(new RowDefinition { Height = new GridLength(1.2, GridUnitType.Star) });
+
+        indicatorLabel = new Label()
+        {
+            Text = "✗",
+            TextColor = Color.FromRgb(40, 40, 40),
+            FontSize = textSize*1.5,
+            VerticalTextAlignment = TextAlignment.Center,
+            HorizontalTextAlignment = TextAlignment.Center,
+        };
+
+        repsonseButton = new Button()
+        {
+            Text = text,
+            BackgroundColor = Color.FromRgb(255, 255, 128),
+            Padding = new Thickness(2,10),
+            TextColor = Color.FromRgb(40, 40, 40),
+            FontSize = textSize,
+            HorizontalOptions = LayoutOptions.Fill,
+            VerticalOptions = LayoutOptions.Fill,
+        };
+
+        repsonseButtonFrame = new Frame();
+        repsonseButtonFrame.BorderColor = Colors.Gray;
+        repsonseButtonFrame.CornerRadius = 8;
+        repsonseButtonFrame.Padding = 10;
+        repsonseButtonFrame.Margin = 4;
+        repsonseButtonFrame.Content = repsonseButton;
+
+        this.Add(indicatorLabel, 0, 0);
+        this.Add(repsonseButtonFrame, 0, 1);
+
+        repsonseButton.Clicked += reponseButton_Clicked;
+
+    }
+
+    public string GetValue()
+    {
+            if (isMarkedCorrect == true)
+            {
+               return repsonseButton.Text;
+            }
+            else
+            {
+                return "";
+            }
+    }
+
+    private void reponseButton_Clicked(object sender, EventArgs e)
+    {
+
+        //Swapping the value
+        isMarkedCorrect = !isMarkedCorrect;
+
+        // Getting the responsed label
+
+        if (isMarkedCorrect == true)
+        {
+            indicatorLabel.Text = "✓";
+            indicatorLabel.TextColor = Color.FromRgb(4, 255, 61);
+
+            // Modifies the frame color to mark that it's set as correct
+            repsonseButtonFrame.BorderColor = Color.FromRgb(4, 255, 61);
+            repsonseButtonFrame.BackgroundColor = Color.FromRgb(4, 255, 61);
+        }
+        else
+        {
+            indicatorLabel.Text = "✗";
+            indicatorLabel.TextColor = Colors.Red;
+
+            // Modifies the frame color to mark that it's set as incorrect
+            repsonseButtonFrame.BorderColor = Colors.Red;
+            repsonseButtonFrame.BackgroundColor = Colors.Red;
+        }
+    }
+
+    public void RemoveHandler()
+    {
+        repsonseButton.Clicked -= reponseButton_Clicked;
+    }
+
+    public void TurnRed()
+    {
+        repsonseButton.BorderColor = Colors.Red;
+        repsonseButton.BackgroundColor = Colors.Red;
+    }
+
+}
+
+ 
 

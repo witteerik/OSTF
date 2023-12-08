@@ -177,26 +177,19 @@ Public Class MatrixSpeechTest
 
             'This is an incoming test trial response
 
-            'Chcking if it's a missing response
-            If e.LinguisticResponse = "" Then
+            'Corrects the trial response, based on the given response
+            Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
+            Dim CorrectWordsList As New List(Of String)
 
-                'Adds the remaining blank/missing reponses, forcing the test to move on
-                Do Until CurrentTestTrial.ScoreList.Count >= CurrentTestTrial.Tasks
-                    CurrentTestTrial.ScoreList.Add(0)
-                Loop
-
-            Else
-
-                'Corrects the trial response, based on the given response
-                Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
-                Dim CorrectWordsList As New List(Of String)
-                If e.LinguisticResponse = WordsInSentence(CurrentTestTrial.ScoreList.Count).GetCategoricalVariableValue("Spelling") Then
+            'Resets the CurrentTestTrial.ScoreList
+            CurrentTestTrial.ScoreList = New List(Of Integer)
+            For i = 0 To e.LinguisticResponses.Count - 1
+                If e.LinguisticResponses(i) = WordsInSentence(i).GetCategoricalVariableValue("Spelling") Then
                     CurrentTestTrial.ScoreList.Add(1)
                 Else
                     CurrentTestTrial.ScoreList.Add(0)
                 End If
-
-            End If
+            Next
 
             'Checks if the trial is finished
             If CurrentTestTrial.ScoreList.Count < CurrentTestTrial.Tasks Then
@@ -210,6 +203,7 @@ Public Class MatrixSpeechTest
         Else
             'Nothing to correct (this should be the start of a new test)
         End If
+
 
         'TODO: We must store the responses and response times!!!
 
@@ -238,11 +232,22 @@ Public Class MatrixSpeechTest
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 5}
 
-        If IsFreeRecall = True Or IsFreeRecall = False Then
-            'Think the same code applies in both situations?
+        Dim ReponseAlternativeList As New List(Of List(Of String))
 
+        If IsFreeRecall = True Then
+
+            'Adding only the correct words to the GUI
+            Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
+            Dim CorrectWordsList As New List(Of String)
+            For Each Word In WordsInSentence
+                CorrectWordsList.Add(Word.GetCategoricalVariableValue("Spelling"))
+            Next
+            ReponseAlternativeList.Add(CorrectWordsList)
+
+        Else
+
+            'Adding all words to the GUI
             Dim AllSentencesInList = NextTestSentence.GetSiblings()
-            Dim ReponseAlternativeList As New List(Of List(Of String))
 
             For s = 0 To AllSentencesInList.Count - 1
                 Dim WordsInSentence = AllSentencesInList(s).ChildComponents()
@@ -262,13 +267,14 @@ Public Class MatrixSpeechTest
             Next
 
             'Transposing back after sorting
-            Dim ReTransposedMatrix = TransposeMatrix(TransposedMatrix)
+            ReponseAlternativeList = TransposeMatrix(TransposedMatrix)
 
-            'Add other buttons needed
+            'Add other buttons needed ?
 
-            'Adding the list
-            CurrentTestTrial.ResponseAlternativeSpellings = ReTransposedMatrix
         End If
+
+        'Adding the list
+        CurrentTestTrial.ResponseAlternativeSpellings = ReponseAlternativeList
 
         'Mixing trial sound
         MixNextTrialSound()
@@ -277,7 +283,7 @@ Public Class MatrixSpeechTest
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 14500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 

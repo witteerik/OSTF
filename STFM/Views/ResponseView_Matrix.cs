@@ -166,7 +166,7 @@ public class ResponseView_Matrix : ResponseView
 
         // Storing the raw response
         SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
-        args.LinguisticResponse = RespondedSpelling;
+        args.LinguisticResponses.Add(RespondedSpelling);
         args.LinguisticResponseTime = DateTime.Now;
 
         // Raising the Response given event in the base class

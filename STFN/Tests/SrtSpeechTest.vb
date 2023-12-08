@@ -141,26 +141,19 @@ Public Class SrtSpeechTest
 
             'This is an incoming test trial response
 
-            'Chcking if it's a missing response
-            If e.LinguisticResponse = "" Then
+            'Corrects the trial response, based on the given response
+            Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
+            Dim CorrectWordsList As New List(Of String)
 
-                'Adds the remaining blank/missing reponses, forcing the test to move on
-                Do Until CurrentTestTrial.ScoreList.Count >= CurrentTestTrial.Tasks
-                    CurrentTestTrial.ScoreList.Add(0)
-                Loop
-
-            Else
-
-                'Corrects the trial response, based on the given response
-                Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
-                Dim CorrectWordsList As New List(Of String)
-                If e.LinguisticResponse = WordsInSentence(CurrentTestTrial.ScoreList.Count).GetCategoricalVariableValue("Spelling") Then
+            'Resets the CurrentTestTrial.ScoreList
+            CurrentTestTrial.ScoreList = New List(Of Integer)
+            For i = 0 To e.LinguisticResponses.Count - 1
+                If e.LinguisticResponses(i) = WordsInSentence(i).GetCategoricalVariableValue("Spelling") Then
                     CurrentTestTrial.ScoreList.Add(1)
                 Else
                     CurrentTestTrial.ScoreList.Add(0)
                 End If
-
-            End If
+            Next
 
             'Checks if the trial is finished
             If CurrentTestTrial.ScoreList.Count < CurrentTestTrial.Tasks Then

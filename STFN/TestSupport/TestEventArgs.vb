@@ -1,7 +1,7 @@
 ﻿Public Class SpeechTestInputEventArgs
     Inherits EventArgs
 
-    Public Property LinguisticResponse As String
+    Public Property LinguisticResponses As New List(Of String)
 
     Public Property LinguisticResponseTime As DateTime
 
