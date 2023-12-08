@@ -211,7 +211,7 @@ Public Class SrtExperimentalProtocol
         'Storing the SpeechLevelSeries
         Output.SpeechLevelSeries = New List(Of Double)
         Output.TestStageSeries = New List(Of String)
-        Output.ScoreSeries = New List(Of Integer)
+        Output.ScoreSeries = New List(Of String)
         For Each Trial As SrtTrial In ObservedTrials
             Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
             Output.TestStageSeries.Add(Trial.TestStage)

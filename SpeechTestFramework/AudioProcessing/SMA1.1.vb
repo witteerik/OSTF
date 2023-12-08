@@ -2361,7 +2361,7 @@ Namespace Audio
                 ''' <summary>
                 ''' Cretates a identifier string that points to the sound section of the sound file containing the audio data
                 ''' </summary>
-                ''' <param name="SoundFilePathString">As the SmaComponent may not always know the wave file from which is was read, the calling code can insteda supply the path here.</param>
+                ''' <param name="SoundFilePathString">As the SmaComponent may not always know the wave file from which is was read, the calling code can instead supply the path here.</param>
                 ''' <returns></returns>
                 Public Function CreateUniqueSoundSectionIdentifier(Optional ByVal SoundFilePathString As String = "") As String
 
@@ -2378,7 +2378,7 @@ Namespace Audio
                                 If ParentSMA.ParentSound Is Nothing Then
                                     OutputList.Add("NoParentSound")
                                 Else
-                                    OutputList.Add(ParentSMA.ParentSound.FileName)
+                                    OutputList.Add(ParentSMA.ParentSound.SourcePath)
                                 End If
                             End If
                         End If

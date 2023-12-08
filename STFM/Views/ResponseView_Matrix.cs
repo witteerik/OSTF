@@ -8,7 +8,6 @@ namespace STFM.Views;
 public class ResponseView_Matrix : ResponseView
 {
 
-    Grid MainMafcGrid;
     Grid responseAlternativeGrid = null;
     private IDispatcherTimer HideAllTimer;
 
@@ -16,16 +15,9 @@ public class ResponseView_Matrix : ResponseView
     public ResponseView_Matrix()
     {
 
-        // Creating content
-        MainMafcGrid = new Grid
-        {
-            RowDefinitions = { new RowDefinition { Height = new GridLength(1, GridUnitType.Star) } },
-            ColumnDefinitions = { new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) } }
-        };
-        Content = MainMafcGrid;
-
         // Setting background color
-        MainMafcGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
+        this.BackgroundColor = Color.FromRgb(40, 40, 40);
+        //MainMafcGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
 
         // Creating a hide-all timer
         HideAllTimer = Application.Current.Dispatcher.CreateTimer();
@@ -120,7 +112,9 @@ public class ResponseView_Matrix : ResponseView
             }
         }
 
-        MainMafcGrid.Add(responseAlternativeGrid, 0, 0);
+        Content = responseAlternativeGrid;
+
+        //MainMafcGrid.Add(responseAlternativeGrid, 0, 0);
 
     }
 
@@ -190,7 +184,10 @@ public class ResponseView_Matrix : ResponseView
 
     public void clearMainGrid()
     {
-        MainMafcGrid.Clear();
+
+        Content = null;
+
+        //MainMafcGrid.Clear();
     }
 
 
@@ -252,7 +249,8 @@ public class ResponseView_Matrix : ResponseView
             VerticalOptions = LayoutOptions.Fill
         };
 
-        MainMafcGrid.Add(messageBtn, 0, 0);
+        Content = messageBtn;
+        //MainMafcGrid.Add(messageBtn, 0, 0);
 
     }
 

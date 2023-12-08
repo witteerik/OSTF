@@ -272,7 +272,7 @@ Public Class TestResults
     Public SpeechRecognitionThreshold As Double
     Public TestStageSeries As List(Of String)
     Public SpeechLevelSeries As List(Of Double)
-    Public ScoreSeries As List(Of Integer)
+    Public ScoreSeries As List(Of String)
 
     Public Sub New(ByVal TestResultType As TestResultTypes)
         Me.TestResultType = TestResultType

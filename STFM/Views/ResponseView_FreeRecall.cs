@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maui.Controls;
+//using Microsoft.UI.Xaml.Controls;
 using STFN;
 using STFN.Audio.SoundScene;
 using System.Linq;
@@ -8,7 +9,6 @@ namespace STFM.Views;
 public class ResponseView_FreeRecall : ResponseView
 {
 
-    Grid MainMafcGrid;
     Grid responseAlternativeGrid = null;
     private IDispatcherTimer HideAllTimer;
 
@@ -16,16 +16,9 @@ public class ResponseView_FreeRecall : ResponseView
     public ResponseView_FreeRecall()
     {
 
-        // Creating content
-        MainMafcGrid = new Grid
-        {
-            RowDefinitions = { new RowDefinition { Height = new GridLength(1, GridUnitType.Star) } },
-            ColumnDefinitions = { new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) } }
-        };
-        Content = MainMafcGrid;
-
         // Setting background color
-        MainMafcGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
+        this.BackgroundColor = Color.FromRgb(40, 40, 40);
+        //MainMafcGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
 
         // Creating a hide-all timer
         HideAllTimer = Application.Current.Dispatcher.CreateTimer();
@@ -55,20 +48,22 @@ public class ResponseView_FreeRecall : ResponseView
     public override void ShowResponseAlternatives(List<List<string>> ResponseAlternatives)
     {
 
-        int widestPoint = 0;
-        for (int i = 0; i < ResponseAlternatives.Count; i++)
+        if (ResponseAlternatives.Count > 1)
         {
-            widestPoint = Math.Max(widestPoint, ResponseAlternatives[i].Count);
+            throw new ArgumentException("ShowResponseAlternatives is not yet implemented for multidimensional sets of response alternatives");
         }
 
-        int nCols = widestPoint;
-        int nRows = ResponseAlternatives.Count;
+        List<string> localResponseAlternatives = ResponseAlternatives[0];
+
+        int nItems = localResponseAlternatives.Count;
+        int nRows = 3;
+        int nCols = nItems;
 
         // Creating a grid
         responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
         responseAlternativeGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
 
-        // Setting up row and columns
+        // Setting up rows and columns
         for (int i = 0; i < nRows; i++)
         {
             responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -81,46 +76,64 @@ public class ResponseView_FreeRecall : ResponseView
 
         // Determining suitable text size (TODO: This is a bad method, since it doesn't care for the lengths of any strings.....
         var myHeight = this.Height;
-        var textSize = Math.Round(myHeight / (2.3 * nRows));
+        var textSize = Math.Round(myHeight / (4 * nRows));
+
+        // Adding info on the top row
+        Grid infoGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
+        infoGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
+        infoGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        infoGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        infoGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        infoGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        infoGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+        var yesLabel = new Label()
+        {
+            Text = "Yes",
+            BackgroundColor = Color.FromRgb(255, 255, 128),
+            Padding = 10,
+            TextColor = Color.FromRgb(4, 255, 61),
+            FontSize = textSize,
+            HorizontalOptions = LayoutOptions.Fill,
+            VerticalOptions = LayoutOptions.Fill
+        };
+
+
+        responseAlternativeGrid.Add(infoGrid,0,0);
+        responseAlternativeGrid.SetColumnSpan(infoGrid, nCols);
 
         // Creating controls and positioning them in the responseAlternativeGrid
-        for (int row = 0; row < nRows; row++)
+        for (int i = 0; i < localResponseAlternatives.Count; i++)
         {
 
-            var rowList = ResponseAlternatives[row];
-
-            for (int col = 0; col < rowList.Count; col++)
+            var repsonseBtn = new Button()
             {
+                Text = localResponseAlternatives[i],
+                BackgroundColor = Color.FromRgb(255, 255, 128),
+                Padding = 10,
+                TextColor = Color.FromRgb(40, 40, 40),
+                FontSize = textSize,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Fill
+            };
 
-                var repsonseBtn = new Button()
-                {
-                    Text = rowList[col],
-                    BackgroundColor = Color.FromRgb(255, 255, 128),
-                    Padding = 1,
-                    TextColor = Color.FromRgb(40, 40, 40),
-                    FontSize = textSize,
-                    HorizontalOptions = LayoutOptions.Fill,
-                    VerticalOptions = LayoutOptions.Fill
-                };
+            repsonseBtn.Clicked += reponseButton_Clicked;
 
-                repsonseBtn.Clicked += reponseButton_Clicked;
+            Frame frame = new Frame
+            {
+                BorderColor = Colors.Gray,
+                CornerRadius = 8,
+                ClassId = "TWA",
+                Padding = 10,
+                Margin = 4,
+                Content = repsonseBtn
+            };
 
-                Frame frame = new Frame
-                {
-                    BorderColor = Colors.Gray,
-                    CornerRadius = 1,
-                    ClassId = "TWA",
-                    Padding = 10,
-                    Margin = 1,
-                    Content = repsonseBtn
-                };
+            responseAlternativeGrid.Add(frame, i, 1);
 
-                responseAlternativeGrid.Add(frame, col, row);
-
-            }
         }
 
-        MainMafcGrid.Add(responseAlternativeGrid, 0, 0);
+        Content = responseAlternativeGrid;
 
     }
 
@@ -190,7 +203,10 @@ public class ResponseView_FreeRecall : ResponseView
 
     public void clearMainGrid()
     {
-        MainMafcGrid.Clear();
+
+        Content = null;
+
+        //MainMafcGrid.Clear();
     }
 
 
@@ -252,7 +268,8 @@ public class ResponseView_FreeRecall : ResponseView
             VerticalOptions = LayoutOptions.Fill
         };
 
-        MainMafcGrid.Add(messageBtn, 0, 0);
+        Content = messageBtn;
+        //MainMafcGrid.Add(messageBtn, 0, 0);
 
     }
 
