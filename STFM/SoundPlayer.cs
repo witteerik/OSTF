@@ -15,7 +15,7 @@ namespace STFM
         public MediaElement mediaElement2 = null;
         int lastStartedMediaPlayer = 2;
         double overlapDuration = 0.1;
-        double overlapGranuality = 0.01;
+        int overlapGranuality = 5;
         string InfoText = "";
         STFN.Audio.Formats.WaveFormat LastPlayedWaveFormat = new WaveFormat(48000, 32, 2, "", WaveFormat.WaveFormatEncodings.IeeeFloatingPoints); // Creating a default LastPlayedWaveFormat
 
@@ -54,7 +54,7 @@ namespace STFM
             mediaElement2.IsVisible = false;
 
             mediaElement1.ShouldKeepScreenOn = true;
-            mediaElement2.ShouldKeepScreenOn = true;
+            mediaElement2.ShouldKeepScreenOn = false;
 
             mediaElement1.MediaFailed += MediaFail_Handler;
             mediaElement1.MediaOpened += MediaOpened_Handler;
@@ -66,10 +66,10 @@ namespace STFM
             mediaElement2.MediaEnded += MediaEnded_Handler;
             mediaElement2.StateChanged += MediaStateChanged_Handler;
 
-            mediaElement1.HeightRequest = 200;
-            mediaElement1.WidthRequest = 400;
-            mediaElement2.HeightRequest = 200;
-            mediaElement2.WidthRequest = 400;
+            mediaElement1.HeightRequest = 0;
+            mediaElement1.WidthRequest = 0;
+            mediaElement2.HeightRequest = 0;
+            mediaElement2.WidthRequest = 0;
 
             ParentContainer.Children.Add(mediaElement1);
             ParentContainer.Children.Add(mediaElement2);
@@ -88,12 +88,12 @@ namespace STFM
         {
             return overlapDuration;
         }
-        void iSoundPlayer.SetOverlapGranuality(double Granuality)
+        void iSoundPlayer.SetOverlapGranuality(int Granuality)
         {
             overlapGranuality = Granuality;
         }
 
-        double iSoundPlayer.GetOverlapGranuality()
+        int iSoundPlayer.GetOverlapGranuality()
         {
             return overlapGranuality;
         }
@@ -199,7 +199,7 @@ namespace STFM
         {
 
             double fadeDuration = overlapDuration; // using a local variable here so that fadeDuration never gets changed in the middle of a crossfade loop
-            double step = overlapGranuality; // using a local variable here so that overlapGranuality never gets changed in the middle of a crossfade loop // Adjust step for smoother or faster crossfade
+            double step = 1D / overlapGranuality; // using a local variable here so that overlapGranuality never gets changed in the middle of a crossfade loop // Adjust step for smoother or faster crossfade
 
             // TODO: Here, the StartedSwappingOutputSounds event should be raised
 
@@ -223,7 +223,7 @@ namespace STFM
                     {
                         mediaElement1.Volume = t;
                         mediaElement2.Volume = 1 - t;
-                        await Task.Delay((int)(fadeDuration * 1000 * step));
+                        await Task.Delay((int)((fadeDuration / overlapGranuality) * 1000 ));
                     }
                 }
 
@@ -258,7 +258,7 @@ namespace STFM
                     {
                         mediaElement2.Volume = t;
                         mediaElement1.Volume = 1 - t;
-                        await Task.Delay((int)(overlapDuration * 1000 * step));
+                        await Task.Delay((int)((fadeDuration / overlapGranuality) * 1000));
                     }
                 }
 

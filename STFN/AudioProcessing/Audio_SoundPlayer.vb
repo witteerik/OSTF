@@ -49,12 +49,12 @@ Namespace Audio
             Function GetOverlapDuration() As Double
 
             ''' <summary>
-            ''' Set to adjust the ovelap level adjustment step size for smoother or faster crossfade (in seconds)
+            ''' Set to adjust the number of ovelap level adjustment steps for smoother or faster crossfade
             ''' </summary>
             ''' <param name="Granuality"></param>
-            Sub SetOverlapGranuality(ByVal Granuality As Double)
+            Sub SetOverlapGranuality(ByVal Granuality As Integer)
 
-            Function GetOverlapGranuality() As Double
+            Function GetOverlapGranuality() As Integer
 
             ReadOnly Property IsPlaying As Boolean
 
@@ -1750,12 +1750,12 @@ Namespace Audio
             ''' SetOverlapGranuality is ignored in this sound player, since it's using crossfade samplewise granuality by default
             ''' </summary>
             ''' <param name="Granuality"></param>
-            Public Sub SetOverlapGranuality(Granuality As Double) Implements iSoundPlayer.SetOverlapGranuality
+            Public Sub SetOverlapGranuality(Granuality As Integer) Implements iSoundPlayer.SetOverlapGranuality
                 ' Ignored by the in this sound player, sinse it's using samplewise granuality by default
             End Sub
 
-            Public Function GetOverlapGranuality() As Double Implements iSoundPlayer.GetOverlapGranuality
-                Return 1 / SampleRate
+            Public Function GetOverlapGranuality() As Integer Implements iSoundPlayer.GetOverlapGranuality
+                Return _OverlapFrameCount
             End Function
 
 #End Region
