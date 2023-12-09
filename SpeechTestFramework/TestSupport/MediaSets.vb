@@ -2098,8 +2098,6 @@ Public Class MediaSet
 
                         'Applies the gain
                         SmaComponent.ApplyGain(NeededGain)
-                    Else
-                        Dim x = 1
                     End If
                 Next
             Next
