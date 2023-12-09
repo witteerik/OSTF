@@ -443,8 +443,40 @@
                 Exit Sub
             End If
             TargetLinguisticLevel = SpeechLevel_TargetLinguisticlevel_ComboBox.SelectedItem
-            SelectedMediaSet.SetSpeechLevels(SpeechLevelFS_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration, TargetLinguisticLevel)
+            SelectedMediaSet.SetSpeechLevels(SpeechLevelFS_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration, TargetLinguisticLevel, NominalLevel_CheckBox.Checked)
         End If
+
+        'Creating a calibration signal with the SpeechLevelFS_DoubleParsingTextBox.Value value
+        If CreateCalibrationSignal_CheckBox.Checked = True Then
+
+            'Asks the user where to store the calibration signal
+            Dim CalibrationSignalPath = Utils.GetSaveFilePath(SelectedMediaSet.GetFullMediaParentFolder, "CalibrationSignal_" & SpeechLevelFS_DoubleParsingTextBox.Value.ToString().Replace(",", ".") & "dB")
+
+            If CalibrationSignalPath <> "" Then
+                'Creates a standard calibration signal (frequency modulated sine wave)
+                Dim CarrierFrequency As Double = 1000
+                Dim ModulationFrequency As Double = 20
+                Dim ModulationDepth As Double = 0.125
+                Dim Duration As Double = 60
+
+                Dim GeneratedWarble = Audio.GenerateSound.CreateFrequencyModulatedSineWave(SelectedMediaSet.CreateCalibrationSoundWaveFormat, , CarrierFrequency, 0.5, ModulationFrequency, ModulationDepth,, Duration)
+
+                'Sets its level using Z-weighting even if some other weighting was used for the speech material 
+                Audio.DSP.MeasureAndAdjustSectionLevel(GeneratedWarble, SpeechLevelFS_DoubleParsingTextBox.Value,,,,)
+
+                'Stores the calibration signal
+                GeneratedWarble.WriteWaveFile(CalibrationSignalPath)
+
+                'Shows and stores information about the calibration signal
+                Dim CalibrationSignalDescription = "The calibration signal (frequency modulated sine wave) in " & CalibrationSignalPath & " is frequency modulated around " & CarrierFrequency & " Hz by ±" & (ModulationDepth * 100).ToString & " %, with a modulation frequency of " & ModulationFrequency & " Hz. Samplerate: " & GeneratedWarble.WaveFormat.SampleRate & " Hz, duration: " & Duration & " seconds."
+                Utils.SendInfoToLog(CalibrationSignalDescription, "Calibration signal info", IO.Path.GetDirectoryName(CalibrationSignalPath))
+                MsgBox(CalibrationSignalDescription, MsgBoxStyle.Information, "Calibration signal info.")
+
+            Else
+                MsgBox("Unable to store the calibration signal. No path was supplied!", MsgBoxStyle.Exclamation, "No calibration signal path supplied!")
+            End If
+        End If
+
 
         MsgBox("Finished adjusting the speech sound levels.", MsgBoxStyle.Information, "Speech level ")
 
@@ -614,6 +646,11 @@
 
         NewMediaSet.WriteToFile()
 
+    End Sub
+
+    Private Sub NominalLevel_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles NominalLevel_CheckBox.CheckedChanged
+        'Infering the check value of NominalLevel_CheckBox also to CreateCalibrationSignal_CheckBox 
+        CreateCalibrationSignal_CheckBox.Checked = NominalLevel_CheckBox.Checked
     End Sub
 
 End Class

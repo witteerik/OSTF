@@ -111,6 +111,15 @@ Public Class MediaSet
     Public NumericVariables As New SortedList(Of String, SortedList(Of String, Double)) ' SpeechMaterial Id, Variable name, Variable Value
     Public CategoricalVariables As New SortedList(Of String, SortedList(Of String, String)) ' SpeechMaterial Id, Variable name, Variable Value
 
+    ''' <summary>
+    ''' Returns the full folder name of the media parent folder
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetFullMediaParentFolder() As String
+        Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+        Return IO.Path.Combine(CurrentTestRootPath, MediaParentFolder)
+    End Function
+
 
     Public Function GetCustomVariablesDirectory()
         Return IO.Path.Combine(Me.CustomVariablesFolder)

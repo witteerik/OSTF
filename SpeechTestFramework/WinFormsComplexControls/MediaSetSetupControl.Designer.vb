@@ -24,8 +24,6 @@ Partial Class MediaSetSetupControl
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(MediaSetSetupControl))
         Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
-        Me.LoadOstaMediaSetControl1 = New SpeechTestFramework.LoadOstaMediaSetControl()
-        Me.LoadOstaTestSpecificationControl1 = New SpeechTestFramework.LoadOstaTestSpecificationControl()
         Me.Label25 = New System.Windows.Forms.Label()
         Me.LoadedSpeechMaterialName_TextBox = New System.Windows.Forms.TextBox()
         Me.Splitter1 = New System.Windows.Forms.Splitter()
@@ -56,12 +54,6 @@ Partial Class MediaSetSetupControl
         Me.Label19 = New System.Windows.Forms.Label()
         Me.Label20 = New System.Windows.Forms.Label()
         Me.Label21 = New System.Windows.Forms.Label()
-        Me.TalkerAge_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.MediaAudioItems_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.MaskerAudioItems_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.MediaImageItems_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.MaskerImageItems_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.WaveFileSampleRate_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.MediaSetName_TextBox = New System.Windows.Forms.TextBox()
         Me.TalkerDialect_TextBox = New System.Windows.Forms.TextBox()
         Me.VoiceType_TextBox = New System.Windows.Forms.TextBox()
@@ -74,12 +66,9 @@ Partial Class MediaSetSetupControl
         Me.TalkerGender_ComboBox = New System.Windows.Forms.ComboBox()
         Me.WaveFileBitDepth_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label8 = New System.Windows.Forms.Label()
-        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.Label23 = New System.Windows.Forms.Label()
-        Me.PrototypeRecordingLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.Label22 = New System.Windows.Forms.Label()
         Me.Label24 = New System.Windows.Forms.Label()
-        Me.LombardNoiseLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.LombardNoisePath_TextBox = New System.Windows.Forms.TextBox()
         Me.Label26 = New System.Windows.Forms.Label()
         Me.SoundFileLevelComboBox = New System.Windows.Forms.ComboBox()
@@ -99,16 +88,13 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel5 = New System.Windows.Forms.TableLayoutPanel()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
-        Me.SpeechLevelFS_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.Label29 = New System.Windows.Forms.Label()
         Me.ApplySpeechLevels_Button = New System.Windows.Forms.Button()
         Me.SpeechLevelSPL_Label = New System.Windows.Forms.Label()
         Me.Label28 = New System.Windows.Forms.Label()
         Me.SpeechLevelTemporalIntegration_CheckBox = New System.Windows.Forms.CheckBox()
         Me.VpNormalization_Checkbox = New System.Windows.Forms.CheckBox()
-        Me.SpeechLevelSPL_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.SpeechLevelFrequencyWeighting_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.Label40 = New System.Windows.Forms.Label()
         Me.SpeechLevel_TargetLinguisticlevel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
@@ -117,7 +103,6 @@ Partial Class MediaSetSetupControl
         Me.MeasureSmaLevels_Button = New System.Windows.Forms.Button()
         Me.SmaTemporalIntegration_CheckBox = New System.Windows.Forms.CheckBox()
         Me.SmaFrequencyWeighting_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.SmaTemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.IncludeCriticalBandLevels_CheckBox = New System.Windows.Forms.CheckBox()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel7 = New System.Windows.Forms.TableLayoutPanel()
@@ -130,7 +115,6 @@ Partial Class MediaSetSetupControl
         Me.SoundfileLinguisticLevels_TabPage = New System.Windows.Forms.TabPage()
         Me.TableLayoutPanel8 = New System.Windows.Forms.TableLayoutPanel()
         Me.RandomizeOrder_CheckBox = New System.Windows.Forms.CheckBox()
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.Label36 = New System.Windows.Forms.Label()
         Me.RichTextBox1 = New System.Windows.Forms.RichTextBox()
         Me.Label33 = New System.Windows.Forms.Label()
@@ -140,14 +124,32 @@ Partial Class MediaSetSetupControl
         Me.CurrentMediaSetLinguisticLevel_TextBox = New System.Windows.Forms.TextBox()
         Me.ModifiedMediaSetLinguisticLevel_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label37 = New System.Windows.Forms.Label()
-        Me.NewSoundFilePadding_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.CreateModifiedMediaSet_Button = New System.Windows.Forms.Button()
         Me.IncludePractiseItems_CheckBox = New System.Windows.Forms.CheckBox()
         Me.IncludeTestItems_CheckBox = New System.Windows.Forms.CheckBox()
         Me.Label38 = New System.Windows.Forms.Label()
-        Me.CrossfadeDuration_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.Label39 = New System.Windows.Forms.Label()
+        Me.LoadOstaMediaSetControl1 = New SpeechTestFramework.LoadOstaMediaSetControl()
+        Me.LoadOstaTestSpecificationControl1 = New SpeechTestFramework.LoadOstaTestSpecificationControl()
+        Me.TalkerAge_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.MediaAudioItems_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.MaskerAudioItems_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.MediaImageItems_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.MaskerImageItems_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.WaveFileSampleRate_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.PrototypeRecordingLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.LombardNoiseLevel_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.SpeechLevelFS_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.SpeechLevelSPL_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.SmaTemporalIntegration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.NewSoundFilePadding_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.CrossfadeDuration_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.NominalLevel_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.CreateCalibrationSignal_CheckBox = New System.Windows.Forms.CheckBox()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -198,29 +200,6 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30.0!))
         Me.TableLayoutPanel2.Size = New System.Drawing.Size(1314, 839)
         Me.TableLayoutPanel2.TabIndex = 53
-        '
-        'LoadOstaMediaSetControl1
-        '
-        Me.LoadOstaMediaSetControl1.BackColor = System.Drawing.SystemColors.Control
-        Me.TableLayoutPanel2.SetColumnSpan(Me.LoadOstaMediaSetControl1, 2)
-        Me.LoadOstaMediaSetControl1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LoadOstaMediaSetControl1.Location = New System.Drawing.Point(3, 101)
-        Me.LoadOstaMediaSetControl1.Name = "LoadOstaMediaSetControl1"
-        Me.LoadOstaMediaSetControl1.SelectedMediaSet = Nothing
-        Me.LoadOstaMediaSetControl1.SelectedTestSpecification = Nothing
-        Me.LoadOstaMediaSetControl1.Size = New System.Drawing.Size(1158, 54)
-        Me.LoadOstaMediaSetControl1.TabIndex = 51
-        '
-        'LoadOstaTestSpecificationControl1
-        '
-        Me.LoadOstaTestSpecificationControl1.BackColor = System.Drawing.SystemColors.Control
-        Me.TableLayoutPanel2.SetColumnSpan(Me.LoadOstaTestSpecificationControl1, 3)
-        Me.LoadOstaTestSpecificationControl1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LoadOstaTestSpecificationControl1.Location = New System.Drawing.Point(3, 3)
-        Me.LoadOstaTestSpecificationControl1.Name = "LoadOstaTestSpecificationControl1"
-        Me.LoadOstaTestSpecificationControl1.SelectedTestSpecification = Nothing
-        Me.LoadOstaTestSpecificationControl1.Size = New System.Drawing.Size(1308, 54)
-        Me.LoadOstaTestSpecificationControl1.TabIndex = 52
         '
         'Label25
         '
@@ -624,60 +603,6 @@ Partial Class MediaSetSetupControl
         Me.Label21.Text = "Wave file encoding"
         Me.Label21.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'TalkerAge_IntegerParsingTextBox
-        '
-        Me.TalkerAge_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TalkerAge_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.TalkerAge_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 101)
-        Me.TalkerAge_IntegerParsingTextBox.Name = "TalkerAge_IntegerParsingTextBox"
-        Me.TalkerAge_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
-        Me.TalkerAge_IntegerParsingTextBox.TabIndex = 22
-        '
-        'MediaAudioItems_IntegerParsingTextBox
-        '
-        Me.MediaAudioItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MediaAudioItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.MediaAudioItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 226)
-        Me.MediaAudioItems_IntegerParsingTextBox.Name = "MediaAudioItems_IntegerParsingTextBox"
-        Me.MediaAudioItems_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
-        Me.MediaAudioItems_IntegerParsingTextBox.TabIndex = 24
-        '
-        'MaskerAudioItems_IntegerParsingTextBox
-        '
-        Me.MaskerAudioItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MaskerAudioItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.MaskerAudioItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 251)
-        Me.MaskerAudioItems_IntegerParsingTextBox.Name = "MaskerAudioItems_IntegerParsingTextBox"
-        Me.MaskerAudioItems_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
-        Me.MaskerAudioItems_IntegerParsingTextBox.TabIndex = 25
-        '
-        'MediaImageItems_IntegerParsingTextBox
-        '
-        Me.MediaImageItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MediaImageItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.MediaImageItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 276)
-        Me.MediaImageItems_IntegerParsingTextBox.Name = "MediaImageItems_IntegerParsingTextBox"
-        Me.MediaImageItems_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
-        Me.MediaImageItems_IntegerParsingTextBox.TabIndex = 26
-        '
-        'MaskerImageItems_IntegerParsingTextBox
-        '
-        Me.MaskerImageItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MaskerImageItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.MaskerImageItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 301)
-        Me.MaskerImageItems_IntegerParsingTextBox.Name = "MaskerImageItems_IntegerParsingTextBox"
-        Me.MaskerImageItems_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
-        Me.MaskerImageItems_IntegerParsingTextBox.TabIndex = 27
-        '
-        'WaveFileSampleRate_IntegerParsingTextBox
-        '
-        Me.WaveFileSampleRate_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.WaveFileSampleRate_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.WaveFileSampleRate_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 601)
-        Me.WaveFileSampleRate_IntegerParsingTextBox.Name = "WaveFileSampleRate_IntegerParsingTextBox"
-        Me.WaveFileSampleRate_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
-        Me.WaveFileSampleRate_IntegerParsingTextBox.TabIndex = 28
-        '
         'MediaSetName_TextBox
         '
         Me.MediaSetName_TextBox.Dock = System.Windows.Forms.DockStyle.Fill
@@ -778,15 +703,6 @@ Partial Class MediaSetSetupControl
         Me.Label8.Text = "Background (non-speech) realistic sound level (dB SPL)"
         Me.Label8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'BackgroundNonspeechRealisticLevel_DoubleParsingTextBox
-        '
-        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 426)
-        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Name = "BackgroundNonspeechRealisticLevel_DoubleParsingTextBox"
-        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(375, 20)
-        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.TabIndex = 23
-        '
         'Label23
         '
         Me.Label23.Dock = System.Windows.Forms.DockStyle.Fill
@@ -796,15 +712,6 @@ Partial Class MediaSetSetupControl
         Me.Label23.TabIndex = 44
         Me.Label23.Text = "Prototype recording level (dBC, 50 ms)"
         Me.Label23.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'PrototypeRecordingLevel_DoubleParsingTextBox
-        '
-        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.PrototypeRecordingLevel_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 526)
-        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Name = "PrototypeRecordingLevel_DoubleParsingTextBox"
-        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(375, 20)
-        Me.PrototypeRecordingLevel_DoubleParsingTextBox.TabIndex = 45
         '
         'Label22
         '
@@ -825,15 +732,6 @@ Partial Class MediaSetSetupControl
         Me.Label24.TabIndex = 47
         Me.Label24.Text = "'Lombard' (recording) noise level (dBC, 50 ms)"
         Me.Label24.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'LombardNoiseLevel_DoubleParsingTextBox
-        '
-        Me.LombardNoiseLevel_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LombardNoiseLevel_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.LombardNoiseLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 576)
-        Me.LombardNoiseLevel_DoubleParsingTextBox.Name = "LombardNoiseLevel_DoubleParsingTextBox"
-        Me.LombardNoiseLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(375, 20)
-        Me.LombardNoiseLevel_DoubleParsingTextBox.TabIndex = 48
         '
         'LombardNoisePath_TextBox
         '
@@ -1033,9 +931,9 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel5.Location = New System.Drawing.Point(3, 3)
         Me.TableLayoutPanel5.Name = "TableLayoutPanel5"
         Me.TableLayoutPanel5.RowCount = 4
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 236.0!))
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 156.0!))
-        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 115.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 273.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 166.0!))
+        Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 137.0!))
         Me.TableLayoutPanel5.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel5.Size = New System.Drawing.Size(607, 603)
         Me.TableLayoutPanel5.TabIndex = 1
@@ -1046,7 +944,7 @@ Partial Class MediaSetSetupControl
         Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox1.Location = New System.Drawing.Point(3, 3)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(601, 230)
+        Me.GroupBox1.Size = New System.Drawing.Size(601, 267)
         Me.GroupBox1.TabIndex = 12
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Set speech level"
@@ -1059,7 +957,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelFS_DoubleParsingTextBox, 1, 2)
         Me.TableLayoutPanel3.Controls.Add(Me.Label29, 0, 2)
-        Me.TableLayoutPanel3.Controls.Add(Me.ApplySpeechLevels_Button, 0, 6)
+        Me.TableLayoutPanel3.Controls.Add(Me.ApplySpeechLevels_Button, 0, 8)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelSPL_Label, 0, 1)
         Me.TableLayoutPanel3.Controls.Add(Me.Label28, 0, 3)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelTemporalIntegration_CheckBox, 0, 4)
@@ -1069,10 +967,14 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox, 1, 4)
         Me.TableLayoutPanel3.Controls.Add(Me.Label40, 0, 0)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevel_TargetLinguisticlevel_ComboBox, 1, 0)
+        Me.TableLayoutPanel3.Controls.Add(Me.NominalLevel_CheckBox, 0, 6)
+        Me.TableLayoutPanel3.Controls.Add(Me.CreateCalibrationSignal_CheckBox, 0, 7)
         Me.TableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel3.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
-        Me.TableLayoutPanel3.RowCount = 8
+        Me.TableLayoutPanel3.RowCount = 10
+        Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
@@ -1081,18 +983,8 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
-        Me.TableLayoutPanel3.Size = New System.Drawing.Size(595, 211)
+        Me.TableLayoutPanel3.Size = New System.Drawing.Size(595, 248)
         Me.TableLayoutPanel3.TabIndex = 0
-        '
-        'SpeechLevelFS_DoubleParsingTextBox
-        '
-        Me.SpeechLevelFS_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SpeechLevelFS_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.SpeechLevelFS_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 53)
-        Me.SpeechLevelFS_DoubleParsingTextBox.Name = "SpeechLevelFS_DoubleParsingTextBox"
-        Me.SpeechLevelFS_DoubleParsingTextBox.Size = New System.Drawing.Size(292, 20)
-        Me.SpeechLevelFS_DoubleParsingTextBox.TabIndex = 10
         '
         'Label29
         '
@@ -1108,7 +1000,7 @@ Partial Class MediaSetSetupControl
         '
         Me.TableLayoutPanel3.SetColumnSpan(Me.ApplySpeechLevels_Button, 2)
         Me.ApplySpeechLevels_Button.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ApplySpeechLevels_Button.Location = New System.Drawing.Point(3, 153)
+        Me.ApplySpeechLevels_Button.Location = New System.Drawing.Point(3, 203)
         Me.ApplySpeechLevels_Button.Name = "ApplySpeechLevels_Button"
         Me.ApplySpeechLevels_Button.Size = New System.Drawing.Size(589, 29)
         Me.ApplySpeechLevels_Button.TabIndex = 0
@@ -1158,16 +1050,6 @@ Partial Class MediaSetSetupControl
         Me.VpNormalization_Checkbox.Text = "Use variation-preserving (VP) sound-level normalization"
         Me.VpNormalization_Checkbox.UseVisualStyleBackColor = True
         '
-        'SpeechLevelSPL_DoubleParsingTextBox
-        '
-        Me.SpeechLevelSPL_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SpeechLevelSPL_DoubleParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.SpeechLevelSPL_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 28)
-        Me.SpeechLevelSPL_DoubleParsingTextBox.Name = "SpeechLevelSPL_DoubleParsingTextBox"
-        Me.SpeechLevelSPL_DoubleParsingTextBox.Size = New System.Drawing.Size(292, 20)
-        Me.SpeechLevelSPL_DoubleParsingTextBox.TabIndex = 5
-        Me.SpeechLevelSPL_DoubleParsingTextBox.Text = "65"
-        '
         'SpeechLevelFrequencyWeighting_ComboBox
         '
         Me.SpeechLevelFrequencyWeighting_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
@@ -1176,16 +1058,6 @@ Partial Class MediaSetSetupControl
         Me.SpeechLevelFrequencyWeighting_ComboBox.Name = "SpeechLevelFrequencyWeighting_ComboBox"
         Me.SpeechLevelFrequencyWeighting_ComboBox.Size = New System.Drawing.Size(292, 21)
         Me.SpeechLevelFrequencyWeighting_ComboBox.TabIndex = 7
-        '
-        'SpeechLevelTemporalIntegration_DoubleParsingTextBox
-        '
-        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Enabled = False
-        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 103)
-        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Name = "SpeechLevelTemporalIntegration_DoubleParsingTextBox"
-        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Size = New System.Drawing.Size(292, 20)
-        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.TabIndex = 8
         '
         'Label40
         '
@@ -1210,9 +1082,9 @@ Partial Class MediaSetSetupControl
         '
         Me.GroupBox2.Controls.Add(Me.TableLayoutPanel6)
         Me.GroupBox2.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox2.Location = New System.Drawing.Point(3, 239)
+        Me.GroupBox2.Location = New System.Drawing.Point(3, 276)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(601, 150)
+        Me.GroupBox2.Size = New System.Drawing.Size(601, 160)
         Me.GroupBox2.TabIndex = 13
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Measure speech material annotation (SMA) levels "
@@ -1238,7 +1110,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel6.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21.0!))
-        Me.TableLayoutPanel6.Size = New System.Drawing.Size(595, 131)
+        Me.TableLayoutPanel6.Size = New System.Drawing.Size(595, 141)
         Me.TableLayoutPanel6.TabIndex = 0
         '
         'Label27
@@ -1279,15 +1151,6 @@ Partial Class MediaSetSetupControl
         Me.SmaFrequencyWeighting_ComboBox.Size = New System.Drawing.Size(178, 21)
         Me.SmaFrequencyWeighting_ComboBox.TabIndex = 8
         '
-        'SmaTemporalIntegration_DoubleParsingTextBox
-        '
-        Me.SmaTemporalIntegration_DoubleParsingTextBox.Enabled = False
-        Me.SmaTemporalIntegration_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.SmaTemporalIntegration_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 28)
-        Me.SmaTemporalIntegration_DoubleParsingTextBox.Name = "SmaTemporalIntegration_DoubleParsingTextBox"
-        Me.SmaTemporalIntegration_DoubleParsingTextBox.Size = New System.Drawing.Size(178, 20)
-        Me.SmaTemporalIntegration_DoubleParsingTextBox.TabIndex = 10
-        '
         'IncludeCriticalBandLevels_CheckBox
         '
         Me.IncludeCriticalBandLevels_CheckBox.AutoSize = True
@@ -1302,9 +1165,9 @@ Partial Class MediaSetSetupControl
         '
         Me.GroupBox3.Controls.Add(Me.TableLayoutPanel7)
         Me.GroupBox3.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.GroupBox3.Location = New System.Drawing.Point(3, 395)
+        Me.GroupBox3.Location = New System.Drawing.Point(3, 442)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(601, 109)
+        Me.GroupBox3.Size = New System.Drawing.Size(601, 131)
         Me.GroupBox3.TabIndex = 14
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Custom functions"
@@ -1320,7 +1183,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel7.RowCount = 2
         Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel7.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel7.Size = New System.Drawing.Size(595, 90)
+        Me.TableLayoutPanel7.Size = New System.Drawing.Size(595, 112)
         Me.TableLayoutPanel7.TabIndex = 0
         '
         'SipTestLevels_Button
@@ -1328,7 +1191,7 @@ Partial Class MediaSetSetupControl
         Me.SipTestLevels_Button.Dock = System.Windows.Forms.DockStyle.Fill
         Me.SipTestLevels_Button.Location = New System.Drawing.Point(3, 3)
         Me.SipTestLevels_Button.Name = "SipTestLevels_Button"
-        Me.SipTestLevels_Button.Size = New System.Drawing.Size(589, 39)
+        Me.SipTestLevels_Button.Size = New System.Drawing.Size(589, 50)
         Me.SipTestLevels_Button.TabIndex = 0
         Me.SipTestLevels_Button.Text = "Calculate SiP-test sounds levels"
         Me.SipTestLevels_Button.UseVisualStyleBackColor = True
@@ -1460,17 +1323,6 @@ Partial Class MediaSetSetupControl
         Me.RandomizeOrder_CheckBox.Text = "Randomize order"
         Me.RandomizeOrder_CheckBox.UseVisualStyleBackColor = True
         '
-        'NewSoundFile_InterStimulusInterval_IntegerParsingTextBox
-        '
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Location = New System.Drawing.Point(366, 183)
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Name = "NewSoundFile_InterStimulusInterval_IntegerParsingTextBox"
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.TabIndex = 10
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Text = "4000"
-        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
-        '
         'Label36
         '
         Me.Label36.Dock = System.Windows.Forms.DockStyle.Fill
@@ -1559,17 +1411,6 @@ Partial Class MediaSetSetupControl
         Me.Label37.Text = "New sound file inter-stimulus interval (ms)"
         Me.Label37.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'NewSoundFilePadding_IntegerParsingTextBox
-        '
-        Me.NewSoundFilePadding_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.NewSoundFilePadding_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.NewSoundFilePadding_IntegerParsingTextBox.Location = New System.Drawing.Point(366, 158)
-        Me.NewSoundFilePadding_IntegerParsingTextBox.Name = "NewSoundFilePadding_IntegerParsingTextBox"
-        Me.NewSoundFilePadding_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
-        Me.NewSoundFilePadding_IntegerParsingTextBox.TabIndex = 9
-        Me.NewSoundFilePadding_IntegerParsingTextBox.Text = "0"
-        Me.NewSoundFilePadding_IntegerParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
-        '
         'CreateModifiedMediaSet_Button
         '
         Me.TableLayoutPanel8.SetColumnSpan(Me.CreateModifiedMediaSet_Button, 2)
@@ -1615,6 +1456,180 @@ Partial Class MediaSetSetupControl
         Me.Label38.Text = "Crossfade duration (ms)"
         Me.Label38.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'Label39
+        '
+        Me.Label39.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label39.Location = New System.Drawing.Point(3, 305)
+        Me.Label39.Name = "Label39"
+        Me.Label39.Size = New System.Drawing.Size(357, 25)
+        Me.Label39.TabIndex = 20
+        Me.Label39.Text = "(Optional) Random seed, to re-use same random order (can be empty)"
+        Me.Label39.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'LoadOstaMediaSetControl1
+        '
+        Me.LoadOstaMediaSetControl1.BackColor = System.Drawing.SystemColors.Control
+        Me.TableLayoutPanel2.SetColumnSpan(Me.LoadOstaMediaSetControl1, 2)
+        Me.LoadOstaMediaSetControl1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LoadOstaMediaSetControl1.Location = New System.Drawing.Point(3, 101)
+        Me.LoadOstaMediaSetControl1.Name = "LoadOstaMediaSetControl1"
+        Me.LoadOstaMediaSetControl1.SelectedMediaSet = Nothing
+        Me.LoadOstaMediaSetControl1.SelectedTestSpecification = Nothing
+        Me.LoadOstaMediaSetControl1.Size = New System.Drawing.Size(1158, 54)
+        Me.LoadOstaMediaSetControl1.TabIndex = 51
+        '
+        'LoadOstaTestSpecificationControl1
+        '
+        Me.LoadOstaTestSpecificationControl1.BackColor = System.Drawing.SystemColors.Control
+        Me.TableLayoutPanel2.SetColumnSpan(Me.LoadOstaTestSpecificationControl1, 3)
+        Me.LoadOstaTestSpecificationControl1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LoadOstaTestSpecificationControl1.Location = New System.Drawing.Point(3, 3)
+        Me.LoadOstaTestSpecificationControl1.Name = "LoadOstaTestSpecificationControl1"
+        Me.LoadOstaTestSpecificationControl1.SelectedTestSpecification = Nothing
+        Me.LoadOstaTestSpecificationControl1.Size = New System.Drawing.Size(1308, 54)
+        Me.LoadOstaTestSpecificationControl1.TabIndex = 52
+        '
+        'TalkerAge_IntegerParsingTextBox
+        '
+        Me.TalkerAge_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TalkerAge_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.TalkerAge_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 101)
+        Me.TalkerAge_IntegerParsingTextBox.Name = "TalkerAge_IntegerParsingTextBox"
+        Me.TalkerAge_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
+        Me.TalkerAge_IntegerParsingTextBox.TabIndex = 22
+        '
+        'MediaAudioItems_IntegerParsingTextBox
+        '
+        Me.MediaAudioItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MediaAudioItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.MediaAudioItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 226)
+        Me.MediaAudioItems_IntegerParsingTextBox.Name = "MediaAudioItems_IntegerParsingTextBox"
+        Me.MediaAudioItems_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
+        Me.MediaAudioItems_IntegerParsingTextBox.TabIndex = 24
+        '
+        'MaskerAudioItems_IntegerParsingTextBox
+        '
+        Me.MaskerAudioItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MaskerAudioItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.MaskerAudioItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 251)
+        Me.MaskerAudioItems_IntegerParsingTextBox.Name = "MaskerAudioItems_IntegerParsingTextBox"
+        Me.MaskerAudioItems_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
+        Me.MaskerAudioItems_IntegerParsingTextBox.TabIndex = 25
+        '
+        'MediaImageItems_IntegerParsingTextBox
+        '
+        Me.MediaImageItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MediaImageItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.MediaImageItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 276)
+        Me.MediaImageItems_IntegerParsingTextBox.Name = "MediaImageItems_IntegerParsingTextBox"
+        Me.MediaImageItems_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
+        Me.MediaImageItems_IntegerParsingTextBox.TabIndex = 26
+        '
+        'MaskerImageItems_IntegerParsingTextBox
+        '
+        Me.MaskerImageItems_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MaskerImageItems_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.MaskerImageItems_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 301)
+        Me.MaskerImageItems_IntegerParsingTextBox.Name = "MaskerImageItems_IntegerParsingTextBox"
+        Me.MaskerImageItems_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
+        Me.MaskerImageItems_IntegerParsingTextBox.TabIndex = 27
+        '
+        'WaveFileSampleRate_IntegerParsingTextBox
+        '
+        Me.WaveFileSampleRate_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.WaveFileSampleRate_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.WaveFileSampleRate_IntegerParsingTextBox.Location = New System.Drawing.Point(303, 601)
+        Me.WaveFileSampleRate_IntegerParsingTextBox.Name = "WaveFileSampleRate_IntegerParsingTextBox"
+        Me.WaveFileSampleRate_IntegerParsingTextBox.Size = New System.Drawing.Size(375, 20)
+        Me.WaveFileSampleRate_IntegerParsingTextBox.TabIndex = 28
+        '
+        'BackgroundNonspeechRealisticLevel_DoubleParsingTextBox
+        '
+        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 426)
+        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Name = "BackgroundNonspeechRealisticLevel_DoubleParsingTextBox"
+        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(375, 20)
+        Me.BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.TabIndex = 23
+        '
+        'PrototypeRecordingLevel_DoubleParsingTextBox
+        '
+        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.PrototypeRecordingLevel_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 526)
+        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Name = "PrototypeRecordingLevel_DoubleParsingTextBox"
+        Me.PrototypeRecordingLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(375, 20)
+        Me.PrototypeRecordingLevel_DoubleParsingTextBox.TabIndex = 45
+        '
+        'LombardNoiseLevel_DoubleParsingTextBox
+        '
+        Me.LombardNoiseLevel_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LombardNoiseLevel_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.LombardNoiseLevel_DoubleParsingTextBox.Location = New System.Drawing.Point(303, 576)
+        Me.LombardNoiseLevel_DoubleParsingTextBox.Name = "LombardNoiseLevel_DoubleParsingTextBox"
+        Me.LombardNoiseLevel_DoubleParsingTextBox.Size = New System.Drawing.Size(375, 20)
+        Me.LombardNoiseLevel_DoubleParsingTextBox.TabIndex = 48
+        '
+        'SpeechLevelFS_DoubleParsingTextBox
+        '
+        Me.SpeechLevelFS_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SpeechLevelFS_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.SpeechLevelFS_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 53)
+        Me.SpeechLevelFS_DoubleParsingTextBox.Name = "SpeechLevelFS_DoubleParsingTextBox"
+        Me.SpeechLevelFS_DoubleParsingTextBox.Size = New System.Drawing.Size(292, 20)
+        Me.SpeechLevelFS_DoubleParsingTextBox.TabIndex = 10
+        '
+        'SpeechLevelSPL_DoubleParsingTextBox
+        '
+        Me.SpeechLevelSPL_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SpeechLevelSPL_DoubleParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.SpeechLevelSPL_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 28)
+        Me.SpeechLevelSPL_DoubleParsingTextBox.Name = "SpeechLevelSPL_DoubleParsingTextBox"
+        Me.SpeechLevelSPL_DoubleParsingTextBox.Size = New System.Drawing.Size(292, 20)
+        Me.SpeechLevelSPL_DoubleParsingTextBox.TabIndex = 5
+        Me.SpeechLevelSPL_DoubleParsingTextBox.Text = "65"
+        '
+        'SpeechLevelTemporalIntegration_DoubleParsingTextBox
+        '
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Enabled = False
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 103)
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Name = "SpeechLevelTemporalIntegration_DoubleParsingTextBox"
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.Size = New System.Drawing.Size(292, 20)
+        Me.SpeechLevelTemporalIntegration_DoubleParsingTextBox.TabIndex = 8
+        '
+        'SmaTemporalIntegration_DoubleParsingTextBox
+        '
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.Enabled = False
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.Location = New System.Drawing.Point(300, 28)
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.Name = "SmaTemporalIntegration_DoubleParsingTextBox"
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.Size = New System.Drawing.Size(178, 20)
+        Me.SmaTemporalIntegration_DoubleParsingTextBox.TabIndex = 10
+        '
+        'NewSoundFile_InterStimulusInterval_IntegerParsingTextBox
+        '
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Location = New System.Drawing.Point(366, 183)
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Name = "NewSoundFile_InterStimulusInterval_IntegerParsingTextBox"
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.TabIndex = 10
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.Text = "4000"
+        Me.NewSoundFile_InterStimulusInterval_IntegerParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'NewSoundFilePadding_IntegerParsingTextBox
+        '
+        Me.NewSoundFilePadding_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.NewSoundFilePadding_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.NewSoundFilePadding_IntegerParsingTextBox.Location = New System.Drawing.Point(366, 158)
+        Me.NewSoundFilePadding_IntegerParsingTextBox.Name = "NewSoundFilePadding_IntegerParsingTextBox"
+        Me.NewSoundFilePadding_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
+        Me.NewSoundFilePadding_IntegerParsingTextBox.TabIndex = 9
+        Me.NewSoundFilePadding_IntegerParsingTextBox.Text = "0"
+        Me.NewSoundFilePadding_IntegerParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
         'CrossfadeDuration_IntegerParsingTextBox
         '
         Me.CrossfadeDuration_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
@@ -1626,16 +1641,6 @@ Partial Class MediaSetSetupControl
         Me.CrossfadeDuration_IntegerParsingTextBox.Text = "0"
         Me.CrossfadeDuration_IntegerParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
-        'Label39
-        '
-        Me.Label39.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label39.Location = New System.Drawing.Point(3, 305)
-        Me.Label39.Name = "Label39"
-        Me.Label39.Size = New System.Drawing.Size(357, 25)
-        Me.Label39.TabIndex = 20
-        Me.Label39.Text = "(Optional) Random seed, to re-use same random order (can be empty)"
-        Me.Label39.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
         'RandomSeed_IntegerParsingTextBox
         '
         Me.RandomSeed_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
@@ -1644,6 +1649,30 @@ Partial Class MediaSetSetupControl
         Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
         Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
         Me.RandomSeed_IntegerParsingTextBox.TabIndex = 21
+        '
+        'NominalLevel_CheckBox
+        '
+        Me.NominalLevel_CheckBox.AutoSize = True
+        Me.TableLayoutPanel3.SetColumnSpan(Me.NominalLevel_CheckBox, 2)
+        Me.NominalLevel_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.NominalLevel_CheckBox.Location = New System.Drawing.Point(3, 153)
+        Me.NominalLevel_CheckBox.Name = "NominalLevel_CheckBox"
+        Me.NominalLevel_CheckBox.Size = New System.Drawing.Size(589, 19)
+        Me.NominalLevel_CheckBox.TabIndex = 15
+        Me.NominalLevel_CheckBox.Text = "Set as nominal level (i.e. calibration level)"
+        Me.NominalLevel_CheckBox.UseVisualStyleBackColor = True
+        '
+        'CreateCalibrationSignal_CheckBox
+        '
+        Me.CreateCalibrationSignal_CheckBox.AutoSize = True
+        Me.TableLayoutPanel3.SetColumnSpan(Me.CreateCalibrationSignal_CheckBox, 2)
+        Me.CreateCalibrationSignal_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.CreateCalibrationSignal_CheckBox.Location = New System.Drawing.Point(3, 178)
+        Me.CreateCalibrationSignal_CheckBox.Name = "CreateCalibrationSignal_CheckBox"
+        Me.CreateCalibrationSignal_CheckBox.Size = New System.Drawing.Size(589, 19)
+        Me.CreateCalibrationSignal_CheckBox.TabIndex = 16
+        Me.CreateCalibrationSignal_CheckBox.Text = "Create calibration signal"
+        Me.CreateCalibrationSignal_CheckBox.UseVisualStyleBackColor = True
         '
         'MediaSetSetupControl
         '
@@ -1809,4 +1838,6 @@ Partial Class MediaSetSetupControl
     Friend WithEvents RandomSeed_IntegerParsingTextBox As IntegerParsingTextBox
     Friend WithEvents Label40 As Windows.Forms.Label
     Friend WithEvents SpeechLevel_TargetLinguisticlevel_ComboBox As Windows.Forms.ComboBox
+    Friend WithEvents NominalLevel_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents CreateCalibrationSignal_CheckBox As Windows.Forms.CheckBox
 End Class

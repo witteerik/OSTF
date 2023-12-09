@@ -6,6 +6,7 @@ Imports SpeechTestFramework.Audio.DSP
 Imports SpeechTestFramework.Audio.Sound.SpeechMaterialAnnotation
 Imports SpeechTestFramework.SipTest
 Imports SpeechTestFramework.Audio.Formats
+Imports System.ComponentModel
 
 <Serializable>
 Public Class MediaSetLibrary
@@ -112,6 +113,14 @@ Public Class MediaSet
     Public NumericVariables As New SortedList(Of String, SortedList(Of String, Double)) ' SpeechMaterialComponent Id, Variable name, Variable Value
     Public CategoricalVariables As New SortedList(Of String, SortedList(Of String, String)) ' SpeechMaterialComponent Id, Variable name, Variable Value
 
+    ''' <summary>
+    ''' Returns the full folder name of the media parent folder
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetFullMediaParentFolder() As String
+        Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+        Return IO.Path.Combine(CurrentTestRootPath, MediaParentFolder)
+    End Function
 
     Public Sub WriteToFile()
 
@@ -1121,6 +1130,10 @@ Public Class MediaSet
         Return New Audio.Formats.WaveFormat(Me.WaveFileSampleRate, Me.WaveFileBitDepth, 1,, Me.WaveFileEncoding)
     End Function
 
+    Public Function CreateCalibrationSoundWaveFormat() As Audio.Formats.WaveFormat
+        Return New Audio.Formats.WaveFormat(Me.WaveFileSampleRate, Me.WaveFileBitDepth, 2,, Me.WaveFileEncoding)
+    End Function
+
     Public Function CheckSoundFileFormat(ByRef Sound As Audio.Sound, Optional ByVal SoundFilePath As String = "") As Boolean
 
         If SoundFilePath = "" Then SoundFilePath = Sound.FileName
@@ -1984,7 +1997,8 @@ Public Class MediaSet
                                       Optional ByVal VariableName As String = "Lc_Ag",
                                       Optional ByVal IncludePractiseComponents As Boolean = True,
                                       Optional ByVal UniquePrimaryStringRepresenations As Boolean = False,
-                                      Optional ByVal AllowIncompleteSegmentations As Boolean = True) As Boolean
+                                      Optional ByVal AllowIncompleteSegmentations As Boolean = True,
+                                      Optional ByVal StoreNominalLevelValue As Boolean = False) As Boolean
 
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
@@ -2084,10 +2098,15 @@ Public Class MediaSet
 
                         'Applies the gain
                         SmaComponent.ApplyGain(NeededGain)
+                    Else
+                        Dim x = 1
                     End If
                 Next
             Next
         Next
+
+        'Storing the nominal level value in all loaded sounds
+        If StoreNominalLevelValue = True Then ParentTestSpecification.SpeechMaterial.StoreNominalLevelValueInAllLoadedSounds(TargetSoundLevel)
 
         'And save the sma components back to file
         ParentTestSpecification.SpeechMaterial.SaveAllLoadedSounds(True)
@@ -3633,12 +3652,11 @@ Public Class MediaSet
 
 
 
-    Public Sub SetSpeechLevels(ByVal TargetLevel As Double, ByVal FrequencyWeighting As Audio.FrequencyWeightings, ByVal TemporalIntegration As Double?, ByVal LinguisticLevel As SpeechMaterialComponent.LinguisticLevels)
+    Public Sub SetSpeechLevels(ByVal TargetLevel As Double, ByVal FrequencyWeighting As Audio.FrequencyWeightings, ByVal TemporalIntegration As Double?, ByVal LinguisticLevel As SpeechMaterialComponent.LinguisticLevels, ByVal StoreNominalLevelValue As Boolean)
 
         If TemporalIntegration.HasValue = False Then TemporalIntegration = 0
 
-        Me.SetComponentLevel(LinguisticLevel, TargetLevel, 1, TemporalIntegration, FrequencyWeighting,,,, True)
-
+        Me.SetComponentLevel(LinguisticLevel, TargetLevel, 1, TemporalIntegration, FrequencyWeighting,,,,, StoreNominalLevelValue)
 
     End Sub
 

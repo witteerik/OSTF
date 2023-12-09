@@ -1310,6 +1310,9 @@ Namespace Audio
 
                     writer.WriteStartElement("SMA")
                     writer.WriteElementString("SMA_VERSION", Sound.SpeechMaterialAnnotation.CurrentVersion) 'I.e. SMA version number
+                    If SMA.NominalLevel IsNot Nothing Then
+                        writer.WriteElementString("NOMINAL_LEVEL", SMA.NominalLevel.Value.ToString(InvariantCulture))
+                    End If
 
                     For channel As Integer = 1 To SMA.ChannelCount
 
@@ -1566,6 +1569,14 @@ Namespace Audio
 
                                         ElseIf smaReader.Name = "SMA_VERSION" Then
                                             If smaReader.Read() Then NewSMA.ReadFromVersion = smaReader.Value.Trim()
+
+                                        ElseIf smaReader.Name = "NOMINAL_LEVEL" Then
+                                            Dim value As Double
+                                            If smaReader.Read() Then
+                                                If Double.TryParse(smaReader.Value.Trim().Replace(",", CDS).Replace(".", CDS), value) = True Then
+                                                    NewSMA.NominalLevel = value
+                                                End If
+                                            End If
 
                                         ElseIf smaReader.Name = "CHANNEL" Then
 
@@ -2126,6 +2137,9 @@ Namespace Audio
                         NewSMA.ChannelData(c).SetSegmentationCompleted(True, False, True)
                     Next
                 End If
+
+                'Sets the value of NominalLevel
+                NewSMA.InferNominalLevelToAllDescendants()
 
                 Return New Tuple(Of Sound.SpeechMaterialAnnotation, List(Of Tuple(Of String, String)))(NewSMA, unUsediXMLNodes)
 

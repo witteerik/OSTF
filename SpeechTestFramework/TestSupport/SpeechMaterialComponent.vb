@@ -1353,6 +1353,20 @@ Public Class SpeechMaterialComponent
 
     End Sub
 
+    ''' <summary>
+    ''' Sets the nominal level property of all loaded sound files to TargetSoundLevel
+    ''' </summary>
+    ''' <param name="TargetSoundLevel"></param>
+    Public Sub StoreNominalLevelValueInAllLoadedSounds(ByVal TargetSoundLevel As Double?)
+        For Each CurrentSound In SoundLibrary
+            If CurrentSound.Value.SMA IsNot Nothing Then
+                CurrentSound.Value.SMA.NominalLevel = TargetSoundLevel
+                CurrentSound.Value.SMA.InferNominalLevelToAllDescendants()
+            End If
+        Next
+    End Sub
+
+
     Public Function GetImage(ByVal Path) As Drawing.Bitmap
 
         Select Case ImageFileLoadMode

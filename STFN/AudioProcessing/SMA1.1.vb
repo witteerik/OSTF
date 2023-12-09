@@ -41,6 +41,11 @@ Namespace Audio
             ''' </summary>
             Public ReadFromVersion As String = CurrentVersion ' Using CurrentVersion as default
 
+            ''' <summary>
+            ''' The nominal level describes the speech material level with correction applied, thus not necessarily representing the actual level of the speech material, but should exactly represents the level of the calibration signal intended for use with the material.
+            ''' </summary>
+            Public Property NominalLevel As Double? = Nothing
+
             Public Property SegmentationCompleted As Boolean = True
 
             Public ReadOnly Property ChannelCount As Integer
@@ -77,6 +82,16 @@ Namespace Audio
                 SetTimeWeighting(DefaultTimeWeighting, False)
             End Sub
 
+            ''' <summary>
+            ''' Enforcing the nominal level set in the current instance of SpeechMaterialAnnotation to all descendant channels, sentences, words, and phones.
+            ''' This method should be called when loading SMA from wav files and after the nominal level has been set in the SpeechMaterialAnnotation object.
+            ''' </summary>
+            Public Sub InferNominalLevelToAllDescendants()
+                'N.B. The reason that this is not instead doe in the set method of the NominalLevel property is that when the NominalLevel property value is set, not all descendant SmaComponents are necessarily loaded/attached.
+                For Each c In _ChannelData
+                    c.InferNominalLevelToAllDescendants(NominalLevel)
+                Next
+            End Sub
 
             Private FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z
             Public Function GetFrequencyWeighting() As FrequencyWeightings
@@ -1033,6 +1048,12 @@ Namespace Audio
 
                 Public Property ParentComponent As SmaComponent
 
+                ''' <summary>
+                ''' The nominal level describes the speech material level with correction applied, thus not necessarily representing the actual level of the speech material, but exaclty represent the level of the calibration signal intended for use with the material.
+                ''' The value of nominal level is infered from the parent SMA object when read from a wave file, but never written back to wave files. Thus, to permenently alter the value of the nominal level, the nominal level value of the parent SMA object needs to be modified.
+                ''' </summary>
+                Public Property NominalLevel As Double? = Nothing
+
                 Public Property SmaTag As SpeechMaterialAnnotation.SmaTags
 
                 Private _SegmentationCompleted As Boolean = False
@@ -1152,6 +1173,17 @@ Namespace Audio
                     Me.FrequencyWeighting = ParentSMA.GetFrequencyWeighting
                     Me.TimeWeighting = ParentSMA.GetTimeWeighting
                     Me.SourceFilePath = SourceWaveFilePath
+                End Sub
+
+                Public Sub InferNominalLevelToAllDescendants(ByVal NominalLevel As Double?)
+
+                    'Setting the time weighting
+                    Me.NominalLevel = NominalLevel
+
+                    'Enforcing the same nominal level on all descendants
+                    For Each child In Me
+                        child.InferNominalLevelToAllDescendants(NominalLevel)
+                    Next
                 End Sub
 
                 Public Function GetFrequencyWeighting() As FrequencyWeightings
