@@ -53,6 +53,7 @@ Namespace Audio
             Public Enum WaveFormatEncodings
                 PCM = 1
                 IeeeFloatingPoints = 3
+                'WAVE_FORMAT_EXTENSIBLE = 65534
             End Enum
 
             Public Sub New(ByVal SampleRate As Integer, ByVal BitDepth As Integer, ByVal Channels As Integer,

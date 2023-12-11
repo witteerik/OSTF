@@ -2075,7 +2075,7 @@ Public Class MediaSet
                 'Measure sound level
                 Dim AverageLevel As Double
                 If IntegrationTime = 0 Then
-                    AverageLevel = Audio.DSP.MeasureSectionLevel(CurrentIndexSound, SoundChannel, FrequencyWeighting)
+                    AverageLevel = Audio.DSP.MeasureSectionLevel(CurrentIndexSound, SoundChannel,,,,, FrequencyWeighting)
                 Else
                     AverageLevel = Audio.DSP.GetLevelOfLoudestWindow(CurrentIndexSound, SoundChannel, Math.Round(CurrentIndexSound.WaveFormat.SampleRate * IntegrationTime * 0.001),,,, FrequencyWeighting, True)
                 End If

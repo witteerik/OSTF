@@ -860,7 +860,7 @@ Namespace Audio
                                 Case Else
                                     Throw New NotImplementedException("Reading of " & sound.WaveFormat.BitDepth & " bits PCM format is not yet supported.")
                             End Select
-                        Case = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+                        Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, Formats.WaveFormat.WaveFormatEncodings.WAVE_FORMAT_EXTENSIBLE
                             Select Case sound.WaveFormat.BitDepth
                                 Case 32
                                     For n = 0 To startReadDataPoint - 1
@@ -988,7 +988,7 @@ Namespace Audio
                             Case Else
                                 Throw New NotImplementedException("Writing of " & WaveFormat.BitDepth & " bits PCM format is not yet supported.")
                         End Select
-                    Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+                    Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, Formats.WaveFormat.WaveFormatEncodings.WAVE_FORMAT_EXTENSIBLE
                         Select Case WaveFormat.BitDepth
                             Case 32
                             Case Else
@@ -1186,7 +1186,7 @@ Namespace Audio
                                     Next
                             End Select
 
-                        Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+                        Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, Formats.WaveFormat.WaveFormatEncodings.WAVE_FORMAT_EXTENSIBLE
                             Select Case WaveFormat.BitDepth
                                 Case 32
 

@@ -192,6 +192,15 @@ Namespace Audio
                         Case Else
                             Return False
                     End Select
+
+                Case Formats.WaveFormat.WaveFormatEncodings.WAVE_FORMAT_EXTENSIBLE
+                    Select Case BitDepth
+                        Case 32
+                            Return True
+                        Case Else
+                            Return False
+                    End Select
+
                 Case Else
                     Return False
             End Select

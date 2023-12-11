@@ -53,6 +53,7 @@ Namespace Audio
             Public Enum WaveFormatEncodings
                 PCM = 1
                 IeeeFloatingPoints = 3
+                WAVE_FORMAT_EXTENSIBLE = 65534
             End Enum
 
             Public Sub New(ByVal SampleRate As Integer, ByVal BitDepth As Integer, ByVal Channels As Integer,
@@ -87,7 +88,7 @@ Namespace Audio
                             Case Else
                                 Throw New NotImplementedException(Me.BitDepth & " bit depth is not yet supported for the PCM wave format.")
                         End Select
-                    Case WaveFormatEncodings.IeeeFloatingPoints
+                    Case WaveFormatEncodings.IeeeFloatingPoints, WaveFormatEncodings.WAVE_FORMAT_EXTENSIBLE
                         Select Case Me.BitDepth
                             Case 32 'Single
                                 PositiveFullScale = 1
