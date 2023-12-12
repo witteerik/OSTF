@@ -30,6 +30,8 @@
 
     Private FinalThreshold As Double? = Nothing
 
+    Public Property TotalTrialCount As Integer = 20
+
     Public Overrides Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
 
         'Setting the (initial) speech level specified by the calling code (this should be 20 or 30 dB above the PTA of 0.5, 1 and 2 kHz
@@ -51,99 +53,103 @@
 
         If CurrentTestStage = 0 Then
 
+            'We're in the ballbark stage
+
             'Checks if all taks were correct
             If ProportionTasksCorrect = 1 Then
 
                 'Increasing the level
                 NextSpeechLevel -= BallparkStageAdaptiveStepSize
-                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
 
             ElseIf ProportionTasksCorrect < 1 Then
 
                 'The ballpark stage is finished, Increasing the level and the CurrentTestStage 
                 NextSpeechLevel += EndOfBallParkLevelAdjustment
                 CurrentTestStage += 1
-                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
 
             Else
                 Throw New Exception("Proportion correct exceeding 100%, this is a bug. Please report to the developer!")
             End If
-        End If
 
-        'We're in the main adaptive stage
+        Else
 
-        'Counting the number of trials after the ballpark stage
-        Dim NumberTrialsAfterBallparkStage As Integer = 0
-        For Each Trial In TrialHistory
-            If Trial.TestStage > 0 Then
-                NumberTrialsAfterBallparkStage += 1
-            End If
-        Next
 
-        'Checking if it's a sentence test
-        If TrialHistory(TrialHistory.Count - 1).Tasks > 1 Then
-            If NumberTrialsAfterBallparkStage = 5 Then
-                'Goes to next test stage
-                CurrentTestStage += 1
-            End If
-        End If
+            'We're in the main adaptive stage
 
-        'Selecting step size
-        Dim CurrentAdaptiveStep As Double = LargerAdaptiveStepSize
-        If CurrentTestStage = 2 Then
-            'Changing to lower step size for the remaining sentences
-            CurrentAdaptiveStep = SmallerAdaptiveStepSize
-        End If
-
-        'Determines adaptive change
-        Select Case ProportionTasksCorrect
-            Case 0.5
-                'This only happens when there are multiple tasks
-                'Leaving the level onchanged and returns
-                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
-
-            Case > 0.5
-                'Decreasing the level (making the test more difficult)
-                NextSpeechLevel -= CurrentAdaptiveStep
-                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
-
-            Case Else
-
-                'Increasing the level (making the test more easy)
-                NextSpeechLevel += CurrentAdaptiveStep
-                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
-
-        End Select
-
-        'Checking if test is complete
-        If XXX Then
-
-            Dim LevelList As New List(Of Double)
-            Dim SkippedSentences As Integer = 0
+            'Counting the number of trials after the ballpark stage
+            Dim NumberTrialsAfterBallparkStage As Integer = 0
             For Each Trial In TrialHistory
                 If Trial.TestStage > 0 Then
-                    If SkippedSentences > 2 Then
-                        LevelList.Add(DirectCast(Trial, SrtTrial).SpeechLevel)
-                    Else
-                        SkippedSentences += 1
-                    End If
+                    NumberTrialsAfterBallparkStage += 1
                 End If
             Next
 
-            'And adding the last non-presented trial level
-            LevelList.Add(NextSpeechLevel)
+            'Checking if it's a sentence test
+            If TrialHistory(TrialHistory.Count - 1).Tasks > 1 Then
+                If NumberTrialsAfterBallparkStage = 6 Then
+                    'Goes to next test stage
+                    CurrentTestStage += 1
+                End If
+            End If
 
-            'Getting the average
-            If LevelList.Count > 0 Then
-                FinalThreshold = LevelList.Average
-            Else
-                FinalThreshold = Double.NaN
+            'Selecting step size
+            Dim CurrentAdaptiveStep As Double = LargerAdaptiveStepSize
+            If CurrentTestStage = 2 Then
+                'Changing to lower step size for the remaining sentences
+                CurrentAdaptiveStep = SmallerAdaptiveStepSize
+            End If
+
+            'Determines adaptive change
+            Select Case ProportionTasksCorrect
+                Case 0.5
+                'This only happens when there are multiple tasks
+                'Leaving the level onchanged and returns
+
+                Case > 0.5
+                    'Decreasing the level (making the test more difficult)
+                    NextSpeechLevel -= CurrentAdaptiveStep
+
+                Case Else
+
+                    'Increasing the level (making the test more easy)
+                    NextSpeechLevel += CurrentAdaptiveStep
+
+            End Select
+
+            'Checking if test is complete (presenting max number of trials)
+            If TrialHistory.Count >= TotalTrialCount Then
+
+                Dim LevelList As New List(Of Double)
+                Dim SkippedSentences As Integer = 0
+                For Each Trial In TrialHistory
+                    If Trial.TestStage > 0 Then
+                        If SkippedSentences > 2 Then
+                            LevelList.Add(DirectCast(Trial, SrtTrial).SpeechLevel)
+                        Else
+                            SkippedSentences += 1
+                        End If
+                    End If
+                Next
+
+                'And adding the last non-presented trial level
+                LevelList.Add(NextSpeechLevel)
+
+                'Getting the average
+                If LevelList.Count > 0 Then
+                    FinalThreshold = LevelList.Average
+                Else
+                    FinalThreshold = Double.NaN
+                End If
+
+                'Exits the test
+                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
+
             End If
 
         End If
 
-        Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
-
+        'Continues the test
+        Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
 
     End Function
 
