@@ -10,6 +10,7 @@ public class ResponseView_Matrix : ResponseView
 
     Grid responseAlternativeGrid = null;
     private IDispatcherTimer HideAllTimer;
+    private SortedList<int, Tuple<bool, string>> givenResponsesSet = new SortedList<int, Tuple<bool, string>>();
 
 
     public ResponseView_Matrix()
@@ -47,14 +48,18 @@ public class ResponseView_Matrix : ResponseView
     public override void ShowResponseAlternatives(List<List<string>> ResponseAlternatives)
     {
 
-        int widestPoint = 0;
+        // resetting givenResponsesSet
+        givenResponsesSet.Clear();
+
+        // Creating a new item in givenResponsesSet
         for (int i = 0; i < ResponseAlternatives.Count; i++)
         {
-            widestPoint = Math.Max(widestPoint, ResponseAlternatives[i].Count);
+            givenResponsesSet.Add(i, new Tuple<bool, string>(false, ""));
+
         }
 
-        int nCols = widestPoint;
-        int nRows = ResponseAlternatives.Count;
+        int nCols = ResponseAlternatives.Count;
+        int nRows = 1;
 
         // Creating a grid
         responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
@@ -72,101 +77,53 @@ public class ResponseView_Matrix : ResponseView
         }
 
         // Determining suitable text size (TODO: This is a bad method, since it doesn't care for the lengths of any strings.....
-        var myHeight = this.Height;
-        var textSize = Math.Round(myHeight / (2.3 * nRows));
+        var myWidth = this.Width;
+        var textSize = Math.Round(myWidth / (12 * nCols));
 
-        // Creating controls and positioning them in the responseAlternativeGrid
-        for (int row = 0; row < nRows; row++)
+        for (int col = 0; col < ResponseAlternatives.Count; col++)
         {
-
-            var rowList = ResponseAlternatives[row];
-
-            for (int col = 0; col < rowList.Count; col++)
-            {
-
-                var repsonseBtn = new Button()
-                {
-                    Text = rowList[col],
-                    BackgroundColor = Color.FromRgb(255, 255, 128),
-                    Padding = 1,
-                    TextColor = Color.FromRgb(40, 40, 40),
-                    FontSize = textSize,
-                    HorizontalOptions = LayoutOptions.Fill,
-                    VerticalOptions = LayoutOptions.Fill
-                };
-
-                repsonseBtn.Clicked += reponseButton_Clicked;
-
-                Frame frame = new Frame
-                {
-                    BorderColor = Colors.Gray,
-                    CornerRadius = 1,
-                    ClassId = "TWA",
-                    Padding = 10,
-                    Margin = 1,
-                    Content = repsonseBtn
-                };
-
-                responseAlternativeGrid.Add(frame, col, row);
-
-            }
+            var column = new SelectionButtonSet(ResponseAlternatives[col], textSize, SelectionButtonSet.Orientation.Vertical, col);
+            column.NewSelection += Column_NewSelection;
+            responseAlternativeGrid.Add(column, col, 0);
         }
 
         Content = responseAlternativeGrid;
 
-        //MainMafcGrid.Add(responseAlternativeGrid, 0, 0);
-
     }
 
-    private void reponseButton_Clicked(object sender, EventArgs e)
+
+    private void Column_NewSelection(SelectionButtonSet.SelectionTextButtonEventArgs e)
     {
 
-        // Getting the responsed label
-        var responseBtn = sender as Button;
-        var buttonParentFrame = responseBtn.Parent as Frame;
+        if (e != null) { 
 
-        // Hides all other labels, fokuses the selected one
-        foreach (var child in responseAlternativeGrid.Children)
-        {
-            if (child is Frame)
+            givenResponsesSet[e.SetOrder] = new Tuple<bool, string>(true,e.SelectedText);
+
+            // Checks if all responses are in
+            foreach (var row in givenResponsesSet)
             {
-
-                // Removing the event handlers
-                var currentFrame = (Frame)child;
-                if (currentFrame.Content is Button)
-                {
-                    var button = (Button)buttonParentFrame.Content;
-                    //button.Clicked -= reponseButton_Clicked;
-                }
-
-                // Hiding all frames (and buttons) except the one clicked
-                if (object.ReferenceEquals(currentFrame, buttonParentFrame) == false)
-                {
-                    if (currentFrame.ClassId == "TWA")
-                    {
-                        //currentFrame.IsVisible = false;
-                    }
-                }
-                else
-                {
-                    // Modifies the frame color to mark that it's selected
-                    currentFrame.BorderColor = Color.FromRgb(4, 255, 61);
-                    currentFrame.BackgroundColor = Color.FromRgb(4, 255, 61);
-                }
+                if  (row.Value.Item1 == false) { return; }
             }
+
+            // If so, sends the response
+            ReportResult();
+
         }
-
-        // Sends the linguistic response
-        ReportResult(responseBtn.Text);
-
     }
 
-    private void ReportResult(string RespondedSpelling)
+
+    private void ReportResult()
     {
+
+        InactivateEventHandlers();
 
         // Storing the raw response
         SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
-        args.LinguisticResponses.Add(RespondedSpelling);
+        foreach (var row in givenResponsesSet)
+        {
+            args.LinguisticResponses.Add(row.Value.Item2);
+        }
+
         args.LinguisticResponseTime = DateTime.Now;
 
         // Raising the Response given event in the base class
@@ -176,6 +133,14 @@ public class ResponseView_Matrix : ResponseView
 
     }
 
+    private void InactivateEventHandlers()
+    {
+
+        foreach (SelectionButtonSet selectionButtonSet in responseAlternativeGrid.Children)
+        {
+            selectionButtonSet.NewSelection -= Column_NewSelection;
+        }
+    }
 
     private void StartedByTestee_ButtonClicked()
     {
@@ -199,33 +164,15 @@ public class ResponseView_Matrix : ResponseView
 
     public override void ResponseTimesOut()
     {
+        InactivateEventHandlers();
 
-        // Hides all other labels, fokuses the selected one
-        foreach (var child in responseAlternativeGrid.Children)
+        foreach (SelectionButtonSet selectionButtonSet in responseAlternativeGrid.Children)
         {
-            if (child is Frame)
-            {
-                var frame = (Frame)child;
-                // Modifies the frame color to mark that it's missed
-                // Modifies the frame border color
-                //frame.BorderColor = Colors.LightGray; 
-                //frame.BackgroundColor = Colors.LightGray;
-
-                // Modifies the button color
-                if (frame.Content is Button)
-                {
-                    var button = (Button)frame.Content;
-                    button.BorderColor = Colors.Red;
-                    button.BackgroundColor = Colors.Red;
-
-                    // Also removing the event handler
-                    button.Clicked -= reponseButton_Clicked;
-                }
-            }
+            selectionButtonSet.TurnRed();
         }
 
-        // Reporting an empty response (indicating missing response)
-        ReportResult("");
+        // Reporting the result so far
+        ReportResult();
 
     }
 

@@ -63,6 +63,10 @@ public event EventHandler StartedByTestee;
 
     public abstract void AddSourceAlternatives(VisualizedSoundSource[] soundSources);
 
+    /// <summary>
+    /// Should contain a list of lists of response alternatives, order column wise
+    /// </summary>
+    /// <param name="ResponseAlternatives"></param>
     public abstract void ShowResponseAlternatives(List<List<string>> ResponseAlternatives);
 
     public abstract void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives);

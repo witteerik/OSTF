@@ -8,7 +8,7 @@ Public Class MatrixSpeechTest
     ''' </summary>
     Private PlannedTestSentences As List(Of SpeechMaterialComponent)
 
-    Private MaximumNumberOfTestSentences As Integer = 200
+    Private MaximumNumberOfTestSentences As Integer = 100
 
 
 
@@ -32,7 +32,7 @@ Public Class MatrixSpeechTest
         'Some initial settings which should be overridden by the settings editor
         SelectedMediaSet = GetAvailableMediasets(0)
         StartList = "Lista 3"
-        StartLevel = 70
+        StartLevel = 40
         RandomizeWordsWithinLists = False
         SelectTestProtocol(AvailableTestProtocols(0))
 
@@ -259,17 +259,24 @@ Public Class MatrixSpeechTest
             Next
 
             'Transposing the matrix
-            Dim TransposedMatrix = TransposeMatrix(ReponseAlternativeList)
+            ReponseAlternativeList = TransposeMatrix(ReponseAlternativeList)
 
             'Sorting the matrix alphabetically
-            For Each Item In TransposedMatrix
+            For Each Item In ReponseAlternativeList
                 Item.Sort()
             Next
 
             'Transposing back after sorting
-            ReponseAlternativeList = TransposeMatrix(TransposedMatrix)
+            'ReponseAlternativeList = TransposeMatrix(ReponseAlternativeList)
 
             'Add other buttons needed ?
+
+            'A Did-Not-Hear-Response Alternative ?
+            If ShowDidNotHearResponseAlternative = True Then
+                For Each Item In ReponseAlternativeList
+                    Item.Add("?")
+                Next
+            End If
 
         End If
 

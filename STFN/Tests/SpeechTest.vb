@@ -171,6 +171,7 @@
     Public Method As SpeechTestMethods
     Public RandomizeWordsWithinLists As Boolean = True
     Public IsFreeRecall As Boolean
+    Public ShowDidNotHearResponseAlternative As Boolean = False
     Public FixedResponseAlternativeCount As Integer = 0
 
     Public Enum SpeechTestMethods

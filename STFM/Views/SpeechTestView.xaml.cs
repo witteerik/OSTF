@@ -171,7 +171,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.InitializeCurrentTest();
 
                     // TODO: This line must be moved to an options result code section
-                    CurrentSpeechTest.IsFreeRecall = true;
+                    CurrentSpeechTest.IsFreeRecall = false;
+                    CurrentSpeechTest.ShowDidNotHearResponseAlternative = true;
 
                     // Response view
                     if (CurrentSpeechTest.IsFreeRecall)
