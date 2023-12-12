@@ -195,7 +195,20 @@ Public Class SrtSpeechTest
             .Tasks = 1}
 
         If IsFreeRecall Then
-            CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of String)) From {New List(Of String) From {"Rätt", "Fel"}}
+            If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 1 Then
+
+                CurrentTestTrial.Tasks = 0
+                Dim ResponseAlternatives As New List(Of String)
+                For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
+                    ResponseAlternatives.Add(Child.GetCategoricalVariableValue("Spelling"))
+                    CurrentTestTrial.Tasks += 1
+                Next
+                CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of String)) From {ResponseAlternatives}
+
+            Else
+                CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of String)) From {New List(Of String) From {"Rätt", "Fel"}}
+                CurrentTestTrial.Tasks = 1
+            End If
         Else
             'Adding the current word pselling as a response alternative
             Dim ResponseAlternatives As New List(Of String) From {CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")}
@@ -203,8 +216,10 @@ Public Class SrtSpeechTest
             'Picking random response alternatives from all available test words
             Dim AllContrastingWords = NextTestWord.GetAllRelativesAtLevelExludingSelf(SpeechMaterialComponent.LinguisticLevels.Sentence, True, False)
             Dim RandomIndices = Utils.SampleWithoutReplacement(Math.Max(0, FixedResponseAlternativeCount - 1), 0, AllContrastingWords.Count, Randomizer)
+            CurrentTestTrial.Tasks = 0
             For Each RandomIndex In RandomIndices
                 ResponseAlternatives.Add(AllContrastingWords(RandomIndex).GetCategoricalVariableValue("Spelling"))
+                CurrentTestTrial.Tasks += 1
             Next
 
             'Shuffling the order of response alternatives

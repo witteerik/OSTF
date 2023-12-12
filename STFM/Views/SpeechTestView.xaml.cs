@@ -156,6 +156,36 @@ public partial class SpeechTestView : ContentView, IDrawable
             switch (selectedItem)
             {
 
+
+
+                case "Svenska HINT":
+
+
+                    // Speech test
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish HINT", TestProtocols.GetSrtProtocols());
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsHintTestView = new OptionsSrtTestView();
+                    TestOptionsGrid.Children.Add(newOptionsHintTestView);
+                    CurrentTestOptionsView = newOptionsHintTestView;
+
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    // TODO: This line must be moved to an options result code section
+                    CurrentSpeechTest.IsFreeRecall = true;
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_FreeRecall();
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    //TestResponseView.StartedByTestee += StartedByTestee;
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    break;
+
+
                 case "Hagermans meningar (Matrix)":
                 
 
