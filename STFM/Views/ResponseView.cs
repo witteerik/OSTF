@@ -67,9 +67,7 @@ public event EventHandler StartedByTestee;
     /// Should contain a list of lists of response alternatives, order column wise
     /// </summary>
     /// <param name="ResponseAlternatives"></param>
-    public abstract void ShowResponseAlternatives(List<List<string>> ResponseAlternatives);
-
-    public abstract void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives);
+    public abstract void ShowResponseAlternatives(List<List<SpeechTestResponseAlternative>> ResponseAlternatives);
 
     public abstract void ShowVisualCue();
 

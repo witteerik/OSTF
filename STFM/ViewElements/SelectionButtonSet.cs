@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using STFN;
+using System.Diagnostics;
 
 public class SelectionButtonSet : Grid
 {
@@ -13,16 +14,16 @@ public class SelectionButtonSet : Grid
 
     public event SelectionTextButtonEventHandler NewSelection;
 
-    public SelectionButtonSet(List<string> texts, double textSize, Orientation orientation, int setOrder)
-     : this(texts, textSize, orientation, setOrder, Color.FromRgb(4, 255, 61), Color.FromRgb(40, 40, 40)) { }
+    public SelectionButtonSet(List<SpeechTestResponseAlternative> responseAlternatives, double textSize, Orientation orientation, int setOrder)
+     : this(responseAlternatives, textSize, orientation, setOrder, Color.FromRgb(4, 255, 61), Color.FromRgb(40, 40, 40)) { }
 
-    public SelectionButtonSet(List<string> texts, double textSize, Orientation orientation, int setOrder, Color selectionColor, Color unSelectedColor)
+    public SelectionButtonSet(List<SpeechTestResponseAlternative> responseAlternatives, double textSize, Orientation orientation, int setOrder, Color selectionColor, Color unSelectedColor)
     {
 
         this.orientation = orientation;
         this.setOrder = setOrder;
 
-        int nItems = texts.Count;
+        int nItems = responseAlternatives.Count;
         int nRows;
         int nCols;
 
@@ -51,9 +52,9 @@ public class SelectionButtonSet : Grid
         if (orientation == Orientation.Horizontal)
         {
             // As a row
-            for (int i = 0; i < texts.Count; i++)
+            for (int i = 0; i < responseAlternatives.Count; i++)
             {
-                SelectionTextButton selectionTextButton = new SelectionTextButton(texts[i], textSize, selectionColor, unSelectedColor);
+                SelectionTextButton selectionTextButton = new SelectionTextButton(responseAlternatives[i], textSize, selectionColor, unSelectedColor);
                 selectionTextButton.Clicked += selectionButton_Clicked;
                 this.Add(selectionTextButton, i, 1);
             }
@@ -61,9 +62,9 @@ public class SelectionButtonSet : Grid
         else
         {
             // As a column
-            for (int i = 0; i < texts.Count; i++)
+            for (int i = 0; i < responseAlternatives.Count; i++)
             {
-                SelectionTextButton selectionTextButton = new SelectionTextButton(texts[i], textSize, selectionColor, unSelectedColor);
+                SelectionTextButton selectionTextButton = new SelectionTextButton(responseAlternatives[i], textSize, selectionColor, unSelectedColor);
                 selectionTextButton.Clicked += selectionButton_Clicked;
                 this.Add(selectionTextButton, 1, i);
             }

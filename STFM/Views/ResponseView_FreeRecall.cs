@@ -40,13 +40,7 @@ public class ResponseView_FreeRecall : ResponseView
 
 
 
-    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
-    {
-        throw new NotImplementedException();
-    }
-
-
-    public override void ShowResponseAlternatives(List<List<string>> ResponseAlternatives)
+    public override void ShowResponseAlternatives(List<List<SpeechTestResponseAlternative>> ResponseAlternatives)
     {
 
         if (ResponseAlternatives.Count > 1)
@@ -54,7 +48,7 @@ public class ResponseView_FreeRecall : ResponseView
             throw new ArgumentException("ShowResponseAlternatives is not yet implemented for multidimensional sets of response alternatives");
         }
 
-        List<string> localResponseAlternatives = ResponseAlternatives[0];
+        List<SpeechTestResponseAlternative> localResponseAlternatives = ResponseAlternatives[0];
 
         int nItems = localResponseAlternatives.Count;
         int nRows = 3;
@@ -72,7 +66,7 @@ public class ResponseView_FreeRecall : ResponseView
 
         for (int i = 0; i < nCols; i++)
         {
-            responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(3 + localResponseAlternatives[i].Spelling.Length, GridUnitType.Star) });
         }
 
         // Determining suitable text size (TODO: This is a bad method, since it doesn't care for the lengths of any strings.....
@@ -149,7 +143,7 @@ public class ResponseView_FreeRecall : ResponseView
                 CornerRadius = 8,
                 ClassId = "NextButton",
                 Padding = 10,
-                Margin = 4,
+                Margin = new Thickness(200, 30),
                 Content = controlButton
             };
 

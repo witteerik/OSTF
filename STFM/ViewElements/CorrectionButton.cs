@@ -1,4 +1,7 @@
 ﻿
+using STFN;
+using static System.Net.Mime.MediaTypeNames;
+
 public class CorrectionButton : Grid
 {
 
@@ -6,6 +9,8 @@ public class CorrectionButton : Grid
     private Button repsonseButton;
     private Frame repsonseButtonFrame;
     private bool showAsCorrect = false;
+
+    public readonly bool IsScoredItem;
 
     public bool ShowAsCorrect
     {
@@ -20,15 +25,31 @@ public class CorrectionButton : Grid
         set { correctColor = value; }
     }
 
-    private Color incorrectColor = Colors.Red;
+    private Color correctColorLight = Color.FromRgb(129, 255, 159);
+
+
+    private Color incorrectColor = Color.FromRgb(255, 80, 100);
     public Color IncorrectColor
     {
         get { return incorrectColor; }
         set { incorrectColor = value; }
     }
 
-    public CorrectionButton(string text, double textSize)
+    private Color incorrectColorLight = Color.FromRgb(254, 152, 164);
+
+    private Color notScoredColor = Colors.LightGray;
+
+    public Color NotScoredColor
     {
+        get { return notScoredColor; }
+        set { notScoredColor = value; }
+    }
+
+
+    public CorrectionButton(SpeechTestResponseAlternative responseAlternative, double textSize)
+    {
+
+        IsScoredItem = responseAlternative.IsScoredItem;
 
         this.HorizontalOptions = LayoutOptions.Fill;
         this.VerticalOptions = LayoutOptions.Fill;
@@ -39,8 +60,6 @@ public class CorrectionButton : Grid
 
         indicatorLabel = new Label()
         {
-            Text = "✗",
-            TextColor = Color.FromRgb(40, 40, 40),
             FontSize = textSize * 1.5,
             VerticalTextAlignment = TextAlignment.Center,
             HorizontalTextAlignment = TextAlignment.Center,
@@ -48,8 +67,7 @@ public class CorrectionButton : Grid
 
         repsonseButton = new Button()
         {
-            Text = text,
-            BackgroundColor = Color.FromRgb(255, 255, 128),
+            Text = responseAlternative.Spelling,
             Padding = new Thickness(2, 10),
             TextColor = Color.FromRgb(40, 40, 40),
             FontSize = textSize,
@@ -57,17 +75,26 @@ public class CorrectionButton : Grid
             VerticalOptions = LayoutOptions.Fill,
         };
 
+        setButtonAppearence();
+
         repsonseButtonFrame = new Frame();
-        repsonseButtonFrame.BorderColor = Colors.Gray;
-        repsonseButtonFrame.CornerRadius = 8;
-        repsonseButtonFrame.Padding = 10;
-        repsonseButtonFrame.Margin = 4;
+        repsonseButtonFrame.BorderColor = Colors.LightGray;
+        repsonseButtonFrame.BackgroundColor = Colors.LightGray;
+        //repsonseButtonFrame.BorderColor = inCorrectColorLight;
+        //repsonseButtonFrame.BackgroundColor = inCorrectColorLight;
+        repsonseButtonFrame.CornerRadius = 0;
+        repsonseButtonFrame.Padding = new Thickness(4, 8);
+        repsonseButtonFrame.Margin = 0;
         repsonseButtonFrame.Content = repsonseButton;
 
         this.Add(indicatorLabel, 0, 0);
         this.Add(repsonseButtonFrame, 0, 1);
 
-        repsonseButton.Clicked += reponseButton_Clicked;
+        // Activating event Clicked handler only is item is scored
+        if (IsScoredItem)
+        {
+            repsonseButton.Clicked += reponseButton_Clicked;
+        }
 
     }
 
@@ -89,26 +116,46 @@ public class CorrectionButton : Grid
         //Swapping the value
         showAsCorrect = !showAsCorrect;
 
-        // Getting the responsed label
+        setButtonAppearence();
 
-        if (showAsCorrect == true)
+    }
+
+    public void setButtonAppearence()
+    {
+
+        if (IsScoredItem)
         {
-            indicatorLabel.Text = "✓";
-            indicatorLabel.TextColor = correctColor;
 
-            // Modifies the frame color to mark that it's set as correct
-            repsonseButtonFrame.BorderColor = correctColor;
-            repsonseButtonFrame.BackgroundColor = correctColor;
-        }
-        else
-        {
-            indicatorLabel.Text = "✗";
-            indicatorLabel.TextColor = incorrectColor;
+            if (showAsCorrect == true)
+            {
+                indicatorLabel.Text = "✓";
+                indicatorLabel.TextColor = correctColor;
 
-            // Modifies the frame color to mark that it's set as incorrect
-            repsonseButtonFrame.BorderColor = incorrectColor;
-            repsonseButtonFrame.BackgroundColor = incorrectColor;
+                // Modifies the frame color to mark that it's set as correct
+                repsonseButton.BackgroundColor = correctColor;
+                repsonseButton.BorderColor = correctColorLight;
+
+            }
+            else
+            {
+                indicatorLabel.Text = "✗";
+                indicatorLabel.TextColor = incorrectColor;
+
+                // Modifies the frame color to mark that it's set as incorrect
+                repsonseButton.BackgroundColor = incorrectColor;
+                repsonseButton.BorderColor = incorrectColorLight;
+
+            }
+
         }
+        else {
+
+                indicatorLabel.Text = "";
+                indicatorLabel.TextColor = correctColor;
+                repsonseButton.BackgroundColor = notScoredColor;
+                repsonseButton.BorderColor = notScoredColor;
+        }
+
     }
 
     public void RemoveHandler()

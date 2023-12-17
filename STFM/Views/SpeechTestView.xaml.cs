@@ -463,6 +463,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Initializing a new trial, this should always stop any timers in the CurrentResponseView that may still be running from the previuos trial 
         CurrentResponseView.InitializeNewTrial();
 
+        // Here we could add a method that starts preparing the output sound, to save some processing time
+        // OstfBase.SoundPlayer.PrepareNewOutputSounds(ref CurrentSpeechTest.CurrentTestTrial.Sound);
+
         testTrialEventTimerList = new List<IDispatcherTimer>();
 
         foreach (var trialEvent in CurrentSpeechTest.CurrentTestTrial.TrialEventList) {

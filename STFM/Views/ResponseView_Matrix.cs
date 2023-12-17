@@ -39,13 +39,8 @@ public class ResponseView_Matrix : ResponseView
 
 
 
-    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
-    {
-        throw new NotImplementedException();
-    }
 
-
-    public override void ShowResponseAlternatives(List<List<string>> ResponseAlternatives)
+    public override void ShowResponseAlternatives(List<List<SpeechTestResponseAlternative>> ResponseAlternatives)
     {
 
         // resetting givenResponsesSet

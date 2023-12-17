@@ -37,11 +37,6 @@ public class ResponseView_MafcDragDrop : ResponseView
         // This should stop all timers that may be running from a previuos trial
     }
 
-    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
-    {
-        throw new NotImplementedException("Matrix form response alternatives is not yet implemented in the MAFC drag-drop view");
-    }
-
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
     {
 
@@ -81,7 +76,7 @@ public class ResponseView_MafcDragDrop : ResponseView
 
     }
 
-    public override void ShowResponseAlternatives(List<List<string>> text)
+    public override void ShowResponseAlternatives(List<List<SpeechTestResponseAlternative>> text)
     {
 
         if (text.Count > 1)
@@ -89,14 +84,14 @@ public class ResponseView_MafcDragDrop : ResponseView
             throw new ArgumentException("ShowResponseAlternatives is not yet implemented for multidimensional sets of response alternatives");
         }
 
-        List<string> localResponseAlternatives = text[0];
+        List<SpeechTestResponseAlternative> localResponseAlternatives = text[0];
 
         for (int i = 0; i < localResponseAlternatives.Count; i++)
         {
 
             var label = new Label()
             {
-                Text = localResponseAlternatives[i],
+                Text = localResponseAlternatives[i].Spelling,
                 BackgroundColor = Color.FromRgb(255, 255, 128),
                 Padding = 10
             };

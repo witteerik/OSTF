@@ -53,7 +53,7 @@ Public Class TestTrial
     ''' <summary>
     ''' A matrix holding response alternatives in lists. While a test item with a single set of response alternatives (one dimension) should only use one list, while matrix tests should use several lists.
     ''' </summary>
-    Public ResponseAlternativeSpellings As List(Of List(Of String))
+    Public ResponseAlternativeSpellings As List(Of List(Of SpeechTestResponseAlternative))
 
 End Class
 

@@ -86,6 +86,17 @@ Namespace Utils
             Return Output
         End Function
 
+
+        Public Function Shuffle(ByVal Input As List(Of SpeechTestResponseAlternative), ByRef Randomizer As Random) As List(Of SpeechTestResponseAlternative)
+            Dim SampleOrder = SampleWithoutReplacement(Input.Count, 0, Input.Count, Randomizer)
+            Dim Output As New List(Of SpeechTestResponseAlternative)
+            For Each RandomIndex In SampleOrder
+                Output.Add(Input(RandomIndex))
+            Next
+            Return Output
+        End Function
+
+
         Public Function getBase_n_Log(ByVal value As Double, Optional ByVal n As Double = 2) As Double
 
             Return System.Math.Log10(value) / System.Math.Log10(n)

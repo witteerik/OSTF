@@ -217,6 +217,27 @@ Public Class SpeechMaterialComponent
     Public Property IsPractiseComponent As Boolean = False
 
     ''' <summary>
+    ''' Searches among the numeric custom variables for a variable named IsKeyComponent and returns its value (1=True and 0=False), or True if no such numeric variable exists.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function IsKeyComponent() As Boolean
+
+        Dim IsKeyComponentNumeric = GetNumericVariableValue("IsKeyComponent")
+
+        Dim ReturnValue As Boolean = True 'Using True as the default return value
+        If IsKeyComponentNumeric.HasValue Then
+            If IsKeyComponentNumeric = 1 Then
+                ReturnValue = True
+            Else
+                ReturnValue = False
+            End If
+        End If
+
+        Return ReturnValue
+
+    End Function
+
+    ''' <summary>
     ''' Returns the expected name of the media folder of the current component
     ''' </summary>
     ''' <returns></returns>

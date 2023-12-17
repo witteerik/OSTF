@@ -1,4 +1,6 @@
 ﻿
+using STFN;
+
 public class SelectionTextButton : Frame
 {
 
@@ -30,10 +32,10 @@ public class SelectionTextButton : Frame
     public event EventHandler Clicked;
 
 
-    public SelectionTextButton(string text, double textSize)
-        : this(text, textSize, Color.FromRgb(4, 255, 61), Color.FromRgb(40, 40, 40)) { }
+    public SelectionTextButton(SpeechTestResponseAlternative responseAlternative, double textSize)
+        : this(responseAlternative, textSize, Color.FromRgb(4, 255, 61), Color.FromRgb(40, 40, 40)) { }
 
-    public SelectionTextButton(string text, double textSize, Color selectionColor, Color unSelectedColor)
+    public SelectionTextButton(SpeechTestResponseAlternative responseAlternative, double textSize, Color selectionColor, Color unSelectedColor)
     {
 
         this.selectionColor = selectionColor;
@@ -49,14 +51,25 @@ public class SelectionTextButton : Frame
 
         repsonseButton = new Button()
         {
-            Text = text,
+            Text = responseAlternative.Spelling,
             BackgroundColor = Color.FromRgb(255, 255, 128),
             Padding = new Thickness(0, 0),
             TextColor = Color.FromRgb(40, 40, 40),
             FontSize = textSize,
             HorizontalOptions = LayoutOptions.Fill,
-            VerticalOptions = LayoutOptions.Fill,
+            VerticalOptions = LayoutOptions.Fill
         };
+
+
+        if (responseAlternative.IsScoredItem == true)
+        {
+            repsonseButton.FontAttributes = FontAttributes.Bold;
+        }
+        else
+        {
+            repsonseButton.FontSize = textSize * 0.7;
+        }
+
 
         this.Content = repsonseButton;
 

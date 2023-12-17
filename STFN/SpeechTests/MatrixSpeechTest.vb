@@ -232,7 +232,7 @@ Public Class MatrixSpeechTest
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 5}
 
-        Dim ReponseAlternativeList As New List(Of List(Of String))
+        Dim ResponseAlternativeSpellingsList As New List(Of List(Of String))
 
         If IsFreeRecall = True Then
 
@@ -242,7 +242,7 @@ Public Class MatrixSpeechTest
             For Each Word In WordsInSentence
                 CorrectWordsList.Add(Word.GetCategoricalVariableValue("Spelling"))
             Next
-            ReponseAlternativeList.Add(CorrectWordsList)
+            ResponseAlternativeSpellingsList.Add(CorrectWordsList)
 
         Else
 
@@ -255,14 +255,14 @@ Public Class MatrixSpeechTest
                 For w = 0 To WordsInSentence.Count - 1
                     WordSpellings.Add(WordsInSentence(w).GetCategoricalVariableValue("Spelling"))
                 Next
-                ReponseAlternativeList.Add(WordSpellings)
+                ResponseAlternativeSpellingsList.Add(WordSpellings)
             Next
 
             'Transposing the matrix
-            ReponseAlternativeList = TransposeMatrix(ReponseAlternativeList)
+            ResponseAlternativeSpellingsList = TransposeMatrix(ResponseAlternativeSpellingsList)
 
             'Sorting the matrix alphabetically
-            For Each Item In ReponseAlternativeList
+            For Each Item In ResponseAlternativeSpellingsList
                 Item.Sort()
             Next
 
@@ -273,15 +273,25 @@ Public Class MatrixSpeechTest
 
             'A Did-Not-Hear-Response Alternative ?
             If ShowDidNotHearResponseAlternative = True Then
-                For Each Item In ReponseAlternativeList
+                For Each Item In ResponseAlternativeSpellingsList
                     Item.Add("?")
                 Next
             End If
 
         End If
 
+        'Converting to a SpeechTestResponseAlternative instead of strings
+        Dim ResponseAlternativeList As New List(Of List(Of SpeechTestResponseAlternative))
+        For Each List In ResponseAlternativeSpellingsList
+            Dim NewList As New List(Of SpeechTestResponseAlternative)
+            For Each ListItem In List
+                NewList.Add(New SpeechTestResponseAlternative With {.Spelling = ListItem})
+            Next
+            ResponseAlternativeList.Add(NewList)
+        Next
+
         'Adding the list
-        CurrentTestTrial.ResponseAlternativeSpellings = ReponseAlternativeList
+        CurrentTestTrial.ResponseAlternativeSpellings = ResponseAlternativeList
 
         'Mixing trial sound
         MixNextTrialSound()
@@ -290,7 +300,7 @@ Public Class MatrixSpeechTest
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        If IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 

@@ -37,12 +37,7 @@ public class ResponseView_Mafc : ResponseView
     }
 
 
-    public override void ShowResponseAlternatives(List<Tuple<string, SoundSourceLocation>> ResponseAlternatives)
-    {
-        throw new NotImplementedException("Matrix form response alternatives is not yet implemented in the MAFC view");
-    }
-
-    public override void ShowResponseAlternatives(List<List<string>> responseAlternatives)
+    public override void ShowResponseAlternatives(List<List<SpeechTestResponseAlternative>> responseAlternatives)
     {
 
         if (responseAlternatives.Count > 1)
@@ -50,7 +45,7 @@ public class ResponseView_Mafc : ResponseView
             throw new ArgumentException("ShowResponseAlternatives is not yet implemented for multidimensional sets of response alternatives");
         }
 
-        List<string> localResponseAlternatives = responseAlternatives[0];
+        List<SpeechTestResponseAlternative> localResponseAlternatives = responseAlternatives[0];
 
 
         int nItems = localResponseAlternatives.Count;
@@ -151,7 +146,7 @@ public class ResponseView_Mafc : ResponseView
 
             var repsonseBtn = new Button()
             {
-                Text = localResponseAlternatives[i],
+                Text = localResponseAlternatives[i].Spelling,
                 BackgroundColor = Color.FromRgb(255, 255, 128),
                 Padding = 10,
                 TextColor = Color.FromRgb(40, 40, 40),
