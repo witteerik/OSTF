@@ -99,6 +99,7 @@
 
     Public Shared Randomizer As Random = New Random
 
+    Public Property SoundOverlapDuration As Double = 0.1
 
 #Region "Test protocol"
 

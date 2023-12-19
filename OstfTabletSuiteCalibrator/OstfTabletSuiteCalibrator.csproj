@@ -48,11 +48,30 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="libostfdsp_Win32.dll" />
+	  <None Remove="libostfdsp_x64.dll" />
+	  <None Remove="portaudio_x64.dll" />
+	  <None Remove="portaudio_x86.dll" />
 	  <None Remove="Resources\AppIcon\appicon.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiIcon Include="Resources\AppIcon\appicon.png" BaseSize="128,128" Color="#50284C"/>
+	  <Content Include="libostfdsp_Win32.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="libostfdsp_x64.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="portaudio_x64.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="portaudio_x86.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiIcon Include="Resources\AppIcon\appicon.png" BaseSize="128,128" Color="#50284C" />
 	</ItemGroup>
 
 	<ItemGroup>

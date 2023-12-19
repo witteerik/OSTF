@@ -1,4 +1,6 @@
-﻿namespace OstfTabletSuite
+﻿using STFN;
+
+namespace OstfTabletSuite
 {
     public partial class App : Application
     {
@@ -15,10 +17,12 @@
 
         private void MainPage_Unloaded(object sender, EventArgs e)
         {
-            if (STFN.OstfBase.SoundPlayer != null)
+
+            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
             {
-                STFN.OstfBase.SoundPlayer.Dispose();
+                OstfBase.TerminateOSTF();
             }
+
         }
 
     }

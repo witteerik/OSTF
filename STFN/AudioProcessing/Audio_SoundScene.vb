@@ -99,27 +99,27 @@ Namespace Audio.SoundScene
         Public Sub DirectMonoToAllChannels()
             OutputRouting.Clear()
 
-            For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfOutputChannels
+            For c = 1 To ParentTransducerSpecification.NumberOfApiOutputChannels()
                 OutputRouting.Add(c, 1)
             Next
 
             InputRouting.Clear()
 
-            For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfInputChannels
+            For c = 1 To ParentTransducerSpecification.NumberOfApiInputChannels()
                 InputRouting.Add(c, 1)
             Next
         End Sub
 
         Public Sub SetLinearOutput()
             OutputRouting.Clear()
-            For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfOutputChannels
+            For c = 1 To ParentTransducerSpecification.NumberOfApiOutputChannels()
                 OutputRouting.Add(c, c)
             Next
         End Sub
 
         Public Sub SetLinearInput()
             InputRouting.Clear()
-            For c = 1 To ParentTransducerSpecification.ParentAudioApiSettings.NumberOfInputChannels
+            For c = 1 To ParentTransducerSpecification.NumberOfApiInputChannels()
                 InputRouting.Add(c, c)
             Next
         End Sub

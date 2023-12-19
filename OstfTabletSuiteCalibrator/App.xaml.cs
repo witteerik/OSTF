@@ -17,9 +17,9 @@ namespace OstfTabletSuiteCalibrator
 
         private void MainPage_Unloaded(object sender, EventArgs e)
         {
-            if (OstfBase.SoundPlayer != null)
+            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
             {
-                OstfBase.SoundPlayer.Dispose();
+                OstfBase.TerminateOSTF();
             }
         }
 

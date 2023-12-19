@@ -124,7 +124,7 @@ Namespace Audio
 
     Namespace PortAudioVB
 
-        Public Class OverlappingSoundPlayer
+        Public Class PortAudioBasedSoundPlayer
             Implements IDisposable, Audio.SoundPlayers.iSoundPlayer
 
             Private ApproachingEndOfBufferAlert_BufferCount As Integer
@@ -632,8 +632,8 @@ Namespace Audio
                     'Overriding any value set in InitializationSuccess
                     _IsInitialized = False
 
-                    OverlappingSoundPlayer.LoggingEnabled = LoggingEnabled
-                    OverlappingSoundPlayer.MessagesEnabled = MessagesEnabled
+                    PortAudioBasedSoundPlayer.LoggingEnabled = LoggingEnabled
+                    PortAudioBasedSoundPlayer.MessagesEnabled = MessagesEnabled
                     Log("Initializing...")
 
                     'Checking if PortAudio has been initialized 
@@ -716,12 +716,12 @@ Namespace Audio
 
                 'Checks that the Encoding is the one required 
                 If Encoding IsNot Nothing Then
-                    If Encoding <> OverlappingSoundPlayer.Required_AudioEncoding Then Throw New NotSupportedException("Unsupported sample encoding!")
+                    If Encoding <> PortAudioBasedSoundPlayer.Required_AudioEncoding Then Throw New NotSupportedException("Unsupported sample encoding!")
                 End If
 
                 'Checks that the bit depth is the one required 
                 If BitDepth IsNot Nothing Then
-                    If BitDepth <> OverlappingSoundPlayer.Required_BitDepth Then Throw New NotSupportedException("Unsupported bitdepth!")
+                    If BitDepth <> PortAudioBasedSoundPlayer.Required_BitDepth Then Throw New NotSupportedException("Unsupported bitdepth!")
                 End If
 
                 'Setting OverlapFadeLength (and creating fade arrays)
@@ -866,11 +866,11 @@ Namespace Audio
                 If NewOutputSound IsNot Nothing Then
 
                     'Checking that the sound has the required bitdepth
-                    If NewOutputSound.WaveFormat.BitDepth <> OverlappingSoundPlayer.Required_BitDepth Then
+                    If NewOutputSound.WaveFormat.BitDepth <> PortAudioBasedSoundPlayer.Required_BitDepth Then
                         Throw New ArgumentException("Unsupported bitdepth detected (OverlappingSoundPLayer only supportes a bitdepth of 32!)")
                     End If
 
-                    If NewOutputSound.WaveFormat.Encoding <> OverlappingSoundPlayer.Required_AudioEncoding Then
+                    If NewOutputSound.WaveFormat.Encoding <> PortAudioBasedSoundPlayer.Required_AudioEncoding Then
                         Throw New ArgumentException("Unsupported bitdepth detected (OverlappingSoundPLayer only supportes a bitdepth of 32!)")
                     End If
 

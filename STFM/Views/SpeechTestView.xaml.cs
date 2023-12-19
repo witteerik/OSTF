@@ -9,6 +9,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     ResponseView CurrentResponseView;
     TestResultsView CurrentTestResultsView;
     SpeechTest CurrentSpeechTest;
+    OstfBase.AudioSystemSpecification SelectedTransducer = null;
 
     private string[] availableTests = new string[] {"Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet"};
 
@@ -103,20 +104,38 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-
     private async void NewTestBtn_Clicked(object sender, EventArgs e)
     {
 
-        // var res = Messager.MsgBoxAcceptQuestion("Is this a question?", Messager.MsgBoxStyle.Information, "Yes", "No");
-
-        //Messager.MsgBox("This is my message.... take it sleesy!",  Messager.MsgBoxStyle.Information, "Listen", "OKK");
-
         // Ititializing STFM if not already done
-
         if (STFM.StfmBase.IsInitialized == false)
         {
             // Initializing STFM
-            await STFM.StfmBase.InitializeSTFM(SoundPlayerLayout);
+            await STFM.StfmBase.InitializeSTFM(SoundPlayerLayout, OstfBase.MediaPlayerTypes.Default);
+
+            // Selecting transducer
+            var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
+            if (LocalAvailableTransducers.Count == 0)
+            {
+                Messager.MsgBox("Unable to start the application since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "No transducers found");
+            }
+            
+            // Always using the first transducer
+            SelectedTransducer = LocalAvailableTransducers[0];
+            if (SelectedTransducer.CanPlay == true)
+            {
+                // (At this stage the sound player will be started, if not already done.)
+                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+                var argMixer = SelectedTransducer.Mixer;
+                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, ref argMixer, 
+                    STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, ReOpenStream: true, ReStartStream: true);
+                SelectedTransducer.Mixer = argMixer;
+            }
+            else
+            {
+                Messager.MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", Messager.MsgBoxStyle.Exclamation, "Sound player failure");
+            }
+
         }
 
         // Resets the text on the start button, as this may have been changed if test was paused.
@@ -282,6 +301,27 @@ public partial class SpeechTestView : ContentView, IDrawable
                     success = false;
                     break;
             }
+
+            // Updating sound player settings for PaBased player
+            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
+            {
+                // Updating settings needed for the loaded test
+                // (At this stage the sound player will be started, if not already done.)
+                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+                var argMixer = SelectedTransducer.Mixer;
+                if (CurrentSpeechTest != null)
+                {
+                    var mediaSets = CurrentSpeechTest.GetAvailableMediasets();
+                    if (mediaSets.Count > 0 )
+                    {
+                        OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings, 
+                            mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding, 
+                            CurrentSpeechTest.SoundOverlapDuration, Mixer: ref argMixer, ReOpenStream: true, ReStartStream: true);
+                        SelectedTransducer.Mixer = argMixer;
+                    }
+                }
+            }
+
 
             if (success)
             {

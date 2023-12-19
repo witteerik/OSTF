@@ -336,14 +336,14 @@ Public Class CalibrationForm
                     'FilteredSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "CalibSound_PostDirFilter"))
 
                     'Putting the sound in the intended channels
-                    PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(FilteredSound.WaveFormat.SampleRate, FilteredSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, FilteredSound.WaveFormat.Encoding))
+                    PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(FilteredSound.WaveFormat.SampleRate, FilteredSound.WaveFormat.BitDepth, SelectedTransducer.NumberOfApiOutputChannels,, FilteredSound.WaveFormat.Encoding))
                     PlaySound.WaveData.SampleData(SelectedTransducer.Mixer.OutputRouting(SelectedHardwareOutputChannel)) = FilteredSound.WaveData.SampleData(1)
                     PlaySound.WaveData.SampleData(SelectedTransducer.Mixer.OutputRouting(SelectedHardwareOutputChannel_Right)) = FilteredSound.WaveData.SampleData(2)
 
                 Else
 
                     'Putting the sound in the intended channel
-                    PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels,, CalibrationSound.WaveFormat.Encoding))
+                    PlaySound = New Audio.Sound(New Audio.Formats.WaveFormat(CalibrationSound.WaveFormat.SampleRate, CalibrationSound.WaveFormat.BitDepth, SelectedTransducer.NumberOfApiOutputChannels,, CalibrationSound.WaveFormat.Encoding))
                     PlaySound.WaveData.SampleData(SelectedTransducer.Mixer.OutputRouting(SelectedHardwareOutputChannel)) = CalibrationSound.WaveData.SampleData(1)
 
                 End If

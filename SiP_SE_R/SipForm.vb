@@ -1,4 +1,6 @@
-﻿Public Class SipForm
+﻿Imports SpeechTestFramework.OstfBase
+
+Public Class SipForm
     Inherits SpeechTestFramework.SipTestGui
 
     Public Sub New()
@@ -7,7 +9,7 @@
         MyBase.New("Swedish SiP-test", SpeechTestFramework.Utils.Constants.UserTypes.Research, SpeechTestFramework.Utils.Constants.Languages.English, True)
 
         'Initializing the OSTF 
-        SpeechTestFramework.InitializeOSTF()
+        SpeechTestFramework.InitializeOSTF(Platforms.WinUI)
 
     End Sub
 

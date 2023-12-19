@@ -26,7 +26,7 @@ namespace OstfTabletSuite
             STFN.Messager.OnGetOpenFilePaths += GetOpenFilePaths;
 
         }
-
+              
 
         public async void DisplayMessage(string title, string message, string cancelButtonText)
         {

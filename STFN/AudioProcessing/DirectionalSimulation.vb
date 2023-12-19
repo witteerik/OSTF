@@ -18,7 +18,7 @@ Public Class DirectionalSimulation
 
             If AvailableIrSets(i).Trim = "" Then Continue For
             If AvailableIrSets(i).Trim.StartsWith("//") Then Continue For
-            Dim ImpulseResponseSetSpecificationFile = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, AvailableIrSets(i))
+            Dim ImpulseResponseSetSpecificationFile = Utils.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, AvailableIrSets(i)))
             If IO.File.Exists(ImpulseResponseSetSpecificationFile) = False Then Continue For
 
             Dim NewBinauralImpulseReponseSet = New BinauralImpulseReponseSet(ImpulseResponseSetSpecificationFile)
@@ -376,7 +376,6 @@ End Class
 Public Class BinauralImpulseReponseSet
 
     Public Property Name As String = ""
-
     Private _StereoKernels As New SortedList(Of String, StereoKernel)
     Private Property StereoKernels As SortedList(Of String, StereoKernel)
         Get
@@ -403,9 +402,39 @@ Public Class BinauralImpulseReponseSet
 
     Private ImpulseResponseSetSpecificationFile As String
 
+    Private ImpulseResponseFolder As String = ""
+
     Public Sub New(ByVal ImpulseResponseSetSpecificationFile As String)
 
         Me.ImpulseResponseSetSpecificationFile = ImpulseResponseSetSpecificationFile
+        Me.LoadMetaData(ImpulseResponseSetSpecificationFile)
+
+    End Sub
+
+    Private Sub LoadMetaData(ByVal ImpulseResponseSetSpecificationFile As String)
+
+        'Reading the whole file
+        Dim Lines = IO.File.ReadAllLines(ImpulseResponseSetSpecificationFile, Text.Encoding.UTF8)
+
+        Dim ReadSourceLocations As Boolean = False
+
+        'Creating a buffer so that sounds already loaded do not have to be loaded again
+        Dim LoadedSoundFiles As New SortedList(Of String, Audio.Sound)
+
+        For Each Line In Lines
+            If Line.Trim = "" Then Continue For
+            If Line.Trim(vbTab) = "" Then Continue For
+            If Line.Trim.StartsWith("//") Then Continue For
+
+            If ReadSourceLocations = False Then
+                If Line.Trim.StartsWith("Name") Then Name = InputFileSupport.GetInputFileValue(Line, True)
+                If Line.Trim.StartsWith("ImpulseResponseSubFolder") Then ImpulseResponseFolder = Utils.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.RoomImpulsesSubDirectory, InputFileSupport.InputFilePathValueParsing(Line, "", True)))
+                If Line.Trim.StartsWith("SampleRate") Then _SampleRate = InputFileSupport.InputFileIntegerValueParsing(Line, True, ImpulseResponseSetSpecificationFile)
+                If Line.Trim.StartsWith("<AvailableSourceLocations>") Then
+                    Exit For
+                End If
+            End If
+        Next
 
     End Sub
 
@@ -416,8 +445,6 @@ Public Class BinauralImpulseReponseSet
         Dim Lines = IO.File.ReadAllLines(ImpulseResponseSetSpecificationFile, Text.Encoding.UTF8)
 
         Dim ReadSourceLocations As Boolean = False
-
-        Dim ImpulseResponseFolder As String = ""
 
         'Creating a buffer so that sounds already loaded do not have to be loaded again
         Dim LoadedSoundFiles As New SortedList(Of String, Audio.Sound)
@@ -434,9 +461,9 @@ Public Class BinauralImpulseReponseSet
             If Line.Trim.StartsWith("//") Then Continue For
 
             If ReadSourceLocations = False Then
-                If Line.Trim.StartsWith("Name") Then Name = InputFileSupport.GetInputFileValue(Line, True)
-                If Line.Trim.StartsWith("ImpulseResponseSubFolder") Then ImpulseResponseFolder = IO.Path.Combine(OstfBase.RoomImpulsesSubDirectory, InputFileSupport.InputFilePathValueParsing(Line, "", True))
-                If Line.Trim.StartsWith("SampleRate") Then _SampleRate = InputFileSupport.InputFileIntegerValueParsing(Line, True, ImpulseResponseSetSpecificationFile)
+                'If Line.Trim.StartsWith("Name") Then Name = InputFileSupport.GetInputFileValue(Line, True)
+                'If Line.Trim.StartsWith("ImpulseResponseSubFolder") Then ImpulseResponseFolder = Utils.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.RoomImpulsesSubDirectory, InputFileSupport.InputFilePathValueParsing(Line, "", True)))
+                'If Line.Trim.StartsWith("SampleRate") Then _SampleRate = InputFileSupport.InputFileIntegerValueParsing(Line, True, ImpulseResponseSetSpecificationFile)
                 If Line.Trim.StartsWith("<AvailableSourceLocations>") Then ReadSourceLocations = True
 
             Else
@@ -503,17 +530,17 @@ Public Class BinauralImpulseReponseSet
                 Dim CurrentInputSound = LoadedSoundFiles(SoundFile)
                 Dim PointString = CartesianPoint.ToString("", System.Globalization.CultureInfo.InvariantCulture)
 
-                If StereoKernels.ContainsKey(PointString) = False Then
+                If _StereoKernels.ContainsKey(PointString) = False Then
                     'Adding a new sound in the appropriate stereo format
                     Dim NewSound As New Audio.Sound(GetStereoKernelFormat(CurrentInputSound.WaveFormat))
-                    StereoKernels.Add(PointString, New StereoKernel With {.Name = PointString, .Point = NewPoint, .BinauralIR = NewSound})
+                    _StereoKernels.Add(PointString, New StereoKernel With {.Name = PointString, .Point = NewPoint, .BinauralIR = NewSound})
                 End If
 
                 'Adding the sound data
                 If Ear = "L" Then
-                    StereoKernels(PointString).BinauralIR.WaveData.SampleData(1) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
+                    _StereoKernels(PointString).BinauralIR.WaveData.SampleData(1) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
                 Else
-                    StereoKernels(PointString).BinauralIR.WaveData.SampleData(2) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
+                    _StereoKernels(PointString).BinauralIR.WaveData.SampleData(2) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
                 End If
 
             End If
@@ -531,7 +558,7 @@ Public Class BinauralImpulseReponseSet
 
             'N.B. this code will fail if an occurring distance lack a front position!
 
-            For Each Kernel In StereoKernels
+            For Each Kernel In _StereoKernels
                 If Kernel.Value.Point.GetSphericalDistance = CurrentDistance Then
 
                     'Attenuating by the calibration offset (to get zero dB filter gain for a signal with a C-weighted spectrum)
@@ -545,12 +572,12 @@ Public Class BinauralImpulseReponseSet
 
 
         'Calculating the BinauralDelay
-        For Each Kernel In StereoKernels
+        For Each Kernel In _StereoKernels
             Kernel.Value.CalculateBinauralDelay(Name)
         Next
 
         'Also preparing SameEarsKernels
-        For Each Kernel In StereoKernels
+        For Each Kernel In _StereoKernels
             Kernel.Value.CreateTwoSameEarsKernels()
         Next
 
@@ -783,23 +810,6 @@ Public Class BinauralImpulseReponseSet
 
     End Function
 
-
-    'Public Function CalculateAverageIrGain(Optional ByVal ExportSoundFiles As Boolean = False) As Double
-
-    '    Dim GainList As New List(Of Double)
-
-    '    For Each Kernel In StereoKernels
-
-    '        GainList.Add(CalculateIrGain((Me.Name & Kernel.Value.Item1.GetSphericalAzimuth).Replace(" ", "_"), Kernel.Value.Item2, 1, ExportSoundFiles))
-    '        GainList.Add(CalculateIrGain((Me.Name & Kernel.Value.Item1.GetSphericalAzimuth).Replace(" ", "_"), Kernel.Value.Item2, 2, ExportSoundFiles))
-
-    '    Next
-
-    '    Return GainList.Average
-
-    'End Function
-
-
     Public Shared Function CalculateIrGain(ByVal IrName As String, ByRef IR As Audio.Sound, ByVal Channel As Integer, Optional ByVal ExportSoundFiles As Boolean = False) As Double
 
         Dim MonoWaveFormat = New Audio.Formats.WaveFormat(IR.WaveFormat.SampleRate, IR.WaveFormat.BitDepth, 1,, IR.WaveFormat.Encoding)
@@ -826,85 +836,6 @@ Public Class BinauralImpulseReponseSet
 
         'Gets the post-convolution level
         Dim PostLevel = Audio.DSP.MeasureSectionLevel(ConvolutedSound, 1, IrLength, 3 * IrLength)
-
-        'Calculates the gain
-        Dim FilterGain As Double = PostLevel - PreLevel
-
-        If ExportSoundFiles = True Then
-            TestSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "OriginalSound.wav"))
-            ConvolutedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "ConvolutedSound.wav"))
-        End If
-
-        Return FilterGain
-
-    End Function
-
-
-    'Public Shared Function CalculateIrGain_UsingWarble(ByVal IrName As String, ByRef IR As Audio.Sound, ByVal Channel As Integer, Optional ByVal ExportSoundFiles As Boolean = False) As Double
-
-    '    Dim MonoWaveFormat = New Audio.Formats.WaveFormat(IR.WaveFormat.SampleRate, IR.WaveFormat.BitDepth, 1,, IR.WaveFormat.Encoding)
-
-    '    'Copies the channel of interest in the IR to a mono sound
-    '    Dim IrSound As New Audio.Sound(MonoWaveFormat)
-    '    IrSound.WaveData.SampleData(1) = IR.WaveData.SampleData(Channel)
-
-    '    'Notes the length of the IR
-    '    Dim IrLength As Integer = IrSound.WaveData.SampleData(1).Length
-
-    '    'Creates a warble tone at 1 kHz (measurement sound)
-    '    Dim TestSound = Audio.GenerateSound.CreateFrequencyModulatedSineWave(MonoWaveFormat, 1, 1000, 0.5, 20, 0.125,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
-
-    '    'Measures the pre filter level
-    '    Dim PreLevel As Double = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(TestSound, 1, IrLength, 3 * IrLength)
-
-    '    'Runs convolution
-    '    Dim ConvolutedSound = SpeechTestFramework.Audio.DSP.FIRFilter(TestSound, IrSound, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
-
-    '    'Gets the post-convolution level
-    '    Dim PostLevel = SpeechTestFramework.Audio.DSP.MeasureSectionLevel(ConvolutedSound, 1, IrLength, 3 * IrLength)
-
-    '    'Calculates the gain
-    '    Dim FilterGain As Double = PostLevel - PreLevel
-
-    '    If ExportSoundFiles = True Then
-    '        TestSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "OriginalSound.wav"))
-    '        ConvolutedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "ConvolutedSound.wav"))
-    '    End If
-
-    '    Return FilterGain
-
-    'End Function
-
-
-    Public Shared Function CalculateIrGain_UsingNoise(ByVal IrName As String, ByRef IR As Audio.Sound, ByVal Channel As Integer, Optional ByVal ExportSoundFiles As Boolean = False) As Double
-
-        Dim MonoWaveFormat = New Audio.Formats.WaveFormat(IR.WaveFormat.SampleRate, IR.WaveFormat.BitDepth, 1,, IR.WaveFormat.Encoding)
-
-        'Copies the channel of interest in the IR to a mono sound
-        Dim IrSound As New Audio.Sound(MonoWaveFormat)
-        IrSound.WaveData.SampleData(1) = IR.WaveData.SampleData(Channel)
-
-        'Notes the length of the IR
-        Dim IrLength As Integer = IrSound.WaveData.SampleData(1).Length
-
-        'Creates a warble tone at 1 kHz (measurement sound)
-        Dim TestSound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\CalibrationSignals\Pink_noise.wav")
-        'Dim TestSound = Audio.GenerateSound.CreateWhiteNoise(MonoWaveFormat, 1, , IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
-        'Dim TestSound = Audio.GenerateSound.CreateFrequencyModulatedSineWave(MonoWaveFormat, 1, 1000, 0.5, 20, 0.125,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
-
-        'Filters it with a C-weighting, to avoid low and high frequency influences
-        TestSound = Audio.DSP.IIRFilter(TestSound, Audio.BasicAudioEnums.FrequencyWeightings.C)
-
-        'Measures the pre filter level
-        'Dim PreLevel As Double = Audio.DSP.MeasureSectionLevel(TestSound, 1, IrLength, 3 * IrLength)
-        Dim PreLevel As Double = Audio.DSP.MeasureSectionLevel(TestSound, 1)
-
-        'Runs convolution
-        Dim ConvolutedSound = Audio.DSP.FIRFilter(TestSound, IrSound, New Audio.Formats.FftFormat, ,,,,, True)
-
-        'Gets the post-convolution level
-        'Dim PostLevel = Audio.DSP.MeasureSectionLevel(ConvolutedSound, 1, IrLength, 3 * IrLength)
-        Dim PostLevel = Audio.DSP.MeasureSectionLevel(ConvolutedSound, 1)
 
         'Calculates the gain
         Dim FilterGain As Double = PostLevel - PreLevel

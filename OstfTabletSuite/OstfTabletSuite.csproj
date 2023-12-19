@@ -48,7 +48,26 @@
 	  </ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Platforms\Windows\libostfdsp_Win32.dll" />
+	  <None Remove="Platforms\Windows\libostfdsp_x64.dll" />
+	  <None Remove="Platforms\Windows\portaudio_x64.dll" />
+	  <None Remove="Platforms\Windows\portaudio_x86.dll" />
 	  <None Remove="Resources\AppIcon\appicon.jpg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="libostfdsp_Win32.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="libostfdsp_x64.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="portaudio_x64.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="portaudio_x86.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>

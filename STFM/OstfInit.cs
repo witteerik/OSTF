@@ -10,6 +10,7 @@ using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 
+
 namespace STFM
 {
 
@@ -18,7 +19,7 @@ namespace STFM
 
         public static bool IsInitialized = false;
 
-        public static async Task InitializeSTFM(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer)
+        public static async Task InitializeSTFM(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer, STFN.OstfBase.MediaPlayerTypes MediaPlayerType = OstfBase.MediaPlayerTypes.Default)
         {
 
             // Returning if already called
@@ -28,82 +29,88 @@ namespace STFM
             }
             IsInitialized = true;
 
+            // Trying to read the MediaRootDirectory from pevious app sessions
+            OstfBase.MediaRootDirectory = ReadMediaRootDirectory();
+
+            string previouslyStoredMediaRootDirectory = OstfBase.MediaRootDirectory;
+
+            bool askForMediaFolder = true;
+
             if (DeviceInfo.Current.Platform == DevicePlatform.iOS)
             {
-
+                throw new NotImplementedException("Media folder location is not yet implemented for iOS");
             }
             else if (DeviceInfo.Current.Platform == DevicePlatform.Android)
             {
-
-                //var b = System.IO.Directory.Exists("/usr/share");
-                OstfBase.MediaRootDirectory = "/storage/emulated/0/OstfMedia";
-
-                await CheckPermissions();
-
-                bool askForMediaFolder = true;
-                try
+                // Setting default folder name
+                if (OstfBase.MediaRootDirectory == "")
                 {
-                    if (System.IO.Directory.Exists(OstfBase.MediaRootDirectory))
+                    //var b = System.IO.Directory.Exists("/usr/share");
+                    OstfBase.MediaRootDirectory = "/storage/emulated/0/OstfMedia";
+                }
+
+                // Checking for permissions
+                await CheckPermissions();
+            }
+
+            // Checking if it seems to be the correct folder
+            try
+            {
+                if (System.IO.Directory.Exists(OstfBase.MediaRootDirectory))
+                {
+                    var fse = System.IO.Directory.GetFileSystemEntries(OstfBase.MediaRootDirectory);
+                    for (int i = 0; i < fse.Length; i++)
                     {
-                        var fse = System.IO.Directory.GetFileSystemEntries(OstfBase.MediaRootDirectory);
-                        for (int i = 0; i < fse.Length; i++)
+                        if (fse[i].EndsWith("AvailableSpeechMaterials"))
                         {
-                            if (fse[i].EndsWith("AvailableSpeechMaterials"))
-                            {
-                                askForMediaFolder = false;
-                                break;
-                            }
+                            askForMediaFolder = false;
+                            break;
                         }
                     }
                 }
-                catch (Exception)
-                {
-                    //askForMediaFolder = true;
-                    //throw;
-                }
-
-                //askForMediaFolder = true;
-                if (askForMediaFolder)
-                {
-                    await PickMediaFolder();
-                }
-
             }
-            else
+            catch (Exception)
             {
-                OstfBase.MediaRootDirectory = "C:\\EriksDokument\\source\\repos\\OSTF\\OSTFMedia";
+                //askForMediaFolder = true;
+                //throw;
             }
 
 
-            //FileSaver.Default.SaveAsync
+            //askForMediaFolder = true;
+            if (askForMediaFolder)
+            {
+                await PickMediaFolder();
+            }
 
-            //var file = await FilePicker.PickAsync(PickOptions.Default);
-
-            //await PickAndShow( PickOptions.Default);
-
-            //var ExistingFiles =System.IO.Directory.GetFiles(OstfBase.MediaRootDirectory);
-
-            //System.IO.Directory.GetFileSystemEntries(file.FullPath)
+            if (previouslyStoredMediaRootDirectory != OstfBase.MediaRootDirectory)
+            {
+                // Storing the MediaRootDirectory for future instances of the app, but only if it was changed
+                StoreMediaRootDirectory(OstfBase.MediaRootDirectory);
+            }
 
             // Initializing OSTF
-            OstfBase.InitializeOSTF(OstfBase.MediaRootDirectory);
+            OstfBase.InitializeOSTF(GetCurrentPlatform(), MediaPlayerType, OstfBase.MediaRootDirectory);
+            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.MctBased)
+            {
+                OstfBase.SoundPlayer = new STFM.MauiCtBasedSoundPlayer(ParentContainer);
+            }
 
-            //string tempFilePath = Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments);
+        }
 
-            //string sharedDataFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            //sharedDataFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+        static OstfBase.Platforms GetCurrentPlatform() {
 
-            //Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-            //System.IO.Directory.GetDirectories("/data/user/0/");
-
-            //var x = 1;
-
-            OstfBase.SoundPlayer = new STFM.SoundPlayer(ParentContainer);
-
-            // Initializing the sound player
-            //SoundPlayer = new STFM.SoundPlayer(ParentContainer);
-
+            if (DeviceInfo.Current.Platform == DevicePlatform.iOS) {return OstfBase.Platforms.iOS;}
+            else if (DeviceInfo.Current.Platform == DevicePlatform.WinUI) { return OstfBase.Platforms.WinUI; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.UWP) { return OstfBase.Platforms.UWP; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Tizen) { return OstfBase.Platforms.Tizen; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.tvOS) { return OstfBase.Platforms.tvOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst) { return OstfBase.Platforms.MacCatalyst; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS) { return OstfBase.Platforms.macOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.watchOS) { return OstfBase.Platforms.watchOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Unknown) { return OstfBase.Platforms.Unknown; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Android) { return OstfBase.Platforms.Android; }
+            else { throw new Exception("Failed to resolve the current platform type."); }
+           
         }
 
 
@@ -179,6 +186,28 @@ namespace STFM
             }
 
         }
+
+        static string ReadMediaRootDirectory()
+        {
+            if (Preferences.Default.ContainsKey("media_root_directory"))
+            {
+                return Preferences.Default.Get("media_root_directory", "");
+            }
+            else { 
+                return ""; 
+            }
+        }
+
+        static void StoreMediaRootDirectory(string mediaRootDirectory)
+        {
+            Preferences.Default.Set("media_root_directory", mediaRootDirectory);
+        }
+
+        static void ClearMediaRootDirectoryFromPreferences(string mediaRootDirectory)
+        {
+            Preferences.Default.Remove("media_root_directory");
+        }
+
 
     }
 }

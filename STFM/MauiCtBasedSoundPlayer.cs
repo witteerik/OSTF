@@ -8,7 +8,7 @@ using STFN.Audio.SoundScene;
 
 namespace STFM
 {
-    public class SoundPlayer : iSoundPlayer
+    public class MauiCtBasedSoundPlayer : iSoundPlayer
     {
 
         public MediaElement mediaElement1 = null;
@@ -46,7 +46,7 @@ namespace STFM
 
         bool iSoundPlayer.WideFormatSupport { get { return true; } }
 
-        public SoundPlayer(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer)
+        public MauiCtBasedSoundPlayer(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer)
         {
             mediaElement1 = new MediaElement { ShouldShowPlaybackControls = false };
             mediaElement2 = new MediaElement { ShouldShowPlaybackControls = false };

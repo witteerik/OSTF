@@ -403,9 +403,39 @@ Public Class BinauralImpulseReponseSet
 
     Private ImpulseResponseSetSpecificationFile As String
 
+    Private ImpulseResponseFolder As String = ""
+
     Public Sub New(ByVal ImpulseResponseSetSpecificationFile As String)
 
         Me.ImpulseResponseSetSpecificationFile = ImpulseResponseSetSpecificationFile
+        Me.LoadMetaData(ImpulseResponseSetSpecificationFile)
+
+    End Sub
+
+    Private Sub LoadMetaData(ByVal ImpulseResponseSetSpecificationFile As String)
+
+        'Reading the whole file
+        Dim Lines = IO.File.ReadAllLines(ImpulseResponseSetSpecificationFile, Text.Encoding.UTF8)
+
+        Dim ReadSourceLocations As Boolean = False
+
+        'Creating a buffer so that sounds already loaded do not have to be loaded again
+        Dim LoadedSoundFiles As New SortedList(Of String, Audio.Sound)
+
+        For Each Line In Lines
+            If Line.Trim = "" Then Continue For
+            If Line.Trim(vbTab) = "" Then Continue For
+            If Line.Trim.StartsWith("//") Then Continue For
+
+            If ReadSourceLocations = False Then
+                If Line.Trim.StartsWith("Name") Then Name = InputFileSupport.GetInputFileValue(Line, True)
+                If Line.Trim.StartsWith("ImpulseResponseSubFolder") Then ImpulseResponseFolder = IO.Path.Combine(OstfBase.RoomImpulsesSubDirectory, InputFileSupport.InputFilePathValueParsing(Line, "", True))
+                If Line.Trim.StartsWith("SampleRate") Then _SampleRate = InputFileSupport.InputFileIntegerValueParsing(Line, True, ImpulseResponseSetSpecificationFile)
+                If Line.Trim.StartsWith("<AvailableSourceLocations>") Then
+                    Exit For
+                End If
+            End If
+        Next
 
     End Sub
 
@@ -416,8 +446,6 @@ Public Class BinauralImpulseReponseSet
         Dim Lines = IO.File.ReadAllLines(ImpulseResponseSetSpecificationFile, Text.Encoding.UTF8)
 
         Dim ReadSourceLocations As Boolean = False
-
-        Dim ImpulseResponseFolder As String = ""
 
         'Creating a buffer so that sounds already loaded do not have to be loaded again
         Dim LoadedSoundFiles As New SortedList(Of String, Audio.Sound)
@@ -434,9 +462,9 @@ Public Class BinauralImpulseReponseSet
             If Line.Trim.StartsWith("//") Then Continue For
 
             If ReadSourceLocations = False Then
-                If Line.Trim.StartsWith("Name") Then Name = InputFileSupport.GetInputFileValue(Line, True)
-                If Line.Trim.StartsWith("ImpulseResponseSubFolder") Then ImpulseResponseFolder = IO.Path.Combine(OstfBase.RoomImpulsesSubDirectory, InputFileSupport.InputFilePathValueParsing(Line, "", True))
-                If Line.Trim.StartsWith("SampleRate") Then _SampleRate = InputFileSupport.InputFileIntegerValueParsing(Line, True, ImpulseResponseSetSpecificationFile)
+                'If Line.Trim.StartsWith("Name") Then Name = InputFileSupport.GetInputFileValue(Line, True)
+                'If Line.Trim.StartsWith("ImpulseResponseSubFolder") Then ImpulseResponseFolder = IO.Path.Combine(OstfBase.RoomImpulsesSubDirectory, InputFileSupport.InputFilePathValueParsing(Line, "", True))
+                'If Line.Trim.StartsWith("SampleRate") Then _SampleRate = InputFileSupport.InputFileIntegerValueParsing(Line, True, ImpulseResponseSetSpecificationFile)
                 If Line.Trim.StartsWith("<AvailableSourceLocations>") Then ReadSourceLocations = True
 
             Else
@@ -503,17 +531,17 @@ Public Class BinauralImpulseReponseSet
                 Dim CurrentInputSound = LoadedSoundFiles(SoundFile)
                 Dim PointString = CartesianPoint.ToString("", System.Globalization.CultureInfo.InvariantCulture)
 
-                If StereoKernels.ContainsKey(PointString) = False Then
+                If _StereoKernels.ContainsKey(PointString) = False Then
                     'Adding a new sound in the appropriate stereo format
                     Dim NewSound As New Audio.Sound(GetStereoKernelFormat(CurrentInputSound.WaveFormat))
-                    StereoKernels.Add(PointString, New StereoKernel With {.Name = PointString, .Point = NewPoint, .BinauralIR = NewSound})
+                    _StereoKernels.Add(PointString, New StereoKernel With {.Name = PointString, .Point = NewPoint, .BinauralIR = NewSound})
                 End If
 
                 'Adding the sound data
                 If Ear = "L" Then
-                    StereoKernels(PointString).BinauralIR.WaveData.SampleData(1) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
+                    _StereoKernels(PointString).BinauralIR.WaveData.SampleData(1) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
                 Else
-                    StereoKernels(PointString).BinauralIR.WaveData.SampleData(2) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
+                    _StereoKernels(PointString).BinauralIR.WaveData.SampleData(2) = CurrentInputSound.WaveData.SampleData(ImpulseResponseInputChannel)
                 End If
 
             End If
@@ -531,7 +559,7 @@ Public Class BinauralImpulseReponseSet
 
             'N.B. this code will fail if an occurring distance lack a front position!
 
-            For Each Kernel In StereoKernels
+            For Each Kernel In _StereoKernels
                 If Kernel.Value.Point.GetSphericalDistance = CurrentDistance Then
 
                     'Attenuating by the calibration offset (to get zero dB filter gain for a signal with a C-weighted spectrum)
@@ -545,12 +573,12 @@ Public Class BinauralImpulseReponseSet
 
 
         'Calculating the BinauralDelay
-        For Each Kernel In StereoKernels
+        For Each Kernel In _StereoKernels
             Kernel.Value.CalculateBinauralDelay(Name)
         Next
 
         'Also preparing SameEarsKernels
-        For Each Kernel In StereoKernels
+        For Each Kernel In _StereoKernels
             Kernel.Value.CreateTwoSameEarsKernels()
         Next
 

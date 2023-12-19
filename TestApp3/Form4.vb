@@ -6,12 +6,12 @@ Imports SpeechTestFramework.SipTest
 Imports SpeechTestFramework.Audio.SoundScene
 Public Class Form4
 
-    Dim SoundPlayer As SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer
+    Dim SoundPlayer As SpeechTestFramework.Audio.PortAudioVB.PortAudioBasedSoundPlayer
 
     Private Sub Form4_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         'Initializing the OSTF 
-        SpeechTestFramework.InitializeOSTF()
+        SpeechTestFramework.InitializeOSTF(Platforms.WinUI)
 
     End Sub
 
@@ -119,7 +119,7 @@ Public Class Form4
                     CurrentAudioApiSettings.SelectDefaultAudioDevice(RecordingWaveFormat.SampleRate)
                 End If
 
-                SoundPlayer = New SpeechTestFramework.Audio.PortAudioVB.OverlappingSoundPlayer(Nothing)
+                SoundPlayer = New SpeechTestFramework.Audio.PortAudioVB.PortAudioBasedSoundPlayer(Nothing)
 
                 'SoundPlayer.Mixer = NewMixer
                 SoundPlayer.OpenStream()

@@ -1,4 +1,6 @@
-﻿Public Class CalibrationForm
+﻿Imports SpeechTestFramework.OstfBase
+
+Public Class CalibrationForm
     Inherits SpeechTestFramework.CalibrationForm
 
     Public Sub New()
@@ -6,7 +8,7 @@
         MyBase.New(SpeechTestFramework.Utils.Constants.UserTypes.Research, True)
 
         'Initializing the OSTF 
-        SpeechTestFramework.InitializeOSTF()
+        SpeechTestFramework.InitializeOSTF(Platforms.WinUI)
 
     End Sub
 

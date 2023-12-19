@@ -21,12 +21,23 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private string NoSimulationString = "No simulation";
 
-
     public SpeechTestCalibrationView()
 	{
 		InitializeComponent();
 
-        InitializeSTFM();
+        // Create and setup init timer // TODO: There should be a better solution for this... The reason it's used it to first show the GUI then call functions that need the GUI handle
+        IDispatcherTimer trialEventTimer = Application.Current.Dispatcher.CreateTimer();
+        trialEventTimer.Interval = TimeSpan.FromMilliseconds(1000);
+        trialEventTimer.Tick += InitByTimer;
+        trialEventTimer.IsRepeating = false;
+        trialEventTimer.Start();
+    }
+
+
+    private async void InitByTimer(object sender, EventArgs e)
+    {
+
+        await InitializeSTFM();
 
         // Edding events
         Transducer_ComboBox.SelectedIndexChanged += Transducer_ComboBox_SelectedIndexChanged;
@@ -50,23 +61,20 @@ public partial class SpeechTestCalibrationView : ContentView
             BasicAudioEnums.FrequencyWeightings.Z, BasicAudioEnums.FrequencyWeightings.C };
         this.FrequencyWeighting_ComboBox.SelectedIndex = 0;
 
-        //// Adding transducers
-        //var TempWaveFormat = new STFN.Audio.Formats.WaveFormat(48000, 32, 1, Encoding: STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
-        //AudioApiSettings audioApiSettings = null;
-        //STFN.Audio.SoundScene.DuplexMixer mixer = null;
-        //STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref audioApiSettings, (int?)TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding, null, ref mixer, STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, false, false);
+        // Adding transducers
+        var TempWaveFormat = new STFN.Audio.Formats.WaveFormat(48000, 32, 1, Encoding: STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
+        AudioApiSettings audioApiSettings = null;
+        STFN.Audio.SoundScene.DuplexMixer mixer = null;
+        STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref audioApiSettings, (int?)TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding, null, ref mixer, STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, false, false);
 
-        //var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
-        //if (LocalAvailableTransducers.Count == 0)
-        //{
-        //    Interaction.MsgBox("Unable to start the application since no sound transducers could be found!", MsgBoxStyle.Critical, "Calibration");
-        //}
+        var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
+        if (LocalAvailableTransducers.Count == 0)
+        {
+            Messager.MsgBox("Unable to start the application since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "Calibration");
+        }
 
-        //// Adding transducers to the combobox, and selects the first one
-        //Transducer_ComboBox.ItemsSource = LocalAvailableTransducers;
-        //this.Transducer_ComboBox.SelectedIndex = 0;
-
-        Transducer_ComboBox.ItemsSource = new List<string> { "Transducer 1" };
+        // Adding transducers to the combobox, and selects the first one
+        Transducer_ComboBox.ItemsSource = LocalAvailableTransducers;
         this.Transducer_ComboBox.SelectedIndex = 0;
 
         // Adding signals
@@ -132,7 +140,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
     }
 
-    private async void InitializeSTFM()
+    private async Task InitializeSTFM()
     {
 
         // Ititializing STFM if not already done
@@ -192,16 +200,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
         this.SoundSystem_RichTextBox.Text = "";
 
-        //SelectedTransducer = (STFN.OstfBase.AudioSystemSpecification)this.Transducer_ComboBox.SelectedItem;
-
-        // Creating a fake SelectedTransducer
-        AudioApiSettings audioApiSettings = new AudioApiSettings();
-        audioApiSettings.SelectedOutputDeviceInfo = new PortAudio.PaDeviceInfo() { maxOutputChannels = 2 };
-        SelectedTransducer = new OstfBase.AudioSystemSpecification(ref audioApiSettings);
-        SelectedTransducer.OverrideCanPlay(true);
-        SelectedTransducer.Mixer = new STFN.Audio.SoundScene.DuplexMixer(SelectedTransducer);
-
-
+        SelectedTransducer = (STFN.OstfBase.AudioSystemSpecification)this.Transducer_ComboBox.SelectedItem;
 
         if (SelectedTransducer.CanPlay == true)
         {
@@ -212,10 +211,9 @@ public partial class SpeechTestCalibrationView : ContentView
             SelectedTransducer.Mixer = argMixer;
             this.PlaySignal_Button.IsEnabled = true;
         }
-
         else
         {
-            Interaction.MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", MsgBoxStyle.Exclamation, "SoundDescription player failure");
+            Messager.MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", Messager.MsgBoxStyle.Exclamation, "Sound player failure");
             this.PlaySignal_Button.IsEnabled = false;
         }
 
@@ -279,25 +277,25 @@ public partial class SpeechTestCalibrationView : ContentView
                 this.FrequencyWeighting_ComboBox.IsEnabled = false;
             }
 
-            // Clearing previously added DirectionalSimulationSets
-            this.DirectionalSimulationSet_ComboBox.Items.Clear();
-            this.SimulatedDistance_ComboBox.Items.Clear();
+            // Clearing previously added SimulatedDistance_ComboBox
+            // this.SimulatedDistance_ComboBox.Items.Clear();
 
             // Adding available DirectionalSimulationSets
             var AvailableSets = STFN.OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSets(ref SelectedTransducer, (int)SelectedCalibrationSound.WaveFormat.SampleRate);
             AvailableSets.Insert(0, NoSimulationString);
             foreach (var Item in AvailableSets)
-                this.DirectionalSimulationSet_ComboBox.Items.Add(Item);
-            this.DirectionalSimulationSet_ComboBox.SelectedIndex = 0;
-
+                this.DirectionalSimulationSet_ComboBox.ItemsSource = AvailableSets;
+            if (this.DirectionalSimulationSet_ComboBox.Items.Count > 0 )
+            {
+                this.DirectionalSimulationSet_ComboBox.SelectedIndex = 0;
+            }
         }
-
     }
 
     private void DirectionalSimulationSet_ComboBox_SelectedIndexChanged(object sender, EventArgs e)
     {
 
-        this.SimulatedDistance_ComboBox.Items.Clear();
+        //this.SimulatedDistance_ComboBox.Items.Clear();
         //this.SimulatedDistance_ComboBox.ResetText();
 
         var SelectedItem = this.DirectionalSimulationSet_ComboBox.SelectedItem;
@@ -321,10 +319,10 @@ public partial class SpeechTestCalibrationView : ContentView
 
             // Adding available simulation distances
             var AvailableDistances = STFN.OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetDistances((string)SelectedItem);
-            foreach (var Distance in AvailableDistances)
-                this.SimulatedDistance_ComboBox.ItemsSource.Add(Distance);
+            this.SimulatedDistance_ComboBox.ItemsSource = AvailableDistances.ToList();
             if (this.SimulatedDistance_ComboBox.Items.Count > 0)
                 this.SimulatedDistance_ComboBox.SelectedIndex = 0;
+
         }
 
         else
@@ -341,12 +339,18 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private void SelectedChannelComboBox_SelectedIndexChanged(object sender, EventArgs e)
     {
-        SelectedHardwareOutputChannel = (int)SelectedHardWareOutputChannel_ComboBox.SelectedItem;
+        if (SelectedHardWareOutputChannel_ComboBox.SelectedItem != null)
+        {
+            SelectedHardwareOutputChannel = (int)SelectedHardWareOutputChannel_ComboBox.SelectedItem;
+        }
     }
 
     private void SelectedRightChannelComboBox_SelectedIndexChanged(object sender, EventArgs e)
     {
-        SelectedHardwareOutputChannel_Right = (int)SelectedHardWareOutputChannel_Right_ComboBox.SelectedItem;
+        if (SelectedHardWareOutputChannel_Right_ComboBox.SelectedItem !=null)
+        {
+            SelectedHardwareOutputChannel_Right = (int)SelectedHardWareOutputChannel_Right_ComboBox.SelectedItem;
+        }
     }
 
 
@@ -367,7 +371,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
                 if (CalibrationSound is null)
                 {
-                    Interaction.MsgBox("Please select a calibration signal!", MsgBoxStyle.Exclamation, "Calibration");
+                    Messager.MsgBox("Please select a calibration signal!", Messager.MsgBoxStyle.Exclamation, "Calibration");
                     return;
                 }
 
@@ -385,9 +389,9 @@ public partial class SpeechTestCalibrationView : ContentView
                 }
 
                 // Updates the wave format of the sound player
-                //STFN.Audio.SoundScene.DuplexMixer argMixer = null;
-                //AudioApiSettings argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-                //STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings, SampleRate: (int?)CalibrationSound.WaveFormat.SampleRate, BitDepth: CalibrationSound.WaveFormat.BitDepth, Encoding: CalibrationSound.WaveFormat.Encoding, Mixer: ref argMixer);
+                STFN.Audio.SoundScene.DuplexMixer argMixer = SelectedTransducer.Mixer;
+                AudioApiSettings argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings, SampleRate: (int?)CalibrationSound.WaveFormat.SampleRate, BitDepth: CalibrationSound.WaveFormat.BitDepth, Encoding: CalibrationSound.WaveFormat.Encoding, Mixer: ref argMixer);
 
                 // Setting the signal level
                 STFN.Audio.DSP.Transformations.MeasureAndAdjustSectionLevel(ref CalibrationSound, (decimal)STFN.Audio.AudioManagement.Standard_dBSPL_To_dBFS(SelectedLevel), 1, FrequencyWeighting: (STFN.Audio.BasicAudioEnums.FrequencyWeightings) (int)FrequencyWeighting_ComboBox.SelectedItem);
@@ -408,7 +412,7 @@ public partial class SpeechTestCalibrationView : ContentView
                     }
                     else
                     {
-                        Interaction.MsgBox("Please select a directional simulation distance!");
+                        Messager.MsgBox("Please select a directional simulation distance!");
                         return;
                     }
 
@@ -432,21 +436,16 @@ public partial class SpeechTestCalibrationView : ContentView
                     // FilteredSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "CalibSound_PostDirFilter"))
 
                     // Putting the sound in the intended channels
-                    PlaySound = new STFN.Audio.Sound(new STFN.Audio.Formats.WaveFormat((int)FilteredSound.WaveFormat.SampleRate, (int)FilteredSound.WaveFormat.BitDepth, (int)SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels(), Encoding: FilteredSound.WaveFormat.Encoding));
+                    PlaySound = new STFN.Audio.Sound(new STFN.Audio.Formats.WaveFormat((int)FilteredSound.WaveFormat.SampleRate, (int)FilteredSound.WaveFormat.BitDepth, (int)SelectedTransducer.NumberOfApiOutputChannels(), Encoding: FilteredSound.WaveFormat.Encoding));
                     PlaySound.WaveData.set_SampleData(SelectedTransducer.Mixer.OutputRouting[SelectedHardwareOutputChannel], FilteredSound.WaveData.get_SampleData(1));
                     PlaySound.WaveData.set_SampleData(SelectedTransducer.Mixer.OutputRouting[SelectedHardwareOutputChannel_Right], FilteredSound.WaveData.get_SampleData(2));
                 }
-
                 else
                 {
 
                     // Putting the sound in the intended channel
-                    PlaySound = new STFN.Audio.Sound(new STFN.Audio.Formats.WaveFormat((int)CalibrationSound.WaveFormat.SampleRate, (int)CalibrationSound.WaveFormat.BitDepth, (int)SelectedTransducer.ParentAudioApiSettings.NumberOfOutputChannels(), Encoding: CalibrationSound.WaveFormat.Encoding));
+                    PlaySound = new STFN.Audio.Sound(new STFN.Audio.Formats.WaveFormat((int)CalibrationSound.WaveFormat.SampleRate, (int)CalibrationSound.WaveFormat.BitDepth, (int)SelectedTransducer.NumberOfApiOutputChannels(), Encoding: CalibrationSound.WaveFormat.Encoding));
                     PlaySound.WaveData.set_SampleData(SelectedTransducer.Mixer.OutputRouting[SelectedHardwareOutputChannel], CalibrationSound.WaveData.get_SampleData(1));
-                    //if (SelectedHardwareOutputChannel_Right > 0)
-                    //{
-                    //    PlaySound.WaveData.set_SampleData(SelectedTransducer.Mixer.OutputRouting[SelectedHardwareOutputChannel_Right], CalibrationSound.WaveData.get_SampleData(1));
-                    //}
 
                 }
 
@@ -459,14 +458,14 @@ public partial class SpeechTestCalibrationView : ContentView
 
             else
             {
-                Interaction.MsgBox("Unable to start the player using the selected transducer!", MsgBoxStyle.Exclamation, "SoundDescription player failure");
+                Messager.MsgBox("Unable to start the player using the selected transducer!", Messager.MsgBoxStyle.Exclamation, "Sound player failure");
                 this.PlaySignal_Button.IsEnabled = false;
             }
         }
 
         catch (Exception ex)
         {
-            Interaction.MsgBox("An error occurred!", MsgBoxStyle.Exclamation, "Calibration");
+            Messager.MsgBox("An error occurred!", Messager.MsgBoxStyle.Exclamation, "Calibration");
         }
 
     }
@@ -485,9 +484,9 @@ public partial class SpeechTestCalibrationView : ContentView
     private void Close_Button_Click(object sender, EventArgs e)
     {
 
-        if (STFN.OstfBase.SoundPlayer != null)
+        if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
         {
-            STFN.OstfBase.SoundPlayer.Dispose();
+            OstfBase.TerminateOSTF();
         }
 
         Application.Current.Quit(); 

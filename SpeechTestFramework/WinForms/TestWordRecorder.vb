@@ -4,7 +4,7 @@ Imports System.Windows.Forms.Control
 
 Public Class SpeechMaterialRecorder
 
-    Private WithEvents LocalSoundPlayer As Audio.PortAudioVB.OverlappingSoundPlayer
+    Private WithEvents LocalSoundPlayer As Audio.PortAudioVB.PortAudioBasedSoundPlayer
 
     Private MediaSet As MediaSet = Nothing
 
