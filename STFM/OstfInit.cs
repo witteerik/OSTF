@@ -46,7 +46,7 @@ namespace STFM
                 if (OstfBase.MediaRootDirectory == "")
                 {
                     //var b = System.IO.Directory.Exists("/usr/share");
-                    OstfBase.MediaRootDirectory = "/storage/emulated/0/OstfMedia";
+                    //OstfBase.MediaRootDirectory = "/storage/emulated/0/OstfMedia";
                 }
 
                 // Checking for permissions
@@ -75,6 +75,10 @@ namespace STFM
                 //throw;
             }
 
+            if (OstfBase.MediaRootDirectory == "")
+            {
+                askForMediaFolder = true;
+            }
 
             //askForMediaFolder = true;
             if (askForMediaFolder)

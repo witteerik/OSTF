@@ -335,14 +335,23 @@ Public Class MatrixSpeechTest
 
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
-        'Setting level
-        Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel))
+        Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
+        Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel)
+        Dim NeededGain = TargetLevel_FS - NominalLevel_FS
 
-        'Padding the sound by one second, and converting it to sterao
-        Dim PaddedSound = TestWordSound.ZeroPad(1.0R, Nothing, False).ConvertMonoToMultiChannel(2, True)
+        Audio.DSP.AmplifySection(TestWordSound, NeededGain)
+
+        'Setting level
+        'Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel))
+
+        'Padding the sound by one second, and converting it to stereo
+        'Dim PaddedSound = TestWordSound.ZeroPad(1.0R, Nothing, False).ConvertMonoToMultiChannel(2, True)
+        'Copying to stereo and storing in CurrentTestTrial.Sound 
+        'CurrentTestTrial.Sound = PaddedSound
 
         'Copying to stereo and storing in CurrentTestTrial.Sound 
-        CurrentTestTrial.Sound = PaddedSound
+        CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
+
 
     End Sub
 

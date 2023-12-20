@@ -205,25 +205,19 @@ Public Class SrtSpeechTest
                     ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
                     CurrentTestTrial.Tasks += 1
                 Next
-
-            Else
-                ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = "Rätt"})
-                ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = "Fel"})
-                CurrentTestTrial.Tasks = 1
             End If
 
         Else
-            'Adding the current word pselling as a response alternative
+            'Adding the current word spelling as a response alternative
 
             ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"), .IsScoredItem = CurrentTestTrial.SpeechMaterialComponent.IsKeyComponent})
+            CurrentTestTrial.Tasks = 1
 
             'Picking random response alternatives from all available test words
             Dim AllContrastingWords = NextTestWord.GetAllRelativesAtLevelExludingSelf(SpeechMaterialComponent.LinguisticLevels.Sentence, True, False)
             Dim RandomIndices = Utils.SampleWithoutReplacement(Math.Max(0, FixedResponseAlternativeCount - 1), 0, AllContrastingWords.Count, Randomizer)
-            CurrentTestTrial.Tasks = 0
             For Each RandomIndex In RandomIndices
                 ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = AllContrastingWords(RandomIndex).GetCategoricalVariableValue("Spelling"), .IsScoredItem = AllContrastingWords(RandomIndex).IsKeyComponent})
-                CurrentTestTrial.Tasks += 1
             Next
 
             'Shuffling the order of response alternatives
@@ -251,8 +245,14 @@ Public Class SrtSpeechTest
 
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
+        Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
+        Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel)
+        Dim NeededGain = TargetLevel_FS - NominalLevel_FS
+
+        Audio.DSP.AmplifySection(TestWordSound, NeededGain)
+
         'Setting level
-        Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel))
+        'Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel))
 
         'Copying to stereo and storing in CurrentTestTrial.Sound 
         CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)

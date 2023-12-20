@@ -150,6 +150,7 @@ Partial Class MediaSetSetupControl
         Me.CrossfadeDuration_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.Label39 = New System.Windows.Forms.Label()
         Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.OnlyNominalLevel_CheckBox = New System.Windows.Forms.CheckBox()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -1065,6 +1066,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelSPL_Label, 0, 1)
         Me.TableLayoutPanel3.Controls.Add(Me.Label28, 0, 3)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelTemporalIntegration_CheckBox, 0, 4)
+        Me.TableLayoutPanel3.Controls.Add(Me.OnlyNominalLevel_CheckBox, 1, 6)
         Me.TableLayoutPanel3.Controls.Add(Me.VpNormalization_Checkbox, 0, 5)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelSPL_DoubleParsingTextBox, 1, 1)
         Me.TableLayoutPanel3.Controls.Add(Me.SpeechLevelFrequencyWeighting_ComboBox, 1, 3)
@@ -1214,11 +1216,10 @@ Partial Class MediaSetSetupControl
         'NominalLevel_CheckBox
         '
         Me.NominalLevel_CheckBox.AutoSize = True
-        Me.TableLayoutPanel3.SetColumnSpan(Me.NominalLevel_CheckBox, 2)
         Me.NominalLevel_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.NominalLevel_CheckBox.Location = New System.Drawing.Point(3, 153)
         Me.NominalLevel_CheckBox.Name = "NominalLevel_CheckBox"
-        Me.NominalLevel_CheckBox.Size = New System.Drawing.Size(589, 19)
+        Me.NominalLevel_CheckBox.Size = New System.Drawing.Size(291, 19)
         Me.NominalLevel_CheckBox.TabIndex = 15
         Me.NominalLevel_CheckBox.Text = "Set as nominal level (i.e. calibration level)"
         Me.NominalLevel_CheckBox.UseVisualStyleBackColor = True
@@ -1674,6 +1675,17 @@ Partial Class MediaSetSetupControl
         Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
         Me.RandomSeed_IntegerParsingTextBox.TabIndex = 21
         '
+        'OnlyNominalLevel_CheckBox
+        '
+        Me.OnlyNominalLevel_CheckBox.AutoSize = True
+        Me.OnlyNominalLevel_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.OnlyNominalLevel_CheckBox.Location = New System.Drawing.Point(300, 153)
+        Me.OnlyNominalLevel_CheckBox.Name = "OnlyNominalLevel_CheckBox"
+        Me.OnlyNominalLevel_CheckBox.Size = New System.Drawing.Size(292, 19)
+        Me.OnlyNominalLevel_CheckBox.TabIndex = 13
+        Me.OnlyNominalLevel_CheckBox.Text = "Do not modify sound (i.e. only set nominal level)"
+        Me.OnlyNominalLevel_CheckBox.UseVisualStyleBackColor = True
+        '
         'MediaSetSetupControl
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1840,4 +1852,5 @@ Partial Class MediaSetSetupControl
     Friend WithEvents SpeechLevel_TargetLinguisticlevel_ComboBox As Windows.Forms.ComboBox
     Friend WithEvents NominalLevel_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents CreateCalibrationSignal_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents OnlyNominalLevel_CheckBox As Windows.Forms.CheckBox
 End Class

@@ -1170,6 +1170,7 @@ Namespace Audio
             ''' <param name="EqualizationLevelFrequencyWeighting">The frequency weighting used in the sound level equalization measurement.</param>
             ''' <param name="AllowChangingInputSounds">Set to false to work on copies of the input sounds. This will require more memory use!</param>
             ''' <param name="CrossFadeLength">The length (in sample) of a cross-fade section.</param>
+            ''' <param name="ThrowOnUnequalNominalLevels">If True, checks to ensure that all nominal levels stored in the SMA object of each sound are the same (except if they are Nothing, then they are ignored)</param>
             ''' <returns></returns>
             Public Function ConcatenateSounds(ByRef InputSounds As List(Of Sound),
                                           Optional ByVal EqualizeSoundLevel As Boolean = False,
@@ -1180,9 +1181,28 @@ Namespace Audio
                                           Optional ByVal CrossFadeLength As Integer? = Nothing,
                                           Optional ByVal SkewedFade As Boolean = False,
                                           Optional ByVal CosinePower As Double = 10,
-                                          Optional ByVal EqualPower As Boolean = True) As Sound
+                                          Optional ByVal EqualPower As Boolean = True,
+                                              Optional ByVal ThrowOnUnequalNominalLevels As Boolean = True) As Sound
 
                 Try
+
+                    Dim DetectedNominalLevel As Double? = Nothing
+                    Dim NominalLevelList As New List(Of Double)
+                    For Each Sound In InputSounds
+                            If Sound.SMA IsNot Nothing Then
+                                If Sound.SMA.NominalLevel.HasValue Then
+                                    NominalLevelList.Add(Sound.SMA.NominalLevel.Value)
+                                    DetectedNominalLevel = Sound.SMA.NominalLevel.Value
+                                End If
+                            End If
+                        Next
+                    If ThrowOnUnequalNominalLevels Then
+                        If NominalLevelList.Count > 0 Then
+                            For i = 0 To NominalLevelList.Count - 2
+                                If NominalLevelList(i) <> NominalLevelList(i + 1) Then Throw New Exception("Unequal nominal levels detected in concatenated sound files! This may lead to unexpected sound levels during playback!")
+                            Next
+                        End If
+                    End If
 
                     'Returning nothing if there are no input sounds
                     If InputSounds.Count = 0 Then Return Nothing
@@ -1310,6 +1330,10 @@ Namespace Audio
                         Next
 
 
+                    End If
+
+                    If DetectedNominalLevel.HasValue Then
+                        OutputSound.SMA.NominalLevel = DetectedNominalLevel.Value
                     End If
 
                     Return OutputSound

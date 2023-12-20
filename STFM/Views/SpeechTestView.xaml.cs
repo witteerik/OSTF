@@ -189,6 +189,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsHintTestView);
                     CurrentTestOptionsView = newOptionsHintTestView;
 
+
+
                     CurrentSpeechTest.InitializeCurrentTest();
 
                     // TODO: This line must be moved to an options result code section
@@ -206,7 +208,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                 case "Hagermans meningar (Matrix)":
-                
+
 
                     // Speech test
                     CurrentSpeechTest = new MatrixSpeechTest("Swedish Matrix Test (Hagerman)", TestProtocols.GetSrtProtocols());
@@ -244,7 +246,9 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Hörtröskel för tal (HTT)":
 
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish Spondees 23", TestProtocols.GetSrtProtocols());
+                    TestProtocols tpc = new TestProtocols();
+                    tpc.Add(TestProtocols.GetSrtProtocols()[1]);
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish Spondees 23", tpc);
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
@@ -255,7 +259,14 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
-                    CurrentResponseView = new ResponseView_Mafc();
+                    if (CurrentSpeechTest.IsFreeRecall)
+                    {
+                        CurrentResponseView = new ResponseView_FreeRecall();
+                    }
+                    else
+                    {
+                        CurrentResponseView = new ResponseView_Mafc();
+                    }
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     //TestResponseView.StartedByTestee += StartedByTestee;
 

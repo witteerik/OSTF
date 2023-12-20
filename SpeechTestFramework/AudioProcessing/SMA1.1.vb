@@ -2278,6 +2278,10 @@ Namespace Audio
                     'Copies data
                     OutputSound.WaveData.SampleData(1) = ParentSMA.ParentSound.WaveData.SampleData(CurrentChannel).ToList.GetRange(StartSample, Length).ToArray
 
+                    'Also copies the Nominal level
+                    OutputSound.SMA.NominalLevel = NominalLevel
+                    OutputSound.SMA.InferNominalLevelToAllDescendants()
+
                     'Returns the sound
                     Return OutputSound
 

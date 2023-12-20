@@ -2130,6 +2130,50 @@ Public Class MediaSet
 
     End Function
 
+
+
+
+    ''' <summary>
+    ''' Stores the supplied nominal level into the SMA chunks of the sound files in which the components at the TargetComponentsLinguisticLevel reside.
+    ''' </summary>
+    ''' <param name="TargetComponentsLinguisticLevel"></param>
+    ''' <param name="TargetSoundLevel"></param>
+    ''' <returns>Returns True if successfull, or otherwise False.</returns>    
+    Public Function StoreComponentNominalLevel(ByVal TargetComponentsLinguisticLevel As SpeechMaterialComponent.LinguisticLevels,
+                                      ByVal TargetSoundLevel As Double) As Boolean
+
+        Dim SoundChannel As Integer = 1
+
+        'Clears previously loaded sounds
+        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLinguisticLevel)
+
+        Dim UniqueSoundSectionIdentifiers As New SortedSet(Of String)
+
+        'Loading all sound files needed
+        For SCI = 0 To SummaryComponents.Count - 1
+
+            Dim SummaryComponent = SummaryComponents(SCI)
+
+            For i = 0 To MediaAudioItems - 1
+                Dim CurrentIndexSoundSmaComponents As New List(Of SmaComponent)
+                'Loads the sounds needed by calling GetSound
+                Dim CurrentIndexSound = SummaryComponent.GetSound(Me, i, SoundChannel,,,,,,,,, CurrentIndexSoundSmaComponents, True)
+            Next
+        Next
+
+        'Storing the nominal level value in all loaded sounds
+        ParentTestSpecification.SpeechMaterial.StoreNominalLevelValueInAllLoadedSounds(TargetSoundLevel)
+
+        'And save the sma components back to file
+        ParentTestSpecification.SpeechMaterial.SaveAllLoadedSounds(True)
+
+        Return True
+
+    End Function
+
+
     ''' <summary>
     ''' 
     ''' </summary>
@@ -3657,6 +3701,14 @@ Public Class MediaSet
         Me.SetComponentLevel(LinguisticLevel, TargetLevel, 1, TemporalIntegration, FrequencyWeighting,,,,, StoreNominalLevelValue)
 
     End Sub
+
+
+    Public Sub StoreNominalLevel(ByVal TargetLevel As Double, ByVal LinguisticLevel As SpeechMaterialComponent.LinguisticLevels)
+
+        Me.StoreComponentNominalLevel(LinguisticLevel, TargetLevel)
+
+    End Sub
+
 
     ''' <summary>
     ''' Creates a new MediaSet which is a deep copy of the original, by using serialization.

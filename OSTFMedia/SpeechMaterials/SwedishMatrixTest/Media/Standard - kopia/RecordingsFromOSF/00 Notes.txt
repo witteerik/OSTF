@@ -1,0 +1,11 @@
+The wave files in this folder were downloaded from OSF (https://osf.io/5tybm), 2023-11-08.
+All files are licensed under the Creative Commons CC-BY Attribution 4.0 international license.
+Original copyright, Björn Hagerman.
+Modifications by Erik Witte, 2023.
+
+The wave files in this folder contain the Hagerman's sentences recordings from the folder "Whole-list audio files", with the speech channel (1) extracted into mono files.
+The folder also contains a single mono-channel noise file containing the noise from list 11.
+
+The file "CalibrationTrack(01)_c01.wav" contains channel 1 of the calibration signal file in the folder "Audio files from CD", and the file "CalibrationTrack(01)_c02.wav" contains channel 2 of the calibration signal file in the folder "Audio files from CD".
+
+/This channel split was done by Erik Witte using functions in the OSTF (Open Speech Test Framework, https://github.com/witteerik/OSTF).

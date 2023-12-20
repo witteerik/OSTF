@@ -433,18 +433,30 @@
             Exit Sub
         End If
 
+
         'Launching sound level adjustment algoritms
         If VpNormalization_Checkbox.Checked = True Then
+            'TODO: SetVpNormalizedLevels do not use TargetLinguisticLevel but is fixed to the linguistic levels used in the SiP-test. Change in the future?
             SelectedMediaSet.SetVpNormalizedLevels(CDbl(SpeechLevelSPL_DoubleParsingTextBox.Value), SpeechLevelFrequencyWeighting, TemporalIntegration) ' N.B. 'TemporalIntegration is zero for long-time average
         Else
+
+            'Getting the target linguistic level
             Dim TargetLinguisticLevel As SpeechMaterialComponent.LinguisticLevels
             If SpeechLevel_TargetLinguisticlevel_ComboBox.SelectedItem Is Nothing Then
                 MsgBox("You must select the linguistic level for which you want to set the sound level!", MsgBoxStyle.Exclamation, "Missing linguistic level")
                 Exit Sub
             End If
             TargetLinguisticLevel = SpeechLevel_TargetLinguisticlevel_ComboBox.SelectedItem
-            SelectedMediaSet.SetSpeechLevels(SpeechLevelFS_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration, TargetLinguisticLevel, NominalLevel_CheckBox.Checked)
+
+            If OnlyNominalLevel_CheckBox.Checked = False Then
+                SelectedMediaSet.SetSpeechLevels(SpeechLevelFS_DoubleParsingTextBox.Value, SpeechLevelFrequencyWeighting, TemporalIntegration, TargetLinguisticLevel, NominalLevel_CheckBox.Checked)
+            Else
+                'Only setting nominal level in the corresponding SMA chunks
+                SelectedMediaSet.StoreNominalLevel(SpeechLevelFS_DoubleParsingTextBox.Value, TargetLinguisticLevel)
+            End If
         End If
+
+
 
         'Creating a calibration signal with the SpeechLevelFS_DoubleParsingTextBox.Value value
         If CreateCalibrationSignal_CheckBox.Checked = True Then
@@ -651,8 +663,18 @@
     Private Sub NominalLevel_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles NominalLevel_CheckBox.CheckedChanged
         'Infering the check value of NominalLevel_CheckBox also to CreateCalibrationSignal_CheckBox 
         CreateCalibrationSignal_CheckBox.Checked = NominalLevel_CheckBox.Checked
+
+        OnlyNominalLevel_CheckBox.Enabled = NominalLevel_CheckBox.Checked
+        If NominalLevel_CheckBox.Checked = False Then OnlyNominalLevel_CheckBox.Checked = False
+
     End Sub
 
+    Private Sub VpNormalization_Checkbox_CheckedChanged(sender As Object, e As EventArgs) Handles VpNormalization_Checkbox.CheckedChanged
+
+        'Unchecks the NominalLevel_CheckBox if VpNormalization_Checkbox is checked, because nominal level is not (yet) set by the VpNormalization function. When VpNormalization is used, nominal levels have to be set in a separate step.
+        If VpNormalization_Checkbox.Checked = True Then NominalLevel_CheckBox.Checked = False
+
+    End Sub
 End Class
 
 
