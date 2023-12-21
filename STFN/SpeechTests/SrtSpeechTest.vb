@@ -10,32 +10,45 @@ Public Class SrtSpeechTest
 
     Private MaximumNumberOfTestWords As Integer = 200
 
-
-
     Private ObservedTrials As TrialHistory
 
 
 #Region "Settings"
 
-    Public SelectedMediaSet As MediaSet
+    Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
+        Get
+            Return New List(Of TestModes) From {TestModes.ConstantStimuli, TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise, TestModes.AdaptiveDirectionality}
+        End Get
+    End Property
 
-    Public StartList As String = ""
+    Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
+        Get
+            Return TestProtocols.GetSrtProtocols
+        End Get
+    End Property
 
-    Public StartLevel As Double
+    Public Overrides ReadOnly Property AvailableFixedResponseAlternativeCounts As List(Of Integer)
+        Get
+            Return New List(Of Integer) From {2, 3, 4, 5, 6, 7, 8, 10, 15, 20}
+        End Get
+    End Property
 
+    Public Overrides ReadOnly Property AvailablePresentationModes As List(Of SoundPropagationTypes)
+        Get
+            Return New List(Of SoundPropagationTypes) From {SoundPropagationTypes.PointSpeakers, SoundPropagationTypes.SimulatedSoundField}
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AvailablePhaseAudiometryTypes As List(Of BmldModes)
+        Get
+            Return New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
+        End Get
+    End Property
 
 #End Region
 
-    Public Sub New(ByVal SpeechMaterialName As String, ByVal AvailableTestProtocols As TestProtocols)
-        MyBase.New(SpeechMaterialName, AvailableTestProtocols)
-
-        'Some initial settings which should be overridden by the settings editor
-        SelectedMediaSet = GetAvailableMediasets(0)
-        StartList = "Lista 3"
-        FixedResponseAlternativeCount = 4
-        StartLevel = 40
-        RandomizeWordsWithinLists = True
-        SelectTestProtocol(AvailableTestProtocols(0))
+    Public Sub New(ByVal SpeechMaterialName As String)
+        MyBase.New(SpeechMaterialName)
 
     End Sub
 
@@ -45,7 +58,7 @@ Public Class SrtSpeechTest
 
         CreatePlannedWordsList()
 
-        SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartLevel, .TestStage = 0})
+        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = CustomizableTestOptions.SpeechLevel, .TestStage = 0})
 
         Return True
 
@@ -72,7 +85,7 @@ Public Class SrtSpeechTest
         'Determines the index of the start list
         Dim SelectedStartListIndex As Integer = -1
         For i = 0 To AllLists.Count - 1
-            If AllLists(i).PrimaryStringRepresentation = StartList Then
+            If AllLists(i).PrimaryStringRepresentation = CustomizableTestOptions.StartList Then
                 SelectedStartListIndex = i
                 Exit For
             End If
@@ -95,7 +108,7 @@ Public Class SrtSpeechTest
         For Each List In ListsToUse
             Dim CurrentWords = List.GetChildren()
 
-            If RandomizeWordsWithinLists = False Then
+            If CustomizableTestOptions.RandomizeItemsWithinLists = False Then
                 For Each Word In CurrentWords
                     PlannedTestWords.Add(Word)
                     'Checking if enough words have been added
@@ -171,7 +184,7 @@ Public Class SrtSpeechTest
         'TODO: We must store the responses and response times!!!
 
         'Calculating the speech level
-        Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
+        Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
 
         ' Returning if we should not move to the next trial
         If ProtocolReply.Decision <> SpeechTestReplies.GotoNextTrial Then
@@ -197,7 +210,7 @@ Public Class SrtSpeechTest
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
 
         Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
-        If IsFreeRecall Then
+        If CustomizableTestOptions.IsFreeRecall Then
             If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 1 Then
 
                 CurrentTestTrial.Tasks = 0
@@ -215,7 +228,7 @@ Public Class SrtSpeechTest
 
             'Picking random response alternatives from all available test words
             Dim AllContrastingWords = NextTestWord.GetAllRelativesAtLevelExludingSelf(SpeechMaterialComponent.LinguisticLevels.Sentence, True, False)
-            Dim RandomIndices = Utils.SampleWithoutReplacement(Math.Max(0, FixedResponseAlternativeCount - 1), 0, AllContrastingWords.Count, Randomizer)
+            Dim RandomIndices = Utils.SampleWithoutReplacement(Math.Max(0, CustomizableTestOptions.FixedResponseAlternativeCount - 1), 0, AllContrastingWords.Count, Randomizer)
             For Each RandomIndex In RandomIndices
                 ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = AllContrastingWords(RandomIndex).GetCategoricalVariableValue("Spelling"), .IsScoredItem = AllContrastingWords(RandomIndex).IsKeyComponent})
             Next
@@ -233,7 +246,7 @@ Public Class SrtSpeechTest
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        If IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 5500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 5500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 
@@ -243,7 +256,7 @@ Public Class SrtSpeechTest
 
     Private Sub MixNextTrialSound()
 
-        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
         Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel)
@@ -269,7 +282,7 @@ Public Class SrtSpeechTest
 
 
     Public Overrides Function GetResults() As TestResults
-        Return SelectedTestProtocol.GetResults(ObservedTrials)
+        Return CustomizableTestOptions.SelectedTestProtocol.GetResults(ObservedTrials)
     End Function
 End Class
 

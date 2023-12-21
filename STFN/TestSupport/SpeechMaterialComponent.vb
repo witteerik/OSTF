@@ -92,7 +92,8 @@ Public Class SpeechMaterialComponent
     Private _SequentiallyOrderedPhonemes As Boolean
     Private _PresetLevel As LinguisticLevels
     Private _PresetSpecifications As New List(Of Tuple(Of String, Boolean, List(Of String)))
-    Private _Presets As SortedList(Of String, List(Of SpeechMaterialComponent))
+    Private _Presets As SmcPresets
+    'Private _Presets As SortedList(Of String, List(Of SpeechMaterialComponent))
 
     Public Property SequentiallyOrderedLists As Boolean
         Get
@@ -196,7 +197,24 @@ Public Class SpeechMaterialComponent
         End Set
     End Property
 
-    Public Property Presets As SortedList(Of String, List(Of SpeechMaterialComponent))
+    'Public Property Presets As SortedList(Of String, List(Of SpeechMaterialComponent))
+    '    Get
+    '        If Me.ParentComponent IsNot Nothing Then
+    '            Return Me.ParentComponent.Presets
+    '        Else
+    '            Return Me._Presets
+    '        End If
+    '    End Get
+    '    Set(value As SortedList(Of String, List(Of SpeechMaterialComponent)))
+    '        If Me.ParentComponent IsNot Nothing Then
+    '            Me.ParentComponent.Presets = value
+    '        Else
+    '            Me._Presets = value
+    '        End If
+    '    End Set
+    'End Property
+
+    Public Property Presets As SmcPresets
         Get
             If Me.ParentComponent IsNot Nothing Then
                 Return Me.ParentComponent.Presets
@@ -204,7 +222,7 @@ Public Class SpeechMaterialComponent
                 Return Me._Presets
             End If
         End Get
-        Set(value As SortedList(Of String, List(Of SpeechMaterialComponent)))
+        Set(value As SmcPresets)
             If Me.ParentComponent IsNot Nothing Then
                 Me.ParentComponent.Presets = value
             Else
@@ -212,7 +230,6 @@ Public Class SpeechMaterialComponent
             End If
         End Set
     End Property
-
 
     Public Property IsPractiseComponent As Boolean = False
 
@@ -2534,7 +2551,7 @@ Public Class SpeechMaterialComponent
     ''' </summary>
     Public Sub InitializePresets()
 
-        Presets = New SortedList(Of String, List(Of SpeechMaterialComponent))
+        Presets = New SmcPresets
 
         If PresetSpecifications.Count > 0 Then
 
@@ -2585,7 +2602,7 @@ Public Class SpeechMaterialComponent
 
                 End If
 
-                Presets.Add(PresetSpecification.Item1, SelectedComponentsList.Values.ToList)
+                Presets.Add(New SmcPresets.Preset With {.Name = PresetSpecification.Item1, .Members = SelectedComponentsList.Values.ToList})
 
             Next
 
@@ -2607,7 +2624,7 @@ Public Class SpeechMaterialComponent
                     End If
                 End If
             Next
-            Presets.Add("All items", SelectedComponentsList.Values.ToList)
+            Presets.Add(New SmcPresets.Preset With {.Name = "All items", .Members = SelectedComponentsList.Values.ToList})
         End If
 
     End Sub
@@ -3179,6 +3196,39 @@ Public Class SpeechMaterialComponent
         Mode
         Distribution
     End Enum
+
+End Class
+
+''' <summary>
+''' A class for holding combinations of SpeechMaterialComponents that make up different preselected components to include in a test.
+''' </summary>
+Public Class SmcPresets
+    Inherits SortedSet(Of Preset)
+
+    Public Function GetPretest(ByVal PresetName As String)
+
+        For Each Preset In Me
+            If Preset.Name = PresetName Then Return Preset
+        Next
+        Return Nothing
+
+    End Function
+
+    Public Class Preset
+        Implements IComparable(Of Preset)
+
+        Public Name As String
+        Public Members As List(Of SpeechMaterialComponent)
+
+        Public Function CompareTo(other As Preset) As Integer Implements IComparable(Of Preset).CompareTo
+            Return String.Compare(Me.Name, other.Name, StringComparison.OrdinalIgnoreCase)
+        End Function
+
+        Public Overrides Function ToString() As String
+            Return Name
+        End Function
+
+    End Class
 
 End Class
 

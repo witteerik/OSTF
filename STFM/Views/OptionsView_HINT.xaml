@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:STFN;assembly=STFN"
+             x:Class="STFM.Views.OptionsView_HINT">
+    
+    <ContentView.BindingContext>
+        <local:CustomizableTestOptions />
+    </ContentView.BindingContext>
+
+    <VerticalStackLayout Padding="10, 0, 10, 30">
+        <!--<BoxView Color="{Binding Color}"
+                 HeightRequest="100"
+                 WidthRequest="100"
+                 HorizontalOptions="Center" />-->
+        
+        <Label HorizontalOptions="Center">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span Text="{Binding ReferenceLevelTitle}" />
+                    <Span Text="{Binding ReferenceLevel, StringFormat=' = {0:F2}'}" />
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
+        <Slider Value="{Binding ReferenceLevel}" Margin="20,0,20,0" />
+
+        <Label HorizontalOptions="Center">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span Text="{Binding SpeechLevelTitle}" />
+                    <Span Text="{Binding SpeechLevel, StringFormat=' = {0:F2}'}" />
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
+        <Slider Value="{Binding SpeechLevel}" Margin="20,0,20,0" />
+
+        <Label Text="{Binding UseContralateralMaskingTitle}" HorizontalOptions="Center" />
+        <Switch IsToggled="{Binding UseContralateralMasking}" Margin="20,0,20,0" />
+        <Picker Title="Select a start list" ItemsSource="{Binding SelectedTest.AvailableTestListsNames}" SelectedItem="{Binding StartList}" />
+        
+    </VerticalStackLayout>
+    
+</ContentView>

@@ -3,10 +3,38 @@
     Inherits SpeechTest
 
 
+    Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
+        Get
+            Return New List(Of TestModes) From {TestModes.ConstantStimuli, TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise, TestModes.AdaptiveDirectionality}
+        End Get
+    End Property
 
+    Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
+        Get
+            Return TestProtocols.GetSipProtocols
+        End Get
+    End Property
 
-    Public Sub New(ByVal SpeechMaterialName As String, ByRef AvailableTestProtocols As TestProtocols)
-        MyBase.New(SpeechMaterialName, AvailableTestProtocols)
+    Public Overrides ReadOnly Property AvailableFixedResponseAlternativeCounts As List(Of Integer)
+        Get
+            Return New List(Of Integer) From {3}
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AvailablePresentationModes As List(Of SoundPropagationTypes)
+        Get
+            Return New List(Of SoundPropagationTypes) From {SoundPropagationTypes.PointSpeakers, SoundPropagationTypes.SimulatedSoundField}
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AvailablePhaseAudiometryTypes As List(Of BmldModes)
+        Get
+            Return New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
+        End Get
+    End Property
+
+    Public Sub New(ByVal SpeechMaterialName As String)
+        MyBase.New(SpeechMaterialName)
 
     End Sub
 
@@ -27,7 +55,7 @@
 
         Dim TestWords = SpeechMaterial.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
 
-        Dim testSound = TestWords(1).GetSound(GetAvailableMediasets(0), 0, 1, , , , , False, False, False, , , False)
+        Dim testSound = TestWords(1).GetSound(AvailableMediasets(0), 0, 1, , , , , False, False, False, , , False)
 
         Dim Output As TestTrial = New TestTrial
         Output.TrialEventList = New List(Of ResponseViewEvent)

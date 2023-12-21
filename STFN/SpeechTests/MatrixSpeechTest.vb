@@ -23,20 +23,40 @@ Public Class MatrixSpeechTest
 
     Public StartLevel As Double
 
+    Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
+        Get
+            Return New List(Of TestModes) From {TestModes.ConstantStimuli, TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise, TestModes.AdaptiveDirectionality}
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
+        Get
+            Return TestProtocols.GetSrtProtocols
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AvailableFixedResponseAlternativeCounts As List(Of Integer)
+        Get
+            Return New List(Of Integer)
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AvailablePresentationModes As List(Of SoundPropagationTypes)
+        Get
+            Return New List(Of SoundPropagationTypes) From {SoundPropagationTypes.PointSpeakers, SoundPropagationTypes.SimulatedSoundField}
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AvailablePhaseAudiometryTypes As List(Of BmldModes)
+        Get
+            Return New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
+        End Get
+    End Property
 
 #End Region
 
-    Public Sub New(ByVal SpeechMaterialName As String, ByVal AvailableTestProtocols As TestProtocols)
-        MyBase.New(SpeechMaterialName, AvailableTestProtocols)
-
-        'Some initial settings which should be overridden by the settings editor
-        SelectedMediaSet = GetAvailableMediasets(0)
-        StartList = "Lista 3"
-        StartLevel = 40
-        RandomizeWordsWithinLists = False
-        SelectTestProtocol(AvailableTestProtocols(0))
-
-        IsFreeRecall = False
+    Public Sub New(ByVal SpeechMaterialName As String)
+        MyBase.New(SpeechMaterialName)
 
     End Sub
 
@@ -46,7 +66,7 @@ Public Class MatrixSpeechTest
 
         CreatePlannedWordsSentences()
 
-        SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartLevel, .TestStage = 0})
+        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartLevel, .TestStage = 0})
 
         Return True
 
@@ -97,7 +117,7 @@ Public Class MatrixSpeechTest
             Dim CurrentSentences = List.GetChildren()
 
             'Adding sentence in the original order
-            If RandomizeWordsWithinLists = False Then
+            If CustomizableTestOptions.RandomizeItemsWithinLists = False Then
                 For Each Sentence In CurrentSentences
                     PlannedTestSentences.Add(Sentence)
                     'Checking if enough words have been added
@@ -209,7 +229,7 @@ Public Class MatrixSpeechTest
 
 
         'Calculating the speech level
-        Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
+        Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
 
         ' Returning if we should not move to the next trial
         If ProtocolReply.Decision <> SpeechTestReplies.GotoNextTrial Then
@@ -234,7 +254,7 @@ Public Class MatrixSpeechTest
 
         Dim ResponseAlternativeSpellingsList As New List(Of List(Of String))
 
-        If IsFreeRecall = True Then
+        If CustomizableTestOptions.IsFreeRecall = True Then
 
             'Adding only the correct words to the GUI
             Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
@@ -272,7 +292,7 @@ Public Class MatrixSpeechTest
             'Add other buttons needed ?
 
             'A Did-Not-Hear-Response Alternative ?
-            If ShowDidNotHearResponseAlternative = True Then
+            If CustomizableTestOptions.ShowDidNotHearResponseAlternative = True Then
                 For Each Item In ResponseAlternativeSpellingsList
                     Item.Add("?")
                 Next
@@ -300,7 +320,7 @@ Public Class MatrixSpeechTest
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        If IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 
@@ -365,7 +385,7 @@ Public Class MatrixSpeechTest
 
 
     Public Overrides Function GetResults() As TestResults
-        Return SelectedTestProtocol.GetResults(ObservedTrials)
+        Return CustomizableTestOptions.SelectedTestProtocol.GetResults(ObservedTrials)
     End Function
 End Class
 

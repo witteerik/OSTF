@@ -1,33 +1,10 @@
 ﻿Imports STFN.SpeechTest
 Imports STFN.SrtSpeechTest
 
-Public Class TestProtocols
-    Inherits List(Of TestProtocol)
+Public Module TestProtocols
 
-    Public Shared Function GetSrtProtocols() As TestProtocols
-        Dim Output = New TestProtocols
-
-        'Adding suitable protocols
-        Output.Add(New SrtIso8253)
-        Output.Add(New SrtChaiklinVentry1964)
-        Output.Add(New SrtChaiklinFontDixon1967)
-        Output.Add(New SrtExperimentalProtocol)
-
-        Return Output
-
-    End Function
-
-    Public Shared Function GetSipProtocols() As TestProtocols
-
-        Dim Output = New TestProtocols
-        'Adding suitable protocols
-        'Output.Add(New SrtExperimentalProtocol)
-        Return Output
-
-    End Function
-
-    Public Shared Function GetThresholdProtocols() As TestProtocols
-        Dim Output = New TestProtocols
+    Public Function GetSrtProtocols() As List(Of TestProtocol)
+        Dim Output = New List(Of TestProtocol)
 
         'Adding suitable protocols
         Output.Add(New SrtIso8253)
@@ -39,8 +16,17 @@ Public Class TestProtocols
 
     End Function
 
-    Public Shared Function GetAllProtocols() As TestProtocols
-        Dim Output = New TestProtocols
+    Public Function GetSipProtocols() As List(Of TestProtocol)
+
+        Dim Output = New List(Of TestProtocol)
+        'Adding suitable protocols
+        Output.Add(New SrtExperimentalProtocol)
+        Return Output
+
+    End Function
+
+    Public Function GetThresholdProtocols() As List(Of TestProtocol)
+        Dim Output = New List(Of TestProtocol)
 
         'Adding suitable protocols
         Output.Add(New SrtIso8253)
@@ -52,7 +38,20 @@ Public Class TestProtocols
 
     End Function
 
-End Class
+    Public Function GetAllProtocols() As List(Of TestProtocol)
+        Dim Output = New List(Of TestProtocol)
+
+        'Adding suitable protocols
+        Output.Add(New SrtIso8253)
+        Output.Add(New SrtChaiklinVentry1964)
+        Output.Add(New SrtChaiklinFontDixon1967)
+        Output.Add(New SrtExperimentalProtocol)
+
+        Return Output
+
+    End Function
+
+End Module
 
 Public MustInherit Class TestProtocol
 

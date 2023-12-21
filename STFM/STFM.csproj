@@ -38,6 +38,12 @@
 	  <MauiXaml Update="Views\OptionsSrtTestView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\OptionsViewAll.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\OptionsView_HINT.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\SpeechTestCalibrationView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

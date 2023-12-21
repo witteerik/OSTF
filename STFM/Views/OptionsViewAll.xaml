@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:STFN;assembly=STFN"
+             x:Class="STFM.Views.OptionsViewAll">
+
+    <ContentView.BindingContext>
+        <local:CustomizableTestOptions />
+    </ContentView.BindingContext>
+
+    <ScrollView VerticalOptions="FillAndExpand">
+
+        <VerticalStackLayout Padding="10, 0, 10, 30">
+
+            <Label Text="{Binding IsPractiseTestTitle}" HorizontalOptions="Center" />
+            <Switch IsToggled="{Binding IsPractiseTest}" Margin="20,0,20,0" />
+
+            <Picker Title="{Binding SelectedPresetTitle}" ItemsSource="{Binding SelectedTest.AvailablePresets}" SelectedItem="{Binding SelectedPreset}" />
+
+            <Picker Title="{Binding StartListTitle}" ItemsSource="{Binding SelectedTest.AvailableTestListsNames}" SelectedItem="{Binding StartList}" />
+
+            <Picker Title="{Binding SelectedMediaSetTitle}" ItemsSource="{Binding SelectedTest.AvailableMediasets}" SelectedItem="{Binding SelectedMediaSet}" />
+
+            <!--Skipping MediaSets For now-->
+
+            <Label HorizontalOptions="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding ReferenceLevelTitle}" />
+                        <Span Text="{Binding ReferenceLevel, StringFormat=' = {0:F2}'}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <Slider Value="{Binding ReferenceLevel}" Margin="20,0,20,0" />
+
+            <Label HorizontalOptions="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding SpeechLevelTitle}" />
+                        <Span Text="{Binding SpeechLevel, StringFormat=' = {0:F2}'}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <Slider Value="{Binding SpeechLevel}" Margin="20,0,20,0" />
+
+            <Label HorizontalOptions="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding MaskingLevelTitle}" />
+                        <Span Text="{Binding MaskingLevel, StringFormat=' = {0:F2}'}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <Slider Value="{Binding MaskingLevel}" Margin="20,0,20,0" />
+
+            <Label HorizontalOptions="Center">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding BackgroundLevelTitle}" />
+                        <Span Text="{Binding BackgroundLevel, StringFormat=' = {0:F2}'}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+            <Slider Value="{Binding BackgroundLevel}" Margin="20,0,20,0" />
+
+            <Picker Title="{Binding SelectedTestModeTitle}" ItemsSource="{Binding SelectedTest.AvailableTestModes}" SelectedItem="{Binding SelectedTestMode}" />
+
+            <Picker Title="{Binding SelectedTestProtocolTitle}" ItemsSource="{Binding SelectedTest.AvailableTestProtocols}" SelectedItem="{Binding SelectedTestProtocol}" />
+
+            <Label Text="{Binding ScoreOnlyKeyWordsTitle}" HorizontalOptions="Center" />
+            <Switch IsToggled="{Binding ScoreOnlyKeyWords}" Margin="20,0,20,0" />
+
+            <Label Text="{Binding RandomizeItemsListOrderTitle}" HorizontalOptions="Center" />
+            <Switch IsToggled="{Binding RandomizeItemsListOrder}" Margin="20,0,20,0" />
+
+            <Label Text="{Binding RandomizeItemsWithinListsTitle}" HorizontalOptions="Center" />
+            <Switch IsToggled="{Binding RandomizeItemsWithinLists}" Margin="20,0,20,0" />
+
+            <Label Text="{Binding RandomizeItemsAcrossListsTitle}" HorizontalOptions="Center" />
+            <Switch IsToggled="{Binding RandomizeItemsAcrossLists}" Margin="20,0,20,0" />
+
+            <Label Text="{Binding IsFreeRecallTitle}" HorizontalOptions="Center" />
+            <Switch IsToggled="{Binding IsFreeRecall}" Margin="20,0,20,0" />
+
+            <Label Text="{Binding ShowDidNotHearResponseAlternativeTitle}" HorizontalOptions="Center" />
+            <Switch IsToggled="{Binding ShowDidNotHearResponseAlternative}" Margin="20,0,20,0" />
+
+            <Picker Title="{Binding FixedResponseAlternativeCountTitle}" ItemsSource="{Binding SelectedTest.AvailableFixedResponseAlternativeCounts}" SelectedItem="{Binding FixedResponseAlternativeCount}" />
+
+            <Picker Title="{Binding SelectedPresentationModeTitle}" ItemsSource="{Binding SelectedTest.AvailablePresentationModes}" SelectedItem="{Binding SelectedPresentationMode}" />
+
+            <!--SignalLocations
+            MaskerLocations
+            BackgroundLocations-->
+
+            <Label Text="{Binding UseContralateralMaskingTitle}" HorizontalOptions="Center" />
+            <Switch IsToggled="{Binding UseContralateralMasking}" Margin="20,0,20,0" />
+
+            <Label Text="{Binding UsePhaseAudiometryTitle}" HorizontalOptions="Center" />
+            <Switch IsToggled="{Binding UsePhaseAudiometry}" Margin="20,0,20,0" />
+
+            <Picker Title="{Binding SelectedPhaseAudiometryTypeTitle}" ItemsSource="{Binding SelectedTest.AvailablePhaseAudiometryTypes}" SelectedItem="{Binding SelectedPhaseAudiometryType}" />
+
+
+        </VerticalStackLayout>
+
+    </ScrollView>
+
+</ContentView>

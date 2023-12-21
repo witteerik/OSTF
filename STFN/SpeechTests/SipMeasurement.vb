@@ -88,7 +88,7 @@ Namespace SipTest
 
         Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal PresetName As String, ByVal MediaSetName As String, ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
-            Dim Preset = ParentTestSpecification.SpeechMaterial.Presets(PresetName)
+            Dim Preset = ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName)
 
             PlanTestTrials(AvailableMediaSet, Preset, MediaSetName, SoundPropagationType, RandomSeed)
 

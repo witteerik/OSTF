@@ -9,14 +9,16 @@
     Private Shared Property LoadedSpeechMaterialSpecifications As New SortedList(Of String, SpeechMaterialSpecification)
 
     'A shared function to load tests
-    Public Shared Function GetAvailableSpeechMaterialSpecifications() As List(Of String)
-        Dim OutputList As New List(Of String)
-        OstfBase.LoadAvailableSpeechMaterialSpecifications()
-        For Each test In OstfBase.AvailableSpeechMaterials
-            OutputList.Add(test.Name)
-        Next
-        Return OutputList
-    End Function
+    Public ReadOnly Property AvailableSpeechMaterialSpecifications() As List(Of String)
+        Get
+            Dim OutputList As New List(Of String)
+            OstfBase.LoadAvailableSpeechMaterialSpecifications()
+            For Each test In OstfBase.AvailableSpeechMaterials
+                OutputList.Add(test.Name)
+            Next
+            Return OutputList
+        End Get
+    End Property
 
     ''' <summary>
     ''' The SpeechMaterialName of the currently implemented speech material specification
@@ -58,10 +60,9 @@
         End Get
     End Property
 
-    Public Sub New(ByVal SpeechMaterialName As String, ByRef AvailableTestProtocols As TestProtocols)
+    Public Sub New(ByVal SpeechMaterialName As String)
         Me.SpeechMaterialName = SpeechMaterialName
         LoadSpeechMaterialSpecification(SpeechMaterialName)
-        Me.AvailableTestProtocols = AvailableTestProtocols
 
     End Sub
 
@@ -88,14 +89,34 @@
 
     End Function
 
-    Public Function GetAvailableMediasetNames() As List(Of String)
-        Return GetAvailableMediasets.GetNames
-    End Function
+    Public ReadOnly Property AvailableMediasets() As List(Of MediaSet)
+        Get
+            SpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
+            Return SpeechMaterial.ParentTestSpecification.MediaSets
+        End Get
+    End Property
 
-    Public Function GetAvailableMediasets() As MediaSetLibrary
-        SpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
-        Return SpeechMaterial.ParentTestSpecification.MediaSets
-    End Function
+
+    Public ReadOnly Property AvailablePresets() As List(Of SmcPresets.Preset)
+        Get
+            Dim Output = New List(Of SmcPresets.Preset)
+            For Each Preset In SpeechMaterial.Presets
+                Output.Add(Preset)
+            Next
+            Return Output
+        End Get
+    End Property
+
+    Public ReadOnly Property AvailableTestListsNames() As List(Of String)
+        Get
+            Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
+            Dim Output As New List(Of String)
+            For Each List In AllLists
+                Output.Add(List.PrimaryStringRepresentation)
+            Next
+            Return Output
+        End Get
+    End Property
 
     Public Shared Randomizer As Random = New Random
 
@@ -103,16 +124,28 @@
 
 #Region "Test protocol"
 
-    Protected Property AvailableTestProtocols As TestProtocols
-    Protected Property SelectedTestProtocol As TestProtocol
+    Public MustOverride ReadOnly Property AvailableTestModes As List(Of TestModes)
 
-    Public Function GetAvailableTestProtocols() As List(Of TestProtocol)
-        Return AvailableTestProtocols
-    End Function
+    Public Enum TestModes
+        ConstantStimuli
+        AdaptiveSpeech
+        AdaptiveNoise
+        AdaptiveDirectionality
+    End Enum
+
+
+    Public MustOverride ReadOnly Property AvailableTestProtocols() As List(Of TestProtocol)
 
     Public Sub SelectTestProtocol(ByRef SelectedTestProtocol As TestProtocol)
-        Me.SelectedTestProtocol = SelectedTestProtocol
+        Me.CustomizableTestOptions.SelectedTestProtocol = SelectedTestProtocol
     End Sub
+
+    Public MustOverride ReadOnly Property AvailableFixedResponseAlternativeCounts() As List(Of Integer)
+
+    Public MustOverride ReadOnly Property AvailablePresentationModes() As List(Of SoundPropagationTypes)
+
+    Public MustOverride ReadOnly Property AvailablePhaseAudiometryTypes() As List(Of BmldModes)
+
 
 
 #End Region
@@ -169,24 +202,7 @@
 
 #Region "Settings"
 
-    Public Method As SpeechTestMethods
-    Public RandomizeWordsWithinLists As Boolean = True
-    Public IsFreeRecall As Boolean
-    Public ShowDidNotHearResponseAlternative As Boolean = False
-    Public FixedResponseAlternativeCount As Integer = 0
-
-    Public Enum RandomizationOptions
-        OriginalOrder
-        RandomListOrder
-        RandomSentenceOrder
-        MixLists
-    End Enum
-
-    Public Enum SpeechTestMethods
-        Adaptive
-        ConstantStimuli
-    End Enum
-
+    Public Property CustomizableTestOptions As CustomizableTestOptions
 
 #End Region
 

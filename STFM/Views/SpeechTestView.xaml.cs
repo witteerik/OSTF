@@ -8,7 +8,15 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     ResponseView CurrentResponseView;
     TestResultsView CurrentTestResultsView;
-    SpeechTest CurrentSpeechTest;
+    
+    SpeechTest CurrentSpeechTest
+    {
+        get { return STFN.SharedSpeechTestObjects.CurrentSpeechTest; }
+        set { STFN.SharedSpeechTestObjects.CurrentSpeechTest = value; }
+    }
+
+    
+
     OstfBase.AudioSystemSpecification SelectedTransducer = null;
 
     private string[] availableTests = new string[] {"Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet"};
@@ -164,13 +172,12 @@ public partial class SpeechTestView : ContentView, IDrawable
         var picker = (Picker)sender;
         var selectedItem = picker.SelectedItem;
 
-        string[] testStringArray = new string[] { "apple", "banana", "cherry", "date" };
-
-
         if (selectedItem != null)
         {
 
             bool success = true;
+
+            selectedSpeechTestName = (string)selectedItem;
 
             switch (selectedItem)
             {
@@ -179,30 +186,14 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Svenska HINT":
 
-
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish HINT", TestProtocols.GetSrtProtocols());
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish HINT");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsHintTestView = new OptionsSrtTestView();
+                    var newOptionsHintTestView = new OptionsViewAll();
                     TestOptionsGrid.Children.Add(newOptionsHintTestView);
                     CurrentTestOptionsView = newOptionsHintTestView;
-
-
-
-                    CurrentSpeechTest.InitializeCurrentTest();
-
-                    // TODO: This line must be moved to an options result code section
-                    CurrentSpeechTest.IsFreeRecall = true;
-
-                    // Response view
-                    CurrentResponseView = new ResponseView_FreeRecall();
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    //TestResponseView.StartedByTestee += StartedByTestee;
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
 
                     break;
 
@@ -211,34 +202,13 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                     // Speech test
-                    CurrentSpeechTest = new MatrixSpeechTest("Swedish Matrix Test (Hagerman)", TestProtocols.GetSrtProtocols());
+                    CurrentSpeechTest = new MatrixSpeechTest("Swedish Matrix Test (Hagerman)");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsMatrixTestView = new OptionsSrtTestView();
+                    var newOptionsMatrixTestView = new OptionsViewAll();
                     TestOptionsGrid.Children.Add(newOptionsMatrixTestView);
                     CurrentTestOptionsView = newOptionsMatrixTestView;
-
-                    CurrentSpeechTest.InitializeCurrentTest();
-
-                    // TODO: This line must be moved to an options result code section
-                    CurrentSpeechTest.IsFreeRecall = false;
-                    CurrentSpeechTest.ShowDidNotHearResponseAlternative = true;
-
-                    // Response view
-                    if (CurrentSpeechTest.IsFreeRecall)
-                    {
-                        CurrentResponseView = new ResponseView_FreeRecall();
-                    }
-                    else
-                    {
-                        CurrentResponseView = new ResponseView_Matrix();
-                    }
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    //TestResponseView.StartedByTestee += StartedByTestee;
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
 
                     break;
 
@@ -246,64 +216,37 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Hörtröskel för tal (HTT)":
 
                     // Speech test
-                    TestProtocols tpc = new TestProtocols();
-                    tpc.Add(TestProtocols.GetSrtProtocols()[1]);
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish Spondees 23", tpc);
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish Spondees 23");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsSrtTestView = new OptionsSrtTestView();
+                    var newOptionsSrtTestView = new OptionsViewAll();
                     TestOptionsGrid.Children.Add(newOptionsSrtTestView);
                     CurrentTestOptionsView = newOptionsSrtTestView;
-
-                    CurrentSpeechTest.InitializeCurrentTest();
-
-                    // Response view
-                    if (CurrentSpeechTest.IsFreeRecall)
-                    {
-                        CurrentResponseView = new ResponseView_FreeRecall();
-                    }
-                    else
-                    {
-                        CurrentResponseView = new ResponseView_Mafc();
-                    }
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    //TestResponseView.StartedByTestee += StartedByTestee;
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
 
                     break;
 
                 case "SiP-testet":
 
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test", TestProtocols.GetSipProtocols());
+                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsSipTestView2 = new OptionsSipTestView();
+                    var newOptionsSipTestView2 = new OptionsViewAll();
                     TestOptionsGrid.Children.Add(newOptionsSipTestView2);
                     CurrentTestOptionsView = newOptionsSipTestView2;
-
-                    CurrentResponseView = new ResponseView_Mafc();
-                    TestReponseGrid.Children.Add(CurrentResponseView);
 
                     break;
 
                 case "Quick SiP":
 
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test", TestProtocols.GetSipProtocols());
+                    CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsSipTestView = new OptionsSipTestView();
+                    var newOptionsSipTestView = new OptionsViewAll();
                     TestOptionsGrid.Children.Add(newOptionsSipTestView);
                     CurrentTestOptionsView = newOptionsSipTestView;
-
-                    CurrentResponseView = new ResponseView_MafcDragDrop();
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    //CurrentResponseView.AddDefaultSources();
-                    //CurrentResponseView.AddResponseAlternatives(testStringArray);
 
                     break;
 
@@ -312,27 +255,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     success = false;
                     break;
             }
-
-            // Updating sound player settings for PaBased player
-            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
-            {
-                // Updating settings needed for the loaded test
-                // (At this stage the sound player will be started, if not already done.)
-                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-                var argMixer = SelectedTransducer.Mixer;
-                if (CurrentSpeechTest != null)
-                {
-                    var mediaSets = CurrentSpeechTest.GetAvailableMediasets();
-                    if (mediaSets.Count > 0 )
-                    {
-                        OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings, 
-                            mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding, 
-                            CurrentSpeechTest.SoundOverlapDuration, Mixer: ref argMixer, ReOpenStream: true, ReStartStream: true);
-                        SelectedTransducer.Mixer = argMixer;
-                    }
-                }
-            }
-
 
             if (success)
             {
@@ -352,10 +274,137 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-      
+    string selectedSpeechTestName = string.Empty;
+
+    void InitiateTesting()
+    {               
+
+        if (CurrentSpeechTest != null)
+        {
+
+            switch (selectedSpeechTestName)
+            {
+
+
+                case "Svenska HINT":
+
+
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    // TODO: This line must be moved to an options result code section
+                    CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall = true;
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_FreeRecall();
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    //TestResponseView.StartedByTestee += StartedByTestee;
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    break;
+
+
+                case "Hagermans meningar (Matrix)":
+
+
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    // TODO: This line must be moved to an options result code section
+                    CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall = false;
+                    CurrentSpeechTest.CustomizableTestOptions.ShowDidNotHearResponseAlternative = true;
+
+                    // Response view
+                    if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall)
+                    {
+                        CurrentResponseView = new ResponseView_FreeRecall();
+                    }
+                    else
+                    {
+                        CurrentResponseView = new ResponseView_Matrix();
+                    }
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    //TestResponseView.StartedByTestee += StartedByTestee;
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    break;
+
+
+                case "Hörtröskel för tal (HTT)":
+
+
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    // Response view
+                    if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall)
+                    {
+                        CurrentResponseView = new ResponseView_FreeRecall();
+                    }
+                    else
+                    {
+                        CurrentResponseView = new ResponseView_Mafc();
+                    }
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    //TestResponseView.StartedByTestee += StartedByTestee;
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    break;
+
+                case "SiP-testet":
+
+                    CurrentResponseView = new ResponseView_Mafc();
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    break;
+
+                case "Quick SiP":
+
+
+                    CurrentResponseView = new ResponseView_MafcDragDrop();
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    //CurrentResponseView.AddDefaultSources();
+                    //CurrentResponseView.AddResponseAlternatives(testStringArray);
+
+                    break;
+
+                default:
+                    TestOptionsGrid.Children.Clear();
+                    break;
+            }
+
+            // Updating sound player settings for PaBased player
+            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
+            {
+                // Updating settings needed for the loaded test
+                // (At this stage the sound player will be started, if not already done.)
+                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+                var argMixer = SelectedTransducer.Mixer;
+                if (CurrentSpeechTest != null)
+                {
+                    var mediaSets = CurrentSpeechTest.AvailableMediasets;
+                    if (mediaSets.Count > 0)
+                    {
+                        OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings,
+                            mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
+                            CurrentSpeechTest.SoundOverlapDuration, Mixer: ref argMixer, ReOpenStream: true, ReStartStream: true);
+                        SelectedTransducer.Mixer = argMixer;
+                    }
+                }
+            }
+
+        }
+    }
+
+
 
     private void StartTestBtn_Clicked(object sender, EventArgs e)
     {
+
+        InitiateTesting();
 
         bool testIsReady = true; // This should call a fuction that check is the selected test is ready to be started
         bool testSupportPause = true; // This should call a function that determies if the test supports pausing
@@ -376,8 +425,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             TestResultGrid.IsEnabled = true;
 
             // Showing / hiding panels during test
-            SetBottomPanelShow(CurrentSpeechTest.IsFreeRecall);
-            SetLeftPanelShow(CurrentSpeechTest.IsFreeRecall);
+            SetBottomPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
+            SetLeftPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
 
             // Starting the test
             StartTest();
