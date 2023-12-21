@@ -30,6 +30,12 @@ Namespace Utils
             Right
         End Enum
 
+        Public Enum SidesWithBoth
+            Left
+            Right
+            Both
+        End Enum
+
         Public Enum RightLeftLocations
             Left
             Right
