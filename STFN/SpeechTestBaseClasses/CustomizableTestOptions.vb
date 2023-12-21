@@ -67,7 +67,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _StartList As String = ""
+    Private _StartList As String
     Public Property StartListTitle As String = "StartLista"
 
     ''' <summary>
@@ -108,36 +108,36 @@ Public Class CustomizableTestOptions
             Return _ReferenceLevel
         End Get
         Set(value As Double)
-            _ReferenceLevel = value
+            _ReferenceLevel = Math.Round(value)
             OnPropertyChanged()
         End Set
     End Property
-    Private _ReferenceLevel As Double
-    Public Property ReferenceLevelTitle As String = "Referensnivå"
+    Private _ReferenceLevel As Double = 65
+    Public Property ReferenceLevelTitle As String = "Referensnivå (dB)"
 
     Public Property SpeechLevel As Double
         Get
             Return _SpeechLevel
         End Get
         Set(value As Double)
-            _SpeechLevel = value
+            _SpeechLevel = Math.Round(value)
             OnPropertyChanged()
         End Set
     End Property
-    Private _SpeechLevel As Double
-    Public Property SpeechLevelTitle As String = "Talnivå"
+    Private _SpeechLevel As Double = 65
+    Public Property SpeechLevelTitle As String = "Talnivå (dB)"
 
     Public Property MaskingLevel As Double
         Get
             Return _MaskingLevel
         End Get
         Set(value As Double)
-            _MaskingLevel = value
+            _MaskingLevel = Math.Round(value)
             OnPropertyChanged()
         End Set
     End Property
-    Private _MaskingLevel As Double
-    Public Property MaskingLevelTitle As String = "Maskeringsnivå"
+    Private _MaskingLevel As Double = 65
+    Public Property MaskingLevelTitle As String = "Maskeringsnivå (dB)"
 
 
     Public Property BackgroundLevel As Double
@@ -145,12 +145,12 @@ Public Class CustomizableTestOptions
             Return _BackgroundLevel
         End Get
         Set(value As Double)
-            _BackgroundLevel = value
+            _BackgroundLevel = Math.Round(value)
             OnPropertyChanged()
         End Set
     End Property
-    Private _BackgroundLevel As Double
-    Public Property BackgroundLevelTitle As String = "Bakgrundsnivå"
+    Private _BackgroundLevel As Double = 55
+    Public Property BackgroundLevelTitle As String = "Bakgrundsnivå (dB)"
 
     ''TODO: Should we have a customizable limit here, or should we use the "LimiterThreshold" specified for each transducer in the AudioSystemSpecification.txt file?
     '''' <summary>
@@ -197,20 +197,20 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _ScoreOnlyKeyWords As Boolean
+    Private _ScoreOnlyKeyWords As Boolean = False
     Public Property ScoreOnlyKeyWordsTitle As String = "Rätta på nyckelord"
 
-    Public Property RandomizeItemsListOrder As Boolean
+    Public Property RandomizeListOrder As Boolean
         Get
-            Return _RandomizeItemsListOrder
+            Return _RandomizeListOrder
         End Get
         Set(value As Boolean)
-            _RandomizeItemsListOrder = value
+            _RandomizeListOrder = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _RandomizeItemsListOrder As Boolean
-    Public Property RandomizeItemsListOrderTitle As String = "Slumpa listordning"
+    Private _RandomizeListOrder As Boolean = False
+    Public Property RandomizeListOrderTitle As String = "Slumpa listordning"
 
     Public Property RandomizeItemsWithinLists As Boolean
         Get
@@ -221,7 +221,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _RandomizeItemsWithinLists As Boolean
+    Private _RandomizeItemsWithinLists As Boolean = True
     Public Property RandomizeItemsWithinListsTitle As String = "Slumpa inom listor"
 
     Public Property RandomizeItemsAcrossLists As Boolean
@@ -233,7 +233,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _RandomizeItemsAcrossLists As Boolean
+    Private _RandomizeItemsAcrossLists As Boolean = False
     Public Property RandomizeItemsAcrossListsTitle As String = "Slumpa mellan listor"
 
     Public Property IsFreeRecall As Boolean
@@ -245,7 +245,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _IsFreeRecall As Boolean
+    Private _IsFreeRecall As Boolean = False
     Public Property IsFreeRecallTitle As String = "Fri rapportering"
 
     Public Property ShowDidNotHearResponseAlternative As Boolean
@@ -257,7 +257,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _ShowDidNotHearResponseAlternative As Boolean
+    Private _ShowDidNotHearResponseAlternative As Boolean = False
     Public Property ShowDidNotHearResponseAlternativeTitle As String = "Visa ? som alternativ"
 
     Public Property FixedResponseAlternativeCount As Integer
@@ -349,7 +349,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _UseContralateralMasking As Boolean
+    Private _UseContralateralMasking As Boolean = False
     Public Property UseContralateralMaskingTitle As String = "Kontralateral maskering"
 
     ''' <summary>
@@ -365,7 +365,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _UsePhaseAudiometry As Boolean
+    Private _UsePhaseAudiometry As Boolean = False
     Public Property UsePhaseAudiometryTitle As String = "Fasaudiometri"
 
 
