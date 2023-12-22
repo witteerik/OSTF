@@ -60,6 +60,24 @@
         End Get
     End Property
 
+    ''' <summary>
+    ''' Returns the set of transducers from OstfBase.AvaliableTransducers expected to work with the currently connected hardware.
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property CurrentlySupportedTransducers As List(Of OstfBase.AudioSystemSpecification)
+        Get
+            Dim Output = New List(Of OstfBase.AudioSystemSpecification)
+            Dim AllTransducers = OstfBase.AvaliableTransducers
+
+            'Adding only transducers that can be used with the current sound system.
+            For Each Transducer In AllTransducers
+                If Transducer.CanPlay() = True Then Output.Add(Transducer)
+            Next
+
+            Return Output
+        End Get
+    End Property
+
     Public Sub New(ByVal SpeechMaterialName As String)
         Me.SpeechMaterialName = SpeechMaterialName
         LoadSpeechMaterialSpecification(SpeechMaterialName)

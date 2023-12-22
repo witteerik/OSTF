@@ -272,34 +272,83 @@ Public Class CustomizableTestOptions
     Private _FixedResponseAlternativeCount As Integer = 4
     Public Property FixedResponseAlternativeCountTitle As String = "Antal svarsalternativ"
 
-    Public Property SelectedPresentationMode As SoundPropagationTypes
+    Public Property SelectedTransducer As AudioSystemSpecification
         Get
-            Return _SelectedPresentationMode
+            Return _SelectedTransducer
         End Get
-        Set(value As SoundPropagationTypes)
-            _SelectedPresentationMode = value
+        Set(value As AudioSystemSpecification)
+            _SelectedTransducer = value
+
+            'Inactivates the use of simulated sound field is the transducer is not headphones
+            'TODO. Note that this only works if headphones are connected to hardware output 1 and 2. In order to work in other cases, the software somehow needs to know to what hardware the headphones are connected.
+            If _SelectedTransducer.IsHeadphones(1, 2) = False Then UseSimulatedSoundField = False
+
             OnPropertyChanged()
         End Set
     End Property
-    Private _SelectedPresentationMode As SoundPropagationTypes
-    Public Property SelectedPresentationModeTitle As String = "Ljudutbredningsläge"
+    Private _SelectedTransducer As AudioSystemSpecification
+    Public Property SelectedTransducerTitle As String = "Ljudgivare"
+
+    Public Property UseSimulatedSoundField As Boolean
+        Get
+            Return _UseSimulatedSoundField
+        End Get
+        Set(value As Boolean)
+            _UseSimulatedSoundField = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _UseSimulatedSoundField As Boolean = False
+    Public Property UseSimulatedSoundFieldTitle As String = "Simulera ljudfält"
+
+    'Returns the selected SelectedPresentationMode indirectly based on the UseSimulatedSoundField property. In the future if more options are supported, this will have to be exposed to the GUI.
+    Public ReadOnly Property SelectedPresentationMode As SoundPropagationTypes
+        Get
+            If UseSimulatedSoundField = False Then
+                Return SoundPropagationTypes.PointSpeakers
+            Else
+                Return SoundPropagationTypes.SimulatedSoundField
+            End If
+            'Return _SelectedPresentationMode
+        End Get
+        'Set(value As SoundPropagationTypes)
+        '    _SelectedPresentationMode = value
+        '    OnPropertyChanged()
+        'End Set
+    End Property
+    'Private _SelectedPresentationMode As SoundPropagationTypes
+    'Public Property SelectedPresentationModeTitle As String = "Ljudutbredningsläge"
 
 
     ''' <summary>
     ''' Should specify the locations from which the signals should come
     ''' </summary>
     ''' <returns></returns>
-    Public Property SignalLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+    Public Property SignalLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
         Get
-            Return _SignalLocations
+            Return _SignalLocationCandidates
         End Get
-        Set(value As List(Of Audio.SoundScene.SoundSourceLocation))
-            _SignalLocations = value
+        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
+            _SignalLocationCandidates = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _SignalLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+    Private _SignalLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
     Public Property SignalLocationsTitle As String = "Placering av talkälla/or"
+
+    ''' <summary>
+    ''' Returns the selected locations from which the signals should come
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property SignalLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+        Get
+            Dim Output As New List(Of Audio.SoundScene.SoundSourceLocation)
+            For Each location In _SignalLocationCandidates
+                If location.Selected = True Then Output.Add(location.ParentSoundSourceLocation)
+            Next
+            Return Output
+        End Get
+    End Property
 
 
     ''' <summary>
@@ -315,7 +364,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _MaskerLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+    Private _MaskerLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
     Public Property MaskerLocationsTitle As String = "Placering av maskeringsljud"
 
 
@@ -332,7 +381,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _BackgroundLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+    Private _BackgroundLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
     Public Property BackgroundLocationsTitle As String = "Placering av bakgrundsljud"
 
 

@@ -790,6 +790,42 @@ Public Module OstfBase
 
         End Function
 
+        ''' <summary>
+        ''' Checks to see if the transducers connected to HardWareChannelLeft and HardWareChannelRight are headphones.
+        ''' </summary>
+        ''' <param name="HardWareChannelLeft"></param>
+        ''' <param name="HardWareChannelRight"></param>
+        ''' <returns></returns>
+        Public Function IsHeadphones(Optional ByVal HardWareChannelLeft As Integer = 1, Optional ByVal HardWareChannelRight As Integer = 2)
+
+            'Returns false if both channels are the same
+            If HardWareChannelLeft = HardWareChannelRight Then Return False
+
+            'Checks that the specified hardware channels exist in the current instance of AudioSystemSpecification
+            Dim LeftChannelIndex = HardwareOutputChannels.IndexOf(HardWareChannelLeft)
+            If LeftChannelIndex = -1 Then Return False
+
+            Dim RightChannelIndex = HardwareOutputChannels.IndexOf(HardWareChannelRight)
+            If RightChannelIndex = -1 Then Return False
+
+            'Requres azimuths to be -90 and 90
+            If LoudspeakerAzimuths(LeftChannelIndex) <> -90 Then Return False
+            If LoudspeakerAzimuths(RightChannelIndex) <> 90 Then Return False
+
+            'Requires distance to be 0
+            If LoudspeakerDistances(LeftChannelIndex) <> 0 Then Return False
+            If LoudspeakerDistances(RightChannelIndex) <> 0 Then Return False
+
+            'Requires elevation to be 0
+            If LoudspeakerElevations(LeftChannelIndex) <> 0 Then Return False
+            If LoudspeakerElevations(RightChannelIndex) <> 0 Then Return False
+
+            'All checks passed, it is headphones
+            Return True
+
+        End Function
+
+
         Public Overrides Function ToString() As String
             If Name <> "" Then
                 Return Name

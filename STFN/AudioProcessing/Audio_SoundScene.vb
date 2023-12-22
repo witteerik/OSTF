@@ -1,4 +1,6 @@
 ﻿
+Imports System.Drawing
+
 Namespace Audio.SoundScene
 
 
@@ -724,6 +726,62 @@ Namespace Audio.SoundScene
         Public Overrides Function ToString() As String
             Return "Azimuth: " & Math.Round(HorizontalAzimuth) & "°, Elevation: " & Math.Round(Elevation) & "°, Distance: " & Math.Round(Distance, 2) & "m."
         End Function
+
+    End Class
+
+    Public Class VisualSoundSourceLocation
+
+        Public ParentSoundSourceLocation As SoundSourceLocation
+
+        Public Selected As Boolean
+
+        Public Text As String = ""
+        Public X As Double
+        Public Y As Double
+        Public Width As Double = 0.1
+        Public Height As Double = 0.1
+
+        Public Property RotateTowardsCenter As Boolean = True
+
+        Public ReadOnly Property Rotation As Double
+            Get
+                If RotateTowardsCenter = True Then
+                    Return ParentSoundSourceLocation.HorizontalAzimuth
+                Else
+                    Return 0
+                End If
+            End Get
+        End Property
+
+        Public Sub New()
+
+        End Sub
+
+        Public Sub New(ByVal SoundSourceLocation As SoundSourceLocation)
+            ParentSoundSourceLocation = SoundSourceLocation
+        End Sub
+
+        Public Sub CalculateXY()
+
+            Dim NewPoint As New BinauralImpulseReponseSet.Point3D
+            NewPoint.SetBySpherical(ParentSoundSourceLocation.HorizontalAzimuth, ParentSoundSourceLocation.Elevation, ParentSoundSourceLocation.Distance)
+            Dim CartesianPoint = NewPoint.GetCartesianLocation
+            Y = -CartesianPoint.X
+            X = CartesianPoint.Y
+
+        End Sub
+
+        Public Sub Scale(ByVal Scale As Double)
+            X *= Scale
+            Y *= Scale
+        End Sub
+
+        Public Sub Shift(ByVal Shift As Double)
+
+            X += Shift
+            Y += Shift
+
+        End Sub
 
     End Class
 
