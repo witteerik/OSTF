@@ -1621,7 +1621,7 @@ Partial Class MediaSetSetupControl
         Me.Label47.Name = "Label47"
         Me.Label47.Size = New System.Drawing.Size(283, 26)
         Me.Label47.TabIndex = 8
-        Me.Label47.Text = "Intended presentation level (dB SPL)"
+        Me.Label47.Text = "Intended loudness level (Phon)"
         Me.Label47.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
         'GenerateSnrRangeStimuli_UpperLimit_IntegerParsingTextBox

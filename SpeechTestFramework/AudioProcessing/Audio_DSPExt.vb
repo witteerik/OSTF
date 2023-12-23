@@ -6990,6 +6990,12 @@ Namespace Audio
                 Private SPLToPhonLookupTable As SortedList(Of Double, SortedList(Of Double, Double)) 'Frequency, SPL, Phon
                 Private SplAtZeroPhon As SortedList(Of Integer, Double) 'Frequency, SPL
 
+                Public ReadOnly Property GetCurrentFrequencies As List(Of Double)
+                    Get
+                        Return SPLToPhonLookupTable.Keys.ToList
+                    End Get
+                End Property
+
                 'TODO: As of now (2017-07-13) the data below is taken from https://www.dsprelated.com/showcode/174.php , and not double checked with ISO 226.
                 Dim f As Double() = {20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315,
             400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500}
@@ -7031,10 +7037,15 @@ Namespace Audio
                 ''' </summary>
                 ''' <param name="LookupFrequencies "></param>
                 ''' <param name="SetLevelDecimalPoints"></param>
-                Public Sub New(ByVal LookupFrequencies As List(Of Double),
+                Public Sub New(Optional ByVal LookupFrequencies As List(Of Double) = Nothing,
                                      Optional ByVal SetLevelDecimalPoints As Integer = 1,
                                      Optional ByVal SetLowest_Level As Double = -100,
                                      Optional ByVal SetHighest_Level As Double = 110)
+
+                    'Supplying f as default frequencies
+                    If LookupFrequencies Is Nothing Then
+                        LookupFrequencies = f.ToList
+                    End If
 
                     LevelDecimalPoints = SetLevelDecimalPoints
                     LevelResolution = 10 ^ -LevelDecimalPoints
@@ -7168,7 +7179,7 @@ Namespace Audio
                 ''' <param name="InputSIL"></param>
                 ''' <param name="FrequencyIndex">The specified index in the public frequency array f.</param>
                 ''' <returns></returns>
-                Private Function GetSPLToPhon(ByVal InputSIL As Double, ByVal FrequencyIndex As Double) As Double
+                Public Function GetSPLToPhon(ByVal InputSIL As Double, ByVal FrequencyIndex As Double) As Double
 
                     'If the function is fed by an SIL value that would fall below the SPL values genererated at zero phon, 
                     'the function returns the sum of zero phon minus the difference between the SIL value for zero phon and the input SIL value.
@@ -7198,7 +7209,7 @@ Namespace Audio
                 ''' <param name="InputPhon"></param>
                 ''' <param name="FrequencyIndex">The specified index in the public frequency array f.</param>
                 ''' <returns></returns>
-                Private Function GetPhonToSpl(ByVal InputPhon As Double, ByVal FrequencyIndex As Double) As Double
+                Public Function GetPhonToSpl(ByVal InputPhon As Double, ByVal FrequencyIndex As Double) As Double
 
                     'Calculating Phon value
                     Dim Ln As Double = InputPhon

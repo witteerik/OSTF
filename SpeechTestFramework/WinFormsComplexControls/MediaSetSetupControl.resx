@@ -122,7 +122,7 @@
 Specify the lower and upper limits of the masker noise, in dB SNR compared to the nominal level of the speech material, and the step size between generated SNRs.
 Specify also what type of masking noise you want, either White, Speech Weighted (generated from the speech material), or threshold simulating noise (for normal hearing).
 For threshold simulating noise, Z-weighted levels are used, but for the others you should specify a frequency weighting applied to the noise (appropriately the same as used for the speech materials).
-If threshold simulating noise is used, specify also the (approximate) intended presentation level in dB SPL.
+If threshold simulating noise is used, specify also the (approximate) intended loudness level in Phon (assuming normal hearing).
 
 Finally press 'Create sound files' and wait! You will be notified when the process is finished.</value>
   </data>

@@ -912,7 +912,7 @@
                 Noise = Audio.GenerateSound.CreateOverlayNoise(AllSoundsConcatenated, OverlayCount, (LongestSoundFileLength / WaveFormat.SampleRate) + 1)
 
             Case GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating
-                Throw New NotImplementedException
+                Noise = CreateThresholdSimulatingNoise(WaveFormat, IntendedPresentationLevel, Math.Ceiling(LongestSoundFileLength))
         End Select
 
         'Setting the noise level to the Nominal Level, using different weightings for different noise types
@@ -963,6 +963,47 @@
         MsgBox("Finished creating " & NumberOfGeneratedSoundFiles & " sound files.")
 
     End Sub
+
+    Public Function CreateThresholdSimulatingNoise(ByVal WaveFormat As Audio.Formats.WaveFormat, ByVal ReferenceLoudness As Double, ByVal TotalLength As Integer)
+
+        'Getting the noise kernel
+        Dim NoiseKernel = GetNoiseKernel(WaveFormat, ReferenceLoudness)
+
+        'Creates white noise
+        Dim InternalNoise = Audio.GenerateSound.CreateWhiteNoise(WaveFormat, 1, , TotalLength, Audio.BasicAudioEnums.TimeUnits.samples)
+
+        'Runs convolution with the kernel
+        Dim Noise = SpeechTestFramework.Audio.DSP.FIRFilter(InternalNoise, NoiseKernel, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
+
+        Return Noise
+
+    End Function
+
+    Public Function GetNoiseKernel(ByVal WaveFormat As Audio.Formats.WaveFormat, ByVal ReferenceLoudness As Double) As Audio.Sound
+
+        Dim SpectrumLevels As New List(Of Tuple(Of Double, Double, Double))
+
+        Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+
+        Dim CentreFrequencies = BandBank.GetCentreFrequencies.ToList
+        Dim BandWidths = BandBank.GetBandWidths.ToList
+
+        Dim Filter = New Audio.DSP.IsoPhonFilter(CentreFrequencies)
+
+        Dim FrequencyRepsonse As New List(Of Tuple(Of Single, Single))
+        For i = 0 To CentreFrequencies.Count - 1
+            Dim SpectrumLevel = Filter.GetPhonToSpl(ReferenceLoudness, i)
+            Dim BandLevel = Audio.DSP.SpectrumLevel2BandLevel(SpectrumLevel, BandWidths(i))
+            FrequencyRepsonse.Add(New Tuple(Of Single, Single)(CentreFrequencies(i), BandLevel))
+        Next
+
+        Dim FirKernelLength As Integer = WaveFormat.SampleRate / 24 '?? very arbibrarily!
+
+        Dim NoiseKernel = Audio.GenerateSound.CreateCustumImpulseResponse(FrequencyRepsonse, Nothing, WaveFormat, New Audio.Formats.FftFormat(,,,, True), FirKernelLength)
+
+        Return NoiseKernel
+
+    End Function
 
 
 End Class
