@@ -1374,6 +1374,10 @@ Public Class SpeechMaterialComponent
 
     End Sub
 
+    Public Function GetNumberOfLoadedSounds() As Integer
+        Return SoundLibrary.Count
+    End Function
+
     ''' <summary>
     ''' Sets the nominal level property of all loaded sound files to TargetSoundLevel
     ''' </summary>

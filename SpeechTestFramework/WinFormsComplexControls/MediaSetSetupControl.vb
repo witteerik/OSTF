@@ -70,6 +70,18 @@
             SpeechLevel_TargetLinguisticlevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
             SpeechLevel_TargetLinguisticlevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
+            'Items for the GenerateSnrRangeStimuli_NoiseType_ComboBox
+            GenerateSnrRangeStimuli_NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.White)
+            GenerateSnrRangeStimuli_NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.SpeechWeighted)
+            GenerateSnrRangeStimuli_NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating)
+            GenerateSnrRangeStimuli_NoiseType_ComboBox.SelectedIndex = 0
+
+            GenerateSnrRangeStimuli_NoiseFW_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
+            GenerateSnrRangeStimuli_NoiseFW_ComboBox.Items.Add(Audio.FrequencyWeightings.C)
+            GenerateSnrRangeStimuli_NoiseFW_ComboBox.Items.Add(Audio.FrequencyWeightings.K)
+            GenerateSnrRangeStimuli_NoiseFW_ComboBox.Items.Add(Audio.FrequencyWeightings.RLB)
+            GenerateSnrRangeStimuli_NoiseFW_ComboBox.SelectedIndex = 0
+
             UpdateControlEnabledStatuses()
 
         Catch ex As Exception
@@ -675,6 +687,284 @@
         If VpNormalization_Checkbox.Checked = True Then NominalLevel_CheckBox.Checked = False
 
     End Sub
+
+    Private Sub ApplyCustomSpeechGain_Button_Click(sender As Object, e As EventArgs) Handles ApplyCustomSpeechGain_Button.Click
+
+        Dim AllComponents = SelectedMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelatives
+        Dim AllComponentsLookup = New SortedList(Of String, SpeechMaterialComponent)
+        For Each Component In AllComponents
+            AllComponentsLookup.Add(Component.Id, Component)
+        Next
+
+        Dim InputData = CustomSpeechGain_TextBox.Lines
+        'Checking lines first
+        Dim ComponentsToAdjust As New List(Of Tuple(Of SpeechMaterialComponent, Integer, Double)) 'ID, SoundIndex, Gain
+        For i = 0 To InputData.Length - 1
+
+            Dim Line = InputData(i)
+
+            If Line.Trim = "" Then Continue For
+
+            Dim LineSplit = Line.Split("|")
+
+            If LineSplit.Length <> 3 Then
+                MsgBox("Incorrect number of items on line " & i + 1 & " ( " & Line & " )")
+                Exit Sub
+            End If
+
+            Dim ID As String = LineSplit(0).Trim
+            If ID = "" Then
+                MsgBox("Invalid SpeechComponentID detected on line " & i + 1 & " ( " & Line & " )")
+                Exit Sub
+            End If
+            If AllComponentsLookup.ContainsKey(ID) = False Then
+                MsgBox("The current speech material does not contain a Speech Material Component with the ID " & ID & " as specified on line " & i + 1 & " ( " & Line & " )")
+                Exit Sub
+            End If
+            Dim Component = AllComponentsLookup(ID)
+
+            Dim SoundIndex As Integer
+            If Integer.TryParse(LineSplit(1).Trim, SoundIndex) = False Then
+                MsgBox("Unable to parse the sound index value on line " & i + 1 & " ( " & Line & " )")
+                Exit Sub
+            End If
+
+            Dim Gain As Double
+            If Double.TryParse(LineSplit(2).Trim, Gain) = False Then
+                MsgBox("Unable to parse the gain value on line " & i + 1 & " ( " & Line & " )")
+                Exit Sub
+            End If
+            If Double.IsInfinity(Gain) Or Double.IsNaN(Gain) Then
+                MsgBox("The gain value on line " & i + 1 & " was parsed as NaN or Infinity, cannot proceed. ( " & Line & " )")
+                Exit Sub
+            End If
+
+            'Adding the component to adjust
+            ComponentsToAdjust.Add(New Tuple(Of SpeechMaterialComponent, Integer, Double)(Component, SoundIndex, Gain))
+
+        Next
+
+        'Clears previously loaded sounds
+        SelectedMediaSet.ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        'Applies the specified gains
+        For i = 0 To ComponentsToAdjust.Count - 1
+
+            Dim CurrentComponent = ComponentsToAdjust(i).Item1
+            Dim CurrentSoundIndex = ComponentsToAdjust(i).Item2
+            Dim CurrentGain = ComponentsToAdjust(i).Item3
+
+            Dim CorrespondingSmaComponents = CurrentComponent.GetCorrespondingSmaComponent(SelectedMediaSet, CurrentSoundIndex, 1, True, False)
+
+            For j = 0 To CorrespondingSmaComponents.Count - 1
+                CorrespondingSmaComponents(j).ApplyGain(CurrentGain)
+            Next
+        Next
+
+        'And save the modified sounds back to file
+        SelectedMediaSet.ParentTestSpecification.SpeechMaterial.SaveAllLoadedSounds(True)
+
+        MsgBox("Adjusted the levels of " & ComponentsToAdjust.Count & " speech material components in " & SelectedMediaSet.ParentTestSpecification.SpeechMaterial.GetNumberOfLoadedSounds & " sound files.")
+
+    End Sub
+
+    Private Sub GenerateSnrRangeStimuli_NoiseType_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GenerateSnrRangeStimuli_NoiseType_ComboBox.SelectedIndexChanged
+
+        If GenerateSnrRangeStimuli_NoiseType_ComboBox.SelectedItem = GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating Then
+            GenerateSnrRangeStimuli_NoiseFW_ComboBox.Enabled = False
+            GenerateSnrRangeStimuli_PresentationLevel_DoubleParsingTextBox.Enabled = True
+        Else
+            GenerateSnrRangeStimuli_NoiseFW_ComboBox.Enabled = True
+            GenerateSnrRangeStimuli_PresentationLevel_DoubleParsingTextBox.Enabled = False
+        End If
+
+        If GenerateSnrRangeStimuli_NoiseType_ComboBox.SelectedItem = GenerateSnrRangeStimuli_NoiseTypes.SpeechWeighted Then
+            GenerateSnrRangeStimuli_Overlays_IntegerParsingTextBox.Enabled = True
+        Else
+            GenerateSnrRangeStimuli_Overlays_IntegerParsingTextBox.Enabled = False
+        End If
+
+    End Sub
+
+    Public Enum GenerateSnrRangeStimuli_NoiseTypes
+        White
+        SpeechWeighted
+        ThresholdSimulating
+    End Enum
+
+    Private Sub GenerateSnrRangeStimuli_Button_Click(sender As Object, e As EventArgs) Handles GenerateSnrRangeStimuli_Button.Click
+
+        If GenerateSnrRangeStimuli_UpperLimit_IntegerParsingTextBox.Value Is Nothing Then
+            MsgBox("You must supply a value for the upper SNR limit!")
+            Exit Sub
+        End If
+
+        If GenerateSnrRangeStimuli_LowerLimit_IntegerParsingTextBox.Value Is Nothing Then
+            MsgBox("You must supply a value for the lower SNR limit!")
+            Exit Sub
+        End If
+        If GenerateSnrRangeStimuli_StepSize_DoubleParsingTextBox.Value Is Nothing Then
+            MsgBox("You must supply a value for SNR step size!")
+            Exit Sub
+        End If
+
+        'Getting values
+        Dim UpperSNRLimit As Double = GenerateSnrRangeStimuli_UpperLimit_IntegerParsingTextBox.Value
+        Dim LowerSNRLimit As Double = GenerateSnrRangeStimuli_LowerLimit_IntegerParsingTextBox.Value
+        Dim SnrStepSize As Double = GenerateSnrRangeStimuli_StepSize_DoubleParsingTextBox.Value
+        If SnrStepSize > 0 Then
+            'ok
+        Else
+            MsgBox("The SNR step size must be a positive value!")
+            Exit Sub
+        End If
+        Dim NoiseType As GenerateSnrRangeStimuli_NoiseTypes = GenerateSnrRangeStimuli_NoiseType_ComboBox.SelectedItem
+        If NoiseType = GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating Then
+            If GenerateSnrRangeStimuli_PresentationLevel_DoubleParsingTextBox.Value Is Nothing Then
+                MsgBox("You must supply a value for the intended presentation level!")
+                Exit Sub
+            End If
+        End If
+
+        Dim OverlayCount As Integer = 0
+        If NoiseType = GenerateSnrRangeStimuli_NoiseTypes.SpeechWeighted Then
+            If GenerateSnrRangeStimuli_Overlays_IntegerParsingTextBox.Value Is Nothing Then
+                MsgBox("You must supply a value for number of speech overlays!")
+                Exit Sub
+            Else
+                OverlayCount = GenerateSnrRangeStimuli_Overlays_IntegerParsingTextBox.Value
+            End If
+        End If
+
+
+        Dim NoiseFrequencyWeighting As Audio.FrequencyWeightings = GenerateSnrRangeStimuli_NoiseFW_ComboBox.SelectedItem
+
+        Dim IntendedPresentationLevel As Double = GenerateSnrRangeStimuli_PresentationLevel_DoubleParsingTextBox.Value
+
+        Dim PostProcessingOutputGain As Double? = Nothing
+        If GenerateSnrRangeStimuli_OutputGain_DoubleParsingTextBox.Value IsNot Nothing Then
+            PostProcessingOutputGain = GenerateSnrRangeStimuli_OutputGain_DoubleParsingTextBox.Value
+        End If
+
+        'Asks the user for an output path.
+        Dim OutputFolder As String = SelectedMediaSet.GetFullMediaParentFolder
+        Dim fbd = New Windows.Forms.FolderBrowserDialog
+        fbd.SelectedPath = OutputFolder
+        fbd.Description = "Where do you want to save you files?"
+        Dim result = fbd.ShowDialog
+        If result = Windows.Forms.DialogResult.OK Then
+            OutputFolder = fbd.SelectedPath
+        Else
+            Exit Sub
+        End If
+
+        'All arguments ok, now start processing
+
+        'Clears previously loaded sounds
+        SelectedMediaSet.ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+
+        'Loading All needed sound files
+        Dim AllComponents = SelectedMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SelectedMediaSet.AudioFileLinguisticLevel)
+        For SoundIndex = 0 To SelectedMediaSet.MediaAudioItems - 1
+            For Each Component In AllComponents
+                Dim CurrentSound = Component.GetSound(SelectedMediaSet, SoundIndex, 1)
+            Next
+        Next
+
+        'Referencing the loaded sounds locally
+        Dim LoadedSoundFiles = SelectedMediaSet.ParentTestSpecification.SpeechMaterial.GetAllLoadedSounds
+
+        'Getting and checking the nominal level
+        Dim NominalLevel As Double? = Nothing
+        Dim LongestSoundFileLength As Integer = 0
+        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+        For Each LoadedSoundFile In LoadedSoundFiles
+            If NominalLevel.HasValue = False Then
+                If LoadedSoundFile.Value.SMA.NominalLevel.HasValue Then
+                    NominalLevel = LoadedSoundFile.Value.SMA.NominalLevel
+                Else
+                    MsgBox("All speech sounds in the current media set needs to have nominal levels specified in their SMA chunk!")
+                    Exit Sub
+                End If
+            Else
+                If NominalLevel <> LoadedSoundFile.Value.SMA.NominalLevel Then
+                    MsgBox("Unequal nominal levels (as specified in the corresponding SMA chunk) detected among the speech sounds in the current media set!" & vbCrLf & " First deviation sound file detected is: " & LoadedSoundFile.Key)
+                    Exit Sub
+                End If
+            End If
+
+            'Storing the longest sound file length
+            LongestSoundFileLength = Math.Max(LongestSoundFileLength, LoadedSoundFile.Value.WaveData.LongestChannelSampleCount)
+
+            If WaveFormat Is Nothing Then
+                WaveFormat = LoadedSoundFile.Value.WaveFormat
+            End If
+        Next
+
+        'Creating noise of lengt LongestSoundFileLength 
+        Dim Noise As Audio.Sound = Nothing
+        Select Case NoiseType
+            Case GenerateSnrRangeStimuli_NoiseTypes.White
+                Noise = Audio.GenerateSound.CreateWhiteNoise(WaveFormat, 1, 1, Math.Ceiling(LongestSoundFileLength), Audio.BasicAudioEnums.TimeUnits.samples)
+
+            Case GenerateSnrRangeStimuli_NoiseTypes.SpeechWeighted
+                Dim AllSoundsConcatenated = Audio.DSP.ConcatenateSounds(LoadedSoundFiles.Values.ToList,,,, False,)
+                Noise = Audio.GenerateSound.CreateOverlayNoise(AllSoundsConcatenated, OverlayCount, (LongestSoundFileLength / WaveFormat.SampleRate) + 1)
+
+            Case GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating
+                Throw New NotImplementedException
+        End Select
+
+        'Setting the noise level to the Nominal Level, using different weightings for different noise types
+        Select Case NoiseType
+            Case GenerateSnrRangeStimuli_NoiseTypes.White, GenerateSnrRangeStimuli_NoiseTypes.SpeechWeighted
+                Audio.DSP.MeasureAndAdjustSectionLevel(Noise, NominalLevel, 1,,, NoiseFrequencyWeighting)
+            Case GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating
+                Audio.DSP.MeasureAndAdjustSectionLevel(Noise, NominalLevel, 1,,, Audio.BasicAudioEnums.FrequencyWeightings.Z)
+        End Select
+
+
+        Dim MainOutputPath = IO.Path.Combine(OutputFolder, "SnrRange")
+
+        'Generating files 
+        Dim NumberOfGeneratedSoundFiles As Integer = 0
+        For CurrentSNR As Double = LowerSNRLimit To UpperSNRLimit Step SnrStepSize
+
+            Dim CurrentOutputPath = IO.Path.Combine(MainOutputPath, "SNR_" & CurrentSNR.ToString)
+
+            For Each SpeechSound In LoadedSoundFiles
+
+                Dim CurrentMixedSoundOutputPath = IO.Path.Combine(CurrentOutputPath, IO.Path.GetDirectoryName(SpeechSound.Key).Split(IO.Path.DirectorySeparatorChar).Last.Trim & "-" & IO.Path.GetFileNameWithoutExtension(SpeechSound.Key))
+
+                'And a speech copy
+                Dim SpeechCopy = SpeechSound.Value.CreateCopy
+
+                'Amplifying the speech sound by CurrentSNR  to attain the CurrentSNR 
+                Audio.DSP.AmplifySection(SpeechCopy, CurrentSNR)
+
+                'Mixing the sounds
+                Dim MixedSound = Audio.DSP.SuperpositionSounds({SpeechCopy, Noise}.ToList)
+
+                'Applies postprocessing gain, if needed
+                If PostProcessingOutputGain.HasValue Then
+                    If PostProcessingOutputGain.Value <> 0 Then
+                        Audio.DSP.AmplifySection(MixedSound, PostProcessingOutputGain.Value)
+                    End If
+                End If
+
+                'Saves the mixed sound to file
+                MixedSound.WriteWaveFile(CurrentMixedSoundOutputPath)
+
+                'Counts the number of generated sound files
+                NumberOfGeneratedSoundFiles += 1
+            Next
+        Next
+
+        MsgBox("Finished creating " & NumberOfGeneratedSoundFiles & " sound files.")
+
+    End Sub
+
+
 End Class
 
 

@@ -117,6 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="TextBox1.Text" xml:space="preserve">
+    <value>Use this functionality to create sound files of the selected media set in which items are mixed to various degress of masking noise.
+Specify the lower and upper limits of the masker noise, in dB SNR compared to the nominal level of the speech material, and the step size between generated SNRs.
+Specify also what type of masking noise you want, either White, Speech Weighted (generated from the speech material), or threshold simulating noise (for normal hearing).
+For threshold simulating noise, Z-weighted levels are used, but for the others you should specify a frequency weighting applied to the noise (appropriately the same as used for the speech materials).
+If threshold simulating noise is used, specify also the (approximate) intended presentation level in dB SPL.
+
+Finally press 'Create sound files' and wait! You will be notified when the process is finished.</value>
+  </data>
+  <data name="TextBox2.Text" xml:space="preserve">
+    <value>Specify the amout to amplify each speech material component according to the following template:
+[SpeechMaterialComponentID] | [SoundIndex] | [Gain (dB)]
+
+For instance:
+L01S04 | 1 | 3.5
+L03S06 | 1 | -2.3
+L03S08 | 1 | -0.3
+
+Paste the information into the "Component gain" text box and click "Apply gain".</value>
+  </data>
   <data name="RichTextBox1.Text" xml:space="preserve">
     <value>Use this tab page to change the linguistic level of the sound files in your media set.
 If, for instance, each sound file in the media set sound files contain a list of sentences, you can change it so that each sound file contains one single sentence, or vice versa.
