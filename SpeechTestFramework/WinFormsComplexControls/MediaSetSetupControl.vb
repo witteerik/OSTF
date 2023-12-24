@@ -771,10 +771,8 @@
     Private Sub GenerateSnrRangeStimuli_NoiseType_ComboBox_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GenerateSnrRangeStimuli_NoiseType_ComboBox.SelectedIndexChanged
 
         If GenerateSnrRangeStimuli_NoiseType_ComboBox.SelectedItem = GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating Then
-            GenerateSnrRangeStimuli_NoiseFW_ComboBox.Enabled = False
             GenerateSnrRangeStimuli_PresentationLevel_DoubleParsingTextBox.Enabled = True
         Else
-            GenerateSnrRangeStimuli_NoiseFW_ComboBox.Enabled = True
             GenerateSnrRangeStimuli_PresentationLevel_DoubleParsingTextBox.Enabled = False
         End If
 
@@ -846,6 +844,9 @@
             PostProcessingOutputGain = GenerateSnrRangeStimuli_OutputGain_DoubleParsingTextBox.Value
         End If
 
+        Dim ExportConcatenatedSounds As Boolean = GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox.Checked
+        Dim InsertConcatenationSilence As Boolean = GenerateSnrRangeStimuli_InsertConcatenationSilence_CheckBox.Checked
+
         'Asks the user for an output path.
         Dim OutputFolder As String = SelectedMediaSet.GetFullMediaParentFolder
         Dim fbd = New Windows.Forms.FolderBrowserDialog
@@ -915,20 +916,19 @@
                 Noise = CreateThresholdSimulatingNoise(WaveFormat, IntendedPresentationLevel, Math.Ceiling(LongestSoundFileLength))
         End Select
 
-        'Setting the noise level to the Nominal Level, using different weightings for different noise types
-        Select Case NoiseType
-            Case GenerateSnrRangeStimuli_NoiseTypes.White, GenerateSnrRangeStimuli_NoiseTypes.SpeechWeighted
-                Audio.DSP.MeasureAndAdjustSectionLevel(Noise, NominalLevel, 1,,, NoiseFrequencyWeighting)
-            Case GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating
-                Audio.DSP.MeasureAndAdjustSectionLevel(Noise, NominalLevel, 1,,, Audio.BasicAudioEnums.FrequencyWeightings.Z)
-        End Select
+        'Setting the noise level to the Nominal Level, using indicated frequency weighting
+        Audio.DSP.MeasureAndAdjustSectionLevel(Noise, NominalLevel, 1,,, NoiseFrequencyWeighting)
 
+        'Creating a 1 second silence to use if needed for the concatenation
+        Dim SilentSound = Audio.GenerateSound.CreateSilence(WaveFormat,, 1)
 
         Dim MainOutputPath = IO.Path.Combine(OutputFolder, "SnrRange")
 
         'Generating files 
         Dim NumberOfGeneratedSoundFiles As Integer = 0
         For CurrentSNR As Double = LowerSNRLimit To UpperSNRLimit Step SnrStepSize
+
+            Dim CurrentSnrAllSoundsList As New List(Of Audio.Sound)
 
             Dim CurrentOutputPath = IO.Path.Combine(MainOutputPath, "SNR_" & CurrentSNR.ToString)
 
@@ -952,12 +952,44 @@
                     End If
                 End If
 
+                'Updates the nominal level
+                MixedSound.SMA.NominalLevel = NominalLevel + PostProcessingOutputGain
+                MixedSound.SMA.InferNominalLevelToAllDescendants()
+
                 'Saves the mixed sound to file
                 MixedSound.WriteWaveFile(CurrentMixedSoundOutputPath)
 
                 'Counts the number of generated sound files
                 NumberOfGeneratedSoundFiles += 1
+
+                If ExportConcatenatedSounds = True Then
+                    'Adds the current mixed sound
+                    CurrentSnrAllSoundsList.Add(MixedSound)
+
+                    'Adds silence
+                    If InsertConcatenationSilence = True Then
+                        CurrentSnrAllSoundsList.Add(SilentSound)
+                    End If
+                End If
+
             Next
+
+            If ExportConcatenatedSounds = True Then
+
+                'Exports the concatenated sound of all sounds a the current SNR
+                Dim CurrentSnrConcatenatedSound = Audio.DSP.ConcatenateSounds(CurrentSnrAllSoundsList,,,, False)
+                Dim CurrentConcatSoundOutputPath = IO.Path.Combine(MainOutputPath, "Concatenated", "ConcatenatedSound_SNR_" & CurrentSNR.ToString)
+
+                ''Updating the nominal level
+                CurrentSnrConcatenatedSound.SMA.NominalLevel = NominalLevel + PostProcessingOutputGain
+                CurrentSnrConcatenatedSound.SMA.InferNominalLevelToAllDescendants()
+
+                CurrentSnrConcatenatedSound.WriteWaveFile(CurrentConcatSoundOutputPath)
+
+                'Counts the number of generated sound files
+                NumberOfGeneratedSoundFiles += 1
+            End If
+
         Next
 
         MsgBox("Finished creating " & NumberOfGeneratedSoundFiles & " sound files.")
@@ -1005,7 +1037,9 @@
 
     End Function
 
-
+    Private Sub GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox.CheckedChanged
+        GenerateSnrRangeStimuli_InsertConcatenationSilence_CheckBox.Enabled = GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox.Checked
+    End Sub
 End Class
 
 
