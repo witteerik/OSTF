@@ -174,7 +174,6 @@ Public Class DirectionalSimulation
 
     End Function
 
-
 End Class
 
 Public Class StereoKernel
@@ -849,5 +848,42 @@ Public Class BinauralImpulseReponseSet
 
     End Function
 
+    Public Overrides Function ToString() As String
+        Return Name
+    End Function
+
+    Public Function GetVisualSoundSourceLocations() As List(Of Audio.SoundScene.VisualSoundSourceLocation)
+
+        'Adding the appropriate sound sources into the selection views, based on the selected transducer
+        Dim SignalLocationCandidateList As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
+
+        'Adding simulated source locations
+        For Each StereoKernel In StereoKernels
+            SignalLocationCandidateList.Add(New Audio.SoundScene.VisualSoundSourceLocation(New Audio.SoundScene.SoundSourceLocation With {
+            .HorizontalAzimuth = StereoKernel.Value.Point.GetSphericalAzimuth,
+            .Elevation = StereoKernel.Value.Point.GetSphericalElevation,
+            .Distance = StereoKernel.Value.Point.GetSphericalDistance}))
+        Next
+
+        Return SignalLocationCandidateList
+
+    End Function
+
+    Public Function GetSoundSourceLocations() As List(Of Audio.SoundScene.SoundSourceLocation)
+
+        'Adding the appropriate sound sources into the selection views, based on the selected transducer
+        Dim SignalLocationCandidateList As New List(Of Audio.SoundScene.SoundSourceLocation)
+
+        'Adding simulated source locations
+        For Each StereoKernel In StereoKernels
+            SignalLocationCandidateList.Add(New Audio.SoundScene.SoundSourceLocation With {
+            .HorizontalAzimuth = StereoKernel.Value.Point.GetSphericalAzimuth,
+            .Elevation = StereoKernel.Value.Point.GetSphericalElevation,
+            .Distance = StereoKernel.Value.Point.GetSphericalDistance})
+        Next
+
+        Return SignalLocationCandidateList
+
+    End Function
 
 End Class

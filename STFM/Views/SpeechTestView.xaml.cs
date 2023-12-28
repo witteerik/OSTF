@@ -192,6 +192,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
                     var newOptionsHintTestView = new OptionsViewAll();
+
                     TestOptionsGrid.Children.Add(newOptionsHintTestView);
                     CurrentTestOptionsView = newOptionsHintTestView;
 
@@ -302,6 +303,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0;
+
                     break;
 
 
@@ -329,6 +333,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0;
+
                     break;
 
 
@@ -351,12 +358,18 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0;
+
                     break;
 
                 case "SiP-testet":
 
                     CurrentResponseView = new ResponseView_Mafc();
                     TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0.5;
 
                     break;
 
@@ -368,6 +381,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     //CurrentResponseView.AddDefaultSources();
                     //CurrentResponseView.AddResponseAlternatives(testStringArray);
+
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0.1;
 
                     break;
 
@@ -394,6 +410,10 @@ public partial class SpeechTestView : ContentView, IDrawable
                         SelectedTransducer.Mixer = argMixer;
                     }
                 }
+            }
+            else
+            {
+                OstfBase.SoundPlayer.SetOverlapDuration(CurrentSpeechTest.SoundOverlapDuration);
             }
 
         }

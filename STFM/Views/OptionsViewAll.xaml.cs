@@ -1,9 +1,11 @@
 
+using STFN;
+
 namespace STFM.Views;
 
 public partial class OptionsViewAll : ContentView
 {
-	public OptionsViewAll()
+    public OptionsViewAll()
 	{
 		InitializeComponent();
 
@@ -17,17 +19,67 @@ public partial class OptionsViewAll : ContentView
         //if (SelectedPresentationMode_Picker.Items.Count > 0) { SelectedPresentationMode_Picker.SelectedIndex = 0; }
         if (StartList_AvailablePhaseAudiometryTypes.Items.Count > 0) { StartList_AvailablePhaseAudiometryTypes.SelectedIndex = 0; }
 
-        //Updating possible source lications
-        List<STFN.Audio.SoundScene.VisualSoundSourceLocation> SignalLocations = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
-        SignalLocations.Add(new STFN.Audio.SoundScene.VisualSoundSourceLocation(new STFN.Audio.SoundScene.SoundSourceLocation { Distance = 0.8, Elevation = 0, HorizontalAzimuth = 0 }));
-        SignalLocations.Add(new STFN.Audio.SoundScene.VisualSoundSourceLocation(new STFN.Audio.SoundScene.SoundSourceLocation { Distance = 0.5, Elevation = 0, HorizontalAzimuth = 30 }));
-        SignalLocations.Add(new STFN.Audio.SoundScene.VisualSoundSourceLocation(new STFN.Audio.SoundScene.SoundSourceLocation { Distance = 0.5, Elevation = 0, HorizontalAzimuth = -30 }));
-        //SignalLocations.Add(new STFN.Audio.SoundScene.VisualSoundSourceLocation(new STFN.Audio.SoundScene.SoundSourceLocation { Distance = 0.5, Elevation = 0, HorizontalAzimuth = 90 }));
-        SignalLocations.Add(new STFN.Audio.SoundScene.VisualSoundSourceLocation(new STFN.Audio.SoundScene.SoundSourceLocation { Distance = 0.5, Elevation = 0, HorizontalAzimuth = -90 }));
-        SignalLocations.Add(new STFN.Audio.SoundScene.VisualSoundSourceLocation(new STFN.Audio.SoundScene.SoundSourceLocation { Distance = 0.5, Elevation = 0, HorizontalAzimuth = 150 }));
-        SignalLocations.Add(new STFN.Audio.SoundScene.VisualSoundSourceLocation(new STFN.Audio.SoundScene.SoundSourceLocation { Distance = 0.5, Elevation = 0, HorizontalAzimuth = -150 }));
-        //SignalLocations.Add(new STFN.Audio.SoundScene.VisualSoundSourceLocation(new STFN.Audio.SoundScene.SoundSourceLocation { Distance = 0.5, Elevation = 0, HorizontalAzimuth = 180 }));
-        SpeechSoundSourceView.SoundSources = SignalLocations;
 
     }
+
+    private void SelectedTransducer_Picker_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        UpdateSoundSourceLocations();
+    }
+
+    private void UseSimulatedSoundField_Switch_Toggled(object sender, ToggledEventArgs e)
+    {
+
+        SelectedIrSet_Picker.IsEnabled = e.Value;
+
+        UpdateSoundSourceLocations();
+    }
+
+    private void SelectedIrSet_Picker_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        UpdateSoundSourceLocations();
+    }
+        
+
+    private void UpdateSoundSourceLocations()
+    {
+
+        // Clearing first
+        SpeechSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
+        MaskerSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
+        BackgroundNonSpeechSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
+        BackgroundSpeechSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
+
+
+        // Access the BindingContext
+        if (BindingContext is CustomizableTestOptions customizableTestOptions)
+        {
+            if (customizableTestOptions != null)
+            {
+                if (customizableTestOptions.SelectedTransducer != null)
+                {
+
+                    if (customizableTestOptions.UseSimulatedSoundField == false)
+                    {
+                            SpeechSoundSourceView.SoundSources =customizableTestOptions.SelectedTransducer.GetVisualSoundSourceLocations();
+                            MaskerSoundSourceView.SoundSources =customizableTestOptions.SelectedTransducer.GetVisualSoundSourceLocations();
+                            BackgroundNonSpeechSoundSourceView.SoundSources = customizableTestOptions.SelectedTransducer.GetVisualSoundSourceLocations();
+                            BackgroundSpeechSoundSourceView.SoundSources = customizableTestOptions.SelectedTransducer.GetVisualSoundSourceLocations();
+                    }
+                    else
+                    {
+                        // Adding simulated sound filed locations
+                        if (customizableTestOptions.SelectedIrSet != null)
+                        {
+                            SpeechSoundSourceView.SoundSources = customizableTestOptions.SelectedIrSet.GetVisualSoundSourceLocations();
+                            MaskerSoundSourceView.SoundSources = customizableTestOptions.SelectedIrSet.GetVisualSoundSourceLocations();
+                            BackgroundNonSpeechSoundSourceView.SoundSources = customizableTestOptions.SelectedIrSet.GetVisualSoundSourceLocations();
+                            BackgroundSpeechSoundSourceView.SoundSources = customizableTestOptions.SelectedIrSet.GetVisualSoundSourceLocations();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

@@ -825,6 +825,40 @@ Public Module OstfBase
 
         End Function
 
+        Public Function GetVisualSoundSourceLocations() As List(Of Audio.SoundScene.VisualSoundSourceLocation)
+
+            'Adding the appropriate sound sources into the selection views, based on the selected transducer
+            Dim SignalLocationCandidateList As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
+
+            'Adding real speaker locations as selectable sound source candidates
+            For s = 0 To LoudspeakerAzimuths.Count - 1
+                SignalLocationCandidateList.Add(New Audio.SoundScene.VisualSoundSourceLocation(New Audio.SoundScene.SoundSourceLocation With {
+                .HorizontalAzimuth = LoudspeakerAzimuths(s),
+                .Elevation = LoudspeakerElevations(s),
+                .Distance = LoudspeakerDistances(s)}))
+            Next
+
+            Return SignalLocationCandidateList
+
+        End Function
+
+        Public Function GetSoundSourceLocations() As List(Of Audio.SoundScene.SoundSourceLocation)
+
+            'Adding the appropriate sound sources into the selection views, based on the selected transducer
+            Dim SignalLocationCandidateList As New List(Of Audio.SoundScene.SoundSourceLocation)
+
+            'Adding real speaker locations as selectable sound source candidates
+            For s = 0 To LoudspeakerAzimuths.Count - 1
+                SignalLocationCandidateList.Add(New Audio.SoundScene.SoundSourceLocation With {
+                .HorizontalAzimuth = LoudspeakerAzimuths(s),
+                .Elevation = LoudspeakerElevations(s),
+                .Distance = LoudspeakerDistances(s)})
+            Next
+
+            Return SignalLocationCandidateList
+
+        End Function
+
 
         Public Overrides Function ToString() As String
             If Name <> "" Then

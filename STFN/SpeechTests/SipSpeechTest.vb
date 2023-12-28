@@ -33,6 +33,30 @@
         End Get
     End Property
 
+    Public Overrides ReadOnly Property MaximumSpeechLocations As Integer
+        Get
+            Return 1
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property MaximumMaskerLocations As Integer
+        Get
+            Return Integer.MaxValue
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property MaximumBackgroundNonSpeechLocations As Integer
+        Get
+            Return Integer.MaxValue
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property MaximumBackgroundSpeechLocations As Integer
+        Get
+            Return Integer.MaxValue
+        End Get
+    End Property
+
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 

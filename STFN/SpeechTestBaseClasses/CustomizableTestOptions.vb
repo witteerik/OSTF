@@ -282,7 +282,6 @@ Public Class CustomizableTestOptions
             'Inactivates the use of simulated sound field is the transducer is not headphones
             'TODO. Note that this only works if headphones are connected to hardware output 1 and 2. In order to work in other cases, the software somehow needs to know to what hardware the headphones are connected.
             If _SelectedTransducer.IsHeadphones(1, 2) = False Then UseSimulatedSoundField = False
-
             OnPropertyChanged()
         End Set
     End Property
@@ -300,6 +299,19 @@ Public Class CustomizableTestOptions
     End Property
     Private _UseSimulatedSoundField As Boolean = False
     Public Property UseSimulatedSoundFieldTitle As String = "Simulera ljudfält"
+
+    Public Property SelectedIrSet As BinauralImpulseReponseSet
+        Get
+            Return _SelectedIrSet
+        End Get
+        Set(value As BinauralImpulseReponseSet)
+            _SelectedIrSet = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _SelectedIrSet As BinauralImpulseReponseSet = Nothing
+    Public Property SelectedIrSetTitle As String = "HRIR"
+
 
     'Returns the selected SelectedPresentationMode indirectly based on the UseSimulatedSoundField property. In the future if more options are supported, this will have to be exposed to the GUI.
     Public ReadOnly Property SelectedPresentationMode As SoundPropagationTypes
@@ -350,6 +362,22 @@ Public Class CustomizableTestOptions
         End Get
     End Property
 
+    ''' <summary>
+    ''' Should specify the locations from which the Maskers should come
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property MaskerLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
+        Get
+            Return _MaskerLocationCandidates
+        End Get
+        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
+            _MaskerLocationCandidates = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _MaskerLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
+    Public Property MaskerLocationsTitle As String = "Placering av maskeringsljud"
+
 
     ''' <summary>
     ''' Should specify the locations from which the maskers should come
@@ -365,24 +393,71 @@ Public Class CustomizableTestOptions
         End Set
     End Property
     Private _MaskerLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
-    Public Property MaskerLocationsTitle As String = "Placering av maskeringsljud"
 
 
     ''' <summary>
-    ''' Should specify the locations from which the background sounds should come
+    ''' Should specify the locations from which the background (non-speech) sounds should come
     ''' </summary>
     ''' <returns></returns>
-    Public Property BackgroundLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+    Public Property BackgroundNonSpeechLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
         Get
-            Return _BackgroundLocations
+            Return _BackgroundNonSpeechLocationCandidates
         End Get
-        Set(value As List(Of Audio.SoundScene.SoundSourceLocation))
-            _BackgroundLocations = value
+        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
+            _BackgroundNonSpeechLocationCandidates = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _BackgroundLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
-    Public Property BackgroundLocationsTitle As String = "Placering av bakgrundsljud"
+    Private _BackgroundNonSpeechLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
+    Public Property BackgroundNonSpeechLocationsTitle As String = "Placering av bakgrundsljud"
+
+    ''' <summary>
+    ''' Should specify the locations from which the BackgroundNonSpeech non-speech sounds should come
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property BackgroundNonSpeechLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+        Get
+            Return _BackgroundNonSpeechLocations
+        End Get
+        Set(value As List(Of Audio.SoundScene.SoundSourceLocation))
+            _BackgroundNonSpeechLocations = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _BackgroundNonSpeechLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
+
+
+    ''' <summary>
+    ''' Should specify the locations from which the background speech sounds should come
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property BackgroundSpeechLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
+        Get
+            Return _BackgroundSpeechLocationCandidates
+        End Get
+        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
+            _BackgroundSpeechLocationCandidates = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _BackgroundSpeechLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
+    Public Property BackgroundSpeechLocationsTitle As String = "Placering av bakgrundstal"
+
+
+    ''' <summary>
+    ''' Should specify the locations from which the BackgroundSpeech speech sounds should come
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property BackgroundSpeechLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+        Get
+            Return _BackgroundSpeechLocations
+        End Get
+        Set(value As List(Of Audio.SoundScene.SoundSourceLocation))
+            _BackgroundSpeechLocations = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _BackgroundSpeechLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
 
 
     ''' <summary>

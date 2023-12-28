@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:STFN;assembly=STFN"
              xmlns:drawable="clr-namespace:STFM.Views"
              x:Class="STFM.Views.OptionsViewAll">
-
+        
     <ContentView.BindingContext>
         <local:CustomizableTestOptions />
     </ContentView.BindingContext>
@@ -102,22 +102,22 @@
 
             <Picker x:Name="AvailableFixedResponseAlternativeCounts_Picker"  Title="{Binding FixedResponseAlternativeCountTitle}" ItemsSource="{Binding SelectedTest.AvailableFixedResponseAlternativeCounts}" SelectedItem="{Binding FixedResponseAlternativeCount}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
 
-            <Picker x:Name="SelectedTransducer_Picker"  Title="{Binding SelectedTransducerTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedTransducers}" SelectedItem="{Binding SelectedTransducer}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
+            <Picker x:Name="SelectedTransducer_Picker" SelectedIndexChanged="SelectedTransducer_Picker_SelectedIndexChanged"  Title="{Binding SelectedTransducerTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedTransducers}" SelectedItem="{Binding SelectedTransducer}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
 
             <HorizontalStackLayout>
                 <Label Text="{Binding UseSimulatedSoundFieldTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch IsToggled="{Binding UseSimulatedSoundField}" VerticalOptions="Center" Margin="0,5,0,5" />
+                <Switch IsToggled="{Binding UseSimulatedSoundField}" Toggled="UseSimulatedSoundField_Switch_Toggled" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
-            
+
+            <Picker x:Name="SelectedIrSet_Picker" SelectedIndexChanged="SelectedIrSet_Picker_SelectedIndexChanged" Title="{Binding SelectedIrSetTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedIrSets}" SelectedItem="{Binding SelectedIrSet}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
+
             <!--<Picker x:Name="SelectedPresentationMode_Picker"  Title="{Binding SelectedPresentationModeTitle}" ItemsSource="{Binding SelectedTest.AvailablePresentationModes}" SelectedItem="{Binding SelectedPresentationMode}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>-->
 
-            <drawable:HorizontalSoundSourceView x:Name="SpeechSoundSourceView" SoundSources="{Binding SignalLocationCandidates}">
-                
-            </drawable:HorizontalSoundSourceView>
-            
-            <!--SignalLocations
-            MaskerLocations
-            BackgroundLocations-->
+            <drawable:HorizontalSoundSourceView x:Name="SpeechSoundSourceView" RoleType ="Target" Title="{Binding SignalLocationsTitle}" MaxSelected ="{Binding SelectedTest.MaximumSpeechLocations}"  SoundSources="{Binding SignalLocationCandidates}" Margin="2" ></drawable:HorizontalSoundSourceView>
+            <drawable:HorizontalSoundSourceView x:Name="MaskerSoundSourceView" RoleType ="Masker" Title="{Binding MaskerLocationsTitle}" MaxSelected ="{Binding SelectedTest.MaximumMaskerLocations}" SoundSources="{Binding MaskerLocationCandidates}" Margin="2" ></drawable:HorizontalSoundSourceView>
+            <drawable:HorizontalSoundSourceView x:Name="BackgroundNonSpeechSoundSourceView" RoleType ="BackgroundNonspeech" Title="{Binding BackgroundNonSpeechLocationsTitle}" MaxSelected ="{Binding SelectedTest.MaximumBackgroundNonSpeechLocations}" SoundSources="{Binding BackgroundNonSpeechLocationCandidates}" Margin="2" ></drawable:HorizontalSoundSourceView>
+            <drawable:HorizontalSoundSourceView x:Name="BackgroundSpeechSoundSourceView" RoleType ="BackgroundSpeech" Title="{Binding BackgroundSpeechLocationsTitle}" MaxSelected ="{Binding SelectedTest.MaximumBackgroundSpeechLocations}" SoundSources="{Binding BackgroundSpeechLocationCandidates}" Margin="2" ></drawable:HorizontalSoundSourceView>
+
 
             <HorizontalStackLayout>
                 <Label Text="{Binding UseContralateralMaskingTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />

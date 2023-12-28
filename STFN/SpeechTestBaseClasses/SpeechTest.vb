@@ -138,7 +138,7 @@
 
     Public Shared Randomizer As Random = New Random
 
-    Public Property SoundOverlapDuration As Double = 0.1
+    Public Property SoundOverlapDuration As Double = 0
 
 #Region "Test protocol"
 
@@ -168,6 +168,42 @@
 
 #End Region
 
+#Region "SoundScene"
+
+    Public MustOverride ReadOnly Property MaximumSpeechLocations As Integer
+    Public MustOverride ReadOnly Property MaximumMaskerLocations As Integer
+    Public MustOverride ReadOnly Property MaximumBackgroundNonSpeechLocations As Integer
+    Public MustOverride ReadOnly Property MaximumBackgroundSpeechLocations As Integer
+
+
+
+    Public ReadOnly Property CurrentlySupportedIrSets As List(Of BinauralImpulseReponseSet)
+        Get
+
+            Dim SupportedIrNames As New List(Of String)
+            If CustomizableTestOptions.SelectedMediaSet IsNot Nothing Then
+                SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSet.WaveFileSampleRate)
+            ElseIf CustomizableTestOptions.SelectedMediaSets IsNot Nothing Then
+                SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSets(0).WaveFileSampleRate)
+            Else
+                SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(AvailableMediasets(0).WaveFileSampleRate)
+            End If
+
+            Dim Output As New List(Of BinauralImpulseReponseSet)
+            Dim AvaliableSets = DirectionalSimulator.GetAllDirectionalSimulationSets()
+            For Each AvaliableSet In AvaliableSets
+                If SupportedIrNames.Contains(AvaliableSet.Key) Then
+                    Output.Add(AvaliableSet.Value)
+                End If
+            Next
+            Return Output
+        End Get
+    End Property
+
+
+
+
+#End Region
 
 
 #Region "RunningTest"

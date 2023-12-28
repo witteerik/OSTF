@@ -1,18 +1,64 @@
 ﻿using STFN;
 using STFN.Audio.SoundScene;
-
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 
 namespace STFM.Views;
 
-public class HorizontalSoundSourceView : AbsoluteLayout
+public class HorizontalSoundSourceView : Frame
 {
 
+    AbsoluteLayout SoundSourceLayout = new AbsoluteLayout();
+    Grid ContentGrid = new Grid();
+    Label TitleLabel = new Label();
 
-    // Define a bindable property for SoundSources
+    public static readonly BindableProperty TitleProperty =
+        BindableProperty.Create(nameof(Title), typeof(String), typeof(HorizontalSoundSourceView), null, BindingMode.TwoWay);
+
+    public String Title
+    {
+        get
+        {
+            return (String)GetValue(TitleProperty);
+        }
+        set
+        {
+            SetValue(TitleProperty, value);
+        }
+    }
+
+    public static readonly BindableProperty MaxSelectedProperty =
+    BindableProperty.Create(nameof(MaxSelected), typeof(int), typeof(HorizontalSoundSourceView), 1, BindingMode.TwoWay);
+
+    public int MaxSelected
+    {
+        get
+        {
+            return (int)GetValue(MaxSelectedProperty);
+        }
+        set
+        {
+            SetValue(MaxSelectedProperty, value);
+        }
+    }
+
+
+    STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles roleType;
+    public STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles RoleType
+    {
+        get
+        {
+            return roleType;
+        }
+        set
+        {
+            roleType = value;
+        }
+    }
+
     public static readonly BindableProperty SoundSourcesProperty =
         BindableProperty.Create(nameof(SoundSources), typeof(List<VisualSoundSourceLocation>), typeof(HorizontalSoundSourceView), null, BindingMode.TwoWay);
 
-    // .NET property wrapper for the bindable property
     public List<VisualSoundSourceLocation> SoundSources
     {
         get
@@ -21,11 +67,8 @@ public class HorizontalSoundSourceView : AbsoluteLayout
         }
         set
         {
-
             SetValue(SoundSourcesProperty, value);
-
-            AddSoundSources();
-
+            UpdateSoundSources();
         }
     }
 
@@ -35,77 +78,175 @@ public class HorizontalSoundSourceView : AbsoluteLayout
     public HorizontalSoundSourceView() {
 
         this.WidthRequest = 200;
-        this.HeightRequest = 200;
-        this.BackgroundColor = Colors.Red;
+        this.HeightRequest = 200 * (9/8);
+
+        this.BackgroundColor = Colors.White;
+
+        ContentGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(8, GridUnitType.Star) });
+        ContentGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+        TitleLabel.TextColor = Colors.Black; //Color.FromRgb(80, 80, 80);
+        TitleLabel.Text = Title;
+        TitleLabel.HorizontalTextAlignment = TextAlignment.Center;
+        TitleLabel.VerticalTextAlignment= TextAlignment.Center;
+        ContentGrid.Add(TitleLabel, 0, 1);
+        ContentGrid.Add(SoundSourceLayout, 0, 0);
+
+        Content = ContentGrid;
+        BorderColor = Colors.Black;
+        HasShadow = false;
+        Padding = 5;
 
     }
-     
 
 
-    private void AddSoundSources()
+
+    private void UpdateSoundSources()
     {
 
-        foreach (VisualSoundSourceLocation source in SoundSources)
-        {
-            source.CalculateXY();
-        }
+        // Clearing SoundSourceLayout
+        SoundSourceLayout.Children.Clear();
 
-        // Scaling to window
-        double max = double.MinValue;
-        foreach (VisualSoundSourceLocation source in SoundSources)
-        {
-            max = Math.Max(max, Math.Abs(source.X));
-            max = Math.Max(max, Math.Abs(source.Y));
-        }
+        // Settign Title
+        TitleLabel.Text = Title;
 
-        foreach (VisualSoundSourceLocation source in SoundSources)
-        {
-            source.Scale(0.9 / (2*max));
-        }
+        // Adding a centre point
+        Label label1 = new Label();
+        label1.BackgroundColor = Color.FromRgb(80, 80, 80);
+        SoundSourceLayout.Children.Add(label1);
+        SoundSourceLayout.SetLayoutBounds(label1, new Rect(0.5, 0.5, 0.1, 0.03));
+        SoundSourceLayout.SetLayoutFlags(label1, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.All);
 
-        foreach (VisualSoundSourceLocation source in SoundSources)
-        {
-            source.Shift(0.5);
-        }
+        Label label2 = new Label();
+        label2.BackgroundColor = Color.FromRgb(80, 80, 80);
+        SoundSourceLayout.Children.Add(label2);
+        SoundSourceLayout.SetLayoutBounds(label2, new Rect(0.5, 0.5, 0.03, 0.1));
+        SoundSourceLayout.SetLayoutFlags(label2, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.All);
 
-        for (int i = 0; i < SoundSources.Count; i++)
+        Label labelL = new Label();
+        labelL.TextColor = Colors.Blue;
+        labelL.Text = "L";
+        labelL.HorizontalTextAlignment = TextAlignment.Center;
+        labelL.VerticalTextAlignment= TextAlignment.Center;
+
+        SoundSourceLayout.Children.Add(labelL);
+        SoundSourceLayout.SetLayoutBounds(labelL, new Rect(0.05, 0.05, 0.15, 0.15));
+        SoundSourceLayout.SetLayoutFlags(labelL, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.All);
+
+        Label labelR = new Label();
+        labelR.TextColor = Colors.Red;
+        labelR.Text = "R";
+        labelR.HorizontalTextAlignment = TextAlignment.Center;
+        labelR.VerticalTextAlignment = TextAlignment.Center;
+
+        SoundSourceLayout.Children.Add(labelR);
+        SoundSourceLayout.SetLayoutBounds(labelR, new Rect(0.95, 0.05, 0.15, 0.15));
+        SoundSourceLayout.SetLayoutFlags(labelR, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.All);
+
+        if (SoundSources.Count > 0)
         {
 
-            var source = SoundSources[i];
-            
-            var sourceBotton = new VisualSoundSourceSelectionButton(ref source)
+            foreach (VisualSoundSourceLocation source in SoundSources)
             {
-                Text = source.ParentSoundSourceLocation.HorizontalAzimuth.ToString(),
-                //Padding = 10
-            };
+                source.CalculateXY();
+            }
 
-            sourceBotton.TextColor = Color.FromRgb(40, 40, 40);
-            //sourceBotton.FontSize = 20;
-            sourceBotton.FontAutoScalingEnabled = true;
+            // Scaling to window
+            double max = double.MinValue;
+            foreach (VisualSoundSourceLocation source in SoundSources)
+            {
+                max = Math.Max(max, Math.Abs(source.X));
+                max = Math.Max(max, Math.Abs(source.Y));
+            }
 
-            sourceBotton.Clicked += button_Clicked;
+            if (max > 0)
+            {
+                foreach (VisualSoundSourceLocation source in SoundSources)
+                {
+                    source.Scale(0.9 / (2 * max));
+                }
+            }
+            else
+            {
+                // This will occur when we have headphones, but should not otherwise occur. Overriding the distance value to get spacial separation of left and right headphone (which would otherwise be on top of each other).
+                // Also increaing the height to look a little more like headsets
+                foreach (VisualSoundSourceLocation source in SoundSources)
+                {
+                    if (source.ParentSoundSourceLocation.HorizontalAzimuth == -90) { 
+                        source.X = -0.13;
+                        source.Height = 0.2;
+                    }
+                    if (source.ParentSoundSourceLocation.HorizontalAzimuth == 90) { 
+                        source.X = 0.13;
+                        source.Height = 0.2;
+                    }
+                }
+            }
 
-            sourceBotton.Rotation = source.Rotation + 90;
-            this.Children.Add(sourceBotton);
+            foreach (VisualSoundSourceLocation source in SoundSources)
+            {
+                source.Shift(0.5);
+            }
 
-            this.SetLayoutBounds(sourceBotton, new Rect(source.X, source.Y, source.Width, source.Height));
-            this.SetLayoutFlags(sourceBotton, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.All);
 
-            // We need to use a visual control that can hold a reference to the original VisualSoundSourceLocation, and swap the Selected Value when clicked
+            for (int i = 0; i < SoundSources.Count; i++)
+            {
 
+                var source = SoundSources[i];
+
+                var sourceBotton = new VisualSoundSourceSelectionButton(ref source, roleType)
+                {
+                    Text = source.ParentSoundSourceLocation.HorizontalAzimuth.ToString(),
+                    //Padding = 10
+                };
+
+                sourceBotton.TextColor = Color.FromRgb(40, 40, 40);
+                //sourceBotton.FontSize = 20;
+                sourceBotton.FontAutoScalingEnabled = true;
+
+                sourceBotton.Clicked += button_Clicked;
+
+                sourceBotton.Rotation = source.Rotation + 90;
+                SoundSourceLayout.Children.Add(sourceBotton);
+
+                SoundSourceLayout.SetLayoutBounds(sourceBotton, new Rect(source.X, source.Y, source.Width, source.Height));
+                SoundSourceLayout.SetLayoutFlags(sourceBotton, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.All);
+
+            }
         }
     }
+
 
     private void button_Clicked(object sender, EventArgs e)
     {
 
         VisualSoundSourceSelectionButton castButton = (VisualSoundSourceSelectionButton)sender;
 
-        //Swapping the value
-        castButton.IsSelected = !castButton.IsSelected;
+        if (castButton.IsSelected == false)
+        {
+            // Checking if max number of selected buttons has been reached
+            int selectedCount = GetSelectedCount();
+            if (selectedCount <= MaxSelected) { castButton.IsSelected = true; }
+        }
+        else
+        {
+            //Swapping the value
+            castButton.IsSelected = false;
+        }
+
 
         //valueChanged
 
+    }
+
+    private int GetSelectedCount()
+    {
+        int selectedCount = 0;
+        foreach (var item in SoundSources)
+        {
+            if (item.Selected == true) { selectedCount += 1;}
+        }
+        return selectedCount;
     }
 
 
@@ -117,36 +258,55 @@ public class HorizontalSoundSourceView : AbsoluteLayout
 
     }
 
-
 }
 
 public class VisualSoundSourceSelectionButton : Button
 {
 
-    VisualSoundSourceLocation visualSoundSourceLocation;
-    
-    public VisualSoundSourceSelectionButton(ref VisualSoundSourceLocation visualSoundSourceLocation)
+    VisualSoundSourceLocation VisualSoundSourceLocation;
+    STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles RoleType;
+
+
+    public VisualSoundSourceSelectionButton(ref VisualSoundSourceLocation visualSoundSourceLocation, STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles roleType)
     {
-        this.visualSoundSourceLocation = visualSoundSourceLocation;
+        this.VisualSoundSourceLocation = visualSoundSourceLocation;
+        RoleType = roleType;
         UpdateColor();
     }
 
     public bool IsSelected {
         get 
         { 
-            return visualSoundSourceLocation.Selected; 
+            return VisualSoundSourceLocation.Selected; 
         }
         set {
-            visualSoundSourceLocation.Selected = value;
+            VisualSoundSourceLocation.Selected = value;
             UpdateColor();
         } 
     }
 
     void UpdateColor()
     {
-        if (visualSoundSourceLocation.Selected)
+        if (VisualSoundSourceLocation.Selected)
         {
-            BackgroundColor = Colors.LightGreen;
+            switch (RoleType)
+            {   
+                case SoundSceneItem.SoundSceneItemRoles.Target:
+                    BackgroundColor = Colors.LightGreen;
+                    break;
+                case SoundSceneItem.SoundSceneItemRoles.Masker:
+                    BackgroundColor = Colors.Red;
+                    break;
+                case SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech:
+                    BackgroundColor = Colors.Pink;
+                    break;
+                case SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech:
+                    BackgroundColor = Colors.BlueViolet;
+                    break;
+                default:
+                    BackgroundColor = Colors.Black;
+                    break;
+            }
         }
         else
         {
