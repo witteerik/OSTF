@@ -23,7 +23,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
         Get
-            Return New List(Of TestProtocol) From {New SrtIso8253}
+            Return New List(Of TestProtocol) From {New SwedishHintProtocol}
         End Get
     End Property
 
@@ -157,24 +157,12 @@ Public Class HintSpeechTest
 
         CreatePlannedWordsList()
 
+        Dim NextTaskInstruction = New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = 0}
 
-        Dim NextTaskInstruction = New TestProtocol.NextTaskInstruction With {.TestStage = 0}
+        InitialSpeechLevel = CustomizableTestOptions.SpeechLevel
+        InitialMaskerLevel = CustomizableTestOptions.MaskingLevel
 
-        Select Case CustomizableTestOptions.SelectedTestMode
-            Case TestModes.AdaptiveSpeech
-                NextTaskInstruction.AdaptiveValue = CustomizableTestOptions.SpeechLevel
-
-                InitialSpeechLevel = CustomizableTestOptions.SpeechLevel
-                InitialMaskerLevel = CustomizableTestOptions.SpeechLevel - 10 '??? this should probably be set by the protokol
-
-            Case TestModes.AdaptiveNoise
-                NextTaskInstruction.AdaptiveValue = CustomizableTestOptions.MaskingLevel
-
-                InitialSpeechLevel = CustomizableTestOptions.MaskingLevel
-                InitialMaskerLevel = CustomizableTestOptions.MaskingLevel - 10 '??? this should probably be set by the protokol
-
-        End Select
-
+        CustomizableTestOptions.SelectedTestProtocol.IsInPractiseMode = CustomizableTestOptions.IsPractiseTest
         CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(NextTaskInstruction)
 
         Return True
@@ -303,16 +291,18 @@ Public Class HintSpeechTest
         'Calculating the speech level
         Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
 
-        ' Returning if we should not move to the next trial
-        If ProtocolReply.Decision <> SpeechTestReplies.GotoNextTrial Then
-            Return ProtocolReply.Decision
-        Else
-            Return PrepareNextTrial(ProtocolReply)
+        PrepareNextTrial(ProtocolReply)
+
+        If ProtocolReply.Decision = SpeechTestReplies.TestIsCompleted Then
+            'Adds the last trial to the history so that it can be used to calculate the next level, even though it never gets presented
+            ObservedTrials.Add(CurrentTestTrial)
         End If
+
+        Return ProtocolReply.Decision
 
     End Function
 
-    Private Function PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction) As SpeechTestReplies
+    Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
         'Preparing the next trial
         'Getting next test word
@@ -323,8 +313,9 @@ Public Class HintSpeechTest
             Case TestModes.AdaptiveSpeech
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
-            .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+            .SpeechLevel = InitialSpeechLevel + NextTaskInstruction.AdaptiveValue,
             .MaskerLevel = InitialMaskerLevel,
+            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
 
@@ -332,7 +323,8 @@ Public Class HintSpeechTest
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
             .SpeechLevel = InitialSpeechLevel,
-            .MaskerLevel = NextTaskInstruction.AdaptiveValue,
+            .MaskerLevel = InitialMaskerLevel - NextTaskInstruction.AdaptiveValue,
+            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
 
@@ -374,9 +366,7 @@ Public Class HintSpeechTest
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1000, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1001, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
 
-        Return SpeechTestReplies.GotoNextTrial
-
-    End Function
+    End Sub
 
 
 
@@ -409,8 +399,14 @@ Public Class HintSpeechTest
         Return True
     End Function
 
+    Public Overrides Sub CalculateResult()
+        CustomizableTestOptions.SelectedTestProtocol.CalculateResult(ObservedTrials)
+    End Sub
+
+
 
     Public Overrides Function GetResults() As TestResults
+
         Return CustomizableTestOptions.SelectedTestProtocol.GetResults(ObservedTrials)
     End Function
 End Class

@@ -55,6 +55,8 @@ End Module
 
 Public MustInherit Class TestProtocol
 
+    Public Property IsInPractiseMode As Boolean = False
+
     Public MustOverride ReadOnly Property Name As String
 
     Public MustOverride Property StoppingCriterium As StoppingCriteria
@@ -69,6 +71,8 @@ Public MustInherit Class TestProtocol
     Public MustOverride Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
 
     Public MustOverride Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
+
+    Public MustOverride Sub CalculateResult(ByRef TrialHistory As TrialHistory)
 
     Public Class NextTaskInstruction
         Public Decision As SpeechTestReplies

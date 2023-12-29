@@ -182,6 +182,7 @@
         Return Nothing
     End Function
 
-
-
+    Public Overrides Sub CalculateResult()
+        Throw New NotImplementedException()
+    End Sub
 End Class

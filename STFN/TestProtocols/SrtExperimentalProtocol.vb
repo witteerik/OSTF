@@ -227,8 +227,8 @@ Public Class SrtExperimentalProtocol
 
     End Function
 
-
-
-
+    Public Overrides Sub CalculateResult(ByRef TrialHistory As TrialHistory)
+        Throw New NotImplementedException()
+    End Sub
 End Class
 

@@ -1519,7 +1519,7 @@ Namespace SipTest
 
                 Dim Difference As Double = TargetTestWord_SPL - TestWordLevelLimit
 
-                'Decreasing all levels set by Difference, to retain the desired test SNR
+                'Decreasing all levels set by Difference, to retain the desired test AdaptiveValue
                 _TargetMasking_SPL -= Difference
                 TargetTestWord_SPL -= Difference
                 ContextRegionSpeech_SPL -= Difference

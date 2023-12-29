@@ -194,23 +194,23 @@ public partial class OptionsViewAll : ContentView
     private void AvailableTestModes_Picker_SelectedIndexChanged(object sender, EventArgs e)
     {
 
-        SpeechTest.TestModes castItem = (SpeechTest.TestModes)AvailableTestModes_Picker.SelectedItem;
+        //SpeechTest.TestModes castItem = (SpeechTest.TestModes)AvailableTestModes_Picker.SelectedItem;
 
-        // Resetting default values
-        SpeechLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
-        MaskerLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveMaskers;
-        BackgroundLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundNonSpeech;
+        //// Resetting default values
+        //SpeechLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
+        //MaskerLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveMaskers;
+        //BackgroundLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundNonSpeech;
 
-        // Then hiding controls not to be used
-        if (castItem == SpeechTest.TestModes.AdaptiveSpeech)
-        {
-            SpeechLevelControl.IsVisible = false;
-        }
-        if (castItem == SpeechTest.TestModes.AdaptiveNoise)
-        {
-            MaskerLevelControl.IsVisible = false;
-            BackgroundLevelControl.IsVisible = false;
-        }
+        //// Then hiding controls not to be used
+        //if (castItem == SpeechTest.TestModes.AdaptiveSpeech)
+        //{
+        //    SpeechLevelControl.IsVisible = false;
+        //}
+        //if (castItem == SpeechTest.TestModes.AdaptiveNoise)
+        //{
+        //    MaskerLevelControl.IsVisible = false;
+        //    BackgroundLevelControl.IsVisible = false;
+        //}
 
     }
 

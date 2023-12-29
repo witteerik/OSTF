@@ -380,6 +380,10 @@ Public Class SrtSpeechTest
     Public Overrides Function GetResults() As TestResults
         Return CustomizableTestOptions.SelectedTestProtocol.GetResults(ObservedTrials)
     End Function
+
+    Public Overrides Sub CalculateResult()
+        Throw New NotImplementedException()
+    End Sub
 End Class
 
 

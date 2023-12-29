@@ -711,6 +711,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         CurrentResponseView.HideAllItems();
 
+        CurrentSpeechTest.CalculateResult();
+
         TestResults CurrentResults = CurrentSpeechTest.GetResults();
 
         CurrentSpeechTest.SaveResults(CurrentResults);
