@@ -1,5 +1,41 @@
 ﻿Public MustInherit Class SpeechTest
 
+#Region "Initialization"
+
+    Public Sub New(ByVal SpeechMaterialName As String)
+        Me.SpeechMaterialName = SpeechMaterialName
+        LoadSpeechMaterialSpecification(SpeechMaterialName)
+    End Sub
+
+#End Region
+
+
+#Region "SpeechMaterial"
+
+    Private Function LoadSpeechMaterialSpecification(ByVal SpeechMaterialName As String, Optional ByVal EnforceReloading As Boolean = False) As Boolean
+
+        If LoadedSpeechMaterialSpecifications.ContainsKey(SpeechMaterialName) = False Or EnforceReloading = True Then
+
+            'Removes the SpeechMaterial with SpeechMaterialName if already present
+            LoadedSpeechMaterialSpecifications.Remove(SpeechMaterialName)
+
+            'Looking for the speech material
+            OstfBase.LoadAvailableSpeechMaterialSpecifications()
+            For Each Test In OstfBase.AvailableSpeechMaterials
+                If Test.Name = SpeechMaterialName Then
+                    'Adding it if found
+                    LoadedSpeechMaterialSpecifications.Add(SpeechMaterialName, Test)
+                    Exit For
+                End If
+            Next
+        End If
+
+        'Returns true if added (or already present) or false if not found
+        Return LoadedSpeechMaterialSpecifications.ContainsKey(SpeechMaterialName)
+
+    End Function
+
+
     ''' <summary>
     ''' An object shared between all instances of Speechtest that hold every loaded SpeechtestSpecification and 
     ''' Speech Material component to prevent the need for re-loading between tests. 
@@ -60,52 +96,9 @@
         End Get
     End Property
 
-    ''' <summary>
-    ''' Returns the set of transducers from OstfBase.AvaliableTransducers expected to work with the currently connected hardware.
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property CurrentlySupportedTransducers As List(Of OstfBase.AudioSystemSpecification)
-        Get
-            Dim Output = New List(Of OstfBase.AudioSystemSpecification)
-            Dim AllTransducers = OstfBase.AvaliableTransducers
+#End Region
 
-            'Adding only transducers that can be used with the current sound system.
-            For Each Transducer In AllTransducers
-                If Transducer.CanPlay() = True Then Output.Add(Transducer)
-            Next
-
-            Return Output
-        End Get
-    End Property
-
-    Public Sub New(ByVal SpeechMaterialName As String)
-        Me.SpeechMaterialName = SpeechMaterialName
-        LoadSpeechMaterialSpecification(SpeechMaterialName)
-
-    End Sub
-
-    Private Function LoadSpeechMaterialSpecification(ByVal SpeechMaterialName As String, Optional ByVal EnforceReloading As Boolean = False) As Boolean
-
-        If LoadedSpeechMaterialSpecifications.ContainsKey(SpeechMaterialName) = False Or EnforceReloading = True Then
-
-            'Removes the SpeechMaterial with SpeechMaterialName if already present
-            LoadedSpeechMaterialSpecifications.Remove(SpeechMaterialName)
-
-            'Looking for the speech material
-            OstfBase.LoadAvailableSpeechMaterialSpecifications()
-            For Each Test In OstfBase.AvailableSpeechMaterials
-                If Test.Name = SpeechMaterialName Then
-                    'Adding it if found
-                    LoadedSpeechMaterialSpecifications.Add(SpeechMaterialName, Test)
-                    Exit For
-                End If
-            Next
-        End If
-
-        'Returns true if added (or already present) or false if not found
-        Return LoadedSpeechMaterialSpecifications.ContainsKey(SpeechMaterialName)
-
-    End Function
+#Region "MediaSets"
 
     Public ReadOnly Property AvailableMediasets() As List(Of MediaSet)
         Get
@@ -136,45 +129,21 @@
         End Get
     End Property
 
-    Public Shared Randomizer As Random = New Random
-
-    Public Property SoundOverlapDuration As Double = 0
-
-#Region "Test protocol"
-
-    Public MustOverride ReadOnly Property AvailableTestModes As List(Of TestModes)
-
-    Public Enum TestModes
-        ConstantStimuli
-        AdaptiveSpeech
-        AdaptiveNoise
-        AdaptiveDirectionality
-    End Enum
-
-
-    Public MustOverride ReadOnly Property AvailableTestProtocols() As List(Of TestProtocol)
-
-    Public Sub SelectTestProtocol(ByRef SelectedTestProtocol As TestProtocol)
-        Me.CustomizableTestOptions.SelectedTestProtocol = SelectedTestProtocol
-    End Sub
-
-    Public MustOverride ReadOnly Property AvailableFixedResponseAlternativeCounts() As List(Of Integer)
-
-    Public MustOverride ReadOnly Property AvailablePresentationModes() As List(Of SoundPropagationTypes)
-
-    Public MustOverride ReadOnly Property AvailablePhaseAudiometryTypes() As List(Of BmldModes)
-
-
-
 #End Region
+
 
 #Region "SoundScene"
 
-    Public MustOverride ReadOnly Property MaximumSpeechLocations As Integer
-    Public MustOverride ReadOnly Property MaximumMaskerLocations As Integer
-    Public MustOverride ReadOnly Property MaximumBackgroundNonSpeechLocations As Integer
-    Public MustOverride ReadOnly Property MaximumBackgroundSpeechLocations As Integer
+    Public MustOverride ReadOnly Property MaximumSoundFieldSpeechLocations As Integer
+    Public MustOverride ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
+    Public MustOverride ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
+    Public MustOverride ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
 
+    Public MustOverride ReadOnly Property AllowsReferenceLevelControl As Boolean
+    Public MustOverride ReadOnly Property CanHaveTargets As Boolean
+    Public MustOverride ReadOnly Property CanHaveMaskers As Boolean
+    Public MustOverride ReadOnly Property CanHaveBackgroundNonSpeech As Boolean
+    Public MustOverride ReadOnly Property CanHaveBackgroundSpeech As Boolean
 
 
     Public ReadOnly Property CurrentlySupportedIrSets As List(Of BinauralImpulseReponseSet)
@@ -200,11 +169,57 @@
         End Get
     End Property
 
+    ''' <summary>
+    ''' Returns the set of transducers from OstfBase.AvaliableTransducers expected to work with the currently connected hardware.
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property CurrentlySupportedTransducers As List(Of OstfBase.AudioSystemSpecification)
+        Get
+            Dim Output = New List(Of OstfBase.AudioSystemSpecification)
+            Dim AllTransducers = OstfBase.AvaliableTransducers
 
+            'Adding only transducers that can be used with the current sound system.
+            For Each Transducer In AllTransducers
+                If Transducer.CanPlay() = True Then Output.Add(Transducer)
+            Next
 
+            Return Output
+        End Get
+    End Property
 
 #End Region
 
+
+    Public Property SoundOverlapDuration As Double = 0
+
+#Region "Test protocol"
+
+    Public Shared Randomizer As Random = New Random
+
+    Public MustOverride ReadOnly Property AvailableTestModes As List(Of TestModes)
+
+    Public Enum TestModes
+        ConstantStimuli
+        AdaptiveSpeech
+        AdaptiveNoise
+        AdaptiveDirectionality
+    End Enum
+
+    Public MustOverride ReadOnly Property AvailableTestProtocols() As List(Of TestProtocol)
+
+    Public MustOverride ReadOnly Property UseKeyWordScoring As Utils.TriState
+    Public MustOverride ReadOnly Property UseListOrderRandomization As Utils.TriState
+    Public MustOverride ReadOnly Property UseWithinListRandomization As Utils.TriState
+    Public MustOverride ReadOnly Property UseAcrossListRandomization As Utils.TriState
+    Public MustOverride ReadOnly Property UseFreeRecall As Utils.TriState
+    Public MustOverride ReadOnly Property UseDidNotHearAlternative As Utils.TriState
+    Public MustOverride ReadOnly Property AvailableFixedResponseAlternativeCounts() As List(Of Integer)
+    Public MustOverride ReadOnly Property UseContralateralMasking As Utils.TriState
+    Public MustOverride ReadOnly Property AvailablePhaseAudiometryTypes() As List(Of BmldModes)
+    Public MustOverride ReadOnly Property UsePhaseAudiometry As Utils.TriState
+
+
+#End Region
 
 #Region "RunningTest"
 

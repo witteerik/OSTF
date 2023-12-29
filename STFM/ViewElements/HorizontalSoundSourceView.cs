@@ -56,6 +56,22 @@ public class HorizontalSoundSourceView : Frame
         }
     }
 
+    public static readonly BindableProperty IsSoundFieldSimulationProperty =
+        BindableProperty.Create(nameof(IsSoundFieldSimulation), typeof(bool), typeof(HorizontalSoundSourceView), false, BindingMode.TwoWay);
+
+        public bool IsSoundFieldSimulation
+        {
+            get
+            {
+                return (bool)GetValue(IsSoundFieldSimulationProperty);
+            }
+            set
+            {
+                SetValue(IsSoundFieldSimulationProperty, value);
+            }
+        }
+
+
     public static readonly BindableProperty SoundSourcesProperty =
         BindableProperty.Create(nameof(SoundSources), typeof(List<VisualSoundSourceLocation>), typeof(HorizontalSoundSourceView), null, BindingMode.TwoWay);
 
@@ -72,6 +88,10 @@ public class HorizontalSoundSourceView : Frame
         }
     }
 
+    private List<VisualSoundSourceSelectionButton> ButtonList = new List<VisualSoundSourceSelectionButton>();
+
+
+    private bool isHeadPhones = false;
 
     public event EventHandler ValueChanged;
 
@@ -106,6 +126,7 @@ public class HorizontalSoundSourceView : Frame
 
         // Clearing SoundSourceLayout
         SoundSourceLayout.Children.Clear();
+        ButtonList.Clear();
 
         // Settign Title
         TitleLabel.Text = Title;
@@ -168,6 +189,9 @@ public class HorizontalSoundSourceView : Frame
             }
             else
             {
+                // Noting that we have head phones /TODO: Note that this will fail, if we have other channels going out to feedback to the test adiminstrator...
+                if (SoundSources.Count == 2) { isHeadPhones = true; }
+                
                 // This will occur when we have headphones, but should not otherwise occur. Overriding the distance value to get spacial separation of left and right headphone (which would otherwise be on top of each other).
                 // Also increaing the height to look a little more like headsets
                 foreach (VisualSoundSourceLocation source in SoundSources)
@@ -212,6 +236,8 @@ public class HorizontalSoundSourceView : Frame
                 SoundSourceLayout.SetLayoutBounds(sourceBotton, new Rect(source.X, source.Y, source.Width, source.Height));
                 SoundSourceLayout.SetLayoutFlags(sourceBotton, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.All);
 
+                ButtonList.Add(sourceBotton);
+
             }
         }
     }
@@ -222,21 +248,40 @@ public class HorizontalSoundSourceView : Frame
 
         VisualSoundSourceSelectionButton castButton = (VisualSoundSourceSelectionButton)sender;
 
-        if (castButton.IsSelected == false)
+        if (IsSoundFieldSimulation == false && isHeadPhones == true)
         {
-            // Checking if max number of selected buttons has been reached
-            int selectedCount = GetSelectedCount();
-            if (selectedCount <= MaxSelected) { castButton.IsSelected = true; }
+            // In the case where we have headphones and no sound field simulation, we don not limit the number of sounde sources (as they sound be only two, i.e. left and right head phone) 
+            // Swapping the value
+            castButton.IsSelected = !castButton.IsSelected;
         }
         else
         {
-            //Swapping the value
-            castButton.IsSelected = false;
+            // In all other cases, i.e. real or simulated sound field we limit the number of selected sound sources
+
+            if (castButton.IsSelected == false)
+            {
+                // Checking if max number of selected buttons has been reached, and if so, deselects the first item (not in order, as the order of selection is not stored)
+                int selectedCount = GetSelectedCount();
+                if (selectedCount >= MaxSelected) { DeSelectedFirstButton(); }
+                castButton.IsSelected = true;
+            }
+            else
+            {
+                //Swapping the value
+                castButton.IsSelected = false;
+            }
         }
+    }
 
-
-        //valueChanged
-
+    private void DeSelectedFirstButton()
+    {
+        foreach (var item in ButtonList)
+        {
+            if (item.IsSelected == true) {
+                item.IsSelected = false;
+                return;
+            }
+        }
     }
 
     private int GetSelectedCount()

@@ -21,9 +21,16 @@
 'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 'SOFTWARE.
 
+
 Namespace Utils
 
     Public Module Constants 'TODO: This should be renamed!!! It no longer contains any constants!!! ;-)
+
+        Public Enum TriState
+            [True]
+            [False]
+            [Optional]
+        End Enum
 
         Public Enum Sides
             Left

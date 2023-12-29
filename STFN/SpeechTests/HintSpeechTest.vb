@@ -1,6 +1,6 @@
 ﻿Imports MathNet.Numerics
 
-Public Class SrtSpeechTest
+Public Class HintSpeechTest
     Inherits SpeechTest
 
     ''' <summary>
@@ -17,19 +17,19 @@ Public Class SrtSpeechTest
 
     Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
         Get
-            Return New List(Of TestModes) From {TestModes.ConstantStimuli, TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise, TestModes.AdaptiveDirectionality}
+            Return New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
         End Get
     End Property
 
     Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
         Get
-            Return TestProtocols.GetSrtProtocols
+            Return New List(Of TestProtocol) From {New SrtIso8253}
         End Get
     End Property
 
     Public Overrides ReadOnly Property AvailableFixedResponseAlternativeCounts As List(Of Integer)
         Get
-            Return New List(Of Integer) From {2, 3, 4, 5, 6, 7, 8, 10, 15, 20}
+            Return New List(Of Integer)
         End Get
     End Property
 
@@ -97,37 +97,37 @@ Public Class SrtSpeechTest
 
     Public Overrides ReadOnly Property UseKeyWordScoring As Utils.TriState
         Get
-            Return True
+            Return Utils.Constants.TriState.Optional
         End Get
     End Property
 
     Public Overrides ReadOnly Property UseListOrderRandomization As Utils.TriState
         Get
-            Return True
+            Return Utils.Constants.TriState.Optional
         End Get
     End Property
 
     Public Overrides ReadOnly Property UseWithinListRandomization As Utils.TriState
         Get
-            Return True
+            Return Utils.Constants.TriState.Optional
         End Get
     End Property
 
     Public Overrides ReadOnly Property UseAcrossListRandomization As Utils.TriState
         Get
-            Return True
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
     Public Overrides ReadOnly Property UseFreeRecall As Utils.TriState
         Get
-            Return Utils.TriState.Optional
+            Return Utils.TriState.True
         End Get
     End Property
 
     Public Overrides ReadOnly Property UseDidNotHearAlternative As Utils.TriState
         Get
-            Return Utils.Constants.TriState.Optional
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 

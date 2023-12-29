@@ -159,6 +159,8 @@ Public Class CustomizableTestOptions
     '''' <returns></returns>
     'Public Property SaveLevelLimit As Double = 100
 
+
+
     ''' <summary>
     ''' The SelectedTestMode property is used to determine which type of test protocol that should be used
     ''' </summary>
@@ -321,15 +323,8 @@ Public Class CustomizableTestOptions
             Else
                 Return SoundPropagationTypes.SimulatedSoundField
             End If
-            'Return _SelectedPresentationMode
         End Get
-        'Set(value As SoundPropagationTypes)
-        '    _SelectedPresentationMode = value
-        '    OnPropertyChanged()
-        'End Set
     End Property
-    'Private _SelectedPresentationMode As SoundPropagationTypes
-    'Public Property SelectedPresentationModeTitle As String = "Ljudutbredningsläge"
 
 
     ''' <summary>

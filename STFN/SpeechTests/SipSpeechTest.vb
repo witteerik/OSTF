@@ -21,39 +21,111 @@
         End Get
     End Property
 
-    Public Overrides ReadOnly Property AvailablePresentationModes As List(Of SoundPropagationTypes)
-        Get
-            Return New List(Of SoundPropagationTypes) From {SoundPropagationTypes.PointSpeakers, SoundPropagationTypes.SimulatedSoundField}
-        End Get
-    End Property
-
     Public Overrides ReadOnly Property AvailablePhaseAudiometryTypes As List(Of BmldModes)
         Get
             Return New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
         End Get
     End Property
 
-    Public Overrides ReadOnly Property MaximumSpeechLocations As Integer
+    Public Overrides ReadOnly Property MaximumSoundFieldSpeechLocations As Integer
         Get
             Return 1
         End Get
     End Property
 
-    Public Overrides ReadOnly Property MaximumMaskerLocations As Integer
+    Public Overrides ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
         Get
             Return Integer.MaxValue
         End Get
     End Property
 
-    Public Overrides ReadOnly Property MaximumBackgroundNonSpeechLocations As Integer
+    Public Overrides ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
         Get
             Return Integer.MaxValue
         End Get
     End Property
 
-    Public Overrides ReadOnly Property MaximumBackgroundSpeechLocations As Integer
+    Public Overrides ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
         Get
             Return Integer.MaxValue
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsReferenceLevelControl As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property CanHaveTargets As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property CanHaveMaskers As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property CanHaveBackgroundSpeech As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UseKeyWordScoring As Utils.TriState
+        Get
+            Return Utils.TriState.False
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UseListOrderRandomization As Utils.TriState
+        Get
+            Return Utils.TriState.True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UseWithinListRandomization As Utils.TriState
+        Get
+            Return Utils.TriState.True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UseAcrossListRandomization As Utils.TriState
+        Get
+            Return Utils.TriState.True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UseFreeRecall As Utils.TriState
+        Get
+            Return Utils.TriState.False
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UseDidNotHearAlternative As Utils.TriState
+        Get
+            Return Utils.Constants.TriState.False
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UseContralateralMasking As Utils.TriState
+        Get
+            Return Utils.Constants.TriState.False
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UsePhaseAudiometry As Utils.TriState
+        Get
+            Return Utils.Constants.TriState.Optional
         End Get
     End Property
 

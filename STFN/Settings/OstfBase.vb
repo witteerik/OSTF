@@ -39,6 +39,9 @@ Public Module OstfBase
     'Optimization libraries
     Public Property UseOptimizationLibraries As Boolean = False ' This can be used to determin if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
 
+    'Other basic settings
+    Public Property AllowDirectionalSimulation As Boolean = True
+
     ' Log location 
 
 
@@ -796,7 +799,7 @@ Public Module OstfBase
         ''' <param name="HardWareChannelLeft"></param>
         ''' <param name="HardWareChannelRight"></param>
         ''' <returns></returns>
-        Public Function IsHeadphones(Optional ByVal HardWareChannelLeft As Integer = 1, Optional ByVal HardWareChannelRight As Integer = 2)
+        Public Function IsHeadphones(Optional ByVal HardWareChannelLeft As Integer = 1, Optional ByVal HardWareChannelRight As Integer = 2) As Boolean
 
             'Returns false if both channels are the same
             If HardWareChannelLeft = HardWareChannelRight Then Return False
@@ -892,8 +895,12 @@ Public Module OstfBase
 
     Public ReadOnly Property DirectionalSimulator As DirectionalSimulation
         Get
-            If _DirectionalSimulator Is Nothing Then _DirectionalSimulator = New DirectionalSimulation()
-            Return _DirectionalSimulator
+            If AllowDirectionalSimulation = True Then
+                If _DirectionalSimulator Is Nothing Then _DirectionalSimulator = New DirectionalSimulation()
+                Return _DirectionalSimulator
+            Else
+                Return Nothing
+            End If
         End Get
     End Property
 

@@ -187,7 +187,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Svenska HINT":
 
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish HINT");
+                    CurrentSpeechTest = new HintSpeechTest("Swedish HINT");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
