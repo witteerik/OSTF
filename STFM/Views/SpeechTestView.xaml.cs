@@ -192,7 +192,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
                     var newOptionsHintTestView = new OptionsViewAll();
-
                     TestOptionsGrid.Children.Add(newOptionsHintTestView);
                     CurrentTestOptionsView = newOptionsHintTestView;
 
@@ -292,9 +291,6 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     CurrentSpeechTest.InitializeCurrentTest();
 
-                    // TODO: This line must be moved to an options result code section
-                    CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall = true;
-
                     // Response view
                     CurrentResponseView = new ResponseView_FreeRecall();
 
@@ -304,7 +300,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0;
+                    CurrentSpeechTest.SoundOverlapDuration = 0.1;
 
                     break;
 
@@ -313,10 +309,6 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                     CurrentSpeechTest.InitializeCurrentTest();
-
-                    // TODO: This line must be moved to an options result code section
-                    CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall = false;
-                    CurrentSpeechTest.CustomizableTestOptions.ShowDidNotHearResponseAlternative = true;
 
                     // Response view
                     if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall)
@@ -415,7 +407,6 @@ public partial class SpeechTestView : ContentView, IDrawable
             {
                 OstfBase.SoundPlayer.SetOverlapDuration(CurrentSpeechTest.SoundOverlapDuration);
             }
-
         }
     }
 

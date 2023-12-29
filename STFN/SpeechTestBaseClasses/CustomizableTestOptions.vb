@@ -223,7 +223,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _RandomizeItemsWithinLists As Boolean = True
+    Private _RandomizeItemsWithinLists As Boolean = False
     Public Property RandomizeItemsWithinListsTitle As String = "Slumpa inom listor"
 
     Public Property RandomizeItemsAcrossLists As Boolean

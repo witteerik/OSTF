@@ -103,7 +103,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property UseListOrderRandomization As Utils.TriState
         Get
-            Return Utils.Constants.TriState.Optional
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
@@ -139,7 +139,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property UsePhaseAudiometry As Utils.TriState
         Get
-            Return Utils.Constants.TriState.Optional
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
@@ -148,13 +148,34 @@ Public Class HintSpeechTest
 
     End Sub
 
+    Private InitialSpeechLevel As Double
+    Private InitialMaskerLevel As Double
+
     Public Overrides Function InitializeCurrentTest() As Boolean
 
         ObservedTrials = New TrialHistory
 
         CreatePlannedWordsList()
 
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = CustomizableTestOptions.SpeechLevel, .TestStage = 0})
+
+        Dim NextTaskInstruction = New TestProtocol.NextTaskInstruction With {.TestStage = 0}
+
+        Select Case CustomizableTestOptions.SelectedTestMode
+            Case TestModes.AdaptiveSpeech
+                NextTaskInstruction.AdaptiveValue = CustomizableTestOptions.SpeechLevel
+
+                InitialSpeechLevel = CustomizableTestOptions.SpeechLevel
+                InitialMaskerLevel = CustomizableTestOptions.SpeechLevel - 10 '??? this should probably be set by the protokol
+
+            Case TestModes.AdaptiveNoise
+                NextTaskInstruction.AdaptiveValue = CustomizableTestOptions.MaskingLevel
+
+                InitialSpeechLevel = CustomizableTestOptions.MaskingLevel
+                InitialMaskerLevel = CustomizableTestOptions.MaskingLevel - 10 '??? this should probably be set by the protokol
+
+        End Select
+
+        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(NextTaskInstruction)
 
         Return True
 
@@ -298,10 +319,27 @@ Public Class HintSpeechTest
         Dim NextTestWord = PlannedTestWords(ObservedTrials.Count)
 
         'Creating a new test trial
-        CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+        Select Case CustomizableTestOptions.SelectedTestMode
+            Case TestModes.AdaptiveSpeech
+
+                CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
             .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+            .MaskerLevel = InitialMaskerLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
+
+            Case TestModes.AdaptiveNoise
+
+                CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+            .SpeechLevel = InitialSpeechLevel,
+            .MaskerLevel = NextTaskInstruction.AdaptiveValue,
+            .TestStage = NextTaskInstruction.TestStage,
+            .Tasks = 1}
+
+            Case Else
+                Throw New NotImplementedException
+        End Select
+
 
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
 
@@ -311,26 +349,19 @@ Public Class HintSpeechTest
 
                 CurrentTestTrial.Tasks = 0
                 For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
-                    ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
+
+                    If CustomizableTestOptions.ScoreOnlyKeyWords = True Then
+                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
+                    Else
+                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
+                    End If
+
                     CurrentTestTrial.Tasks += 1
                 Next
             End If
 
         Else
-            'Adding the current word spelling as a response alternative
-
-            ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"), .IsScoredItem = CurrentTestTrial.SpeechMaterialComponent.IsKeyComponent})
-            CurrentTestTrial.Tasks = 1
-
-            'Picking random response alternatives from all available test words
-            Dim AllContrastingWords = NextTestWord.GetAllRelativesAtLevelExludingSelf(SpeechMaterialComponent.LinguisticLevels.Sentence, True, False)
-            Dim RandomIndices = Utils.SampleWithoutReplacement(Math.Max(0, CustomizableTestOptions.FixedResponseAlternativeCount - 1), 0, AllContrastingWords.Count, Randomizer)
-            For Each RandomIndex In RandomIndices
-                ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = AllContrastingWords(RandomIndex).GetCategoricalVariableValue("Spelling"), .IsScoredItem = AllContrastingWords(RandomIndex).IsKeyComponent})
-            Next
-
-            'Shuffling the order of response alternatives
-            ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+            Throw New NotImplementedException
         End If
 
         CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
@@ -340,9 +371,8 @@ Public Class HintSpeechTest
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 5500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1000, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1001, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
 
         Return SpeechTestReplies.GotoNextTrial
 
@@ -361,10 +391,13 @@ Public Class HintSpeechTest
         Audio.DSP.AmplifySection(TestWordSound, NeededGain)
 
         'Setting level
-        'Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel))
+        Dim Noise = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+        Audio.DSP.MeasureAndAdjustSectionLevel(Noise, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel))
+
+        Dim MixedSound = Audio.DSP.SuperpositionSounds({TestWordSound, Noise}.ToList)
 
         'Copying to stereo and storing in CurrentTestTrial.Sound 
-        CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
+        CurrentTestTrial.Sound = MixedSound.ConvertMonoToMultiChannel(2, True)
 
     End Sub
 

@@ -29,19 +29,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\TestOptionsView.xaml.cs">
+	    <DependentUpon>TestOptionsView.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Views\AudiogramView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\OptionsSipTestView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\OptionsSrtTestView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\OptionsViewAll.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\OptionsView_HINT.xaml">
+	  <MauiXaml Update="Views\TestOptionsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\SpeechTestCalibrationView.xaml">

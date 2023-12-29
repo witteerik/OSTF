@@ -57,10 +57,4 @@ Public Class TestTrial
 
 End Class
 
-Public Class SrtTrial
-    Inherits TestTrial
-
-    Public SpeechLevel As Double
-
-End Class
 

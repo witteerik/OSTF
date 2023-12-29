@@ -124,6 +124,9 @@ public class HorizontalSoundSourceView : Frame
     private void UpdateSoundSources()
     {
 
+        //Resetting isHeadPhones 
+        isHeadPhones = false;
+
         // Clearing SoundSourceLayout
         SoundSourceLayout.Children.Clear();
         ButtonList.Clear();
@@ -223,6 +226,21 @@ public class HorizontalSoundSourceView : Frame
                     Text = source.ParentSoundSourceLocation.HorizontalAzimuth.ToString(),
                     //Padding = 10
                 };
+
+                // Selects as default, if headphones and not simulated sound field
+                if (isHeadPhones == true & IsSoundFieldSimulation == false)
+                {
+                    sourceBotton.IsSelected = true;
+                }
+
+                // Selects front location for target type as default if sound field (real or simulated) (i.e. not headphones without sound field simulation)
+                if (isHeadPhones == false & RoleType == SoundSceneItem.SoundSceneItemRoles.Target)
+                {
+                    if (source.ParentSoundSourceLocation.Distance > 0 & source.ParentSoundSourceLocation.HorizontalAzimuth == 0)
+                    {
+                        sourceBotton.IsSelected = true;
+                    }
+                }
 
                 sourceBotton.TextColor = Color.FromRgb(40, 40, 40);
                 //sourceBotton.FontSize = 20;
