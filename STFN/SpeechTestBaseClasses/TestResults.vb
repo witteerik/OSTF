@@ -14,6 +14,7 @@
     Public MaskerLevelSeries As List(Of Double)
     Public SNRLevelSeries As List(Of Double)
     Public ScoreSeries As List(Of String)
+    Public ProportionCorrectSeries As List(Of String)
 
     Public Sub New(ByVal TestResultType As TestResultTypes)
         Me.TestResultType = TestResultType
@@ -33,6 +34,7 @@
                 ResultsRowList.Add("Masker levels:" & vbCrLf & String.Join(vbTab, MaskerLevelSeries))
                 ResultsRowList.Add("SNR levels:" & vbCrLf & String.Join(vbTab, SNRLevelSeries))
                 ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
+                ResultsRowList.Add("Proportion correct:" & vbCrLf & String.Join(vbTab, ProportionCorrectSeries))
 
             Case Else
 

@@ -37,6 +37,7 @@ Public Class TestTrial
     ''' <returns></returns>
     Public Property IsCorrect As Boolean
 
+
     ''' <summary>
     ''' Indicate the number of presented tasks.
     ''' </summary>

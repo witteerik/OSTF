@@ -834,7 +834,8 @@ Namespace Audio
 
 
             Private Sub SetOverlapDuration(ByVal Duration As Double) Implements iSoundPlayer.SetOverlapDuration
-                OverlapFrameCount = SampleRate * Duration
+                'Enforcing at least one sample overlap
+                OverlapFrameCount = Math.Max(1, SampleRate * Duration)
             End Sub
 
             Public Function GetOverlapDuration() As Double Implements iSoundPlayer.GetOverlapDuration

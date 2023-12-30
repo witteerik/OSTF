@@ -560,7 +560,9 @@ Public Class MatrixSpeechTest
 
 
     Public Overrides Sub FinalizeTest()
-        Throw New NotImplementedException()
+
+        CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+
     End Sub
 End Class
 

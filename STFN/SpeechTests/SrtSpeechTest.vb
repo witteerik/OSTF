@@ -366,13 +366,20 @@ Public Class SrtSpeechTest
 
         Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
         If CustomizableTestOptions.IsFreeRecall Then
-            If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 1 Then
+            If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 0 Then
 
                 CurrentTestTrial.Tasks = 0
                 For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
-                    ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
+
+                    If CustomizableTestOptions.ScoreOnlyKeyWords = True Then
+                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
+                    Else
+                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
+                    End If
+
                     CurrentTestTrial.Tasks += 1
                 Next
+
             End If
 
         Else
@@ -467,7 +474,9 @@ Public Class SrtSpeechTest
     End Function
 
     Public Overrides Sub FinalizeTest()
-        Throw New NotImplementedException()
+
+        CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+
     End Sub
 End Class
 

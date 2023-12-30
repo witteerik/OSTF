@@ -368,7 +368,7 @@ Public Class HintSpeechTest
 
         Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
         If CustomizableTestOptions.IsFreeRecall Then
-            If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 1 Then
+            If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 0 Then
 
                 CurrentTestTrial.Tasks = 0
                 For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()

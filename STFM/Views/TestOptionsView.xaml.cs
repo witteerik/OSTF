@@ -188,7 +188,8 @@ public partial class OptionsViewAll : ContentView
 
     private void UseFreeRecall_Switch_Toggled(object sender, ToggledEventArgs e)
     {
-        AvailableFixedResponseAlternativeCounts_Picker.IsVisible = e.Value;
+        AvailableFixedResponseAlternativeCounts_Picker.IsVisible = !e.Value;
+        if (AvailableFixedResponseAlternativeCounts_Picker.Items.Count < 2) { AvailableFixedResponseAlternativeCounts_Picker.IsVisible = false; }
     }
 
     private void AvailableTestModes_Picker_SelectedIndexChanged(object sender, EventArgs e)

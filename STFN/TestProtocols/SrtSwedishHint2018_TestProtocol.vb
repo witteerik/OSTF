@@ -125,6 +125,7 @@ Public Class SrtSwedishHint2018_TestProtocol
         Output.MaskerLevelSeries = New List(Of Double)
         Output.SNRLevelSeries = New List(Of Double)
         Output.TestStageSeries = New List(Of String)
+        Output.ProportionCorrectSeries = New List(Of String)
         Output.ScoreSeries = New List(Of String)
         For Each Trial As SrtTrial In TrialHistory
             Output.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
@@ -132,6 +133,7 @@ Public Class SrtSwedishHint2018_TestProtocol
             Output.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
             Output.SNRLevelSeries.Add(Math.Round(Trial.SNR))
             Output.TestStageSeries.Add(Trial.TestStage)
+            Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
             If Trial.IsCorrect = True Then
                 Output.ScoreSeries.Add("Correct")
             Else
@@ -140,5 +142,6 @@ Public Class SrtSwedishHint2018_TestProtocol
         Next
 
         Return Output
+
     End Function
 End Class
