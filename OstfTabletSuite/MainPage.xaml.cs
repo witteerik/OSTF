@@ -26,7 +26,22 @@ namespace OstfTabletSuite
             STFN.Messager.OnGetOpenFilePaths += GetOpenFilePaths;
 
         }
-              
+
+        public void WelcomePageAllDone(object sender, EventArgs e)
+        {
+
+            this.Content = null;
+
+            var mySpeechTest = new STFM.Views.SpeechTestView
+            {
+                VerticalOptions = LayoutOptions.Fill,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+
+            Content = mySpeechTest;
+
+        }
+
 
         public async void DisplayMessage(string title, string message, string cancelButtonText)
         {

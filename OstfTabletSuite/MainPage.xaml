@@ -5,100 +5,20 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:drawable="clr-namespace:STFM.Views;assembly=STFM" >
 
+
+    <drawable:WelcomePageR x:Name="MyWelcomeView" 
+                           AllDone="WelcomePageAllDone"
+                           VerticalOptions="Fill"
+                           HorizontalOptions="Fill">
+               
+        
+    </drawable:WelcomePageR>
     
-    <drawable:SpeechTestView
+    <!--<drawable:SpeechTestView
                     x:Name="MySpeechTest"
                     VerticalOptions="Fill"
                     HorizontalOptions="Fill">
 
-        <!--<VerticalStackLayout
-                 x:Name="STF_VerticalStackLayout"
-                 HeightRequest="400"
-                 WidthRequest="400"
-                 BackgroundColor="Aqua">
-
-                    <Button
-                        x:Name="CounterBtn"
-                        Text="Click me"
-                        Clicked="OnCounterClicked"
-                        HorizontalOptions="Center" />
-
-        </VerticalStackLayout>-->
-
-    </drawable:SpeechTestView>
-
-
-    <!--<ScrollView>
-        <VerticalStackLayout
-            Spacing="25"
-            Padding="30,0"
-            VerticalOptions="Center">
-
-            <AbsoluteLayout
-                HeightRequest="800"
-                WidthRequest="800"
-                BackgroundColor="Azure">
-
-                <drawable:AudiogramView
-                    x:Name="MySpeechTest"
-                    VerticalOptions="Fill"
-                    HorizontalOptions="Fill">
-                </drawable:AudiogramView>
-
-            </AbsoluteLayout> 
-            
-
-
-            <Image
-                Source="dotnet_bot.png"
-                SemanticProperties.Description="Cute dot net bot waving hi to you!"
-                HeightRequest="200"
-                HorizontalOptions="Center" />
-
-            <Label
-                Text="Hello, World!"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center" />
-
-            <Label
-                Text="Welcome to .NET Multi-platform App UI"
-                SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="Welcome to dot net Multi platform App U I"
-                FontSize="18"
-                HorizontalOptions="Center" />
-
-            <Button
-                x:Name="CounterBtn"
-                Text="Click me"
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
-                HorizontalOptions="Center" />
-
-            <VerticalStackLayout
-                x:Name="STF_VerticalStackLayout"
-                HeightRequest="400"
-                WidthRequest="400"
-                BackgroundColor="Aqua">
-
-            </VerticalStackLayout>
-
-            <Button
-                        x:Name="CounterBtn2"
-                        Text="Click me"
-                        SemanticProperties.Hint="Counts the number of times you click"
-                        Clicked="OnCounterClicked2"
-                        HorizontalOptions="Center" />
-
-            <Button
-                        x:Name="playAgainBtn2"
-                        Text="Click me"
-                        SemanticProperties.Hint="Counts the number of times you click"
-                        Clicked="playAgainClicked2"
-                        HorizontalOptions="Center" />
-
-
-        </VerticalStackLayout>
-    </ScrollView>-->
+    </drawable:SpeechTestView>-->
 
 </ContentPage>

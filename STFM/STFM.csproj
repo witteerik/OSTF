@@ -29,6 +29,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\WelcomePageR.xaml.cs">
+	    <DependentUpon>WelcomePageR.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\TestOptionsView.xaml.cs">
 	    <DependentUpon>TestOptionsView.xaml</DependentUpon>
 	  </Compile>
@@ -36,6 +39,9 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="Views\AudiogramView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\WelcomePageR.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TestOptionsView.xaml">

@@ -85,10 +85,14 @@ Public Class DirectionalSimulation
 
         Dim OutputList As New List(Of String)
 
-        'Requires -90 and 90 (i.e. left and right) loudspeakers
-        'TODO, other requirements?? such as elevation of 0, distance 0 etc?
-        If SelectedTransducer.LoudspeakerAzimuths.Contains(-90) And SelectedTransducer.LoudspeakerAzimuths.Contains(90) Then
-            Return DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(SampleRate)
+        If OstfBase.AllowDirectionalSimulation = True Then
+
+            'Requires -90 and 90 (i.e. left and right) loudspeakers
+            'TODO, other requirements?? such as elevation of 0, distance 0 etc?
+            If SelectedTransducer.LoudspeakerAzimuths.Contains(-90) And SelectedTransducer.LoudspeakerAzimuths.Contains(90) Then
+                Return DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(SampleRate)
+            End If
+
         End If
 
         Return OutputList
@@ -99,10 +103,13 @@ Public Class DirectionalSimulation
 
         Dim OutputList As New List(Of String)
 
-        'Requires -90 and 90 (i.e. left and right) loudspeakers
-        'TODO, other requirements?? such as elevation of 0, distance 0 etc?
-        If SelectedTransducer.LoudspeakerAzimuths.Contains(-90) And SelectedTransducer.LoudspeakerAzimuths.Contains(90) Then
-            Return DirectionalSimulator.GetAvailableDirectionalSimulationSetNames()
+        If OstfBase.AllowDirectionalSimulation = True Then
+
+            'Requires -90 and 90 (i.e. left and right) loudspeakers
+            'TODO, other requirements?? such as elevation of 0, distance 0 etc?
+            If SelectedTransducer.LoudspeakerAzimuths.Contains(-90) And SelectedTransducer.LoudspeakerAzimuths.Contains(90) Then
+                Return DirectionalSimulator.GetAvailableDirectionalSimulationSetNames()
+            End If
         End If
 
         Return OutputList

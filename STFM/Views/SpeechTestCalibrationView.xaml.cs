@@ -281,7 +281,12 @@ public partial class SpeechTestCalibrationView : ContentView
             // this.SimulatedDistance_ComboBox.Items.Clear();
 
             // Adding available DirectionalSimulationSets
-            var AvailableSets = STFN.OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSets(ref SelectedTransducer, (int)SelectedCalibrationSound.WaveFormat.SampleRate);
+
+            List<string> AvailableSets = new List<string>();
+            if (OstfBase.AllowDirectionalSimulation == true)
+            {
+                AvailableSets = STFN.OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSets(ref SelectedTransducer, (int)SelectedCalibrationSound.WaveFormat.SampleRate);
+            }
             AvailableSets.Insert(0, NoSimulationString);
             foreach (var Item in AvailableSets)
                 this.DirectionalSimulationSet_ComboBox.ItemsSource = AvailableSets;
@@ -294,6 +299,8 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private void DirectionalSimulationSet_ComboBox_SelectedIndexChanged(object sender, EventArgs e)
     {
+
+        if (OstfBase.AllowDirectionalSimulation == false){return;}
 
         //this.SimulatedDistance_ComboBox.Items.Clear();
         //this.SimulatedDistance_ComboBox.ResetText();
@@ -402,7 +409,15 @@ public partial class SpeechTestCalibrationView : ContentView
 
                 STFN.Audio.Sound PlaySound = (STFN.Audio.Sound)null;
 
-                if (STFN.OstfBase.DirectionalSimulator.IsActive() == true)
+                bool useDirectionalSimulation = false;
+                if (OstfBase.AllowDirectionalSimulation == true) {
+                    if (STFN.OstfBase.DirectionalSimulator.IsActive() == true)
+                    {
+                        useDirectionalSimulation = true;
+                    }
+                }
+
+                if (useDirectionalSimulation == true)
                 {
 
                     double SelectedSimulatedDistance;

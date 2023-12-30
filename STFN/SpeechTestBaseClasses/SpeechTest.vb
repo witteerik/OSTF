@@ -148,23 +148,26 @@
 
     Public ReadOnly Property CurrentlySupportedIrSets As List(Of BinauralImpulseReponseSet)
         Get
+            Dim Output As New List(Of BinauralImpulseReponseSet)
 
-            Dim SupportedIrNames As New List(Of String)
-            If CustomizableTestOptions.SelectedMediaSet IsNot Nothing Then
-                SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSet.WaveFileSampleRate)
-            ElseIf CustomizableTestOptions.SelectedMediaSets IsNot Nothing Then
-                SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSets(0).WaveFileSampleRate)
-            Else
-                SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(AvailableMediasets(0).WaveFileSampleRate)
+            If OstfBase.AllowDirectionalSimulation = True Then
+                Dim SupportedIrNames As New List(Of String)
+                If CustomizableTestOptions.SelectedMediaSet IsNot Nothing Then
+                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSet.WaveFileSampleRate)
+                ElseIf CustomizableTestOptions.SelectedMediaSets IsNot Nothing Then
+                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSets(0).WaveFileSampleRate)
+                Else
+                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(AvailableMediasets(0).WaveFileSampleRate)
+                End If
+
+                Dim AvaliableSets = DirectionalSimulator.GetAllDirectionalSimulationSets()
+                For Each AvaliableSet In AvaliableSets
+                    If SupportedIrNames.Contains(AvaliableSet.Key) Then
+                        Output.Add(AvaliableSet.Value)
+                    End If
+                Next
             End If
 
-            Dim Output As New List(Of BinauralImpulseReponseSet)
-            Dim AvaliableSets = DirectionalSimulator.GetAllDirectionalSimulationSets()
-            For Each AvaliableSet In AvaliableSets
-                If SupportedIrNames.Contains(AvaliableSet.Key) Then
-                    Output.Add(AvaliableSet.Value)
-                End If
-            Next
             Return Output
         End Get
     End Property

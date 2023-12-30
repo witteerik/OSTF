@@ -11,7 +11,7 @@
 
     <ScrollView VerticalOptions="FillAndExpand">
 
-        <VerticalStackLayout Padding="10, 0, 10, 30">
+        <VerticalStackLayout x:Name="MainStackLayout" Padding="10, 0, 10, 30">
 
             <HorizontalStackLayout>
                 <Label Text="{Binding IsPractiseTestTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5"/>

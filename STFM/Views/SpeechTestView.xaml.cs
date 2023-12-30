@@ -44,6 +44,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewTestBtn.IsEnabled = true;   
         SpeechTestPicker.IsEnabled = false;
         TestOptionsGrid.IsEnabled = false;
+        TestOptionsGrid.IsVisible = false;
+
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
         //HideSettingsPanelSwitch.IsEnabled = false;
         //HideResultsPanelSwitch.IsEnabled = false;
@@ -155,6 +157,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewTestBtn.IsEnabled = false;
         SpeechTestPicker.IsEnabled = true;
         TestOptionsGrid.IsEnabled = false;
+        TestOptionsGrid.IsVisible = false;
+
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
         //HideSettingsPanelSwitch.IsEnabled = false;
         //HideResultsPanelSwitch.IsEnabled = false;
@@ -260,8 +264,9 @@ public partial class SpeechTestView : ContentView, IDrawable
             {
                 // Set IsEnabled values of controls
                 NewTestBtn.IsEnabled = false;
-                SpeechTestPicker.IsEnabled = false;
                 TestOptionsGrid.IsEnabled = true;
+                TestOptionsGrid.IsVisible = true;
+
                 if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = true; }
                 //HideSettingsPanelSwitch.IsEnabled = true;
                 //HideResultsPanelSwitch.IsEnabled = true;
@@ -426,6 +431,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             NewTestBtn.IsEnabled = false;
             SpeechTestPicker.IsEnabled = false;
             TestOptionsGrid.IsEnabled = false;
+            TestOptionsGrid.IsVisible = false;
+
             if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
             //HideSettingsPanelSwitch.IsEnabled = false;
             //HideResultsPanelSwitch.IsEnabled = false;
@@ -454,12 +461,16 @@ public partial class SpeechTestView : ContentView, IDrawable
     private void PauseTestBtn_Clicked(object sender, EventArgs e)
     {
 
+        OstfBase.SoundPlayer.FadeOutPlayback();
+
         StartTestBtn.Text = "Fortsätt";
 
         // Set IsEnabled values of controls
         NewTestBtn.IsEnabled = true;
         SpeechTestPicker.IsEnabled = false;
-        TestOptionsGrid.IsEnabled = false;
+        TestOptionsGrid.IsEnabled = true;
+        TestOptionsGrid.IsVisible = true;
+
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
         //HideSettingsPanelSwitch.IsEnabled = false;
         //HideResultsPanelSwitch.IsEnabled = false;
@@ -470,13 +481,19 @@ public partial class SpeechTestView : ContentView, IDrawable
         TestResultGrid.IsEnabled = true;
 
         // Pause testing
-        // ...
+        StopAllTrialEventTimers();
+        CurrentResponseView.HideAllItems();
+        TestResults CurrentResults = CurrentSpeechTest.GetResults();
+        //CurrentSpeechTest.SaveResults(CurrentResults);
+        ShowResults(CurrentResults);
 
     }
 
 
     private void StopTestBtn_Clicked(object sender, EventArgs e)
     {
+
+        OstfBase.SoundPlayer.FadeOutPlayback();
 
         // Showing panels again
         SetBottomPanelShow(true);
@@ -487,7 +504,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Set IsEnabled values of controls
         NewTestBtn.IsEnabled = true;
         SpeechTestPicker.IsEnabled = false;
-        TestOptionsGrid.IsEnabled = false;
+        TestOptionsGrid.IsEnabled = true;
+        TestOptionsGrid.IsVisible = true;
+
         if (CurrentTestOptionsView != null){ CurrentTestOptionsView.IsEnabled = false; } 
         //HideSettingsPanelSwitch.IsEnabled = false;
         //HideResultsPanelSwitch.IsEnabled = false;
@@ -497,8 +516,12 @@ public partial class SpeechTestView : ContentView, IDrawable
         TestReponseGrid.IsEnabled = false;
         TestResultGrid.IsEnabled = true;
 
-        // Stopping the test
-        // ...
+        // Stopping all timers
+        StopAllTrialEventTimers();
+        CurrentResponseView.HideAllItems();
+        TestResults CurrentResults = CurrentSpeechTest.GetResults();
+        CurrentSpeechTest.SaveResults(CurrentResults);
+        ShowResults(CurrentResults);
 
     }
 
@@ -545,6 +568,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             case SpeechTest.SpeechTestReplies.TestIsCompleted:
 
                 FinalizeTest();
+
+                OstfBase.SoundPlayer.FadeOutPlayback();
 
                 break;
 
@@ -748,6 +773,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         //CurrentResponseView.ShowMessage("Test is finished!");
 
     }
+
 
     void ShowResults(TestResults results)
     {
