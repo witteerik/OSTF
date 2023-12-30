@@ -35,19 +35,19 @@
 
     Public Overrides ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
         Get
-            Return Integer.MaxValue
+            Return 1000
         End Get
     End Property
 
     Public Overrides ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
         Get
-            Return Integer.MaxValue
+            Return 1000
         End Get
     End Property
 
     Public Overrides ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
         Get
-            Return Integer.MaxValue
+            Return 1000
         End Get
     End Property
 
@@ -182,7 +182,7 @@
         Return Nothing
     End Function
 
-    Public Overrides Sub CalculateResult()
+    Public Overrides Sub FinalizeTest()
         Throw New NotImplementedException()
     End Sub
 End Class

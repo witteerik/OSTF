@@ -1,7 +1,7 @@
 ﻿
 Imports STFN.SpeechTest
 
-Public Class SrtExperimentalProtocol
+Public Class SrtExperimental_TestProtocol
     Inherits TestProtocol
 
     Public Overrides ReadOnly Property Name As String
@@ -45,7 +45,7 @@ Public Class SrtExperimentalProtocol
 
     Private CurrentTestStage As UInteger = 0
 
-    Private NextSpeechLevel As Double = 0
+    Private NextAdaptiveLevel As Double = 0
 
 
 #End Region
@@ -54,7 +54,7 @@ Public Class SrtExperimentalProtocol
     Public Overrides Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
 
         'Setting the (initial) speech level to be presented in the first trial
-        NextSpeechLevel = InitialTaskInstruction.AdaptiveValue
+        NextAdaptiveLevel = InitialTaskInstruction.AdaptiveValue
 
         'Setting the initial TestStage to 0 (i.e. Ballpark)
         CurrentTestStage = 0
@@ -102,14 +102,14 @@ Public Class SrtExperimentalProtocol
 
                     Case > 0.5
                         'Decreasing level by InterFixedStageLevelAdjustment
-                        NextSpeechLevel -= InterFixedStageAdaptiveStepSize
+                        NextAdaptiveLevel -= InterFixedStageAdaptiveStepSize
 
                         'And incrementing Test stage
                         CurrentTestStage = 2
 
                     Case Else
                         'Increasing level by InterFixedStageLevelAdjustment
-                        NextSpeechLevel += InterFixedStageAdaptiveStepSize
+                        NextAdaptiveLevel += InterFixedStageAdaptiveStepSize
 
                         'And incrementing Test stage
                         CurrentTestStage = 2
@@ -130,9 +130,9 @@ Public Class SrtExperimentalProtocol
 
                 'Adjusting the speech level, depending on the last response
                 If ObservedTrials.Last.IsCorrect = True Then
-                    NextSpeechLevel -= BallparkStageAdaptiveStepSize
+                    NextAdaptiveLevel -= BallparkStageAdaptiveStepSize
                 Else
-                    NextSpeechLevel += BallparkStageAdaptiveStepSize
+                    NextAdaptiveLevel += BallparkStageAdaptiveStepSize
                 End If
 
                 'Checking first that we're not past the maximum length of the ballpark stage
@@ -157,7 +157,7 @@ Public Class SrtExperimentalProtocol
             End If
         End If
 
-        Return New NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage}
+        Return New NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage}
 
     End Function
 
@@ -173,11 +173,11 @@ Public Class SrtExperimentalProtocol
         For Each Trial As SrtTrial In ObservedTrials
             If Trial.TestStage = 1 Then
                 TrialsInFixedStage1.Add(Trial)
-                Stage1Level = Trial.SpeechLevel
+                Stage1Level = Trial.AdaptiveValue
             End If
             If Trial.TestStage = 2 Then
                 TrialsInFixedStage2.Add(Trial)
-                Stage2Level = Trial.SpeechLevel
+                Stage2Level = Trial.AdaptiveValue
             End If
         Next
 
@@ -188,16 +188,16 @@ Public Class SrtExperimentalProtocol
 
             If Stage2Score = Stage1Score Then
                 'Using the average level
-                Output.SpeechRecognitionThreshold = (Stage1Level + Stage2Level) / 2
+                Output.AdaptiveLevelThreshold = (Stage1Level + Stage2Level) / 2
             Else
                 'Interpolating level for 50 % correct score
                 Dim k = (Stage2Score - Stage1Score) / (Stage2Level - Stage1Level)
                 Dim m = Stage1Score - (k * Stage1Level)
                 If k = 0 Then
                     'Using the average level (actually, the levels should be the same if k = 0!)
-                    Output.SpeechRecognitionThreshold = (Stage1Level + Stage2Level) / 2
+                    Output.AdaptiveLevelThreshold = (Stage1Level + Stage2Level) / 2
                 Else
-                    Output.SpeechRecognitionThreshold = (0.5 - m) / k
+                    Output.AdaptiveLevelThreshold = (0.5 - m) / k
                 End If
             End If
 
@@ -205,15 +205,21 @@ Public Class SrtExperimentalProtocol
 
             'This means that the score in the first stage was exactly 50 %
             'No need for interpolation, just using stage 1 level as the speech recognition threshold
-            Output.SpeechRecognitionThreshold = Stage1Level
+            Output.AdaptiveLevelThreshold = Stage1Level
         End If
 
-        'Storing the SpeechLevelSeries
+        'Storing the AdaptiveLevelSeries
+        Output.AdaptiveLevelSeries = New List(Of Double)
         Output.SpeechLevelSeries = New List(Of Double)
+        Output.MaskerLevelSeries = New List(Of Double)
+        Output.SNRLevelSeries = New List(Of Double)
         Output.TestStageSeries = New List(Of String)
         Output.ScoreSeries = New List(Of String)
         For Each Trial As SrtTrial In ObservedTrials
+            Output.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
             Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
+            Output.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
+            Output.SNRLevelSeries.Add(Math.Round(Trial.SNR))
             Output.TestStageSeries.Add(Trial.TestStage)
             If Trial.IsCorrect = True Then
                 Output.ScoreSeries.Add("Correct")
@@ -227,8 +233,10 @@ Public Class SrtExperimentalProtocol
 
     End Function
 
-    Public Overrides Sub CalculateResult(ByRef TrialHistory As TrialHistory)
-        Throw New NotImplementedException()
+    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+
+        'This is ignored, since results are calculated directly in GetResults.
+
     End Sub
 End Class
 

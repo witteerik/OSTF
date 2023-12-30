@@ -1,4 +1,4 @@
-﻿Public Class SrtChaiklinVentry1964
+﻿Public Class SrtChaiklinVentry1964_TestProtocol
     Inherits TestProtocol
 
     Public Overrides ReadOnly Property Name As String
@@ -30,14 +30,14 @@
 
     Private CurrentTestStage As UInteger = 0
 
-    Private NextSpeechLevel As Double = 0
+    Private NextAdaptiveLevel As Double = 0
 
     Private FinalThreshold As Double? = Nothing
 
     Public Overrides Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
 
         'Setting the (initial) speech level specified by the calling code
-        NextSpeechLevel = InitialTaskInstruction.AdaptiveValue
+        NextAdaptiveLevel = InitialTaskInstruction.AdaptiveValue
 
         'Setting a default value for InitialTaskInstruction.AdaptiveStepSize
         If InitialTaskInstruction.AdaptiveStepSize.HasValue = False Then
@@ -62,7 +62,7 @@
 
         If TrialHistory.Count = 0 Then
             'This is the start of the test, returns the initial settings
-            Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
+            Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
         End If
 
         'Corrects the last given response
@@ -77,11 +77,11 @@
 
             If TrialHistory(TrialHistory.Count - 1).IsCorrect = False Then
                 CurrentTestStage = 1
-                NextSpeechLevel += EndOfBallParkLevelAdjustment
-                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
+                NextAdaptiveLevel += EndOfBallParkLevelAdjustment
+                Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
             Else
-                NextSpeechLevel -= BallparkStageAdaptiveStepSize
-                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
+                NextAdaptiveLevel -= BallparkStageAdaptiveStepSize
+                Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
             End If
 
         Else
@@ -106,8 +106,8 @@
             If TestStageResults(TestStageResults.Count - 1).Item2 >= TestStageScoreThreshold Then
                 'Adjusting level and going to the next stage
                 CurrentTestStage += 1
-                NextSpeechLevel -= AdaptiveStepSize
-                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
+                NextAdaptiveLevel -= AdaptiveStepSize
+                Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
 
                 'Checking if the current stage is at its maximum number of trials
             ElseIf TestStageResults(TestStageResults.Count - 1).Item1 = TestStageMaxTrialCount Then
@@ -115,7 +115,7 @@
                 'The test stage is complete without reaching the required number of correct trials
 
                 'Setting the SRT to the level above this stage, but only if it's the first time the code reaches this point
-                If FinalThreshold.HasValue = False Then FinalThreshold = NextSpeechLevel + AdaptiveStepSize
+                If FinalThreshold.HasValue = False Then FinalThreshold = NextAdaptiveLevel + AdaptiveStepSize
 
                 'The method requires that all trials in the last stage are incorrect. Since this work badly with MAFC responses, this implementation allows for skipping of that criterium
                 Select Case StoppingCriterium
@@ -123,19 +123,19 @@
 
                         If TestStageResults(TestStageResults.Count - 1).Item2 = 0 Then
                             'The last stage had a score of zero, and therefore the test is finished
-                            Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
+                            Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
 
                         Else
                             'The last stage had at least one correct trial, continuing to next stage
                             CurrentTestStage += 1
-                            NextSpeechLevel -= AdaptiveStepSize
-                            Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
+                            NextAdaptiveLevel -= AdaptiveStepSize
+                            Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
                         End If
 
                     Case StoppingCriteria.ThresholdReached
 
                         'Skipping the All-incorrect criterium and ends the test
-                        Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
+                        Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
 
                     Case Else
                         Throw New NotImplementedException("The (test protocol) stopping criterium " & StoppingCriterium & " has not been implemented for the " & Name & " method.")
@@ -143,7 +143,7 @@
 
             Else
                 'The stage is not yet completed, changing nothing
-                Return New NextTaskInstruction With {.AdaptiveValue = NextSpeechLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
+                Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
             End If
 
         End If
@@ -154,18 +154,24 @@
 
         Dim Output = New TestResults(TestResults.TestResultTypes.SRT)
         If FinalThreshold.HasValue Then
-            Output.SpeechRecognitionThreshold = FinalThreshold
+            Output.AdaptiveLevelThreshold = FinalThreshold
         Else
             'Storing NaN if no threshold was reached
-            Output.SpeechRecognitionThreshold = Double.NaN
+            Output.AdaptiveLevelThreshold = Double.NaN
         End If
 
-        'Storing the SpeechLevelSeries
+        'Storing the AdaptiveLevelSeries
+        Output.AdaptiveLevelSeries = New List(Of Double)
         Output.SpeechLevelSeries = New List(Of Double)
+        Output.MaskerLevelSeries = New List(Of Double)
+        Output.SNRLevelSeries = New List(Of Double)
         Output.TestStageSeries = New List(Of String)
         Output.ScoreSeries = New List(Of String)
         For Each Trial As SrtTrial In TrialHistory
+            Output.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
             Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
+            Output.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
+            Output.SNRLevelSeries.Add(Math.Round(Trial.SNR))
             Output.TestStageSeries.Add(Trial.TestStage)
             If Trial.IsCorrect = True Then
                 Output.ScoreSeries.Add("Correct")
@@ -177,7 +183,7 @@
         Return Output
     End Function
 
-    Public Overrides Sub CalculateResult(ByRef TrialHistory As TrialHistory)
-        Throw New NotImplementedException()
+    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+        'This is ignored, since results are determines in NewResponse
     End Sub
 End Class

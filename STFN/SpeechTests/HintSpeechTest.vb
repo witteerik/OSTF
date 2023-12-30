@@ -1,4 +1,5 @@
 ﻿Imports MathNet.Numerics
+Imports STFN.TestProtocol
 
 Public Class HintSpeechTest
     Inherits SpeechTest
@@ -9,6 +10,8 @@ Public Class HintSpeechTest
     Private PlannedTestWords As List(Of SpeechMaterialComponent)
 
     Private MaximumNumberOfTestWords As Integer = 200
+
+    Private HasNoise As Boolean
 
     Private ObservedTrials As TrialHistory
 
@@ -23,7 +26,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
         Get
-            Return New List(Of TestProtocol) From {New SwedishHintProtocol}
+            Return New List(Of TestProtocol) From {New SrtSwedishHint2018_TestProtocol}
         End Get
     End Property
 
@@ -49,19 +52,19 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
         Get
-            Return Integer.MaxValue
+            Return 1000
         End Get
     End Property
 
     Public Overrides ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
         Get
-            Return Integer.MaxValue
+            Return 1000
         End Get
     End Property
 
     Public Overrides ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
         Get
-            Return Integer.MaxValue
+            Return 1000
         End Get
     End Property
 
@@ -148,22 +151,37 @@ Public Class HintSpeechTest
 
     End Sub
 
-    Private InitialSpeechLevel As Double
-    Private InitialMaskerLevel As Double
-
     Public Overrides Function InitializeCurrentTest() As Boolean
 
         ObservedTrials = New TrialHistory
 
-        CreatePlannedWordsList()
+        If CustomizableTestOptions.SignalLocations.Count = 0 Then
+            Messager.MsgBox("You must select at least one signal sound source!", MsgBoxStyle.Information, "Missing signal sound source!")
+            Return False
+        End If
 
-        Dim NextTaskInstruction = New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = 0}
+        If CustomizableTestOptions.MaskerLocations.Count = 0 And CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise Then
+            Messager.MsgBox("You must select at least one masker sound source in tests with adaptive noise!", MsgBoxStyle.Information, "Missing masker sound source!")
+            Return False
+        End If
 
-        InitialSpeechLevel = CustomizableTestOptions.SpeechLevel
-        InitialMaskerLevel = CustomizableTestOptions.MaskingLevel
+        Dim StartAdaptiveLevel As Double
+        If CustomizableTestOptions.MaskerLocations.Count > 0 Then
+            'It's a speech in noise test, using adaptive SNR
+            HasNoise = True
+            Dim InitialSNR = SignalToNoiseRatio(CustomizableTestOptions.SpeechLevel, CustomizableTestOptions.MaskingLevel)
+            StartAdaptiveLevel = InitialSNR
+        Else
+            'It's a speech only test, using adaptive speech level
+            HasNoise = False
+            StartAdaptiveLevel = CustomizableTestOptions.SpeechLevel
+        End If
 
         CustomizableTestOptions.SelectedTestProtocol.IsInPractiseMode = CustomizableTestOptions.IsPractiseTest
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(NextTaskInstruction)
+
+        CreatePlannedWordsList()
+
+        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = StartAdaptiveLevel})
 
         Return True
 
@@ -291,14 +309,13 @@ Public Class HintSpeechTest
         'Calculating the speech level
         Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
 
-        PrepareNextTrial(ProtocolReply)
-
-        If ProtocolReply.Decision = SpeechTestReplies.TestIsCompleted Then
-            'Adds the last trial to the history so that it can be used to calculate the next level, even though it never gets presented
-            ObservedTrials.Add(CurrentTestTrial)
+        'Preparing next trial if needed
+        If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
+            PrepareNextTrial(ProtocolReply)
         End If
 
         Return ProtocolReply.Decision
+
 
     End Function
 
@@ -312,19 +329,33 @@ Public Class HintSpeechTest
         Select Case CustomizableTestOptions.SelectedTestMode
             Case TestModes.AdaptiveSpeech
 
-                CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
-            .SpeechLevel = InitialSpeechLevel + NextTaskInstruction.AdaptiveValue,
-            .MaskerLevel = InitialMaskerLevel,
+                If HasNoise = True Then
+
+                    CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+            .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
+            .MaskerLevel = CustomizableTestOptions.MaskingLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
+
+                Else
+
+                    CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+            .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+            .MaskerLevel = Double.NegativeInfinity,
+            .TestStage = NextTaskInstruction.TestStage,
+            .Tasks = 1}
+
+                End If
+
 
             Case TestModes.AdaptiveNoise
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
-            .SpeechLevel = InitialSpeechLevel,
-            .MaskerLevel = InitialMaskerLevel - NextTaskInstruction.AdaptiveValue,
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+            .SpeechLevel = CustomizableTestOptions.SpeechLevel,
+            .MaskerLevel = CustomizableTestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
 
@@ -381,13 +412,20 @@ Public Class HintSpeechTest
         Audio.DSP.AmplifySection(TestWordSound, NeededGain)
 
         'Setting level
-        Dim Noise = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
-        Audio.DSP.MeasureAndAdjustSectionLevel(Noise, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel))
+        If HasNoise = True Then
+            Dim Noise = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+            Audio.DSP.MeasureAndAdjustSectionLevel(Noise, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel))
 
-        Dim MixedSound = Audio.DSP.SuperpositionSounds({TestWordSound, Noise}.ToList)
+            Dim MixedSound = Audio.DSP.SuperpositionSounds({TestWordSound, Noise}.ToList)
 
-        'Copying to stereo and storing in CurrentTestTrial.Sound 
-        CurrentTestTrial.Sound = MixedSound.ConvertMonoToMultiChannel(2, True)
+            'Copying to stereo and storing in CurrentTestTrial.Sound 
+            CurrentTestTrial.Sound = MixedSound.ConvertMonoToMultiChannel(2, True)
+        Else
+
+            'Copying to stereo and storing in CurrentTestTrial.Sound 
+            CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
+
+        End If
 
     End Sub
 
@@ -399,15 +437,32 @@ Public Class HintSpeechTest
         Return True
     End Function
 
-    Public Overrides Sub CalculateResult()
-        CustomizableTestOptions.SelectedTestProtocol.CalculateResult(ObservedTrials)
+    Public Overrides Sub FinalizeTest()
+
+        CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+
     End Sub
-
-
 
     Public Overrides Function GetResults() As TestResults
 
-        Return CustomizableTestOptions.SelectedTestProtocol.GetResults(ObservedTrials)
+        Dim RawResults = CustomizableTestOptions.SelectedTestProtocol.GetResults(ObservedTrials)
+
+        'Calculating the SRT based on the adaptive threshold
+        Select Case CustomizableTestOptions.SelectedTestMode
+            Case TestModes.AdaptiveSpeech
+
+                RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
+
+            Case TestModes.AdaptiveNoise
+
+                RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
+
+            Case Else
+                Throw New NotImplementedException
+        End Select
+
+        Return RawResults
+
     End Function
 End Class
 

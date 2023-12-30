@@ -7,10 +7,10 @@ Public Module TestProtocols
         Dim Output = New List(Of TestProtocol)
 
         'Adding suitable protocols
-        Output.Add(New SrtIso8253)
-        Output.Add(New SrtChaiklinVentry1964)
-        Output.Add(New SrtChaiklinFontDixon1967)
-        Output.Add(New SrtExperimentalProtocol)
+        Output.Add(New SrtIso8253_TestProtocol)
+        Output.Add(New SrtChaiklinVentry1964_TestProtocol)
+        Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
+        Output.Add(New SrtExperimental_TestProtocol)
 
         Return Output
 
@@ -20,7 +20,7 @@ Public Module TestProtocols
 
         Dim Output = New List(Of TestProtocol)
         'Adding suitable protocols
-        Output.Add(New SrtExperimentalProtocol)
+        Output.Add(New SrtExperimental_TestProtocol)
         Return Output
 
     End Function
@@ -29,10 +29,10 @@ Public Module TestProtocols
         Dim Output = New List(Of TestProtocol)
 
         'Adding suitable protocols
-        Output.Add(New SrtIso8253)
-        Output.Add(New SrtChaiklinVentry1964)
-        Output.Add(New SrtChaiklinFontDixon1967)
-        Output.Add(New SrtExperimentalProtocol)
+        Output.Add(New SrtIso8253_TestProtocol)
+        Output.Add(New SrtChaiklinVentry1964_TestProtocol)
+        Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
+        Output.Add(New SrtExperimental_TestProtocol)
 
         Return Output
 
@@ -42,10 +42,10 @@ Public Module TestProtocols
         Dim Output = New List(Of TestProtocol)
 
         'Adding suitable protocols
-        Output.Add(New SrtIso8253)
-        Output.Add(New SrtChaiklinVentry1964)
-        Output.Add(New SrtChaiklinFontDixon1967)
-        Output.Add(New SrtExperimentalProtocol)
+        Output.Add(New SrtIso8253_TestProtocol)
+        Output.Add(New SrtChaiklinVentry1964_TestProtocol)
+        Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
+        Output.Add(New SrtExperimental_TestProtocol)
 
         Return Output
 
@@ -72,8 +72,6 @@ Public MustInherit Class TestProtocol
 
     Public MustOverride Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
 
-    Public MustOverride Sub CalculateResult(ByRef TrialHistory As TrialHistory)
-
     Public Class NextTaskInstruction
         Public Decision As SpeechTestReplies
         ''' <summary>
@@ -84,6 +82,8 @@ Public MustInherit Class TestProtocol
         Public TestStage As UInteger
         Public TestBlock As UInteger
     End Class
+
+    Public MustOverride Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
     Public MustOverride Function GetResults(ByRef TrialHistory As TrialHistory) As TestResults
 

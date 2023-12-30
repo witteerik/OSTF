@@ -10,22 +10,16 @@ Public Class MatrixSpeechTest
 
     Private MaximumNumberOfTestSentences As Integer = 100
 
-
+    Private HasNoise As Boolean
 
     Private ObservedTrials As TrialHistory
 
 
 #Region "Settings"
 
-    Public SelectedMediaSet As MediaSet
-
-    Public StartList As String = ""
-
-    Public StartLevel As Double
-
     Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
         Get
-            Return New List(Of TestModes) From {TestModes.ConstantStimuli, TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise, TestModes.AdaptiveDirectionality}
+            Return New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
         End Get
     End Property
 
@@ -55,19 +49,19 @@ Public Class MatrixSpeechTest
 
     Public Overrides ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
         Get
-            Return Integer.MaxValue
+            Return 1000
         End Get
     End Property
 
     Public Overrides ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
         Get
-            Return Integer.MaxValue
+            Return 1000
         End Get
     End Property
 
     Public Overrides ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
         Get
-            Return Integer.MaxValue
+            Return 1000
         End Get
     End Property
 
@@ -160,9 +154,34 @@ Public Class MatrixSpeechTest
 
         ObservedTrials = New TrialHistory
 
+
+        If CustomizableTestOptions.SignalLocations.Count = 0 Then
+            Messager.MsgBox("You must select at least one signal sound source!", MsgBoxStyle.Information, "Missing signal sound source!")
+            Return False
+        End If
+
+        If CustomizableTestOptions.MaskerLocations.Count = 0 And CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise Then
+            Messager.MsgBox("You must select at least one masker sound source in tests with adaptive noise!", MsgBoxStyle.Information, "Missing masker sound source!")
+            Return False
+        End If
+
+        Dim StartAdaptiveLevel As Double
+        If CustomizableTestOptions.MaskerLocations.Count > 0 Then
+            'It's a speech in noise test, using adaptive SNR
+            HasNoise = True
+            Dim InitialSNR = SignalToNoiseRatio(CustomizableTestOptions.SpeechLevel, CustomizableTestOptions.MaskingLevel)
+            StartAdaptiveLevel = InitialSNR
+        Else
+            'It's a speech only test, using adaptive speech level
+            HasNoise = False
+            StartAdaptiveLevel = CustomizableTestOptions.SpeechLevel
+        End If
+
+        CustomizableTestOptions.SelectedTestProtocol.IsInPractiseMode = CustomizableTestOptions.IsPractiseTest
+
         CreatePlannedWordsSentences()
 
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartLevel, .TestStage = 0})
+        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
 
         Return True
 
@@ -189,7 +208,7 @@ Public Class MatrixSpeechTest
         'Determines the index of the start list
         Dim SelectedStartListIndex As Integer = -1
         For i = 0 To AllLists.Count - 1
-            If AllLists(i).PrimaryStringRepresentation = StartList Then
+            If AllLists(i).PrimaryStringRepresentation = CustomizableTestOptions.StartList Then
                 SelectedStartListIndex = i
                 Exit For
             End If
@@ -343,10 +362,43 @@ Public Class MatrixSpeechTest
         Dim NextTestSentence = PlannedTestSentences(ObservedTrials.Count)
 
         'Creating a new test trial
-        CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
-            .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+        Select Case CustomizableTestOptions.SelectedTestMode
+            Case TestModes.AdaptiveSpeech
+
+                If HasNoise = True Then
+
+                    CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
+            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+            .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
+            .MaskerLevel = CustomizableTestOptions.MaskingLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 5}
+
+                Else
+
+                    CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
+            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+            .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+            .MaskerLevel = Double.NegativeInfinity,
+            .TestStage = NextTaskInstruction.TestStage,
+            .Tasks = 5}
+
+                End If
+
+
+            Case TestModes.AdaptiveNoise
+
+                CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
+            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+            .SpeechLevel = CustomizableTestOptions.SpeechLevel,
+            .MaskerLevel = CustomizableTestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
+            .TestStage = NextTaskInstruction.TestStage,
+            .Tasks = 5}
+
+            Case Else
+                Throw New NotImplementedException
+        End Select
+
 
         Dim ResponseAlternativeSpellingsList As New List(Of List(Of String))
 
@@ -449,7 +501,7 @@ Public Class MatrixSpeechTest
 
     Private Sub MixNextTrialSound()
 
-        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
         Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel)
@@ -458,16 +510,20 @@ Public Class MatrixSpeechTest
         Audio.DSP.AmplifySection(TestWordSound, NeededGain)
 
         'Setting level
-        'Audio.DSP.MeasureAndAdjustSectionLevel(TestWordSound, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel))
+        If HasNoise = True Then
+            Dim Noise = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+            Audio.DSP.MeasureAndAdjustSectionLevel(Noise, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel))
 
-        'Padding the sound by one second, and converting it to stereo
-        'Dim PaddedSound = TestWordSound.ZeroPad(1.0R, Nothing, False).ConvertMonoToMultiChannel(2, True)
-        'Copying to stereo and storing in CurrentTestTrial.Sound 
-        'CurrentTestTrial.Sound = PaddedSound
+            Dim MixedSound = Audio.DSP.SuperpositionSounds({TestWordSound, Noise}.ToList)
 
-        'Copying to stereo and storing in CurrentTestTrial.Sound 
-        CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
+            'Copying to stereo and storing in CurrentTestTrial.Sound 
+            CurrentTestTrial.Sound = MixedSound.ConvertMonoToMultiChannel(2, True)
+        Else
 
+            'Copying to stereo and storing in CurrentTestTrial.Sound 
+            CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
+
+        End If
 
     End Sub
 
@@ -481,10 +537,29 @@ Public Class MatrixSpeechTest
 
 
     Public Overrides Function GetResults() As TestResults
-        Return CustomizableTestOptions.SelectedTestProtocol.GetResults(ObservedTrials)
+
+        Dim RawResults = CustomizableTestOptions.SelectedTestProtocol.GetResults(ObservedTrials)
+
+        'Calculating the SRT based on the adaptive threshold
+        Select Case CustomizableTestOptions.SelectedTestMode
+            Case TestModes.AdaptiveSpeech
+
+                RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
+
+            Case TestModes.AdaptiveNoise
+
+                RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
+
+            Case Else
+                Throw New NotImplementedException
+        End Select
+
+        Return RawResults
+
     End Function
 
-    Public Overrides Sub CalculateResult()
+
+    Public Overrides Sub FinalizeTest()
         Throw New NotImplementedException()
     End Sub
 End Class

@@ -295,7 +295,7 @@
         AbortTest
     End Enum
 
-    Public MustOverride Sub CalculateResult()
+    Public MustOverride Sub FinalizeTest()
 
     Public MustOverride Function GetResults() As TestResults
 

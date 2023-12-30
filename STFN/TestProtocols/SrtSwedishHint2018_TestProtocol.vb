@@ -1,9 +1,12 @@
-﻿Public Class SwedishHintProtocol
+﻿''' <summary>
+''' This protocol implements the test procedure described in the Swedish HINT test instructions at https://doi.org/10.17605/OSF.IO/4ZNCK "HINT-LISTOR PÅ SVENSKA–KLINISK ANVÄNDNING" by M. Hällgren (2018-12-14) Linköping University.
+''' </summary>
+Public Class SrtSwedishHint2018_TestProtocol
     Inherits TestProtocol
 
     Public Overrides ReadOnly Property Name As String
         Get
-            Return "Swedish HINT"
+            Return "Swedish HINT 2018"
         End Get
     End Property
 
@@ -33,7 +36,7 @@
 
 
 
-    Private FinalThreshold As Double? = Nothing
+    Private FinalAdaptiveThreshold As Double? = Nothing
 
     Public Overrides Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
 
@@ -80,24 +83,27 @@
 
     End Function
 
-    Public Overrides Sub CalculateResult(ByRef TrialHistory As TrialHistory)
+    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
         If IsInPractiseMode = True Then
             'Storing the last value as threshold
-            FinalThreshold = DirectCast(TrialHistory.Last, SrtTrial).SNR
+            FinalAdaptiveThreshold = DirectCast(TrialHistory.Last, SrtTrial).AdaptiveValue
 
         Else
             'Calculating threshold
             Dim LevelList As New List(Of Double)
-            For i As Integer = 4 To 20
-                LevelList.Add(DirectCast(TrialHistory(i), SrtTrial).SNR)
+            For i As Integer = 4 To 19
+                LevelList.Add(DirectCast(TrialHistory(i), SrtTrial).AdaptiveValue)
             Next
+
+            'And adding the last non-presented trial level
+            LevelList.Add(NextAdaptiveLevel)
 
             'Getting the average
             If LevelList.Count > 0 Then
-                FinalThreshold = LevelList.Average
+                FinalAdaptiveThreshold = LevelList.Average
             Else
-                FinalThreshold = Double.NaN
+                FinalAdaptiveThreshold = Double.NaN
             End If
         End If
 
@@ -106,19 +112,25 @@
     Public Overrides Function GetResults(ByRef TrialHistory As TrialHistory) As TestResults
 
         Dim Output = New TestResults(TestResults.TestResultTypes.SRT)
-        If FinalThreshold.HasValue Then
-            Output.SpeechRecognitionThreshold = FinalThreshold
+        If FinalAdaptiveThreshold.HasValue Then
+            Output.AdaptiveLevelThreshold = FinalAdaptiveThreshold
         Else
             'Storing NaN if no threshold was reached
-            Output.SpeechRecognitionThreshold = Double.NaN
+            Output.AdaptiveLevelThreshold = Double.NaN
         End If
 
-        'Storing the SpeechLevelSeries
+        'Storing the AdaptiveLevelSeries
+        Output.AdaptiveLevelSeries = New List(Of Double)
         Output.SpeechLevelSeries = New List(Of Double)
+        Output.MaskerLevelSeries = New List(Of Double)
+        Output.SNRLevelSeries = New List(Of Double)
         Output.TestStageSeries = New List(Of String)
         Output.ScoreSeries = New List(Of String)
         For Each Trial As SrtTrial In TrialHistory
+            Output.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
             Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
+            Output.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
+            Output.SNRLevelSeries.Add(Math.Round(Trial.SNR))
             Output.TestStageSeries.Add(Trial.TestStage)
             If Trial.IsCorrect = True Then
                 Output.ScoreSeries.Add("Correct")
