@@ -378,16 +378,15 @@ Public Class CustomizableTestOptions
     ''' Should specify the locations from which the maskers should come
     ''' </summary>
     ''' <returns></returns>
-    Public Property MaskerLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+    Public ReadOnly Property MaskerLocations As List(Of Audio.SoundScene.SoundSourceLocation)
         Get
-            Return _MaskerLocations
+            Dim Output As New List(Of Audio.SoundScene.SoundSourceLocation)
+            For Each Item In _MaskerLocationCandidates
+                If Item.Selected = True Then Output.Add(Item.ParentSoundSourceLocation)
+            Next
+            Return Output
         End Get
-        Set(value As List(Of Audio.SoundScene.SoundSourceLocation))
-            _MaskerLocations = value
-            OnPropertyChanged()
-        End Set
     End Property
-    Private _MaskerLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
 
 
     ''' <summary>
@@ -410,17 +409,15 @@ Public Class CustomizableTestOptions
     ''' Should specify the locations from which the BackgroundNonSpeech non-speech sounds should come
     ''' </summary>
     ''' <returns></returns>
-    Public Property BackgroundNonSpeechLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+    Public ReadOnly Property BackgroundNonSpeechLocations As List(Of Audio.SoundScene.SoundSourceLocation)
         Get
-            Return _BackgroundNonSpeechLocations
+            Dim Output As New List(Of Audio.SoundScene.SoundSourceLocation)
+            For Each Item In _BackgroundNonSpeechLocationCandidates
+                If Item.Selected = True Then Output.Add(Item.ParentSoundSourceLocation)
+            Next
+            Return Output
         End Get
-        Set(value As List(Of Audio.SoundScene.SoundSourceLocation))
-            _BackgroundNonSpeechLocations = value
-            OnPropertyChanged()
-        End Set
     End Property
-    Private _BackgroundNonSpeechLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
-
 
     ''' <summary>
     ''' Should specify the locations from which the background speech sounds should come
@@ -443,16 +440,15 @@ Public Class CustomizableTestOptions
     ''' Should specify the locations from which the BackgroundSpeech speech sounds should come
     ''' </summary>
     ''' <returns></returns>
-    Public Property BackgroundSpeechLocations As List(Of Audio.SoundScene.SoundSourceLocation)
+    Public ReadOnly Property BackgroundSpeechLocations As List(Of Audio.SoundScene.SoundSourceLocation)
         Get
-            Return _BackgroundSpeechLocations
+            Dim Output As New List(Of Audio.SoundScene.SoundSourceLocation)
+            For Each Item In _BackgroundSpeechLocationCandidates
+                If Item.Selected = True Then Output.Add(Item.ParentSoundSourceLocation)
+            Next
+            Return Output
         End Get
-        Set(value As List(Of Audio.SoundScene.SoundSourceLocation))
-            _BackgroundSpeechLocations = value
-            OnPropertyChanged()
-        End Set
     End Property
-    Private _BackgroundSpeechLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
 
 
     ''' <summary>

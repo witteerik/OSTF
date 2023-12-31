@@ -13,7 +13,7 @@
         <Picker x:Name="SelectedLanguage_Picker" ItemsSource="{Binding AvailableGuiLanguages}" SelectedIndexChanged="SelectedLanguage_Picker_SelectedIndexChanged" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,10,0,10" />
 
         <Label x:Name="ParticipantCode_Label" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="300" Margin="0,30,0,0"/>
-        <Editor x:Name="ParticipantCode_Editor" HorizontalOptions="FillAndExpand" VerticalOptions="Center" WidthRequest="300" MinimumWidthRequest="300"/>
+        <Editor x:Name="ParticipantCode_Editor" HorizontalOptions="FillAndExpand" VerticalOptions="Center" WidthRequest="300" MinimumWidthRequest="300" MaxLength="6" />
 
         <Label x:Name="SoundFieldSimulation_Label" HorizontalOptions="Fill" VerticalOptions="Center" WidthRequest="300" Margin="0,30,0,0"/>
         <Switch x:Name="UseSoundFieldSimulation_Switch" IsToggled="True" Toggled="UseSoundFieldSimulation_Switch_Toggled" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="300" Margin="0,5,0,5" />

@@ -34,7 +34,6 @@
 		<!-- App Icon -->
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -53,6 +52,14 @@
 	  <None Remove="Platforms\Windows\portaudio_x64.dll" />
 	  <None Remove="Platforms\Windows\portaudio_x86.dll" />
 	  <None Remove="Resources\AppIcon\appicon.jpg" />
+	  <None Remove="Resources\Splash\appicon.jpg" />
+	  <None Remove="Resources\Splash\splash.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiSplashScreen Include="Resources\Splash\splash.svg" Resize="true">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </MauiSplashScreen>
 	</ItemGroup>
 
 	<ItemGroup>

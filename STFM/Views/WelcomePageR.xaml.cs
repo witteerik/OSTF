@@ -39,7 +39,7 @@ public partial class WelcomePageR : ContentView
         {
             case STFN.Utils.Constants.Languages.English:
 
-                Welcome_Label.Text = "OSTF Suite";
+                Welcome_Label.Text = "OSTF SUITE";
                 SelectLangage_Label.Text = "Select language";
                 SelectedLanguage_Picker.Title = "";
                 //SelectedLanguage_Picker.Title = "Select language";
@@ -50,7 +50,7 @@ public partial class WelcomePageR : ContentView
                 break;
             case STFN.Utils.Constants.Languages.Swedish:
 
-                Welcome_Label.Text = "OSTF Suite";
+                Welcome_Label.Text = "OSTF SUITE";
                 SelectLangage_Label.Text = "Select language";
                 SelectedLanguage_Picker.Title = "";
                 ParticipantCode_Label.Text = "Fyll i deltagarkod";
@@ -60,7 +60,7 @@ public partial class WelcomePageR : ContentView
                 break;
             default:
 
-                Welcome_Label.Text = "OSTF Suite";
+                Welcome_Label.Text = "OSTF SUITE";
                 SelectLangage_Label.Text = "Select language";
                 SelectedLanguage_Picker.Title = "";
                 ParticipantCode_Label.Text = "Enter participant code";
@@ -75,7 +75,19 @@ public partial class WelcomePageR : ContentView
 
     private void Submit_Button_Clicked(object sender, EventArgs e)
     {
-        bool codeOk = true;
+        TryStartSpeechTestView();
+    }
+
+    //private void ParticipantCode_Editor_Completed(object sender, EventArgs e)
+    //{
+    //    TryStartSpeechTestView();
+    //}
+
+
+    private void TryStartSpeechTestView()
+    {
+
+            bool codeOk = true;
         string ptcCode = "";
         if (ParticipantCode_Editor.Text == null)
         {
@@ -107,6 +119,10 @@ public partial class WelcomePageR : ContentView
 
         if (codeOk == true)
         {
+
+            // Storing the current userID
+            SharedSpeechTestObjects.CurrentParticipantID = ptcCode;
+
             // All ok, raising the AllDone handler
             EventHandler<EventArgs> handler = AllDone;
             // Check if there are any subscribers (null check)
@@ -167,6 +183,5 @@ public partial class WelcomePageR : ContentView
         }
 
     }
-       
 
 }
