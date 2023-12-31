@@ -8,7 +8,9 @@ namespace OstfTabletSuite
         {
             InitializeComponent();
 
-            MainPage = new AppShell();
+            MainPage = new MainPage();
+
+            //MainPage = new AppShell();
 
             // Adding an event handler that disposes the sound player (clearing temporary wave files) (TODO: maybe there are better ways to do this...?)
             MainPage.Unloaded += MainPage_Unloaded;
