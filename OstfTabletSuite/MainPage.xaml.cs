@@ -42,6 +42,20 @@ namespace OstfTabletSuite
 
         }
 
+        public void WelcomePageStartCalibrator(object sender, EventArgs e)
+        {
+
+            this.Content = null;
+
+            var mySpeechTest = new STFM.Views.SpeechTestCalibrationView
+            {
+                VerticalOptions = LayoutOptions.Fill,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+
+            Content = mySpeechTest;
+
+        }
 
         public async void DisplayMessage(string title, string message, string cancelButtonText)
         {

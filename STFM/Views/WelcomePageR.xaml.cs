@@ -6,7 +6,9 @@ public partial class WelcomePageR : ContentView
 {
 
     public event EventHandler<EventArgs> AllDone;
-    
+
+    public event EventHandler<EventArgs> StartCalibrator;
+
     public static List<STFN.Utils.Constants.Languages> AvailableGuiLanguages = new List<STFN.Utils.Constants.Languages> { STFN.Utils.Constants.Languages.English, STFN.Utils.Constants.Languages.Swedish };
 
     
@@ -44,6 +46,7 @@ public partial class WelcomePageR : ContentView
                 ParticipantCode_Label.Text = "Enter participant code";
                 SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 Submit_Button.Text = "Continue";
+                Calibrator_Button.Text = "Calibration";
                 break;
             case STFN.Utils.Constants.Languages.Swedish:
 
@@ -53,6 +56,7 @@ public partial class WelcomePageR : ContentView
                 ParticipantCode_Label.Text = "Fyll i deltagarkod";
                 SoundFieldSimulation_Label.Text = "Tillåt ljudfältssimulering i hörlurar (kan göra appen långsam)";
                 Submit_Button.Text = "Fortsätt";
+                Calibrator_Button.Text = "Kalibrering";
                 break;
             default:
 
@@ -62,6 +66,7 @@ public partial class WelcomePageR : ContentView
                 ParticipantCode_Label.Text = "Enter participant code";
                 SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 Submit_Button.Text = "Continue";
+                Calibrator_Button.Text = "Calibration";
                 break;
         }
 
@@ -102,7 +107,7 @@ public partial class WelcomePageR : ContentView
 
         if (codeOk == true)
         {
-            // All ok, raising the 
+            // All ok, raising the AllDone handler
             EventHandler<EventArgs> handler = AllDone;
             // Check if there are any subscribers (null check)
             if (handler != null)
@@ -131,4 +136,37 @@ public partial class WelcomePageR : ContentView
         }
 
     }
+
+
+    private void Calibrator_Button_Clicked(object sender, EventArgs e)
+    {
+
+        switch (SharedSpeechTestObjects.GuiLanguage)
+        {
+            case STFN.Utils.Constants.Languages.English:
+                Messager.MsgBox("Loading calibration view. It may take some time before it becomes responsive! Hang tight!", Messager.MsgBoxStyle.Information, "Loading calibration view!");
+                break;
+            case STFN.Utils.Constants.Languages.Swedish:
+                Messager.MsgBox("Laddar kalibreringsvyn. Det kan dröja en stund innan vyn är redo!", Messager.MsgBoxStyle.Information, "Laddar kalibreringsvyn!");
+                break;
+            default:
+                Messager.MsgBox("Loading calibration view. It may take some time before it becomes responsive! Hang tight!", Messager.MsgBoxStyle.Information, "Loading calibration view!");
+                break;
+        }
+       
+
+        EventHandler<EventArgs> handler = StartCalibrator;
+        // Check if there are any subscribers (null check)
+        if (handler != null)
+        {
+            // Create EventArgs (or use EventArgs.Empty if no additional data is needed)
+            EventArgs args = new EventArgs();
+
+            // Raise the event by invoking all subscribers
+            handler(this, args);
+        }
+
+    }
+       
+
 }

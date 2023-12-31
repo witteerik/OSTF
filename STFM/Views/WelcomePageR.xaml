@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="STFM.Views.WelcomePageR">
 
-    <VerticalStackLayout  HorizontalOptions="Fill" VerticalOptions="Center" WidthRequest="300">
+    <ScrollView Orientation="Vertical">
+
+        <VerticalStackLayout  HorizontalOptions="Fill" VerticalOptions="Center" WidthRequest="300">
 
         <Label x:Name="Welcome_Label" FontSize="Large" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="300" Margin="0,0,0,0"/>
 
@@ -17,6 +19,11 @@
         <Switch x:Name="UseSoundFieldSimulation_Switch" IsToggled="True" Toggled="UseSoundFieldSimulation_Switch_Toggled" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="300" Margin="0,5,0,5" />
 
         <Button x:Name="Submit_Button" Clicked="Submit_Button_Clicked" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="300" Margin="0,30,0,0"></Button>
+
+        <Button x:Name="Calibrator_Button" Clicked="Calibrator_Button_Clicked" HorizontalOptions="End" VerticalOptions="End" WidthRequest="100" Margin="0,100,0,0" BackgroundColor="Red"></Button>
         
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    
+    </ScrollView>
+
 </ContentView>
