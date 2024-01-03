@@ -31,6 +31,8 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SpectrumLevelCalculator", "
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "OstfSoundPlayer", "OstfSoundPlayer\OstfSoundPlayer.vbproj", "{05F91ABE-7EA7-4452-B639-F865674AC7C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiTemplateApp", "MauiTemplateApp\MauiTemplateApp.csproj", "{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,6 +229,24 @@ Global
 		{05F91ABE-7EA7-4452-B639-F865674AC7C9}.Release|x64.Build.0 = Release|Any CPU
 		{05F91ABE-7EA7-4452-B639-F865674AC7C9}.Release|x86.ActiveCfg = Release|Any CPU
 		{05F91ABE-7EA7-4452-B639-F865674AC7C9}.Release|x86.Build.0 = Release|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Debug|x64.Build.0 = Debug|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Debug|x86.Build.0 = Debug|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Release|x64.ActiveCfg = Release|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Release|x64.Build.0 = Release|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Release|x64.Deploy.0 = Release|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Release|x86.Build.0 = Release|Any CPU
+		{CC5CBBCD-F7C9-4BA1-AFCF-BB2672E86BBC}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -44,7 +44,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewTestBtn.IsEnabled = true;   
         SpeechTestPicker.IsEnabled = false;
         TestOptionsGrid.IsEnabled = false;
-        TestOptionsGrid.IsVisible = false;
+        //TestOptionsGrid.IsVisible = false;
 
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
         //HideSettingsPanelSwitch.IsEnabled = false;
@@ -157,7 +157,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewTestBtn.IsEnabled = false;
         SpeechTestPicker.IsEnabled = true;
         TestOptionsGrid.IsEnabled = false;
-        TestOptionsGrid.IsVisible = false;
+        //TestOptionsGrid.IsVisible = false;
 
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
         //HideSettingsPanelSwitch.IsEnabled = false;
@@ -265,7 +265,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 // Set IsEnabled values of controls
                 NewTestBtn.IsEnabled = false;
                 TestOptionsGrid.IsEnabled = true;
-                TestOptionsGrid.IsVisible = true;
+                //TestOptionsGrid.IsVisible = true;
 
                 if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = true; }
                 //HideSettingsPanelSwitch.IsEnabled = true;
@@ -431,7 +431,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             NewTestBtn.IsEnabled = false;
             SpeechTestPicker.IsEnabled = false;
             TestOptionsGrid.IsEnabled = false;
-            TestOptionsGrid.IsVisible = false;
+            //TestOptionsGrid.IsVisible = false;
 
             if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
             //HideSettingsPanelSwitch.IsEnabled = false;
@@ -469,7 +469,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewTestBtn.IsEnabled = true;
         SpeechTestPicker.IsEnabled = false;
         TestOptionsGrid.IsEnabled = true;
-        TestOptionsGrid.IsVisible = true;
+        //TestOptionsGrid.IsVisible = true;
 
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
         //HideSettingsPanelSwitch.IsEnabled = false;
@@ -505,7 +505,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewTestBtn.IsEnabled = true;
         SpeechTestPicker.IsEnabled = false;
         TestOptionsGrid.IsEnabled = true;
-        TestOptionsGrid.IsVisible = true;
+        //TestOptionsGrid.IsVisible = true;
 
         if (CurrentTestOptionsView != null){ CurrentTestOptionsView.IsEnabled = false; } 
         //HideSettingsPanelSwitch.IsEnabled = false;

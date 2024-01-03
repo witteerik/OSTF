@@ -1,23 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-android;net8.0-maccatalyst;net8.0-ios</TargetFrameworks>
+		<TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
+
+		<!-- Note for MacCatalyst:
+		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
+		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
+		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
+		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
+		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
+
 		<OutputType>Exe</OutputType>
-		<RootNamespace>OstfTabletSuite</RootNamespace>
+		<RootNamespace>MauiTemplateApp</RootNamespace>
 		<UseMaui>true</UseMaui>
-    <MauiVersion>8.0.3</MauiVersion>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>OstfTabletSuite</ApplicationTitle>
+		<ApplicationTitle>MauiTemplateApp</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.ostftabletsuite</ApplicationId>
-		<ApplicationIdGuid>f878acb2-c932-4311-8f1a-602393300862</ApplicationIdGuid>
+		<ApplicationId>com.companyname.mauitemplateapp</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -33,71 +40,49 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+		<MauiSplashScreen Include="Resources\AppIcon\appiconfg.svg" />
 
 		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-	  </ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Platforms\Windows\libostfdsp_Win32.dll" />
-	  <None Remove="Platforms\Windows\libostfdsp_x64.dll" />
-	  <None Remove="Platforms\Windows\portaudio_x64.dll" />
-	  <None Remove="Platforms\Windows\portaudio_x86.dll" />
-	  <None Remove="Resources\AppIcon\appicon.jpg" />
-	  <None Remove="Resources\Splash\appicon.jpg" />
-	  <None Remove="Resources\Splash\splash.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiSplashScreen Include="Resources\Splash\splash.svg" Resize="true">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </MauiSplashScreen>
+	  <None Remove="Resources\AppIcon\appiconfg.svg" />
+	</ItemGroup>
+
+	<!--<ItemGroup>
+	  <MauiFont Remove="Resources\Fonts\OpenSansRegular.ttf" />
+	  <MauiFont Remove="Resources\Fonts\OpenSansSemibold.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="libostfdsp_Win32.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="libostfdsp_x64.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="portaudio_x64.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="portaudio_x86.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
+	  <None Remove="Resources\AppIcon\appiconfg.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiIcon Include="Resources\AppIcon\appicon.jpg" />
-	</ItemGroup>
-	
+	  <AndroidResource Include="Resources\Fonts\OpenSansRegular.ttf" />
+	  <AndroidResource Include="Resources\Fonts\OpenSansSemibold.ttf" />
+	</ItemGroup>-->
+
+	<!--<ItemGroup>
+	  <MauiSplashScreen Include="Resources\AppIcon\appiconfg.svg" />
+	</ItemGroup>-->
+
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
-		<PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="3.0.1" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-	</ItemGroup>
-	
-	<ItemGroup>
-	  <Reference Include="STFM">
-	    <HintPath>..\STFM\bin\Debug\net8.0\STFM.dll</HintPath>
-	  </Reference>
-	  <Reference Include="STFN">
-	    <HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
-	  </Reference>
-	</ItemGroup>
-	
-	<ItemGroup>
-	  <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
 	</ItemGroup>
 
 </Project>
