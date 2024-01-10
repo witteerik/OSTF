@@ -302,7 +302,36 @@
 
     Public MustOverride Function GetResults() As TestResults
 
-    Public MustOverride Function SaveResults(TestResults As TestResults) As Boolean
+    Public MustOverride ReadOnly Property FilePathRepresenation As String
+
+    Public Function SaveTextFormattedResults(TestResults As TestResults) As Boolean
+
+        If SharedSpeechTestObjects.TestResultsRootFolder = "" Then
+            Messager.MsgBox("Unable to save the results to file due to missing test results output folder. This should have been selected first startup of the app!")
+            Return False
+        End If
+
+        If IO.Directory.Exists(SharedSpeechTestObjects.TestResultsRootFolder) = False Then
+            Try
+                IO.Directory.CreateDirectory(SharedSpeechTestObjects.TestResultsRootFolder)
+            Catch ex As Exception
+                Messager.MsgBox("Unable to save the results to as the test results output folder (" & SharedSpeechTestObjects.TestResultsRootFolder & "). The path does not exist, and could not be created!")
+            End Try
+            Return False
+        End If
+
+        Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, "HINT")
+        Dim OutputFilename = Me.FilePathRepresenation & "_Results_" & SharedSpeechTestObjects.CurrentParticipantID
+
+        'Ensures that an old file with the same filename is not overwritten by adding a number to existing files
+        OutputFilename = Utils.CheckFileNameConflict(OutputFilename)
+
+        Dim TestResultsString = GetResults.GetFormattedTestResultsSummaryString()
+        Utils.SendInfoToLog(TestResultsString, OutputFilename, OutputPath, False, True)
+
+        Return True
+    End Function
+
 
 #End Region
 

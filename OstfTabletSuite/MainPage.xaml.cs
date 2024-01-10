@@ -10,7 +10,6 @@ namespace OstfTabletSuite
 {
     public partial class MainPage : ContentPage, IOstfGui
     {
-        int count = 0;
         //public static STFM.SoundPlayer MainPageSoundPlayer = null;
         //public static MediaElement MainPageMediaElement = null;
 

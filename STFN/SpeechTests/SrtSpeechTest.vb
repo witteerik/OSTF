@@ -3,6 +3,13 @@
 Public Class SrtSpeechTest
     Inherits SpeechTest
 
+    Public Overrides ReadOnly Property FilePathRepresenation As String
+        Get
+            Return "SRT"
+        End Get
+    End Property
+
+
     ''' <summary>
     ''' This collection contains MaximumNumberOfTestWords which can be used troughout the test, in sequential order.
     ''' </summary>
@@ -19,7 +26,7 @@ Public Class SrtSpeechTest
 
     Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
         Get
-            Return New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
+            Return New List(Of TestModes) From {TestModes.AdaptiveSpeech}
         End Get
     End Property
 
@@ -51,19 +58,19 @@ Public Class SrtSpeechTest
 
     Public Overrides ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
         Get
-            Return 1000
+            Return 1
         End Get
     End Property
 
     Public Overrides ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
         Get
-            Return 1000
+            Return 0
         End Get
     End Property
 
     Public Overrides ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
         Get
-            Return 1000
+            Return 0
         End Get
     End Property
 
@@ -99,25 +106,25 @@ Public Class SrtSpeechTest
 
     Public Overrides ReadOnly Property UseKeyWordScoring As Utils.TriState
         Get
-            Return True
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
     Public Overrides ReadOnly Property UseListOrderRandomization As Utils.TriState
         Get
-            Return True
+            Return Utils.Constants.TriState.Optional
         End Get
     End Property
 
     Public Overrides ReadOnly Property UseWithinListRandomization As Utils.TriState
         Get
-            Return True
+            Return Utils.Constants.TriState.Optional
         End Get
     End Property
 
     Public Overrides ReadOnly Property UseAcrossListRandomization As Utils.TriState
         Get
-            Return True
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
@@ -135,13 +142,13 @@ Public Class SrtSpeechTest
 
     Public Overrides ReadOnly Property UseContralateralMasking As Utils.TriState
         Get
-            Return Utils.Constants.TriState.Optional
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
     Public Overrides ReadOnly Property UsePhaseAudiometry As Utils.TriState
         Get
-            Return Utils.Constants.TriState.Optional
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
@@ -441,14 +448,6 @@ Public Class SrtSpeechTest
         End If
 
     End Sub
-
-
-    Public Overrides Function SaveResults(TestResults As TestResults) As Boolean
-
-        'Not finished!
-
-        Return True
-    End Function
 
 
     Public Overrides Function GetResults() As TestResults

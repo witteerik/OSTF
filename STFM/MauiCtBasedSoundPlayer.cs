@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Core;
+﻿using CommunityToolkit.Maui.Converters;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Core.Primitives;
 using CommunityToolkit.Maui.Views;
 using STFN.Audio;
@@ -48,6 +49,7 @@ namespace STFM
 
         public MauiCtBasedSoundPlayer(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer)
         {
+
             mediaElement1 = new MediaElement { ShouldShowPlaybackControls = false };
             mediaElement2 = new MediaElement { ShouldShowPlaybackControls = false };
             mediaElement1.IsVisible = false;
@@ -207,6 +209,16 @@ namespace STFM
             {
                 // Fading in player 1
                 // And fading out player 2
+
+                //var x = new MediaSourceConverter();
+                //x.
+                //WaveFormat wf = new WaveFormat(48000,32,1,, WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
+                //Sound NewOutputSound = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref wf);
+                //var p = Com.Google.Android.Exoplayer2.IExoPlayer.Builder.FromArray(NewOutputSound.WaveData.get_SampleData(1));
+                //Android.
+                //    //AndroidX.Media.VolumeProviderCompat.VolumeControlFixed;
+                //mediaElement1.Source = new Uri(newSoundFilePath);
+
                 mediaElement1.Source = new Uri(newSoundFilePath);
 
                 //mediaElement1.Speed = 1.5; // Funny detail! The speed parameter sound very good!!

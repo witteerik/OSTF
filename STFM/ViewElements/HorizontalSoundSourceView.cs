@@ -28,16 +28,19 @@ public class HorizontalSoundSourceView : Frame
     }
 
     public static readonly BindableProperty MaxSelectedProperty =
-    BindableProperty.Create(nameof(MaxSelected), typeof(int), typeof(HorizontalSoundSourceView), 1, BindingMode.TwoWay);
+    BindableProperty.Create(nameof(MaxSelected), typeof(int), typeof(HorizontalSoundSourceView), 1, BindingMode.OneWay);
 
+    int maxSelected;
     public int MaxSelected
     {
         get
         {
+            //return maxSelected;
             return (int)GetValue(MaxSelectedProperty);
         }
         set
         {
+            //maxSelected = value;
             SetValue(MaxSelectedProperty, value);
         }
     }

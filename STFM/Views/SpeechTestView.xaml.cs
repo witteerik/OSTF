@@ -484,7 +484,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         StopAllTrialEventTimers();
         CurrentResponseView.HideAllItems();
         TestResults CurrentResults = CurrentSpeechTest.GetResults();
-        //CurrentSpeechTest.SaveResults(CurrentResults);
+        //CurrentSpeechTest.SaveTextFormattedResults(CurrentResults);
         ShowResults(CurrentResults);
 
     }
@@ -493,35 +493,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     private void StopTestBtn_Clicked(object sender, EventArgs e)
     {
 
-        OstfBase.SoundPlayer.FadeOutPlayback();
-
-        // Showing panels again
-        SetBottomPanelShow(true);
-        SetLeftPanelShow(true);
-
-        StartTestBtn.Text = "Start";
-
-        // Set IsEnabled values of controls
-        NewTestBtn.IsEnabled = true;
-        SpeechTestPicker.IsEnabled = false;
-        TestOptionsGrid.IsEnabled = true;
-        //TestOptionsGrid.IsVisible = true;
-
-        if (CurrentTestOptionsView != null){ CurrentTestOptionsView.IsEnabled = false; } 
-        //HideSettingsPanelSwitch.IsEnabled = false;
-        //HideResultsPanelSwitch.IsEnabled = false;
-        StartTestBtn.IsEnabled = false;
-        PauseTestBtn.IsEnabled = false;
-        StopTestBtn.IsEnabled = false;
-        TestReponseGrid.IsEnabled = false;
-        TestResultGrid.IsEnabled = true;
-
-        // Stopping all timers
-        StopAllTrialEventTimers();
-        CurrentResponseView.HideAllItems();
-        TestResults CurrentResults = CurrentSpeechTest.GetResults();
-        CurrentSpeechTest.SaveResults(CurrentResults);
-        ShowResults(CurrentResults);
+        FinalizeTest();
 
     }
 
@@ -568,8 +540,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             case SpeechTest.SpeechTestReplies.TestIsCompleted:
 
                 FinalizeTest();
-
-                OstfBase.SoundPlayer.FadeOutPlayback();
+                Messager.MsgBox("The test is finished", Messager.MsgBoxStyle.Information, "Finished", "OK");
 
                 break;
 
@@ -733,44 +704,45 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         // Stopping all timers
         StopAllTrialEventTimers();
-
         CurrentResponseView.HideAllItems();
 
-        CurrentSpeechTest.FinalizeTest();
+        // Fading out sound
+        OstfBase.SoundPlayer.FadeOutPlayback();
 
+        // Showing panels again
+        SetBottomPanelShow(true);
+        SetLeftPanelShow(true);
+
+        // Restting start button text
+        StartTestBtn.Text = "Start";
+
+        // Set IsEnabled values of controls
+        NewTestBtn.IsEnabled = true;
+        SpeechTestPicker.IsEnabled = false;
+        TestOptionsGrid.IsEnabled = true;
+        if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
+        StartTestBtn.IsEnabled = false;
+        PauseTestBtn.IsEnabled = false;
+        StopTestBtn.IsEnabled = false;
+        TestReponseGrid.IsEnabled = false;
+        TestResultGrid.IsEnabled = true;
+
+        // Gettin gtest results
         TestResults CurrentResults = CurrentSpeechTest.GetResults();
 
-        CurrentSpeechTest.SaveResults(CurrentResults);
-
+        // Displaying test results
         ShowResults(CurrentResults);
 
-        // Simulating a click on the stop button to show the correct things in the GUI
-        StopTestBtn_Clicked(null, null);
-
-        Messager.MsgBox("The test is finished", Messager.MsgBoxStyle.Information, "Finished", "OK");
-        //CurrentResponseView.ShowMessage("Test is finished!");
+        // Saving test results to file
+        CurrentSpeechTest.SaveTextFormattedResults(CurrentResults);
 
     }
 
    void  AbortTest()
     {
 
-        // Stopping all timers
-        StopAllTrialEventTimers();
-
-        CurrentResponseView.HideAllItems();
-
-        TestResults CurrentResults = CurrentSpeechTest.GetResults();
-
-        CurrentSpeechTest.SaveResults(CurrentResults);
-
-        ShowResults(CurrentResults);
-
-        // Simulating a click on the stop button to show the correct things in the GUI
-        StopTestBtn_Clicked(null, null);
-
+        FinalizeTest();
         Messager.MsgBox("The test had to be aborted", Messager.MsgBoxStyle.Information, "Aborted", "OK");
-        //CurrentResponseView.ShowMessage("Test is finished!");
 
     }
 

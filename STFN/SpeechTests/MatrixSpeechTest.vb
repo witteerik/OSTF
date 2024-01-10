@@ -3,6 +3,13 @@
 Public Class MatrixSpeechTest
     Inherits SpeechTest
 
+    Public Overrides ReadOnly Property FilePathRepresenation As String
+        Get
+            Return "Matrix"
+        End Get
+    End Property
+
+
     ''' <summary>
     ''' This collection contains PlannedTestSentences which can be used troughout the test, in sequential order.
     ''' </summary>
@@ -526,14 +533,6 @@ Public Class MatrixSpeechTest
         End If
 
     End Sub
-
-
-    Public Overrides Function SaveResults(TestResults As TestResults) As Boolean
-
-        'Not finished!
-
-        Return True
-    End Function
 
 
     Public Overrides Function GetResults() As TestResults

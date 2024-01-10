@@ -2,6 +2,11 @@
 
     Inherits SpeechTest
 
+    Public Overrides ReadOnly Property FilePathRepresenation As String
+        Get
+            Return "SiP"
+        End Get
+    End Property
 
     Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
         Get
@@ -170,12 +175,6 @@
 
     End Function
 
-
-
-    Public Overrides Function SaveResults(TestResults As TestResults) As Boolean
-        'Throw New NotImplementedException()
-        Return True
-    End Function
 
     Public Overrides Function GetResults() As TestResults
         ' Throw New NotImplementedException()

@@ -918,37 +918,45 @@
                 'Setting the noise level to the Nominal Level, using indicated frequency weighting
                 Audio.DSP.MeasureAndAdjustSectionLevel(Noise, NominalLevel, 1,,, NoiseFrequencyWeighting)
 
+            'Case GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating
+
+            '    'Creating TSN
+            '    Noise = CreateThresholdSimulatingNoise(WaveFormat, IntendedPresentationLevel, Math.Ceiling(LongestSoundFileLength))
+
+            '    'Creating a temporary white noise (perhaps it would be better to use a pink noise here...)
+            '    Dim TempWhiteNoise = Audio.GenerateSound.CreateWhiteNoise(WaveFormat, 1, 1, Math.Ceiling(LongestSoundFileLength), Audio.BasicAudioEnums.TimeUnits.samples)
+
+            '    'Setting the level of the temporary white noise to the Nominal Level, using indicated frequency weighting
+            '    Audio.DSP.MeasureAndAdjustSectionLevel(Noise, NominalLevel, 1,,, NoiseFrequencyWeighting)
+
+            '    'Creating a bank band
+            '    Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+
+            '    'Calculating the band levels 
+            '    Dim BandLevels_TSN = Audio.DSP.Measurements.CalculateBandLevels(TempWhiteNoise, 1, BandBank)
+            '    Dim BandLevels_WN = Audio.DSP.Measurements.CalculateBandLevels(Noise, 1, BandBank)
+
+            '    'Getting the index if the 1 kHz band
+            '    Dim CentreFrequencies = BandBank.GetCentreFrequencies().ToList
+            '    Dim IndexOf1kHz = CentreFrequencies.IndexOf(1000)
+
+            '    'Getting the level of the 1 kHz band
+            '    Dim NoiseLevelAt1kHz = BandLevels_TSN(IndexOf1kHz)
+            '    Dim WN_LevelAt1kHz = BandLevels_WN(IndexOf1kHz)
+
+            '    'Equalizing the levels in the 1 kHz band, by changing the TSN
+            '    Dim NeededGain As Double = NoiseLevelAt1kHz - WN_LevelAt1kHz
+
+            '    'Applying the needed gain
+            '    Audio.DSP.AmplifySection(Noise, NeededGain)
+
             Case GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating
 
                 'Creating TSN
                 Noise = CreateThresholdSimulatingNoise(WaveFormat, IntendedPresentationLevel, Math.Ceiling(LongestSoundFileLength))
 
-                'Creating a temporary white noise (perhaps it would be better to use a pink noise here...)
-                Dim TempWhiteNoise = Audio.GenerateSound.CreateWhiteNoise(WaveFormat, 1, 1, Math.Ceiling(LongestSoundFileLength), Audio.BasicAudioEnums.TimeUnits.samples)
-
-                'Setting the level of the temporary white noise to the Nominal Level, using indicated frequency weighting
+                'Setting the noise level to the Nominal Level, using indicated frequency weighting
                 Audio.DSP.MeasureAndAdjustSectionLevel(Noise, NominalLevel, 1,,, NoiseFrequencyWeighting)
-
-                'Creating a bank band
-                Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
-
-                'Calculating the band levels 
-                Dim BandLevels_TSN = Audio.DSP.Measurements.CalculateBandLevels(TempWhiteNoise, 1, BandBank)
-                Dim BandLevels_WN = Audio.DSP.Measurements.CalculateBandLevels(Noise, 1, BandBank)
-
-                'Getting the index if the 1 kHz band
-                Dim CentreFrequencies = BandBank.GetCentreFrequencies().ToList
-                Dim IndexOf1kHz = CentreFrequencies.IndexOf(1000)
-
-                'Getting the level of the 1 kHz band
-                Dim NoiseLevelAt1kHz = BandLevels_TSN(IndexOf1kHz)
-                Dim WN_LevelAt1kHz = BandLevels_WN(IndexOf1kHz)
-
-                'Equalizing the levels in the 1 kHz band, by changing the TSN
-                Dim NeededGain As Double = NoiseLevelAt1kHz - WN_LevelAt1kHz
-
-                'Applying the needed gain
-                Audio.DSP.AmplifySection(Noise, NeededGain)
 
         End Select
 

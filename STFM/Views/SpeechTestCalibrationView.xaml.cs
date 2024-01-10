@@ -480,7 +480,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
         catch (Exception ex)
         {
-            Messager.MsgBox("An error occurred!", Messager.MsgBoxStyle.Exclamation, "Calibration");
+            Messager.MsgBox("The following error occurred:\n\n" + ex.ToString(), Messager.MsgBoxStyle.Exclamation, "Calibration");
         }
 
     }

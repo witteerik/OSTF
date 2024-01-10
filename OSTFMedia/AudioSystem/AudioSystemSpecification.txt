@@ -4,7 +4,8 @@ MediaPlayerType = PaBased // must be either PaBased or MctBased (PaBased = PortA
 <AudioDevices>
 ApiName = MME // "MME", "Windows DirectSound", "Windows WASAPI", "ASIO" // N.B. ASIO is not supported in all editions
 
-OutputDevices = Högtalare (Realtek(R) Audio) // Högtalare (RME Fireface UCX), Analog (3+4) (RME Fireface UCX), Analog (5+6) (RME Fireface UCX)
+OutputDevices = Högtalare (AudioQuest DragonFly // Högtalare (Realtek(R) Audio) // Högtalare (RME Fireface UCX), Analog (3+4) (RME Fireface UCX), Analog (5+6) (RME Fireface UCX) //Högtalare (AudioQuest DragonFly // Högtalare (iFi USB Audio SE)
+
 //OutputDevices = 1-2 (OCTA-CAPTURE), 3-4 (OCTA-CAPTURE), 5-6 (OCTA-CAPTURE), 7-8 (OCTA-CAPTURE), // Högtalare/Hörlurar (Realtek(R) 
 InputDevices = //1-2 (OCTA-CAPTURE)
 OutputDevice = // 1-2 (OCTA-CAPTURE) // Högtalare/Hörlurar (Realtek(R) 

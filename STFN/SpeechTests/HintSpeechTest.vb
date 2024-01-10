@@ -1,8 +1,14 @@
-﻿Imports MathNet.Numerics
+﻿Imports System.IO
+Imports MathNet.Numerics
 Imports STFN.TestProtocol
 
 Public Class HintSpeechTest
     Inherits SpeechTest
+    Public Overrides ReadOnly Property FilePathRepresenation As String
+        Get
+            Return "HINT"
+        End Get
+    End Property
 
     ''' <summary>
     ''' This collection contains MaximumNumberOfTestWords which can be used troughout the test, in sequential order.
@@ -14,7 +20,6 @@ Public Class HintSpeechTest
     Private HasNoise As Boolean
 
     Private ObservedTrials As TrialHistory
-
 
 #Region "Settings"
 
@@ -428,14 +433,6 @@ Public Class HintSpeechTest
         End If
 
     End Sub
-
-
-    Public Overrides Function SaveResults(TestResults As TestResults) As Boolean
-
-        'Not finished!
-
-        Return True
-    End Function
 
     Public Overrides Sub FinalizeTest()
 

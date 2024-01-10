@@ -6,4 +6,6 @@
 
     Public GuiLanguage As Utils.Languages = Utils.Constants.Languages.Swedish
 
+    Public TestResultsRootFolder As String = ""
+
 End Module

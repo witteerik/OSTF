@@ -29,6 +29,38 @@ namespace STFM
             }
             IsInitialized = true;
 
+            await CheckAndSetMediaRootDirectory();
+
+            await CheckAndSetTestResultsRootFolder();
+
+            // Initializing OSTF
+            OstfBase.InitializeOSTF(GetCurrentPlatform(), MediaPlayerType, OstfBase.MediaRootDirectory);
+            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.MctBased)
+            {
+                OstfBase.SoundPlayer = new STFM.MauiCtBasedSoundPlayer(ParentContainer);
+            }
+
+        }
+
+        static OstfBase.Platforms GetCurrentPlatform() {
+
+            if (DeviceInfo.Current.Platform == DevicePlatform.iOS) {return OstfBase.Platforms.iOS;}
+            else if (DeviceInfo.Current.Platform == DevicePlatform.WinUI) { return OstfBase.Platforms.WinUI; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.UWP) { return OstfBase.Platforms.UWP; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Tizen) { return OstfBase.Platforms.Tizen; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.tvOS) { return OstfBase.Platforms.tvOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst) { return OstfBase.Platforms.MacCatalyst; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS) { return OstfBase.Platforms.macOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.watchOS) { return OstfBase.Platforms.watchOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Unknown) { return OstfBase.Platforms.Unknown; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Android) { return OstfBase.Platforms.Android; }
+            else { throw new Exception("Failed to resolve the current platform type."); }
+           
+        }
+
+
+        async static Task CheckAndSetMediaRootDirectory()
+        {
             // Trying to read the MediaRootDirectory from pevious app sessions
             OstfBase.MediaRootDirectory = ReadMediaRootDirectory();
 
@@ -71,7 +103,7 @@ namespace STFM
             }
             catch (Exception)
             {
-                //askForMediaFolder = true;
+                //askForTestResultsRootFolder = true;
                 //throw;
             }
 
@@ -80,7 +112,7 @@ namespace STFM
                 askForMediaFolder = true;
             }
 
-            //askForMediaFolder = true;
+            //askForTestResultsRootFolder = true;
             if (askForMediaFolder)
             {
                 await PickMediaFolder();
@@ -91,44 +123,16 @@ namespace STFM
                 // Storing the MediaRootDirectory for future instances of the app, but only if it was changed
                 StoreMediaRootDirectory(OstfBase.MediaRootDirectory);
             }
-
-            // Initializing OSTF
-            OstfBase.InitializeOSTF(GetCurrentPlatform(), MediaPlayerType, OstfBase.MediaRootDirectory);
-            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.MctBased)
-            {
-                OstfBase.SoundPlayer = new STFM.MauiCtBasedSoundPlayer(ParentContainer);
-            }
-
         }
-
-        static OstfBase.Platforms GetCurrentPlatform() {
-
-            if (DeviceInfo.Current.Platform == DevicePlatform.iOS) {return OstfBase.Platforms.iOS;}
-            else if (DeviceInfo.Current.Platform == DevicePlatform.WinUI) { return OstfBase.Platforms.WinUI; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.UWP) { return OstfBase.Platforms.UWP; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.Tizen) { return OstfBase.Platforms.Tizen; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.tvOS) { return OstfBase.Platforms.tvOS; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst) { return OstfBase.Platforms.MacCatalyst; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS) { return OstfBase.Platforms.macOS; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.watchOS) { return OstfBase.Platforms.watchOS; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.Unknown) { return OstfBase.Platforms.Unknown; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.Android) { return OstfBase.Platforms.Android; }
-            else { throw new Exception("Failed to resolve the current platform type."); }
-           
-        }
-
 
         async static Task PickMediaFolder()
         {
             var result = await FolderPicker.PickAsync(CancellationToken.None);
-
             //var result = await FolderPicker.Default.PickAsync(CancellationToken.None);
             if (result.IsSuccessful)
             {
                 await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
-
                 OstfBase.MediaRootDirectory = result.Folder.Path;
-
             }
             else
             {
@@ -136,30 +140,118 @@ namespace STFM
             }
         }
 
-        async static Task<FileResult> PickAndShow(PickOptions options)
+
+
+        static string ReadMediaRootDirectory()
         {
+            if (Preferences.Default.ContainsKey("media_root_directory"))
+            {
+                return Preferences.Default.Get("media_root_directory", "");
+            }
+            else { 
+                return ""; 
+            }
+        }
+
+        static void StoreMediaRootDirectory(string mediaRootDirectory)
+        {
+            Preferences.Default.Set("media_root_directory", mediaRootDirectory);
+        }
+
+        static void ClearMediaRootDirectoryFromPreferences(string mediaRootDirectory)
+        {
+            Preferences.Default.Remove("media_root_directory");
+        }
+
+
+
+        async static Task CheckAndSetTestResultsRootFolder()
+        {
+            // Trying to read the TestResultsRootFolder from pevious app sessions
+            SharedSpeechTestObjects.TestResultsRootFolder = ReadTestResultRootDirectory();
+
+            string previouslyStoredTestResultsRootFolder = SharedSpeechTestObjects.TestResultsRootFolder;
+
+            bool askForTestResultsRootFolder = true;
+
+            if (DeviceInfo.Current.Platform == DevicePlatform.iOS)
+            {
+                throw new NotImplementedException("Test results root folder location is not yet implemented for iOS");
+            }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Android)
+            {
+                // Checking for permissions
+                await CheckPermissions();
+            }
+
+            // Checking if the folder exists
             try
             {
-                var result = await FilePicker.Default.PickAsync(options);
-                if (result != null)
+                if (System.IO.Directory.Exists(SharedSpeechTestObjects.TestResultsRootFolder))
                 {
-                    if (result.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) ||
-                        result.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase))
-                    {
-                        using var stream = await result.OpenReadAsync();
-                        var image = ImageSource.FromStream(() => stream);
-                    }
+                    askForTestResultsRootFolder = false;
                 }
-
-                return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // The user canceled or something went wrong
+                askForTestResultsRootFolder = true;
             }
 
-            return null;
+            if (SharedSpeechTestObjects.TestResultsRootFolder == "")
+            {
+                askForTestResultsRootFolder = true;
+            }
+
+            if (askForTestResultsRootFolder)
+            {
+                await PickTestResultsRootFolder();
+            }
+
+            if (previouslyStoredTestResultsRootFolder != SharedSpeechTestObjects.TestResultsRootFolder)
+            {
+                // Storing the TestResultsRootFolder for future instances of the app, but only if it was changed
+                StoreTestResultRootDirectory(SharedSpeechTestObjects.TestResultsRootFolder);
+            }
         }
+
+
+        async static Task PickTestResultsRootFolder()
+        {
+            var result = await FolderPicker.PickAsync(CancellationToken.None);
+            //var result = await FolderPicker.Default.PickAsync(CancellationToken.None);
+            if (result.IsSuccessful)
+            {
+                await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
+                SharedSpeechTestObjects.TestResultsRootFolder = result.Folder.Path;
+            }
+            else
+            {
+                await Toast.Make($"The folder was not picked with error: {result.Exception.Message}").Show(CancellationToken.None);
+            }
+        }
+
+        static string ReadTestResultRootDirectory()
+        {
+            if (Preferences.Default.ContainsKey("test_result_root_directory"))
+            {
+                return Preferences.Default.Get("test_result_root_directory", "");
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        static void StoreTestResultRootDirectory(string TestResultRootDirectory)
+        {
+            Preferences.Default.Set("test_result_root_directory", TestResultRootDirectory);
+        }
+
+        static void ClearTestResultRootDirectoryFromPreferences(string TestResultRootDirectory)
+        {
+            Preferences.Default.Remove("test_result_root_directory");
+        }
+
 
         async static Task CheckPermissions()
         {
@@ -191,27 +283,6 @@ namespace STFM
 
         }
 
-        static string ReadMediaRootDirectory()
-        {
-            if (Preferences.Default.ContainsKey("media_root_directory"))
-            {
-                return Preferences.Default.Get("media_root_directory", "");
-            }
-            else { 
-                return ""; 
-            }
-        }
-
-        static void StoreMediaRootDirectory(string mediaRootDirectory)
-        {
-            Preferences.Default.Set("media_root_directory", mediaRootDirectory);
-        }
-
-        static void ClearMediaRootDirectoryFromPreferences(string mediaRootDirectory)
-        {
-            Preferences.Default.Remove("media_root_directory");
-        }
-
-
     }
+
 }

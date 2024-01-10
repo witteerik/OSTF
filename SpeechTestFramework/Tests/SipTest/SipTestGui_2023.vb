@@ -1274,9 +1274,9 @@ Public Class SipTestGui_2023
                 CurrentBlockIsBMLD = True
             End If
 
-            Dim TargetStimulusLocations() As SoundSourceLocation
-            Dim MaskerLocations() As SoundSourceLocation
-            Dim BackgroundLocations() As SoundSourceLocation
+            Dim TargetStimulusLocations() As SoundSourceLocation = Nothing
+            Dim MaskerLocations() As SoundSourceLocation = Nothing
+            Dim BackgroundLocations() As SoundSourceLocation = Nothing
             Dim SignalMode As BmldModes
             Dim NoiseMode As BmldModes
 

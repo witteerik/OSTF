@@ -109,11 +109,12 @@ public class ResponseView_Mafc : ResponseView
 
                 // This option is handled before the Switch statement, and the code should not end up here
                 throw new NotImplementedException("This is a bug! There is something wrong with the usage of Flexible ReponseAlternativeLayoutType. Please report it to the OSTF team!");
+                //break;
 
-                break;
             case ReponseAlternativeLayoutTypes.Free:
+
                 throw new NotImplementedException("ReponseAlternativeLayoutType Free is ot yet implemented");
-                break;
+                //break;
             default:
                 break;
         }
