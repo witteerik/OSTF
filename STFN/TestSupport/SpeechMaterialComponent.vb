@@ -260,21 +260,13 @@ Public Class SpeechMaterialComponent
     ''' <returns></returns>
     Public Function GetMediaFolderName() As String
 
-        'If LinguisticLevel = SpeechMaterial.LinguisticLevels.ListCollection Then
-        '    Throw New ArgumentException("The linguistic level " & SpeechMaterial.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterial.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
-        'End If
-
-        Return Id & "_" & PrimaryStringRepresentation.Replace(" ", "_")
+        Return (Id & "_" & PrimaryStringRepresentation).Replace(" ", "_")
 
     End Function
 
     Public Function GetMaskerFolderName() As String
 
-        'If LinguisticLevel = SpeechMaterial.LinguisticLevels.ListCollection Then
-        '    Throw New ArgumentException("The linguistic level " & SpeechMaterial.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterial.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
-        'End If
-
-        Return Id & "_" & PrimaryStringRepresentation.Replace(" ", "_")
+        Return (Id & "_" & PrimaryStringRepresentation).Replace(" ", "_")
 
     End Function
 
@@ -351,7 +343,6 @@ Public Class SpeechMaterialComponent
 
         'Getting files in that folder
         Dim AvailableFiles = IO.Directory.GetFiles(Folder)
-
         Dim IncludedFiles As New List(Of String)
 
         Dim AllowedFileExtensions As New List(Of String)

@@ -230,8 +230,8 @@ public class HorizontalSoundSourceView : Frame
                     //Padding = 10
                 };
 
-                // Selects as default, if headphones and not simulated sound field
-                if (isHeadPhones == true & IsSoundFieldSimulation == false)
+                // Selects as default, if Target in headphones, not simulated sound field
+                if (isHeadPhones == true & IsSoundFieldSimulation == false & RoleType == SoundSceneItem.SoundSceneItemRoles.Target)
                 {
                     sourceBotton.IsSelected = true;
                 }

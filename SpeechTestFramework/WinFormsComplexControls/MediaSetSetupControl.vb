@@ -1,4 +1,6 @@
-﻿Public Class MediaSetSetupControl
+﻿Imports System.Globalization
+
+Public Class MediaSetSetupControl
 
 
     Private SelectedTestSpecification As SpeechMaterialSpecification = Nothing
@@ -724,13 +726,14 @@
             Dim Component = AllComponentsLookup(ID)
 
             Dim SoundIndex As Integer
-            If Integer.TryParse(LineSplit(1).Trim, SoundIndex) = False Then
+            If Integer.TryParse(LineSplit(1).Trim.Replace(",", "."), SoundIndex) = False Then
                 MsgBox("Unable to parse the sound index value on line " & i + 1 & " ( " & Line & " )")
                 Exit Sub
             End If
 
             Dim Gain As Double
-            If Double.TryParse(LineSplit(2).Trim, Gain) = False Then
+
+            If Double.TryParse(LineSplit(2).Trim.Replace(",", "."), NumberStyles.Float, CultureInfo.InvariantCulture, Gain) = False Then
                 MsgBox("Unable to parse the gain value on line " & i + 1 & " ( " & Line & " )")
                 Exit Sub
             End If

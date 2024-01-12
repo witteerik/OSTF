@@ -58,7 +58,7 @@ Public Class SrtSpeechTest
 
     Public Overrides ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
         Get
-            Return 1
+            Return 0
         End Get
     End Property
 
@@ -88,7 +88,7 @@ Public Class SrtSpeechTest
 
     Public Overrides ReadOnly Property CanHaveMaskers As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
@@ -337,20 +337,20 @@ Public Class SrtSpeechTest
                 If HasNoise = True Then
 
                     CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
-            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
-            .MaskerLevel = CustomizableTestOptions.MaskingLevel,
-            .TestStage = NextTaskInstruction.TestStage,
-            .Tasks = 1}
+                        .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+                        .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
+                        .MaskerLevel = CustomizableTestOptions.MaskingLevel,
+                        .TestStage = NextTaskInstruction.TestStage,
+                        .Tasks = 1}
 
                 Else
 
                     CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
-            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = NextTaskInstruction.AdaptiveValue,
-            .MaskerLevel = Double.NegativeInfinity,
-            .TestStage = NextTaskInstruction.TestStage,
-            .Tasks = 1}
+                        .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+                        .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+                        .MaskerLevel = Double.NegativeInfinity,
+                        .TestStage = NextTaskInstruction.TestStage,
+                        .Tasks = 1}
 
                 End If
 
@@ -358,11 +358,11 @@ Public Class SrtSpeechTest
             Case TestModes.AdaptiveNoise
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
-            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = CustomizableTestOptions.SpeechLevel,
-            .MaskerLevel = CustomizableTestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
-            .TestStage = NextTaskInstruction.TestStage,
-            .Tasks = 1}
+                    .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+                    .SpeechLevel = CustomizableTestOptions.SpeechLevel,
+                    .MaskerLevel = CustomizableTestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
+                    .TestStage = NextTaskInstruction.TestStage,
+                    .Tasks = 1}
 
             Case Else
                 Throw New NotImplementedException

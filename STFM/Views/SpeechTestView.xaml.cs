@@ -168,6 +168,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         TestReponseGrid.IsEnabled = false;
         TestResultGrid.IsEnabled = false;
 
+        // Deselecting previous test
+        SpeechTestPicker.SelectedIndex = -1;
+
     }
 
 
@@ -493,7 +496,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     private void StopTestBtn_Clicked(object sender, EventArgs e)
     {
 
-        FinalizeTest();
+        FinalizeTest(true);
 
     }
 
@@ -539,7 +542,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             case SpeechTest.SpeechTestReplies.TestIsCompleted:
 
-                FinalizeTest();
+                FinalizeTest(false);
                 Messager.MsgBox("The test is finished", Messager.MsgBoxStyle.Information, "Finished", "OK");
 
                 break;
@@ -699,7 +702,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    void FinalizeTest()
+    void FinalizeTest(bool wasStoppedBeforeFinished)
     {
 
         // Stopping all timers
@@ -727,7 +730,13 @@ public partial class SpeechTestView : ContentView, IDrawable
         TestReponseGrid.IsEnabled = false;
         TestResultGrid.IsEnabled = true;
 
-        // Gettin gtest results
+        // Finalizing test protocol
+        if (wasStoppedBeforeFinished == false)
+        {
+            CurrentSpeechTest.FinalizeTest();
+        }
+
+        // Getting test results
         TestResults CurrentResults = CurrentSpeechTest.GetResults();
 
         // Displaying test results
@@ -741,7 +750,7 @@ public partial class SpeechTestView : ContentView, IDrawable
    void  AbortTest()
     {
 
-        FinalizeTest();
+        FinalizeTest(true);
         Messager.MsgBox("The test had to be aborted", Messager.MsgBoxStyle.Information, "Aborted", "OK");
 
     }

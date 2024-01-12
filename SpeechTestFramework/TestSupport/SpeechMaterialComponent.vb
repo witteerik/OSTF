@@ -247,7 +247,7 @@ Public Class SpeechMaterialComponent
         '    Throw New ArgumentException("The linguistic level " & SpeechMaterialComponent.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterialComponent.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
         'End If
 
-        Return Id & "_" & PrimaryStringRepresentation.Replace(" ", "_")
+        Return (Id & "_" & PrimaryStringRepresentation).Replace(" ", "_")
 
     End Function
 
@@ -257,7 +257,7 @@ Public Class SpeechMaterialComponent
         '    Throw New ArgumentException("The linguistic level " & SpeechMaterialComponent.LinguisticLevels.ListCollection.ToString & " (" & SpeechMaterialComponent.LinguisticLevels.ListCollection & " ) does not support media folders. (Media items can only be specified for lower levels.)")
         'End If
 
-        Return Id & "_" & PrimaryStringRepresentation.Replace(" ", "_")
+        Return (Id & "_" & PrimaryStringRepresentation).Replace(" ", "_")
 
     End Function
 

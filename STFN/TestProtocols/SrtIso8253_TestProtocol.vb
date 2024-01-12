@@ -174,7 +174,9 @@
         Output.SNRLevelSeries = New List(Of Double)
         Output.TestStageSeries = New List(Of String)
         Output.ProportionCorrectSeries = New List(Of String)
-        Output.ScoreSeries = New List(Of String)
+
+        'Trial.IsCorrect  is not used
+        'Output.ScoreSeries = New List(Of String)
         For Each Trial As SrtTrial In TrialHistory
             Output.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
             Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
@@ -182,11 +184,6 @@
             Output.SNRLevelSeries.Add(Math.Round(Trial.SNR))
             Output.TestStageSeries.Add(Trial.TestStage)
             Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-            If Trial.IsCorrect = True Then
-                Output.ScoreSeries.Add("Correct")
-            Else
-                Output.ScoreSeries.Add("Incorrect")
-            End If
         Next
 
         Return Output

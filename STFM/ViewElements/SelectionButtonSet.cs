@@ -27,6 +27,8 @@ public class SelectionButtonSet : Grid
         int nRows;
         int nCols;
 
+        //this.BackgroundColor = Colors.Aquamarine;
+
         if (orientation ==  Orientation.Horizontal) {
             nRows = 1;
             nCols = nItems;
