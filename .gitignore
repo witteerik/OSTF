@@ -356,3 +356,6 @@ OSTFMedia/SpeechMaterials/SwedishEikholtTest/
 # Temporary PB50 and Swedish Spondee materials
 OSTFMedia/SpeechMaterials/SwedishPB23/
 OSTFMedia/SpeechMaterials/SwedishSpondees23/
+
+# Files to ignore
+SrtMargolis2021_TestProtocol.vb
