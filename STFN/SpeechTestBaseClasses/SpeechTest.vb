@@ -302,7 +302,7 @@
 
     Public MustOverride Function GetResults() As TestResults
 
-    Public MustOverride ReadOnly Property FilePathRepresenation As String
+    Public MustOverride ReadOnly Property FilePathRepresentation As String
 
     Public Function SaveTextFormattedResults(TestResults As TestResults) As Boolean
 
@@ -321,7 +321,7 @@
         End If
 
         Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, "HINT")
-        Dim OutputFilename = Me.FilePathRepresenation & "_Results_" & SharedSpeechTestObjects.CurrentParticipantID
+        Dim OutputFilename = Me.FilePathRepresentation & "_Results_" & SharedSpeechTestObjects.CurrentParticipantID
 
         'Ensures that an old file with the same filename is not overwritten by adding a number to existing files
         OutputFilename = Utils.CheckFileNameConflict(OutputFilename)

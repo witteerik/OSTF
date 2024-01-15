@@ -77,6 +77,67 @@ Public Class AudiogramData
 
     End Sub
 
+    Private _PTA3_L As Double?
+    Public ReadOnly Property PTA3_L As Double?
+        Get
+            If _PTA3_L.HasValue = False Then
+                UpdatePTA3_L()
+            End If
+            Return _PTA3_L
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Updates the value returned by the ReadOnly Property PTA3_L, based on interpolation of existing audiogram points.
+    ''' </summary>
+    Public Sub UpdatePTA3_L()
+
+        If AC_Left.Count > 0 Or AC_Left_Masked.Count > 0 Then
+            Dim Left_AC = GetFullAudiogramPointSerie(AC_Left_Masked, AC_Left)
+            _PTA3_L = (Left_AC(500).StimulusLevel + Left_AC(1000).StimulusLevel + Left_AC(2000).StimulusLevel) / 3
+        End If
+
+    End Sub
+
+    ''' <summary>
+    ''' Can be used to set PTA3_L when there are no audiogram points stored.
+    ''' </summary>
+    ''' <param name="NewValue"></param>
+    Public Sub OverridePTA3_L(ByVal NewValue As Double)
+        _PTA3_L = NewValue
+    End Sub
+
+    Private _PTA3_R As Double?
+    Public ReadOnly Property PTA3_R As Double?
+        Get
+            If _PTA3_R.HasValue = False Then
+                UpdatePTA3_R()
+            End If
+            Return _PTA3_R
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Updates the value returned by the ReadOnly Property PTA3_R, based on interpolation of existing audiogram points.
+    ''' </summary>
+    Public Sub UpdatePTA3_R()
+
+        If AC_Right.Count > 0 Or AC_Right_Masked.Count > 0 Then
+            Dim Right_AC = GetFullAudiogramPointSerie(AC_Right_Masked, AC_Right)
+            _PTA3_R = (Right_AC(500).StimulusLevel + Right_AC(1000).StimulusLevel + Right_AC(2000).StimulusLevel) / 3
+        End If
+
+    End Sub
+
+    ''' <summary>
+    ''' Can be used to set PTA3_R when there are no audiogram points stored.
+    ''' </summary>
+    ''' <param name="NewValue"></param>
+    Public Sub OverridePTA3_R(ByVal NewValue As Double)
+        _PTA3_R = NewValue
+    End Sub
+
+
     'A debugging function that creates random audiogram data in the current instance of AudiogramData
     Public Sub CreateRandomAudiogramData(Optional ByVal IncludeUclData As Boolean = False)
 

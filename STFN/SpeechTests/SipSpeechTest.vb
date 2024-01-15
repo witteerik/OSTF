@@ -2,7 +2,7 @@
 
     Inherits SpeechTest
 
-    Public Overrides ReadOnly Property FilePathRepresenation As String
+    Public Overrides ReadOnly Property FilePathRepresentation As String
         Get
             Return "SiP"
         End Get

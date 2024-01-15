@@ -7,6 +7,20 @@
         End Get
     End Property
 
+    Public Overrides ReadOnly Property Information As String
+        Get
+            Return "SRT ISO 8253"
+        End Get
+    End Property
+
+    Public Overrides Function GetPatientInstructions() As String
+        Return ""
+    End Function
+
+    Public Overrides Function GetSuggestedStartlevel(Optional ReferenceValue As Double? = Nothing) As Double
+        Throw New NotImplementedException()
+    End Function
+
     Public Overrides Property StoppingCriterium As StoppingCriteria
         Get
             Return StoppingCriteria.ThresholdReached
@@ -32,7 +46,9 @@
 
     Public Property TotalTrialCount As Integer = 20
 
-    Public Overrides Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
+
+
+    Public Overrides Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
         'Setting the (initial) speech level specified by the calling code (this should be 20 or 30 dB above the PTA of 0.5, 1 and 2 kHz
         NextAdaptiveLevel = InitialTaskInstruction.AdaptiveValue
@@ -40,7 +56,9 @@
         'Setting the initial TestStage to 0 (i.e. Ballpark)
         CurrentTestStage = 0
 
-    End Sub
+        Return True
+
+    End Function
 
     Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
 
@@ -157,36 +175,9 @@
 
     End Sub
 
-    Public Overrides Function GetResults(ByRef TrialHistory As TrialHistory) As TestResults
+    Public Overrides Function GetFinalResult() As Double?
 
-        Dim Output = New TestResults(TestResults.TestResultTypes.SRT)
-        If FinalThreshold.HasValue Then
-            Output.AdaptiveLevelThreshold = FinalThreshold
-        Else
-            'Storing NaN if no threshold was reached
-            Output.AdaptiveLevelThreshold = Double.NaN
-        End If
-
-        'Storing the AdaptiveLevelSeries
-        Output.AdaptiveLevelSeries = New List(Of Double)
-        Output.SpeechLevelSeries = New List(Of Double)
-        Output.MaskerLevelSeries = New List(Of Double)
-        Output.SNRLevelSeries = New List(Of Double)
-        Output.TestStageSeries = New List(Of String)
-        Output.ProportionCorrectSeries = New List(Of String)
-
-        'Trial.IsCorrect  is not used
-        'Output.ScoreSeries = New List(Of String)
-        For Each Trial As SrtTrial In TrialHistory
-            Output.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
-            Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
-            Output.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
-            Output.SNRLevelSeries.Add(Math.Round(Trial.SNR))
-            Output.TestStageSeries.Add(Trial.TestStage)
-            Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-        Next
-
-        Return Output
+        Return FinalThreshold
 
     End Function
 

@@ -3,7 +3,7 @@
 Public Class SrtSpeechTest
     Inherits SpeechTest
 
-    Public Overrides ReadOnly Property FilePathRepresenation As String
+    Public Overrides ReadOnly Property FilePathRepresentation As String
         Get
             Return "SRT"
         End Get
@@ -452,23 +452,51 @@ Public Class SrtSpeechTest
 
     Public Overrides Function GetResults() As TestResults
 
-        Dim RawResults = CustomizableTestOptions.SelectedTestProtocol.GetResults(ObservedTrials)
+        Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+
+        Dim Output = New TestResults(TestResults.TestResultTypes.SRT)
+        If ProtocolThreshold.HasValue Then
+            Output.AdaptiveLevelThreshold = ProtocolThreshold
+        Else
+            'Storing NaN if no threshold was reached
+            Output.AdaptiveLevelThreshold = Double.NaN
+        End If
 
         'Calculating the SRT based on the adaptive threshold
         Select Case CustomizableTestOptions.SelectedTestMode
             Case TestModes.AdaptiveSpeech
-
-                RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
-
+                Output.SpeechRecognitionThreshold = Output.AdaptiveLevelThreshold
             Case TestModes.AdaptiveNoise
-
-                RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
-
+                Output.SpeechRecognitionThreshold = Output.AdaptiveLevelThreshold
             Case Else
                 Throw New NotImplementedException
         End Select
 
-        Return RawResults
+        'Storing the AdaptiveLevelSeries
+        Output.AdaptiveLevelSeries = New List(Of Double)
+        Output.SpeechLevelSeries = New List(Of Double)
+        Output.MaskerLevelSeries = New List(Of Double)
+        Output.ContralateralMaskerLevelSeries = New List(Of Double)
+        Output.SNRLevelSeries = New List(Of Double)
+        Output.TestStageSeries = New List(Of String)
+        Output.ProportionCorrectSeries = New List(Of String)
+        Output.ScoreSeries = New List(Of String)
+        For Each Trial As SrtTrial In ObservedTrials
+            Output.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
+            Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
+            Output.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
+            Output.ContralateralMaskerLevelSeries.Add(Math.Round(Trial.ContralateralMaskerLevel))
+            Output.SNRLevelSeries.Add(Math.Round(Trial.SNR))
+            Output.TestStageSeries.Add(Trial.TestStage)
+            Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
+            If Trial.IsCorrect = True Then
+                Output.ScoreSeries.Add("Correct")
+            Else
+                Output.ScoreSeries.Add("Incorrect")
+            End If
+        Next
+
+        Return Output
 
     End Function
 

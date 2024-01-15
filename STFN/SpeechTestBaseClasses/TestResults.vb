@@ -12,6 +12,7 @@
     Public AdaptiveLevelSeries As List(Of Double)
     Public SpeechLevelSeries As List(Of Double)
     Public MaskerLevelSeries As List(Of Double)
+    Public ContralateralMaskerLevelSeries As List(Of Double)
     Public SNRLevelSeries As List(Of Double)
     Public ScoreSeries As List(Of String)
     Public ProportionCorrectSeries As List(Of String)
@@ -32,12 +33,12 @@
                 If AdaptiveLevelSeries IsNot Nothing Then ResultsRowList.Add("Adaptive levels:" & vbCrLf & String.Join(vbTab, AdaptiveLevelSeries))
                 If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Speech levels:" & vbCrLf & String.Join(vbTab, SpeechLevelSeries))
                 If MaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Masker levels:" & vbCrLf & String.Join(vbTab, MaskerLevelSeries))
+                If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Masker levels:" & vbCrLf & String.Join(vbTab, ContralateralMaskerLevelSeries))
                 If SNRLevelSeries IsNot Nothing Then ResultsRowList.Add("SNR levels:" & vbCrLf & String.Join(vbTab, SNRLevelSeries))
                 If ScoreSeries IsNot Nothing Then ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
                 If ProportionCorrectSeries IsNot Nothing Then ResultsRowList.Add("Proportion correct:" & vbCrLf & String.Join(vbTab, ProportionCorrectSeries))
 
             Case Else
-
 
         End Select
 

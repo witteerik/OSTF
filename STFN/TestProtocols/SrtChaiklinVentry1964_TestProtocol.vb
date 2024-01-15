@@ -7,6 +7,20 @@
         End Get
     End Property
 
+    Public Overrides ReadOnly Property Information As String
+        Get
+            Return "Chaiklin-Ventry (1964)"
+        End Get
+    End Property
+
+    Public Overrides Function GetPatientInstructions() As String
+        Return ""
+    End Function
+
+    Public Overrides Function GetSuggestedStartlevel(Optional ReferenceValue As Double? = Nothing) As Double
+        Throw New NotImplementedException()
+    End Function
+
     Private _StoppingCriterium As StoppingCriteria = StoppingCriteria.ThresholdReached
 
     Public Overrides Property StoppingCriterium As StoppingCriteria
@@ -34,7 +48,7 @@
 
     Private FinalThreshold As Double? = Nothing
 
-    Public Overrides Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
+    Public Overrides Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
         'Setting the (initial) speech level specified by the calling code
         NextAdaptiveLevel = InitialTaskInstruction.AdaptiveValue
@@ -56,7 +70,9 @@
         'Setting the initial TestStage to 0 (i.e. Ballpark)
         CurrentTestStage = 0
 
-    End Sub
+        Return True
+
+    End Function
 
     Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
 
@@ -114,7 +130,7 @@
 
                 'The test stage is complete without reaching the required number of correct trials
 
-                'Setting the SRT to the level above this stage, but only if it's the first time the code reaches this point
+                'Setting the FinalThreshold to the level above this stage, but only if it's the first time the code reaches this point
                 If FinalThreshold.HasValue = False Then FinalThreshold = NextAdaptiveLevel + AdaptiveStepSize
 
                 'The method requires that all trials in the last stage are incorrect. Since this work badly with MAFC responses, this implementation allows for skipping of that criterium
@@ -150,40 +166,12 @@
 
     End Function
 
-    Public Overrides Function GetResults(ByRef TrialHistory As TrialHistory) As TestResults
+    Public Overrides Function GetFinalResult() As Double?
 
-        Dim Output = New TestResults(TestResults.TestResultTypes.SRT)
-        If FinalThreshold.HasValue Then
-            Output.AdaptiveLevelThreshold = FinalThreshold
-        Else
-            'Storing NaN if no threshold was reached
-            Output.AdaptiveLevelThreshold = Double.NaN
-        End If
+        Return FinalThreshold
 
-        'Storing the AdaptiveLevelSeries
-        Output.AdaptiveLevelSeries = New List(Of Double)
-        Output.SpeechLevelSeries = New List(Of Double)
-        Output.MaskerLevelSeries = New List(Of Double)
-        Output.SNRLevelSeries = New List(Of Double)
-        Output.TestStageSeries = New List(Of String)
-        Output.ProportionCorrectSeries = New List(Of String)
-        Output.ScoreSeries = New List(Of String)
-        For Each Trial As SrtTrial In TrialHistory
-            Output.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
-            Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
-            Output.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
-            Output.SNRLevelSeries.Add(Math.Round(Trial.SNR))
-            Output.TestStageSeries.Add(Trial.TestStage)
-            Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-            If Trial.IsCorrect = True Then
-                Output.ScoreSeries.Add("Correct")
-            Else
-                Output.ScoreSeries.Add("Incorrect")
-            End If
-        Next
-
-        Return Output
     End Function
+
 
     Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
         'This is ignored, since results are determines in NewResponse

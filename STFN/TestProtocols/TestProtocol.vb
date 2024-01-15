@@ -10,7 +10,7 @@ Public Module TestProtocols
         Output.Add(New SrtIso8253_TestProtocol)
         Output.Add(New SrtChaiklinVentry1964_TestProtocol)
         Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
-        Output.Add(New SrtExperimental_TestProtocol)
+        Output.Add(New SrtMargolis2021_TestProtocol)
 
         Return Output
 
@@ -20,7 +20,6 @@ Public Module TestProtocols
 
         Dim Output = New List(Of TestProtocol)
         'Adding suitable protocols
-        Output.Add(New SrtExperimental_TestProtocol)
         Return Output
 
     End Function
@@ -32,7 +31,7 @@ Public Module TestProtocols
         Output.Add(New SrtIso8253_TestProtocol)
         Output.Add(New SrtChaiklinVentry1964_TestProtocol)
         Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
-        Output.Add(New SrtExperimental_TestProtocol)
+        Output.Add(New SrtMargolis2021_TestProtocol)
 
         Return Output
 
@@ -45,7 +44,7 @@ Public Module TestProtocols
         Output.Add(New SrtIso8253_TestProtocol)
         Output.Add(New SrtChaiklinVentry1964_TestProtocol)
         Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
-        Output.Add(New SrtExperimental_TestProtocol)
+        Output.Add(New SrtMargolis2021_TestProtocol)
 
         Return Output
 
@@ -59,6 +58,17 @@ Public MustInherit Class TestProtocol
 
     Public MustOverride ReadOnly Property Name As String
 
+    Public MustOverride ReadOnly Property Information As String
+
+    Public MustOverride Function GetPatientInstructions() As String
+
+    ''' <summary>
+    ''' Determines and returns the start level to use with the protocol.
+    ''' </summary>
+    ''' <param name="ReferenceValue">A test-specific reference value that may be ignored, optional or needed by derived TestProtocol class.</param>
+    ''' <returns></returns>
+    Public MustOverride Function GetSuggestedStartlevel(Optional ByVal ReferenceValue As Nullable(Of Double) = Nothing) As Double
+
     Public MustOverride Property StoppingCriterium As StoppingCriteria
 
     Public Enum StoppingCriteria
@@ -68,7 +78,7 @@ Public MustInherit Class TestProtocol
         TrialCount
     End Enum
 
-    Public MustOverride Sub InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction)
+    Public MustOverride Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
     Public MustOverride Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
 
@@ -85,7 +95,7 @@ Public MustInherit Class TestProtocol
 
     Public MustOverride Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
-    Public MustOverride Function GetResults(ByRef TrialHistory As TrialHistory) As TestResults
+    Public MustOverride Function GetFinalResult() As Double?
 
     Public Overrides Function ToString() As String
         Return Name
