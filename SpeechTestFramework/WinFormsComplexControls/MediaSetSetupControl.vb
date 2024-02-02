@@ -142,10 +142,12 @@ Public Class MediaSetSetupControl
                 EditSpecification_TableLayoutPanel.Enabled = True
                 SaveMediaSetSpecification_Button.Enabled = True
                 EditSoundFile_TabControl.Enabled = True
+                ListRearrangerControl1.InitiateControl(SelectedMediaSet)
             Else
                 EditSpecification_TableLayoutPanel.Enabled = False
                 SaveMediaSetSpecification_Button.Enabled = False
                 EditSoundFile_TabControl.Enabled = False
+                ListRearrangerControl1.DisableControl()
             End If
 
         Else
@@ -153,6 +155,7 @@ Public Class MediaSetSetupControl
             NewMediaSet_Button.Enabled = False
             EditSpecification_TableLayoutPanel.Enabled = False
             SaveMediaSetSpecification_Button.Enabled = False
+            ListRearrangerControl1.DisableControl()
         End If
 
         UpdatePrototypeRecordingOptionsInGUI()
@@ -748,7 +751,7 @@ Public Class MediaSetSetupControl
         Next
 
         'Clears previously loaded sounds
-        SelectedMediaSet.ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         'Applies the specified gains
         For i = 0 To ComponentsToAdjust.Count - 1
@@ -765,7 +768,7 @@ Public Class MediaSetSetupControl
         Next
 
         'And save the modified sounds back to file
-        SelectedMediaSet.ParentTestSpecification.SpeechMaterial.SaveAllLoadedSounds(True)
+        SpeechMaterialComponent.SaveAllLoadedSounds(True)
 
         MsgBox("Adjusted the levels of " & ComponentsToAdjust.Count & " speech material components in " & SelectedMediaSet.ParentTestSpecification.SpeechMaterial.GetNumberOfLoadedSounds & " sound files.")
 
@@ -865,7 +868,7 @@ Public Class MediaSetSetupControl
         'All arguments ok, now start processing
 
         'Clears previously loaded sounds
-        SelectedMediaSet.ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         'Loading All needed sound files
         Dim AllComponents = SelectedMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SelectedMediaSet.AudioFileLinguisticLevel)
@@ -876,7 +879,7 @@ Public Class MediaSetSetupControl
         Next
 
         'Referencing the loaded sounds locally
-        Dim LoadedSoundFiles = SelectedMediaSet.ParentTestSpecification.SpeechMaterial.GetAllLoadedSounds
+        Dim LoadedSoundFiles = SpeechMaterialComponent.GetAllLoadedSounds
 
         'Getting and checking the nominal level
         Dim NominalLevel As Double? = Nothing
@@ -1084,6 +1087,8 @@ Public Class MediaSetSetupControl
     Private Sub GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox.CheckedChanged
         GenerateSnrRangeStimuli_InsertConcatenationSilence_CheckBox.Enabled = GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox.Checked
     End Sub
+
+
 End Class
 
 

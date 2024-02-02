@@ -1,3 +1,5 @@
+using Microsoft.Maui.Controls.Internals;
+using STFM.Pages;
 using STFN;
 using static STFN.ResponseViewEvents;
 
@@ -300,12 +302,28 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
+
                     CurrentResponseView = new ResponseView_FreeRecall();
 
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    if (true)
+                    {
+                        ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
+                        Window secondWindow = new Window(responsePage);
+                        secondWindow.Title = "";
+                        Application.Current.OpenWindow(secondWindow);
+
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                    }
+                    else
+                    {
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+                    }
+
                     //TestResponseView.StartedByTestee += StartedByTestee;
 
-                    TestReponseGrid.Children.Add(CurrentResponseView);
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
                     CurrentSpeechTest.SoundOverlapDuration = 0.1;

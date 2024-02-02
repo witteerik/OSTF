@@ -86,6 +86,23 @@ Namespace Utils
             Return Output
         End Function
 
+        ''' <summary>
+        ''' Returns a vector of length n, sequential integers in the range of min (includive) to max (inclusive) with the step sixe Step.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetSequence(ByVal min As Integer, ByVal max As Integer, ByVal [Step] As Integer) As Integer()
+
+            If min > max Then Throw New ArgumentException("max must be equal to or greater than min")
+
+            Dim SampleData As New HashSet(Of Integer)
+            For i As Integer = min To max Step [Step]
+                SampleData.Add(i)
+            Next
+
+            Return SampleData.ToArray
+
+        End Function
+
         Public Function getBase_n_Log(ByVal value As Double, Optional ByVal n As Double = 2) As Double
 
             Return System.Math.Log10(value) / System.Math.Log10(n)

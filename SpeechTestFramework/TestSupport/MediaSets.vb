@@ -1210,7 +1210,7 @@ Public Class MediaSet
             ' -Resets the sound levels of all recordings to the initial sound level
 
             'Clears previously loaded sounds
-            ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+            SpeechMaterialComponent.ClearAllLoadedSounds()
 
             'Setting a default export folder
             If ExportFolder = "" Then ExportFolder = Utils.logFilePath
@@ -1255,7 +1255,7 @@ Public Class MediaSet
 
 
             'Filters all sounds using the filter kernel produced by CreateSpeechFilterKernel
-            Dim LoadedSounds = ParentTestSpecification.SpeechMaterial.GetAllLoadedSounds()
+            Dim LoadedSounds = SpeechMaterialComponent.GetAllLoadedSounds()
 
             If SpeechFilterSounds = True Then
                 Dim SpeechFilterKernel = CreateSpeechFilterKernel(CurrentWaveFormat,)
@@ -1444,13 +1444,13 @@ Public Class MediaSet
             End If
 
             'Clears previously loaded sounds
-            ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+            SpeechMaterialComponent.ClearAllLoadedSounds()
 
             '(Re-) Loads sound files
             LoadAllSoundFIles(SoundChannel, True)
 
             'Getting the loaded sounds
-            Dim LoadedSounds = ParentTestSpecification.SpeechMaterial.GetAllLoadedSounds()
+            Dim LoadedSounds = SpeechMaterialComponent.GetAllLoadedSounds()
 
             'Measuring all other levels that should be stored in the SMA objects
             For Each RecordingKpv In LoadedSounds
@@ -1520,7 +1520,7 @@ Public Class MediaSet
         Dim ActualUpperLimitFrequencyList As List(Of Double) = Nothing
 
         'Clears previously loaded sounds
-        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(ConcatenationLevel)
 
@@ -1593,7 +1593,7 @@ Public Class MediaSet
         Dim ActualUpperLimitFrequencyList As List(Of Double) = Nothing
 
         'Clears previously loaded sounds
-        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(Me.SharedMaskersLevel)
 
@@ -1691,7 +1691,7 @@ Public Class MediaSet
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
         'Clears previously loaded sounds
-        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SummaryLevel)
 
@@ -1791,7 +1791,7 @@ Public Class MediaSet
 
 
         'Clears previously loaded sounds
-        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SummaryLevel)
 
@@ -1864,7 +1864,7 @@ Public Class MediaSet
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
         'Clears previously loaded sounds
-        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLevel)
 
@@ -2004,7 +2004,7 @@ Public Class MediaSet
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
         'Clears previously loaded sounds
-        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLinguisticLevel)
 
@@ -2107,7 +2107,7 @@ Public Class MediaSet
         If StoreNominalLevelValue = True Then ParentTestSpecification.SpeechMaterial.StoreNominalLevelValueInAllLoadedSounds(TargetSoundLevel)
 
         'And save the sma components back to file
-        ParentTestSpecification.SpeechMaterial.SaveAllLoadedSounds(True)
+        SpeechMaterialComponent.SaveAllLoadedSounds(True)
 
         'If TargetSoundLevel Is Nothing Then
         '        'Stores the AverageLevel value as a custom media set variable
@@ -2145,7 +2145,7 @@ Public Class MediaSet
         Dim SoundChannel As Integer = 1
 
         'Clears previously loaded sounds
-        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLinguisticLevel)
 
@@ -2167,7 +2167,7 @@ Public Class MediaSet
         ParentTestSpecification.SpeechMaterial.StoreNominalLevelValueInAllLoadedSounds(TargetSoundLevel)
 
         'And save the sma components back to file
-        ParentTestSpecification.SpeechMaterial.SaveAllLoadedSounds(True)
+        SpeechMaterialComponent.SaveAllLoadedSounds(True)
 
         Return True
 
@@ -2194,7 +2194,7 @@ Public Class MediaSet
 
 
         'Clears previously loaded sounds
-        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(NewMediaSet.AudioFileLinguisticLevel, Not IncludePractiseItems, Not IncludeTestItems)
 
@@ -2267,7 +2267,7 @@ Public Class MediaSet
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
         'Clears previously loaded sounds
-        ParentTestSpecification.SpeechMaterial.ClearAllLoadedSounds()
+        SpeechMaterialComponent.ClearAllLoadedSounds()
 
         Dim TargetComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(TargetComponentsLevel)
 

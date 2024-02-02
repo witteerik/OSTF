@@ -284,6 +284,12 @@
     <Compile Include="WinFormsComplexControls\LexicalVariablesEditor.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="WinFormsComplexControls\ListRearrangerControl.Designer.vb">
+      <DependentUpon>ListRearrangerControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormsComplexControls\ListRearrangerControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormsComplexControls\MediaSetSetupControl.Designer.vb">
       <DependentUpon>MediaSetSetupControl.vb</DependentUpon>
     </Compile>
@@ -483,6 +489,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormsComplexControls\LexicalVariablesEditor.resx">
       <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormsComplexControls\ListRearrangerControl.resx">
+      <DependentUpon>ListRearrangerControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormsComplexControls\MediaSetSetupControl.resx">
       <DependentUpon>MediaSetSetupControl.vb</DependentUpon>

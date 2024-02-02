@@ -1348,11 +1348,11 @@ Public Class SpeechMaterialComponent
 
     End Function
 
-    Public Sub ClearAllLoadedSounds()
+    Public Shared Sub ClearAllLoadedSounds()
         SoundLibrary.Clear()
     End Sub
 
-    Public Function GetAllLoadedSounds() As SortedList(Of String, Audio.Sound)
+    Public Shared Function GetAllLoadedSounds() As SortedList(Of String, Audio.Sound)
         Return SoundLibrary
     End Function
 
@@ -1360,7 +1360,7 @@ Public Class SpeechMaterialComponent
     ''' Saves all loaded sounds to their original location.
     ''' </summary>
     ''' <param name="SaveOnlyModified"></param>
-    Public Sub SaveAllLoadedSounds(Optional ByVal SaveOnlyModified As Boolean = True)
+    Public Shared Sub SaveAllLoadedSounds(Optional ByVal SaveOnlyModified As Boolean = True)
 
         For Each CurrentSound In SoundLibrary
             If SaveOnlyModified = True Then

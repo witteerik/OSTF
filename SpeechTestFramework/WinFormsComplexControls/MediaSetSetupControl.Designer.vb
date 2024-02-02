@@ -155,6 +155,8 @@ Partial Class MediaSetSetupControl
         Me.GenerateSnrRangeStimuli_Overlays_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox = New System.Windows.Forms.CheckBox()
         Me.GenerateSnrRangeStimuli_InsertConcatenationSilence_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.ListMixer_TabPage = New System.Windows.Forms.TabPage()
+        Me.ListRearrangerControl1 = New SpeechTestFramework.ListRearrangerControl()
         Me.CreateMaskers_TabPage = New System.Windows.Forms.TabPage()
         Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
         Me.CreateSipTestMaskersButton = New System.Windows.Forms.Button()
@@ -202,6 +204,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel9.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
         Me.TableLayoutPanel10.SuspendLayout()
+        Me.ListMixer_TabPage.SuspendLayout()
         Me.CreateMaskers_TabPage.SuspendLayout()
         Me.TableLayoutPanel4.SuspendLayout()
         Me.SoundfileLinguisticLevels_TabPage.SuspendLayout()
@@ -941,6 +944,7 @@ Partial Class MediaSetSetupControl
         '
         Me.EditSoundFile_TabControl.Controls.Add(Me.StartRecorder_TabPage)
         Me.EditSoundFile_TabControl.Controls.Add(Me.SpeechLevels_TabPage)
+        Me.EditSoundFile_TabControl.Controls.Add(Me.ListMixer_TabPage)
         Me.EditSoundFile_TabControl.Controls.Add(Me.CreateMaskers_TabPage)
         Me.EditSoundFile_TabControl.Controls.Add(Me.SoundfileLinguisticLevels_TabPage)
         Me.EditSoundFile_TabControl.Dock = System.Windows.Forms.DockStyle.Fill
@@ -1774,6 +1778,27 @@ Partial Class MediaSetSetupControl
         Me.GenerateSnrRangeStimuli_InsertConcatenationSilence_CheckBox.Text = "Insert silence (1 sec) between concatenated sounds"
         Me.GenerateSnrRangeStimuli_InsertConcatenationSilence_CheckBox.UseVisualStyleBackColor = True
         '
+        'ListMixer_TabPage
+        '
+        Me.ListMixer_TabPage.BackColor = System.Drawing.Color.Firebrick
+        Me.ListMixer_TabPage.Controls.Add(Me.ListRearrangerControl1)
+        Me.ListMixer_TabPage.Location = New System.Drawing.Point(4, 22)
+        Me.ListMixer_TabPage.Name = "ListMixer_TabPage"
+        Me.ListMixer_TabPage.Padding = New System.Windows.Forms.Padding(3)
+        Me.ListMixer_TabPage.Size = New System.Drawing.Size(615, 611)
+        Me.ListMixer_TabPage.TabIndex = 4
+        Me.ListMixer_TabPage.Text = "Re-arrange lists"
+        '
+        'ListRearrangerControl1
+        '
+        Me.ListRearrangerControl1.BackColor = System.Drawing.SystemColors.Control
+        Me.ListRearrangerControl1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ListRearrangerControl1.Enabled = False
+        Me.ListRearrangerControl1.Location = New System.Drawing.Point(3, 3)
+        Me.ListRearrangerControl1.Name = "ListRearrangerControl1"
+        Me.ListRearrangerControl1.Size = New System.Drawing.Size(609, 605)
+        Me.ListRearrangerControl1.TabIndex = 0
+        '
         'CreateMaskers_TabPage
         '
         Me.CreateMaskers_TabPage.AutoScroll = True
@@ -2125,6 +2150,7 @@ Partial Class MediaSetSetupControl
         Me.GroupBox5.ResumeLayout(False)
         Me.TableLayoutPanel10.ResumeLayout(False)
         Me.TableLayoutPanel10.PerformLayout()
+        Me.ListMixer_TabPage.ResumeLayout(False)
         Me.CreateMaskers_TabPage.ResumeLayout(False)
         Me.CreateMaskers_TabPage.PerformLayout()
         Me.TableLayoutPanel4.ResumeLayout(False)
@@ -2294,4 +2320,6 @@ Partial Class MediaSetSetupControl
     Friend WithEvents GenerateSnrRangeStimuli_Overlays_IntegerParsingTextBox As IntegerParsingTextBox
     Friend WithEvents GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents GenerateSnrRangeStimuli_InsertConcatenationSilence_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents ListMixer_TabPage As Windows.Forms.TabPage
+    Friend WithEvents ListRearrangerControl1 As ListRearrangerControl
 End Class

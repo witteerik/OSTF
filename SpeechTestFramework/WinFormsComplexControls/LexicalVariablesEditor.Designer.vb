@@ -405,6 +405,9 @@ Partial Class LexicalVariablesEditor
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
+        Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 71.62791!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.37209!))
         Me.LoadDatabase_LoadFileControl.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
@@ -417,6 +420,7 @@ Partial Class LexicalVariablesEditor
         Me.LoadDatabase_LoadFileControl.Name = "LoadDatabase_LoadFileControl"
         Me.LoadDatabase_LoadFileControl.PathType = SpeechTestFramework.PathTextBox.PathTypes.File
         Me.LoadDatabase_LoadFileControl.RowCount = 2
+        Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.LoadDatabase_LoadFileControl.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))

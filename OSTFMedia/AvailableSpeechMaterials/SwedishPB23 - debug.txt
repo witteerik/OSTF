@@ -1,0 +1,8 @@
+// This file is an OSTF test specification file. Its first non-empty line which is not commented out (using double slashes) must be exacly {OSTF_SPEECH_MATERIAL_SPECIFICATION_FILE}
+// In order to make the test that this file specifies available in OSTF, put this file in the OSTF sub folder named: AvailableSpeechMaterials, and the restart the OSTF software.
+
+{OSTF_SPEECH_MATERIAL_SPECIFICATION_FILE}
+
+Name = SwedishPB23Debug
+DirectoryName = DebugXXX
+// TestPresetsSubFilePath =  [Add the file path to the TestPresets file here, and remove the double slashes]
