@@ -111,12 +111,12 @@ Public Class ListRearrangerControl
                 NewVariableControl.Text = VariableName & " (" & LinguisticLevel.ToString & " level)"
 
                 'Storing variable information
-                NewVariableControl.VariableName = VariableName
-                NewVariableControl.LinguisticLevel = LinguisticLevel
+                NewVariableControl.VariableSpecification.VariableName = VariableName
+                NewVariableControl.VariableSpecification.LinguisticLevel = LinguisticLevel
 
                 'Determining if the variable is numeric or not, and setting the corresponding variable selection control value
                 Dim IsNumericVariable As Boolean = CustomVariable.Value
-                NewVariableControl.IsNumericVariable = IsNumericVariable
+                NewVariableControl.VariableSpecification.IsNumericVariable = IsNumericVariable
 
                 'Setting a random background color on the control
                 NewVariableControl.BackColor = Drawing.Color.FromArgb(20, CSng(rnd.Next(10, 255)), CSng(rnd.Next(10, 255)), CSng(rnd.Next(10, 255)))
@@ -143,10 +143,14 @@ Public Class ListRearrangerControl
     Private Class VariableSelectionCheckBox
         Inherits Windows.Forms.CheckBox
 
+        Public Property VariableSpecification As New CustomVariableSpecification
+
+    End Class
+
+    Public Class CustomVariableSpecification
         Public Property LinguisticLevel As SpeechMaterialComponent.LinguisticLevels
         Public Property VariableName As String
         Public Property IsNumericVariable As Boolean
-
     End Class
 
     Private Sub ReArrangeButton_Click(sender As Object, e As EventArgs) Handles ReArrangeButton.Click
@@ -190,13 +194,13 @@ Public Class ListRearrangerControl
             Exit Sub
         End If
 
-        Dim BalancedVariables As New List(Of String)
+        Dim BalancedVariables As New List(Of CustomVariableSpecification)
         If OrderType = OrderType.Balanced Then
             For Each Control In CustomVariablesSelection_TableLayoutPanel.Controls
                 Dim CastControl = TryCast(Control, VariableSelectionCheckBox)
                 If CastControl IsNot Nothing Then
                     If CastControl.Checked = True Then
-                        BalancedVariables.Add(CastControl.VariableName)
+                        BalancedVariables.Add(CastControl.VariableSpecification)
                         'CastControl.IsNumericVariable is also available if needed
                     End If
                 End If
@@ -215,7 +219,7 @@ Public Class ListRearrangerControl
 
     End Sub
 
-    Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer, ByVal BalancedVariables As List(Of String), ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "Sentence")
+    Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer, ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "Sentence")
 
         Dim rnd = New Random
 
@@ -305,12 +309,15 @@ Public Class ListRearrangerControl
             'Balancing order 
             If OrderType = OrderType.Balanced Then
 
-                Dim MaxIterations As Integer = 1000 'TODO this should be a method paramenter
-                Dim NumberOfSwapsInEachIteration As Integer = 5 ' This could be a method parameter
+                Dim MaxIterations As Integer = 10000 'TODO this should be a method paramenter
+                Dim NumberOfSwapsInEachIteration As Integer = Math.Max(1, Math.Ceiling(AllSentences.Count * 0.05)) '5 ' This could be a method parameter
 
                 'Setting OptimalOrder initially to CurrentSentenceOrder
                 Dim OptimalOrder() As Integer = CurrentSentenceOrder
-                Dim LowestListImbalance As Double = Double.MaxValue
+                Dim LowestListImbalanceList As New List(Of Double)
+                For Each Variable In BalancedVariables
+                    LowestListImbalanceList.Add(Double.MaxValue)
+                Next
 
                 For Iteration = 0 To MaxIterations
 
@@ -342,7 +349,7 @@ Public Class ListRearrangerControl
                         'Adding a new list at multiples of TargetListLength
                         If s Mod TargetListLength = 0 Then
                             CandidateListIndex += 1
-                            RearrangedMaterial.Add(CandidateListIndex, New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))))
+                            CandidateListComposition.Add(CandidateListIndex, New List(Of SpeechMaterialComponent))
                         End If
 
                         'Adding the sentence to list CandidateListIndex 
@@ -351,27 +358,36 @@ Public Class ListRearrangerControl
 
                     '2. Evaluating the order
                     'Calculating the im-balance measure
-                    Dim CurrentListImbalance = CalculateListImbalance(CandidateListComposition, BalancedVariables)
+                    Dim CurrentListImbalanceList = CalculateListImbalance(CandidateListComposition, BalancedVariables)
+
+                    'Checking if all values are better
+                    Dim AllAreBetter As Boolean = True
+                    For n = 0 To CurrentListImbalanceList.Count - 1
+                        If CurrentListImbalanceList(n) > LowestListImbalanceList(n) Then
+                            AllAreBetter = False
+                            Exit For
+                        End If
+                    Next
 
                     'Comparing the imbalance value to the value from the previous best iteration
-                    If CurrentListImbalance < LowestListImbalance Then
+                    If AllAreBetter = True Then
                         'The new order inproved the balance 
 
-                        'Storing the new LowestListImbalance value
-                        LowestListImbalance = CurrentListImbalance
+                        'Storing the new LowestListImbalanceList value
+                        LowestListImbalanceList = CurrentListImbalanceList
 
                         'Storing the candidate order as the new optimal order
                         OptimalOrder = CandidateOrder
 
                         'X. Reporting progress
-                        Console.WriteLine("Iteration:" & Iteration & vbTab & "Lower imbalance detected: " & LowestListImbalance)
+                        Console.WriteLine("Iteration: " & Iteration & vbTab & "Lower imbalance detected: " & LowestListImbalanceList.Average)
 
                     Else
                         'The new order did not improve the balance, ignoring it and keeps the optimal order
 
                         'X. Reporting progress in with regular intervals
                         If Iteration Mod 100 = 0 Then
-                            Console.WriteLine("Iteration:" & Iteration)
+                            Console.WriteLine("Iteration: " & Iteration)
                         End If
 
                     End If
@@ -505,12 +521,120 @@ Public Class ListRearrangerControl
     End Function
 
 
-    Private Function CalculateListImbalance(ByVal CandidateListComposition As SortedList(Of Integer, List(Of SpeechMaterialComponent)), ByVal BalancedVariables As List(Of String)) As Double
+    Private Function CalculateListImbalance(ByVal CandidateListComposition As SortedList(Of Integer, List(Of SpeechMaterialComponent)), ByVal BalancedVariables As List(Of CustomVariableSpecification)) As List(Of Double)
+
+        Dim CategoricalTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double)))
+        Dim CategoricalListDistributions As New List(Of List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double))))
+
+        Dim AllSentenceList As New List(Of SpeechMaterialComponent) 'TODO: This step could be done before calling this function to optimize processing
+        For Each List In CandidateListComposition.Values
+            AllSentenceList.AddRange(List)
+        Next
+
+        For Each Variable In BalancedVariables
+            If Variable.IsNumericVariable = False Then
+
+                'Calculating and adding the distribution of all items
+                CategoricalTargetDistributions.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of String, Double))(Variable, GetCategoricalDistribution(AllSentenceList, Variable, Nothing)))
+
+                'Calculating and adding the distributions within lists
+                CategoricalListDistributions.Add(New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double))))
+                For Each List In CandidateListComposition.Values
+                    CategoricalListDistributions.Last.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of String, Double))(Variable, GetCategoricalDistribution(List, Variable, CategoricalTargetDistributions.Last.Item2.Keys.ToList)))
+                Next
+
+            Else
 
 
+            End If
+        Next
 
+        'Comparing distributions by RMS error
+        Dim Distances As New List(Of Double) ' This list contains the average RMS error for each variable
+
+        For i = 0 To CategoricalTargetDistributions.Count - 1
+
+            Dim RmsErrorsPerList As New List(Of Double)
+
+            'Dividing the target distributiob nby ListCount to get the same scale
+            Dim ListCount As Integer = CategoricalListDistributions(i).Count
+            Dim TargetValues = CategoricalTargetDistributions(i).Item2.Values.ToArray
+            For j = 0 To TargetValues.Length - 1
+                TargetValues(j) = TargetValues(j) / ListCount
+            Next
+
+            'Iterating over Lists
+            For j = 0 To CategoricalListDistributions(i).Count - 1
+
+                'We now have one list, compared to all lists
+                Dim ListValues = CategoricalListDistributions(i)(j).Item2.Values.ToArray
+
+                'Calculating RMS error
+                Dim SquaredErrors(ListValues.Length - 1) As Double
+
+                'Iterating over variable values
+                For q = 0 To SquaredErrors.Length - 1
+                    SquaredErrors(q) = (ListValues(q) - TargetValues(q)) ^ 2
+                Next
+
+                Dim RmsError = Math.Sqrt(SquaredErrors.Average)
+                RmsErrorsPerList.Add(RmsError)
+            Next
+
+            'Adding the average RMS error across lists as the distance measure
+            Distances.Add(RmsErrorsPerList.Average)
+
+        Next
+
+        'Returning the distances
+        Return Distances
 
     End Function
+
+    Private Function GetCategoricalDistribution(ByVal List As List(Of SpeechMaterialComponent), ByVal VariableSpecification As CustomVariableSpecification, Optional ByVal PossibleValuesList As List(Of String) = Nothing) As SortedList(Of String, Double)
+
+        If VariableSpecification.IsNumericVariable = True Then Return Nothing
+
+        Dim Output As New SortedList(Of String, Double)
+
+        If PossibleValuesList IsNot Nothing Then
+            'Filling up Output with all keys in PossibleValuesList so that they contain the equivalent keys as the target distribution
+            For Each Key In PossibleValuesList
+                Output.Add(Key, 0)
+            Next
+        End If
+
+        For Each Sentence In List
+            If VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
+                AddCategoricalVariableValue(Output, Sentence, VariableSpecification.VariableName)
+            ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Word Then
+                For Each Word In Sentence.ChildComponents
+                    AddCategoricalVariableValue(Output, Word, VariableSpecification.VariableName)
+                Next
+            ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then
+                For Each Word In Sentence.ChildComponents
+                    For Each Phoneme In Word.ChildComponents
+                        AddCategoricalVariableValue(Output, Phoneme, VariableSpecification.VariableName)
+                    Next
+                Next
+            End If
+        Next
+
+        Return Output
+
+    End Function
+
+    Private Sub AddCategoricalVariableValue(ByRef TargetCollection As SortedList(Of String, Double), ByRef SpeechMaterialComponent As SpeechMaterialComponent, ByVal VariableName As String)
+
+        Dim VariableValue = SpeechMaterialComponent.GetCategoricalVariableValue(VariableName).Trim
+        If TargetCollection.ContainsKey(VariableValue) = False Then
+            TargetCollection.Add(VariableValue, 1)
+        Else
+            TargetCollection(VariableValue) += 1
+        End If
+
+    End Sub
+
 
     Public Enum OrderType
         Original
