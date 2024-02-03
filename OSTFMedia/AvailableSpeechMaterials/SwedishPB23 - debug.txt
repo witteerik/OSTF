@@ -4,5 +4,5 @@
 {OSTF_SPEECH_MATERIAL_SPECIFICATION_FILE}
 
 Name = SwedishPB23Debug
-DirectoryName = DebugXXX
+DirectoryName = PB23Debug
 // TestPresetsSubFilePath =  [Add the file path to the TestPresets file here, and remove the double slashes]

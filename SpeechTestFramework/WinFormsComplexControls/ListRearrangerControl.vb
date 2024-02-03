@@ -209,13 +209,13 @@ Public Class ListRearrangerControl
         End If
 
         'Rearranging lists (TODO: the following code should probably be moved to the MediaSet class?
-        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix)
+        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix)
 
 
 
     End Sub
 
-    Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer, ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "Sentence")
+    Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer, ByVal BalancedVariables As List(Of String), ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "Sentence")
 
         Dim rnd = New Random
 
@@ -225,76 +225,187 @@ Public Class ListRearrangerControl
         'Setting read sound channel
         Dim SoundChannel As Integer = 1
 
-        Dim MaterialToRearrange As New SortedList(Of Integer, List(Of SpeechMaterialComponent))
-        If ReArrangeAcrossLists = True Then
-            Dim AllSentences = SourceMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
-            MaterialToRearrange.Add(0, AllSentences)
-        Else
-            Dim AllLists = SourceMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
-            For i = 0 To AllLists.Count - 1
-                Dim AllSentences = AllLists(i).GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
-                MaterialToRearrange.Add(i, AllSentences)
-            Next
-        End If
-
+        'Creating an object to hold lists, with list index, SMC and recorded sounds
         Dim RearrangedMaterial As New SortedList(Of Integer, List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))))
 
-        For i = 0 To MaterialToRearrange.Count - 1
+        If ReArrangeAcrossLists = False Then
 
-            RearrangedMaterial.Add(i, New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))))
+            'All mixing is within lists only
 
-            'Getting the current SMCs
-            Dim CurrentSMCs = MaterialToRearrange(i)
+            'Getting all lists
+            Dim AllLists = SourceMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
 
-            'Overriding list length in some cases
-            If ReArrangeAcrossLists = False Then
-                'We keep the same list length
-                TargetListLength = CurrentSMCs.Count
-            End If
+            'Processing one list at a time
+            For CurrentListIndex = 0 To AllLists.Count - 1
 
-            'Mixing lists and getting their sounds
-            Select Case OrderType
-                Case OrderType.Original, OrderType.Random
+                'Adding a new list in the RearrangedMaterial object
+                RearrangedMaterial.Add(CurrentListIndex, New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))))
 
-                    Dim CurrentIndices() As Integer
+                'Getting the sentence level SMCs in the current list
+                Dim SentenceSMCs = AllLists(CurrentListIndex).GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
 
-                    If OrderType = OrderType.Random Then
-                        CurrentIndices = Utils.SampleWithoutReplacement(TargetListLength, 0, TargetListLength, rnd)
-                    Else
-                        CurrentIndices = Utils.GetSequence(0, TargetListLength - 1, 1)
-                    End If
+                'Storing a local temporary copy of TargetListLength, if this should have to be limited
+                Dim CurrentTargetListLength As Integer = TargetListLength
 
-                    For s = 0 To TargetListLength - 1
-                        Dim CurrentIndex = CurrentIndices(s)
+                'Limiting CurrentTargetListLength  to SentenceSMCs.Count
+                If CurrentTargetListLength > SentenceSMCs.Count Then
+                    CurrentTargetListLength = SentenceSMCs.Count
+                End If
 
-                        'Exiting loop if no more SMCs are available (i.e. target list length set too high)
-                        If CurrentIndex > CurrentSMCs.Count - 1 Then Exit For
+                'Mixing lists and getting their sounds
+                Select Case OrderType
+                    Case OrderType.Original, OrderType.Random
 
-                        'Getting the sound
-                        Dim SentenceSounds As New List(Of Audio.Sound)
-                        For r = 0 To SourceMediaSet.MediaAudioItems - 1
-                            Dim SmaComponents As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
-                            Dim CurrentSentenceSound = CurrentSMCs(CurrentIndex).GetSound(SourceMediaSet, r, SoundChannel,,,,,,,,, SmaComponents)
-                            If SmaComponents.Count > 1 Then MsgBox("An error has been detected in the SMA components. The process will likely fail.")
-                            CurrentSentenceSound.SMA.ChannelData(SoundChannel).Clear()
-                            CurrentSentenceSound.SMA.ChannelData(SoundChannel).Add(SmaComponents(0))
-                            SmaComponents(0).ParentComponent = CurrentSentenceSound.SMA.ChannelData(SoundChannel)
-                            'Shifting
-                            CurrentSentenceSound.SMA.ChannelData(SoundChannel)(0).TimeShift(-CurrentSentenceSound.SMA.ChannelData(SoundChannel)(0).StartSample)
-                            SentenceSounds.Add(CurrentSentenceSound)
+                        'Getting a vector of indices, sequential or random
+                        Dim CurrentSentenceOrder() As Integer
+                        If OrderType = OrderType.Random Then
+                            CurrentSentenceOrder = Utils.SampleWithoutReplacement(CurrentTargetListLength, 0, CurrentTargetListLength, rnd)
+                        Else
+                            CurrentSentenceOrder = Utils.GetSequence(0, CurrentTargetListLength - 1, 1)
+                        End If
+
+                        'Picking sentences in the order specified in CurrentSentenceOrder
+                        For s = 0 To CurrentTargetListLength - 1
+                            'Getting the current index
+                            Dim CurrentIndex = CurrentSentenceOrder(s)
+
+                            'Getting the sentence level sound with modified SMA chunk
+                            Dim SentenceSounds = GetSentenceSounds(SentenceSMCs(CurrentIndex), SoundChannel)
+
+                            'Adding the sentence SMC and its sounds
+                            RearrangedMaterial(CurrentListIndex).Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))(SentenceSMCs(CurrentIndex), SentenceSounds))
                         Next
 
-                        'Adding the SMC and its sounds
-                        RearrangedMaterial(i).Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))(CurrentSMCs(CurrentIndex), SentenceSounds))
+                    Case OrderType.Balanced
+                        Throw New NotImplementedException("Balancing between lists is not compatible with re-arranging within lists.")
+                End Select
+            Next
 
-                    Next
+        Else
 
-                Case OrderType.Balanced
+            'Mixing across lists
 
-                    Throw New NotImplementedException
+            'Creating a variable that holds the current output list index
+            Dim CurrentOutputListIndex As Integer = -1
+
+            'Getting the all sentence level SMCs in the whole speech material
+            Dim AllSentences = SourceMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+
+            'Getting a vector of indices, sequential or random
+            Dim CurrentSentenceOrder() As Integer
+            Select Case OrderType
+                Case OrderType.Random, OrderType.Balanced
+                    CurrentSentenceOrder = Utils.SampleWithoutReplacement(AllSentences.Count, 0, AllSentences.Count, rnd)
+                Case OrderType.Original
+                    CurrentSentenceOrder = Utils.GetSequence(0, AllSentences.Count - 1, 1)
+                Case Else
+                    Throw New NotImplementedException("Unkown order type")
             End Select
 
-        Next
+            'Balancing order 
+            If OrderType = OrderType.Balanced Then
+
+                Dim MaxIterations As Integer = 1000 'TODO this should be a method paramenter
+                Dim NumberOfSwapsInEachIteration As Integer = 5 ' This could be a method parameter
+
+                'Setting OptimalOrder initially to CurrentSentenceOrder
+                Dim OptimalOrder() As Integer = CurrentSentenceOrder
+                Dim LowestListImbalance As Double = Double.MaxValue
+
+                For Iteration = 0 To MaxIterations
+
+                    '1. Creating a new candidate order by swapping some random indices
+                    Dim CandidateOrder() As Integer
+                    CandidateOrder = OptimalOrder.Clone 'TODO does this work?
+                    If Iteration = 0 Then
+                        'Using the start order in the first iteration
+                    Else
+                        For i = 1 To NumberOfSwapsInEachIteration
+                            'Swapping values (this code can be optimized, if needed)
+                            Dim Index1 As Integer = rnd.Next(CandidateOrder.Length)
+                            Dim Index2 As Integer = rnd.Next(CandidateOrder.Length)
+                            Dim Index1Value = CandidateOrder(Index1)
+                            Dim Index2Value = CandidateOrder(Index2)
+                            CandidateOrder(Index1) = Index2Value
+                            CandidateOrder(Index2) = Index1Value
+                        Next
+                    End If
+
+                    '2. Creating a list composition with the current candidate order
+                    Dim CandidateListComposition As New SortedList(Of Integer, List(Of SpeechMaterialComponent))
+                    'Creating a variable that holds the current candidate list index
+                    Dim CandidateListIndex As Integer = -1
+
+                    'Picking sentences in the order specified in CandidateOrder
+                    For s = 0 To AllSentences.Count - 1
+
+                        'Adding a new list at multiples of TargetListLength
+                        If s Mod TargetListLength = 0 Then
+                            CandidateListIndex += 1
+                            RearrangedMaterial.Add(CandidateListIndex, New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))))
+                        End If
+
+                        'Adding the sentence to list CandidateListIndex 
+                        CandidateListComposition(CandidateListIndex).Add(AllSentences(CandidateOrder(s)))
+                    Next
+
+                    '2. Evaluating the order
+                    'Calculating the im-balance measure
+                    Dim CurrentListImbalance = CalculateListImbalance(CandidateListComposition, BalancedVariables)
+
+                    'Comparing the imbalance value to the value from the previous best iteration
+                    If CurrentListImbalance < LowestListImbalance Then
+                        'The new order inproved the balance 
+
+                        'Storing the new LowestListImbalance value
+                        LowestListImbalance = CurrentListImbalance
+
+                        'Storing the candidate order as the new optimal order
+                        OptimalOrder = CandidateOrder
+
+                        'X. Reporting progress
+                        Console.WriteLine("Iteration:" & Iteration & vbTab & "Lower imbalance detected: " & LowestListImbalance)
+
+                    Else
+                        'The new order did not improve the balance, ignoring it and keeps the optimal order
+
+                        'X. Reporting progress in with regular intervals
+                        If Iteration Mod 100 = 0 Then
+                            Console.WriteLine("Iteration:" & Iteration)
+                        End If
+
+                    End If
+
+                    'X. Quitting if MaxIterations is reached
+                    If Iteration >= MaxIterations Then Exit For
+
+                Next
+
+                'When iterations has stopped we take the sentence order in the selected optimal iteration
+                CurrentSentenceOrder = OptimalOrder
+
+            End If
+
+            'Picking sentences in the order specified in CurrentSentenceOrder
+            For s = 0 To AllSentences.Count - 1
+
+                'Adding a new list at multiples of TargetListLength
+                If s Mod TargetListLength = 0 Then
+                    CurrentOutputListIndex += 1
+                    RearrangedMaterial.Add(CurrentOutputListIndex, New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))))
+                End If
+
+                'Getting the sentence level sound with modified SMA chunk
+                Dim SentenceSounds = GetSentenceSounds(AllSentences(CurrentSentenceOrder(s)), SoundChannel)
+
+                'Adding the SMC and its sounds
+                RearrangedMaterial(CurrentOutputListIndex).Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))(AllSentences(CurrentSentenceOrder(s)), SentenceSounds))
+
+            Next
+
+
+        End If
+
 
         'Clearing loaded sounds again
         SpeechMaterialComponent.ClearAllLoadedSounds()
@@ -372,6 +483,34 @@ Public Class ListRearrangerControl
         NewMediaSet.WriteCustomVariables()
 
     End Sub
+
+    Private Function GetSentenceSounds(ByRef SpeechMaterialComponent As SpeechMaterialComponent, ByVal SoundChannel As Integer) As List(Of Audio.Sound)
+
+        'Getting the sound
+        Dim SentenceSounds As New List(Of Audio.Sound)
+        For r = 0 To SourceMediaSet.MediaAudioItems - 1
+            Dim SmaComponents As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+            Dim CurrentSentenceSound = SpeechMaterialComponent.GetSound(SourceMediaSet, r, SoundChannel,,,,,,,,, SmaComponents)
+            If SmaComponents.Count > 1 Then MsgBox("An error has been detected in the SMA components. The process will likely fail.")
+            CurrentSentenceSound.SMA.ChannelData(SoundChannel).Clear()
+            CurrentSentenceSound.SMA.ChannelData(SoundChannel).Add(SmaComponents(0))
+            SmaComponents(0).ParentComponent = CurrentSentenceSound.SMA.ChannelData(SoundChannel)
+            'Shifting
+            CurrentSentenceSound.SMA.ChannelData(SoundChannel)(0).TimeShift(-CurrentSentenceSound.SMA.ChannelData(SoundChannel)(0).StartSample)
+            SentenceSounds.Add(CurrentSentenceSound)
+        Next
+
+        Return SentenceSounds
+
+    End Function
+
+
+    Private Function CalculateListImbalance(ByVal CandidateListComposition As SortedList(Of Integer, List(Of SpeechMaterialComponent)), ByVal BalancedVariables As List(Of String)) As Double
+
+
+
+
+    End Function
 
     Public Enum OrderType
         Original
