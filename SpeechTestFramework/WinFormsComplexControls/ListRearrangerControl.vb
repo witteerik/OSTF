@@ -219,7 +219,9 @@ Public Class ListRearrangerControl
 
     End Sub
 
-    Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer, ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "Sentence")
+    Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer, ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "")
+
+        If SentencePrefix = "" Then SentencePrefix = SpeechMaterialComponent.DefaultSentencePrefix
 
         Dim rnd = New Random
 
@@ -323,7 +325,7 @@ Public Class ListRearrangerControl
 
                     '1. Creating a new candidate order by swapping some random indices
                     Dim CandidateOrder() As Integer
-                    CandidateOrder = OptimalOrder.Clone 'TODO does this work?
+                    CandidateOrder = OptimalOrder.Clone
                     If Iteration = 0 Then
                         'Using the start order in the first iteration
                     Else
@@ -466,11 +468,11 @@ Public Class ListRearrangerControl
 
                 ListSCM.ChildComponents.Add(Sentence.Item1)
                 Sentence.Item1.ParentComponent = ListSCM
-
                 Sentence.Item1.PrimaryStringRepresentation = SentencePrefix & s.ToString("00")
 
                 'Setting the ID and PrimaryStringRepresentation (this also ensures a new correct sound file path)
                 Sentence.Item1.Id = "L" & i.ToString("00") & "S" & s.ToString("00")
+
                 For w = 0 To Sentence.Item1.ChildComponents.Count - 1
                     Sentence.Item1.ChildComponents(w).Id = "L" & i.ToString("00") & "S" & s.ToString("00") & "W" & w.ToString("00")
                     For p = 0 To Sentence.Item1.ChildComponents(w).ChildComponents.Count - 1
@@ -489,8 +491,10 @@ Public Class ListRearrangerControl
 
 
         'Writing the sounds
-
         SpeechMaterialComponent.SaveAllLoadedSounds()
+
+        'Updating custom variables Id values
+        OutputSMC.SetIdAsCategoricalCustumVariable(True)
 
         OutputSMC.WriteSpeechMaterialToFile(OutputSMC.ParentTestSpecification, OutputSMC.ParentTestSpecification.GetTestRootPath)
 
@@ -499,6 +503,7 @@ Public Class ListRearrangerControl
         NewMediaSet.WriteCustomVariables()
 
     End Sub
+
 
     Private Function GetSentenceSounds(ByRef SpeechMaterialComponent As SpeechMaterialComponent, ByVal SoundChannel As Integer) As List(Of Audio.Sound)
 
@@ -523,8 +528,15 @@ Public Class ListRearrangerControl
 
     Private Function CalculateListImbalance(ByVal CandidateListComposition As SortedList(Of Integer, List(Of SpeechMaterialComponent)), ByVal BalancedVariables As List(Of CustomVariableSpecification)) As List(Of Double)
 
-        Dim CategoricalTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double)))
-        Dim CategoricalListDistributions As New List(Of List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double))))
+        Dim CategoricalTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double))) 'This lists the averall variable distributions for the whole material
+        Dim CategoricalListDistributions As New List(Of List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double)))) 'This lists the list specific variable distributions for the whole material (list index is in the top level list)
+
+        Dim NumericTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))) 'The first double value represents upper decentile limits, and the second double value represents the number with in each decentile
+        Dim NumericListDistributions As New List(Of List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))))
+
+        Dim NumericVariableGrandAverages As New List(Of Tuple(Of CustomVariableSpecification, Double))
+        Dim NumericVariableGrandListAverages As New List(Of List(Of Tuple(Of CustomVariableSpecification, Double)))
+
 
         Dim AllSentenceList As New List(Of SpeechMaterialComponent) 'TODO: This step could be done before calling this function to optimize processing
         For Each List In CandidateListComposition.Values
@@ -545,18 +557,38 @@ Public Class ListRearrangerControl
 
             Else
 
+                'Calculating and adding the distribution of all items
+                NumericTargetDistributions.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDecentileDistribution(AllSentenceList, Variable, Nothing)))
+
+                'Calculating and adding the distributions within lists
+                NumericListDistributions.Add(New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))))
+                For Each List In CandidateListComposition.Values
+                    NumericListDistributions.Last.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDecentileDistribution(List, Variable, NumericTargetDistributions.Last.Item2.Keys.ToList)))
+                Next
+
+
+                'Calculating and adding the distribution of all items
+                NumericVariableGrandAverages.Add(New Tuple(Of CustomVariableSpecification, Double)(Variable, GetNumericVariableAverage(AllSentenceList, Variable)))
+
+                'Calculating and adding the distributions within lists
+                NumericVariableGrandListAverages.Add(New List(Of Tuple(Of CustomVariableSpecification, Double)))
+                For Each List In CandidateListComposition.Values
+                    NumericVariableGrandListAverages.Last.Add(New Tuple(Of CustomVariableSpecification, Double)(Variable, GetNumericVariableAverage(List, Variable)))
+                Next
 
             End If
         Next
 
-        'Comparing distributions by RMS error
+        'NB TODO: 'Percentile values are no longer important, and could be replaced by categorical values so that the same RMS error algorithm below can be used for both types
+
+        'Comparing distributions by RMS error for the categorical distributions
         Dim Distances As New List(Of Double) ' This list contains the average RMS error for each variable
 
         For i = 0 To CategoricalTargetDistributions.Count - 1
 
             Dim RmsErrorsPerList As New List(Of Double)
 
-            'Dividing the target distributiob nby ListCount to get the same scale
+            'Dividing the target distribution by ListCount to get the same scale
             Dim ListCount As Integer = CategoricalListDistributions(i).Count
             Dim TargetValues = CategoricalTargetDistributions(i).Item2.Values.ToArray
             For j = 0 To TargetValues.Length - 1
@@ -585,6 +617,45 @@ Public Class ListRearrangerControl
             Distances.Add(RmsErrorsPerList.Average)
 
         Next
+
+        'Comparing distributions by RMS error for the numeric distributions
+        For i = 0 To NumericTargetDistributions.Count - 1
+
+            Dim RmsErrorsPerList As New List(Of Double)
+
+            'Dividing the target distribution ny ListCount to get the same scale
+            Dim ListCount As Integer = NumericListDistributions(i).Count
+            Dim TargetValues = NumericTargetDistributions(i).Item2.Values.ToArray
+            For j = 0 To TargetValues.Length - 1
+                TargetValues(j) = TargetValues(j) / ListCount
+            Next
+
+            'Iterating over Lists
+            For j = 0 To NumericListDistributions(i).Count - 1
+
+                'We now have one list, compared to all lists
+                Dim ListValues = NumericListDistributions(i)(j).Item2.Values.ToArray
+
+                'Calculating RMS error
+                Dim SquaredErrors(ListValues.Length - 1) As Double
+
+                'Iterating over variable values
+                For q = 0 To SquaredErrors.Length - 1
+                    SquaredErrors(q) = (ListValues(q) - TargetValues(q)) ^ 2
+                Next
+
+                Dim RmsError = Math.Sqrt(SquaredErrors.Average)
+                RmsErrorsPerList.Add(RmsError)
+            Next
+
+            'Adding the average RMS error across lists as the distance measure
+            Distances.Add(RmsErrorsPerList.Average)
+
+        Next
+
+        'Comparing distributions by RMS error for the averages
+        'NumericVariableGrandAverages
+        'NumericVariableGrandListAverages
 
         'Returning the distances
         Return Distances
@@ -634,6 +705,122 @@ Public Class ListRearrangerControl
         End If
 
     End Sub
+
+    Private Function GetNumericDecentileDistribution(ByVal List As List(Of SpeechMaterialComponent), ByVal VariableSpecification As CustomVariableSpecification, Optional ByVal UpperDecentileLimits As List(Of Double) = Nothing) As SortedList(Of Double, Double)
+
+        If VariableSpecification.IsNumericVariable = False Then Return Nothing
+
+        Dim Output As New SortedList(Of Double, Double)
+
+        If UpperDecentileLimits Is Nothing Then
+            'Determining decentiles based on the full (target) distribution
+            Dim AllvaluesList As New List(Of Double)
+            For Each Sentence In List
+                If VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
+                    Dim VariableValue = Sentence.GetNumericVariableValue(VariableSpecification.VariableName)
+                    If VariableValue IsNot Nothing Then AllvaluesList.Add(VariableValue)
+                ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Word Then
+                    For Each Word In Sentence.ChildComponents
+                        Dim VariableValue = Word.GetNumericVariableValue(VariableSpecification.VariableName)
+                        If VariableValue IsNot Nothing Then AllvaluesList.Add(VariableValue)
+                    Next
+                ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then
+                    For Each Word In Sentence.ChildComponents
+                        For Each Phoneme In Word.ChildComponents
+                            Dim VariableValue = Phoneme.GetNumericVariableValue(VariableSpecification.VariableName)
+                            If VariableValue IsNot Nothing Then AllvaluesList.Add(VariableValue)
+                        Next
+                    Next
+                End If
+            Next
+
+            'Sorting AllvaluesList
+            AllvaluesList.Sort()
+
+            Dim StepSize = Math.Ceiling(AllvaluesList.Count - 1) / 10
+            For n = 1 To 9
+                Dim DecentileIndex As Integer = n * StepSize
+                UpperDecentileLimits.Add(AllvaluesList(DecentileIndex))
+            Next
+            'Adding also double max value to get all values above the 90th percentile in the last interval
+            UpperDecentileLimits.Add(Double.MaxValue)
+
+        Else
+            'Filling up Output with decentile limits
+            For Each Key In UpperDecentileLimits
+                Output.Add(Key, 0)
+            Next
+        End If
+
+        For Each Sentence In List
+            If VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
+                AddNumericVariableToPercentile(Output, Sentence, VariableSpecification.VariableName)
+            ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Word Then
+                For Each Word In Sentence.ChildComponents
+                    AddNumericVariableToPercentile(Output, Word, VariableSpecification.VariableName)
+                Next
+            ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then
+                For Each Word In Sentence.ChildComponents
+                    For Each Phoneme In Word.ChildComponents
+                        AddNumericVariableToPercentile(Output, Phoneme, VariableSpecification.VariableName)
+                    Next
+                Next
+            End If
+        Next
+
+        Return Output
+
+    End Function
+
+    Private Sub AddNumericVariableToPercentile(ByRef TargetCollection As SortedList(Of Double, Double), ByRef SpeechMaterialComponent As SpeechMaterialComponent, ByVal VariableName As String)
+
+        Dim PercentileList As List(Of Double) = TargetCollection.Keys
+
+        If PercentileList.Count <> 10 Then Throw New Exception("Detected percentile list not containing 10 limits. This should not happen, and must be a bug!")
+
+        Dim VariableValue = SpeechMaterialComponent.GetNumericVariableValue(VariableName)
+
+        'Determining in which percentile the value falls
+        For i = 0 To PercentileList.Count - 1
+            If VariableValue < PercentileList(i) Then
+                'All keys should already have been added to TargetCollection, and there is thus no need to check that here
+                TargetCollection(PercentileList(i)) += 1
+                'Exiting loop after the value has been added to its percentile
+                Exit For
+            End If
+        Next
+
+    End Sub
+
+    Private Function GetNumericVariableAverage(ByVal List As List(Of SpeechMaterialComponent), ByVal VariableSpecification As CustomVariableSpecification) As Double
+
+        If VariableSpecification.IsNumericVariable = False Then Throw New Exception("Detected non-numeric variable where numeric variable was expected")
+
+        'Determining decentiles based on the full (target) distribution
+        Dim AllvaluesList As New List(Of Double)
+        For Each Sentence In List
+            If VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
+                Dim VariableValue = Sentence.GetNumericVariableValue(VariableSpecification.VariableName)
+                If VariableValue IsNot Nothing Then AllvaluesList.Add(VariableValue)
+            ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Word Then
+                For Each Word In Sentence.ChildComponents
+                    Dim VariableValue = Word.GetNumericVariableValue(VariableSpecification.VariableName)
+                    If VariableValue IsNot Nothing Then AllvaluesList.Add(VariableValue)
+                Next
+            ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then
+                For Each Word In Sentence.ChildComponents
+                    For Each Phoneme In Word.ChildComponents
+                        Dim VariableValue = Phoneme.GetNumericVariableValue(VariableSpecification.VariableName)
+                        If VariableValue IsNot Nothing Then AllvaluesList.Add(VariableValue)
+                    Next
+                Next
+            End If
+        Next
+
+        Return AllvaluesList.Average
+
+    End Function
+
 
 
     Public Enum OrderType

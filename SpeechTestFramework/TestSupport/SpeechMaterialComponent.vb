@@ -280,7 +280,9 @@ Public Class SpeechMaterialComponent
     Public Shared DefaultSpellingVariableName As String = "Spelling"
     Public Shared DefaultTranscriptionVariableName As String = "Transcription"
     Public Shared DefaultIsKeyComponentVariableName As String = "IsKeyComponent"
+    Public Shared DefaultListNameVariableName As String = "ListName"
 
+    Public Shared DefaultSentencePrefix As String = "Sentence"
 
     Public Function GetDatabaseFileName()
         Return GetDatabaseFileName(Me.LinguisticLevel)

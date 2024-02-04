@@ -270,7 +270,7 @@
                 CurrentListComponent.Id = "L" & (CurrentListCollectionComponent.ChildComponents.Count - 1).ToString("00")
                 CurrentListComponent.PrimaryStringRepresentation = ListName
 
-                CurrentListComponent.SetCategoricalVariableValue("ListName", ListName)
+                CurrentListComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultListNameVariableName, ListName)
 
             ElseIf CurrentLine.StartsWith("[") Then
 
@@ -368,7 +368,7 @@
 
                 CurrentSentenceComponent.Id = CurrentListComponent.Id & "S" & (CurrentListComponent.ChildComponents.Count - 1).ToString("00")
 
-                CurrentSentenceComponent.PrimaryStringRepresentation = "Sentence" & (CurrentListComponent.ChildComponents.Count - 1).ToString("00")
+                CurrentSentenceComponent.PrimaryStringRepresentation = SpeechMaterialComponent.DefaultSentencePrefix & (CurrentListComponent.ChildComponents.Count - 1).ToString("00")
 
                 CurrentSentenceComponent.SetCategoricalVariableValue(SpeechMaterialComponent.DefaultSpellingVariableName, CurrentLine)
 
