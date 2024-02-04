@@ -3,6 +3,6 @@
 
 {OSTF_SPEECH_MATERIAL_SPECIFICATION_FILE}
 
-Name = SwedishPB23Debug
-DirectoryName = PB23Debug
+Name = SwedishPB23_Balanced
+DirectoryName = SwedishPB23_Balanced
 // TestPresetsSubFilePath =  [Add the file path to the TestPresets file here, and remove the double slashes]

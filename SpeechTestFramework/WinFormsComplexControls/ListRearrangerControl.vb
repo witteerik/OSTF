@@ -318,7 +318,13 @@ Public Class ListRearrangerControl
                 Dim OptimalOrder() As Integer = CurrentSentenceOrder
                 Dim LowestListImbalanceList As New List(Of Double)
                 For Each Variable In BalancedVariables
-                    LowestListImbalanceList.Add(Double.MaxValue)
+                    If Variable.IsNumericVariable = False Then
+                        LowestListImbalanceList.Add(Double.MaxValue)
+                    Else
+                        'Adding two values for each numeric variable (one representing distribution and one representing average)
+                        LowestListImbalanceList.Add(Double.MaxValue)
+                        LowestListImbalanceList.Add(Double.MaxValue)
+                    End If
                 Next
 
                 For Iteration = 0 To MaxIterations
@@ -452,6 +458,11 @@ Public Class ListRearrangerControl
         If NewMediaSet.PrototypeMediaParentFolder <> "" Then NewMediaSet.PrototypeMediaParentFolder = IO.Path.Combine("Media", NewMediaSet.MediaSetName, "PrototypeRecordings")
         NewMediaSet.ParentTestSpecification = OutputSMC.ParentTestSpecification
 
+        Dim RearrageHistory As New List(Of String)
+        RearrageHistory.Add("This speech material (" & NewSpeechMaterialName & ") was created by rearranging the speech material: " & SourceMediaSet.ParentTestSpecification.Name)
+        RearrageHistory.Add("Below the corresponding old and new speech material components (sentence level) are listed.")
+        RearrageHistory.Add("OldSentenceId" & vbTab & "NewSentenceId")
+
         For i = 0 To RearrangedMaterial.Count - 1
 
             'Setting up a new list component
@@ -471,7 +482,12 @@ Public Class ListRearrangerControl
                 Sentence.Item1.PrimaryStringRepresentation = SentencePrefix & s.ToString("00")
 
                 'Setting the ID and PrimaryStringRepresentation (this also ensures a new correct sound file path)
-                Sentence.Item1.Id = "L" & i.ToString("00") & "S" & s.ToString("00")
+                'Storing the old and new sentence Ids
+                Dim OldSentenceId = Sentence.Item1.Id
+                Dim NewSentenceId = "L" & i.ToString("00") & "S" & s.ToString("00")
+                RearrageHistory.Add(OldSentenceId & vbTab & NewSentenceId)
+
+                Sentence.Item1.Id = NewSentenceId
 
                 For w = 0 To Sentence.Item1.ChildComponents.Count - 1
                     Sentence.Item1.ChildComponents(w).Id = "L" & i.ToString("00") & "S" & s.ToString("00") & "W" & w.ToString("00")
@@ -501,6 +517,9 @@ Public Class ListRearrangerControl
         NewMediaSet.WriteToFile()
 
         NewMediaSet.WriteCustomVariables()
+
+        'Storing the conversion data
+        Utils.SendInfoToLog(String.Join(vbCrLf, RearrageHistory), "SpeechMaterialRearrageHistory", OutputSMC.ParentTestSpecification.GetTestRootPath)
 
     End Sub
 
@@ -654,8 +673,32 @@ Public Class ListRearrangerControl
         Next
 
         'Comparing distributions by RMS error for the averages
-        'NumericVariableGrandAverages
-        'NumericVariableGrandListAverages
+
+        'Iterating over variables
+        For i = 0 To NumericVariableGrandAverages.Count - 1
+
+            'Dividing the target distribution ny ListCount to get the same scale
+            Dim ListCount As Integer = NumericListDistributions(i).Count
+            Dim TargetVariableValue = NumericVariableGrandAverages(i).Item2 / ListCount
+
+            'Iterating over Lists
+            Dim SquaredErrors As New List(Of Double)
+            For j = 0 To NumericListDistributions(i).Count - 1
+
+                'We now have one list, compared to all lists
+                Dim ListValue = NumericVariableGrandListAverages(i)(j).Item2
+                Dim SquaredError As Double = (ListValue - TargetVariableValue) ^ 2
+                SquaredErrors.Add(SquaredError)
+            Next
+
+            'Calculating RMS error
+            Dim RmsError = Math.Sqrt(SquaredErrors.Average)
+
+            'Adding the RMS error of the list means as the distance measure
+            Distances.Add(RmsError)
+
+        Next
+
 
         'Returning the distances
         Return Distances
@@ -713,6 +756,9 @@ Public Class ListRearrangerControl
         Dim Output As New SortedList(Of Double, Double)
 
         If UpperDecentileLimits Is Nothing Then
+
+            UpperDecentileLimits = New List(Of Double)
+
             'Determining decentiles based on the full (target) distribution
             Dim AllvaluesList As New List(Of Double)
             For Each Sentence In List
@@ -737,20 +783,20 @@ Public Class ListRearrangerControl
             'Sorting AllvaluesList
             AllvaluesList.Sort()
 
-            Dim StepSize = Math.Ceiling(AllvaluesList.Count - 1) / 10
-            For n = 1 To 9
-                Dim DecentileIndex As Integer = n * StepSize
+            For n = 0.1 To 0.9 Step 0.1
+                Dim DecentileIndex As Integer = Math.Floor(n * (AllvaluesList.Count))
+                DecentileIndex = Math.Min(DecentileIndex, AllvaluesList.Count - 1)
                 UpperDecentileLimits.Add(AllvaluesList(DecentileIndex))
             Next
             'Adding also double max value to get all values above the 90th percentile in the last interval
             UpperDecentileLimits.Add(Double.MaxValue)
 
-        Else
-            'Filling up Output with decentile limits
-            For Each Key In UpperDecentileLimits
-                Output.Add(Key, 0)
-            Next
         End If
+
+        'Filling up Output with decentile limits
+        For Each Key In UpperDecentileLimits
+            Output.Add(Key, 0)
+        Next
 
         For Each Sentence In List
             If VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
@@ -774,7 +820,7 @@ Public Class ListRearrangerControl
 
     Private Sub AddNumericVariableToPercentile(ByRef TargetCollection As SortedList(Of Double, Double), ByRef SpeechMaterialComponent As SpeechMaterialComponent, ByVal VariableName As String)
 
-        Dim PercentileList As List(Of Double) = TargetCollection.Keys
+        Dim PercentileList As List(Of Double) = TargetCollection.Keys.ToList
 
         If PercentileList.Count <> 10 Then Throw New Exception("Detected percentile list not containing 10 limits. This should not happen, and must be a bug!")
 
