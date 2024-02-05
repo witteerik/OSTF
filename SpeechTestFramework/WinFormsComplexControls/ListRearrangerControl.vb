@@ -23,6 +23,12 @@ Public Class ListRearrangerControl
         RandomOrder_RadioButton.Enabled = True
         OriginalOrder_RadioButton.Enabled = True
         BalancedOrder_RadioButton.Enabled = False
+        BalanceItarations_Label.Enabled = False
+        BalanceItarations_IntegerParsingTextBox.Enabled = False
+        BalanceProportion_Label.Enabled = False
+        FixedBalancePercentage_IntegerParsingTextBox.Enabled = False
+
+        CustomOrder_RadioButton.Enabled = False
 
         RandomOrder_RadioButton.Checked = True
 
@@ -34,6 +40,12 @@ Public Class ListRearrangerControl
         RandomOrder_RadioButton.Enabled = True
         OriginalOrder_RadioButton.Enabled = True
         BalancedOrder_RadioButton.Enabled = True
+        BalanceItarations_Label.Enabled = True
+        BalanceItarations_IntegerParsingTextBox.Enabled = True
+        BalanceProportion_Label.Enabled = True
+        FixedBalancePercentage_IntegerParsingTextBox.Enabled = True
+
+        CustomOrder_RadioButton.Enabled = True
 
     End Sub
 
@@ -64,34 +76,59 @@ Public Class ListRearrangerControl
     End Sub
 
     Private Sub RandomOrder_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles RandomOrder_RadioButton.CheckedChanged
-        CustomVariablesSelection_TableLayoutPanel.Enabled = False
-        CustomVariablesSelection_GroupBox.Visible = False
+        OrderInput_TableLayoutPanel.Enabled = False
+        OrderInputHeading_GroupBox.Visible = False
     End Sub
 
     Private Sub OriginalOrder_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles OriginalOrder_RadioButton.CheckedChanged
-        CustomVariablesSelection_TableLayoutPanel.Enabled = False
-        CustomVariablesSelection_GroupBox.Visible = False
+        OrderInput_TableLayoutPanel.Enabled = False
+        OrderInputHeading_GroupBox.Visible = False
     End Sub
 
     Private Sub BalancedOrder_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles BalancedOrder_RadioButton.CheckedChanged
 
+        OrderInput_TableLayoutPanel.Controls.Clear()
+
         If BalancedOrder_RadioButton.Checked = True Then
-            CustomVariablesSelection_TableLayoutPanel.Enabled = True
-            CustomVariablesSelection_GroupBox.Visible = True
+            OrderInput_TableLayoutPanel.Enabled = True
+            OrderInputHeading_GroupBox.Visible = True
             AddCustomVariablesToSelectionBox()
         Else
-            CustomVariablesSelection_TableLayoutPanel.Enabled = False
-            CustomVariablesSelection_GroupBox.Visible = False
-            CustomVariablesSelection_TableLayoutPanel.Controls.Clear()
+            If CustomOrder_RadioButton.Checked = False Then
+                OrderInput_TableLayoutPanel.Enabled = False
+                OrderInputHeading_GroupBox.Visible = False
+                OrderInput_TableLayoutPanel.Controls.Clear()
+            End If
+        End If
+
+    End Sub
+
+    Private CustomOrderInputBox As New Windows.Forms.TextBox With {.Multiline = True, .Dock = Windows.Forms.DockStyle.Fill}
+
+    Private Sub CustomOrder_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles CustomOrder_RadioButton.CheckedChanged
+
+        OrderInput_TableLayoutPanel.Controls.Clear()
+
+        If CustomOrder_RadioButton.Checked = True Then
+            OrderInputHeading_GroupBox.Text = "Specify the custom (sentence level) SMC order (one Id per row)"
+            OrderInput_TableLayoutPanel.Controls.Add(CustomOrderInputBox)
+            OrderInput_TableLayoutPanel.Enabled = True
+            OrderInputHeading_GroupBox.Visible = True
+        Else
+            If BalancedOrder_RadioButton.Checked = False Then
+                OrderInput_TableLayoutPanel.Enabled = False
+                OrderInputHeading_GroupBox.Visible = False
+                OrderInput_TableLayoutPanel.Controls.Clear()
+            End If
         End If
 
     End Sub
 
     Private Sub AddCustomVariablesToSelectionBox()
 
-        CustomVariablesSelection_TableLayoutPanel.SuspendLayout()
+        OrderInputHeading_GroupBox.Text = "Select variables to balance"
 
-        CustomVariablesSelection_TableLayoutPanel.Controls.Clear()
+        OrderInput_TableLayoutPanel.SuspendLayout()
 
         Dim LingusticLevels As New List(Of SpeechMaterialComponent.LinguisticLevels) From {SpeechMaterialComponent.LinguisticLevels.Phoneme, SpeechMaterialComponent.LinguisticLevels.Word, SpeechMaterialComponent.LinguisticLevels.Sentence}
 
@@ -123,19 +160,19 @@ Public Class ListRearrangerControl
 
                 'Adding the variable selection control
                 NewVariableControl.Dock = Windows.Forms.DockStyle.Fill
-                CustomVariablesSelection_TableLayoutPanel.Controls.Add(NewVariableControl)
+                OrderInput_TableLayoutPanel.Controls.Add(NewVariableControl)
 
             Next
         Next
 
-        CustomVariablesSelection_TableLayoutPanel.Controls.Add(New Windows.Forms.Panel With {.Dock = Windows.Forms.DockStyle.Fill})
+        OrderInput_TableLayoutPanel.Controls.Add(New Windows.Forms.Panel With {.Dock = Windows.Forms.DockStyle.Fill})
 
-        CustomVariablesSelection_TableLayoutPanel.RowStyles.Clear()
-        For r = 0 To CustomVariablesSelection_TableLayoutPanel.Controls.Count - 1
-            CustomVariablesSelection_TableLayoutPanel.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Absolute, 26))
+        OrderInput_TableLayoutPanel.RowStyles.Clear()
+        For r = 0 To OrderInput_TableLayoutPanel.Controls.Count - 1
+            OrderInput_TableLayoutPanel.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Absolute, 26))
         Next
 
-        CustomVariablesSelection_TableLayoutPanel.ResumeLayout()
+        OrderInput_TableLayoutPanel.ResumeLayout()
 
 
     End Sub
@@ -177,6 +214,8 @@ Public Class ListRearrangerControl
             OrderType = OrderType.Random
         ElseIf BalancedOrder_RadioButton.Checked = True Then
             OrderType = OrderType.Balanced
+        ElseIf CustomOrder_RadioButton.Checked = True Then
+            OrderType = OrderType.Custom
         Else
             MsgBox("You must select the intended in item order type!")
             Exit Sub
@@ -195,8 +234,11 @@ Public Class ListRearrangerControl
         End If
 
         Dim BalancedVariables As New List(Of CustomVariableSpecification)
+        Dim CustomOrderIds As New List(Of String)
+        Dim BalanceIterations As Integer
+        Dim FixedbalancePercentage As Integer? = Nothing
         If OrderType = OrderType.Balanced Then
-            For Each Control In CustomVariablesSelection_TableLayoutPanel.Controls
+            For Each Control In OrderInput_TableLayoutPanel.Controls
                 Dim CastControl = TryCast(Control, VariableSelectionCheckBox)
                 If CastControl IsNot Nothing Then
                     If CastControl.Checked = True Then
@@ -210,16 +252,64 @@ Public Class ListRearrangerControl
                 MsgBox("You must select at least one variable to balance between lists!")
                 Exit Sub
             End If
+
+            If BalanceItarations_IntegerParsingTextBox.Value Is Nothing Then
+                MsgBox("You must enter a number of iterations för list balancing!")
+                Exit Sub
+            Else
+                BalanceIterations = BalanceItarations_IntegerParsingTextBox.Value
+                If BalanceIterations < 1 Then
+                    MsgBox("Balancing iterations must be higher than 0!")
+                    Exit Sub
+                End If
+            End If
+
+            If FixedBalancePercentage_IntegerParsingTextBox.Value IsNot Nothing Then
+                FixedbalancePercentage = FixedBalancePercentage_IntegerParsingTextBox.Value
+                If FixedbalancePercentage < 1 Or FixedbalancePercentage > 100 Then
+                    MsgBox("If specified, fixed balancing throw percentage must be higher than 0 and equal or less than 100!")
+                    Exit Sub
+                End If
+            End If
+
+        ElseIf OrderType = OrderType.Custom Then
+            Dim CustomOrderInput = CustomOrderInputBox.Lines
+
+            For Each Line In CustomOrderInput
+                If Line.Trim <> "" Then
+                    CustomOrderIds.Add(Line.Trim)
+                End If
+            Next
+
+            If CustomOrderIds.Count = 0 Then
+                MsgBox("You must specify a custom order! The custom order should consist of sentence level SpeechMaterialComponent Ids, one Id per row.")
+                Exit Sub
+            End If
+
+            'Checking the validity of the SentenceIds
+            Dim AllSentences = SourceMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            Dim SentenceIds As New SortedSet(Of String)
+            For Each Sentence In AllSentences
+                SentenceIds.Add(Sentence.Id)
+            Next
+            For Each CustomOrderId In CustomOrderIds
+                If SentenceIds.Contains(CustomOrderId) = False Then
+                    MsgBox("Detected the following sentence level SpeechMaterialComponent Id which do not exist in the selected speech material: " & CustomOrderId & vbCrLf & "Correct it and try again!")
+                    Exit Sub
+                End If
+            Next
+
         End If
 
         'Rearranging lists (TODO: the following code should probably be moved to the MediaSet class?
-        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix)
-
+        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, BalanceIterations, FixedbalancePercentage, CustomOrderIds, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix)
 
 
     End Sub
 
-    Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer, ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "")
+    Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer,
+                         ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal BalanceIterations As Integer, ByVal FixedbalancePercentage As Integer?,
+                         ByVal CustomOrderIds As List(Of String), ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "")
 
         If SentencePrefix = "" Then SentencePrefix = SpeechMaterialComponent.DefaultSentencePrefix
 
@@ -284,6 +374,8 @@ Public Class ListRearrangerControl
 
                     Case OrderType.Balanced
                         Throw New NotImplementedException("Balancing between lists is not compatible with re-arranging within lists.")
+                    Case OrderType.Custom
+                        Throw New NotImplementedException("Custom order is not compatible with re-arranging within lists.")
                 End Select
             Next
 
@@ -304,6 +396,20 @@ Public Class ListRearrangerControl
                     CurrentSentenceOrder = Utils.SampleWithoutReplacement(AllSentences.Count, 0, AllSentences.Count, rnd)
                 Case OrderType.Original
                     CurrentSentenceOrder = Utils.GetSequence(0, AllSentences.Count - 1, 1)
+                Case OrderType.Custom
+
+                    'Adding the custom order by looking up the index of each sentence level SCM
+                    Dim CurrentSentenceOrderList As New List(Of Integer)
+                    For Each Id In CustomOrderIds
+                        For s = 0 To AllSentences.Count - 1
+                            If AllSentences(s).Id = Id Then
+                                CurrentSentenceOrderList.Add(s)
+                                Exit For
+                            End If
+                        Next
+                    Next
+                    CurrentSentenceOrder = CurrentSentenceOrderList.ToArray
+
                 Case Else
                     Throw New NotImplementedException("Unkown order type")
             End Select
@@ -311,8 +417,7 @@ Public Class ListRearrangerControl
             'Balancing order 
             If OrderType = OrderType.Balanced Then
 
-                Dim MaxIterations As Integer = 10000 'TODO this should be a method paramenter
-                Dim NumberOfSwapsInEachIteration As Integer = Math.Max(1, Math.Ceiling(AllSentences.Count * 0.05)) '5 ' This could be a method parameter
+                Dim MaxIterations As Integer = BalanceIterations
 
                 'Setting OptimalOrder initially to CurrentSentenceOrder
                 Dim OptimalOrder() As Integer = CurrentSentenceOrder
@@ -329,13 +434,33 @@ Public Class ListRearrangerControl
 
                 For Iteration = 0 To MaxIterations
 
+                    '1. Determining the number of swaps in the current iteration
+                    Dim ThrowProportion As Double
+                    If FixedbalancePercentage.HasValue Then
+                        ThrowProportion = 0.01 * FixedbalancePercentage
+                    Else
+                        'Decreasing the number of throws linearly to from 50% over the first third of the iteration, and then linearly from about 5% in the second third and then one at a time in the last third.
+                        'In practise this is implemented by getting the highest value of two paralell values one going from 50 to 0 % in the first third and one going from 10 to 0% across the first two thirds, after that the number of swaps is held at one by the row calculatuing NumberOfSwapsInIteration below.
+
+                        Dim IterationProgress1 As Double = Iteration / ((1 / 3) * MaxIterations)
+                        Dim ThrowProportion1 = (1 - IterationProgress1) * 0.5
+
+                        Dim IterationProgress2 As Double = Iteration / ((2 / 3) * MaxIterations)
+                        Dim ThrowProportion2 = (1 - IterationProgress2) * 0.1
+
+                        ThrowProportion = Math.Max(0, Math.Max(ThrowProportion1, ThrowProportion2))
+
+                        'If Iteration Mod 100 = 0 Then Console.WriteLine(vbTab & "ThrowProportion:" & ThrowProportion)
+                    End If
+                    Dim NumberOfSwapsInIteration As Integer = Math.Max(1, Math.Ceiling(AllSentences.Count * ThrowProportion))
+
                     '1. Creating a new candidate order by swapping some random indices
                     Dim CandidateOrder() As Integer
                     CandidateOrder = OptimalOrder.Clone
                     If Iteration = 0 Then
                         'Using the start order in the first iteration
                     Else
-                        For i = 1 To NumberOfSwapsInEachIteration
+                        For i = 1 To NumberOfSwapsInIteration
                             'Swapping values (this code can be optimized, if needed)
                             Dim Index1 As Integer = rnd.Next(CandidateOrder.Length)
                             Dim Index2 As Integer = rnd.Next(CandidateOrder.Length)
@@ -426,7 +551,6 @@ Public Class ListRearrangerControl
                 RearrangedMaterial(CurrentOutputListIndex).Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))(AllSentences(CurrentSentenceOrder(s)), SentenceSounds))
 
             Next
-
 
         End If
 
@@ -519,7 +643,7 @@ Public Class ListRearrangerControl
         NewMediaSet.WriteCustomVariables()
 
         'Storing the conversion data
-        Utils.SendInfoToLog(String.Join(vbCrLf, RearrageHistory), "SpeechMaterialRearrageHistory", OutputSMC.ParentTestSpecification.GetTestRootPath)
+        Utils.SendInfoToLog(String.Join(vbCrLf, RearrageHistory), "SpeechMaterialRearragementResult", OutputSMC.ParentTestSpecification.GetTestRootPath)
 
     End Sub
 
@@ -873,6 +997,8 @@ Public Class ListRearrangerControl
         Original
         Random
         Balanced
+        Custom
     End Enum
+
 
 End Class
