@@ -113,10 +113,6 @@ extern "C" int multiplyDoubleArraySection(double* values, int arraySize, double 
 }
 
 
-
-
-
-
 extern "C" int multiplyFloatArray(float* values, int size, float factor) {
     return multiplyFloatArraySection(values, size, factor, 0, size);
 }

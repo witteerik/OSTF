@@ -5127,15 +5127,13 @@ Namespace Audio
                                         If tempInputSoundArray.Length Mod sliceLength > 0 Then numberOfWindows += 1
                                         Dim workingInputLength As Integer = sliceLength * (numberOfWindows + 1) ' This should only be (dftInputSampleCount * numberOfWindows), however that doesn't work for some reason. Check later! For now it's solved by making the analysed array temporarily longer.
 
-                                        Dim inputArray(workingInputLength - 1) As Single
+                                        Dim inputArray(workingInputLength - 1) As Double
 
-
-                                        For n = 0 To tempInputSoundArray.Length - 1
-                                            inputArray(n) = tempInputSoundArray(n)
-                                        Next
-                                        For n = tempInputSoundArray.Length To inputArray.Length - 1
-                                            inputArray(n) = 0
-                                        Next
+                                        'Copies the tempInputSoundArray into an array of Double
+                                        Utils.CopyToDouble(tempInputSoundArray, inputArray)
+                                        'For n = 0 To tempInputSoundArray.Length - 1
+                                        '    inputArray(n) = tempInputSoundArray(n)
+                                        'Next
 
                                         Dim OutputChannelSampleArray(inputArray.Length - 1) As Single
 
@@ -5161,13 +5159,9 @@ Namespace Audio
                                         For windowNumber = 0 To numberOfWindows - 1 'Step 2
 
                                             'Creates a zero-padded sound array with the length of the dft windows size ()
-                                            Dim InputArraySlice(sliceLength - 1) As Single
 
-                                            'Copies the slice samples into an array of Single
-                                            Array.Copy(inputArray, readSample, InputArraySlice, 0, sliceLength)
-
-                                            'Copies the slice into an array of Double
-                                            Utils.CopyToDouble(InputArraySlice, dftSoundBin_x)
+                                            'Copies the slice samples into the dft x-bin
+                                            Array.Copy(inputArray, readSample, dftSoundBin_x, 0, sliceLength)
                                             readSample += sliceLength
 
                                             'For sample = 0 To sliceLength - 1

@@ -2,7 +2,6 @@
 #include <unordered_map>
 using namespace std;
 
-
 extern "C" {
 
 	void copyToDouble(float* sourceArray, int size, double* targetArray);

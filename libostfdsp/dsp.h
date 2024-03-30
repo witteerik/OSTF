@@ -3,6 +3,18 @@
 
 #define FFT_H __declspec(dllexport)
 
+extern "C" FFT_H void copyToDouble(float* sourceArray, int size, double* targetArray);
+
+extern "C" FFT_H void copyToFloat(double* sourceArray, int size, float* targetArray);
+
+extern "C" FFT_H void createInterleavedArray(float* concatenatedArrays, int channelCount, int channelLength, float* interleavedArray, bool applyGain, float* channelGainFactor);
+
+extern "C" FFT_H void deinterleaveArray(float* interleavedArray, int channelCount, int channelLength, float* concatenatedArrays);
+
+extern "C" FFT_H int multiplyDoubleArray(double* values, int size, double factor);
+
+extern "C" FFT_H int multiplyDoubleArraySection(double* values, int arraySize, double factor, int startIndex, int sectionLength);
+
 extern "C" FFT_H int multiplyFloatArray(float* values, int size, float factor);
 
 extern "C" FFT_H int multiplyFloatArraySection(float* values, int arraySize, float factor, int startIndex, int sectionLength);
@@ -23,3 +35,5 @@ extern "C" FFT_H void fft_complex(
 	bool reorder, // Whether to perform data reordering (default: true)
 	bool scaleForwardTransform // Whether to scale the forward transform (default: true)
 );
+
+extern "C" FFT_H void complexMultiplication(double* real1, double* imag1, double* real2, double* imag2, int size);

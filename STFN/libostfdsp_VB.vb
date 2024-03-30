@@ -3,8 +3,13 @@ Imports System.Text.RegularExpressions
 
 Public Class LibOstfDsp_VB
 
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="copyToDouble", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub copyToDouble_win_64(sourceArray As Single(), size As Integer, targetArray As Double())
+    End Sub
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="copyToDouble", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub copyToDouble_win_32(sourceArray As Single(), size As Integer, targetArray As Double())
+    End Sub
 
-    'void copyToDouble(float * sourceArray, Int size, double* targetArray);
     <DllImport("libostfdspandroid", EntryPoint:="copyToDouble", CallingConvention:=CallingConvention.Cdecl)>
     Private Shared Sub copyToDouble_android(sourceArray As Single(), size As Integer, targetArray As Double())
     End Sub
@@ -14,11 +19,13 @@ Public Class LibOstfDsp_VB
         Dim Size As Integer = SourceArray.Length
 
         Select Case STFN.OstfBase.CurrentPlatForm
-            'Case Platforms.WinUI
-            '    'Checking whether a 32-bit or 64-bit environment is running
-            '    If IntPtr.Size = 4 Then
-            '    Else
-            '    End If
+            Case Platforms.WinUI
+                'Checking whether a 32-bit or 64-bit environment is running
+                If IntPtr.Size = 4 Then
+                    copyToDouble_win_32(SourceArray, Size, TargetArray)
+                Else
+                    copyToDouble_win_64(SourceArray, Size, TargetArray)
+                End If
 
             Case Platforms.Android
                 copyToDouble_android(SourceArray, Size, TargetArray)
@@ -29,8 +36,13 @@ Public Class LibOstfDsp_VB
 
     End Sub
 
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="copyToFloat", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub copyToFloat_win_64(sourceArray As Double(), size As Integer, targetArray As Single())
+    End Sub
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="copyToFloat", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub copyToFloat_win_32(sourceArray As Double(), size As Integer, targetArray As Single())
+    End Sub
 
-    'void copyToFloat(Double * sourceArray, Int size, float* targetArray);
     <DllImport("libostfdspandroid", EntryPoint:="copyToFloat", CallingConvention:=CallingConvention.Cdecl)>
     Private Shared Sub copyToFloat_android(sourceArray As Double(), size As Integer, targetArray As Single())
     End Sub
@@ -40,11 +52,13 @@ Public Class LibOstfDsp_VB
         Dim Size As Integer = SourceArray.Length
 
         Select Case STFN.OstfBase.CurrentPlatForm
-            'Case Platforms.WinUI
-            '    'Checking whether a 32-bit or 64-bit environment is running
-            '    If IntPtr.Size = 4 Then
-            '    Else
-            '    End If
+            Case Platforms.WinUI
+                'Checking whether a 32-bit or 64-bit environment is running
+                If IntPtr.Size = 4 Then
+                    copyToFloat_win_32(SourceArray, Size, TargetArray)
+                Else
+                    copyToFloat_win_64(SourceArray, Size, TargetArray)
+                End If
 
             Case Platforms.Android
                 copyToFloat_android(SourceArray, Size, TargetArray)
@@ -167,16 +181,12 @@ Public Class LibOstfDsp_VB
         Select Case STFN.OstfBase.CurrentPlatForm
             Case Platforms.WinUI
 
-                Dim ClippedSamplesCount As Integer = 0
-
                 'Checking whether a 32-bit or 64-bit environment is running
                 If IntPtr.Size = 4 Then
-                    ClippedSamplesCount = multiplyFloatArraySection_32(Array, ArraySize, Factor, StartIndex, Length)
+                    Return multiplyFloatArraySection_32(Array, ArraySize, Factor, StartIndex, Length)
                 Else
-                    ClippedSamplesCount = multiplyFloatArraySection_64(Array, ArraySize, Factor, StartIndex, Length)
+                    Return multiplyFloatArraySection_64(Array, ArraySize, Factor, StartIndex, Length)
                 End If
-
-                Return ClippedSamplesCount
 
             Case Platforms.Android
 
@@ -215,16 +225,12 @@ Public Class LibOstfDsp_VB
         Select Case STFN.OstfBase.CurrentPlatForm
             Case Platforms.WinUI
 
-                Dim SumOfSquare As Double = 0
-
                 'Checking whether a 32-bit or 64-bit environment is running
                 If IntPtr.Size = 4 Then
-                    SumOfSquare = calculateFloatSumOfSquare_32(Values, ArraySize, StartIndex, SectionLength)
+                    Return calculateFloatSumOfSquare_32(Values, ArraySize, StartIndex, SectionLength)
                 Else
-                    SumOfSquare = calculateFloatSumOfSquare_64(Values, ArraySize, StartIndex, SectionLength)
+                    Return calculateFloatSumOfSquare_64(Values, ArraySize, StartIndex, SectionLength)
                 End If
-
-                Return SumOfSquare
 
             Case Platforms.Android
 
@@ -334,6 +340,13 @@ Public Class LibOstfDsp_VB
 
     End Sub
 
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="createInterleavedArray", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub createInterleavedArray_win_64(concatenatedArrays As Single(), channelCount As Integer, channelLength As Integer, interleavedArray As Single(), applyGain As Boolean, channelGainFactor As Single())
+    End Sub
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="createInterleavedArray", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub createInterleavedArray_win_32(concatenatedArrays As Single(), channelCount As Integer, channelLength As Integer, interleavedArray As Single(), applyGain As Boolean, channelGainFactor As Single())
+    End Sub
+
     <DllImport("libostfdspandroid", EntryPoint:="createInterleavedArray", CallingConvention:=CallingConvention.Cdecl)>
     Private Shared Sub createInterleavedArray_android(concatenatedArrays As Single(), channelCount As Integer, channelLength As Integer, interleavedArray As Single(), applyGain As Boolean, channelGainFactor As Single())
     End Sub
@@ -343,13 +356,11 @@ Public Class LibOstfDsp_VB
         Select Case STFN.OstfBase.CurrentPlatForm
             Case Platforms.WinUI
 
-                Throw New NotImplementedException
-
                 'Checking whether a 32-bit or 64-bit environment is running
                 If IntPtr.Size = 4 Then
-
+                    createInterleavedArray_win_32(concatenatedArrays, channelCount, channelLength, interleavedArray, applyGain, channelGainFactor)
                 Else
-
+                    createInterleavedArray_win_64(concatenatedArrays, channelCount, channelLength, interleavedArray, applyGain, channelGainFactor)
                 End If
 
             Case Platforms.Android
@@ -362,6 +373,13 @@ Public Class LibOstfDsp_VB
 
     End Sub
 
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="deinterleaveArray", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub deinterleaveArray_win_64(interleavedArray As Single(), channelCount As Integer, channelLength As Integer, concatenatedArrays As Single())
+    End Sub
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="deinterleaveArray", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub deinterleaveArray_win_32(interleavedArray As Single(), channelCount As Integer, channelLength As Integer, concatenatedArrays As Single())
+    End Sub
+
 
     <DllImport("libostfdspandroid", EntryPoint:="deinterleaveArray", CallingConvention:=CallingConvention.Cdecl)>
     Private Shared Sub deinterleaveArray_android(interleavedArray As Single(), channelCount As Integer, channelLength As Integer, concatenatedArrays As Single())
@@ -372,13 +390,11 @@ Public Class LibOstfDsp_VB
         Select Case STFN.OstfBase.CurrentPlatForm
             Case Platforms.WinUI
 
-                Throw New NotImplementedException
-
                 'Checking whether a 32-bit or 64-bit environment is running
                 If IntPtr.Size = 4 Then
-
+                    deinterleaveArray_win_32(interleavedArray, channelCount, channelLength, concatenatedArrays)
                 Else
-
+                    deinterleaveArray_win_64(interleavedArray, channelCount, channelLength, concatenatedArrays)
                 End If
 
             Case Platforms.Android
@@ -411,11 +427,13 @@ Public Class LibOstfDsp_VB
         Dim Size As Integer = Real1.Length
 
         Select Case STFN.OstfBase.CurrentPlatForm
-            'Case Platforms.WinUI
-            '    'Checking whether a 32-bit or 64-bit environment is running
-            '    If IntPtr.Size = 4 Then
-            '    Else
-            '    End If
+            Case Platforms.WinUI
+                'Checking whether a 32-bit or 64-bit environment is running
+                If IntPtr.Size = 4 Then
+                    complexMultiplication_win_32(Real1, Imag1, Real2, Imag2, Size)
+                Else
+                    complexMultiplication_win_64(Real1, Imag1, Real2, Imag2, Size)
+                End If
 
             Case Platforms.Android
                 complexMultiplication_android(Real1, Imag1, Real2, Imag2, Size)
