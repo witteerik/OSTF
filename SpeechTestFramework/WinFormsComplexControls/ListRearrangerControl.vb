@@ -513,7 +513,7 @@ Public Class ListRearrangerControl
                         OptimalOrder = CandidateOrder
 
                         'X. Reporting progress
-                        Console.WriteLine("Iteration: " & Iteration & vbTab & "Lower imbalance detected: " & LowestListImbalanceList.Average)
+                        Console.WriteLine("Iteration: " & Iteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList))
 
                     Else
                         'The new order did not improve the balance, ignoring it and keeps the optimal order
@@ -732,11 +732,8 @@ Public Class ListRearrangerControl
             Dim RmsErrorsPerList As New List(Of Double)
 
             'Dividing the target distribution by ListCount to get the same scale
-            Dim ListCount As Integer = CategoricalListDistributions(i).Count
             Dim TargetValues = CategoricalTargetDistributions(i).Item2.Values.ToArray
-            For j = 0 To TargetValues.Length - 1
-                TargetValues(j) = TargetValues(j) / ListCount
-            Next
+            Dim TotalObservations = TargetValues.Sum
 
             'Iterating over Lists
             For j = 0 To CategoricalListDistributions(i).Count - 1
@@ -744,12 +741,16 @@ Public Class ListRearrangerControl
                 'We now have one list, compared to all lists
                 Dim ListValues = CategoricalListDistributions(i)(j).Item2.Values.ToArray
 
+                'Normalizing each list 
+                Dim ListObservations = ListValues.Sum
+                Dim CurrentScale As Double = TotalObservations / ListObservations
+
                 'Calculating RMS error
                 Dim SquaredErrors(ListValues.Length - 1) As Double
 
                 'Iterating over variable values
                 For q = 0 To SquaredErrors.Length - 1
-                    SquaredErrors(q) = (ListValues(q) - TargetValues(q)) ^ 2
+                    SquaredErrors(q) = (CurrentScale * ListValues(q) - TargetValues(q)) ^ 2
                 Next
 
                 Dim RmsError = Math.Sqrt(SquaredErrors.Average)
@@ -767,11 +768,8 @@ Public Class ListRearrangerControl
             Dim RmsErrorsPerList As New List(Of Double)
 
             'Dividing the target distribution ny ListCount to get the same scale
-            Dim ListCount As Integer = NumericListDistributions(i).Count
             Dim TargetValues = NumericTargetDistributions(i).Item2.Values.ToArray
-            For j = 0 To TargetValues.Length - 1
-                TargetValues(j) = TargetValues(j) / ListCount
-            Next
+            Dim TotalObservations = TargetValues.Sum
 
             'Iterating over Lists
             For j = 0 To NumericListDistributions(i).Count - 1
@@ -779,13 +777,18 @@ Public Class ListRearrangerControl
                 'We now have one list, compared to all lists
                 Dim ListValues = NumericListDistributions(i)(j).Item2.Values.ToArray
 
+                'Normalizing each list
+                Dim ListObservations = ListValues.Sum
+                Dim CurrentScale As Double = TotalObservations / ListObservations
+
                 'Calculating RMS error
                 Dim SquaredErrors(ListValues.Length - 1) As Double
 
                 'Iterating over variable values
                 For q = 0 To SquaredErrors.Length - 1
-                    SquaredErrors(q) = (ListValues(q) - TargetValues(q)) ^ 2
+                    SquaredErrors(q) = (CurrentScale * ListValues(q) - TargetValues(q)) ^ 2
                 Next
+
 
                 Dim RmsError = Math.Sqrt(SquaredErrors.Average)
                 RmsErrorsPerList.Add(RmsError)

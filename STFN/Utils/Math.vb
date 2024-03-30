@@ -24,6 +24,230 @@
 Namespace Utils
     Public Module Math
 
+        Public Sub DeinterleaveSoundArray(interleavedArray As Single(), channelCount As Integer, channelLength As Integer, concatenatedArrays As Single())
+
+            If OstfBase.UseOptimizationLibraries = False Or OstfBase.CurrentPlatForm = Platforms.WinUI Then 'TODO: Change this when windows opimization dlls implement this function
+
+                ' Takes a flattened matrix in which each channel Is put after each other, And interleaves the channels values
+                Dim targetIndex As Integer = 0
+                For s = 0 To channelLength - 1
+                    For c = 0 To channelCount - 1
+                        concatenatedArrays(c * channelLength + s) = interleavedArray(targetIndex)
+                        targetIndex += 1
+                    Next
+                Next
+
+            Else
+                LibOstfDsp_VB.DeinterleaveSoundArray(interleavedArray, channelCount, channelLength, concatenatedArrays)
+            End If
+
+        End Sub
+
+        ''' <summary>
+        ''' Sums the values of an Array1 using fast SIMD (Single Instruction, Multiple Data) operations
+        ''' </summary>
+        ''' <param name="array"></param>
+        ''' <returns></returns>
+        Public Function SumArray(array() As Single) As Single
+            Dim vectorSize As Integer = System.Numerics.Vector(Of Single).Count
+            Dim sumVector As System.Numerics.Vector(Of Single) = System.Numerics.Vector(Of Single).Zero
+
+            Dim i As Integer
+            For i = 0 To array.Length - vectorSize Step vectorSize
+                Dim v As New System.Numerics.Vector(Of Single)(array, i)
+                sumVector += v
+            Next
+
+            Dim sum As Single = 0
+            For j As Integer = 0 To vectorSize - 1
+                sum += sumVector(j)
+            Next
+
+            ' Handle any remaining elements at the end that don't fit into a full vector.
+            For i = i To array.Length - 1
+                sum += array(i)
+            Next
+
+            Return sum
+        End Function
+
+        ''' <summary>
+        ''' Calculates the sum-of-square value of an array using fast SIMD (Single Instruction, Multiple Data) operations
+        ''' </summary>
+        ''' <param name="Values"></param>
+        ''' <returns></returns>
+        Public Function CalculateSumOfSquare(Values() As Single) As Single
+
+            Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
+            Dim SumOfSquaresVector As System.Numerics.Vector(Of Single) = System.Numerics.Vector(Of Single).Zero
+
+            Dim i As Integer
+            For i = 0 To Values.Length - VectorSize Step VectorSize
+                Dim v As New System.Numerics.Vector(Of Single)(Values, i)
+                SumOfSquaresVector += v * v
+            Next
+
+            Dim SumOfSquares As Double = 0
+
+            For j As Integer = 0 To VectorSize - 1
+                SumOfSquares += SumOfSquaresVector(j)
+            Next
+
+            ' Handle any remaining elements at the end that don't fit into a full vector.
+            For i = i To Values.Length - 1
+                SumOfSquares += Values(i) ^ 2
+            Next
+
+            Return SumOfSquares
+
+        End Function
+
+        ''' <summary>
+        ''' Calculates the sum-of-square value of a section of an array using fast SIMD (Single Instruction, Multiple Data) operations
+        ''' </summary>
+        ''' <param name="Values">The input array</param>
+        ''' <param name="startIndex">The start index of the section</param>
+        ''' <param name="sectionLength">The length of the section</param>
+        ''' <returns>The sum of squares of the specified section</returns>
+        Public Function CalculateSumOfSquare(Values() As Single, startIndex As Integer, sectionLength As Integer) As Single
+
+            If OstfBase.UseOptimizationLibraries = False Then
+
+                Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
+                Dim SumOfSquaresVector As System.Numerics.Vector(Of Single) = System.Numerics.Vector(Of Single).Zero
+
+                ' Ensure we do not exceed the array bounds
+                Dim endIndex As Integer = System.Math.Min(startIndex + sectionLength, Values.Length)
+
+                Dim i As Integer = startIndex
+                While i < endIndex AndAlso i + VectorSize <= endIndex ' Make sure there's enough room for a full vector
+                    Dim v As New System.Numerics.Vector(Of Single)(Values, i)
+                    SumOfSquaresVector += v * v
+                    i += VectorSize
+                End While
+
+                Dim SumOfSquares As Single = 0
+
+                For j As Integer = 0 To VectorSize - 1
+                    SumOfSquares += SumOfSquaresVector(j)
+                Next
+
+                ' Handle any remaining elements at the end that don't fit into a full vector.
+                While i < endIndex
+                    SumOfSquares += Values(i) ^ 2
+                    i += 1
+                End While
+
+                Return SumOfSquares
+
+            Else
+
+                'Calculating the sum of sqares in libostfdsp
+                Return LibOstfDsp_VB.CalculateSumOfSquare(Values, startIndex, sectionLength)
+
+            End If
+
+        End Function
+
+        ''' <summary>
+        ''' Multiplies each element in the Array1 array with the Factor using fast SIMD (Single Instruction, Multiple Data) operations
+        ''' </summary>
+        ''' <param name="Values"></param>
+        ''' <returns></returns>
+        Public Sub MultiplyArray(Values() As Single, Factor As Single)
+
+            Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
+            Dim FactorVector = New System.Numerics.Vector(Of Single)(Factor)
+
+            Dim i As Integer
+            For i = 0 To Values.Length - VectorSize Step VectorSize
+                Dim v As New System.Numerics.Vector(Of Single)(Values, i)
+                v = v * FactorVector
+                v.CopyTo(Values, i)
+            Next
+
+            ' Handle any remaining elements at the end that don't fit into a full vector.
+            For i = i To Values.Length - 1
+                Values(i) *= Factor
+            Next
+
+        End Sub
+
+        ''' <summary>
+        ''' Multiplies each element in a section of the Array1 array with the Factor using fast SIMD (Single Instruction, Multiple Data) operations
+        ''' </summary>
+        ''' <param name="Values">The input array</param>
+        ''' <param name="startIndex">The start index of the section</param>
+        ''' <param name="sectionLength">The length of the section</param>
+        ''' <returns>The sum of squares of the specified section</returns>
+        Public Sub MultiplyArray(Values() As Single, Factor As Single, startIndex As Integer, sectionLength As Integer)
+
+            Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
+            Dim FactorVector = New System.Numerics.Vector(Of Single)(Factor)
+
+            ' Ensure we do not exceed the array bounds
+            Dim endIndex As Integer = System.Math.Min(startIndex + sectionLength, Values.Length)
+
+            Dim i As Integer = startIndex
+            While i < endIndex AndAlso i + VectorSize <= endIndex ' Make sure there's enough room for a full vector
+                Dim v As New System.Numerics.Vector(Of Single)(Values, i)
+                v = v * FactorVector
+                v.CopyTo(Values, i)
+                i += VectorSize
+            End While
+
+            ' Handle any remaining elements at the end that don't fit into a full vector.
+            While i < endIndex
+                Values(i) *= Factor
+                i += 1
+            End While
+
+        End Sub
+
+
+        ''' <summary>
+        ''' Adds the two arrays using fast SIMD (Single Instruction, Multiple Data) operations. Arrays need to be the same lengths, otherwise an exception is thrown.
+        ''' </summary>
+        ''' <param name="Array1">The first input/output data array. Upon return this corresponding data array contains the sum of the values in array1 And array2</param>
+        ''' <param name="Array2">The the input data array containing the values which should be added to array1</param>
+        ''' <returns></returns>
+        Public Sub AddTwoArrays(Array1() As Single, Array2() As Single)
+
+            If Array1.Length <> Array2.Length Then Throw New ArgumentException("Arrays 1 and 2 need to have the same lengths.")
+
+            Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
+
+            Dim i As Integer
+            For i = 0 To Array1.Length - VectorSize Step VectorSize
+                Dim v1 As New System.Numerics.Vector(Of Single)(Array1, i)
+                Dim v2 As New System.Numerics.Vector(Of Single)(Array2, i)
+                v1 += v2
+                v1.CopyTo(Array1, i)
+            Next
+
+            ' Handle any remaining elements at the end that don't fit into a full vector.
+            For i = i To Array1.Length - 1
+                Array1(i) += Array2(i)
+            Next
+
+
+            'Untested paralell processing alternative
+            'Parallel.For(0, Array1.Length \ VectorSize, Sub(i)
+            '                                                Dim offset = i * VectorSize
+            '                                                Dim v1 As New System.Numerics.Vector(Of Single)(Array1, offset)
+            '                                                Dim v2 As New System.Numerics.Vector(Of Single)(Array2, offset)
+            '                                                v1 += v2
+            '                                                v1.CopyTo(Array1, offset)
+            '                                            End Sub)
+
+            '' Handle any remaining elements
+            'For i = (Array1.Length \ VectorSize) * VectorSize To Array1.Length - 1
+            '    Array1(i) += Array2(i)
+            'Next
+
+        End Sub
+
+
         Public Function Repeat(ByVal Value As Integer, ByVal Length As Integer) As Integer()
             Dim Output As New List(Of Integer)
             For i = 1 To Length
@@ -104,7 +328,7 @@ Namespace Utils
         End Function
 
         ''' <summary>
-        ''' Gets the highest value in an array of nullable of Doubles, or Nothing, if no values exist.
+        ''' Gets the highest value in an Array1 of nullable of Doubles, or Nothing, if no values exist.
         ''' </summary>
         ''' <param name="InputArray"></param>
         ''' <returns></returns>
@@ -265,7 +489,7 @@ Namespace Utils
         ''' <summary>
         ''' Rounds the Frequency value to the nearest log2 frequency (Suitable to round audiogram frequencies).
         ''' </summary>
-        ''' <param name="Frequency">The array on valid output frequencies (to round to). If not supplied the default value will be standard audiogram frequencies.</param>
+        ''' <param name="Frequency">The Array1 on valid output frequencies (to round to). If not supplied the default value will be standard audiogram frequencies.</param>
         ''' <returns></returns>
         Public Function RoundToLog2Frequency(ByVal Frequency As Double, Optional ValidFrequencies As SortedSet(Of Double) = Nothing)
 
@@ -350,10 +574,10 @@ Namespace Utils
         End Function
 
         ''' <summary>
-        ''' Returns the geometric mean in an array of Doubles.
+        ''' Returns the geometric mean in an Array1 of Doubles.
         ''' </summary>
         ''' <param name="InputArray"></param>
-        ''' <returns>Returns the geometric mean of the vaules in the input array.</returns>
+        ''' <returns>Returns the geometric mean of the vaules in the input Array1.</returns>
         Public Function GeometricMean(InputArray() As Double, Optional UseSummedLogs As Boolean = False, Optional ByVal IgnoreZeroValues As Boolean = False) As Double
 
             If UseSummedLogs = False Then
@@ -422,7 +646,7 @@ Namespace Utils
 
 
         ''' <summary>
-        ''' Calculates the the coefficient of variation of a set of input values. Also sum, mean, sum of squares, variance and standard deviation can be attained by using the optional parameters.
+        ''' Calculates the the coefficient of variation of a set of input values. Also SumOfSquares, mean, SumOfSquares of squares, variance and standard deviation can be attained by using the optional parameters.
         ''' </summary>
         ''' <param name="InputListOfDouble"></param>
         ''' <param name="Sum">Upon return of the function, this variable will contain the arithmetric mean.</param>
@@ -444,7 +668,7 @@ Namespace Utils
                 'Notes the number of values in the input list
                 Dim n As Integer = InputListOfDouble.Count
 
-                'Calculates the sum of the values in the input list
+                'Calculates the SumOfSquares of the values in the input list
                 Sum = 0
                 For i = 0 To InputListOfDouble.Count - 1
                     Sum += InputListOfDouble(i)
@@ -453,7 +677,7 @@ Namespace Utils
                 'Calculates the arithemtric mean of the values in the input list
                 ArithmetricMean = Sum / n
 
-                'Calculates the sum of squares of the values in the input list
+                'Calculates the SumOfSquares of squares of the values in the input list
                 SumOfSquares = 0
                 For i = 0 To InputListOfDouble.Count - 1
                     SumOfSquares += (InputListOfDouble(i) - ArithmetricMean) ^ 2
@@ -499,7 +723,7 @@ Namespace Utils
             'Notes the number of values in the input list
             'Dim n As Integer = InputListOfDouble.Count
 
-            'Calculates the sum of the values in the input list
+            'Calculates the SumOfSquares of the values in the input list
             Dim Sum As Double = 0
             Dim n As Integer = 0
             For i = 0 To InputListOfDouble.Count - 1
@@ -517,7 +741,7 @@ Namespace Utils
             'Calculates the arithemtric mean of the values in the input list
             Dim ArithmetricMean As Double = Sum / n
 
-            'Calculates the sum of squares of the values in the input list
+            'Calculates the SumOfSquares of squares of the values in the input list
             Dim SumOfSquares As Double = 0
             Dim n_SumOfSquares As Integer = 0
             For i = 0 To InputListOfDouble.Count - 1
@@ -735,10 +959,10 @@ Namespace Utils
 
 
         ''' <summary>
-        ''' Multiplies the values in the input array with a common factor so that the value farthest from zero becomes 1 (or NormalizeMaxvalueTo). If all values are 0, the array will be left unalterred.
+        ''' Multiplies the values in the input Array1 with a common factor so that the value farthest from zero becomes 1 (or NormalizeMaxvalueTo). If all values are 0, the Array1 will be left unalterred.
         ''' </summary>
         ''' <param name="InputListOfDouble"></param>
-        ''' <param name="NormalizeMaxvalueTo">Optional. This parameter can be use to normalize the array to another value than 1.</param>
+        ''' <param name="NormalizeMaxvalueTo">Optional. This parameter can be use to normalize the Array1 to another value than 1.</param>
         ''' <param name="DetectedMaxValue">Upon return, this value will contain the input value farthest from zero.</param>
         ''' <param name="NormalizationFactor">Upon return, this value will contain the value by which all other values have been multiplied in the normalization process.</param>
         Public Sub Normalize(ByRef InputListOfDouble As List(Of Double),
@@ -809,7 +1033,7 @@ Namespace Utils
         End Function
 
         ''' <summary>
-        ''' Detects the AvailableValues array indices that have the first values nearest to the InputValue. (N.B. The data in AvailableValues need to be orderred in either ascending or descending order.) 
+        ''' Detects the AvailableValues Array1 indices that have the first values nearest to the InputValue. (N.B. The data in AvailableValues need to be orderred in either ascending or descending order.) 
         ''' If the input value exists in AvailableValues, NearestLowerIndex and NearestHigherIndex will have the same value (which may be tested for). If the input value is higher than the highest value
         ''' in AvailableValues, NearestHigherIndex will be Nothing. And if input value is lower than the lowest value in AvailableValues, NearestLowerIndex will be Nothing.
         ''' </summary>
@@ -878,7 +1102,7 @@ Namespace Utils
         End Class
 
         ''' <summary>
-        ''' Detects the AvailableValues array index that have the values nearest to the InputValue.
+        ''' Detects the AvailableValues Array1 index that have the values nearest to the InputValue.
         ''' </summary>
         ''' <param name="InputValue"></param>
         ''' <param name="AvailableValues"></param>
@@ -894,7 +1118,7 @@ Namespace Utils
 
                     If n > 0 Then
                         If InputValue = TempValues(n - 1) Then
-                            'The value exists in the array, returns it's index
+                            'The value exists in the Array1, returns it's index
                             Return n - 1
                         End If
                     End If
@@ -1129,7 +1353,7 @@ Namespace Utils
 
         Public Function GetAverageOfSections(Input() As Double, SectionLength As Integer, StepSize As Integer) As Double()
 
-            'Returning the average of the input if the input array is shorter that the section length
+            'Returning the average of the input if the input Array1 is shorter that the section length
             If Input.Length < SectionLength Then
                 Return {Input.Average}
             End If
@@ -1316,7 +1540,7 @@ Namespace Utils
 
                             ElseIf BlockHorizontalMove = False And BlockVerticalMove = False And HorizintalPathValue = VerticalPathValue Then
 
-                                'Horizontal and vertical moves are equally good and none is blocked. Selecting a move in the direction of the longest array, or a random path if the arrays are of equal length.
+                                'Horizontal and vertical moves are equally good and none is blocked. Selecting a move in the direction of the longest Array1, or a random path if the arrays are of equal length.
 
                                 If ColumnCount > RowCount Then
                                     'A horizontal move

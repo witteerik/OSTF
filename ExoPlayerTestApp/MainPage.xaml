@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ExoPlayerTestApp.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+            <Image
+                Source="dotnet_bot.png"
+                HeightRequest="185"
+                Aspect="AspectFit"
+                SemanticProperties.Description="dot net bot in a race car number eight" />
+
+            <Button
+                x:Name="GetDevicesBtn"
+                Text="Get Devices" 
+                Clicked="OnGetDevicesBtn"
+                HorizontalOptions="Fill" />
+
+            <Label 
+                x:Name="DeviceLabel"
+                Text="" />
+
+            <Button
+                x:Name="Sine1Btn"
+                Text="Sine 1" 
+                Clicked="OnSine1Clicked"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="Sine2Btn"
+                Text="Sine 2" 
+                Clicked="OnSine2Clicked"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="Sine3Btn"
+                Text="Play eight channels" 
+                Clicked="OnSine3Clicked"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="VolUpBtn"
+                Text="Sound file volume up" 
+                Clicked="VolUpBtnClicked"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="VolDwnBtn"
+                Text="Sound file volume down" 
+                Clicked="VolDwnBtnClicked"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="AVolUpBtn"
+                Text="Android volume up" 
+                Clicked="AVolUpBtnClicked"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="AVolDwnBtn"
+                Text="Android volume down" 
+                Clicked="AVolDwnBtnClicked"
+                HorizontalOptions="Fill" />
+
+            <Label 
+                x:Name="VolLabel"
+                Text="" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

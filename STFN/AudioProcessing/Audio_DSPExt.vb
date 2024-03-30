@@ -2452,6 +2452,76 @@ Namespace Audio
 
         End Module
 
+        Public Module Radix2TrigonometricLookup
+
+            Private LookupDictionary As New SortedList(Of FftDirections, SortedList(Of Integer, List(Of Tuple(Of Double, Double))))
+            Private ArrayDictionary As New SortedList(Of FftDirections, SortedList(Of Integer, Tuple(Of Double(), Double())))
+
+            Public Function GetRadix2TrigonomerticValues(ByVal Size As Integer, ByRef Direction As FftDirections) As List(Of Tuple(Of Double, Double))
+
+                If LookupDictionary.ContainsKey(Direction) = False Then
+                    LookupDictionary.Add(Direction, New SortedList(Of Integer, List(Of Tuple(Of Double, Double))))
+                    ArrayDictionary.Add(Direction, New SortedList(Of Integer, Tuple(Of Double(), Double())))
+                End If
+
+                If LookupDictionary(Direction).ContainsKey(Size) = True Then
+                    'No values need to be calculated
+                    Return LookupDictionary(Direction)(Size)
+                End If
+
+                Dim TrigonometricValues As New List(Of Tuple(Of Double, Double))
+
+                Dim ExponentSign As Integer
+                If Direction = FftDirections.Forward Then
+                    ExponentSign = -1
+                ElseIf Direction = FftDirections.Backward Then
+                    ExponentSign = 1
+                Else
+                    Throw New ArgumentException("Unknown FFT direction")
+                End If
+
+                Dim HalfSize As Integer = Size / 2
+                For n = 0 To HalfSize - 1
+                    Dim LookupKey As Integer = HalfSize * (n / HalfSize)
+                    Dim Exponent As Double = ExponentSign * (n / HalfSize) * Math.PI
+                    TrigonometricValues.Add(New Tuple(Of Double, Double)(Math.Cos(Exponent), Math.Sin(Exponent)))
+                Next
+
+                'Adds the values
+                LookupDictionary(Direction).Add(Size, TrigonometricValues)
+
+                Dim PcCos As New List(Of Double)
+                Dim PcSin As New List(Of Double)
+
+                For Each kvp In TrigonometricValues
+                    PcCos.Add(kvp.Item1)
+                    PcSin.Add(kvp.Item2)
+                Next
+
+                ArrayDictionary(Direction).Add(Size, New Tuple(Of Double(), Double())(PcCos.ToArray, PcSin.ToArray))
+
+                'And also returns them
+                Return TrigonometricValues
+
+            End Function
+
+
+            Public Function GetArrays(ByVal Size As Integer, ByRef Direction As FftDirections) As Tuple(Of Double(), Double())
+
+                If ArrayDictionary.ContainsKey(Direction) = False Then
+                    GetRadix2TrigonomerticValues(Size, Direction)
+                End If
+
+                If ArrayDictionary(Direction).ContainsKey(Size) = False Then
+                    GetRadix2TrigonomerticValues(Size, Direction)
+                End If
+
+                Return ArrayDictionary(Direction)(Size)
+
+            End Function
+
+        End Module
+
 
         Public Module TransformationsExt
 
@@ -3703,15 +3773,11 @@ Namespace Audio
             ''' <param name="startSample"></param>
             ''' <param name="sectionLength"></param>
             ''' <param name="NormalizeChannelsSeparately">If set to true, the channels will be indivudually normalized. If left to false, the same amout of gain will be appplied to all channels.</param>
-            ''' <returns>Returns the number of distorted samples, or vbNull if something went wrong.</returns>
-            Public Function MaxAmplitudeNormalizeSection(ByRef InputSound As Sound, Optional ByVal channel As Integer? = Nothing,
+            Public Sub MaxAmplitudeNormalizeSection(ByRef InputSound As Sound, Optional ByVal channel As Integer? = Nothing,
                                         Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing,
-                                                     Optional NormalizeChannelsSeparately As Boolean = False) As Double
-
+                                                     Optional NormalizeChannelsSeparately As Boolean = False)
 
                 Dim AudioOutputConstructor As New AudioOutputConstructor(InputSound.WaveFormat, channel)
-
-                Dim totalDistortedSamples As Double = 0
 
                 'Main section
                 Dim AbsoluteMaxAmplitudeBothChannels As Double = 0
@@ -3732,7 +3798,7 @@ Namespace Audio
                         Dim Gain As Double = AbsoluteMaxAmplitude / InputSound.WaveFormat.PositiveFullScale
 
                         'Amplifies the section
-                        totalDistortedSamples += AmplifySection(InputSound, Gain, c, CorrectedStartSample, CorrectedSectionLength, SoundDataUnit.linear)
+                        AmplifySection(InputSound, Gain, c, CorrectedStartSample, CorrectedSectionLength, SoundDataUnit.linear)
 
                     Else
                         If AbsoluteMaxAmplitude > AbsoluteMaxAmplitudeBothChannels Then AbsoluteMaxAmplitudeBothChannels = AbsoluteMaxAmplitude
@@ -3746,13 +3812,11 @@ Namespace Audio
                     Dim Gain As Double = InputSound.WaveFormat.PositiveFullScale / AbsoluteMaxAmplitudeBothChannels
 
                     'Amplifies the section
-                    totalDistortedSamples += AmplifySection(InputSound, Gain, , startSample, sectionLength, SoundDataUnit.linear)
+                    AmplifySection(InputSound, Gain, , startSample, sectionLength, SoundDataUnit.linear)
 
                 End If
 
-                Return totalDistortedSamples
-
-            End Function
+            End Sub
 
 
             Public Sub EqualizeLevelOverTime(ByRef InputSound As Sound, ByVal Channel As Integer, ByVal MeasurementSectionLength As Integer,
@@ -3935,20 +3999,17 @@ Namespace Audio
             ''' <param name="GateRelativeThreshold"></param>
             ''' <param name="FractionForCalculatingAbsThreshold"></param>
             ''' <param name="FrequencyWeighting"></param>
-            ''' <returns>Returns true if level adjustment could be done without distorsion, and false if level adjustment lead to distorsion (or if something else went wrong).</returns>
-            Public Function MeasureAndSetGatedSectionLevel(ByRef InputSound As Sound, Optional ByVal channel As Integer? = Nothing,
+            Public Sub MeasureAndSetGatedSectionLevel(ByRef InputSound As Sound, Optional ByVal channel As Integer? = Nothing,
                          Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing,
                                                    Optional ByVal OutputLevel As Double = -23,
                                                        Optional ByVal GatingWindowDuration As Decimal = 0.01,
                                                  Optional ByVal GateRelativeThreshold As Double = -10,
                                                  Optional ByVal FractionForCalculatingAbsThreshold As Decimal = 0.25,
-                                                 Optional ByVal FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z) As Boolean
+                                                 Optional ByVal FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z)
 
                 Try
 
                     Dim AudioOutputConstructor As New AudioOutputConstructor(InputSound.WaveFormat, channel)
-
-                    Dim totalDistortedSamples As Double = 0
 
                     'Main section
                     For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
@@ -3963,29 +4024,20 @@ Namespace Audio
 
                         If GatedLevel Is Nothing Then
                             MsgBox("Error")
-                            Return False
                         End If
 
                         'Adjusting section level
                         Dim Gain As Double = OutputLevel - GatedLevel
 
-                        totalDistortedSamples += AmplifySection(InputSound, Gain, c, CorrectedStartSample, CorrectedSectionLength, SoundDataUnit.dB)
+                        AmplifySection(InputSound, Gain, c, CorrectedStartSample, CorrectedSectionLength, SoundDataUnit.dB)
 
                     Next
 
-                    'Prepares the output
-                    If totalDistortedSamples > 0 Then
-                        Return False
-                    Else
-                        Return True
-                    End If
-
                 Catch ex As Exception
                     MsgBox(ex.ToString)
-                    Return False
                 End Try
 
-            End Function
+            End Sub
 
 
             ''' <summary>
@@ -3996,16 +4048,13 @@ Namespace Audio
             ''' <param name="startSample"></param>
             ''' <param name="sectionLength"></param>
             ''' <param name="OutputLevel">The desired normalised output level.</param>
-            ''' <returns>Returns true if level adjustment could be done without distorsion, and false if level adjustment lead to distorsion (or if something else went wrong).</returns>
-            Public Function TimeAndFrequencyWeightedNormalization(ByRef InputSound As Sound, Optional ByVal channel As Integer? = Nothing,
+            Public Sub TimeAndFrequencyWeightedNormalization(ByRef InputSound As Sound, Optional ByVal channel As Integer? = Nothing,
                          Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing,
-                                                   Optional ByVal OutputLevel As Double = -23) As Boolean
+                                                   Optional ByVal OutputLevel As Double = -23)
 
                 Try
 
                     Dim AudioOutputConstructor As New AudioOutputConstructor(InputSound.WaveFormat, channel)
-
-                    Dim totalDistortedSamples As Double = 0
 
                     'Main section
                     For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
@@ -4019,29 +4068,20 @@ Namespace Audio
                                                                          SoundDataUnit.dB) ', TemporalIntegrationDuration, FrequencyWeighting)
                         If MaxLevel Is Nothing Then
                             MsgBox("Error")
-                            Return False
                         End If
 
                         'Adjusting section level
                         Dim Gain As Double = OutputLevel - MaxLevel
 
-                        totalDistortedSamples += AmplifySection(InputSound, Gain, c, CorrectedStartSample, CorrectedSectionLength, SoundDataUnit.dB)
+                        AmplifySection(InputSound, Gain, c, CorrectedStartSample, CorrectedSectionLength, SoundDataUnit.dB)
 
                     Next
 
-                    'Prepares the output
-                    If totalDistortedSamples > 0 Then
-                        Return False
-                    Else
-                        Return True
-                    End If
-
                 Catch ex As Exception
                     MsgBox(ex.ToString)
-                    Return False
                 End Try
 
-            End Function
+            End Sub
 
 
 
@@ -4360,22 +4400,7 @@ Namespace Audio
 
                 Else
 
-                    Dim dir As Integer
-                    Select Case Direction
-                        Case FftDirections.Forward
-                            dir = 1
-                        Case FftDirections.Backward
-                            dir = -1
-                        Case Else
-                            Throw New ArgumentException("Unknown value for Direction!")
-                    End Select
-
-                    'Ensures that x and y have the same length
-                    If x.Length <> y.Length Then
-                        Throw New ArgumentException("The x and y arrays need to have the same length in FastFourierTransform!")
-                    End If
-
-                    LibOstfDsp_VB.fft_complex(x, y, x.Length, dir, Reorder, ScaleForwardTransform)
+                    LibOstfDsp_VB.Fft_complex(x, y, x.Length, Dir, Reorder, ScaleForwardTransform)
 
                 End If
 
@@ -4445,13 +4470,13 @@ Namespace Audio
                 Dim LevelSize As Integer = 1
                 While LevelSize < x.Length
 
+                    Dim StepSize = LevelSize << 1
+
                     For k = 0 To LevelSize - 1
 
                         Dim exponent = (ExponentSign * k) * Math.PI / LevelSize
                         Dim wX As Double = Math.Cos(exponent) ' N.B. this step of the algorithm suffers from the inexact floating point numbers returned from the trigonometric functions Cos and Sin
                         Dim wY As Double = Math.Sin(exponent)
-
-                        Dim StepSize = LevelSize << 1
 
                         Dim i As Integer = k
                         While i < x.Length - 1
@@ -4495,6 +4520,124 @@ Namespace Audio
                 End If
 
             End Sub
+
+            ''' <summary>
+            ''' Complex Radix-2 FFT
+            ''' </summary>
+            ''' <param name="x">Real data array</param>
+            ''' <param name="y">Imaginary data array</param>
+            ''' <param name="Direction">Transform direction</param>
+            ''' <param name="ScaleForwardTransform"></param>
+            ''' <param name="Reorder">Set to false to skip sample reordering</param>
+            Public Sub FftRadix2_TrigDict(ByRef x() As Double, ByRef y() As Double, ByRef Direction As FftDirections, Optional ByVal ScaleForwardTransform As Boolean = True, Optional ByVal Reorder As Boolean = True)
+
+                ' This is a modified VB translation of the MIT licensed code in Mathnet Numerics, See https://github.com/mathnet/mathnet-numerics/blob/306fb068d73f3c3d0e90f6f644b55cddfdeb9a0c/src/Numerics/Providers/FourierTransform/ManagedFourierTransformProvider.Radix2.cs
+
+                Dim TrigDict = GetRadix2TrigonomerticValues(x.Length, Direction)
+
+                Dim ExponentSign As Integer
+                If Direction = FftDirections.Forward Then
+                    ExponentSign = -1
+                ElseIf Direction = FftDirections.Backward Then
+                    ExponentSign = 1
+                Else
+                    Throw New ArgumentException("Unknown FFT direction")
+                End If
+
+                If Reorder = True Then
+
+                    Dim TempX As Double
+                    Dim TempY As Double
+
+                    Dim j As Integer = 0
+                    For i = 0 To x.Length - 2
+
+                        If i < j Then
+                            TempX = x(i)
+                            x(i) = x(j)
+                            x(j) = TempX
+
+                            TempY = y(i)
+                            y(i) = y(j)
+                            y(j) = TempY
+
+                        End If
+
+                        Dim m As Integer = x.Length
+
+                        Do
+                            m >>= 1
+                            j = j Xor m
+                        Loop While (j And m) = 0
+
+                    Next
+
+                End If
+
+                'Defining some temporary variables to avoid definition inside loop
+                Dim aiX As Double
+                Dim aiY As Double
+                Dim Real1 As Double
+                Dim Imaginary1 As Double
+                Dim Real2 As Double
+                Dim Imaginary2 As Double
+                Dim TempReal1 As Double
+
+                Dim LevelSize As Integer = 1
+                While LevelSize < x.Length
+
+                    Dim StepSize = LevelSize << 1
+
+                    For k = 0 To LevelSize - 1
+
+                        Dim exponent = (ExponentSign * k) * Math.PI / LevelSize
+                        Dim TrigTuple = DirectCast(TrigDict(exponent), Tuple(Of Double, Double))
+                        Dim wX As Double = TrigTuple.Item1 ' N.B. this step of the algorithm suffers from the inexact floating point numbers returned from the trigonometric functions Cos and Sin
+                        Dim wY As Double = TrigTuple.Item2
+
+                        Dim i As Integer = k
+                        While i < x.Length - 1
+
+                            aiX = x(i)
+                            aiY = y(i)
+
+                            Real1 = wX
+                            Imaginary1 = wY
+                            Real2 = x(i + LevelSize)
+                            Imaginary2 = y(i + LevelSize)
+
+                            'Complex multiplication
+                            TempReal1 = Real1
+                            Real1 = TempReal1 * Real2 - Imaginary1 * Imaginary2
+                            Imaginary1 = TempReal1 * Imaginary2 + Imaginary1 * Real2
+
+                            x(i) = aiX + Real1
+                            y(i) = aiY + Imaginary1
+
+                            x(i + LevelSize) = aiX - Real1
+                            y(i + LevelSize) = aiY - Imaginary1
+
+                            i += StepSize
+
+                        End While
+
+                    Next
+
+                    LevelSize *= 2
+
+                End While
+
+                'Scaling
+                If Direction = FftDirections.Forward And ScaleForwardTransform = True Then
+                    Dim scalingFactor = 1.0 / x.Length
+                    For i = 0 To x.Length - 1
+                        x(i) *= scalingFactor
+                        y(i) *= scalingFactor
+                    Next
+                End If
+
+            End Sub
+
 
 
             ''' <summary>
@@ -4551,13 +4694,13 @@ Namespace Audio
                 Dim LevelSize As Integer = 1
                 While LevelSize < x.Length
 
+                    Dim StepSize = LevelSize << 1
+
                     For k = 0 To LevelSize - 1
 
                         Dim exponent = (ExponentSign * k) * Math.PI / LevelSize
                         Dim wX As Double = Math.Cos(exponent)
                         Dim wY As Double = Math.Sin(exponent)
-
-                        Dim StepSize = LevelSize << 1
 
                         Dim i As Integer = k
                         While i < x.Length - 1
@@ -4597,8 +4740,8 @@ Namespace Audio
             Public Function ComplexMultiplication(ByVal Real1 As Double, ByVal Imaginary1 As Double, ByVal Real2 As Double, ByVal Imaginary2 As Double) As Tuple(Of Double, Double)
 
                 Dim TempReal1 = Real1
-                Real1 = tempReal1 * Real2 - Imaginary1 * Imaginary2
-                Imaginary1 = tempReal1 * Imaginary2 + Imaginary1 * Real2
+                Real1 = TempReal1 * Real2 - Imaginary1 * Imaginary2
+                Imaginary1 = TempReal1 * Imaginary2 + Imaginary1 * Real2
 
                 Return New Tuple(Of Double, Double)(Real1, Imaginary1)
 
@@ -4679,12 +4822,12 @@ Namespace Audio
                 Dim levelSize As Integer = 1
                 While levelSize < Data.Length
 
+                    Dim stepSize = levelSize << 1
+
                     For k = 0 To levelSize - 1
 
                         Dim exponent = (ExponentSign * k) * Math.PI / levelSize
                         Dim w = New System.Numerics.Complex(Math.Cos(exponent), Math.Sin(exponent))
-
-                        Dim stepSize = levelSize << 1
 
                         Dim i As Integer = k
                         While i < Data.Length - 1

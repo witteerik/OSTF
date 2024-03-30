@@ -37,7 +37,15 @@ namespace STFM
             OstfBase.InitializeOSTF(GetCurrentPlatform(), MediaPlayerType, OstfBase.MediaRootDirectory);
             if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.MctBased)
             {
-                OstfBase.SoundPlayer = new STFM.MauiCtBasedSoundPlayer(ParentContainer);
+
+                if (DeviceInfo.Current.Platform == DevicePlatform.Android) {
+                    STFN.Audio.SoundScene.DuplexMixer Mixer = new STFN.Audio.SoundScene.DuplexMixer();
+                    int OutputChannel = 1;
+                    Mixer.DirectMonoSoundToOutputChannel(ref OutputChannel);
+                    OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer(ref Mixer);
+                }
+
+                //OstfBase.SoundPlayer = new STFM.MauiCtBasedSoundPlayer(ParentContainer);
             }
 
         }

@@ -117,11 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="RichTextBox1.Text" xml:space="preserve">
-    <value>Use this tab page to change the linguistic level of the sound files in your media set.
-If, for instance, each sound file in the media set sound files contain a list of sentences, you can change it so that each sound file contains one single sentence, or vice versa.
-In this process, a new media set will be cretaed, and the currently selected media set will remain unchanged.</value>
-  </data>
   <data name="TextBox2.Text" xml:space="preserve">
     <value>Specify the amout to amplify each speech material component according to the following template:
 [SpeechMaterialComponentID] | [SoundIndex] | [Gain (dB)]
@@ -142,5 +137,10 @@ If threshold simulating noise is used, specify also the (approximate) intended l
 The original sound files will be exported. In addition separate sound files, one for each SNR can be created and exported, with or without intermediate silence of one second. 
 
 Finally press 'Create sound files' and wait! You will be notified when the process is finished.</value>
+  </data>
+  <data name="RichTextBox1.Text" xml:space="preserve">
+    <value>Use this tab page to change the linguistic level of the sound files in your media set.
+If, for instance, each sound file in the media set sound files contain a list of sentences, you can change it so that each sound file contains one single sentence, or vice versa.
+In this process, a new media set will be cretaed, and the currently selected media set will remain unchanged.</value>
   </data>
 </root>

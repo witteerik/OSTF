@@ -357,6 +357,7 @@ OSTFMedia/SpeechMaterials/SwedishEikholtTest/
 OSTFMedia/SpeechMaterials/SwedishPB23/
 OSTFMedia/SpeechMaterials/SwedishPB23_Balanced/
 OSTFMedia/SpeechMaterials/SwedishSpondees23/
+OSTFMedia/SpeechMaterials/Temp/
 
 # Files to ignore
 SrtMargolis2021_TestProtocol.vb

@@ -18,9 +18,26 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
-	<ItemGroup>
+  <!-- Android -->
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != true">
+    <Compile Remove="**\**\*.android.cs" />
+    <None Include="**\**\*.android.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <Compile Remove="**\android\**\*.cs" />
+    <None Include="**\android\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+  </ItemGroup>
+
+  <!-- Non-Android -->
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != false">
+    <Compile Remove="**\**\*.non-andrd.cs" />
+    <None Include="**\**\*.non-andrd.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <Compile Remove="**\non-andrd\**\*.cs" />
+    <None Include="**\non-andrd\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+  </ItemGroup>
+
+  
+  <ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
-	  <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="3.0.1" />
+	  <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="3.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -55,5 +72,19 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.7" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.7" />
+	</ItemGroup>
+
+	<!--<ItemGroup>
+    <AndroidNativeLibrary Include="Platforms\Android\native-libs\**\*.so" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>-->
+
+
 
 </Project>

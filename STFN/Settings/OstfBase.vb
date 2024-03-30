@@ -37,7 +37,7 @@ Public Module OstfBase
     Public CurrentMediaPlayerType As MediaPlayerTypes
 
     'Optimization libraries
-    Public Property UseOptimizationLibraries As Boolean = False ' This can be used to determin if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
+    Public Property UseOptimizationLibraries As Boolean = True ' This can be used to determine if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
 
     'Other basic settings
     Public Property AllowDirectionalSimulation As Boolean = True
@@ -95,6 +95,69 @@ Public Module OstfBase
     ''' <param name="MediaRootDirectory"></param>
     ''' <param name="MediaPlayerType"></param>
     Public Sub InitializeOSTF(ByVal PlatForm As Platforms, ByVal MediaPlayerType As MediaPlayerTypes, Optional ByVal MediaRootDirectory As String = "")
+
+        ''Using this place to debug android optimization library
+        'Try
+
+        '    For LL = 14 To 14
+
+        '        Dim Length As Integer = 2 ^ LL
+        '        Dim Loops As Integer = 50
+
+        '        Dim x1(Length - 1) As Double
+        '        Dim y1(Length - 1) As Double
+        '        Dim x2(Length - 1) As Double
+        '        Dim y2(Length - 1) As Double
+        '        Dim xx(Length - 1) As Double
+        '        Dim rnd As New Random(42)
+
+        '        For i = 0 To x1.Length - 1
+        '            x1(i) = rnd.NextDouble
+        '            x2(i) = x1(i)
+        '            xx(i) = x1(i)
+        '        Next
+
+        '        Dim Direction = Audio.DSP.TransformationsExt.FftDirections.Backward
+        '        Dim TrigDict = Audio.DSP.GetRadix2TrigonomerticValues(Length, Direction)
+
+        '        CurrentPlatForm = Platforms.Android
+
+        '        STFN.Audio.DSP.FftRadix2(x1, y1, Direction)
+        '        LibOstfDsp_VB.Fft_complex(x2, y2, x2.Length, Direction)
+
+        '        Dim TimeSpanList As New List(Of String)
+        '        Dim StopWatch As New Stopwatch
+        '        StopWatch.Start()
+
+        '        For i = 0 To Loops - 1
+        '            STFN.Audio.DSP.FftRadix2(x1, y1, Direction)
+        '        Next
+
+        '        StopWatch.Stop()
+        '        TimeSpanList.Add(StopWatch.ElapsedMilliseconds)
+        '        StopWatch.Reset()
+        '        StopWatch.Start()
+
+        '        For i = 0 To Loops - 1
+        '            LibOstfDsp_VB.Fft_complex(x2, y2, x2.Length, Direction)
+        '        Next
+
+        '        StopWatch.Stop()
+        '        TimeSpanList.Add(StopWatch.ElapsedMilliseconds)
+        '        StopWatch.Reset()
+
+        '        Dim Diffs As Integer = 0
+        '        For j = 0 To x1.Length - 1
+        '            If (x1(j) = x2(j)) = False Then Diffs += 1
+        '        Next
+
+        '        Messager.MsgBox(LL & " " & String.Join(" ", TimeSpanList))
+
+        '    Next
+
+        'Catch ex As Exception
+        '    Messager.MsgBox(ex.ToString)
+        'End Try
 
         'Exits the sub to avoid multiple calls (which should be avoided, especially to the Audio.PortAudio.Pa_Initialize function).
         If OstfIsInitialized = True Then Exit Sub

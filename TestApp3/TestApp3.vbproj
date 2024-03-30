@@ -62,6 +62,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -86,9 +87,7 @@
     <Compile Include="Form4.Designer.vb">
       <DependentUpon>Form4.vb</DependentUpon>
     </Compile>
-    <Compile Include="Form4.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Form4.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>

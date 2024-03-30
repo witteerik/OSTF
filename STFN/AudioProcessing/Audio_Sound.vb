@@ -671,7 +671,7 @@ Namespace Audio
         ''' <param name="inputTimeFormat"></param>
         ''' <param name="StoreSourcePath">If set to True, the full path of the audio file from which the Sound object was created is stored in Sound.SourcePath.</param>
         ''' <returns>Returns a new Sound containing the sound data from the input sound file.</returns>
-        Public Shared Function LoadWaveFile(ByVal filePath As String,
+        Public Shared Function LoadWaveFile_Original(ByVal filePath As String,
                                             Optional ByVal startReadTime As Decimal = 0,
                                             Optional ByVal stopReadTime As Decimal = 0,
                                             Optional ByVal inputTimeFormat As TimeUnits = TimeUnits.seconds,
@@ -920,6 +920,249 @@ Namespace Audio
             End Try
 
         End Function
+
+        ''' <summary>
+        ''' Reads a sound (.wav or .ptwf) from file and stores it in a new Sounds object.
+        ''' </summary>
+        ''' <param name="filePath">The file path to the file to read. If left empty a open file dialogue box will appear.</param>
+        ''' <param name="startReadTime"></param>
+        ''' <param name="stopReadTime"></param>
+        ''' <param name="inputTimeFormat"></param>
+        ''' <param name="StoreSourcePath">If set to True, the full path of the audio file from which the Sound object was created is stored in Sound.SourcePath.</param>
+        ''' <returns>Returns a new Sound containing the sound data from the input sound file.</returns>
+        Public Shared Function LoadWaveFile(ByVal filePath As String,
+                                            Optional ByVal StoreSourcePath As Boolean = True,
+                                            Optional ByVal StoreUnchangedState As Boolean = False) As Sound
+
+            Try
+
+                Dim fileName As String = ""
+
+                'Finds out the filename
+                If Not filePath = "" Then fileName = Path.GetFileNameWithoutExtension(filePath)
+
+                'Creates a variable to hold data chunk size
+                Dim dataSize As UInteger = 0
+
+                Dim fileStreamRead As FileStream = New FileStream(filePath, FileMode.Open)
+                Dim reader As BinaryReader = New BinaryReader(fileStreamRead, Text.Encoding.UTF8)
+
+                'Starts reading
+
+                Dim chunkID As String = reader.ReadChars(4)
+                Dim fileSize As UInteger = reader.ReadUInt32
+                Dim riffType As String = reader.ReadChars(4)
+                'Abort if riffType is not WAVE
+                If Not riffType = "WAVE" Then
+                    Throw New Exception("The file is not a wave-file!")
+                End If
+
+                Dim fmtID As String
+                Dim fmtSize As UInteger
+                Dim fmtCode As UShort
+                Dim channels As UShort
+                Dim sampleRate As UInteger
+                Dim fmtAvgBPS As UInteger
+                Dim fmtBlockAlign As UShort
+                Dim bitDepth As UShort
+
+                Dim sound As Sound = Nothing
+                Dim FormatChunkIsRead As Boolean = False 'THis variable is used to ensure that the format chunk is read before the ptwf and the data chunks.
+
+                Dim UnparsedWaveChunks As New List(Of Byte())
+
+                'Chunks to ignore
+                Dim dataChunkFound As Boolean
+                While dataChunkFound = False
+
+                    Dim IDOfNextChunk As String = reader.ReadChars(4)
+                    Dim sizeOfNextChunk As UInteger = reader.ReadUInt32
+                    Select Case IDOfNextChunk
+
+                        Case "fmt "
+
+                            Dim fmtChunkStartPosition As Integer = reader.BaseStream.Position
+
+                            ' Reading the format chunk (not all data is stored)
+                            fmtID = IDOfNextChunk ' reader.ReadChars(4)
+                            fmtSize = sizeOfNextChunk ' reader.ReadUInt32
+                            fmtCode = reader.ReadUInt16
+                            channels = reader.ReadUInt16
+                            sampleRate = reader.ReadUInt32
+                            fmtAvgBPS = reader.ReadUInt32
+                            fmtBlockAlign = reader.ReadUInt16
+                            bitDepth = reader.ReadUInt16
+
+                            sound = New Sound(New Formats.WaveFormat(sampleRate, bitDepth, channels,, fmtCode))
+
+                            'Stores the source file path
+                            If StoreSourcePath = True Then
+                                sound.SourcePath = filePath
+                            End If
+
+                            'Checks to see if the whole of subchunk1 has been read
+                            While reader.BaseStream.Position < fmtChunkStartPosition + fmtSize
+                                reader.ReadByte()
+                            End While
+
+                            'Noting that the format chunk is read
+                            FormatChunkIsRead = True
+
+
+                        Case "iXML"
+
+                            Dim iXMLDataStartReadPosition As Integer = reader.BaseStream.Position
+
+                            'Copying iXML data to a new stream
+                            Dim iXMLStream As New MemoryStream
+                            For s = 0 To sizeOfNextChunk - 1
+                                iXMLStream.WriteByte(fileStreamRead.ReadByte)
+                            Next
+                            iXMLStream.Position = 0
+
+                            'Parsing the iXML data
+                            Dim iXMLdata = ParseiXMLString(iXMLStream)
+
+                            'Storing the data
+                            If iXMLdata.Item1 IsNot Nothing Then
+                                sound.SMA = iXMLdata.Item1
+                            End If
+                            If iXMLdata.Item2 IsNot Nothing Then
+                                sound.iXmlNodes = iXMLdata.Item2
+                            End If
+
+                            'Checks if a padding byte needs to be read
+                            Dim currentBaseStreamPosition As Integer = reader.BaseStream.Position
+                            If Not currentBaseStreamPosition Mod 2 = 0 Then
+                                reader.ReadByte()
+                            End If
+
+                        Case "data"
+
+                            'Aborting if the format chink has not yet been read
+                            If FormatChunkIsRead = False Then
+                                AudioError("The wave file has an unsupported internal structure.")
+                                Return Nothing
+                            End If
+
+                            dataChunkFound = True
+                            dataSize = sizeOfNextChunk
+
+                        Case Else
+                            Dim SizeOfUnknownChunk As UInteger = sizeOfNextChunk
+
+                            'Reads to the end of the chunk but does not save the data
+                            'Stores the unknown chunk so that it can be retained upon save
+                            UnparsedWaveChunks.Add(reader.ReadBytes(SizeOfUnknownChunk))
+
+                            'Reads any padding bytes
+                            If SizeOfUnknownChunk Mod 2 = 1 Then
+                                reader.ReadByte()
+                            End If
+
+                    End Select
+
+                End While
+
+                'Stores any detected UnparsedWaveChunks 
+                sound.UnparsedWaveChunks = UnparsedWaveChunks
+
+                'Reads sound sample data
+                'Reads the sound bytes
+                Dim SoundDataBuffer(dataSize - 1) As Byte
+                reader.BaseStream.ReadExactly(SoundDataBuffer, 0, dataSize)
+
+                'Closing the files stream
+                fileStreamRead.Close()
+
+                Dim InterleavedSoundArray() As Single
+
+                If dataSize > 0 Then
+                    Select Case sound.WaveFormat.Encoding
+                        Case = Formats.WaveFormat.WaveFormatEncodings.PCM
+                            Select Case sound.WaveFormat.BitDepth
+                                Case 16
+
+                                    'Converts the byte array to the approproate format
+                                    Dim TempInterleavedSoundArray(SoundDataBuffer.Length / 2 - 1) As Short
+                                    Buffer.BlockCopy(SoundDataBuffer, 0, TempInterleavedSoundArray, 0, 2 * (Math.Floor(SoundDataBuffer.Length / 2)))
+
+                                    'Copies the data to an array of Single
+                                    Dim TempSingleArray(TempInterleavedSoundArray.Length - 1) As Single
+                                    For i = 0 To TempSingleArray.Length - 1
+                                        TempSingleArray(i) = TempInterleavedSoundArray(i)
+                                    Next
+                                    InterleavedSoundArray = TempSingleArray
+
+                                Case 32
+
+                                    'Converts the byte array to the approproate format
+                                    Dim TempInterleavedSoundArray(SoundDataBuffer.Length / 4 - 1) As Int32
+                                    Buffer.BlockCopy(SoundDataBuffer, 0, TempInterleavedSoundArray, 0, 4 * (Math.Floor(SoundDataBuffer.Length / 4)))
+                                    'Copies the data to an array of Single
+                                    Dim TempSingleArray(TempInterleavedSoundArray.Length - 1) As Single
+                                    For i = 0 To TempSingleArray.Length - 1
+                                        TempSingleArray(i) = TempInterleavedSoundArray(i)
+                                    Next
+                                    InterleavedSoundArray = TempSingleArray
+                                Case Else
+                                    Throw New NotImplementedException("Reading of " & sound.WaveFormat.BitDepth & " bits PCM format is not yet supported.")
+                            End Select
+                        Case = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+                            Select Case sound.WaveFormat.BitDepth
+                                Case 32
+
+                                    'Converts the byte array to the approproate format
+                                    Dim TempInterleavedSoundArray(SoundDataBuffer.Length / 4 - 1) As Single
+                                    Buffer.BlockCopy(SoundDataBuffer, 0, TempInterleavedSoundArray, 0, 4 * (Math.Floor(SoundDataBuffer.Length / 4)))
+                                    InterleavedSoundArray = TempInterleavedSoundArray
+                                Case Else
+                                    Throw New NotImplementedException("Reading of " & sound.WaveFormat.BitDepth & " bits IEEE floating points format is not yet supported.")
+                            End Select
+                        Case Else
+                            Throw New NotImplementedException("Unsupported sound file format.")
+                    End Select
+
+                    If sound.WaveFormat.Channels = 1 Then
+                        'Storing the InterleavedSoundArray right away as it's not actually interleaved (since it's only one channel)
+                        sound.WaveData.SampleData(1) = InterleavedSoundArray
+
+                    Else
+
+                        'Deinterleaving data
+                        Dim ChannelLength As Integer = InterleavedSoundArray.Length / sound.WaveFormat.Channels
+                        If InterleavedSoundArray.Length Mod sound.WaveFormat.Channels <> 0 Then
+                            ChannelLength -= 1
+                        End If
+
+                        Dim ConcatenatedChannelArrays(sound.WaveFormat.Channels * ChannelLength - 1) As Single
+                        Utils.Math.DeinterleaveSoundArray(InterleavedSoundArray, sound.WaveFormat.Channels, ChannelLength, ConcatenatedChannelArrays)
+
+                        For c As Integer = 1 To channels
+                            Dim channelData(ChannelLength - 1) As Single
+                            Array.Copy(ConcatenatedChannelArrays, (c - 1) * ChannelLength, channelData, 0, ChannelLength)
+                            sound.WaveData.SampleData(c) = channelData
+                        Next
+
+                    End If
+
+                End If
+
+                'Adding the input file name
+                sound.FileName = fileName
+
+                'Storing the read version as serialized
+                If StoreUnchangedState = True Then sound.StoreUnchangedState()
+
+                Return sound
+
+            Catch ex As Exception
+                AudioError(ex.ToString)
+                Return Nothing
+            End Try
+
+        End Function
+
 
         ''' <summary>
         ''' Saves the current instance of Sound to a wave file.

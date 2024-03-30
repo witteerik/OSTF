@@ -118,10 +118,7 @@ Namespace Audio
             ''' <param name="directory">The initial directory in the open file dialogue box.</param>
             ''' <param name="fileName">The default filenema in the open file dialogue box.</param>
             ''' <returns>Returns a new Sound containing the sound data from the input sound file.</returns>
-            Public Function ReadWaveFile(Optional ByVal filePath As String = "",
-                                     Optional ByVal startReadTime As Decimal = 0, Optional ByVal stopReadTime As Decimal = 0,
-                                     Optional ByVal inputTimeFormat As TimeUnits = TimeUnits.seconds,
-                                     Optional ByVal directory As String = "", Optional ByVal fileName As String = "") As Sound
+            Public Function ReadWaveFile(Optional ByVal filePath As String = "", Optional ByVal directory As String = "", Optional ByVal fileName As String = "") As Sound
 
                 If filePath = "" Then
                     filePath = OpenSoundFileDialog(directory, fileName).Result
@@ -133,10 +130,10 @@ Namespace Audio
 
                 Select Case Path.GetExtension(filePath)
                     Case ".wav"
-                        Return Sound.LoadWaveFile(filePath, startReadTime, stopReadTime, inputTimeFormat)
+                        Return Sound.LoadWaveFile(filePath)
 
                     Case ".ptwf"
-                        Return AudioIOs.LegacyMethods.LoadPtwfFile(filePath, startReadTime, stopReadTime, inputTimeFormat)
+                        Return AudioIOs.LegacyMethods.LoadPtwfFile(filePath)
 
                     Case Else
                         AudioError("The format of the selected file is not supported!")

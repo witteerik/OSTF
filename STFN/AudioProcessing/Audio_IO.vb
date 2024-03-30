@@ -30,15 +30,10 @@ Namespace Audio
             ''' Reads a sound (.wav or .ptwf) from file and stores it in a new Sounds object.
             ''' </summary>
             ''' <param name="filePath">The file path to the file to read. If left empty a open file dialogue box will appear.</param>
-            ''' <param name="startReadTime"></param>
-            ''' <param name="stopReadTime"></param>
-            ''' <param name="inputTimeFormat"></param>
             ''' <returns>Returns a new Sound containing the sound data from the input sound file.</returns>
-            Public Function LoadWaveFile(ByVal filePath As String,
-                                   Optional ByVal startReadTime As Decimal = 0, Optional ByVal stopReadTime As Decimal = 0,
-                                   Optional ByVal inputTimeFormat As TimeUnits = TimeUnits.seconds) As Audio.Sound
+            Public Function LoadWaveFile(ByVal filePath As String) As Audio.Sound
 
-                Return Sound.LoadWaveFile(filePath, startReadTime, stopReadTime, inputTimeFormat)
+                Return Sound.LoadWaveFile(filePath)
 
             End Function
 

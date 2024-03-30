@@ -47,6 +47,10 @@
 	  </ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Platforms\Android\native-libs\arm64-v8a\liblibostfdspandroid.so" />
+	  <None Remove="Platforms\Android\native-libs\armeabi-v7a\liblibostfdspandroid.so" />
+	  <None Remove="Platforms\Android\native-libs\x86\liblibostfdspandroid.so" />
+	  <None Remove="Platforms\Android\native-libs\x86_64\liblibostfdspandroid.so" />
 	  <None Remove="Platforms\Windows\libostfdsp_Win32.dll" />
 	  <None Remove="Platforms\Windows\libostfdsp_x64.dll" />
 	  <None Remove="Platforms\Windows\portaudio_x64.dll" />
@@ -54,6 +58,21 @@
 	  <None Remove="Resources\AppIcon\appicon.jpg" />
 	  <None Remove="Resources\Splash\appicon.jpg" />
 	  <None Remove="Resources\Splash\splash.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AndroidNativeLibrary Include="Platforms\Android\native-libs\arm64-v8a\liblibostfdspandroid.so">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </AndroidNativeLibrary>
+	  <AndroidNativeLibrary Include="Platforms\Android\native-libs\armeabi-v7a\liblibostfdspandroid.so">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </AndroidNativeLibrary>
+	  <AndroidNativeLibrary Include="Platforms\Android\native-libs\x86\liblibostfdspandroid.so">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </AndroidNativeLibrary>
+	  <AndroidNativeLibrary Include="Platforms\Android\native-libs\x86_64\liblibostfdspandroid.so">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </AndroidNativeLibrary>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -83,21 +102,33 @@
 	
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
-		<PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="3.0.1" />
+		<PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="3.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <Reference Include="STFM">
+	  <!--<Reference Include="STFM">
 	    <HintPath>..\STFM\bin\Debug\net8.0\STFM.dll</HintPath>
-	  </Reference>
+	  </Reference>-->
 	  <Reference Include="STFN">
 	    <HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
-	
+
+  <ItemGroup>
+    <ProjectReference Include="..\STFM\STFM.csproj" />
+  </ItemGroup>
+
 	<ItemGroup>
 	  <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.7" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.7" />
 	</ItemGroup>
 
 </Project>

@@ -105,20 +105,10 @@ Namespace Audio
 
                             Dim SumOfSquare As Double = 0
 
-                            If OstfBase.UseOptimizationLibraries = False Then
+                            SumOfSquare = Utils.CalculateSumOfSquare(MeasurementArray, StartSample, SectionLength)
 
-                                'Accumulating the sum of squares value
-                                For n = StartSample To StartSample + SectionLength - 1
-                                    SumOfSquare += MeasurementArray(n) ^ 2
-                                Next
-
-                            Else
-
-                                'Calculating the sum of sqares in libostfdsp
-                                SumOfSquare = LibOstfDsp_VB.calculateFloatSumOfSquare(MeasurementArray, MeasurementArray.Length, StartSample, SectionLength)
-
-                            End If
-
+                            ''Calculating the sum of sqares in libostfdsp
+                            'SumOfSquare = LibOstfDsp_VB.calculateFloatSumOfSquare(MeasurementArray, MeasurementArray.Length, StartSample, SectionLength)
 
                             'Returns the mean square (MR) if ReturnLinearMeanSquareData is True
                             If ReturnLinearMeanSquareData = False Then
@@ -585,17 +575,14 @@ Namespace Audio
             ''' <param name="StartSample">Start sample of the section to be amplified.</param>
             ''' <param name="SectionLength">Length (in samples) of the section to be amplified.</param>
             ''' <param name="GainUnit">The unit of the gain paramameter (dB or linear)</param>
-            ''' <returns>Returns the number samples whose value exceeded the value range of the Single data type (such value are set to Single.maxvalue or .minvalue).</returns>
-            Public Function AmplifySection(ByRef InputSound As Sound, ByVal Gain As Double,
+            Public Sub AmplifySection(ByRef InputSound As Sound, ByVal Gain As Double,
                                        Optional ByVal Channel As Integer? = Nothing,
                                        Optional ByVal StartSample As Integer = 0, Optional ByVal SectionLength As Integer? = Nothing,
-                                       Optional ByVal GainUnit As SoundDataUnit = SoundDataUnit.dB) As Integer
+                                       Optional ByVal GainUnit As SoundDataUnit = SoundDataUnit.dB)
 
                 Try
 
                     Dim AudioOutputConstructor As New AudioOutputConstructor(InputSound.WaveFormat, Channel)
-
-                    Dim totalDistortedSamples As Integer = 0
 
                     'Main section
                     For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
@@ -615,8 +602,6 @@ Namespace Audio
 
 
                         'Verkställer förstärkningen i sektionen (och varnar för distorsion)
-                        Dim distorsion As Boolean = False
-                        Dim distorsionSampleCount As Integer = 0
                         Dim otherErrorExeption As Exception = Nothing
 
                         Dim SoundArray = InputSound.WaveData.SampleData(c)
@@ -626,53 +611,22 @@ Namespace Audio
                         CheckAndCorrectSectionLength(SoundArray.Length, CorrectedStartSample, CorrectedSectionLength)
 
                         If OstfBase.UseOptimizationLibraries = False Then
-
-                            Dim CurrentValue As Double = 0
-                            For n = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
-
-                                CurrentValue = SoundArray(n) * gainFactor
-
-                                If CurrentValue > Single.MaxValue Then
-                                    SoundArray(n) = Single.MaxValue
-                                    distorsion = True
-                                    distorsionSampleCount += 1
-
-                                ElseIf CurrentValue < Single.MinValue Then
-                                    SoundArray(n) = Single.MinValue
-                                    distorsion = True
-                                    distorsionSampleCount += 1
-
-                                Else
-                                    SoundArray(n) = CurrentValue 
-                                End If
-                            Next
+                            Utils.MultiplyArray(SoundArray, gainFactor, CorrectedStartSample, CorrectedSectionLength)
 
                         Else
+                            ''Calling libostfdsp function multiplyFloatArraySection
+                            LibOstfDsp_VB.MultiplyArraySection(SoundArray, gainFactor, CorrectedStartSample, CorrectedSectionLength)
 
-                            'Calling libostfdsp function multiplyFloatArraySection
-                            distorsionSampleCount += LibOstfDsp_VB.multiplyFloatArraySection(SoundArray, SoundArray.Length, gainFactor, CorrectedStartSample, CorrectedSectionLength)
-
-                            If distorsionSampleCount > 0 Then
-                                distorsion = True
-                            End If
-
-                        End If
-
-                        If distorsion = True Then
-                            AudioError("Distorsion occurred for " & distorsionSampleCount & " samples in AmplifySection", "Warning!")
-                            totalDistortedSamples += distorsionSampleCount
                         End If
 
                     Next
 
-                    Return totalDistortedSamples
 
                 Catch ex As Exception
                     AudioError(ex.ToString)
-                    Return vbNull
                 End Try
 
-            End Function
+            End Sub
 
 
             ''' <summary>
@@ -1254,11 +1208,10 @@ Namespace Audio
                     End If
 
                     'Setting the sound level of each sound to TargetLevel
-                    Dim DistoredSamples As Double = 0
                     If EqualizeSoundLevel = True Then
                         'Setting all input sounds to EqualizationLevel
                         For Each InputSound In SoundsToUse
-                            DistoredSamples += DSP.MeasureAndAdjustSectionLevel(InputSound, EqualizationLevel,,,, EqualizationLevelFrequencyWeighting)
+                            DSP.MeasureAndAdjustSectionLevel(InputSound, EqualizationLevel,,,, EqualizationLevelFrequencyWeighting)
                         Next
                     End If
 
@@ -1456,10 +1409,9 @@ Namespace Audio
             ''' <param name="startSample"></param>
             ''' <param name="sectionLength"></param>
             ''' <param name="FrequencyWeighting"></param>
-            ''' <returns>Returns the number of distorted samples, or vbNull if something went wrong.</returns>
-            Public Function MeasureAndAdjustSectionLevel(ByRef InputSound As Sound, ByVal targetLevel As Decimal, Optional ByVal channel As Integer? = Nothing,
+            Public Sub MeasureAndAdjustSectionLevel(ByRef InputSound As Sound, ByVal targetLevel As Decimal, Optional ByVal channel As Integer? = Nothing,
                                         Optional ByVal startSample As Integer? = Nothing, Optional ByVal sectionLength As Integer? = Nothing,
-                                                 Optional ByVal FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z) As Double
+                                                 Optional ByVal FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z)
 
 
                 'Setting default start sample and length values
@@ -1467,8 +1419,6 @@ Namespace Audio
                 If sectionLength Is Nothing Then sectionLength = InputSound.WaveData.ShortestChannelSampleCount
 
                 Dim AudioOutputConstructor As New AudioOutputConstructor(InputSound.WaveFormat, channel)
-
-                Dim totalDistortedSamples As Double = 0
 
                 'Main section
                 For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
@@ -1480,13 +1430,11 @@ Namespace Audio
                     Dim Gain As Double = targetLevel - SectionLevel
 
                     'Amplifies the section
-                    totalDistortedSamples += AmplifySection(InputSound, Gain, c, startSample, sectionLength,)
+                    AmplifySection(InputSound, Gain, c, startSample, sectionLength,)
 
                 Next
 
-                Return totalDistortedSamples
-
-            End Function
+            End Sub
 
 
 
@@ -1619,9 +1567,6 @@ Namespace Audio
                         Dim fadeSampleCount As Integer = 0
                         Dim fadeProgress As Double = 0
 
-                        Dim distorsion As Boolean = False
-                        Dim distorsionSampleCount As Integer = 0
-
                         Dim IsFadeIn As Boolean = False
                         If startFactor < endFactor Then IsFadeIn = True
 
@@ -1631,20 +1576,36 @@ Namespace Audio
 
                         If CorrectedSectionLength > 1 Then ' To avoid division by zero some lines below
 
-                            For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+                            'Modifies currentFadeFactor according to a cosine finction, whereby currentModFactor starts on 1 and end at 0
+                            Dim currentModFactor As Double
+                            Dim currentFadeFactor As Double
+                            Select Case slopeType
+                                Case FadeSlopeType.Smooth
 
-                                'fadeProgress goes from 0 to 1 during the fade section
-                                fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
+                                    For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
 
-                                'Modifies currentFadeFactor according to a cosine finction, whereby currentModFactor starts on 1 and end at 0
-                                Dim currentModFactor As Double
-                                Dim currentFadeFactor As Double
-                                Select Case slopeType
-                                    Case FadeSlopeType.Smooth
+                                        'fadeProgress goes from 0 to 1 during the fade section
+                                        fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
+
                                         currentModFactor = ((Math.Cos(twopi * (fadeProgress / 2)) + 1) / 2)
                                         currentFadeFactor = startFactor * currentModFactor + endFactor * (1 - currentModFactor)
 
-                                    Case FadeSlopeType.PowerCosine_SkewedFromFadeDirection
+                                        If EqualPower = True Then
+                                            currentFadeFactor = Math.Sqrt(currentFadeFactor)
+                                        End If
+
+                                        'Fading the section
+                                        inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
+                                        fadeSampleCount += 1
+                                    Next
+
+                                Case FadeSlopeType.PowerCosine_SkewedFromFadeDirection
+
+                                    For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+
+                                        'fadeProgress goes from 0 to 1 during the fade section
+                                        fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
+
                                         If IsFadeIn = True Then
                                             currentModFactor = ((Math.Cos(twopi * ((1 - fadeProgress) / 2)) + 1) / 2) ^ CosinePower
                                             currentFadeFactor = (startFactor * (1 - currentModFactor) + endFactor * currentModFactor)
@@ -1653,7 +1614,22 @@ Namespace Audio
                                             currentFadeFactor = (startFactor * currentModFactor) + endFactor * (1 - currentModFactor)
                                         End If
 
-                                    Case FadeSlopeType.PowerCosine_SkewedInFadeDirection
+                                        If EqualPower = True Then
+                                            currentFadeFactor = Math.Sqrt(currentFadeFactor)
+                                        End If
+
+                                        'Fading the section
+                                        inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
+                                        fadeSampleCount += 1
+                                    Next
+
+                                Case FadeSlopeType.PowerCosine_SkewedInFadeDirection
+
+                                    For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+
+                                        'fadeProgress goes from 0 to 1 during the fade section
+                                        fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
+
                                         If IsFadeIn = True Then
                                             currentModFactor = ((Math.Cos(twopi * ((fadeProgress) / 2)) + 1) / 2) ^ CosinePower
                                             currentFadeFactor = (startFactor * (currentModFactor) + endFactor * (1 - currentModFactor))
@@ -1662,50 +1638,40 @@ Namespace Audio
                                             currentFadeFactor = (startFactor * (1 - currentModFactor)) + endFactor * (currentModFactor)
                                         End If
 
-                                    Case Else 'I.e. Linear!
-                                        currentFadeFactor = startFactor * (1 - fadeProgress) + endFactor * fadeProgress
-                                End Select
+                                        If EqualPower = True Then
+                                            currentFadeFactor = Math.Sqrt(currentFadeFactor)
+                                        End If
 
-                                If EqualPower = True Then
-                                    currentFadeFactor = Math.Sqrt(currentFadeFactor)
-                                End If
-
-                                Try
-
-
-                                    'Fading the section
-                                    If (inputArray(currentSample) * currentFadeFactor) > Single.MaxValue Then
-                                        inputArray(currentSample) = Single.MaxValue
-                                        distorsion = True
-                                        distorsionSampleCount += 1
-
-                                    ElseIf (inputArray(currentSample) * currentFadeFactor) < Single.MinValue Then
-                                        inputArray(currentSample) = Single.MinValue
-                                        distorsion = True
-                                        distorsionSampleCount += 1
-
-                                    Else
+                                        'Fading the section
                                         inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
+                                        fadeSampleCount += 1
+                                    Next
 
-                                    End If
+                                Case Else 'I.e. Linear!
 
-                                Catch ex As Exception
-                                    AudioError(ex.ToString)
-                                End Try
+                                    For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
 
-                                fadeSampleCount += 1
+                                        'fadeProgress goes from 0 to 1 during the fade section
+                                        fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
 
-                            Next
+                                        currentFadeFactor = startFactor * (1 - fadeProgress) + endFactor * fadeProgress
 
+                                        If EqualPower = True Then
+                                            currentFadeFactor = Math.Sqrt(currentFadeFactor)
+                                        End If
+
+                                        'Fading the section
+                                        inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
+                                        fadeSampleCount += 1
+                                    Next
+
+                            End Select
                         End If
-                        If distorsion = True Then AudioError("Distorsion occurred for " & distorsionSampleCount & " samples in channel " & c & " in Fade")
-
                     Next
 
                 Catch ex As Exception
                     AudioError(ex.ToString)
                 End Try
-
 
             End Sub
 

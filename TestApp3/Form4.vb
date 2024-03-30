@@ -4,6 +4,9 @@ Imports SpeechTestFramework
 Imports SpeechTestFramework.OstfBase
 Imports SpeechTestFramework.SipTest
 Imports SpeechTestFramework.Audio.SoundScene
+Imports System
+Imports System.Numerics
+Imports MathNet.Numerics.LinearAlgebra
 Public Class Form4
 
     Dim SoundPlayer As SpeechTestFramework.Audio.PortAudioVB.PortAudioBasedSoundPlayer
@@ -3484,4 +3487,52 @@ Public Class Form4
         SimulatedSound.WriteWaveFile(System.IO.Path.Combine(Utils.logFilePath, "SimSound1.wav"))
 
     End Sub
-End Class
+
+    Private Sub Button30_Click(sender As Object, e As EventArgs) Handles Button30.Click
+
+        Dim TimeSpanList As New List(Of String)
+        Dim StopWatch As New Stopwatch
+        StopWatch.Start()
+
+        Dim rnd As New Random(42)
+        Dim ArrayLength As Integer = 10 ^ 8
+        Dim Array1(ArrayLength - 1) As Single
+        Dim Array2(ArrayLength - 1) As Single
+        For i = 0 To ArrayLength - 1
+            Array1(i) = rnd.NextDouble
+            Array2(i) = rnd.NextDouble
+        Next
+
+        StopWatch.Stop()
+        TimeSpanList.Add(StopWatch.ElapsedMilliseconds)
+        StopWatch.Reset()
+        StopWatch.Start()
+
+        'Performing array zip with indexed loop
+        Dim ResultArray(ArrayLength - 1) As Single
+        For i = 0 To Array1.Length - 1
+            ResultArray(i) = Array1(i) * Array2(i)
+        Next
+
+        StopWatch.Stop()
+        TimeSpanList.Add(StopWatch.ElapsedMilliseconds)
+        StopWatch.Reset()
+        StopWatch.Start()
+
+        'Performing array zip with linq
+        Dim ResultArray3 = Array1.Zip(Array2, Function(a, b) a * b)
+        Dim ArraySum = ResultArray3.Sum
+
+        StopWatch.Stop()
+        TimeSpanList.Add(StopWatch.ElapsedMilliseconds)
+        StopWatch.Reset()
+
+        'Testing using SIMD
+
+        'Dim f As Single = 1
+        'Dim Array4 = Array1.Select(Function(x) x * f)
+
+        MsgBox(String.Join(vbCrLf, TimeSpanList))
+
+    End Sub
+
