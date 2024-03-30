@@ -71,36 +71,58 @@ Namespace Utils
             Return sum
         End Function
 
-        ''' <summary>
-        ''' Calculates the sum-of-square value of an array using fast SIMD (Single Instruction, Multiple Data) operations
-        ''' </summary>
-        ''' <param name="Values"></param>
-        ''' <returns></returns>
-        Public Function CalculateSumOfSquare(Values() As Single) As Single
+        Public Sub CopyToDouble(SourceArray As Single(), TargetArray As Double())
 
-            Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
-            Dim SumOfSquaresVector As System.Numerics.Vector(Of Single) = System.Numerics.Vector(Of Single).Zero
+            If TargetArray.Length < SourceArray.Length Then Throw New ArgumentException("TargetArray cannot be shorter than SourceArray")
 
-            Dim i As Integer
-            For i = 0 To Values.Length - VectorSize Step VectorSize
-                Dim v As New System.Numerics.Vector(Of Single)(Values, i)
-                SumOfSquaresVector += v * v
-            Next
+            If OstfBase.UseOptimizationLibraries = False Then
+                For i = 0 To SourceArray.Length - 1
+                    TargetArray(i) = SourceArray(i)
+                Next
+            Else
+                LibOstfDsp_VB.CopyToDouble(SourceArray, TargetArray)
+            End If
 
-            Dim SumOfSquares As Double = 0
+        End Sub
 
-            For j As Integer = 0 To VectorSize - 1
-                SumOfSquares += SumOfSquaresVector(j)
-            Next
+        Public Sub CopyToSingle(SourceArray As Double(), TargetArray As Single())
 
-            ' Handle any remaining elements at the end that don't fit into a full vector.
-            For i = i To Values.Length - 1
-                SumOfSquares += Values(i) ^ 2
-            Next
+            If TargetArray.Length < SourceArray.Length Then Throw New ArgumentException("TargetArray cannot be shorter than SourceArray")
 
-            Return SumOfSquares
+            If OstfBase.UseOptimizationLibraries = False Then
+                For i = 0 To SourceArray.Length - 1
+                    TargetArray(i) = System.Math.Clamp(SourceArray(i), Single.MinValue, Single.MaxValue)
+                Next
+            Else
+                LibOstfDsp_VB.CopyToSingle(SourceArray, TargetArray)
+            End If
 
-        End Function
+        End Sub
+
+        Public Sub ComplexMultiplication(Real1 As Double(), Imag1 As Double(), Real2 As Double(), Imag2 As Double())
+
+            If Real1.Length <> Imag1.Length Or Real1.Length <> Imag1.Length Or Real1.Length <> Real2.Length Or Real1.Length <> Imag2.Length Then
+                Throw New ArgumentException("Unequal length of input arrays")
+            End If
+
+            If OstfBase.UseOptimizationLibraries = False Then
+
+                'Performs complex multiplications
+                Dim TempValue As Double = 0
+                For n = 0 To Real1.Length - 1
+                    TempValue = Real1(n) 'stores this value so that it does not get overwritten in the following line (it needs to be used also two lines below)
+                    Real1(n) = TempValue * Real2(n) - Imag1(n) * Imag2(n)
+                    Imag1(n) = TempValue * Imag2(n) + Imag1(n) * Real2(n)
+                Next
+
+            Else
+
+                LibOstfDsp_VB.ComplexMultiplication(Real1, Imag1, Real2, Imag2)
+
+            End If
+
+        End Sub
+
 
         ''' <summary>
         ''' Calculates the sum-of-square value of a section of an array using fast SIMD (Single Instruction, Multiple Data) operations
@@ -154,22 +176,63 @@ Namespace Utils
         ''' </summary>
         ''' <param name="Values"></param>
         ''' <returns></returns>
+        Public Sub MultiplyArray(Values() As Double, Factor As Double)
+
+            If OstfBase.UseOptimizationLibraries = False Then
+
+                Dim VectorSize As Integer = System.Numerics.Vector(Of Double).Count
+                Dim FactorVector = New System.Numerics.Vector(Of Double)(Factor)
+
+                Dim i As Integer
+                For i = 0 To Values.Length - VectorSize Step VectorSize
+                    Dim v As New System.Numerics.Vector(Of Double)(Values, i)
+                    v = v * FactorVector
+                    v.CopyTo(Values, i)
+                Next
+
+                ' Handle any remaining elements at the end that don't fit into a full vector.
+                For i = i To Values.Length - 1
+                    Values(i) *= Factor
+                Next
+
+            Else
+
+                LibOstfDsp_VB.MultiplyArray(Values, Factor)
+
+            End If
+
+        End Sub
+
+
+        ''' <summary>
+        ''' Multiplies each element in the Array1 array with the Factor using fast SIMD (Single Instruction, Multiple Data) operations
+        ''' </summary>
+        ''' <param name="Values"></param>
+        ''' <returns></returns>
         Public Sub MultiplyArray(Values() As Single, Factor As Single)
 
-            Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
-            Dim FactorVector = New System.Numerics.Vector(Of Single)(Factor)
+            If OstfBase.UseOptimizationLibraries = False Then
 
-            Dim i As Integer
-            For i = 0 To Values.Length - VectorSize Step VectorSize
-                Dim v As New System.Numerics.Vector(Of Single)(Values, i)
-                v = v * FactorVector
-                v.CopyTo(Values, i)
-            Next
+                Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
+                Dim FactorVector = New System.Numerics.Vector(Of Single)(Factor)
 
-            ' Handle any remaining elements at the end that don't fit into a full vector.
-            For i = i To Values.Length - 1
-                Values(i) *= Factor
-            Next
+                Dim i As Integer
+                For i = 0 To Values.Length - VectorSize Step VectorSize
+                    Dim v As New System.Numerics.Vector(Of Single)(Values, i)
+                    v = v * FactorVector
+                    v.CopyTo(Values, i)
+                Next
+
+                ' Handle any remaining elements at the end that don't fit into a full vector.
+                For i = i To Values.Length - 1
+                    Values(i) *= Factor
+                Next
+
+            Else
+
+                LibOstfDsp_VB.MultiplyArray(Values, Factor)
+
+            End If
 
         End Sub
 
@@ -177,30 +240,38 @@ Namespace Utils
         ''' Multiplies each element in a section of the Array1 array with the Factor using fast SIMD (Single Instruction, Multiple Data) operations
         ''' </summary>
         ''' <param name="Values">The input array</param>
-        ''' <param name="startIndex">The start index of the section</param>
-        ''' <param name="sectionLength">The length of the section</param>
+        ''' <param name="StartIndex">The start index of the section</param>
+        ''' <param name="SectionLength">The length of the section</param>
         ''' <returns>The sum of squares of the specified section</returns>
-        Public Sub MultiplyArray(Values() As Single, Factor As Single, startIndex As Integer, sectionLength As Integer)
+        Public Sub MultiplyArray(Values() As Single, Factor As Single, StartIndex As Integer, SectionLength As Integer)
 
-            Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
-            Dim FactorVector = New System.Numerics.Vector(Of Single)(Factor)
+            If OstfBase.UseOptimizationLibraries = False Then
 
-            ' Ensure we do not exceed the array bounds
-            Dim endIndex As Integer = System.Math.Min(startIndex + sectionLength, Values.Length)
+                Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
+                Dim FactorVector = New System.Numerics.Vector(Of Single)(Factor)
 
-            Dim i As Integer = startIndex
-            While i < endIndex AndAlso i + VectorSize <= endIndex ' Make sure there's enough room for a full vector
-                Dim v As New System.Numerics.Vector(Of Single)(Values, i)
-                v = v * FactorVector
-                v.CopyTo(Values, i)
-                i += VectorSize
-            End While
+                ' Ensure we do not exceed the array bounds
+                Dim endIndex As Integer = System.Math.Min(StartIndex + SectionLength, Values.Length)
 
-            ' Handle any remaining elements at the end that don't fit into a full vector.
-            While i < endIndex
-                Values(i) *= Factor
-                i += 1
-            End While
+                Dim i As Integer = StartIndex
+                While i < endIndex AndAlso i + VectorSize <= endIndex ' Make sure there's enough room for a full vector
+                    Dim v As New System.Numerics.Vector(Of Single)(Values, i)
+                    v = v * FactorVector
+                    v.CopyTo(Values, i)
+                    i += VectorSize
+                End While
+
+                ' Handle any remaining elements at the end that don't fit into a full vector.
+                While i < endIndex
+                    Values(i) *= Factor
+                    i += 1
+                End While
+
+            Else
+
+                LibOstfDsp_VB.MultiplyArraySection(Values, Factor, StartIndex, SectionLength)
+
+            End If
 
         End Sub
 

@@ -4400,7 +4400,7 @@ Namespace Audio
 
                 Else
 
-                    LibOstfDsp_VB.Fft_complex(x, y, x.Length, Dir, Reorder, ScaleForwardTransform)
+                    LibOstfDsp_VB.Fft_complex(x, y, x.Length, Direction, Reorder, ScaleForwardTransform)
 
                 End If
 
@@ -5042,11 +5042,9 @@ Namespace Audio
                             For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
 
                                 'Copies the impulse response to a new array of double
-                                Dim tempArray() As Single = impulseResponse.WaveData.SampleData(IRChannel)
-                                Dim IRArray(tempArray.Length - 1) As Double
-                                For n = 0 To IRArray.Length - 1
-                                    IRArray(n) = tempArray(n)
-                                Next
+                                Dim TempArray = impulseResponse.WaveData.SampleData(IRChannel)
+                                Dim IRArray(TempArray.Length - 1) As Double
+                                Utils.CopyToDouble(TempArray, IRArray)
 
                                 'Scaling impulse response. 
                                 If ScaleImpulseResponse = True Then
@@ -5054,9 +5052,11 @@ Namespace Audio
                                     Dim ImpulseResponseArraySum As Double = IRArray.Sum
 
                                     If ImpulseResponseArraySum <> 0 Then
-                                        For n = 0 To IRArray.Length - 1
-                                            IRArray(n) = IRArray(n) / ImpulseResponseArraySum
-                                        Next
+                                        Utils.MultiplyArray(IRArray, (1 / ImpulseResponseArraySum))
+
+                                        'For n = 0 To IRArray.Length - 1
+                                        '    IRArray(n) = IRArray(n) / ImpulseResponseArraySum
+                                        'Next
                                     Else
                                         MsgBox("The impulse response sums to 0!")
                                     End If
@@ -5128,6 +5128,8 @@ Namespace Audio
                                         Dim workingInputLength As Integer = sliceLength * (numberOfWindows + 1) ' This should only be (dftInputSampleCount * numberOfWindows), however that doesn't work for some reason. Check later! For now it's solved by making the analysed array temporarily longer.
 
                                         Dim inputArray(workingInputLength - 1) As Single
+
+
                                         For n = 0 To tempInputSoundArray.Length - 1
                                             inputArray(n) = tempInputSoundArray(n)
                                         Next
@@ -5144,14 +5146,10 @@ Namespace Audio
                                         Dim dftIR_Bin_y(fftFormat.FftWindowSize - 1) As Double
 
                                         'Creates the zero-padded IR array
-                                        For sample = 0 To L - 1
-                                            dftIR_Bin_x(sample) = IRArray(sample)
-                                            dftIR_Bin_y(sample) = 0
-                                        Next
-                                        For sample = L To fftFormat.FftWindowSize - 1
-                                            dftIR_Bin_x(sample) = 0
-                                            dftIR_Bin_y(sample) = 0
-                                        Next
+                                        Array.Copy(IRArray, dftIR_Bin_x, L)
+                                        'For sample = 0 To L - 1
+                                        '    dftIR_Bin_x(sample) = IRArray(sample)
+                                        'Next
 
                                         'Calculates forward FFT for the IR 
                                         FastFourierTransform(FftDirections.Forward, dftIR_Bin_x, dftIR_Bin_y, True)
@@ -5163,26 +5161,32 @@ Namespace Audio
                                         For windowNumber = 0 To numberOfWindows - 1 'Step 2
 
                                             'Creates a zero-padded sound array with the length of the dft windows size ()
-                                            For sample = 0 To sliceLength - 1
-                                                dftSoundBin_x(sample) = inputArray(readSample)
-                                                readSample += 1
-                                                dftSoundBin_y(sample) = 0
-                                            Next
-                                            For sample = sliceLength To fftFormat.FftWindowSize - 1
-                                                dftSoundBin_x(sample) = 0
-                                                dftSoundBin_y(sample) = 0
-                                            Next
+                                            Dim InputArraySlice(sliceLength - 1) As Single
+
+                                            'Copies the slice samples into an array of Single
+                                            Array.Copy(inputArray, readSample, InputArraySlice, 0, sliceLength)
+
+                                            'Copies the slice into an array of Double
+                                            Utils.CopyToDouble(InputArraySlice, dftSoundBin_x)
+                                            readSample += sliceLength
+
+                                            'For sample = 0 To sliceLength - 1
+                                            '    dftSoundBin_x(sample) = inputArray(readSample)
+                                            '    readSample += 1
+                                            'Next
 
                                             'Calculates forward FFT for the current sound window (Skipping the forward transform scaling on x instead of h, for optimization (the results of the complex multiplication should be the same))
                                             FastFourierTransform(FftDirections.Forward, dftSoundBin_x, dftSoundBin_y, False)
 
-                                            'performs complex multiplications
-                                            Dim tempDftSoundBin_x As Double = 0
-                                            For n = 0 To fftFormat.FftWindowSize - 1
-                                                tempDftSoundBin_x = dftSoundBin_x(n) 'stores this value so that it does not get overwritten in the following line (it needs to be used also two lines below)
-                                                dftSoundBin_x(n) = tempDftSoundBin_x * dftIR_Bin_x(n) - dftSoundBin_y(n) * dftIR_Bin_y(n)
-                                                dftSoundBin_y(n) = tempDftSoundBin_x * dftIR_Bin_y(n) + dftSoundBin_y(n) * dftIR_Bin_x(n)
-                                            Next
+                                            'Performs complex multiplications
+                                            Utils.Math.ComplexMultiplication(dftSoundBin_x, dftSoundBin_y, dftIR_Bin_x, dftIR_Bin_y)
+
+                                            'Dim tempDftSoundBin_x As Double = 0
+                                            'For n = 0 To fftFormat.FftWindowSize - 1
+                                            '    tempDftSoundBin_x = dftSoundBin_x(n) 'stores this value so that it does not get overwritten in the following line (it needs to be used also two lines below)
+                                            '    dftSoundBin_x(n) = tempDftSoundBin_x * dftIR_Bin_x(n) - dftSoundBin_y(n) * dftIR_Bin_y(n)
+                                            '    dftSoundBin_y(n) = tempDftSoundBin_x * dftIR_Bin_y(n) + dftSoundBin_y(n) * dftIR_Bin_x(n)
+                                            'Next
 
                                             'Calculates inverse FFT
                                             FastFourierTransform(FftDirections.Backward, dftSoundBin_x, dftSoundBin_y)
@@ -5204,9 +5208,10 @@ Namespace Audio
                                             'Correcting the channel length, by copying the section needed
                                             Dim ItitialTrimLength As Integer = impulseResponse.WaveData.SampleData(IRChannel).Length / 2
                                             Dim NewChannelArray(originalInputLength - 1) As Single
-                                            For s = 0 To NewChannelArray.Length - 1
-                                                NewChannelArray(s) = OutputChannelSampleArray(s + ItitialTrimLength)
-                                            Next
+                                            'For s = 0 To NewChannelArray.Length - 1
+                                            '    NewChannelArray(s) = OutputChannelSampleArray(s + ItitialTrimLength)
+                                            'Next
+                                            Array.Copy(OutputChannelSampleArray, ItitialTrimLength, NewChannelArray, 0, NewChannelArray.Length)
 
                                             outputSound.WaveData.SampleData(c) = NewChannelArray
 
@@ -5216,7 +5221,11 @@ Namespace Audio
 
                                         Else
 
-                                            ReDim Preserve outputSound.WaveData.SampleData(c)(intendedOutputLength - 1)
+                                            Dim NewChannelArray(intendedOutputLength - 1) As Single
+                                            Array.Copy(outputSound.WaveData.SampleData(c), 0, NewChannelArray, 0, NewChannelArray.Length)
+                                            outputSound.WaveData.SampleData(c) = NewChannelArray
+
+                                            'ReDim Preserve outputSound.WaveData.SampleData(c)(intendedOutputLength - 1)
 
                                         End If
 

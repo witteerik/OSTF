@@ -3,6 +3,102 @@ Imports System.Text.RegularExpressions
 
 Public Class LibOstfDsp_VB
 
+
+    'void copyToDouble(float * sourceArray, Int size, double* targetArray);
+    <DllImport("libostfdspandroid", EntryPoint:="copyToDouble", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub copyToDouble_android(sourceArray As Single(), size As Integer, targetArray As Double())
+    End Sub
+
+    Public Shared Sub CopyToDouble(SourceArray As Single(), TargetArray As Double())
+
+        Dim Size As Integer = SourceArray.Length
+
+        Select Case STFN.OstfBase.CurrentPlatForm
+            'Case Platforms.WinUI
+            '    'Checking whether a 32-bit or 64-bit environment is running
+            '    If IntPtr.Size = 4 Then
+            '    Else
+            '    End If
+
+            Case Platforms.Android
+                copyToDouble_android(SourceArray, Size, TargetArray)
+            Case Else
+                Throw New NotImplementedException("Optimization library not implemented for the " & STFN.OstfBase.CurrentPlatForm.ToString & " platform.")
+
+        End Select
+
+    End Sub
+
+
+    'void copyToFloat(Double * sourceArray, Int size, float* targetArray);
+    <DllImport("libostfdspandroid", EntryPoint:="copyToFloat", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub copyToFloat_android(sourceArray As Double(), size As Integer, targetArray As Single())
+    End Sub
+
+    Public Shared Sub CopyToSingle(SourceArray As Double(), TargetArray As Single())
+
+        Dim Size As Integer = SourceArray.Length
+
+        Select Case STFN.OstfBase.CurrentPlatForm
+            'Case Platforms.WinUI
+            '    'Checking whether a 32-bit or 64-bit environment is running
+            '    If IntPtr.Size = 4 Then
+            '    Else
+            '    End If
+
+            Case Platforms.Android
+                copyToFloat_android(SourceArray, Size, TargetArray)
+            Case Else
+                Throw New NotImplementedException("Optimization library not implemented for the " & STFN.OstfBase.CurrentPlatForm.ToString & " platform.")
+
+        End Select
+
+    End Sub
+
+
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="multiplyDoubleArray", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function multiplyDoubleArray_64(values As Double(), size As Integer, factor As Double) As Integer
+    End Function
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="multiplyDoubleArray", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function multiplyDoubleArray_32(values As Double(), size As Integer, factor As Double) As Integer
+    End Function
+
+    <DllImport("libostfdspandroid", EntryPoint:="multiplyDoubleArray", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Function multiplyDoubleArray_android(values As Double(), size As Integer, factor As Double) As Integer
+    End Function
+
+    ''' <summary>
+    ''' Multiplies each value in Array by Factor.
+    ''' </summary>
+    ''' <param name="Array"></param>
+    ''' <param name="Factor"></param>
+    ''' <returns>Returns the number of samples that were trimmed due to exceeding the Singel range.</returns>
+    Public Shared Function MultiplyArray(Array As Double(), Factor As Double) As Integer
+
+        Dim Size As Integer = Array.Length
+
+        Select Case STFN.OstfBase.CurrentPlatForm
+            Case Platforms.WinUI
+
+                'Checking whether a 32-bit or 64-bit environment is running
+                If IntPtr.Size = 4 Then
+                    Return multiplyDoubleArray_32(Array, Size, Factor)
+                Else
+                    Return multiplyDoubleArray_64(Array, Size, Factor)
+                End If
+
+            Case Platforms.Android
+
+                Return multiplyDoubleArray_android(Array, Size, Factor)
+
+            Case Else
+                Throw New NotImplementedException("Optimization library not implemented for the " & STFN.OstfBase.CurrentPlatForm.ToString & " platform.")
+
+        End Select
+
+    End Function
+
+
     <DllImport("libostfdsp_x64.dll", EntryPoint:="multiplyFloatArray", CallingConvention:=CallingConvention.Cdecl)>
     Private Shared Function multiplyFloatArray_64(values As Single(), size As Integer, factor As Single) As Integer
     End Function
@@ -297,6 +393,39 @@ Public Class LibOstfDsp_VB
         End Select
 
     End Sub
+
+
+    <DllImport("libostfdsp_x64.dll", EntryPoint:="complexMultiplication", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub complexMultiplication_win_64(Real1 As Double(), Imag1 As Double(), Real2 As Double(), Imag2 As Double(), size As Integer)
+    End Sub
+    <DllImport("libostfdsp_Win32.dll", EntryPoint:="complexMultiplication", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub complexMultiplication_win_32(Real1 As Double(), Imag1 As Double(), Real2 As Double(), Imag2 As Double(), size As Integer)
+    End Sub
+
+    <DllImport("libostfdspandroid", EntryPoint:="complexMultiplication", CallingConvention:=CallingConvention.Cdecl)>
+    Private Shared Sub complexMultiplication_android(Real1 As Double(), Imag1 As Double(), Real2 As Double(), Imag2 As Double(), size As Integer)
+    End Sub
+
+    Public Shared Sub ComplexMultiplication(Real1 As Double(), Imag1 As Double(), Real2 As Double(), Imag2 As Double())
+
+        Dim Size As Integer = Real1.Length
+
+        Select Case STFN.OstfBase.CurrentPlatForm
+            'Case Platforms.WinUI
+            '    'Checking whether a 32-bit or 64-bit environment is running
+            '    If IntPtr.Size = 4 Then
+            '    Else
+            '    End If
+
+            Case Platforms.Android
+                complexMultiplication_android(Real1, Imag1, Real2, Imag2, Size)
+            Case Else
+                Throw New NotImplementedException("Optimization library not implemented for the " & STFN.OstfBase.CurrentPlatForm.ToString & " platform.")
+
+        End Select
+
+    End Sub
+
 
 
 End Class

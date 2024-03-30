@@ -5,9 +5,17 @@ using namespace std;
 
 extern "C" {
 
+	void copyToDouble(float* sourceArray, int size, double* targetArray);
+
+	void copyToFloat(double* sourceArray, int size, float* targetArray);
+
 	void createInterleavedArray(float* concatenatedArrays, int channelCount, int channelLength, float* interleavedArray, bool applyGain, float* channelGainFactor);
 
 	void deinterleaveArray(float* interleavedArray, int channelCount, int channelLength, float* concatenatedArrays);
+
+	int multiplyDoubleArray(double* values, int size, double factor);
+
+	int multiplyDoubleArraySection(double* values, int arraySize, double factor, int startIndex, int sectionLength);
 
 	int multiplyFloatArray(float* values, int size, float factor);
 
@@ -32,6 +40,8 @@ extern "C" {
 		bool reorder, // Whether to perform data reordering (default: true)
 		bool scaleForwardTransform // Whether to scale the forward transform (default: true)
 	);
+
+	void complexMultiplication(double* real1, double* imag1, double* real2, double* imag2, int size);
 
 }
 

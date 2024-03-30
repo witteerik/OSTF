@@ -10,6 +10,27 @@
 
 using namespace std;
 
+extern "C" void copyToDouble(float* sourceArray, int size, double* targetArray) {
+
+    for (int i = 0; i < size; i++) {
+        targetArray[i] = sourceArray[i];
+    }
+}
+
+extern "C" void copyToFloat(double* sourceArray, int size, float* targetArray) {
+
+    double min = -FLT_MAX;
+    double max = FLT_MAX;
+
+    double limitedValue;
+    for (int i = 0; i < size; i++) {
+        // limiting the new value within the boundaries of float
+        limitedValue = std::clamp(sourceArray[i], min, max);
+        targetArray[i] = limitedValue;
+    }
+}
+
+
 extern "C" void createInterleavedArray(float* concatenatedArrays, int channelCount, int channelLength, float* interleavedArray, bool applyGain, float* channelGainFactor) {
 
     // Takes a flattened matrix in which each channel is put after each other, and interleaves the channels values
@@ -44,6 +65,56 @@ extern "C" void deinterleaveArray(float* interleavedArray, int channelCount, int
         }
     }
 }
+
+
+extern "C" int multiplyDoubleArray(double* values, int size, double factor) {
+    return multiplyDoubleArraySection(values, size, factor, 0, size);
+}
+
+extern "C" int multiplyDoubleArraySection(double* values, int arraySize, double factor, int startIndex, int sectionLength) {
+
+    int clippedCount = 0;
+    double newValue = 0;
+    double limitedValue = 0;
+    double min = -DBL_MAX;
+    double max = DBL_MAX;
+
+    // Returning if arraySize was zero or below
+    if (arraySize < 1)
+    {
+        return clippedCount;
+    }
+
+    // Limiting the start index to positive values and the length of the array
+    startIndex = std::clamp(startIndex, 0, arraySize - 1);
+
+    // Limiting sectionLength to positive values and the length of the array
+    sectionLength = std::clamp(sectionLength, 0, arraySize - startIndex);
+
+    for (int i = startIndex; i < startIndex + sectionLength; i++) {
+        // calculating the new value
+        newValue = values[i] * factor;
+
+        // limiting the new value within the boundaries of float
+        limitedValue = std::clamp(newValue, min, max);
+
+        // Noting if clipping occurred
+        if (newValue != limitedValue) {
+            clippedCount++;
+        }
+
+        // Storing the limited value
+        values[i] = limitedValue;
+
+    }
+
+    // Returns the number of clipped samples
+    return clippedCount;
+}
+
+
+
+
 
 
 extern "C" int multiplyFloatArray(float* values, int size, float factor) {
@@ -228,6 +299,16 @@ extern "C" void fft_complex(double* real, double* imag, int size, double* pccos,
         }
     }
 
+}
+
+extern "C" void complexMultiplication(double* real1, double* imag1, double* real2, double* imag2, int size) {
+
+    double tempValue;
+    for (int i = 0; i < size; i++) {
+        tempValue = real1[i]; //stores this value so that it does not get overwritten in the following line (it needs to be used also two lines below)
+        real1[i] = tempValue * real2[i] - imag1[i] * imag2[i];
+        imag1[i] = tempValue * imag2[i] + imag1[i] * real2[i];
+    }
 }
 
 
