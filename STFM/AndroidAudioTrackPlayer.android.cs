@@ -10,6 +10,10 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using AndroidX.Core.App;
+using System.Threading;
+using Android.Runtime;
+using Java.Interop;
+
 
 namespace STFM
 {
@@ -123,8 +127,16 @@ namespace STFM
 
                 // Building the audio tracks
                 audioTrack = audioTrackBuilder.Build();
-
+               
                 AudioTrack castAudioTrack1 = (AudioTrack)audioTrack;
+
+                castAudioTrack1.SetNotificationMarkerPosition(4);
+                castAudioTrack1.MarkerReached += MarkerReached;
+
+                //castAudioTrack1.SetPlaybackPositionUpdateListener(this);
+                
+                int markerPosition = 2000;
+                castAudioTrack1.SetNotificationMarkerPosition(markerPosition);
 
                 // Start playback
                 castAudioTrack1.Play();
@@ -140,6 +152,13 @@ namespace STFM
             {
                 return false;
             }
+
+        }
+
+        private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
+        {
+
+            var x = 1;
 
         }
 
@@ -275,3 +294,46 @@ namespace STFM
 
     }
 }
+
+
+
+
+
+//public class CustomAudioTrack : AudioTrack, AudioTrack.IOnPlaybackPositionUpdateListener
+//{
+//    public CustomAudioTrack(AudioAttributes attributes, AudioFormat format, int bufferSizeInBytes, AudioTrackMode mode, int sessionId)
+//        : base(attributes, format, bufferSizeInBytes, mode, sessionId)
+//    {
+//        // Set the listener to the current instance
+//        SetPlaybackPositionUpdateListener(this);
+//    }
+
+//    public event EventHandler Clicked;
+
+//    public event EventHandler MarkerReached(MarkerReachedEventArgs);
+
+//    // Callback when the playback head reaches a marker set by SetNotificationMarkerPosition
+//    public void OnMarkerReached(AudioTrack track)
+//    {
+//        // Implement your callback logic here
+//        // This method will be called when the playback head reaches the specified marker
+//    }
+
+//    // Callback for periodic updates during playback
+//    public void OnPeriodicNotification(AudioTrack track)
+//    {
+//        // This method can be used for periodic updates if needed
+//    }
+
+//    // Example method to start playback and set a marker
+//    public void StartPlaybackWithMarker(int markerInFrames)
+//    {
+//        // Set a marker at a specified frame position
+//        SetNotificationMarkerPosition(markerInFrames);
+//        Play();
+//    }
+//}
+
+
+
+

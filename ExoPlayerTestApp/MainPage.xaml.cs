@@ -259,7 +259,7 @@ namespace ExoPlayerTestApp
 
 
         [SupportedOSPlatform("Android23.0")]
-        public void PlaySineWave32I()
+        public void PlaySineWave32I_OLD()
         {
             int SampleRate = 44100; // Sample rate in Hz
             double Frequency_L = 1000 - 10; // Frequency of the sine wave in Hz (Changed to 1000 Hz)
@@ -302,31 +302,6 @@ namespace ExoPlayerTestApp
 
             }
 
-            //foreach (double dVal in samples)
-            //{
-            //    Int32 val = (Int32)dVal;
-
-
-            //    // Copying to left channel
-            //    byte[] val_bytes = BitConverter.GetBytes(val);
-            //    //if (BitConverter.IsLittleEndian)
-            //    //{
-            //    //    Array.Reverse(val_bytes);
-            //    //}
-            //    val_bytes.CopyTo(generatedSnd, idx);
-            //    idx += 4;
-
-            //    // Copying to right channel
-
-
-            //    //int intVal = Java.Lang.Float.FloatToIntBits(val);
-
-            //    //generatedSnd[idx++] = (byte)intVal;
-            //    //generatedSnd[idx++] = (byte)(intVal >> 8);
-            //    //generatedSnd[idx++] = (byte)(intVal >> 16);
-            //    //generatedSnd[idx++] = (byte)(intVal >> 24);
-            //}
-
             // Create AudioTrack with PCM float format using AudioTrack.Builder
             var audioTrackBuilder = new AudioTrack.Builder();
 
@@ -353,7 +328,7 @@ namespace ExoPlayerTestApp
                 audioTrack.Play();
 
                 // Write the generated audio data to the AudioTrack
-                audioTrack.Write(generatedSnd, 0, generatedSnd.Length, WriteMode.Blocking);
+                audioTrack.Write(generatedSnd, 0, generatedSnd.Length, WriteMode.NonBlocking);
 
             }
             catch (Exception ex)
@@ -363,6 +338,140 @@ namespace ExoPlayerTestApp
             }
         }
 
+        private int currentPosition = 0;
+        double[] sample_R;
+        double[] sample_L;
+        int bufferSizeInSamples = 64*1024;
+        int currentBufferIndex = 0;
+        AudioTrack audioTrack;
+
+        [SupportedOSPlatform("Android23.0")]
+        public void PlaySineWave32I()
+        {
+            int SampleRate = 44100; // Sample rate in Hz
+            double Frequency_L = 1000 - 10; // Frequency of the sine wave in Hz (Changed to 1000 Hz)
+            double Frequency_R = 1000 + 10; // Frequency of the sine wave in Hz (Changed to 1000 Hz)
+            double Duration = 20; // Duration of the sine wave in seconds
+            double Amplitude = volume * Int32.MaxValue;
+
+            int numSamples = (int)(Duration * SampleRate);
+            sample_L = new double[numSamples];
+            for (int i = 0; i < numSamples; i++)
+            {
+                sample_L[i] = Amplitude * Math.Sin(2 * Math.PI * Frequency_L * i / SampleRate);
+            }
+
+            sample_R = new double[numSamples];
+            for (int i = 0; i < numSamples; i++)
+            {
+                sample_R[i] = Amplitude * Math.Sin(2 * Math.PI * Frequency_R * i / SampleRate);
+            }
+
+           
+            // Create AudioTrack with PCM float format using AudioTrack.Builder
+            var audioTrackBuilder = new AudioTrack.Builder();
+
+            audioTrackBuilder.SetAudioFormat(new AudioFormat.Builder()
+                .SetEncoding(Encoding.Pcm32bit)
+                .SetSampleRate(SampleRate)
+                .SetChannelMask(ChannelOut.Stereo)
+                .Build());
+
+            audioTrackBuilder.SetBufferSizeInBytes(2 * bufferSizeInSamples * 4);
+
+            audioTrackBuilder.SetAudioAttributes(new AudioAttributes.Builder()
+                .SetUsage(AudioUsageKind.Media)
+                .SetContentType(AudioContentType.Music)
+                .Build());
+
+            audioTrackBuilder.SetPerformanceMode(AudioTrackPerformanceMode.LowLatency);
+
+            audioTrack = audioTrackBuilder.Build();
+
+            audioTrack.SetNotificationMarkerPosition(4);
+            audioTrack.MarkerReached += MarkerReached;
+
+            //audioTrack.SetPositionNotificationPeriod((int)(bufferSizeInSamples*0.8));
+            //audioTrack.PeriodicNotification += MarkerReached;
+            // Send a first silent buffer
+            byte[] generatedSnd = new byte[2 * 4 * bufferSizeInSamples];
+
+            // Start playback
+            audioTrack.Play();
+
+            // Writes the first buffer (now empty)
+            audioTrack.Write(generatedSnd, 0, generatedSnd.Length, WriteMode.NonBlocking);
+
+        }
+
+
+        private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
+        {
+
+            // Convert samples to byte array with PCM float encoding
+            byte[] generatedSnd = new byte[2 * 4 * bufferSizeInSamples];
+            int idx = 0;
+            for (int i = currentBufferIndex * bufferSizeInSamples; i < (currentBufferIndex + 1) * bufferSizeInSamples; i++)
+            {
+
+                // Copying to left channel
+
+                Int32 val_L = (Int32)sample_L[i];
+                byte[] val_bytes_L = BitConverter.GetBytes(val_L);
+                val_bytes_L.CopyTo(generatedSnd, idx);
+                idx += 4;
+
+                // Copying to right channel
+                Int32 val_R = (Int32)sample_R[i];
+                byte[] val_bytes_R = BitConverter.GetBytes(val_R);
+                val_bytes_R.CopyTo(generatedSnd, idx);
+                idx += 4;
+
+            }
+
+            // Write the generated audio data to the AudioTrack
+            audioTrack.Write(generatedSnd, 0, generatedSnd.Length, WriteMode.Blocking);
+
+            currentBufferIndex += 1;
+                        
+            if (currentBufferIndex >= 5) { currentBufferIndex = 0; }
+
+            audioTrack.SetNotificationMarkerPosition(audioTrack.PlaybackHeadPosition + bufferSizeInSamples/2);
+
+            DeviceLabel.Text = currentBufferIndex.ToString();
+
+        }
+
+        private void PeriodicMarkerReached(object sender, AudioTrack.PeriodicNotificationEventArgs e)
+        {
+
+            // Convert samples to byte array with PCM float encoding
+            byte[] generatedSnd = new byte[2 * 4 * bufferSizeInSamples];
+            int idx = 0;
+            for (int i = currentBufferIndex*bufferSizeInSamples; i < (currentBufferIndex +1) * bufferSizeInSamples; i++)
+            {
+
+                // Copying to left channel
+
+                Int32 val_L = (Int32)sample_L[i];
+                byte[] val_bytes_L = BitConverter.GetBytes(val_L);
+                val_bytes_L.CopyTo(generatedSnd, idx);
+                idx += 4;
+
+                // Copying to right channel
+                Int32 val_R = (Int32)sample_R[i];
+                byte[] val_bytes_R = BitConverter.GetBytes(val_R);
+                val_bytes_R.CopyTo(generatedSnd, idx);
+                idx += 4;
+
+            }
+
+            // Write the generated audio data to the AudioTrack
+            audioTrack.Write(generatedSnd, 0, generatedSnd.Length, WriteMode.Blocking);
+
+            currentBufferIndex += 1;
+
+        }
 
 
         [SupportedOSPlatform("Android23.0")]
