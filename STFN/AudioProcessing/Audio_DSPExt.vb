@@ -5020,12 +5020,23 @@ Namespace Audio
                 FrequencyDomain
             End Enum
 
+
             Public Function FIRFilter(ByVal inputSound As Sound, ByVal impulseResponse As Sound,
-                                  ByRef fftFormat As Formats.FftFormat, Optional ByVal inputSoundChannel As Integer? = Nothing,
-                                  Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing,
-                                  Optional ByVal filteringDomain As ProcessingDomain = ProcessingDomain.FrequencyDomain,
-                                  Optional ByVal ScaleImpulseResponse As Boolean = False, Optional InActivateWarnings As Boolean = False,
-                                  Optional ByVal KeepInputSoundLength As Boolean = False) As Sound
+                      ByRef fftFormat As Formats.FftFormat, Optional ByVal inputSoundChannel As Integer? = Nothing,
+                      Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing,
+                      Optional ByVal filteringDomain As ProcessingDomain = ProcessingDomain.FrequencyDomain,
+                      Optional ByVal ScaleImpulseResponse As Boolean = False, Optional InActivateWarnings As Boolean = False,
+                      Optional ByVal KeepInputSoundLength As Boolean = False) As Sound
+
+                If filteringDomain = ProcessingDomain.TimeDomain Then
+                    Throw New ArgumentException("The filteringDomain argument value ProcessingDomain.TimeDomain is no longer supported. Use the function FIRFilterTimeDomain instead.")
+                End If
+
+                'Frequency domain convolution (complex multiplication)
+
+                'Reference: This frequency domain calculation is based on the overlap-add method as
+                'described in Bateman, A. & Paterson-Stephens, I. (2002). The DSP Handbook. Algorithms, Applications and Design Techniques.
+                'chapter 7, pp 451-453.
 
                 Try
 
@@ -5063,145 +5074,83 @@ Namespace Audio
                                 End If
 
                                 'Referencing the current channel array, and noting its original length
-                                Dim tempInputSoundArray() As Single = inputSound.WaveData.SampleData(c)
-                                Dim originalInputLength As Integer = tempInputSoundArray.Length
+                                Dim OriginalInputChannelLength As Integer = inputSound.WaveData.SampleData(c).Length
+                                Dim IrArrayLength As Integer = IRArray.Length
+                                Dim IntendedOutputLength As Integer = OriginalInputChannelLength + IrArrayLength
 
-                                Select Case filteringDomain
-                                    Case ProcessingDomain.TimeDomain
-                                        'Time domain convolution filtering
+                                CheckAndAdjustFFTSize(fftFormat.FftWindowSize, (IrArrayLength * 2) + 1, InActivateWarnings)
 
-                                        'Copies the input array to a new array
-                                        Dim inputArray(tempInputSoundArray.Length + IRArray.Length - 1) As Single
-                                        For n = 0 To tempInputSoundArray.Length - 1
-                                            inputArray(n) = tempInputSoundArray(n)
-                                        Next
-                                        For n = tempInputSoundArray.Length To inputArray.Length - 1
-                                            inputArray(n) = 0
-                                        Next
+                                Dim AddOverlapSliceLength As Integer = fftFormat.FftWindowSize / 2
+                                Dim NumberOfTimeWindows As Integer = Int(IntendedOutputLength / AddOverlapSliceLength)
 
-                                        'Starting a progress window
-                                        'Dim myProgress As New ProgressDisplay
-                                        'myProgress.Initialize(inputArray.Length - 1, 0, "Calculating FIR filter...", IRArray.Length)
-                                        'myProgress.Show()
-                                        'Dim ProgressCounter As Integer = 0
+                                'Copies the input array to a new array of Double, if needed, also extends the input array to a whole number multiple of the length of the sound data that goes into each dft
+                                If IntendedOutputLength Mod AddOverlapSliceLength > 0 Then NumberOfTimeWindows += 1
+                                Dim IntputChannelSoundLength As Integer = AddOverlapSliceLength * (NumberOfTimeWindows + 1)
+                                Dim InputSoundChannelArrayDouble(IntputChannelSoundLength - 1) As Double
+                                Utils.CopyToDouble(inputSound.WaveData.SampleData(c), InputSoundChannelArrayDouble)
 
-                                        ReDim outputSound.WaveData.SampleData(c)(inputArray.Length - 1)
+                                'Creates an array in which to store the convoluted sound
+                                Dim OutputChannelSampleArray(IntputChannelSoundLength - 1) As Single
 
-                                        For n = 0 To inputArray.Length - 1
-                                            Dim cumulativeValue As Double = 0
+                                'Creates dft bins for the IR data
+                                Dim dftIR_Bin_x(fftFormat.FftWindowSize - 1) As Double
+                                Dim dftIR_Bin_y(fftFormat.FftWindowSize - 1) As Double
 
-                                            'Updating progress
-                                            'myProgress.UpdateProgress(ProgressCounter)
-                                            'ProgressCounter += 1
+                                'Copied the IR data into the IR bins
+                                Array.Copy(IRArray, dftIR_Bin_x, IrArrayLength)
 
-                                            'Doing the convolution
-                                            For i = 0 To IRArray.Length - 1
-                                                If n - i >= 0 Then
-                                                    cumulativeValue += inputArray(n - i) * IRArray(i)
-                                                End If
-                                            Next
-                                            outputSound.WaveData.SampleData(c)(n) = cumulativeValue
+                                'Calculates forward FFT for the IR 
+                                FastFourierTransform(FftDirections.Forward, dftIR_Bin_x, dftIR_Bin_y, True)
 
-                                        Next
+                                'Starts convolution one window at a time
+                                Dim readSample As Integer = 0
+                                Dim writeSample As Integer = 0
 
-                                        'Closing the progress display
-                                        'myProgress.Close()
+                                For windowNumber = 0 To NumberOfTimeWindows - 1 'Step 2
 
+                                    'Creates a zero-padded sound array with the length of the dft windows size ()
 
-                                    Case ProcessingDomain.FrequencyDomain
-                                        'Frequency domain convolution (complex multiplication)
+                                    'Creates a new bins for the input sound data
+                                    Dim dftSoundBin_x(fftFormat.FftWindowSize - 1) As Double
+                                    Dim dftSoundBin_y(fftFormat.FftWindowSize - 1) As Double
 
-                                        'Reference: This frequency domain calculation is based on the overlap-add method as
-                                        'described in Bateman, A. & Paterson-Stephens, I. (2002). The DSP Handbook. Algorithms, Applications and Design Techniques.
-                                        'chapter 7, pp 451-453.
+                                    'Copies the slice samples into the dft x-bin, and increases readSample by AddOverlapSliceLength
+                                    Array.Copy(InputSoundChannelArrayDouble, readSample, dftSoundBin_x, 0, AddOverlapSliceLength)
+                                    readSample += AddOverlapSliceLength
 
-                                        Dim L As Integer = IRArray.Length
+                                    'Calculates forward FFT for the current sound window (Skipping the forward transform scaling on x instead of h, for optimization (the results of the complex multiplication should be the same))
+                                    FastFourierTransform(FftDirections.Forward, dftSoundBin_x, dftSoundBin_y, False)
 
-                                        CheckAndAdjustFFTSize(fftFormat.FftWindowSize, (L * 2) + 1, InActivateWarnings)
+                                    'Performs complex multiplications
+                                    Utils.Math.ComplexMultiplication(dftSoundBin_x, dftSoundBin_y, dftIR_Bin_x, dftIR_Bin_y)
 
-                                        Dim sliceLength As Integer = fftFormat.FftWindowSize / 2
+                                    'Dim tempDftSoundBin_x As Double = 0
+                                    'For n = 0 To fftFormat.FftWindowSize - 1
+                                    '    tempDftSoundBin_x = dftSoundBin_x(n) 'stores this value so that it does not get overwritten in the following line (it needs to be used also two lines below)
+                                    '    dftSoundBin_x(n) = tempDftSoundBin_x * dftIR_Bin_x(n) - dftSoundBin_y(n) * dftIR_Bin_y(n)
+                                    '    dftSoundBin_y(n) = tempDftSoundBin_x * dftIR_Bin_y(n) + dftSoundBin_y(n) * dftIR_Bin_x(n)
+                                    'Next
 
-                                        'Copies the input array to a new array, if needed, also extends the input array to a whole number multiple of the length of the sound data that goes into each dft
-                                        Dim intendedOutputLength As Integer = tempInputSoundArray.Length + IRArray.Length
-                                        Dim numberOfWindows As Integer = Int(tempInputSoundArray.Length / sliceLength)
-                                        If tempInputSoundArray.Length Mod sliceLength > 0 Then numberOfWindows += 1
-                                        Dim workingInputLength As Integer = sliceLength * (numberOfWindows + 1) ' This should only be (dftInputSampleCount * numberOfWindows), however that doesn't work for some reason. Check later! For now it's solved by making the analysed array temporarily longer.
+                                    'Calculates inverse FFT
+                                    FastFourierTransform(FftDirections.Backward, dftSoundBin_x, dftSoundBin_y)
 
-                                        Dim inputArray(workingInputLength - 1) As Double
+                                    'Puts the convoluted sound in the output array
+                                    For sample = 0 To fftFormat.FftWindowSize - 1
+                                        OutputChannelSampleArray(writeSample) += dftSoundBin_x(sample)
+                                        writeSample += 1
+                                    Next
+                                    writeSample -= AddOverlapSliceLength
 
-                                        'Copies the tempInputSoundArray into an array of Double
-                                        Utils.CopyToDouble(tempInputSoundArray, inputArray)
-                                        'For n = 0 To tempInputSoundArray.Length - 1
-                                        '    inputArray(n) = tempInputSoundArray(n)
-                                        'Next
+                                    'Referencin the sound array in the output sound
+                                    outputSound.WaveData.SampleData(c) = OutputChannelSampleArray
 
-                                        Dim OutputChannelSampleArray(inputArray.Length - 1) As Single
+                                Next
 
-                                        'Creates dft bins
-                                        Dim dftSoundBin_x(fftFormat.FftWindowSize - 1) As Double
-                                        Dim dftSoundBin_y(fftFormat.FftWindowSize - 1) As Double
-                                        Dim dftIR_Bin_x(fftFormat.FftWindowSize - 1) As Double
-                                        Dim dftIR_Bin_y(fftFormat.FftWindowSize - 1) As Double
-
-                                        'Creates the zero-padded IR array
-                                        Array.Copy(IRArray, dftIR_Bin_x, L)
-                                        'For sample = 0 To L - 1
-                                        '    dftIR_Bin_x(sample) = IRArray(sample)
-                                        'Next
-
-                                        'Calculates forward FFT for the IR 
-                                        FastFourierTransform(FftDirections.Forward, dftIR_Bin_x, dftIR_Bin_y, True)
-
-                                        'Starts convolution one window at a time
-                                        Dim readSample As Integer = 0
-                                        Dim writeSample As Integer = 0
-
-                                        For windowNumber = 0 To numberOfWindows - 1 'Step 2
-
-                                            'Creates a zero-padded sound array with the length of the dft windows size ()
-
-                                            'Copies the slice samples into the dft x-bin
-                                            Array.Copy(inputArray, readSample, dftSoundBin_x, 0, sliceLength)
-                                            readSample += sliceLength
-
-                                            'For sample = 0 To sliceLength - 1
-                                            '    dftSoundBin_x(sample) = inputArray(readSample)
-                                            '    readSample += 1
-                                            'Next
-
-                                            'Calculates forward FFT for the current sound window (Skipping the forward transform scaling on x instead of h, for optimization (the results of the complex multiplication should be the same))
-                                            FastFourierTransform(FftDirections.Forward, dftSoundBin_x, dftSoundBin_y, False)
-
-                                            'Performs complex multiplications
-                                            Utils.Math.ComplexMultiplication(dftSoundBin_x, dftSoundBin_y, dftIR_Bin_x, dftIR_Bin_y)
-
-                                            'Dim tempDftSoundBin_x As Double = 0
-                                            'For n = 0 To fftFormat.FftWindowSize - 1
-                                            '    tempDftSoundBin_x = dftSoundBin_x(n) 'stores this value so that it does not get overwritten in the following line (it needs to be used also two lines below)
-                                            '    dftSoundBin_x(n) = tempDftSoundBin_x * dftIR_Bin_x(n) - dftSoundBin_y(n) * dftIR_Bin_y(n)
-                                            '    dftSoundBin_y(n) = tempDftSoundBin_x * dftIR_Bin_y(n) + dftSoundBin_y(n) * dftIR_Bin_x(n)
-                                            'Next
-
-                                            'Calculates inverse FFT
-                                            FastFourierTransform(FftDirections.Backward, dftSoundBin_x, dftSoundBin_y)
-
-                                            'Puts the convoluted sound in the output array
-                                            For sample = 0 To fftFormat.FftWindowSize - 1
-                                                OutputChannelSampleArray(writeSample) += dftSoundBin_x(sample)
-                                                writeSample += 1
-                                            Next
-                                            writeSample -= sliceLength
-
-                                            'Referencin the sound array in the output sound
-                                            outputSound.WaveData.SampleData(c) = OutputChannelSampleArray
-
-                                        Next
-
-                                        If KeepInputSoundLength = True Then
+                                If KeepInputSoundLength = True Then
 
                                             'Correcting the channel length, by copying the section needed
                                             Dim ItitialTrimLength As Integer = impulseResponse.WaveData.SampleData(IRChannel).Length / 2
-                                            Dim NewChannelArray(originalInputLength - 1) As Single
+                                            Dim NewChannelArray(OriginalInputChannelLength - 1) As Single
                                             'For s = 0 To NewChannelArray.Length - 1
                                             '    NewChannelArray(s) = OutputChannelSampleArray(s + ItitialTrimLength)
                                             'Next
@@ -5215,15 +5164,13 @@ Namespace Audio
 
                                         Else
 
-                                            Dim NewChannelArray(intendedOutputLength - 1) As Single
+                                            Dim NewChannelArray(IntendedOutputLength - 1) As Single
                                             Array.Copy(outputSound.WaveData.SampleData(c), 0, NewChannelArray, 0, NewChannelArray.Length)
                                             outputSound.WaveData.SampleData(c) = NewChannelArray
 
-                                            'ReDim Preserve outputSound.WaveData.SampleData(c)(intendedOutputLength - 1)
+                                            'ReDim Preserve outputSound.WaveData.SampleData(c)(IntendedOutputLength - 1)
 
                                         End If
-
-                                End Select
 
                                 'Increasing impulse response channel if the impulse response has more than 1 channel.
                                 If impulseResponse.WaveFormat.Channels > 1 Then IRChannel += 1
@@ -5246,7 +5193,102 @@ Namespace Audio
 
             End Function
 
+            Public Function FIRFilterTimeDomain(ByVal inputSound As Sound, ByVal impulseResponse As Sound,
+                                  Optional ByVal inputSoundChannel As Integer? = Nothing,
+                                  Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing,
+                                  Optional ByVal ScaleImpulseResponse As Boolean = False, Optional ByVal KeepInputSoundLength As Boolean = False) As Sound
 
+                Try
+
+                    Throw New NotImplementedException("The time domain FIR filtering has not been checked since modified on 2024-04-01")
+
+                    If KeepInputSoundLength = True Then Throw New NotImplementedException("Time domain FIR filtering does not yet support keeping input sound length.")
+                    If startSample > 0 Then Throw New NotImplementedException("Time domain FIR filtering does not yet support setting start sample other than 0.")
+                    If sectionLength IsNot Nothing Then Throw New NotImplementedException("Time domain FIR filtering does not yet support setting section Length.")
+
+                    Dim IRChannel As Integer = 1
+
+                    Dim outputSound As New Sound(inputSound.WaveFormat)
+                    Dim AudioOutputConstructor As New AudioOutputConstructor(inputSound.WaveFormat, inputSoundChannel)
+
+                    'Main section
+                    Select Case inputSound.WaveFormat.BitDepth
+                        Case 16, 32
+                            For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
+
+                                'Copies the impulse response to a new array of double
+                                Dim TempArray = impulseResponse.WaveData.SampleData(IRChannel)
+                                Dim IRArray(TempArray.Length - 1) As Double
+                                Utils.CopyToDouble(TempArray, IRArray)
+
+                                'Scaling impulse response. 
+                                If ScaleImpulseResponse = True Then
+                                    Dim ImpulseResponseArraySum As Double = IRArray.Sum
+                                    If ImpulseResponseArraySum <> 0 Then
+                                        Utils.MultiplyArray(IRArray, (1 / ImpulseResponseArraySum))
+                                    Else
+                                        MsgBox("The impulse response sums to 0!")
+                                    End If
+                                End If
+
+                                'Referencing the current channel array, and noting its original length
+                                Dim OriginalInputChannelLength As Integer = inputSound.WaveData.SampleData(c).Length
+                                Dim IrArrayLength As Integer = IRArray.Length
+                                Dim IntendedOutputLength As Integer = OriginalInputChannelLength + IrArrayLength
+
+                                Dim InputSoundChannelArrayDouble(IntendedOutputLength - 1) As Single
+                                Array.Copy(inputSound.WaveData.SampleData(c), 0, InputSoundChannelArrayDouble, 0, OriginalInputChannelLength)
+
+                                'Time domain convolution filtering
+
+                                'Starting a progress window
+                                'Dim myProgress As New ProgressDisplay
+                                'myProgress.Initialize(inputArray.Length - 1, 0, "Calculating FIR filter...", IRArray.Length)
+                                'myProgress.Show()
+                                'Dim ProgressCounter As Integer = 0
+
+                                For n = 0 To InputSoundChannelArrayDouble.Length - 1
+                                    Dim cumulativeValue As Double = 0
+
+                                    'Updating progress
+                                    'myProgress.UpdateProgress(ProgressCounter)
+                                    'ProgressCounter += 1
+
+                                    'Doing the convolution
+                                    For i = 0 To IrArrayLength - 1
+                                        If n - i >= 0 Then
+                                            cumulativeValue += InputSoundChannelArrayDouble(n - i) * IRArray(i)
+                                        End If
+                                    Next
+                                    InputSoundChannelArrayDouble(n) = cumulativeValue
+
+                                Next
+
+                                outputSound.WaveData.SampleData(c) = InputSoundChannelArrayDouble
+
+                                'Closing the progress display
+                                'myProgress.Close()
+
+                                'Increasing impulse response channel if the impulse response has more than 1 channel.
+                                If impulseResponse.WaveFormat.Channels > 1 Then IRChannel += 1
+
+                            Next
+
+                            Return outputSound
+
+                        Case Else
+                            Throw New NotImplementedException(inputSound.WaveFormat.BitDepth & " bit depth is not yet supported.")
+                            Return Nothing
+                    End Select
+
+
+                Catch ex As Exception
+                    AudioError(ex.ToString)
+                    Return Nothing
+                End Try
+
+
+            End Function
 
             Public Function Deconvolution(ByVal InputSound As Sound, ByVal ImpulseResponse As Sound,
                                  Optional ByRef FftFormat As Formats.FftFormat = Nothing, Optional ByVal InputSoundChannel As Integer? = Nothing,
@@ -5683,7 +5725,7 @@ Namespace Audio
                                         OutputChannelSampleArray(writeSample) += dftSoundBin_x(sample)
                                         writeSample += 1
                                     Next
-                                    'writeSample -= sliceLength
+                                    'writeSample -= AddOverlapSliceLength
 
                                 Next
 
@@ -5788,9 +5830,7 @@ Namespace Audio
                     'Copying a reference to the parent sound as this does not get serialized
                     Dim SMAParentSound = InputSound.SMA.ParentSound
 
-                    ResampledSignalSound.SMA = InputSound.SMA.CreateCopy
-
-                    ResampledSignalSound.SMA.ParentSound = SMAParentSound
+                    ResampledSignalSound.SMA = InputSound.SMA.CreateCopy(SMAParentSound)
 
                     MsgBox("Warning the PTWF temporal data will be incorrect, as sample rate has changed!")
                     'TODO We should write a method for SMA sample rate conversion

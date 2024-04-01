@@ -16,7 +16,7 @@ Namespace Audio
         <Serializable>
         Public Class SpeechMaterialAnnotation
 
-            <NonSerialized>
+            <XmlIgnore>
             Private ChangeDetector As Utils.ObjectChangeDetector
 
             Public Sub StoreUnchangedState()
@@ -32,7 +32,7 @@ Namespace Audio
                 End If
             End Function
 
-            <NonSerialized>
+            <XmlIgnore>
             Public ParentSound As Sound
 
             Public Const CurrentVersion As String = "1.1"
@@ -72,6 +72,12 @@ Namespace Audio
                 _ChannelData.Add(NewSmaChannelData)
             End Sub
 
+            ''' <summary>
+            ''' This private sub is intended to be used only when an object of the current class is cloned by Xml serialization, such as with CreateCopy. 
+            ''' </summary>
+            Private Sub New()
+
+            End Sub
 
             ''' <summary>
             ''' Creates a new instance of SpeechMaterialAnnotation
@@ -775,7 +781,7 @@ Namespace Audio
 
             End Sub
 
-            Public Function CreateCopy() As SpeechMaterialAnnotation
+            Public Function CreateCopy(ByRef ParentSoundReference As Audio.Sound) As SpeechMaterialAnnotation
 
                 'Creating an output object
                 Dim newSmaData As SpeechMaterialAnnotation
@@ -789,6 +795,11 @@ Namespace Audio
                 serializedMe.Position = 0
                 newSmaData = CType(serializer.Deserialize(serializedMe), SpeechMaterialAnnotation)
                 serializedMe.Close()
+
+                If ParentSoundReference IsNot Nothing Then
+                    'Rerefereinging the parent sound
+                    newSmaData.ParentSound = ParentSoundReference
+                End If
 
                 'Returning the new object
                 Return newSmaData
@@ -2435,7 +2446,7 @@ Namespace Audio
 
                 Public Function ReturnIsolatedSMA() As SpeechMaterialAnnotation
 
-                    Dim SmaCopy = Me.ParentSMA.CreateCopy
+                    Dim SmaCopy = Me.ParentSMA.CreateCopy(Nothing)
                     SmaCopy._ChannelData.Clear()
                     SmaCopy.AddChannelData()
 

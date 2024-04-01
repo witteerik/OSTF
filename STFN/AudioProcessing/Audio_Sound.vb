@@ -22,7 +22,6 @@
 'SOFTWARE.
 
 Imports System.IO
-Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.Xml
 Imports System.Globalization.CultureInfo
 Imports System.Xml.Serialization
@@ -87,13 +86,14 @@ Namespace Audio
         ''' With the exception of the SMA node, this list contains the raw xml of all iXML sub-nodes read from an audiofile. iXML tags/keywords as keys (xml Name), and data as values (xml InnerXml).
         ''' </summary>
         ''' <returns></returns>
-        Public Property iXmlNodes As List(Of Tuple(Of String, String))
+        <XmlIgnore>
+        Public iXmlNodes As List(Of Tuple(Of String, String))
 
         ''' <summary>
         ''' A list that holds wave file chunks that were never parsed, but instead just kept as byte arrays. Thses should never be modified, lest wave file writing will break!
         ''' </summary>
         ''' <returns></returns>
-        Private Property UnparsedWaveChunks As New List(Of Byte())
+        Private UnparsedWaveChunks As New List(Of Byte())
 
 
         ''' <summary>
@@ -115,6 +115,14 @@ Namespace Audio
             Next
 
         End Sub
+
+        ''' <summary>
+        ''' This private sub is intended to be used only when an object of the current class is cloned by Xml serialization, such as with CreateCopy. 
+        ''' </summary>
+        Private Sub New()
+
+        End Sub
+
 
         ''' <summary>
         ''' Stores the current stage as the unchanged state. The current state can then later be compared to a following state to determine whether the Wave or SMA data has changed or not.
@@ -187,6 +195,10 @@ Namespace Audio
             serializedMe.Position = 0
             newSound = CType(serializer.Deserialize(serializedMe), Sound)
             serializedMe.Close()
+
+            'Serializing components without publically available New methods without parameters
+            newSound.WaveData = Me.WaveData.CreateCopy()
+            newSound.FFT = Me.FFT.CreateCopy()
 
             'Returning the new object
             Return newSound
@@ -284,7 +296,7 @@ Namespace Audio
             Dim ConvertedSound As New Sound(NewWaveFormat)
 
             'Copies SMA and UnparsedWaveChunks
-            If SMA IsNot Nothing Then ConvertedSound.SMA = SMA.CreateCopy
+            If SMA IsNot Nothing Then ConvertedSound.SMA = SMA.CreateCopy(ConvertedSound)
             If Me.UnparsedWaveChunks IsNot Nothing Then ConvertedSound.UnparsedWaveChunks = Me.UnparsedWaveChunks
 
             'Copies and converts wave data
@@ -498,7 +510,7 @@ Namespace Audio
         <Serializable>
         Class LocalWaveData
 
-            <NonSerialized>
+            <XmlIgnore>
             Private ChangeDetector As Utils.ObjectChangeDetector
             Public Sub StoreUnchangedState()
                 ChangeDetector = New Utils.ObjectChangeDetector(Me)
@@ -647,14 +659,42 @@ Namespace Audio
             ''' </summary>
             ''' <param name="Channels">The number of audio channels to initialize.</param>
             Public Sub New(ByVal Channels As Integer)
-
                 _sampleData = New List(Of Single())
                 For n = 0 To Channels - 1
                     Dim ChannelSoundData As Single() = {}
                     _sampleData.Add(ChannelSoundData)
                 Next
-
             End Sub
+
+            ''' <summary>
+            ''' This private sub is only intended for use when an instance of the current class is serialized using Xml serialization, as in CreateCopy.
+            ''' </summary>
+            Private Sub New()
+            End Sub
+
+            ''' <summary>
+            ''' Creates a new Sound which is a deep copy of the original, by using serialization.
+            ''' </summary>
+            ''' <returns></returns>
+            Public Function CreateCopy() As LocalWaveData
+
+                'Creating an output object
+                Dim NewObject As LocalWaveData
+
+                'Serializing to memorystream
+                Dim serializedMe As New MemoryStream
+                Dim serializer As New XmlSerializer(GetType(LocalWaveData))
+                serializer.Serialize(serializedMe, Me)
+
+                'Deserializing to new object
+                serializedMe.Position = 0
+                NewObject = CType(serializer.Deserialize(serializedMe), LocalWaveData)
+                serializedMe.Close()
+
+                'Returning the new object
+                Return NewObject
+            End Function
+
 
         End Class
 

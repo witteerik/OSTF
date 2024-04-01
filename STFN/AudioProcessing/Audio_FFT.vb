@@ -21,6 +21,8 @@
 'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 'SOFTWARE.
 
+Imports System.IO
+Imports System.Xml.Serialization
 
 Namespace Audio
 
@@ -39,7 +41,7 @@ Namespace Audio
         ''' <summary>
         ''' An object that can be used to temporarily store data. Non-serialized.
         ''' </summary>
-        <NonSerialized>
+        <XmlIgnore>
         Public TemporaryData As New List(Of TimeWindow)
 
         <Serializable>
@@ -242,6 +244,13 @@ Namespace Audio
                 Dim ChannelBarkSpectrumTimeWindowData As New List(Of TimeWindow)
                 _BarkSpectrumTimeWindowData.Add(ChannelBarkSpectrumTimeWindowData)
             Next
+
+        End Sub
+
+        ''' <summary>
+        ''' This private sub is intended to be used only when an object of the current class is cloned by Xml serialization, such as with CreateCopy. 
+        ''' </summary>
+        Private Sub New()
 
         End Sub
 
@@ -2512,6 +2521,29 @@ Namespace Audio
                 MsgBox(ex.ToString)
             End Try
         End Sub
+
+        ''' <summary>
+        ''' Creates a new FftData which is a deep copy of the original, by using serialization.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function CreateCopy() As FftData
+
+            'Creating an output object
+            Dim NewObject As FftData
+
+            'Serializing to memorystream
+            Dim serializedMe As New MemoryStream
+            Dim serializer As New XmlSerializer(GetType(FftData))
+            serializer.Serialize(serializedMe, Me)
+
+            'Deserializing to new object
+            serializedMe.Position = 0
+            NewObject = CType(serializer.Deserialize(serializedMe), FftData)
+            serializedMe.Close()
+
+            'Returning the new object
+            Return NewObject
+        End Function
 
 
     End Class
