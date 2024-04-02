@@ -801,7 +801,7 @@ Namespace Audio
             End Function
 
 
-            Public Shared Function CreateBufferHoldersOnNewThread(ByRef InputSound As Sound, ByRef Mixer As DuplexMixer, ByRef FramesPerBuffer As Integer, ByRef NumberOfOutputChannels As Integer, Optional ByVal BuffersOnMainThread As Integer = 10) As BufferHolder()
+            Public Shared Function CreateBufferHoldersOnNewThread(ByRef InputSound As Sound, ByRef Mixer As DuplexMixer, ByRef FramesPerBuffer As Integer, ByRef NumberOfOutputChannels As Integer, Optional ByVal BitdepthScaling As Double = 1, Optional ByVal BuffersOnMainThread As Integer = 10) As BufferHolder()
 
                 Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer) + 1
 
@@ -830,7 +830,7 @@ Namespace Audio
                     If InputSound.WaveData.SampleData(OutputRouting.Value).Length = 0 Then Continue For
 
                     'Calculates the calibration gain
-                    Dim CalibrationGainFactor = 10 ^ (Mixer.CalibrationGain(OutputRouting.Key) / 20)
+                    Dim CalibrationGainFactor As Double = BitdepthScaling * 10 ^ (Mixer.CalibrationGain(OutputRouting.Key) / 20)
 
                     CurrentChannelInterleavedPosition = OutputRouting.Key - 1
 
@@ -853,8 +853,7 @@ Namespace Audio
                 Next
 
                 'Fixes the rest of the buffers on a new thread, allowing the new sound to start playing
-                Dim ThreadWork As New BufferCreaterOnNewThread(InputSound, Output, BuffersOnMainThread,
-                                                               NumberOfOutputChannels, Mixer, FramesPerBuffer)
+                Dim ThreadWork As New BufferCreaterOnNewThread(InputSound, Output, BuffersOnMainThread, NumberOfOutputChannels, Mixer, FramesPerBuffer, BitdepthScaling)
 
                 Return Output
 
@@ -869,15 +868,17 @@ Namespace Audio
                 Private NumberOfOutputChannels As Integer
                 Private Mixer As DuplexMixer
                 Private FramesPerBuffer As UInteger
+                Private BitdepthScaling As Double
 
                 Public Sub New(ByRef InputSound As Sound, ByRef Output As BufferHolder(), ByVal BuffersOnMainThread As Integer,
-                         ByVal NumberOfOutputChannels As Integer, ByRef Mixer As DuplexMixer, ByVal FramesPerBuffer As UInteger)
+                         ByVal NumberOfOutputChannels As Integer, ByRef Mixer As DuplexMixer, ByVal FramesPerBuffer As UInteger, Optional ByVal BitdepthScaling As Double = 1)
                     Me.InputSound = InputSound
                     Me.Output = Output
                     Me.BuffersOnMainThread = BuffersOnMainThread
                     Me.NumberOfOutputChannels = NumberOfOutputChannels
                     Me.Mixer = Mixer
                     Me.FramesPerBuffer = FramesPerBuffer
+                    Me.BitdepthScaling = BitdepthScaling
 
                     'Starting the new worker thread
                     Dim NewThred As New Thread(AddressOf DoWork)
@@ -899,7 +900,7 @@ Namespace Audio
                         If InputSound.WaveData.SampleData(OutputRouting.Value).Length = 0 Then Continue For
 
                         'Calculates the calibration gain
-                        Dim CalibrationGainFactor = 10 ^ (Mixer.CalibrationGain(OutputRouting.Key) / 20)
+                        Dim CalibrationGainFactor As Double = BitdepthScaling * 10 ^ (Mixer.CalibrationGain(OutputRouting.Key) / 20)
 
                         CurrentChannelInterleavedPosition = OutputRouting.Key - 1
 
@@ -1339,14 +1340,14 @@ Namespace Audio
                 Select Case SoundDirection
                     Case iSoundPlayer.SoundDirections.PlaybackOnly
                         _IsStreamOpen = Not HasPaError("OpenOutputOnlyStream", PortAudio.Pa_OpenStream(stream, New Nullable(Of PortAudio.PaStreamParameters), outputParams,
-                                                                       Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
+                                                                       Me.SampleRate, Convert.ToUInt32(Me.FramesPerBuffer), Flag, Me.paStreamCallback, data), True)
 
                     Case iSoundPlayer.SoundDirections.RecordingOnly
                         _IsStreamOpen = Not HasPaError("OpenInputOnlyStream", PortAudio.Pa_OpenStream(stream, inputParams, New Nullable(Of PortAudio.PaStreamParameters),
-                                                                      Me.SampleRate, Me.FramesPerBuffer, Flag, Me.paStreamCallback, data), True)
+                                                                      Me.SampleRate, Convert.ToUInt32(Me.FramesPerBuffer), Flag, Me.paStreamCallback, data), True)
 
                     Case iSoundPlayer.SoundDirections.Duplex
-                        _IsStreamOpen = Not HasPaError("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Me.FramesPerBuffer, Flag,
+                        _IsStreamOpen = Not HasPaError("OpenDuplexStream", PortAudio.Pa_OpenStream(stream, inputParams, outputParams, Me.SampleRate, Convert.ToUInt32(Me.FramesPerBuffer), Flag,
                                                                    Me.paStreamCallback, data), True)
                 End Select
 

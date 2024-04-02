@@ -40,8 +40,9 @@ namespace STFM
 
                 if (DeviceInfo.Current.Platform == DevicePlatform.Android) {
                     STFN.Audio.SoundScene.DuplexMixer Mixer = new STFN.Audio.SoundScene.DuplexMixer();
-                    int OutputChannel = 1;
-                    Mixer.DirectMonoSoundToOutputChannel(ref OutputChannel);
+                    int[] OutputChannels = new int[] {1,2};
+                    Mixer.DirectMonoSoundToOutputChannels(ref OutputChannels);
+                    //Mixer.DirectMonoSoundToOutputChannel(ref OutputChannel);
                     OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer(ref Mixer);
                 }
 
