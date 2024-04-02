@@ -46,7 +46,7 @@ Namespace Audio
             Private NumberOfWinMmeInputDevices As Integer
 
             Private Stream As IntPtr
-            Public FramesPerBuffer As UInteger
+            Public FramesPerBuffer As Integer
             Private PlaybackBuffer As Single() = New Single(511) {}
             Private RecordingBuffer As Single() = New Single(511) {}
             Private SilentBuffer As Single() = New Single(511) {}
@@ -793,7 +793,7 @@ Namespace Audio
                 'Setting NewSound to the NewOutputSound to indicate that the output sound should be swapped by the callback
                 'NewSound = CreateBufferHolders(NewOutputSound)
                 If NewOutputSound IsNot Nothing Then
-                    NewSound = CreateBufferHoldersOnNewThread(NewOutputSound)
+                    NewSound = CreateBufferHoldersOnNewThread(NewOutputSound, Mixer, FramesPerBuffer, NumberOfOutputChannels)
                 End If
 
                 Return True
@@ -801,7 +801,7 @@ Namespace Audio
             End Function
 
 
-            Public Function CreateBufferHoldersOnNewThread(ByRef InputSound As Sound, Optional ByVal BuffersOnMainThread As Integer = 10) As BufferHolder()
+            Public Shared Function CreateBufferHoldersOnNewThread(ByRef InputSound As Sound, ByRef Mixer As DuplexMixer, ByRef FramesPerBuffer As Integer, ByRef NumberOfOutputChannels As Integer, Optional ByVal BuffersOnMainThread As Integer = 10) As BufferHolder()
 
                 Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer) + 1
 
@@ -860,7 +860,7 @@ Namespace Audio
 
             End Function
 
-            Private Class BufferCreaterOnNewThread
+            Public Class BufferCreaterOnNewThread
                 Implements IDisposable
 
                 Private InputSound As Sound

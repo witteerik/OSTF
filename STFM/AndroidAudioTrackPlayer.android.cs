@@ -16,6 +16,7 @@ using Java.Interop;
 using System.Runtime.InteropServices;
 using STFN;
 using Android.Bluetooth;
+//using Java.Lang;
 
 
 namespace STFM
@@ -94,7 +95,7 @@ namespace STFM
         }
 
         [SupportedOSPlatform("Android31.0")]
-        bool setupSoundTracks()
+        bool StartPlayer()
         {
 
             if (DeviceInfo.Current.Platform == DevicePlatform.Android)
@@ -109,7 +110,24 @@ namespace STFM
                 // Cretaing a ChannelIndexMask representing the output channels
                 // Define a bit array containing boolean values for channels 1-32 ?
                 // https://developer.android.com/reference/android/media/AudioFormat.Builder#setChannelIndexMask(int)
-                System.Collections.BitArray bitArray = new System.Collections.BitArray(new bool[] { true, true, true, true, true, true, true, true }); // channel 1, channel 2, ...
+
+                List<bool> channelInclusionList = new List<bool>();
+                for (int c = 0; c < Mixer.GetHighestOutputChannel(); c++)
+                {
+                    if (Mixer.OutputRouting.ContainsKey(c))
+                    {
+                        channelInclusionList.Add(true);
+                    }
+                    else
+                    {
+                        // Maybe this will also require true, and that silent buffers are sent to these channels. Probably it will work with false, but then the Buffer stucture may need to be adjusted 
+                        channelInclusionList.Add(false);
+                    }
+                }
+
+                System.Collections.BitArray bitArray = new System.Collections.BitArray(channelInclusionList.ToArray()); // channel 1, channel 2, ...
+
+                //System.Collections.BitArray bitArray_NotUsed = new System.Collections.BitArray(new bool[] { true, true, true, true, true, true, true, true }); // channel 1, channel 2, ...
 
                 // Create a byte array with length of 4 (32 bits)
                 byte[] bytes = new byte[4];
@@ -149,10 +167,10 @@ namespace STFM
                 // Building the audio tracks
                 audioTrack = audioTrackBuilder.Build();
 
-                AudioTrack castAudioTrack1 = (AudioTrack)audioTrack;
+                AudioTrack castAudioTrack = (AudioTrack)audioTrack;
 
-                castAudioTrack1.SetNotificationMarkerPosition(4);
-                castAudioTrack1.MarkerReached += MarkerReached;
+                castAudioTrack.SetNotificationMarkerPosition(4);
+                castAudioTrack.MarkerReached += MarkerReached;
 
                 //Setting both sounds to silent sound
                 SilentSound = [new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, FramesPerBuffer)];
@@ -160,12 +178,12 @@ namespace STFM
                 OutputSoundB = SilentSound;
 
                 // Start playback
-                castAudioTrack1.Play();
+                castAudioTrack.Play();
 
                 // Writes the first buffer (now empty)
-                castAudioTrack1.Write(SilentBuffer, 0, SilentBuffer.Length, WriteMode.NonBlocking);
+                castAudioTrack.Write(SilentBuffer, 0, SilentBuffer.Length, WriteMode.NonBlocking);
 
-                if (castAudioTrack1.PlayState != PlayState.Playing)
+                if (castAudioTrack.PlayState != PlayState.Playing)
                 {
                     return false;
                 }
@@ -179,10 +197,77 @@ namespace STFM
 
         }
 
+        private void CheckWaveFormat(int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding) {
+
+            List<WaveFormat.WaveFormatEncodings> SupportedWaveFormatEncodings = new List<WaveFormat.WaveFormatEncodings> { WaveFormat.WaveFormatEncodings.PCM, WaveFormat.WaveFormatEncodings.IeeeFloatingPoints };
+            List<int> SupportedSoundBitDepths = new List<int> { 16, 32 };
+
+            if (Encoding != null)
+            {
+                if (SupportedWaveFormatEncodings.Contains(Encoding.Value) == false)
+                {
+                    throw new Exception("Unable to start the sound AndroidAudioTrackPlayer. Unsupported audio encoding.");
+                }
+            }
+            if (BitDepth != null)
+            {
+                if (SupportedSoundBitDepths.Contains(BitDepth.Value) == false)
+                {
+                    throw new Exception("Unable to start the sound AndroidAudioTrackPlayer. Unsupported audio bit depth.");
+                }
+            }
+
+        }
+
 
         public void ChangePlayerSettings(ref AudioApiSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, ref DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
         {
-            //Ignores any calls for now.
+
+            bool WasPlaying = false;
+
+            if (audioTrack != null)
+            {
+
+                AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+
+                if (castAudioTrack.PlayState == PlayState.Playing)
+                {
+                    castAudioTrack.Stop();
+                    castAudioTrack.Release();
+                    WasPlaying = true;
+                }
+                
+            }
+
+            if (SampleRate != null)
+            {
+                this.SampleRate = SampleRate.Value;
+            }
+
+            CheckWaveFormat(BitDepth, Encoding);
+
+            //'Updating values
+            //  If AudioApiSettings IsNot Nothing Then SetApiAndDevice(AudioApiSettings, True)
+
+            if (OverlapDuration != null)
+            {
+                SetOverlapDuration(OverlapDuration.Value);
+            }
+
+            if (Mixer != null)
+            {
+                this.Mixer = Mixer;
+            }
+
+            // SoundDirection is ignored, since this class is only PlaybackOnly
+
+            // ClippingIsActivated is ignored for now (This player should clip all data at Int32.Max and Min values)
+
+            if (WasPlaying == true)
+            {
+                StartPlayer();
+            }
+
         }
 
         public void CloseStream()
@@ -210,19 +295,32 @@ namespace STFM
         [SupportedOSPlatform("Android31.0")]
         public bool SwapOutputSounds(ref Sound NewOutputSound, bool Record, bool AppendRecordedSound)
         {
+
+            if (NewOutputSound == null)
+            {
+                return false;
+            }
+
+            if (NewOutputSound.WaveData.LongestChannelSampleCount == 0)
+            {
+                return false;
+            }
+
             if (CurrentFormat == null)
             {
                 CurrentFormat = NewOutputSound.WaveFormat;
-                if (setupSoundTracks() == false)
+                if (StartPlayer() == false)
                 {
                     throw new Exception("Unable to start the sound AndroidAudioTrackPlayer");
                 };
             }
 
+            CheckWaveFormat(NewOutputSound.WaveFormat.BitDepth, NewOutputSound.WaveFormat.Encoding);
+
             if (NewOutputSound.WaveFormat.IsEqual(ref CurrentFormat, true, true, true, true) == false)
             {
                 CurrentFormat = NewOutputSound.WaveFormat;
-                if (setupSoundTracks() == false)
+                if (StartPlayer() == false)
                 {
                     throw new Exception("Unable to start the sound AndroidAudioTrackPlayer");
                 };
@@ -238,6 +336,9 @@ namespace STFM
         bool playNewSound_IeeeFloatingPoints(ref Sound NewOutputSound)
         {
 
+            //'Setting NewSound to the NewOutputSound to indicate that the output sound should be swapped by the callback
+            NewSound = STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.CreateBufferHoldersOnNewThread(ref NewOutputSound,ref Mixer,ref FramesPerBuffer, ref NumberOfOutputChannels);
+
             if (DeviceInfo.Current.Platform == DevicePlatform.Android)
             {
 
@@ -250,14 +351,14 @@ namespace STFM
 
                 if (castAudioTrack.PlayState != PlayState.Playing)
                 {
-                    throw new Exception("Sound player not running anymore!");
+                    throw new System.Exception("Sound player not running anymore!");
                 }
 
                 // This should be async ? or on another thread
 
                 if (NewOutputSound.WaveFormat.IsEqual(ref CurrentFormat, true, true, true, true) == false)
                 {
-                    throw new Exception("The format of the new sound does not agree with the format for which the sound player was instantiated.");
+                    throw new System.Exception("The format of the new sound does not agree with the format for which the sound player was instantiated.");
                 }
 
 
@@ -268,7 +369,23 @@ namespace STFM
                 double GainFactor = 1;
 
                 // Limiting BitdepthScaling to Int32.MaxValue // May be unecessary
-                double BitdepthScaling = Math.Min(GainFactor * Int32.MaxValue, Int32.MaxValue);
+                double BitdepthScaling;
+                switch (NewOutputSound.WaveFormat.BitDepth)
+                {
+                    case 16:
+                        // 16 bit sample data should be scale to 32 bit integer range
+                        BitdepthScaling = System.Math.Min(GainFactor * Int32.MaxValue / short.MaxValue, Int32.MaxValue);
+                        break;
+
+                    case 32:
+                        // +/1 unity range should be scaled to 32 bit integer range
+                        BitdepthScaling = System.Math.Min(GainFactor * Int32.MaxValue, Int32.MaxValue);
+                        break;
+
+                    default:
+                        throw new NotImplementedException("Unsupported bit depth");
+                        break;
+                }
 
                 // Getting the channel sample array
                 float[] sample = NewOutputSound.WaveData.get_SampleData(channel);
@@ -311,6 +428,68 @@ namespace STFM
             }
 
         }
+
+        //public STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] CreateBufferHoldersOnNewThread(ref Sound inputSound, int buffersOnMainThread = 10)
+        //{
+        //    int bufferCount = (int)(inputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer) + 1;
+
+        //    STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] output = new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[bufferCount];
+
+        //    // Initializing the BufferHolders
+        //    for (int b = 0; b < output.Length; b++)
+        //    {
+        //        output[b] = new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, FramesPerBuffer);
+        //    }
+
+        //    // Creating the BuffersOnMainThread first buffers
+        //    // Limiting the number of main thread buffers if the sound is very short
+        //    if (output.Length - 1 < buffersOnMainThread)
+        //    {
+        //        buffersOnMainThread = Math.Max(0, output.Length - 1);
+        //    }
+
+        //    int currentChannelInterleavedPosition = 0;
+        //    foreach (var outputRouting in Mixer.OutputRouting)
+        //    {
+        //        if (outputRouting.Value == 0) continue;
+
+        //        if (outputRouting.Value > inputSound.WaveFormat.Channels) continue;
+
+        //        // Skipping if channel contains no data
+        //        var ChannelArray = inputSound.WaveData.get_SampleData(outputRouting.Value);
+        //        if (ChannelArray.Length == 0) continue;
+
+        //        // Calculates the calibration gain
+        //        double calibrationGain = Mixer.get_CalibrationGain(outputRouting.Key);
+        //        float calibrationGainFactor = (float)Math.Pow(10, calibrationGain / 20);
+
+        //        currentChannelInterleavedPosition = outputRouting.Key - 1;
+
+        //        // Going through buffer by buffer
+        //        for (int bufferIndex = 0; bufferIndex < buffersOnMainThread; bufferIndex++)
+        //        {
+        //            // Setting start sample and time
+        //            output[bufferIndex].StartSample = bufferIndex * FramesPerBuffer;
+
+        //            // Shuffling samples from the input sound to the interleaved array
+        //            int currentWriteSampleIndex = 0;
+        //            for (int sample = bufferIndex * FramesPerBuffer; sample < (bufferIndex + 1) * FramesPerBuffer; sample++)
+        //            {
+        //                int x = currentWriteSampleIndex * NumberOfOutputChannels + currentChannelInterleavedPosition;
+
+        //                output[bufferIndex].InterleavedSampleArray[currentWriteSampleIndex * NumberOfOutputChannels + currentChannelInterleavedPosition] = ChannelArray[sample] * calibrationGainFactor;
+        //                currentWriteSampleIndex++;
+        //            }
+        //        }
+        //    }
+
+        //    // Fixes the rest of the buffers on a new thread, allowing the new sound to start playing
+        //    STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferCreaterOnNewThread threadWork = new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferCreaterOnNewThread(ref inputSound, ref output, buffersOnMainThread,
+        //                                                                        NumberOfOutputChannels, ref Mixer, (uint)FramesPerBuffer);
+
+        //    return output;
+        //}
+
 
         private System.Threading.SpinLock callbackSpinLock = new System.Threading.SpinLock();
         private bool PlaybackIsActive = false;

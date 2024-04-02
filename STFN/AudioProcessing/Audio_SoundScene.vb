@@ -127,12 +127,13 @@ Namespace Audio.SoundScene
         End Sub
 
         ''' <summary>
-        ''' Returns the (one-based) index of the channel with the highest index in the parent transducer specification
+        ''' Returns the highest physical output channel number among in the output routing
         ''' </summary>
         ''' <returns></returns>
         Public Function GetHighestOutputChannel() As Integer
-            Return ParentTransducerSpecification.HardwareOutputChannels.Max
+            Return OutputRouting.Keys.Max
         End Function
+
 
 #Region "Calibration"
 
