@@ -88,7 +88,7 @@ Namespace SipTest
 
         Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal PresetName As String, ByVal MediaSetName As String, ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
-            Dim Preset = ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName)
+            Dim Preset = ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members
 
             PlanTestTrials(AvailableMediaSet, Preset, MediaSetName, SoundPropagationType, RandomSeed)
 
@@ -326,12 +326,12 @@ Namespace SipTest
                     SipMeasurementRandomizer = New Random(SameRandomSeed)
                 End If
 
-                If Trial.TestTrialSound Is Nothing Then
+                If Trial.Sound Is Nothing Then
                     Trial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices, FixedSpeechIndex)
                     MixedCount += 1
 
                     If LogToConsole = True Then
-                        If Trial.TestTrialSound IsNot Nothing Then
+                        If Trial.Sound IsNot Nothing Then
                             Console.WriteLine("Mixed trial sound: " & MixedCount)
                         Else
                             Console.WriteLine("   Failed to mix trial sound: " & MixedCount)
@@ -397,7 +397,7 @@ Namespace SipTest
         ''' Moves the referenced test trial from the PlannedTrials to ObservedTrials objects, both in the parent TestUnit and in the parent SipMeasurement. This way it will not be presented again.
         ''' </summary>
         ''' <param name="TestTrial"></param>
-        ''' <param name="RemoveSounds">If True, removes the TestTrialSound in the referenced trial.</param>
+        ''' <param name="RemoveSounds">If True, removes the Sound in the referenced trial.</param>
         Public Sub MoveTrialToHistory(ByRef TestTrial As SipTrial, Optional ByVal RemoveSounds As Boolean = True)
 
             Dim ParentTestUnit = TestTrial.ParentTestUnit
@@ -1139,6 +1139,7 @@ Namespace SipTest
 
 
     Public Class SipTrial
+        Inherits TestTrial
 
         ''' <summary>
         ''' The object should store the order in which the trial was presented, and be set by the code presenting the trial.
@@ -1152,11 +1153,11 @@ Namespace SipTest
         ''' <returns></returns>
         Public ReadOnly Property ParentTestUnit As SiPTestUnit
 
-        ''' <summary>
-        ''' Holds a reference to the SpeechMaterial presented in the trial.
-        ''' </summary>
-        ''' <returns></returns>
-        Public ReadOnly Property SpeechMaterialComponent As SpeechMaterialComponent
+        '''' <summary>
+        '''' Holds a reference to the SpeechMaterial presented in the trial.
+        '''' </summary>
+        '''' <returns></returns>
+        'Public ReadOnly Property SpeechMaterialComponent As SpeechMaterialComponent
 
         Public Property SelectedMediaIndex As Integer
 
@@ -1241,10 +1242,10 @@ Namespace SipTest
         ''' <returns></returns>
         Public Property IsTestTrial As Boolean = True
 
-        ''' <summary>
-        ''' An object that can hold test trial sounds that can be mixed in advance.
-        ''' </summary>
-        Public TestTrialSound As Audio.Sound = Nothing
+        '''' <summary>
+        '''' An object that can hold test trial sounds that can be mixed in advance.
+        '''' </summary>
+        'Public Sound As Audio.Sound = Nothing
 
         ''' <summary>
         ''' Holds the start sample of the target signal within the test trial sound (without any delay caused by room simulation)
@@ -1784,7 +1785,7 @@ Namespace SipTest
                 LevelGroup += 1
 
                 'Adds the background (speech) signal, with fade, duck and location specifications
-                    If UseBackgroundSpeech = True Then
+                If UseBackgroundSpeech = True Then
                     For TargetIndex = 0 To BackgroundSpeechSelections.Count - 1
                         'TODO: Here LevelGroup needs to be incremented if ears are measured separately as in BMLD! Possibly also on other similar places, as with the noise...
                         ItemList.Add(New SoundSceneItem(BackgroundSpeechSelections(TargetIndex).Item1, 1, Me.ContextRegionSpeech_SPL, LevelGroup, BackgroundSpeechSelections(TargetIndex).Item2, SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech, 0,,,, FadeSpecs_Background, DuckSpecs_BackgroundSpeech))
@@ -1990,7 +1991,7 @@ Namespace SipTest
                 'SimulateHearingLoss,
                 'CompensateHearingLoss
 
-                TestTrialSound = MixedTestTrialSound
+                Sound = MixedTestTrialSound
 
                 'Mixing non-presented trials as well
                 If PseudoTrials IsNot Nothing Then
@@ -2649,7 +2650,7 @@ Namespace SipTest
         Public Sub RemoveSounds()
 
             'Removes the sound, since it's not going to be used again (and could take up quite some memory if kept...)
-            If TestTrialSound IsNot Nothing Then TestTrialSound = Nothing
+            If Sound IsNot Nothing Then Sound = Nothing
 
             If TrialSoundsToExport IsNot Nothing Then
                 For i = 0 To TrialSoundsToExport.Count - 1
@@ -2660,7 +2661,7 @@ Namespace SipTest
             'And also the pseudo trial sounds if any
             If PseudoTrials IsNot Nothing Then
                 For Each PseudoTrial In PseudoTrials
-                    If PseudoTrial.TestTrialSound IsNot Nothing Then PseudoTrial.TestTrialSound = Nothing
+                    If PseudoTrial.Sound IsNot Nothing Then PseudoTrial.Sound = Nothing
 
                     If PseudoTrial.TrialSoundsToExport IsNot Nothing Then
                         For i = 0 To PseudoTrial.TrialSoundsToExport.Count - 1
@@ -2806,6 +2807,19 @@ Namespace SipTest
         End Sub
 
         ''' <summary>
+        ''' Sets the supplied Locations to the TestParadigm key in the TargetStimulusLocations object, overwriting any previous values.
+        ''' </summary>
+        ''' <param name="Testparadigm"></param>
+        ''' <param name="Locations"></param>
+        Public Sub SetTargetStimulusLocations(ByVal TestParadigm As Testparadigm, ByRef Locations As List(Of SoundSourceLocation))
+
+            If _TargetStimulusLocations.ContainsKey(TestParadigm) Then
+                _TargetStimulusLocations.Remove(TestParadigm)
+            End If
+            _TargetStimulusLocations.Add(TestParadigm, Locations.ToArray)
+        End Sub
+
+        ''' <summary>
         ''' Sets the supplied horizontal azimuths to the TestParadigm key in the MaskerLocations object, overwriting any previous values.
         ''' </summary>
         ''' <param name="Testparadigm"></param>
@@ -2835,6 +2849,19 @@ Namespace SipTest
         End Sub
 
         ''' <summary>
+        ''' Sets the supplied Locations to the TestParadigm key in the MaskerLocations object, overwriting any previous values.
+        ''' </summary>
+        ''' <param name="Testparadigm"></param>
+        ''' <param name="Locations"></param>
+        Public Sub SetMaskerLocations(ByVal TestParadigm As Testparadigm, ByRef Locations As List(Of SoundSourceLocation))
+
+            If _MaskerLocations.ContainsKey(TestParadigm) Then
+                _MaskerLocations.Remove(TestParadigm)
+            End If
+            _MaskerLocations.Add(TestParadigm, Locations.ToArray)
+        End Sub
+
+        ''' <summary>
         ''' Sets the supplied horizontal azimuths to the TestParadigm key in the BackgroundLocations object, overwriting any previous values.
         ''' </summary>
         ''' <param name="Testparadigm"></param>
@@ -2861,6 +2888,19 @@ Namespace SipTest
             Next
 
             _BackgroundLocations.Add(TestParadigm, SourceLocationArrayList.ToArray)
+        End Sub
+
+        ''' <summary>
+        ''' Sets the supplied Locations to the TestParadigm key in the BackgroundLocations object, overwriting any previous values.
+        ''' </summary>
+        ''' <param name="Testparadigm"></param>
+        ''' <param name="Locations"></param>
+        Public Sub SetBackgroundLocations(ByVal TestParadigm As Testparadigm, ByRef Locations As List(Of SoundSourceLocation))
+
+            If _BackgroundLocations.ContainsKey(TestParadigm) Then
+                _BackgroundLocations.Remove(TestParadigm)
+            End If
+            _BackgroundLocations.Add(TestParadigm, Locations.ToArray)
         End Sub
 
     End Class

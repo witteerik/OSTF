@@ -238,7 +238,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "SiP-testet":
 
                     // Speech test
-                    CurrentSpeechTest = new SrtSpeechTest("Swedish SiP-test");
+                    CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSipTestView2 = new OptionsViewAll();
@@ -383,7 +383,15 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "SiP-testet":
 
+                    if (CurrentSpeechTest.InitializeCurrentTest() == false)
+                    {
+                        Messager.MsgBox("Failed to initiate test!");
+                        return;
+                    } 
+
                     CurrentResponseView = new ResponseView_Mafc();
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
@@ -393,8 +401,11 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Quick SiP":
 
+                    CurrentSpeechTest.InitializeCurrentTest();
 
                     CurrentResponseView = new ResponseView_MafcDragDrop();
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     //CurrentResponseView.AddDefaultSources();

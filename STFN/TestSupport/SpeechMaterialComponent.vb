@@ -3196,7 +3196,7 @@ End Class
 Public Class SmcPresets
     Inherits SortedSet(Of Preset)
 
-    Public Function GetPretest(ByVal PresetName As String)
+    Public Function GetPretest(ByVal PresetName As String) As Preset
 
         For Each Preset In Me
             If Preset.Name = PresetName Then Return Preset
