@@ -16,6 +16,7 @@ using Java.Interop;
 using System.Runtime.InteropServices;
 using STFN;
 using Android.Bluetooth;
+using System.Security.AccessControl;
 //using Java.Lang;
 
 
@@ -87,7 +88,7 @@ namespace STFM
 
 
         [SupportedOSPlatform("Android31.0")]
-        public AndroidAudioTrackPlayer(ref DuplexMixer Mixer, int bufferSize = 512)
+        public AndroidAudioTrackPlayer(ref DuplexMixer Mixer, int bufferSize = 2048)
         {
             this.FramesPerBuffer = bufferSize;
             this.Mixer = Mixer;
@@ -103,7 +104,7 @@ namespace STFM
 
                 this.SampleRate = (int)CurrentFormat.SampleRate;
                 NumberOfOutputChannels = Mixer.GetHighestOutputChannel();
-                SetOverlapDuration(0.5);
+                SetOverlapDuration(0.05);
                 SilentBuffer = new float[FramesPerBuffer * NumberOfOutputChannels];
                 PlaybackBuffer = new float[FramesPerBuffer * NumberOfOutputChannels];
 
@@ -143,33 +144,34 @@ namespace STFM
                 var audioTrackBuilder = new AudioTrack.Builder();
 
                 audioTrackBuilder.SetAudioFormat(new AudioFormat.Builder()
-                    .SetEncoding(Android.Media.Encoding.Pcm32bit)
+                    .SetEncoding(Android.Media.Encoding.PcmFloat)
                     .SetSampleRate((int)CurrentFormat.SampleRate)
                     .SetChannelIndexMask(ChannelIndexMask)
                     .Build());
 
                 //audioTrackBuilder.SetAudioFormat(new AudioFormat.Builder()
-                //    .SetEncoding(Android.Media.Encoding.Pcm32bit)
+                //    .SetEncoding(Android.Media.Encoding.PcmFloat)
                 //    .SetSampleRate((int)CurrentFormat.SampleRate)
                 //    .SetChannelMask(ChannelOut.Mono)
                 //    .Build());
 
                 // Set buffer size here
-                audioTrackBuilder.SetBufferSizeInBytes(NumberOfOutputChannels * FramesPerBuffer * 4);
+                audioTrackBuilder.SetBufferSizeInBytes(NumberOfOutputChannels * FramesPerBuffer);
 
                 audioTrackBuilder.SetAudioAttributes(new Android.Media.AudioAttributes.Builder()
                     .SetUsage(AudioUsageKind.Media)
                     .SetContentType(AudioContentType.Music)
                     .Build());
 
-                audioTrackBuilder.SetPerformanceMode(AudioTrackPerformanceMode.LowLatency);
+                audioTrackBuilder.SetPerformanceMode(AudioTrackPerformanceMode.None);
+                audioTrackBuilder.SetTransferMode(AudioTrackMode.Stream);
 
                 // Building the audio tracks
                 audioTrack = audioTrackBuilder.Build();
 
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
 
-                castAudioTrack.SetNotificationMarkerPosition(FramesPerBuffer / 2);
+                castAudioTrack.SetNotificationMarkerPosition(2);
                 castAudioTrack.MarkerReached += MarkerReached;
 
                 //Setting both sounds to silent sound
@@ -177,22 +179,14 @@ namespace STFM
                 OutputSoundA = SilentSound;
                 OutputSoundB = SilentSound;
 
+                castAudioTrack.SetStartThresholdInFrames(FramesPerBuffer);
+                //var x = castAudioTrack.StartThresholdInFrames;
+               
                 // Start playback
                 castAudioTrack.Play();
 
-                // Playing silent buffer to start the callback process (maybe change this to first buffer...?)
-                byte[] soundByteArray = new byte[SilentBuffer.Length * 4*4];
-                //int idx = 0;
-                //for (int i = 0; i < SilentBuffer.Length; i++)
-                //{
-                //    // Copying to byte
-                //    Int32 val = (Int32)SilentBuffer[i];
-                //    byte[] val_bytes = BitConverter.GetBytes(val);
-                //    val_bytes.CopyTo(soundByteArray, idx);
-                //    idx += 4;
-                //}
-
-                castAudioTrack.Write(soundByteArray, 0, soundByteArray.Length, WriteMode.NonBlocking);
+                // Calls MarkerReached to initiate play loop
+                MarkerReached(null, null);
 
                 if (castAudioTrack.PlayState != PlayState.Playing)
                 {
@@ -338,27 +332,45 @@ namespace STFM
             }
 
             double BitdepthScaling;
-            switch (NewOutputSound.WaveFormat.BitDepth)
+            switch (NewOutputSound.WaveFormat.Encoding)
             {
-                case 16:
-                    // 16 bit sample data should be scale to 32 bit integer range
-                    BitdepthScaling = Int32.MaxValue / short.MaxValue;
+                case WaveFormat.WaveFormatEncodings.PCM:
+                    switch (NewOutputSound.WaveFormat.BitDepth)
+                    {
+                        case 16:
+                            // Dividing by short.MaxValue to get the range +/- unity
+                            BitdepthScaling = 1 / short.MaxValue;
+                            break;
+
+                        default:
+                            throw new NotImplementedException("Unsupported bit depth");
+                            break;
+                    }
                     break;
 
-                case 32:
-                    // +/1 unity range should be scaled to 32 bit integer range
-                    BitdepthScaling = Int32.MaxValue;
+                case WaveFormat.WaveFormatEncodings.IeeeFloatingPoints:
+                    switch (NewOutputSound.WaveFormat.BitDepth)
+                    {
+                        case 32:
+                            // No scaling, already in 32 bit floats
+                            BitdepthScaling = 1;
+                            break;
+
+                        default:
+                            throw new NotImplementedException("Unsupported bit depth");
+                            break;
+                    }
                     break;
 
                 default:
-                    throw new NotImplementedException("Unsupported bit depth");
+                    throw new NotImplementedException("Unsupported bit encoding");
                     break;
             }
 
             //'Setting NewSound to the NewOutputSound to indicate that the output sound should be swapped by the callback
             NewSound = STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.CreateBufferHoldersOnNewThread(ref NewOutputSound, ref Mixer, ref FramesPerBuffer, ref NumberOfOutputChannels, BitdepthScaling);
 
-            playNewSound_IeeeFloatingPoints(ref NewOutputSound);
+            //playNewSound_IeeeFloatingPoints(ref NewOutputSound);
 
             return true;
 
@@ -557,13 +569,6 @@ namespace STFM
 
         private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
         {
-            // To be replaced
-            //IntPtr input;
-            //IntPtr output;
-            //uint frameCount;
-            //PortAudio.PaStreamCallbackTimeInfo timeInfo;
-            //PortAudio.PaStreamCallbackFlags statusFlags;
-            //IntPtr userData;
 
             float[] OutputBuffer = new float[PlaybackBuffer.Length];
 
@@ -574,14 +579,9 @@ namespace STFM
             // Declaring a spin lock taken variable
             bool spinLockTaken = false;
 
-            try
-            {
                 // Attempts to enter a spin lock to avoid multiple threads calling before complete
                 callbackSpinLock.Enter(ref spinLockTaken);
 
-                // OUTPUT SOUND
-                //if (PlaybackIsActive == true)
-                //{
                     // Checking if the current sound should be swapped (if there is a new sound in NewSound)
                     if (NewSound != null)
                     {
@@ -621,14 +621,13 @@ namespace STFM
                             if (PositionA >= OutputSoundA.Length)
                             {
                                 OutputBuffer = SilentBuffer;
-                                //Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length);
                             }
                             else
                             {
                                 PlaybackBuffer = OutputSoundA[PositionA].InterleavedSampleArray;
 
                                 //Copying the playback buffer to unmanaged memory
-                                OutputBuffer = PlaybackBuffer; //Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels);
+                                OutputBuffer = PlaybackBuffer; 
                                 PositionA += 1;
                             }
 
@@ -638,14 +637,13 @@ namespace STFM
 
                             if (PositionB >= OutputSoundB.Length)
                             {
-                                OutputBuffer = SilentBuffer; //Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length);
+                                OutputBuffer = SilentBuffer; 
                             }
                             else
                             {
                                 PlaybackBuffer = OutputSoundB[PositionB].InterleavedSampleArray;
 
-                                //Copying the playback buffer to unmanaged memory
-                                OutputBuffer = PlaybackBuffer; //Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels);
+                                OutputBuffer = PlaybackBuffer; 
                                 PositionB += 1;
                             }
 
@@ -662,8 +660,7 @@ namespace STFM
                                     CrossFadeProgress += 1;
                                 }
 
-                                // Copying the playback buffer to unmanaged memory
-                                OutputBuffer = PlaybackBuffer; //Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels);
+                                OutputBuffer = PlaybackBuffer; 
                             }
                             else if (PositionA < OutputSoundA.Length && PositionB >= OutputSoundB.Length)
                             {
@@ -674,8 +671,7 @@ namespace STFM
                                     CrossFadeProgress += 1;
                                 }
 
-                                // Copying the playback buffer to unmanaged memory
-                                OutputBuffer = PlaybackBuffer; //Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels);
+                                OutputBuffer = PlaybackBuffer; 
                             }
                             else if (PositionA >= OutputSoundA.Length && PositionB < OutputSoundB.Length)
                             {
@@ -686,15 +682,13 @@ namespace STFM
                                     CrossFadeProgress += 1;
                                 }
 
-                                // Copying the playback buffer to unmanaged memory
-                                OutputBuffer = PlaybackBuffer; //Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels);
+                                OutputBuffer = PlaybackBuffer; 
                             }
                             else
                             {
                                 // End of both sounds: Copying silence
                                 CrossFadeProgress = FadeArrayLength();
-                                OutputBuffer = SilentBuffer; //Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length);
-
+                                OutputBuffer = SilentBuffer; 
                             }
 
                             PositionA += 1;
@@ -723,8 +717,7 @@ namespace STFM
                                     CrossFadeProgress += 1;
                                 }
 
-                                // Copying the playback buffer to unmanaged memory
-                                OutputBuffer = PlaybackBuffer; //Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels);
+                                OutputBuffer = PlaybackBuffer; 
                             }
                             else if (PositionA < OutputSoundA.Length && PositionB >= OutputSoundB.Length)
                             {
@@ -735,8 +728,7 @@ namespace STFM
                                     CrossFadeProgress += 1;
                                 }
 
-                                // Copying the playback buffer to unmanaged memory
-                                OutputBuffer = PlaybackBuffer; //Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels);
+                                OutputBuffer = PlaybackBuffer; 
                             }
                             else if (PositionA >= OutputSoundA.Length && PositionB < OutputSoundB.Length)
                             {
@@ -747,8 +739,7 @@ namespace STFM
                                     CrossFadeProgress += 1;
                                 }
 
-                                // Copying the playback buffer to unmanaged memory
-                                OutputBuffer = PlaybackBuffer; //Marshal.Copy(PlaybackBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels);
+                                OutputBuffer = PlaybackBuffer; 
                             }
                             else
                             {
@@ -774,65 +765,15 @@ namespace STFM
                             break;
                     }
 
-                    //if (raisePlaybackBufferTickEvents == true)
-                    //{
-                    //    PlaybackBufferTick?.Invoke();
-                    //}
-
-                //}
-
-                // Write the generated audio data to the AudioTrack
-                byte[] soundByteArray = new byte[4 * OutputBuffer.Length];
-                int idx = 0;
-                for (int i = 0; i < OutputBuffer.Length; i++)
-                {
-                    // Copying to byte
-                    Int32 val = (Int32)OutputBuffer[i];
-                    byte[] val_bytes = BitConverter.GetBytes(val);
-                    val_bytes.CopyTo(soundByteArray, idx);
-                    idx += 4;
-
-                }
 
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
 
-                castAudioTrack.SetNotificationMarkerPosition(castAudioTrack.PlaybackHeadPosition + FramesPerBuffer / 2);
+            castAudioTrack.SetNotificationMarkerPosition(castAudioTrack.PlaybackHeadPosition + 2); 
 
-                castAudioTrack.Write(soundByteArray, 0, soundByteArray.Length, WriteMode.Blocking);
+            int retVal = castAudioTrack.Write(OutputBuffer, 0, OutputBuffer.Length, WriteMode.Blocking);
 
-                //currentBufferIndex += 1;
+            if (spinLockTaken) callbackSpinLock.Exit();
 
-
-            }
-            catch (Exception ex)
-            {
-
-                // Playing silence if an exception occurred
-                AudioTrack castAudioTrack = (AudioTrack)audioTrack;
-
-                byte[] soundByteArray = new byte[4 * SilentBuffer.Length];
-                //int idx = 0;
-                //for (int i = 0; i < SilentBuffer.Length; i++)
-                //{
-                //    // Copying to byte
-                //    Int32 val = (Int32)SilentBuffer[i];
-                //    byte[] val_bytes = BitConverter.GetBytes(val);
-                //    val_bytes.CopyTo(soundByteArray, idx);
-                //    idx += 4;
-
-                //}
-
-                castAudioTrack.Write(soundByteArray, 0, soundByteArray.Length, WriteMode.NonBlocking);
-
-                //Marshal.Copy(SilentBuffer, 0, output, FramesPerBuffer * NumberOfOutputChannels);
-                //audioTrack.Write(generatedSnd, 0, generatedSnd.Length, WriteMode.Blocking);
-
-            }
-            finally
-            {
-                // Releases any spinlock
-                if (spinLockTaken) callbackSpinLock.Exit();
-            }
         }
 
         private int FadeArrayLength()

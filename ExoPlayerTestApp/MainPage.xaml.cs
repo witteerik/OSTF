@@ -159,7 +159,9 @@ namespace ExoPlayerTestApp
             private  void OnSine1Clicked(object sender, EventArgs e)
         {
 
-            PlaySineWave32I ();
+            PlaySineWave32float();
+            
+            //PlaySineWave32I ();
 
             //PlaySineWave24();
 
@@ -259,59 +261,31 @@ namespace ExoPlayerTestApp
 
 
         [SupportedOSPlatform("Android23.0")]
-        public void PlaySineWave32I_OLD()
+        public void PlaySineWave32float()
         {
             int SampleRate = 44100; // Sample rate in Hz
             double Frequency_L = 1000 - 10; // Frequency of the sine wave in Hz (Changed to 1000 Hz)
-            double Frequency_R = 1000 + 10; // Frequency of the sine wave in Hz (Changed to 1000 Hz)
+            //double Frequency_R = 1000 + 10; // Frequency of the sine wave in Hz (Changed to 1000 Hz)
             double Duration = 3; // Duration of the sine wave in seconds
-            double Amplitude = volume * Int32.MaxValue;
+            double Amplitude = volume; //volume * Int32.MaxValue;
 
             int numSamples = (int)(Duration * SampleRate);
-            double[] sample_L = new double[numSamples];
+            float[] sample_L = new float[numSamples];
             for (int i = 0; i < numSamples; i++)
             {
-                sample_L[i] = Amplitude * Math.Sin(2 * Math.PI * Frequency_L * i / SampleRate);
-            }
-
-            double[] sample_R = new double[numSamples];
-            for (int i = 0; i < numSamples; i++)
-            {
-                sample_R[i] = Amplitude * Math.Sin(2 * Math.PI * Frequency_R * i / SampleRate);
-            }
-
-
-            // Convert samples to byte array with PCM float encoding
-            byte[] generatedSnd = new byte[2 * 4 * numSamples];
-            int idx = 0;
-            for (int i = 0; i < numSamples; i++)
-            {
-
-                // Copying to left channel
-
-                Int32 val_L = (Int32)sample_L[i];
-                byte[] val_bytes_L = BitConverter.GetBytes(val_L);
-                val_bytes_L.CopyTo(generatedSnd, idx);
-                idx += 4;
-
-                // Copying to right channel
-                Int32 val_R = (Int32)sample_R[i];
-                byte[] val_bytes_R = BitConverter.GetBytes(val_R);
-                val_bytes_R.CopyTo(generatedSnd, idx);
-                idx += 4;
-
+                sample_L[i] = (float)(Amplitude * Math.Sin(2 * Math.PI * Frequency_L * i / SampleRate));
             }
 
             // Create AudioTrack with PCM float format using AudioTrack.Builder
             var audioTrackBuilder = new AudioTrack.Builder();
 
             audioTrackBuilder.SetAudioFormat(new AudioFormat.Builder()
-                .SetEncoding(Encoding.Pcm32bit)
+                .SetEncoding(Encoding.PcmFloat)
                 .SetSampleRate(SampleRate)
-                .SetChannelMask(ChannelOut.Stereo)
+                .SetChannelMask(ChannelOut.Mono)
                 .Build());
 
-            audioTrackBuilder.SetBufferSizeInBytes(2 * numSamples * 4);
+            audioTrackBuilder.SetBufferSizeInBytes(numSamples);
 
             audioTrackBuilder.SetAudioAttributes(new AudioAttributes.Builder()
                 .SetUsage(AudioUsageKind.Media)
@@ -328,7 +302,7 @@ namespace ExoPlayerTestApp
                 audioTrack.Play();
 
                 // Write the generated audio data to the AudioTrack
-                audioTrack.Write(generatedSnd, 0, generatedSnd.Length, WriteMode.NonBlocking);
+                audioTrack.Write(sample_L, 0, sample_L.Length, WriteMode.NonBlocking);
 
             }
             catch (Exception ex)
