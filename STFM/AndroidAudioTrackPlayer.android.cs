@@ -40,15 +40,22 @@ namespace STFM
             set { equalPowerCrossFade = value; }
         }
 
-        bool IsPlaying = false;
-
         public event iSoundPlayer.MessageFromPlayerEventHandler MessageFromPlayer;
         public event iSoundPlayer.StartedSwappingOutputSoundsEventHandler StartedSwappingOutputSounds;
         public event iSoundPlayer.FinishedSwappingOutputSoundsEventHandler FinishedSwappingOutputSounds;
 
-        bool iSoundPlayer.IsPlaying
+        public bool IsPlaying
         {
-            get { return IsPlaying; }
+            get {
+                if (audioTrack != null)
+                {
+                    AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+                    if (castAudioTrack.PlayState == PlayState.Playing) {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
 
         public void SetOverlapDuration(double Duration)
@@ -71,8 +78,6 @@ namespace STFM
             return _OverlapFrameCount;
         }
 
-        //int bufferSize;
-
         STFN.Audio.Formats.WaveFormat CurrentFormat = null;
 
         DuplexMixer Mixer;
@@ -82,9 +87,36 @@ namespace STFM
             return Mixer;
         }
 
-        Object audioTrack = null;
+        Object audioTrack = null; // This is declared as an Object instead of AudioTrack since it will otherwise register an error in the Visual Studio editor.
 
-        //AudioTrack audioTrack1 = null;
+        private System.Threading.SpinLock callbackSpinLock = new System.Threading.SpinLock();
+
+        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundA;
+        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundB;
+        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] NewSound;
+        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] SilentSound;
+
+        private float[] OverlapFadeInArray;
+        private float[] OverlapFadeOutArray;
+
+        private int PositionA;
+        private int PositionB;
+        private int CrossFadeProgress;
+
+        private OutputSounds CurrentOutputSound = OutputSounds.OutputSoundA;
+        private enum OutputSounds
+        {
+            OutputSoundA,
+            OutputSoundB,
+            FadingToB,
+            FadingToA,
+        }
+
+        private float[] SilentBuffer = new float[512];
+        private float[] PlaybackBuffer = new float[512];
+        int FramesPerBuffer;
+        int NumberOfOutputChannels; // This corresponds to the number higest numbered physical output channel on the selected device.
+        int SampleRate;
 
 
         [SupportedOSPlatform("Android31.0")]
@@ -92,7 +124,6 @@ namespace STFM
         {
             this.FramesPerBuffer = bufferSize;
             this.Mixer = Mixer;
-
         }
 
         [SupportedOSPlatform("Android31.0")]
@@ -128,6 +159,7 @@ namespace STFM
 
                 System.Collections.BitArray bitArray = new System.Collections.BitArray(channelInclusionList.ToArray()); // channel 1, channel 2, ...
 
+                // This is how a hard coded eight channel system channel mask would look
                 //System.Collections.BitArray bitArray_NotUsed = new System.Collections.BitArray(new bool[] { true, true, true, true, true, true, true, true }); // channel 1, channel 2, ...
 
                 // Create a byte array with length of 4 (32 bits)
@@ -139,7 +171,6 @@ namespace STFM
                 // Convert byte array to integer
                 int ChannelIndexMask = BitConverter.ToInt32(bytes, 0);
 
-
                 // Create AudioTrack with PCM float format using AudioTrack.Builder
                 var audioTrackBuilder = new AudioTrack.Builder();
 
@@ -149,13 +180,6 @@ namespace STFM
                     .SetChannelIndexMask(ChannelIndexMask)
                     .Build());
 
-                //audioTrackBuilder.SetAudioFormat(new AudioFormat.Builder()
-                //    .SetEncoding(Android.Media.Encoding.PcmFloat)
-                //    .SetSampleRate((int)CurrentFormat.SampleRate)
-                //    .SetChannelMask(ChannelOut.Mono)
-                //    .Build());
-
-                // Set buffer size here
                 audioTrackBuilder.SetBufferSizeInBytes(NumberOfOutputChannels * FramesPerBuffer);
 
                 audioTrackBuilder.SetAudioAttributes(new Android.Media.AudioAttributes.Builder()
@@ -221,7 +245,6 @@ namespace STFM
                     throw new Exception("Unable to start the sound AndroidAudioTrackPlayer. Unsupported audio bit depth.");
                 }
             }
-
         }
 
 
@@ -232,16 +255,13 @@ namespace STFM
 
             if (audioTrack != null)
             {
-
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
-
                 if (castAudioTrack.PlayState == PlayState.Playing)
                 {
                     castAudioTrack.Stop();
                     castAudioTrack.Release();
                     WasPlaying = true;
                 }
-                
             }
 
             if (SampleRate != null)
@@ -277,20 +297,30 @@ namespace STFM
 
         public void CloseStream()
         {
-            //throw new NotImplementedException();
+            if (audioTrack != null)
+            {
+                AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+                castAudioTrack.Stop();
+            }
         }
 
         public void Dispose()
         {
-            //throw new NotImplementedException();
+            if (audioTrack != null)
+            {
+                AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+                castAudioTrack.Stop();
+                castAudioTrack.Release();
+                castAudioTrack.Dispose();
+                audioTrack = null;
+            }
         }
 
         public void FadeOutPlayback()
         {
-            //throw new NotImplementedException();
+            //Doing fade out by swapping to SilentSound
+            NewSound = SilentSound; 
         }
-
-
 
         public Sound GetRecordedSound(bool ClearRecordingBuffer)
         {
@@ -376,201 +406,13 @@ namespace STFM
 
         }
 
-
-
-        [SupportedOSPlatform("Android31.0")]
-        bool playNewSound_IeeeFloatingPoints(ref Sound NewOutputSound)
-        {
-
-            //'Setting NewSound to the NewOutputSound to indicate that the output sound should be swapped by the callback
-            //NewSound = STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.CreateBufferHoldersOnNewThread(ref NewOutputSound,ref Mixer,ref FramesPerBuffer, ref NumberOfOutputChannels);
-
-            if (DeviceInfo.Current.Platform == DevicePlatform.Android)
-            {
-
-                AudioTrack castAudioTrack = (AudioTrack)audioTrack;
-
-                //castAudioTrack.SetVolume();
-
-                //AudioTrack.StreamEventCallback StreamEventCallback()
-                //castAudioTrack.AddOnRoutingChangedListener()
-
-                if (castAudioTrack.PlayState != PlayState.Playing)
-                {
-                    throw new System.Exception("Sound player not running anymore!");
-                }
-
-                // This should be async ? or on another thread
-
-                if (NewOutputSound.WaveFormat.IsEqual(ref CurrentFormat, true, true, true, true) == false)
-                {
-                    throw new System.Exception("The format of the new sound does not agree with the format for which the sound player was instantiated.");
-                }
-
-
-                // Getting the sound samples and writing them to the player
-                int channel = 1;
-
-                // Getting a gain factor. This could be the channel dependent speaker calibration value. It could also be multiplied by another "online" gain factor applied to the sound.
-                double GainFactor = 1;
-
-                // Limiting BitdepthScaling to Int32.MaxValue // May be unecessary
-                double BitdepthScaling;
-                switch (NewOutputSound.WaveFormat.BitDepth)
-                {
-                    case 16:
-                        // 16 bit sample data should be scale to 32 bit integer range
-                        BitdepthScaling = System.Math.Min(GainFactor * Int32.MaxValue / short.MaxValue, Int32.MaxValue);
-                        break;
-
-                    case 32:
-                        // +/1 unity range should be scaled to 32 bit integer range
-                        BitdepthScaling = System.Math.Min(GainFactor * Int32.MaxValue, Int32.MaxValue);
-                        break;
-
-                    default:
-                        throw new NotImplementedException("Unsupported bit depth");
-                        break;
-                }
-
-                // Getting the channel sample array
-                float[] sample = NewOutputSound.WaveData.get_SampleData(channel);
-
-                // Getting the number of samples
-                int numSamples = sample.Length;
-
-                // Convert samples to byte array
-                byte[] generatedSnd = new byte[4 * numSamples];
-                int idx = 0;
-                foreach (float sampleValue in sample)
-                {
-                    byte[] val_bytes = BitConverter.GetBytes((Int32)(sampleValue * BitdepthScaling));
-                    val_bytes.CopyTo(generatedSnd, idx);
-                    idx += 4;
-                }
-
-                try
-                {
-
-                    // Write the generated audio data to the AudioTrack
-                    castAudioTrack.Write(generatedSnd, 0, generatedSnd.Length, WriteMode.Blocking);
-
-                    return true;
-
-                }
-                catch (Exception ex)
-                {
-                    // Handle any exceptions
-                    //Console.WriteLine("Error playing audio: " + ex.Message);
-
-                    return false;
-
-                }
-
-            }
-            else
-            {
-                return false;
-            }
-
-        }
-
-        //public STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] CreateBufferHoldersOnNewThread(ref Sound inputSound, int buffersOnMainThread = 10)
-        //{
-        //    int bufferCount = (int)(inputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer) + 1;
-
-        //    STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] output = new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[bufferCount];
-
-        //    // Initializing the BufferHolders
-        //    for (int b = 0; b < output.Length; b++)
-        //    {
-        //        output[b] = new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, FramesPerBuffer);
-        //    }
-
-        //    // Creating the BuffersOnMainThread first buffers
-        //    // Limiting the number of main thread buffers if the sound is very short
-        //    if (output.Length - 1 < buffersOnMainThread)
-        //    {
-        //        buffersOnMainThread = Math.Max(0, output.Length - 1);
-        //    }
-
-        //    int currentChannelInterleavedPosition = 0;
-        //    foreach (var outputRouting in Mixer.OutputRouting)
-        //    {
-        //        if (outputRouting.Value == 0) continue;
-
-        //        if (outputRouting.Value > inputSound.WaveFormat.Channels) continue;
-
-        //        // Skipping if channel contains no data
-        //        var ChannelArray = inputSound.WaveData.get_SampleData(outputRouting.Value);
-        //        if (ChannelArray.Length == 0) continue;
-
-        //        // Calculates the calibration gain
-        //        double calibrationGain = Mixer.get_CalibrationGain(outputRouting.Key);
-        //        float calibrationGainFactor = (float)Math.Pow(10, calibrationGain / 20);
-
-        //        currentChannelInterleavedPosition = outputRouting.Key - 1;
-
-        //        // Going through buffer by buffer
-        //        for (int bufferIndex = 0; bufferIndex < buffersOnMainThread; bufferIndex++)
-        //        {
-        //            // Setting start sample and time
-        //            output[bufferIndex].StartSample = bufferIndex * FramesPerBuffer;
-
-        //            // Shuffling samples from the input sound to the interleaved array
-        //            int currentWriteSampleIndex = 0;
-        //            for (int sample = bufferIndex * FramesPerBuffer; sample < (bufferIndex + 1) * FramesPerBuffer; sample++)
-        //            {
-        //                int x = currentWriteSampleIndex * NumberOfOutputChannels + currentChannelInterleavedPosition;
-
-        //                output[bufferIndex].InterleavedSampleArray[currentWriteSampleIndex * NumberOfOutputChannels + currentChannelInterleavedPosition] = ChannelArray[sample] * calibrationGainFactor;
-        //                currentWriteSampleIndex++;
-        //            }
-        //        }
-        //    }
-
-        //    // Fixes the rest of the buffers on a new thread, allowing the new sound to start playing
-        //    STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferCreaterOnNewThread threadWork = new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferCreaterOnNewThread(ref inputSound, ref output, buffersOnMainThread,
-        //                                                                        NumberOfOutputChannels, ref Mixer, (uint)FramesPerBuffer);
-
-        //    return output;
-        //}
-
-
-        private System.Threading.SpinLock callbackSpinLock = new System.Threading.SpinLock();
-        private bool PlaybackIsActive = false;
-
-        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundA;
-        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundB;
-        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] NewSound;
-        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] SilentSound;
-
-        private float[] OverlapFadeInArray;
-        private float[] OverlapFadeOutArray;
-
-        private int PositionA;
-        private int PositionB;
-        private int CrossFadeProgress;
-
-        private OutputSounds CurrentOutputSound = OutputSounds.OutputSoundA;
-        private enum OutputSounds
-        {
-            OutputSoundA,
-            OutputSoundB,
-            FadingToB,
-            FadingToA,
-        }
-
-        private float[] SilentBuffer = new float[512];
-        private float[] PlaybackBuffer = new float[512];
-        int FramesPerBuffer;
-        int NumberOfOutputChannels; // This corresponds to the number higest numbered physical output channel on the selected device.
-        int SampleRate;
-
+        /// <summary>
+        /// This method is responsible for playing audio buffers. It needs to be triggered once when the AudioTrack is started. After that, it is triggered by the Marker position, which is updated to trigger in the beginning of the playing of the next buffer. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
         {
-
-            float[] OutputBuffer = new float[PlaybackBuffer.Length];
 
             // Sending a buffer tick to the controller
             // Temporarily outcommented, until better solutions are fixed:
@@ -579,209 +421,190 @@ namespace STFM
             // Declaring a spin lock taken variable
             bool spinLockTaken = false;
 
-                // Attempts to enter a spin lock to avoid multiple threads calling before complete
-                callbackSpinLock.Enter(ref spinLockTaken);
+            bool playSilence = false;
 
-                    // Checking if the current sound should be swapped (if there is a new sound in NewSound)
-                    if (NewSound != null)
+            // Attempts to enter a spin lock to avoid multiple threads calling before complete
+            callbackSpinLock.Enter(ref spinLockTaken);
+
+            // Checking if the current sound should be swapped (if there is a new sound in NewSound)
+            if (NewSound != null)
+            {
+                // Swapping sound
+                switch (CurrentOutputSound)
+                {
+                    case OutputSounds.OutputSoundA:
+                    case OutputSounds.FadingToA:
+                        OutputSoundB = NewSound;
+                        NewSound = null;
+                        CurrentOutputSound = OutputSounds.FadingToB;
+                        PositionB = 0;
+                        break;
+
+                    case OutputSounds.OutputSoundB:
+                    case OutputSounds.FadingToB:
+                        OutputSoundA = NewSound;
+                        NewSound = null;
+                        CurrentOutputSound = OutputSounds.FadingToA;
+                        PositionA = 0;
+                        break;
+                }
+
+                // Setting CrossFadeProgress to 0 since a new fade period has begun
+                CrossFadeProgress = 0;
+
+                // Raising event StartedSwappingOutputSounds
+                StartedSwappingOutputSounds?.Invoke();
+            }
+
+            // Ignoring Checking current positions to see if an EndOfBufferAlert should be sent
+
+            //Copying buffers 
+            switch (CurrentOutputSound)
+            {
+                case OutputSounds.OutputSoundA:
+                    if (PositionA >= OutputSoundA.Length)
                     {
-                        // Swapping sound
-                        switch (CurrentOutputSound)
+                        playSilence = true;
+                    }
+                    else
+                    {
+                        PlaybackBuffer = OutputSoundA[PositionA].InterleavedSampleArray;
+                        PositionA += 1;
+                    }
+                    break;
+
+                case OutputSounds.OutputSoundB:
+
+                    if (PositionB >= OutputSoundB.Length)
+                    {
+                        playSilence = true;
+                    }
+                    else
+                    {
+                        PlaybackBuffer = OutputSoundB[PositionB].InterleavedSampleArray;
+                        PositionB += 1;
+                    }
+                    break;
+
+                case OutputSounds.FadingToA:
+
+                    if (PositionA < OutputSoundA.Length && PositionB < OutputSoundB.Length)
+                    {
+                        // Mixing sound A and B to the buffer
+                        for (int j = 0; j < PlaybackBuffer.Length; j++)
                         {
-                            case OutputSounds.OutputSoundA:
-                            case OutputSounds.FadingToA:
-                                OutputSoundB = NewSound;
-                                NewSound = null;
-                                CurrentOutputSound = OutputSounds.FadingToB;
-                                PositionB = 0;
-                                break;
-
-                            case OutputSounds.OutputSoundB:
-                            case OutputSounds.FadingToB:
-                                OutputSoundA = NewSound;
-                                NewSound = null;
-                                CurrentOutputSound = OutputSounds.FadingToA;
-                                PositionA = 0;
-                                break;
+                            PlaybackBuffer[j] = OutputSoundB[PositionB].InterleavedSampleArray[j] * OverlapFadeOutArray[CrossFadeProgress] + OutputSoundA[PositionA].InterleavedSampleArray[j] * OverlapFadeInArray[CrossFadeProgress];
+                            CrossFadeProgress += 1;
                         }
+                    }
+                    else if (PositionA < OutputSoundA.Length && PositionB >= OutputSoundB.Length)
+                    {
+                        // Copying only sound A to the buffer
+                        for (int j = 0; j < PlaybackBuffer.Length; j++)
+                        {
+                            PlaybackBuffer[j] = OutputSoundA[PositionA].InterleavedSampleArray[j] * OverlapFadeInArray[CrossFadeProgress];
+                            CrossFadeProgress += 1;
+                        }
+                    }
+                    else if (PositionA >= OutputSoundA.Length && PositionB < OutputSoundB.Length)
+                    {
+                        // Copying only sound B to the buffer
+                        for (int j = 0; j < PlaybackBuffer.Length; j++)
+                        {
+                            PlaybackBuffer[j] = OutputSoundB[PositionB].InterleavedSampleArray[j] * OverlapFadeOutArray[CrossFadeProgress];
+                            CrossFadeProgress += 1;
+                        }
+                    }
+                    else
+                    {
+                        // End of both sounds: Copying silence
+                        CrossFadeProgress = FadeArrayLength();
+                        playSilence = true;
+                    }
 
-                        // Setting CrossFadeProgress to 0 since a new fade period has begun
+                    PositionA += 1;
+                    PositionB += 1;
+
+                    if (CrossFadeProgress >= FadeArrayLength() - 1)
+                    {
+                        CurrentOutputSound = OutputSounds.OutputSoundA;
                         CrossFadeProgress = 0;
 
-                        // Raising event StartedSwappingOutputSounds
-                        StartedSwappingOutputSounds?.Invoke();
+                        // Raising event FinishedSwappingOutputSounds
+                        FinishedSwappingOutputSounds?.Invoke();
+
                     }
+                    break;
 
-                    // Ignoring Checking current positions to see if an EndOfBufferAlert should be sent
+                case OutputSounds.FadingToB:
 
-                    //Copying buffers 
-                    switch (CurrentOutputSound)
+                    if (PositionA < OutputSoundA.Length && PositionB < OutputSoundB.Length)
                     {
-                        case OutputSounds.OutputSoundA:
-                            if (PositionA >= OutputSoundA.Length)
-                            {
-                                OutputBuffer = SilentBuffer;
-                            }
-                            else
-                            {
-                                PlaybackBuffer = OutputSoundA[PositionA].InterleavedSampleArray;
-
-                                //Copying the playback buffer to unmanaged memory
-                                OutputBuffer = PlaybackBuffer; 
-                                PositionA += 1;
-                            }
-
-                            break;
-
-                        case OutputSounds.OutputSoundB:
-
-                            if (PositionB >= OutputSoundB.Length)
-                            {
-                                OutputBuffer = SilentBuffer; 
-                            }
-                            else
-                            {
-                                PlaybackBuffer = OutputSoundB[PositionB].InterleavedSampleArray;
-
-                                OutputBuffer = PlaybackBuffer; 
-                                PositionB += 1;
-                            }
-
-                            break;
-
-                        case OutputSounds.FadingToA:
-
-                            if (PositionA < OutputSoundA.Length && PositionB < OutputSoundB.Length)
-                            {
-                                // Mixing sound A and B to the buffer
-                                for (int j = 0; j < PlaybackBuffer.Length; j++)
-                                {
-                                    PlaybackBuffer[j] = OutputSoundB[PositionB].InterleavedSampleArray[j] * OverlapFadeOutArray[CrossFadeProgress] + OutputSoundA[PositionA].InterleavedSampleArray[j] * OverlapFadeInArray[CrossFadeProgress];
-                                    CrossFadeProgress += 1;
-                                }
-
-                                OutputBuffer = PlaybackBuffer; 
-                            }
-                            else if (PositionA < OutputSoundA.Length && PositionB >= OutputSoundB.Length)
-                            {
-                                // Copying only sound A to the buffer
-                                for (int j = 0; j < PlaybackBuffer.Length; j++)
-                                {
-                                    PlaybackBuffer[j] = OutputSoundA[PositionA].InterleavedSampleArray[j] * OverlapFadeInArray[CrossFadeProgress];
-                                    CrossFadeProgress += 1;
-                                }
-
-                                OutputBuffer = PlaybackBuffer; 
-                            }
-                            else if (PositionA >= OutputSoundA.Length && PositionB < OutputSoundB.Length)
-                            {
-                                // Copying only sound B to the buffer
-                                for (int j = 0; j < PlaybackBuffer.Length; j++)
-                                {
-                                    PlaybackBuffer[j] = OutputSoundB[PositionB].InterleavedSampleArray[j] * OverlapFadeOutArray[CrossFadeProgress];
-                                    CrossFadeProgress += 1;
-                                }
-
-                                OutputBuffer = PlaybackBuffer; 
-                            }
-                            else
-                            {
-                                // End of both sounds: Copying silence
-                                CrossFadeProgress = FadeArrayLength();
-                                OutputBuffer = SilentBuffer; 
-                            }
-
-                            PositionA += 1;
-                            PositionB += 1;
-
-                            if (CrossFadeProgress >= FadeArrayLength() - 1)
-                            {
-                                CurrentOutputSound = OutputSounds.OutputSoundA;
-                                CrossFadeProgress = 0;
-
-                                // Raising event FinishedSwappingOutputSounds
-                                FinishedSwappingOutputSounds?.Invoke();
-
-                            }
-
-                            break;
-
-                        case OutputSounds.FadingToB:
-
-                            if (PositionA < OutputSoundA.Length && PositionB < OutputSoundB.Length)
-                            {
-                                // Mixing sound A and B to the buffer
-                                for (int j = 0; j < PlaybackBuffer.Length; j++)
-                                {
-                                    PlaybackBuffer[j] = OutputSoundB[PositionB].InterleavedSampleArray[j] * OverlapFadeInArray[CrossFadeProgress] + OutputSoundA[PositionA].InterleavedSampleArray[j] * OverlapFadeOutArray[CrossFadeProgress];
-                                    CrossFadeProgress += 1;
-                                }
-
-                                OutputBuffer = PlaybackBuffer; 
-                            }
-                            else if (PositionA < OutputSoundA.Length && PositionB >= OutputSoundB.Length)
-                            {
-                                // Copying only sound A to the buffer
-                                for (int j = 0; j < PlaybackBuffer.Length; j++)
-                                {
-                                    PlaybackBuffer[j] = OutputSoundA[PositionA].InterleavedSampleArray[j] * OverlapFadeOutArray[CrossFadeProgress];
-                                    CrossFadeProgress += 1;
-                                }
-
-                                OutputBuffer = PlaybackBuffer; 
-                            }
-                            else if (PositionA >= OutputSoundA.Length && PositionB < OutputSoundB.Length)
-                            {
-                                // Copying only sound B to the buffer
-                                for (int j = 0; j < PlaybackBuffer.Length; j++)
-                                {
-                                    PlaybackBuffer[j] = OutputSoundB[PositionB].InterleavedSampleArray[j] * OverlapFadeInArray[CrossFadeProgress];
-                                    CrossFadeProgress += 1;
-                                }
-
-                                OutputBuffer = PlaybackBuffer; 
-                            }
-                            else
-                            {
-                                // End of both sounds: Copying silence
-                                CrossFadeProgress = FadeArrayLength();
-                                OutputBuffer = SilentBuffer; //Marshal.Copy(SilentBuffer, 0, output, SilentBuffer.Length);
-
-                            }
-
-                            PositionA += 1;
-                            PositionB += 1;
-
-                            if (CrossFadeProgress >= FadeArrayLength() - 1)
-                            {
-                                CurrentOutputSound = OutputSounds.OutputSoundB;
-                                CrossFadeProgress = 0;
-
-                                // Raising event FinishedSwappingOutputSounds
-                                FinishedSwappingOutputSounds?.Invoke();
-
-                            }
-
-                            break;
+                        // Mixing sound A and B to the buffer
+                        for (int j = 0; j < PlaybackBuffer.Length; j++)
+                        {
+                            PlaybackBuffer[j] = OutputSoundB[PositionB].InterleavedSampleArray[j] * OverlapFadeInArray[CrossFadeProgress] + OutputSoundA[PositionA].InterleavedSampleArray[j] * OverlapFadeOutArray[CrossFadeProgress];
+                            CrossFadeProgress += 1;
+                        }
+                    }
+                    else if (PositionA < OutputSoundA.Length && PositionB >= OutputSoundB.Length)
+                    {
+                        // Copying only sound A to the buffer
+                        for (int j = 0; j < PlaybackBuffer.Length; j++)
+                        {
+                            PlaybackBuffer[j] = OutputSoundA[PositionA].InterleavedSampleArray[j] * OverlapFadeOutArray[CrossFadeProgress];
+                            CrossFadeProgress += 1;
+                        }
+                    }
+                    else if (PositionA >= OutputSoundA.Length && PositionB < OutputSoundB.Length)
+                    {
+                        // Copying only sound B to the buffer
+                        for (int j = 0; j < PlaybackBuffer.Length; j++)
+                        {
+                            PlaybackBuffer[j] = OutputSoundB[PositionB].InterleavedSampleArray[j] * OverlapFadeInArray[CrossFadeProgress];
+                            CrossFadeProgress += 1;
+                        }
+                    }
+                    else
+                    {
+                        // End of both sounds: Copying silence
+                        CrossFadeProgress = FadeArrayLength();
+                        playSilence = true;
                     }
 
+                    PositionA += 1;
+                    PositionB += 1;
 
-                AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+                    if (CrossFadeProgress >= FadeArrayLength() - 1)
+                    {
+                        CurrentOutputSound = OutputSounds.OutputSoundB;
+                        CrossFadeProgress = 0;
 
-            castAudioTrack.SetNotificationMarkerPosition(castAudioTrack.PlaybackHeadPosition + 2); 
+                        // Raising event FinishedSwappingOutputSounds
+                        FinishedSwappingOutputSounds?.Invoke();
+                    }
+                    break;
+            }
 
-            int retVal = castAudioTrack.Write(OutputBuffer, 0, OutputBuffer.Length, WriteMode.Blocking);
-
+            AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+            castAudioTrack.SetNotificationMarkerPosition(castAudioTrack.PlaybackHeadPosition + 2);
+            if (playSilence == false)
+            {
+                int retVal = castAudioTrack.Write(PlaybackBuffer, 0, PlaybackBuffer.Length, WriteMode.Blocking);
+            }
+            else
+            {
+                int retVal = castAudioTrack.Write(SilentBuffer, 0, SilentBuffer.Length, WriteMode.Blocking);
+            }
             if (spinLockTaken) callbackSpinLock.Exit();
 
         }
+
 
         private int FadeArrayLength()
         {
             return NumberOfOutputChannels * _OverlapFrameCount;
         }
-
-
 
         private int _OverlapFrameCount;
 
