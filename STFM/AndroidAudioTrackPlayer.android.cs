@@ -17,13 +17,77 @@ using System.Runtime.InteropServices;
 using STFN;
 using Android.Bluetooth;
 using System.Security.AccessControl;
+//using STFM.PlatForms.Android;
+//using Platforms.Android;
 //using Java.Lang;
+
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace STFM
 {
-    internal class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer
+
+    public class MyBackgroundService : IHostedService, IDisposable
     {
+        private Timer _timer;
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            // Start your background task
+            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+            return Task.CompletedTask;
+        }
+
+        private void DoWork(object state)
+        {
+            // Perform your background work here
+            Console.WriteLine("Background task is running...");
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            // Stop your background task
+            _timer?.Change(Timeout.Infinite, 0);
+            return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            _timer?.Dispose();
+        }
+    }
+
+
+    public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer, IHostedService, IDisposable
+    {
+
+        //Task IHostedService.StartAsync(CancellationToken cancellationToken)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //Task IHostedService.StopAsync(CancellationToken cancellationToken)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+
+            //StartPlayer();
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
         bool iSoundPlayer.WideFormatSupport { get { return true; } }
 
         private bool raisePlaybackBufferTickEvents = false;
@@ -120,14 +184,29 @@ namespace STFM
 
 
         [SupportedOSPlatform("Android31.0")]
-        public AndroidAudioTrackPlayer(ref DuplexMixer Mixer, int bufferSize = 2048)
+        public AndroidAudioTrackPlayer()
         {
-            this.FramesPerBuffer = bufferSize;
+            this.FramesPerBuffer = 4 * 2048;
+
+            STFN.Audio.SoundScene.DuplexMixer Mixer = new STFN.Audio.SoundScene.DuplexMixer();
+            int[] OutputChannels = new int[] { 1, 2 };
+            Mixer.DirectMonoSoundToOutputChannels(ref OutputChannels);
+
             this.Mixer = Mixer;
         }
 
+
+        //[SupportedOSPlatform("Android31.0")]
+        //public AndroidAudioTrackPlayer(ref DuplexMixer Mixer, int bufferSize = 4*2048)
+        //{
+        //    this.FramesPerBuffer = bufferSize;
+        //    this.Mixer = Mixer;
+        //}
+
+
+
         [SupportedOSPlatform("Android31.0")]
-        bool StartPlayer()
+        void StartPlayer()
         {
 
             if (DeviceInfo.Current.Platform == DevicePlatform.Android)
@@ -212,16 +291,6 @@ namespace STFM
                 // Calls MarkerReached to initiate play loop
                 MarkerReached(null, null);
 
-                if (castAudioTrack.PlayState != PlayState.Playing)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
             }
 
         }
@@ -344,10 +413,7 @@ namespace STFM
             if (CurrentFormat == null)
             {
                 CurrentFormat = NewOutputSound.WaveFormat;
-                if (StartPlayer() == false)
-                {
-                    throw new Exception("Unable to start the sound AndroidAudioTrackPlayer");
-                };
+                StartPlayer();
             }
 
             CheckWaveFormat(NewOutputSound.WaveFormat.BitDepth, NewOutputSound.WaveFormat.Encoding);
@@ -355,10 +421,12 @@ namespace STFM
             if (NewOutputSound.WaveFormat.IsEqual(ref CurrentFormat, true, true, true, true) == false)
             {
                 CurrentFormat = NewOutputSound.WaveFormat;
-                if (StartPlayer() == false)
-                {
-                    throw new Exception("Unable to start the sound AndroidAudioTrackPlayer");
-                };
+                StartPlayer();
+            }
+
+            if (IsPlaying == false)
+            {
+                    throw new Exception("The AndroidAudioTrackPlayer is no longer running, and was unable to restart!");
             }
 
             double BitdepthScaling;
@@ -406,11 +474,11 @@ namespace STFM
 
         }
 
+
         /// <summary>
         /// This method is responsible for playing audio buffers. It needs to be triggered once when the AudioTrack is started. After that, it is triggered by the Marker position, which is updated to trigger in the beginning of the playing of the next buffer. 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        [SupportedOSPlatform("Android31.0")]
         private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
         {
 
@@ -605,6 +673,7 @@ namespace STFM
         {
             return NumberOfOutputChannels * _OverlapFrameCount;
         }
+
 
         private int _OverlapFrameCount;
 

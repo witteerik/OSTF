@@ -9,13 +9,17 @@ using STFN.Audio;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace STFM
 {
 
     public static class StfmBase
     {
+
+        public static IServiceProvider Services { get; set; }
+
 
         public static bool IsInitialized = false;
 
@@ -39,16 +43,23 @@ namespace STFM
             {
 
                 if (DeviceInfo.Current.Platform == DevicePlatform.Android) {
-                    STFN.Audio.SoundScene.DuplexMixer Mixer = new STFN.Audio.SoundScene.DuplexMixer();
-                    int[] OutputChannels = new int[] {1,2};
-                    Mixer.DirectMonoSoundToOutputChannels(ref OutputChannels);
-                    //Mixer.DirectMonoSoundToOutputChannel(ref OutputChannel);
-                    OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer(ref Mixer);
+
+                    var _backgroundService = STFM.StfmBase.Services.GetRequiredService<Microsoft.Extensions.Hosting.IHostedService>();
+
+                    //var _backgroundService = STFM.StfmBase.Services.GetService<STFM.AndroidAudioTrackPlayer>();
+
+                    OstfBase.SoundPlayer = (STFM.AndroidAudioTrackPlayer)_backgroundService;
+                    //STFN.Audio.SoundScene.DuplexMixer Mixer = new STFN.Audio.SoundScene.DuplexMixer();
+                    //int[] OutputChannels = new int[] { 1, 2 };
+                    //Mixer.DirectMonoSoundToOutputChannels(ref OutputChannels);
+                    //OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer(ref Mixer);
                 }
-
-                //OstfBase.SoundPlayer = new STFM.MauiCtBasedSoundPlayer(ParentContainer);
+                else
+                {
+                    throw new NotImplementedException("Sound player not implemented for the current platform!");
+                    //OstfBase.SoundPlayer = new STFM.MauiCtBasedSoundPlayer(ParentContainer);
+                }
             }
-
         }
 
         static OstfBase.Platforms GetCurrentPlatform() {

@@ -17,6 +17,8 @@ namespace OstfTabletSuite
         {
             InitializeComponent();
 
+            ConfigureServices();
+
             STFN.Messager.OnNewMessage += DisplayMessage;
             STFN.Messager.OnNewQuestion += DisplayBooleanQuestion;
             STFN.Messager.OnGetSaveFilePath += GetSaveFilePath;
@@ -25,6 +27,15 @@ namespace OstfTabletSuite
             STFN.Messager.OnGetOpenFilePaths += GetOpenFilePaths;
 
         }
+
+        private void ConfigureServices()
+        {
+            var services = new ServiceCollection();
+            services.AddHostedService<STFM.AndroidAudioTrackPlayer>(); 
+            STFM.StfmBase.Services = services.BuildServiceProvider();
+        }
+
+        //public static IServiceProvider Services { get; private set; }
 
         public void WelcomePageAllDone(object sender, EventArgs e)
         {
