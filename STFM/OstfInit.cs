@@ -18,9 +18,6 @@ namespace STFM
     public static class StfmBase
     {
 
-        public static IServiceProvider Services { get; set; }
-
-
         public static bool IsInitialized = false;
 
         public static async Task InitializeSTFM(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer, STFN.OstfBase.MediaPlayerTypes MediaPlayerType = OstfBase.MediaPlayerTypes.Default)
@@ -43,16 +40,7 @@ namespace STFM
             {
 
                 if (DeviceInfo.Current.Platform == DevicePlatform.Android) {
-
-                    var _backgroundService = STFM.StfmBase.Services.GetRequiredService<Microsoft.Extensions.Hosting.IHostedService>();
-
-                    //var _backgroundService = STFM.StfmBase.Services.GetService<STFM.AndroidAudioTrackPlayer>();
-
-                    OstfBase.SoundPlayer = (STFM.AndroidAudioTrackPlayer)_backgroundService;
-                    //STFN.Audio.SoundScene.DuplexMixer Mixer = new STFN.Audio.SoundScene.DuplexMixer();
-                    //int[] OutputChannels = new int[] { 1, 2 };
-                    //Mixer.DirectMonoSoundToOutputChannels(ref OutputChannels);
-                    //OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer(ref Mixer);
+                    OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer();
                 }
                 else
                 {

@@ -30,38 +30,7 @@ using System.Threading.Tasks;
 namespace STFM
 {
 
-    public class MyBackgroundService : IHostedService, IDisposable
-    {
-        private Timer _timer;
-
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            // Start your background task
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
-            return Task.CompletedTask;
-        }
-
-        private void DoWork(object state)
-        {
-            // Perform your background work here
-            Console.WriteLine("Background task is running...");
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            // Stop your background task
-            _timer?.Change(Timeout.Infinite, 0);
-            return Task.CompletedTask;
-        }
-
-        public void Dispose()
-        {
-            _timer?.Dispose();
-        }
-    }
-
-
-    public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer, IHostedService, IDisposable
+       public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer
     {
 
         //Task IHostedService.StartAsync(CancellationToken cancellationToken)
@@ -275,7 +244,11 @@ namespace STFM
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
 
                 castAudioTrack.SetNotificationMarkerPosition(2);
-                castAudioTrack.MarkerReached += MarkerReached;
+                //castAudioTrack.MarkerReached += MarkerReached;
+
+                int bufferTimerInterval = (int)(1000 * ((double)FramesPerBuffer / (double)CurrentFormat.SampleRate));
+
+                bufferTimer = new Timer(NewSoundBuffer, null, 0, bufferTimerInterval);
 
                 //Setting both sounds to silent sound
                 SilentSound = [new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, FramesPerBuffer)];
@@ -289,7 +262,7 @@ namespace STFM
                 castAudioTrack.Play();
 
                 // Calls MarkerReached to initiate play loop
-                MarkerReached(null, null);
+                // MarkerReached(null, null);
 
             }
 
@@ -383,6 +356,12 @@ namespace STFM
                 castAudioTrack.Dispose();
                 audioTrack = null;
             }
+
+            if (bufferTimer != null)
+            {
+                bufferTimer.Dispose();
+            }
+
         }
 
         public void FadeOutPlayback()
@@ -475,12 +454,19 @@ namespace STFM
         }
 
 
-        /// <summary>
-        /// This method is responsible for playing audio buffers. It needs to be triggered once when the AudioTrack is started. After that, it is triggered by the Marker position, which is updated to trigger in the beginning of the playing of the next buffer. 
-        /// </summary>
-        [SupportedOSPlatform("Android31.0")]
-        private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
-        {
+        private static Timer bufferTimer;
+
+        private void NewSoundBuffer(object state)
+        { 
+        
+        //}
+
+        ///// <summary>
+        ///// This method is responsible for playing audio buffers. It needs to be triggered once when the AudioTrack is started. After that, it is triggered by the Marker position, which is updated to trigger in the beginning of the playing of the next buffer. 
+        ///// </summary>
+        //[SupportedOSPlatform("Android31.0")]
+        //private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
+        //{
 
             // Sending a buffer tick to the controller
             // Temporarily outcommented, until better solutions are fixed:

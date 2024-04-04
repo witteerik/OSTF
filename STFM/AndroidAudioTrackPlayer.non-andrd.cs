@@ -47,7 +47,7 @@ namespace STFM
     {
         private bool disposedValue;
 
-        public AndroidAudioTrackPlayer(ref DuplexMixer Mixer, int bufferSize = 512)
+        public AndroidAudioTrackPlayer()
         {
             throw new Exception("This class should not be used!");
         }
