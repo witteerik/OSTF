@@ -1,13 +1,18 @@
 <New media player>
-MediaPlayerType = PaBased // must be either PaBased or MctBased (PaBased = PortAudio based OSTF sound player, MctBased = MAUI CommunityTools based OSTF sound player)
+MediaPlayerType = PaBased // must be either PaBased or AudioTrackBased (PaBased = PortAudio based OSTF sound player, AudioTrackBased = Android AudioTrack based sound player)
 
 <AudioDevices>
+// ApiName is only relevant on Windows platforms and is ignored on Android
 ApiName = MME // "MME", "Windows DirectSound", "Windows WASAPI", "ASIO" // N.B. ASIO is not supported in all editions
 
+// OutputDevices is only relevant with the MME API on Windows, for Android use OutputDevice instead
 OutputDevices = Högtalare (AudioQuest DragonFly // Högtalare (Realtek(R) Audio) // Högtalare (RME Fireface UCX), Analog (3+4) (RME Fireface UCX), Analog (5+6) (RME Fireface UCX) //Högtalare (AudioQuest DragonFly // Högtalare (iFi USB Audio SE)
 
 //OutputDevices = 1-2 (OCTA-CAPTURE), 3-4 (OCTA-CAPTURE), 5-6 (OCTA-CAPTURE), 7-8 (OCTA-CAPTURE), // Högtalare/Hörlurar (Realtek(R) 
+
+// InputDevices is only relevant with the MME API on Windows, for Android use InputDevice instead
 InputDevices = //1-2 (OCTA-CAPTURE)
+
 OutputDevice = // 1-2 (OCTA-CAPTURE) // Högtalare/Hörlurar (Realtek(R) 
 InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
 
@@ -20,6 +25,7 @@ LoudspeakerElevations = 0, 0 // Should indicate the actual physical elevation an
 LoudspeakerDistances = 0, 0 // Should indicate the actual physical distance from the loudspeakers to the listener (in meters)
 HardwareOutputChannels = 1, 2
 CalibrationGain = 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+HostVolumeOutputLevel = 100 // The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
@@ -29,6 +35,7 @@ LoudspeakerElevations = 0,0,0 // Should indicate the actual physical elevation a
 LoudspeakerDistances = 0,0,0 // Should indicate the actual physical distance from the loudspeakers to the listener (in meters)
 HardwareOutputChannels = 1, 2, 3
 CalibrationGain = 0, 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+HostVolumeOutputLevel = 100 // The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
@@ -38,6 +45,7 @@ LoudspeakerElevations = 0,0,0,0,0 // Should indicate the actual physical elevati
 LoudspeakerDistances = 0,0,0,0,0 // Should indicate the actual physical distance from the loudspeakers to the listener (in meters)
 HardwareOutputChannels = 1, 2, 3, 4, 5
 CalibrationGain = 0, 0, 0, 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+HostVolumeOutputLevel = 100 // The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
@@ -47,6 +55,7 @@ LoudspeakerElevations = 0,0,0,0,0,0,0,0 // Should indicate the actual physical e
 LoudspeakerDistances = 0,0,0,0,0,0,0,0 // Should indicate the actual physical distance from the loudspeakers to the listener (in meters)
 HardwareOutputChannels = 1, 2, 3, 4, 5, 6, 7, 8
 CalibrationGain = 0, 0, 0, 0, 0, 0, 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+HostVolumeOutputLevel = 100 // The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 <New transducer>
@@ -56,11 +65,27 @@ LoudspeakerElevations = 0,0,0,0,0,0,0,0,0,0,0,0 // Should indicate the actual ph
 LoudspeakerDistances = 0,0,0,0,0,0,0,0,0,0,0,0 // Should indicate the actual physical distance from the loudspeakers to the listener (in meters)
 HardwareOutputChannels = 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 CalibrationGain = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+HostVolumeOutputLevel = 100 // The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter
 
 
 <New media player>
-MediaPlayerType = MctBased // must be either PaBased or MctBased (PaBased = PortAudio based OSTF sound player, MctBased = MAUI CommunityTools based OSTF sound player)
+MediaPlayerType = AudioTrackBased // must be either PaBased or AudioTrackBased (PaBased = PortAudio based OSTF sound player, AudioTrackBased = Android AudioTrack based sound player)
+
+<AudioDevices>
+// ApiName is only relevant on Windows platforms and is ignored on Android
+// ApiName = MME // "MME", "Windows DirectSound", "Windows WASAPI", "ASIO" // N.B. ASIO is not supported in all editions
+
+// OutputDevices is only relevant with the MME API on Windows, for Android use OutputDevice instead
+// OutputDevices = Högtalare (AudioQuest DragonFly // Högtalare (Realtek(R) Audio) // Högtalare (RME Fireface UCX), Analog (3+4) (RME Fireface UCX), Analog (5+6) (RME Fireface UCX) //Högtalare (AudioQuest DragonFly // Högtalare (iFi USB Audio SE)
+// OutputDevices = 1-2 (OCTA-CAPTURE), 3-4 (OCTA-CAPTURE), 5-6 (OCTA-CAPTURE), 7-8 (OCTA-CAPTURE), // Högtalare/Hörlurar (Realtek(R) 
+// InputDevices is only relevant with the MME API on Windows, for Android use InputDevice instead
+// InputDevices = //1-2 (OCTA-CAPTURE)
+
+OutputDevice = AudioQuest DragonFly
+InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
+
+BufferSize = 1024 // Must be powers of 2
 
 <New transducer>
 Name = Headphones
@@ -69,4 +94,5 @@ LoudspeakerElevations = 0, 0 // Should indicate the actual physical elevation an
 LoudspeakerDistances = 0, 0 // Should indicate the actual physical distance from the loudspeakers to the listener (in meters)
 HardwareOutputChannels = 1, 2
 CalibrationGain = 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+HostVolumeOutputLevel = 100 // The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter

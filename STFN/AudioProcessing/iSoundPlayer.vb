@@ -90,7 +90,7 @@ Namespace Audio
             ''' <param name="ReOpenStream"></param>
             ''' <param name="ReStartStream"></param>
             ''' <param name="ClippingIsActivated"></param>
-            Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
+            Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioSettings = Nothing,
                                 Optional ByVal SampleRate As Integer? = Nothing,
                                 Optional ByVal BitDepth As Integer? = Nothing,
                                 Optional ByVal Encoding As Audio.Formats.WaveFormat.WaveFormatEncodings? = Nothing,

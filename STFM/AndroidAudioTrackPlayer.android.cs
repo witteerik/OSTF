@@ -3,30 +3,9 @@ using STFN.Audio;
 using STFN.Audio.Formats;
 using STFN.Audio.SoundPlayers;
 using STFN.Audio.SoundScene;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
-using AndroidX.Core.App;
-using System.Threading;
-using Android.Runtime;
-using Java.Interop;
-using System.Runtime.InteropServices;
 using STFN;
-using Android.Bluetooth;
-using System.Security.AccessControl;
-//using STFM.PlatForms.Android;
-//using Platforms.Android;
-//using Java.Lang;
-
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xamarin.Google.ErrorProne.Annotations.Concurrent;
-
+using Android.Content;
 
 namespace STFM
 {
@@ -34,6 +13,7 @@ namespace STFM
     public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer
     {
 
+        //Se documentation for AudioTrack at: https://developer.android.com/reference/android/media/AudioTrack
 
         bool iSoundPlayer.WideFormatSupport { get { return true; } }
 
@@ -147,15 +127,6 @@ namespace STFM
         }
 
 
-        //[SupportedOSPlatform("Android31.0")]
-        //public AndroidAudioTrackPlayer(ref DuplexMixer Mixer, int bufferSize = 4*2048)
-        //{
-        //    this.FramesPerBuffer = bufferSize;
-        //    this.Mixer = Mixer;
-        //}
-
-
-
         [SupportedOSPlatform("Android31.0")]
         void StartPlayer()
         {
@@ -227,34 +198,20 @@ namespace STFM
 
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
 
-                //castAudioTrack.SetNotificationMarkerPosition(2);
-                //castAudioTrack.MarkerReached += MarkerReached;
-
-                //int bufferTimerInterval = (int)(1000 * ((double)FramesPerBuffer / (double)CurrentFormat.SampleRate));
-
-                //bufferTimer = new Timer(NewSoundBuffer, castAudioTrack, 0, bufferTimerInterval);
-
                 //Setting both sounds to silent sound
                 SilentSound = [new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, FramesPerBuffer)];
                 OutputSoundA = SilentSound;
                 OutputSoundB = SilentSound;
 
                 castAudioTrack.SetStartThresholdInFrames(2);
-                //castAudioTrack.SetStartThresholdInFrames(FramesPerBuffer);
-                //var x = castAudioTrack.StartThresholdInFrames;
 
-                // Start playback
+                // Start the AudioTrack
                 castAudioTrack.Play();
 
-                // Calls MarkerReached to initiate play loop
-                // MarkerReached(null, null);
-
-                // Starting loop on a new thread
+                // Starting the loop that supplied samples tothe AudioTrack on a new thread
                 Thread newThread = new Thread(new ThreadStart(BufferLoop));
                 newThread.Start();
-
             }
-
         }
 
         private void CheckWaveFormat(int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding)
@@ -280,7 +237,7 @@ namespace STFM
         }
 
 
-        public void ChangePlayerSettings(ref AudioApiSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, ref DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
+        public void ChangePlayerSettings(ref AudioSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, ref DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
         {
 
             bool WasPlaying = false;
@@ -308,7 +265,7 @@ namespace STFM
             CheckWaveFormat(BitDepth, Encoding);
 
             //'Updating values
-            //  If AudioApiSettings IsNot Nothing Then SetApiAndDevice(AudioApiSettings, True)
+            //  If PortAudioApiSettings IsNot Nothing Then SetApiAndDevice(PortAudioApiSettings, True)
 
             if (OverlapDuration != null)
             {
@@ -350,7 +307,6 @@ namespace STFM
                 castAudioTrack.Dispose();
                 audioTrack = null;
             }
-
         }
 
         public void FadeOutPlayback()
@@ -436,8 +392,6 @@ namespace STFM
             //'Setting NewSound to the NewOutputSound to indicate that the output sound should be swapped by the callback
             NewSound = STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.CreateBufferHoldersOnNewThread(ref NewOutputSound, ref Mixer, ref FramesPerBuffer, ref NumberOfOutputChannels, BitdepthScaling);
 
-            //playNewSound_IeeeFloatingPoints(ref NewOutputSound);
-
             return true;
 
         }
@@ -485,15 +439,6 @@ namespace STFM
 
         private void NewSoundBuffer(object castAudioTrack_in)
         {
-
-            //}
-
-            ///// <summary>
-            ///// This method is responsible for playing audio buffers. It needs to be triggered once when the AudioTrack is started. After that, it is triggered by the Marker position, which is updated to trigger in the beginning of the playing of the next buffer. 
-            ///// </summary>
-            //[SupportedOSPlatform("Android31.0")]
-            //private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
-            //{
 
             // Sending a buffer tick to the controller
             // Temporarily outcommented, until better solutions are fixed:
@@ -674,7 +619,6 @@ namespace STFM
                 if (castAudioTrack.State == AudioTrackState.Initialized)
                 {
 
-                    //castAudioTrack.SetNotificationMarkerPosition(castAudioTrack.PlaybackHeadPosition + 2);
                     if (playSilence == false)
                     {
                         try
@@ -834,12 +778,81 @@ namespace STFM
             }
         }
 
+        // Some helper functions
+
+        public string GetAvaliableOutputDeviceNames()
+        {
+
+            var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
+            var devices = audioManager.GetDevices(GetDevicesTargets.All);
+
+            List<string> DeviceList = new List<string>();
+
+            foreach (var device in devices)
+            {
+                string ProductNameFormatted = device.ProductNameFormatted.ToString();
+                DeviceList.Add(ProductNameFormatted);
+            }
+
+            return string.Join("\n", DeviceList);
+
+        }
+
+        public void SetOutputDevice()
+        {
+
+            
+
+            //AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+            //castAudioTrack.RoutedDevice = true;
+
+        }
+
+        [SupportedOSPlatform("Android31.0")]
+        public static string GetDevices()
+        {
+            var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
+            var devices = audioManager.GetDevices(GetDevicesTargets.All);
+
+            List<string> DeviceList = new List<string>();
+
+            foreach (var device in devices)
+            {
+                //DeviceList.Add(device.ToString() + " " + device.ProductNameFormatted + " " + (string)device.ProductName + " " + device.Type.ToString() + " " + (int)device.GetChannelCounts());
+
+                int[] channelCounts = device.GetChannelCounts();
+                List<string> ChannelCountList = new List<string>();
+                foreach (int c in channelCounts)
+                {
+                    ChannelCountList.Add(c.ToString());
+                }
+
+                string ChannelCountString = string.Join("|", ChannelCountList);
+
+                string DeviceType = device.Type.ToString();
+
+                string ProductNameFormatted = device.ProductNameFormatted.ToString();
+
+                string ProductName = (string)device.ProductName;
+
+                //https://developer.android.com/reference/android/media/AudioDeviceInfo#getEncodings()
+                Android.Media.Encoding[] Encodings = device.GetEncodings();
+                List<string> EncodingList = new List<string>();
+                foreach (Android.Media.Encoding en in Encodings)
+                {
+                    EncodingList.Add(en.ToString());
+                }
+                string EncodingString = string.Join("|", EncodingList);
+
+                DeviceList.Add(device.ToString() + ", " + ProductNameFormatted + ", " + ProductName + ", " + DeviceType + ", IsSink:" + device.IsSink.ToString() + ", IsSource:" + device.IsSource.ToString() + ", Channels " + ChannelCountString + "\n   Encodings: " + EncodingString);
+
+            }
+
+            return string.Join("\n", DeviceList);
+
+        }
 
     }
-
-
-
-
 }
 
 

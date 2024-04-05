@@ -565,7 +565,7 @@ Namespace Audio
             '''<param name="Encoding">At the moment, Encoding is not possible to change. If a Encoding is supplied, a check will be made that it's supported and an exception will be thrown if not. The only Encoding supported is Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints</param>
             ''' <param name="SoundDirection"></param>
             ''' <param name="OverlapDuration"></param>
-            Public Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioApiSettings = Nothing,
+            Public Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioSettings = Nothing,
                                             Optional ByVal SampleRate As Integer? = Nothing,
                                             Optional ByVal BitDepth As Integer? = Nothing,
                                             Optional ByVal Encoding As Audio.Formats.WaveFormat.WaveFormatEncodings? = Nothing,
@@ -649,7 +649,7 @@ Namespace Audio
 
             End Sub
 
-            Private Sub SetApiAndDevice(Optional ByRef AudioApiSettings As AudioApiSettings = Nothing, Optional ByVal SkipLog As Boolean = False)
+            Private Sub SetApiAndDevice(Optional ByRef AudioApiSettings As PortAudioApiSettings = Nothing, Optional ByVal SkipLog As Boolean = False)
 
                 'Setting API settings if not already done
                 If AudioApiSettings Is Nothing Then
@@ -666,7 +666,7 @@ Namespace Audio
                     'Dim newAudioSettingsDialog As New AudioSettingsDialog()
                     'Dim DialogResult = newAudioSettingsDialog.ShowDialog()
                     'If DialogResult = DialogResult.OK Then
-                    '    AudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
+                    '    PortAudioApiSettings = newAudioSettingsDialog.CurrentAudioApiSettings
                     'Else
                     '    MsgBox("Did not initialize PaSoundPlayer due to missing audio settings.")
                     '    Throw New Exception("Did not initialize PaSoundPlayer due to missing audio settings.")

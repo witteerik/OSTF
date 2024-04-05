@@ -25,14 +25,56 @@
 
 Namespace Audio
 
-    Public Class AudioApiSettings
+    Public MustInherit Class AudioSettings
+
+        Property SelectedInputDevice As Integer?
+        Property SelectedOutputDevice As Integer?
+        Property FramesPerBuffer As Integer
+        MustOverride Overrides Function ToString() As String
+        MustOverride ReadOnly Property NumberOfInputChannels() As Integer?
+        MustOverride ReadOnly Property NumberOfOutputChannels() As Integer?
+
+    End Class
+
+    Public Class AndroidAudioTrackPlayerSettings
+        Inherits AudioSettings
+
+        Public SelectedOutputDeviceName As String = ""
+        Public SelectedInputDeviceName As String = ""
+
+        Public Overrides ReadOnly Property NumberOfInputChannels As Integer?
+            Get
+                Throw New NotImplementedException()
+            End Get
+        End Property
+
+        Public Overrides ReadOnly Property NumberOfOutputChannels As Integer?
+            Get
+                Throw New NotImplementedException()
+            End Get
+        End Property
+
+        Public Overrides Function ToString() As String
+            Dim OutputString As String = "Selected sound settings:"
+
+            If SelectedOutputDeviceName <> "" Then OutputString &= "Selected input device:" & vbLf & SelectedOutputDeviceName & vbCrLf
+            If SelectedInputDeviceName <> "" Then OutputString &= "Selected output device:" & vbLf & SelectedInputDeviceName & vbCrLf
+            OutputString &= "FramesPerBuffer: " & FramesPerBuffer
+
+            Return OutputString
+        End Function
+
+    End Class
+
+    Public Class PortAudioApiSettings
+        Inherits AudioSettings
 
         'Public HostApi As Integer 'Probably not needed?
         Public SelectedApiInfo As PortAudio.PaHostApiInfo
         Public SelectedInputDeviceInfo As PortAudio.PaDeviceInfo?
-        Public SelectedInputDevice As Integer?
+        'Public Property SelectedInputDevice As Integer? Implements AudioSettings.SelectedInputDevice
         Public SelectedOutputDeviceInfo As PortAudio.PaDeviceInfo?
-        Public SelectedOutputDevice As Integer?
+        'Public Property SelectedOutputDevice As Integer? Implements AudioSettings.SelectedOutputDevice
         Public SelectedInputAndOutputDeviceInfo As PortAudio.PaDeviceInfo?
         'Public SelectedInputAndOutputDevice As Integer?
 
@@ -42,7 +84,7 @@ Namespace Audio
         Public WinMmeSuggestedOutputLatency As Double
         Public WinMmeSuggestedInputLatency As Double
 
-        Public FramesPerBuffer As UInteger
+        'Public Property FramesPerBuffer As Integer Implements AudioSettings.FramesPerBuffer
 
         Public Overrides Function ToString() As String
             Dim OutputString As String = "Selected sound API settings:"
@@ -70,28 +112,28 @@ Namespace Audio
 
 
         'Returns the number of input channels on the selected device, or Nothing if no input device has been selected
-        Public Function NumberOfInputChannels() As Integer?
-
-            If UseMmeMultipleDevices = False Then
-                If SelectedInputDeviceInfo.HasValue = True Then Return SelectedInputDeviceInfo.Value.maxInputChannels
-                If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxInputChannels
-            Else
-                Return NumberOfWinMmeInputChannels()
-            End If
-
-        End Function
+        Public Overrides ReadOnly Property NumberOfInputChannels() As Integer?
+            Get
+                If UseMmeMultipleDevices = False Then
+                    If SelectedInputDeviceInfo.HasValue = True Then Return SelectedInputDeviceInfo.Value.maxInputChannels
+                    If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxInputChannels
+                Else
+                    Return NumberOfWinMmeInputChannels()
+                End If
+            End Get
+        End Property
 
         'Returns the number of output channels on the selected device, or Nothing if no output device has been selected
-        Public Function NumberOfOutputChannels() As Integer?
-
-            If UseMmeMultipleDevices = False Then
-                If SelectedOutputDeviceInfo.HasValue = True Then Return SelectedOutputDeviceInfo.Value.maxOutputChannels
-                If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxOutputChannels
-            Else
-                Return NumberOfWinMmeOutputChannels()
-            End If
-
-        End Function
+        Public Overrides ReadOnly Property NumberOfOutputChannels() As Integer?
+            Get
+                If UseMmeMultipleDevices = False Then
+                    If SelectedOutputDeviceInfo.HasValue = True Then Return SelectedOutputDeviceInfo.Value.maxOutputChannels
+                    If SelectedInputAndOutputDeviceInfo.HasValue = True Then Return SelectedInputAndOutputDeviceInfo.Value.maxOutputChannels
+                Else
+                    Return NumberOfWinMmeOutputChannels()
+                End If
+            End Get
+        End Property
 
         Public Function SetAsioSoundDevice(ByVal DeviceName As String, Optional ByVal BufferSize As Integer = 256) As Boolean
 
@@ -258,7 +300,6 @@ Namespace Audio
 
         End Function
 
-
         ''' <summary>
         ''' Selects the first available (non asio) audio device for use.
         ''' </summary>
@@ -359,13 +400,11 @@ Namespace Audio
         End Function
 
 
-
         ''' <summary>
         ''' Selects the default (non asio) audio device for use. (Only MME, DirectSound and WASAPI is allowed, all others are blocked.)
         ''' </summary>
         ''' <returns>Returns True if at least an input or an output device was set. Returns false if neither an input or an output device could be set.</returns>
-        Public Function SelectDefaultAudioDevice(Optional ByVal SampleRate As Integer = 48000,
-                                            Optional ByVal BufferSize As Integer = 256) As Boolean
+        Public Overloads Function SelectDefaultAudioDevice(Optional ByVal BufferSize As Integer = 256) As Boolean
 
             'Checking if PortAudio has been initialized 
             If OstfBase.PortAudioIsInitialized = False Then Throw New Exception("The PortAudio library has not been initialized. This should have been done by a call to the function OsftBase.InitializeOSTF.")
@@ -632,7 +671,7 @@ Namespace Audio
 
         End Sub
 
-        Public Shared Function GetAllAvailableDevices() As String
+        Public Function GetAllAvailableDevices() As String
 
             Try
 

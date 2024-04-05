@@ -63,7 +63,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
         // Adding transducers
         var TempWaveFormat = new STFN.Audio.Formats.WaveFormat(48000, 32, 1, Encoding: STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
-        AudioApiSettings audioApiSettings = null;
+        AudioSettings audioApiSettings = null;
         STFN.Audio.SoundScene.DuplexMixer mixer = null;
         STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref audioApiSettings, (int?)TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding, null, ref mixer, STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, false, false);
 
@@ -397,7 +397,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
                 // Updates the wave format of the sound player
                 STFN.Audio.SoundScene.DuplexMixer argMixer = SelectedTransducer.Mixer;
-                AudioApiSettings argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+                AudioSettings argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
                 STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings, SampleRate: (int?)CalibrationSound.WaveFormat.SampleRate, BitDepth: CalibrationSound.WaveFormat.BitDepth, Encoding: CalibrationSound.WaveFormat.Encoding, Mixer: ref argMixer);
 
                 // Setting the signal level
@@ -568,7 +568,7 @@ public partial class SpeechTestCalibrationView : ContentView
     //{
 
     //    var SoundDevicesForm = new STFN.InfoForm();
-    //    string DeviceInfoString = "Currently available sound devices:" + "\n\n" + STFN.Audio.AudioApiSettings.GetAllAvailableDevices();
+    //    string DeviceInfoString = "Currently available sound devices:" + "\n\n" + STFN.Audio.PortAudioApiSettings.GetAllAvailableDevices();
     //    SoundDevicesForm.SetInfo(DeviceInfoString, "Available sound devices");
     //    SoundDevicesForm.Show();
 

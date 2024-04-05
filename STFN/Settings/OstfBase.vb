@@ -1,4 +1,5 @@
 ﻿Imports System.Runtime.InteropServices
+Imports STFN.Audio
 Imports STFN.Audio.AudioManagementExt
 Imports STFN.Audio.SoundPlayers
 
@@ -25,9 +26,9 @@ Public Module OstfBase
         ''' </summary>
         PaBased
         ''' <summary>
-        ''' A media player MediaPlayerType using the MAUI Community Toolkit Media Element library
+        ''' A sound player MediaPlayerType using Android AudioTrack feature
         ''' </summary>
-        MctBased
+        AudioTrackBased
         ''' <summary>
         ''' The default media player MediaPlayerType for the specified platform as defined by OSTF.
         ''' </summary>
@@ -184,11 +185,13 @@ Public Module OstfBase
                         Case Platforms.WinUI, Platforms.UWP
                             'Selects Port Audio based sound player as media player MediaPlayerType
                             CurrentMediaPlayerType = MediaPlayerTypes.PaBased
+                        Case Platforms.Android
+                            'Selects MAUI community toolkit media element as media player MediaPlayerType
+                            CurrentMediaPlayerType = MediaPlayerTypes.AudioTrackBased
                         Case Platforms.Unknown
                             Throw New Exception("Unable to initialize media player for " & CurrentPlatForm.ToString & " platform MediaPlayerType! The application may not work as intended!")
                         Case Else
-                            'Selects MAUI community toolkit media element as media player MediaPlayerType
-                            CurrentMediaPlayerType = MediaPlayerTypes.MctBased
+                            Throw New Exception("There is no supported OSTF sound player for the " & CurrentPlatForm.ToString & " platform! The application may not work as intended!")
                     End Select
 
                 Case MediaPlayerTypes.PaBased
@@ -196,17 +199,20 @@ Public Module OstfBase
                     'Checks that the current platform supports MediaPlayerType PaBased
                     Select Case CurrentPlatForm
                         Case Platforms.WinUI, Platforms.UWP
-                            'WinUI and UWP should work with the current Port Audio based sound player
+                            'WinUI and UWP should work with the Port Audio based sound player
                         Case Else
                             'Everything else will currently not work
                             Throw New Exception("Unable to initialize media player for " & CurrentPlatForm.ToString & " platform MediaPlayerType! The application may not work as intended!")
                     End Select
 
-                Case MediaPlayerTypes.MctBased
+                Case MediaPlayerTypes.AudioTrackBased
 
-                    'MctBased should work on all platforms except possibly "Unknown" ??. Thowing an exception for this,. TODO: Check what happens in the MctBased media player if platform is unknown (hmmm, difficult to check since it would have to be run from an "unknown" platform)
+                    'Checks that the current platform supports the selected MediaPlayerType
                     Select Case CurrentPlatForm
-                        Case Platforms.Unknown
+                        Case Platforms.Android
+                            'Android should work with the AudioTrack based sound player
+                        Case Else
+                            'Everything else will currently not work
                             Throw New Exception("Unable to initialize media player for " & CurrentPlatForm.ToString & " platform MediaPlayerType! The application may not work as intended!")
                     End Select
 
@@ -272,6 +278,8 @@ Public Module OstfBase
                 Dim SoundPlayer As iSoundPlayer = New Audio.PortAudioVB.PortAudioBasedSoundPlayer(False, False, False, False)
                 InitializeSoundPlayer(SoundPlayer)
             End If
+
+            'Note that the AudioTrack based player need to be initialized in the STFM library (as it does not exist in STFN)
 
         Catch ex As Exception
             Throw New Exception("The following error occurred when trying to initialize OSTF:" & vbCrLf & vbCrLf & ex.ToString)
@@ -347,7 +355,7 @@ Public Module OstfBase
                 If CurrentSoundPlayerList IsNot Nothing Then
                     'Storing the loaded sound player data in PlayerTypeDictionary
                     If PlayerTypeDictionary.ContainsKey(CurrentPlayerType) Then
-                        Throw New Exception("In the file " & AudioSystemSpecificationFilePath & " each MediaPlayerType (PaBased, MctBased, etc.) can only be specified once. It seems as the MediaPlayerType " & CurrentPlayerType.ToString & " occurres multiple times.")
+                        Throw New Exception("In the file " & AudioSystemSpecificationFilePath & " each MediaPlayerType (PaBased, AudioTrackBased, etc.) can only be specified once. It seems as the MediaPlayerType " & CurrentPlayerType.ToString & " occurres multiple times.")
                     End If
                     PlayerTypeDictionary.Add(CurrentPlayerType, CurrentSoundPlayerList.ToArray)
                 End If
@@ -407,7 +415,10 @@ Public Module OstfBase
                     End If
                     If Line.StartsWith("<New transducer>") Then Exit For
 
-                    If Line.StartsWith("ApiName") Then ApiName = InputFileSupport.GetInputFileValue(Line, True)
+                    If OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.PaBased Then
+                        If Line.StartsWith("ApiName") Then ApiName = InputFileSupport.GetInputFileValue(Line, True)
+                    End If
+
                     If Line.Replace(" ", "").StartsWith("OutputDevice=") Then OutputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
                     If Line.Replace(" ", "").StartsWith("OutputDevices=") Then OutputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
                     If Line.Replace(" ", "").StartsWith("InputDevice=") Then InputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
@@ -416,11 +427,9 @@ Public Module OstfBase
 
                 Next
 
-                Dim AudioApiSettings As Audio.AudioApiSettings = Nothing
+                Dim AudioSettings As Audio.AudioSettings = Nothing
 
                 If OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.PaBased Then
-
-                    'Detailed AudioApiSettings are only available for the PaBased sound player MediaPlayerType
 
                     Dim DeviceLoadSuccess As Boolean = True
                     If OutputDeviceName = "" And InputDeviceName = "" And OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
@@ -445,16 +454,16 @@ Public Module OstfBase
                         MsgBox("Either (not both) of single or multiple sound input devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
                     End If
 
-                    'Tries to setup the AudioApiSettings using the loaded data
-                    AudioApiSettings = New Audio.AudioApiSettings
+                    'Tries to setup the PortAudioApiSettings using the loaded data
+                    AudioSettings = New Audio.PortAudioApiSettings
                     If DeviceLoadSuccess = True Then
                         If ApiName = "ASIO" Then
-                            DeviceLoadSuccess = AudioApiSettings.SetAsioSoundDevice(OutputDeviceName, BufferSize)
+                            DeviceLoadSuccess = DirectCast(AudioSettings, PortAudioApiSettings).SetAsioSoundDevice(OutputDeviceName, BufferSize)
                         Else
                             If OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
-                                DeviceLoadSuccess = AudioApiSettings.SetNonAsioSoundDevice(ApiName, OutputDeviceName, InputDeviceName, BufferSize)
+                                DeviceLoadSuccess = DirectCast(AudioSettings, PortAudioApiSettings).SetNonAsioSoundDevice(ApiName, OutputDeviceName, InputDeviceName, BufferSize)
                             Else
-                                DeviceLoadSuccess = AudioApiSettings.SetMmeMultipleDevices(InputDeviceNames, OutputDeviceNames, BufferSize)
+                                DeviceLoadSuccess = DirectCast(AudioSettings, PortAudioApiSettings).SetMmeMultipleDevices(InputDeviceNames, OutputDeviceNames, BufferSize)
                             End If
                         End If
                     End If
@@ -472,7 +481,7 @@ Public Module OstfBase
                         '    "Click OK to manually select audio input/output devices." & vbCrLf & vbCrLf &
                         '    "IMPORTANT: Sound tranducer calibration and/or routing may not be correct when manually selected sound devices are used!", MsgBoxStyle.Exclamation, "OSTF sound device not found!")
 
-                        'Using default settings, as their is not yet any GUI for selecting settings such as the NET FrameWork AudioSettingsDialog 
+                        'Using default settings, as there is not yet any GUI for selecting settings such as the .NET Framework AudioSettingsDialog 
 
                         MsgBox("The Open Speech Test Framework (OSTF) was unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
                         "Output device: " & OutputDeviceName & vbCrLf &
@@ -485,16 +494,30 @@ Public Module OstfBase
                         'Dim NewAudioSettingsDialog As New AudioSettingsDialog()
                         'Dim AudioSettingsDialogResult = NewAudioSettingsDialog.ShowDialog()
                         'If AudioSettingsDialogResult = Windows.Forms.DialogResult.OK Then
-                        '    AudioApiSettings = NewAudioSettingsDialog.CurrentAudioApiSettings
+                        '    PortAudioApiSettings = NewAudioSettingsDialog.CurrentAudioApiSettings
                         'Else
                         '    MsgBox("You pressed cancel. Default sound settings will be used", MsgBoxStyle.Exclamation, "Select sound device!")
-                        AudioApiSettings.SelectDefaultAudioDevice()
+                        DirectCast(AudioSettings, PortAudioApiSettings).SelectDefaultAudioDevice()
                         'End If
                     End If
 
-                ElseIf OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.MctBased Then
+                ElseIf OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.AudioTrackBased Then
 
-                    'AudioApiSettings is not needed with the MctBased media player
+                    Dim DeviceLoadSuccess As Boolean = True
+                    If OutputDeviceName = "" Then
+                        'No device names have been specified
+                        MsgBox("An output device must be specified for the android AudioTrack based player in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
+                        DeviceLoadSuccess = False
+                    End If
+
+                    'No input device is required
+                    'If InputDeviceName = "" Then
+                    '    DeviceLoadSuccess = False
+                    'MsgBox("An input device must be specified for the android AudioTrack based player in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
+                    'End If
+
+                    'Setting up the player must be done in STFM as there is no access to Android AudioTrack in STFN, however the object holding the AudioSettings must be created here as it needs to be referenced in the Transducers below
+                    AudioSettings = New Audio.AndroidAudioTrackPlayerSettings
 
                 Else
                     Throw New NotImplementedException("Unknown media player MediaPlayerType specified in the file " & AudioSystemSpecificationFilePath)
@@ -518,12 +541,12 @@ Public Module OstfBase
                     If Line.StartsWith("<New transducer>") Then
                         If CurrentTransducer Is Nothing Then
                             'Creates the first transducer
-                            CurrentTransducer = New AudioSystemSpecification(OstfBase.CurrentMediaPlayerType, AudioApiSettings)
+                            CurrentTransducer = New AudioSystemSpecification(OstfBase.CurrentMediaPlayerType, AudioSettings)
                         Else
                             'Stores the transducer
                             _AvaliableTransducers.Add(CurrentTransducer)
                             'Creates a new one
-                            CurrentTransducer = New AudioSystemSpecification(OstfBase.CurrentMediaPlayerType, AudioApiSettings)
+                            CurrentTransducer = New AudioSystemSpecification(OstfBase.CurrentMediaPlayerType, AudioSettings)
                         End If
                     End If
 
@@ -533,6 +556,7 @@ Public Module OstfBase
                     If Line.StartsWith("LoudspeakerDistances") Then CurrentTransducer.LoudspeakerDistances = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("HardwareOutputChannels") Then CurrentTransducer.HardwareOutputChannels = InputFileSupport.InputFileListOfIntegerParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("CalibrationGain") Then CurrentTransducer.CalibrationGain = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
+                    If Line.StartsWith("HostVolumeOutputLevel") Then CurrentTransducer.HostVolumeOutputLevel = InputFileSupport.InputFileDoubleValueParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("LimiterThreshold") Then CurrentTransducer.LimiterThreshold = InputFileSupport.InputFileDoubleValueParsing(Line, True, AudioSystemSpecificationFilePath)
 
                 Next
@@ -541,7 +565,7 @@ Public Module OstfBase
                 If CurrentTransducer IsNot Nothing Then _AvaliableTransducers.Add(CurrentTransducer)
 
                 'Adding a default transducer if none were sucessfully read
-                If _AvaliableTransducers.Count = 0 Then _AvaliableTransducers.Add(New AudioSystemSpecification(OstfBase.CurrentMediaPlayerType, AudioApiSettings))
+                If _AvaliableTransducers.Count = 0 Then _AvaliableTransducers.Add(New AudioSystemSpecification(OstfBase.CurrentMediaPlayerType, AudioSettings))
 
                 For Each Transducer In _AvaliableTransducers
                     Transducer.SetupMixer()
@@ -640,8 +664,8 @@ Public Module OstfBase
             MsgBox("Either (not both) of single or multiple sound input devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
         End If
 
-        'Tries to setup the AudioApiSettings using the loaded data
-        Dim AudioApiSettings As New Audio.AudioApiSettings
+        'Tries to setup the PortAudioApiSettings using the loaded data
+        Dim AudioApiSettings As New Audio.PortAudioApiSettings
         If DeviceLoadSuccess = True Then
             If ApiName = "ASIO" Then
                 DeviceLoadSuccess = AudioApiSettings.SetAsioSoundDevice(OutputDeviceName, BufferSize)
@@ -672,7 +696,7 @@ Public Module OstfBase
             'Dim NewAudioSettingsDialog As New AudioSettingsDialog()
             'Dim AudioSettingsDialogResult = NewAudioSettingsDialog.ShowDialog()
             'If AudioSettingsDialogResult = Windows.Forms.DialogResult.OK Then
-            '    AudioApiSettings = NewAudioSettingsDialog.CurrentAudioApiSettings
+            '    PortAudioApiSettings = NewAudioSettingsDialog.CurrentAudioApiSettings
             'Else
             '    MsgBox("You pressed cancel. Default sound settings will be used", MsgBoxStyle.Exclamation, "Select sound device!")
             AudioApiSettings.SelectDefaultAudioDevice()
@@ -749,13 +773,35 @@ Public Module OstfBase
     Public Class AudioSystemSpecification
         Public Property Name As String = "Default"
         Public ReadOnly Property MediaPlayerType As OstfBase.MediaPlayerTypes
-        Public ReadOnly Property ParentAudioApiSettings As Audio.AudioApiSettings
+        'Public ReadOnly Property ParentAudioApiSettings As Audio.PortAudioApiSettings
+
+        Public ReadOnly Property ParentAudioApiSettings As Audio.AudioSettings
+
+
         Public Property Mixer As STFN.Audio.SoundScene.DuplexMixer
         Public Property LoudspeakerAzimuths As New List(Of Double) From {-90, 90}
         Public Property LoudspeakerElevations As New List(Of Double) From {0, 0}
         Public Property LoudspeakerDistances As New List(Of Double) From {0, 0}
         Public Property HardwareOutputChannels As New List(Of Integer) From {1, 2}
         Public Property CalibrationGain As New List(Of Double) From {0, 0}
+
+        Private _HostVolumeOutputLevel As Double? = Nothing
+        ''' <summary>
+        ''' If possible, this value should be used to set and maintain the volume of the selected output sound unit (e.g. sound card) during speech tests.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property HostVolumeOutputLevel As Double?
+            Get
+                Return _HostVolumeOutputLevel
+            End Get
+            Set(value As Double?)
+                If value.HasValue Then
+                    _HostVolumeOutputLevel = Math.Clamp(value.Value, 0, 1)
+                Else
+                    _HostVolumeOutputLevel = Nothing
+                End If
+            End Set
+        End Property
         Public Property LimiterThreshold As Double? = Nothing
 
         Private _CanPlay As Boolean = False
@@ -772,21 +818,17 @@ Public Module OstfBase
             End Get
         End Property
 
-        Public Sub New(ByVal MediaPlayerType As OstfBase.MediaPlayerTypes, Optional ByRef ParentAudioApiSettings As Audio.AudioApiSettings = Nothing)
+        Public Sub New(ByVal MediaPlayerType As OstfBase.MediaPlayerTypes, Optional ByRef ParentAudioApiSettings As Audio.AudioSettings = Nothing)
 
             Me.MediaPlayerType = MediaPlayerType
 
             Select Case MediaPlayerType
-                Case MediaPlayerTypes.PaBased
+                Case MediaPlayerTypes.PaBased, MediaPlayerTypes.AudioTrackBased
                     If ParentAudioApiSettings Is Nothing Then
-                        Throw New ArgumentException("The argument ParentAudioApiSettings cannot be Nothing when the media player MediaPlayerType is PaBased!")
+                        Throw New ArgumentException("The argument ParentAudioApiSettings cannot be Nothing when the media player MediaPlayerType is PaBased or AudioTrackBased!")
                     Else
                         Me.ParentAudioApiSettings = ParentAudioApiSettings
                     End If
-
-                Case MediaPlayerTypes.MctBased
-                        'No need to check anything
-
                 Case MediaPlayerTypes.Default
                     Throw New ArgumentException("The argument ParentAudioApiSettings cannot be Default when initiating an AudioSystemSpecification!")
             End Select
@@ -815,7 +857,7 @@ Public Module OstfBase
                     End If
                 End If
             Else
-                'Always using True for MediaPlayerTypes.MctBased
+                'Always using True for MediaPlayerTypes.AudioTrackBased
                 Me._CanPlay = True
                 Me._CanRecord = True
             End If
@@ -835,7 +877,7 @@ Public Module OstfBase
                     Return 0
                 End If
             Else
-                'Always using two for MediaPlayerTypes.MctBased
+                'Always using two for MediaPlayerTypes.AudioTrackBased
                 Return 2
             End If
 
@@ -850,7 +892,7 @@ Public Module OstfBase
                     Return 0
                 End If
             Else
-                'Always using two for MediaPlayerTypes.MctBased
+                'Always using two for MediaPlayerTypes.AudioTrackBased
                 Return 2
             End If
 

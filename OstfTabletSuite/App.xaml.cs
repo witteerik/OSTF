@@ -20,11 +20,19 @@ namespace OstfTabletSuite
         private void MainPage_Unloaded(object sender, EventArgs e)
         {
 
-            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
+            switch (OstfBase.CurrentMediaPlayerType)
             {
-                OstfBase.TerminateOSTF();
+                case OstfBase.MediaPlayerTypes.PaBased:
+                    OstfBase.TerminateOSTF();
+                    break;
+                case OstfBase.MediaPlayerTypes.AudioTrackBased:
+                    OstfBase.TerminateOSTF();
+                    break;
+                case OstfBase.MediaPlayerTypes.Default:
+                    break;
+                default:
+                    break;
             }
-
         }
 
     }

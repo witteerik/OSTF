@@ -5,45 +5,10 @@ using STFN.Audio.Formats;
 using STFN.Audio.SoundPlayers;
 using STFN.Audio.SoundScene;
 
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 
 namespace STFM
 {
-
-    public class MyBackgroundService : IHostedService, IDisposable
-    {
-        private Timer _timer;
-
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            // Start your background task
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
-            return Task.CompletedTask;
-        }
-
-        private void DoWork(object state)
-        {
-            // Perform your background work here
-            Console.WriteLine("Background task is running...");
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            // Stop your background task
-            _timer?.Change(Timeout.Infinite, 0);
-            return Task.CompletedTask;
-        }
-
-        public void Dispose()
-        {
-            _timer?.Dispose();
-        }
-    }
-    public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer, IHostedService, IDisposable
+    public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer
     {
         private bool disposedValue;
 
@@ -98,7 +63,7 @@ namespace STFM
             }
         }
 
-        void iSoundPlayer.ChangePlayerSettings(ref AudioApiSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, ref DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
+        void iSoundPlayer.ChangePlayerSettings(ref AudioSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, ref DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
         {
             throw new NotImplementedException();
         }
@@ -143,15 +108,6 @@ namespace STFM
             throw new NotImplementedException();
         }
 
-        Task IHostedService.StartAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IHostedService.StopAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
 
         bool iSoundPlayer.SwapOutputSounds(ref Sound NewOutputSound, bool Record, bool AppendRecordedSound)
         {
@@ -180,12 +136,12 @@ namespace STFM
         //     Dispose(disposing: false);
         // }
 
-        void IDisposable.Dispose()
+        public string GetAvaliableOutputDeviceNames()
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            throw new Exception();
         }
-    }
+
+
+        }
 
 }
