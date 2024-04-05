@@ -205,10 +205,20 @@ Public Class SipSpeechTest
         'Creates a new test 
         CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
         CurrentSipTestMeasurement.TestProcedure.LengthReduplications = 1 'SelectedLengthReduplications
-        CurrentSipTestMeasurement.TestProcedure.TestParadigm = Testparadigm.Slow 'SelectedTestparadigm
+        CurrentSipTestMeasurement.TestProcedure.TestParadigm = Testparadigm.FlexibleLocations 'SelectedTestparadigm
         SelectedTestparadigm = CurrentSipTestMeasurement.TestProcedure.TestParadigm
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
+
+        If CustomizableTestOptions.UseSimulatedSoundField = True Then
+            SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
+
+            Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
+            DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer)
+
+        Else
+            SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
+        End If
 
         Select Case SipTestMode
             Case SiPTestModes.Directional

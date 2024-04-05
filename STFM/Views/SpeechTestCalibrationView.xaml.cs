@@ -462,6 +462,18 @@ public partial class SpeechTestCalibrationView : ContentView
                     PlaySound = new STFN.Audio.Sound(new STFN.Audio.Formats.WaveFormat((int)CalibrationSound.WaveFormat.SampleRate, (int)CalibrationSound.WaveFormat.BitDepth, (int)SelectedTransducer.NumberOfApiOutputChannels(), Encoding: CalibrationSound.WaveFormat.Encoding));
                     PlaySound.WaveData.set_SampleData(SelectedTransducer.Mixer.OutputRouting[SelectedHardwareOutputChannel], CalibrationSound.WaveData.get_SampleData(1));
 
+                    //for (int c = 1; c <= SelectedTransducer.Mixer.GetHighestOutputChannel(); c++)
+                    //{
+                    //    if (c == SelectedTransducer.Mixer.OutputRouting[SelectedHardwareOutputChannel])
+                    //    {
+                    //        PlaySound.WaveData.set_SampleData(c, CalibrationSound.WaveData.get_SampleData(1));
+                    //    }
+                    //    else
+                    //    {
+                    //        float[] silentArray = new float[CalibrationSound.WaveData.get_SampleData(1).Length];
+                    //        PlaySound.WaveData.set_SampleData(c, silentArray);
+                    //    }
+                    //}
                 }
 
                 // PlaySound = Audio.DSP.IIRFilter(PlaySound, FrequencyWeightings.C)
@@ -492,8 +504,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private void SilenceCalibrationTone()
     {
-        STFN.Audio.Sound argNewOutputSound = (STFN.Audio.Sound)null;
-        STFN.OstfBase.SoundPlayer.SwapOutputSounds(ref argNewOutputSound);
+        STFN.OstfBase.SoundPlayer.FadeOutPlayback();
     }
 
     private void Close_Button_Click(object sender, EventArgs e)

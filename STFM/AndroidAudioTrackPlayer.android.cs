@@ -25,36 +25,14 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.Google.ErrorProne.Annotations.Concurrent;
 
 
 namespace STFM
 {
 
-       public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer
+    public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer
     {
-
-        //Task IHostedService.StartAsync(CancellationToken cancellationToken)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //Task IHostedService.StopAsync(CancellationToken cancellationToken)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-
-            //StartPlayer();
-            return Task.CompletedTask;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
 
 
         bool iSoundPlayer.WideFormatSupport { get { return true; } }
@@ -79,11 +57,13 @@ namespace STFM
 
         public bool IsPlaying
         {
-            get {
+            get
+            {
                 if (audioTrack != null)
                 {
                     AudioTrack castAudioTrack = (AudioTrack)audioTrack;
-                    if (castAudioTrack.PlayState == PlayState.Playing) {
+                    if (castAudioTrack.PlayState == PlayState.Playing)
+                    {
                         return true;
                     }
                 }
@@ -151,11 +131,13 @@ namespace STFM
         int NumberOfOutputChannels; // This corresponds to the number higest numbered physical output channel on the selected device.
         int SampleRate;
 
+        volatile bool runBufferLoop = true;
+        int buffersSent = 0;
 
         [SupportedOSPlatform("Android31.0")]
         public AndroidAudioTrackPlayer()
         {
-            this.FramesPerBuffer = 4 * 2048;
+            this.FramesPerBuffer = 2 * 2048;
 
             STFN.Audio.SoundScene.DuplexMixer Mixer = new STFN.Audio.SoundScene.DuplexMixer();
             int[] OutputChannels = new int[] { 1, 2 };
@@ -241,34 +223,42 @@ namespace STFM
                 // Building the audio tracks
                 audioTrack = audioTrackBuilder.Build();
 
+                buffersSent = 0;
+
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
 
-                castAudioTrack.SetNotificationMarkerPosition(2);
+                //castAudioTrack.SetNotificationMarkerPosition(2);
                 //castAudioTrack.MarkerReached += MarkerReached;
 
-                int bufferTimerInterval = (int)(1000 * ((double)FramesPerBuffer / (double)CurrentFormat.SampleRate));
+                //int bufferTimerInterval = (int)(1000 * ((double)FramesPerBuffer / (double)CurrentFormat.SampleRate));
 
-                bufferTimer = new Timer(NewSoundBuffer, null, 0, bufferTimerInterval);
+                //bufferTimer = new Timer(NewSoundBuffer, castAudioTrack, 0, bufferTimerInterval);
 
                 //Setting both sounds to silent sound
                 SilentSound = [new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, FramesPerBuffer)];
                 OutputSoundA = SilentSound;
                 OutputSoundB = SilentSound;
 
-                castAudioTrack.SetStartThresholdInFrames(FramesPerBuffer);
+                castAudioTrack.SetStartThresholdInFrames(2);
+                //castAudioTrack.SetStartThresholdInFrames(FramesPerBuffer);
                 //var x = castAudioTrack.StartThresholdInFrames;
-               
+
                 // Start playback
                 castAudioTrack.Play();
 
                 // Calls MarkerReached to initiate play loop
                 // MarkerReached(null, null);
 
+                // Starting loop on a new thread
+                Thread newThread = new Thread(new ThreadStart(BufferLoop));
+                newThread.Start();
+
             }
 
         }
 
-        private void CheckWaveFormat(int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding) {
+        private void CheckWaveFormat(int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding)
+        {
 
             List<WaveFormat.WaveFormatEncodings> SupportedWaveFormatEncodings = new List<WaveFormat.WaveFormatEncodings> { WaveFormat.WaveFormatEncodings.PCM, WaveFormat.WaveFormatEncodings.IeeeFloatingPoints };
             List<int> SupportedSoundBitDepths = new List<int> { 16, 32 };
@@ -300,6 +290,10 @@ namespace STFM
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
                 if (castAudioTrack.PlayState == PlayState.Playing)
                 {
+
+                    runBufferLoop = false;
+                    Thread.Sleep(200);
+
                     castAudioTrack.Stop();
                     castAudioTrack.Release();
                     WasPlaying = true;
@@ -357,17 +351,12 @@ namespace STFM
                 audioTrack = null;
             }
 
-            if (bufferTimer != null)
-            {
-                bufferTimer.Dispose();
-            }
-
         }
 
         public void FadeOutPlayback()
         {
             //Doing fade out by swapping to SilentSound
-            NewSound = SilentSound; 
+            NewSound = SilentSound;
         }
 
         public Sound GetRecordedSound(bool ClearRecordingBuffer)
@@ -405,7 +394,7 @@ namespace STFM
 
             if (IsPlaying == false)
             {
-                    throw new Exception("The AndroidAudioTrackPlayer is no longer running, and was unable to restart!");
+                throw new Exception("The AndroidAudioTrackPlayer is no longer running, and was unable to restart!");
             }
 
             double BitdepthScaling;
@@ -453,20 +442,58 @@ namespace STFM
 
         }
 
+        private void BufferLoop()
+        {
+                       
+            AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+            double checkTimesPerBuffer = 5;
+            int bufferNeedCheckInterval = (int)(((double)1000 * ((double)FramesPerBuffer / (double)CurrentFormat.SampleRate))/ checkTimesPerBuffer );
+            runBufferLoop = true;
 
-        private static Timer bufferTimer;
+            do
+            {
 
-        private void NewSoundBuffer(object state)
-        { 
-        
-        //}
+                if (castAudioTrack != null)
+                {
+                    if (castAudioTrack.State == AudioTrackState.Initialized)
+                    {
 
-        ///// <summary>
-        ///// This method is responsible for playing audio buffers. It needs to be triggered once when the AudioTrack is started. After that, it is triggered by the Marker position, which is updated to trigger in the beginning of the playing of the next buffer. 
-        ///// </summary>
-        //[SupportedOSPlatform("Android31.0")]
-        //private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
-        //{
+                        try
+                        {
+                            int buffersPlayed = (int)System.Math.Floor((double)castAudioTrack.PlaybackHeadPosition / (double)FramesPerBuffer);
+                            int buffersAheadOfPlayback = 2;
+
+                            if ((buffersSent - buffersAheadOfPlayback) < buffersPlayed)
+                            {
+                                NewSoundBuffer(castAudioTrack);
+                            };
+                        }
+                        catch (Exception)
+                        {
+                            //throw;
+                        }
+
+                    }
+                }
+
+                Thread.Sleep(bufferNeedCheckInterval);
+
+            } while (runBufferLoop == true);
+
+        }
+
+
+        private void NewSoundBuffer(object castAudioTrack_in)
+        {
+
+            //}
+
+            ///// <summary>
+            ///// This method is responsible for playing audio buffers. It needs to be triggered once when the AudioTrack is started. After that, it is triggered by the Marker position, which is updated to trigger in the beginning of the playing of the next buffer. 
+            ///// </summary>
+            //[SupportedOSPlatform("Android31.0")]
+            //private void MarkerReached(object sender, AudioTrack.MarkerReachedEventArgs e)
+            //{
 
             // Sending a buffer tick to the controller
             // Temporarily outcommented, until better solutions are fixed:
@@ -640,16 +667,101 @@ namespace STFM
                     break;
             }
 
-            AudioTrack castAudioTrack = (AudioTrack)audioTrack;
-            castAudioTrack.SetNotificationMarkerPosition(castAudioTrack.PlaybackHeadPosition + 2);
-            if (playSilence == false)
+            AudioTrack castAudioTrack = (AudioTrack)castAudioTrack_in;
+
+            if (castAudioTrack != null)
             {
-                int retVal = castAudioTrack.Write(PlaybackBuffer, 0, PlaybackBuffer.Length, WriteMode.Blocking);
+                if (castAudioTrack.State == AudioTrackState.Initialized)
+                {
+
+                    //castAudioTrack.SetNotificationMarkerPosition(castAudioTrack.PlaybackHeadPosition + 2);
+                    if (playSilence == false)
+                    {
+                        try
+                        {
+
+                            int retVal = castAudioTrack.Write(PlaybackBuffer, 0, PlaybackBuffer.Length, WriteMode.Blocking);
+                            buffersSent += 1;
+
+                            //Console.WriteLine(SilentBuffer.Length.ToString());
+                            //Console.WriteLine(buffersSent + " " + retVal.ToString());
+
+                            //if (retVal != PlaybackBuffer.Length)
+                            //{
+
+                            //    switch (retVal)
+                            //    {
+                            //        case -3: //AudioTrack.ErrorInvalidOperation
+                            //            break;
+
+                            //        case -2: //AudioTrack.ErrorBadValue
+                            //            break;
+
+                            //        case -6: //AudioTrack.ErrorDeadObject
+                            //            break;
+
+                            //        case -1: //AudioTrack.Error
+                            //            break;
+
+                            //        default:
+                            //            break;
+                            //    }
+                            //}
+                        }
+                        catch (Exception)
+                        {
+                            //throw;
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+
+                            int retVal = castAudioTrack.Write(SilentBuffer, 0, SilentBuffer.Length, WriteMode.Blocking);
+                            buffersSent += 1;
+
+                            //Console.WriteLine(SilentBuffer.Length.ToString());
+                            //Console.WriteLine(buffersSent + " " + retVal.ToString());
+
+                            //if (retVal != SilentBuffer.Length)
+                            //{
+
+                            //    switch (retVal)
+                            //    {
+                            //        case -3: //AudioTrack.ErrorInvalidOperation
+                            //            break;
+
+                            //        case -2: //AudioTrack.ErrorBadValue
+                            //            break;
+
+                            //        case -6: //AudioTrack.ErrorDeadObject
+                            //            break;
+
+                            //        case -1: //AudioTrack.Error
+                            //            break;
+
+                            //        default:
+                            //            break;
+                            //    }
+                            //}
+                        }
+                        catch (Exception)
+                        {
+                            //throw;
+                        }
+                    }
+                }
+                else
+                {
+                    //throw;
+                }
             }
             else
             {
-                int retVal = castAudioTrack.Write(SilentBuffer, 0, SilentBuffer.Length, WriteMode.Blocking);
+                //throw;
             }
+
             if (spinLockTaken) callbackSpinLock.Exit();
 
         }
