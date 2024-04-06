@@ -69,7 +69,9 @@ namespace ExoPlayerTestApp
                 }
                 string EncodingString = string.Join("|", EncodingList);
 
-                DeviceList.Add(device.ToString() + ", " + ProductNameFormatted + ", " + ProductName + ", " + DeviceType  + ", IsSink:" + device.IsSink.ToString() + ", IsSource:" + device.IsSource.ToString() +  ", Channels " + ChannelCountString + "\n   Encodings: " + EncodingString);
+                DeviceList.Add("Device: " + device.ToString() + ", ProductNameFormatted: " + ProductNameFormatted + ", ProductName:" + ProductName + ", DeviceType: " + DeviceType + ", IsSink:" + device.IsSink.ToString() + ", IsSource:" + device.IsSource.ToString() + ", Channels " + ChannelCountString + "\n   Encodings: " + EncodingString);
+
+                //DeviceList.Add(device.ToString() + ", " + ProductNameFormatted + ", " + ProductName + ", " + DeviceType  + ", IsSink:" + device.IsSink.ToString() + ", IsSource:" + device.IsSource.ToString() +  ", Channels " + ChannelCountString + "\n   Encodings: " + EncodingString);
 
                 //DeviceList.Add(device.ToString() + " " + (string)device.ProductNameFormatted + " " + (string)device.ProductName + " " + device.Type.ToString() + " " + ChannelCountString);
                 

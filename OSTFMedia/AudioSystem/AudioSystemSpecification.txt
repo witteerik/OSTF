@@ -82,7 +82,7 @@ MediaPlayerType = AudioTrackBased // must be either PaBased or AudioTrackBased (
 // InputDevices is only relevant with the MME API on Windows, for Android use InputDevice instead
 // InputDevices = //1-2 (OCTA-CAPTURE)
 
-OutputDevice = AudioQuest DragonFly
+OutputDevice = USB-Audio - AudioQuest DragonFly Black v1.5 //
 InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
 
 BufferSize = 1024 // Must be powers of 2

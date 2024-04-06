@@ -40,10 +40,7 @@ namespace STFM
             {
 
                 OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer();
-
-                // Calling AvaliableTransducers loads the audio specification file
-                var AllTranducers = OstfBase.AvaliableTransducers;
-
+                
                 // We now need to load check that the requested devices exist, which could not be done in STFN, since the Android AudioTrack do not exist there.
                 // Corresponding STFN VB.NET code:
                 //'Setting up the player must be done in STFM as there is no access to Android AudioTrack in STFN, however the object holding the AudioSettings must be created here as it needs to be referenced in the Transducers below
@@ -65,11 +62,21 @@ namespace STFM
                 // Getting available devices
 
                 var castPlayer = (AndroidAudioTrackPlayer)(OstfBase.SoundPlayer);
-                var OutputDevices = castPlayer.GetAvaliableOutputDeviceNames();
+
+                // Getting the AudioSettings from the first available transducer
+                var AllTranducers = OstfBase.AvaliableTransducers;
+                AndroidAudioTrackPlayerSettings currentAudioSettings = null;
+                if (AllTranducers.Count > 0)
+                {
+                    currentAudioSettings = (AndroidAudioTrackPlayerSettings)AllTranducers[0].ParentAudioApiSettings;
+                }
 
                 // Selects the transducer indicated in the settings file
-                var x = 1;
-
+                if (castPlayer.SetOutputDevice(currentAudioSettings.SelectedOutputDeviceName) == false)
+                {
+                    Messager.MsgBox("Unable to find the correct sound device (" + currentAudioSettings.SelectedOutputDeviceName + "). Please connect the correct sound device and restart the app!", Messager.MsgBoxStyle.Information,"Warning!");
+                    //throw new Exception();
+                }
 
             }
         }

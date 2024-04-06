@@ -780,31 +780,82 @@ namespace STFM
 
         // Some helper functions
 
+
+        /// <summary>
+        /// Sets the output device to the first output device with a ProductName of DeviceProductName. 
+        /// </summary>
+        /// <param name="DeviceProductName"></param>
+        /// <returns>Returns true if the intended device was set, otherwise false.</returns>
+        public bool SetOutputDevice(string DeviceProductName)
+        {
+
+            try
+            {
+
+                // This should only make sure that the intended device exists, and perhaps store it in the player (a shared variable?) / or just read it from the AudioSettings
+                // It should then be made sure that this device gets selected when the player starts. 
+                // Itäs of course not possible to select the AudioTrack output before the AudioTrack has been instantiated!
+
+                AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+
+                var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
+                var devices = audioManager.GetDevices(GetDevicesTargets.Outputs);
+
+                foreach (var device in devices)
+                {
+                    if (device.ProductName != null)
+                    {
+                        string ProductName = device.ProductName;
+                        if (ProductName == DeviceProductName)
+                        {
+                            if (castAudioTrack.SetPreferredDevice(device) == true)
+                            {
+                                return true;
+                            };
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Messager.MsgBox(ex.ToString());
+                //throw;
+                return true;
+            }
+        }
+
+
+        private void CheckAudioSettings()
+        {
+            // This method should check to ensure that the intended output device is selected
+            // and that the intended android media volume is as intneded
+            // and that all othe volume types are zero
+
+            // It should be called regularly (twice a second?) on a background thread
+
+
+
+        }
+
+
         public string GetAvaliableOutputDeviceNames()
         {
 
             var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
-            var devices = audioManager.GetDevices(GetDevicesTargets.All);
+            var devices = audioManager.GetDevices(GetDevicesTargets.Outputs);
 
             List<string> DeviceList = new List<string>();
 
             foreach (var device in devices)
             {
-                string ProductNameFormatted = device.ProductNameFormatted.ToString();
-                DeviceList.Add(ProductNameFormatted);
+                string ProductName = device.ProductName.ToString();
+                DeviceList.Add(ProductName);
             }
 
+            GetDevices();
+
             return string.Join("\n", DeviceList);
-
-        }
-
-        public void SetOutputDevice()
-        {
-
-            
-
-            //AudioTrack castAudioTrack = (AudioTrack)audioTrack;
-            //castAudioTrack.RoutedDevice = true;
 
         }
 
@@ -844,7 +895,9 @@ namespace STFM
                 }
                 string EncodingString = string.Join("|", EncodingList);
 
-                DeviceList.Add(device.ToString() + ", " + ProductNameFormatted + ", " + ProductName + ", " + DeviceType + ", IsSink:" + device.IsSink.ToString() + ", IsSource:" + device.IsSource.ToString() + ", Channels " + ChannelCountString + "\n   Encodings: " + EncodingString);
+                //DeviceList.Add(device.ToString() + ", " + ProductNameFormatted + ", " + ProductName + ", " + DeviceType + ", IsSink:" + device.IsSink.ToString() + ", IsSource:" + device.IsSource.ToString() + ", Channels " + ChannelCountString + "\n   Encodings: " + EncodingString);
+
+                DeviceList.Add("Device: " + device.ToString() + ", ProductNameFormatted: " + ProductNameFormatted + ", ProductName:" + ProductName + ", DeviceType: " + DeviceType + ", IsSink:" + device.IsSink.ToString() + ", IsSource:" + device.IsSource.ToString() + ", Channels " + ChannelCountString + "\n   Encodings: " + EncodingString);
 
             }
 

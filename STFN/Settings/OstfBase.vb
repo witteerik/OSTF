@@ -518,6 +518,9 @@ Public Module OstfBase
 
                     'Setting up the player must be done in STFM as there is no access to Android AudioTrack in STFN, however the object holding the AudioSettings must be created here as it needs to be referenced in the Transducers below
                     AudioSettings = New Audio.AndroidAudioTrackPlayerSettings
+                    DirectCast(AudioSettings, AndroidAudioTrackPlayerSettings).SelectedOutputDeviceName = OutputDeviceName
+                    DirectCast(AudioSettings, AndroidAudioTrackPlayerSettings).SelectedInputDeviceName = InputDeviceName
+                    AudioSettings.FramesPerBuffer = BufferSize
 
                 Else
                     Throw New NotImplementedException("Unknown media player MediaPlayerType specified in the file " & AudioSystemSpecificationFilePath)
