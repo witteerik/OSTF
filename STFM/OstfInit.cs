@@ -9,6 +9,7 @@ using STFN.Audio;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 
 
 namespace STFM
@@ -40,7 +41,7 @@ namespace STFM
             {
 
                 OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer();
-                
+
                 // We now need to load check that the requested devices exist, which could not be done in STFN, since the Android AudioTrack do not exist there.
 
                 // Getting available devices
@@ -57,7 +58,7 @@ namespace STFM
                 {
                     await Messager.MsgBoxAsync("The AllowDefaultOutputDevice behaviour must be specified in the audio system specifications file.\n\n" +
                         "Please add either of the following to the settings of the intended media player:\n\n" +
-                        "Use either:\nAllowDefaultOutputDevice = True\nor\nAllowDefaultOutputDevice = False\n\n" + 
+                        "Use either:\nAllowDefaultOutputDevice = True\nor\nAllowDefaultOutputDevice = False\n\n" +
                         "Unable to start the application. Press OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
                     Messager.RequestCloseApp();
                 }
@@ -79,9 +80,10 @@ namespace STFM
             }
         }
 
-        static OstfBase.Platforms GetCurrentPlatform() {
+        static OstfBase.Platforms GetCurrentPlatform()
+        {
 
-            if (DeviceInfo.Current.Platform == DevicePlatform.iOS) {return OstfBase.Platforms.iOS;}
+            if (DeviceInfo.Current.Platform == DevicePlatform.iOS) { return OstfBase.Platforms.iOS; }
             else if (DeviceInfo.Current.Platform == DevicePlatform.WinUI) { return OstfBase.Platforms.WinUI; }
             else if (DeviceInfo.Current.Platform == DevicePlatform.UWP) { return OstfBase.Platforms.UWP; }
             else if (DeviceInfo.Current.Platform == DevicePlatform.Tizen) { return OstfBase.Platforms.Tizen; }
@@ -92,7 +94,7 @@ namespace STFM
             else if (DeviceInfo.Current.Platform == DevicePlatform.Unknown) { return OstfBase.Platforms.Unknown; }
             else if (DeviceInfo.Current.Platform == DevicePlatform.Android) { return OstfBase.Platforms.Android; }
             else { throw new Exception("Failed to resolve the current platform type."); }
-           
+
         }
 
 
@@ -185,8 +187,9 @@ namespace STFM
             {
                 return Preferences.Default.Get("media_root_directory", "");
             }
-            else { 
-                return ""; 
+            else
+            {
+                return "";
             }
         }
 
@@ -298,6 +301,9 @@ namespace STFM
             bool hasMediaPermission = await Permissions.CheckStatusAsync<Permissions.Media>() == PermissionStatus.Granted;
             bool hasPhotoPermission = await Permissions.CheckStatusAsync<Permissions.Photos>() == PermissionStatus.Granted;
 
+            bool hasAccessNotificationPolicyPermission = await Permissions.CheckStatusAsync<AccessNotificationPolicy>() == PermissionStatus.Granted;
+
+
             if (hasStorageReadPermission == false)
             {
                 var status = await Permissions.RequestAsync<Permissions.StorageRead>();
@@ -318,8 +324,14 @@ namespace STFM
                 var status = await Permissions.RequestAsync<Permissions.Photos>();
             }
 
+            if (hasAccessNotificationPolicyPermission == false)
+            {
+                var status = await Permissions.RequestAsync<AccessNotificationPolicy>();
+            }
+
+            //ACCESS_NOTIFICATION_POLICY
+
         }
 
     }
-
 }

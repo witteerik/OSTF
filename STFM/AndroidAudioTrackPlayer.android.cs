@@ -457,6 +457,7 @@ namespace STFM
         /// <summary>
         /// The current method starts a loop
         /// </summary>
+        [SupportedOSPlatform("Android31.0")]
         private void AudioSettingsCheckLoop()
         {
 
@@ -476,7 +477,8 @@ namespace STFM
                         {
                             if (CheckAudioSettings("TB328FU", 50) == false)
                             {
-// Playback should stop immediatly and 
+                                // Playback should stop immediatly and 
+                                var x = 1;
                             }
                         }
                         catch (Exception)
@@ -493,6 +495,7 @@ namespace STFM
 
         }
 
+        [SupportedOSPlatform("Android31.0")]
         public bool CheckAudioSettings(string IntendedOutputDeviceName, int IntendedVolumePercentage)
         {
 
@@ -584,7 +587,7 @@ namespace STFM
 
                 if (indendedVolume != currentVolume)
                 {
-                    audioManager?.SetStreamVolume(Android.Media.Stream.Music, indendedVolume, VolumeNotificationFlags.ShowUi);
+                    audioManager?.SetStreamVolume(Android.Media.Stream.Music, indendedVolume, VolumeNotificationFlags.RemoveSoundAndVibrate);
 
                     // Checking that the correct volume was also set
                     currentVolume = audioManager?.GetStreamVolume(Android.Media.Stream.Music);
@@ -598,10 +601,58 @@ namespace STFM
                 }
 
                 // Set the other volume types to zero
-                audioManager?.SetStreamVolume(Android.Media.Stream.Alarm, MinVol.Value, VolumeNotificationFlags.ShowUi);
-                audioManager?.SetStreamVolume(Android.Media.Stream.Dtmf, MinVol.Value, VolumeNotificationFlags.ShowUi);
-                audioManager?.SetStreamVolume(Android.Media.Stream.System, MinVol.Value, VolumeNotificationFlags.ShowUi);
-                audioManager?.SetStreamVolume(Android.Media.Stream.Accessibility, MinVol.Value, VolumeNotificationFlags.ShowUi);
+                int? MinVol_Alarm = audioManager?.GetStreamMinVolume(Android.Media.Stream.Alarm);
+                int? currentVolume_Alarm = audioManager?.GetStreamVolume(Android.Media.Stream.Alarm);
+                if (currentVolume_Alarm.HasValue)
+                {
+                    if (currentVolume_Alarm != MinVol_Alarm)
+                    {
+                        audioManager?.SetStreamVolume(Android.Media.Stream.Alarm, MinVol_Alarm.Value, VolumeNotificationFlags.RemoveSoundAndVibrate);
+                    }
+                    // Checking that the volume changed
+                    currentVolume_Alarm = audioManager?.GetStreamVolume(Android.Media.Stream.Alarm);
+                    if (currentVolume_Alarm != MinVol_Alarm.Value) { return false; }
+                }
+
+                int? MinVol_Dtmf = audioManager?.GetStreamMinVolume(Android.Media.Stream.Dtmf);
+                int? currentVolume_Dtmf = audioManager?.GetStreamVolume(Android.Media.Stream.Dtmf);
+                if (currentVolume_Dtmf.HasValue)
+                {
+                    if (currentVolume_Dtmf != MinVol_Dtmf)
+                    {
+                        audioManager?.SetStreamVolume(Android.Media.Stream.Dtmf, MinVol_Dtmf.Value, VolumeNotificationFlags.RemoveSoundAndVibrate);
+                    }
+                    // Checking that the volume changed
+                    currentVolume_Dtmf = audioManager?.GetStreamVolume(Android.Media.Stream.Dtmf);
+                    if (currentVolume_Dtmf != MinVol_Dtmf.Value) { return false; }
+                }
+
+                int? MinVol_System = audioManager?.GetStreamMinVolume(Android.Media.Stream.System);
+                int? currentVolume_System = audioManager?.GetStreamVolume(Android.Media.Stream.System);
+                if (currentVolume_System.HasValue)
+                {
+                    if (currentVolume_System != MinVol_System)
+                    {
+                        audioManager?.SetStreamVolume(Android.Media.Stream.System, MinVol_System.Value, VolumeNotificationFlags.RemoveSoundAndVibrate);
+                    }
+                    // Checking that the volume changed
+                    currentVolume_System = audioManager?.GetStreamVolume(Android.Media.Stream.System);
+                    if (currentVolume_System != MinVol_System.Value) { return false; }
+                }
+
+                // I'm not sure what permission has to be requested to change this Accessibility volume. Leaving it for now.
+                //int? MinVol_Accessibility = audioManager?.GetStreamMinVolume(Android.Media.Stream.Accessibility);
+                //int? currentVolume_Accessibility = audioManager?.GetStreamVolume(Android.Media.Stream.Accessibility);
+                //if (currentVolume_Accessibility.HasValue)
+                //{
+                //    if (currentVolume_Accessibility != MinVol_Accessibility)
+                //    {
+                //        audioManager?.SetStreamVolume(Android.Media.Stream.Accessibility, MinVol_Accessibility.Value, VolumeNotificationFlags.RemoveSoundAndVibrate);
+                //    }
+                //    // Checking that the volume changed
+                //    currentVolume_Accessibility = audioManager?.GetStreamVolume(Android.Media.Stream.Accessibility);
+                //    if (currentVolume_Accessibility != MinVol_Accessibility.Value) { return false; }
+                //}
 
                 //var AudioTrackVolume = castAudioTrack.SetVolume((float)10); // This may be another volume??
 
@@ -964,6 +1015,7 @@ namespace STFM
         /// </summary>
         /// <param name="DeviceProductName"></param>
         /// <returns>Returns true if output exists on the system, or false if not.</returns>
+        [SupportedOSPlatform("Android31.0")]
         public static bool CheckIfOutputDeviceExists(string DeviceProductName)
         {
             try
@@ -997,6 +1049,7 @@ namespace STFM
         /// </summary>
         /// <param name="DeviceProductName"></param>
         /// <returns>Returns true if the intended device was set, otherwise false.</returns>
+        [SupportedOSPlatform("Android31.0")]
         public bool SetOutputDevice(string DeviceProductName)
         {
 
@@ -1036,7 +1089,7 @@ namespace STFM
             }
         }
 
-
+        [SupportedOSPlatform("Android31.0")]
         public string GetAvaliableOutputDeviceNames()
         {
 
@@ -1104,11 +1157,64 @@ namespace STFM
         }
 
     }
+
+
+
+/// <summary>
+/// Represents permission to access notification policy.
+/// </summary>
+public partial class AccessNotificationPolicy : Microsoft.Maui.ApplicationModel.Permissions.BasePermission
+{
+    public override async Task<PermissionStatus> CheckStatusAsync()
+    {
+        var context = Android.App.Application.Context;
+
+        var notificationManager = (Android.App.NotificationManager)context.GetSystemService(Android.Content.Context.NotificationService);
+
+        if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M
+            && notificationManager.IsNotificationPolicyAccessGranted)
+        {
+            return PermissionStatus.Granted;
+        }
+
+        return PermissionStatus.Denied;
+    }
+
+    public override async Task<PermissionStatus> RequestAsync()
+    {
+        var status = await CheckStatusAsync();
+        if (status == PermissionStatus.Granted)
+        {
+            return status;
+        }
+
+            //var intent2 = new Android.Content.Intent(Android.Provider.Settings.ExtraDoNotDisturbModeEnabled);
+            //var intent3 = new Android.Content.Intent(Android.Provider.Settings.ActionVoiceControlDoNotDisturbMode);
+
+            var intent = new Android.Content.Intent(Android.Provider.Settings.ActionNotificationPolicyAccessSettings);
+        intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+        Android.App.Application.Context.StartActivity(intent);
+
+        // After returning to the app, you should check the permission status again
+        // This could be done by the user manually calling a method to check the status
+        // after setting the permission from the settings.
+        return PermissionStatus.Denied; // Temporary response, actual check should be done after returning to the app
+
+    }
+
+    public override void EnsureDeclared()
+    {
+        // This permission is a special case and does not need to be declared in the AndroidManifest.xml
+    }
+
+    public override bool ShouldShowRationale()
+    {
+        // For ACCESS_NOTIFICATION_POLICY, we typically won't show a rationale, as this
+        // permission is granted through the system settings and not a standard permission request.
+        return false;
+    }
+
+
 }
 
-
-
-
-
-
-
+}

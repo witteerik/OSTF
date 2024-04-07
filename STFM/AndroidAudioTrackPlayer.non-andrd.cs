@@ -5,7 +5,6 @@ using STFN.Audio.Formats;
 using STFN.Audio.SoundPlayers;
 using STFN.Audio.SoundScene;
 
-
 namespace STFM
 {
     public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer
@@ -144,4 +143,31 @@ namespace STFM
 
     }
 
+
+    public partial class AccessNotificationPolicy : Microsoft.Maui.ApplicationModel.Permissions.BasePermission
+    {
+        public AccessNotificationPolicy() { }
+
+        public override Task<PermissionStatus> CheckStatusAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void EnsureDeclared()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<PermissionStatus> RequestAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool ShouldShowRationale()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }
+
