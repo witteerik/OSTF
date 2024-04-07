@@ -61,8 +61,6 @@ namespace STFM
 
                 // Getting available devices
 
-                var castPlayer = (AndroidAudioTrackPlayer)(OstfBase.SoundPlayer);
-
                 // Getting the AudioSettings from the first available transducer
                 var AllTranducers = OstfBase.AvaliableTransducers;
                 AndroidAudioTrackPlayerSettings currentAudioSettings = null;
@@ -71,13 +69,37 @@ namespace STFM
                     currentAudioSettings = (AndroidAudioTrackPlayerSettings)AllTranducers[0].ParentAudioApiSettings;
                 }
 
-                // Selects the transducer indicated in the settings file
-                if (castPlayer.SetOutputDevice(currentAudioSettings.SelectedOutputDeviceName) == false)
+                //            If AllowDefaultOutputDevice Is Nothing Then
+                //DeviceLoadSuccess = False
+                //                    MsgBox("The AllowDefaultOutputDevice behaviour must be specified in the file " & AudioSystemSpecificationFilePath & "!" & vbCrLf & vbCrLf &
+                //                           "Use either:" & vbCrLf & "AllowDefaultOutputDevice = True" & vbCrLf & "or" & vbCrLf & "AllowDefaultOutputDevice = False" & vbCrLf & vbCrLf &
+                //                           "Press OK to close the application.", MsgBoxStyle.Exclamation, "Sound device specification error!")
+                //                    Messager.RequestCloseApp()
+                //                End If
+
+                if (currentAudioSettings.AllowDefaultOutputDevice.HasValue == false)
                 {
-                    Messager.MsgBox("Unable to find the correct sound device (" + currentAudioSettings.SelectedOutputDeviceName + "). Please connect the correct sound device and restart the app!", Messager.MsgBoxStyle.Information,"Warning!");
-                    //throw new Exception();
+                    await Messager.MsgBoxAsync("The AllowDefaultOutputDevice behaviour must be specified in the audio system specifications file.\n\n" +
+                        "Please add either of the following to the settings of the intended media player:\n\n" +
+                        "Use either:\nAllowDefaultOutputDevice = True\nor\nAllowDefaultOutputDevice = False\n\n" + 
+                        "Unable to start the application. Press OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+                    Messager.RequestCloseApp();
                 }
 
+                // Selects the transducer indicated in the settings file
+                if (AndroidAudioTrackPlayer.CheckIfOutputDeviceExists(currentAudioSettings.SelectedOutputDeviceName) == false)
+                {
+                    if (currentAudioSettings.AllowDefaultOutputDevice.Value)
+                    {
+                        await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nClick OK to use the default audio output device instead!\n\n" +
+                            "IMPORTANT: Sound tranducer calibration and/or routing may not be correct!", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+                    }
+                    else
+                    {
+                        await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nPlease connect the correct sound device and restart the app!\n\nPress OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+                        Messager.RequestCloseApp();
+                    }
+                }
             }
         }
 

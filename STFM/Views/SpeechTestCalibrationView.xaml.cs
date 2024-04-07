@@ -510,11 +510,6 @@ public partial class SpeechTestCalibrationView : ContentView
     private void Close_Button_Click(object sender, EventArgs e)
     {
 
-        if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
-        {
-            OstfBase.TerminateOSTF();
-        }
-
         Application.Current.Quit(); 
 
     }

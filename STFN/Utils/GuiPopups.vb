@@ -2,11 +2,13 @@
 Public Module Messager
 
     Public Event OnNewMessage(ByVal Title As String, ByVal Message As String, ByVal CancelButtonText As String)
+    Public Event OnNewAsyncMessage As EventHandler(Of MessageEventArgs)
     Public Event OnNewQuestion As EventHandler(Of QuestionEventArgs)
     Public Event OnGetSaveFilePath As EventHandler(Of PathEventArgs)
     Public Event OnGetFolder As EventHandler(Of PathEventArgs)
     Public Event OnGetOpenFilePath As EventHandler(Of PathEventArgs)
     Public Event OnGetOpenFilePaths As EventHandler(Of PathsEventArgs)
+    Public Event OnCloseAppRequest()
 
 
     Public Enum MsgBoxStyle
@@ -36,8 +38,38 @@ Public Module Messager
 
         End Select
 
-
     End Sub
+
+
+    ''' <summary>
+    ''' A message box that will relay any messages to the GUI currently used, but requires that the GUI listens to and handles the OnNewAsyncMessage event.
+    ''' </summary>
+    ''' <param name="Message"></param>
+    ''' <param name="Style"></param>
+    ''' <param name="Title"></param>
+    ''' <param name="CancelButtonText"></param>
+    ''' <returns>Awaits the response but the boolean value returned is meaningless.</returns>
+    Public Async Function MsgBoxAsync(ByVal Message As String, Optional ByVal Style As MsgBoxStyle = MsgBoxStyle.Information, Optional ByVal Title As String = "", Optional ByVal CancelButtonText As String = "OK") As Task(Of Boolean)
+
+        'TODO: This function could perhaps be rewritten to wait for the response without having to return a Task of Boolean...
+
+        Dim tcs As New TaskCompletionSource(Of Boolean)
+
+        Select Case Style
+            Case MsgBoxStyle.Information
+
+                RaiseEvent OnNewAsyncMessage(Nothing, New MessageEventArgs(Title, Message, CancelButtonText, tcs))
+
+            Case MsgBoxStyle.Exclamation
+
+                'TODO, add some "Exclamation" notice...
+                RaiseEvent OnNewAsyncMessage(Nothing, New MessageEventArgs(Title, Message, CancelButtonText, tcs))
+
+        End Select
+
+        Return Await tcs.Task
+
+    End Function
 
     Public Async Function MsgBoxAcceptQuestion(ByVal Question As String, Optional ByVal Title As String = "",
                                           Optional ByVal AcceptButtonText As String = "Yes", Optional ByVal CancelButtonText As String = "No") As Task(Of Boolean)
@@ -144,6 +176,13 @@ Public Module Messager
         Return Await GetOpenFilePath(Directory, FileName, {".wav", ".ptwf"})
     End Function
 
+    ''' <summary>
+    ''' A method that can be used to cloase the app from lower level libraries, but requires that the GUI listens to and handles the OnCloseAppRequest event.
+    ''' </summary>
+    Public Sub RequestCloseApp()
+        'TODO, this function shuld probably be defined elsewhere, in a more app specific Module.
+        RaiseEvent OnCloseAppRequest()
+    End Sub
 
 End Module
 
@@ -166,6 +205,21 @@ Public Class QuestionEventArgs
     End Sub
 End Class
 
+Public Class MessageEventArgs
+    Inherits EventArgs
+
+    Public Property Title As String
+    Public Property Message As String
+    Public Property CancelButtonText As String
+    Public Property TaskCompletionSource As TaskCompletionSource(Of Boolean)
+
+    Public Sub New(Title As String, Question As String, CancelButtonText As String, Tcs As TaskCompletionSource(Of Boolean))
+        Me.Title = Title
+        Me.Message = Question
+        Me.CancelButtonText = CancelButtonText
+        Me.TaskCompletionSource = Tcs
+    End Sub
+End Class
 
 Public Class PathEventArgs
     Inherits EventArgs

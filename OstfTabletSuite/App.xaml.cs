@@ -1,4 +1,5 @@
 ﻿using STFN;
+using System.Diagnostics;
 
 namespace OstfTabletSuite
 {
@@ -12,28 +13,17 @@ namespace OstfTabletSuite
 
             //MainPage = new AppShell();
 
-            // Adding an event handler that disposes the sound player (clearing temporary wave files) (TODO: maybe there are better ways to do this...?)
+            // Adding an event handler that disposes the sound player 
             MainPage.Unloaded += MainPage_Unloaded;
 
         }
 
         private void MainPage_Unloaded(object sender, EventArgs e)
         {
-
-            switch (OstfBase.CurrentMediaPlayerType)
-            {
-                case OstfBase.MediaPlayerTypes.PaBased:
-                    OstfBase.TerminateOSTF();
-                    break;
-                case OstfBase.MediaPlayerTypes.AudioTrackBased:
-                    OstfBase.TerminateOSTF();
-                    break;
-                case OstfBase.MediaPlayerTypes.Default:
-                    break;
-                default:
-                    break;
-            }
+            OstfBase.TerminateOSTF();
         }
+
+
 
     }
 }

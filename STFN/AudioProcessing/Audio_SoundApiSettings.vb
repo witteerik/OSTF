@@ -33,6 +33,7 @@ Namespace Audio
         MustOverride Overrides Function ToString() As String
         MustOverride ReadOnly Property NumberOfInputChannels() As Integer?
         MustOverride ReadOnly Property NumberOfOutputChannels() As Integer?
+        Property AllowDefaultOutputDevice As Boolean?
 
     End Class
 

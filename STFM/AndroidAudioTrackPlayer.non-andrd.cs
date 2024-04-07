@@ -136,6 +136,8 @@ namespace STFM
         //     Dispose(disposing: false);
         // }
 
+        public static bool CheckIfOutputDeviceExists(string DeviceProductName) { throw new Exception(); }
+
         public string GetAvaliableOutputDeviceNames(){throw new Exception();}
 
         public bool SetOutputDevice(string DeviceProductName){throw new Exception();}

@@ -18,11 +18,13 @@ namespace OstfTabletSuite
             InitializeComponent();
 
             STFN.Messager.OnNewMessage += DisplayMessage;
+            STFN.Messager.OnNewAsyncMessage += DisplayMessageAsync;
             STFN.Messager.OnNewQuestion += DisplayBooleanQuestion;
             STFN.Messager.OnGetSaveFilePath += GetSaveFilePath;
             STFN.Messager.OnGetFolder += GetFolder;
             STFN.Messager.OnGetOpenFilePath += GetOpenFilePath;
             STFN.Messager.OnGetOpenFilePaths += GetOpenFilePaths;
+            STFN.Messager.OnCloseAppRequest += CloseApp;
 
         }
 
@@ -60,6 +62,21 @@ namespace OstfTabletSuite
         {
             await DisplayAlert(title, message, cancelButtonText);
         }
+
+        
+        public static void CloseApp()
+        {
+            Application.Current.Quit();
+        }
+
+
+        public async void DisplayMessageAsync(object sender, MessageEventArgs e)
+        {
+            await DisplayAlert(e.Title, e.Message, e.CancelButtonText);
+            // Setting false as response
+            e.TaskCompletionSource.SetResult(false);
+        }
+
 
         public async void DisplayBooleanQuestion(object sender, QuestionEventArgs e)
         {

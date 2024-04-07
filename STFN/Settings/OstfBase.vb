@@ -399,6 +399,7 @@ Public Module OstfBase
                 Dim InputDeviceName As String = ""
                 Dim InputDeviceNames As New List(Of String) ' Used for MME multiple device support
                 Dim BufferSize As Integer = 2048
+                Dim AllowDefaultOutputDevice As Boolean? = Nothing
 
                 Dim LinesRead As Integer = 0
                 For i = 0 To MediaPlayerInputLines.Length - 1
@@ -424,6 +425,7 @@ Public Module OstfBase
                     If Line.Replace(" ", "").StartsWith("InputDevice=") Then InputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
                     If Line.Replace(" ", "").StartsWith("InputDevices=") Then InputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
                     If Line.StartsWith("BufferSize") Then BufferSize = InputFileSupport.InputFileIntegerValueParsing(Line, True, AudioSystemSpecificationFilePath)
+                    If Line.StartsWith("AllowDefaultOutputDevice") Then AllowDefaultOutputDevice = InputFileSupport.InputFileBooleanValueParsing(Line, True, AudioSystemSpecificationFilePath)
 
                 Next
 
@@ -456,6 +458,17 @@ Public Module OstfBase
 
                     'Tries to setup the PortAudioApiSettings using the loaded data
                     AudioSettings = New Audio.PortAudioApiSettings
+
+                    If AllowDefaultOutputDevice Is Nothing Then
+                        DeviceLoadSuccess = False
+                        MsgBox("The AllowDefaultOutputDevice behaviour must be specified in the file " & AudioSystemSpecificationFilePath & "!" & vbCrLf & vbCrLf &
+                               "Use either:" & vbCrLf & "AllowDefaultOutputDevice = True" & vbCrLf & "or" & vbCrLf & "AllowDefaultOutputDevice = False" & vbCrLf & vbCrLf &
+                               "Press OK to close the application.", MsgBoxStyle.Exclamation, "Sound device specification error!")
+                        Messager.RequestCloseApp()
+                    End If
+
+                    AudioSettings.AllowDefaultOutputDevice = AllowDefaultOutputDevice
+
                     If DeviceLoadSuccess = True Then
                         If ApiName = "ASIO" Then
                             DeviceLoadSuccess = DirectCast(AudioSettings, PortAudioApiSettings).SetAsioSoundDevice(OutputDeviceName, BufferSize)
@@ -483,13 +496,13 @@ Public Module OstfBase
 
                         'Using default settings, as there is not yet any GUI for selecting settings such as the .NET Framework AudioSettingsDialog 
 
-                        MsgBox("The Open Speech Test Framework (OSTF) was unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
-                        "Output device: " & OutputDeviceName & vbCrLf &
-                        "Output devices: " & String.Join(", ", OutputDeviceNames) & vbCrLf &
-                        "Input device: " & InputDeviceName & vbCrLf &
-                        "Input devices: " & String.Join(", ", InputDeviceNames) & vbCrLf & vbCrLf &
-                        "Click OK to select the default input/output devices." & vbCrLf & vbCrLf &
-                        "IMPORTANT: Sound tranducer calibration and/or routing may not be correct!", MsgBoxStyle.Exclamation, "OSTF sound device not found!")
+                        'MsgBox("The Open Speech Test Framework (OSTF) was unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
+                        '"Output device: " & OutputDeviceName & vbCrLf &
+                        '"Output devices: " & String.Join(", ", OutputDeviceNames) & vbCrLf &
+                        '"Input device: " & InputDeviceName & vbCrLf &
+                        '"Input devices: " & String.Join(", ", InputDeviceNames) & vbCrLf & vbCrLf &
+                        '"Click OK to select the default input/output devices." & vbCrLf & vbCrLf &
+                        '"IMPORTANT: Sound tranducer calibration and/or routing may not be correct!", MsgBoxStyle.Exclamation, "OSTF sound device not found!")
 
                         'Dim NewAudioSettingsDialog As New AudioSettingsDialog()
                         'Dim AudioSettingsDialogResult = NewAudioSettingsDialog.ShowDialog()
@@ -497,7 +510,21 @@ Public Module OstfBase
                         '    PortAudioApiSettings = NewAudioSettingsDialog.CurrentAudioApiSettings
                         'Else
                         '    MsgBox("You pressed cancel. Default sound settings will be used", MsgBoxStyle.Exclamation, "Select sound device!")
-                        DirectCast(AudioSettings, PortAudioApiSettings).SelectDefaultAudioDevice()
+
+                        If AllowDefaultOutputDevice = True Then
+                            MsgBox("The Open Speech Test Framework (OSTF) was unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
+                        "Output device: " & OutputDeviceName & vbCrLf &
+                        "Output devices: " & String.Join(", ", OutputDeviceNames) & vbCrLf &
+                        "Input device: " & InputDeviceName & vbCrLf &
+                        "Input devices: " & String.Join(", ", InputDeviceNames) & vbCrLf & vbCrLf &
+                        "Click OK to use the default input/output devices." & vbCrLf & vbCrLf &
+                        "IMPORTANT: Sound tranducer calibration and/or routing may not be correct!", MsgBoxStyle.Exclamation, "OSTF sound device not found!")
+
+                            DirectCast(AudioSettings, PortAudioApiSettings).SelectDefaultAudioDevice()
+                        Else
+                            MsgBox("Selecting default device for PaBased sound players has been disabled in the audio system specifications file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf & "Press OK to close the application.")
+                            Messager.RequestCloseApp()
+                        End If
                         'End If
                     End If
 
@@ -518,6 +545,7 @@ Public Module OstfBase
 
                     'Setting up the player must be done in STFM as there is no access to Android AudioTrack in STFN, however the object holding the AudioSettings must be created here as it needs to be referenced in the Transducers below
                     AudioSettings = New Audio.AndroidAudioTrackPlayerSettings
+                    AudioSettings.AllowDefaultOutputDevice = AllowDefaultOutputDevice
                     DirectCast(AudioSettings, AndroidAudioTrackPlayerSettings).SelectedOutputDeviceName = OutputDeviceName
                     DirectCast(AudioSettings, AndroidAudioTrackPlayerSettings).SelectedInputDeviceName = InputDeviceName
                     AudioSettings.FramesPerBuffer = BufferSize

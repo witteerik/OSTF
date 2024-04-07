@@ -780,6 +780,38 @@ namespace STFM
 
         // Some helper functions
 
+        /// <summary>
+        /// Checks if an output sound device with the ProductName of DeviceProductName exist on the system. 
+        /// </summary>
+        /// <param name="DeviceProductName"></param>
+        /// <returns>Returns true if output exists on the system, or false if not.</returns>
+        public static bool CheckIfOutputDeviceExists(string DeviceProductName)
+        {
+            try
+            {
+                var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
+                var devices = audioManager.GetDevices(GetDevicesTargets.Outputs);
+                foreach (var device in devices)
+                {
+                    if (device.ProductName != null)
+                    {
+                        string ProductName = device.ProductName;
+                        if (ProductName == DeviceProductName)
+                        {
+                                return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Messager.MsgBox(ex.ToString());
+                //throw;
+                return false;
+            }
+        }
+
 
         /// <summary>
         /// Sets the output device to the first output device with a ProductName of DeviceProductName. 
@@ -821,7 +853,7 @@ namespace STFM
             {
                 Messager.MsgBox(ex.ToString());
                 //throw;
-                return true;
+                return false;
             }
         }
 
