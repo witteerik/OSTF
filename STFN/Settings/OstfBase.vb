@@ -816,18 +816,18 @@ Public Module OstfBase
         Public Property HardwareOutputChannels As New List(Of Integer) From {1, 2}
         Public Property CalibrationGain As New List(Of Double) From {0, 0}
 
-        Private _HostVolumeOutputLevel As Double? = Nothing
+        Private _HostVolumeOutputLevel As Integer? = Nothing
         ''' <summary>
-        ''' If possible, this value should be used to set and maintain the volume of the selected output sound unit (e.g. sound card) during speech tests.
+        ''' If possible, this value should be used to set and maintain the volume of the selected output sound unit (e.g. sound card) during speech tests. Value represent percentages (0-100).
         ''' </summary>
         ''' <returns></returns>
-        Public Property HostVolumeOutputLevel As Double?
+        Public Property HostVolumeOutputLevel As Integer?
             Get
                 Return _HostVolumeOutputLevel
             End Get
-            Set(value As Double?)
+            Set(value As Integer?)
                 If value.HasValue Then
-                    _HostVolumeOutputLevel = Math.Clamp(value.Value, 0, 1)
+                    _HostVolumeOutputLevel = Math.Clamp(value.Value, 0, 100)
                 Else
                     _HostVolumeOutputLevel = Nothing
                 End If

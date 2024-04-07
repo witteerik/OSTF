@@ -111,8 +111,10 @@ namespace STFM
         int NumberOfOutputChannels; // This corresponds to the number higest numbered physical output channel on the selected device.
         int SampleRate;
 
-        volatile bool runBufferLoop = true;
+        volatile bool runBufferLoop = false;
         int buffersSent = 0;
+
+        bool runAudioCheckLoop = false;
 
         [SupportedOSPlatform("Android31.0")]
         public AndroidAudioTrackPlayer()
@@ -137,6 +139,7 @@ namespace STFM
                 this.SampleRate = (int)CurrentFormat.SampleRate;
                 NumberOfOutputChannels = Mixer.GetHighestOutputChannel();
                 SetOverlapDuration(0.05);
+                // TODO. This needs to be read from somewhere, the Mixer??
                 SilentBuffer = new float[FramesPerBuffer * NumberOfOutputChannels];
                 PlaybackBuffer = new float[FramesPerBuffer * NumberOfOutputChannels];
 
@@ -211,6 +214,12 @@ namespace STFM
                 // Starting the loop that supplied samples tothe AudioTrack on a new thread
                 Thread newThread = new Thread(new ThreadStart(BufferLoop));
                 newThread.Start();
+
+                // TODO: Remove this!
+                Thread tempThread = new Thread(new ThreadStart(AudioSettingsCheckLoop));
+                tempThread.Start();
+                
+
             }
         }
 
@@ -249,6 +258,7 @@ namespace STFM
                 {
 
                     runBufferLoop = false;
+                    runAudioCheckLoop = false;
                     Thread.Sleep(200);
 
                     castAudioTrack.Stop();
@@ -411,7 +421,6 @@ namespace STFM
                 {
                     if (castAudioTrack.State == AudioTrackState.Initialized)
                     {
-
                         try
                         {
                             int buffersPlayed = (int)System.Math.Floor((double)castAudioTrack.PlaybackHeadPosition / (double)FramesPerBuffer);
@@ -426,16 +435,186 @@ namespace STFM
                         {
                             //throw;
                         }
+                    }
+                    else
+                    {
+                        // Stops the loop if castAudioTrack no longer refers to any instance, or is in a non-initialized state
+                        if (castAudioTrack.State == AudioTrackState.Initialized)
+                        {
+                            runBufferLoop = false;
+                        }
+                    }
+                }
+                else
+                {
+                    // Stops the loop if castAudioTrack no longer refers to any instance, or is in a non-initialized state
+                    runBufferLoop = false;
+                }
+                Thread.Sleep(bufferNeedCheckInterval);
+            } while (runBufferLoop == true);
+        }
+
+        /// <summary>
+        /// The current method starts a loop
+        /// </summary>
+        private void AudioSettingsCheckLoop()
+        {
+
+            AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+            int checkInterval = 500;
+            runAudioCheckLoop = true;
+
+            do
+            {
+
+                if (castAudioTrack != null)
+                {
+                    if (castAudioTrack.State == AudioTrackState.Initialized)
+                    {
+
+                        try
+                        {
+                            if (CheckAudioSettings("TB328FU", 50) == false)
+                            {
+// Playback should stop immediatly and 
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //throw;
+                        }
 
                     }
                 }
 
-                Thread.Sleep(bufferNeedCheckInterval);
+                Thread.Sleep(checkInterval);
 
-            } while (runBufferLoop == true);
+            } while (runAudioCheckLoop == true);
 
         }
 
+        public bool CheckAudioSettings(string IntendedOutputDeviceName, int IntendedVolumePercentage)
+        {
+
+            // This method checks to ensure that the intended output device is selected, and that the intended android media volume is set as intended, and that all other volume types are set to zero volume.
+            // If the current sound setting are not as intended, an attempt is made to to correct them. If not possible to correct the settings, false is returned, otherwise (if all is fine) true is returned.
+            // The method should be called regularly (twice a second?) on a background thread, administered by the current SpeechTest.
+
+            try
+            {
+
+                AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+
+                // Checks that the player is alive
+                if (castAudioTrack == null)
+                {
+                    // Attempting to start the device
+                    StartPlayer();
+
+                    // Try referencing the new player instance
+                    castAudioTrack = (AudioTrack)audioTrack;
+
+                    // Checking if start was possible
+                    if (castAudioTrack == null)
+                    {
+                        // The player could not be started
+                        return false;
+                    }
+                }
+
+                if (castAudioTrack.PlayState != PlayState.Playing)
+                {
+                    // Attempting to start the device
+                    StartPlayer();
+
+                    // Try referencing the new player instance
+                    castAudioTrack = (AudioTrack)audioTrack;
+
+                    // Checking if start was possible
+                    if (castAudioTrack == null)
+                    {
+                        // The player could not be started
+                        return false;
+                    }
+                }
+
+                if (castAudioTrack.PlayState != PlayState.Playing)
+                {
+                    // The player still does not play
+                    return false;
+                }
+
+                // Trying to get the currently selected output device 
+                var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
+                var devices = audioManager.GetDevices(GetDevicesTargets.Outputs);
+                AudioDeviceInfo CurrentlySelectedOutputDevice = castAudioTrack.RoutedDevice;
+
+                if (CurrentlySelectedOutputDevice == null)
+                {
+                    // No output device is set. Trying to set the intended output device.
+                    foreach (var device in devices)
+                    {
+                        if (device.ProductName != null)
+                        {
+                            string ProductName = device.ProductName;
+                            if (ProductName == IntendedOutputDeviceName)
+                            {
+                                if (castAudioTrack.SetPreferredDevice(device) == false)
+                                {
+                                    return false;
+                                };
+                            }
+                        }
+                    }
+                }
+
+                // Checks that the correct output device is set 
+                if (CurrentlySelectedOutputDevice.ProductName != IntendedOutputDeviceName)
+                {
+                    return false;
+                }
+
+                // Checks that the intended volume is set
+                int? MaxVol = audioManager?.GetStreamMaxVolume(Android.Media.Stream.Music);
+                int? MinVol = audioManager?.GetStreamMinVolume(Android.Media.Stream.Music);
+                int? currentVolume = audioManager?.GetStreamVolume(Android.Media.Stream.Music);
+                //audioManager?.GetStreamVolumeDb(Android.Media.Stream.Music);
+                int volumeRange = MaxVol.Value - MinVol.Value;
+                int indendedVolume = (int)Math.Clamp((double)((double)IntendedVolumePercentage / (double)100)* (double)volumeRange, (double)MinVol.Value, (double)MaxVol.Value);
+
+                if (indendedVolume != currentVolume)
+                {
+                    audioManager?.SetStreamVolume(Android.Media.Stream.Music, indendedVolume, VolumeNotificationFlags.ShowUi);
+
+                    // Checking that the correct volume was also set
+                    currentVolume = audioManager?.GetStreamVolume(Android.Media.Stream.Music);
+                    indendedVolume = (int)Math.Clamp((double)((double)IntendedVolumePercentage / (double)100) * (double)volumeRange, (double)MinVol.Value, (double)MaxVol.Value);
+
+                    if (indendedVolume != currentVolume)
+                    {
+                        // The volume is still incorrect
+                        return false;
+                    }
+                }
+
+                // Set the other volume types to zero
+                audioManager?.SetStreamVolume(Android.Media.Stream.Alarm, MinVol.Value, VolumeNotificationFlags.ShowUi);
+                audioManager?.SetStreamVolume(Android.Media.Stream.Dtmf, MinVol.Value, VolumeNotificationFlags.ShowUi);
+                audioManager?.SetStreamVolume(Android.Media.Stream.System, MinVol.Value, VolumeNotificationFlags.ShowUi);
+                audioManager?.SetStreamVolume(Android.Media.Stream.Accessibility, MinVol.Value, VolumeNotificationFlags.ShowUi);
+
+                //var AudioTrackVolume = castAudioTrack.SetVolume((float)10); // This may be another volume??
+
+                // Everything should be fine
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                Messager.MsgBox("The following error has occured in the CheckAudioSettings method!\n\n" + ex.ToString());
+                return false;
+            }
+        }
 
         private void NewSoundBuffer(object castAudioTrack_in)
         {
@@ -855,19 +1034,6 @@ namespace STFM
                 //throw;
                 return false;
             }
-        }
-
-
-        private void CheckAudioSettings()
-        {
-            // This method should check to ensure that the intended output device is selected
-            // and that the intended android media volume is as intneded
-            // and that all othe volume types are zero
-
-            // It should be called regularly (twice a second?) on a background thread
-
-
-
         }
 
 

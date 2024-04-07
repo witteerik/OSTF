@@ -42,22 +42,6 @@ namespace STFM
                 OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer();
                 
                 // We now need to load check that the requested devices exist, which could not be done in STFN, since the Android AudioTrack do not exist there.
-                // Corresponding STFN VB.NET code:
-                //'Setting up the player must be done in STFM as there is no access to Android AudioTrack in STFN, however the object holding the AudioSettings must be created here as it needs to be referenced in the Transducers below
-                //        AudioSettings = New Audio.AndroidAudioTrackPlayerSettings
-
-                //        'Tries to setup the PortAudioApiSettings using the loaded data
-                //        If DeviceLoadSuccess = False Then
-
-                //            'Using default settings, as there is not yet any GUI for selecting settings such as the .NET Framework AudioSettingsDialog 
-
-                //            MsgBox("The Open Speech Test Framework (OSTF) was unable to read the find or initiate the sound device/s indicated for use with the Android AudioTrack player in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
-                //            "Output device: " & OutputDeviceName & vbCrLf &
-                //            "Input device: " & InputDeviceName & vbCrLf &
-                //            "Click OK to select the default input/output devices." & vbCrLf & vbCrLf &
-                //            "IMPORTANT: Sound tranducer calibration and/or routing may not be correct!", MsgBoxStyle.Exclamation, "OSTF sound device not found!")
-                //            AudioSettings.SelectDefaultAudioDevice()
-                //        End If
 
                 // Getting available devices
 
@@ -68,14 +52,6 @@ namespace STFM
                 {
                     currentAudioSettings = (AndroidAudioTrackPlayerSettings)AllTranducers[0].ParentAudioApiSettings;
                 }
-
-                //            If AllowDefaultOutputDevice Is Nothing Then
-                //DeviceLoadSuccess = False
-                //                    MsgBox("The AllowDefaultOutputDevice behaviour must be specified in the file " & AudioSystemSpecificationFilePath & "!" & vbCrLf & vbCrLf &
-                //                           "Use either:" & vbCrLf & "AllowDefaultOutputDevice = True" & vbCrLf & "or" & vbCrLf & "AllowDefaultOutputDevice = False" & vbCrLf & vbCrLf &
-                //                           "Press OK to close the application.", MsgBoxStyle.Exclamation, "Sound device specification error!")
-                //                    Messager.RequestCloseApp()
-                //                End If
 
                 if (currentAudioSettings.AllowDefaultOutputDevice.HasValue == false)
                 {
