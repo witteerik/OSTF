@@ -63,9 +63,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
         // Adding transducers
         var TempWaveFormat = new STFN.Audio.Formats.WaveFormat(48000, 32, 1, Encoding: STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
-        AudioSettings audioApiSettings = null;
-        STFN.Audio.SoundScene.DuplexMixer mixer = null;
-        STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref audioApiSettings, (int?)TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding, null, ref mixer, STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, false, false);
+        STFN.OstfBase.SoundPlayer.ChangePlayerSettings(null, (int?)TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding, null, null, STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, false, false);
 
         var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
         if (LocalAvailableTransducers.Count == 0)
@@ -207,7 +205,7 @@ public partial class SpeechTestCalibrationView : ContentView
             // (At this stage the sound player will be started, if not already done.)
             var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
             var argMixer = SelectedTransducer.Mixer;
-            STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings, OverlapDuration: 0.3d, Mixer: ref argMixer, ReOpenStream: true, ReStartStream: true);
+            STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, OverlapDuration: 0.3d, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
             SelectedTransducer.Mixer = argMixer;
             this.PlaySignal_Button.IsEnabled = true;
         }
@@ -398,7 +396,7 @@ public partial class SpeechTestCalibrationView : ContentView
                 // Updates the wave format of the sound player
                 STFN.Audio.SoundScene.DuplexMixer argMixer = SelectedTransducer.Mixer;
                 AudioSettings argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings, SampleRate: (int?)CalibrationSound.WaveFormat.SampleRate, BitDepth: CalibrationSound.WaveFormat.BitDepth, Encoding: CalibrationSound.WaveFormat.Encoding, Mixer: ref argMixer);
+                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, SampleRate: (int?)CalibrationSound.WaveFormat.SampleRate, BitDepth: CalibrationSound.WaveFormat.BitDepth, Encoding: CalibrationSound.WaveFormat.Encoding, Mixer: argMixer);
 
                 // Setting the signal level
                 STFN.Audio.DSP.Transformations.MeasureAndAdjustSectionLevel(ref CalibrationSound, (decimal)STFN.Audio.AudioManagement.Standard_dBSPL_To_dBFS(SelectedLevel), 1, FrequencyWeighting: (STFN.Audio.BasicAudioEnums.FrequencyWeightings) (int)FrequencyWeighting_ComboBox.SelectedItem);

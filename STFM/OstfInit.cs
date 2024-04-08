@@ -10,6 +10,7 @@ using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Maui.Controls.PlatformConfiguration;
+using STFN.Audio.SoundScene;
 
 
 namespace STFM
@@ -40,18 +41,22 @@ namespace STFM
             if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.AudioTrackBased)
             {
 
-                OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer();
-
                 // We now need to load check that the requested devices exist, which could not be done in STFN, since the Android AudioTrack do not exist there.
 
                 // Getting available devices
-
                 // Getting the AudioSettings from the first available transducer
-                var AllTranducers = OstfBase.AvaliableTransducers;
+                List<OstfBase.AudioSystemSpecification> AllTranducers = OstfBase.AvaliableTransducers;
                 AndroidAudioTrackPlayerSettings currentAudioSettings = null;
                 if (AllTranducers.Count > 0)
                 {
                     currentAudioSettings = (AndroidAudioTrackPlayerSettings)AllTranducers[0].ParentAudioApiSettings;
+                }
+                else
+                {
+                    await Messager.MsgBoxAsync("No transducer has been defined in the audio system specifications file.\n\n" +
+                        "Please add a transducer specification and restart the app!\n\n" +
+                        "Unable to start the application. Press OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+                    Messager.RequestCloseApp();
                 }
 
                 if (currentAudioSettings.AllowDefaultOutputDevice.HasValue == false)
@@ -70,6 +75,9 @@ namespace STFM
                     {
                         await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nClick OK to use the default audio output device instead!\n\n" +
                             "IMPORTANT: Sound tranducer calibration and/or routing may not be correct!", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+
+                        // Overriding the value of SelectedOutputDeviceName by an empty string. Setting currentAudioSettings.SelectedOutputDeviceName should then accept any output device in the android player.
+                        currentAudioSettings.SelectedOutputDeviceName = ""; 
                     }
                     else
                     {
@@ -77,6 +85,35 @@ namespace STFM
                         Messager.RequestCloseApp();
                     }
                 }
+
+                // Setting up the mixers
+                int OutputChannels ;
+                int InputChannels;
+
+                if (currentAudioSettings.SelectedOutputDeviceName != "")
+                {
+                    // Getting the actual number of channels on the device
+                    OutputChannels = AndroidAudioTrackPlayer.GetNumberChannelsOnDevice(currentAudioSettings.SelectedOutputDeviceName, true);
+                    InputChannels = AndroidAudioTrackPlayer.GetNumberChannelsOnDevice(currentAudioSettings.SelectedInputDeviceName, false);
+                }
+                else
+                {
+                    // Unable to use the intended device. Assuming 2 output channels and 0 input channels. TODO: There is probably a better way to get the actual number of channels in the device automatically selected for the output and input sound streams!
+                    OutputChannels = 2;
+                    InputChannels = 0;
+                }
+
+                for (int i = 0; i < AllTranducers.Count; i++)
+                {
+                    AllTranducers[i].ParentAudioApiSettings.NumberOfOutputChannels = Math.Max(OutputChannels, 0);
+                    AllTranducers[i].ParentAudioApiSettings.NumberOfInputChannels = Math.Max(InputChannels, 0);
+                    AllTranducers[i].SetupMixer();
+                }
+
+                // Initiates the sound player with the mixer of the first available transducer
+                DuplexMixer SelectedMixer = AllTranducers[0].Mixer;
+                OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer(ref currentAudioSettings, ref SelectedMixer);
+
             }
         }
 
@@ -301,7 +338,7 @@ namespace STFM
             bool hasMediaPermission = await Permissions.CheckStatusAsync<Permissions.Media>() == PermissionStatus.Granted;
             bool hasPhotoPermission = await Permissions.CheckStatusAsync<Permissions.Photos>() == PermissionStatus.Granted;
 
-            bool hasAccessNotificationPolicyPermission = await Permissions.CheckStatusAsync<AccessNotificationPolicy>() == PermissionStatus.Granted;
+            //bool hasAccessNotificationPolicyPermission = await Permissions.CheckStatusAsync<AccessNotificationPolicy>() == PermissionStatus.Granted;
 
 
             if (hasStorageReadPermission == false)
@@ -324,10 +361,10 @@ namespace STFM
                 var status = await Permissions.RequestAsync<Permissions.Photos>();
             }
 
-            if (hasAccessNotificationPolicyPermission == false)
-            {
-                var status = await Permissions.RequestAsync<AccessNotificationPolicy>();
-            }
+            //if (hasAccessNotificationPolicyPermission == false)
+            //{
+            //    var status = await Permissions.RequestAsync<AccessNotificationPolicy>();
+            //}
 
             //ACCESS_NOTIFICATION_POLICY
 

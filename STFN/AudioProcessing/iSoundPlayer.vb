@@ -36,21 +36,7 @@ Namespace Audio
 
             Property EqualPowerCrossFade As Boolean
 
-            ''' <summary>
-            ''' Set the crossfade duration (in seconds)
-            ''' </summary>
-            ''' <param name="Duration"></param>
-            Sub SetOverlapDuration(ByVal Duration As Double)
-
             Function GetOverlapDuration() As Double
-
-            ''' <summary>
-            ''' Set to adjust the number of ovelap level adjustment steps for smoother or faster crossfade
-            ''' </summary>
-            ''' <param name="Granuality"></param>
-            Sub SetOverlapGranuality(ByVal Granuality As Integer)
-
-            Function GetOverlapGranuality() As Integer
 
             ReadOnly Property IsPlaying As Boolean
 
@@ -90,12 +76,12 @@ Namespace Audio
             ''' <param name="ReOpenStream"></param>
             ''' <param name="ReStartStream"></param>
             ''' <param name="ClippingIsActivated"></param>
-            Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioSettings = Nothing,
+            Sub ChangePlayerSettings(Optional ByVal AudioApiSettings As AudioSettings = Nothing,
                                 Optional ByVal SampleRate As Integer? = Nothing,
                                 Optional ByVal BitDepth As Integer? = Nothing,
                                 Optional ByVal Encoding As Audio.Formats.WaveFormat.WaveFormatEncodings? = Nothing,
                                 Optional ByVal OverlapDuration As Double? = Nothing,
-                                Optional ByRef Mixer As Audio.SoundScene.DuplexMixer = Nothing,
+                                Optional ByVal Mixer As Audio.SoundScene.DuplexMixer = Nothing,
                                 Optional ByVal SoundDirection As SoundDirections? = Nothing,
                                 Optional ByVal ReOpenStream As Boolean = True,
                                 Optional ByVal ReStartStream As Boolean = True,

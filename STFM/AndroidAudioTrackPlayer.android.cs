@@ -13,6 +13,15 @@ namespace STFM
     public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer
     {
 
+        private AndroidAudioTrackPlayerSettings AudioSettings = null;
+
+        private DuplexMixer Mixer;
+        public DuplexMixer GetMixer()
+        {
+            return Mixer;
+        }
+
+
         //Se documentation for AudioTrack at: https://developer.android.com/reference/android/media/AudioTrack
 
         bool iSoundPlayer.WideFormatSupport { get { return true; } }
@@ -51,7 +60,7 @@ namespace STFM
             }
         }
 
-        public void SetOverlapDuration(double Duration)
+        private void SetOverlapDuration(double Duration)
         {
             //Enforcing at least one sample overlap
             OverlapFrameCount = (int)Math.Max(1, (double)SampleRate * Duration);
@@ -61,24 +70,9 @@ namespace STFM
         {
             return _OverlapFrameCount / SampleRate;
         }
-        public void SetOverlapGranuality(int Granuality)
-        {
-            //Ignored by the in this sound player, sinse it's using samplewise granuality by default
-        }
-
-        public int GetOverlapGranuality()
-        {
-            return _OverlapFrameCount;
-        }
 
         STFN.Audio.Formats.WaveFormat CurrentFormat = null;
 
-        DuplexMixer Mixer;
-
-        public DuplexMixer GetMixer()
-        {
-            return Mixer;
-        }
 
         Object audioTrack = null; // This is declared as an Object instead of AudioTrack since it will otherwise register an error in the Visual Studio editor.
 
@@ -107,7 +101,6 @@ namespace STFM
 
         private float[] SilentBuffer = new float[512];
         private float[] PlaybackBuffer = new float[512];
-        int FramesPerBuffer;
         int NumberOfOutputChannels; // This corresponds to the number higest numbered physical output channel on the selected device.
         int SampleRate;
 
@@ -117,14 +110,9 @@ namespace STFM
         bool runAudioCheckLoop = false;
 
         [SupportedOSPlatform("Android31.0")]
-        public AndroidAudioTrackPlayer()
+        public AndroidAudioTrackPlayer(ref AndroidAudioTrackPlayerSettings AudioSettings, ref DuplexMixer Mixer)
         {
-            this.FramesPerBuffer = 2 * 2048;
-
-            STFN.Audio.SoundScene.DuplexMixer Mixer = new STFN.Audio.SoundScene.DuplexMixer();
-            int[] OutputChannels = new int[] { 1, 2 };
-            Mixer.DirectMonoSoundToOutputChannels(ref OutputChannels);
-
+            this.AudioSettings = AudioSettings;
             this.Mixer = Mixer;
         }
 
@@ -138,10 +126,10 @@ namespace STFM
 
                 this.SampleRate = (int)CurrentFormat.SampleRate;
                 NumberOfOutputChannels = Mixer.GetHighestOutputChannel();
-                SetOverlapDuration(0.05);
-                // TODO. This needs to be read from somewhere, the Mixer??
-                SilentBuffer = new float[FramesPerBuffer * NumberOfOutputChannels];
-                PlaybackBuffer = new float[FramesPerBuffer * NumberOfOutputChannels];
+                
+                SetOverlapDuration(0.05); // This value is default, but should be set by each user of the player by a call to ChangePlayerSettings
+                SilentBuffer = new float[AudioSettings.FramesPerBuffer * NumberOfOutputChannels];
+                PlaybackBuffer = new float[AudioSettings.FramesPerBuffer * NumberOfOutputChannels];
 
                 // Cretaing a ChannelIndexMask representing the output channels
                 // Define a bit array containing boolean values for channels 1-32 ?
@@ -184,7 +172,7 @@ namespace STFM
                     .SetChannelIndexMask(ChannelIndexMask)
                     .Build());
 
-                audioTrackBuilder.SetBufferSizeInBytes(NumberOfOutputChannels * FramesPerBuffer);
+                audioTrackBuilder.SetBufferSizeInBytes(NumberOfOutputChannels * AudioSettings.FramesPerBuffer);
 
                 audioTrackBuilder.SetAudioAttributes(new Android.Media.AudioAttributes.Builder()
                     .SetUsage(AudioUsageKind.Media)
@@ -202,7 +190,7 @@ namespace STFM
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
 
                 //Setting both sounds to silent sound
-                SilentSound = [new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, FramesPerBuffer)];
+                SilentSound = [new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, AudioSettings.FramesPerBuffer)];
                 OutputSoundA = SilentSound;
                 OutputSoundB = SilentSound;
 
@@ -215,10 +203,9 @@ namespace STFM
                 Thread newThread = new Thread(new ThreadStart(BufferLoop));
                 newThread.Start();
 
-                // TODO: Remove this!
-                Thread tempThread = new Thread(new ThreadStart(AudioSettingsCheckLoop));
-                tempThread.Start();
-                
+                // Staring the loop that ensures correct player settings
+                Thread newThread2 = new Thread(new ThreadStart(AudioSettingsCheckLoop));
+                newThread2.Start();
 
             }
         }
@@ -246,7 +233,7 @@ namespace STFM
         }
 
 
-        public void ChangePlayerSettings(ref AudioSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, ref DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
+        public void ChangePlayerSettings(AudioSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
         {
 
             bool WasPlaying = false;
@@ -265,6 +252,11 @@ namespace STFM
                     castAudioTrack.Release();
                     WasPlaying = true;
                 }
+            }
+
+            if (AudioApiSettings != null )
+            {
+                this.AudioSettings = (AndroidAudioTrackPlayerSettings)AudioApiSettings;
             }
 
             if (SampleRate != null)
@@ -300,6 +292,9 @@ namespace STFM
 
         public void CloseStream()
         {
+            runBufferLoop = false;
+            runAudioCheckLoop = false;
+
             if (audioTrack != null)
             {
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
@@ -309,6 +304,10 @@ namespace STFM
 
         public void Dispose()
         {
+
+            runBufferLoop = false;
+            runAudioCheckLoop = false;
+
             if (audioTrack != null)
             {
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
@@ -400,7 +399,7 @@ namespace STFM
             }
 
             //'Setting NewSound to the NewOutputSound to indicate that the output sound should be swapped by the callback
-            NewSound = STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.CreateBufferHoldersOnNewThread(ref NewOutputSound, ref Mixer, ref FramesPerBuffer, ref NumberOfOutputChannels, BitdepthScaling);
+            NewSound = STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.CreateBufferHoldersOnNewThread(ref NewOutputSound, ref Mixer, AudioSettings.FramesPerBuffer, ref NumberOfOutputChannels, BitdepthScaling);
 
             return true;
 
@@ -410,10 +409,11 @@ namespace STFM
         {
                        
             AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+            int localFramesPerBuffer = AudioSettings.FramesPerBuffer;
             double checkTimesPerBuffer = 5;
-            int bufferNeedCheckInterval = (int)(((double)1000 * ((double)FramesPerBuffer / (double)CurrentFormat.SampleRate))/ checkTimesPerBuffer );
+            int bufferNeedCheckInterval = (int)(((double)1000 * ((double)localFramesPerBuffer / (double)CurrentFormat.SampleRate))/ checkTimesPerBuffer );
             runBufferLoop = true;
-
+                       
             do
             {
 
@@ -423,7 +423,7 @@ namespace STFM
                     {
                         try
                         {
-                            int buffersPlayed = (int)System.Math.Floor((double)castAudioTrack.PlaybackHeadPosition / (double)FramesPerBuffer);
+                            int buffersPlayed = (int)System.Math.Floor((double)castAudioTrack.PlaybackHeadPosition / (double)localFramesPerBuffer);
                             int buffersAheadOfPlayback = 2;
 
                             if ((buffersSent - buffersAheadOfPlayback) < buffersPlayed)
@@ -475,9 +475,15 @@ namespace STFM
 
                         try
                         {
-                            if (CheckAudioSettings("TB328FU", 50) == false)
+                            if (CheckAudioSettings(AudioSettings.SelectedOutputDeviceName, AudioSettings.AllowDefaultOutputDevice.Value, Mixer.ParentTransducer.HostVolumeOutputLevel) == false)
                             {
-                                // Playback should stop immediatly and 
+                                // Playback should stop immediately and 
+                                runBufferLoop = false;
+                                runAudioCheckLoop = false;
+                                castAudioTrack.Stop();
+
+                                // Notes any hearing tests by raising a suitable event
+
                                 var x = 1;
                             }
                         }
@@ -496,7 +502,7 @@ namespace STFM
         }
 
         [SupportedOSPlatform("Android31.0")]
-        public bool CheckAudioSettings(string IntendedOutputDeviceName, int IntendedVolumePercentage)
+        public bool CheckAudioSettings(string IntendedOutputDeviceName,bool AllowAnyOutputDevice, int IntendedVolumePercentage)
         {
 
             // This method checks to ensure that the intended output device is selected, and that the intended android media volume is set as intended, and that all other volume types are set to zero volume.
@@ -507,6 +513,9 @@ namespace STFM
             {
 
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
+
+                TrackStatus trackStatus = castAudioTrack.SetVolume((float)1); // This is a linear gain. The AudioTrack .NET implementation seem to lack a method for retrieving the maxVolume (why?). It seems to be set to unity by default.
+                //Nontheless, we set it to unity to ensure a gain of zero dB. (N.B. This volume is not the same as the one set for Audiomanager SetStreamVolume, see https://developer.android.com/reference/android/media/AudioTrack#setVolume(float))
 
                 // Checks that the player is alive
                 if (castAudioTrack == null)
@@ -552,30 +561,35 @@ namespace STFM
                 var devices = audioManager.GetDevices(GetDevicesTargets.Outputs);
                 AudioDeviceInfo CurrentlySelectedOutputDevice = castAudioTrack.RoutedDevice;
 
-                if (CurrentlySelectedOutputDevice == null)
+                // Checks that the intended output device is set, if AllowAnyOutputDevice is false.
+                if (AllowAnyOutputDevice == false)
                 {
-                    // No output device is set. Trying to set the intended output device.
-                    foreach (var device in devices)
+                    if (CurrentlySelectedOutputDevice == null)
                     {
-                        if (device.ProductName != null)
+                        // No output device is set. Trying to set the intended output device.
+                        foreach (var device in devices)
                         {
-                            string ProductName = device.ProductName;
-                            if (ProductName == IntendedOutputDeviceName)
+                            if (device.ProductName != null)
                             {
-                                if (castAudioTrack.SetPreferredDevice(device) == false)
+                                string ProductName = device.ProductName;
+                                if (ProductName == IntendedOutputDeviceName)
                                 {
-                                    return false;
-                                };
+                                    if (castAudioTrack.SetPreferredDevice(device) == false)
+                                    {
+                                        return false;
+                                    };
+                                }
                             }
                         }
                     }
+
+                    // Checks that the correct output device is set 
+                    if (CurrentlySelectedOutputDevice.ProductName != IntendedOutputDeviceName)
+                    {
+                        return false;
+                    }
                 }
 
-                // Checks that the correct output device is set 
-                if (CurrentlySelectedOutputDevice.ProductName != IntendedOutputDeviceName)
-                {
-                    return false;
-                }
 
                 // Checks that the intended volume is set
                 int? MaxVol = audioManager?.GetStreamMaxVolume(Android.Media.Stream.Music);
@@ -600,61 +614,34 @@ namespace STFM
                     }
                 }
 
-                // Set the other volume types to zero
-                int? MinVol_Alarm = audioManager?.GetStreamMinVolume(Android.Media.Stream.Alarm);
-                int? currentVolume_Alarm = audioManager?.GetStreamVolume(Android.Media.Stream.Alarm);
-                if (currentVolume_Alarm.HasValue)
+                List< Android.Media.Stream> streamTypesToSilence = new List<Android.Media.Stream> {
+                    //Android.Media.Stream.NotificationDefault,
+                    Android.Media.Stream.VoiceCall,
+                    Android.Media.Stream.System,
+                    Android.Media.Stream.Ring,
+                    Android.Media.Stream.Alarm,
+                    Android.Media.Stream.Notification,
+                    Android.Media.Stream.Dtmf,
+                    //Android.Media.Stream.Accessibility  // I'm not sure what permission has to be requested to change this Accessibility volume. Leaving it for now.
+                };
+
+                for (int i = 0; i < streamTypesToSilence.Count; i++)
                 {
-                    if (currentVolume_Alarm != MinVol_Alarm)
+                    Android.Media.Stream currentStreamToToSilence = streamTypesToSilence[i];
+
+                    int? TargetMinVol = audioManager?.GetStreamMinVolume(currentStreamToToSilence);
+                    int? currentStreamVolume = audioManager?.GetStreamVolume(currentStreamToToSilence);
+                    if (currentStreamVolume.HasValue)
                     {
-                        audioManager?.SetStreamVolume(Android.Media.Stream.Alarm, MinVol_Alarm.Value, VolumeNotificationFlags.RemoveSoundAndVibrate);
+                        if (currentStreamVolume != TargetMinVol)
+                        {
+                            audioManager?.SetStreamVolume(currentStreamToToSilence, TargetMinVol.Value, VolumeNotificationFlags.RemoveSoundAndVibrate);
+                        }
+                        // Checking that the volume changed
+                        currentStreamVolume = audioManager?.GetStreamVolume(currentStreamToToSilence);
+                        if (currentStreamVolume != TargetMinVol.Value) { return false; }
                     }
-                    // Checking that the volume changed
-                    currentVolume_Alarm = audioManager?.GetStreamVolume(Android.Media.Stream.Alarm);
-                    if (currentVolume_Alarm != MinVol_Alarm.Value) { return false; }
-                }
-
-                int? MinVol_Dtmf = audioManager?.GetStreamMinVolume(Android.Media.Stream.Dtmf);
-                int? currentVolume_Dtmf = audioManager?.GetStreamVolume(Android.Media.Stream.Dtmf);
-                if (currentVolume_Dtmf.HasValue)
-                {
-                    if (currentVolume_Dtmf != MinVol_Dtmf)
-                    {
-                        audioManager?.SetStreamVolume(Android.Media.Stream.Dtmf, MinVol_Dtmf.Value, VolumeNotificationFlags.RemoveSoundAndVibrate);
-                    }
-                    // Checking that the volume changed
-                    currentVolume_Dtmf = audioManager?.GetStreamVolume(Android.Media.Stream.Dtmf);
-                    if (currentVolume_Dtmf != MinVol_Dtmf.Value) { return false; }
-                }
-
-                int? MinVol_System = audioManager?.GetStreamMinVolume(Android.Media.Stream.System);
-                int? currentVolume_System = audioManager?.GetStreamVolume(Android.Media.Stream.System);
-                if (currentVolume_System.HasValue)
-                {
-                    if (currentVolume_System != MinVol_System)
-                    {
-                        audioManager?.SetStreamVolume(Android.Media.Stream.System, MinVol_System.Value, VolumeNotificationFlags.RemoveSoundAndVibrate);
-                    }
-                    // Checking that the volume changed
-                    currentVolume_System = audioManager?.GetStreamVolume(Android.Media.Stream.System);
-                    if (currentVolume_System != MinVol_System.Value) { return false; }
-                }
-
-                // I'm not sure what permission has to be requested to change this Accessibility volume. Leaving it for now.
-                //int? MinVol_Accessibility = audioManager?.GetStreamMinVolume(Android.Media.Stream.Accessibility);
-                //int? currentVolume_Accessibility = audioManager?.GetStreamVolume(Android.Media.Stream.Accessibility);
-                //if (currentVolume_Accessibility.HasValue)
-                //{
-                //    if (currentVolume_Accessibility != MinVol_Accessibility)
-                //    {
-                //        audioManager?.SetStreamVolume(Android.Media.Stream.Accessibility, MinVol_Accessibility.Value, VolumeNotificationFlags.RemoveSoundAndVibrate);
-                //    }
-                //    // Checking that the volume changed
-                //    currentVolume_Accessibility = audioManager?.GetStreamVolume(Android.Media.Stream.Accessibility);
-                //    if (currentVolume_Accessibility != MinVol_Accessibility.Value) { return false; }
-                //}
-
-                //var AudioTrackVolume = castAudioTrack.SetVolume((float)10); // This may be another volume??
+                }                               
 
                 // Everything should be fine
                 return true;
@@ -963,7 +950,7 @@ namespace STFM
                 try
                 {
                     // Enforcing overlap fade length to be a multiple of FramesPerBuffer
-                    _OverlapFrameCount = FramesPerBuffer * (int)Math.Ceiling((double)value / FramesPerBuffer);
+                    _OverlapFrameCount = AudioSettings.FramesPerBuffer * (int)Math.Ceiling((double)value / AudioSettings.FramesPerBuffer);
 
                     int fadeArrayLength = NumberOfOutputChannels * (int)_OverlapFrameCount;
 
@@ -1043,6 +1030,54 @@ namespace STFM
             }
         }
 
+        /// <summary>
+        /// Checks if a sound device with the ProductName of DeviceProductName exist on the system and returns the highest output or input channel count that the indicated device supports, or minus 1 if the device does not exist. 
+        /// </summary>
+        /// <param name="DeviceProductName"></param>
+        /// <param name="IsOutput">Set to true for output channels or false for input channels.</param>
+        /// <returns>Returns the highest number of channels or -1 if no device exists.</returns>
+        [SupportedOSPlatform("Android31.0")]
+        public static int GetNumberChannelsOnDevice(string DeviceProductName, bool IsOutput)
+        {
+            try
+            {
+                var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
+
+                GetDevicesTargets devicesTargets = GetDevicesTargets.Inputs;
+                if (IsOutput == true)
+                {
+                    devicesTargets = GetDevicesTargets.Outputs;
+                }
+
+                var devices = audioManager.GetDevices(devicesTargets);
+
+                foreach (var device in devices)
+                {
+                    if (device.ProductName != null)
+                    {
+                        string ProductName = device.ProductName;
+                        if (ProductName == DeviceProductName)
+                        {
+                            int[] channelCounts = device.GetChannelCounts();
+                            List<string> ChannelCountList = new List<string>();
+                            foreach (int c in channelCounts)
+                            {
+                                ChannelCountList.Add(c.ToString());
+                            }
+                            return channelCounts.Max();
+                        }
+                    }
+                }
+                return -1;
+            }
+            catch (Exception ex)
+            {
+                Messager.MsgBox(ex.ToString());
+                //throw;
+                return -1;
+            }
+        }
+
 
         /// <summary>
         /// Sets the output device to the first output device with a ProductName of DeviceProductName. 
@@ -1104,14 +1139,11 @@ namespace STFM
                 DeviceList.Add(ProductName);
             }
 
-            GetDevices();
-
             return string.Join("\n", DeviceList);
-
         }
 
         [SupportedOSPlatform("Android31.0")]
-        public static string GetDevices()
+        public static string GetAvaliableDeviceInformation()
         {
             var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
             var devices = audioManager.GetDevices(GetDevicesTargets.All);
@@ -1213,7 +1245,6 @@ public partial class AccessNotificationPolicy : Microsoft.Maui.ApplicationModel.
         // permission is granted through the system settings and not a standard permission request.
         return false;
     }
-
 
 }
 

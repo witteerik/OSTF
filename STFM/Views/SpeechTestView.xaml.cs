@@ -139,7 +139,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 // (At this stage the sound player will be started, if not already done.)
                 var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
                 var argMixer = SelectedTransducer.Mixer;
-                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, ref argMixer, 
+                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, argMixer, 
                     STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, ReOpenStream: true, ReStartStream: true);
                 SelectedTransducer.Mixer = argMixer;
             }
@@ -433,16 +433,16 @@ public partial class SpeechTestView : ContentView, IDrawable
                     var mediaSets = CurrentSpeechTest.AvailableMediasets;
                     if (mediaSets.Count > 0)
                     {
-                        OstfBase.SoundPlayer.ChangePlayerSettings(ref argAudioApiSettings,
+                        OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings,
                             mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
-                            CurrentSpeechTest.SoundOverlapDuration, Mixer: ref argMixer, ReOpenStream: true, ReStartStream: true);
+                            CurrentSpeechTest.SoundOverlapDuration, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
                         SelectedTransducer.Mixer = argMixer;
                     }
                 }
             }
             else
             {
-                OstfBase.SoundPlayer.SetOverlapDuration(CurrentSpeechTest.SoundOverlapDuration);
+                OstfBase.SoundPlayer.ChangePlayerSettings(OverlapDuration: CurrentSpeechTest.SoundOverlapDuration);
             }
         }
     }

@@ -776,9 +776,12 @@ Public Module OstfBase
         'Adding a default transducer if none were sucessfully read
         If _AvaliableTransducers.Count = 0 Then _AvaliableTransducers.Add(New AudioSystemSpecification(CurrentMediaPlayerType, AudioApiSettings))
 
-        For Each Transducer In _AvaliableTransducers
-            Transducer.SetupMixer()
-        Next
+        If OstfBase.CurrentMediaPlayerType <> MediaPlayerTypes.AudioTrackBased Then
+            'This has to be made later in STFM for the AudioTrackBased player
+            For Each Transducer In _AvaliableTransducers
+                Transducer.SetupMixer()
+            Next
+        End If
 
         'Checking calibration gain values and issues warnings if calibration gain is above 30 dB
         For Each Transducer In _AvaliableTransducers
@@ -875,9 +878,8 @@ Public Module OstfBase
         End Sub
         Public Sub CheckCanPlayRecord()
 
-            If MediaPlayerType = MediaPlayerTypes.PaBased Then
-                'Checks if the transducerss will play/record
-                If Me.Mixer.OutputRouting.Keys.Count > 0 And Me.ParentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
+            'Checks if the transducerss will play/record
+            If Me.Mixer.OutputRouting.Keys.Count > 0 And Me.ParentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
                     If Me.Mixer.OutputRouting.Keys.Max <= Me.ParentAudioApiSettings.NumberOfOutputChannels Then
                         Me._CanPlay = True
                     End If
@@ -887,11 +889,6 @@ Public Module OstfBase
                         Me._CanRecord = True
                     End If
                 End If
-            Else
-                'Always using True for MediaPlayerTypes.AudioTrackBased
-                Me._CanPlay = True
-                Me._CanRecord = True
-            End If
 
         End Sub
 
@@ -901,30 +898,20 @@ Public Module OstfBase
 
         Public Function NumberOfApiOutputChannels() As Integer
 
-            If MediaPlayerType = MediaPlayerTypes.PaBased Then
-                If Me.ParentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
-                    Return Me.ParentAudioApiSettings.NumberOfOutputChannels
-                Else
-                    Return 0
-                End If
+            If Me.ParentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
+                Return Me.ParentAudioApiSettings.NumberOfOutputChannels
             Else
-                'Always using two for MediaPlayerTypes.AudioTrackBased
-                Return 2
-            End If
+                Return 0
+                End If
 
         End Function
 
         Public Function NumberOfApiInputChannels() As Integer
 
-            If MediaPlayerType = MediaPlayerTypes.PaBased Then
-                If Me.ParentAudioApiSettings.NumberOfInputChannels.HasValue = True Then
-                    Return Me.ParentAudioApiSettings.NumberOfInputChannels
-                Else
-                    Return 0
-                End If
+            If Me.ParentAudioApiSettings.NumberOfInputChannels.HasValue = True Then
+                Return Me.ParentAudioApiSettings.NumberOfInputChannels
             Else
-                'Always using two for MediaPlayerTypes.AudioTrackBased
-                Return 2
+                Return 0
             End If
 
         End Function

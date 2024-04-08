@@ -11,7 +11,7 @@ namespace STFM
     {
         private bool disposedValue;
 
-        public AndroidAudioTrackPlayer()
+        public AndroidAudioTrackPlayer(ref AndroidAudioTrackPlayerSettings AudioSettings, ref DuplexMixer Mixer)
         {
             throw new Exception("This class should not be used!");
         }
@@ -62,7 +62,7 @@ namespace STFM
             }
         }
 
-        void iSoundPlayer.ChangePlayerSettings(ref AudioSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, ref DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
+        void iSoundPlayer.ChangePlayerSettings( AudioSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration,  DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
         {
             throw new NotImplementedException();
         }
@@ -87,26 +87,10 @@ namespace STFM
             throw new NotImplementedException();
         }
 
-        int iSoundPlayer.GetOverlapGranuality()
-        {
-            throw new NotImplementedException();
-        }
-
         Sound iSoundPlayer.GetRecordedSound(bool ClearRecordingBuffer)
         {
             throw new NotImplementedException();
         }
-
-        void iSoundPlayer.SetOverlapDuration(double Duration)
-        {
-            throw new NotImplementedException();
-        }
-
-        void iSoundPlayer.SetOverlapGranuality(int Granuality)
-        {
-            throw new NotImplementedException();
-        }
-
 
         bool iSoundPlayer.SwapOutputSounds(ref Sound NewOutputSound, bool Record, bool AppendRecordedSound)
         {
@@ -138,6 +122,7 @@ namespace STFM
         public static bool CheckIfOutputDeviceExists(string DeviceProductName) { throw new Exception(); }
 
         public string GetAvaliableOutputDeviceNames(){throw new Exception();}
+        public static int GetNumberChannelsOnDevice(string DeviceProductName, bool IsOutput) { throw new Exception(); }
 
         public bool SetOutputDevice(string DeviceProductName){throw new Exception();}
 

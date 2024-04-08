@@ -565,12 +565,12 @@ Namespace Audio
             '''<param name="Encoding">At the moment, Encoding is not possible to change. If a Encoding is supplied, a check will be made that it's supported and an exception will be thrown if not. The only Encoding supported is Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints</param>
             ''' <param name="SoundDirection"></param>
             ''' <param name="OverlapDuration"></param>
-            Public Sub ChangePlayerSettings(Optional ByRef AudioApiSettings As AudioSettings = Nothing,
+            Public Sub ChangePlayerSettings(Optional ByVal AudioApiSettings As AudioSettings = Nothing,
                                             Optional ByVal SampleRate As Integer? = Nothing,
                                             Optional ByVal BitDepth As Integer? = Nothing,
                                             Optional ByVal Encoding As Audio.Formats.WaveFormat.WaveFormatEncodings? = Nothing,
                                             Optional ByVal OverlapDuration As Double? = Nothing,
-                                            Optional ByRef Mixer As DuplexMixer = Nothing,
+                                            Optional ByVal Mixer As DuplexMixer = Nothing,
                                             Optional ByVal SoundDirection As iSoundPlayer.SoundDirections? = Nothing,
                                             Optional ByVal ReOpenStream As Boolean = True,
                                             Optional ByVal ReStartStream As Boolean = True,
@@ -717,7 +717,10 @@ Namespace Audio
             End Sub
 
 
-            Private Sub SetOverlapDuration(ByVal Duration As Double) Implements iSoundPlayer.SetOverlapDuration
+            Private Sub SetOverlapDuration(ByVal Duration As Double)
+
+                'N.B. Player must be stopped when this is set!
+
                 'Enforcing at least one sample overlap
                 OverlapFrameCount = Math.Max(1, SampleRate * Duration)
             End Sub
@@ -801,7 +804,7 @@ Namespace Audio
             End Function
 
 
-            Public Shared Function CreateBufferHoldersOnNewThread(ByRef InputSound As Sound, ByRef Mixer As DuplexMixer, ByRef FramesPerBuffer As Integer, ByRef NumberOfOutputChannels As Integer, Optional ByVal BitdepthScaling As Double = 1, Optional ByVal BuffersOnMainThread As Integer = 10) As BufferHolder()
+            Public Shared Function CreateBufferHoldersOnNewThread(ByRef InputSound As Sound, ByRef Mixer As DuplexMixer, ByVal FramesPerBuffer As Integer, ByRef NumberOfOutputChannels As Integer, Optional ByVal BitdepthScaling As Double = 1, Optional ByVal BuffersOnMainThread As Integer = 10) As BufferHolder()
 
                 Dim BufferCount As Integer = Int(InputSound.WaveData.LongestChannelSampleCount / FramesPerBuffer) + 1
 
@@ -1630,19 +1633,6 @@ Namespace Audio
                 ' TODO: uncomment the following line if Finalize() is overridden above.
                 GC.SuppressFinalize(Me)
             End Sub
-
-
-            ''' <summary>
-            ''' SetOverlapGranuality is ignored in this sound player, since it's using crossfade samplewise granuality by default
-            ''' </summary>
-            ''' <param name="Granuality"></param>
-            Public Sub SetOverlapGranuality(Granuality As Integer) Implements iSoundPlayer.SetOverlapGranuality
-                ' Ignored by the in this sound player, sinse it's using samplewise granuality by default
-            End Sub
-
-            Public Function GetOverlapGranuality() As Integer Implements iSoundPlayer.GetOverlapGranuality
-                Return _OverlapFrameCount
-            End Function
 
 #End Region
 

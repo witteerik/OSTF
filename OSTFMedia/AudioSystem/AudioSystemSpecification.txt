@@ -84,7 +84,7 @@ MediaPlayerType = AudioTrackBased // must be either PaBased or AudioTrackBased (
 // InputDevices is only relevant with the MME API on Windows, for Android use InputDevice instead
 // InputDevices = //1-2 (OCTA-CAPTURE)
 
-OutputDevice = TB328FU // USB-Audio - AudioQuest DragonFly Black v1.5 //
+OutputDevice = USB-Audio - AudioQuest DragonFly Black v1.5 // TB328FU 
 InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
 
 BufferSize = 1024 // Must be powers of 2
@@ -97,6 +97,6 @@ LoudspeakerAzimuths = -90, 90 // Should indicate the actual physical azimuth ang
 LoudspeakerElevations = 0, 0 // Should indicate the actual physical elevation angle between each loudspeaker and the horizon at the listener's position (in degrees)
 LoudspeakerDistances = 0, 0 // Should indicate the actual physical distance from the loudspeakers to the listener (in meters)
 HardwareOutputChannels = 1, 2
-CalibrationGain = 0, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+CalibrationGain = -20, 0 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
 HostVolumeOutputLevel = 100 // The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests.
 LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter

@@ -31,8 +31,8 @@ Namespace Audio
         Property SelectedOutputDevice As Integer?
         Property FramesPerBuffer As Integer
         MustOverride Overrides Function ToString() As String
-        MustOverride ReadOnly Property NumberOfInputChannels() As Integer?
-        MustOverride ReadOnly Property NumberOfOutputChannels() As Integer?
+        MustOverride Property NumberOfInputChannels() As Integer?
+        MustOverride Property NumberOfOutputChannels() As Integer?
         Property AllowDefaultOutputDevice As Boolean?
 
     End Class
@@ -43,16 +43,26 @@ Namespace Audio
         Public SelectedOutputDeviceName As String = ""
         Public SelectedInputDeviceName As String = ""
 
-        Public Overrides ReadOnly Property NumberOfInputChannels As Integer?
+        Private _NumberOfInputChannels As Integer? = Nothing
+
+        Public Overrides Property NumberOfInputChannels As Integer?
             Get
-                Throw New NotImplementedException()
+                Return _NumberOfInputChannels
             End Get
+            Set(value As Integer?)
+                _NumberOfInputChannels = value
+            End Set
         End Property
 
-        Public Overrides ReadOnly Property NumberOfOutputChannels As Integer?
+        Private _NumberOfOutputChannels As Integer? = Nothing
+
+        Public Overrides Property NumberOfOutputChannels As Integer?
             Get
-                Throw New NotImplementedException()
+                Return _NumberOfOutputChannels
             End Get
+            Set(value As Integer?)
+                _NumberOfOutputChannels = value
+            End Set
         End Property
 
         Public Overrides Function ToString() As String
@@ -113,7 +123,7 @@ Namespace Audio
 
 
         'Returns the number of input channels on the selected device, or Nothing if no input device has been selected
-        Public Overrides ReadOnly Property NumberOfInputChannels() As Integer?
+        Public Overrides Property NumberOfInputChannels() As Integer?
             Get
                 If UseMmeMultipleDevices = False Then
                     If SelectedInputDeviceInfo.HasValue = True Then Return SelectedInputDeviceInfo.Value.maxInputChannels
@@ -122,10 +132,13 @@ Namespace Audio
                     Return NumberOfWinMmeInputChannels()
                 End If
             End Get
+            Set(value As Integer?)
+                ' Any value is ignored here as this value cannot be set in the PortAudio based player.
+            End Set
         End Property
 
         'Returns the number of output channels on the selected device, or Nothing if no output device has been selected
-        Public Overrides ReadOnly Property NumberOfOutputChannels() As Integer?
+        Public Overrides Property NumberOfOutputChannels() As Integer?
             Get
                 If UseMmeMultipleDevices = False Then
                     If SelectedOutputDeviceInfo.HasValue = True Then Return SelectedOutputDeviceInfo.Value.maxOutputChannels
@@ -134,6 +147,9 @@ Namespace Audio
                     Return NumberOfWinMmeOutputChannels()
                 End If
             End Get
+            Set(value As Integer?)
+                ' Any value is ignored here as this value cannot be set in the PortAudio based player.
+            End Set
         End Property
 
         Public Function SetAsioSoundDevice(ByVal DeviceName As String, Optional ByVal BufferSize As Integer = 256) As Boolean
