@@ -1,6 +1,7 @@
 using Microsoft.Maui.Controls.Internals;
 using STFM.Pages;
 using STFN;
+using STFN.Audio.SoundPlayers;
 using static STFN.ResponseViewEvents;
 
 namespace STFM.Views;
@@ -61,7 +62,6 @@ public partial class SpeechTestView : ContentView, IDrawable
         {
             SpeechTestPicker.Items.Add(test);
         }
-
 
     }
 
@@ -422,8 +422,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             }
 
             // Updating sound player settings for PaBased player
-            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
-            {
+            //if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
+            //{
                 // Updating settings needed for the loaded test
                 // (At this stage the sound player will be started, if not already done.)
                 var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
@@ -439,15 +439,25 @@ public partial class SpeechTestView : ContentView, IDrawable
                         SelectedTransducer.Mixer = argMixer;
                     }
                 }
-            }
-            else
-            {
-                OstfBase.SoundPlayer.ChangePlayerSettings(OverlapDuration: CurrentSpeechTest.SoundOverlapDuration);
-            }
+            //}
+            //else
+            //{
+            //    OstfBase.SoundPlayer.ChangePlayerSettings(OverlapDuration: CurrentSpeechTest.SoundOverlapDuration);
+            //}
+
+            // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
+            OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
+            OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
+
         }
     }
 
-
+    private void OnFatalPlayerError()
+    {
+        Messager.MsgBox("An error occured with the sound playback!", Messager.MsgBoxStyle.Exclamation, "Sound player error!");
+        PauseTestBtn_Clicked(null, null);
+        // TODO: Do something else here, to stop the test and save results!
+    }
 
     private void StartTestBtn_Clicked(object sender, EventArgs e)
     {

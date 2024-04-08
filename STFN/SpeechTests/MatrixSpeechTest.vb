@@ -585,6 +585,7 @@ Public Class MatrixSpeechTest
         CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
 
     End Sub
+
 End Class
 
 

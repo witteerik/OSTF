@@ -28,6 +28,11 @@ Namespace Audio.SoundScene
         Private _CalibrationGain As New SortedList(Of Integer, Double)
 
         ''' <summary>
+        ''' If supported by the sound player used, this value is used to set and maintain the volume of the selected output sound unit (e.g. sound card) while the player is active. Value represent percentages (0-100).
+        ''' </summary>
+        Public ReadOnly HostVolumeOutputLevel As Integer
+
+        ''' <summary>
         ''' Returns the CalibrationGain (in dB) for the loudspeaker connected to the indicated hardware output channel.
         ''' </summary>
         ''' <param name="HardWareOutputChannel"></param>
@@ -81,6 +86,9 @@ Namespace Audio.SoundScene
 
                 'Sets linear input as default
                 SetLinearInput()
+
+                'Stores the HostVolumeOutputLevel
+                Me.HostVolumeOutputLevel = ParentTransducerSpecification.HostVolumeOutputLevel
 
             Catch ex As Exception
                 MsgBox("An error occurred! The following error message may be relevant: " & vbCrLf & ex.Message & vbCrLf & vbCrLf & "If the above error message is not relevant, make sure you have the correct (and equal) number of values for a) HardwareOutputChannels, b) LoudspeakerAzimuths, c) LoudspeakerElevations, d) LoudspeakerDistances and e) CalibrationGain in the AudioSystemSpecification.txt file!", MsgBoxStyle.Critical, "Error: " & ex.ToString)

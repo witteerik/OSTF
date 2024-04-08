@@ -30,6 +30,8 @@ Namespace Audio
                 Duplex
             End Enum
 
+            Event FatalPlayerError()
+
             Event MessageFromPlayer(ByVal Message As String)
 
             Property RaisePlaybackBufferTickEvents As Boolean

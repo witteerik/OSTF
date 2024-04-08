@@ -483,6 +483,7 @@ Public Class HintSpeechTest
         Return RawResults
 
     End Function
+
 End Class
 
 

@@ -43,6 +43,7 @@ namespace STFM
         public event iSoundPlayer.MessageFromPlayerEventHandler MessageFromPlayer;
         public event iSoundPlayer.StartedSwappingOutputSoundsEventHandler StartedSwappingOutputSounds;
         public event iSoundPlayer.FinishedSwappingOutputSoundsEventHandler FinishedSwappingOutputSounds;
+        public event iSoundPlayer.FatalPlayerErrorEventHandler FatalPlayerError;
 
         public bool IsPlaying
         {
@@ -77,6 +78,7 @@ namespace STFM
         Object audioTrack = null; // This is declared as an Object instead of AudioTrack since it will otherwise register an error in the Visual Studio editor.
 
         private System.Threading.SpinLock callbackSpinLock = new System.Threading.SpinLock();
+        private System.Threading.SpinLock audioCheckSpinLock = new System.Threading.SpinLock();
 
         private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundA;
         private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundB;
@@ -467,31 +469,20 @@ namespace STFM
 
             do
             {
-
                 if (castAudioTrack != null)
                 {
                     if (castAudioTrack.State == AudioTrackState.Initialized)
                     {
-
-                        try
+                        if (CheckAudioSettings(AudioSettings.SelectedOutputDeviceName, AudioSettings.AllowDefaultOutputDevice.Value, Mixer.HostVolumeOutputLevel) == false)
                         {
-                            if (CheckAudioSettings(AudioSettings.SelectedOutputDeviceName, AudioSettings.AllowDefaultOutputDevice.Value, Mixer.ParentTransducer.HostVolumeOutputLevel) == false)
-                            {
-                                // Playback should stop immediately and 
-                                runBufferLoop = false;
-                                runAudioCheckLoop = false;
-                                castAudioTrack.Stop();
+                            // Playback should stop immediately and 
+                            runBufferLoop = false;
+                            runAudioCheckLoop = false;
+                            castAudioTrack.Stop();
 
-                                // Notes any hearing tests by raising a suitable event
-
-                                var x = 1;
-                            }
+                            // Raising event FatalPlayerError
+                            FatalPlayerError?.Invoke();
                         }
-                        catch (Exception)
-                        {
-                            //throw;
-                        }
-
                     }
                 }
 
@@ -508,6 +499,12 @@ namespace STFM
             // This method checks to ensure that the intended output device is selected, and that the intended android media volume is set as intended, and that all other volume types are set to zero volume.
             // If the current sound setting are not as intended, an attempt is made to to correct them. If not possible to correct the settings, false is returned, otherwise (if all is fine) true is returned.
             // The method should be called regularly (twice a second?) on a background thread, administered by the current SpeechTest.
+
+            // Declaring a spin lock taken variable
+            bool spinLockTaken = false;
+
+            // Attempts to enter a spin lock to avoid multiple threads calling before complete
+            audioCheckSpinLock.Enter(ref spinLockTaken);
 
             try
             {
@@ -530,6 +527,7 @@ namespace STFM
                     if (castAudioTrack == null)
                     {
                         // The player could not be started
+                        if (spinLockTaken) audioCheckSpinLock.Exit();
                         return false;
                     }
                 }
@@ -546,6 +544,7 @@ namespace STFM
                     if (castAudioTrack == null)
                     {
                         // The player could not be started
+                        if (spinLockTaken) audioCheckSpinLock.Exit();
                         return false;
                     }
                 }
@@ -553,6 +552,7 @@ namespace STFM
                 if (castAudioTrack.PlayState != PlayState.Playing)
                 {
                     // The player still does not play
+                    if (spinLockTaken) audioCheckSpinLock.Exit();
                     return false;
                 }
 
@@ -576,6 +576,7 @@ namespace STFM
                                 {
                                     if (castAudioTrack.SetPreferredDevice(device) == false)
                                     {
+                                        if (spinLockTaken) audioCheckSpinLock.Exit();
                                         return false;
                                     };
                                 }
@@ -586,6 +587,7 @@ namespace STFM
                     // Checks that the correct output device is set 
                     if (CurrentlySelectedOutputDevice.ProductName != IntendedOutputDeviceName)
                     {
+                        if (spinLockTaken) audioCheckSpinLock.Exit();
                         return false;
                     }
                 }
@@ -610,6 +612,7 @@ namespace STFM
                     if (indendedVolume != currentVolume)
                     {
                         // The volume is still incorrect
+                        if (spinLockTaken) audioCheckSpinLock.Exit();
                         return false;
                     }
                 }
@@ -639,19 +642,25 @@ namespace STFM
                         }
                         // Checking that the volume changed
                         currentStreamVolume = audioManager?.GetStreamVolume(currentStreamToToSilence);
-                        if (currentStreamVolume != TargetMinVol.Value) { return false; }
+                        if (currentStreamVolume != TargetMinVol.Value) {
+                            if (spinLockTaken) audioCheckSpinLock.Exit();
+                            return false; 
+                        }
                     }
-                }                               
+                }
 
                 // Everything should be fine
+                if (spinLockTaken) audioCheckSpinLock.Exit();
                 return true;
 
             }
             catch (Exception ex)
             {
                 Messager.MsgBox("The following error has occured in the CheckAudioSettings method!\n\n" + ex.ToString());
+                if (spinLockTaken) audioCheckSpinLock.Exit();
                 return false;
             }
+
         }
 
         private void NewSoundBuffer(object castAudioTrack_in)

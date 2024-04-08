@@ -505,6 +505,7 @@ Public Class SrtSpeechTest
         CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
 
     End Sub
+
 End Class
 
 

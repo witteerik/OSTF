@@ -62,6 +62,19 @@ namespace STFM
             }
         }
 
+        event iSoundPlayer.FatalPlayerErrorEventHandler iSoundPlayer.FatalPlayerError
+        {
+            add
+            {
+                throw new NotImplementedException();
+            }
+
+            remove
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         void iSoundPlayer.ChangePlayerSettings( AudioSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration,  DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
         {
             throw new NotImplementedException();

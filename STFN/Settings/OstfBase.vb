@@ -807,11 +807,7 @@ Public Module OstfBase
     Public Class AudioSystemSpecification
         Public Property Name As String = "Default"
         Public ReadOnly Property MediaPlayerType As OstfBase.MediaPlayerTypes
-        'Public ReadOnly Property ParentAudioApiSettings As Audio.PortAudioApiSettings
-
         Public ReadOnly Property ParentAudioApiSettings As Audio.AudioSettings
-
-
         Public Property Mixer As STFN.Audio.SoundScene.DuplexMixer
         Public Property LoudspeakerAzimuths As New List(Of Double) From {-90, 90}
         Public Property LoudspeakerElevations As New List(Of Double) From {0, 0}
@@ -820,8 +816,9 @@ Public Module OstfBase
         Public Property CalibrationGain As New List(Of Double) From {0, 0}
 
         Private _HostVolumeOutputLevel As Integer? = Nothing
+
         ''' <summary>
-        ''' If possible, this value should be used to set and maintain the volume of the selected output sound unit (e.g. sound card) during speech tests. Value represent percentages (0-100).
+        ''' If supported by the sound player used, this value is used to set and maintain the volume of the selected output sound unit (e.g. sound card) while the player is active. Value represent percentages (0-100).
         ''' </summary>
         ''' <returns></returns>
         Public Property HostVolumeOutputLevel As Integer?

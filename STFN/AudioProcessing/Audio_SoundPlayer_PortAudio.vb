@@ -22,7 +22,7 @@ Namespace Audio
             Public Event PlaybackBufferTick()
             Public Event StartedSwappingOutputSounds() Implements iSoundPlayer.StartedSwappingOutputSounds
             Public Event FinishedSwappingOutputSounds() Implements iSoundPlayer.FinishedSwappingOutputSounds
-
+            Public Event FatalPlayerError() Implements iSoundPlayer.FatalPlayerError
             Private Mixer As DuplexMixer
 
             Public Function GetMixer() As DuplexMixer
