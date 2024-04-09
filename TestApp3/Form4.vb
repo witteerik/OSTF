@@ -3354,7 +3354,7 @@ Public Class Form4
         Dim MaximumResponseTime = 4
         Dim ShowProgressIndication = True
 
-        OstfBase.DirectionalSimulator.TrySetSelectedDirectionalSimulationSet("ARC - Harcellen - HATS - 48kHz", SelectedTransducer)
+        OstfBase.DirectionalSimulator.TrySetSelectedDirectionalSimulationSet("ARC - Harcellen - HATS - 48kHz", SelectedTransducer, False)
 
         Dim WordsList As New SortedList(Of Double, List(Of String)) From {
             {-2.0R, New List(Of String)},

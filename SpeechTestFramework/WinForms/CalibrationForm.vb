@@ -239,7 +239,7 @@ Public Class CalibrationForm
                 'SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
             Else
                 'SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
-                DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer)
+                DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, False)
                 SelectedHardWareOutputChannel_Right_ComboBox.Enabled = True
                 RightChannel_Label.Enabled = True
             End If

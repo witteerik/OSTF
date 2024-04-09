@@ -317,7 +317,7 @@ public partial class SpeechTestCalibrationView : ContentView
             else
             {
                 // SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
-                STFN.OstfBase.DirectionalSimulator.TrySetSelectedDirectionalSimulationSet((string)SelectedItem, ref SelectedTransducer);
+                STFN.OstfBase.DirectionalSimulator.TrySetSelectedDirectionalSimulationSet((string)SelectedItem, ref SelectedTransducer, false);
                 this.SelectedHardWareOutputChannel_Right_ComboBox.IsEnabled = true;
                 this.RightChannel_Label.IsEnabled = true;
             }

@@ -479,6 +479,7 @@ namespace STFM
                             runBufferLoop = false;
                             runAudioCheckLoop = false;
                             castAudioTrack.Stop();
+                            castAudioTrack.Release();
 
                             // Raising event FatalPlayerError
                             FatalPlayerError?.Invoke();

@@ -214,7 +214,7 @@ Public Class SipSpeechTest
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
             Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
-            DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer)
+            DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer, CustomizableTestOptions.UsePhaseAudiometry)
 
         Else
             SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers

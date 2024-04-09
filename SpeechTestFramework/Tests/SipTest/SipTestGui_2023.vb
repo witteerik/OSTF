@@ -492,7 +492,7 @@ Public Class SipTestGui_2023
             Else
                 Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
                 SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
-                If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate) = False Then
+                If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate, True) = False Then
                     'Well this should not happen...
                     DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
                     SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
@@ -529,7 +529,7 @@ Public Class SipTestGui_2023
             Else
                 Dim TempWaveformat = SpeechMaterial.GetWavefileFormat(AvailableMediaSets(0))
                 SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
-                If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate) = False Then
+                If DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(SelectedItem, SelectedTransducer, TempWaveformat.SampleRate, True) = False Then
                     'Well this should not happen...
                     DirectionalSimulator.ClearSelectedDirectionalSimulationSet()
                     SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers

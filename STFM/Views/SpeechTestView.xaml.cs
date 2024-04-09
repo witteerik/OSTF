@@ -11,18 +11,18 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     ResponseView CurrentResponseView;
     TestResultsView CurrentTestResultsView;
-    
+
     SpeechTest CurrentSpeechTest
     {
         get { return STFN.SharedSpeechTestObjects.CurrentSpeechTest; }
         set { STFN.SharedSpeechTestObjects.CurrentSpeechTest = value; }
     }
 
-    
+
 
     OstfBase.AudioSystemSpecification SelectedTransducer = null;
 
-    private string[] availableTests = new string[] {"Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet"};
+    private string[] availableTests = new string[] { "Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet" };
 
     RowDefinition originalBottomPanelHeight = null;
     ColumnDefinition originalLeftPanelWidth = null;
@@ -32,8 +32,8 @@ public partial class SpeechTestView : ContentView, IDrawable
     private List<IDispatcherTimer> testTrialEventTimerList = null;
 
     public SpeechTestView()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
 
         //MyAudiogramView.Audiogram.Areas.Add(new Area()
         //{
@@ -44,7 +44,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         //});
 
         // Set start IsEnabled values of controls
-        NewTestBtn.IsEnabled = true;   
+        NewTestBtn.IsEnabled = true;
         SpeechTestPicker.IsEnabled = false;
         TestOptionsGrid.IsEnabled = false;
         //TestOptionsGrid.IsVisible = false;
@@ -131,7 +131,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             {
                 Messager.MsgBox("Unable to start the application since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "No transducers found");
             }
-            
+
             // Always using the first transducer
             SelectedTransducer = LocalAvailableTransducers[0];
             if (SelectedTransducer.CanPlay == true)
@@ -139,7 +139,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 // (At this stage the sound player will be started, if not already done.)
                 var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
                 var argMixer = SelectedTransducer.Mixer;
-                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, argMixer, 
+                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, argMixer,
                     STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, ReOpenStream: true, ReStartStream: true);
                 SelectedTransducer.Mixer = argMixer;
             }
@@ -287,7 +287,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     string selectedSpeechTestName = string.Empty;
 
     void InitiateTesting()
-    {               
+    {
 
         if (CurrentSpeechTest != null)
         {
@@ -387,7 +387,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     {
                         Messager.MsgBox("Failed to initiate test!");
                         return;
-                    } 
+                    }
 
                     CurrentResponseView = new ResponseView_Mafc();
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
@@ -421,29 +421,20 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
             }
 
-            // Updating sound player settings for PaBased player
-            //if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.PaBased)
-            //{
-                // Updating settings needed for the loaded test
-                // (At this stage the sound player will be started, if not already done.)
-                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-                var argMixer = SelectedTransducer.Mixer;
-                if (CurrentSpeechTest != null)
+            // Updating settings needed for the loaded test
+            var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+            var argMixer = SelectedTransducer.Mixer;
+            if (CurrentSpeechTest != null)
+            {
+                var mediaSets = CurrentSpeechTest.AvailableMediasets;
+                if (mediaSets.Count > 0)
                 {
-                    var mediaSets = CurrentSpeechTest.AvailableMediasets;
-                    if (mediaSets.Count > 0)
-                    {
-                        OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings,
-                            mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
-                            CurrentSpeechTest.SoundOverlapDuration, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
-                        SelectedTransducer.Mixer = argMixer;
-                    }
+                    OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings,
+                        mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
+                        CurrentSpeechTest.SoundOverlapDuration, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
+                    SelectedTransducer.Mixer = argMixer;
                 }
-            //}
-            //else
-            //{
-            //    OstfBase.SoundPlayer.ChangePlayerSettings(OverlapDuration: CurrentSpeechTest.SoundOverlapDuration);
-            //}
+            }
 
             // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
             OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
@@ -454,9 +445,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     private void OnFatalPlayerError()
     {
-        Messager.MsgBox("An error occured with the sound playback!", Messager.MsgBoxStyle.Exclamation, "Sound player error!");
-        PauseTestBtn_Clicked(null, null);
-        // TODO: Do something else here, to stop the test and save results!
+        FinalizeTest(true);
+        Messager.MsgBox("An error occured with the sound playback! The test has been aborted!", Messager.MsgBoxStyle.Exclamation, "Sound player error!");
     }
 
     private void StartTestBtn_Clicked(object sender, EventArgs e)
@@ -467,7 +457,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         bool testIsReady = true; // This should call a fuction that check is the selected test is ready to be started
         bool testSupportPause = true; // This should call a function that determies if the test supports pausing
 
-        if (testIsReady) {
+        if (testIsReady)
+        {
 
             // Set IsEnabled values of controls
             NewTestBtn.IsEnabled = false;
@@ -479,7 +470,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             //HideSettingsPanelSwitch.IsEnabled = false;
             //HideResultsPanelSwitch.IsEnabled = false;
             StartTestBtn.IsEnabled = false;
-            if (testSupportPause) {PauseTestBtn.IsEnabled = true; }
+            if (testSupportPause) { PauseTestBtn.IsEnabled = true; }
             StopTestBtn.IsEnabled = true;
             TestReponseGrid.IsEnabled = true;
             TestResultGrid.IsEnabled = true;
@@ -554,7 +545,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewSpeechTestInput(null, null);
     }
 
- 
+
 
 
     void NewSpeechTestInput(object sender, SpeechTestInputEventArgs e)
@@ -607,7 +598,8 @@ public partial class SpeechTestView : ContentView, IDrawable
     }
 
 
-    void PresentTrial() {
+    void PresentTrial()
+    {
 
         // Initializing a new trial, this should always stop any timers in the CurrentResponseView that may still be running from the previuos trial 
         CurrentResponseView.InitializeNewTrial();
@@ -617,12 +609,13 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         testTrialEventTimerList = new List<IDispatcherTimer>();
 
-        foreach (var trialEvent in CurrentSpeechTest.CurrentTestTrial.TrialEventList) {
+        foreach (var trialEvent in CurrentSpeechTest.CurrentTestTrial.TrialEventList)
+        {
 
             //IDispatcherProvider trialProvider = null;
 
             // Create and setup timer
-            IDispatcherTimer trialEventTimer;     
+            IDispatcherTimer trialEventTimer;
             trialEventTimer = Application.Current.Dispatcher.CreateTimer();
             trialEventTimer.Interval = TimeSpan.FromMilliseconds(trialEvent.TickTime);
             trialEventTimer.Tick += TrialEventTimer_Tick;
@@ -634,7 +627,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
 
         // Starting the trial
-        foreach (IDispatcherTimer timer  in testTrialEventTimerList)
+        foreach (IDispatcherTimer timer in testTrialEventTimerList)
         {
             timer.Start();
         }
@@ -650,11 +643,13 @@ public partial class SpeechTestView : ContentView, IDrawable
             CurrentTimer.Stop();
 
             // Hiding everything if there was no test, no trial or no TrialEventList
-            if (CurrentSpeechTest == null) {
+            if (CurrentSpeechTest == null)
+            {
                 CurrentResponseView.HideAllItems();
                 return;
             }
-            if (CurrentSpeechTest.CurrentTestTrial == null) { 
+            if (CurrentSpeechTest.CurrentTestTrial == null)
+            {
                 CurrentResponseView.HideAllItems();
                 return;
             }
@@ -683,7 +678,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowVisualSoundSources:
-                            List<ResponseView. VisualizedSoundSource> soundSources = new List<ResponseView.VisualizedSoundSource>();
+                            List<ResponseView.VisualizedSoundSource> soundSources = new List<ResponseView.VisualizedSoundSource>();
                             soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = SourceLocations.Left });
                             soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.7, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = 15, Text = "S2", SourceLocationsName = SourceLocations.Right });
                             CurrentResponseView.AddSourceAlternatives(soundSources.ToArray());
@@ -707,11 +702,11 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowMessage:
                             string tempMessage = "This is a temporary message";
-                                CurrentResponseView.ShowMessage(tempMessage);
+                            CurrentResponseView.ShowMessage(tempMessage);
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.HideAll:
-                            CurrentResponseView.HideAllItems(); 
+                            CurrentResponseView.HideAllItems();
                             break;
 
                         default:
@@ -786,7 +781,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
-   void  AbortTest()
+    void AbortTest()
     {
 
         FinalizeTest(true);
@@ -813,8 +808,6 @@ public partial class SpeechTestView : ContentView, IDrawable
         SetLeftPanelShow(true);
 
     }
-
-
 
 }
 

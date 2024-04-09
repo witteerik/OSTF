@@ -115,12 +115,20 @@ Public Class DirectionalSimulation
     ''' </summary>
     ''' <param name="DirectionalSimulationSetName"></param>
     ''' <param name="SampleRate"></param>
+    ''' <param name="UsePrecalculatedBinauralDelays">If the DirectionalSimulationSetName exist, UsePrecalculatedBinauralDelays is set to True and Binaural Delays have not been precalculated, missing Binaural Delays will be precalculated.</param>
     ''' <returns></returns>
-    Public Function TrySetSelectedDirectionalSimulationSet(ByVal DirectionalSimulationSetName As String, ByRef SelectedTransducer As AudioSystemSpecification, ByVal SampleRate As Integer) As Boolean
+    Public Function TrySetSelectedDirectionalSimulationSet(ByVal DirectionalSimulationSetName As String, ByRef SelectedTransducer As AudioSystemSpecification, ByVal SampleRate As Integer, ByVal UsePrecalculatedBinauralDelays As Boolean) As Boolean
 
         Dim AvailableSets = GetAvailableDirectionalSimulationSets(SelectedTransducer, SampleRate)
         If AvailableSets.Contains(DirectionalSimulationSetName) Then
             Me._SelectedDirectionalSimulationSetName = DirectionalSimulationSetName
+
+            If UsePrecalculatedBinauralDelays = True Then
+                If BinauralImpulseReponseSets(Me._SelectedDirectionalSimulationSetName).LacksBinauralDelays = True Then
+                    BinauralImpulseReponseSets(Me._SelectedDirectionalSimulationSetName).CalculateBinauralDelay()
+                End If
+            End If
+
             Return True
         End If
         Return False
@@ -130,12 +138,20 @@ Public Class DirectionalSimulation
     ''' Attempts to set the SelectedDirectionalSimulationSet to DirectionalSimulationSetName based  on the SelectedTransducer. Returns True if success, and False if not possible.
     ''' </summary>
     ''' <param name="DirectionalSimulationSetName"></param>
+    ''' <param name="UsePrecalculatedBinauralDelays">If the DirectionalSimulationSetName exist, UsePrecalculatedBinauralDelays is set to True and Binaural Delays have not been precalculated, missing Binaural Delays will be precalculated.</param>
     ''' <returns></returns>
-    Public Function TrySetSelectedDirectionalSimulationSet(ByVal DirectionalSimulationSetName As String, ByRef SelectedTransducer As AudioSystemSpecification) As Boolean
+    Public Function TrySetSelectedDirectionalSimulationSet(ByVal DirectionalSimulationSetName As String, ByRef SelectedTransducer As AudioSystemSpecification, ByVal UsePrecalculatedBinauralDelays As Boolean) As Boolean
 
         Dim AvailableSets = GetAvailableDirectionalSimulationSets(SelectedTransducer)
         If AvailableSets.Contains(DirectionalSimulationSetName) Then
             Me._SelectedDirectionalSimulationSetName = DirectionalSimulationSetName
+
+            If UsePrecalculatedBinauralDelays = True Then
+                If BinauralImpulseReponseSets(Me._SelectedDirectionalSimulationSetName).LacksBinauralDelays = True Then
+                    BinauralImpulseReponseSets(Me._SelectedDirectionalSimulationSetName).CalculateBinauralDelay()
+                End If
+            End If
+
             Return True
         End If
         Return False
@@ -182,7 +198,18 @@ Public Class StereoKernel
     Public Name As String
     Public Point As Point3D
     Public BinauralIR As Audio.Sound
-    Public BinauralDelay As New BinauralDelay
+    Private _BinauralDelay As New BinauralDelay
+    Public Property BinauralDelay As BinauralDelay
+        Get
+            If _BinauralDelay Is Nothing Then
+                CalculateBinauralDelay("", False)
+            End If
+            Return _BinauralDelay
+        End Get
+        Set(value As BinauralDelay)
+            _BinauralDelay = value
+        End Set
+    End Property
 
     Private _ZeroPhaseEquivalent As StereoKernel = Nothing
     Public ReadOnly Property ZeroPhaseEquivalent() As StereoKernel
@@ -227,8 +254,13 @@ Public Class StereoKernel
     Public Sub CreateTwoSameEarsKernels()
 
         'Creating a new stereo kernel, with references to some object in the parent kernel
-        _TwoLeftEarsKernel = New StereoKernel With {.Name = Me.Name & "_2LE", .Point = Me.Point, .BinauralIR = New Audio.Sound(BinauralIR.WaveFormat), .BinauralDelay = New BinauralDelay With {.LeftDelay = Me.BinauralDelay.LeftDelay, .RightDelay = Me.BinauralDelay.LeftDelay}}
-        _TwoRightEarsKernel = New StereoKernel With {.Name = Me.Name & "_2RE", .Point = Me.Point, .BinauralIR = New Audio.Sound(BinauralIR.WaveFormat), .BinauralDelay = New BinauralDelay With {.LeftDelay = Me.BinauralDelay.RightDelay, .RightDelay = Me.BinauralDelay.RightDelay}}
+        If Me.BinauralDelay IsNot Nothing Then
+            _TwoLeftEarsKernel = New StereoKernel With {.Name = Me.Name & "_2LE", .Point = Me.Point, .BinauralIR = New Audio.Sound(BinauralIR.WaveFormat), .BinauralDelay = New BinauralDelay With {.LeftDelay = Me.BinauralDelay.LeftDelay, .RightDelay = Me.BinauralDelay.LeftDelay}}
+            _TwoRightEarsKernel = New StereoKernel With {.Name = Me.Name & "_2RE", .Point = Me.Point, .BinauralIR = New Audio.Sound(BinauralIR.WaveFormat), .BinauralDelay = New BinauralDelay With {.LeftDelay = Me.BinauralDelay.RightDelay, .RightDelay = Me.BinauralDelay.RightDelay}}
+        Else
+            _TwoLeftEarsKernel = New StereoKernel With {.Name = Me.Name & "_2LE", .Point = Me.Point, .BinauralIR = New Audio.Sound(BinauralIR.WaveFormat), .BinauralDelay = Nothing}
+            _TwoRightEarsKernel = New StereoKernel With {.Name = Me.Name & "_2RE", .Point = Me.Point, .BinauralIR = New Audio.Sound(BinauralIR.WaveFormat), .BinauralDelay = Nothing}
+        End If
 
         'Creating two copies (not references) of the audio data in the BinauralIR
         Dim TempIrCopy1 = BinauralIR.CreateSoundDataCopy
@@ -304,8 +336,6 @@ Public Class StereoKernel
 
         Next
 
-        _ZeroPhaseEquivalent.CalculateBinauralDelay("", False) ' TODO: To get the right export name, we need a refernce to the parent BinauralSimulationSet here.
-
     End Sub
 
     Public Sub CalculateBinauralDelay(ByVal IrSetName As String, Optional ByVal ExportSoundFiles As Boolean = False)
@@ -359,6 +389,15 @@ Public Class StereoKernel
 
         Next
 
+        'Storing the binaural delay also in TwoLeftEarsKernel and TwoRightEarsKernel if those exist
+        If TwoLeftEarsKernel IsNot Nothing Then
+            TwoLeftEarsKernel.BinauralDelay = New BinauralDelay With {.LeftDelay = BinauralDelay.LeftDelay, .RightDelay = BinauralDelay.LeftDelay}
+        End If
+
+        If TwoRightEarsKernel IsNot Nothing Then
+            TwoRightEarsKernel.BinauralDelay = New BinauralDelay With {.LeftDelay = BinauralDelay.RightDelay, .RightDelay = BinauralDelay.RightDelay}
+        End If
+
     End Sub
 
 
@@ -404,6 +443,19 @@ Public Class BinauralImpulseReponseSet
     Private ImpulseResponseSetSpecificationFile As String
 
     Private ImpulseResponseFolder As String = ""
+
+    Public ReadOnly Property LacksBinauralDelays As Boolean
+        Get
+            If _StereoKernels Is Nothing Then Return False
+            If _StereoKernels.Count = 0 Then Return False
+
+            For Each Kernel In _StereoKernels
+                If Kernel.Value.BinauralDelay Is Nothing Then Return True
+            Next
+
+            Return False
+        End Get
+    End Property
 
     Public Sub New(ByVal ImpulseResponseSetSpecificationFile As String)
 
@@ -572,10 +624,10 @@ Public Class BinauralImpulseReponseSet
         'Dim CalibrationOffSetsCheck = CalculateFrontalIrGains()
 
 
-        'Calculating the BinauralDelay
-        For Each Kernel In _StereoKernels
-            Kernel.Value.CalculateBinauralDelay(Name)
-        Next
+        ''Calculating the BinauralDelay
+        'For Each Kernel In _StereoKernels
+        '    Kernel.Value.CalculateBinauralDelay(Name)
+        'Next
 
         'Also preparing SameEarsKernels
         For Each Kernel In _StereoKernels
@@ -583,6 +635,17 @@ Public Class BinauralImpulseReponseSet
         Next
 
 
+    End Sub
+
+    ''' <summary>
+    ''' Calculates the binaural delay of stereo kernels stored in the current binaural impulse response set for which binaural delays have not yet been calculated. Can be used to precalculate these to avoid having to do it during speech testing.
+    ''' </summary>
+    Public Sub CalculateBinauralDelay()
+
+        'Calculating the BinauralDelay
+        For Each Kernel In _StereoKernels
+            If Kernel.Value.BinauralDelay Is Nothing Then Kernel.Value.CalculateBinauralDelay(Name)
+        Next
 
     End Sub
 
