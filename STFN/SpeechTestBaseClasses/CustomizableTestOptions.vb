@@ -152,6 +152,19 @@ Public Class CustomizableTestOptions
     Private _BackgroundLevel As Double = 55
     Public Property BackgroundLevelTitle As String = "Bakgrundsnivå (dB)"
 
+    Public Property ContralateralMaskingLevel As Double
+        Get
+            Return _ContralateralMaskingLevel
+        End Get
+        Set(value As Double)
+            _ContralateralMaskingLevel = Math.Round(value)
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _ContralateralMaskingLevel As Double = 25
+
+    Public Property ContralateralMaskingLevelTitle As String = "Kontralat. maskeringsnivå (dB)"
+
     ''TODO: Should we have a customizable limit here, or should we use the "LimiterThreshold" specified for each transducer in the AudioSystemSpecification.txt file?
     '''' <summary>
     '''' This 

@@ -139,11 +139,18 @@
     Public MustOverride ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
     Public MustOverride ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
 
-    Public MustOverride ReadOnly Property AllowsReferenceLevelControl As Boolean
+    Public MustOverride ReadOnly Property HasOptionalPractiseTest As Boolean
+    Public MustOverride ReadOnly Property AllowsManualStartListSelection As Boolean
+    Public MustOverride ReadOnly Property AllowsManualMediaSetSelection As Boolean
+    Public MustOverride ReadOnly Property AllowsManualReferenceLevelSelection As Boolean
+    Public MustOverride ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
+    Public MustOverride ReadOnly Property AllowsManualMaskingLevelSelection As Boolean
+    Public MustOverride ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
     Public MustOverride ReadOnly Property CanHaveTargets As Boolean
     Public MustOverride ReadOnly Property CanHaveMaskers As Boolean
     Public MustOverride ReadOnly Property CanHaveBackgroundNonSpeech As Boolean
     Public MustOverride ReadOnly Property CanHaveBackgroundSpeech As Boolean
+    Public MustOverride ReadOnly Property UseSoundFieldSimulation As Utils.TriState
 
 
     Public ReadOnly Property CurrentlySupportedIrSets As List(Of BinauralImpulseReponseSet)

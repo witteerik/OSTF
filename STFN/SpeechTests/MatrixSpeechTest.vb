@@ -24,6 +24,50 @@ Public Class MatrixSpeechTest
 
 #Region "Settings"
 
+    Public Overrides ReadOnly Property HasOptionalPractiseTest As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualStartListSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualMediaSetSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
+        Get
+            Return TriState.True
+        End Get
+    End Property
+
+
+
     Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
         Get
             Return New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
@@ -72,7 +116,7 @@ Public Class MatrixSpeechTest
         End Get
     End Property
 
-    Public Overrides ReadOnly Property AllowsReferenceLevelControl As Boolean
+    Public Overrides ReadOnly Property AllowsManualReferenceLevelSelection As Boolean
         Get
             Return False
         End Get

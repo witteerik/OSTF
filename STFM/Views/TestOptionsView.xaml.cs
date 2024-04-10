@@ -38,10 +38,39 @@ public partial class OptionsViewAll : ContentView
         if (SelectedMediaSet_Picker.Items.Count > 0) { SelectedMediaSet_Picker.SelectedIndex = 0; }
         if (SelectedMediaSet_Picker.Items.Count ==1) { SelectedMediaSet_Picker.IsVisible = false; }
 
-        ReferenceLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsReferenceLevelControl;
-        SpeechLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
-        MaskerLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveMaskers;
-        BackgroundLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundNonSpeech;
+
+        PractiseTestControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.HasOptionalPractiseTest;
+
+        StartList_Picker.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualStartListSelection;
+        SelectedMediaSet_Picker.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMediaSetSelection;
+        ReferenceLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualReferenceLevelSelection;
+        SpeechLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualSpeechLevelSelection;
+        MaskerLevelControl.IsVisible= SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMaskingLevelSelection;
+        BackgroundLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualBackgroundLevelSelection;
+        if (SharedSpeechTestObjects.CurrentSpeechTest.UseSoundFieldSimulation == STFN.Utils.Constants.TriState.Optional)
+        {
+            UseSimulatedSoundFieldControl.IsVisible = true;
+        }
+        else
+        {
+            UseSimulatedSoundFieldControl.IsVisible = false;
+        }
+
+
+        if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualSpeechLevelSelection)
+        {
+            SpeechLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
+        }
+
+        if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMaskingLevelSelection)
+        {
+            MaskerLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveMaskers;
+        }
+
+        if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualBackgroundLevelSelection)
+        {
+            BackgroundLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundNonSpeech;
+        }
 
         if (AvailableTestModes_Picker.Items.Count > 0) { AvailableTestModes_Picker.SelectedIndex = 0; }
         if (AvailableTestModes_Picker.Items.Count == 1) { AvailableTestModes_Picker.IsVisible= false; }
@@ -144,13 +173,18 @@ public partial class OptionsViewAll : ContentView
         if (SelectedTransducer_Picker.Items.Count > 0) { SelectedTransducer_Picker.SelectedIndex = 0; }
         if (SelectedTransducer_Picker.Items.Count ==1) { SelectedTransducer_Picker.IsVisible=false; }
 
-        UseSimulatedSoundFieldControl.IsVisible = OstfBase.AllowDirectionalSimulation;
+        if (SharedSpeechTestObjects.CurrentSpeechTest.UseSoundFieldSimulation != STFN.Utils.Constants.TriState.False && OstfBase.AllowDirectionalSimulation == true)
+        {
+            UseSimulatedSoundFieldControl.IsVisible = true;
+        }
+        else
+        {
+            UseSimulatedSoundFieldControl.IsVisible = false;
+        }
         SelectedIrSet_Picker.IsVisible = false;
 
-        SpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
-        MaskerSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveMaskers;
-        BackgroundNonSpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundNonSpeech;
-        BackgroundSpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundSpeech;
+
+        UpdateSoundSourceViewsIsVisible();
 
         switch (SharedSpeechTestObjects.CurrentSpeechTest.UseContralateralMasking)
         {
@@ -310,14 +344,24 @@ public partial class OptionsViewAll : ContentView
 
         if (CurrentBindingContext.UsePhaseAudiometry == false)
         {
-            SpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
-            MaskerSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveMaskers;
-            BackgroundNonSpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundNonSpeech;
-            BackgroundSpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundSpeech;
-        }
-        
-    }
 
+            if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualSpeechLevelSelection)
+            {
+                SpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
+                BackgroundSpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundSpeech;
+            }
+
+            if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMaskingLevelSelection)
+            {
+                MaskerSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveMaskers;
+            }
+
+            if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualBackgroundLevelSelection)
+            {
+                BackgroundNonSpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundNonSpeech;
+            }
+        }
+    }
 
     private void UpdateContralteralNoiseIsVisible() { 
 
@@ -334,6 +378,25 @@ public partial class OptionsViewAll : ContentView
             CurrentBindingContext.UseContralateralMasking = false;
             UseContralateralMaskingControl.IsVisible = false;
         }
+
+        UpdateContralteralNoiseLevelIsVisible();
+    }
+
+    private void UpdateContralteralNoiseLevelIsVisible()
+    {
+        if (UseContralateralMaskingControl.IsVisible && UseContralateralMasking_Switch.IsToggled)
+        {
+            ContralateralMaskingLevelControl.IsVisible = true;
+        }
+        else
+        {
+            ContralateralMaskingLevelControl.IsVisible = false;
+        }
+    }
+
+    private void UseContralateralMaskingControl_Switch_Toggled(object sender, ToggledEventArgs e)
+    {
+        UpdateContralteralNoiseLevelIsVisible();
     }
 
     private bool CurrentTransducerIsHeadPhones()

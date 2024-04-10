@@ -1,5 +1,6 @@
 ﻿Imports STFN.SipTest
 Imports STFN.Audio.SoundScene
+Imports STFN.Utils
 
 Public Class SipSpeechTest
 
@@ -10,6 +11,50 @@ Public Class SipSpeechTest
             Return "SiP"
         End Get
     End Property
+
+    Public Overrides ReadOnly Property HasOptionalPractiseTest As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualStartListSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualMediaSetSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
+        Get
+            Return TriState.True
+        End Get
+    End Property
+
+
 
     Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
         Get
@@ -59,7 +104,7 @@ Public Class SipSpeechTest
         End Get
     End Property
 
-    Public Overrides ReadOnly Property AllowsReferenceLevelControl As Boolean
+    Public Overrides ReadOnly Property AllowsManualReferenceLevelSelection As Boolean
         Get
             Return True
         End Get
@@ -168,6 +213,7 @@ Public Class SipSpeechTest
 
 
     Public Overrides Function InitializeCurrentTest() As Boolean
+
 
         'Creates a new randomizer before each test start
         Dim Seed As Integer? = Nothing
@@ -284,7 +330,7 @@ Public Class SipSpeechTest
 
         Return True
 
-    End Function
+        End Function
 
 
 
@@ -771,13 +817,13 @@ Public Class SipSpeechTest
         Dim MaxResponseTimeTimer_Interval As Double
 
         If UseVisualQue = True Then
-            ShowVisualQueTimer_Interval = Math.Max(1, DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime * 1000)
-            HideVisualQueTimer_Interval = Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000)
+            ShowVisualQueTimer_Interval = System.Math.Max(1, DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime * 1000)
+            HideVisualQueTimer_Interval = System.Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000)
             ShowResponseAlternativesTimer_Interval = HideVisualQueTimer_Interval + 1000 * ResponseAlternativeDelay 'TestSetup.CurrentEnvironment.TestSoundMixerSettings.ResponseAlternativeDelay * 1000
-            MaxResponseTimeTimer_Interval = Math.Max(1, ShowResponseAlternativesTimer_Interval + 1000 * MaximumResponseTime)  ' TestSetup.CurrentEnvironment.TestSoundMixerSettings.MaximumResponseTime * 1000
+            MaxResponseTimeTimer_Interval = System.Math.Max(1, ShowResponseAlternativesTimer_Interval + 1000 * MaximumResponseTime)  ' TestSetup.CurrentEnvironment.TestSoundMixerSettings.MaximumResponseTime * 1000
         Else
-            ShowResponseAlternativesTimer_Interval = Math.Max(1, DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime * 1000) + 1000 * ResponseAlternativeDelay
-            MaxResponseTimeTimer_Interval = Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000) + 1000 * MaximumResponseTime
+            ShowResponseAlternativesTimer_Interval = System.Math.Max(1, DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime * 1000) + 1000 * ResponseAlternativeDelay
+            MaxResponseTimeTimer_Interval = System.Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000) + 1000 * MaximumResponseTime
         End If
 
 

@@ -230,8 +230,8 @@ public class HorizontalSoundSourceView : Frame
                     //Padding = 10
                 };
 
-                // Selects as default, if Target in headphones, not simulated sound field
-                if (isHeadPhones == true & IsSoundFieldSimulation == false & RoleType == SoundSceneItem.SoundSceneItemRoles.Target)
+                // Selecting the first sound source as default, if Target in headphones, not simulated sound field
+                if (i == 0 && isHeadPhones == true && IsSoundFieldSimulation == false && RoleType == SoundSceneItem.SoundSceneItemRoles.Target)
                 {
                     sourceBotton.IsSelected = true;
                 }
@@ -239,7 +239,7 @@ public class HorizontalSoundSourceView : Frame
                 // Selects front location for target type as default if sound field (real or simulated) (i.e. not headphones without sound field simulation)
                 if (isHeadPhones == false & RoleType == SoundSceneItem.SoundSceneItemRoles.Target)
                 {
-                    if (source.ParentSoundSourceLocation.Distance > 0 & source.ParentSoundSourceLocation.HorizontalAzimuth == 0)
+                    if (source.ParentSoundSourceLocation.Distance > 0 && source.ParentSoundSourceLocation.HorizontalAzimuth == 0)
                     {
                         sourceBotton.IsSelected = true;
                     }
@@ -269,28 +269,18 @@ public class HorizontalSoundSourceView : Frame
 
         VisualSoundSourceSelectionButton castButton = (VisualSoundSourceSelectionButton)sender;
 
-        if (IsSoundFieldSimulation == false && isHeadPhones == true)
+        // Limiting the number of selected sound sources
+        if (castButton.IsSelected == false)
         {
-            // In the case where we have headphones and no sound field simulation, we don not limit the number of sounde sources (as they sound be only two, i.e. left and right head phone) 
-            // Swapping the value
-            castButton.IsSelected = !castButton.IsSelected;
+            // Checking if max number of selected buttons has been reached, and if so, deselects the first item (not in order, as the order of selection is not stored)
+            int selectedCount = GetSelectedCount();
+            if (selectedCount >= MaxSelected) { DeSelectedFirstButton(); }
+            castButton.IsSelected = true;
         }
         else
         {
-            // In all other cases, i.e. real or simulated sound field we limit the number of selected sound sources
-
-            if (castButton.IsSelected == false)
-            {
-                // Checking if max number of selected buttons has been reached, and if so, deselects the first item (not in order, as the order of selection is not stored)
-                int selectedCount = GetSelectedCount();
-                if (selectedCount >= MaxSelected) { DeSelectedFirstButton(); }
-                castButton.IsSelected = true;
-            }
-            else
-            {
-                //Swapping the value
-                castButton.IsSelected = false;
-            }
+            //Swapping the value
+            castButton.IsSelected = false;
         }
     }
 

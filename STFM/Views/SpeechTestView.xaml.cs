@@ -22,7 +22,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     OstfBase.AudioSystemSpecification SelectedTransducer = null;
 
-    private string[] availableTests = new string[] { "Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet" };
+    private string[] availableTests = new string[] { "Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet", "Protokoll B2" };
 
     RowDefinition originalBottomPanelHeight = null;
     ColumnDefinition originalLeftPanelWidth = null;
@@ -259,6 +259,21 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
+                case "Protokoll B2":
+                                      
+
+                    // Speech test
+                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("Swedish Spondees 23");
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsPB2TestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsPB2TestView);
+                    CurrentTestOptionsView = newOptionsPB2TestView;
+
+                    break;
+
+
                 default:
                     TestOptionsGrid.Children.Clear();
                     success = false;
@@ -415,6 +430,26 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.SoundOverlapDuration = 0.1;
 
                     break;
+
+                case "Protokoll B2":
+
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_FreeRecall();
+
+                    ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
+                    Window PB2secondWindow = new Window(PB2responsePage);
+                    PB2secondWindow.Title = "";
+                    Application.Current.OpenWindow(PB2secondWindow);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0.001;
+
+                    break;
+
 
                 default:
                     TestOptionsGrid.Children.Clear();

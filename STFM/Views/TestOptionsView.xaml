@@ -13,7 +13,7 @@
 
         <VerticalStackLayout x:Name="MainStackLayout" Padding="10, 0, 10, 30">
 
-            <HorizontalStackLayout>
+            <HorizontalStackLayout x:Name="PractiseTestControl">
                 <Label Text="{Binding IsPractiseTestTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5"/>
                 <Switch IsToggled="{Binding IsPractiseTest}" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
@@ -129,8 +129,20 @@
 
             <HorizontalStackLayout x:Name="UseContralateralMaskingControl">
                 <Label Text="{Binding UseContralateralMaskingTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="UseContralateralMasking_Switch" IsToggled="{Binding UseContralateralMasking}" VerticalOptions="Center" Margin="0,5,0,5" />
+                <Switch x:Name="UseContralateralMasking_Switch" IsToggled="{Binding UseContralateralMasking}" Toggled="UseContralateralMaskingControl_Switch_Toggled" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
+
+            <VerticalStackLayout x:Name="ContralateralMaskingLevelControl">
+                <Label HorizontalOptions="Center" Margin="0,5,0,0">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding ContralateralMaskingLevelTitle}" />
+                            <Span Text="{Binding ContralateralMaskingLevel, StringFormat=' = {0:F0}'}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Slider Value="{Binding ContralateralMaskingLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="DarkSlateGray"  ThumbColor="DarkSlateGray"/>
+            </VerticalStackLayout>
 
             <HorizontalStackLayout x:Name="UsePhaseAudiometryControl">
                 <Label Text="{Binding UsePhaseAudiometryTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />

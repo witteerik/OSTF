@@ -11,6 +11,8 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Maui.Controls.PlatformConfiguration;
 using STFN.Audio.SoundScene;
+using System.Diagnostics.CodeAnalysis;
+using static STFN.Utils.AppCache;
 
 
 namespace STFM
@@ -30,6 +32,16 @@ namespace STFM
                 return;
             }
             IsInitialized = true;
+
+            //Setting up app cache callbacks
+            STFN.Utils.AppCache.OnAppCacheVariableExists += AppCacheVariableExists;
+            STFN.Utils.AppCache.OnSetAppCacheStringVariableValue += SetAppCacheStringVariableValue;
+            STFN.Utils.AppCache.OnSetAppCacheDoubleVariableValue += SetAppCacheDoubleVariableValue;
+            STFN.Utils.AppCache.OnGetAppCacheStringVariableValue += GetAppCacheStringVariableValue;
+            STFN.Utils.AppCache.OnGetAppCacheDoubleVariableValue += GetAppCacheDoubleVariableValue;
+            STFN.Utils.AppCache.OnRemoveAppCacheVariable += RemoveAppCacheVariable;
+            STFN.Utils.AppCache.OnClearAppCache += ClearAppCache;
+
 
             await CheckAndSetMediaRootDirectory();
 
@@ -369,6 +381,58 @@ namespace STFM
             //ACCESS_NOTIFICATION_POLICY
 
         }
+
+
+        static void AppCacheVariableExists(object sender, AppCacheEventArgs e) 
+        {
+            e.Result = Preferences.ContainsKey(e.VariableName);
+        }
+
+        static void SetAppCacheStringVariableValue(object sender, AppCacheEventArgs e)
+        {
+            Preferences.Default.Set(e.VariableName, e.VariableStringValue);
+        }
+
+        static void SetAppCacheDoubleVariableValue(object sender, AppCacheEventArgs e)
+        {
+            if (e.VariableDoubleValue != null)
+            {
+                Preferences.Default.Set(e.VariableName, e.VariableDoubleValue.Value);
+            }
+            else
+            {
+                throw new Exception("Unable to store null values in the app cache.");
+            }
+        }
+
+        static void GetAppCacheStringVariableValue(object sender, AppCacheEventArgs e)
+        {
+            e.VariableStringValue = Preferences.Default.Get (e.VariableName,  "");
+        }
+
+        static void GetAppCacheDoubleVariableValue(object sender, AppCacheEventArgs e)
+        {
+            if (Preferences.ContainsKey(e.VariableName))
+            {
+                e.VariableDoubleValue = Preferences.Default.Get(e.VariableName, double.NaN);
+            }
+            else
+            {
+                e.VariableDoubleValue = null;
+            }
+        }
+
+        static void RemoveAppCacheVariable(object sender, AppCacheEventArgs e)
+        {
+            Preferences.Default.Remove(e.VariableName);
+        }
+
+        static void ClearAppCache(object sender, EventArgs e)
+        {
+            Preferences.Default.Clear();
+        }
+
+        
 
     }
 }
