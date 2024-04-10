@@ -40,7 +40,7 @@ Public Class SrtSwedishHint2018_TestProtocol
 
     Public ReadOnly Property TotalTrialCount As Integer
         Get
-            If IsInPractiseMode = True Then
+            If IsInPretestMode = True Then
                 Return 10
             Else
                 Return 20
@@ -100,7 +100,7 @@ Public Class SrtSwedishHint2018_TestProtocol
 
     Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
-        If IsInPractiseMode = True Then
+        If IsInPretestMode = True Then
             'Storing the last value as threshold
             FinalAdaptiveThreshold = DirectCast(TrialHistory.Last, SrtTrial).AdaptiveValue
 

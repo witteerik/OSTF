@@ -36,6 +36,7 @@ namespace STFM
             //Setting up app cache callbacks
             STFN.Utils.AppCache.OnAppCacheVariableExists += AppCacheVariableExists;
             STFN.Utils.AppCache.OnSetAppCacheStringVariableValue += SetAppCacheStringVariableValue;
+            STFN.Utils.AppCache.OnSetAppCacheIntegerVariableValue += SetAppCacheIntegerVariableValue;
             STFN.Utils.AppCache.OnSetAppCacheDoubleVariableValue += SetAppCacheDoubleVariableValue;
             STFN.Utils.AppCache.OnGetAppCacheStringVariableValue += GetAppCacheStringVariableValue;
             STFN.Utils.AppCache.OnGetAppCacheDoubleVariableValue += GetAppCacheDoubleVariableValue;
@@ -391,6 +392,18 @@ namespace STFM
         static void SetAppCacheStringVariableValue(object sender, AppCacheEventArgs e)
         {
             Preferences.Default.Set(e.VariableName, e.VariableStringValue);
+        }
+
+        static void SetAppCacheIntegerVariableValue(object sender, AppCacheEventArgs e)
+        {
+            if (e.VariableIntegerValue != null)
+            {
+                Preferences.Default.Set(e.VariableName, e.VariableIntegerValue.Value);
+            }
+            else
+            {
+                throw new Exception("Unable to store null values in the app cache.");
+            }
         }
 
         static void SetAppCacheDoubleVariableValue(object sender, AppCacheEventArgs e)

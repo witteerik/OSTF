@@ -228,7 +228,7 @@ Public Class MatrixSpeechTest
             StartAdaptiveLevel = CustomizableTestOptions.SpeechLevel
         End If
 
-        CustomizableTestOptions.SelectedTestProtocol.IsInPractiseMode = CustomizableTestOptions.IsPractiseTest
+        CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = CustomizableTestOptions.IsPractiseTest
 
         CreatePlannedWordsSentences()
 

@@ -5,6 +5,7 @@ Namespace Utils
 
         Public Event OnAppCacheVariableExists As EventHandler(Of AppCacheEventArgs)
         Public Event OnSetAppCacheStringVariableValue As EventHandler(Of AppCacheEventArgs)
+        Public Event OnSetAppCacheIntegerVariableValue As EventHandler(Of AppCacheEventArgs)
         Public Event OnSetAppCacheDoubleVariableValue As EventHandler(Of AppCacheEventArgs)
         Public Event OnGetAppCacheStringVariableValue As EventHandler(Of AppCacheEventArgs)
         Public Event OnGetAppCacheDoubleVariableValue As EventHandler(Of AppCacheEventArgs)
@@ -21,6 +22,10 @@ Namespace Utils
             RaiseEvent OnSetAppCacheStringVariableValue(Nothing, New AppCacheEventArgs(VariableName, VariableValue))
         End Sub
 
+        Public Sub SetAppCacheVariableValue(VariableName As String, VariableValue As Integer)
+            RaiseEvent OnSetAppCacheIntegerVariableValue(Nothing, New AppCacheEventArgs(VariableName, VariableValue))
+        End Sub
+
         Public Sub SetAppCacheVariableValue(VariableName As String, VariableValue As Double)
             RaiseEvent OnSetAppCacheDoubleVariableValue(Nothing, New AppCacheEventArgs(VariableName, VariableValue))
         End Sub
@@ -29,6 +34,12 @@ Namespace Utils
             Dim e = New AppCacheEventArgs(VariableName)
             RaiseEvent OnGetAppCacheStringVariableValue(Nothing, e)
             Return e.VariableStringValue
+        End Function
+
+        Public Function GetAppCacheIntegerVariableValue(VariableName As String) As Integer?
+            Dim e = New AppCacheEventArgs(VariableName)
+            RaiseEvent OnGetAppCacheDoubleVariableValue(Nothing, e)
+            Return e.VariableIntegerValue
         End Function
 
         Public Function GetAppCacheDoubleVariableValue(VariableName As String) As Double?
@@ -49,6 +60,7 @@ Namespace Utils
             Inherits EventArgs
             Public Property VariableName As String
             Public Property VariableStringValue As String
+            Public Property VariableIntegerValue As Integer?
             Public Property VariableDoubleValue As Double?
             Public Property Result As Boolean
 
@@ -59,6 +71,10 @@ Namespace Utils
             Public Sub New(VariableName As String, VariableValue As String)
                 Me.VariableName = VariableName
                 Me.VariableStringValue = VariableValue
+            End Sub
+            Public Sub New(VariableName As String, VariableValue As Integer)
+                Me.VariableName = VariableName
+                Me.VariableIntegerValue = VariableValue
             End Sub
 
             Public Sub New(VariableName As String, VariableValue As Double)

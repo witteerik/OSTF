@@ -22,6 +22,19 @@
         End Set
     End Property
 
+    Public Overrides Property IsInPretestMode As Boolean
+        Get
+            If CurrentTestStage < 2 Then
+                Return True
+            Else
+                Return False
+            End If
+        End Get
+        Set(value As Boolean)
+            'Any value set is ignored
+        End Set
+    End Property
+
     Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
         Throw New NotImplementedException()
     End Sub
@@ -33,6 +46,8 @@
     Public Overrides Function GetSuggestedStartlevel(Optional ReferenceValue As Double? = Nothing) As Double
         Throw New NotImplementedException()
     End Function
+
+
 
     Private TestLength As UInteger
 
@@ -69,7 +84,7 @@
             Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
         End If
 
-        If CurrentTestStage < 1 Then
+        If IsInPretestMode Then
             Select Case DirectCast(TrialHistory.Last, LevelAdjustmentTrial).LevelRating
                 Case LevelAdjustmentTrial.LevelRatings.TooSoft
 

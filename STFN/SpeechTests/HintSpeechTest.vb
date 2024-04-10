@@ -227,7 +227,7 @@ Public Class HintSpeechTest
             StartAdaptiveLevel = CustomizableTestOptions.SpeechLevel
         End If
 
-        CustomizableTestOptions.SelectedTestProtocol.IsInPractiseMode = CustomizableTestOptions.IsPractiseTest
+        CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = CustomizableTestOptions.IsPractiseTest
 
         CreatePlannedWordsList()
 
@@ -310,7 +310,7 @@ Public Class HintSpeechTest
 
         Next
 
-        'Checing that we really have NumberOfWordsToAdd words
+        'Checking that we really have NumberOfWordsToAdd words
         If MaximumNumberOfTestWords <> PlannedTestWords.Count Then
             Messager.MsgBox("The wrong number of test items were added. It should have been " & MaximumNumberOfTestWords & " but instead " & PlannedTestWords.Count & " items were added!",, "An error occurred!")
             Return False

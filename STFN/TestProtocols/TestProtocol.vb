@@ -54,7 +54,7 @@ End Module
 
 Public MustInherit Class TestProtocol
 
-    Public Property IsInPractiseMode As Boolean = False
+    Public Overridable Property IsInPretestMode As Boolean = False
 
     Public MustOverride ReadOnly Property Name As String
 
