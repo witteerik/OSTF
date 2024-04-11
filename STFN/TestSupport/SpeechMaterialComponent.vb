@@ -270,6 +270,12 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    Public Function GetContralateralMaskerFolderName() As String
+
+        Return (Id & "_" & PrimaryStringRepresentation).Replace(" ", "_")
+
+    End Function
+
     Private Randomizer As Random
 
     'Shared stuff used to keep media items in memory instead of re-loading on every use
@@ -387,6 +393,19 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    ''' <summary>
+    ''' Returns the sound representing the contralateral maskers for the current speech material component and mediaset as a new Audio.Sound. 
+    ''' </summary>
+    ''' <param name="MediaSet"></param>
+    ''' <param name="Index"></param>
+    ''' <returns></returns>
+    Public Function GetContralateralMaskerSound(ByRef MediaSet As MediaSet, ByVal Index As Integer) As Audio.Sound
+
+        Dim MaskerPath = GetContralateralMaskerPath(MediaSet, Index)
+
+        Return GetSoundFile(MaskerPath)
+
+    End Function
 
     ''' <summary>
     ''' Returns the sound representing background non-speech used with the current speech material component and mediaset as a new Audio.Sound. 
@@ -1306,6 +1325,43 @@ Public Class SpeechMaterialComponent
         End If
 
     End Function
+
+
+    Public Function GetContralateralMaskerPath(ByRef MediaSet As MediaSet, ByVal Index As Integer, Optional ByVal SearchAncestors As Boolean = True) As String
+
+        If MediaSet.ContralateralMaskerAudioItems = 0 And SearchAncestors = True Then
+
+            If ParentComponent IsNot Nothing Then
+                Return ParentComponent.GetContralateralMaskerPath(MediaSet, Index, SearchAncestors)
+            Else
+                Return ""
+            End If
+
+        Else
+
+            If Index > MediaSet.ContralateralMaskerAudioItems - 1 Then
+                Throw New ArgumentException("Requested (zero-based) sound index (" & Index & " ) is higher than the number of available contralateral masker sound recordings of the current speech material component (" & Me.PrimaryStringRepresentation & ").")
+            End If
+
+            Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+
+            Dim SharedContralateralMaskersLevelComponent As SpeechMaterialComponent = Nothing
+            If Me.LinguisticLevel = MediaSet.SharedContralateralMaskersLevel Then
+                SharedContralateralMaskersLevelComponent = Me
+            ElseIf Me.LinguisticLevel > MediaSet.SharedContralateralMaskersLevel Then
+                SharedContralateralMaskersLevelComponent = Me.GetAncestorAtLevel(MediaSet.SharedContralateralMaskersLevel)
+            Else
+                Throw New Exception("Unable to locate the contralateral masker files!")
+            End If
+
+            Dim FullContralateralMaskerFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.ContralateralMaskerParentFolder, SharedContralateralMaskersLevelComponent.GetContralateralMaskerFolderName())
+
+            Return GetAvailableFiles(FullContralateralMaskerFolderPath, MediaTypes.Audio)(Index)
+
+        End If
+
+    End Function
+
 
     Public Function GetSoundPath(ByRef MediaSet As MediaSet, ByVal Index As Integer, Optional ByVal SearchAncestors As Boolean = True) As String
 

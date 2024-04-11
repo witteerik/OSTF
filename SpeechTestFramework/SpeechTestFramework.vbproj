@@ -278,6 +278,12 @@
     <Compile Include="WinFormDialogs\AudioOutputSettingsDialog.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="WinFormsComplexControls\CreateMaskersControl.Designer.vb">
+      <DependentUpon>CreateMaskersControl.vb</DependentUpon>
+    </Compile>
+    <Compile Include="WinFormsComplexControls\CreateMaskersControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinFormsComplexControls\LexicalVariablesEditor.Designer.vb">
       <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>
     </Compile>
@@ -486,6 +492,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormDialogs\AudioOutputSettingsDialog.resx">
       <DependentUpon>AudioOutputSettingsDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinFormsComplexControls\CreateMaskersControl.resx">
+      <DependentUpon>CreateMaskersControl.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WinFormsComplexControls\LexicalVariablesEditor.resx">
       <DependentUpon>LexicalVariablesEditor.vb</DependentUpon>

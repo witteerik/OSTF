@@ -158,10 +158,7 @@ Partial Class MediaSetSetupControl
         Me.ListMixer_TabPage = New System.Windows.Forms.TabPage()
         Me.ListRearrangerControl1 = New SpeechTestFramework.ListRearrangerControl()
         Me.CreateMaskers_TabPage = New System.Windows.Forms.TabPage()
-        Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
-        Me.CreateSipTestMaskersButton = New System.Windows.Forms.Button()
-        Me.CalculateSipTestMaskerSpectrumLevels_Button = New System.Windows.Forms.Button()
-        Me.TempButton = New System.Windows.Forms.Button()
+        Me.CreateMaskersControl1 = New SpeechTestFramework.CreateMaskersControl()
         Me.SoundfileLinguisticLevels_TabPage = New System.Windows.Forms.TabPage()
         Me.TableLayoutPanel8 = New System.Windows.Forms.TableLayoutPanel()
         Me.RandomizeOrder_CheckBox = New System.Windows.Forms.CheckBox()
@@ -183,6 +180,11 @@ Partial Class MediaSetSetupControl
         Me.CrossfadeDuration_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.Label39 = New System.Windows.Forms.Label()
         Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.TabPage1 = New System.Windows.Forms.TabPage()
+        Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
+        Me.CreateSipTestMaskersButton = New System.Windows.Forms.Button()
+        Me.CalculateSipTestMaskerSpectrumLevels_Button = New System.Windows.Forms.Button()
+        Me.TempButton = New System.Windows.Forms.Button()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -206,9 +208,10 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel10.SuspendLayout()
         Me.ListMixer_TabPage.SuspendLayout()
         Me.CreateMaskers_TabPage.SuspendLayout()
-        Me.TableLayoutPanel4.SuspendLayout()
         Me.SoundfileLinguisticLevels_TabPage.SuspendLayout()
         Me.TableLayoutPanel8.SuspendLayout()
+        Me.TabPage1.SuspendLayout()
+        Me.TableLayoutPanel4.SuspendLayout()
         Me.SuspendLayout()
         '
         'TableLayoutPanel2
@@ -947,6 +950,7 @@ Partial Class MediaSetSetupControl
         Me.EditSoundFile_TabControl.Controls.Add(Me.ListMixer_TabPage)
         Me.EditSoundFile_TabControl.Controls.Add(Me.CreateMaskers_TabPage)
         Me.EditSoundFile_TabControl.Controls.Add(Me.SoundfileLinguisticLevels_TabPage)
+        Me.EditSoundFile_TabControl.Controls.Add(Me.TabPage1)
         Me.EditSoundFile_TabControl.Dock = System.Windows.Forms.DockStyle.Fill
         Me.EditSoundFile_TabControl.Enabled = False
         Me.EditSoundFile_TabControl.Location = New System.Drawing.Point(0, 0)
@@ -1804,7 +1808,7 @@ Partial Class MediaSetSetupControl
         Me.CreateMaskers_TabPage.AutoScroll = True
         Me.CreateMaskers_TabPage.BackColor = System.Drawing.Color.LightPink
         Me.CreateMaskers_TabPage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.CreateMaskers_TabPage.Controls.Add(Me.TableLayoutPanel4)
+        Me.CreateMaskers_TabPage.Controls.Add(Me.CreateMaskersControl1)
         Me.CreateMaskers_TabPage.Location = New System.Drawing.Point(4, 22)
         Me.CreateMaskers_TabPage.Name = "CreateMaskers_TabPage"
         Me.CreateMaskers_TabPage.Padding = New System.Windows.Forms.Padding(3)
@@ -1812,51 +1816,15 @@ Partial Class MediaSetSetupControl
         Me.CreateMaskers_TabPage.TabIndex = 2
         Me.CreateMaskers_TabPage.Text = "Create maskers"
         '
-        'TableLayoutPanel4
+        'CreateMaskersControl1
         '
-        Me.TableLayoutPanel4.AutoSize = True
-        Me.TableLayoutPanel4.BackColor = System.Drawing.SystemColors.Control
-        Me.TableLayoutPanel4.ColumnCount = 2
-        Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel4.Controls.Add(Me.CreateSipTestMaskersButton, 0, 0)
-        Me.TableLayoutPanel4.Controls.Add(Me.CalculateSipTestMaskerSpectrumLevels_Button, 1, 0)
-        Me.TableLayoutPanel4.Controls.Add(Me.TempButton, 0, 1)
-        Me.TableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Top
-        Me.TableLayoutPanel4.Location = New System.Drawing.Point(3, 3)
-        Me.TableLayoutPanel4.Name = "TableLayoutPanel4"
-        Me.TableLayoutPanel4.RowCount = 2
-        Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel4.Size = New System.Drawing.Size(607, 100)
-        Me.TableLayoutPanel4.TabIndex = 0
-        '
-        'CreateSipTestMaskersButton
-        '
-        Me.CreateSipTestMaskersButton.Location = New System.Drawing.Point(3, 3)
-        Me.CreateSipTestMaskersButton.Name = "CreateSipTestMaskersButton"
-        Me.CreateSipTestMaskersButton.Size = New System.Drawing.Size(180, 23)
-        Me.CreateSipTestMaskersButton.TabIndex = 0
-        Me.CreateSipTestMaskersButton.Text = "Create SiP-test masker sounds"
-        Me.CreateSipTestMaskersButton.UseVisualStyleBackColor = True
-        '
-        'CalculateSipTestMaskerSpectrumLevels_Button
-        '
-        Me.CalculateSipTestMaskerSpectrumLevels_Button.Location = New System.Drawing.Point(306, 3)
-        Me.CalculateSipTestMaskerSpectrumLevels_Button.Name = "CalculateSipTestMaskerSpectrumLevels_Button"
-        Me.CalculateSipTestMaskerSpectrumLevels_Button.Size = New System.Drawing.Size(184, 44)
-        Me.CalculateSipTestMaskerSpectrumLevels_Button.TabIndex = 1
-        Me.CalculateSipTestMaskerSpectrumLevels_Button.Text = "Calculate SiP-test masker spectrum levels (SLm)"
-        Me.CalculateSipTestMaskerSpectrumLevels_Button.UseVisualStyleBackColor = True
-        '
-        'TempButton
-        '
-        Me.TempButton.Location = New System.Drawing.Point(3, 53)
-        Me.TempButton.Name = "TempButton"
-        Me.TempButton.Size = New System.Drawing.Size(153, 23)
-        Me.TempButton.TabIndex = 2
-        Me.TempButton.Text = "Temporary Button"
-        Me.TempButton.UseVisualStyleBackColor = True
+        Me.CreateMaskersControl1.BackColor = System.Drawing.SystemColors.Control
+        Me.CreateMaskersControl1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.CreateMaskersControl1.Enabled = False
+        Me.CreateMaskersControl1.Location = New System.Drawing.Point(3, 3)
+        Me.CreateMaskersControl1.Name = "CreateMaskersControl1"
+        Me.CreateMaskersControl1.Size = New System.Drawing.Size(607, 603)
+        Me.CreateMaskersControl1.TabIndex = 0
         '
         'SoundfileLinguisticLevels_TabPage
         '
@@ -2112,6 +2080,62 @@ Partial Class MediaSetSetupControl
         Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(240, 20)
         Me.RandomSeed_IntegerParsingTextBox.TabIndex = 21
         '
+        'TabPage1
+        '
+        Me.TabPage1.Controls.Add(Me.TableLayoutPanel4)
+        Me.TabPage1.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage1.Name = "TabPage1"
+        Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage1.Size = New System.Drawing.Size(615, 611)
+        Me.TabPage1.TabIndex = 5
+        Me.TabPage1.Text = "Temp page"
+        Me.TabPage1.UseVisualStyleBackColor = True
+        '
+        'TableLayoutPanel4
+        '
+        Me.TableLayoutPanel4.AutoSize = True
+        Me.TableLayoutPanel4.BackColor = System.Drawing.SystemColors.Control
+        Me.TableLayoutPanel4.ColumnCount = 2
+        Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel4.Controls.Add(Me.CreateSipTestMaskersButton, 0, 0)
+        Me.TableLayoutPanel4.Controls.Add(Me.CalculateSipTestMaskerSpectrumLevels_Button, 1, 0)
+        Me.TableLayoutPanel4.Controls.Add(Me.TempButton, 0, 1)
+        Me.TableLayoutPanel4.Location = New System.Drawing.Point(5, 51)
+        Me.TableLayoutPanel4.Name = "TableLayoutPanel4"
+        Me.TableLayoutPanel4.RowCount = 2
+        Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.TableLayoutPanel4.Size = New System.Drawing.Size(607, 297)
+        Me.TableLayoutPanel4.TabIndex = 1
+        '
+        'CreateSipTestMaskersButton
+        '
+        Me.CreateSipTestMaskersButton.Location = New System.Drawing.Point(3, 3)
+        Me.CreateSipTestMaskersButton.Name = "CreateSipTestMaskersButton"
+        Me.CreateSipTestMaskersButton.Size = New System.Drawing.Size(180, 23)
+        Me.CreateSipTestMaskersButton.TabIndex = 0
+        Me.CreateSipTestMaskersButton.Text = "Create SiP-test masker sounds"
+        Me.CreateSipTestMaskersButton.UseVisualStyleBackColor = True
+        '
+        'CalculateSipTestMaskerSpectrumLevels_Button
+        '
+        Me.CalculateSipTestMaskerSpectrumLevels_Button.Location = New System.Drawing.Point(306, 3)
+        Me.CalculateSipTestMaskerSpectrumLevels_Button.Name = "CalculateSipTestMaskerSpectrumLevels_Button"
+        Me.CalculateSipTestMaskerSpectrumLevels_Button.Size = New System.Drawing.Size(184, 44)
+        Me.CalculateSipTestMaskerSpectrumLevels_Button.TabIndex = 1
+        Me.CalculateSipTestMaskerSpectrumLevels_Button.Text = "Calculate SiP-test masker spectrum levels (SLm)"
+        Me.CalculateSipTestMaskerSpectrumLevels_Button.UseVisualStyleBackColor = True
+        '
+        'TempButton
+        '
+        Me.TempButton.Location = New System.Drawing.Point(3, 151)
+        Me.TempButton.Name = "TempButton"
+        Me.TempButton.Size = New System.Drawing.Size(153, 23)
+        Me.TempButton.TabIndex = 2
+        Me.TempButton.Text = "Temporary Button"
+        Me.TempButton.UseVisualStyleBackColor = True
+        '
         'MediaSetSetupControl
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -2152,12 +2176,13 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel10.PerformLayout()
         Me.ListMixer_TabPage.ResumeLayout(False)
         Me.CreateMaskers_TabPage.ResumeLayout(False)
-        Me.CreateMaskers_TabPage.PerformLayout()
-        Me.TableLayoutPanel4.ResumeLayout(False)
         Me.SoundfileLinguisticLevels_TabPage.ResumeLayout(False)
         Me.SoundfileLinguisticLevels_TabPage.PerformLayout()
         Me.TableLayoutPanel8.ResumeLayout(False)
         Me.TableLayoutPanel8.PerformLayout()
+        Me.TabPage1.ResumeLayout(False)
+        Me.TabPage1.PerformLayout()
+        Me.TableLayoutPanel4.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -2233,7 +2258,6 @@ Partial Class MediaSetSetupControl
     Friend WithEvents SpeechLevels_TabPage As Windows.Forms.TabPage
     Friend WithEvents CreateMaskers_TabPage As Windows.Forms.TabPage
     Friend WithEvents TableLayoutPanel3 As Windows.Forms.TableLayoutPanel
-    Friend WithEvents TableLayoutPanel4 As Windows.Forms.TableLayoutPanel
     Friend WithEvents ApplySpeechLevels_Button As Windows.Forms.Button
     Friend WithEvents SpeechLevelSPL_Label As Windows.Forms.Label
     Friend WithEvents Label28 As Windows.Forms.Label
@@ -2257,11 +2281,8 @@ Partial Class MediaSetSetupControl
     Friend WithEvents GroupBox3 As Windows.Forms.GroupBox
     Friend WithEvents TableLayoutPanel7 As Windows.Forms.TableLayoutPanel
     Friend WithEvents SipTestLevels_Button As Windows.Forms.Button
-    Friend WithEvents CreateSipTestMaskersButton As Windows.Forms.Button
     Friend WithEvents SharedMaskersLevelComboBox As Windows.Forms.ComboBox
     Friend WithEvents Label30 As Windows.Forms.Label
-    Friend WithEvents CalculateSipTestMaskerSpectrumLevels_Button As Windows.Forms.Button
-    Friend WithEvents TempButton As Windows.Forms.Button
     Friend WithEvents CustomVariablesFolder_TextBox As Windows.Forms.TextBox
     Friend WithEvents Label31 As Windows.Forms.Label
     Friend WithEvents SoundfileLinguisticLevels_TabPage As Windows.Forms.TabPage
@@ -2322,4 +2343,10 @@ Partial Class MediaSetSetupControl
     Friend WithEvents GenerateSnrRangeStimuli_InsertConcatenationSilence_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents ListMixer_TabPage As Windows.Forms.TabPage
     Friend WithEvents ListRearrangerControl1 As ListRearrangerControl
+    Friend WithEvents TabPage1 As Windows.Forms.TabPage
+    Friend WithEvents TableLayoutPanel4 As Windows.Forms.TableLayoutPanel
+    Friend WithEvents CreateSipTestMaskersButton As Windows.Forms.Button
+    Friend WithEvents CalculateSipTestMaskerSpectrumLevels_Button As Windows.Forms.Button
+    Friend WithEvents TempButton As Windows.Forms.Button
+    Friend WithEvents CreateMaskersControl1 As CreateMaskersControl
 End Class

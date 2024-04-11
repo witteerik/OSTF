@@ -59,6 +59,7 @@ Partial Class Form4
         Me.Button28 = New System.Windows.Forms.Button()
         Me.Button29 = New System.Windows.Forms.Button()
         Me.Button30 = New System.Windows.Forms.Button()
+        Me.Button31 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -394,12 +395,22 @@ Partial Class Form4
         Me.Button30.Text = "TestLinq"
         Me.Button30.UseVisualStyleBackColor = True
         '
+        'Button31
+        '
+        Me.Button31.Location = New System.Drawing.Point(796, 267)
+        Me.Button31.Name = "Button31"
+        Me.Button31.Size = New System.Drawing.Size(75, 23)
+        Me.Button31.TabIndex = 47
+        Me.Button31.Text = "Make noise"
+        Me.Button31.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button31)
         Me.Controls.Add(Me.Button30)
         Me.Controls.Add(Me.Button29)
         Me.Controls.Add(Me.Button28)
@@ -480,4 +491,5 @@ Partial Class Form4
     Friend WithEvents Button28 As Button
     Friend WithEvents Button29 As Button
     Friend WithEvents Button30 As Button
+    Friend WithEvents Button31 As Button
 End Class

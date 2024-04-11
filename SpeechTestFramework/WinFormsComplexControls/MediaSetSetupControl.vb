@@ -143,11 +143,13 @@ Public Class MediaSetSetupControl
                 SaveMediaSetSpecification_Button.Enabled = True
                 EditSoundFile_TabControl.Enabled = True
                 ListRearrangerControl1.InitiateControl(SelectedMediaSet)
+                CreateMaskersControl1.InitiateControl(SelectedMediaSet)
             Else
                 EditSpecification_TableLayoutPanel.Enabled = False
                 SaveMediaSetSpecification_Button.Enabled = False
                 EditSoundFile_TabControl.Enabled = False
                 ListRearrangerControl1.DisableControl()
+                CreateMaskersControl1.DisableControl()
             End If
 
         Else
@@ -156,6 +158,7 @@ Public Class MediaSetSetupControl
             EditSpecification_TableLayoutPanel.Enabled = False
             SaveMediaSetSpecification_Button.Enabled = False
             ListRearrangerControl1.DisableControl()
+            CreateMaskersControl1.DisableControl()
         End If
 
         UpdatePrototypeRecordingOptionsInGUI()
@@ -587,7 +590,7 @@ Public Class MediaSetSetupControl
 
     End Sub
 
-    Private Sub CreateSipTestMaskersButton_Click(sender As Object, e As EventArgs) Handles CreateSipTestMaskersButton.Click
+    Private Sub CreateSipTestMaskersButton_Click(sender As Object, e As EventArgs)
 
         'Creating SiP-test type masker sounds
         SelectedMediaSet.CreateNewTestSituationMaskers(MediaSet.MaskerSourceTypes.ExternalSoundFilesBestMatch,
@@ -596,13 +599,13 @@ Public Class MediaSetSetupControl
 
     End Sub
 
-    Private Sub CalculateSipTestMaskerSpectrumLevels_Button_Click(sender As Object, e As EventArgs) Handles CalculateSipTestMaskerSpectrumLevels_Button.Click
+    Private Sub CalculateSipTestMaskerSpectrumLevels_Button_Click(sender As Object, e As EventArgs)
 
         SelectedMediaSet.CalculateMaskerSpectrumLevels()
 
     End Sub
 
-    Private Sub TempButton_Click(sender As Object, e As EventArgs) Handles TempButton.Click
+    Private Sub TempButton_Click(sender As Object, e As EventArgs)
 
         'SelectedMediaSet.TemporaryFunction_RenameMaskerFolder()
 

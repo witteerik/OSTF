@@ -36,7 +36,8 @@
     End Property
 
     Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
-        Throw New NotImplementedException()
+
+        'Throw New NotImplementedException()
     End Sub
 
     Public Overrides Function GetPatientInstructions() As String
@@ -81,7 +82,7 @@
 
         If TrialHistory.Count = 0 Then
             'This is the start of the test, returns the initial settings
-            Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
+            Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
         End If
 
         If IsInPretestMode Then
@@ -89,18 +90,18 @@
                 Case LevelAdjustmentTrial.LevelRatings.TooSoft
 
                     NextAdaptiveLevel += AdaptiveStepSize
-                    Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel}
+                    Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
 
                 Case LevelAdjustmentTrial.LevelRatings.Good
 
                     ' The listener has to select 'Good' twice before the testing starts
                     CurrentTestStage += 1
-                    Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel}
+                    Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
 
                 Case LevelAdjustmentTrial.LevelRatings.TooLoud
 
                     NextAdaptiveLevel += AdaptiveStepSize
-                    Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel}
+                    Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
 
                 Case Else
                     Throw New Exception("Level rating. This is likely a bug!")
@@ -110,15 +111,17 @@
 
             'Main test stage
             If TrialHistory.Count < TestLength Then
-                Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
+                Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
             Else
-                Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
+                Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.TestIsCompleted, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
             End If
         End If
 
     End Function
 
     Public Overrides Function GetFinalResult() As Double?
-        Throw New NotImplementedException()
+
+        Return 0
+        'Throw New NotImplementedException()
     End Function
 End Class

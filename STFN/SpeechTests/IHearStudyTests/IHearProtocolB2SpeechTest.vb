@@ -237,14 +237,15 @@ Public Class IHearProtocolB2SpeechTest
     Private PlannedLevelAdjustmentWords As List(Of SpeechMaterialComponent) = Nothing
     Private PlannedTestListWords As List(Of SpeechMaterialComponent) = Nothing
 
-    Private ObservedPreTestTrials As TrialHistory
-    Private ObservedTestTrials As TrialHistory
+    Private ObservedPreTestTrials As New TrialHistory
+    Private ObservedTestTrials As New TrialHistory
 
     Private MaskerNoise As Audio.Sound = Nothing
     Private ContralateralNoise As Audio.Sound = Nothing
 
     Private TestWordPresentationTime As Double = 0.5
 
+    Private TestLength As Integer = 50
 
     Public Overrides Function InitializeCurrentTest() As Boolean
 
@@ -289,6 +290,12 @@ Public Class IHearProtocolB2SpeechTest
 
             'Storing the TestStageListIndex as the next list
             TestStageListIndex = LevelAdjustmentStageListIndex + 1
+
+            'Unwrapping TestStageListIndex
+            If TestStageListIndex > AllTestListsNames.Count - 1 Then
+                TestStageListIndex = 0
+            End If
+
         End If
 
         CustomizableTestOptions.SelectedMediaSet = AvailableMediasets(SelectedMediaSetIndex)
@@ -299,10 +306,10 @@ Public Class IHearProtocolB2SpeechTest
         If MaskerNoise Is Nothing Then MaskerNoise = PlannedTestListWords(0).GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
         If CustomizableTestOptions.UseContralateralMasking = True Then
             'TODO: Here we should use speech weighted standard noise??? Or the speech material noise??
-            ContralateralNoise = PlannedTestListWords(0).GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+            ContralateralNoise = PlannedTestListWords(0).GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
         End If
 
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = CustomizableTestOptions.SpeechLevel, .TestStage = 0})
+        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = CustomizableTestOptions.SpeechLevel, .TestStage = 0, .TestLength = TestLength})
 
         Return True
 
@@ -348,7 +355,14 @@ Public Class IHearProtocolB2SpeechTest
 
                 'Translating the response (Always using the first response, as there should never be more than one)
                 LevelAdjustmentTrial.GetRatingStrings()
-                If DirectCast(CurrentTestTrial, LevelAdjustmentTrial).TranslateResponse(e.LinguisticResponses(0)) = False Then
+                Dim Response As String = ""
+                For Each ResponseString In e.LinguisticResponses
+                    If ResponseString <> "" Then
+                        Response = ResponseString
+                        Exit For
+                    End If
+                Next
+                If DirectCast(CurrentTestTrial, LevelAdjustmentTrial).TranslateResponse(Response) = False Then
                     Throw New Exception("Unable to interpret sound level rating response!")
                 End If
 
@@ -356,7 +370,7 @@ Public Class IHearProtocolB2SpeechTest
                 ObservedPreTestTrials.Add(CurrentTestTrial)
 
                 'Calculating the speech level
-                ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTestTrials)
+                ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedPreTestTrials)
 
             Else
 
@@ -394,6 +408,7 @@ Public Class IHearProtocolB2SpeechTest
 
         Else
             'Nothing to correct (this should be the start of a new test)
+            ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(New TrialHistory)
         End If
 
         'Preparing next trial if needed
@@ -409,7 +424,6 @@ Public Class IHearProtocolB2SpeechTest
     Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
         Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
-        CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
 
         If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode Then
 
@@ -421,7 +435,8 @@ Public Class IHearProtocolB2SpeechTest
                 .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                 .SpeechLevel = NextTaskInstruction.AdaptiveValue,
                 .TestStage = NextTaskInstruction.TestStage,
-                .Tasks = 1}
+                .Tasks = 1,
+                .ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))}
 
             Dim RatingStrings = LevelAdjustmentTrial.GetRatingStrings
             For Each RatingString In RatingStrings
@@ -446,22 +461,17 @@ Public Class IHearProtocolB2SpeechTest
                 .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                 .SpeechLevel = NextTaskInstruction.AdaptiveValue,
                 .TestStage = NextTaskInstruction.TestStage,
-                .Tasks = 1}
+                .Tasks = 1,
+                .ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))}
 
             If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 0 Then
-
-                CurrentTestTrial.Tasks = 0
                 For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
-
                     If CustomizableTestOptions.ScoreOnlyKeyWords = True Then
                         ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
                     Else
                         ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
                     End If
-
-                    CurrentTestTrial.Tasks += 1
                 Next
-
             End If
 
             'Setting trial events
@@ -485,9 +495,9 @@ Public Class IHearProtocolB2SpeechTest
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
         Dim TargetLevel_FS As Double
         If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
-            TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel)
-        Else
             TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, LevelAdjustmentTrial).SpeechLevel)
+        Else
+            TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel)
         End If
         Dim NeededGain = TargetLevel_FS - NominalLevel_FS
         Audio.DSP.AmplifySection(TestWordSound, NeededGain)
@@ -507,7 +517,10 @@ Public Class IHearProtocolB2SpeechTest
 
         'Mixing speech and noise
         Dim TestWordInsertionSample As Integer = TestWordSound.WaveFormat.SampleRate * TestWordPresentationTime
-        Audio.DSP.InsertSoundAt(MaskerNoise, TestWordSound, TestWordInsertionSample)
+        Dim Silence = Audio.GenerateSound.CreateSilence(TrialNoise.WaveFormat, 1, TestWordInsertionSample, Audio.BasicAudioEnums.TimeUnits.samples)
+        Audio.DSP.InsertSoundAt(TestWordSound, Silence, 0)
+        TestWordSound.ZeroPad(IntendedNoiseLength)
+        Dim TestSound = Audio.DSP.SuperpositionSounds({TestWordSound, TrialNoise}.ToList)
 
         'Creating contalateral masking noise (with the same length as the masking noise)
         Dim TrialContralateralNoise As Audio.Sound = Nothing
@@ -533,14 +546,14 @@ Public Class IHearProtocolB2SpeechTest
 
         If CustomizableTestOptions.SignalLocations(0).HorizontalAzimuth < 0 Then
             'Left test ear
-            CurrentTestTrial.Sound.WaveData.SampleData(1) = MaskerNoise.WaveData.SampleData(1)
+            CurrentTestTrial.Sound.WaveData.SampleData(1) = TestSound.WaveData.SampleData(1)
             If CustomizableTestOptions.UseContralateralMasking = True Then
                 CurrentTestTrial.Sound.WaveData.SampleData(2) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
 
         Else
             'Right test ear
-            CurrentTestTrial.Sound.WaveData.SampleData(2) = MaskerNoise.WaveData.SampleData(1)
+            CurrentTestTrial.Sound.WaveData.SampleData(2) = TestSound.WaveData.SampleData(1)
             If CustomizableTestOptions.UseContralateralMasking = True Then
                 CurrentTestTrial.Sound.WaveData.SampleData(1) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
@@ -550,6 +563,9 @@ Public Class IHearProtocolB2SpeechTest
 
 
     Public Overrides Function GetResults() As TestResults
-        Throw New NotImplementedException()
+
+        Return New TestResults(TestResults.TestResultTypes.SRS)
+
+        'Throw New NotImplementedException()
     End Function
 End Class

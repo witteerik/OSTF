@@ -4,6 +4,7 @@
 
     Public Enum TestResultTypes
         SRT
+        SRS
     End Enum
 
     Public SpeechRecognitionThreshold As Double

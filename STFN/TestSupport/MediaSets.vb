@@ -62,9 +62,11 @@ Public Class MediaSet
     ''' </summary>
     ''' <returns></returns>
     Public Property SharedMaskersLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
+    Public Property SharedContralateralMaskersLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
 
     Public Property MediaAudioItems As Integer = 5
     Public Property MaskerAudioItems As Integer = 5
+    Public Property ContralateralMaskerAudioItems As Integer = 0
     Public Property MediaImageItems As Integer = 0
     Public Property MaskerImageItems As Integer = 0
 
@@ -72,6 +74,7 @@ Public Class MediaSet
 
     Public Property MediaParentFolder As String = ""
     Public Property MaskerParentFolder As String = ""
+    Public Property ContralateralMaskerParentFolder As String = ""
 
     ''' <summary>
     ''' Should store the approximate sound pressure level (SPL) of the audio recorded in the auditory non-speech background sounds stored in BackgroundNonspeechParentFolder, and should represent an ecologically feasible situation
@@ -269,6 +272,16 @@ Public Class MediaSet
                 End If
             End If
 
+            If Line.StartsWith("SharedContralateralMaskersLevel") Then
+                Dim Value = InputFileSupport.InputFileEnumValueParsing(Line, GetType(SpeechMaterialComponent.LinguisticLevels), FilePath, True)
+                If Value.HasValue Then
+                    Output.SharedContralateralMaskersLevel = Value
+                Else
+                    MsgBox("Failed to read the SharedContralateralMaskersLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    Return Nothing
+                End If
+            End If
+
             If Line.StartsWith("MediaAudioItems") Then
                 Dim Value = InputFileSupport.InputFileIntegerValueParsing(Line, True, FilePath)
                 If Value.HasValue Then
@@ -285,6 +298,16 @@ Public Class MediaSet
                     Output.MaskerAudioItems = Value
                 Else
                     MsgBox("Failed to read the MaskerAudioItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    Return Nothing
+                End If
+            End If
+
+            If Line.StartsWith("ContralateralMaskerAudioItems") Then
+                Dim Value = InputFileSupport.InputFileIntegerValueParsing(Line, True, FilePath)
+                If Value.HasValue Then
+                    Output.ContralateralMaskerAudioItems = Value
+                Else
+                    MsgBox("Failed to read the ContralateralMaskerAudioItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
             End If
@@ -314,6 +337,8 @@ Public Class MediaSet
             If Line.StartsWith("MediaParentFolder") Then Output.MediaParentFolder = InputFileSupport.GetInputFileValue(Line, True)
 
             If Line.StartsWith("MaskerParentFolder") Then Output.MaskerParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+
+            If Line.StartsWith("ContralateralMaskerParentFolder") Then Output.ContralateralMaskerParentFolder = InputFileSupport.GetInputFileValue(Line, True)
 
             If Line.StartsWith("BackgroundNonspeechParentFolder") Then Output.BackgroundNonspeechParentFolder = InputFileSupport.GetInputFileValue(Line, True)
 
@@ -393,6 +418,7 @@ Public Class MediaSet
         Output.CustomVariablesFolder = Utils.NormalizeCrossPlatformPath(Output.CustomVariablesFolder)
         Output.LombardNoisePath = Utils.NormalizeCrossPlatformPath(Output.LombardNoisePath)
         Output.MaskerParentFolder = Utils.NormalizeCrossPlatformPath(Output.MaskerParentFolder)
+        Output.ContralateralMaskerParentFolder = Utils.NormalizeCrossPlatformPath(Output.ContralateralMaskerParentFolder)
         Output.MasterPrototypeRecordingPath = Utils.NormalizeCrossPlatformPath(Output.MasterPrototypeRecordingPath)
         Output.MediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.MediaParentFolder)
         Output.PrototypeMediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.PrototypeMediaParentFolder)

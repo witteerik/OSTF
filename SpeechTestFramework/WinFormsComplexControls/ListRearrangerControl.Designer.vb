@@ -31,6 +31,7 @@ Partial Class ListRearrangerControl
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.ListNamePrefix_TextBox = New System.Windows.Forms.TextBox()
+        Me.ListLength_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.Order_GroupBox = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.RandomOrder_RadioButton = New System.Windows.Forms.RadioButton()
@@ -39,17 +40,16 @@ Partial Class ListRearrangerControl
         Me.OrderInputHeading_GroupBox = New System.Windows.Forms.GroupBox()
         Me.OrderInput_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.CustomOrder_RadioButton = New System.Windows.Forms.RadioButton()
+        Me.BalanceItarations_Label = New System.Windows.Forms.Label()
+        Me.BalanceProportion_Label = New System.Windows.Forms.Label()
+        Me.BalanceItarations_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.FixedBalancePercentage_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.ReArrangeButton = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.NewMediaSetName_TextBox = New System.Windows.Forms.TextBox()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.NewSpeechMaterialName_TextBox = New System.Windows.Forms.TextBox()
         Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
-        Me.BalanceItarations_Label = New System.Windows.Forms.Label()
-        Me.BalanceProportion_Label = New System.Windows.Forms.Label()
-        Me.ListLength_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.BalanceItarations_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.FixedBalancePercentage_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.ListDescriptives_GroupBox.SuspendLayout()
@@ -179,6 +179,15 @@ Partial Class ListRearrangerControl
         Me.ListNamePrefix_TextBox.Size = New System.Drawing.Size(259, 20)
         Me.ListNamePrefix_TextBox.TabIndex = 2
         '
+        'ListLength_IntegerParsingTextBox
+        '
+        Me.ListLength_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ListLength_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.ListLength_IntegerParsingTextBox.Location = New System.Drawing.Point(268, 28)
+        Me.ListLength_IntegerParsingTextBox.Name = "ListLength_IntegerParsingTextBox"
+        Me.ListLength_IntegerParsingTextBox.Size = New System.Drawing.Size(259, 20)
+        Me.ListLength_IntegerParsingTextBox.TabIndex = 3
+        '
         'Order_GroupBox
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.Order_GroupBox, 2)
@@ -261,10 +270,10 @@ Partial Class ListRearrangerControl
         '
         Me.OrderInputHeading_GroupBox.Controls.Add(Me.OrderInput_TableLayoutPanel)
         Me.OrderInputHeading_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.OrderInputHeading_GroupBox.Location = New System.Drawing.Point(270, 3)
+        Me.OrderInputHeading_GroupBox.Location = New System.Drawing.Point(269, 3)
         Me.OrderInputHeading_GroupBox.Name = "OrderInputHeading_GroupBox"
         Me.TableLayoutPanel3.SetRowSpan(Me.OrderInputHeading_GroupBox, 7)
-        Me.OrderInputHeading_GroupBox.Size = New System.Drawing.Size(257, 249)
+        Me.OrderInputHeading_GroupBox.Size = New System.Drawing.Size(258, 249)
         Me.OrderInputHeading_GroupBox.TabIndex = 3
         Me.OrderInputHeading_GroupBox.TabStop = False
         Me.OrderInputHeading_GroupBox.Text = "Select variables to balance"
@@ -279,7 +288,7 @@ Partial Class ListRearrangerControl
         Me.OrderInput_TableLayoutPanel.Name = "OrderInput_TableLayoutPanel"
         Me.OrderInput_TableLayoutPanel.RowCount = 1
         Me.OrderInput_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.OrderInput_TableLayoutPanel.Size = New System.Drawing.Size(251, 230)
+        Me.OrderInput_TableLayoutPanel.Size = New System.Drawing.Size(252, 230)
         Me.OrderInput_TableLayoutPanel.TabIndex = 0
         '
         'CustomOrder_RadioButton
@@ -289,11 +298,50 @@ Partial Class ListRearrangerControl
         Me.CustomOrder_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
         Me.CustomOrder_RadioButton.Location = New System.Drawing.Point(3, 133)
         Me.CustomOrder_RadioButton.Name = "CustomOrder_RadioButton"
-        Me.CustomOrder_RadioButton.Size = New System.Drawing.Size(261, 20)
+        Me.CustomOrder_RadioButton.Size = New System.Drawing.Size(260, 20)
         Me.CustomOrder_RadioButton.TabIndex = 4
         Me.CustomOrder_RadioButton.TabStop = True
         Me.CustomOrder_RadioButton.Text = "Use custom (sentence SMC Id) order"
         Me.CustomOrder_RadioButton.UseVisualStyleBackColor = True
+        '
+        'BalanceItarations_Label
+        '
+        Me.BalanceItarations_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BalanceItarations_Label.Location = New System.Drawing.Point(25, 78)
+        Me.BalanceItarations_Label.Name = "BalanceItarations_Label"
+        Me.BalanceItarations_Label.Size = New System.Drawing.Size(179, 26)
+        Me.BalanceItarations_Label.TabIndex = 5
+        Me.BalanceItarations_Label.Text = "Iterations"
+        Me.BalanceItarations_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'BalanceProportion_Label
+        '
+        Me.BalanceProportion_Label.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BalanceProportion_Label.Location = New System.Drawing.Point(25, 104)
+        Me.BalanceProportion_Label.Name = "BalanceProportion_Label"
+        Me.BalanceProportion_Label.Size = New System.Drawing.Size(179, 26)
+        Me.BalanceProportion_Label.TabIndex = 6
+        Me.BalanceProportion_Label.Text = "(Optional) fixed throw proportion (%)"
+        Me.BalanceProportion_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'BalanceItarations_IntegerParsingTextBox
+        '
+        Me.BalanceItarations_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BalanceItarations_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.BalanceItarations_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 81)
+        Me.BalanceItarations_IntegerParsingTextBox.Name = "BalanceItarations_IntegerParsingTextBox"
+        Me.BalanceItarations_IntegerParsingTextBox.Size = New System.Drawing.Size(53, 20)
+        Me.BalanceItarations_IntegerParsingTextBox.TabIndex = 7
+        Me.BalanceItarations_IntegerParsingTextBox.Text = "30000"
+        '
+        'FixedBalancePercentage_IntegerParsingTextBox
+        '
+        Me.FixedBalancePercentage_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.FixedBalancePercentage_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.FixedBalancePercentage_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 107)
+        Me.FixedBalancePercentage_IntegerParsingTextBox.Name = "FixedBalancePercentage_IntegerParsingTextBox"
+        Me.FixedBalancePercentage_IntegerParsingTextBox.Size = New System.Drawing.Size(53, 20)
+        Me.FixedBalancePercentage_IntegerParsingTextBox.TabIndex = 8
         '
         'ReArrangeButton
         '
@@ -339,54 +387,6 @@ Partial Class ListRearrangerControl
         Me.NewSpeechMaterialName_TextBox.Name = "NewSpeechMaterialName_TextBox"
         Me.NewSpeechMaterialName_TextBox.Size = New System.Drawing.Size(265, 20)
         Me.NewSpeechMaterialName_TextBox.TabIndex = 7
-        '
-        'BalanceItarations_Label
-        '
-        Me.BalanceItarations_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BalanceItarations_Label.Location = New System.Drawing.Point(25, 78)
-        Me.BalanceItarations_Label.Name = "BalanceItarations_Label"
-        Me.BalanceItarations_Label.Size = New System.Drawing.Size(179, 26)
-        Me.BalanceItarations_Label.TabIndex = 5
-        Me.BalanceItarations_Label.Text = "Iterations"
-        Me.BalanceItarations_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'BalanceProportion_Label
-        '
-        Me.BalanceProportion_Label.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BalanceProportion_Label.Location = New System.Drawing.Point(25, 104)
-        Me.BalanceProportion_Label.Name = "BalanceProportion_Label"
-        Me.BalanceProportion_Label.Size = New System.Drawing.Size(179, 26)
-        Me.BalanceProportion_Label.TabIndex = 6
-        Me.BalanceProportion_Label.Text = "(Optional) fixed throw proportion (%)"
-        Me.BalanceProportion_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'ListLength_IntegerParsingTextBox
-        '
-        Me.ListLength_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ListLength_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.ListLength_IntegerParsingTextBox.Location = New System.Drawing.Point(268, 28)
-        Me.ListLength_IntegerParsingTextBox.Name = "ListLength_IntegerParsingTextBox"
-        Me.ListLength_IntegerParsingTextBox.Size = New System.Drawing.Size(259, 20)
-        Me.ListLength_IntegerParsingTextBox.TabIndex = 3
-        '
-        'BalanceItarations_IntegerParsingTextBox
-        '
-        Me.BalanceItarations_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BalanceItarations_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.BalanceItarations_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 81)
-        Me.BalanceItarations_IntegerParsingTextBox.Name = "BalanceItarations_IntegerParsingTextBox"
-        Me.BalanceItarations_IntegerParsingTextBox.Size = New System.Drawing.Size(54, 20)
-        Me.BalanceItarations_IntegerParsingTextBox.TabIndex = 7
-        Me.BalanceItarations_IntegerParsingTextBox.Text = "30000"
-        '
-        'FixedBalancePercentage_IntegerParsingTextBox
-        '
-        Me.FixedBalancePercentage_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.FixedBalancePercentage_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.FixedBalancePercentage_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 107)
-        Me.FixedBalancePercentage_IntegerParsingTextBox.Name = "FixedBalancePercentage_IntegerParsingTextBox"
-        Me.FixedBalancePercentage_IntegerParsingTextBox.Size = New System.Drawing.Size(54, 20)
-        Me.FixedBalancePercentage_IntegerParsingTextBox.TabIndex = 8
         '
         'ListRearrangerControl
         '
