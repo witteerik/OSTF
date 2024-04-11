@@ -23,9 +23,9 @@ Public Module OstfBase
         ''' </summary>
         PaBased
         ''' <summary>
-        ''' A media player type using the MAUI Community Toolkit Media Element library
+        ''' A sound player MediaPlayerType using Android AudioTrack feature
         ''' </summary>
-        MctBased
+        AudioTrackBased
         ''' <summary>
         ''' The default media player type for the specified platform as defined by OSTF.
         ''' </summary>
@@ -112,9 +112,6 @@ Public Module OstfBase
                             CurrentMediaPlayerType = MediaPlayerTypes.PaBased
                         Case Platforms.Unknown
                             Throw New Exception("Unable to initialize media player for " & CurrentPlatForm.ToString & " platform type! The application may not work as intended!")
-                        Case Else
-                            'Selects MAUI community toolkit media element as media player type
-                            CurrentMediaPlayerType = MediaPlayerTypes.MctBased
                     End Select
 
                 Case MediaPlayerTypes.PaBased
@@ -128,13 +125,13 @@ Public Module OstfBase
                             Throw New Exception("Unable to initialize media player for " & CurrentPlatForm.ToString & " platform type! The application may not work as intended!")
                     End Select
 
-                Case MediaPlayerTypes.MctBased
+                    'Case MediaPlayerTypes.MctBased
 
-                    'MctBased should work on all platforms except possibly "Unknown" ??. Thowing an exception for this,. TODO: Check what happens in the MctBased media player if platform is unknown (hmmm, difficult to check since it would have to be run from an "unknown" platform)
-                    Select Case CurrentPlatForm
-                        Case Platforms.Unknown
-                            Throw New Exception("Unable to initialize media player for " & CurrentPlatForm.ToString & " platform type! The application may not work as intended!")
-                    End Select
+                    '    'MctBased should work on all platforms except possibly "Unknown" ??. Thowing an exception for this,. TODO: Check what happens in the MctBased media player if platform is unknown (hmmm, difficult to check since it would have to be run from an "unknown" platform)
+                    '    Select Case CurrentPlatForm
+                    '        Case Platforms.Unknown
+                    '            Throw New Exception("Unable to initialize media player for " & CurrentPlatForm.ToString & " platform type! The application may not work as intended!")
+                    '    End Select
 
             End Select
 
