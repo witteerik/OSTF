@@ -3548,29 +3548,57 @@ Public Class Form4
         'FR.Add(New Tuple(Of Single, Single)(4000, -18))
         'FR.Add(New Tuple(Of Single, Single)(8000, -27))
 
-        'One-third octave bands
-        FR.Add(New Tuple(Of Single, Single)(125 / 4, -15))
-        FR.Add(New Tuple(Of Single, Single)(125 / 2, -12))
-        FR.Add(New Tuple(Of Single, Single)(125, -9))
-        FR.Add(New Tuple(Of Single, Single)(160, -8))
-        FR.Add(New Tuple(Of Single, Single)(200, -7))
-        FR.Add(New Tuple(Of Single, Single)(250, -6))
-        FR.Add(New Tuple(Of Single, Single)(315, -5))
-        FR.Add(New Tuple(Of Single, Single)(400, -4))
-        FR.Add(New Tuple(Of Single, Single)(500, -3))
-        FR.Add(New Tuple(Of Single, Single)(630, -2))
-        FR.Add(New Tuple(Of Single, Single)(800, -1))
-        FR.Add(New Tuple(Of Single, Single)(1000, 0))
-        FR.Add(New Tuple(Of Single, Single)(1250, -3))
-        FR.Add(New Tuple(Of Single, Single)(1600, -6))
-        FR.Add(New Tuple(Of Single, Single)(2000, -9))
-        FR.Add(New Tuple(Of Single, Single)(2500, -12))
-        FR.Add(New Tuple(Of Single, Single)(3150, -15))
-        FR.Add(New Tuple(Of Single, Single)(4000, -18))
-        FR.Add(New Tuple(Of Single, Single)(5000, -21))
-        FR.Add(New Tuple(Of Single, Single)(6300, -24))
-        FR.Add(New Tuple(Of Single, Single)(8000, -27))
-        FR.Add(New Tuple(Of Single, Single)(16000, -36))
+        ''Octave bands - flat spectrum levels
+        'FR.Add(New Tuple(Of Single, Single)(125 / 8, 9))
+        'FR.Add(New Tuple(Of Single, Single)(125 / 4, 6))
+        'FR.Add(New Tuple(Of Single, Single)(125 / 2, 3))
+        'FR.Add(New Tuple(Of Single, Single)(125, 0))
+        'FR.Add(New Tuple(Of Single, Single)(250, -3))
+        'FR.Add(New Tuple(Of Single, Single)(500, -6))
+        'FR.Add(New Tuple(Of Single, Single)(1000, -9))
+        'FR.Add(New Tuple(Of Single, Single)(2000, -12))
+        'FR.Add(New Tuple(Of Single, Single)(4000, -15))
+        'FR.Add(New Tuple(Of Single, Single)(8000, -18))
+
+        '''One-third octave bands
+        'FR.Add(New Tuple(Of Single, Single)(125 / 4, 7))
+        'FR.Add(New Tuple(Of Single, Single)(125 / 2, 4))
+        'FR.Add(New Tuple(Of Single, Single)(125, 1))
+        'FR.Add(New Tuple(Of Single, Single)(160, 0))
+        'FR.Add(New Tuple(Of Single, Single)(200, -1))
+        'FR.Add(New Tuple(Of Single, Single)(250, -2))
+        'FR.Add(New Tuple(Of Single, Single)(315, -3))
+        'FR.Add(New Tuple(Of Single, Single)(400, -4))
+        'FR.Add(New Tuple(Of Single, Single)(500, -5))
+        'FR.Add(New Tuple(Of Single, Single)(630, -6))
+        'FR.Add(New Tuple(Of Single, Single)(800, -7))
+        'FR.Add(New Tuple(Of Single, Single)(1000, -8))
+        'FR.Add(New Tuple(Of Single, Single)(1250, -13))
+        'FR.Add(New Tuple(Of Single, Single)(1600, -18))
+        'FR.Add(New Tuple(Of Single, Single)(2000, -23))
+        'FR.Add(New Tuple(Of Single, Single)(2500, -28))
+        'FR.Add(New Tuple(Of Single, Single)(3150, -33))
+        'FR.Add(New Tuple(Of Single, Single)(4000, -38))
+        'FR.Add(New Tuple(Of Single, Single)(5000, -43))
+        'FR.Add(New Tuple(Of Single, Single)(6300, -48))
+        'FR.Add(New Tuple(Of Single, Single)(8000, -53))
+        'FR.Add(New Tuple(Of Single, Single)(16000, -68))
+        'FR.Add(New Tuple(Of Single, Single)(22000, -75))
+        'FR.Add(New Tuple(Of Single, Single)(24000, -75))
+
+        ''Octave bands
+        FR.Add(New Tuple(Of Single, Single)(31.25, 0))
+        FR.Add(New Tuple(Of Single, Single)(62.5, -3))
+        FR.Add(New Tuple(Of Single, Single)(125, -6))
+        FR.Add(New Tuple(Of Single, Single)(250, -9))
+        FR.Add(New Tuple(Of Single, Single)(500, -12))
+        FR.Add(New Tuple(Of Single, Single)(1000, -15))
+        FR.Add(New Tuple(Of Single, Single)(2000, -30))
+        FR.Add(New Tuple(Of Single, Single)(4000, -57))
+        FR.Add(New Tuple(Of Single, Single)(8000, -96))
+        FR.Add(New Tuple(Of Single, Single)(16000, -147))
+
+
 
         Dim IR = Audio.GenerateSound.CreateCustumImpulseResponse(FR, Nothing, New Audio.Formats.WaveFormat(48000, 32, 1,,
                                                                                                 Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), New Audio.Formats.FftFormat(2048), 2048)
@@ -3581,7 +3609,8 @@ Public Class Form4
         'Runs convolution with the kernel
         Dim NoiseSound = SpeechTestFramework.Audio.DSP.FIRFilter(InternalNoiseSound, IR, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
 
-        NoiseSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "SWN_3rdOB_3.wav"))
+        NoiseSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "SWN_3rdOB_5.wav"))
+        'NoiseSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "SWN_1OB_Flat2.wav"))
 
     End Sub
 

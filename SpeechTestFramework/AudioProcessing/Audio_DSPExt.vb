@@ -7357,6 +7357,91 @@ Namespace Audio
             End Structure
 
 
+            Public Class OctaveBands
+
+                Public ReadOnly CentreFrequencies As Double()
+                Public ReadOnly LowerCutoffFrequencies As Double()
+                Public ReadOnly UpperCutoffFrequencies As Double()
+
+                Public Sub New(ByVal LowestBandCentrefrequency As Double, ByVal NumberOfBands As Integer)
+
+                    Dim Fc As Double = LowestBandCentrefrequency
+                    Dim CentreFrequencies As New List(Of Double)
+                    Dim LowerCutoffFrequencies As New List(Of Double)
+                    Dim UpperCutoffFrequencies As New List(Of Double)
+
+                    For b = 0 To NumberOfBands - 1
+                        CentreFrequencies.Add(Fc)
+                        LowerCutoffFrequencies.Add(Fc / Math.Sqrt(2))
+                        UpperCutoffFrequencies.Add(Fc * Math.Sqrt(2))
+                        Fc *= 2
+                    Next
+
+                    Me.CentreFrequencies = CentreFrequencies.ToArray
+                    Me.LowerCutoffFrequencies = LowerCutoffFrequencies.ToArray
+                    Me.UpperCutoffFrequencies = UpperCutoffFrequencies.ToArray
+
+                End Sub
+
+            End Class
+
+            Public Class HalfOctaveBands
+
+                Public ReadOnly CentreFrequencies As Double()
+                Public ReadOnly LowerCutoffFrequencies As Double()
+                Public ReadOnly UpperCutoffFrequencies As Double()
+
+                Public Sub New(ByVal LowestBandCentrefrequency As Double, ByVal NumberOfBands As Integer)
+
+                    Dim Fc As Double = LowestBandCentrefrequency
+                    Dim CentreFrequencies As New List(Of Double)
+                    Dim LowerCutoffFrequencies As New List(Of Double)
+                    Dim UpperCutoffFrequencies As New List(Of Double)
+
+                    For b = 0 To NumberOfBands - 1
+                        CentreFrequencies.Add(Fc)
+                        LowerCutoffFrequencies.Add(Fc / Math.Pow(2, 1 / 4))
+                        UpperCutoffFrequencies.Add(Fc * Math.Pow(2, 1 / 4))
+                        Fc *= Math.Pow(2, 1 / 2)
+                    Next
+
+                    Me.CentreFrequencies = CentreFrequencies.ToArray
+                    Me.LowerCutoffFrequencies = LowerCutoffFrequencies.ToArray
+                    Me.UpperCutoffFrequencies = UpperCutoffFrequencies.ToArray
+
+                End Sub
+
+            End Class
+
+            Public Class ThirdOctaveBands
+
+                Public ReadOnly CentreFrequencies As Double()
+                Public ReadOnly LowerCutoffFrequencies As Double()
+                Public ReadOnly UpperCutoffFrequencies As Double()
+
+                Public Sub New(ByVal LowestBandCentrefrequency As Double, ByVal NumberOfBands As Integer)
+
+                    Dim Fc As Double = LowestBandCentrefrequency
+                    Dim CentreFrequencies As New List(Of Double)
+                    Dim LowerCutoffFrequencies As New List(Of Double)
+                    Dim UpperCutoffFrequencies As New List(Of Double)
+
+                    For b = 0 To NumberOfBands - 1
+                        CentreFrequencies.Add(Fc)
+                        LowerCutoffFrequencies.Add(Fc / Math.Pow(2, 1 / 6))
+                        UpperCutoffFrequencies.Add(Fc * Math.Pow(2, 1 / 6))
+                        Fc *= Math.Pow(2, 1 / 3)
+                    Next
+
+                    Me.CentreFrequencies = CentreFrequencies.ToArray
+                    Me.LowerCutoffFrequencies = LowerCutoffFrequencies.ToArray
+                    Me.UpperCutoffFrequencies = UpperCutoffFrequencies.ToArray
+
+                End Sub
+
+            End Class
+
+
         End Module
 
 
@@ -7425,6 +7510,56 @@ Namespace Audio
                     Return UpperFrequencyLimit - LowerFrequencyLimit
                 End Function
             End Class
+
+
+            Public Shared Function GetOctaveBandBank(Optional ByVal LowestBandCentrefrequency As Double = 62.5, Optional ByVal NumberOfBands As Integer = 9) As BandBank
+
+                Dim OutputBankBank As New BandBank
+
+                Dim OctaveBands = New OctaveBands(LowestBandCentrefrequency, NumberOfBands)
+
+                For n = 0 To OctaveBands.CentreFrequencies.Length - 1
+                    OutputBankBank.Add(New BandInfo(OctaveBands.CentreFrequencies(n),
+                                                    OctaveBands.LowerCutoffFrequencies(n),
+                                                    OctaveBands.UpperCutoffFrequencies(n)))
+                Next
+
+                Return OutputBankBank
+
+            End Function
+
+
+            Public Shared Function GetHalfOctaveBands(Optional ByVal LowestBandCentrefrequency As Double = 62.5, Optional ByVal NumberOfBands As Integer = 9) As BandBank
+
+                Dim OutputBankBank As New BandBank
+
+                Dim HalfOctaveBands = New HalfOctaveBands(LowestBandCentrefrequency, NumberOfBands)
+
+                For n = 0 To HalfOctaveBands.CentreFrequencies.Length - 1
+                    OutputBankBank.Add(New BandInfo(HalfOctaveBands.CentreFrequencies(n),
+                                                    HalfOctaveBands.LowerCutoffFrequencies(n),
+                                                    HalfOctaveBands.UpperCutoffFrequencies(n)))
+                Next
+
+                Return OutputBankBank
+
+            End Function
+
+            Public Shared Function GetThirdOctaveBandBank(Optional ByVal LowestBandCentrefrequency As Double = 62.5, Optional ByVal NumberOfBands As Integer = 9) As BandBank
+
+                Dim OutputBankBank As New BandBank
+
+                Dim ThirdOctaveBands = New ThirdOctaveBands(LowestBandCentrefrequency, NumberOfBands)
+
+                For n = 0 To ThirdOctaveBands.CentreFrequencies.Length - 1
+                    OutputBankBank.Add(New BandInfo(ThirdOctaveBands.CentreFrequencies(n),
+                                                    ThirdOctaveBands.LowerCutoffFrequencies(n),
+                                                    ThirdOctaveBands.UpperCutoffFrequencies(n)))
+                Next
+
+                Return OutputBankBank
+
+            End Function
 
             Public Shared Function GetSiiCriticalRatioBandBank() As BandBank
 
