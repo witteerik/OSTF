@@ -120,7 +120,12 @@
   <data name="TextBox1.Text" xml:space="preserve">
     <value>Use this functionality to create masking noise sound files for the selected media set.
 Specify level of the masking noise, in dB SNR related to the nominal level of the speech material, and the desired duration of the masking noise (in seconds).
-Specify also what type of masking noise you want, either White, Actual Speech Weighted (generated from the speech material), or Standard Speech Weighted.
+Specify also what type of masking noise you want, either:
+
+ - White, 
+ - Random superposition of speech material (Speech Weighted)
+ - Speech material weighted, or
+ - Standard speech weighted
 
 Finally press 'Create masking noise' and wait! You will be notified when the process is finished.
 </value>

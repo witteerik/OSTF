@@ -1,4 +1,5 @@
-﻿Imports SpeechTestFramework.MediaSetSetupControl
+﻿Imports SpeechTestFramework.CreateMaskersControl
+Imports SpeechTestFramework.MediaSetSetupControl
 
 Public Class CreateMaskersControl
 
@@ -44,13 +45,19 @@ Public Class CreateMaskersControl
         NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.RandomSuperposition)
         NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.SpeechMaterialWeighted)
         NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.StandardSpeechWeighted)
-        NoiseType_ComboBox.SelectedIndex = 0
+        NoiseType_ComboBox.SelectedIndex = 2
 
         NoiseFrequencyWheighting_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
         NoiseFrequencyWheighting_ComboBox.Items.Add(Audio.FrequencyWeightings.C)
         NoiseFrequencyWheighting_ComboBox.Items.Add(Audio.FrequencyWeightings.K)
         NoiseFrequencyWheighting_ComboBox.Items.Add(Audio.FrequencyWeightings.RLB)
-        NoiseFrequencyWheighting_ComboBox.SelectedIndex = 0
+        NoiseFrequencyWheighting_ComboBox.SelectedIndex = 1
+
+        SpeechMatchFilterType_ComboBox.Items.Add(SpeechMatchFilterTypes.OctaveBands)
+        SpeechMatchFilterType_ComboBox.Items.Add(SpeechMatchFilterTypes.HalfOctaveBands)
+        SpeechMatchFilterType_ComboBox.Items.Add(SpeechMatchFilterTypes.ThirdOctaveBands)
+        SpeechMatchFilterType_ComboBox.Items.Add(SpeechMatchFilterTypes.SiiCriticalBands)
+        SpeechMatchFilterType_ComboBox.SelectedIndex = 1
 
     End Sub
 
@@ -63,6 +70,16 @@ Public Class CreateMaskersControl
             NumberOfOverlays_IntegerParsingTextBox.Enabled = False
         End If
 
+        If NoiseType_ComboBox.SelectedItem = GenerateSnrRangeStimuli_NoiseTypes.SpeechMaterialWeighted Then
+            SpeechMatchFilterType_ComboBox.Enabled = True
+            Smoothen_IntegerParsingTextBox.Enabled = True
+            RowingAverageLength_IntegerParsingTextBox.Enabled = True
+        Else
+            SpeechMatchFilterType_ComboBox.Enabled = False
+            Smoothen_IntegerParsingTextBox.Enabled = False
+            RowingAverageLength_IntegerParsingTextBox.Enabled = False
+        End If
+
     End Sub
 
     Public Enum GenerateSnrRangeStimuli_NoiseTypes
@@ -71,6 +88,14 @@ Public Class CreateMaskersControl
         SpeechMaterialWeighted
         StandardSpeechWeighted
     End Enum
+
+    Public Enum SpeechMatchFilterTypes
+        SiiCriticalBands
+        OctaveBands
+        HalfOctaveBands
+        ThirdOctaveBands
+    End Enum
+
 
     Private Sub CreateNoise_Button_Click(sender As Object, e As EventArgs) Handles CreateNoise_Button.Click
 
@@ -104,7 +129,6 @@ Public Class CreateMaskersControl
             End If
         End If
 
-
         Dim NoiseFrequencyWeighting As Audio.FrequencyWeightings = NoiseFrequencyWheighting_ComboBox.SelectedItem
 
         'Asks the user for an output path.
@@ -117,6 +141,25 @@ Public Class CreateMaskersControl
             OutputFolder = fbd.SelectedPath
         Else
             Exit Sub
+        End If
+
+        Dim SpeechMatchFilterType As SpeechMatchFilterTypes = SpeechMatchFilterType_ComboBox.SelectedItem
+        Dim SmoothCount As Integer = 0
+        If Smoothen_IntegerParsingTextBox.Value.HasValue Then
+            SmoothCount = Smoothen_IntegerParsingTextBox.Value
+            If SmoothCount < 0 Then
+                MsgBox("Smoothening of noise spectrum must be a non-negative integer value!")
+                Exit Sub
+            End If
+        End If
+
+        Dim RowingAverageLength As Integer = 2 ' Using 2 as default
+        If RowingAverageLength_IntegerParsingTextBox.Value.HasValue Then
+            RowingAverageLength = RowingAverageLength_IntegerParsingTextBox.Value
+            If RowingAverageLength < 0 Then
+                MsgBox("Rowing average length must be a non-negative integer value!")
+                Exit Sub
+            End If
         End If
 
         'All arguments ok, now start processing
@@ -175,58 +218,66 @@ Public Class CreateMaskersControl
                 'Getting all speech sound sections concatenated
                 Dim AllSoundsConcatenated = Audio.DSP.ConcatenateSounds(LoadedSoundFiles.Values.ToList,,,, False,)
 
-                'AllSoundsConcatenated = Audio.GenerateSound.CreateOverlayNoise(AllSoundsConcatenated, 1000, (TotalNoiseLength / WaveFormat.SampleRate) + 1)
+                'Creating a band filter
+                Dim BandBank As Audio.DSP.BandBank = Nothing
 
-                'Creating a critical band filter
-                Dim BandBank = Audio.DSP.BandBank.GetHalfOctaveBands(62.5, 17)
-                'Dim BandBank = Audio.DSP.BandBank.GetThirdOctaveBandBank(62.5, 25)
+                Select Case SpeechMatchFilterType
+                    Case SpeechMatchFilterTypes.SiiCriticalBands
+                        BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+                    Case SpeechMatchFilterTypes.OctaveBands
+                        BandBank = Audio.DSP.BandBank.GetOctaveBandBank(62.5, 8)
+                    Case SpeechMatchFilterTypes.HalfOctaveBands
+                        BandBank = Audio.DSP.BandBank.GetHalfOctaveBands(62.5, 17)
+                    Case SpeechMatchFilterTypes.ThirdOctaveBands
+                        BandBank = Audio.DSP.BandBank.GetThirdOctaveBandBank(62.5, 25)
+                    Case Else
+                        Throw New NotImplementedException("Unknown filter type" & SpeechMatchFilterType.ToString)
+                End Select
 
+                'Calculating spectrum levels 
                 Dim FftFormat = New Audio.Formats.FftFormat(4096,, 2048, Audio.WindowingType.Hanning, True)
                 Dim BandLevels = Audio.DSP.CalculateSpectrumLevels(AllSoundsConcatenated, 1, BandBank, FftFormat)
 
-                Dim InterpolatedBandLevels As New List(Of Double)
-                Dim FlowLength As Integer = 2
-                For i = 0 To BandLevels.Count - 1
-                    Dim AverageList As New List(Of Double)
-                    For f = 0 To FlowLength - 1
-                        If f + i < BandLevels.Count Then
-                            AverageList.Add(BandLevels(i + f))
-                        End If
+                'Applies a smoothening function to the band levels
+                If SmoothCount > 0 Then
+
+                    Dim AveragedBandLevels As New List(Of Double)
+                    For i = 0 To BandLevels.Count - 1
+                        Dim AverageList As New List(Of Double)
+                        For f = 0 To RowingAverageLength - 1
+                            If f + i < BandLevels.Count Then
+                                AverageList.Add(BandLevels(i + f))
+                            End If
+                        Next
+                        If AverageList.Count > 0 Then AveragedBandLevels.Add(AverageList.Average)
                     Next
-                    If AverageList.Count > 0 Then InterpolatedBandLevels.Add(AverageList.Average)
-                Next
 
-                'For r = 0 To 20
-                '    Dim ReversedInterpolatedBandLevels As New List(Of Double)
-
-                '    InterpolatedBandLevels.Reverse()
-
-                '    For i = 0 To InterpolatedBandLevels.Count - 1
-                '        Dim AverageList As New List(Of Double)
-                '        For f = 0 To FlowLength - 1
-                '            If f + i < InterpolatedBandLevels.Count Then
-                '                AverageList.Add(InterpolatedBandLevels(i + f))
-                '            End If
-                '        Next
-                '        If AverageList.Count > 0 Then ReversedInterpolatedBandLevels.Add(AverageList.Average)
-                '    Next
-
-                '    InterpolatedBandLevels = ReversedInterpolatedBandLevels
-
-                'Next
-
-                'InterpolatedBandLevels.Reverse()
+                    For r = 0 To SmoothCount * 2
+                        Dim ReversedInterpolatedBandLevels As New List(Of Double)
+                        AveragedBandLevels.Reverse()
+                        For i = 0 To AveragedBandLevels.Count - 1
+                            Dim AverageList As New List(Of Double)
+                            For f = 0 To RowingAverageLength - 1
+                                If f + i < AveragedBandLevels.Count Then
+                                    AverageList.Add(AveragedBandLevels(i + f))
+                                End If
+                            Next
+                            If AverageList.Count > 0 Then ReversedInterpolatedBandLevels.Add(AverageList.Average)
+                        Next
+                        AveragedBandLevels = ReversedInterpolatedBandLevels
+                    Next
+                    AveragedBandLevels.Reverse()
+                    BandLevels = AveragedBandLevels
+                End If
 
                 'Creating a FIR filter kernel with the band levels
                 Dim FR As New List(Of Tuple(Of Single, Single))
                 Dim Fc = BandBank.GetCentreFrequencies.ToList
-                'FR.Add(New Tuple(Of Single, Single)(1, InterpolatedBandLevels.First - 50))
-                For i = 0 To InterpolatedBandLevels.Count - 1
-                    FR.Add(New Tuple(Of Single, Single)(Fc(i), InterpolatedBandLevels(i)))
+                For i = 0 To BandLevels.Count - 1
+                    FR.Add(New Tuple(Of Single, Single)(Fc(i), BandLevels(i)))
                 Next
-                'FR.Add(New Tuple(Of Single, Single)((16000) - 1, InterpolatedBandLevels.Last - 12))
-                FR.Add(New Tuple(Of Single, Single)((WaveFormat.SampleRate / 2) - 1, InterpolatedBandLevels.Last - 30))
-
+                'Adding a last point manually at the highest available frequency
+                FR.Add(New Tuple(Of Single, Single)((WaveFormat.SampleRate / 2) - 1, BandLevels.Last - 30))
 
                 Dim IR = Audio.GenerateSound.CreateCustumImpulseResponse(FR, Nothing, WaveFormat, New Audio.Formats.FftFormat(4096), 4096)
 
@@ -237,75 +288,15 @@ Public Class CreateMaskersControl
                 NoiseSound = SpeechTestFramework.Audio.DSP.FIRFilter(InternalNoiseSound, IR, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
 
 
-                'Case GenerateSnrRangeStimuli_NoiseTypes.SpeechMaterialWeighted
-                '    'Getting all speech sound sections concatenated
-                '    Dim AllSoundsConcatenated = Audio.DSP.ConcatenateSounds(LoadedSoundFiles.Values.ToList,,,, False,)
-
-                '    'AllSoundsConcatenated = Audio.GenerateSound.CreateOverlayNoise(AllSoundsConcatenated, 1000, (TotalNoiseLength / WaveFormat.SampleRate) + 1)
-
-                '    'Creating a critical band filter
-                '    Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
-                '    Dim FftFormat = New Audio.Formats.FftFormat(4096,, 2048, Audio.WindowingType.Hanning, True)
-                '    Dim BandLevels = Audio.DSP.CalculateSpectrumLevels(AllSoundsConcatenated, 1, BandBank, FftFormat)
-
-                '    Dim InterpolatedBandLevels As New List(Of Double)
-                '    Dim FlowLength As Integer = 2
-                '    For i = 0 To BandLevels.Count - 1
-                '        Dim AverageList As New List(Of Double)
-                '        For f = 0 To FlowLength - 1
-                '            If f + i < BandLevels.Count Then
-                '                AverageList.Add(BandLevels(i + f))
-                '            End If
-                '        Next
-                '        If AverageList.Count > 0 Then InterpolatedBandLevels.Add(AverageList.Average)
-                '    Next
-
-                '    For r = 0 To 20
-                '        Dim ReversedInterpolatedBandLevels As New List(Of Double)
-
-                '        InterpolatedBandLevels.Reverse()
-
-                '        For i = 0 To InterpolatedBandLevels.Count - 1
-                '            Dim AverageList As New List(Of Double)
-                '            For f = 0 To FlowLength - 1
-                '                If f + i < InterpolatedBandLevels.Count Then
-                '                    AverageList.Add(InterpolatedBandLevels(i + f))
-                '                End If
-                '            Next
-                '            If AverageList.Count > 0 Then ReversedInterpolatedBandLevels.Add(AverageList.Average)
-                '        Next
-
-                '        InterpolatedBandLevels = ReversedInterpolatedBandLevels
-
-                '    Next
-
-                '    InterpolatedBandLevels.Reverse()
-
-                '    'Creating a FIR filter kernel with the band levels
-                '    Dim FR As New List(Of Tuple(Of Single, Single))
-                '    Dim Fc = BandBank.GetCentreFrequencies.ToList
-                '    FR.Add(New Tuple(Of Single, Single)(1, InterpolatedBandLevels.First - 50))
-                '    For i = 0 To InterpolatedBandLevels.Count - 1
-                '        FR.Add(New Tuple(Of Single, Single)(Fc(i), InterpolatedBandLevels(i)))
-                '    Next
-                '    FR.Add(New Tuple(Of Single, Single)((16000) - 1, InterpolatedBandLevels.Last - 6))
-                '    FR.Add(New Tuple(Of Single, Single)((WaveFormat.SampleRate / 2) - 1, InterpolatedBandLevels.Last - 12))
-
-
-                '    Dim IR = Audio.GenerateSound.CreateCustumImpulseResponse(FR, Nothing, WaveFormat, New Audio.Formats.FftFormat(4096), 4096)
-
-                '    'Creates a white noise
-                '    Dim InternalNoiseSound = Audio.GenerateSound.CreateWhiteNoise(IR.WaveFormat, 1, , TotalNoiseLength, Audio.BasicAudioEnums.TimeUnits.samples)
-
-                '    'Runs convolution with the kernel
-                '    NoiseSound = SpeechTestFramework.Audio.DSP.FIRFilter(InternalNoiseSound, IR, New SpeechTestFramework.Audio.Formats.FftFormat, ,,,,, True)
-
-
                 'Case GenerateSnrRangeStimuli_NoiseTypes.ThresholdSimulating
 
                 '    'Creating TSN
                 '    NoiseSound = CreateThresholdSimulatingNoise(WaveFormat, IntendedPresentationLevel, Math.Ceiling(TotalNoiseLength))
 
+            Case GenerateSnrRangeStimuli_NoiseTypes.StandardSpeechWeighted
+                Throw New NotImplementedException()
+            Case Else
+                Throw New NotImplementedException("Unknown noise type!")
         End Select
 
         'Setting the noise level to the Nominal Level, using indicated frequency weighting
