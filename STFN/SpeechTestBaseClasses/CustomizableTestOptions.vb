@@ -514,4 +514,13 @@ Public Class CustomizableTestOptions
     Public Property SelectedPhaseAudiometryTypeTitle As String = "Fasaudiometrityp"
 
 
+    Public Property PreListenTitle As String = "Provlyssna"
+    Public Property PreListenPlayButtonTitle As String = "Spela nästa"
+    Public Property PreListenStopButtonTitle As String = "Stop"
+    Public Property PreListenLouderButtonTitle As String = "Öka nivån (5 dB)"
+    Public Property PreListenSofterButtonTitle As String = "Minska nivån (5 dB)"
+    Public Property OpenTalkbackChannelTitle As String = "Talkback på"
+    Public Property CloseTalkbackChannelTitle As String = "Talkback av"
+
+
 End Class

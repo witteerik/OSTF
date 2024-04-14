@@ -151,6 +151,33 @@
 
             <Picker x:Name="AvailablePhaseAudiometryTypes_Picker"  Title="{Binding SelectedPhaseAudiometryTypeTitle}" ItemsSource="{Binding SelectedTest.AvailablePhaseAudiometryTypes}" SelectedItem="{Binding SelectedPhaseAudiometryType}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
 
+            <Frame x:Name="PreListenControl" BackgroundColor="WhiteSmoke"  BorderColor="Black">
+
+                <VerticalStackLayout>
+                    <Label Text="{Binding PreListenTitle}" VerticalOptions="Center" HorizontalOptions="Start"  Margin="0,0,0,5" />
+                    <Grid ColumnDefinitions="*, *">
+                        <Button x:Name="PreListenPlayButton" Grid.Column="0" Text="{Binding PreListenPlayButtonTitle}"  Clicked="PreListenPlayButton_Clicked" HorizontalOptions="FillAndExpand"/>
+                        <Button x:Name="PreListenStopButton" Grid.Column="1" Text="{Binding PreListenStopButtonTitle}"  Clicked="PreListenStopButton_Clicked" HorizontalOptions="FillAndExpand"/>
+                    </Grid>
+                    <Frame Margin="0,5,0,5">
+                        <Label x:Name="PreListenSpellingLabel" VerticalOptions="Center" HorizontalOptions="Center" Margin="0,5,0,5" />
+                    </Frame>
+                    <Grid ColumnDefinitions="*, *">
+                        <Button x:Name="PreListenLouderButton" Grid.Column="0" Text="{Binding PreListenLouderButtonTitle}"  Clicked="PreListenLouderButton_Clicked" />
+                        <Button x:Name="PreListenSofterButton" Grid.Column="1" Text="{Binding PreListenSofterButtonTitle}"  Clicked="PreListenSofterButton_Clicked"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame x:Name="TalkbackControl" BackgroundColor="MistyRose"   BorderColor="Black">
+                <VerticalStackLayout>
+                    <Grid ColumnDefinitions="*, *">
+                        <Button x:Name="OpenTalkbackChannel" Grid.Column="0" Text="{Binding OpenTalkbackChannelTitle}"  Clicked="OpenTalkbackChannel_Clicked"/>
+                        <Button x:Name="CloseTalkbackChannel" Grid.Column="1" Text="{Binding CloseTalkbackChannelTitle}"  Clicked="CloseTalkbackChannel_Clicked"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
         </VerticalStackLayout>
 
     </ScrollView>

@@ -630,6 +630,11 @@ Public Class MatrixSpeechTest
 
     End Sub
 
+    Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)
+        Throw New NotImplementedException
+    End Function
+
+
 End Class
 
 

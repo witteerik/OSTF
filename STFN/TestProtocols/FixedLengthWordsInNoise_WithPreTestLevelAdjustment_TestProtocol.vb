@@ -24,11 +24,7 @@
 
     Public Overrides Property IsInPretestMode As Boolean
         Get
-            If CurrentTestStage < 2 Then
-                Return True
-            Else
-                Return False
-            End If
+            Return False
         End Get
         Set(value As Boolean)
             'Any value set is ignored
@@ -44,13 +40,7 @@
         Throw New NotImplementedException()
     End Function
 
-
-
     Private TestLength As UInteger
-
-    Private CurrentTestStage As UInteger ' 0 and 1= Level adjustment stage, 2 = test stage
-    Private AdaptiveStepSize As Double = 5
-    Private NextAdaptiveLevel As Double = 65
 
     Public Overrides Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
@@ -61,15 +51,6 @@
             Return False
         End If
 
-        If InitialTaskInstruction.AdaptiveValue.HasValue Then
-            NextAdaptiveLevel = InitialTaskInstruction.AdaptiveValue
-        Else
-            MsgBox("An initial speech level value has to be set in the currently selected test protocol.")
-            Return False
-        End If
-
-        CurrentTestStage = 0
-
         Return True
 
     End Function
@@ -78,43 +59,13 @@
 
         If TrialHistory.Count = 0 Then
             'This is the start of the test, returns the initial settings
-            Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
+            Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
         End If
 
-        If IsInPretestMode Then
-            Select Case DirectCast(TrialHistory.Last, LevelAdjustmentTrial).LevelRating
-                Case LevelAdjustmentTrial.LevelRatings.TooSoft
-                    'Increasing the volume
-                    NextAdaptiveLevel += AdaptiveStepSize
-                    Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
-
-                Case LevelAdjustmentTrial.LevelRatings.Good
-
-                    ' The listener has to select 'Good' twice before the testing starts
-                    CurrentTestStage += 1
-                    If CurrentTestStage = 1 Then
-                        Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
-                    Else
-                        Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.PauseTestingWithCustomInformation, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
-                    End If
-
-                Case LevelAdjustmentTrial.LevelRatings.TooLoud
-                    'Lowering the volume
-                    NextAdaptiveLevel -= AdaptiveStepSize
-                    Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
-
-                Case Else
-                    Throw New Exception("Level rating. This is likely a bug!")
-            End Select
-
+        If TrialHistory.Count < TestLength Then
+            Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
         Else
-
-            'Main test stage
-            If TrialHistory.Count < TestLength Then
-                Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
-            Else
-                Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.TestIsCompleted, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
-            End If
+            Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
         End If
 
     End Function

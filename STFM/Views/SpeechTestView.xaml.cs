@@ -280,6 +280,25 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
             }
 
+            // Updating settings needed for the loaded test
+            var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+            var argMixer = SelectedTransducer.Mixer;
+            if (CurrentSpeechTest != null)
+            {
+                var mediaSets = CurrentSpeechTest.AvailableMediasets;
+                if (mediaSets.Count > 0)
+                {
+                    OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings,
+                        mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
+                        CurrentSpeechTest.SoundOverlapDuration, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
+                    SelectedTransducer.Mixer = argMixer;
+                }
+            }
+
+            // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
+            OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
+            OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
+
             if (success)
             {
                 // Set IsEnabled values of controls

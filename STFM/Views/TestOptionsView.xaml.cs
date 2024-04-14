@@ -412,4 +412,42 @@ public partial class OptionsViewAll : ContentView
         return false;
     }
 
+    private void PreListenPlayButton_Clicked(object sender, EventArgs e)
+    {
+
+        var PreTestStimulus = SharedSpeechTestObjects.CurrentSpeechTest.CreatePreTestStimulus();
+        STFN.Audio.Sound PreTestStimulusSound = PreTestStimulus.Item1;
+        string PreTestStimulusSpelling= PreTestStimulus.Item2;
+        PreListenSpellingLabel.Text = PreTestStimulusSpelling;
+        OstfBase.SoundPlayer.SwapOutputSounds(ref PreTestStimulusSound);
+
+    }
+
+    private void PreListenStopButton_Clicked(object sender, EventArgs e)
+    {
+        OstfBase.SoundPlayer.FadeOutPlayback();
+    }
+
+    private void PreListenLouderButton_Clicked(object sender, EventArgs e)
+    {
+        CurrentBindingContext.SpeechLevel += 5;
+        CurrentBindingContext.ContralateralMaskingLevel += 5;
+    }
+
+    private void PreListenSofterButton_Clicked(object sender, EventArgs e)
+    {
+        CurrentBindingContext.SpeechLevel -= 5;
+        CurrentBindingContext.ContralateralMaskingLevel -= 5;
+    }
+
+    private void OpenTalkbackChannel_Clicked(object sender, EventArgs e)
+    {
+
+    }
+
+    private void CloseTalkbackChannel_Clicked(object sender, EventArgs e)
+    {
+
+    }
+
 }

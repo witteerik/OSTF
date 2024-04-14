@@ -6,8 +6,8 @@ namespace STFM.Views;
 
 public abstract class ResponseView : ContentView
 {
-	public ResponseView()
-	{
+    public ResponseView()
+    {
         // Here we could make room for a test progress bar, info labels and start button etc. Instead of having the derived classeds filling up the content directly, they could fill a central cell in a grid.
         //Content = new VerticalStackLayout
         //{
@@ -31,11 +31,11 @@ public abstract class ResponseView : ContentView
 
 
 
-public event EventHandler StartedByTestee;
+    public event EventHandler StartedByTestee;
 
     protected virtual void OnStartedByTestee(EventArgs e)
     {
-        EventHandler  handler = StartedByTestee;
+        EventHandler handler = StartedByTestee;
         if (handler != null)
         {
             handler(this, e);

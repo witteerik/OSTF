@@ -529,6 +529,10 @@ Public Class HintSpeechTest
 
     End Function
 
+    Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)
+        Throw New NotImplementedException
+    End Function
+
 End Class
 
 

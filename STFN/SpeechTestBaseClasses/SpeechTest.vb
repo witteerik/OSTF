@@ -348,6 +348,11 @@
 
 #End Region
 
+#Region "Pretest"
+
+    Public MustOverride Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)
+
+#End Region
 
 End Class
 
