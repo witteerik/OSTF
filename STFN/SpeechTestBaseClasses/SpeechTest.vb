@@ -235,6 +235,11 @@
 
     Public CurrentTestTrial As TestTrial
 
+    ''' <summary>
+    ''' This feid can be used to store information that should be shown on screen during pause. 
+    ''' </summary>
+    Public PauseInformation As String = ""
+
 #End Region
 
 #Region "TestResults"
@@ -301,6 +306,7 @@
     Public Enum SpeechTestReplies
         ContinueTrial
         GotoNextTrial
+        PauseTestingWithCustomInformation
         TestIsCompleted
         AbortTest
     End Enum

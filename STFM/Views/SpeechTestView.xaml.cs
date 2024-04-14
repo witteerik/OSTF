@@ -438,15 +438,23 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Response view
                     CurrentResponseView = new ResponseView_FreeRecall();
 
-                    ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
-                    Window PB2secondWindow = new Window(PB2responsePage);
-                    PB2secondWindow.Title = "";
-                    Application.Current.OpenWindow(PB2secondWindow);
+                    bool openInSeparateWindow = false;
+                    if (openInSeparateWindow)
+                    {
+                        ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
+                        Window PB2secondWindow = new Window(PB2responsePage);
+                        PB2secondWindow.Title = "";
+                        Application.Current.OpenWindow(PB2secondWindow);
+                    }
+                    else
+                    {
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+                    }
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.001;
+                    CurrentSpeechTest.SoundOverlapDuration = 0.25;
 
                     break;
 
@@ -484,7 +492,31 @@ public partial class SpeechTestView : ContentView, IDrawable
         Messager.MsgBox("An error occured with the sound playback! The test has been aborted!", Messager.MsgBoxStyle.Exclamation, "Sound player error!");
     }
 
+    bool testIsPaused = false;
+
     private void StartTestBtn_Clicked(object sender, EventArgs e)
+    {
+
+
+        if (testIsPaused == false)
+        {
+            // Starting a new test
+            TryStartTest();
+        }
+        else
+        {
+            StopAllTrialEventTimers();
+            CurrentResponseView.HideAllItems();
+
+            // Resuming an ongoin test
+            // Calling NewSpeechTestInput with 
+            NewSpeechTestInput(null, null);
+        }
+    }
+
+
+
+    private void TryStartTest()
     {
 
         InitiateTesting();
@@ -526,12 +558,26 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
+
     private void PauseTestBtn_Clicked(object sender, EventArgs e)
     {
+        PauseTest();
+    }
+    private void PauseTest()
+    {
+
+        testIsPaused = true;
 
         OstfBase.SoundPlayer.FadeOutPlayback();
 
-        StartTestBtn.Text = "Fortsätt";
+        switch (STFN.SharedSpeechTestObjects.GuiLanguage){
+            case STFN.Utils.Constants.Languages.Swedish:
+                StartTestBtn.Text = "Fortsätt";
+                break;
+            default:
+                StartTestBtn.Text = "Continue";
+                break;
+        }
 
         // Set IsEnabled values of controls
         NewTestBtn.IsEnabled = true;
@@ -550,7 +596,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         // Pause testing
         StopAllTrialEventTimers();
-        CurrentResponseView.HideAllItems();
+        //CurrentResponseView.HideAllItems();
         TestResults CurrentResults = CurrentSpeechTest.GetResults();
         //CurrentSpeechTest.SaveTextFormattedResults(CurrentResults);
         ShowResults(CurrentResults);
@@ -575,12 +621,11 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     void StartTest()
     {
+        testIsPaused = false;
 
         // Calling NewSpeechTestInput with e as null
         NewSpeechTestInput(null, null);
     }
-
-
 
 
     void NewSpeechTestInput(object sender, SpeechTestInputEventArgs e)
@@ -602,6 +647,16 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 // Starting the trial
                 PresentTrial();
+
+                break;
+
+            case SpeechTest.SpeechTestReplies.PauseTestingWithCustomInformation:
+
+                string PauseInformation = CurrentSpeechTest.PauseInformation;
+                // Resets the test PauseInformation 
+                CurrentSpeechTest.PauseInformation = "";
+                PauseTest();
+                CurrentResponseView.ShowMessage(PauseInformation);
 
                 break;
 

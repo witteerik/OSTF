@@ -309,6 +309,9 @@ Public Class IHearProtocolB2SpeechTest
             Return False
         End If
 
+        'Setting TestLength to the number of available words
+        TestLength = PlannedTestListWords.Count
+
         Return True
 
     End Function
@@ -329,6 +332,7 @@ Public Class IHearProtocolB2SpeechTest
                 For Each ResponseString In e.LinguisticResponses
                     If ResponseString <> "" Then
                         Response = ResponseString
+                        DirectCast(CurrentTestTrial, LevelAdjustmentTrial).TrialStringComment = ResponseString
                         Exit For
                     End If
                 Next
@@ -377,14 +381,22 @@ Public Class IHearProtocolB2SpeechTest
             End If
 
         Else
-            'Nothing to correct (this should be the start of a new test)
+            'Nothing to correct (this should be the start of a new test, or a resuming of a paused test)
             ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(New TrialHistory)
         End If
 
         'Preparing next trial if needed
-        If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
-            PrepareNextTrial(ProtocolReply)
-        End If
+        Select Case ProtocolReply.Decision
+            Case SpeechTestReplies.GotoNextTrial
+                PrepareNextTrial(ProtocolReply)
+            Case SpeechTestReplies.PauseTestingWithCustomInformation
+                Select Case GuiLanguage
+                    Case Languages.Swedish
+                        PauseInformation = "Klicka fortsätt för att börja det riktiga testet"
+                    Case Else
+                        PauseInformation = "Click continue to start the real test"
+                End Select
+        End Select
 
         Return ProtocolReply.Decision
 
@@ -398,10 +410,13 @@ Public Class IHearProtocolB2SpeechTest
 
         If LastSpeechLevel.HasValue Then
             Dim SpeechLevelChangeSinseLastTrial As Double = NextTaskInstruction.AdaptiveValue - LastSpeechLevel
+            If SpeechLevelChangeSinseLastTrial <> 0 Then
+                'Adjusting the ContralateralMaskingLevel accordingly. TODO: We must check that the level doesn't get too loud!
+                CustomizableTestOptions.ContralateralMaskingLevel += SpeechLevelChangeSinseLastTrial
 
-            'Adjusting the ContralateralMaskingLevel accordingly. TODO: We must check that the level doesn't get too loud!
-            CustomizableTestOptions.ContralateralMaskingLevel += SpeechLevelChangeSinseLastTrial
-
+                'And also adjusting the Speech Level so that is shows in the GUI
+                CustomizableTestOptions.SpeechLevel += SpeechLevelChangeSinseLastTrial
+            End If
         End If
 
 
@@ -521,7 +536,12 @@ Public Class IHearProtocolB2SpeechTest
             'Setting level, 
             'Very important: The contralateral masking sound file cannot be the same as the ipsilateral masker sound. The level of the contralateral masker sound must be set to agree with the Nominal level (while the ipsilateral masker sound sound have a level that deviates from the nominal level to attain the desired SNR!)
             Dim ContralateralMaskingNominalLevel_FS = ContralateralNoise.SMA.NominalLevel
-            Dim TargetContralateralMaskingLevel_FS = Audio.Standard_dBSPL_To_dBFS(CustomizableTestOptions.ContralateralMaskingLevel)
+            Dim TargetContralateralMaskingLevel_FS As Double
+            If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+                TargetContralateralMaskingLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, LevelAdjustmentTrial).ContralateralMaskerLevel)
+            Else
+                TargetContralateralMaskingLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel)
+            End If
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
             Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - ContralateralMaskingNominalLevel_FS + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
@@ -565,55 +585,63 @@ Public Class IHearProtocolB2SpeechTest
 
         Dim Output = New TestResults(TestResults.TestResultTypes.WRS)
 
-        Dim ProtocolFInalResult = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
-
-        If ProtocolFInalResult.HasValue Then
-            Output.ProportionCorrect = ProtocolFInalResult
-        Else
-            'Storing NaN if no final result exists
-            Output.ProportionCorrect = Double.NaN
-        End If
 
         'Storing the AdaptiveLevelSeries
         Output.AdaptiveLevelSeries = New List(Of Double)
         Output.SpeechLevelSeries = New List(Of Double)
-        Output.MaskerLevelSeries = New List(Of Double)
+        'Output.MaskerLevelSeries = New List(Of Double)
         Output.ContralateralMaskerLevelSeries = New List(Of Double)
-        Output.SNRLevelSeries = New List(Of Double)
+        'Output.SNRLevelSeries = New List(Of Double)
         Output.TestStageSeries = New List(Of String)
         Output.ProportionCorrectSeries = New List(Of String)
         Output.ScoreSeries = New List(Of String)
+        Output.Progress = New List(Of Integer)
+        Output.ProgressMax = New List(Of Integer)
 
         If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode Then
+
+            Output.TrialStringComment = New List(Of String)
+
             For Each Trial As LevelAdjustmentTrial In ObservedPreTestTrials
+                Output.TrialStringComment.Add(Trial.TrialStringComment)
                 Output.AdaptiveLevelSeries.Add(System.Math.Round(Trial.AdaptiveValue))
                 Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
-                Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
+                'Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
                 Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))
-                Output.SNRLevelSeries.Add(System.Math.Round(Trial.SNR))
-                Output.TestStageSeries.Add(Trial.TestStage)
-                Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-                If Trial.IsCorrect = True Then
-                    Output.ScoreSeries.Add("Correct")
-                Else
-                    Output.ScoreSeries.Add("Incorrect")
-                End If
+                'Output.SNRLevelSeries.Add(System.Math.Round(Trial.SNR))
+                'Output.TestStageSeries.Add(Trial.TestStage)
+                'Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
+                'If Trial.IsCorrect = True Then
+                '    Output.ScoreSeries.Add("Correct")
+                'Else
+                '    Output.ScoreSeries.Add("Incorrect")
+                'End If
             Next
         Else
+
+            Dim ScoreList As New List(Of Double)
+
             For Each Trial As WrsTrial In ObservedTestTrials
+                ScoreList.Add(DirectCast(Trial, WrsTrial).GetProportionTasksCorrect)
+
+                Output.Progress.Add(ObservedTestTrials.Count)
+                Output.ProgressMax.Add(TestLength)
                 Output.AdaptiveLevelSeries.Add(System.Math.Round(Trial.AdaptiveValue))
                 Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
-                Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
+                'Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
                 Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))
-                Output.SNRLevelSeries.Add(System.Math.Round(Trial.SNR))
+                'Output.SNRLevelSeries.Add(System.Math.Round(Trial.SNR))
                 Output.TestStageSeries.Add(Trial.TestStage)
                 Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-                If Trial.IsCorrect = True Then
-                    Output.ScoreSeries.Add("Correct")
-                Else
-                    Output.ScoreSeries.Add("Incorrect")
-                End If
+                'If Trial.IsCorrect = True Then
+                '    Output.ScoreSeries.Add("Correct")
+                'Else
+                '    Output.ScoreSeries.Add("Incorrect")
+                'End If
             Next
+
+            If ScoreList.Count > 0 Then Output.ProportionCorrect = ScoreList.Average
+
         End If
 
         Return Output

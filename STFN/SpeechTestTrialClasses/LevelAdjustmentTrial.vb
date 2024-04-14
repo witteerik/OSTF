@@ -9,6 +9,7 @@
 
     Public AdaptiveValue As Double
 
+    Public TrialStringComment As String = ""
     Public ReadOnly Property SNR As Double
         Get
             Return SpeechLevel - MaskerLevel

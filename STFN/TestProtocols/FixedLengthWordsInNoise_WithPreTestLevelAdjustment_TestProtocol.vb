@@ -92,7 +92,11 @@
 
                     ' The listener has to select 'Good' twice before the testing starts
                     CurrentTestStage += 1
-                    Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
+                    If CurrentTestStage = 1 Then
+                        Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
+                    Else
+                        Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.PauseTestingWithCustomInformation, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
+                    End If
 
                 Case LevelAdjustmentTrial.LevelRatings.TooLoud
                     'Lowering the volume
@@ -131,7 +135,7 @@
 
         Dim ScoreList As New List(Of Double)
         For Each Trial In TrialHistory
-            ScoreList.Add(DirectCast(Trial, WrsTrial).IsCorrect)
+            ScoreList.Add(DirectCast(Trial, WrsTrial).GetProportionTasksCorrect)
         Next
         FinalWordRecognition = ScoreList.Average
 

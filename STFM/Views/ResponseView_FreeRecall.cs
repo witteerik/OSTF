@@ -265,7 +265,8 @@ public class ResponseView_FreeRecall : ResponseView
     {
 
         StopAllTimers();
-        HideAllItems();
+        responseAlternativeGrid.Clear();
+        //HideAllItems();
 
         var myHeight = this.Height;
         var textSize = Math.Round(myHeight / (12));
@@ -281,8 +282,8 @@ public class ResponseView_FreeRecall : ResponseView
             VerticalOptions = LayoutOptions.Fill
         };
 
-        Content = messageBtn;
-        //MainMafcGrid.Add(messageBtn, 0, 0);
+        //Content = messageBtn;
+        responseAlternativeGrid.Add(messageBtn, 0, 0);
 
     }
 
