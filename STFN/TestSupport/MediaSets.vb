@@ -75,6 +75,7 @@ Public Class MediaSet
     Public Property MediaParentFolder As String = ""
     Public Property MaskerParentFolder As String = ""
     Public Property ContralateralMaskerParentFolder As String = ""
+    Public Property EffectiveContralateralMaskingGain As Double = 0 'Holds the value in dB of the amplification that should be added to the contralateral masking to achieve effective masking
 
     ''' <summary>
     ''' Should store the approximate sound pressure level (SPL) of the audio recorded in the auditory non-speech background sounds stored in BackgroundNonspeechParentFolder, and should represent an ecologically feasible situation
@@ -339,6 +340,16 @@ Public Class MediaSet
             If Line.StartsWith("MaskerParentFolder") Then Output.MaskerParentFolder = InputFileSupport.GetInputFileValue(Line, True)
 
             If Line.StartsWith("ContralateralMaskerParentFolder") Then Output.ContralateralMaskerParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+
+            If Line.StartsWith("EffectiveContralateralMaskingGain") Then
+                Dim Value = InputFileSupport.InputFileDoubleValueParsing(Line, True, FilePath)
+                If Value.HasValue Then
+                    Output.EffectiveContralateralMaskingGain = Value
+                Else
+                    MsgBox("Failed to read the EffectiveContralateralMaskingGain value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    Return Nothing
+                End If
+            End If
 
             If Line.StartsWith("BackgroundNonspeechParentFolder") Then Output.BackgroundNonspeechParentFolder = InputFileSupport.GetInputFileValue(Line, True)
 

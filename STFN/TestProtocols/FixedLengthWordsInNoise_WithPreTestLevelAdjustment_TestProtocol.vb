@@ -1,4 +1,4 @@
-﻿Public Class FixedLengthSpeechInNoise_WithPreTestLevelAdjustment_TestProtocol
+﻿Public Class FixedLengthWordsInNoise_WithPreTestLevelAdjustment_TestProtocol
     Inherits TestProtocol
 
     Public Overrides ReadOnly Property Name As String
@@ -35,10 +35,6 @@
         End Set
     End Property
 
-    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
-
-        'Throw New NotImplementedException()
-    End Sub
 
     Public Overrides Function GetPatientInstructions() As String
         Throw New NotImplementedException()
@@ -88,7 +84,7 @@
         If IsInPretestMode Then
             Select Case DirectCast(TrialHistory.Last, LevelAdjustmentTrial).LevelRating
                 Case LevelAdjustmentTrial.LevelRatings.TooSoft
-
+                    'Increasing the volume
                     NextAdaptiveLevel += AdaptiveStepSize
                     Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
 
@@ -99,8 +95,8 @@
                     Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
 
                 Case LevelAdjustmentTrial.LevelRatings.TooLoud
-
-                    NextAdaptiveLevel += AdaptiveStepSize
+                    'Lowering the volume
+                    NextAdaptiveLevel -= AdaptiveStepSize
                     Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial, .AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = AdaptiveStepSize}
 
                 Case Else
@@ -119,9 +115,26 @@
 
     End Function
 
+    Private FinalWordRecognition As Double? = Nothing
+
     Public Overrides Function GetFinalResult() As Double?
 
-        Return 0
-        'Throw New NotImplementedException()
+        If FinalWordRecognition IsNot Nothing Then
+            Return FinalWordRecognition
+        Else
+            Return Nothing
+        End If
+
     End Function
+
+    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+
+        Dim ScoreList As New List(Of Double)
+        For Each Trial In TrialHistory
+            ScoreList.Add(DirectCast(Trial, WrsTrial).IsCorrect)
+        Next
+        FinalWordRecognition = ScoreList.Average
+
+    End Sub
+
 End Class

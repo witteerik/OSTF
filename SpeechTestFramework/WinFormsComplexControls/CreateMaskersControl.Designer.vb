@@ -28,19 +28,19 @@ Partial Class CreateMaskersControl
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.Label43 = New System.Windows.Forms.Label()
         Me.Label46 = New System.Windows.Forms.Label()
+        Me.TargetSNR_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.NoiseType_ComboBox = New System.Windows.Forms.ComboBox()
         Me.CreateNoise_Button = New System.Windows.Forms.Button()
         Me.NoiseFrequencyWheighting_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label48 = New System.Windows.Forms.Label()
         Me.Label50 = New System.Windows.Forms.Label()
+        Me.NumberOfOverlays_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.NoiseDuration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.SpeechMatchFilterType_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.TargetSNR_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.NumberOfOverlays_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.NoiseDuration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.Smoothen_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.RowingAverageLength_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.TableLayoutPanel10.SuspendLayout()
@@ -131,6 +131,16 @@ Partial Class CreateMaskersControl
         Me.Label46.Text = "Masking noise type"
         Me.Label46.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'TargetSNR_IntegerParsingTextBox
+        '
+        Me.TargetSNR_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TargetSNR_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.TargetSNR_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 244)
+        Me.TargetSNR_IntegerParsingTextBox.Name = "TargetSNR_IntegerParsingTextBox"
+        Me.TargetSNR_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
+        Me.TargetSNR_IntegerParsingTextBox.TabIndex = 9
+        Me.TargetSNR_IntegerParsingTextBox.Text = "0"
+        '
         'NoiseType_ComboBox
         '
         Me.NoiseType_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
@@ -180,6 +190,26 @@ Partial Class CreateMaskersControl
         Me.Label50.Text = "Number of overlays (for generation of SW noise)"
         Me.Label50.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
+        'NumberOfOverlays_IntegerParsingTextBox
+        '
+        Me.NumberOfOverlays_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.NumberOfOverlays_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.NumberOfOverlays_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 348)
+        Me.NumberOfOverlays_IntegerParsingTextBox.Name = "NumberOfOverlays_IntegerParsingTextBox"
+        Me.NumberOfOverlays_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
+        Me.NumberOfOverlays_IntegerParsingTextBox.TabIndex = 20
+        Me.NumberOfOverlays_IntegerParsingTextBox.Text = "5000"
+        '
+        'NoiseDuration_DoubleParsingTextBox
+        '
+        Me.NoiseDuration_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.NoiseDuration_DoubleParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.NoiseDuration_DoubleParsingTextBox.Location = New System.Drawing.Point(293, 270)
+        Me.NoiseDuration_DoubleParsingTextBox.Name = "NoiseDuration_DoubleParsingTextBox"
+        Me.NoiseDuration_DoubleParsingTextBox.Size = New System.Drawing.Size(166, 20)
+        Me.NoiseDuration_DoubleParsingTextBox.TabIndex = 21
+        Me.NoiseDuration_DoubleParsingTextBox.Text = "60"
+        '
         'Label1
         '
         Me.Label1.Dock = System.Windows.Forms.DockStyle.Fill
@@ -228,36 +258,6 @@ Partial Class CreateMaskersControl
         Me.SpeechMatchFilterType_ComboBox.Name = "SpeechMatchFilterType_ComboBox"
         Me.SpeechMatchFilterType_ComboBox.Size = New System.Drawing.Size(166, 21)
         Me.SpeechMatchFilterType_ComboBox.TabIndex = 26
-        '
-        'TargetSNR_IntegerParsingTextBox
-        '
-        Me.TargetSNR_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TargetSNR_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.TargetSNR_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 244)
-        Me.TargetSNR_IntegerParsingTextBox.Name = "TargetSNR_IntegerParsingTextBox"
-        Me.TargetSNR_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
-        Me.TargetSNR_IntegerParsingTextBox.TabIndex = 9
-        Me.TargetSNR_IntegerParsingTextBox.Text = "0"
-        '
-        'NumberOfOverlays_IntegerParsingTextBox
-        '
-        Me.NumberOfOverlays_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.NumberOfOverlays_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.NumberOfOverlays_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 348)
-        Me.NumberOfOverlays_IntegerParsingTextBox.Name = "NumberOfOverlays_IntegerParsingTextBox"
-        Me.NumberOfOverlays_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
-        Me.NumberOfOverlays_IntegerParsingTextBox.TabIndex = 20
-        Me.NumberOfOverlays_IntegerParsingTextBox.Text = "5000"
-        '
-        'NoiseDuration_DoubleParsingTextBox
-        '
-        Me.NoiseDuration_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.NoiseDuration_DoubleParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.NoiseDuration_DoubleParsingTextBox.Location = New System.Drawing.Point(293, 270)
-        Me.NoiseDuration_DoubleParsingTextBox.Name = "NoiseDuration_DoubleParsingTextBox"
-        Me.NoiseDuration_DoubleParsingTextBox.Size = New System.Drawing.Size(166, 20)
-        Me.NoiseDuration_DoubleParsingTextBox.TabIndex = 21
-        Me.NoiseDuration_DoubleParsingTextBox.Text = "60"
         '
         'Smoothen_IntegerParsingTextBox
         '

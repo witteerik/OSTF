@@ -225,7 +225,7 @@ Public Class CreateMaskersControl
                     Case SpeechMatchFilterTypes.SiiCriticalBands
                         BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
                     Case SpeechMatchFilterTypes.OctaveBands
-                        BandBank = Audio.DSP.BandBank.GetOctaveBandBank(62.5, 8)
+                        BandBank = Audio.DSP.BandBank.GetOctaveBandBank(62.5, 9)
                     Case SpeechMatchFilterTypes.HalfOctaveBands
                         BandBank = Audio.DSP.BandBank.GetHalfOctaveBands(62.5, 17)
                     Case SpeechMatchFilterTypes.ThirdOctaveBands

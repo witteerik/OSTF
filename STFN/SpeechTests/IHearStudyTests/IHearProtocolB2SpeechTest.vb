@@ -71,7 +71,7 @@ Public Class IHearProtocolB2SpeechTest
 
     Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
         Get
-            Return New List(Of TestProtocol) From {New FixedLengthSpeechInNoise_WithPreTestLevelAdjustment_TestProtocol}
+            Return New List(Of TestProtocol) From {New FixedLengthWordsInNoise_WithPreTestLevelAdjustment_TestProtocol}
         End Get
     End Property
 
@@ -191,40 +191,7 @@ Public Class IHearProtocolB2SpeechTest
         End Get
     End Property
 
-    Public Overrides Sub FinalizeTest()
 
-        If CurrentParticipantID <> NoTestId Then
-
-            'Saving updated cache data values, only if a real test was completed
-            Dim AllTestListsNames = AvailableTestListsNames()
-
-            Dim NextTestListIndex As Integer = TestStageListIndex
-            Dim NextAdjustmentStageListIndex As Integer = LevelAdjustmentStageListIndex
-
-            If SelectedMediaSetIndex >= AvailableMediasets.Count - 1 Then
-                'Increasing list index for the next test session, after the last media set has been tested (each list is run once with each media set before next list is started)
-                NextTestListIndex += 1
-                NextAdjustmentStageListIndex += 1
-
-                'Unwrapping these
-                If NextTestListIndex > AllTestListsNames.Count - 1 Then
-                    NextTestListIndex = 0
-                End If
-
-                If NextAdjustmentStageListIndex > AllTestListsNames.Count - 1 Then
-                    NextAdjustmentStageListIndex = 0
-                End If
-
-                'Storing the test list index and media set to be used in the next test session (only if NoTestId was not used)
-                AppCache.SetAppCacheVariableValue(CacheLastAdjustmentStageListVariableName, NextAdjustmentStageListIndex)
-                AppCache.SetAppCacheVariableValue(CacheLastTestListVariableName, NextTestListIndex)
-                AppCache.SetAppCacheVariableValue(CacheLastMediaSetVariableName, SelectedMediaSetIndex)
-
-            End If
-
-        End If
-
-    End Sub
 
     Dim LevelAdjustmentStageListIndex As Integer
     Dim TestStageListIndex As Integer
@@ -246,6 +213,9 @@ Public Class IHearProtocolB2SpeechTest
     Private TestWordPresentationTime As Double = 0.5
 
     Private TestLength As Integer = 50
+
+    Private MaximumSoundDuration As Double = 10
+
 
     Public Overrides Function InitializeCurrentTest() As Boolean
 
@@ -420,10 +390,20 @@ Public Class IHearProtocolB2SpeechTest
 
     End Function
 
+    Dim LastSpeechLevel As Double? = Nothing
 
     Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
         Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
+
+        If LastSpeechLevel.HasValue Then
+            Dim SpeechLevelChangeSinseLastTrial As Double = NextTaskInstruction.AdaptiveValue - LastSpeechLevel
+
+            'Adjusting the ContralateralMaskingLevel accordingly. TODO: We must check that the level doesn't get too loud!
+            CustomizableTestOptions.ContralateralMaskingLevel += SpeechLevelChangeSinseLastTrial
+
+        End If
+
 
         If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode Then
 
@@ -434,6 +414,7 @@ Public Class IHearProtocolB2SpeechTest
             CurrentTestTrial = New LevelAdjustmentTrial With {.SpeechMaterialComponent = NextTestWord,
                 .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                 .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+                .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
                 .TestStage = NextTaskInstruction.TestStage,
                 .Tasks = 1,
                 .ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))}
@@ -443,6 +424,9 @@ Public Class IHearProtocolB2SpeechTest
                 ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = RatingString, .IsScoredItem = True})
             Next
             CurrentTestTrial.Tasks = 1
+
+            'Storing LastSpeechLevel
+            LastSpeechLevel = DirectCast(CurrentTestTrial, LevelAdjustmentTrial).SpeechLevel
 
             'Setting trial events
             CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
@@ -460,6 +444,7 @@ Public Class IHearProtocolB2SpeechTest
             CurrentTestTrial = New WrsTrial With {.SpeechMaterialComponent = NextTestWord,
                 .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                 .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+                .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
                 .TestStage = NextTaskInstruction.TestStage,
                 .Tasks = 1,
                 .ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))}
@@ -473,6 +458,9 @@ Public Class IHearProtocolB2SpeechTest
                     End If
                 Next
             End If
+
+            'Storing LastSpeechLevel
+            LastSpeechLevel = DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel
 
             'Setting trial events
             CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
@@ -491,29 +479,55 @@ Public Class IHearProtocolB2SpeechTest
 
     Private Sub MixNextTrialSound()
 
+        'Getting the speech signal
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
-        Dim TargetLevel_FS As Double
-        If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
-            TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, LevelAdjustmentTrial).SpeechLevel)
-        Else
-            TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel)
-        End If
-        Dim NeededGain = TargetLevel_FS - NominalLevel_FS
-        Audio.DSP.AmplifySection(TestWordSound, NeededGain)
-
-        'Checking that Nominal levels agree
-        If MaskerNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and noise files!")
 
         'Getting a random section of the noise
-        Dim NoiseDuration As Double = 10
         Dim TotalNoiseLength As Integer = MaskerNoise.WaveData.SampleData(1).Length
-        Dim IntendedNoiseLength As Integer = MaskerNoise.WaveFormat.SampleRate * NoiseDuration
+        Dim IntendedNoiseLength As Integer = MaskerNoise.WaveFormat.SampleRate * MaximumSoundDuration
         Dim RandomStartReadSample As Integer = Randomizer.Next(0, TotalNoiseLength - IntendedNoiseLength)
         Dim TrialNoise = MaskerNoise.CopySection(1, RandomStartReadSample - 1, IntendedNoiseLength) ' TODO: Here we should check to ensure that the MaskerNoise is long enough
 
-        'Applying the same gain to the masker noise
-        Audio.DSP.AmplifySection(TrialNoise, NeededGain)
+        'Creating contalateral masking noise (with the same length as the masking noise)
+        Dim TrialContralateralNoise As Audio.Sound = Nothing
+        If CustomizableTestOptions.UseContralateralMasking = True Then
+            TotalNoiseLength = ContralateralNoise.WaveData.SampleData(1).Length
+            IntendedNoiseLength = ContralateralNoise.WaveFormat.SampleRate * MaximumSoundDuration
+            RandomStartReadSample = Randomizer.Next(0, TotalNoiseLength - IntendedNoiseLength)
+            TrialContralateralNoise = ContralateralNoise.CopySection(1, RandomStartReadSample - 1, IntendedNoiseLength) ' TODO: Here we should check to ensure that the MaskerNoise is long enough
+        End If
+
+        'Checking that Nominal levels agree between signal masker and contralateral masker
+        If MaskerNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and noise files!")
+        If CustomizableTestOptions.UseContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
+
+        'Calculating presentation levels
+        Dim TargetSpeechLevel_FS As Double
+        If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+            TargetSpeechLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, LevelAdjustmentTrial).SpeechLevel)
+        Else
+            TargetSpeechLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel)
+        End If
+        Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
+
+        'Adjusts the sound levels
+        Audio.DSP.AmplifySection(TestWordSound, NeededSpeechGain)
+        'Applying the same gain to the masker. Very important: This requires that the masker is preadjusted to create the intended SNR together with the speech recordings, and have the same nominal level! (I.e. If speech and sound files would be mixed without any adjustment, they would get their desired SNR.)
+        Audio.DSP.AmplifySection(TrialNoise, NeededSpeechGain)
+
+        If CustomizableTestOptions.UseContralateralMasking = True Then
+
+            'Setting level, 
+            'Very important: The contralateral masking sound file cannot be the same as the ipsilateral masker sound. The level of the contralateral masker sound must be set to agree with the Nominal level (while the ipsilateral masker sound sound have a level that deviates from the nominal level to attain the desired SNR!)
+            Dim ContralateralMaskingNominalLevel_FS = ContralateralNoise.SMA.NominalLevel
+            Dim TargetContralateralMaskingLevel_FS = Audio.Standard_dBSPL_To_dBFS(CustomizableTestOptions.ContralateralMaskingLevel)
+
+            'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
+            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - ContralateralMaskingNominalLevel_FS + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+            Audio.DSP.AmplifySection(TrialContralateralNoise, NeededContraLateralMaskerGain)
+
+        End If
 
         'Mixing speech and noise
         Dim TestWordInsertionSample As Integer = TestWordSound.WaveFormat.SampleRate * TestWordPresentationTime
@@ -522,38 +536,23 @@ Public Class IHearProtocolB2SpeechTest
         TestWordSound.ZeroPad(IntendedNoiseLength)
         Dim TestSound = Audio.DSP.SuperpositionSounds({TestWordSound, TrialNoise}.ToList)
 
-        'Creating contalateral masking noise (with the same length as the masking noise)
-        Dim TrialContralateralNoise As Audio.Sound = Nothing
-        If CustomizableTestOptions.UseContralateralMasking = True Then
-
-            'Checking that Nominal levels agree
-            If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
-
-            TotalNoiseLength = ContralateralNoise.WaveData.SampleData(1).Length
-            IntendedNoiseLength = ContralateralNoise.WaveFormat.SampleRate * NoiseDuration
-            RandomStartReadSample = Randomizer.Next(0, TotalNoiseLength - IntendedNoiseLength)
-            TrialContralateralNoise = ContralateralNoise.CopySection(1, RandomStartReadSample - 1, IntendedNoiseLength) ' TODO: Here we should check to ensure that the MaskerNoise is long enough
-
-            'Setting level
-            Dim ContralateralMaskingNominalLevel_FS = ContralateralNoise.SMA.NominalLevel
-            Dim TargetContralateralMaskingLevel_FS = Audio.Standard_dBSPL_To_dBFS(CustomizableTestOptions.ContralateralMaskingLevel)
-            Dim NeededCLGain = TargetContralateralMaskingLevel_FS - ContralateralMaskingNominalLevel_FS
-            Audio.DSP.AmplifySection(TrialContralateralNoise, NeededCLGain)
-
-        End If
-
+        'Creating an output sound
         CurrentTestTrial.Sound = New Audio.Sound(New Audio.Formats.WaveFormat(TestWordSound.WaveFormat.SampleRate, TestWordSound.WaveFormat.BitDepth, 2,, TestWordSound.WaveFormat.Encoding))
 
         If CustomizableTestOptions.SignalLocations(0).HorizontalAzimuth < 0 Then
             'Left test ear
+            'Adding speech and noise
             CurrentTestTrial.Sound.WaveData.SampleData(1) = TestSound.WaveData.SampleData(1)
+            'Adding contralateral masking
             If CustomizableTestOptions.UseContralateralMasking = True Then
                 CurrentTestTrial.Sound.WaveData.SampleData(2) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
 
         Else
             'Right test ear
+            'Adding speech and noise
             CurrentTestTrial.Sound.WaveData.SampleData(2) = TestSound.WaveData.SampleData(1)
+            'Adding contralateral masking
             If CustomizableTestOptions.UseContralateralMasking = True Then
                 CurrentTestTrial.Sound.WaveData.SampleData(1) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
@@ -564,8 +563,100 @@ Public Class IHearProtocolB2SpeechTest
 
     Public Overrides Function GetResults() As TestResults
 
-        Return New TestResults(TestResults.TestResultTypes.SRS)
+        Dim Output = New TestResults(TestResults.TestResultTypes.WRS)
 
-        'Throw New NotImplementedException()
+        Dim ProtocolFInalResult = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+
+        If ProtocolFInalResult.HasValue Then
+            Output.ProportionCorrect = ProtocolFInalResult
+        Else
+            'Storing NaN if no final result exists
+            Output.ProportionCorrect = Double.NaN
+        End If
+
+        'Storing the AdaptiveLevelSeries
+        Output.AdaptiveLevelSeries = New List(Of Double)
+        Output.SpeechLevelSeries = New List(Of Double)
+        Output.MaskerLevelSeries = New List(Of Double)
+        Output.ContralateralMaskerLevelSeries = New List(Of Double)
+        Output.SNRLevelSeries = New List(Of Double)
+        Output.TestStageSeries = New List(Of String)
+        Output.ProportionCorrectSeries = New List(Of String)
+        Output.ScoreSeries = New List(Of String)
+
+        If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode Then
+            For Each Trial As LevelAdjustmentTrial In ObservedPreTestTrials
+                Output.AdaptiveLevelSeries.Add(System.Math.Round(Trial.AdaptiveValue))
+                Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
+                Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
+                Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))
+                Output.SNRLevelSeries.Add(System.Math.Round(Trial.SNR))
+                Output.TestStageSeries.Add(Trial.TestStage)
+                Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
+                If Trial.IsCorrect = True Then
+                    Output.ScoreSeries.Add("Correct")
+                Else
+                    Output.ScoreSeries.Add("Incorrect")
+                End If
+            Next
+        Else
+            For Each Trial As WrsTrial In ObservedTestTrials
+                Output.AdaptiveLevelSeries.Add(System.Math.Round(Trial.AdaptiveValue))
+                Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
+                Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
+                Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))
+                Output.SNRLevelSeries.Add(System.Math.Round(Trial.SNR))
+                Output.TestStageSeries.Add(Trial.TestStage)
+                Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
+                If Trial.IsCorrect = True Then
+                    Output.ScoreSeries.Add("Correct")
+                Else
+                    Output.ScoreSeries.Add("Incorrect")
+                End If
+            Next
+        End If
+
+        Return Output
+
     End Function
+
+
+    Public Overrides Sub FinalizeTest()
+
+        CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTestTrials)
+
+        If CurrentParticipantID <> NoTestId Then
+
+            'Saving updated cache data values, only if a real test was completed
+            Dim AllTestListsNames = AvailableTestListsNames()
+
+            Dim NextTestListIndex As Integer = TestStageListIndex
+            Dim NextAdjustmentStageListIndex As Integer = LevelAdjustmentStageListIndex
+
+            If SelectedMediaSetIndex >= AvailableMediasets.Count - 1 Then
+                'Increasing list index for the next test session, after the last media set has been tested (each list is run once with each media set before next list is started)
+                NextTestListIndex += 1
+                NextAdjustmentStageListIndex += 1
+
+                'Unwrapping these
+                If NextTestListIndex > AllTestListsNames.Count - 1 Then
+                    NextTestListIndex = 0
+                End If
+
+                If NextAdjustmentStageListIndex > AllTestListsNames.Count - 1 Then
+                    NextAdjustmentStageListIndex = 0
+                End If
+
+                'Storing the test list index and media set to be used in the next test session (only if NoTestId was not used)
+                AppCache.SetAppCacheVariableValue(CacheLastAdjustmentStageListVariableName, NextAdjustmentStageListIndex)
+                AppCache.SetAppCacheVariableValue(CacheLastTestListVariableName, NextTestListIndex)
+                AppCache.SetAppCacheVariableValue(CacheLastMediaSetVariableName, SelectedMediaSetIndex)
+
+            End If
+
+        End If
+
+    End Sub
+
+
 End Class
