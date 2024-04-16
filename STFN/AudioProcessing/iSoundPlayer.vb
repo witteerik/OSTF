@@ -95,6 +95,12 @@ Namespace Audio
             ''' </summary>
             Sub CloseStream()
 
+            Sub StartTalkback()
+
+            Sub StopTalkback()
+
+            Property TalkbackGain As Single
+
             ''' <summary>
             ''' Can be used to Dispose soundplayers that need to be displosed. Will be ignored in sound players that do not have to be disposed.
             ''' </summary>

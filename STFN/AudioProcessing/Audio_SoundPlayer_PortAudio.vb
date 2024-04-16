@@ -493,6 +493,15 @@ Namespace Audio
                 End Get
             End Property
 
+            Public Property TalkbackGain As Single Implements iSoundPlayer.TalkbackGain
+                Get
+                    Throw New NotImplementedException()
+                End Get
+                Set(value As Single)
+                    Throw New NotImplementedException()
+                End Set
+            End Property
+
             Public Sub New(Optional ByVal LoggingEnabled As Boolean = False,
                    Optional ByVal MessagesEnabled As Boolean = False,
                    Optional ByVal StopAtOutputSoundEnd As Boolean = False,
@@ -1632,6 +1641,14 @@ Namespace Audio
                 Dispose(True)
                 ' TODO: uncomment the following line if Finalize() is overridden above.
                 GC.SuppressFinalize(Me)
+            End Sub
+
+            Public Sub StartTalkback() Implements iSoundPlayer.StartTalkback
+                Throw New NotImplementedException()
+            End Sub
+
+            Public Sub StopTalkback() Implements iSoundPlayer.StopTalkback
+                Throw New NotImplementedException()
             End Sub
 
 #End Region

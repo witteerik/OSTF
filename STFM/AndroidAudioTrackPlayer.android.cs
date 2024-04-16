@@ -6,6 +6,7 @@ using STFN.Audio.SoundScene;
 using System.Runtime.Versioning;
 using STFN;
 using Android.Content;
+using Android.Bluetooth;
 
 namespace STFM
 {
@@ -111,6 +112,8 @@ namespace STFM
 
         bool runAudioCheckLoop = false;
 
+        volatile bool runTackBackLoop = true;
+
         [SupportedOSPlatform("Android31.0")]
         public AndroidAudioTrackPlayer(ref AndroidAudioTrackPlayerSettings AudioSettings, ref DuplexMixer Mixer)
         {
@@ -128,7 +131,7 @@ namespace STFM
 
                 this.SampleRate = (int)CurrentFormat.SampleRate;
                 NumberOfOutputChannels = Mixer.GetHighestOutputChannel();
-                
+
                 SetOverlapDuration(0.05); // This value is default, but should be set by each user of the player by a call to ChangePlayerSettings
                 SilentBuffer = new float[AudioSettings.FramesPerBuffer * NumberOfOutputChannels];
                 PlaybackBuffer = new float[AudioSettings.FramesPerBuffer * NumberOfOutputChannels];
@@ -256,7 +259,7 @@ namespace STFM
                 }
             }
 
-            if (AudioApiSettings != null )
+            if (AudioApiSettings != null)
             {
                 this.AudioSettings = (AndroidAudioTrackPlayerSettings)AudioApiSettings;
             }
@@ -409,13 +412,13 @@ namespace STFM
 
         private void BufferLoop()
         {
-                       
+
             AudioTrack castAudioTrack = (AudioTrack)audioTrack;
             int localFramesPerBuffer = AudioSettings.FramesPerBuffer;
             double checkTimesPerBuffer = 5;
-            int bufferNeedCheckInterval = (int)(((double)1000 * ((double)localFramesPerBuffer / (double)CurrentFormat.SampleRate))/ checkTimesPerBuffer );
+            int bufferNeedCheckInterval = (int)(((double)1000 * ((double)localFramesPerBuffer / (double)CurrentFormat.SampleRate)) / checkTimesPerBuffer);
             runBufferLoop = true;
-                       
+
             do
             {
 
@@ -494,7 +497,7 @@ namespace STFM
         }
 
         [SupportedOSPlatform("Android31.0")]
-        public bool CheckAudioSettings(string IntendedOutputDeviceName,bool AllowAnyOutputDevice, int IntendedVolumePercentage)
+        public bool CheckAudioSettings(string IntendedOutputDeviceName, bool AllowAnyOutputDevice, int IntendedVolumePercentage)
         {
 
             // This method checks to ensure that the intended output device is selected, and that the intended android media volume is set as intended, and that all other volume types are set to zero volume.
@@ -600,7 +603,7 @@ namespace STFM
                 int? currentVolume = audioManager?.GetStreamVolume(Android.Media.Stream.Music);
                 //audioManager?.GetStreamVolumeDb(Android.Media.Stream.Music);
                 int volumeRange = MaxVol.Value - MinVol.Value;
-                int indendedVolume = (int)Math.Clamp((double)((double)IntendedVolumePercentage / (double)100)* (double)volumeRange, (double)MinVol.Value, (double)MaxVol.Value);
+                int indendedVolume = (int)Math.Clamp((double)((double)IntendedVolumePercentage / (double)100) * (double)volumeRange, (double)MinVol.Value, (double)MaxVol.Value);
 
                 if (indendedVolume != currentVolume)
                 {
@@ -618,7 +621,7 @@ namespace STFM
                     }
                 }
 
-                List< Android.Media.Stream> streamTypesToSilence = new List<Android.Media.Stream> {
+                List<Android.Media.Stream> streamTypesToSilence = new List<Android.Media.Stream> {
                     //Android.Media.Stream.NotificationDefault,
                     Android.Media.Stream.VoiceCall,
                     Android.Media.Stream.System,
@@ -643,9 +646,10 @@ namespace STFM
                         }
                         // Checking that the volume changed
                         currentStreamVolume = audioManager?.GetStreamVolume(currentStreamToToSilence);
-                        if (currentStreamVolume != TargetMinVol.Value) {
+                        if (currentStreamVolume != TargetMinVol.Value)
+                        {
                             if (spinLockTaken) audioCheckSpinLock.Exit();
-                            return false; 
+                            return false;
                         }
                     }
                 }
@@ -1005,6 +1009,7 @@ namespace STFM
             }
         }
 
+
         // Some helper functions
 
         /// <summary>
@@ -1026,7 +1031,7 @@ namespace STFM
                         string ProductName = device.ProductName;
                         if (ProductName == DeviceProductName)
                         {
-                                return true;
+                            return true;
                         }
                     }
                 }
@@ -1198,64 +1203,250 @@ namespace STFM
 
         }
 
+
+        
+        Object TalkbackAudioTrack = null; // This is declared as an Object instead of AudioTrack since it will otherwise register an error in the Visual Studio editor.
+        Object TalkbackAudioRecord = null;
+        int TalkbackBufferSize = 1024;
+        
+
+        [SupportedOSPlatform("Android31.0")]
+        public void StartTalkback()
+        {
+
+            runTackBackLoop = false;
+
+            // (re-)Initializing audio
+            if (TalkbackAudioTrack !=null)
+            {
+                AudioTrack castPreviuosTackbackAudioTrack = (AudioTrack)TalkbackAudioTrack;
+                castPreviuosTackbackAudioTrack.Stop();
+                castPreviuosTackbackAudioTrack.Release();
+                castPreviuosTackbackAudioTrack.Dispose();
+                TalkbackAudioTrack = null;
+            }
+
+            if (TalkbackAudioRecord != null)
+            {
+                AudioRecord castPreviuosTalkbackAudioRecord = (AudioRecord)TalkbackAudioRecord;
+                castPreviuosTalkbackAudioRecord.Stop();
+                castPreviuosTalkbackAudioRecord.Release();
+                castPreviuosTalkbackAudioRecord.Dispose();
+                TalkbackAudioRecord = null;
+            }
+
+            // Creating an AudioTrack object for talkback
+            var TackbackAudioTrackBuilder = new AudioTrack.Builder();
+
+            TackbackAudioTrackBuilder.SetAudioFormat(new AudioFormat.Builder()
+                .SetEncoding(Android.Media.Encoding.Pcm32bit)
+                .SetSampleRate((int)CurrentFormat.SampleRate)
+                .SetChannelMask( ChannelOut.Mono)
+                .Build());
+
+            TackbackAudioTrackBuilder.SetBufferSizeInBytes(TalkbackBufferSize);
+
+            TackbackAudioTrackBuilder.SetAudioAttributes(new Android.Media.AudioAttributes.Builder()
+                .SetUsage(AudioUsageKind.Media)
+                .SetContentType(AudioContentType.Music)
+                .Build());
+
+            TackbackAudioTrackBuilder.SetPerformanceMode(AudioTrackPerformanceMode.None);
+            TackbackAudioTrackBuilder.SetTransferMode(AudioTrackMode.Stream);
+
+            // Building the audio tracks
+            TalkbackAudioTrack = TackbackAudioTrackBuilder.Build();
+
+            AudioTrack castTalkbackAudioTrack = (AudioTrack)TalkbackAudioTrack;
+
+            castTalkbackAudioTrack.SetStartThresholdInFrames(2);
+
+            // Start the AudioTrack
+            castTalkbackAudioTrack.Play();
+
+            TalkbackAudioRecord = new AudioRecord(AudioSource.Default, (int)CurrentFormat.SampleRate, ChannelIn.Mono, Encoding.Pcm32bit, TalkbackBufferSize);
+
+            AudioRecord castTalkbackAudioRecord = (AudioRecord)TalkbackAudioRecord;
+
+            //var mics = castTalkbackAudioRecord.ActiveMicrophones;
+            //castTalkbackAudioRecord.SetPreferredDevice()
+
+            castTalkbackAudioRecord.StartRecording();
+
+            // Starting loop
+            Thread newThread = new Thread(new ThreadStart(TackbackLoop));
+            newThread.Start();
+
+        }
+
+        private float talkbackGain = 0;
+        public float TalkbackGain { 
+            get 
+            {
+                return talkbackGain;
+            } 
+            set 
+            {
+                talkbackGain = value;
+            }
+        }
+
+
+        private void TackbackLoop()
+        {
+
+            AudioTrack castTackbackAudioTrack = (AudioTrack)TalkbackAudioTrack;
+            AudioRecord castTalkbackAudioRecord = (AudioRecord)TalkbackAudioRecord;
+            runTackBackLoop = true;
+
+            byte[] talkbackBuffer = new byte[TalkbackBufferSize];
+
+            //int bytesRead = 0;
+            //int bytesWritten = 0;
+            int bytesEachLoop = TalkbackBufferSize / 10;
+            int loopsPerBuffer = TalkbackBufferSize / bytesEachLoop;
+
+            do
+            {
+                try
+                {
+
+                    castTackbackAudioTrack.SetVolume(talkbackGain);
+
+                    for (int i = 0; i < loopsPerBuffer; i++)
+                    {
+
+                        //if (runTackBackLoop == false)
+                        //{
+                        //    break;
+                        //}
+
+                        int lastBytesRead = castTalkbackAudioRecord.Read(talkbackBuffer, i * bytesEachLoop, bytesEachLoop);
+
+                        //if (lastBytesRead == bytesEachLoop)
+                        //{
+                            int lastBytesWritten = castTackbackAudioTrack.Write(talkbackBuffer, i * bytesEachLoop, bytesEachLoop);
+                        //}
+                        //else
+                        //{
+                        //    //runTackBackLoop = false;
+                        //}
+
+                    }
+
+                }
+                catch (Exception)
+                {
+                    runTackBackLoop = false;
+                }
+
+            } while (runTackBackLoop == true);
+
+
+            //do
+            //{
+
+            //    if (castTackbackAudioTrack != null & castTalkbackAudioRecord !=null)
+            //    {
+            //        if (castTackbackAudioTrack.State == AudioTrackState.Initialized & castTalkbackAudioRecord.State ==  Android.Media.State.Initialized)
+            //        {
+            //            try
+            //            {
+
+            //                int lastBytesRead = castTalkbackAudioRecord.Read(talkbackBuffer, 0, bufferSize);
+
+            //                bytesRead
+
+            //                int lastBytesWritten = castTackbackAudioTrack.Write(talkbackBuffer,)
+
+            //            }
+            //            catch (Exception)
+            //            {
+            //                throw;
+            //            }
+            //        }
+            //        else
+            //        {
+            //            // Stops the loop if castTalkbackAudioTrack no longer refers to any instance, or is in a non-initialized state
+            //            if (castTackbackAudioTrack.State == AudioTrackState.Initialized)
+            //            {
+            //                runTackBackLoop = false;
+            //            }
+            //        }
+            //    }
+            //    else
+            //    {
+            //        // Stops the loop if castTalkbackAudioTrack no longer refers to any instance, or is in a non-initialized state
+            //        runTackBackLoop = false;
+            //    }
+            //    Thread.Sleep(bufferNeedCheckInterval);
+            //} while (runTackBackLoop == true);
+        }
+
+        public void StopTalkback()
+        {
+            runTackBackLoop = false;
+        }
+
+
     }
 
 
 
-/// <summary>
-/// Represents permission to access notification policy.
-/// </summary>
-public partial class AccessNotificationPolicy : Microsoft.Maui.ApplicationModel.Permissions.BasePermission
-{
-    public override async Task<PermissionStatus> CheckStatusAsync()
+    /// <summary>
+    /// Represents permission to access notification policy.
+    /// </summary>
+    public partial class AccessNotificationPolicy : Microsoft.Maui.ApplicationModel.Permissions.BasePermission
     {
-        var context = Android.App.Application.Context;
-
-        var notificationManager = (Android.App.NotificationManager)context.GetSystemService(Android.Content.Context.NotificationService);
-
-        if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M
-            && notificationManager.IsNotificationPolicyAccessGranted)
+        public override async Task<PermissionStatus> CheckStatusAsync()
         {
-            return PermissionStatus.Granted;
+            var context = Android.App.Application.Context;
+
+            var notificationManager = (Android.App.NotificationManager)context.GetSystemService(Android.Content.Context.NotificationService);
+
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M
+                && notificationManager.IsNotificationPolicyAccessGranted)
+            {
+                return PermissionStatus.Granted;
+            }
+
+            return PermissionStatus.Denied;
         }
 
-        return PermissionStatus.Denied;
-    }
-
-    public override async Task<PermissionStatus> RequestAsync()
-    {
-        var status = await CheckStatusAsync();
-        if (status == PermissionStatus.Granted)
+        public override async Task<PermissionStatus> RequestAsync()
         {
-            return status;
-        }
+            var status = await CheckStatusAsync();
+            if (status == PermissionStatus.Granted)
+            {
+                return status;
+            }
 
             //var intent2 = new Android.Content.Intent(Android.Provider.Settings.ExtraDoNotDisturbModeEnabled);
             //var intent3 = new Android.Content.Intent(Android.Provider.Settings.ActionVoiceControlDoNotDisturbMode);
 
             var intent = new Android.Content.Intent(Android.Provider.Settings.ActionNotificationPolicyAccessSettings);
-        intent.AddFlags(Android.Content.ActivityFlags.NewTask);
-        Android.App.Application.Context.StartActivity(intent);
+            intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+            Android.App.Application.Context.StartActivity(intent);
 
-        // After returning to the app, you should check the permission status again
-        // This could be done by the user manually calling a method to check the status
-        // after setting the permission from the settings.
-        return PermissionStatus.Denied; // Temporary response, actual check should be done after returning to the app
+            // After returning to the app, you should check the permission status again
+            // This could be done by the user manually calling a method to check the status
+            // after setting the permission from the settings.
+            return PermissionStatus.Denied; // Temporary response, actual check should be done after returning to the app
+
+        }
+
+        public override void EnsureDeclared()
+        {
+            // This permission is a special case and does not need to be declared in the AndroidManifest.xml
+        }
+
+        public override bool ShouldShowRationale()
+        {
+            // For ACCESS_NOTIFICATION_POLICY, we typically won't show a rationale, as this
+            // permission is granted through the system settings and not a standard permission request.
+            return false;
+        }
 
     }
-
-    public override void EnsureDeclared()
-    {
-        // This permission is a special case and does not need to be declared in the AndroidManifest.xml
-    }
-
-    public override bool ShouldShowRationale()
-    {
-        // For ACCESS_NOTIFICATION_POLICY, we typically won't show a rationale, as this
-        // permission is granted through the system settings and not a standard permission request.
-        return false;
-    }
-
-}
 
 }

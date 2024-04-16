@@ -23,6 +23,8 @@ namespace STFM
 
         bool iSoundPlayer.IsPlaying => throw new NotImplementedException();
 
+        public float TalkbackGain { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         event iSoundPlayer.MessageFromPlayerEventHandler iSoundPlayer.MessageFromPlayer
         {
             add
@@ -139,6 +141,15 @@ namespace STFM
 
         public bool SetOutputDevice(string DeviceProductName){throw new Exception();}
 
+        public void StartTalkback()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StopTalkback()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 

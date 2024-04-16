@@ -351,6 +351,8 @@ namespace STFM
             bool hasMediaPermission = await Permissions.CheckStatusAsync<Permissions.Media>() == PermissionStatus.Granted;
             bool hasPhotoPermission = await Permissions.CheckStatusAsync<Permissions.Photos>() == PermissionStatus.Granted;
 
+            bool hasMicrophonePermission = await Permissions.CheckStatusAsync<Permissions.Microphone>() == PermissionStatus.Granted;
+
             //bool hasAccessNotificationPolicyPermission = await Permissions.CheckStatusAsync<AccessNotificationPolicy>() == PermissionStatus.Granted;
 
 
@@ -373,6 +375,12 @@ namespace STFM
             {
                 var status = await Permissions.RequestAsync<Permissions.Photos>();
             }
+
+            if (hasMicrophonePermission == false)
+            {
+                var status = await Permissions.RequestAsync<Permissions.Microphone>();
+            }
+            
 
             //if (hasAccessNotificationPolicyPermission == false)
             //{

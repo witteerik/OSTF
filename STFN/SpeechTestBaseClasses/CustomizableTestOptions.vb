@@ -523,4 +523,18 @@ Public Class CustomizableTestOptions
     Public Property CloseTalkbackChannelTitle As String = "Talkback av"
 
 
+
+    Public Property TalkbackGain As Double
+        Get
+            Return _TalkbackGain
+        End Get
+        Set(value As Double)
+            _TalkbackGain = Math.Round(value)
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _TalkbackGain As Double = 0
+    Public Property TalkbackGainTitle As String = "Talkback-nivå"
+
+
 End Class

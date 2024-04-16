@@ -175,6 +175,15 @@
                         <Button x:Name="OpenTalkbackChannel" Grid.Column="0" Text="{Binding OpenTalkbackChannelTitle}"  Clicked="OpenTalkbackChannel_Clicked"/>
                         <Button x:Name="CloseTalkbackChannel" Grid.Column="1" Text="{Binding CloseTalkbackChannelTitle}"  Clicked="CloseTalkbackChannel_Clicked"/>
                     </Grid>
+                        <Label HorizontalOptions="Center" Margin="0,5,0,0">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding TalkbackGainTitle}" />
+                                    <Span Text="{Binding TalkbackGain, StringFormat=' = {0:F0}'}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    <Slider Value="{Binding TalkbackGain}" ValueChanged="Slider_ValueChanged" Margin="10,0,10,5" Maximum="40" Minimum="-40" MinimumTrackColor="Red" ThumbColor="Red"/>
                 </VerticalStackLayout>
             </Frame>
 

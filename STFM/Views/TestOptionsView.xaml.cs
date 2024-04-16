@@ -442,12 +442,16 @@ public partial class OptionsViewAll : ContentView
 
     private void OpenTalkbackChannel_Clicked(object sender, EventArgs e)
     {
-
+        OstfBase.SoundPlayer.StartTalkback();
     }
 
     private void CloseTalkbackChannel_Clicked(object sender, EventArgs e)
     {
-
+        OstfBase.SoundPlayer.StopTalkback();
     }
 
+    private void Slider_ValueChanged(object sender, ValueChangedEventArgs e)
+    {
+        OstfBase.SoundPlayer.TalkbackGain = (float)e.NewValue;
+    }
 }
