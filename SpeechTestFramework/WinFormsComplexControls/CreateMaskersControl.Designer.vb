@@ -28,21 +28,19 @@ Partial Class CreateMaskersControl
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.Label43 = New System.Windows.Forms.Label()
         Me.Label46 = New System.Windows.Forms.Label()
-        Me.TargetSNR_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.NoiseType_ComboBox = New System.Windows.Forms.ComboBox()
         Me.CreateNoise_Button = New System.Windows.Forms.Button()
         Me.NoiseFrequencyWheighting_ComboBox = New System.Windows.Forms.ComboBox()
         Me.Label48 = New System.Windows.Forms.Label()
         Me.Label50 = New System.Windows.Forms.Label()
-        Me.NumberOfOverlays_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.NoiseDuration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.Label3 = New System.Windows.Forms.Label()
-        Me.Label4 = New System.Windows.Forms.Label()
         Me.SpeechMatchFilterType_ComboBox = New System.Windows.Forms.ComboBox()
-        Me.Smoothen_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.RowingAverageLength_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.Interpolation_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.TargetSNR_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.NumberOfOverlays_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.NoiseDuration_DoubleParsingTextBox = New SpeechTestFramework.DoubleParsingTextBox()
+        Me.EnforceMonotonicAbove1kHz_CheckBox1 = New System.Windows.Forms.CheckBox()
         Me.TableLayoutPanel10.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -65,11 +63,9 @@ Partial Class CreateMaskersControl
         Me.TableLayoutPanel10.Controls.Add(Me.NoiseDuration_DoubleParsingTextBox, 1, 3)
         Me.TableLayoutPanel10.Controls.Add(Me.Label1, 0, 3)
         Me.TableLayoutPanel10.Controls.Add(Me.Label2, 0, 7)
-        Me.TableLayoutPanel10.Controls.Add(Me.Label3, 0, 8)
-        Me.TableLayoutPanel10.Controls.Add(Me.Label4, 0, 9)
         Me.TableLayoutPanel10.Controls.Add(Me.SpeechMatchFilterType_ComboBox, 1, 7)
-        Me.TableLayoutPanel10.Controls.Add(Me.Smoothen_IntegerParsingTextBox, 1, 8)
-        Me.TableLayoutPanel10.Controls.Add(Me.RowingAverageLength_IntegerParsingTextBox, 1, 9)
+        Me.TableLayoutPanel10.Controls.Add(Me.Interpolation_CheckBox, 0, 8)
+        Me.TableLayoutPanel10.Controls.Add(Me.EnforceMonotonicAbove1kHz_CheckBox1, 0, 9)
         Me.TableLayoutPanel10.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel10.Location = New System.Drawing.Point(0, 0)
         Me.TableLayoutPanel10.Name = "TableLayoutPanel10"
@@ -131,16 +127,6 @@ Partial Class CreateMaskersControl
         Me.Label46.Text = "Masking noise type"
         Me.Label46.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'TargetSNR_IntegerParsingTextBox
-        '
-        Me.TargetSNR_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TargetSNR_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.TargetSNR_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 244)
-        Me.TargetSNR_IntegerParsingTextBox.Name = "TargetSNR_IntegerParsingTextBox"
-        Me.TargetSNR_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
-        Me.TargetSNR_IntegerParsingTextBox.TabIndex = 9
-        Me.TargetSNR_IntegerParsingTextBox.Text = "0"
-        '
         'NoiseType_ComboBox
         '
         Me.NoiseType_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
@@ -190,26 +176,6 @@ Partial Class CreateMaskersControl
         Me.Label50.Text = "Number of overlays (for generation of SW noise)"
         Me.Label50.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'NumberOfOverlays_IntegerParsingTextBox
-        '
-        Me.NumberOfOverlays_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.NumberOfOverlays_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.NumberOfOverlays_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 348)
-        Me.NumberOfOverlays_IntegerParsingTextBox.Name = "NumberOfOverlays_IntegerParsingTextBox"
-        Me.NumberOfOverlays_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
-        Me.NumberOfOverlays_IntegerParsingTextBox.TabIndex = 20
-        Me.NumberOfOverlays_IntegerParsingTextBox.Text = "5000"
-        '
-        'NoiseDuration_DoubleParsingTextBox
-        '
-        Me.NoiseDuration_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.NoiseDuration_DoubleParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.NoiseDuration_DoubleParsingTextBox.Location = New System.Drawing.Point(293, 270)
-        Me.NoiseDuration_DoubleParsingTextBox.Name = "NoiseDuration_DoubleParsingTextBox"
-        Me.NoiseDuration_DoubleParsingTextBox.Size = New System.Drawing.Size(166, 20)
-        Me.NoiseDuration_DoubleParsingTextBox.TabIndex = 21
-        Me.NoiseDuration_DoubleParsingTextBox.Text = "60"
-        '
         'Label1
         '
         Me.Label1.Dock = System.Windows.Forms.DockStyle.Fill
@@ -230,26 +196,6 @@ Partial Class CreateMaskersControl
         Me.Label2.Text = "Filter type for speech material weighting"
         Me.Label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'Label3
-        '
-        Me.Label3.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label3.Location = New System.Drawing.Point(3, 397)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(284, 26)
-        Me.Label3.TabIndex = 24
-        Me.Label3.Text = "Smoothening of noise spectrum (optional)"
-        Me.Label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'Label4
-        '
-        Me.Label4.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label4.Location = New System.Drawing.Point(3, 423)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(284, 26)
-        Me.Label4.TabIndex = 25
-        Me.Label4.Text = "Length of rowing average (optional)"
-        Me.Label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
         'SpeechMatchFilterType_ComboBox
         '
         Me.SpeechMatchFilterType_ComboBox.Dock = System.Windows.Forms.DockStyle.Fill
@@ -259,23 +205,63 @@ Partial Class CreateMaskersControl
         Me.SpeechMatchFilterType_ComboBox.Size = New System.Drawing.Size(166, 21)
         Me.SpeechMatchFilterType_ComboBox.TabIndex = 26
         '
-        'Smoothen_IntegerParsingTextBox
+        'Interpolation_CheckBox
         '
-        Me.Smoothen_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Smoothen_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.Smoothen_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 400)
-        Me.Smoothen_IntegerParsingTextBox.Name = "Smoothen_IntegerParsingTextBox"
-        Me.Smoothen_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
-        Me.Smoothen_IntegerParsingTextBox.TabIndex = 27
+        Me.Interpolation_CheckBox.AutoSize = True
+        Me.Interpolation_CheckBox.Checked = True
+        Me.Interpolation_CheckBox.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.TableLayoutPanel10.SetColumnSpan(Me.Interpolation_CheckBox, 2)
+        Me.Interpolation_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Interpolation_CheckBox.Location = New System.Drawing.Point(3, 400)
+        Me.Interpolation_CheckBox.Name = "Interpolation_CheckBox"
+        Me.Interpolation_CheckBox.Size = New System.Drawing.Size(456, 20)
+        Me.Interpolation_CheckBox.TabIndex = 27
+        Me.Interpolation_CheckBox.Text = "Interpolate frequency response (Neville polynomial interpolation)"
+        Me.Interpolation_CheckBox.UseVisualStyleBackColor = True
         '
-        'RowingAverageLength_IntegerParsingTextBox
+        'TargetSNR_IntegerParsingTextBox
         '
-        Me.RowingAverageLength_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.RowingAverageLength_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.RowingAverageLength_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 426)
-        Me.RowingAverageLength_IntegerParsingTextBox.Name = "RowingAverageLength_IntegerParsingTextBox"
-        Me.RowingAverageLength_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
-        Me.RowingAverageLength_IntegerParsingTextBox.TabIndex = 28
+        Me.TargetSNR_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TargetSNR_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.TargetSNR_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 244)
+        Me.TargetSNR_IntegerParsingTextBox.Name = "TargetSNR_IntegerParsingTextBox"
+        Me.TargetSNR_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
+        Me.TargetSNR_IntegerParsingTextBox.TabIndex = 9
+        Me.TargetSNR_IntegerParsingTextBox.Text = "0"
+        '
+        'NumberOfOverlays_IntegerParsingTextBox
+        '
+        Me.NumberOfOverlays_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.NumberOfOverlays_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.NumberOfOverlays_IntegerParsingTextBox.Location = New System.Drawing.Point(293, 348)
+        Me.NumberOfOverlays_IntegerParsingTextBox.Name = "NumberOfOverlays_IntegerParsingTextBox"
+        Me.NumberOfOverlays_IntegerParsingTextBox.Size = New System.Drawing.Size(166, 20)
+        Me.NumberOfOverlays_IntegerParsingTextBox.TabIndex = 20
+        Me.NumberOfOverlays_IntegerParsingTextBox.Text = "5000"
+        '
+        'NoiseDuration_DoubleParsingTextBox
+        '
+        Me.NoiseDuration_DoubleParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.NoiseDuration_DoubleParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.NoiseDuration_DoubleParsingTextBox.Location = New System.Drawing.Point(293, 270)
+        Me.NoiseDuration_DoubleParsingTextBox.Name = "NoiseDuration_DoubleParsingTextBox"
+        Me.NoiseDuration_DoubleParsingTextBox.Size = New System.Drawing.Size(166, 20)
+        Me.NoiseDuration_DoubleParsingTextBox.TabIndex = 21
+        Me.NoiseDuration_DoubleParsingTextBox.Text = "60"
+        '
+        'EnforceMonotonicAbove1kHz_CheckBox1
+        '
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.AutoSize = True
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.Checked = True
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.TableLayoutPanel10.SetColumnSpan(Me.EnforceMonotonicAbove1kHz_CheckBox1, 2)
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.Location = New System.Drawing.Point(3, 426)
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.Name = "EnforceMonotonicAbove1kHz_CheckBox1"
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.Size = New System.Drawing.Size(456, 20)
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.TabIndex = 28
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.Text = "Enforce monotonic frequency response above 1 kHz"
+        Me.EnforceMonotonicAbove1kHz_CheckBox1.UseVisualStyleBackColor = True
         '
         'CreateMaskersControl
         '
@@ -304,9 +290,7 @@ Partial Class CreateMaskersControl
     Friend WithEvents Label43 As Windows.Forms.Label
     Friend WithEvents Label1 As Windows.Forms.Label
     Friend WithEvents Label2 As Windows.Forms.Label
-    Friend WithEvents Label3 As Windows.Forms.Label
-    Friend WithEvents Label4 As Windows.Forms.Label
     Friend WithEvents SpeechMatchFilterType_ComboBox As Windows.Forms.ComboBox
-    Friend WithEvents Smoothen_IntegerParsingTextBox As IntegerParsingTextBox
-    Friend WithEvents RowingAverageLength_IntegerParsingTextBox As IntegerParsingTextBox
+    Friend WithEvents Interpolation_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents EnforceMonotonicAbove1kHz_CheckBox1 As Windows.Forms.CheckBox
 End Class

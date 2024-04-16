@@ -41,23 +41,23 @@ Public Class CreateMaskersControl
 
     Private Sub CreateMaskersControl_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'Items for the GenerateSnrRangeStimuli_NoiseType_ComboBox
-        NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.White)
-        NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.RandomSuperposition)
         NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.SpeechMaterialWeighted)
+        NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.RandomSuperposition)
         NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.StandardSpeechWeighted)
-        NoiseType_ComboBox.SelectedIndex = 2
+        NoiseType_ComboBox.Items.Add(GenerateSnrRangeStimuli_NoiseTypes.White)
+        NoiseType_ComboBox.SelectedIndex = 0
 
-        NoiseFrequencyWheighting_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
         NoiseFrequencyWheighting_ComboBox.Items.Add(Audio.FrequencyWeightings.C)
+        NoiseFrequencyWheighting_ComboBox.Items.Add(Audio.FrequencyWeightings.Z)
         NoiseFrequencyWheighting_ComboBox.Items.Add(Audio.FrequencyWeightings.K)
         NoiseFrequencyWheighting_ComboBox.Items.Add(Audio.FrequencyWeightings.RLB)
-        NoiseFrequencyWheighting_ComboBox.SelectedIndex = 1
+        NoiseFrequencyWheighting_ComboBox.SelectedIndex = 0
 
         SpeechMatchFilterType_ComboBox.Items.Add(SpeechMatchFilterTypes.OctaveBands)
         SpeechMatchFilterType_ComboBox.Items.Add(SpeechMatchFilterTypes.HalfOctaveBands)
         SpeechMatchFilterType_ComboBox.Items.Add(SpeechMatchFilterTypes.ThirdOctaveBands)
         SpeechMatchFilterType_ComboBox.Items.Add(SpeechMatchFilterTypes.SiiCriticalBands)
-        SpeechMatchFilterType_ComboBox.SelectedIndex = 1
+        SpeechMatchFilterType_ComboBox.SelectedIndex = 0
 
     End Sub
 
@@ -72,12 +72,12 @@ Public Class CreateMaskersControl
 
         If NoiseType_ComboBox.SelectedItem = GenerateSnrRangeStimuli_NoiseTypes.SpeechMaterialWeighted Then
             SpeechMatchFilterType_ComboBox.Enabled = True
-            Smoothen_IntegerParsingTextBox.Enabled = True
-            RowingAverageLength_IntegerParsingTextBox.Enabled = True
+            Interpolation_CheckBox.Enabled = True
+            EnforceMonotonicAbove1kHz_CheckBox1.Enabled = True
         Else
             SpeechMatchFilterType_ComboBox.Enabled = False
-            Smoothen_IntegerParsingTextBox.Enabled = False
-            RowingAverageLength_IntegerParsingTextBox.Enabled = False
+            Interpolation_CheckBox.Enabled = False
+            EnforceMonotonicAbove1kHz_CheckBox1.Enabled = True
         End If
 
     End Sub
@@ -144,23 +144,9 @@ Public Class CreateMaskersControl
         End If
 
         Dim SpeechMatchFilterType As SpeechMatchFilterTypes = SpeechMatchFilterType_ComboBox.SelectedItem
-        Dim SmoothCount As Integer = 0
-        If Smoothen_IntegerParsingTextBox.Value.HasValue Then
-            SmoothCount = Smoothen_IntegerParsingTextBox.Value
-            If SmoothCount < 0 Then
-                MsgBox("Smoothening of noise spectrum must be a non-negative integer value!")
-                Exit Sub
-            End If
-        End If
 
-        Dim RowingAverageLength As Integer = 2 ' Using 2 as default
-        If RowingAverageLength_IntegerParsingTextBox.Value.HasValue Then
-            RowingAverageLength = RowingAverageLength_IntegerParsingTextBox.Value
-            If RowingAverageLength < 0 Then
-                MsgBox("Rowing average length must be a non-negative integer value!")
-                Exit Sub
-            End If
-        End If
+        Dim UseInterpolate As Boolean = Interpolation_CheckBox.Checked
+        Dim EnforceMonotonicAbove1k As Boolean = EnforceMonotonicAbove1kHz_CheckBox1.Checked
 
         'All arguments ok, now start processing
 
@@ -237,49 +223,102 @@ Public Class CreateMaskersControl
                 'Calculating spectrum levels 
                 Dim FftFormat = New Audio.Formats.FftFormat(4096,, 2048, Audio.WindowingType.Hanning, True)
                 Dim BandLevels = Audio.DSP.CalculateSpectrumLevels(AllSoundsConcatenated, 1, BandBank, FftFormat)
+                Dim BandCentreFrequencies = BandBank.GetCentreFrequencies.ToList
 
-                'Applies a smoothening function to the band levels
-                If SmoothCount > 0 Then
+                If EnforceMonotonicAbove1k = True Then
+                    For i = 1 To BandLevels.Count - 1
+                        Dim InverseIndex As Integer = BandLevels.Count - 1 - i
 
-                    Dim AveragedBandLevels As New List(Of Double)
-                    For i = 0 To BandLevels.Count - 1
-                        Dim AverageList As New List(Of Double)
-                        For f = 0 To RowingAverageLength - 1
-                            If f + i < BandLevels.Count Then
-                                AverageList.Add(BandLevels(i + f))
-                            End If
-                        Next
-                        If AverageList.Count > 0 Then AveragedBandLevels.Add(AverageList.Average)
+                        'Exits if we've come below 1 kHz
+                        If BandCentreFrequencies(InverseIndex) < 1000 Then Exit For
+
+                        'Limits the current (lower frequency) band level to the level of the next higher frequency band level.
+                        BandLevels(InverseIndex) = Math.Max(BandLevels(InverseIndex), BandLevels(InverseIndex + 1))
+
                     Next
-
-                    For r = 0 To SmoothCount * 2
-                        Dim ReversedInterpolatedBandLevels As New List(Of Double)
-                        AveragedBandLevels.Reverse()
-                        For i = 0 To AveragedBandLevels.Count - 1
-                            Dim AverageList As New List(Of Double)
-                            For f = 0 To RowingAverageLength - 1
-                                If f + i < AveragedBandLevels.Count Then
-                                    AverageList.Add(AveragedBandLevels(i + f))
-                                End If
-                            Next
-                            If AverageList.Count > 0 Then ReversedInterpolatedBandLevels.Add(AverageList.Average)
-                        Next
-                        AveragedBandLevels = ReversedInterpolatedBandLevels
-                    Next
-                    AveragedBandLevels.Reverse()
-                    BandLevels = AveragedBandLevels
                 End If
 
-                'Creating a FIR filter kernel with the band levels
-                Dim FR As New List(Of Tuple(Of Single, Single))
-                Dim Fc = BandBank.GetCentreFrequencies.ToList
-                For i = 0 To BandLevels.Count - 1
-                    FR.Add(New Tuple(Of Single, Single)(Fc(i), BandLevels(i)))
-                Next
-                'Adding a last point manually at the highest available frequency
-                FR.Add(New Tuple(Of Single, Single)((WaveFormat.SampleRate / 2) - 1, BandLevels.Last - 30))
+                Dim TargetFrequencyResponse As New List(Of Tuple(Of Single, Single))
 
-                Dim IR = Audio.GenerateSound.CreateCustumImpulseResponse(FR, Nothing, WaveFormat, New Audio.Formats.FftFormat(4096), 4096)
+                'Adding a first point manually at the lowest available frequency
+                TargetFrequencyResponse.Add(New Tuple(Of Single, Single)(1, BandLevels.First - 50))
+
+                'Creating a FIR filter kernel with the band levels
+                If UseInterpolate = True Then
+
+                    BandCentreFrequencies.Add(BandCentreFrequencies.Last * Math.Pow(2, 1 / 6)) 'Adding a point at a sixth octave above the highest fc, linearly interpolated from the levels of the two last values
+                    BandLevels.Add(BandLevels(BandLevels.Count - 1) + (BandLevels(BandLevels.Count - 1) - BandLevels(BandLevels.Count - 2)))
+
+                    'Log2Frequencies
+                    Dim Log2Frequencies As New List(Of Double)
+                    For Each Frequency In BandCentreFrequencies
+                        Log2Frequencies.Add(Utils.getBase_n_Log(Frequency, 2))
+                    Next
+
+                    'Creating an interpolator
+                    Dim Interpolator = MathNet.Numerics.Interpolate.Polynomial(Log2Frequencies, BandLevels)
+
+                    'Getting all FFT bin frequencies (half spectrum, excluding zero and Nyquist frequencies)
+                    Dim InterpolationFrequencies(FftFormat.FftWindowSize / 2 - 2) As Double
+                    For k = 1 To InterpolationFrequencies.Length
+                        InterpolationFrequencies(k - 1) = Audio.AudioManagementExt.FftBinFrequencyConversion(Audio.AudioManagementExt.FftBinFrequencyConversionDirection.BinIndexToFrequency, k, WaveFormat.SampleRate, FftFormat.FftWindowSize, Utils.roundingMethods.getClosestValue)
+                    Next
+
+                    For i = 0 To InterpolationFrequencies.Length - 1
+                        'Skipping extrapolation
+                        If InterpolationFrequencies(i) < BandCentreFrequencies.First Then Continue For
+                        If InterpolationFrequencies(i) > BandCentreFrequencies(BandCentreFrequencies.Count - 2) Then Continue For
+                        'Adding interpolated values
+                        TargetFrequencyResponse.Add(New Tuple(Of Single, Single)(InterpolationFrequencies(i), Interpolator.Interpolate(Utils.getBase_n_Log(InterpolationFrequencies(i), 2))))
+                    Next
+
+                    If EnforceMonotonicAbove1k = True Then
+                        Dim TempTargetFrequencyResponse As New List(Of Tuple(Of Single, Single))
+                        Dim LastLimitValue As Double? = Nothing
+                        For i = 1 To TargetFrequencyResponse.Count - 1
+                            Dim InverseIndex As Integer = TargetFrequencyResponse.Count - 1 - i
+
+                            If TargetFrequencyResponse(InverseIndex).Item1 < 1000 Then
+
+                                'Stored the original value
+                                TempTargetFrequencyResponse.Insert(0, New Tuple(Of Single, Single)(
+                                                                   TargetFrequencyResponse(InverseIndex).Item1,
+                                                                   TargetFrequencyResponse(InverseIndex).Item2)
+                                                                   )
+
+                            Else
+
+                                'Limits (again after interpolation) the current (lower frequency) band level to the level of the next higher frequency band level.
+                                If LastLimitValue.HasValue = False Then LastLimitValue = TargetFrequencyResponse(InverseIndex + 1).Item2
+                                LastLimitValue = Math.Max(TargetFrequencyResponse(InverseIndex).Item2, LastLimitValue.Value)
+                                TempTargetFrequencyResponse.Insert(0, New Tuple(Of Single, Single)(TargetFrequencyResponse(InverseIndex).Item1, LastLimitValue))
+
+                            End If
+
+                        Next
+                        'Adding the last item
+                        'Limits (again after interpolation) the current (lower frequency) band level to the level of the next higher frequency band level.
+                        TempTargetFrequencyResponse.Add(New Tuple(Of Single, Single)(TargetFrequencyResponse.Last.Item1, TargetFrequencyResponse.Last.Item2))
+
+                        'Swapping references to get the modified data
+                        TargetFrequencyResponse = TempTargetFrequencyResponse
+
+                    End If
+
+                Else
+
+                    'Adding frequency bins
+                    For i = 0 To BandLevels.Count - 1
+                        TargetFrequencyResponse.Add(New Tuple(Of Single, Single)(BandCentreFrequencies(i), BandLevels(i)))
+                    Next
+
+                End If
+
+                'Adding a last point manually at the highest available frequency
+                TargetFrequencyResponse.Add(New Tuple(Of Single, Single)((WaveFormat.SampleRate / 2), BandLevels.Last - 30))
+
+
+                Dim IR = Audio.GenerateSound.CreateCustumImpulseResponse(TargetFrequencyResponse, Nothing, WaveFormat, New Audio.Formats.FftFormat(4096), 4096)
 
                 'Creates a white noise
                 Dim InternalNoiseSound = Audio.GenerateSound.CreateWhiteNoise(IR.WaveFormat, 1, , TotalNoiseLength, Audio.BasicAudioEnums.TimeUnits.samples)
