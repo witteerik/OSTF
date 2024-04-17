@@ -400,6 +400,7 @@ Public Module OstfBase
                 Dim InputDeviceNames As New List(Of String) ' Used for MME multiple device support
                 Dim BufferSize As Integer = 2048
                 Dim AllowDefaultOutputDevice As Boolean? = Nothing
+                Dim AllowDefaultInputDevice As Boolean? = Nothing
 
                 Dim LinesRead As Integer = 0
                 For i = 0 To MediaPlayerInputLines.Length - 1
@@ -426,6 +427,7 @@ Public Module OstfBase
                     If Line.Replace(" ", "").StartsWith("InputDevices=") Then InputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
                     If Line.StartsWith("BufferSize") Then BufferSize = InputFileSupport.InputFileIntegerValueParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("AllowDefaultOutputDevice") Then AllowDefaultOutputDevice = InputFileSupport.InputFileBooleanValueParsing(Line, True, AudioSystemSpecificationFilePath)
+                    If Line.StartsWith("AllowDefaultInputDevice") Then AllowDefaultInputDevice = InputFileSupport.InputFileBooleanValueParsing(Line, True, AudioSystemSpecificationFilePath)
 
                 Next
 
@@ -468,6 +470,16 @@ Public Module OstfBase
                     End If
 
                     AudioSettings.AllowDefaultOutputDevice = AllowDefaultOutputDevice
+
+                    If AllowDefaultInputDevice Is Nothing Then
+                        DeviceLoadSuccess = False
+                        MsgBox("The AllowDefaultInputDevice behaviour must be specified in the file " & AudioSystemSpecificationFilePath & "!" & vbCrLf & vbCrLf &
+                               "Use either:" & vbCrLf & "AllowDefaultInputDevice = True" & vbCrLf & "or" & vbCrLf & "AllowDefaultInputDevice = False" & vbCrLf & vbCrLf &
+                               "Press OK to close the application.", MsgBoxStyle.Exclamation, "Sound device specification error!")
+                        Messager.RequestCloseApp()
+                    End If
+
+                    AudioSettings.AllowDefaultInputDevice = AllowDefaultInputDevice
 
                     If DeviceLoadSuccess = True Then
                         If ApiName = "ASIO" Then
@@ -546,6 +558,7 @@ Public Module OstfBase
                     'Setting up the player must be done in STFM as there is no access to Android AudioTrack in STFN, however the object holding the AudioSettings must be created here as it needs to be referenced in the Transducers below
                     AudioSettings = New Audio.AndroidAudioTrackPlayerSettings
                     AudioSettings.AllowDefaultOutputDevice = AllowDefaultOutputDevice
+                    AudioSettings.AllowDefaultInputDevice = AllowDefaultInputDevice
                     DirectCast(AudioSettings, AndroidAudioTrackPlayerSettings).SelectedOutputDeviceName = OutputDeviceName
                     DirectCast(AudioSettings, AndroidAudioTrackPlayerSettings).SelectedInputDeviceName = InputDeviceName
                     AudioSettings.FramesPerBuffer = BufferSize

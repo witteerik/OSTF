@@ -19,6 +19,7 @@ InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
 BufferSize = 1024 // Must be powers of 2
 
 AllowDefaultOutputDevice = True // Value must be True or False. If True, OSTF is allowed to select the default audio output device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system.
+AllowDefaultInputDevice = True // Value must be True or False. If True, OSTF is allowed to select the default audio input device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system.
 
 <New transducer>
 Name = Headphones
@@ -85,11 +86,12 @@ MediaPlayerType = AudioTrackBased // must be either PaBased or AudioTrackBased (
 // InputDevices = //1-2 (OCTA-CAPTURE)
 
 OutputDevice = USB-Audio - AudioQuest DragonFly Black v1.5 // TB328FU 
-InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
+InputDevice = TB328FU+WiredHeadset // Device name + Device type
 
 BufferSize = 1024 // Must be powers of 2
 
 AllowDefaultOutputDevice = True // Value must be True or False. If True, OSTF is allowed to select the default audio output device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system.
+AllowDefaultInputDevice = True // Value must be True or False. If True, OSTF is allowed to select the default audio input device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system.
 
 <New transducer>
 Name = Headphones

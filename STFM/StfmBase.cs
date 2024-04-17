@@ -82,7 +82,7 @@ namespace STFM
                 }
 
                 // Selects the transducer indicated in the settings file
-                if (AndroidAudioTrackPlayer.CheckIfOutputDeviceExists(currentAudioSettings.SelectedOutputDeviceName) == false)
+                if (AndroidAudioTrackPlayer.CheckIfDeviceExists(currentAudioSettings.SelectedOutputDeviceName, true) == false)
                 {
                     if (currentAudioSettings.AllowDefaultOutputDevice.Value)
                     {
@@ -95,6 +95,33 @@ namespace STFM
                     else
                     {
                         await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nPlease connect the correct sound device and restart the app!\n\nPress OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+                        Messager.RequestCloseApp();
+                    }
+                }
+ 
+                if (currentAudioSettings.AllowDefaultInputDevice.HasValue == false)
+                {
+                    await Messager.MsgBoxAsync("The AllowDefaultInputDevice behaviour must be specified in the audio system specifications file.\n\n" +
+                        "Please add either of the following to the settings of the intended media player:\n\n" +
+                        "Use either:\nAllowDefaultInputDevice = True\nor\nAllowDefaultInputDevice = False\n\n" +
+                        "Unable to start the application. Press OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+                    Messager.RequestCloseApp();
+                }
+
+                // Selects the input source indicated in the settings file
+                if (AndroidAudioTrackPlayer.CheckIfDeviceExists(currentAudioSettings.SelectedInputDeviceName, false) == false)
+                {
+                    if (currentAudioSettings.AllowDefaultInputDevice.Value)
+                    {
+                        await Messager.MsgBoxAsync("Unable to find the correct sound input device!\nThe following audio input device should be used:\n\n'" + currentAudioSettings.SelectedInputDeviceName + "'\n\nClick OK to use the default audio input device instead!\n\n" +
+                            "IMPORTANT: Sound calibration and/or routing may not be correct!", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+
+                        // Overriding the value of SelectedInputDeviceName by an empty string. Setting currentAudioSettings.SelectedInputDeviceName should then accept any input device in the android player.
+                        currentAudioSettings.SelectedInputDeviceName = "";
+                    }
+                    else
+                    {
+                        await Messager.MsgBoxAsync("Unable to find the correct sound input device!\nThe following audio input device should be used:\n\n'" + currentAudioSettings.SelectedInputDeviceName + "'\n\nPlease connect the correct sound input device and restart the app!\n\nPress OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
                         Messager.RequestCloseApp();
                     }
                 }

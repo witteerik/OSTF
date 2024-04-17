@@ -112,7 +112,7 @@ namespace STFM
 
         bool runAudioCheckLoop = false;
 
-        volatile bool runTackBackLoop = true;
+        volatile bool runTalkBackLoop = true;
 
         [SupportedOSPlatform("Android31.0")]
         public AndroidAudioTrackPlayer(ref AndroidAudioTrackPlayerSettings AudioSettings, ref DuplexMixer Mixer)
@@ -204,6 +204,9 @@ namespace STFM
                 // Start the AudioTrack
                 castAudioTrack.Play();
 
+                // Sets the output device
+                CheckAndSetRequiredMainOutputDevice();
+
                 // Starting the loop that supplied samples tothe AudioTrack on a new thread
                 Thread newThread = new Thread(new ThreadStart(BufferLoop));
                 newThread.Start();
@@ -237,7 +240,7 @@ namespace STFM
             }
         }
 
-
+        [SupportedOSPlatform("Android31.0")]
         public void ChangePlayerSettings(AudioSettings AudioApiSettings, int? SampleRate, int? BitDepth, WaveFormat.WaveFormatEncodings? Encoding, double? OverlapDuration, DuplexMixer Mixer, iSoundPlayer.SoundDirections? SoundDirection, bool ReOpenStream, bool ReStartStream, bool? ClippingIsActivated)
         {
 
@@ -560,41 +563,13 @@ namespace STFM
                     return false;
                 }
 
-                // Trying to get the currently selected output device 
-                var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
-                var devices = audioManager.GetDevices(GetDevicesTargets.Outputs);
-                AudioDeviceInfo CurrentlySelectedOutputDevice = castAudioTrack.RoutedDevice;
+                AudioManager audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
 
-                // Checks that the intended output device is set, if AllowAnyOutputDevice is false.
-                if (AllowAnyOutputDevice == false)
-                {
-                    if (CurrentlySelectedOutputDevice == null)
-                    {
-                        // No output device is set. Trying to set the intended output device.
-                        foreach (var device in devices)
-                        {
-                            if (device.ProductName != null)
-                            {
-                                string ProductName = device.ProductName;
-                                if (ProductName == IntendedOutputDeviceName)
-                                {
-                                    if (castAudioTrack.SetPreferredDevice(device) == false)
-                                    {
-                                        if (spinLockTaken) audioCheckSpinLock.Exit();
-                                        return false;
-                                    };
-                                }
-                            }
-                        }
-                    }
+                //Checks that the main AudioTrack has the correct output device set
+                CheckAndSetRequiredMainOutputDevice(audioManager);
 
-                    // Checks that the correct output device is set 
-                    if (CurrentlySelectedOutputDevice.ProductName != IntendedOutputDeviceName)
-                    {
-                        if (spinLockTaken) audioCheckSpinLock.Exit();
-                        return false;
-                    }
-                }
+                //Checks that the talkback AudioTrack has the correct output device set
+                CheckTalkBackAudioDevice(audioManager);
 
 
                 // Checks that the intended volume is set
@@ -1013,25 +988,46 @@ namespace STFM
         // Some helper functions
 
         /// <summary>
-        /// Checks if an output sound device with the ProductName of DeviceProductName exist on the system. 
+        /// Checks if an output or input sound device with the ProductName of DeviceProductName exist on the system. 
         /// </summary>
         /// <param name="DeviceProductName"></param>
         /// <returns>Returns true if output exists on the system, or false if not.</returns>
         [SupportedOSPlatform("Android31.0")]
-        public static bool CheckIfOutputDeviceExists(string DeviceProductName)
+        public static bool CheckIfDeviceExists(string DeviceProductName, bool IsOutput)
         {
             try
             {
                 var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
-                var devices = audioManager.GetDevices(GetDevicesTargets.Outputs);
+                AudioDeviceInfo[] devices ;
+                if (IsOutput == true)
+                {
+                    devices = audioManager.GetDevices(GetDevicesTargets.Outputs);
+                }
+                else
+                {
+                    devices = audioManager.GetDevices(GetDevicesTargets.Inputs);
+                }
+
                 foreach (var device in devices)
                 {
                     if (device.ProductName != null)
                     {
                         string ProductName = device.ProductName;
-                        if (ProductName == DeviceProductName)
+                        if (IsOutput == true)
                         {
-                            return true;
+                            if (ProductName == DeviceProductName)
+                            {
+                                return true;
+                            }
+                        }
+                        else 
+                        {
+                            string deviceType = device.Type.ToString();
+                            string evaluationString = ProductName + "+" + deviceType;
+                            if (evaluationString == DeviceProductName)
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -1097,44 +1093,52 @@ namespace STFM
         /// <summary>
         /// Sets the output device to the first output device with a ProductName of DeviceProductName. 
         /// </summary>
-        /// <param name="DeviceProductName"></param>
         /// <returns>Returns true if the intended device was set, otherwise false.</returns>
         [SupportedOSPlatform("Android31.0")]
-        public bool SetOutputDevice(string DeviceProductName)
+        public bool CheckAndSetRequiredMainOutputDevice(AudioManager audioManager = null)
         {
 
             try
             {
 
-                // This should only make sure that the intended device exists, and perhaps store it in the player (a shared variable?) / or just read it from the AudioSettings
-                // It should then be made sure that this device gets selected when the player starts. 
-                // Itäs of course not possible to select the AudioTrack output before the AudioTrack has been instantiated!
-
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
 
-                var audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
+                // Trying to get the currently selected output device 
+                if (audioManager == null) {audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;}
                 var devices = audioManager.GetDevices(GetDevicesTargets.Outputs);
+                AudioDeviceInfo CurrentlySelectedOutputDevice = castAudioTrack.RoutedDevice;
 
-                foreach (var device in devices)
+                if (AudioSettings.AllowDefaultOutputDevice.Value == false)
                 {
-                    if (device.ProductName != null)
+                    if (CurrentlySelectedOutputDevice == null)
                     {
-                        string ProductName = device.ProductName;
-                        if (ProductName == DeviceProductName)
+                        // No output device is set. Trying to set the intended output device.
+                        foreach (var device in devices)
                         {
-                            if (castAudioTrack.SetPreferredDevice(device) == true)
+                            if (device.ProductName != null)
                             {
-                                return true;
-                            };
+                                string ProductName = device.ProductName;
+                                if (ProductName == AudioSettings.SelectedOutputDeviceName)
+                                {
+                                    if (castAudioTrack.SetPreferredDevice(device) == false)
+                                    {
+                                        return false;
+                                    };
+                                }
+                            }
                         }
                     }
+
+                    // Checks that the correct output device is set 
+                    if (CurrentlySelectedOutputDevice.ProductName != AudioSettings.SelectedOutputDeviceName)
+                    {
+                        return false;
+                    }
                 }
-                return false;
+                return true;
             }
             catch (Exception ex)
             {
-                Messager.MsgBox(ex.ToString());
-                //throw;
                 return false;
             }
         }
@@ -1214,15 +1218,21 @@ namespace STFM
         public void StartTalkback()
         {
 
-            runTackBackLoop = false;
+            int talkbackSampleRate = 48000;
+            if (CurrentFormat != null)
+            {
+                talkbackSampleRate = (int)CurrentFormat.SampleRate;
+            }
+
+            runTalkBackLoop = false;
 
             // (re-)Initializing audio
             if (TalkbackAudioTrack !=null)
             {
-                AudioTrack castPreviuosTackbackAudioTrack = (AudioTrack)TalkbackAudioTrack;
-                castPreviuosTackbackAudioTrack.Stop();
-                castPreviuosTackbackAudioTrack.Release();
-                castPreviuosTackbackAudioTrack.Dispose();
+                AudioTrack castPreviuosTalkbackAudioTrack = (AudioTrack)TalkbackAudioTrack;
+                castPreviuosTalkbackAudioTrack.Stop();
+                castPreviuosTalkbackAudioTrack.Release();
+                castPreviuosTalkbackAudioTrack.Dispose();
                 TalkbackAudioTrack = null;
             }
 
@@ -1240,7 +1250,7 @@ namespace STFM
 
             TackbackAudioTrackBuilder.SetAudioFormat(new AudioFormat.Builder()
                 .SetEncoding(Android.Media.Encoding.Pcm32bit)
-                .SetSampleRate((int)CurrentFormat.SampleRate)
+                .SetSampleRate(talkbackSampleRate)
                 .SetChannelMask( ChannelOut.Mono)
                 .Build());
 
@@ -1264,7 +1274,7 @@ namespace STFM
             // Start the AudioTrack
             castTalkbackAudioTrack.Play();
 
-            TalkbackAudioRecord = new AudioRecord(AudioSource.Default, (int)CurrentFormat.SampleRate, ChannelIn.Mono, Encoding.Pcm32bit, TalkbackBufferSize);
+            TalkbackAudioRecord = new AudioRecord(AudioSource.Default, talkbackSampleRate, ChannelIn.Mono, Encoding.Pcm32bit, TalkbackBufferSize);
 
             AudioRecord castTalkbackAudioRecord = (AudioRecord)TalkbackAudioRecord;
 
@@ -1291,18 +1301,19 @@ namespace STFM
             }
         }
 
-
+        [SupportedOSPlatform("Android31.0")]
         private void TackbackLoop()
         {
 
-            AudioTrack castTackbackAudioTrack = (AudioTrack)TalkbackAudioTrack;
+            AudioTrack castTalkbackAudioTrack = (AudioTrack)TalkbackAudioTrack;
             AudioRecord castTalkbackAudioRecord = (AudioRecord)TalkbackAudioRecord;
-            runTackBackLoop = true;
+            runTalkBackLoop = true;
+
+            // Chacking that we have the right output device
+            CheckTalkBackAudioDevice();
 
             byte[] talkbackBuffer = new byte[TalkbackBufferSize];
 
-            //int bytesRead = 0;
-            //int bytesWritten = 0;
             int bytesEachLoop = TalkbackBufferSize / 10;
             int loopsPerBuffer = TalkbackBufferSize / bytesEachLoop;
 
@@ -1310,88 +1321,127 @@ namespace STFM
             {
                 try
                 {
-
-                    castTackbackAudioTrack.SetVolume(talkbackGain);
-
+                    castTalkbackAudioTrack.SetVolume(talkbackGain);
                     for (int i = 0; i < loopsPerBuffer; i++)
                     {
-
-                        //if (runTackBackLoop == false)
-                        //{
-                        //    break;
-                        //}
-
-                        int lastBytesRead = castTalkbackAudioRecord.Read(talkbackBuffer, i * bytesEachLoop, bytesEachLoop);
-
-                        //if (lastBytesRead == bytesEachLoop)
-                        //{
-                            int lastBytesWritten = castTackbackAudioTrack.Write(talkbackBuffer, i * bytesEachLoop, bytesEachLoop);
-                        //}
-                        //else
-                        //{
-                        //    //runTackBackLoop = false;
-                        //}
-
+                        int lastBytesRead = castTalkbackAudioRecord.Read(talkbackBuffer, i * bytesEachLoop, bytesEachLoop, 0);
+                        int lastBytesWritten = castTalkbackAudioTrack.Write(talkbackBuffer, i * bytesEachLoop, bytesEachLoop, WriteMode.Blocking);
                     }
 
                 }
                 catch (Exception)
                 {
-                    runTackBackLoop = false;
+                    runTalkBackLoop = false;
                 }
-
-            } while (runTackBackLoop == true);
-
-
-            //do
-            //{
-
-            //    if (castTackbackAudioTrack != null & castTalkbackAudioRecord !=null)
-            //    {
-            //        if (castTackbackAudioTrack.State == AudioTrackState.Initialized & castTalkbackAudioRecord.State ==  Android.Media.State.Initialized)
-            //        {
-            //            try
-            //            {
-
-            //                int lastBytesRead = castTalkbackAudioRecord.Read(talkbackBuffer, 0, bufferSize);
-
-            //                bytesRead
-
-            //                int lastBytesWritten = castTackbackAudioTrack.Write(talkbackBuffer,)
-
-            //            }
-            //            catch (Exception)
-            //            {
-            //                throw;
-            //            }
-            //        }
-            //        else
-            //        {
-            //            // Stops the loop if castTalkbackAudioTrack no longer refers to any instance, or is in a non-initialized state
-            //            if (castTackbackAudioTrack.State == AudioTrackState.Initialized)
-            //            {
-            //                runTackBackLoop = false;
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        // Stops the loop if castTalkbackAudioTrack no longer refers to any instance, or is in a non-initialized state
-            //        runTackBackLoop = false;
-            //    }
-            //    Thread.Sleep(bufferNeedCheckInterval);
-            //} while (runTackBackLoop == true);
+            } while (runTalkBackLoop == true);
         }
 
         public void StopTalkback()
         {
-            runTackBackLoop = false;
+            runTalkBackLoop = false;
         }
 
+        [SupportedOSPlatform("Android31.0")]
+        bool CheckTalkBackAudioDevice(AudioManager audioManager = null)
+        {
 
+            AudioTrack castTalkbackAudioTrack = (AudioTrack)TalkbackAudioTrack;
+
+            if (castTalkbackAudioTrack == null)
+            {
+                // This means that the talkback is not active. Simply returns true.
+                return true;
+            }
+
+            // Trying to get the currently selected output device 
+            if (audioManager == null) { audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager; }
+            var outputDevices = audioManager.GetDevices(GetDevicesTargets.Outputs);
+            AudioDeviceInfo CurrentlySelectedOutputDevice = castTalkbackAudioTrack.RoutedDevice;
+
+            // Checks that the intended output device is set, if AllowAnyOutputDevice is false.
+            if (AudioSettings.AllowDefaultOutputDevice == false)
+            {
+                if (CurrentlySelectedOutputDevice == null)
+                {
+                    // No output device is set. Trying to set the intended output device.
+                    foreach (var device in outputDevices)
+                    {
+                        if (device.ProductName != null)
+                        {
+                            string ProductName = device.ProductName;
+                            if (ProductName == AudioSettings.SelectedOutputDeviceName)
+                            {
+                                if (castTalkbackAudioTrack.SetPreferredDevice(device) == false)
+                                {
+                                    //if (spinLockTaken) audioCheckSpinLock.Exit();
+                                    return false;
+                                };
+                            }
+                        }
+                    }
+                }
+
+                // Checks that the correct output device is set 
+                if (CurrentlySelectedOutputDevice.ProductName != AudioSettings.SelectedOutputDeviceName)
+                {
+                    //if (spinLockTaken) audioCheckSpinLock.Exit();
+                    return false;
+                }
+            }
+
+            // Input device
+            AudioRecord castTalkbackAudioRecord = (AudioRecord)TalkbackAudioRecord;
+
+            if (castTalkbackAudioRecord == null)
+            {
+                // This means that the talkback is not active. Simply returns true.
+                return true;
+            }
+
+            // Trying to get the currently selected input device 
+            if (audioManager == null) { audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager; }
+            var inputDevices = audioManager.GetDevices(GetDevicesTargets.Inputs);
+            AudioDeviceInfo CurrentlySelectedInputDevice = castTalkbackAudioRecord.RoutedDevice;
+
+            // Checks that the intended input device is set, if AllowAnyInputDevice is false.
+            if (AudioSettings.AllowDefaultInputDevice == false)
+            {
+                if (CurrentlySelectedInputDevice == null)
+                {
+                    // No input device is set. Trying to set the intended input device.
+                    foreach (var device in inputDevices)
+                    {
+                        if (device.ProductName != null)
+                        {
+                            string ProductName = device.ProductName;
+                            string DeviceType = device.Type.ToString();
+                            if (ProductName +"+"+ DeviceType == AudioSettings.SelectedInputDeviceName)
+                            {
+                                if (castTalkbackAudioRecord.SetPreferredDevice(device) == false)
+                                {
+                                    //if (spinLockTaken) audioCheckSpinLock.Exit();
+                                    return false;
+                                };
+                            }
+                        }
+                    }
+                }
+
+                // Checks that the correct input device is set 
+                if (CurrentlySelectedInputDevice.ProductName != AudioSettings.SelectedInputDeviceName)
+                {
+                    //if (spinLockTaken) audioCheckSpinLock.Exit();
+                    return false;
+                }
+            }
+
+
+
+            return true;
+        }
     }
 
-
+    
 
     /// <summary>
     /// Represents permission to access notification policy.

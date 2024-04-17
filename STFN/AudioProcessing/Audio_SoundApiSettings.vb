@@ -34,6 +34,7 @@ Namespace Audio
         MustOverride Property NumberOfInputChannels() As Integer?
         MustOverride Property NumberOfOutputChannels() As Integer?
         Property AllowDefaultOutputDevice As Boolean?
+        Property AllowDefaultInputDevice As Boolean?
 
     End Class
 
