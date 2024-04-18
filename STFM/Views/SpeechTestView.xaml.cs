@@ -22,7 +22,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     OstfBase.AudioSystemSpecification SelectedTransducer = null;
 
-    private string[] availableTests = new string[] { "Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet", "Protokoll B2" };
+    private string[] availableTests; // new string[] { "Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet", "Protokoll B2" };
 
     RowDefinition originalBottomPanelHeight = null;
     ColumnDefinition originalLeftPanelWidth = null;
@@ -82,6 +82,17 @@ public partial class SpeechTestView : ContentView, IDrawable
             }
         }
 
+        var OSTF_AvailableTests = OstfBase.AvailableTests;
+        if (OSTF_AvailableTests == null)
+        {
+            await Messager.MsgBoxAsync("Unable to locate the 'AvailableTests.txt' text file.\n\n Unable to start the application. Press OK to close.", Messager.MsgBoxStyle.Exclamation);
+            Messager.RequestCloseApp();
+        }
+        else
+        {
+            availableTests = OSTF_AvailableTests.ToArray();
+        }
+
         // Set start IsEnabled values of controls
         NewTestBtn.IsEnabled = true;
         SpeechTestPicker.IsEnabled = false;
@@ -104,8 +115,6 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         SetShowTalkbackPanel();
 
-        OpenTalkbackChannel_Button.Text = "Talkback på";
-        CloseTalkbackChannel_Button.Text = "Talkback av";
         TalkbackGainTitle_Span.Text = "Talkback-nivå: ";
         TalkbackGain = 0;
 
@@ -218,8 +227,6 @@ public partial class SpeechTestView : ContentView, IDrawable
             if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
             {
                 STFN.OstfBase.SoundPlayer.StopTalkback();
-                CloseTalkbackChannel_Button.IsEnabled = false;
-                OpenTalkbackChannel_Button.IsEnabled = true;
             }
         }
     }
@@ -970,29 +977,6 @@ public partial class SpeechTestView : ContentView, IDrawable
     }
 
 
-    private void OpenTalkbackChannel_Clicked(object sender, EventArgs e)
-    {
-        if (STFN.OstfBase.SoundPlayerIsInitialized())
-        {
-            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
-            {
-                // Activates tackback
-                STFN.OstfBase.SoundPlayer.StartTalkback();
-                CloseTalkbackChannel_Button.IsEnabled = true;
-                OpenTalkbackChannel_Button.IsEnabled = false;
-            }
-            else
-            {
-                CloseTalkbackChannel_Button.IsEnabled = false;
-                OpenTalkbackChannel_Button.IsEnabled = false;
-            }
-        }
-    }
-
-    private void CloseTalkbackChannel_Clicked(object sender, EventArgs e)
-    {
-        InactivateTalkback();
-    }
 
     private void TalkbackVolumeSlider_ValueChanged(object sender, ValueChangedEventArgs e)
     {
@@ -1010,8 +994,33 @@ public partial class SpeechTestView : ContentView, IDrawable
             OstfBase.SoundPlayer.TalkbackGain = talkbackGain;
         }
     }
-          
 
+    bool  TalkbackOn = false;
+
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
+    {
+        if (STFN.OstfBase.SoundPlayerIsInitialized())
+        {
+            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
+            {
+                if (TalkbackOn == true)
+                {
+                    TalkbackButton.BackgroundColor = Colors.Gray;
+                    TalkbackButton.BorderColor = Colors.LightGrey;
+                    TalkbackOn = false;
+                    InactivateTalkback();
+                }
+                else
+                {
+                    TalkbackButton.BackgroundColor = Colors.Green;
+                    TalkbackButton.BorderColor = Colors.LightGreen;
+                    TalkbackOn = true;
+                    // Activates tackback
+                    STFN.OstfBase.SoundPlayer.StartTalkback();
+                }
+            }
+        }
+    }
 }
 
 

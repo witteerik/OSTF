@@ -61,6 +61,23 @@ Public Module OstfBase
 
     Public Property AvailableSpeechMaterials As New List(Of SpeechMaterialSpecification)
 
+    Public Property AvailableTestsSubDirectory As String = "AvailableTests"
+
+    Private Property _AvailableTests As List(Of String) = Nothing
+    Public ReadOnly Property AvailableTests As List(Of String)
+        Get
+            If _AvailableTests Is Nothing Then
+                'Loading available tests, on first call
+                If LoadAvailableTests() = False Then
+                    Return Nothing
+                End If
+            End If
+
+            Return _AvailableTests
+        End Get
+    End Property
+
+
     ''' <summary>
     ''' The SoundPlayer shared between all STFN applications. Each application that uses it, is responsible of initiating it, with the settings required by the specific application. As well as disposing it when the application is closed.
     ''' </summary>
@@ -328,6 +345,33 @@ Public Module OstfBase
         Next
 
     End Sub
+
+    Private Function LoadAvailableTests() As Boolean
+
+        Dim TestSpecificationFile As String = IO.Path.Combine(MediaRootDirectory, AvailableTestsSubDirectory, "AvailableTests.txt")
+
+        If System.IO.File.Exists(TestSpecificationFile) = False Then
+            Return False
+        End If
+
+        'Clears any tests previously loaded tests before adding new tests
+        OstfBase._AvailableTests = New List(Of String)
+
+        Dim Input = IO.File.ReadAllLines(TestSpecificationFile, Text.Encoding.UTF8)
+
+        For line = 0 To Input.Length - 1
+
+            If Input(line).Trim = "" Then Continue For
+            If Input(line).Trim.StartsWith("//") Then Continue For
+
+            _AvailableTests.Add(Input(line).Trim)
+
+        Next
+
+        Return True
+
+    End Function
+
 
     Private _AvaliableTransducers As List(Of AudioSystemSpecification) = Nothing
     Public ReadOnly Property AvaliableTransducers As List(Of AudioSystemSpecification)

@@ -28,54 +28,6 @@
 
             <Picker x:Name="AvailableTestModes_Picker" SelectedIndexChanged="AvailableTestModes_Picker_SelectedIndexChanged" Title="{Binding SelectedTestModeTitle}" ItemsSource="{Binding SelectedTest.AvailableTestModes}" SelectedItem="{Binding SelectedTestMode}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
 
-            <VerticalStackLayout x:Name="ReferenceLevelControl">
-                <Label HorizontalOptions="Center" Margin="0,5,0,0">
-                    <Label.FormattedText>
-                        <FormattedString>
-                            <Span Text="{Binding ReferenceLevelTitle}" />
-                            <Span Text="{Binding ReferenceLevel, StringFormat=' = {0:F0}'}" />
-                        </FormattedString>
-                    </Label.FormattedText>
-                </Label>
-                <Slider Value="{Binding ReferenceLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="DarkSlateGrey" ThumbColor="DarkSlateGrey"/>
-            </VerticalStackLayout>
-
-            <VerticalStackLayout x:Name="SpeechLevelControl">
-                <Label HorizontalOptions="Center" Margin="0,5,0,0">
-                    <Label.FormattedText>
-                        <FormattedString>
-                            <Span Text="{Binding SpeechLevelTitle}" />
-                            <Span Text="{Binding SpeechLevel, StringFormat=' = {0:F0}'}" />
-                        </FormattedString>
-                    </Label.FormattedText>
-                </Label>
-                <Slider Value="{Binding SpeechLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
-            </VerticalStackLayout>
-
-            <VerticalStackLayout x:Name="MaskerLevelControl">
-                <Label HorizontalOptions="Center" Margin="0,5,0,0">
-                    <Label.FormattedText>
-                        <FormattedString>
-                            <Span Text="{Binding MaskingLevelTitle}" />
-                            <Span Text="{Binding MaskingLevel, StringFormat=' = {0:F0}'}" />
-                        </FormattedString>
-                    </Label.FormattedText>
-                </Label>
-                <Slider Value="{Binding MaskingLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="Red" ThumbColor="Red"/>
-            </VerticalStackLayout>
-
-            <VerticalStackLayout x:Name="BackgroundLevelControl">
-                <Label HorizontalOptions="Center" Margin="0,5,0,0">
-                    <Label.FormattedText>
-                        <FormattedString>
-                            <Span Text="{Binding BackgroundLevelTitle}" />
-                            <Span Text="{Binding BackgroundLevel, StringFormat=' = {0:F0}'}" />
-                        </FormattedString>
-                    </Label.FormattedText>
-                </Label>
-                <Slider Value="{Binding BackgroundLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="Pink" ThumbColor="Pink"/>
-            </VerticalStackLayout>
-
             <Picker x:Name="AvailableTestProtocols_Picker" Title="{Binding SelectedTestProtocolTitle}" ItemsSource="{Binding SelectedTest.AvailableTestProtocols}" SelectedItem="{Binding SelectedTestProtocol}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
 
             <HorizontalStackLayout x:Name="KeyWordScoringControl">
@@ -126,6 +78,54 @@
             <drawable:HorizontalSoundSourceView x:Name="BackgroundNonSpeechSoundSourceView" RoleType ="BackgroundNonspeech" Title="{Binding BackgroundNonSpeechLocationsTitle}" MaxSelected ="{Binding SelectedTest.MaximumSoundFieldBackgroundNonSpeechLocations}" IsSoundFieldSimulation="{Binding UseSimulatedSoundField}" SoundSources="{Binding BackgroundNonSpeechLocationCandidates}" Margin="2" ></drawable:HorizontalSoundSourceView>
             <drawable:HorizontalSoundSourceView x:Name="BackgroundSpeechSoundSourceView" RoleType ="BackgroundSpeech" Title="{Binding BackgroundSpeechLocationsTitle}" MaxSelected ="{Binding SelectedTest.MaximumSoundFieldBackgroundSpeechLocations}" IsSoundFieldSimulation="{Binding UseSimulatedSoundField}" SoundSources="{Binding BackgroundSpeechLocationCandidates}" Margin="2" ></drawable:HorizontalSoundSourceView>
 
+            <VerticalStackLayout x:Name="ReferenceLevelControl">
+                <Label HorizontalOptions="Center" Margin="0,5,0,0">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding ReferenceLevelTitle}" />
+                            <Span Text="{Binding ReferenceLevel, StringFormat=' = {0:F0}'}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Slider Value="{Binding ReferenceLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="DarkSlateGrey" ThumbColor="DarkSlateGrey"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout x:Name="SpeechLevelControl">
+                <Label HorizontalOptions="Center" Margin="0,5,0,0">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding SpeechLevelTitle}" />
+                            <Span Text="{Binding SpeechLevel, StringFormat=' = {0:F0}'}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Slider Value="{Binding SpeechLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout x:Name="MaskerLevelControl">
+                <Label HorizontalOptions="Center" Margin="0,5,0,0">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding MaskingLevelTitle}" />
+                            <Span Text="{Binding MaskingLevel, StringFormat=' = {0:F0}'}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Slider Value="{Binding MaskingLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="Red" ThumbColor="Red"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout x:Name="BackgroundLevelControl">
+                <Label HorizontalOptions="Center" Margin="0,5,0,0">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding BackgroundLevelTitle}" />
+                            <Span Text="{Binding BackgroundLevel, StringFormat=' = {0:F0}'}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Slider Value="{Binding BackgroundLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="Pink" ThumbColor="Pink"/>
+            </VerticalStackLayout>
+
 
             <HorizontalStackLayout x:Name="UseContralateralMaskingControl">
                 <Label Text="{Binding UseContralateralMaskingTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
@@ -141,7 +141,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider Value="{Binding ContralateralMaskingLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="DarkSlateGray"  ThumbColor="DarkSlateGray"/>
+                <Slider Value="{Binding ContralateralMaskingLevel}" Margin="10,0,10,10" Maximum="80" Minimum="0" MinimumTrackColor="DarkSlateGray"  ThumbColor="DarkSlateGray"/>
             </VerticalStackLayout>
 
             <HorizontalStackLayout x:Name="UsePhaseAudiometryControl">
@@ -151,20 +151,20 @@
 
             <Picker x:Name="AvailablePhaseAudiometryTypes_Picker"  Title="{Binding SelectedPhaseAudiometryTypeTitle}" ItemsSource="{Binding SelectedTest.AvailablePhaseAudiometryTypes}" SelectedItem="{Binding SelectedPhaseAudiometryType}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
 
-            <Frame x:Name="PreListenControl" BackgroundColor="WhiteSmoke"  BorderColor="Black">
+            <Frame x:Name="PreListenControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10">
 
                 <VerticalStackLayout>
                     <Label Text="{Binding PreListenTitle}" VerticalOptions="Center" HorizontalOptions="Start"  Margin="0,0,0,5" />
                     <Grid ColumnDefinitions="*, *">
-                        <Button x:Name="PreListenPlayButton" Grid.Column="0" Text="{Binding PreListenPlayButtonTitle}"  Clicked="PreListenPlayButton_Clicked" HorizontalOptions="FillAndExpand"/>
-                        <Button x:Name="PreListenStopButton" Grid.Column="1" Text="{Binding PreListenStopButtonTitle}"  Clicked="PreListenStopButton_Clicked" HorizontalOptions="FillAndExpand"/>
+                        <Button x:Name="PreListenPlayButton" Grid.Column="0" Text="{Binding PreListenPlayButtonTitle}"  Clicked="PreListenPlayButton_Clicked" HorizontalOptions="FillAndExpand" Margin="0,0,1,0"/>
+                        <Button x:Name="PreListenStopButton" Grid.Column="1" Text="{Binding PreListenStopButtonTitle}"  Clicked="PreListenStopButton_Clicked" HorizontalOptions="FillAndExpand" Margin="1,0,0,0"/>
                     </Grid>
-                    <Frame Margin="0,5,0,5">
-                        <Label x:Name="PreListenSpellingLabel" VerticalOptions="Center" HorizontalOptions="Center" Margin="0,5,0,5" />
+                    <Frame Margin="0,5,0,5" Padding="0,0,0,0">
+                        <Label x:Name="PreListenSpellingLabel" VerticalOptions="Center" HorizontalOptions="Center" FontAutoScalingEnabled="True" FontSize="Large"/>
                     </Frame>
                     <Grid ColumnDefinitions="*, *">
-                        <Button x:Name="PreListenLouderButton" Grid.Column="0" Text="{Binding PreListenLouderButtonTitle}"  Clicked="PreListenLouderButton_Clicked" />
-                        <Button x:Name="PreListenSofterButton" Grid.Column="1" Text="{Binding PreListenSofterButtonTitle}"  Clicked="PreListenSofterButton_Clicked"/>
+                        <Button x:Name="PreListenLouderButton" Grid.Column="0" Text="{Binding PreListenLouderButtonTitle}"  Clicked="PreListenLouderButton_Clicked" Margin="0,0,1,0"/>
+                        <Button x:Name="PreListenSofterButton" Grid.Column="1" Text="{Binding PreListenSofterButtonTitle}"  Clicked="PreListenSofterButton_Clicked" Margin="1,0,0,0"/>
                     </Grid>
                 </VerticalStackLayout>
             </Frame>

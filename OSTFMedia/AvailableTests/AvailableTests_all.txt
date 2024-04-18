@@ -1,0 +1,19 @@
+// This is an OSTF setup file used to determine which hearing tests that should be available in OSTF Suite.
+// Available tests need to be specified by name below, one test per row.
+// Exact test names are required, possible values are:
+//Svenska HINT
+//Hagermans meningar (Matrix)
+//Hörtröskel för tal (HTT)
+//PB50
+//Quick SiP
+//SiP-testet
+//Protokoll B2
+
+// Specify the tests you want to use below:
+Svenska HINT
+Hagermans meningar (Matrix)
+Hörtröskel för tal (HTT)
+PB50
+Quick SiP
+SiP-testet
+Protokoll B2
