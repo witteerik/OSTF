@@ -493,13 +493,20 @@ Namespace Audio
                 End Get
             End Property
 
+            Private _TalkbackGain As Single
             Public Property TalkbackGain As Single Implements iSoundPlayer.TalkbackGain
                 Get
-                    Throw New NotImplementedException()
+                    Return _TalkbackGain
                 End Get
                 Set(value As Single)
-                    Throw New NotImplementedException()
+                    _TalkbackGain = value
                 End Set
+            End Property
+
+            Public ReadOnly Property SupportsTalkBack As Boolean Implements iSoundPlayer.SupportsTalkBack
+                Get
+                    Return False
+                End Get
             End Property
 
             Public Sub New(Optional ByVal LoggingEnabled As Boolean = False,
@@ -1644,11 +1651,11 @@ Namespace Audio
             End Sub
 
             Public Sub StartTalkback() Implements iSoundPlayer.StartTalkback
-                Throw New NotImplementedException()
+                'Throw New NotImplementedException()
             End Sub
 
             Public Sub StopTalkback() Implements iSoundPlayer.StopTalkback
-                Throw New NotImplementedException()
+                'Throw New NotImplementedException()
             End Sub
 
 #End Region

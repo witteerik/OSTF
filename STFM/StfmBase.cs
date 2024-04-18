@@ -23,7 +23,7 @@ namespace STFM
 
         public static bool IsInitialized = false;
 
-        public static async Task InitializeSTFM(Microsoft.Maui.Controls.VerticalStackLayout ParentContainer, STFN.OstfBase.MediaPlayerTypes MediaPlayerType = OstfBase.MediaPlayerTypes.Default)
+        public static async Task InitializeSTFM(STFN.OstfBase.MediaPlayerTypes MediaPlayerType = OstfBase.MediaPlayerTypes.Default)
         {
 
             // Returning if already called
@@ -40,6 +40,7 @@ namespace STFM
             STFN.Utils.AppCache.OnSetAppCacheDoubleVariableValue += SetAppCacheDoubleVariableValue;
             STFN.Utils.AppCache.OnGetAppCacheStringVariableValue += GetAppCacheStringVariableValue;
             STFN.Utils.AppCache.OnGetAppCacheDoubleVariableValue += GetAppCacheDoubleVariableValue;
+            STFN.Utils.AppCache.OnGetAppCacheIntegerVariableValue += GetAppCacheIntegerVariableValue;
             STFN.Utils.AppCache.OnRemoveAppCacheVariable += RemoveAppCacheVariable;
             STFN.Utils.AppCache.OnClearAppCache += ClearAppCache;
 
@@ -81,24 +82,6 @@ namespace STFM
                     Messager.RequestCloseApp();
                 }
 
-                // Selects the transducer indicated in the settings file
-                if (AndroidAudioTrackPlayer.CheckIfDeviceExists(currentAudioSettings.SelectedOutputDeviceName, true) == false)
-                {
-                    if (currentAudioSettings.AllowDefaultOutputDevice.Value)
-                    {
-                        await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nClick OK to use the default audio output device instead!\n\n" +
-                            "IMPORTANT: Sound tranducer calibration and/or routing may not be correct!", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-
-                        // Overriding the value of SelectedOutputDeviceName by an empty string. Setting currentAudioSettings.SelectedOutputDeviceName should then accept any output device in the android player.
-                        currentAudioSettings.SelectedOutputDeviceName = ""; 
-                    }
-                    else
-                    {
-                        await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nPlease connect the correct sound device and restart the app!\n\nPress OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-                        Messager.RequestCloseApp();
-                    }
-                }
- 
                 if (currentAudioSettings.AllowDefaultInputDevice.HasValue == false)
                 {
                     await Messager.MsgBoxAsync("The AllowDefaultInputDevice behaviour must be specified in the audio system specifications file.\n\n" +
@@ -108,39 +91,54 @@ namespace STFM
                     Messager.RequestCloseApp();
                 }
 
-                // Selects the input source indicated in the settings file
-                if (AndroidAudioTrackPlayer.CheckIfDeviceExists(currentAudioSettings.SelectedInputDeviceName, false) == false)
+                // Setting up the mixers
+                int OutputChannels;
+                int InputChannels;
+
+                // Selects the transducer indicated in the settings file
+                if (AndroidAudioTrackPlayer.CheckIfDeviceExists(currentAudioSettings.SelectedOutputDeviceName, true) == true)
                 {
-                    if (currentAudioSettings.AllowDefaultInputDevice.Value)
+                    // Getting the actual number of channels on the device
+                    OutputChannels = AndroidAudioTrackPlayer.GetNumberChannelsOnDevice(currentAudioSettings.SelectedOutputDeviceName, true);
+                }
+                else
+                {
+                    if (currentAudioSettings.AllowDefaultOutputDevice.Value == true)
+                    {
+                        await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nClick OK to use the default audio output device instead!\n\n" +
+                            "IMPORTANT: Sound tranducer calibration and/or routing may not be correct!", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+                    }
+                    else
+                    {
+                        await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nPlease connect the correct sound device and restart the app!\n\nPress OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
+                        Messager.RequestCloseApp();
+                    }
+
+                    // Unable to use the intended device. Assuming 2 output channels. TODO: There is probably a better way to get the actual number of channels in the device automatically selected for the output and input sound streams!
+                    OutputChannels = 2;
+                }
+
+                // Selects the input source indicated in the settings file
+                if (AndroidAudioTrackPlayer.CheckIfDeviceExists(currentAudioSettings.SelectedInputDeviceName, false) == true)
+                {
+                    // Getting the actual number of channels on the device
+                    InputChannels = AndroidAudioTrackPlayer.GetNumberChannelsOnDevice(currentAudioSettings.SelectedInputDeviceName, false);
+                }
+                else
+                {
+                    if (currentAudioSettings.AllowDefaultInputDevice.Value == true)
                     {
                         await Messager.MsgBoxAsync("Unable to find the correct sound input device!\nThe following audio input device should be used:\n\n'" + currentAudioSettings.SelectedInputDeviceName + "'\n\nClick OK to use the default audio input device instead!\n\n" +
                             "IMPORTANT: Sound calibration and/or routing may not be correct!", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-
-                        // Overriding the value of SelectedInputDeviceName by an empty string. Setting currentAudioSettings.SelectedInputDeviceName should then accept any input device in the android player.
-                        currentAudioSettings.SelectedInputDeviceName = "";
                     }
                     else
                     {
                         await Messager.MsgBoxAsync("Unable to find the correct sound input device!\nThe following audio input device should be used:\n\n'" + currentAudioSettings.SelectedInputDeviceName + "'\n\nPlease connect the correct sound input device and restart the app!\n\nPress OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
                         Messager.RequestCloseApp();
                     }
-                }
 
-                // Setting up the mixers
-                int OutputChannels ;
-                int InputChannels;
-
-                if (currentAudioSettings.SelectedOutputDeviceName != "")
-                {
-                    // Getting the actual number of channels on the device
-                    OutputChannels = AndroidAudioTrackPlayer.GetNumberChannelsOnDevice(currentAudioSettings.SelectedOutputDeviceName, true);
-                    InputChannels = AndroidAudioTrackPlayer.GetNumberChannelsOnDevice(currentAudioSettings.SelectedInputDeviceName, false);
-                }
-                else
-                {
-                    // Unable to use the intended device. Assuming 2 output channels and 0 input channels. TODO: There is probably a better way to get the actual number of channels in the device automatically selected for the output and input sound streams!
-                    OutputChannels = 2;
-                    InputChannels = 0;
+                    // Unable to use the intended device. Assuming 2 input channel. TODO: There is probably a better way to get the actual number of channels in the device automatically selected for the output and input sound streams!
+                    InputChannels = 2;
                 }
 
                 for (int i = 0; i < AllTranducers.Count; i++)
@@ -470,6 +468,19 @@ namespace STFM
             }
         }
 
+        static void GetAppCacheIntegerVariableValue(object sender, AppCacheEventArgs e)
+        {
+            if (Preferences.ContainsKey(e.VariableName))
+            {
+                e.VariableIntegerValue = Preferences.Default.Get(e.VariableName, -1);
+            }
+            else
+            {
+                e.VariableIntegerValue = null;
+            }
+        }
+
+        
         static void RemoveAppCacheVariable(object sender, AppCacheEventArgs e)
         {
             Preferences.Default.Remove(e.VariableName);

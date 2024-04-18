@@ -7,20 +7,13 @@
 
     <Grid x:Name="MainSpeechTestGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.999*" />
-            <RowDefinition Height="0.001*" />
+            <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.25*" />
-            <ColumnDefinition Width="0.75*" />
+            <ColumnDefinition Width="0.35*" />
+            <ColumnDefinition Width="0.65*" />
         </Grid.ColumnDefinitions>
 
-        <VerticalStackLayout 
-            x:Name="SoundPlayerLayout"
-            Grid.Row="1" Grid.RowSpan="1"
-            Grid.Column="0" Grid.ColumnSpan="2">
-        </VerticalStackLayout>
-        
         <Grid 
             x:Name="TestSettingsGrid"
             Grid.Row="0" Grid.RowSpan="1"
@@ -28,10 +21,9 @@
             Padding="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.7*" />
-                <RowDefinition Height="0.5*" />
+                <RowDefinition Height="0.6*" />
                 <RowDefinition Height="5*" />
-                <!--<RowDefinition Height="0.5*" />
-                <RowDefinition Height="0.5*" />-->
+                <RowDefinition Height="1.5*" />
                 <RowDefinition Height="0.7*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -64,48 +56,48 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-                
             </Grid>
-            
-            <!--<Label Text="Dölj resultat" 
-                    Grid.Row="3" Grid.RowSpan="1"
-                    Grid.Column="0" Grid.ColumnSpan="2"
-                   HorizontalTextAlignment="Start" 
-                   VerticalTextAlignment="Center"/>
 
-            <Switch x:Name="HideResultsPanelSwitch"
-                    IsToggled="true" 
-                    Grid.Row="3" Grid.RowSpan="1"
-                    Grid.Column="2" Grid.ColumnSpan="1"/>
-
-            <Label Text="Döjl inställningar" 
-                    Grid.Row="4" Grid.RowSpan="1"
-                    Grid.Column="0" Grid.ColumnSpan="2"
-                   HorizontalTextAlignment="Start" 
-                   VerticalTextAlignment="Center"/>
-
-            <Switch x:Name="HideSettingsPanelSwitch"
-                    IsToggled="true" 
-                    Grid.Row="4" Grid.RowSpan="1"
-                    Grid.Column="2" Grid.ColumnSpan="1"/>-->
+            <Frame 
+                x:Name="TalkbackControl" 
+                BackgroundColor="MistyRose"   
+                BorderColor="Black"
+                Grid.Row="3" Grid.RowSpan="1"
+                Grid.Column="0" Grid.ColumnSpan="3">
+                <VerticalStackLayout>
+                    <Grid ColumnDefinitions="*, *">
+                        <Button x:Name="OpenTalkbackChannel_Button" Grid.Column="0" Clicked="OpenTalkbackChannel_Clicked" Margin="1,0,1,0" IsEnabled="True"/>
+                        <Button x:Name="CloseTalkbackChannel_Button" Grid.Column="1" Clicked="CloseTalkbackChannel_Clicked" Margin="1,0,1,0" IsEnabled="False"/>
+                    </Grid>
+                    <Label HorizontalOptions="Center" Margin="0,5,0,0">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span x:Name="TalkbackGainTitle_Span"/>
+                                <Span x:Name="TalkbackGainlevel_Span"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Slider ValueChanged="TalkbackVolumeSlider_ValueChanged" Margin="10,0,10,5" Maximum="20" Minimum="-20" MinimumTrackColor="Red" ThumbColor="Red"/>
+                </VerticalStackLayout>
+            </Frame>
 
             <Button x:Name="StartTestBtn"
                     Text="Start" 
-                    Grid.Row="3" Grid.RowSpan="1"
+                    Grid.Row="4" Grid.RowSpan="1"
                     Grid.Column="0" Grid.ColumnSpan="1"
                     Margin="0,0,1,0"
                     Clicked="StartTestBtn_Clicked"/>
 
             <Button x:Name="PauseTestBtn"
                     Text="Paus" 
-                    Grid.Row="3" Grid.RowSpan="1"
+                    Grid.Row="4" Grid.RowSpan="1"
                     Grid.Column="1" Grid.ColumnSpan="1"
                     Margin="1,0,0,0"
                     Clicked="PauseTestBtn_Clicked"/>
 
             <Button x:Name="StopTestBtn"
                     Text="Stopp" 
-                    Grid.Row="3" Grid.RowSpan="1"
+                    Grid.Row="4" Grid.RowSpan="1"
                     Grid.Column="2" Grid.ColumnSpan="1"
                     Margin="1,0,0,0"
                     Clicked="StopTestBtn_Clicked"/>

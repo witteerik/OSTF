@@ -28,7 +28,6 @@ public partial class SpeechTestView : ContentView, IDrawable
     ColumnDefinition originalLeftPanelWidth = null;
     View CurrentTestOptionsView = null;
 
-
     private List<IDispatcherTimer> testTrialEventTimerList = null;
 
     public SpeechTestView()
@@ -42,6 +41,46 @@ public partial class SpeechTestView : ContentView, IDrawable
         //    YValuesLower = new[] { 20F, 30F, 35F, 40F },
         //    YValuesUpper = new[] { 40F, 50F, 60F, 70F }
         //});
+
+        Initialize();
+           
+    }
+
+
+    async void Initialize()
+    {
+
+        // Ititializing STFM if not already done
+        if (STFM.StfmBase.IsInitialized == false)
+        {
+            // Initializing STFM
+            await STFM.StfmBase.InitializeSTFM(OstfBase.MediaPlayerTypes.Default);
+
+            // Selecting transducer
+            var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
+            if (LocalAvailableTransducers.Count == 0)
+            {
+                await Messager.MsgBoxAsync("Unable to start the application since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "No transducers found");
+                Messager.RequestCloseApp();
+            }
+
+            // Always using the first transducer
+            SelectedTransducer = LocalAvailableTransducers[0];
+            if (SelectedTransducer.CanPlay == true)
+            {
+                // (At this stage the sound player will be started, if not already done.)
+                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+                var argMixer = SelectedTransducer.Mixer;
+                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, argMixer,
+                    STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, ReOpenStream: true, ReStartStream: true);
+                SelectedTransducer.Mixer = argMixer;
+            }
+            else
+            {
+                await Messager.MsgBoxAsync("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", Messager.MsgBoxStyle.Exclamation, "Sound player failure");
+                Messager.RequestCloseApp();
+            }
+        }
 
         // Set start IsEnabled values of controls
         NewTestBtn.IsEnabled = true;
@@ -63,14 +102,38 @@ public partial class SpeechTestView : ContentView, IDrawable
             SpeechTestPicker.Items.Add(test);
         }
 
-    }
+        SetShowTalkbackPanel();
 
+        OpenTalkbackChannel_Button.Text = "Talkback på";
+        CloseTalkbackChannel_Button.Text = "Talkback av";
+        TalkbackGainTitle_Span.Text = "Talkback-nivå: ";
+        TalkbackGain = 0;
+
+    }
 
     void IDrawable.Draw(ICanvas canvas, RectF dirtyRect)
     {
 
         //MyAudiogramView.Audiogram.Draw(canvas, dirtyRect);
 
+    }
+
+
+    private void SetShowTalkbackPanel()
+    {
+        if (OstfBase.SoundPlayer.SupportsTalkBack == true)
+        {
+            TalkbackControl.IsVisible = true;
+
+            // Correcting for the presence of the talkback control
+            TestSettingsGrid.SetRowSpan(TestOptionsGrid, 1);
+        }
+        else { 
+            TalkbackControl.IsVisible = false;
+
+            // Correcting for the absence of the talkback control
+            TestSettingsGrid.SetRowSpan(TestOptionsGrid, 2);
+        }
     }
 
     private void SetBottomPanelShow(bool show)
@@ -116,39 +179,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    private async void NewTestBtn_Clicked(object sender, EventArgs e)
+    private void NewTestBtn_Clicked(object sender, EventArgs e)
     {
-
-        // Ititializing STFM if not already done
-        if (STFM.StfmBase.IsInitialized == false)
-        {
-            // Initializing STFM
-            await STFM.StfmBase.InitializeSTFM(SoundPlayerLayout, OstfBase.MediaPlayerTypes.Default);
-
-            // Selecting transducer
-            var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
-            if (LocalAvailableTransducers.Count == 0)
-            {
-                Messager.MsgBox("Unable to start the application since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "No transducers found");
-            }
-
-            // Always using the first transducer
-            SelectedTransducer = LocalAvailableTransducers[0];
-            if (SelectedTransducer.CanPlay == true)
-            {
-                // (At this stage the sound player will be started, if not already done.)
-                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-                var argMixer = SelectedTransducer.Mixer;
-                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, argMixer,
-                    STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, ReOpenStream: true, ReStartStream: true);
-                SelectedTransducer.Mixer = argMixer;
-            }
-            else
-            {
-                Messager.MsgBox("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", Messager.MsgBoxStyle.Exclamation, "Sound player failure");
-            }
-
-        }
 
         // Resets the text on the start button, as this may have been changed if test was paused.
         StartTestBtn.Text = "Start";
@@ -173,8 +205,24 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Deselecting previous test
         SpeechTestPicker.SelectedIndex = -1;
 
+        // Inactivates tackback
+        InactivateTalkback();
+
     }
 
+    void InactivateTalkback()
+    {
+        // Inactivates tackback
+        if (STFN.OstfBase.SoundPlayerIsInitialized())
+        {
+            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
+            {
+                STFN.OstfBase.SoundPlayer.StopTalkback();
+                CloseTalkbackChannel_Button.IsEnabled = false;
+                OpenTalkbackChannel_Button.IsEnabled = true;
+            }
+        }
+    }
 
     void OnSpeechTestPickerSelectedItemChanged(object sender, EventArgs e)
     {
@@ -325,6 +373,10 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         if (CurrentSpeechTest != null)
         {
+
+            // Inactivates tackback
+            InactivateTalkback();
+
 
             switch (selectedSpeechTestName)
             {
@@ -516,7 +568,6 @@ public partial class SpeechTestView : ContentView, IDrawable
     private void StartTestBtn_Clicked(object sender, EventArgs e)
     {
 
-
         if (testIsPaused == false)
         {
             // Starting a new test
@@ -634,7 +685,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     void StartedByTestee(object sender, EventArgs e)
     {
-        StartTest();
+        TryStartTest();
     }
 
 
@@ -917,6 +968,49 @@ public partial class SpeechTestView : ContentView, IDrawable
         SetLeftPanelShow(true);
 
     }
+
+
+    private void OpenTalkbackChannel_Clicked(object sender, EventArgs e)
+    {
+        if (STFN.OstfBase.SoundPlayerIsInitialized())
+        {
+            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
+            {
+                // Activates tackback
+                STFN.OstfBase.SoundPlayer.StartTalkback();
+                CloseTalkbackChannel_Button.IsEnabled = true;
+                OpenTalkbackChannel_Button.IsEnabled = false;
+            }
+            else
+            {
+                CloseTalkbackChannel_Button.IsEnabled = false;
+                OpenTalkbackChannel_Button.IsEnabled = false;
+            }
+        }
+    }
+
+    private void CloseTalkbackChannel_Clicked(object sender, EventArgs e)
+    {
+        InactivateTalkback();
+    }
+
+    private void TalkbackVolumeSlider_ValueChanged(object sender, ValueChangedEventArgs e)
+    {
+        TalkbackGain = (float)e.NewValue;
+    }
+
+    float talkbackGain = 0;
+
+    public float TalkbackGain
+    {
+        get {return talkbackGain; }
+        set { 
+            talkbackGain = (float)Math.Round((double)value);
+            TalkbackGainlevel_Span.Text = talkbackGain.ToString();
+            OstfBase.SoundPlayer.TalkbackGain = talkbackGain;
+        }
+    }
+          
 
 }
 

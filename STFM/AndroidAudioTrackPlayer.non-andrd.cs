@@ -23,7 +23,11 @@ namespace STFM
 
         bool iSoundPlayer.IsPlaying => throw new NotImplementedException();
 
-        public float TalkbackGain { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public double TalkbackGain { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public bool SupportsTalkBack => throw new NotImplementedException();
+
+        float iSoundPlayer.TalkbackGain { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         event iSoundPlayer.MessageFromPlayerEventHandler iSoundPlayer.MessageFromPlayer
         {

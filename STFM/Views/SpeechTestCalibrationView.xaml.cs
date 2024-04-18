@@ -145,7 +145,7 @@ public partial class SpeechTestCalibrationView : ContentView
         if (STFM.StfmBase.IsInitialized == false)
         {
             // Initializing STFM
-            await STFM.StfmBase.InitializeSTFM(SoundPlayerLayout);
+            await STFM.StfmBase.InitializeSTFM();
         }
 
     }

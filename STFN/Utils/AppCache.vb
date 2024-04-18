@@ -9,6 +9,7 @@ Namespace Utils
         Public Event OnSetAppCacheDoubleVariableValue As EventHandler(Of AppCacheEventArgs)
         Public Event OnGetAppCacheStringVariableValue As EventHandler(Of AppCacheEventArgs)
         Public Event OnGetAppCacheDoubleVariableValue As EventHandler(Of AppCacheEventArgs)
+        Public Event OnGetAppCacheIntegerVariableValue As EventHandler(Of AppCacheEventArgs)
         Public Event OnRemoveAppCacheVariable As EventHandler(Of AppCacheEventArgs)
         Public Event OnClearAppCache As EventHandler(Of EventArgs)
 
@@ -38,7 +39,7 @@ Namespace Utils
 
         Public Function GetAppCacheIntegerVariableValue(VariableName As String) As Integer?
             Dim e = New AppCacheEventArgs(VariableName)
-            RaiseEvent OnGetAppCacheDoubleVariableValue(Nothing, e)
+            RaiseEvent OnGetAppCacheIntegerVariableValue(Nothing, e)
             Return e.VariableIntegerValue
         End Function
 

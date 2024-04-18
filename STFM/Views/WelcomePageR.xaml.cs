@@ -19,7 +19,10 @@ public partial class WelcomePageR : ContentView
         SelectedLanguage_Picker.ItemsSource = AvailableGuiLanguages;
         SelectedLanguage_Picker.SelectedIndex = 0;
 
-	}
+        //SoundFieldSimulation_Label.IsVisible = false;
+        //UseSoundFieldSimulation_Switch.IsVisible = false;
+
+    }
 
     private void UseSoundFieldSimulation_Switch_Toggled(object sender, ToggledEventArgs e)
     {
@@ -44,7 +47,7 @@ public partial class WelcomePageR : ContentView
                 SelectedLanguage_Picker.Title = "";
                 //SelectedLanguage_Picker.Title = "Select language";
                 ParticipantCode_Label.Text = "Enter participant code";
-                SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
+                //SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
                 break;
@@ -54,7 +57,7 @@ public partial class WelcomePageR : ContentView
                 SelectLangage_Label.Text = "Select language";
                 SelectedLanguage_Picker.Title = "";
                 ParticipantCode_Label.Text = "Fyll i deltagarkod";
-                SoundFieldSimulation_Label.Text = "Tillåt ljudfältssimulering i hörlurar (kan göra appen långsam)";
+                //SoundFieldSimulation_Label.Text = "Tillåt ljudfältssimulering i hörlurar (kan göra appen långsam)";
                 Submit_Button.Text = "Fortsätt";
                 Calibrator_Button.Text = "Kalibrering";
                 break;
@@ -64,7 +67,7 @@ public partial class WelcomePageR : ContentView
                 SelectLangage_Label.Text = "Select language";
                 SelectedLanguage_Picker.Title = "";
                 ParticipantCode_Label.Text = "Enter participant code";
-                SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
+                //SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
                 break;

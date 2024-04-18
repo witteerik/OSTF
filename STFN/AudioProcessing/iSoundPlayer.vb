@@ -95,6 +95,8 @@ Namespace Audio
             ''' </summary>
             Sub CloseStream()
 
+            ReadOnly Property SupportsTalkBack As Boolean
+
             Sub StartTalkback()
 
             Sub StopTalkback()

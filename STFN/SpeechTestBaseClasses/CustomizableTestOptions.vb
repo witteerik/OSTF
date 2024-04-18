@@ -519,22 +519,5 @@ Public Class CustomizableTestOptions
     Public Property PreListenStopButtonTitle As String = "Stop"
     Public Property PreListenLouderButtonTitle As String = "Öka nivån (5 dB)"
     Public Property PreListenSofterButtonTitle As String = "Minska nivån (5 dB)"
-    Public Property OpenTalkbackChannelTitle As String = "Talkback på"
-    Public Property CloseTalkbackChannelTitle As String = "Talkback av"
-
-
-
-    Public Property TalkbackGain As Double
-        Get
-            Return _TalkbackGain
-        End Get
-        Set(value As Double)
-            _TalkbackGain = Math.Round(value)
-            OnPropertyChanged()
-        End Set
-    End Property
-    Private _TalkbackGain As Double = 0
-    Public Property TalkbackGainTitle As String = "Talkback-nivå"
-
 
 End Class
