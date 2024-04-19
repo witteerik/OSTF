@@ -134,6 +134,8 @@
 
 #Region "SoundScene"
 
+    Public MustOverride ReadOnly Property UpperLevelLimit_dBSPL As Double
+
     Public MustOverride ReadOnly Property MaximumSoundFieldSpeechLocations As Integer
     Public MustOverride ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
     Public MustOverride ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer

@@ -194,6 +194,13 @@ Public Class MatrixSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
+        Get
+            Return 100
+        End Get
+    End Property
+
+
 #End Region
 
     Public Sub New(ByVal SpeechMaterialName As String)

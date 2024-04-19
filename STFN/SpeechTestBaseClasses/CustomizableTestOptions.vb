@@ -109,6 +109,7 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _ReferenceLevel = Math.Round(value)
+            _ReferenceLevel = Math.Min(_ReferenceLevel, SelectedTest.UpperLevelLimit_dBSPL)
             OnPropertyChanged()
         End Set
     End Property
@@ -121,6 +122,7 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _SpeechLevel = Math.Round(value)
+            _SpeechLevel = Math.Min(_SpeechLevel, SelectedTest.UpperLevelLimit_dBSPL)
             OnPropertyChanged()
         End Set
     End Property
@@ -133,6 +135,7 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _MaskingLevel = Math.Round(value)
+            _MaskingLevel = Math.Min(_MaskingLevel, SelectedTest.UpperLevelLimit_dBSPL)
             OnPropertyChanged()
         End Set
     End Property
@@ -146,6 +149,7 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _BackgroundLevel = Math.Round(value)
+            _BackgroundLevel = Math.Min(_BackgroundLevel, SelectedTest.UpperLevelLimit_dBSPL)
             OnPropertyChanged()
         End Set
     End Property
@@ -158,20 +162,13 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _ContralateralMaskingLevel = Math.Round(value)
+            _ContralateralMaskingLevel = Math.Min(_ContralateralMaskingLevel, SelectedTest.UpperLevelLimit_dBSPL)
             OnPropertyChanged()
         End Set
     End Property
     Private _ContralateralMaskingLevel As Double = 25
 
     Public Property ContralateralMaskingLevelTitle As String = "Kontralat. maskeringsnivå (dB)"
-
-    ''TODO: Should we have a customizable limit here, or should we use the "LimiterThreshold" specified for each transducer in the AudioSystemSpecification.txt file?
-    '''' <summary>
-    '''' This 
-    '''' </summary>
-    '''' <returns></returns>
-    'Public Property SaveLevelLimit As Double = 100
-
 
 
     ''' <summary>
@@ -479,6 +476,8 @@ Public Class CustomizableTestOptions
     End Property
     Private _UseContralateralMasking As Boolean = False
     Public Property UseContralateralMaskingTitle As String = "Kontralateral maskering"
+    Public Property LockContralateralMaskingTitle As String = "Koppla till talnivå"
+
 
     ''' <summary>
     ''' This is intended as a shortcut which must override all of the SignalLocations, MaskerLocations and BackgroundLocations properties. It can only be specified if SelectedPresentationMode is either SimulatedSoundField with locations along the mid-sagittal plane, or PointSpeakers at -90 and 90 degrees with distance of 0 (i.e. headphones), and where the signal i set to come from only one side.

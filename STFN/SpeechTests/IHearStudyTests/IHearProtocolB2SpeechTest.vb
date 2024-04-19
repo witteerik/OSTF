@@ -191,7 +191,11 @@ Public Class IHearProtocolB2SpeechTest
         End Get
     End Property
 
-
+    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
+        Get
+            Return 100
+        End Get
+    End Property
 
     Dim PreTestListIndex As Integer
     Dim TestListIndex As Integer

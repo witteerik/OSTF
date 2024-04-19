@@ -387,10 +387,12 @@ public partial class OptionsViewAll : ContentView
         if (UseContralateralMaskingControl.IsVisible && UseContralateralMasking_Switch.IsToggled)
         {
             ContralateralMaskingLevelControl.IsVisible = true;
+            LockSpeechLevelToContralateralMaskingControl.IsVisible = true;
         }
         else
         {
             ContralateralMaskingLevelControl.IsVisible = false;
+            LockSpeechLevelToContralateralMaskingControl.IsVisible = false;
         }
     }
 
@@ -428,16 +430,28 @@ public partial class OptionsViewAll : ContentView
         OstfBase.SoundPlayer.FadeOutPlayback();
     }
 
-    private void PreListenLouderButton_Clicked(object sender, EventArgs e)
-    {
-        CurrentBindingContext.SpeechLevel += 5;
-        CurrentBindingContext.ContralateralMaskingLevel += 5;
-    }
+    //private void PreListenLouderButton_Clicked(object sender, EventArgs e)
+    //{
+    //    CurrentBindingContext.SpeechLevel += 5;
+    //    CurrentBindingContext.ContralateralMaskingLevel += 5;
+    //}
 
-    private void PreListenSofterButton_Clicked(object sender, EventArgs e)
-    {
-        CurrentBindingContext.SpeechLevel -= 5;
-        CurrentBindingContext.ContralateralMaskingLevel -= 5;
-    }
+    //private void PreListenSofterButton_Clicked(object sender, EventArgs e)
+    //{
+    //    CurrentBindingContext.SpeechLevel -= 5;
+    //    CurrentBindingContext.ContralateralMaskingLevel -= 5;
+    //}
 
+    private void SpeechLevelSlider_ValueChanged(object sender, ValueChangedEventArgs e)
+    {
+        if (LockSpeechLevelToContralateralMasking_Switch != null)
+        {
+            if (LockSpeechLevelToContralateralMasking_Switch.IsToggled == true)
+            {
+                // Adjusting the contralateral masking by the new level difference
+                double differenceValue = e.NewValue - e.OldValue;
+                CurrentBindingContext.ContralateralMaskingLevel += differenceValue;
+            }
+        }
+    }
 }

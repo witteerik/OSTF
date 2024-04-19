@@ -182,6 +182,12 @@ Public Class SipSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
+        Get
+            Return 100
+        End Get
+    End Property
+
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 
