@@ -118,6 +118,30 @@ Public Class SrtSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property MinimumSoundFieldSpeechLocations As Integer
+        Get
+            Return 1
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property MinimumSoundFieldMaskerLocations As Integer
+        Get
+            Return 0
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property MinimumSoundFieldBackgroundNonSpeechLocations As Integer
+        Get
+            Return 0
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property MinimumSoundFieldBackgroundSpeechLocations As Integer
+        Get
+            Return 0
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property AllowsManualReferenceLevelSelection As Boolean
         Get
             Return False
@@ -199,6 +223,12 @@ Public Class SrtSpeechTest
     Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
         Get
             Return 100
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property LevelStepSize As Double
+        Get
+            Return 5
         End Get
     End Property
 

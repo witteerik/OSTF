@@ -2,6 +2,8 @@
 
     Public CurrentParticipantID As String = ""
 
+    Public Const NoTestId As String = "zz9999"
+
     Public CurrentParticipantAudiogram As AudiogramData
 
     Public CurrentSpeechTest As SpeechTest

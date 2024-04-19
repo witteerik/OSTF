@@ -45,6 +45,24 @@ public class HorizontalSoundSourceView : Frame
         }
     }
 
+    public static readonly BindableProperty MinSelectedProperty =
+    BindableProperty.Create(nameof(MinSelected), typeof(int), typeof(HorizontalSoundSourceView), 1, BindingMode.OneWay);
+
+    int minSelected;
+    public int MinSelected
+    {
+        get
+        {
+            //return minSelected;
+            return (int)GetValue(MinSelectedProperty);
+        }
+        set
+        {
+            //minSelected = value;
+            SetValue(MinSelectedProperty, value);
+        }
+    }
+
 
     STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles roleType;
     public STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles RoleType
@@ -203,12 +221,14 @@ public class HorizontalSoundSourceView : Frame
                 foreach (VisualSoundSourceLocation source in SoundSources)
                 {
                     if (source.ParentSoundSourceLocation.HorizontalAzimuth == -90) { 
-                        source.X = -0.13;
-                        source.Height = 0.2;
+                        source.X = -0.2;
+                        source.Height = 0.3;
+                        source.Width = 0.15;
                     }
                     if (source.ParentSoundSourceLocation.HorizontalAzimuth == 90) { 
-                        source.X = 0.13;
-                        source.Height = 0.2;
+                        source.X = 0.2;
+                        source.Height = 0.3;
+                        source.Width = 0.15;
                     }
                 }
             }
@@ -219,6 +239,30 @@ public class HorizontalSoundSourceView : Frame
             }
 
 
+            //if (isHeadPhones)
+            //{
+
+            //    // Actually skipping the arc since its rather misleading, as the control looks like we watch a person from the front instead of from above....
+            //    // Creating an Ellipse that should look like the headphone arc
+            //    var ellipse = new Microsoft.Maui.Controls.Shapes.Ellipse
+            //    {
+            //        Stroke = Brush.SlateGray,
+            //        WidthRequest = 120,
+            //        HeightRequest = 120,
+            //        StrokeDashArray = new DoubleCollection { 46 },
+            //        StrokeLineCap = Microsoft.Maui.Controls.Shapes.PenLineCap.Round,
+            //        StrokeThickness = 4,
+            //        //Margin = new Thickness(2)
+            //    };
+
+            //    SoundSourceLayout.Children.Add(ellipse);
+            //    SoundSourceLayout.SetLayoutBounds(ellipse, new Rect(0.50, 0.50, 1, 1));
+            //    SoundSourceLayout.SetLayoutFlags(ellipse, Microsoft.Maui.Layouts.AbsoluteLayoutFlags.All);
+
+            //}
+
+
+
             for (int i = 0; i < SoundSources.Count; i++)
             {
 
@@ -226,7 +270,7 @@ public class HorizontalSoundSourceView : Frame
 
                 var sourceBotton = new VisualSoundSourceSelectionButton(ref source, roleType)
                 {
-                    Text = source.ParentSoundSourceLocation.HorizontalAzimuth.ToString(),
+                    //Text = source.ParentSoundSourceLocation.HorizontalAzimuth.ToString(),
                     //Padding = 10
                 };
 
@@ -245,9 +289,9 @@ public class HorizontalSoundSourceView : Frame
                     }
                 }
 
-                sourceBotton.TextColor = Color.FromRgb(40, 40, 40);
+                //sourceBotton.TextColor = Color.FromRgb(40, 40, 40);
                 //sourceBotton.FontSize = 20;
-                sourceBotton.FontAutoScalingEnabled = true;
+                //sourceBotton.FontAutoScalingEnabled = true;
 
                 sourceBotton.Clicked += button_Clicked;
 
@@ -260,6 +304,7 @@ public class HorizontalSoundSourceView : Frame
                 ButtonList.Add(sourceBotton);
 
             }
+
         }
     }
 
@@ -270,17 +315,20 @@ public class HorizontalSoundSourceView : Frame
         VisualSoundSourceSelectionButton castButton = (VisualSoundSourceSelectionButton)sender;
 
         // Limiting the number of selected sound sources
+        int selectedCount = GetSelectedCount();
         if (castButton.IsSelected == false)
         {
             // Checking if max number of selected buttons has been reached, and if so, deselects the first item (not in order, as the order of selection is not stored)
-            int selectedCount = GetSelectedCount();
             if (selectedCount >= MaxSelected) { DeSelectedFirstButton(); }
             castButton.IsSelected = true;
         }
         else
         {
-            //Swapping the value
-            castButton.IsSelected = false;
+            //Swapping the value, only if we at lest have MinSelected after the deselection
+            if (selectedCount > MinSelected) 
+            {
+                castButton.IsSelected = false;
+            }
         }
     }
 

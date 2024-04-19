@@ -47,6 +47,7 @@ public partial class WelcomePageR : ContentView
                 SelectedLanguage_Picker.Title = "";
                 //SelectedLanguage_Picker.Title = "Select language";
                 ParticipantCode_Label.Text = "Enter participant code";
+                DemoCode_Label.Text = "(use " + SharedSpeechTestObjects.NoTestId + " for demo mode)";
                 //SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
@@ -57,6 +58,7 @@ public partial class WelcomePageR : ContentView
                 SelectLangage_Label.Text = "Select language";
                 SelectedLanguage_Picker.Title = "";
                 ParticipantCode_Label.Text = "Fyll i deltagarkod";
+                DemoCode_Label.Text = "(använd " + SharedSpeechTestObjects.NoTestId + " för demoläge)";
                 //SoundFieldSimulation_Label.Text = "Tillåt ljudfältssimulering i hörlurar (kan göra appen långsam)";
                 Submit_Button.Text = "Fortsätt";
                 Calibrator_Button.Text = "Kalibrering";
@@ -67,6 +69,7 @@ public partial class WelcomePageR : ContentView
                 SelectLangage_Label.Text = "Select language";
                 SelectedLanguage_Picker.Title = "";
                 ParticipantCode_Label.Text = "Enter participant code";
+                DemoCode_Label.Text = "(use " + SharedSpeechTestObjects.NoTestId + " for demo mode)";
                 //SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
@@ -87,10 +90,10 @@ public partial class WelcomePageR : ContentView
     //}
 
 
-    private void TryStartSpeechTestView()
+    private async void TryStartSpeechTestView()
     {
 
-            bool codeOk = true;
+        bool codeOk = true;
         string ptcCode = "";
         if (ParticipantCode_Editor.Text == null)
         {
@@ -119,6 +122,17 @@ public partial class WelcomePageR : ContentView
                 }
             }
         }
+
+        if (ptcCode == SharedSpeechTestObjects.NoTestId)
+        {
+           bool demoModeQuestionResult = await Messager.MsgBoxAcceptQuestion("You have entered the code for demo mode.\n\n TEST RESULTS WILL NOT BE SAVED! \n\n Use this for demonstration purpose only!","Warning! Starting demo mode", "OK", "Abort");
+           if (demoModeQuestionResult == false)
+           {
+                ParticipantCode_Editor.Text = "";
+                return;
+           }
+        }
+
 
         if (codeOk == true)
         {

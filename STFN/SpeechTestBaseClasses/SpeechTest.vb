@@ -135,11 +135,21 @@
 #Region "SoundScene"
 
     Public MustOverride ReadOnly Property UpperLevelLimit_dBSPL As Double
+    ''' <summary>
+    ''' Holds the level step size available in the customizable test options instance used in the test
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride ReadOnly Property LevelStepSize As Double
 
     Public MustOverride ReadOnly Property MaximumSoundFieldSpeechLocations As Integer
     Public MustOverride ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
     Public MustOverride ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
     Public MustOverride ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
+
+    Public MustOverride ReadOnly Property MinimumSoundFieldSpeechLocations As Integer
+    Public MustOverride ReadOnly Property MinimumSoundFieldMaskerLocations As Integer
+    Public MustOverride ReadOnly Property MinimumSoundFieldBackgroundNonSpeechLocations As Integer
+    Public MustOverride ReadOnly Property MinimumSoundFieldBackgroundSpeechLocations As Integer
 
     Public MustOverride ReadOnly Property HasOptionalPractiseTest As Boolean
     Public MustOverride ReadOnly Property AllowsManualStartListSelection As Boolean
