@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiTemplateApp.MainPage">
 
-    <ScrollView>
-        <VerticalStackLayout
+        <HorizontalStackLayout x:Name="MyHorizontalStackLayout"
             Padding="30,0"
             Spacing="25">
             <Image
@@ -23,14 +22,27 @@
                 Style="{StaticResource SubHeadline}"
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I" />
-
+            
             <Button
                 x:Name="CounterBtn"
                 Text="Click me" 
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
-        </VerticalStackLayout>
-    </ScrollView>
+
+
+            <Button
+                x:Name="NextBtn"
+                Text="Next" 
+                Clicked="NextBtn_Clicked"   
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="PreviousBtn"
+                Text="Previous" 
+                Clicked="PreviousBtn_Clicked"
+                HorizontalOptions="Fill" />
+
+        </HorizontalStackLayout>
 
 </ContentPage>

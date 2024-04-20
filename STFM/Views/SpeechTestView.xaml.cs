@@ -514,7 +514,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
-                    CurrentResponseView = new ResponseView_FreeRecall();
+                    CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height);
 
                     bool openInSeparateWindow = false;
                     if (openInSeparateWindow)
@@ -530,6 +530,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     }
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
                     CurrentSpeechTest.SoundOverlapDuration = 0.25;
@@ -704,6 +705,13 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewSpeechTestInput(null, null);
     }
 
+
+    
+    void ResponseHistoryUpdate(object sender, SpeechTestInputEventArgs e)
+    {
+        CurrentSpeechTest.UpdateHistoricTrialResults(sender, e);
+
+    }
 
     void NewSpeechTestInput(object sender, SpeechTestInputEventArgs e)
     {
@@ -1012,8 +1020,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                 }
                 else
                 {
-                    TalkbackButton.BackgroundColor = Colors.Green;
-                    TalkbackButton.BorderColor = Colors.LightGreen;
+                    TalkbackButton.BackgroundColor = Colors.GreenYellow;
+                    TalkbackButton.BorderColor = Colors.YellowGreen;
                     TalkbackOn = true;
                     // Activates tackback
                     STFN.OstfBase.SoundPlayer.StartTalkback();

@@ -315,6 +315,8 @@
     ''' <returns></returns>
     Public MustOverride Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
 
+    Public MustOverride Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
+
     Public Enum SpeechTestReplies
         ContinueTrial
         GotoNextTrial

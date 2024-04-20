@@ -7,7 +7,7 @@ public class CorrectionButton : Grid
 
     private Label indicatorLabel;
     private Button repsonseButton;
-    private Frame repsonseButtonFrame;
+    public Frame RepsonseButtonFrame;
     private bool showAsCorrect = false;
 
     public readonly bool IsScoredItem;
@@ -45,6 +45,7 @@ public class CorrectionButton : Grid
         set { notScoredColor = value; }
     }
 
+    public event EventHandler Clicked;
 
     public CorrectionButton(SpeechTestResponseAlternative responseAlternative, double textSize)
     {
@@ -77,18 +78,18 @@ public class CorrectionButton : Grid
 
         setButtonAppearence();
 
-        repsonseButtonFrame = new Frame();
-        repsonseButtonFrame.BorderColor = Colors.LightGray;
-        repsonseButtonFrame.BackgroundColor = Colors.LightGray;
-        //repsonseButtonFrame.BorderColor = inCorrectColorLight;
-        //repsonseButtonFrame.BackgroundColor = inCorrectColorLight;
-        repsonseButtonFrame.CornerRadius = 0;
-        repsonseButtonFrame.Padding = new Thickness(4, 8);
-        repsonseButtonFrame.Margin = 0;
-        repsonseButtonFrame.Content = repsonseButton;
+        RepsonseButtonFrame = new Frame();
+        RepsonseButtonFrame.BorderColor = Colors.LightGray;
+        RepsonseButtonFrame.BackgroundColor = Colors.LightGray;
+        //RepsonseButtonFrame.BorderColor = inCorrectColorLight;
+        //RepsonseButtonFrame.BackgroundColor = inCorrectColorLight;
+        RepsonseButtonFrame.CornerRadius = 0;
+        RepsonseButtonFrame.Padding = new Thickness(4, 8);
+        RepsonseButtonFrame.Margin = 0;
+        RepsonseButtonFrame.Content = repsonseButton;
 
         this.Add(indicatorLabel, 0, 0);
-        this.Add(repsonseButtonFrame, 0, 1);
+        this.Add(RepsonseButtonFrame, 0, 1);
 
         // Activating event Clicked handler only is item is scored
         if (IsScoredItem)
@@ -117,6 +118,9 @@ public class CorrectionButton : Grid
         showAsCorrect = !showAsCorrect;
 
         setButtonAppearence();
+
+        //Raising the clicked event of the CorrectionButton (which can be listened to by an external class
+        Clicked?.Invoke(sender, e);
 
     }
 

@@ -568,6 +568,9 @@ Public Class HintSpeechTest
         Throw New NotImplementedException
     End Function
 
+    Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
+        Throw New NotImplementedException()
+    End Sub
 End Class
 
 

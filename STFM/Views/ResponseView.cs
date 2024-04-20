@@ -59,6 +59,17 @@ public abstract class ResponseView : ContentView
     }
 
 
+    public event EventHandler<SpeechTestInputEventArgs> ResponseHistoryUpdated;
+
+    protected virtual void OnResponseHistoryUpdated(SpeechTestInputEventArgs e)
+    {
+        EventHandler<SpeechTestInputEventArgs> handler = ResponseHistoryUpdated;
+        if (handler != null)
+        {
+            handler(this, e);
+        }
+    }
+
 
 
     public abstract void AddSourceAlternatives(VisualizedSoundSource[] soundSources);

@@ -237,15 +237,16 @@ Public Class IHearProtocolB2SpeechTest
     Dim CacheLastMediaSetVariableName As String
 
     Private PlannedLevelAdjustmentWords As List(Of SpeechMaterialComponent) = Nothing
-    Private PlannedTestListWords As List(Of SpeechMaterialComponent) = Nothing
+    'Private PlannedTestListWords As List(Of SpeechMaterialComponent) = Nothing
 
-    Private ObservedPreTestTrials As New TrialHistory
+    Private PlannedTestTrials As New TrialHistory
     Private ObservedTestTrials As New TrialHistory
 
     Private MaskerNoise As Audio.Sound = Nothing
     Private ContralateralNoise As Audio.Sound = Nothing
 
     Private TestWordPresentationTime As Double = 0.5
+    Private MaximumResponseTime As Double = 5
 
     Private TestLength As Integer = 50
 
@@ -308,12 +309,13 @@ Public Class IHearProtocolB2SpeechTest
 
         CustomizableTestOptions.SelectedMediaSet = AvailableMediasets(SelectedMediaSetIndex)
 
+        CreatePreTestWordsList()
         CreatePlannedWordsList()
 
         'Getting the masker noise only once (this should be a long section of noise with its using nominal level set
-        MaskerNoise = PlannedTestListWords(0).GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+        MaskerNoise = PlannedLevelAdjustmentWords(0).GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
         'We always load ContralateralNoise even if it's not used, since the test will crash if it's suddenly switched on the the administrator (such as in pretest stimulus generation)
-        ContralateralNoise = PlannedTestListWords(0).GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+        ContralateralNoise = PlannedLevelAdjustmentWords(0).GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
 
         CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = CustomizableTestOptions.SpeechLevel, .TestLength = TestLength})
 
@@ -323,36 +325,116 @@ Public Class IHearProtocolB2SpeechTest
 
     End Function
 
-    Private Function CreatePlannedWordsList() As Boolean
+    Private Function CreatePreTestWordsList() As Boolean
 
         Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, True, False)
         Dim AllTestListsNames = AvailableTestListsNames()
 
         Dim LevelAdjustmentListName = AllTestListsNames(PreTestListIndex)
-        Dim TestListName = AllTestListsNames(TestListIndex)
-
         For Each List In AllLists
             If List.PrimaryStringRepresentation = LevelAdjustmentListName Then PlannedLevelAdjustmentWords = List.ChildComponents
-            If List.PrimaryStringRepresentation = TestListName Then PlannedTestListWords = List.ChildComponents
         Next
 
         'Checking that the lists are not empty
-        If PlannedLevelAdjustmentWords Is Nothing Or PlannedTestListWords Is Nothing Then
-            Messager.MsgBox("Unable to find the test word lists!", MsgBoxStyle.Exclamation, "An error occurred!")
+        If PlannedLevelAdjustmentWords Is Nothing Then
+            Messager.MsgBox("Unable to find the pre-test word list!", MsgBoxStyle.Exclamation, "An error occurred!")
             Return False
         End If
 
-        If PlannedLevelAdjustmentWords.Count = 0 Or PlannedTestListWords.Count = 0 Then
-            Messager.MsgBox("Unable to find the test words!", MsgBoxStyle.Exclamation, "An error occurred!")
+        If PlannedLevelAdjustmentWords.Count = 0 Then
+            Messager.MsgBox("Unable to find the pre-test words!", MsgBoxStyle.Exclamation, "An error occurred!")
             Return False
         End If
-
-        'Setting TestLength to the number of available words
-        TestLength = PlannedTestListWords.Count
 
         Return True
 
     End Function
+
+
+    Private Function CreatePlannedWordsList() As Boolean
+        Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, True, False)
+        Dim AllTestListsNames = AvailableTestListsNames()
+
+        Dim TestListName = AllTestListsNames(TestListIndex)
+
+        Dim PlannedTestListWords As List(Of SpeechMaterialComponent) = Nothing
+
+        For Each List In AllLists
+            If List.PrimaryStringRepresentation = TestListName Then PlannedTestListWords = List.ChildComponents
+        Next
+
+        'Checking that the lists are not empty
+        If PlannedTestListWords Is Nothing Then
+            Messager.MsgBox("Unable to find the test word lists!", MsgBoxStyle.Exclamation, "An error occurred!")
+            Return False
+        End If
+
+        If PlannedTestListWords.Count = 0 Then
+            Messager.MsgBox("Unable to find the test words!", MsgBoxStyle.Exclamation, "An error occurred!")
+            Return False
+        End If
+
+        PlannedTestTrials = New TrialHistory
+
+        For i = 0 To PlannedTestListWords.Count - 1
+
+            Dim CurrentSMC = PlannedTestListWords(i)
+
+            Dim NewTestTrial = New WrsTrial With {.SpeechMaterialComponent = CurrentSMC,
+                .Tasks = 1,
+                .ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))}
+
+            Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
+
+            If NewTestTrial.SpeechMaterialComponent.ChildComponents.Count > 0 Then
+                For Each Child In NewTestTrial.SpeechMaterialComponent.ChildComponents()
+                    ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = True, .TrialPresentationIndex = i})
+                Next
+            End If
+
+            NewTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
+
+            PlannedTestTrials.Add(NewTestTrial)
+
+        Next
+
+
+        'Setting TestLength to the number of available words
+        TestLength = PlannedTestTrials.Count
+
+        Return True
+
+    End Function
+
+
+    Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
+
+        'Stores historic responses
+        For Index = 0 To e.LinguisticResponses.Count - 1
+
+            Dim InvertIndex As Integer = e.LinguisticResponses.Count - Index
+
+            Dim CurrentTrialIndex = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.TrialPresentationIndex
+            Dim CurrentHistoricTrialIndex = CurrentTrialIndex - InvertIndex
+            Dim HistoricTrial = ObservedTestTrials(CurrentHistoricTrialIndex)
+
+            HistoricTrial.ScoreList = New List(Of Integer)
+            If e.LinguisticResponses(Index) = HistoricTrial.ResponseAlternativeSpellings(0).Last.Spelling Then
+                HistoricTrial.ScoreList.Add(1)
+            Else
+                HistoricTrial.ScoreList.Add(0)
+            End If
+
+            If HistoricTrial.ScoreList.Sum > 0 Then
+                HistoricTrial.IsCorrect = True
+            Else
+                HistoricTrial.IsCorrect = False
+            End If
+
+        Next
+
+    End Sub
+
 
     Public Overrides Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
 
@@ -361,7 +443,6 @@ Public Class IHearProtocolB2SpeechTest
         If e IsNot Nothing Then
 
             'This is an incoming test trial response
-
             'Corrects the trial response, based on the given response
             Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
             Dim CorrectWordsList As New List(Of String)
@@ -369,12 +450,18 @@ Public Class IHearProtocolB2SpeechTest
             'Resets the CurrentTestTrial.ScoreList
             CurrentTestTrial.ScoreList = New List(Of Integer)
             For i = 0 To e.LinguisticResponses.Count - 1
-                If e.LinguisticResponses(i) = WordsInSentence(i).GetCategoricalVariableValue("Spelling") Then
+                If e.LinguisticResponses(i) = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.Spelling Then
                     CurrentTestTrial.ScoreList.Add(1)
                 Else
                     CurrentTestTrial.ScoreList.Add(0)
                 End If
             Next
+
+            If CurrentTestTrial.ScoreList.Sum > 0 Then
+                CurrentTestTrial.IsCorrect = True
+            Else
+                CurrentTestTrial.IsCorrect = False
+            End If
 
             'Checks if the trial is finished
             If CurrentTestTrial.ScoreList.Count < CurrentTestTrial.Tasks Then
@@ -406,36 +493,43 @@ Public Class IHearProtocolB2SpeechTest
 
     Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
-        Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
 
         'Preparing the next trial
         'Getting next test word
-        Dim NextTestWord = PlannedTestListWords(ObservedTestTrials.Count)
+        CurrentTestTrial = PlannedTestTrials(ObservedTestTrials.Count)
 
         'Creating a new test trial
-        CurrentTestTrial = New WrsTrial With {.SpeechMaterialComponent = NextTestWord,
-                .SpeechLevel = CustomizableTestOptions.SpeechLevel,
-                .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
-                .Tasks = 1,
-                .ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))}
+        DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel = CustomizableTestOptions.SpeechLevel
+        DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel
+        CurrentTestTrial.Tasks = 1
 
-        If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 0 Then
-            For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
-                If CustomizableTestOptions.ScoreOnlyKeyWords = True Then
-                    ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
-                Else
-                    ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
-                End If
-            Next
-        End If
+        Dim HistoryToShow As Integer = 3
+        Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoryToShow, ObservedTestTrials.Count)
+
+        Dim CurrentTrialIndex = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.TrialPresentationIndex
+
+        'Adding historic trials
+        For index = 1 To HistoricTrialsToAdd
+
+            Dim CurrentHistoricTrialIndex = CurrentTrialIndex - index
+            Dim HistoricTrial = ObservedTestTrials(CurrentHistoricTrialIndex)
+
+            'We only add the spelling of first child component here, since displaying history is only supported for sigle words
+            Dim HistoricSpeechTestResponseAlternative = New SpeechTestResponseAlternative With {
+                .Spelling = HistoricTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"),
+                .IsScoredItem = True,
+                .TrialPresentationIndex = CurrentHistoricTrialIndex,
+                .ParentTestTrial = HistoricTrial}
+
+            'We insert the history
+            CurrentTestTrial.ResponseAlternativeSpellings(0).Insert(0, HistoricSpeechTestResponseAlternative) 'We put it into the first index as this is not multidimensional response alternatives (such as in Matrix tests)
+        Next
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 5500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
-
-        CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 2, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         'Mixing trial sound
         MixNextTrialSound()
