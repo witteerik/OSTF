@@ -225,6 +225,7 @@
         AdaptiveSpeech
         AdaptiveNoise
         AdaptiveDirectionality
+        Custom
     End Enum
 
     Public MustOverride ReadOnly Property AvailableTestProtocols() As List(Of TestProtocol)

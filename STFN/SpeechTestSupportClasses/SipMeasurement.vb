@@ -51,7 +51,7 @@ Namespace SipTest
         ''' Holds settings that determine how the test should enfold.
         ''' </summary>
         ''' <returns></returns>
-        Public Property TestProcedure As New TestProcedure(AdaptiveTypes.Fixed, Testparadigm.Slow)
+        Public Property TestProcedure As TestProcedure
 
 
         Public Property SelectedAudiogramData As AudiogramData = Nothing
@@ -64,8 +64,7 @@ Namespace SipTest
         Public TrialResultsExportFolder As String
 
 
-        Public Sub New(ByRef ParticipantID As String, ByRef ParentTestSpecification As SpeechMaterialSpecification,
-                       Optional RandomSeed As Integer? = Nothing)
+        Public Sub New(ByRef ParticipantID As String, ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional AdaptiveType As AdaptiveTypes = AdaptiveTypes.Fixed, Optional ByVal TestParadigm As Testparadigm = Testparadigm.Slow, Optional RandomSeed As Integer? = Nothing)
 
             If RandomSeed.HasValue = True Then
                 Randomizer = New Random(RandomSeed)
@@ -73,9 +72,10 @@ Namespace SipTest
                 Randomizer = New Random
             End If
 
+            Me.TestProcedure = New TestProcedure(AdaptiveType, TestParadigm)
+
             Me.ParticipantID = ParticipantID
             Me.ParentTestSpecification = ParentTestSpecification
-
 
         End Sub
 
@@ -2722,13 +2722,12 @@ Namespace SipTest
                                 New SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
 
             'Testparadigm.Quick
-            TargetStimulusLocations.Add(Testparadigm.Quick, {New SoundSourceLocation With {.HorizontalAzimuth = 0}})
+            TargetStimulusLocations.Add(Testparadigm.Quick, {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}})
             MaskerLocations.Add(Testparadigm.Quick, {
-                                New SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
-                                New SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
+                                New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}})
             BackgroundLocations.Add(Testparadigm.Quick, {
-                                New SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
-                                New SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
+                                New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45},
+                                New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}})
 
             TargetStimulusLocations.Add(Testparadigm.Directional2, {
             New SoundSourceLocation With {.HorizontalAzimuth = -15, .Distance = 1},
