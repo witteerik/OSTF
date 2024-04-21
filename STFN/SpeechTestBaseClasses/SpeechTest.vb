@@ -350,7 +350,7 @@
             Return False
         End If
 
-        Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, "HINT")
+        Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, Me.FilePathRepresentation)
         Dim OutputFilename = Me.FilePathRepresentation & "_Results_" & SharedSpeechTestObjects.CurrentParticipantID
 
         'Ensures that an old file with the same filename is not overwritten by adding a number to existing files

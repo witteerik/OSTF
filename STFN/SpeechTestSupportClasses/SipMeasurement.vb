@@ -1222,13 +1222,7 @@ Namespace SipTest
         Private _ResponseAlternativeCount As Integer? = Nothing
         Public Property ResponseAlternativeCount As Integer?
             Get
-                If _ResponseAlternativeCount Is Nothing Then
-                    If DetermineResponseAlternativeCount() = True Then
-                        Return _ResponseAlternativeCount
-                    Else
-                        Return Nothing
-                    End If
-                End If
+                Return _ResponseAlternativeCount
             End Get
             Set(value As Integer?)
                 _ResponseAlternativeCount = value
@@ -2626,7 +2620,7 @@ Namespace SipTest
 
         End Function
 
-        Private Function GetTestPhonemeStartAndLength(Optional ByVal InitialMargin As Integer = 0) As Tuple(Of Integer, Integer)
+        Public Function GetTestPhonemeStartAndLength(Optional ByVal InitialMargin As Integer = 0) As Tuple(Of Integer, Integer)
 
             Dim TestPhonemeStartSample As Integer
             Dim TestPhonemeLength As Integer

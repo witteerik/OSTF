@@ -8,7 +8,7 @@ Public Class QuickSiP
 
     Public Overrides ReadOnly Property FilePathRepresentation As String
         Get
-            Return "Quick SiP"
+            Return "QuickSiP"
         End Get
     End Property
 
@@ -236,15 +236,7 @@ Public Class QuickSiP
     Private CurrentSipTestMeasurement As SipMeasurement
     Public SelectedSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.SimulatedSoundField
     Private RandomSeed As Integer? = Nothing
-    Private NumberOfSimultaneousMaskers As Integer = 1
     Private SelectedTestparadigm As Testparadigm = Testparadigm.Quick
-
-    Public Enum SiPTestModes
-        Directional
-        BMLD
-        Binaural
-    End Enum
-
     Private SelectedTransducer As AudioSystemSpecification
     Private MinimumStimulusOnsetTime As Double = 0.3
     Private MaximumStimulusOnsetTime As Double = 0.8
@@ -257,6 +249,10 @@ Public Class QuickSiP
     Private DirectionalSimulationSet As String = "ARC - Harcellen - HATS 256 - 48kHz"
     Private ReferenceLevel As Double = 68.34
     Private PresetName As String = "QuickSiP"
+
+    Private TestIsStarted As Boolean = False
+    Private SipMeasurementRandomizer As Random
+    Private TestIsPaused As Boolean = False
 
 
     Public Overrides Function InitializeCurrentTest() As Boolean
@@ -380,104 +376,16 @@ Public Class QuickSiP
 
     End Sub
 
-
-
-    Private Sub TryEnableTestStart()
-
-        'If SelectedTransducer.CanPlay = False Then
-        '    'Aborts if the SelectedTransducer cannot be used to play sound
-        '    ShowMessageBox("Unable To play sound Using the selected transducer!", "Sound player Error")
-        '    Exit Sub
-        'End If
-
-        If CurrentSipTestMeasurement Is Nothing Then
-            ShowMessageBox("Inget test är laddat.", "SiP-test")
-            Exit Sub
-        End If
+    Private Sub InitiateTestByPlayingSound()
 
         'Sets the measurement datetime
         CurrentSipTestMeasurement.MeasurementDateTime = DateTime.Now
-
-        'Getting NeededTargetAzimuths for the Directional2, Directional3 and Directional5 Testparadigms
-        Dim NeededTargetAzimuths As List(Of Double) = Nothing
-        Select Case SelectedTestparadigm
-            Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                NeededTargetAzimuths = CurrentSipTestMeasurement.GetTargetAzimuths()
-        End Select
-
-
-
-        'Select Case GuiLanguage
-        '    Case Utils.Constants.Languages.Swedish
-        '        ParticipantControl.ShowMessage("Testet börjar strax")
-        '    Case Utils.Constants.Languages.English
-        '        ParticipantControl.ShowMessage("The test is about to start")
-        'End Select
-
-        TryStartTest()
-
-    End Sub
-
-    Private TestIsStarted As Boolean = False
-    Private SipMeasurementRandomizer As Random
-    Private TestIsPaused As Boolean = False
-
-    Private Sub TryStartTest()
-
-        If TestIsStarted = False Then
-
-            'If SelectedTestDescription = "" Then
-            '    ShowMessageBox("Please provide a test description (such As 'test 1, with HA')!", "SiP-test")
-            '    Exit Sub
-            'End If
-
-
-
-            'Storing the test description
-            CurrentSipTestMeasurement.Description = "SiP test 1" ' SelectedTestDescription
-
-            'Setting the default export path
-            CurrentSipTestMeasurement.SetDefaultExportPath()
-
-            'Things seemed to be in order,
-            'Starting the test
-
-            TestIsStarted = True
-
-            InitiateTestByPlayingSound()
-
-        Else
-            ''Test is started
-            'If TestIsPaused = True Then
-            '    ResumeTesting()
-            'Else
-            '    PauseTesting()
-            'End If
-        End If
-
-    End Sub
-
-
-    Private Sub InitiateTestByPlayingSound()
-
-        'UpdateTestProgress()
-        ''Updates the progress bar
-        'If ShowProgressIndication = True Then
-        '    ParticipantControl.UpdateTestFormProgressbar(CurrentSipTestMeasurement.ObservedTrials.Count, CurrentSipTestMeasurement.ObservedTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count)
-        'End If
-
-
-        'Removes the start button
-        'ParticipantControl.ResetTestItemPanel()
 
         'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds, using audio from the first selected MediaSet
         Dim TestSound As Audio.Sound = CreateInitialSound(CustomizableTestOptions.SelectedMediaSet)
 
         'Plays sound
         SoundPlayer.SwapOutputSounds(TestSound)
-
-        'Setting the interval to the first test stimulus using NewTrialTimer.Interval (N.B. The NewTrialTimer.Interval value has to be reset at the first tick, as the deafault value is overridden here)
-        'StartTrialTimer.Interval = Math.Max(1, PretestSoundDuration * 1000)
 
         'Premixing the first 10 sounds 
         CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
@@ -524,12 +432,11 @@ Public Class QuickSiP
 
             'Adds the background (non-speech) signals, with fade, duck and location specifications
             Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
+
             ItemList.Add(New SoundSceneItem(Background1, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup,
-                                                                                              New SoundSourceLocation With {.HorizontalAzimuth = -30},
-                                                                                              SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech, 0,,,, FadeSpecs_Background))
+                                            CurrentSipTestMeasurement.TestProcedure.BackgroundLocations(SelectedTestparadigm)(0), SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech, 0,,,, FadeSpecs_Background))
             ItemList.Add(New SoundSceneItem(Background2, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup,
-                                                                                              New SoundSourceLocation With {.HorizontalAzimuth = 30},
-                                                                                              SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background))
+                                            CurrentSipTestMeasurement.TestProcedure.BackgroundLocations(SelectedTestparadigm)(1), SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background))
             LevelGroup += 1
 
             MixStopWatch.Stop()
@@ -555,56 +462,9 @@ Public Class QuickSiP
     End Function
 
 
-
-
-
-
-
-
-    'Private Sub PrepareResponseScreenData()
-
-    '    'Creates a response string
-    '    Select Case SelectedTestparadigm
-    '        Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-    '            'TODO: the following line only uses the first of possible target stimulus locations
-    '            CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling") & vbTab & CurrentSipTrial.TargetStimulusLocations(0).ActualLocation.HorizontalAzimuth
-    '        Case Else
-    '            CorrectResponse = CurrentSipTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
-    '    End Select
-
-    '    'Collects the response alternatives
-    '    TestWordAlternatives = New List(Of Tuple(Of String, SoundSourceLocation))
-    '    Dim TempList As New List(Of SpeechMaterialComponent)
-    '    CurrentSipTrial.SpeechMaterialComponent.IsContrastingComponent(,, TempList)
-    '    For Each ContrastingComponent In TempList
-    '        'TODO: the following line only uses the first of each possible contrasting response alternative stimulus locations
-    '        TestWordAlternatives.Add(New Tuple(Of String, SoundSourceLocation)(ContrastingComponent.GetCategoricalVariableValue("Spelling"), CurrentSipTrial.TargetStimulusLocations(0).ActualLocation))
-    '    Next
-
-    '    'Randomizing the order
-    '    Dim AlternativesCount As Integer = TestWordAlternatives.Count
-    '    Dim TempList2 As New List(Of Tuple(Of String, SoundSourceLocation))
-    '    For n = 0 To AlternativesCount - 1
-    '        Dim RandomIndex As Integer = SipMeasurementRandomizer.Next(0, TestWordAlternatives.Count)
-    '        TempList2.Add(TestWordAlternatives(RandomIndex))
-    '        TestWordAlternatives.RemoveAt(RandomIndex)
-    '    Next
-    '    TestWordAlternatives = TempList2
-
-    'End Sub
-
     Private Sub PrepareTestTrialSound()
 
         Try
-
-            'Resetting CurrentTestSound
-            'CurrentTestSound = Nothing
-
-            If CurrentSipTestMeasurement.TestProcedure.AdaptiveType <> SipTest.AdaptiveTypes.Fixed Then
-                'Levels only need to be set here, and possibly not even here, in adaptive procedures. Its better if the level is set directly upon selection of the trial...
-                'CurrentSipTrial.SetLevels()
-            End If
-
 
             If (CurrentSipTestMeasurement.ObservedTrials.Count + 3) Mod 10 = 0 Then
                 'Premixing the next 10 sounds, starting three trials before the next is needed 
@@ -619,30 +479,12 @@ Public Class QuickSiP
                 If LogToConsole = True Then Console.WriteLine("Waiting for sound to mix: " & WaitPeriods * 100 & " ms")
             End While
 
-            'If CurrentSipTrial.Sound Is Nothing Then
-            '    CurrentSipTrial.MixSound(SelectedTransducer, SelectedTestparadigm, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
-            'End If
-
-            'References the sound
-            'CurrentTestSound = CurrentSipTrial.Sound
-
-
-            'Launches the trial if the start timer has ticked, without launching the trial (which happens when the sound preparation was not completed at the tick)
-            'If StartTrialTimerHasTicked = True Then
-            '    If CurrentTrialIsLaunched = False Then
-
-            '        'Launching the trial
-            '        LaunchTrial(CurrentTestSound)
-
-            '    End If
-            'End If
-
         Catch ex As Exception
-            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            'Ignores any exceptions...
+            'Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
         End Try
 
     End Sub
-
 
 
     ''' <summary>
@@ -660,7 +502,7 @@ Public Class QuickSiP
             End Select
         End If
 
-        MsgBox(Message, MsgBoxStyle.Information, Title)
+        Messager.MsgBox(Message, MsgBoxStyle.Information, Title)
 
     End Sub
 
@@ -720,66 +562,35 @@ Public Class QuickSiP
 
         Return ProtocolReply.Decision
 
-
     End Function
 
 
     Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
         'Preparing the next trial
-        'Creating a new test trial
         CurrentTestTrial = CurrentSipTestMeasurement.GetNextTrial()
         CurrentTestTrial.TestStage = NextTaskInstruction.TestStage
         CurrentTestTrial.Tasks = 1
-
-        'CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
-        '                .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-        '                .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
-        '                .MaskerLevel = CustomizableTestOptions.MaskingLevel,
-        '                .TestStage = NextTaskInstruction.TestStage,
-        '                .Tasks = 1}
-
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
-
         Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
-        If CustomizableTestOptions.IsFreeRecall Then
-            If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 0 Then
 
-                CurrentTestTrial.Tasks = 0
-                For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
+        'Adding the current word spelling as a response alternative
+        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"), .IsScoredItem = CurrentTestTrial.SpeechMaterialComponent.IsKeyComponent})
 
-                    If CustomizableTestOptions.ScoreOnlyKeyWords = True Then
-                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
-                    Else
-                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
-                    End If
+        'Picking random response alternatives from all available test words
+        Dim AllContrastingWords = CurrentTestTrial.SpeechMaterialComponent.GetSiblingsExcludingSelf()
+        For Each ContrastingWord In AllContrastingWords
+            ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = ContrastingWord.GetCategoricalVariableValue("Spelling"), .IsScoredItem = ContrastingWord.IsKeyComponent})
+        Next
 
-                    CurrentTestTrial.Tasks += 1
-                Next
+        'Shuffling the order of response alternatives
+        ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
 
-            End If
-
-        Else
-            'Adding the current word spelling as a response alternative
-
-            ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"), .IsScoredItem = CurrentTestTrial.SpeechMaterialComponent.IsKeyComponent})
-            CurrentTestTrial.Tasks = 1
-
-            'Picking random response alternatives from all available test words
-            Dim AllContrastingWords = CurrentTestTrial.SpeechMaterialComponent.GetSiblingsExcludingSelf()
-            For Each ContrastingWord In AllContrastingWords
-                ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = ContrastingWord.GetCategoricalVariableValue("Spelling"), .IsScoredItem = ContrastingWord.IsKeyComponent})
-            Next
-
-            'Shuffling the order of response alternatives
-            ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
-        End If
-
+        'Adding the response alternatives
         CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
 
         'Mixing trial sound
         PrepareTestTrialSound()
-
 
         'Setting visual que intervals
         Dim ShowVisualQueTimer_Interval As Double
@@ -797,7 +608,6 @@ Public Class QuickSiP
             MaxResponseTimeTimer_Interval = System.Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000) + 1000 * MaximumResponseTime
         End If
 
-
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
@@ -806,15 +616,342 @@ Public Class QuickSiP
             CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = HideVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.HideVisualCue})
         End If
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativesTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
     End Sub
 
 
 
     Public Overrides Function GetResults() As TestResults
-        ' Throw New NotImplementedException()
-        Return Nothing
+
+        Dim SkipExportOfSoundFiles As Boolean = True
+
+        Dim TestResult As New TestResults(TestResults.TestResultTypes.QSiP)
+        TestResult.FormattedTrialResults = New List(Of String)
+
+        For t = 0 To CurrentSipTestMeasurement.ObservedTrials.Count - 1
+
+            Dim TrialList As New List(Of String)
+
+            Dim Trial = CurrentSipTestMeasurement.ObservedTrials(t)
+
+            If TestResult.FormattedTrialResultsHeadings = "" Then TestResult.FormattedTrialResultsHeadings = SipTrial.CreateExportHeadings()
+
+            TrialList.Add(Trial.ParentTestUnit.ParentMeasurement.ParticipantID)
+            TrialList.Add(Trial.ParentTestUnit.ParentMeasurement.MeasurementDateTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            TrialList.Add(Trial.ParentTestUnit.ParentMeasurement.Description)
+            TrialList.Add(Trial.ParentTestUnit.ParentMeasurement.GetParentTestUnitIndex(Trial))
+            TrialList.Add(Trial.ParentTestUnit.Description)
+            TrialList.Add(Trial.SpeechMaterialComponent.Id)
+            TrialList.Add(Trial.SpeechMaterialComponent.ParentComponent.PrimaryStringRepresentation)
+            TrialList.Add(Trial.MediaSet.MediaSetName)
+            TrialList.Add(Trial.PresentationOrder)
+            TrialList.Add(Trial.ReferenceSpeechMaterialLevel_SPL)
+            TrialList.Add(Trial.ReferenceContrastingPhonemesLevel_SPL)
+            TrialList.Add(Trial.Reference_SPL)
+            TrialList.Add(Trial.PNR)
+            If Trial.TargetMasking_SPL.HasValue = True Then
+                TrialList.Add(Trial.TargetMasking_SPL)
+            Else
+                TrialList.Add("NA")
+            End If
+            TrialList.Add(Trial.TestWordLevelLimit)
+            TrialList.Add(Trial.ContextSpeechLimit)
+
+            If Trial.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
+                TrialList.Add(Trial.EstimatedSuccessProbability(False))
+                TrialList.Add(Trial.AdjustedSuccessProbability)
+            Else
+                TrialList.Add("No audiogram stored - cannot calculate")
+                TrialList.Add("No audiogram stored - cannot calculate")
+            End If
+            TrialList.Add(Trial.SoundPropagationType.ToString)
+
+            If Trial.TargetStimulusLocations.Length > 0 Then
+                Dim Distances As New List(Of String)
+                Dim HorizontalAzimuths As New List(Of String)
+                Dim Elevations As New List(Of String)
+                Dim ActualDistances As New List(Of String)
+                Dim ActualHorizontalAzimuths As New List(Of String)
+                Dim ActualElevations As New List(Of String)
+                Dim ActualBinauralDelay_Left As New List(Of String)
+                Dim ActualBinauralDelay_Right As New List(Of String)
+                For i = 0 To Trial.TargetStimulusLocations.Length - 1
+                    Distances.Add(Trial.TargetStimulusLocations(i).Distance)
+                    HorizontalAzimuths.Add(Trial.TargetStimulusLocations(i).HorizontalAzimuth)
+                    Elevations.Add(Trial.TargetStimulusLocations(i).Elevation)
+                    If Trial.TargetStimulusLocations(i).ActualLocation Is Nothing Then Trial.TargetStimulusLocations(i).ActualLocation = New SoundSourceLocation
+                    ActualDistances.Add(Trial.TargetStimulusLocations(i).ActualLocation.Distance)
+                    ActualHorizontalAzimuths.Add(Trial.TargetStimulusLocations(i).ActualLocation.HorizontalAzimuth)
+                    ActualElevations.Add(Trial.TargetStimulusLocations(i).ActualLocation.Elevation)
+                    ActualBinauralDelay_Left.Add(Trial.TargetStimulusLocations(i).ActualLocation.BinauralDelay.LeftDelay)
+                    ActualBinauralDelay_Right.Add(Trial.TargetStimulusLocations(i).ActualLocation.BinauralDelay.RightDelay)
+                Next
+                TrialList.Add(String.Join(";", Distances))
+                TrialList.Add(String.Join(";", HorizontalAzimuths))
+                TrialList.Add(String.Join(";", Elevations))
+                TrialList.Add(String.Join(";", ActualDistances))
+                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
+                TrialList.Add(String.Join(";", ActualElevations))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
+            Else
+                For n = 1 To 8
+                    TrialList.Add("")
+                Next
+            End If
+
+            If Trial.MaskerLocations.Length > 0 Then
+                Dim Distances As New List(Of String)
+                Dim HorizontalAzimuths As New List(Of String)
+                Dim Elevations As New List(Of String)
+                Dim ActualDistances As New List(Of String)
+                Dim ActualHorizontalAzimuths As New List(Of String)
+                Dim ActualElevations As New List(Of String)
+                Dim ActualBinauralDelay_Left As New List(Of String)
+                Dim ActualBinauralDelay_Right As New List(Of String)
+                For i = 0 To Trial.MaskerLocations.Length - 1
+                    Distances.Add(Trial.MaskerLocations(i).Distance)
+                    HorizontalAzimuths.Add(Trial.MaskerLocations(i).HorizontalAzimuth)
+                    Elevations.Add(Trial.MaskerLocations(i).Elevation)
+                    If Trial.MaskerLocations(i).ActualLocation Is Nothing Then Trial.MaskerLocations(i).ActualLocation = New SoundSourceLocation
+                    ActualDistances.Add(Trial.MaskerLocations(i).ActualLocation.Distance)
+                    ActualHorizontalAzimuths.Add(Trial.MaskerLocations(i).ActualLocation.HorizontalAzimuth)
+                    ActualElevations.Add(Trial.MaskerLocations(i).ActualLocation.Elevation)
+                    ActualBinauralDelay_Left.Add(Trial.MaskerLocations(i).ActualLocation.BinauralDelay.LeftDelay)
+                    ActualBinauralDelay_Right.Add(Trial.MaskerLocations(i).ActualLocation.BinauralDelay.RightDelay)
+                Next
+                TrialList.Add(String.Join(";", Distances))
+                TrialList.Add(String.Join(";", HorizontalAzimuths))
+                TrialList.Add(String.Join(";", Elevations))
+                TrialList.Add(String.Join(";", ActualDistances))
+                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
+                TrialList.Add(String.Join(";", ActualElevations))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
+            Else
+                For n = 1 To 8
+                    TrialList.Add("")
+                Next
+            End If
+
+            If Trial.BackgroundLocations.Length > 0 Then
+                Dim Distances As New List(Of String)
+                Dim HorizontalAzimuths As New List(Of String)
+                Dim Elevations As New List(Of String)
+                Dim ActualDistances As New List(Of String)
+                Dim ActualHorizontalAzimuths As New List(Of String)
+                Dim ActualElevations As New List(Of String)
+                Dim ActualBinauralDelay_Left As New List(Of String)
+                Dim ActualBinauralDelay_Right As New List(Of String)
+                For i = 0 To Trial.BackgroundLocations.Length - 1
+                    Distances.Add(Trial.BackgroundLocations(i).Distance)
+                    HorizontalAzimuths.Add(Trial.BackgroundLocations(i).HorizontalAzimuth)
+                    Elevations.Add(Trial.BackgroundLocations(i).Elevation)
+                    If Trial.BackgroundLocations(i).ActualLocation Is Nothing Then Trial.BackgroundLocations(i).ActualLocation = New SoundSourceLocation
+                    ActualDistances.Add(Trial.BackgroundLocations(i).ActualLocation.Distance)
+                    ActualHorizontalAzimuths.Add(Trial.BackgroundLocations(i).ActualLocation.HorizontalAzimuth)
+                    ActualElevations.Add(Trial.BackgroundLocations(i).ActualLocation.Elevation)
+                    ActualBinauralDelay_Left.Add(Trial.BackgroundLocations(i).ActualLocation.BinauralDelay.LeftDelay)
+                    ActualBinauralDelay_Right.Add(Trial.BackgroundLocations(i).ActualLocation.BinauralDelay.RightDelay)
+                Next
+                TrialList.Add(String.Join(";", Distances))
+                TrialList.Add(String.Join(";", HorizontalAzimuths))
+                TrialList.Add(String.Join(";", Elevations))
+                TrialList.Add(String.Join(";", ActualDistances))
+                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
+                TrialList.Add(String.Join(";", ActualElevations))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
+                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
+            Else
+                For n = 1 To 8
+                    TrialList.Add("")
+                Next
+            End If
+
+            TrialList.Add(Trial.IsBmldTrial)
+            If Trial.IsBmldTrial = True Then
+                TrialList.Add(Trial.BmldNoiseMode.ToString)
+                TrialList.Add(Trial.BmldSignalMode.ToString)
+            Else
+                TrialList.Add("")
+                TrialList.Add("")
+            End If
+
+            TrialList.Add(Trial.Response)
+            TrialList.Add(Trial.Result.ToString)
+            TrialList.Add(Trial.Score)
+            TrialList.Add(Trial.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            Trial.DetermineResponseAlternativeCount()
+            If Trial.ResponseAlternativeCount.HasValue = True Then
+                TrialList.Add(Trial.ResponseAlternativeCount.Value)
+            Else
+                TrialList.Add("")
+            End If
+            TrialList.Add(Trial.IsTestTrial.ToString)
+            If Trial.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
+                TrialList.Add(Trial.PhonemeDiscriminabilityLevel(False))
+            Else
+                TrialList.Add("No audiogram stored")
+            End If
+
+            TrialList.Add(Trial.SpeechMaterialComponent.PrimaryStringRepresentation)
+            TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+            TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("SpellingAFC"))
+            TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Transcription"))
+            TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("TranscriptionAFC"))
+
+            Dim PseudoTrialIds As New List(Of String)
+            Dim PseudoTrialSpellings As New List(Of String)
+            If Trial.PseudoTrials IsNot Nothing Then
+                For Each PseudoTrial In Trial.PseudoTrials
+                    PseudoTrialIds.Add(PseudoTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+                    PseudoTrialSpellings.Add(PseudoTrial.SpeechMaterialComponent.Id)
+                Next
+            End If
+            TrialList.Add(String.Join("; ", PseudoTrialIds))
+            TrialList.Add(String.Join("; ", PseudoTrialSpellings))
+
+            'Adding export of sound files,
+            Dim ExportedSoundFilesList As New List(Of String)
+            If SkipExportOfSoundFiles = False Then
+                For i = 0 To Trial.TrialSoundsToExport.Count - 1
+                    Dim ExportSound = Trial.TrialSoundsToExport(i).Item2
+                    Dim FileName = IO.Path.Combine(Trial.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Trial.PresentationOrder & "_" & Trial.TrialSoundsToExport(i).Item1 & "_" & Trial.SpeechMaterialComponent.Id & ".wav")
+                    ExportSound.WriteWaveFile(FileName)
+                    ExportedSoundFilesList.Add(FileName)
+                Next
+            End If
+            TrialList.Add(String.Join(";", ExportedSoundFilesList))
+
+            Dim ExportedPseudoTrialSoundFilesList As New List(Of String)
+            If SkipExportOfSoundFiles = False Then
+                If Trial.PseudoTrials IsNot Nothing Then
+                    For Each PseudoTrial In Trial.PseudoTrials
+                        For i = 0 To PseudoTrial.TrialSoundsToExport.Count - 1
+                            Dim ExportSound = PseudoTrial.TrialSoundsToExport(i).Item2
+                            Dim FileName = IO.Path.Combine(Trial.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Trial.PresentationOrder & "_Pseudo_" & PseudoTrial.TrialSoundsToExport(i).Item1 & "_" & PseudoTrial.SpeechMaterialComponent.Id & ".wav")
+                            ExportSound.WriteWaveFile(FileName)
+                            ExportedPseudoTrialSoundFilesList.Add(FileName)
+                        Next
+                    Next
+                End If
+            End If
+            TrialList.Add(String.Join(";", ExportedPseudoTrialSoundFilesList))
+
+            TrialList.Add(Trial.SelectedTargetIndexString)
+            TrialList.Add(Trial.SelectedMaskerIndicesString)
+            TrialList.Add(Trial.BackgroundStartSamplesString)
+            TrialList.Add(Trial.BackgroundSpeechStartSamplesString)
+
+            Dim PseudoTrial_SelectedTargetIndexStringList As New List(Of String)
+            Dim PseudoTrial_SelectedMaskerIndicesStringList As New List(Of String)
+            Dim PseudoTrial_BackgroundStartSamplesStringList As New List(Of String)
+            Dim PseudoTrial_BackgroundSpeechStartSamplesStringList As New List(Of String)
+            If Trial.PseudoTrials IsNot Nothing Then
+                For Each PseduTrial In Trial.PseudoTrials
+                    PseudoTrial_SelectedTargetIndexStringList.Add(PseduTrial.SelectedTargetIndexString)
+                    PseudoTrial_SelectedMaskerIndicesStringList.Add(PseduTrial.SelectedMaskerIndicesString)
+                    PseudoTrial_BackgroundStartSamplesStringList.Add(PseduTrial.BackgroundStartSamplesString)
+                    PseudoTrial_BackgroundSpeechStartSamplesStringList.Add(PseduTrial.BackgroundSpeechStartSamplesString)
+                Next
+            End If
+            TrialList.Add(String.Join(";", PseudoTrial_SelectedTargetIndexStringList))
+            TrialList.Add(String.Join(";", PseudoTrial_SelectedMaskerIndicesStringList))
+            TrialList.Add(String.Join(";", PseudoTrial_BackgroundStartSamplesStringList))
+            TrialList.Add(String.Join(";", PseudoTrial_BackgroundSpeechStartSamplesStringList))
+
+            TrialList.Add(Trial.BackgroundNonSpeechDucking)
+            Dim PseudoTrial_BackgroundNonSpeechDuckingList As New List(Of String)
+            If Trial.PseudoTrials IsNot Nothing Then
+                For Each PseduTrial In Trial.PseudoTrials
+                    PseudoTrial_BackgroundNonSpeechDuckingList.Add(PseduTrial.BackgroundNonSpeechDucking)
+                Next
+            End If
+            TrialList.Add(String.Join(";", PseudoTrial_BackgroundNonSpeechDuckingList))
+
+                TrialList.Add(Trial.ContextRegionSpeech_SPL)
+            If Trial.TestWordLevel.HasValue = True Then
+                TrialList.Add(Trial.TestWordLevel)
+            Else
+                TrialList.Add("NA")
+            End If
+            TrialList.Add(Trial.ReferenceTestWordLevel_SPL)
+
+            Dim ContextRegionSpeech_SPL_List As New List(Of String)
+            Dim TestWordLevel_List As New List(Of String)
+            Dim ReferenceTestWordLevel_SPL_List As New List(Of String)
+            If Trial.PseudoTrials IsNot Nothing Then
+                For Each PseduTrial In Trial.PseudoTrials
+                    ContextRegionSpeech_SPL_List.Add(PseduTrial.ContextRegionSpeech_SPL)
+                    If PseduTrial.TestWordLevel.HasValue = True Then
+                        TestWordLevel_List.Add(PseduTrial.TestWordLevel)
+                    Else
+                        TestWordLevel_List.Add("NA")
+                    End If
+                    ReferenceTestWordLevel_SPL_List.Add(PseduTrial.ReferenceTestWordLevel_SPL)
+                Next
+            End If
+            TrialList.Add(String.Join(";", ContextRegionSpeech_SPL_List))
+            TrialList.Add(String.Join(";", TestWordLevel_List))
+            TrialList.Add(String.Join(";", ReferenceTestWordLevel_SPL_List))
+
+            'Target Startsamples
+            TrialList.Add(Trial.TargetStartSample)
+            Dim PseudoTrials_TargetStartSample As New List(Of String)
+            If Trial.PseudoTrials IsNot Nothing Then
+                For Each PseduTrial In Trial.PseudoTrials
+                    PseudoTrials_TargetStartSample.Add(PseduTrial.TargetStartSample)
+                Next
+            End If
+            TrialList.Add(String.Join(";", PseudoTrials_TargetStartSample))
+
+            'Test phoneme start sample and length
+            If Trial.TargetInitialMargins.Count = 0 Then Trial.TargetInitialMargins.Add(0) ' Adding an initial margin of zero if for some reason empty
+            Dim TP_SaL = Trial.GetTestPhonemeStartAndLength(Trial.TargetInitialMargins(0)) ' N.B. / TODO: Here initial margins are assumed only for one target. Need to be changed if several targets with different initial marginsa are to be used.
+            Dim TestPhonemeStartSample As Integer = TP_SaL.Item1
+            Dim TestPhonemelength As Integer = TP_SaL.Item2
+            TrialList.Add(TestPhonemeStartSample)
+            TrialList.Add(TestPhonemelength)
+
+            Dim PseudoTrials_TP_StartSamples As New List(Of String)
+            Dim PseudoTrials_TP_Length As New List(Of String)
+            If Trial.PseudoTrials IsNot Nothing Then
+                For pseudoTrialIndex = 0 To Trial.PseudoTrials.Count - 1
+                    If Trial.PseudoTrials(pseudoTrialIndex).TargetInitialMargins.Count = 0 Then Trial.PseudoTrials(pseudoTrialIndex).TargetInitialMargins.Add(0) ' Adding an initial margin of zero if for some reason empty
+                    Dim PS_TP_SaL = Trial.PseudoTrials(pseudoTrialIndex).GetTestPhonemeStartAndLength(Trial.PseudoTrials(pseudoTrialIndex).TargetInitialMargins(0)) ' N.B. / TODO: Here initial margins are assumed only for one target. Need to be changed if several targets with different initial marginsa are to be used.
+                    PseudoTrials_TP_StartSamples.Add(PS_TP_SaL.Item1)
+                    PseudoTrials_TP_Length.Add(PS_TP_SaL.Item2)
+                Next
+            End If
+            TrialList.Add(String.Join(";", PseudoTrials_TP_StartSamples))
+            TrialList.Add(String.Join(";", PseudoTrials_TP_Length))
+
+            'Gains
+            Dim TargetTrialGains As New List(Of String)
+            For Each Item In Trial.GainList
+                TargetTrialGains.Add(Item.Key.ToString & ": " & String.Join(";", Item.Value))
+            Next
+            TrialList.Add(String.Join(" / ", TargetTrialGains))
+
+            Dim PseudoTrialsGains As New List(Of String)
+            If Trial.PseudoTrials IsNot Nothing Then
+                For pseudoTrialIndex = 0 To Trial.PseudoTrials.Count - 1
+                    Dim PseudoTrialGains As New List(Of String)
+                    For Each Item In Trial.PseudoTrials(pseudoTrialIndex).GainList
+                        PseudoTrialGains.Add(Item.Key.ToString & ": " & String.Join(";", Item.Value))
+                    Next
+                    PseudoTrialsGains.Add(String.Join(" / ", PseudoTrialGains))
+                Next
+            End If
+            TrialList.Add(String.Join(" | ", PseudoTrialsGains))
+
+            TestResult.FormattedTrialResults.Add(String.Join(vbTab, TrialList))
+
+        Next
+
+        Return TestResult
+
     End Function
 
     Public Overrides Sub FinalizeTest()
@@ -822,11 +959,11 @@ Public Class QuickSiP
     End Sub
 
     Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)
-        Throw New NotImplementedException
+        Return Nothing
     End Function
 
     Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
-        Throw New NotImplementedException()
+        'Not supported, just ignores any calls
     End Sub
 
 

@@ -5,6 +5,7 @@
     Public Enum TestResultTypes
         SRT
         WRS
+        QSiP
     End Enum
 
     Public SpeechRecognitionThreshold As Double = Double.NaN
@@ -22,6 +23,9 @@
     Public Progress As List(Of Integer)
     Public ProgressMax As List(Of Integer)
     Public TrialStringComment As List(Of String)
+
+    Public FormattedTrialResultsHeadings As String = ""
+    Public FormattedTrialResults As List(Of String)
 
     Public Sub New(ByVal TestResultType As TestResultTypes)
         Me.TestResultType = TestResultType
@@ -72,7 +76,14 @@
                 'If ScoreSeries IsNot Nothing Then ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
                 'If ProportionCorrectSeries IsNot Nothing Then ResultsRowList.Add("Proportion correct:" & vbCrLf & String.Join(vbTab, ProportionCorrectSeries))
 
+            Case TestResultTypes.QSiP
+
+                ResultsRowList.Add(FormattedTrialResultsHeadings)
+                ResultsRowList.AddRange(FormattedTrialResults)
+
             Case Else
+
+                Throw New NotImplementedException
 
         End Select
 
