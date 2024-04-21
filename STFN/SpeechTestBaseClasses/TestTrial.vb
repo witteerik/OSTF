@@ -1,7 +1,15 @@
 ﻿Public Class TrialHistory
     Inherits List(Of TestTrial)
 
-
+    Public Sub Shuffle(Randomizer As Random)
+        Dim SampleOrder = Utils.SampleWithoutReplacement(Me.Count, 0, Me.Count, Randomizer)
+        Dim TempList As New List(Of TestTrial)
+        For Each RandomIndex In SampleOrder
+            TempList.Add(Me(RandomIndex))
+        Next
+        Me.Clear()
+        Me.AddRange(TempList)
+    End Sub
 
 End Class
 

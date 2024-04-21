@@ -410,6 +410,9 @@ Public Class IHearProtocolB2SpeechTest
 
         Next
 
+        If CustomizableTestOptions.RandomizeItemsWithinLists = True Then
+            PlannedTestTrials.Shuffle(Randomizer)
+        End If
 
         'Setting TestLength to the number of available words
         TestLength = PlannedTestTrials.Count
