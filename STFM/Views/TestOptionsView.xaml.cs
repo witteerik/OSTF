@@ -29,32 +29,35 @@ public partial class OptionsViewAll : ContentView
 	{
 		InitializeComponent();
 
-		if (SelectedPreset_Picker.Items.Count > 0) {SelectedPreset_Picker.SelectedIndex = 0;}
-        if (SelectedPreset_Picker.Items.Count == 1) { SelectedPreset_Picker.IsVisible = false; }
-
-        if (StartList_Picker.Items.Count > 0) { StartList_Picker.SelectedIndex = 0; }
-        if (StartList_Picker.Items.Count == 1) { StartList_Picker.IsVisible = false; }
-
-        if (SelectedMediaSet_Picker.Items.Count > 0) { SelectedMediaSet_Picker.SelectedIndex = 0; }
-        if (SelectedMediaSet_Picker.Items.Count ==1) { SelectedMediaSet_Picker.IsVisible = false; }
-
-
         PractiseTestControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.HasOptionalPractiseTest;
 
-        StartList_Picker.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualStartListSelection;
-        SelectedMediaSet_Picker.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMediaSetSelection;
+        if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualPreSetSelection == true)
+        {
+            if (SelectedPreset_Picker.Items.Count > 0) { SelectedPreset_Picker.SelectedIndex = 0; }
+            if (SelectedPreset_Picker.Items.Count < 2) { SelectedPreset_Picker.IsVisible = false; }
+        }
+        else { SelectedPreset_Picker.IsVisible = false; }
+
+        if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualStartListSelection == true)
+        {
+            if (StartList_Picker.Items.Count > 0) { StartList_Picker.SelectedIndex = 0; }
+            if (StartList_Picker.Items.Count < 2) { StartList_Picker.IsVisible = false; }
+        }
+        else  {StartList_Picker.IsVisible = false;}
+
+
+        if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMediaSetSelection == true)
+        {
+            if (SelectedMediaSet_Picker.Items.Count > 0) { SelectedMediaSet_Picker.SelectedIndex = 0; }
+            if (SelectedMediaSet_Picker.Items.Count < 2) { SelectedMediaSet_Picker.IsVisible = false; }
+        }
+        else { SelectedMediaSet_Picker.IsVisible = false; }
+
         ReferenceLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualReferenceLevelSelection;
         SpeechLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualSpeechLevelSelection;
         MaskerLevelControl.IsVisible= SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMaskingLevelSelection;
         BackgroundLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualBackgroundLevelSelection;
-        if (SharedSpeechTestObjects.CurrentSpeechTest.UseSoundFieldSimulation == STFN.Utils.Constants.TriState.Optional)
-        {
-            UseSimulatedSoundFieldControl.IsVisible = true;
-        }
-        else
-        {
-            UseSimulatedSoundFieldControl.IsVisible = false;
-        }
+        SetSoundFieldSimulationVisibility();
 
 
         if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualSpeechLevelSelection)
@@ -73,10 +76,10 @@ public partial class OptionsViewAll : ContentView
         }
 
         if (AvailableTestModes_Picker.Items.Count > 0) { AvailableTestModes_Picker.SelectedIndex = 0; }
-        if (AvailableTestModes_Picker.Items.Count == 1) { AvailableTestModes_Picker.IsVisible= false; }
+        if (AvailableTestModes_Picker.Items.Count < 2) { AvailableTestModes_Picker.IsVisible= false; }
 
         if (AvailableTestProtocols_Picker.Items.Count > 0) { AvailableTestProtocols_Picker.SelectedIndex = 0; }
-        if (AvailableTestProtocols_Picker.Items.Count ==1) { AvailableTestProtocols_Picker.IsVisible= false; }
+        if (AvailableTestProtocols_Picker.Items.Count <2) { AvailableTestProtocols_Picker.IsVisible= false; }
 
 
         switch (SharedSpeechTestObjects.CurrentSpeechTest.UseKeyWordScoring)
@@ -171,18 +174,9 @@ public partial class OptionsViewAll : ContentView
         if (AvailableFixedResponseAlternativeCounts_Picker.Items.Count < 2) { AvailableFixedResponseAlternativeCounts_Picker.IsVisible= false; }
 
         if (SelectedTransducer_Picker.Items.Count > 0) { SelectedTransducer_Picker.SelectedIndex = 0; }
-        if (SelectedTransducer_Picker.Items.Count ==1) { SelectedTransducer_Picker.IsVisible=false; }
+        if (SelectedTransducer_Picker.Items.Count < 2) { SelectedTransducer_Picker.IsVisible=false; }
 
-        if (SharedSpeechTestObjects.CurrentSpeechTest.UseSoundFieldSimulation != STFN.Utils.Constants.TriState.False && OstfBase.AllowDirectionalSimulation == true)
-        {
-            UseSimulatedSoundFieldControl.IsVisible = true;
-        }
-        else
-        {
-            UseSimulatedSoundFieldControl.IsVisible = false;
-        }
-        SelectedIrSet_Picker.IsVisible = false;
-
+        SetSoundFieldSimulationVisibility();
 
         UpdateSoundSourceViewsIsVisible();
 
@@ -218,7 +212,30 @@ public partial class OptionsViewAll : ContentView
         if (AvailablePhaseAudiometryTypes_Picker.Items.Count > 0) { AvailablePhaseAudiometryTypes_Picker.SelectedIndex = 0; }
         AvailablePhaseAudiometryTypes_Picker.IsVisible = false;
 
+        PreListenControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.SupportsPrelistening;
+
     }
+
+    private void SetSoundFieldSimulationVisibility()
+    {
+        if (OstfBase.AllowDirectionalSimulation == true & SharedSpeechTestObjects.CurrentSpeechTest.UseSoundFieldSimulation == STFN.Utils.Constants.TriState.Optional)
+        {
+            UseSimulatedSoundFieldControl.IsVisible = true;
+        }
+        else
+        {
+            if (SharedSpeechTestObjects.CurrentSpeechTest.UseSoundFieldSimulation == STFN.Utils.Constants.TriState.True)
+            {
+                UseSimulatedSoundField_Switch.IsToggled = true;
+            }
+            else
+            {
+                UseSimulatedSoundField_Switch.IsToggled = false;
+            }
+            UseSimulatedSoundFieldControl.IsVisible = false;
+            SelectedIrSet_Picker.IsVisible = false;
+        }
+    }  
 
     private void UseFreeRecall_Switch_Toggled(object sender, ToggledEventArgs e)
     {

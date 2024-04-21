@@ -152,12 +152,14 @@
     Public MustOverride ReadOnly Property MinimumSoundFieldBackgroundSpeechLocations As Integer
 
     Public MustOverride ReadOnly Property HasOptionalPractiseTest As Boolean
+    Public MustOverride ReadOnly Property AllowsManualPreSetSelection As Boolean
     Public MustOverride ReadOnly Property AllowsManualStartListSelection As Boolean
     Public MustOverride ReadOnly Property AllowsManualMediaSetSelection As Boolean
     Public MustOverride ReadOnly Property AllowsManualReferenceLevelSelection As Boolean
     Public MustOverride ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
     Public MustOverride ReadOnly Property AllowsManualMaskingLevelSelection As Boolean
     Public MustOverride ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
+    Public MustOverride ReadOnly Property SupportsPrelistening As Boolean
     Public MustOverride ReadOnly Property CanHaveTargets As Boolean
     Public MustOverride ReadOnly Property CanHaveMaskers As Boolean
     Public MustOverride ReadOnly Property CanHaveBackgroundNonSpeech As Boolean

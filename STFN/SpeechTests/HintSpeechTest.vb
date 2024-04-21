@@ -29,6 +29,12 @@ Public Class HintSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property AllowsManualStartListSelection As Boolean
         Get
             Return True
@@ -58,6 +64,13 @@ Public Class HintSpeechTest
             Return True
         End Get
     End Property
+
+    Public Overrides ReadOnly Property SupportsPrelistening As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
 
     Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
         Get

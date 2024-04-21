@@ -126,9 +126,9 @@
                 <Slider Value="{Binding BackgroundLevel}" Margin="10,0,10,5" Maximum="80" Minimum="0" MinimumTrackColor="Pink" ThumbColor="Pink"/>
             </VerticalStackLayout>
 
-            <Frame BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0">
+            <Frame x:Name="UseContralateralMaskingControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0">
                 <VerticalStackLayout Margin="0,0,0,0" Padding="0,0,0,0">
-                    <HorizontalStackLayout x:Name="UseContralateralMaskingControl">
+                    <HorizontalStackLayout>
                         <Label Text="{Binding UseContralateralMaskingTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,0" />
                         <Switch x:Name="UseContralateralMasking_Switch" IsToggled="{Binding UseContralateralMasking}" Toggled="UseContralateralMaskingControl_Switch_Toggled" Margin="0,5,0,0" />
                     </HorizontalStackLayout>

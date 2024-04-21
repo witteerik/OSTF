@@ -18,6 +18,12 @@ Public Class QuickSiP
         End Get
     End Property
 
+    Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property AllowsManualStartListSelection As Boolean
         Get
             Return False
@@ -48,6 +54,12 @@ Public Class QuickSiP
         End Get
     End Property
 
+    Public Overrides ReadOnly Property SupportsPrelistening As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
         Get
             Return TriState.True
@@ -62,7 +74,7 @@ Public Class QuickSiP
 
     Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
         Get
-            Return TestProtocols.GetSipProtocols
+            Return Nothing
         End Get
     End Property
 
@@ -243,6 +255,8 @@ Public Class QuickSiP
     Private UseVisualQue As Boolean = False
     Private ResponseAlternativeDelay As Double = 0.5
     Private DirectionalSimulationSet As String = "ARC - Harcellen - HATS 256 - 48kHz"
+    Private ReferenceLevel As Double = 68.34
+    Private PresetName As String = "QuickSiP"
 
 
     Public Overrides Function InitializeCurrentTest() As Boolean
@@ -258,33 +272,7 @@ Public Class QuickSiP
 
         SelectedTransducer = AvaliableTransducers(0)
 
-        If CustomizableTestOptions.SignalLocations.Count = 0 Then
-            Messager.MsgBox("You must select at least one signal sound source!", MsgBoxStyle.Information, "Missing signal sound source!")
-            Return False
-        End If
-
-        If CustomizableTestOptions.MaskerLocations.Count = 0 Then
-            Messager.MsgBox("You must select at least one masker sound source location!", MsgBoxStyle.Information, "Missing masker sound source!")
-            Return False
-        End If
-
-        If CustomizableTestOptions.BackgroundNonSpeechLocations.Count = 0 Then
-            Messager.MsgBox("You must select at least one background sound source location!", MsgBoxStyle.Information, "Missing background sound source!")
-            Return False
-        End If
-
-        If CustomizableTestOptions.BackgroundSpeechLocations.Count = 0 Then
-            UseBackgroundSpeech = False
-        Else
-            UseBackgroundSpeech = True
-        End If
-
-        'CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = CustomizableTestOptions.IsPractiseTest
-
-        'Creates a new test 
         CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
-        'CurrentSipTestMeasurement.TestProcedure.LengthReduplications = 1 'SelectedLengthReduplications
-        'CurrentSipTestMeasurement.TestProcedure.TestParadigm = SelectedTestparadigm
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
@@ -294,7 +282,11 @@ Public Class QuickSiP
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
             'DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer, False)
 
-            DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, SelectedTransducer, False)
+            Dim FoundDirSimulator As Boolean = DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, SelectedTransducer, False)
+            If FoundDirSimulator = False Then
+                ShowMessageBox("Unable to find the directional simulation set " & DirectionalSimulationSet)
+                Return False
+            End If
 
         Else
             SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
@@ -304,39 +296,10 @@ Public Class QuickSiP
         'Setting up test trials to run
         PlanQuickSiPTrials(CurrentSipTestMeasurement, SelectedSoundPropagationType, RandomSeed)
 
-        'Checks to see if a simulation set is required
-        If SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
-            ShowMessageBox("No directional simulation set selected!")
-            Return False
-        End If
-
         If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
             ShowMessageBox("The measurement requires a directional simulation set to be selected!")
             Return False
         End If
-
-        'Displayes the planned test length
-        'PlannedTestLength_TextBox.Text = CurrentSipTestMeasurement.PlannedTrials.Count + CurrentSipTestMeasurement.ObservedTrials.Count
-
-        'TODO: Calling GetTargetAzimuths only to ensure that the Actual Azimuths needed for presentation in the TestTrialTable exist. This should probably be done in some other way... (Only applies to the Directional3 and Directional5 Testparadigms)
-        Select Case SelectedTestparadigm
-            Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
-                CurrentSipTestMeasurement.GetTargetAzimuths()
-        End Select
-
-
-
-
-        'CustomizableTestOptions.SpeechLevel
-        'CustomizableTestOptions.MaskingLevel
-        'CustomizableTestOptions.ReferenceLevel
-
-
-        'Dim StartAdaptiveLevel As Double
-
-        'CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
-
-        'TryEnableTestStart()
 
         Return True
 
@@ -346,10 +309,7 @@ Public Class QuickSiP
 
     Private Sub PlanQuickSiPTrials(ByRef SipTestMeasurement As SipMeasurement, ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
-        'Dim SelectedPNRs As List(Of Double)
         Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
-        Dim ReferenceLevel As Double = 68.34
-        Dim PresetName As String = "QuickSiP"
 
         'Creating a new random if seed is supplied
         If RandomSeed.HasValue Then SipTestMeasurement.Randomizer = New Random(RandomSeed)

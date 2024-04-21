@@ -305,7 +305,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Quick SiP":
 
                     // Speech test
-                    CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
+                    CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSipTestView = new OptionsViewAll();
@@ -327,7 +327,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = newOptionsPB2TestView;
 
                     break;
-
 
                 default:
                     TestOptionsGrid.Children.Clear();
@@ -496,16 +495,15 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     CurrentSpeechTest.InitializeCurrentTest();
 
-                    CurrentResponseView = new ResponseView_MafcDragDrop();
+                    CurrentResponseView = new ResponseView_Mafc();
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    //CurrentResponseView.AddDefaultSources();
-                    //CurrentResponseView.AddResponseAlternatives(testStringArray);
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.1;
+                    CurrentSpeechTest.SoundOverlapDuration = 0.5;
 
                     break;
 

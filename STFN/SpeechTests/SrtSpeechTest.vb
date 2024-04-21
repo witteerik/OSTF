@@ -30,6 +30,12 @@ Public Class SrtSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property AllowsManualStartListSelection As Boolean
         Get
             Return True
@@ -55,6 +61,12 @@ Public Class SrtSpeechTest
     End Property
 
     Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property SupportsPrelistening As Boolean
         Get
             Return True
         End Get
