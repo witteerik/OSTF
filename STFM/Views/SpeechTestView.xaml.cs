@@ -496,8 +496,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.InitializeCurrentTest();
 
                     CurrentResponseView = new ResponseView_Mafc();
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;

@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:STFN;assembly=STFN"
              xmlns:drawable="clr-namespace:STFM.Views"
-             x:Class="STFM.Views.OptionsViewAll">
+             x:Class="STFM.Views.OptionsViewAll"
+             x:DataType="local:CustomizableTestOptions">
         
     <ContentView.BindingContext>
         <local:CustomizableTestOptions />

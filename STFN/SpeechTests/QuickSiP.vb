@@ -321,27 +321,40 @@ Public Class QuickSiP
         Dim MaskerLocations = SipTestMeasurement.TestProcedure.MaskerLocations(SipTestMeasurement.TestProcedure.TestParadigm)
         Dim BackgroundLocations = SipTestMeasurement.TestProcedure.BackgroundLocations(SipTestMeasurement.TestProcedure.TestParadigm)
 
-        Dim RanomizationGroups As New List(Of Tuple(Of SpeechMaterialComponent, MediaSet, Double))
+        Dim SipTestLists As New List(Of Tuple(Of SpeechMaterialComponent, MediaSet, Double))
 
-        RanomizationGroups.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(0), SelectedMediaSets(0), 10))
-        RanomizationGroups.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(1), SelectedMediaSets(1), 6))
-        RanomizationGroups.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(2), SelectedMediaSets(0), 0))
-        RanomizationGroups.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(1), -6))
+        'Talker in front
+        SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(0), SelectedMediaSets(0), 13))
+        SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(1), SelectedMediaSets(1), 10))
+        SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(0), SelectedMediaSets(0), 7))
+        SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(1), SelectedMediaSets(1), 4))
+        SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(2), SelectedMediaSets(0), 1))
+        SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(1), -2))
+        SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(2), SelectedMediaSets(0), -5))
+        SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(1), -8))
 
-        'A list that determines which RanomizationGroups that will be randomized together
+        'Directional
+        'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(1), -6))
+        'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(1), -6))
+
+
+        'A list that determines which SipTestLists that will be randomized together
         Dim NewTestUnitIndices As New List(Of Integer) From {0, 2, 4, 6, 8}
 
         Dim CurrentTestUnit As SiPTestUnit = Nothing
 
-        For i = 0 To RanomizationGroups.Count - 1
+        For i = 0 To SipTestLists.Count - 1
 
             If NewTestUnitIndices.Contains(i) Then
+                If CurrentTestUnit IsNot Nothing Then
+                    SipTestMeasurement.TestUnits.Add(CurrentTestUnit)
+                End If
                 CurrentTestUnit = New SiPTestUnit(SipTestMeasurement)
             End If
 
-            Dim PresetComponent = RanomizationGroups(i).Item1
-            Dim MediaSet = RanomizationGroups(i).Item2
-            Dim PNR = RanomizationGroups(i).Item3
+            Dim PresetComponent = SipTestLists(i).Item1
+            Dim MediaSet = SipTestLists(i).Item2
+            Dim PNR = SipTestLists(i).Item3
 
             Dim TestWords = PresetComponent.GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
             CurrentTestUnit.SpeechMaterialComponents.AddRange(TestWords)
@@ -352,9 +365,10 @@ Public Class QuickSiP
                 CurrentTestUnit.PlannedTrials.Add(NewTrial)
             Next
 
-            SipTestMeasurement.TestUnits.Add(CurrentTestUnit)
-
         Next
+
+        'Adds the last unit
+        SipTestMeasurement.TestUnits.Add(CurrentTestUnit)
 
         'Randomizing the order within units
         For Each Unit In SipTestMeasurement.TestUnits
@@ -870,7 +884,7 @@ Public Class QuickSiP
             End If
             TrialList.Add(String.Join(";", PseudoTrial_BackgroundNonSpeechDuckingList))
 
-                TrialList.Add(Trial.ContextRegionSpeech_SPL)
+            TrialList.Add(Trial.ContextRegionSpeech_SPL)
             If Trial.TestWordLevel.HasValue = True Then
                 TrialList.Add(Trial.TestWordLevel)
             Else
