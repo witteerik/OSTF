@@ -2715,13 +2715,13 @@ Namespace SipTest
                                 New SoundSourceLocation With {.HorizontalAzimuth = -30, .Distance = 1},
                                 New SoundSourceLocation With {.HorizontalAzimuth = 30, .Distance = 1}})
 
-            'Testparadigm.Quick
-            TargetStimulusLocations.Add(Testparadigm.Quick, {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}})
-            MaskerLocations.Add(Testparadigm.Quick, {
-                                New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}})
-            BackgroundLocations.Add(Testparadigm.Quick, {
-                                New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45},
-                                New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}})
+            ''Testparadigm.Quick
+            'TargetStimulusLocations.Add(Testparadigm.Quick, {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}})
+            'MaskerLocations.Add(Testparadigm.Quick, {
+            '                    New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}})
+            'BackgroundLocations.Add(Testparadigm.Quick, {
+            '                    New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45},
+            '                    New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}})
 
             TargetStimulusLocations.Add(Testparadigm.Directional2, {
             New SoundSourceLocation With {.HorizontalAzimuth = -15, .Distance = 1},

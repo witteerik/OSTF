@@ -356,7 +356,7 @@
         'Ensures that an old file with the same filename is not overwritten by adding a number to existing files
         OutputFilename = Utils.CheckFileNameConflict(OutputFilename)
 
-        Dim TestResultsString = GetResults.GetFormattedTestResultsSummaryString()
+        Dim TestResultsString = GetResults.GetTestResultsExportString()
         Utils.SendInfoToLog(TestResultsString, OutputFilename, OutputPath, False, True)
 
         Return True
