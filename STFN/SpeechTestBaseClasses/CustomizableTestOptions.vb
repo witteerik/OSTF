@@ -20,6 +20,9 @@ Public Class CustomizableTestOptions
         End Get
     End Property
 
+    Public Property TesterInstructionsButtonText As String = "Instruktioner för inställningar"
+    Public Property ParticipantInstructionsButtonText As String = "Patientinstruktioner"
+
     ''' <summary>
     ''' Should indicate whether the test is a practise test or not (Obligatory).
     ''' </summary>

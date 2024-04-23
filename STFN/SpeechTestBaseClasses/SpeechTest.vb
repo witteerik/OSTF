@@ -1,5 +1,13 @@
 ﻿Public MustInherit Class SpeechTest
 
+
+#Region "Instructions"
+
+    Public MustOverride ReadOnly Property TesterInstructions As String
+    Public MustOverride ReadOnly Property ParticipantInstructions As String
+
+#End Region
+
 #Region "Initialization"
 
     Public Sub New(ByVal SpeechMaterialName As String)

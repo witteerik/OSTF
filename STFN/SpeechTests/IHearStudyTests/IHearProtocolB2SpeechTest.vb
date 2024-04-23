@@ -19,6 +19,25 @@ Public Class IHearProtocolB2SpeechTest
 
 
 #Region "Settings"
+
+    Public Overrides ReadOnly Property TesterInstructions As String
+        Get
+            Return "1. Välj testöra." & vbCrLf &
+                "2. Ställ talnivå till TMV3 + 40 dB (Talnivån är i dB SPL)." & vbCrLf &
+                "3. Om kontrlateralt brus behövs, akivera kontralateralt brus och ställ in önskad brusnivå." & vbCrLf &
+                "4. Använd kontrollen provlyssna för att ställa in 'Lagom-nivån' innan testet börjar. (Använd knappen TB för att prata med patienten när denna har lurar på sig.)" & vbCrLf &
+                "5. Klicka på start för att starta testet." & vbCrLf &
+                "6. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen"
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property ParticipantInstructions As String
+        Get
+            Return "Patientens uppgift: " & vbCrLf &
+                "Patienten ska lyssna efter enstaviga ord och efter varje ord repetera ordet muntligt. Patienten ska gissa om hen är osäker. Testet är 50 ord långt."
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property HasOptionalPractiseTest As Boolean
         Get
             Return False

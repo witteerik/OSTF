@@ -12,6 +12,17 @@ Public Class SipSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property TesterInstructions As String
+        Get
+            Return ""
+        End Get
+    End Property
+
+    Public Overrides ReadOnly Property ParticipantInstructions As String
+        Get
+            Return ""
+        End Get
+    End Property
     Public Overrides ReadOnly Property HasOptionalPractiseTest As Boolean
         Get
             Return False

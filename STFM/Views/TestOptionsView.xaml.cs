@@ -1,4 +1,5 @@
 
+using CommunityToolkit.Maui.Media;
 using STFN;
 
 namespace STFM.Views;
@@ -28,6 +29,23 @@ public partial class OptionsViewAll : ContentView
     public OptionsViewAll()
 	{
 		InitializeComponent();
+
+        if (SharedSpeechTestObjects.CurrentSpeechTest.TesterInstructions.Trim() != "")
+        {
+            ShowTesterInstructionsButton.IsVisible = true;
+        }
+        else {
+            ShowTesterInstructionsButton.IsVisible = false; 
+        }
+
+        if (SharedSpeechTestObjects.CurrentSpeechTest.ParticipantInstructions.Trim() != "")
+        {
+            ShowParticipantInstructionsButton.IsVisible = true;
+        }
+        else
+        {
+            ShowParticipantInstructionsButton.IsVisible = false;
+        }
 
         PractiseTestControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.HasOptionalPractiseTest;
 
@@ -470,5 +488,15 @@ public partial class OptionsViewAll : ContentView
                 CurrentBindingContext.ContralateralMaskingLevel += differenceValue;
             }
         }
+    }
+
+    private async void ShowTesterInstructionsButton_Clicked(object sender, EventArgs e)
+    {
+        await Messager.MsgBoxAsync(SharedSpeechTestObjects.CurrentSpeechTest.TesterInstructions, Messager.MsgBoxStyle.Information, CurrentBindingContext.TesterInstructionsButtonText);
+    }
+
+    private async void ShowParticipantInstructionsButton_Clicked(object sender, EventArgs e)
+    {
+        await Messager.MsgBoxAsync(SharedSpeechTestObjects.CurrentSpeechTest.ParticipantInstructions, Messager.MsgBoxStyle.Information, CurrentBindingContext.ParticipantInstructionsButtonText);
     }
 }
