@@ -838,7 +838,7 @@ Partial Class SipTestGui
         Me.MostDifficultItems_Button.Name = "MostDifficultItems_Button"
         Me.MostDifficultItems_Button.Size = New System.Drawing.Size(58, 21)
         Me.MostDifficultItems_Button.TabIndex = 14
-        Me.MostDifficultItems_Button.Text = "Custom"
+        Me.MostDifficultItems_Button.Text = "CustomId"
         Me.MostDifficultItems_Button.UseVisualStyleBackColor = True
         '
         'PlannedTestLength_TextBox

@@ -29,6 +29,8 @@ Public Class ListRearrangerControl
         FixedBalancePercentage_IntegerParsingTextBox.Enabled = False
 
         CustomOrder_RadioButton.Enabled = False
+        CustomPsrOrder_RadioButton.Enabled = False
+        OverrideSentenceByFirstWord_CheckBox.Enabled = False
 
         RandomOrder_RadioButton.Checked = True
 
@@ -46,6 +48,8 @@ Public Class ListRearrangerControl
         FixedBalancePercentage_IntegerParsingTextBox.Enabled = True
 
         CustomOrder_RadioButton.Enabled = True
+        CustomPsrOrder_RadioButton.Enabled = True
+        OverrideSentenceByFirstWord_CheckBox.Enabled = True
 
     End Sub
 
@@ -94,7 +98,7 @@ Public Class ListRearrangerControl
             OrderInputHeading_GroupBox.Visible = True
             AddCustomVariablesToSelectionBox()
         Else
-            If CustomOrder_RadioButton.Checked = False Then
+            If CustomOrder_RadioButton.Checked = False And CustomPsrOrder_RadioButton.Checked = False Then
                 OrderInput_TableLayoutPanel.Enabled = False
                 OrderInputHeading_GroupBox.Visible = False
                 OrderInput_TableLayoutPanel.Controls.Clear()
@@ -103,14 +107,19 @@ Public Class ListRearrangerControl
 
     End Sub
 
-    Private CustomOrderInputBox As New Windows.Forms.TextBox With {.Multiline = True, .Dock = Windows.Forms.DockStyle.Fill}
+    Private CustomOrderInputBox As New Windows.Forms.TextBox With {.Multiline = True, .Dock = Windows.Forms.DockStyle.Fill, .ScrollBars = Windows.Forms.ScrollBars.Vertical}
 
-    Private Sub CustomOrder_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles CustomOrder_RadioButton.CheckedChanged
+    Private Sub CustomOrder_RadioButton_CheckedChanged(sender As Object, e As EventArgs) Handles CustomOrder_RadioButton.CheckedChanged, CustomPsrOrder_RadioButton.CheckedChanged
 
         OrderInput_TableLayoutPanel.Controls.Clear()
 
-        If CustomOrder_RadioButton.Checked = True Then
-            OrderInputHeading_GroupBox.Text = "Specify the custom (sentence level) SMC order (one Id per row)"
+        If CustomOrder_RadioButton.Checked = True Or CustomPsrOrder_RadioButton.Checked = True Then
+            If CustomOrder_RadioButton.Checked = True Then
+                OrderInputHeading_GroupBox.Text = "Specify the custom (sentence level) SMC order (one Id per row)"
+            Else
+                OrderInputHeading_GroupBox.Text = "Specify the custom (sentence level) SMC order (one spelling per row)"
+            End If
+
             OrderInput_TableLayoutPanel.Controls.Add(CustomOrderInputBox)
             OrderInput_TableLayoutPanel.Enabled = True
             OrderInputHeading_GroupBox.Visible = True
@@ -215,7 +224,9 @@ Public Class ListRearrangerControl
         ElseIf BalancedOrder_RadioButton.Checked = True Then
             OrderType = OrderType.Balanced
         ElseIf CustomOrder_RadioButton.Checked = True Then
-            OrderType = OrderType.Custom
+            OrderType = OrderType.CustomId
+        ElseIf CustomPsrOrder_RadioButton.Checked = True Then
+            OrderType = OrderType.CustomPrimaryStringRepresentation
         Else
             MsgBox("You must select the intended in item order type!")
             Exit Sub
@@ -234,7 +245,7 @@ Public Class ListRearrangerControl
         End If
 
         Dim BalancedVariables As New List(Of CustomVariableSpecification)
-        Dim CustomOrderIds As New List(Of String)
+        Dim CustomOrderStrings As New List(Of String)
         Dim BalanceIterations As Integer
         Dim FixedbalancePercentage As Integer? = Nothing
         If OrderType = OrderType.Balanced Then
@@ -272,16 +283,16 @@ Public Class ListRearrangerControl
                 End If
             End If
 
-        ElseIf OrderType = OrderType.Custom Then
+        ElseIf OrderType = OrderType.CustomId Then
             Dim CustomOrderInput = CustomOrderInputBox.Lines
 
             For Each Line In CustomOrderInput
                 If Line.Trim <> "" Then
-                    CustomOrderIds.Add(Line.Trim)
+                    CustomOrderStrings.Add(Line.Trim)
                 End If
             Next
 
-            If CustomOrderIds.Count = 0 Then
+            If CustomOrderStrings.Count = 0 Then
                 MsgBox("You must specify a custom order! The custom order should consist of sentence level SpeechMaterialComponent Ids, one Id per row.")
                 Exit Sub
             End If
@@ -289,12 +300,65 @@ Public Class ListRearrangerControl
             'Checking the validity of the SentenceIds
             Dim AllSentences = SourceMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
             Dim SentenceIds As New SortedSet(Of String)
-            For Each Sentence In AllSentences
-                SentenceIds.Add(Sentence.Id)
+            If OverrideSentenceByFirstWord_CheckBox.Checked = False Then
+                For Each Sentence In AllSentences
+                    SentenceIds.Add(Sentence.Id)
+                Next
+            Else
+                For Each Sentence In AllSentences
+                    If Sentence.ChildComponents.Count > 0 Then
+                        SentenceIds.Add(Sentence.ChildComponents(0).Id)
+                    Else
+                        MsgBox("Unable to override sentence by first word, since the sentence " & Sentence.Id & " has no word components.")
+                        Exit Sub
+                    End If
+                Next
+            End If
+
+
+            For Each CustomOrderId In CustomOrderStrings
+                    If SentenceIds.Contains(CustomOrderId) = False Then
+                        MsgBox("Detected the following sentence level SpeechMaterialComponent Id which do not exist in the selected speech material: " & CustomOrderId & vbCrLf & "Correct it and try again!")
+                        Exit Sub
+                    End If
+                Next
+
+            ElseIf OrderType = OrderType.CustomPrimaryStringRepresentation Then
+                Dim CustomOrderInput = CustomOrderInputBox.Lines
+
+            For Each Line In CustomOrderInput
+                If Line.Trim <> "" Then
+                    CustomOrderStrings.Add(Line.Trim)
+                End If
             Next
-            For Each CustomOrderId In CustomOrderIds
-                If SentenceIds.Contains(CustomOrderId) = False Then
-                    MsgBox("Detected the following sentence level SpeechMaterialComponent Id which do not exist in the selected speech material: " & CustomOrderId & vbCrLf & "Correct it and try again!")
+
+            If CustomOrderStrings.Count = 0 Then
+                MsgBox("You must specify a custom order! The custom order should consist of sentence level SpeechMaterialComponent PrimaryStringRepresentations, one item per row.")
+                Exit Sub
+            End If
+
+            'Checking the validity of the PrimaryStringsRepresentations
+            Dim AllSentences = SourceMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            Dim SentencePrimaryStringsRepresentations As New SortedSet(Of String)
+
+            If OverrideSentenceByFirstWord_CheckBox.Checked = False Then
+                For Each Sentence In AllSentences
+                    SentencePrimaryStringsRepresentations.Add(Sentence.PrimaryStringRepresentation)
+                Next
+            Else
+                For Each Sentence In AllSentences
+                    If Sentence.ChildComponents.Count > 0 Then
+                        SentencePrimaryStringsRepresentations.Add(Sentence.ChildComponents(0).PrimaryStringRepresentation)
+                    Else
+                        MsgBox("Unable to override sentence by first word, since the sentence " & Sentence.PrimaryStringRepresentation & " has no word components.")
+                        Exit Sub
+                    End If
+                Next
+            End If
+
+            For Each CustomOrderString In CustomOrderStrings
+                If SentencePrimaryStringsRepresentations.Contains(CustomOrderString) = False Then
+                    MsgBox("Detected the following sentence level SpeechMaterialComponent PrimaryStringRepresentation which do not exist in the selected speech material: " & CustomOrderString & vbCrLf & "Correct it and try again!")
                     Exit Sub
                 End If
             Next
@@ -302,14 +366,14 @@ Public Class ListRearrangerControl
         End If
 
         'Rearranging lists (TODO: the following code should probably be moved to the MediaSet class?
-        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, BalanceIterations, FixedbalancePercentage, CustomOrderIds, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix)
+        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, BalanceIterations, FixedbalancePercentage, CustomOrderStrings, OverrideSentenceByFirstWord_CheckBox.Checked, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix)
 
 
     End Sub
 
     Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer,
                          ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal BalanceIterations As Integer, ByVal FixedbalancePercentage As Integer?,
-                         ByVal CustomOrderIds As List(Of String), ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "")
+                         ByVal CustomOrderStrings As List(Of String), ByVal OverrideSentenceByFirstWord As Boolean, ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "")
 
         If SentencePrefix = "" Then SentencePrefix = SpeechMaterialComponent.DefaultSentencePrefix
 
@@ -374,8 +438,10 @@ Public Class ListRearrangerControl
 
                     Case OrderType.Balanced
                         Throw New NotImplementedException("Balancing between lists is not compatible with re-arranging within lists.")
-                    Case OrderType.Custom
-                        Throw New NotImplementedException("Custom order is not compatible with re-arranging within lists.")
+                    Case OrderType.CustomId
+                        Throw New NotImplementedException("CustomId order is not compatible with re-arranging within lists.")
+                    Case OrderType.CustomPrimaryStringRepresentation
+                        Throw New NotImplementedException("CustomPrimaryStringRepresentation order is not compatible with re-arranging within lists.")
                 End Select
             Next
 
@@ -396,16 +462,48 @@ Public Class ListRearrangerControl
                     CurrentSentenceOrder = Utils.SampleWithoutReplacement(AllSentences.Count, 0, AllSentences.Count, rnd)
                 Case OrderType.Original
                     CurrentSentenceOrder = Utils.GetSequence(0, AllSentences.Count - 1, 1)
-                Case OrderType.Custom
+                Case OrderType.CustomId
 
                     'Adding the custom order by looking up the index of each sentence level SCM
                     Dim CurrentSentenceOrderList As New List(Of Integer)
-                    For Each Id In CustomOrderIds
+                    For Each Id In CustomOrderStrings
                         For s = 0 To AllSentences.Count - 1
-                            If AllSentences(s).Id = Id Then
-                                CurrentSentenceOrderList.Add(s)
-                                Exit For
+
+                            If OverrideSentenceByFirstWord = False Then
+                                If AllSentences(s).Id = Id Then
+                                    CurrentSentenceOrderList.Add(s)
+                                    Exit For
+                                End If
+                            Else
+                                If AllSentences(s).ChildComponents(0).Id = Id Then
+                                    CurrentSentenceOrderList.Add(s)
+                                    Exit For
+                                End If
                             End If
+
+                        Next
+                    Next
+                    CurrentSentenceOrder = CurrentSentenceOrderList.ToArray
+
+                Case OrderType.CustomPrimaryStringRepresentation
+
+                    'Adding the custom order by looking up the index of each sentence level SCM
+                    Dim CurrentSentenceOrderList As New List(Of Integer)
+                    For Each PrimaryStringRepresentation In CustomOrderStrings
+                        For s = 0 To AllSentences.Count - 1
+
+                            If OverrideSentenceByFirstWord = False Then
+                                If AllSentences(s).PrimaryStringRepresentation = PrimaryStringRepresentation Then
+                                    CurrentSentenceOrderList.Add(s)
+                                    Exit For
+                                End If
+                            Else
+                                If AllSentences(s).ChildComponents(0).PrimaryStringRepresentation = PrimaryStringRepresentation Then
+                                    CurrentSentenceOrderList.Add(s)
+                                    Exit For
+                                End If
+                            End If
+
                         Next
                     Next
                     CurrentSentenceOrder = CurrentSentenceOrderList.ToArray
@@ -537,6 +635,10 @@ Public Class ListRearrangerControl
 
             'Picking sentences in the order specified in CurrentSentenceOrder
             For s = 0 To AllSentences.Count - 1
+
+                If s > CurrentSentenceOrder.Count - 1 Then
+                    Exit For
+                End If
 
                 'Adding a new list at multiples of TargetListLength
                 If s Mod TargetListLength = 0 Then
@@ -1000,8 +1102,8 @@ Public Class ListRearrangerControl
         Original
         Random
         Balanced
-        Custom
+        CustomId
+        CustomPrimaryStringRepresentation
     End Enum
-
 
 End Class

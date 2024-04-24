@@ -288,8 +288,16 @@ Public Class IHearProtocolB3SpeechTest
             End If
         Next
 
-        'Select ListOrder (random)
+        'Finding and grouping words lists
 
+
+
+        'Select ListOrder (random)
+        If CustomizableTestOptions.RandomizeListOrder = True Then
+
+
+
+        End If
 
         'Plan trials, in four test stages
 

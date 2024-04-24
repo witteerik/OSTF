@@ -31,7 +31,6 @@ Partial Class ListRearrangerControl
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.ListNamePrefix_TextBox = New System.Windows.Forms.TextBox()
-        Me.ListLength_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.Order_GroupBox = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.RandomOrder_RadioButton = New System.Windows.Forms.RadioButton()
@@ -42,14 +41,17 @@ Partial Class ListRearrangerControl
         Me.CustomOrder_RadioButton = New System.Windows.Forms.RadioButton()
         Me.BalanceItarations_Label = New System.Windows.Forms.Label()
         Me.BalanceProportion_Label = New System.Windows.Forms.Label()
-        Me.BalanceItarations_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.FixedBalancePercentage_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.CustomPsrOrder_RadioButton = New System.Windows.Forms.RadioButton()
         Me.ReArrangeButton = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.NewMediaSetName_TextBox = New System.Windows.Forms.TextBox()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.NewSpeechMaterialName_TextBox = New System.Windows.Forms.TextBox()
         Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
+        Me.OverrideSentenceByFirstWord_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.ListLength_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.BalanceItarations_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.FixedBalancePercentage_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.ListDescriptives_GroupBox.SuspendLayout()
@@ -179,15 +181,6 @@ Partial Class ListRearrangerControl
         Me.ListNamePrefix_TextBox.Size = New System.Drawing.Size(259, 20)
         Me.ListNamePrefix_TextBox.TabIndex = 2
         '
-        'ListLength_IntegerParsingTextBox
-        '
-        Me.ListLength_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ListLength_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.ListLength_IntegerParsingTextBox.Location = New System.Drawing.Point(268, 28)
-        Me.ListLength_IntegerParsingTextBox.Name = "ListLength_IntegerParsingTextBox"
-        Me.ListLength_IntegerParsingTextBox.Size = New System.Drawing.Size(259, 20)
-        Me.ListLength_IntegerParsingTextBox.TabIndex = 3
-        '
         'Order_GroupBox
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.Order_GroupBox, 2)
@@ -216,15 +209,19 @@ Partial Class ListRearrangerControl
         Me.TableLayoutPanel3.Controls.Add(Me.BalanceProportion_Label, 1, 4)
         Me.TableLayoutPanel3.Controls.Add(Me.BalanceItarations_IntegerParsingTextBox, 2, 3)
         Me.TableLayoutPanel3.Controls.Add(Me.FixedBalancePercentage_IntegerParsingTextBox, 2, 4)
+        Me.TableLayoutPanel3.Controls.Add(Me.CustomPsrOrder_RadioButton, 0, 6)
+        Me.TableLayoutPanel3.Controls.Add(Me.OverrideSentenceByFirstWord_CheckBox, 1, 7)
         Me.TableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel3.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
-        Me.TableLayoutPanel3.RowCount = 7
+        Me.TableLayoutPanel3.RowCount = 9
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
+        Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
+        Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
         Me.TableLayoutPanel3.Size = New System.Drawing.Size(530, 255)
@@ -272,7 +269,7 @@ Partial Class ListRearrangerControl
         Me.OrderInputHeading_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.OrderInputHeading_GroupBox.Location = New System.Drawing.Point(269, 3)
         Me.OrderInputHeading_GroupBox.Name = "OrderInputHeading_GroupBox"
-        Me.TableLayoutPanel3.SetRowSpan(Me.OrderInputHeading_GroupBox, 7)
+        Me.TableLayoutPanel3.SetRowSpan(Me.OrderInputHeading_GroupBox, 9)
         Me.OrderInputHeading_GroupBox.Size = New System.Drawing.Size(258, 249)
         Me.OrderInputHeading_GroupBox.TabIndex = 3
         Me.OrderInputHeading_GroupBox.TabStop = False
@@ -301,7 +298,7 @@ Partial Class ListRearrangerControl
         Me.CustomOrder_RadioButton.Size = New System.Drawing.Size(260, 20)
         Me.CustomOrder_RadioButton.TabIndex = 4
         Me.CustomOrder_RadioButton.TabStop = True
-        Me.CustomOrder_RadioButton.Text = "Use custom (sentence SMC Id) order"
+        Me.CustomOrder_RadioButton.Text = "Use custom order - sentence SMC Id"
         Me.CustomOrder_RadioButton.UseVisualStyleBackColor = True
         '
         'BalanceItarations_Label
@@ -324,24 +321,17 @@ Partial Class ListRearrangerControl
         Me.BalanceProportion_Label.Text = "(Optional) fixed throw proportion (%)"
         Me.BalanceProportion_Label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'BalanceItarations_IntegerParsingTextBox
+        'CustomPsrOrder_RadioButton
         '
-        Me.BalanceItarations_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BalanceItarations_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
-        Me.BalanceItarations_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 81)
-        Me.BalanceItarations_IntegerParsingTextBox.Name = "BalanceItarations_IntegerParsingTextBox"
-        Me.BalanceItarations_IntegerParsingTextBox.Size = New System.Drawing.Size(53, 20)
-        Me.BalanceItarations_IntegerParsingTextBox.TabIndex = 7
-        Me.BalanceItarations_IntegerParsingTextBox.Text = "30000"
-        '
-        'FixedBalancePercentage_IntegerParsingTextBox
-        '
-        Me.FixedBalancePercentage_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.FixedBalancePercentage_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.FixedBalancePercentage_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 107)
-        Me.FixedBalancePercentage_IntegerParsingTextBox.Name = "FixedBalancePercentage_IntegerParsingTextBox"
-        Me.FixedBalancePercentage_IntegerParsingTextBox.Size = New System.Drawing.Size(53, 20)
-        Me.FixedBalancePercentage_IntegerParsingTextBox.TabIndex = 8
+        Me.TableLayoutPanel3.SetColumnSpan(Me.CustomPsrOrder_RadioButton, 3)
+        Me.CustomPsrOrder_RadioButton.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.CustomPsrOrder_RadioButton.Location = New System.Drawing.Point(3, 159)
+        Me.CustomPsrOrder_RadioButton.Name = "CustomPsrOrder_RadioButton"
+        Me.CustomPsrOrder_RadioButton.Size = New System.Drawing.Size(260, 32)
+        Me.CustomPsrOrder_RadioButton.TabIndex = 9
+        Me.CustomPsrOrder_RadioButton.TabStop = True
+        Me.CustomPsrOrder_RadioButton.Text = "Use custom order - sentence SMC PrimaryStringRepresentation"
+        Me.CustomPsrOrder_RadioButton.UseVisualStyleBackColor = True
         '
         'ReArrangeButton
         '
@@ -387,6 +377,45 @@ Partial Class ListRearrangerControl
         Me.NewSpeechMaterialName_TextBox.Name = "NewSpeechMaterialName_TextBox"
         Me.NewSpeechMaterialName_TextBox.Size = New System.Drawing.Size(265, 20)
         Me.NewSpeechMaterialName_TextBox.TabIndex = 7
+        '
+        'OverrideSentenceByFirstWord_CheckBox
+        '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.OverrideSentenceByFirstWord_CheckBox, 2)
+        Me.OverrideSentenceByFirstWord_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.OverrideSentenceByFirstWord_CheckBox.Location = New System.Drawing.Point(25, 197)
+        Me.OverrideSentenceByFirstWord_CheckBox.Name = "OverrideSentenceByFirstWord_CheckBox"
+        Me.OverrideSentenceByFirstWord_CheckBox.Size = New System.Drawing.Size(238, 20)
+        Me.OverrideSentenceByFirstWord_CheckBox.TabIndex = 10
+        Me.OverrideSentenceByFirstWord_CheckBox.Text = "Override sentence SMC by first word SMC"
+        Me.OverrideSentenceByFirstWord_CheckBox.UseVisualStyleBackColor = True
+        '
+        'ListLength_IntegerParsingTextBox
+        '
+        Me.ListLength_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ListLength_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.ListLength_IntegerParsingTextBox.Location = New System.Drawing.Point(268, 28)
+        Me.ListLength_IntegerParsingTextBox.Name = "ListLength_IntegerParsingTextBox"
+        Me.ListLength_IntegerParsingTextBox.Size = New System.Drawing.Size(259, 20)
+        Me.ListLength_IntegerParsingTextBox.TabIndex = 3
+        '
+        'BalanceItarations_IntegerParsingTextBox
+        '
+        Me.BalanceItarations_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.BalanceItarations_IntegerParsingTextBox.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.BalanceItarations_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 81)
+        Me.BalanceItarations_IntegerParsingTextBox.Name = "BalanceItarations_IntegerParsingTextBox"
+        Me.BalanceItarations_IntegerParsingTextBox.Size = New System.Drawing.Size(53, 20)
+        Me.BalanceItarations_IntegerParsingTextBox.TabIndex = 7
+        Me.BalanceItarations_IntegerParsingTextBox.Text = "30000"
+        '
+        'FixedBalancePercentage_IntegerParsingTextBox
+        '
+        Me.FixedBalancePercentage_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.FixedBalancePercentage_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.FixedBalancePercentage_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 107)
+        Me.FixedBalancePercentage_IntegerParsingTextBox.Name = "FixedBalancePercentage_IntegerParsingTextBox"
+        Me.FixedBalancePercentage_IntegerParsingTextBox.Size = New System.Drawing.Size(53, 20)
+        Me.FixedBalancePercentage_IntegerParsingTextBox.TabIndex = 8
         '
         'ListRearrangerControl
         '
@@ -438,4 +467,6 @@ Partial Class ListRearrangerControl
     Friend WithEvents BalanceProportion_Label As Windows.Forms.Label
     Friend WithEvents BalanceItarations_IntegerParsingTextBox As IntegerParsingTextBox
     Friend WithEvents FixedBalancePercentage_IntegerParsingTextBox As IntegerParsingTextBox
+    Friend WithEvents CustomPsrOrder_RadioButton As Windows.Forms.RadioButton
+    Friend WithEvents OverrideSentenceByFirstWord_CheckBox As Windows.Forms.CheckBox
 End Class

@@ -1396,7 +1396,7 @@ Partial Class MediaSetSetupControl
         Me.GroupBox3.Size = New System.Drawing.Size(584, 194)
         Me.GroupBox3.TabIndex = 14
         Me.GroupBox3.TabStop = False
-        Me.GroupBox3.Text = "Custom functions"
+        Me.GroupBox3.Text = "CustomId functions"
         '
         'TableLayoutPanel7
         '
@@ -1433,7 +1433,7 @@ Partial Class MediaSetSetupControl
         Me.GroupBox4.Size = New System.Drawing.Size(584, 294)
         Me.GroupBox4.TabIndex = 15
         Me.GroupBox4.TabStop = False
-        Me.GroupBox4.Text = "Custom speech level adjustment"
+        Me.GroupBox4.Text = "CustomId speech level adjustment"
         '
         'TableLayoutPanel9
         '

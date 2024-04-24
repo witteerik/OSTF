@@ -383,7 +383,7 @@ Public Class SipTestGui
                 StatAnalysisLabel.Text = "Statistical analysis"
                 ExportData_Button.Text = "Export data"
                 ImportData_Button.Text = "Import data"
-                MostDifficultItems_Button.Text = "Custom"
+                MostDifficultItems_Button.Text = "CustomId"
                 TestLength_Label.Text = "Test length"
                 KeyBoardShortcut_Label.Text = "Keyboard commands to use during testing"
                 Pause_Label.Text = "Pause test = P"
@@ -785,7 +785,7 @@ Public Class SipTestGui
         Next
 
         'Creating a preset
-        Dim NewPresetName As String = "Custom " & CustomPresetCount '"Custom_" & SelectedAudiogramData.Name & "_" & SelectedReferenceLevel & "_" & SelectedPnr
+        Dim NewPresetName As String = "CustomId " & CustomPresetCount '"Custom_" & SelectedAudiogramData.Name & "_" & SelectedReferenceLevel & "_" & SelectedPnr
         CustomPresetCount += 1
 
         SpeechMaterial.Presets.Add(NewPresetName, SelectedComponents)

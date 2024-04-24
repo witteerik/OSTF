@@ -2985,7 +2985,7 @@ Public Class SpeechMaterialComponent
         'Writing to file
         Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(SpeechMaterialComponentFileName), OutputSpeechMaterialFolder, True, True, ExportAtThisLevel)
 
-        'Custom variables
+        'CustomId variables
         Dim CustomVariablesDatabasePath As String = SpeechMaterialComponent.GetDatabaseFileName(LinguisticLevel)
 
         If CustomVariablesDatabasePath <> "" Then
