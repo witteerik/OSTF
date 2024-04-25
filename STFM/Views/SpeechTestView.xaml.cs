@@ -328,6 +328,22 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
+                case "Protokoll B3":
+
+
+                    // Speech test
+                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("AMTEST (SE)");
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsPB3TestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsPB3TestView);
+                    CurrentTestOptionsView = newOptionsPB3TestView;
+
+                    break;
+                                        
+
+
                 default:
                     TestOptionsGrid.Children.Clear();
                     success = false;
@@ -532,6 +548,24 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.SoundOverlapDuration = 0.25;
 
                     break;
+
+                case "Protokoll B3":
+
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_Mafc();
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0.001;
+
+                    break;
+
 
 
                 default:
