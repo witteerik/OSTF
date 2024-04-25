@@ -179,6 +179,8 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
             correctionButton.Margin = new Thickness(3);
             correctionButton.HeightRequest = (ViewHeight/ 5) * historySizeFactor[i];//responseAlternativeGrid.Height * historySizeFactor[i];
 
+            correctionButton.IsVisible = localResponseAlternatives[i].IsVisible;
+
             if (localResponseAlternatives[i].TrialPresentationIndex >= 0)
             {
                 if (i < localResponseAlternatives.Count - 1)

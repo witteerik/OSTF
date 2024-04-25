@@ -252,6 +252,7 @@
     Public MustOverride ReadOnly Property UsePhaseAudiometry As Utils.TriState
 
 
+
 #End Region
 
 #Region "RunningTest"
@@ -262,6 +263,9 @@
     ''' This feid can be used to store information that should be shown on screen during pause. 
     ''' </summary>
     Public PauseInformation As String = ""
+
+    Public MustOverride ReadOnly Property HistoricTrialCount As Integer
+
 
 #End Region
 

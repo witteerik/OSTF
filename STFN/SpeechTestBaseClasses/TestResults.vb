@@ -6,6 +6,7 @@
         SRT
         WRS
         QSiP
+        IHPB3
     End Enum
 
     Public SpeechRecognitionThreshold As Double = Double.NaN
@@ -85,6 +86,10 @@
                 'ResultsRowList.Add(FormattedTrialResultsHeadings)
                 'ResultsRowList.AddRange(FormattedTrialResults)
 
+            Case TestResultTypes.IHPB3
+
+                ResultsRowList.AddRange(TestResultSummaryLines)
+
             Case Else
 
                 Throw New NotImplementedException
@@ -146,6 +151,15 @@
                 ResultsRowList.AddRange(TestResultSummaryLines)
                 ResultsRowList.Add(FormattedTrialResultsHeadings)
                 ResultsRowList.AddRange(FormattedTrialResults)
+
+            Case TestResultTypes.IHPB3
+
+                ResultsRowList.AddRange(TestResultSummaryLines)
+
+                ResultsRowList.Add("TrialStringComment" & String.Join(vbTab, TrialStringComment))
+                ResultsRowList.Add("SpeechLevelSeries" & String.Join(vbTab, SpeechLevelSeries))
+                ResultsRowList.Add("ContralateralMaskerLevelSeries" & String.Join(vbTab, ContralateralMaskerLevelSeries))
+                ResultsRowList.Add("ScoreSeries" & String.Join(vbTab, ScoreSeries))
 
             Case Else
 

@@ -325,7 +325,7 @@ public class ResponseView_Mafc : ResponseView
     {
 
         StopAllTimers();    
-        HideAllItems();
+        //HideAllItems();
 
         var myHeight = this.Height;
         var textSize = Math.Round(myHeight / (12));

@@ -258,6 +258,11 @@ Public Class IHearProtocolB2SpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property HistoricTrialCount As Integer
+        Get
+            Return 3
+        End Get
+    End Property
 
     Dim PreTestListIndex As Integer
     Dim TestListIndex As Integer
@@ -433,6 +438,15 @@ Public Class IHearProtocolB2SpeechTest
             PlannedTestTrials.Shuffle(Randomizer)
         End If
 
+        'After shuffling we must reassign trial index
+        For i = 0 To PlannedTestTrials.Count - 1
+            If PlannedTestTrials(i).SpeechMaterialComponent.ChildComponents.Count > 0 Then
+                For Each Child In PlannedTestTrials(i).SpeechMaterialComponent.ChildComponents()
+                    PlannedTestTrials(i).ResponseAlternativeSpellings(0)(0).TrialPresentationIndex = i
+                Next
+            End If
+        Next
+
         'Setting TestLength to the number of available words
         TestLength = PlannedTestTrials.Count
 
@@ -446,10 +460,13 @@ Public Class IHearProtocolB2SpeechTest
         'Stores historic responses
         For Index = 0 To e.LinguisticResponses.Count - 1
 
-            Dim InvertIndex As Integer = e.LinguisticResponses.Count - Index
+            'Determining which trials that should be modified
 
             Dim CurrentTrialIndex = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.TrialPresentationIndex
-            Dim CurrentHistoricTrialIndex = CurrentTrialIndex - InvertIndex
+            Dim CurrentHistoricTrialIndex = CurrentTrialIndex - HistoricTrialCount + Index
+
+            If CurrentHistoricTrialIndex < 0 Then Continue For 'This means that the index refers to an invisible response button, before the first test trial 
+
             Dim HistoricTrial = ObservedTestTrials(CurrentHistoricTrialIndex)
 
             HistoricTrial.ScoreList = New List(Of Integer)

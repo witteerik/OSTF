@@ -146,8 +146,8 @@ Namespace Audio
 
             Private Sub CreateContextMenu()
 
-                Dim menuItemNameList As New List(Of String) From {"Play", "PlayAll", "StopSound", "ZoomOut", "ZoomIn", "ZoomToSelection", "ZoomFull", "Amplify", "Attenuate", "SmoothFadeIn", "SmoothFadeOut", "LinearFadeIn", "LinearFadeOut", "SilenceSelection", "SilenceSelectionZeroCross", "Copy", "Cut", "Paste", "Delete", "Crop", "UndoAll", "SetAudioApiSettings"}
-                Dim menuItemTextList As New List(Of String) From {"Play", "Play all", "Stop", "Zoom out", "Zoom in", "Zoom to selection", "Zoom full", "Amplify (1 dB)", "Attenuate (1 dB)", "Fade in selection (smooth)", "Fade out selection (smooth)", "Fade in selection (linear)", "Fade out selection (linear)", "Silence selection", "Silence selection (search zero crossings)", "Copy", "Cut", "Paste", "Delete", "Crop", "Undo all", "New audio settings"}
+                Dim menuItemNameList As New List(Of String) From {"Play", "PlayAll", "StopSound", "ZoomOut", "ZoomIn", "ZoomToSelection", "ZoomFull", "Amplify1", "Amplify10", "Attenuate1", "Attenuate10", "SmoothFadeIn", "SmoothFadeOut", "LinearFadeIn", "LinearFadeOut", "SilenceSelection", "SilenceSelectionZeroCross", "Copy", "Cut", "Paste", "Delete", "Crop", "UndoAll", "SetAudioApiSettings"}
+                Dim menuItemTextList As New List(Of String) From {"Play", "Play all", "Stop", "Zoom out", "Zoom in", "Zoom to selection", "Zoom full", "Amplify (1 dB)", "Amplify (10 dB)", "Attenuate (1 dB)", "Attenuate (10 dB)", "Fade in selection (smooth)", "Fade out selection (smooth)", "Fade in selection (linear)", "Fade out selection (linear)", "Silence selection", "Silence selection (search zero crossings)", "Copy", "Cut", "Paste", "Delete", "Crop", "Undo all", "New audio settings"}
 
                 For item = 0 To menuItemNameList.Count - 1
                     Dim menuItem As New ToolStripMenuItem
@@ -1747,10 +1747,14 @@ Namespace Audio
                         ZoomToSelection()
                     Case "ZoomFull"
                         ZoomFull()
-                    Case "Amplify"
+                    Case "Amplify1"
                         AmplifySection(1)
-                    Case "Attenuate"
+                    Case "Amplify10"
+                        AmplifySection(10)
+                    Case "Attenuate1"
                         AmplifySection(-1)
+                    Case "Attenuate10"
+                        AmplifySection(-10)
                     Case "SmoothFadeIn"
                         FadeIn(DSP.FadeSlopeType.Smooth)
                     Case "SmoothFadeOut"

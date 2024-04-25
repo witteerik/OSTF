@@ -258,6 +258,12 @@ Public Class HintSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property HistoricTrialCount As Integer
+        Get
+            Return 0
+        End Get
+    End Property
+
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 

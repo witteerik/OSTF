@@ -332,7 +332,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                     // Speech test
-                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("AMTEST (SE)");
+                    CurrentSpeechTest = new IHearProtocolB3SpeechTest("AMTEST (SE)");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
@@ -526,7 +526,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
-                    CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height);
+                    CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
 
                     bool openInSeparateWindow = false;
                     if (openInSeparateWindow)
@@ -559,10 +559,9 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.001;
+                    CurrentSpeechTest.SoundOverlapDuration = 0.25;
 
                     break;
 
@@ -671,43 +670,63 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
         PauseTest();
     }
-    private void PauseTest()
+    private async void PauseTest()
     {
 
         testIsPaused = true;
 
         OstfBase.SoundPlayer.FadeOutPlayback();
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage){
-            case STFN.Utils.Constants.Languages.Swedish:
-                StartTestBtn.Text = "Fortsätt";
-                break;
-            default:
-                StartTestBtn.Text = "Continue";
-                break;
+        if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall == true )
+        {
+            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            {
+                case STFN.Utils.Constants.Languages.Swedish:
+                    StartTestBtn.Text = "Fortsätt";
+                    break;
+                default:
+                    StartTestBtn.Text = "Continue";
+                    break;
+            }
+
+            // Set IsEnabled values of controls
+            NewTestBtn.IsEnabled = true;
+            SpeechTestPicker.IsEnabled = false;
+            TestOptionsGrid.IsEnabled = true;
+            //TestOptionsGrid.IsVisible = true;
+
+            if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
+            //HideSettingsPanelSwitch.IsEnabled = false;
+            //HideResultsPanelSwitch.IsEnabled = false;
+            StartTestBtn.IsEnabled = true;
+            PauseTestBtn.IsEnabled = false;
+            StopTestBtn.IsEnabled = true;
+            TestReponseGrid.IsEnabled = false;
+            TestResultGrid.IsEnabled = true;
+
+            // Pause testing
+            StopAllTrialEventTimers();
+            //CurrentResponseView.HideAllItems();
+            TestResults CurrentResults = CurrentSpeechTest.GetResults();
+            //CurrentSpeechTest.SaveTextFormattedResults(CurrentResults);
+            ShowResults(CurrentResults);
+
+        }
+        else
+        {
+
+            StopAllTrialEventTimers();
+
+            await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, "", "OK");
+
+            // Restarting test
+            StartTest();
+
+            //CurrentResponseView.ShowMessage(CurrentSpeechTest.PauseInformation);
+            //if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
+
         }
 
-        // Set IsEnabled values of controls
-        NewTestBtn.IsEnabled = true;
-        SpeechTestPicker.IsEnabled = false;
-        TestOptionsGrid.IsEnabled = true;
-        //TestOptionsGrid.IsVisible = true;
-
-        if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-        //HideSettingsPanelSwitch.IsEnabled = false;
-        //HideResultsPanelSwitch.IsEnabled = false;
-        StartTestBtn.IsEnabled = true;
-        PauseTestBtn.IsEnabled = false;
-        StopTestBtn.IsEnabled = true;
-        TestReponseGrid.IsEnabled = false;
-        TestResultGrid.IsEnabled = true;
-
-        // Pause testing
-        StopAllTrialEventTimers();
-        //CurrentResponseView.HideAllItems();
-        TestResults CurrentResults = CurrentSpeechTest.GetResults();
-        //CurrentSpeechTest.SaveTextFormattedResults(CurrentResults);
-        ShowResults(CurrentResults);
 
     }
 
@@ -769,9 +788,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 string PauseInformation = CurrentSpeechTest.PauseInformation;
                 // Resets the test PauseInformation 
-                CurrentSpeechTest.PauseInformation = "";
                 PauseTest();
-                CurrentResponseView.ShowMessage(PauseInformation);
+                CurrentSpeechTest.PauseInformation = "";
 
                 break;
 

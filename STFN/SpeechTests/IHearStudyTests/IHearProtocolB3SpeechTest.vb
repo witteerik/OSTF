@@ -255,6 +255,13 @@ Public Class IHearProtocolB3SpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property HistoricTrialCount As Integer
+        Get
+            Return 0
+        End Get
+    End Property
+
+
     Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
         'Ignores, not used
     End Sub
@@ -266,7 +273,6 @@ Public Class IHearProtocolB3SpeechTest
     Private TestWordPresentationTime As Double = 0.5
     Private MaximumResponseTime As Double = 5
 
-    Private SelectedMediaSet As MediaSet
     Private IsInitialized As Boolean = False
     Private TestStage As Integer = 0
 
@@ -285,6 +291,8 @@ Public Class IHearProtocolB3SpeechTest
             Return False
         End If
 
+        IsInitialized = True
+
         Return True
 
     End Function
@@ -296,7 +304,7 @@ Public Class IHearProtocolB3SpeechTest
         'Select MediaSet / voice, Male only?
         For Each MediaSet In AllMediaSets
             If MediaSet.TalkerGender = MediaSet.Genders.Male Then
-                SelectedMediaSet = MediaSet
+                CustomizableTestOptions.SelectedMediaSet = MediaSet
                 Exit For
             End If
         Next
@@ -334,12 +342,13 @@ Public Class IHearProtocolB3SpeechTest
                     End If
                 Next
 
+                NewTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
                 NewTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
 
                 'Setting trial events
                 NewTrial.TrialEventList = New List(Of ResponseViewEvent)
                 NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-                NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 2, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+                NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * TestWordPresentationTime), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
                 NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
                 NewTestList.Add(NewTrial)
@@ -353,6 +362,8 @@ Public Class IHearProtocolB3SpeechTest
 
         Next
 
+        'Getting the contralateral noise from the first trial SMC
+        ContralateralNoise = PlannedTestData(0)(0).SpeechMaterialComponent.GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
 
         'Ranomizing list order
         If CustomizableTestOptions.RandomizeListOrder = True Then
@@ -380,11 +391,11 @@ Public Class IHearProtocolB3SpeechTest
 
     Public Overrides Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
 
-        Dim ProtocolReply As NextTaskInstruction = Nothing
+        Dim ProtocolReply As New NextTaskInstruction
 
         If e Is Nothing Then
             'Nothing to correct (this should be the start of a new test, or a resuming of a paused test)
-            ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(New TrialHistory)
+            ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
 
         Else
 
@@ -414,6 +425,8 @@ Public Class IHearProtocolB3SpeechTest
                     'This is the end of tha current (not last) list
                     ProtocolReply.Decision = SpeechTestReplies.PauseTestingWithCustomInformation
 
+                    PauseInformation = "Klicka OK för att starta nästa steg av testet"
+
                     'Incrementing test stage
                     TestStage += 1
                 End If
@@ -421,14 +434,15 @@ Public Class IHearProtocolB3SpeechTest
             Else
                 ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
 
-                'Assigning the next trial
-                CurrentTestTrial = PlannedTestData(TestStage)(0)
-
             End If
         End If
 
         'Preparing next trial if needed
         If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
+
+            'Assigning the next trial
+            CurrentTestTrial = PlannedTestData(TestStage)(0)
+
             MixNextTrialSound()
         End If
 
@@ -510,15 +524,58 @@ Public Class IHearProtocolB3SpeechTest
     End Sub
 
     Public Overrides Sub FinalizeTest()
-        Throw New NotImplementedException()
+        'This test doesn't need to bi finalized
+
     End Sub
 
     Public Overrides Function GetResults() As TestResults
-        Throw New NotImplementedException()
+
+        Dim Output = New TestResults(TestResults.TestResultTypes.IHPB3)
+
+        Output.TrialStringComment = New List(Of String)
+        Output.SpeechLevelSeries = New List(Of Double)
+        Output.ContralateralMaskerLevelSeries = New List(Of Double)
+        Output.ScoreSeries = New List(Of String)
+
+        Output.TestResultSummaryLines = New List(Of String)
+
+        For TestStageIndex = 0 To ObservedTestData.Count - 1
+
+            Dim ScoreList As New List(Of Double)
+
+            For Each Trial As WrsTrial In ObservedTestData(TestStageIndex)
+
+                ScoreList.Add(DirectCast(Trial, WrsTrial).GetProportionTasksCorrect)
+
+                Output.TrialStringComment.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+                Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
+                Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))
+                If Trial.IsCorrect = True Then
+                    Output.ScoreSeries.Add("1")
+                    ScoreList.Add(1)
+                Else
+                    Output.ScoreSeries.Add("0")
+                    ScoreList.Add(0)
+                End If
+
+            Next
+
+            If ScoreList.Count > 0 Then
+                Output.TestResultSummaryLines.Add("List " & TestStageIndex & " Score: " & ScoreList.Average)
+            End If
+
+        Next
+
+        Return Output
+
+
     End Function
 
     Public Overrides Function CreatePreTestStimulus() As Tuple(Of Sound, String)
-        Throw New NotImplementedException()
+
+        'No pre-test stimulus are available
+        Return Nothing
+
     End Function
 
 End Class
