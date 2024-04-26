@@ -23,7 +23,6 @@
 
 Imports System.IO
 Imports System.Threading
-Imports System.Windows.Forms
 
 Namespace Utils
     Public Module Logging

@@ -44,10 +44,12 @@ namespace STFM
             STFN.Utils.AppCache.OnRemoveAppCacheVariable += RemoveAppCacheVariable;
             STFN.Utils.AppCache.OnClearAppCache += ClearAppCache;
 
+            await CheckAndSetOstfLogRootFolder();
 
             await CheckAndSetMediaRootDirectory();
 
             await CheckAndSetTestResultsRootFolder();
+                      
 
             // Initializing OSTF
             OstfBase.InitializeOSTF(GetCurrentPlatform(), MediaPlayerType, OstfBase.MediaRootDirectory);
@@ -239,44 +241,6 @@ namespace STFM
             }
         }
 
-        async static Task PickMediaFolder()
-        {
-            var result = await FolderPicker.PickAsync(CancellationToken.None);
-            //var result = await FolderPicker.Default.PickAsync(CancellationToken.None);
-            if (result.IsSuccessful)
-            {
-                await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
-                OstfBase.MediaRootDirectory = result.Folder.Path;
-            }
-            else
-            {
-                await Toast.Make($"The folder was not picked with error: {result.Exception.Message}").Show(CancellationToken.None);
-            }
-        }
-
-
-
-        static string ReadMediaRootDirectory()
-        {
-            if (Preferences.Default.ContainsKey("media_root_directory"))
-            {
-                return Preferences.Default.Get("media_root_directory", "");
-            }
-            else
-            {
-                return "";
-            }
-        }
-
-        static void StoreMediaRootDirectory(string mediaRootDirectory)
-        {
-            Preferences.Default.Set("media_root_directory", mediaRootDirectory);
-        }
-
-        static void ClearMediaRootDirectoryFromPreferences(string mediaRootDirectory)
-        {
-            Preferences.Default.Remove("media_root_directory");
-        }
 
 
 
@@ -329,20 +293,134 @@ namespace STFM
             }
         }
 
-
-        async static Task PickTestResultsRootFolder()
+        async static Task CheckAndSetOstfLogRootFolder()
         {
+            // Trying to read the logFilePath from pevious app sessions
+            STFN.Utils.Logging.logFilePath = ReadOstfLogRootDirectory();
+
+            string previouslyStoredOstfLogRootFolder = STFN.Utils.Logging.logFilePath;
+
+            bool askForOstfLogRootFolder = true;
+
+            if (DeviceInfo.Current.Platform == DevicePlatform.iOS)
+            {
+                throw new NotImplementedException("Setting OSTF log root folder location is not yet implemented for iOS");
+            }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Android)
+            {
+                // Checking for permissions
+                await CheckPermissions();
+            }
+
+            // Checking if the folder exists
+            try
+            {
+                if (System.IO.Directory.Exists(STFN.Utils.Logging.logFilePath))
+                {
+                    askForOstfLogRootFolder = false;
+                }
+            }
+            catch (Exception)
+            {
+                askForOstfLogRootFolder = true;
+            }
+
+            if (STFN.Utils.Logging.logFilePath == "")
+            {
+                askForOstfLogRootFolder = true;
+            }
+
+            if (askForOstfLogRootFolder)
+            {
+                await PickOstfLogRootFolder();
+            }
+
+            if (previouslyStoredOstfLogRootFolder != STFN.Utils.Logging.logFilePath)
+            {
+                // Storing the logFilePath for future instances of the app, but only if it was changed
+                StoreOstfLogRootDirectory(STFN.Utils.Logging.logFilePath);
+            }
+        }
+
+
+        async static Task PickMediaFolder()
+        {
+            await Messager.MsgBoxAsync("The location of the OSTFMedia folder has yet been set. Please click OK and indicate where the OSTFMedia folder is located on your device using the dialog that appears.");
             var result = await FolderPicker.PickAsync(CancellationToken.None);
             //var result = await FolderPicker.Default.PickAsync(CancellationToken.None);
             if (result.IsSuccessful)
             {
-                await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
-                SharedSpeechTestObjects.TestResultsRootFolder = result.Folder.Path;
+                //await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
+                OstfBase.MediaRootDirectory = result.Folder.Path;
+                await Messager.MsgBoxAsync("You have picked the following OSTFMedia folder location: " + OstfBase.MediaRootDirectory);
             }
             else
             {
-                await Toast.Make($"The folder was not picked with error: {result.Exception.Message}").Show(CancellationToken.None);
+                await Messager.MsgBoxAsync("Unable to selected the picked folder (" + OstfBase.MediaRootDirectory + ") shutting down the application.");
+                Messager.RequestCloseApp();
+                //await Toast.Make($"The folder was not picked with error: {result.Exception.Message}").Show(CancellationToken.None);
             }
+        }
+
+
+        async static Task PickTestResultsRootFolder()
+        {
+            await Messager.MsgBoxAsync("No test results folder has yet been set. Please click OK and select a test results folder in the dialog that appears.");
+            var result = await FolderPicker.PickAsync(CancellationToken.None);
+            if (result.IsSuccessful)
+            {
+                //await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
+                SharedSpeechTestObjects.TestResultsRootFolder = result.Folder.Path;
+                await Messager.MsgBoxAsync("You have picked the following test results folder: " + SharedSpeechTestObjects.TestResultsRootFolder);
+
+            }
+            else
+            {
+                await Messager.MsgBoxAsync("Unable to selected the picked folder (" + SharedSpeechTestObjects.TestResultsRootFolder + ") shutting down the application.");
+                Messager.RequestCloseApp();
+                //await Toast.Make($"The folder was not picked with error: {result.Exception.Message}").Show(CancellationToken.None);
+            }
+        }
+
+        async static Task PickOstfLogRootFolder()
+        {
+            await Messager.MsgBoxAsync("No OSTF log folder has yet been set. Please click OK and select an OSTF log folder in the dialog that appears.");
+            var result = await FolderPicker.PickAsync(CancellationToken.None);
+            if (result.IsSuccessful)
+            {
+                //await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
+                STFN.Utils.Logging.logFilePath = result.Folder.Path;
+                await Messager.MsgBoxAsync("You have picked the following OSTF log folder: " + STFN.Utils.Logging.logFilePath);
+
+            }
+            else
+            {
+                await Messager.MsgBoxAsync("Unable to selected the picked folder (" + STFN.Utils.Logging.logFilePath + ") shutting down the application.");
+                Messager.RequestCloseApp();
+                //await Toast.Make($"The folder was not picked with error: {result.Exception.Message}").Show(CancellationToken.None);
+            }
+        }
+
+        static string ReadMediaRootDirectory()
+        {
+            if (Preferences.Default.ContainsKey("media_root_directory"))
+            {
+                return Preferences.Default.Get("media_root_directory", "");
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        static void StoreMediaRootDirectory(string mediaRootDirectory)
+        {
+            Preferences.Default.Set("media_root_directory", mediaRootDirectory);
+        }
+
+        static void ClearMediaRootDirectoryFromPreferences(string mediaRootDirectory)
+        {
+            Preferences.Default.Remove("media_root_directory");
         }
 
         static string ReadTestResultRootDirectory()
@@ -362,9 +440,33 @@ namespace STFM
             Preferences.Default.Set("test_result_root_directory", TestResultRootDirectory);
         }
 
-        static void ClearTestResultRootDirectoryFromPreferences(string TestResultRootDirectory)
+        static void ClearTestResultRootDirectoryFromPreferences()
         {
             Preferences.Default.Remove("test_result_root_directory");
+        }
+
+
+
+        static string ReadOstfLogRootDirectory()
+        {
+            if (Preferences.Default.ContainsKey("ostf_log_root_directory"))
+            {
+                return Preferences.Default.Get("ostf_log_root_directory", "");
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        static void StoreOstfLogRootDirectory(string OstfLogRootDirectory)
+        {
+            Preferences.Default.Set("ostf_log_root_directory", OstfLogRootDirectory);
+        }
+
+        static void ClearOstfLogRootDirectoryFromPreferences()
+        {
+            Preferences.Default.Remove("ostf_log_root_directory");
         }
 
 

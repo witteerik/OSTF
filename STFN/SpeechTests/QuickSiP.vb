@@ -474,28 +474,7 @@ Public Class QuickSiP
             SipTestLists.Add(New QuickSipList With {.SMC = Preset(3), .MediaSet = SelectedMediaSets(1), .PNR = -9, .IsVowelGroup = Preset(3).GetNumericVariableValue("V")})
             SipTestLists.Add(New QuickSipList With {.SMC = Preset(4), .MediaSet = SelectedMediaSets(0), .PNR = -12, .IsVowelGroup = Preset(4).GetNumericVariableValue("V")})
 
-            'SipTestLists.Add(New QuickSipList With {.SMC = Preset(0), .MediaSet = SelectedMediaSets(1), .PNR = 13, .IsVowelGroup = Preset(0).GetNumericVariableValue("V")})
-            'SipTestLists.Add(New QuickSipList With {.SMC = Preset(1), .MediaSet = SelectedMediaSets(0), .PNR = 10, .IsVowelGroup = Preset(1).GetNumericVariableValue("V")})
-
-            'SipTestLists.Add(New QuickSipList With {.SMC = Preset(2), .MediaSet = SelectedMediaSets(1), .PNR = 7, .IsVowelGroup = Preset(2).GetNumericVariableValue("V")})
-            'SipTestLists.Add(New QuickSipList With {.SMC = Preset(3), .MediaSet = SelectedMediaSets(0), .PNR = 4, .IsVowelGroup = Preset(3).GetNumericVariableValue("V")})
-
-            'SipTestLists.Add(New QuickSipList With {.SMC = Preset(0), .MediaSet = SelectedMediaSets(1), .PNR = 1, .IsVowelGroup = Preset(0).GetNumericVariableValue("V")})
-            'SipTestLists.Add(New QuickSipList With {.SMC = Preset(1), .MediaSet = SelectedMediaSets(0), .PNR = -2, .IsVowelGroup = Preset(1).GetNumericVariableValue("V")})
-
-            'SipTestLists.Add(New QuickSipList With {.SMC = Preset(2), .MediaSet = SelectedMediaSets(1), .PNR = -5, .IsVowelGroup = Preset(2).GetNumericVariableValue("V")})
-            'SipTestLists.Add(New QuickSipList With {.SMC = Preset(3), .MediaSet = SelectedMediaSets(0), .PNR = -8, .IsVowelGroup = Preset(3).GetNumericVariableValue("V")})
-
-
-            'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(0), SelectedMediaSets(0), 13))
-            'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(1), SelectedMediaSets(1), 10))
-            'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(0), SelectedMediaSets(0), 7))
-            'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(1), SelectedMediaSets(1), 4))
-            'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(2), SelectedMediaSets(0), 1))
-            'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(1), -2))
-            'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(2), SelectedMediaSets(0), -5))
-            'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(1), -8))
-
+            'Each of the above will be tested in the following direction
             CurrentQuickSipDirections.Add(QuickSipDirections.SpeechFromFront)
 
         Else
@@ -510,25 +489,7 @@ Public Class QuickSiP
             SipTestLists.Add(New QuickSipList With {.SMC = Stage2Settings.SMC, .MediaSet = SelectedMediaSets(0), .PNR = Stage2Settings.PNR, .IsVowelGroup = Stage2Settings.IsVowelGroup})
             SipTestLists.Add(New QuickSipList With {.SMC = Stage2Settings.SMC, .MediaSet = SelectedMediaSets(1), .PNR = Stage2Settings.PNR - 3, .IsVowelGroup = Stage2Settings.IsVowelGroup})
 
-
-            'Dim UseEasyCondition As Boolean = False
-
-            'If UseEasyCondition = True Then
-            '    'Easier condition
-            '    SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(1), SelectedMediaSets(0), 7))
-            '    SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(1), SelectedMediaSets(1), 3))
-
-            '    'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(1), SelectedMediaSets(0), 7))
-            '    'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(1), SelectedMediaSets(1), 4))
-            'Else
-            '    'Difficult condition
-            '    SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(0), -9))
-            '    SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(1), -13))
-
-            '    'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(0), -5))
-            '    'SipTestLists.Add(New Tuple(Of SpeechMaterialComponent, MediaSet, Double)(Preset(3), SelectedMediaSets(1), -8))
-            'End If
-
+            'Each of the above will be tested in the following directions
             CurrentQuickSipDirections.Add(QuickSipDirections.SpeechFromRight)
             CurrentQuickSipDirections.Add(QuickSipDirections.SpeechFromLeft)
 
@@ -611,7 +572,9 @@ Public Class QuickSiP
         CurrentSipTestMeasurement.MeasurementDateTime = DateTime.Now
 
         'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds, using audio from the first selected MediaSet
-        Dim TestSound As Audio.Sound = CreateInitialSound(CustomizableTestOptions.SelectedMediaSet)
+        Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
+
+        Dim TestSound As Audio.Sound = CreateInitialSound(SelectedMediaSets(0))
 
         'Plays sound
         SoundPlayer.SwapOutputSounds(TestSound)
@@ -870,13 +833,14 @@ Public Class QuickSiP
         Dim TestUnitIndices As New List(Of Integer)
         Select Case QuickSipDirection
             Case QuickSipDirections.SpeechFromFront
-                For ui = 0 To 3
+                'N.B! Indices are hard coded here, and if the number of test units are changed this needs to be reflected here!
+                For ui = 0 To 4
                     TestUnitIndices.Add(ui)
                 Next
             Case QuickSipDirections.SpeechFromRight
-                TestUnitIndices.Add(4)
-            Case QuickSipDirections.SpeechFromLeft
                 TestUnitIndices.Add(5)
+            Case QuickSipDirections.SpeechFromLeft
+                TestUnitIndices.Add(6)
         End Select
 
         Dim TrialScoreList As New List(Of Integer)

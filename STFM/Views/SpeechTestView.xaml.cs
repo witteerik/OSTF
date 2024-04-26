@@ -318,7 +318,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                                       
 
                     // Speech test
-                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("Swedish Spondees 23");
+                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishPB23");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
@@ -341,7 +341,19 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = newOptionsPB3TestView;
 
                     break;
-                                        
+
+                case "Protokoll B4":
+
+                    // Speech test
+                    CurrentSpeechTest = new IHearProtocolB4SpeechTest("Swedish Spondees 23");
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsPB4TestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsPB4TestView);
+                    CurrentTestOptionsView = newOptionsPB4TestView;
+
+                    break;
 
 
                 default:
@@ -565,7 +577,21 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
+                case "Protokoll B4":
 
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_FreeRecall();
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0.25;
+
+                    break;
 
                 default:
                     TestOptionsGrid.Children.Clear();
