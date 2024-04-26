@@ -481,6 +481,17 @@ Public Class CustomizableTestOptions
     Public Property UseContralateralMaskingTitle As String = "Kontralateral maskering"
     Public Property LockContralateralMaskingTitle As String = "Koppla till talnivå"
 
+    ''' <summary>
+    ''' Returns the difference between the ContralateralMaskingLevel and the SpeechLevel (i.e. ContralateralMaskingLevel - SpeechLevel)
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function ContralateralLevelDifference() As Double?
+        If UseContralateralMasking = True Then
+            Return ContralateralMaskingLevel - SpeechLevel
+        Else
+            Return Nothing
+        End If
+    End Function
 
     ''' <summary>
     ''' This is intended as a shortcut which must override all of the SignalLocations, MaskerLocations and BackgroundLocations properties. It can only be specified if SelectedPresentationMode is either SimulatedSoundField with locations along the mid-sagittal plane, or PointSpeakers at -90 and 90 degrees with distance of 0 (i.e. headphones), and where the signal i set to come from only one side.

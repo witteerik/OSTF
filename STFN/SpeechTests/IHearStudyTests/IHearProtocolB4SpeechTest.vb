@@ -479,7 +479,7 @@ Public Class IHearProtocolB4SpeechTest
         CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
                         .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                         .SpeechLevel = NextTaskInstruction.AdaptiveValue,
-                        .MaskerLevel = Double.NegativeInfinity,
+                        .ContralateralMaskerLevel = NextTaskInstruction.AdaptiveValue + CustomizableTestOptions.ContralateralLevelDifference,
                         .TestStage = NextTaskInstruction.TestStage,
                         .Tasks = 1}
 
