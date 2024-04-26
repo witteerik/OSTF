@@ -334,6 +334,7 @@ Public Class IHearProtocolB4SpeechTest
         SaveTextFormattedResults(Results)
 
         'Initialize second test
+        IsSecondTest = True
         ObservedTrials = New TrialHistory
         CustomizableTestOptions.SelectedTestProtocol = New SrtIso8253_TestProtocol
         CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveSpeech

@@ -654,30 +654,10 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         InitiateTesting();
 
-        bool testIsReady = true; // This should call a fuction that check is the selected test is ready to be started
-        bool testSupportPause = true; // This should call a function that determies if the test supports pausing
+        bool testIsReady = true; // This should call a function that check is the selected test is ready to be started
 
         if (testIsReady)
         {
-
-            // Set IsEnabled values of controls
-            NewTestBtn.IsEnabled = false;
-            SpeechTestPicker.IsEnabled = false;
-            TestOptionsGrid.IsEnabled = false;
-            //TestOptionsGrid.IsVisible = false;
-
-            if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-            //HideSettingsPanelSwitch.IsEnabled = false;
-            //HideResultsPanelSwitch.IsEnabled = false;
-            StartTestBtn.IsEnabled = false;
-            if (testSupportPause) { PauseTestBtn.IsEnabled = true; }
-            StopTestBtn.IsEnabled = true;
-            TestReponseGrid.IsEnabled = true;
-            TestResultGrid.IsEnabled = true;
-
-            // Showing / hiding panels during test
-            SetBottomPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
-            SetLeftPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
 
             // Starting the test
             StartTest();
@@ -703,6 +683,13 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         OstfBase.SoundPlayer.FadeOutPlayback();
 
+        // Pause testing
+        StopAllTrialEventTimers();
+        //CurrentResponseView.HideAllItems();
+        TestResults CurrentResults = CurrentSpeechTest.GetResults();
+        //CurrentSpeechTest.SaveTextFormattedResults(CurrentResults);
+        ShowResults(CurrentResults);
+
         if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall == true )
         {
             switch (STFN.SharedSpeechTestObjects.GuiLanguage)
@@ -713,6 +700,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                 default:
                     StartTestBtn.Text = "Continue";
                     break;
+            }
+
+            if (CurrentSpeechTest.PauseInformation != "")
+            {
+                await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, "", "OK");
             }
 
             // Set IsEnabled values of controls
@@ -727,15 +719,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             StartTestBtn.IsEnabled = true;
             PauseTestBtn.IsEnabled = false;
             StopTestBtn.IsEnabled = true;
-            TestReponseGrid.IsEnabled = false;
+            //TestReponseGrid.IsEnabled = false;
             TestResultGrid.IsEnabled = true;
-
-            // Pause testing
-            StopAllTrialEventTimers();
-            //CurrentResponseView.HideAllItems();
-            TestResults CurrentResults = CurrentSpeechTest.GetResults();
-            //CurrentSpeechTest.SaveTextFormattedResults(CurrentResults);
-            ShowResults(CurrentResults);
 
         }
         else
@@ -757,6 +742,8 @@ public partial class SpeechTestView : ContentView, IDrawable
     }
 
 
+
+
     private void StopTestBtn_Clicked(object sender, EventArgs e)
     {
 
@@ -774,6 +761,28 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     void StartTest()
     {
+
+        bool testSupportPause = true; // This should call a function that determies if the test supports pausing
+
+        // Set IsEnabled values of controls
+        NewTestBtn.IsEnabled = false;
+        SpeechTestPicker.IsEnabled = false;
+        TestOptionsGrid.IsEnabled = false;
+        //TestOptionsGrid.IsVisible = false;
+
+        if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
+        //HideSettingsPanelSwitch.IsEnabled = false;
+        //HideResultsPanelSwitch.IsEnabled = false;
+        StartTestBtn.IsEnabled = false;
+        if (testSupportPause) { PauseTestBtn.IsEnabled = true; }
+        StopTestBtn.IsEnabled = true;
+        TestReponseGrid.IsEnabled = true;
+        TestResultGrid.IsEnabled = true;
+
+        // Showing / hiding panels during test
+        SetBottomPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
+        SetLeftPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
+
         testIsPaused = false;
 
         // Calling NewSpeechTestInput with e as null

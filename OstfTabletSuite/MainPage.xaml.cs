@@ -72,6 +72,7 @@ namespace OstfTabletSuite
 
         public async void DisplayMessageAsync(object sender, MessageEventArgs e)
         {
+
             await DisplayAlert(e.Title, e.Message, e.CancelButtonText);
             // Setting false as response
             e.TaskCompletionSource.SetResult(false);
