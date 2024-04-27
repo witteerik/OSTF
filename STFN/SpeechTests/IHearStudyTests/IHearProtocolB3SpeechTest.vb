@@ -545,8 +545,6 @@ Public Class IHearProtocolB3SpeechTest
 
             For Each Trial As WrsTrial In ObservedTestData(TestStageIndex)
 
-                ScoreList.Add(DirectCast(Trial, WrsTrial).GetProportionTasksCorrect)
-
                 Output.TrialStringComment.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
                 Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
                 Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))

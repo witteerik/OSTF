@@ -450,7 +450,7 @@ Public Class IHearProtocolB4SpeechTest
             PrepareNextTrial(ProtocolReply)
         End If
 
-        'Chacking if first test is finished
+        'Checking if first test is finished
         If ProtocolReply.Decision = SpeechTestReplies.TestIsCompleted Then
 
             If IsSecondTest = False Then

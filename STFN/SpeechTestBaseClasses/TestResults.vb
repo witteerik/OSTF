@@ -6,6 +6,7 @@
         SRT
         WRS
         QSiP
+        IHPB1
         IHPB3
         IHPB4
     End Enum
@@ -87,6 +88,11 @@
                 'ResultsRowList.Add(FormattedTrialResultsHeadings)
                 'ResultsRowList.AddRange(FormattedTrialResults)
 
+
+            Case TestResultTypes.IHPB1
+
+                ResultsRowList.AddRange(TestResultSummaryLines)
+
             Case TestResultTypes.IHPB3
 
                 ResultsRowList.AddRange(TestResultSummaryLines)
@@ -165,6 +171,17 @@
                 ResultsRowList.AddRange(TestResultSummaryLines)
                 ResultsRowList.Add(FormattedTrialResultsHeadings)
                 ResultsRowList.AddRange(FormattedTrialResults)
+
+            Case TestResultTypes.IHPB1
+
+                ResultsRowList.AddRange(TestResultSummaryLines)
+
+                ResultsRowList.Add("TrialStringComment" & String.Join(vbTab, TrialStringComment))
+                ResultsRowList.Add("SpeechLevelSeries" & String.Join(vbTab, SpeechLevelSeries))
+                ResultsRowList.Add("MaskerLevelSeries" & String.Join(vbTab, MaskerLevelSeries))
+                'ResultsRowList.Add("ContralateralMaskerLevelSeries" & String.Join(vbTab, ContralateralMaskerLevelSeries))
+                ResultsRowList.Add("ScoreSeries" & String.Join(vbTab, ScoreSeries))
+
 
             Case TestResultTypes.IHPB3
 

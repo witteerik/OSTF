@@ -554,8 +554,7 @@ Public Class IHearProtocolB2SpeechTest
         DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel
         CurrentTestTrial.Tasks = 1
 
-        Dim HistoryToShow As Integer = 3
-        Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoryToShow, ObservedTestTrials.Count)
+        Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoricTrialCount, ObservedTestTrials.Count)
 
         Dim CurrentTrialIndex = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.TrialPresentationIndex
 
@@ -616,20 +615,16 @@ Public Class IHearProtocolB2SpeechTest
         Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel)
         Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
 
-        'Adjusts the sound levels
-        Audio.DSP.AmplifySection(TestWordSound, NeededSpeechGain)
-        'Applying the same gain to the masker. Very important: This requires that the masker is preadjusted to create the intended SNR together with the speech recordings, and have the same nominal level! (I.e. If speech and sound files would be mixed without any adjustment, they would get their desired SNR.)
-        Audio.DSP.AmplifySection(TrialNoise, NeededSpeechGain)
+        Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel)
+        Dim NeededMaskerGain = TargetMaskerLevel_FS - NominalLevel_FS
 
         If CustomizableTestOptions.UseContralateralMasking = True Then
 
             'Setting level, 
-            'Very important: The contralateral masking sound file cannot be the same as the ipsilateral masker sound. The level of the contralateral masker sound must be set to agree with the Nominal level (while the ipsilateral masker sound sound have a level that deviates from the nominal level to attain the desired SNR!)
-            Dim ContralateralMaskingNominalLevel_FS = ContralateralNoise.SMA.NominalLevel
             Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel)
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
-            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - ContralateralMaskingNominalLevel_FS + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - NominalLevel_FS + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
             Audio.DSP.AmplifySection(TrialContralateralNoise, NeededContraLateralMaskerGain)
 
         End If

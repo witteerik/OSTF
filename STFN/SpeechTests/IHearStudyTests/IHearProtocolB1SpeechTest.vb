@@ -9,29 +9,30 @@ Public Class IHearProtocolB1SpeechTest
     Public Sub New(SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 
-        'TestListOrder holds MeadiaSet index, Sorted SNR-order index, Lists-order
-        TestListOrder.Add(1, New Tuple(Of Integer, Integer, Integer())(0, 0, {16, 7, 3, 13, 10, 8, 14, 5}))
-        TestListOrder.Add(2, New Tuple(Of Integer, Integer, Integer())(0, 0, {12, 1, 9, 2, 4, 11, 15, 6}))
-        TestListOrder.Add(3, New Tuple(Of Integer, Integer, Integer())(1, 1, {15, 1, 2, 10, 7, 13, 14, 11}))
-        TestListOrder.Add(4, New Tuple(Of Integer, Integer, Integer())(1, 1, {3, 12, 6, 8, 5, 4, 16, 9}))
-        TestListOrder.Add(5, New Tuple(Of Integer, Integer, Integer())(0, 2, {8, 4, 5, 12, 9, 1, 10, 15}))
-        TestListOrder.Add(6, New Tuple(Of Integer, Integer, Integer())(0, 2, {7, 14, 16, 13, 3, 11, 6, 2}))
-        TestListOrder.Add(7, New Tuple(Of Integer, Integer, Integer())(1, 3, {2, 4, 7, 5, 6, 8, 11, 13}))
-        TestListOrder.Add(8, New Tuple(Of Integer, Integer, Integer())(1, 3, {16, 9, 10, 1, 14, 12, 3, 15}))
-        TestListOrder.Add(9, New Tuple(Of Integer, Integer, Integer())(0, 4, {14, 16, 12, 4, 6, 13, 10, 3}))
-        TestListOrder.Add(10, New Tuple(Of Integer, Integer, Integer())(0, 4, {2, 8, 15, 1, 7, 9, 11, 5}))
-        TestListOrder.Add(11, New Tuple(Of Integer, Integer, Integer())(1, 0, {12, 10, 6, 1, 13, 14, 15, 3}))
-        TestListOrder.Add(12, New Tuple(Of Integer, Integer, Integer())(1, 0, {4, 8, 16, 7, 9, 11, 2, 5}))
-        TestListOrder.Add(13, New Tuple(Of Integer, Integer, Integer())(0, 1, {4, 15, 2, 7, 8, 12, 10, 6}))
-        TestListOrder.Add(14, New Tuple(Of Integer, Integer, Integer())(0, 1, {13, 9, 11, 14, 5, 1, 3, 16}))
-        TestListOrder.Add(15, New Tuple(Of Integer, Integer, Integer())(1, 2, {3, 4, 12, 14, 13, 11, 2, 8}))
-        TestListOrder.Add(16, New Tuple(Of Integer, Integer, Integer())(1, 2, {5, 9, 10, 7, 15, 1, 6, 16}))
-        TestListOrder.Add(17, New Tuple(Of Integer, Integer, Integer())(0, 3, {5, 7, 4, 9, 13, 15, 1, 3}))
-        TestListOrder.Add(18, New Tuple(Of Integer, Integer, Integer())(0, 3, {10, 6, 14, 2, 8, 16, 11, 12}))
-        TestListOrder.Add(19, New Tuple(Of Integer, Integer, Integer())(1, 4, {1, 5, 13, 3, 10, 14, 8, 2}))
-        TestListOrder.Add(20, New Tuple(Of Integer, Integer, Integer())(1, 4, {7, 16, 11, 12, 9, 4, 15, 6}))
+        'TestListOrder holds MeadiaSet index, Sorted SNR-order index, Lists-order (zero-based list index)
+        TestListOrder.Add(0, New Tuple(Of Integer, Integer, Integer())(0, 0, {15, 6, 2, 12, 9, 7, 13, 4}))
+        TestListOrder.Add(1, New Tuple(Of Integer, Integer, Integer())(0, 0, {11, 0, 8, 1, 3, 10, 14, 5}))
+        TestListOrder.Add(2, New Tuple(Of Integer, Integer, Integer())(1, 1, {14, 0, 1, 9, 6, 12, 13, 10}))
+        TestListOrder.Add(3, New Tuple(Of Integer, Integer, Integer())(1, 1, {2, 11, 5, 7, 4, 3, 15, 8}))
+        TestListOrder.Add(4, New Tuple(Of Integer, Integer, Integer())(0, 2, {7, 3, 4, 11, 8, 0, 9, 14}))
+        TestListOrder.Add(5, New Tuple(Of Integer, Integer, Integer())(0, 2, {6, 13, 15, 12, 2, 10, 5, 1}))
+        TestListOrder.Add(6, New Tuple(Of Integer, Integer, Integer())(1, 3, {1, 3, 6, 4, 5, 7, 10, 12}))
+        TestListOrder.Add(7, New Tuple(Of Integer, Integer, Integer())(1, 3, {15, 8, 9, 0, 13, 11, 2, 14}))
+        TestListOrder.Add(8, New Tuple(Of Integer, Integer, Integer())(0, 4, {13, 15, 11, 3, 5, 12, 9, 2}))
+        TestListOrder.Add(9, New Tuple(Of Integer, Integer, Integer())(0, 4, {1, 7, 14, 0, 6, 8, 10, 4}))
+        TestListOrder.Add(10, New Tuple(Of Integer, Integer, Integer())(1, 0, {11, 9, 5, 0, 12, 13, 14, 2}))
+        TestListOrder.Add(11, New Tuple(Of Integer, Integer, Integer())(1, 0, {3, 7, 15, 6, 8, 10, 1, 4}))
+        TestListOrder.Add(12, New Tuple(Of Integer, Integer, Integer())(0, 1, {3, 14, 1, 6, 7, 11, 9, 5}))
+        TestListOrder.Add(13, New Tuple(Of Integer, Integer, Integer())(0, 1, {12, 8, 10, 13, 4, 0, 2, 15}))
+        TestListOrder.Add(14, New Tuple(Of Integer, Integer, Integer())(1, 2, {2, 3, 11, 13, 12, 10, 1, 7}))
+        TestListOrder.Add(15, New Tuple(Of Integer, Integer, Integer())(1, 2, {4, 8, 9, 6, 14, 0, 5, 15}))
+        TestListOrder.Add(16, New Tuple(Of Integer, Integer, Integer())(0, 3, {4, 6, 3, 8, 12, 14, 0, 2}))
+        TestListOrder.Add(17, New Tuple(Of Integer, Integer, Integer())(0, 3, {9, 5, 13, 1, 7, 15, 10, 11}))
+        TestListOrder.Add(18, New Tuple(Of Integer, Integer, Integer())(1, 4, {0, 4, 12, 2, 9, 13, 7, 1}))
+        TestListOrder.Add(19, New Tuple(Of Integer, Integer, Integer())(1, 4, {6, 15, 10, 11, 8, 3, 14, 5}))
 
-        Dim TestSnrs() As Double = {-6, -3, 0, 3, 6}
+        'Dim TestSnrs() As Double = {-9, -6, -3, 1, 7} ' Initial attempt, based on Magnusson, 1995 to get 10, 30, 50 70 and 90 % correct
+        Dim TestSnrs() As Double = {-12, -9, -6, -2, 4} ' Three dB lower SNR
         Dim BaseSnrOrders As New List(Of Double())
         BaseSnrOrders.Add({TestSnrs(0), TestSnrs(1), TestSnrs(2), TestSnrs(3), TestSnrs(4)})
         BaseSnrOrders.Add({TestSnrs(1), TestSnrs(2), TestSnrs(3), TestSnrs(4), TestSnrs(0)})
@@ -39,9 +40,9 @@ Public Class IHearProtocolB1SpeechTest
         BaseSnrOrders.Add({TestSnrs(3), TestSnrs(4), TestSnrs(0), TestSnrs(1), TestSnrs(2)})
         BaseSnrOrders.Add({TestSnrs(4), TestSnrs(0), TestSnrs(1), TestSnrs(2), TestSnrs(3)})
 
-        For p = 1 To 20
+        For p = 0 To 19
             Dim OrderList As New List(Of Double)
-            For i = 1 To 10
+            For i = 0 To 9
                 OrderList.AddRange(BaseSnrOrders(TestListOrder(p).Item2))
             Next
             SortedSnrOrders.Add(p, OrderList.ToArray)
@@ -121,7 +122,7 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides ReadOnly Property SupportsPrelistening As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
@@ -275,7 +276,7 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides ReadOnly Property UseContralateralMasking As Utils.TriState
         Get
-            Return Utils.Constants.TriState.Optional
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
@@ -293,7 +294,7 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
-            Return 5
+            Return 1
         End Get
     End Property
 
@@ -305,20 +306,18 @@ Public Class IHearProtocolB1SpeechTest
 
     Private TestListOrder As New SortedList(Of Integer, Tuple(Of Integer, Integer, Integer()))
     Private SortedSnrOrders As New SortedList(Of Integer, Double())
-
-
     Private CurrentTestListOrderIndex As Integer
-    Private SelectedMediaSetIndex As Integer
-
     Private CacheLastTestListOrderVariableName As String
 
     Private PlannedTestData As New List(Of TrialHistory)
     Private ObservedTestData As New List(Of TrialHistory)
 
+    Private CurrentTestStage As Integer
+
     Private MaskerNoise As Audio.Sound = Nothing
     Private ContralateralNoise As Audio.Sound = Nothing
 
-    Private TestWordPresentationTime As Double = 0.5
+    Private TestWordPresentationTime As Double = 1.5
     Private MaximumResponseTime As Double = 5
 
     Private TestLength As Integer = 50
@@ -330,6 +329,8 @@ Public Class IHearProtocolB1SpeechTest
     Public Overrides Function InitializeCurrentTest() As Boolean
 
         If IsInitialized = True Then Return True
+
+        CurrentTestStage = 0
 
         Dim AllTestListsNames = AvailableTestListsNames()
         Dim AllMediaSets = AvailableMediasets
@@ -345,12 +346,13 @@ Public Class IHearProtocolB1SpeechTest
 
         Else
             'Setting CurrentTestListOrderIndex to 1 for the first participant
-            CurrentTestListOrderIndex = 1
+            CurrentTestListOrderIndex = 0
         End If
 
         PlanTrials()
 
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = CustomizableTestOptions.SpeechLevel, .TestLength = TestLength})
+        'Not using any explicit TestProtocol
+        CustomizableTestOptions.SelectedTestProtocol = Nothing
 
         IsInitialized = True
 
@@ -389,7 +391,7 @@ Public Class IHearProtocolB1SpeechTest
                 Dim NewTrial = New WrsTrial
                 NewTrial.SpeechMaterialComponent = Sentence_SMC
                 NewTrial.SpeechLevel = CustomizableTestOptions.SpeechLevel
-                NewTrial.MaskerLevel = GetNoiseLevel(CustomizableTestOptions.SpeechLevel, TrialSNR)
+                NewTrial.MaskerLevel = GetNoiseLevel(CustomizableTestOptions.SpeechLevel, TrialSNR) 'We're modifying the Masker level to get the intended SNR
                 NewTrial.ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel
                 'Or if we decide to change the signal level: NewTrial.ContralateralMaskerLevel = CustomizableTestOptions.SpeechLevel + CustomizableTestOptions.ContralateralLevelDifference
 
@@ -405,14 +407,6 @@ Public Class IHearProtocolB1SpeechTest
                 'Setting response alternatives
                 Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
                 ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = NewTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
-
-                Dim ResponseAlternativeString = NewTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Alternatives")
-                Dim ResponseAlternativeStringSplit = ResponseAlternativeString.Split(",")
-                For Each ResponseAlternative In ResponseAlternativeStringSplit
-                    If ResponseAlternative.Trim <> "" Then
-                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = ResponseAlternative.Trim, .IsScoredItem = True})
-                    End If
-                Next
 
                 NewTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
                 NewTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
@@ -434,12 +428,22 @@ Public Class IHearProtocolB1SpeechTest
 
         Next
 
+        'Getting the masker noise from the first trial SMC
+        MaskerNoise = PlannedTestData(0)(0).SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+
         'Getting the contralateral noise from the first trial SMC
         ContralateralNoise = PlannedTestData(0)(0).SpeechMaterialComponent.GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
 
         'Ranomizing within-list trial order
         For Each List In PlannedTestData
             List.Shuffle(Randomizer)
+        Next
+
+        'Setting TrialPresentationIndex
+        For Each List In PlannedTestData
+            For i = 0 To List.Count - 1
+                List(i).ResponseAlternativeSpellings(0)(0).TrialPresentationIndex = i
+            Next
         Next
 
         Return True
@@ -459,7 +463,7 @@ Public Class IHearProtocolB1SpeechTest
 
             If CurrentHistoricTrialIndex < 0 Then Continue For 'This means that the index refers to an invisible response button, before the first test trial 
 
-            Dim HistoricTrial = ObservedTestTrials(CurrentHistoricTrialIndex)
+            Dim HistoricTrial = ObservedTestData(CurrentTestStage)(CurrentHistoricTrialIndex)
 
             HistoricTrial.ScoreList = New List(Of Integer)
             If e.LinguisticResponses(Index) = HistoricTrial.ResponseAlternativeSpellings(0).Last.Spelling Then
@@ -481,14 +485,12 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
 
-        Dim ProtocolReply As NextTaskInstruction = Nothing
+        Dim NewNextTaskInstruction As New NextTaskInstruction
 
         If e IsNot Nothing Then
 
             'This is an incoming test trial response
             'Corrects the trial response, based on the given response
-            Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
-            Dim CorrectWordsList As New List(Of String)
 
             'Resets the CurrentTestTrial.ScoreList
             CurrentTestTrial.ScoreList = New List(Of Integer)
@@ -513,49 +515,65 @@ Public Class IHearProtocolB1SpeechTest
             End If
 
             'Adding the test trial
-            ObservedTestTrials.Add(CurrentTestTrial)
+            ObservedTestData(CurrentTestStage).Add(CurrentTestTrial)
+
+            'Removing the trial from the planned data
+            PlannedTestData(CurrentTestStage).Remove(CurrentTestTrial)
 
             'TODO: We must store the responses and response times!!!
 
-            'Calculating the speech level
-            ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTestTrials)
+            'Checking if first test is finished
+            If PlannedTestData(CurrentTestStage).Count = 0 Then
+
+                'Increasing test stage
+                CurrentTestStage += 1
+
+                If CurrentTestStage < 8 Then
+
+                    'Save data
+                    Dim Results = GetResults()
+                    SaveTextFormattedResults(Results)
+
+                    'And informing the participant
+                    NewNextTaskInstruction.Decision = SpeechTestReplies.PauseTestingWithCustomInformation
+                    PauseInformation = "Del " & CurrentTestStage & " av 8 är klar." & vbCrLf & " Klicka på Fortsätt för att starta nästa del."
+
+                Else
+                    'Test is completed after eight test stages (i.e. lists)
+                    NewNextTaskInstruction.Decision = SpeechTestReplies.TestIsCompleted
+                End If
+            Else
+                NewNextTaskInstruction.Decision = SpeechTestReplies.GotoNextTrial
+            End If
 
         Else
             'Nothing to correct (this should be the start of a new test, or a resuming of a paused test)
-            ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(New TrialHistory)
+            NewNextTaskInstruction.Decision = SpeechTestReplies.GotoNextTrial
         End If
 
         'Preparing next trial if needed
-        If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
-            PrepareNextTrial(ProtocolReply)
+        If NewNextTaskInstruction.Decision = SpeechTestReplies.GotoNextTrial Then
+            PrepareNextTrial(NewNextTaskInstruction)
         End If
 
-        Return ProtocolReply.Decision
+        Return NewNextTaskInstruction.Decision
 
     End Function
 
     Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
-
-        'Preparing the next trial
-        'Getting next test word
-        CurrentTestTrial = PlannedTestTrials(ObservedTestTrials.Count)
-
-        'Creating a new test trial
-        DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel = CustomizableTestOptions.SpeechLevel
-        DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel
-        CurrentTestTrial.Tasks = 1
-
-        Dim HistoryToShow As Integer = 3
-        Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoryToShow, ObservedTestTrials.Count)
+        'Getting next test trial (the first one among the remaining planned trials in the current test stage
+        CurrentTestTrial = PlannedTestData(CurrentTestStage)(0)
 
         Dim CurrentTrialIndex = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.TrialPresentationIndex
+
+        Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoricTrialCount, ObservedTestData(CurrentTestStage).Count)
 
         'Adding historic trials
         For index = 1 To HistoricTrialsToAdd
 
             Dim CurrentHistoricTrialIndex = CurrentTrialIndex - index
-            Dim HistoricTrial = ObservedTestTrials(CurrentHistoricTrialIndex)
+            Dim HistoricTrial = ObservedTestData(CurrentTestStage)(CurrentHistoricTrialIndex)
 
             'We only add the spelling of first child component here, since displaying history is only supported for sigle words
             Dim HistoricSpeechTestResponseAlternative = New SpeechTestResponseAlternative With {
@@ -567,12 +585,6 @@ Public Class IHearProtocolB1SpeechTest
             'We insert the history
             CurrentTestTrial.ResponseAlternativeSpellings(0).Insert(0, HistoricSpeechTestResponseAlternative) 'We put it into the first index as this is not multidimensional response alternatives (such as in Matrix tests)
         Next
-
-        'Setting trial events
-        CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 2, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         'Mixing trial sound
         MixNextTrialSound()
@@ -608,20 +620,20 @@ Public Class IHearProtocolB1SpeechTest
         Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel)
         Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
 
+        Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel)
+        Dim NeededMaskerGain = TargetMaskerLevel_FS - NominalLevel_FS
+
         'Adjusts the sound levels
         Audio.DSP.AmplifySection(TestWordSound, NeededSpeechGain)
-        'Applying the same gain to the masker. Very important: This requires that the masker is preadjusted to create the intended SNR together with the speech recordings, and have the same nominal level! (I.e. If speech and sound files would be mixed without any adjustment, they would get their desired SNR.)
-        Audio.DSP.AmplifySection(TrialNoise, NeededSpeechGain)
+        Audio.DSP.AmplifySection(TrialNoise, NeededMaskerGain)
 
         If CustomizableTestOptions.UseContralateralMasking = True Then
 
             'Setting level, 
-            'Very important: The contralateral masking sound file cannot be the same as the ipsilateral masker sound. The level of the contralateral masker sound must be set to agree with the Nominal level (while the ipsilateral masker sound sound have a level that deviates from the nominal level to attain the desired SNR!)
-            Dim ContralateralMaskingNominalLevel_FS = ContralateralNoise.SMA.NominalLevel
             Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel)
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
-            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - ContralateralMaskingNominalLevel_FS + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - NominalLevel_FS + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
             Audio.DSP.AmplifySection(TrialContralateralNoise, NeededContraLateralMaskerGain)
 
         End If
@@ -657,55 +669,52 @@ Public Class IHearProtocolB1SpeechTest
 
     End Sub
 
-
     Public Overrides Function GetResults() As TestResults
 
-        Dim Output = New TestResults(TestResults.TestResultTypes.WRS)
+        Dim Output = New TestResults(TestResults.TestResultTypes.IHPB1)
 
-
-        'Storing the AdaptiveLevelSeries
-        'Output.AdaptiveLevelSeries = New List(Of Double)
+        Output.TrialStringComment = New List(Of String)
         Output.SpeechLevelSeries = New List(Of Double)
-        'Output.MaskerLevelSeries = New List(Of Double)
-        Output.ContralateralMaskerLevelSeries = New List(Of Double)
-        'Output.SNRLevelSeries = New List(Of Double)
-        'Output.TestStageSeries = New List(Of String)
-        Output.ProportionCorrectSeries = New List(Of String)
+        Output.MaskerLevelSeries = New List(Of Double)
+        'Output.ContralateralMaskerLevelSeries = New List(Of Double)
         Output.ScoreSeries = New List(Of String)
-        Output.Progress = New List(Of Integer)
-        Output.ProgressMax = New List(Of Integer)
 
-        Dim ScoreList As New List(Of Double)
+        Output.TestResultSummaryLines = New List(Of String)
 
-        For Each Trial As WrsTrial In ObservedTestTrials
-            ScoreList.Add(DirectCast(Trial, WrsTrial).GetProportionTasksCorrect)
+        For TestStageIndex = 0 To ObservedTestData.Count - 1
 
-            Output.Progress.Add(ObservedTestTrials.Count)
-            Output.ProgressMax.Add(TestLength)
-            'Output.AdaptiveLevelSeries.Add(System.Math.Round(Trial.AdaptiveValue))
-            Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
-            'Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
-            Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))
-            'Output.SNRLevelSeries.Add(System.Math.Round(Trial.SNR))
-            'Output.TestStageSeries.Add(Trial.TestStage)
-            Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-            'If Trial.IsCorrect = True Then
-            '    Output.ScoreSeries.Add("Correct")
-            'Else
-            '    Output.ScoreSeries.Add("Incorrect")
-            'End If
+            Dim ScoreList As New List(Of Double)
+
+            For Each Trial As WrsTrial In ObservedTestData(TestStageIndex)
+
+                Output.TrialStringComment.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+                Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
+                Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
+                'Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))
+                If Trial.IsCorrect = True Then
+                    Output.ScoreSeries.Add("1")
+                    ScoreList.Add(1)
+                Else
+                    Output.ScoreSeries.Add("0")
+                    ScoreList.Add(0)
+                End If
+
+            Next
+
+            If ScoreList.Count > 0 Then
+                Output.TestResultSummaryLines.Add("List " & TestStageIndex & " Score: " & ScoreList.Average)
+            End If
+
         Next
 
-        If ScoreList.Count > 0 Then Output.ProportionCorrect = ScoreList.Average
-
         Return Output
+
 
     End Function
 
 
-    Public Overrides Sub FinalizeTest()
 
-        CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTestTrials)
+    Public Overrides Sub FinalizeTest()
 
         If CurrentParticipantID <> NoTestId Then
 
