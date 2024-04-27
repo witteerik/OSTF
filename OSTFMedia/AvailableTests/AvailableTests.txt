@@ -14,9 +14,10 @@
 // Hagermans meningar (Matrix)
 // Hörtröskel för tal (HTT)
 // PB50
-Quick SiP
 // SiP-testet
-Protokoll B1
-Protokoll B2
-Protokoll B3
-Protokoll B4
+Protokoll B1 - TP800
+Protokoll B2 - Manuell TP
+Protokoll B3 - Användarstyrd TP
+Protokoll B4 - Manuell HTT
+Protokoll B6 - Quick SiP
+Protokoll B7 - SiP-testet

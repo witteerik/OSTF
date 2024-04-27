@@ -2,13 +2,13 @@
 Imports STFN.Audio.SoundScene
 Imports STFN.Utils
 
-Public Class QuickSiP
+Public Class IHearProtocolB7SpeechTest
 
     Inherits SpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String
         Get
-            Return "QuickSiP"
+            Return "ProtocolB7_SipTest"
         End Get
     End Property
 
@@ -411,16 +411,7 @@ Public Class QuickSiP
 
     Private Sub PlanQuickSiPTrials(ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
-        Dim AllMediaSets As List(Of MediaSet) = AvailableMediasets
-
-        Dim SelectedMediaSets As New List(Of MediaSet)
-        Dim IncludedMediaSetNames As New List(Of String) From {"City-Talker1-RVE", "City-Talker2-RVE"}
-        For Each MediaSet In AllMediaSets
-            If IncludedMediaSetNames.Contains(MediaSet.MediaSetName) Then
-                SelectedMediaSets.Add(MediaSet)
-            End If
-        Next
-
+        Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
 
         'Creating a new random if seed is supplied
         If RandomSeed.HasValue Then CurrentSipTestMeasurement.Randomizer = New Random(RandomSeed)

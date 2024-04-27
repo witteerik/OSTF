@@ -52,7 +52,7 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String
         Get
-            Return "ProtocolB1"
+            Return "ProtocolB1_WRS800"
         End Get
     End Property
 

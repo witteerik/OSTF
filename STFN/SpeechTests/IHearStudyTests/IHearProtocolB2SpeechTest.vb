@@ -13,7 +13,7 @@ Public Class IHearProtocolB2SpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String
         Get
-            Return "ProtocolB2"
+            Return "ProtocolB2_ManualWRS"
         End Get
     End Property
 

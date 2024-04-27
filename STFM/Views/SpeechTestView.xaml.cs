@@ -302,19 +302,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "Quick SiP":
 
-                    // Speech test
-                    CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
-
-                    TestOptionsGrid.Children.Clear();
-                    var newOptionsSipTestView = new OptionsViewAll();
-                    TestOptionsGrid.Children.Add(newOptionsSipTestView);
-                    CurrentTestOptionsView = newOptionsSipTestView;
-
-                    break;
-
-                case "Protokoll B1":
+                case "Protokoll B1 - TP800":
 
 
                     // Speech test
@@ -329,7 +318,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
 
 
-                case "Protokoll B2":
+                case "Protokoll B2 - Manuell TP":
                                       
 
                     // Speech test
@@ -343,7 +332,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "Protokoll B3":
+                case "Protokoll B3 - Användarstyrd TP":
 
 
                     // Speech test
@@ -357,7 +346,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "Protokoll B4":
+                case "Protokoll B4 - Manuell HTT":
 
                     // Speech test
                     CurrentSpeechTest = new IHearProtocolB4SpeechTest("Swedish Spondees 23");
@@ -367,6 +356,31 @@ public partial class SpeechTestView : ContentView, IDrawable
                     var newOptionsPB4TestView = new OptionsViewAll();
                     TestOptionsGrid.Children.Add(newOptionsPB4TestView);
                     CurrentTestOptionsView = newOptionsPB4TestView;
+
+                    break;
+
+                case "Protokoll B6 - Quick SiP":
+
+                    // Speech test
+                    CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
+
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsQSipView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsQSipView);
+                    CurrentTestOptionsView = newOptionsQSipView;
+
+                    break;
+
+
+                case "Protokoll B7 - SiP-testet":
+
+                    // Speech test
+                    CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
+
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsSipTestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsSipTestView);
+                    CurrentTestOptionsView = newOptionsSipTestView;
 
                     break;
 
@@ -534,21 +548,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "Quick SiP":
-
-                    CurrentSpeechTest.InitializeCurrentTest();
-
-                    CurrentResponseView = new ResponseView_Mafc();
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.5;
-
-                    break;
-
-                case "Protokoll B1":
+                case "Protokoll B1 - TP800":
 
                     CurrentSpeechTest.InitializeCurrentTest();
 
@@ -566,7 +566,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
 
 
-                case "Protokoll B2":
+                case "Protokoll B2 - Manuell TP":
 
                     CurrentSpeechTest.InitializeCurrentTest();
 
@@ -594,7 +594,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "Protokoll B3":
+                case "Protokoll B3 - Användarstyrd TP":
 
                     CurrentSpeechTest.InitializeCurrentTest();
 
@@ -610,7 +610,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "Protokoll B4":
+                case "Protokoll B4 - Manuell HTT":
 
                     CurrentSpeechTest.InitializeCurrentTest();
 
@@ -625,6 +625,35 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.SoundOverlapDuration = 0.25;
 
                     break;
+
+                case "Protokoll B6 - Quick SiP":
+
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    CurrentResponseView = new ResponseView_Mafc();
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0.5;
+
+                    break;
+
+                case "Protokoll B7 - SiP-testet":
+
+                    CurrentSpeechTest.InitializeCurrentTest();
+
+                    CurrentResponseView = new ResponseView_Mafc();
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                    // TODO: Setting sound overlap duration, maybe better somewhere else
+                    CurrentSpeechTest.SoundOverlapDuration = 0.5;
+
+                    break;
+
 
                 default:
                     TestOptionsGrid.Children.Clear();

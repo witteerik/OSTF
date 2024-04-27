@@ -11,7 +11,7 @@ Public Class IHearProtocolB4SpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String
         Get
-            Return "ProtocolB4"
+            Return "ProtocolB4_ManualSRT"
         End Get
     End Property
 
