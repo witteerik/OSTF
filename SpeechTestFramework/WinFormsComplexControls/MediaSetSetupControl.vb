@@ -590,7 +590,7 @@ Public Class MediaSetSetupControl
 
     End Sub
 
-    Private Sub CreateSipTestMaskersButton_Click(sender As Object, e As EventArgs)
+    Private Sub CreateSipTestMaskersButton_Click(sender As Object, e As EventArgs) Handles CreateSipTestMaskersButton.Click
 
         'Creating SiP-test type masker sounds
         SelectedMediaSet.CreateNewTestSituationMaskers(MediaSet.MaskerSourceTypes.ExternalSoundFilesBestMatch,
@@ -599,13 +599,13 @@ Public Class MediaSetSetupControl
 
     End Sub
 
-    Private Sub CalculateSipTestMaskerSpectrumLevels_Button_Click(sender As Object, e As EventArgs)
+    Private Sub CalculateSipTestMaskerSpectrumLevels_Button_Click(sender As Object, e As EventArgs) Handles CalculateSipTestMaskerSpectrumLevels_Button.Click
 
         SelectedMediaSet.CalculateMaskerSpectrumLevels()
 
     End Sub
 
-    Private Sub TempButton_Click(sender As Object, e As EventArgs)
+    Private Sub TempButton_Click(sender As Object, e As EventArgs) Handles TempButton.Click
 
         'SelectedMediaSet.TemporaryFunction_RenameMaskerFolder()
 
