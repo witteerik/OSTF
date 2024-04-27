@@ -3614,4 +3614,30 @@ Public Class Form4
 
     End Sub
 
+
+    Private Sub Button32_Click(sender As Object, e As EventArgs) Handles Button32.Click
+
+
+        Dim SoundFile = SpeechTestFramework.Audio.GenerateSound.CreateSilence(New Audio.Formats.WaveFormat(48000, 32, 1), 1, 1)
+
+        'SoundFile = SpeechTestFramework.Audio.GenerateSound.CreateSineWave(New Audio.Formats.WaveFormat(48000, 32, 1), 1)
+
+        Dim SampleArray = SoundFile.WaveData.SampleData(1)
+
+        For i = 0 To SampleArray.Length - 1
+            SampleArray(i) = i * (1 / SampleArray.Length)
+        Next
+
+        'SoundFile.WaveData.SampleData(1) = SampleArray
+
+
+        Dim SE = New SpeechTestFramework.Audio.Graphics.SoundEditor(SoundFile)
+        SE.Dock = DockStyle.Fill
+
+        Dim NewForm As New Windows.Forms.Form
+        NewForm.Controls.Add(SE)
+        NewForm.Show()
+    End Sub
+
+
 End Class

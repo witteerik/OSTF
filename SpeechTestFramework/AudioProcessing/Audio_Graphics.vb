@@ -2134,7 +2134,7 @@ Namespace Audio
                         DSP.Fade(CurrentSound, -Gain, -Gain, CurrentChannel, SelectionStart_Sample, SelectionLength_Sample, DSP.Transformations.FadeSlopeType.Linear)
                     Else
 
-                        Dim FadeRegionsLength As Integer = Math.Min(Int(SelectionLength_Sample / 4), CurrentSound.WaveFormat.SampleRate / 0.01)
+                        Dim FadeRegionsLength As Integer = Math.Min(Int(SelectionLength_Sample / 4), Int(CurrentSound.WaveFormat.SampleRate * 0.01))
                         If FadeRegionsLength > 2 Then
 
                             'Fading in during FadeRegionsLength samples
@@ -2142,7 +2142,7 @@ Namespace Audio
                             'Adjusting level of samples in between
                             DSP.Fade(CurrentSound, -Gain, -Gain, CurrentChannel, SelectionStart_Sample + FadeRegionsLength, SelectionLength_Sample - 2 * FadeRegionsLength, DSP.Transformations.FadeSlopeType.Linear)
                             'Fading out during FadeRegionsLength samples
-                            DSP.Fade(CurrentSound, -Gain, 0, CurrentChannel, SelectionLength_Sample - FadeRegionsLength, FadeRegionsLength, DSP.Transformations.FadeSlopeType.Linear)
+                            DSP.Fade(CurrentSound, -Gain, 0, CurrentChannel, SelectionStart_Sample + SelectionLength_Sample - FadeRegionsLength, FadeRegionsLength, DSP.Transformations.FadeSlopeType.Linear)
 
                         Else
                             'Skipps fading
