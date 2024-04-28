@@ -8,6 +8,12 @@ Namespace Audio.SoundScene
 
         Private ParentTransducerSpecification As AudioSystemSpecification
 
+        Public ReadOnly Property GetParentTransducerSpecification As AudioSystemSpecification
+            Get
+                Return ParentTransducerSpecification
+            End Get
+        End Property
+
         ''' <summary>
         ''' A list of key-value pairs, where the key repressents the hardware output channel and the value repressents the wave file channel from which the output sound should be drawn.
         ''' </summary>

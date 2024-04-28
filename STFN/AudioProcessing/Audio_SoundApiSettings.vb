@@ -35,6 +35,7 @@ Namespace Audio
         MustOverride Property NumberOfOutputChannels() As Integer?
         Property AllowDefaultOutputDevice As Boolean?
         Property AllowDefaultInputDevice As Boolean?
+        Public MustOverride Function GetSelectedOutputDeviceName() As String
 
     End Class
 
@@ -76,6 +77,9 @@ Namespace Audio
             Return OutputString
         End Function
 
+        Public Overrides Function GetSelectedOutputDeviceName() As String
+            Return SelectedOutputDeviceName
+        End Function
     End Class
 
     Public Class PortAudioApiSettings
@@ -758,6 +762,16 @@ Namespace Audio
 
         End Function
 
+        Public Overrides Function GetSelectedOutputDeviceName() As String
+
+            Dim OutputString As String = ""
+
+            If Not SelectedOutputDeviceInfo Is Nothing Then OutputString &= SelectedOutputDeviceInfo.Value.GetOutputDeviceName()
+            If Not SelectedInputAndOutputDeviceInfo Is Nothing Then OutputString &= SelectedInputAndOutputDeviceInfo.Value.GetOutputDeviceName()
+
+            Return OutputString
+
+        End Function
     End Class
 
 

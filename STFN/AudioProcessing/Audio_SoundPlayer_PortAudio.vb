@@ -25,7 +25,7 @@ Namespace Audio
             Public Event FatalPlayerError() Implements iSoundPlayer.FatalPlayerError
             Private Mixer As DuplexMixer
 
-            Public Function GetMixer() As DuplexMixer
+            Public Function GetMixer() As DuplexMixer Implements iSoundPlayer.GetMixer
                 Return Mixer
             End Function
 

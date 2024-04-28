@@ -265,15 +265,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = null;
 
                     // Updating settings needed for the loaded test
-                    var argAudiometerAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-                    var argAudiometerMixer = SelectedTransducer.Mixer;
-                    if (CurrentSpeechTest != null)
-                    {
-                        OstfBase.SoundPlayer.ChangePlayerSettings(argAudiometerAudioApiSettings,
-                            48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints,
-                            CurrentSpeechTest.SoundOverlapDuration, Mixer: argAudiometerMixer, ReOpenStream: true, ReStartStream: true);
-                        SelectedTransducer.Mixer = argAudiometerMixer;
-                    }
+                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.05, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
 
                     SetBottomPanelShow(false);
                     StartTestBtn.IsEnabled = false;

@@ -1,85 +1,246 @@
 using STFN;
+using System.Security.AccessControl;
 
 namespace STFM.Views;
 
 public partial class ScreeningAudiometerView : ContentView
 {
-	public ScreeningAudiometerView()
-	{
-		InitializeComponent();
-	}
 
     public event EventHandler<EventArgs> EnterFullScreenMode;
     public event EventHandler<EventArgs> ExitFullScreenMode;
-     
-    private void Channel1StimulusButtonPressed(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel1StimulusButton_MouseDown(); 
+
+    private SortedList<SignalSides, SortedList<double, SortedList<double, STFN.Audio.Sound>>> Sines;
+    private List<double> Frequencies;
+    private List<double> Levels;
+    private STFN.Audio.Formats.WaveFormat WaveFormat;
+
+    private enum SignalSides
+    {
+        None,
+        Left,
+        Right
     }
-    private void Channel1StimulusButtonReleased(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel1StimulusButton_MouseUp();
+
+    private SignalSides Sides;
+
+    private SignalSides CurrentSide = SignalSides.None;
+
+    private int CurrentLevelIndex;
+    private int CurrentFrequencyIndex;
+
+    private Color originalButtonColor;
+
+    public ScreeningAudiometerView()
+	{
+		InitializeComponent();
+
+        WaveFormat = new STFN.Audio.Formats.WaveFormat(48000,32, 2,"", STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints );
+        Frequencies = new List<double>() { 125, 250, 500, 1000, 2000, 3000, 4000, 6000, 8000 };
+        Levels = new List<double>() { 0, 5, 10, 15, 20, 25, 30, 35, 40 };
+        Sines = new SortedList<SignalSides, SortedList<double, SortedList<double, STFN.Audio.Sound>>>();
+        List<SignalSides> possibleSides = new List<SignalSides>() { SignalSides.Left, SignalSides.Right };
+
+        // Filling up frequencies and levels structure with nulls
+        for (int s = 0; s < possibleSides .Count; s++)
+        {
+
+            Sines.Add(possibleSides[s], new SortedList<double, SortedList<double, STFN.Audio.Sound>>());
+
+            for (int i = 0; i < Frequencies.Count; i++)
+            {
+                Sines[possibleSides[s]].Add(Frequencies[i], new SortedList<double, STFN.Audio.Sound>());
+                for (int j = 0; j < Levels.Count; j++)
+                {
+                    Sines[possibleSides[s]][Frequencies[i]].Add(Levels[j], null);
+                }
+            }
         }
 
-    private void Channel2StimulusButtonPressed(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel2StimulusButton_MouseDown();
-    }
-    
-    private void Channel2StimulusButtonReleased(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel2StimulusButton_MouseUp();
+        originalButtonColor = Channel1InputAirButton.BackgroundColor;
+
+        // Setting initial values
+        CurrentSide = SignalSides.Right;
+        CurrentFrequencyIndex = 3;
+        CurrentLevelIndex = 8;
+
+        UpdateGUI();
+
     }
 
+    private STFN.Audio.Sound GetAudiometerSine(SignalSides side, double frequency, double level)
+    {
 
-    private void OnPTA_Button_Clicked(object sender, EventArgs e) { 
-        //AudiometerBackend.PTA_Button_Click(); 
-    }
-    private void OnSpeechAudiometryButton_Clicked(object sender, EventArgs e) { 
-        //AudiometerBackend.SpeechAudiometryButton_Click(); 
-    }
+        if (side == SignalSides.None)
+        {
+            return null;
+        }
+        // Creating the sine if it doesn't exist
+        if (Sines[side][frequency][level] == null)
+        {
+            STFN.Audio.Sound newSine = null;
+            switch (side)
+            {
+                case SignalSides.Left:
+                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,1, frequency, (decimal)level, STFN.Audio.AudioManagement.SoundDataUnit.dB, 3);
+                    STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.01),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
+                    break;
+                case SignalSides.Right:
+                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,2, frequency, (decimal)level, STFN.Audio.AudioManagement.SoundDataUnit.dB, 3);
+                    STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 2, (int)(-WaveFormat.SampleRate * 0.01),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
+                    break;
+                default:
+                    throw new Exception("Invalid value for sides");
+                    //break;
+            }
 
-    private void OnLeftUpClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.LeftUpButton_Click(); 
-    }
-    private void LeftDownBtnClicked(object sender, EventArgs e) { 
-        //Audio-meterBackend.LeftDownButton_Click(); 
-    }
-    private void RightUpBtnClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.RightUpButton_Click(); 
-    }
-    private void RightDownBtnClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.RightDownButton_Click(); 
-    }
-    private void DecreaseFrequencyButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.DecreaseFrequencyButton_Click(); 
-    }
-    private void IncreaseFrequencyButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.IncreaseFrequencyButton_Click(); 
-    }
-    private void Channel1RevButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel1RevButton_Click(); 
-    }
-    private void Channel2RevButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel2RevButton_Click(); 
-    }
 
-    private void Channel1InputAirButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel1InputAirButton_Click(); 
+            Sines[side][frequency][level] = newSine;
+        }
+        // Returning the sine
+        return Sines[side][frequency][level];
     }
 
-    private void Channel1InputBoneButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel1InputBoneButton_Click(); 
-    }
-    private void Channel1InsertPhoneButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel1InsertPhoneButton_Click(); 
-    }
-    private void Channel2InputAirRightButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel2InputAirRightButton_Click(); 
+    private void Channel1StimulusButtonPressed(object sender, EventArgs e) {
+
+        var currentSine = GetAudiometerSine(CurrentSide, Frequencies[CurrentFrequencyIndex], Levels[CurrentLevelIndex]);
+
+        if (currentSine != null)
+        {
+            OstfBase.SoundPlayer.SwapOutputSounds(ref currentSine);
+
+            // Light on
+            Channel1StimulusButton.BackgroundColor = Colors.Yellow;
+            // Updating GUI to reflect any other changes that may have occurred
+            UpdateGUI();
+        }
     }
 
-    private void Channel2InputAirLeftButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel2InputAirLeftButton_Click(); 
+    private void Channel1StimulusButtonReleased(object sender, EventArgs e) {
+
+        OstfBase.SoundPlayer.FadeOutPlayback();
+
+        // Light off
+        Channel1StimulusButton.BackgroundColor = originalButtonColor;
+        // Updating GUI to reflect any other changes that may have occurred
+        UpdateGUI();
+
     }
 
-    private void Channel2InsertPhoneButtonClicked(object sender, EventArgs e) { 
-        //AudiometerBackend.Channel2InsertPhoneButton_Click(); 
+    private void OnLeftUpClicked(object sender, EventArgs e) {
+        CurrentLevelIndex = System.Math.Min(CurrentLevelIndex + 1, Levels.Count-1);
+        UpdateGUI();
+    }
+    private void LeftDownBtnClicked(object sender, EventArgs e) {
+        CurrentLevelIndex = System.Math.Max(CurrentLevelIndex - 1, 0);
+        UpdateGUI();
+    }
+    private void IncreaseFrequencyButtonClicked(object sender, EventArgs e) {
+        CurrentFrequencyIndex = System.Math.Min(CurrentFrequencyIndex + 1, Frequencies.Count - 1);
+        UpdateGUI();
+    }
+    private void DecreaseFrequencyButtonClicked(object sender, EventArgs e)
+    {
+        CurrentFrequencyIndex = System.Math.Max(CurrentFrequencyIndex - 1, 0);
+        UpdateGUI();
+    }
+
+    private void Channel1InputAirButtonClicked(object sender, EventArgs e) {
+
+        // Rotating value
+        switch (CurrentSide)
+        {
+            case SignalSides.None:
+                CurrentSide = SignalSides.Right;
+                break;
+
+            case SignalSides.Right:
+                CurrentSide = SignalSides.Left;
+                break;
+
+            case SignalSides.Left:
+                CurrentSide = SignalSides.None;
+                break;
+
+            default:
+                break;
+        }
+
+        UpdateGUI();
+    }
+
+    private void UpdateGUI()
+    {
+
+        // Showing in GUI
+        RightLevelLabel.Text = Levels[CurrentLevelIndex].ToString() + " dB HL";
+        RightInfoLabel1.Text = Frequencies[CurrentFrequencyIndex].ToString() + " Hz";
+
+        if (CurrentLevelIndex < Levels.Count-1)
+        {
+            LeftUpBtn.IsEnabled = true;
+        }
+        else
+        {
+            LeftUpBtn.IsEnabled = false;
+        }
+
+        if (CurrentLevelIndex >0)
+        {
+            LeftDownBtn.IsEnabled = true;
+        }
+        else
+        {
+            LeftDownBtn.IsEnabled = false;
+        }
+
+        if (CurrentFrequencyIndex< Frequencies.Count -1)
+        {
+            IncreaseFrequencyButton.IsEnabled = true;
+        }
+        else
+        {
+            IncreaseFrequencyButton.IsEnabled = false;
+        }
+
+        if (CurrentFrequencyIndex > 0 )
+        {
+            DecreaseFrequencyButton.IsEnabled = true;
+        }
+        else
+        {
+            DecreaseFrequencyButton.IsEnabled = false;
+        }
+
+        var CurrentMixer = OstfBase.SoundPlayer.GetMixer();
+        RightInfoLabel2.Text = CurrentMixer.GetParentTransducerSpecification.Name;
+        RightInfoLabel3.Text = CurrentMixer.GetParentTransducerSpecification.ParentAudioApiSettings.GetSelectedOutputDeviceName();
+
+        // Rotating value
+        switch (CurrentSide)
+        {
+            case SignalSides.None:
+                Channel1InputAirButtonLightR.BackgroundColor = Colors.Grey;
+                Channel1InputAirButtonLightL.BackgroundColor = Colors.Grey;
+                Channel1StimulusButton.IsEnabled = false;
+                break;
+
+            case SignalSides.Right:
+                Channel1InputAirButtonLightR.BackgroundColor = Colors.Red;
+                Channel1InputAirButtonLightL.BackgroundColor = Colors.Grey;
+                Channel1StimulusButton.IsEnabled = true;
+                break;
+
+            case SignalSides.Left:
+                Channel1InputAirButtonLightR.BackgroundColor = Colors.Grey;
+                Channel1InputAirButtonLightL.BackgroundColor = Colors.Blue;
+                Channel1StimulusButton.IsEnabled = true;
+                break;
+
+            default:
+                break;
+        }
+
+
     }
 
 

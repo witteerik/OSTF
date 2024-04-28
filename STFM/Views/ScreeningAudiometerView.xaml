@@ -146,10 +146,11 @@
             Margin="3">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="1*" />
-                <RowDefinition Height="1*" />
-                <RowDefinition Height="1*" />
-                <RowDefinition Height="1*" />
+                <RowDefinition Height="1.5*" />
+                <RowDefinition Height="1.5*" />
+                <RowDefinition Height="1.5*" />
+                <RowDefinition Height="0.8*" />
+                <RowDefinition Height="0.8*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0.5*"   />
@@ -172,14 +173,13 @@
             <!--Right labels-->
 
             <Label Text="Frequency:"
-               Grid.Row="2" Grid.RowSpan="1"
+               Grid.Row="1" Grid.RowSpan="2"
                Grid.Column="1" Grid.ColumnSpan="1"
                TextColor="White"
                HorizontalTextAlignment="End"
                VerticalTextAlignment="Center" 
                    FontSize="Medium"
-                   Margin="3"/>
-
+                   Margin="3,3,9,3"/>
 
             <Label Text="Transducer:"
                Grid.Row="3" Grid.RowSpan="1"
@@ -187,30 +187,48 @@
                TextColor="White"
                HorizontalTextAlignment="End"
                VerticalTextAlignment="Center" 
-                FontSize="Medium"
-                Margin="3"/>
+                FontSize="Small"
+                Margin="3,9,9,3"/>
+
+            <Label Text="Sound device:"
+               Grid.Row="4" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+                FontSize="Small"
+               Margin="3,3,9,9"/>
 
 
             <Label x:Name="RightInfoLabel1"
                 Text="RightInfoLabel1"
-               Grid.Row="2" Grid.RowSpan="1"
-               Grid.Column="2" Grid.ColumnSpan="1"
+               Grid.Row="1" Grid.RowSpan="2"
+               Grid.Column="2" Grid.ColumnSpan="2"
                TextColor="White"
                HorizontalTextAlignment="Start"
                VerticalTextAlignment="Center" 
                 FontSize="Medium"
                    Margin="3"/>
 
-
-            <Label x:Name="RightInfoLabel3"
-                Text="RightInfoLabel3"
+            <Label x:Name="RightInfoLabel2"
+                Text="RightInfoLabel1"
                Grid.Row="3" Grid.RowSpan="1"
-               Grid.Column="2" Grid.ColumnSpan="1"
+               Grid.Column="2" Grid.ColumnSpan="2"
                TextColor="White"
                HorizontalTextAlignment="Start"
                VerticalTextAlignment="Center" 
-                FontSize="Medium"
-                Margin="3"/>
+                FontSize="Small"
+                   Margin="3,9,3,3"/>
+
+            <Label x:Name="RightInfoLabel3"
+                Text="RightInfoLabel3"
+               Grid.Row="4" Grid.RowSpan="1"
+               Grid.Column="2" Grid.ColumnSpan="2"
+               TextColor="White"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+                FontSize="Small"
+                Margin="3,3,3,9"/>
 
             <Button
                Grid.Row="0" Grid.Column="3"

@@ -30,6 +30,8 @@ Namespace Audio
                 Duplex
             End Enum
 
+            Function GetMixer() As Audio.SoundScene.DuplexMixer
+
             Event FatalPlayerError()
 
             Event MessageFromPlayer(ByVal Message As String)

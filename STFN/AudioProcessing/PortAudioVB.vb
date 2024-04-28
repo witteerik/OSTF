@@ -108,6 +108,10 @@ Namespace Audio
                 Return (Convert.ToString("Name: ") & name) & vbLf & "Input channels: " & maxInputChannels & vbLf & "Output channels: " & maxOutputChannels
             End Function
 
+            Public Function GetOutputDeviceName() As String
+                Return name
+            End Function
+
         End Structure
 
         <StructLayout(LayoutKind.Sequential)>

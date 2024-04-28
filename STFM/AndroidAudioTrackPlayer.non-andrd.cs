@@ -154,6 +154,11 @@ namespace STFM
         {
             throw new NotImplementedException();
         }
+
+        public DuplexMixer GetMixer()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 
