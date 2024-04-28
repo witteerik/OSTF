@@ -645,6 +645,8 @@ Public Module OstfBase
                     If Line.StartsWith("HardwareOutputChannels") Then CurrentTransducer.HardwareOutputChannels = InputFileSupport.InputFileListOfIntegerParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("CalibrationGain") Then CurrentTransducer.CalibrationGain = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("HostVolumeOutputLevel") Then CurrentTransducer.HostVolumeOutputLevel = InputFileSupport.InputFileDoubleValueParsing(Line, True, AudioSystemSpecificationFilePath)
+                    If Line.StartsWith("PtaCalibrationGainFrequencies") Then CurrentTransducer.PtaCalibrationGainFrequencies = InputFileSupport.InputFileListOfIntegerParsing(Line, True, AudioSystemSpecificationFilePath)
+                    If Line.StartsWith("PtaCalibrationGainValues") Then CurrentTransducer.PtaCalibrationGainValues = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("LimiterThreshold") Then CurrentTransducer.LimiterThreshold = InputFileSupport.InputFileDoubleValueParsing(Line, True, AudioSystemSpecificationFilePath)
 
                 Next
@@ -668,6 +670,23 @@ Public Module OstfBase
                                    "This calibration value is set in the audio system specifications file: " & AudioSystemSpecificationFilePath, MsgBoxStyle.Exclamation, "Warning - High calibration gain value!")
                         End If
                     Next
+
+                    If Transducer.PtaCalibrationGainFrequencies IsNot Nothing And Transducer.PtaCalibrationGainValues IsNot Nothing Then
+                        If Transducer.PtaCalibrationGainFrequencies.Count = Transducer.PtaCalibrationGainValues.Count Then
+                            Transducer.PtaCalibrationGain = New SortedList(Of Integer, Double)
+                            For i = 0 To Transducer.PtaCalibrationGainFrequencies.Count - 1
+                                Transducer.PtaCalibrationGain.Add(Transducer.PtaCalibrationGainFrequencies(i), Transducer.PtaCalibrationGainValues(i))
+                            Next
+                        Else
+
+                            MsgBox("The number of specified PTA calibration gain values and frequencies do not match for the audio transducer '" & Transducer.Name & "'" & vbCrLf & vbCrLf &
+                                   "Press OK to closing the application! (These calibration values are set in the audio system specifications file: " & AudioSystemSpecificationFilePath, MsgBoxStyle.Exclamation, "Warning - error in PTA calibration values!")
+                            Messager.RequestCloseApp()
+                        End If
+
+                    End If
+
+
                 Next
 
                 PlayerWasLoaded = True
@@ -873,6 +892,17 @@ Public Module OstfBase
         Public Property CalibrationGain As New List(Of Double) From {0, 0}
 
         Private _HostVolumeOutputLevel As Integer? = Nothing
+
+        ''' <summary>
+        ''' Holds calibration gain for a pure tone audiometry transducer (frequency, gain)
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property PtaCalibrationGain As New SortedList(Of Integer, Double)
+
+        Public Property PtaCalibrationGainFrequencies As New List(Of Integer)
+        Public Property PtaCalibrationGainValues As New List(Of Double)
+
+
 
         ''' <summary>
         ''' If supported by the sound player used, this value is used to set and maintain the volume of the selected output sound unit (e.g. sound card) while the player is active. Value represent percentages (0-100).

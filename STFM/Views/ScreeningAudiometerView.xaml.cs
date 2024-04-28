@@ -1,4 +1,5 @@
 using STFN;
+using System.Reflection.Metadata;
 using System.Security.AccessControl;
 
 namespace STFM.Views;
@@ -10,9 +11,13 @@ public partial class ScreeningAudiometerView : ContentView
     public event EventHandler<EventArgs> ExitFullScreenMode;
 
     private SortedList<SignalSides, SortedList<double, SortedList<double, STFN.Audio.Sound>>> Sines;
-    private List<double> Frequencies;
+    private List<int> Frequencies;
     private List<double> Levels;
     private STFN.Audio.Formats.WaveFormat WaveFormat;
+
+    private SortedList<int, double> RetSplList;
+    private SortedList<int, double> PureToneCalibrationList = new SortedList<int, double>();
+    
 
     private enum SignalSides
     {
@@ -35,7 +40,7 @@ public partial class ScreeningAudiometerView : ContentView
 		InitializeComponent();
 
         WaveFormat = new STFN.Audio.Formats.WaveFormat(48000,32, 2,"", STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints );
-        Frequencies = new List<double>() { 125, 250, 500, 1000, 2000, 3000, 4000, 6000, 8000 };
+        Frequencies = new List<int>() { 125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000 };
         Levels = new List<double>() { 0, 5, 10, 15, 20, 25, 30, 35, 40 };
         Sines = new SortedList<SignalSides, SortedList<double, SortedList<double, STFN.Audio.Sound>>>();
         List<SignalSides> possibleSides = new List<SignalSides>() { SignalSides.Left, SignalSides.Right };
@@ -49,10 +54,6 @@ public partial class ScreeningAudiometerView : ContentView
             for (int i = 0; i < Frequencies.Count; i++)
             {
                 Sines[possibleSides[s]].Add(Frequencies[i], new SortedList<double, STFN.Audio.Sound>());
-                for (int j = 0; j < Levels.Count; j++)
-                {
-                    Sines[possibleSides[s]][Frequencies[i]].Add(Levels[j], null);
-                }
             }
         }
 
@@ -65,28 +66,121 @@ public partial class ScreeningAudiometerView : ContentView
 
         UpdateGUI();
 
+        // RETSPL values for DD65v2
+        RetSplList = new SortedList<int, double>();
+        RetSplList.Add(125, 30.5);
+        RetSplList.Add(160, 25.5);
+        RetSplList.Add(200, 21.5);
+        RetSplList.Add(250, 17);
+        RetSplList.Add(315, 14);
+        RetSplList.Add(400, 10.5);
+        RetSplList.Add(500, 8);
+        RetSplList.Add(630, 6.5);
+        RetSplList.Add(750, 5.5);
+        RetSplList.Add(800, 5);
+        RetSplList.Add(1000, 4.5);
+        RetSplList.Add(1250, 3.5);
+        RetSplList.Add(1500, 2.5);
+        RetSplList.Add(1600, 2.5);
+        RetSplList.Add(2000, 2.5);
+        RetSplList.Add(2500, 2);
+        RetSplList.Add(3000, 2);
+        RetSplList.Add(3150, 3);
+        RetSplList.Add(4000, 9.5);
+        RetSplList.Add(5000, 15.5);
+        RetSplList.Add(6000, 21);
+        RetSplList.Add(6300, 21);
+        RetSplList.Add(8000, 21);
+
+
+        // RETSPL values for DD450
+        //RetSplList.Add(125, 30.5);
+        //RetSplList.Add(160, 26);
+        //RetSplList.Add(200, 22);
+        //RetSplList.Add(250, 18);
+        //RetSplList.Add(315, 15.5);
+        //RetSplList.Add(400, 13.5);
+        //RetSplList.Add(500, 11);
+        //RetSplList.Add(630, 8);
+        //RetSplList.Add(750, 6);
+        //RetSplList.Add(800, 6);
+        //RetSplList.Add(1000, 5.5);
+        //RetSplList.Add(1250, 6);
+        //RetSplList.Add(1500, 5.5);
+        //RetSplList.Add(1600, 5.5);
+        //RetSplList.Add(2000, 4.5);
+        //RetSplList.Add(2500, 3);
+        //RetSplList.Add(3000, 2.5);
+        //RetSplList.Add(3150, 4);
+        //RetSplList.Add(4000, 9.5);
+        //RetSplList.Add(5000, 14);
+        //RetSplList.Add(6000, 17);
+        //RetSplList.Add(6300, 17.5);
+        //RetSplList.Add(8000, 17.5);
+        //RetSplList.Add(9000, 19);
+        //RetSplList.Add(10000, 22);
+        //RetSplList.Add(11200, 23);
+        //RetSplList.Add(12500, 27.5);
+        //RetSplList.Add(14000, 35);
+        //RetSplList.Add(16000, 56);
+
+        var CurrentMixer = OstfBase.SoundPlayer.GetMixer();
+        RightInfoLabel2.Text = CurrentMixer.GetParentTransducerSpecification.Name;
+        RightInfoLabel3.Text = CurrentMixer.GetParentTransducerSpecification.ParentAudioApiSettings.GetSelectedOutputDeviceName();
+
+        if (CurrentMixer.GetParentTransducerSpecification.PtaCalibrationGain != null)
+        {
+            PureToneCalibrationList = CurrentMixer.GetParentTransducerSpecification.PtaCalibrationGain;
+        }
+
     }
 
-    private STFN.Audio.Sound GetAudiometerSine(SignalSides side, double frequency, double level)
+    private STFN.Audio.Sound GetAudiometerSine(SignalSides side, int frequency, double level)
     {
 
         if (side == SignalSides.None)
         {
             return null;
         }
-        // Creating the sine if it doesn't exist
-        if (Sines[side][frequency][level] == null)
+
+        double RetSplCorrectedLevel = level + RetSplList[frequency];
+        double CalibratedRetSplCorrectedLevel = RetSplCorrectedLevel + PureToneCalibrationList[frequency];
+        double RetSplCorrectedLevel_FS = STFN.Audio.AudioManagement.Standard_dBSPL_To_dBFS(CalibratedRetSplCorrectedLevel);
+
+        // Adding the level value to the dictionary, if needed
+        if (Sines[side][frequency].ContainsKey(RetSplCorrectedLevel_FS) == false)
         {
+            Sines[side][frequency].Add(RetSplCorrectedLevel_FS, null);
+        }
+
+        // Creating the sine if it doesn't exist
+        if (Sines[side][frequency][RetSplCorrectedLevel_FS] == null)
+        {
+
+            //Checking that there is a RETSPL correction value available
+            if (RetSplList.ContainsKey(frequency) == false)
+            {
+                Messager.MsgBox("Missing RETSPL value for frequency " + frequency.ToString());
+                return null;
+            }
+
+            //Checking that there is a calibration value available
+            if (PureToneCalibrationList.ContainsKey(frequency) == false)
+            {
+                Messager.MsgBox("Missing pure tone calibration value for frequency " + frequency.ToString());
+                return null;
+            }
+
             STFN.Audio.Sound newSine = null;
             switch (side)
             {
                 case SignalSides.Left:
-                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,1, frequency, (decimal)level, STFN.Audio.AudioManagement.SoundDataUnit.dB, 3);
-                    STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.01),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
+                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,1, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, 3);
+                    STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
                     break;
                 case SignalSides.Right:
-                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,2, frequency, (decimal)level, STFN.Audio.AudioManagement.SoundDataUnit.dB, 3);
-                    STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 2, (int)(-WaveFormat.SampleRate * 0.01),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
+                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,2, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, 3);
+                    STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 2, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
                     break;
                 default:
                     throw new Exception("Invalid value for sides");
@@ -94,10 +188,11 @@ public partial class ScreeningAudiometerView : ContentView
             }
 
 
-            Sines[side][frequency][level] = newSine;
+
+            Sines[side][frequency][RetSplCorrectedLevel_FS] = newSine;
         }
         // Returning the sine
-        return Sines[side][frequency][level];
+        return Sines[side][frequency][RetSplCorrectedLevel_FS];
     }
 
     private void Channel1StimulusButtonPressed(object sender, EventArgs e) {

@@ -265,7 +265,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = null;
 
                     // Updating settings needed for the loaded test
-                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.05, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
+                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
 
                     SetBottomPanelShow(false);
                     StartTestBtn.IsEnabled = false;

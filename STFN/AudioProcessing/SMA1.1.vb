@@ -2389,7 +2389,7 @@ Namespace Audio
                                 'Fades in and out during fade length number of samples
                                 Audio.DSP.Fade(ParentSMA.ParentSound, 0, -Gain, CurrentChannel, StartSample, FadeLength)
                                 Audio.DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample + FadeLength, Length - 2 * FadeLength)
-                                Audio.DSP.Fade(ParentSMA.ParentSound, 0, -Gain, CurrentChannel, Length - FadeLength, FadeLength)
+                                Audio.DSP.Fade(ParentSMA.ParentSound, 0, -Gain, CurrentChannel, StartSample + Length - FadeLength, FadeLength)
 
                             End If
 
