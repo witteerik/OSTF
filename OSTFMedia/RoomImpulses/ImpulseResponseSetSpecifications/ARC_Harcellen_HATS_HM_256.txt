@@ -1,0 +1,82 @@
+Name = ARC - Harcellen - HATS 256 - HM - 48kHz					
+ImpulseResponseSubFolder = Data\ARC\ARC_Harcellen_HATS_HM_256\48000Hz\UnspecifiedHeadphones					
+SampleRate = 48000					
+					
+<AvailableSourceLocations> 					
+// AvailableSourceLocations are specified as: File [tab] Channel [tab] Ear [tab] Azimuth [tab] Elevation [tab] Distance [tab], with one location per row					
+// Note that Channel is the channel number within the File in which the impulse response for the corresponding Azimuth, Elevation and Distance for ear Ear is stored. 					
+// Ear should have the values either L or R, for left and right respectively					
+					
+//File	Channel	Ear	Azimuth	Elevation	Distance
+IR_Hårcellen_48000_HATS_head0_0_L.wav	1	L	0	0	1.45
+IR_Hårcellen_48000_HATS_head0_0_R.wav	1	R	0	0	1.45
+IR_Hårcellen_48000_HATS_head0_30_L.wav	1	L	30	0	1.45
+IR_Hårcellen_48000_HATS_head0_30_R.wav	1	R	30	0	1.45
+IR_Hårcellen_48000_HATS_head0_60_L.wav	1	L	60	0	1.45
+IR_Hårcellen_48000_HATS_head0_60_R.wav	1	R	60	0	1.45
+IR_Hårcellen_48000_HATS_head0_90_L.wav	1	L	90	0	1.45
+IR_Hårcellen_48000_HATS_head0_90_R.wav	1	R	90	0	1.45
+IR_Hårcellen_48000_HATS_head0_120_L.wav	1	L	120	0	1.45
+IR_Hårcellen_48000_HATS_head0_120_R.wav	1	R	120	0	1.45
+IR_Hårcellen_48000_HATS_head0_150_L.wav	1	L	150	0	1.45
+IR_Hårcellen_48000_HATS_head0_150_R.wav	1	R	150	0	1.45
+IR_Hårcellen_48000_HATS_head0_180_L.wav	1	L	180	0	1.45
+IR_Hårcellen_48000_HATS_head0_180_R.wav	1	R	180	0	1.45
+IR_Hårcellen_48000_HATS_head0_210_L.wav	1	L	210	0	1.45
+IR_Hårcellen_48000_HATS_head0_210_R.wav	1	R	210	0	1.45
+IR_Hårcellen_48000_HATS_head0_240_L.wav	1	L	240	0	1.45
+IR_Hårcellen_48000_HATS_head0_240_R.wav	1	R	240	0	1.45
+IR_Hårcellen_48000_HATS_head0_270_L.wav	1	L	270	0	1.45
+IR_Hårcellen_48000_HATS_head0_270_R.wav	1	R	270	0	1.45
+IR_Hårcellen_48000_HATS_head0_300_L.wav	1	L	300	0	1.45
+IR_Hårcellen_48000_HATS_head0_300_R.wav	1	R	300	0	1.45
+IR_Hårcellen_48000_HATS_head0_330_L.wav	1	L	330	0	1.45
+IR_Hårcellen_48000_HATS_head0_330_R.wav	1	R	330	0	1.45
+IR_Hårcellen_48000_HATS_headm10_0_L.wav	1	L	10	0	1.45
+IR_Hårcellen_48000_HATS_headm10_0_R.wav	1	R	10	0	1.45
+IR_Hårcellen_48000_HATS_headm10_30_L.wav	1	L	40	0	1.45
+IR_Hårcellen_48000_HATS_headm10_30_R.wav	1	R	40	0	1.45
+IR_Hårcellen_48000_HATS_headm10_60_L.wav	1	L	70	0	1.45
+IR_Hårcellen_48000_HATS_headm10_60_R.wav	1	R	70	0	1.45
+IR_Hårcellen_48000_HATS_headm10_90_L.wav	1	L	100	0	1.45
+IR_Hårcellen_48000_HATS_headm10_90_R.wav	1	R	100	0	1.45
+IR_Hårcellen_48000_HATS_headm10_120_L.wav	1	L	130	0	1.45
+IR_Hårcellen_48000_HATS_headm10_120_R.wav	1	R	130	0	1.45
+IR_Hårcellen_48000_HATS_headm10_150_L.wav	1	L	160	0	1.45
+IR_Hårcellen_48000_HATS_headm10_150_R.wav	1	R	160	0	1.45
+IR_Hårcellen_48000_HATS_headm10_180_L.wav	1	L	190	0	1.45
+IR_Hårcellen_48000_HATS_headm10_180_R.wav	1	R	190	0	1.45
+IR_Hårcellen_48000_HATS_headm10_210_L.wav	1	L	220	0	1.45
+IR_Hårcellen_48000_HATS_headm10_210_R.wav	1	R	220	0	1.45
+IR_Hårcellen_48000_HATS_headm10_240_L.wav	1	L	250	0	1.45
+IR_Hårcellen_48000_HATS_headm10_240_R.wav	1	R	250	0	1.45
+IR_Hårcellen_48000_HATS_headm10_270_L.wav	1	L	280	0	1.45
+IR_Hårcellen_48000_HATS_headm10_270_R.wav	1	R	280	0	1.45
+IR_Hårcellen_48000_HATS_headm10_300_L.wav	1	L	310	0	1.45
+IR_Hårcellen_48000_HATS_headm10_300_R.wav	1	R	310	0	1.45
+IR_Hårcellen_48000_HATS_headm10_330_L.wav	1	L	340	0	1.45
+IR_Hårcellen_48000_HATS_headm10_330_R.wav	1	R	340	0	1.45
+IR_Hårcellen_48000_HATS_headp10_0_L.wav	1	L	350	0	1.45
+IR_Hårcellen_48000_HATS_headp10_0_R.wav	1	R	350	0	1.45
+IR_Hårcellen_48000_HATS_headp10_30_L.wav	1	L	20	0	1.45
+IR_Hårcellen_48000_HATS_headp10_30_R.wav	1	R	20	0	1.45
+IR_Hårcellen_48000_HATS_headp10_60_L.wav	1	L	50	0	1.45
+IR_Hårcellen_48000_HATS_headp10_60_R.wav	1	R	50	0	1.45
+IR_Hårcellen_48000_HATS_headp10_90_L.wav	1	L	80	0	1.45
+IR_Hårcellen_48000_HATS_headp10_90_R.wav	1	R	80	0	1.45
+IR_Hårcellen_48000_HATS_headp10_120_L.wav	1	L	110	0	1.45
+IR_Hårcellen_48000_HATS_headp10_120_R.wav	1	R	110	0	1.45
+IR_Hårcellen_48000_HATS_headp10_150_L.wav	1	L	140	0	1.45
+IR_Hårcellen_48000_HATS_headp10_150_R.wav	1	R	140	0	1.45
+IR_Hårcellen_48000_HATS_headp10_180_L.wav	1	L	170	0	1.45
+IR_Hårcellen_48000_HATS_headp10_180_R.wav	1	R	170	0	1.45
+IR_Hårcellen_48000_HATS_headp10_210_L.wav	1	L	200	0	1.45
+IR_Hårcellen_48000_HATS_headp10_210_R.wav	1	R	200	0	1.45
+IR_Hårcellen_48000_HATS_headp10_240_L.wav	1	L	230	0	1.45
+IR_Hårcellen_48000_HATS_headp10_240_R.wav	1	R	230	0	1.45
+IR_Hårcellen_48000_HATS_headp10_270_L.wav	1	L	260	0	1.45
+IR_Hårcellen_48000_HATS_headp10_270_R.wav	1	R	260	0	1.45
+IR_Hårcellen_48000_HATS_headp10_300_L.wav	1	L	290	0	1.45
+IR_Hårcellen_48000_HATS_headp10_300_R.wav	1	R	290	0	1.45
+IR_Hårcellen_48000_HATS_headp10_330_L.wav	1	L	320	0	1.45
+IR_Hårcellen_48000_HATS_headp10_330_R.wav	1	R	320	0	1.45

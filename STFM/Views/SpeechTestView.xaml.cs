@@ -90,7 +90,19 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
         else
         {
-            availableTests = OSTF_AvailableTests.ToArray();
+
+            bool showScreeningAudiometer = true;
+            List<string> availableTestsList = new List<string>();
+
+
+            if (showScreeningAudiometer == true)
+            {
+                availableTestsList.Add("Screening audiometer");
+            }
+
+            availableTestsList.AddRange(OSTF_AvailableTests);
+
+            availableTests = availableTestsList.ToArray();
         }
 
         // Set start IsEnabled values of controls
@@ -246,7 +258,44 @@ public partial class SpeechTestView : ContentView, IDrawable
             switch (selectedItem)
             {
 
+                case "Screening audiometer":
 
+                    TestOptionsGrid.Children.Clear();
+                    CurrentSpeechTest = null;
+                    CurrentTestOptionsView = null;
+
+                    // Updating settings needed for the loaded test
+                    var argAudiometerAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+                    var argAudiometerMixer = SelectedTransducer.Mixer;
+                    if (CurrentSpeechTest != null)
+                    {
+                        OstfBase.SoundPlayer.ChangePlayerSettings(argAudiometerAudioApiSettings,
+                            48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints,
+                            CurrentSpeechTest.SoundOverlapDuration, Mixer: argAudiometerMixer, ReOpenStream: true, ReStartStream: true);
+                        SelectedTransducer.Mixer = argAudiometerMixer;
+                    }
+
+                    SetBottomPanelShow(false);
+                    StartTestBtn.IsEnabled = false;
+
+                    var audioMeterView = new ScreeningAudiometerView();
+                    TestReponseGrid.Children.Add(audioMeterView);
+
+                    TestReponseGrid.IsEnabled = true;
+
+                    audioMeterView.EnterFullScreenMode -= OnEnterFullScreenMode;
+                    audioMeterView.ExitFullScreenMode -= OnExitFullScreenMode;
+                    audioMeterView.EnterFullScreenMode += OnEnterFullScreenMode;
+                    audioMeterView.ExitFullScreenMode += OnExitFullScreenMode;
+
+                    // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
+                    OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
+                    OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
+
+                    // Returns right here to skip test-related adjustments
+                    return;
+
+                    //break;
 
                 case "Svenska HINT":
 
@@ -428,6 +477,17 @@ public partial class SpeechTestView : ContentView, IDrawable
             }
         }
     }
+
+    public void OnEnterFullScreenMode(Object sender, EventArgs e)
+    {
+        SetLeftPanelShow(false);
+    }
+
+    public void OnExitFullScreenMode(Object sender, EventArgs e)
+    {
+        SetLeftPanelShow(true);
+    }
+
 
     string selectedSpeechTestName = string.Empty;
 

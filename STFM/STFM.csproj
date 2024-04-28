@@ -58,6 +58,12 @@
 	  <MauiXaml Update="Views\AudiogramView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\ScreeningAudiometerView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\TwoChannelAudiometerView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\WelcomePageR.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

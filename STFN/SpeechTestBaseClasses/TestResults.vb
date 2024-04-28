@@ -169,7 +169,7 @@
             Case TestResultTypes.QSiP
 
                 ResultsRowList.AddRange(TestResultSummaryLines)
-                ResultsRowList.Add(FormattedTrialResultsHeadings)
+                ResultsRowList.Add(FormattedTrialResultsHeadings & vbTab & "IsCorrect")
                 ResultsRowList.AddRange(FormattedTrialResults)
 
             Case TestResultTypes.IHPB1

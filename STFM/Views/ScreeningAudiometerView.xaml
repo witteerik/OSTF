@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="STFM.Views.ScreeningAudiometerView">
+
+
+    <Grid x:Name="MainAudiometerGrid" BackgroundColor="WhiteSmoke">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="0.35*" />
+            <RowDefinition Height="0.14*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="0.5*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="0.5*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Text="Air conduction - pure tone - screening audiometer"
+               Grid.Row="1" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="6"
+               TextColor="Black"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Start" 
+               Padding="0,5,5,5"
+               Margin="10,3,3,3"/>
+
+        <!--Signal selection buttons-->
+
+        <Button
+               Grid.Row="3" Grid.Column="5"
+                x:Name="LeftUpBtn"
+                Text="↑"
+                FontSize="Header"   
+                SemanticProperties.Hint="Increase level"
+                Clicked="OnLeftUpClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill" 
+                Margin="5"/>
+
+        <Button
+               Grid.Row="4" Grid.Column="5"
+                x:Name="LeftDownBtn"
+                Text="↓"
+                FontSize="Header"
+                SemanticProperties.Hint="Decrease level"
+                Clicked="LeftDownBtnClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="5"/>
+
+
+        <Button
+               Grid.Row="3" Grid.Column="2"
+                x:Name="DecreaseFrequencyButton"
+                Text="←"
+                FontSize="Header"
+                SemanticProperties.Hint="Decrease selected frequency"
+                Clicked="DecreaseFrequencyButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="5"/>
+
+        <Button
+               Grid.Row="3" Grid.Column="3"
+                x:Name="IncreaseFrequencyButton"
+                Text="→"
+                FontSize="Header"
+                SemanticProperties.Hint="Increase selected frequency"
+                Clicked="IncreaseFrequencyButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="5"/>
+
+        <!--Stim buttons-->
+
+        <Button
+               Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5"
+                x:Name="Channel1StimulusButton"
+                Text="Stim"
+                SemanticProperties.Hint=""
+                Pressed="Channel1StimulusButtonPressed"
+                Released="Channel1StimulusButtonReleased" 
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="Fill"
+                CornerRadius="100"
+            FontSize="Large"
+            Margin="20"/>
+
+
+        <!--Routing buttons-->
+
+        <Grid 
+            Grid.Row="2" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="1">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="Channel1InputAirButtonLightR"
+                   Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="10,1,3,1"/>
+
+            <Label x:Name="Channel1InputAirButtonLightL"
+                   Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="3,1,10,1"/>
+
+        </Grid>
+
+        <Button
+               Grid.Row="3" Grid.Column="0"
+                x:Name="Channel1InputAirButton"
+                Text="R - L"
+                SemanticProperties.Hint="Select AC side"
+                Clicked="Channel1InputAirButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            FontSize="Large"
+            Margin="5"/>
+
+
+        <!--Display region-->
+
+        <Grid 
+            Grid.Row="0" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="6"
+            BackgroundColor="DarkBlue" 
+            Margin="3">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"   />
+                <ColumnDefinition Width="1*"   />
+                <ColumnDefinition Width="1*"   />
+                <ColumnDefinition Width="0.5*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="RightLevelLabel"
+                Text="0 dB"
+               Grid.Row="0" Grid.RowSpan="2"
+               Grid.Column="1" Grid.ColumnSpan="2"
+               TextColor="White"
+               FontSize="Header"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+
+            <!--Right labels-->
+
+            <Label Text="Frequency:"
+               Grid.Row="2" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+                   FontSize="Medium"
+                   Margin="3"/>
+
+
+            <Label Text="Transducer:"
+               Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+                FontSize="Medium"
+                Margin="3"/>
+
+
+            <Label x:Name="RightInfoLabel1"
+                Text="RightInfoLabel1"
+               Grid.Row="2" Grid.RowSpan="1"
+               Grid.Column="2" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+                FontSize="Medium"
+                   Margin="3"/>
+
+
+            <Label x:Name="RightInfoLabel3"
+                Text="RightInfoLabel3"
+               Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="2" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+                FontSize="Medium"
+                Margin="3"/>
+
+            <Button
+               Grid.Row="0" Grid.Column="3"
+                x:Name="FullScreenSwapBtn"
+                Text="Fullscreen"
+                FontSize="Default"
+                SemanticProperties.Hint="Decrease level"
+                Clicked="FullScreenSwapBtn_Clicked" 
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="5"/>
+
+
+
+        </Grid>
+
+    </Grid>
+
+
+
+</ContentView>

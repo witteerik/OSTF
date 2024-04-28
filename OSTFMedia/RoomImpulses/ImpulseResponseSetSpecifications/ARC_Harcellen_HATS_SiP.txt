@@ -1,0 +1,26 @@
+Name = ARC - Harcellen - HATS - SiP					
+ImpulseResponseSubFolder = Data\ARC\ARC_Harcellen_HATS_SiP\48000Hz\UnspecifiedHeadphones					
+SampleRate = 48000					
+					
+<AvailableSourceLocations> 					
+// AvailableSourceLocations are specified as: File [tab] Channel [tab] Ear [tab] Azimuth [tab] Elevation [tab] Distance [tab], with one location per row					
+// Note that Channel is the channel number within the File in which the impulse response for the corresponding Azimuth, Elevation and Distance for ear Ear is stored. 					
+// Ear should have the values either L or R, for left and right respectively					
+					
+//File	Channel	Ear	Azimuth	Elevation	Distance
+IR_Hårcellen_48000_HATS_head0_0_L.wav	1	L	0	0	1.45
+IR_Hårcellen_48000_HATS_head0_0_R.wav	1	R	0	0	1.45
+IR_Hårcellen_48000_HATS_head0_30_L.wav	1	L	30	0	1.45
+IR_Hårcellen_48000_HATS_head0_30_R.wav	1	R	30	0	1.45
+IR_Hårcellen_48000_HATS_head0_180_L.wav	1	L	180	0	1.45
+IR_Hårcellen_48000_HATS_head0_180_R.wav	1	R	180	0	1.45
+IR_Hårcellen_48000_HATS_head0_330_L.wav	1	L	330	0	1.45
+IR_Hårcellen_48000_HATS_head0_330_R.wav	1	R	330	0	1.45
+IR_Hårcellen_48000_HATS_headm10_0_L.wav	1	L	10	0	1.45
+IR_Hårcellen_48000_HATS_headm10_0_R.wav	1	R	10	0	1.45
+IR_Hårcellen_48000_HATS_headm10_180_L.wav	1	L	190	0	1.45
+IR_Hårcellen_48000_HATS_headm10_180_R.wav	1	R	190	0	1.45
+IR_Hårcellen_48000_HATS_headp10_0_L.wav	1	L	350	0	1.45
+IR_Hårcellen_48000_HATS_headp10_0_R.wav	1	R	350	0	1.45
+IR_Hårcellen_48000_HATS_headp10_180_L.wav	1	L	170	0	1.45
+IR_Hårcellen_48000_HATS_headp10_180_R.wav	1	R	170	0	1.45

@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="STFM.Views.TwoChannelAudiometerView">
+
+
+    <Grid x:Name="MainAudiometerGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2.1*" />
+            <RowDefinition Height="0.7*" />
+            <RowDefinition Height="0.35*" />
+            <RowDefinition Height="0.14*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.5*" />
+            <ColumnDefinition Width="1.5*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1.5*" />
+            <ColumnDefinition Width="1.5*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid 
+            Grid.Row="0" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="2">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="RightResponseLight"
+                   Grid.Row="1" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" />
+
+        </Grid>
+
+        <Grid 
+            Grid.Row="0" Grid.RowSpan="1"
+            Grid.Column="10" Grid.ColumnSpan="2">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="LeftResponseLight"
+                   Grid.Row="1" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" />
+
+        </Grid>
+
+        <Label Text="Channel 1 - Signal"
+               Grid.Row="2" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="2"
+               TextColor="Black"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+               Margin="10,3,3,3"/>
+
+        <Label Text="Channel 2 - Masking"
+               Grid.Row="2" Grid.RowSpan="1"
+               Grid.Column="10" Grid.ColumnSpan="2"
+               TextColor="Black"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+               Margin="3,3,10,3"/>
+
+        <!--Test selection buttons-->
+
+        <Grid 
+            Grid.Row="1" Grid.RowSpan="1"
+            Grid.Column="2" Grid.ColumnSpan="2"
+            Margin="3">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.07*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="PTA_ButtonLight"
+                   Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+                   Margin="0,1,1,0"/>
+
+            <Button
+               Grid.Row="0" Grid.Column="1"
+                x:Name="PTA_Button"
+                Text="Pure tone"
+                SemanticProperties.Hint="Start pure-tone audiometry"
+                Clicked="OnPTA_Button_Clicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+                CornerRadius="1"             
+                />
+
+        </Grid>
+
+        <Grid 
+            Grid.Row="1" Grid.RowSpan="1"
+            Grid.Column="4" Grid.ColumnSpan="2"
+            Margin="3">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.07*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="SpeechAudiometryButtonLight"
+                   Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+                   Margin="0,1,1,0"/>
+
+            <Button
+               Grid.Row="0" Grid.Column="1"
+                x:Name="SpeechAudiometryButton"
+                Text="Speech"
+                SemanticProperties.Hint="Start speech audiometry"
+                Clicked="OnSpeechAudiometryButton_Clicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+                CornerRadius="1"             
+                />
+
+        </Grid>
+
+
+        <!--Signal selection buttons-->
+
+        <Button
+               Grid.Row="4" Grid.Column="0"
+                x:Name="LeftUpBtn"
+                Text="↑"
+                FontSize="Header"   
+                SemanticProperties.Hint="Increase channel 1 level"
+                Clicked="OnLeftUpClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill" 
+                Margin="3"/>
+
+        <Button
+               Grid.Row="5" Grid.Column="0"
+                x:Name="LeftDownBtn"
+                Text="↓"
+                FontSize="Header"
+                SemanticProperties.Hint="Decrease channel 1 level"
+                Clicked="LeftDownBtnClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Button
+               Grid.Row="4" Grid.Column="12"
+                x:Name="RightUpBtn"
+                Text="↑"
+                FontSize="Header"
+                SemanticProperties.Hint="Increase channel 2 level"
+                Clicked="RightUpBtnClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Button
+               Grid.Row="5" Grid.Column="12"
+                x:Name="RightDownBtn"
+                Text="↓"
+                FontSize="Header"
+                SemanticProperties.Hint="Decrease channel 2 level"
+                Clicked="RightDownBtnClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Button
+               Grid.Row="5" Grid.Column="4" Grid.ColumnSpan="2"
+                x:Name="DecreaseFrequencyButton"
+                Text="←"
+                FontSize="Header"
+                SemanticProperties.Hint="Decrease selected frequency"
+                Clicked="DecreaseFrequencyButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Button
+               Grid.Row="5" Grid.Column="6" Grid.ColumnSpan="2"
+                x:Name="IncreaseFrequencyButton"
+                Text="→"
+                FontSize="Header"
+                SemanticProperties.Hint="Increase selected frequency"
+                Clicked="IncreaseFrequencyButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <!--Stim buttons-->
+
+        <Button
+               Grid.Row="5" Grid.Column="1"
+                x:Name="Channel1StimulusButton"
+                Text="Stim"
+                SemanticProperties.Hint=""
+                Pressed="Channel1StimulusButtonPressed"
+                Released="Channel1StimulusButtonReleased" 
+                HorizontalOptions="Center"
+                VerticalOptions="Fill"
+                CornerRadius="100"
+            Margin="3"/>
+
+        <Button
+               Grid.Row="5" Grid.Column="10"
+                x:Name="Channel2StimulusButton"
+                Text="Stim"
+                SemanticProperties.Hint=""
+                Pressed="Channel2StimulusButtonPressed"
+                Released="Channel2StimulusButtonReleased" 
+                HorizontalOptions="Center"
+                VerticalOptions="Fill"
+                CornerRadius="100"
+            Margin="3"/>
+
+
+        <Label x:Name="Channel1RevButtonLight"
+                   Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="10,1,10,1"/>
+
+        <Button
+               Grid.Row="4" Grid.Column="1"
+                x:Name="Channel1RevButton"
+                Text="Rev"
+                SemanticProperties.Hint=""
+                Clicked="Channel1RevButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Label x:Name="Channel2RevButtonLight"
+                   Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="10" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="10,1,10,1"/>
+
+        <Button
+               Grid.Row="4" Grid.Column="10"
+                x:Name="Channel2RevButton"
+                Text="Rev (m)"
+                SemanticProperties.Hint=""
+                Clicked="Channel2RevButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+
+        <!--Routing buttons-->
+
+        <Grid 
+            Grid.Row="3" Grid.RowSpan="1"
+            Grid.Column="2" Grid.ColumnSpan="1">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="Channel1InputAirButtonLightR"
+                   Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="10,1,3,1"/>
+
+            <Label x:Name="Channel1InputAirButtonLightL"
+                   Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="3,1,10,1"/>
+
+        </Grid>
+
+        <Button
+               Grid.Row="4" Grid.Column="2"
+                x:Name="Channel1InputAirButton"
+                Text=" AC&#x0a;R - L"
+                SemanticProperties.Hint="Select AC side"
+                Clicked="Channel1InputAirButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Grid 
+            Grid.Row="3" Grid.RowSpan="1"
+            Grid.Column="3" Grid.ColumnSpan="1">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="Channel1InputBoneButtonLightR"
+                   Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="10,1,3,1"/>
+
+            <Label x:Name="Channel1InputBoneButtonLightL"
+                   Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="3,1,10,1"/>
+
+        </Grid>
+
+
+        <Button
+               Grid.Row="4" Grid.Column="3"
+                x:Name="Channel1InputBoneButton"
+                Text=" BC&#x0a;R - L"
+                SemanticProperties.Hint="Select BC side"
+                Clicked="Channel1InputBoneButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Label x:Name="Channel1InsertPhoneButtonLight"
+                   Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="4" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="10,1,10,1"/>
+
+        <Button
+               Grid.Row="4" Grid.Column="4"
+                x:Name="Channel1InsertPhoneButton"
+                Text="Insert&#x0a;phone"
+                LineBreakMode="WordWrap"
+                SemanticProperties.Hint=""
+                Clicked="Channel1InsertPhoneButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Label x:Name="Channel2InputAirRightButtonLight"
+                   Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="7" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="10,1,10,1"/>
+
+        <Button
+               Grid.Row="4" Grid.Column="7"
+                x:Name="Channel2InputAirRightButton"
+                Text="R"
+                SemanticProperties.Hint="Use right-side masker"
+                Clicked="Channel2InputAirRightButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Label x:Name="Channel2InputAirLeftButtonLight"
+                   Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="8" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="10,1,10,1"/>
+
+        <Button
+               Grid.Row="4" Grid.Column="8"
+                x:Name="Channel2InputAirLeftButton"
+                Text="L"
+                SemanticProperties.Hint="Use left-side masker"
+                Clicked="Channel2InputAirLeftButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <Label x:Name="Channel2InsertPhoneButtonLight"
+                   Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="9" Grid.ColumnSpan="1"
+               BackgroundColor="Gray" 
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="10,1,10,1"/>
+
+        <Button
+               Grid.Row="4" Grid.Column="9"
+                x:Name="Channel2InsertPhoneButton"
+                Text="Insert&#x0a;phone"
+                LineBreakMode="WordWrap"
+                SemanticProperties.Hint=""
+                Clicked="Channel2InsertPhoneButtonClicked"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+            Margin="3"/>
+
+        <!--Display region-->
+
+        <Grid 
+            Grid.Row="0" Grid.RowSpan="1"
+            Grid.Column="2" Grid.ColumnSpan="8"
+            BackgroundColor="DarkBlue" 
+            Margin="3">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2.5*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"   />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="RightLevelLabel"
+                Text="0 dB"
+               Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="2"
+               TextColor="White"
+               FontSize="Large"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <Label x:Name="LeftLevelLabel"
+                Text="0 dB"
+               Grid.Row="0" Grid.RowSpan="1"
+               Grid.Column="2" Grid.ColumnSpan="2"
+               TextColor="White"
+               FontSize="Large"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <!--Right labels-->
+
+            <Label Text="Frequency:"
+               Grid.Row="1" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <Label Text="Input:"
+               Grid.Row="2" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <Label Text="Transducer:"
+               Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="0" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+
+            <Label x:Name="RightInfoLabel1"
+                Text="RightInfoLabel1"
+               Grid.Row="1" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <Label x:Name="RightInfoLabel2"
+                Text="RightInfoLabel2"
+               Grid.Row="2" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <Label x:Name="RightInfoLabel3"
+                Text="RightInfoLabel3"
+               Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="1" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <!--Left labels-->
+
+            <Label Text="Frequency:"
+               Grid.Row="1" Grid.RowSpan="1"
+               Grid.Column="2" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <Label Text="Input:"
+               Grid.Row="2" Grid.RowSpan="1"
+               Grid.Column="2" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <Label Text="Transducer:"
+               Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="2" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="End"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+
+            <Label x:Name="LeftInfoLabel1"
+                Text="LeftInfoLabel1"
+               Grid.Row="1" Grid.RowSpan="1"
+               Grid.Column="3" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <Label x:Name="LeftInfoLabel2"
+                Text="LeftInfoLabel2"
+               Grid.Row="2" Grid.RowSpan="1"
+               Grid.Column="3" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+            <Label x:Name="LeftInfoLabel3"
+                Text="LeftInfoLabel3"
+               Grid.Row="3" Grid.RowSpan="1"
+               Grid.Column="3" Grid.ColumnSpan="1"
+               TextColor="White"
+               HorizontalTextAlignment="Start"
+               VerticalTextAlignment="Center" 
+                   Margin="3"/>
+
+
+
+        </Grid>
+
+    </Grid>
+
+
+
+</ContentView>
