@@ -304,6 +304,12 @@ Public Class IHearProtocolB1SpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property SupportsManualPausing As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
     Private TestListOrder As New SortedList(Of Integer, Tuple(Of Integer, Integer, Integer()))
     Private SortedSnrOrders As New SortedList(Of Integer, Double())
     Private CurrentTestListOrderIndex As Integer
@@ -443,8 +449,29 @@ Public Class IHearProtocolB1SpeechTest
         For Each List In PlannedTestData
             For i = 0 To List.Count - 1
                 List(i).ResponseAlternativeSpellings(0)(0).TrialPresentationIndex = i
+
+                Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoricTrialCount, i)
+
+                'Adding historic trials
+                For index = 1 To HistoricTrialsToAdd
+
+                    Dim CurrentHistoricTrialIndex = i - index
+                    Dim HistoricTrial = List(CurrentHistoricTrialIndex)
+
+                    'We only add the spelling of first child component here, since displaying history is only supported for sigle words
+                    Dim HistoricSpeechTestResponseAlternative = New SpeechTestResponseAlternative With {
+                        .Spelling = HistoricTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"),
+                        .IsScoredItem = True,
+                        .TrialPresentationIndex = CurrentHistoricTrialIndex,
+                        .ParentTestTrial = HistoricTrial}
+
+                    'We insert the history
+                    List(i).ResponseAlternativeSpellings(0).Insert(0, HistoricSpeechTestResponseAlternative) 'We put it into the first index as this is not multidimensional response alternatives (such as in Matrix tests)
+                Next
+
             Next
         Next
+
 
         Return True
 
@@ -553,43 +580,18 @@ Public Class IHearProtocolB1SpeechTest
 
         'Preparing next trial if needed
         If NewNextTaskInstruction.Decision = SpeechTestReplies.GotoNextTrial Then
-            PrepareNextTrial(NewNextTaskInstruction)
+
+            'Getting next test trial (the first one among the remaining planned trials in the current test stage
+            CurrentTestTrial = PlannedTestData(CurrentTestStage)(0)
+
+            'Mixing trial sound
+            MixNextTrialSound()
+
         End If
 
         Return NewNextTaskInstruction.Decision
 
     End Function
-
-    Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
-
-        'Getting next test trial (the first one among the remaining planned trials in the current test stage
-        CurrentTestTrial = PlannedTestData(CurrentTestStage)(0)
-
-        Dim CurrentTrialIndex = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.TrialPresentationIndex
-
-        Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoricTrialCount, ObservedTestData(CurrentTestStage).Count)
-
-        'Adding historic trials
-        For index = 1 To HistoricTrialsToAdd
-
-            Dim CurrentHistoricTrialIndex = CurrentTrialIndex - index
-            Dim HistoricTrial = ObservedTestData(CurrentTestStage)(CurrentHistoricTrialIndex)
-
-            'We only add the spelling of first child component here, since displaying history is only supported for sigle words
-            Dim HistoricSpeechTestResponseAlternative = New SpeechTestResponseAlternative With {
-                .Spelling = HistoricTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"),
-                .IsScoredItem = True,
-                .TrialPresentationIndex = CurrentHistoricTrialIndex,
-                .ParentTestTrial = HistoricTrial}
-
-            'We insert the history
-            CurrentTestTrial.ResponseAlternativeSpellings(0).Insert(0, HistoricSpeechTestResponseAlternative) 'We put it into the first index as this is not multidimensional response alternatives (such as in Matrix tests)
-        Next
-
-        'Mixing trial sound
-        MixNextTrialSound()
-
-    End Sub
 
     Private Sub MixNextTrialSound()
 

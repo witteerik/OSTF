@@ -5,16 +5,10 @@
 //Hagermans meningar (Matrix)
 //Hörtröskel för tal (HTT)
 //PB50
-//Quick SiP
-//SiP-testet
-//Protokoll B2
 
-// Specify the tests you want to use below:
-// Svenska HINT
-// Hagermans meningar (Matrix)
-// Hörtröskel för tal (HTT)
-// PB50
-// SiP-testet
+
+Screening audiometer
+Screening audiometer (Calibration mode)
 Protokoll B1 - TP800
 Protokoll B2 - Manuell TP
 Protokoll B3 - Användarstyrd TP

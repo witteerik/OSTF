@@ -264,6 +264,12 @@ Public Class IHearProtocolB2SpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property SupportsManualPausing As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
     Dim PreTestListIndex As Integer
     Dim TestListIndex As Integer
     Dim SelectedMediaSetIndex As Integer
@@ -273,7 +279,6 @@ Public Class IHearProtocolB2SpeechTest
     Dim CacheLastMediaSetVariableName As String
 
     Private PlannedLevelAdjustmentWords As List(Of SpeechMaterialComponent) = Nothing
-    'Private PlannedTestListWords As List(Of SpeechMaterialComponent) = Nothing
 
     Private PlannedTestTrials As New TrialHistory
     Private ObservedTestTrials As New TrialHistory
@@ -443,9 +448,30 @@ Public Class IHearProtocolB2SpeechTest
             If PlannedTestTrials(i).SpeechMaterialComponent.ChildComponents.Count > 0 Then
                 For Each Child In PlannedTestTrials(i).SpeechMaterialComponent.ChildComponents()
                     PlannedTestTrials(i).ResponseAlternativeSpellings(0)(0).TrialPresentationIndex = i
+
+                    Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoricTrialCount, i)
+
+                    'Adding historic trials
+                    For index = 1 To HistoricTrialsToAdd
+
+                        Dim CurrentHistoricTrialIndex = i - index
+                        Dim HistoricTrial = PlannedTestTrials(CurrentHistoricTrialIndex)
+
+                        'We only add the spelling of first child component here, since displaying history is only supported for sigle words
+                        Dim HistoricSpeechTestResponseAlternative = New SpeechTestResponseAlternative With {
+                            .Spelling = HistoricTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"),
+                            .IsScoredItem = True,
+                            .TrialPresentationIndex = CurrentHistoricTrialIndex,
+                            .ParentTestTrial = HistoricTrial}
+
+                        'We insert the history
+                        PlannedTestTrials(i).ResponseAlternativeSpellings(0).Insert(0, HistoricSpeechTestResponseAlternative) 'We put it into the first index as this is not multidimensional response alternatives (such as in Matrix tests)
+                    Next
+
                 Next
             End If
         Next
+
 
         'Setting TestLength to the number of available words
         TestLength = PlannedTestTrials.Count
@@ -554,26 +580,26 @@ Public Class IHearProtocolB2SpeechTest
         DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel
         CurrentTestTrial.Tasks = 1
 
-        Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoricTrialCount, ObservedTestTrials.Count)
+        'Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoricTrialCount, ObservedTestTrials.Count)
 
-        Dim CurrentTrialIndex = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.TrialPresentationIndex
+        'Dim CurrentTrialIndex = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.TrialPresentationIndex
 
-        'Adding historic trials
-        For index = 1 To HistoricTrialsToAdd
+        ''Adding historic trials
+        'For index = 1 To HistoricTrialsToAdd
 
-            Dim CurrentHistoricTrialIndex = CurrentTrialIndex - index
-            Dim HistoricTrial = ObservedTestTrials(CurrentHistoricTrialIndex)
+        '    Dim CurrentHistoricTrialIndex = CurrentTrialIndex - index
+        '    Dim HistoricTrial = ObservedTestTrials(CurrentHistoricTrialIndex)
 
-            'We only add the spelling of first child component here, since displaying history is only supported for sigle words
-            Dim HistoricSpeechTestResponseAlternative = New SpeechTestResponseAlternative With {
-                .Spelling = HistoricTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"),
-                .IsScoredItem = True,
-                .TrialPresentationIndex = CurrentHistoricTrialIndex,
-                .ParentTestTrial = HistoricTrial}
+        '    'We only add the spelling of first child component here, since displaying history is only supported for sigle words
+        '    Dim HistoricSpeechTestResponseAlternative = New SpeechTestResponseAlternative With {
+        '        .Spelling = HistoricTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"),
+        '        .IsScoredItem = True,
+        '        .TrialPresentationIndex = CurrentHistoricTrialIndex,
+        '        .ParentTestTrial = HistoricTrial}
 
-            'We insert the history
-            CurrentTestTrial.ResponseAlternativeSpellings(0).Insert(0, HistoricSpeechTestResponseAlternative) 'We put it into the first index as this is not multidimensional response alternatives (such as in Matrix tests)
-        Next
+        '    'We insert the history
+        '    CurrentTestTrial.ResponseAlternativeSpellings(0).Insert(0, HistoricSpeechTestResponseAlternative) 'We put it into the first index as this is not multidimensional response alternatives (such as in Matrix tests)
+        'Next
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)

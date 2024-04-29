@@ -1338,13 +1338,10 @@ Namespace SipTest
             ReferenceSpeechMaterialLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection).GetNumericMediaSetVariableValue(MediaSet, "Lc")
             ReferenceTestWordLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
             ReferenceContrastingPhonemesLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, "RLxs")
-
-            'Randomizing the SelectedMediaIndex 
-            'SelectedMediaIndex = 0
-            'MsgBox("Re-insert randomizer!")
             SelectedMediaIndex = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
 
         End Sub
+
 
         ''' <summary>
         ''' Creates a new SiP-test trial in BMLD mode
@@ -1377,10 +1374,6 @@ Namespace SipTest
             ReferenceSpeechMaterialLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection).GetNumericMediaSetVariableValue(MediaSet, "Lc")
             ReferenceTestWordLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
             ReferenceContrastingPhonemesLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, "RLxs")
-
-            'Randomizing the SelectedMediaIndex 
-            'SelectedMediaIndex = 0
-            'MsgBox("Re-insert randomizer!")
             SelectedMediaIndex = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
 
             'Setting up signal and masker locations
@@ -1458,6 +1451,7 @@ Namespace SipTest
                 Return _TestWordLevel
             End Get
         End Property
+
         Public ReadOnly Property ReferenceSpeechMaterialLevel_SPL As Double
         Public ReadOnly Property ReferenceTestWordLevel_SPL As Double
         Public ReadOnly Property ReferenceContrastingPhonemesLevel_SPL As Double
@@ -1737,14 +1731,22 @@ Namespace SipTest
 
                 'Sets up ducking specifications for the background (non-speech) signals
                 Dim DuckSpecs_BackgroundNonSpeech = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
-                BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel))
-                DuckSpecs_BackgroundNonSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
-                DuckSpecs_BackgroundNonSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
+                'BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel))
+                BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 6, Me.MediaSet.BackgroundNonspeechRealisticLevel)) ' Ducking 6 dB instead of 3
+                Dim BackgroundStartDuckSample As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)
+                Dim BackgroundDuckFade1StageLength As Integer = TestWordStartSample - BackgroundStartDuckSample
+                DuckSpecs_BackgroundNonSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, BackgroundNonSpeechDucking, BackgroundStartDuckSample, BackgroundDuckFade1StageLength))
+                Dim BackgroundDuckFade2StageLength As Integer = Math.Min(CurrentSampleRate * 0.5, (TrialSoundLength - TestWordCompletedSample - 2))
+                DuckSpecs_BackgroundNonSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, BackgroundDuckFade2StageLength))
 
                 'Sets up ducking specifications for the background (speech) signals
                 Dim DuckSpecs_BackgroundSpeech = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
-                DuckSpecs_BackgroundSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, Math.Max(0, TestWordStartSample - CurrentSampleRate * 1), Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)))
-                DuckSpecs_BackgroundSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, Math.Max(0, TestWordCompletedSample + CurrentSampleRate * 0.5), Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 1)))
+                Dim BGS_DuckFadeOutStart As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 1)
+                Dim BGS_DuckFadeOutlength As Integer = Math.Max(0, TestWordStartSample - BGS_DuckFadeOutStart - CurrentSampleRate * 0.5)
+                DuckSpecs_BackgroundSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, BGS_DuckFadeOutStart, BGS_DuckFadeOutlength))
+                Dim BGS_DuckFadeInStart As Integer = Math.Min(TestWordCompletedSample + CurrentSampleRate * 0.5, TrialSoundLength)
+                Dim BGS_DuckFadeInLength As Integer = Math.Min(CurrentSampleRate * 0.5, (TrialSoundLength - BGS_DuckFadeInStart - 2))
+                DuckSpecs_BackgroundSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, BGS_DuckFadeInStart, BGS_DuckFadeInLength))
 
                 'Adds the test word signal, with fade and location specifications
                 Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
@@ -1755,13 +1757,16 @@ Namespace SipTest
                 Next
                 LevelGroup += 1
 
-                'Adds the Maskers, with fade and location specifications
-                For MaskerIndex = 0 To Maskers.Count - 1
-                    ItemList.Add(New SoundSceneItem(Maskers(MaskerIndex).Item1, 1, Me.TargetMasking_SPL, LevelGroup, Maskers(MaskerIndex).Item2, SoundSceneItem.SoundSceneItemRoles.Masker, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
-                    'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
-                    If IsBmldTrial = True And MaskerIndex < Maskers.Count - 1 Then LevelGroup += 1
-                Next
-                LevelGroup += 1
+                Dim ForceSkipMaskers As Boolean = False
+                If ForceSkipMaskers = False Then
+                    'Adds the Maskers, with fade and location specifications
+                    For MaskerIndex = 0 To Maskers.Count - 1
+                        ItemList.Add(New SoundSceneItem(Maskers(MaskerIndex).Item1, 1, Me.TargetMasking_SPL, LevelGroup, Maskers(MaskerIndex).Item2, SoundSceneItem.SoundSceneItemRoles.Masker, MaskersStartSample, MaskersStartMeasureSample, MaskersStartMeasureLength,, FadeSpecs_Maskers))
+                        'Incrementing LevelGroup if ears should be measured separately as in BMLD. (But leaving the last item since it is incremented below)
+                        If IsBmldTrial = True And MaskerIndex < Maskers.Count - 1 Then LevelGroup += 1
+                    Next
+                    LevelGroup += 1
+                End If
 
                 'Adds the background (non-speech) signals, with fade, duck and location specifications
                 For BackgroundIndex = 0 To Backgrounds.Count - 1

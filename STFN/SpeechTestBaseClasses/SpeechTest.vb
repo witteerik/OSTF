@@ -174,6 +174,8 @@
     Public MustOverride ReadOnly Property CanHaveBackgroundSpeech As Boolean
     Public MustOverride ReadOnly Property UseSoundFieldSimulation As Utils.TriState
 
+    Public MustOverride ReadOnly Property SupportsManualPausing As Boolean
+
 
     Public ReadOnly Property CurrentlySupportedIrSets As List(Of BinauralImpulseReponseSet)
         Get

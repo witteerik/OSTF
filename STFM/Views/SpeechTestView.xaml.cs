@@ -9,6 +9,10 @@ namespace STFM.Views;
 public partial class SpeechTestView : ContentView, IDrawable
 {
 
+    bool TestIsInitiated;
+    string selectedSpeechTestName = string.Empty;
+    bool TestIsPaused = false;
+
     ResponseView CurrentResponseView;
     TestResultsView CurrentTestResultsView;
 
@@ -18,11 +22,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         set { STFN.SharedSpeechTestObjects.CurrentSpeechTest = value; }
     }
 
-
-
     OstfBase.AudioSystemSpecification SelectedTransducer = null;
 
-    private string[] availableTests; // new string[] { "Svenska HINT", "Hagermans meningar (Matrix)", "Hörtröskel för tal (HTT)", "PB50", "Quick SiP", "SiP-testet", "Protokoll B2" };
+    private string[] availableTests;
 
     RowDefinition originalBottomPanelHeight = null;
     ColumnDefinition originalLeftPanelWidth = null;
@@ -45,7 +47,6 @@ public partial class SpeechTestView : ContentView, IDrawable
         Initialize();
            
     }
-
 
     async void Initialize()
     {
@@ -91,29 +92,13 @@ public partial class SpeechTestView : ContentView, IDrawable
         else
         {
 
-            bool showScreeningAudiometer = true;
-            List<string> availableTestsList = new List<string>();
-
-
-            if (showScreeningAudiometer == true)
-            {
-                availableTestsList.Add("Screening audiometer");
-            }
-
-            availableTestsList.AddRange(OSTF_AvailableTests);
-
-            availableTests = availableTestsList.ToArray();
+            availableTests = OSTF_AvailableTests.ToArray();
         }
 
         // Set start IsEnabled values of controls
         NewTestBtn.IsEnabled = true;
         SpeechTestPicker.IsEnabled = false;
         TestOptionsGrid.IsEnabled = false;
-        //TestOptionsGrid.IsVisible = false;
-
-        if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-        //HideSettingsPanelSwitch.IsEnabled = false;
-        //HideResultsPanelSwitch.IsEnabled = false;
         StartTestBtn.IsEnabled = false;
         PauseTestBtn.IsEnabled = false;
         StopTestBtn.IsEnabled = false;
@@ -127,18 +112,32 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         SetShowTalkbackPanel();
 
-        TalkbackGainTitle_Span.Text = "Talkback-nivå: ";
+        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        {
+            case STFN.Utils.Constants.Languages.Swedish:
+                TalkbackGainTitle_Span.Text = "Talkback-nivå: ";
+                NewTestBtn.Text = "Nytt test";
+                SpeechTestPicker.Title = "Välj ett test";
+                StartTestBtn.Text = "Start";
+                PauseTestBtn.Text = "Paus";
+                StopTestBtn.Text = "Avbryt test";
+                break;
+            default:
+                TalkbackGainTitle_Span.Text = "Talkback level: ";
+                NewTestBtn.Text = "New test";
+                SpeechTestPicker.Title = "Select a test";
+                StartTestBtn.Text = "Start";
+                PauseTestBtn.Text = "Pause";
+                StopTestBtn.Text = "Abort test";
+                break;
+        }
+
+        // Setting a default talkback gain 
         TalkbackGain = 0;
 
     }
 
-    void IDrawable.Draw(ICanvas canvas, RectF dirtyRect)
-    {
-
-        //MyAudiogramView.Audiogram.Draw(canvas, dirtyRect);
-
-    }
-
+    #region Region_panels_show_hide
 
     private void SetShowTalkbackPanel()
     {
@@ -200,11 +199,59 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
+    public void OnEnterFullScreenMode(Object sender, EventArgs e)
+    {
+        SetLeftPanelShow(false);
+    }
+
+    public void OnExitFullScreenMode(Object sender, EventArgs e)
+    {
+        SetLeftPanelShow(true);
+    }
+
+    #endregion
+
+    #region Button_clicks
+
     private void NewTestBtn_Clicked(object sender, EventArgs e)
     {
+        NewTest();
+    }
+
+    private void StartTestBtn_Clicked(object sender, EventArgs e)
+    {
+        StartTest();
+    }
+
+    private void PauseTestBtn_Clicked(object sender, EventArgs e)
+    {
+        PauseTest();
+    }
+
+    private void StopTestBtn_Clicked(object sender, EventArgs e)
+    {
+        FinalizeTest(true);
+    }
+
+    #endregion
+
+    #region Test_setup
+
+    private void NewTest()
+    {
+        // Setting TestIsInitiated to false to allow starting a new test
+        TestIsInitiated = false;
 
         // Resets the text on the start button, as this may have been changed if test was paused.
-        StartTestBtn.Text = "Start";
+        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        {
+            case STFN.Utils.Constants.Languages.Swedish:
+                StartTestBtn.Text = "Start";
+                break;
+            default:
+                StartTestBtn.Text = "Start";
+                break;
+        }
 
         TestOptionsGrid.Children.Clear();
 
@@ -212,6 +259,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewTestBtn.IsEnabled = false;
         SpeechTestPicker.IsEnabled = true;
         TestOptionsGrid.IsEnabled = false;
+        TestReponseGrid.Children.Clear();
         //TestOptionsGrid.IsVisible = false;
 
         if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
@@ -229,18 +277,6 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Inactivates tackback
         InactivateTalkback();
 
-    }
-
-    void InactivateTalkback()
-    {
-        // Inactivates tackback
-        if (STFN.OstfBase.SoundPlayerIsInitialized())
-        {
-            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
-            {
-                STFN.OstfBase.SoundPlayer.StopTalkback();
-            }
-        }
     }
 
     void OnSpeechTestPickerSelectedItemChanged(object sender, EventArgs e)
@@ -284,10 +320,48 @@ public partial class SpeechTestView : ContentView, IDrawable
                     OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
                     OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
 
+                    NewTestBtn.IsEnabled = true;
+                    SpeechTestPicker.IsEnabled = false;
+                    TestOptionsGrid.IsEnabled = false;
+
                     // Returns right here to skip test-related adjustments
                     return;
 
-                    //break;
+                //break;
+
+                case "Screening audiometer (Calibration mode)":
+
+                    TestOptionsGrid.Children.Clear();
+                    CurrentSpeechTest = null;
+                    CurrentTestOptionsView = null;
+
+                    // Updating settings needed for the loaded test
+                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
+
+                    SetBottomPanelShow(false);
+                    StartTestBtn.IsEnabled = false;
+
+                    var audiometerCalibView = new ScreeningAudiometerView();
+                    audiometerCalibView.GotoCalibrationMode();
+                    TestReponseGrid.Children.Add(audiometerCalibView);
+
+                    TestReponseGrid.IsEnabled = true;
+
+                    audiometerCalibView.EnterFullScreenMode -= OnEnterFullScreenMode;
+                    audiometerCalibView.ExitFullScreenMode -= OnExitFullScreenMode;
+                    audiometerCalibView.EnterFullScreenMode += OnEnterFullScreenMode;
+                    audiometerCalibView.ExitFullScreenMode += OnExitFullScreenMode;
+
+                    // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
+                    OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
+                    OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
+
+                    NewTestBtn.IsEnabled = true;
+                    SpeechTestPicker.IsEnabled = false;
+                    TestOptionsGrid.IsEnabled = false;
+
+                    // Returns right here to skip test-related adjustments
+                    return;
 
                 case "Svenska HINT":
 
@@ -416,7 +490,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Protokoll B7 - SiP-testet":
 
                     // Speech test
-                    CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
+                    CurrentSpeechTest = new IHearProtocolB7SpeechTest("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSipTestView = new OptionsViewAll();
@@ -456,11 +530,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 // Set IsEnabled values of controls
                 NewTestBtn.IsEnabled = false;
                 TestOptionsGrid.IsEnabled = true;
-                //TestOptionsGrid.IsVisible = true;
-
                 if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = true; }
-                //HideSettingsPanelSwitch.IsEnabled = true;
-                //HideResultsPanelSwitch.IsEnabled = true;
                 StartTestBtn.IsEnabled = true;
                 PauseTestBtn.IsEnabled = false;
                 StopTestBtn.IsEnabled = false;
@@ -470,21 +540,14 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    public void OnEnterFullScreenMode(Object sender, EventArgs e)
-    {
-        SetLeftPanelShow(false);
-    }
-
-    public void OnExitFullScreenMode(Object sender, EventArgs e)
-    {
-        SetLeftPanelShow(true);
-    }
-
-
-    string selectedSpeechTestName = string.Empty;
-
     void InitiateTesting()
     {
+
+        if (TestIsInitiated == true)
+        {
+            // Exits right away if a test is already initiated. The user needs to pres the new-test button to be able to initiate a new test
+            return;
+        }
 
         if (CurrentSpeechTest != null)
         {
@@ -731,81 +794,64 @@ public partial class SpeechTestView : ContentView, IDrawable
             OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
             OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
 
+            // Setting TestIsInitiated to true to allow starting the test, and block any re-initializations
+            TestIsInitiated = true;
+
         }
     }
 
-    private void OnFatalPlayerError()
-    {
-        FinalizeTest(true);
-        Messager.MsgBox("An error occured with the sound playback! The test has been aborted!", Messager.MsgBoxStyle.Exclamation, "Sound player error!");
-    }
-
-    bool testIsPaused = false;
-
-    private void StartTestBtn_Clicked(object sender, EventArgs e)
-    {
-
-        if (testIsPaused == false)
-        {
-            // Starting a new test
-            TryStartTest();
-        }
-        else
-        {
-            StopAllTrialEventTimers();
-            CurrentResponseView.HideAllItems();
-
-            // Resuming an ongoin test
-            // Calling NewSpeechTestInput with 
-            NewSpeechTestInput(null, null);
-        }
-    }
+    #endregion
 
 
+    //The following methods should be common between all test types, and thus highly general: Basically, start test, loop over test trials, end test.
+    #region Running_test 
 
-    private void TryStartTest()
+    void StartTest()
     {
 
         InitiateTesting();
 
-        bool testIsReady = true; // This should call a function that check is the selected test is ready to be started
+        // Set IsEnabled values of controls
+        NewTestBtn.IsEnabled = false;
+        SpeechTestPicker.IsEnabled = false;
+        TestOptionsGrid.IsEnabled = false;
 
-        if (testIsReady)
-        {
+        if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
 
-            // Starting the test
-            StartTest();
+        StartTestBtn.IsEnabled = false;
 
-        }
-        else
-        {
+        if (CurrentSpeechTest.SupportsManualPausing) { PauseTestBtn.IsEnabled = true; }
 
-            // Here we should inform the user that something is missing / not ready, and of course what...
-        }
+        // Showing / hiding panels during test
+        SetBottomPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
+        SetLeftPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
+
+        StopTestBtn.IsEnabled = true;
+        TestReponseGrid.IsEnabled = true;
+        TestResultGrid.IsEnabled = true;
+
+        TestIsPaused = false;
+
+        // Calling NewSpeechTestInput with e as null
+        NewSpeechTestInput(null, null);
 
     }
 
-
-    private void PauseTestBtn_Clicked(object sender, EventArgs e)
-    {
-        PauseTest();
-    }
     private async void PauseTest()
     {
 
-        testIsPaused = true;
+        TestIsPaused = true;
 
         OstfBase.SoundPlayer.FadeOutPlayback();
 
         // Pause testing
         StopAllTrialEventTimers();
-        //CurrentResponseView.HideAllItems();
-        TestResults CurrentResults = CurrentSpeechTest.GetResults();
-        //CurrentSpeechTest.SaveTextFormattedResults(CurrentResults);
-        ShowResults(CurrentResults);
 
         if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall == true )
         {
+
+            // The test administrator must resume the test
+
             switch (STFN.SharedSpeechTestObjects.GuiLanguage)
             {
                 case STFN.Utils.Constants.Languages.Swedish:
@@ -816,103 +862,41 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
             }
 
+            TestResults CurrentResults = CurrentSpeechTest.GetResults();
+            ShowResults(CurrentResults);
+
             if (CurrentSpeechTest.PauseInformation != "")
             {
                 await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, "", "OK");
             }
 
-            // Set IsEnabled values of controls
-            NewTestBtn.IsEnabled = true;
-            SpeechTestPicker.IsEnabled = false;
-            TestOptionsGrid.IsEnabled = true;
-            //TestOptionsGrid.IsVisible = true;
-
-            if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-            //HideSettingsPanelSwitch.IsEnabled = false;
-            //HideResultsPanelSwitch.IsEnabled = false;
             StartTestBtn.IsEnabled = true;
             PauseTestBtn.IsEnabled = false;
             StopTestBtn.IsEnabled = true;
-            //TestReponseGrid.IsEnabled = false;
             TestResultGrid.IsEnabled = true;
 
         }
         else
         {
 
-            StopAllTrialEventTimers();
-
+            // The testee is expected to resume the test
+            // Waiting for user to press OK
             await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, "", "OK");
 
             // Restarting test
             StartTest();
-
-            //CurrentResponseView.ShowMessage(CurrentSpeechTest.PauseInformation);
-            //if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-
         }
-
-
     }
-
-
-
-
-    private void StopTestBtn_Clicked(object sender, EventArgs e)
-    {
-
-        FinalizeTest(true);
-
-    }
-
-    // Region run test. These methods should be common between all test types, and thus highly general: Basically, start test, loop over test trials, end test.
-
-    void StartedByTestee(object sender, EventArgs e)
-    {
-        TryStartTest();
-    }
-
-
-    void StartTest()
-    {
-
-        bool testSupportPause = true; // This should call a function that determies if the test supports pausing
-
-        // Set IsEnabled values of controls
-        NewTestBtn.IsEnabled = false;
-        SpeechTestPicker.IsEnabled = false;
-        TestOptionsGrid.IsEnabled = false;
-        //TestOptionsGrid.IsVisible = false;
-
-        if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
-        //HideSettingsPanelSwitch.IsEnabled = false;
-        //HideResultsPanelSwitch.IsEnabled = false;
-        StartTestBtn.IsEnabled = false;
-        if (testSupportPause) { PauseTestBtn.IsEnabled = true; }
-        StopTestBtn.IsEnabled = true;
-        TestReponseGrid.IsEnabled = true;
-        TestResultGrid.IsEnabled = true;
-
-        // Showing / hiding panels during test
-        SetBottomPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
-        SetLeftPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
-
-        testIsPaused = false;
-
-        // Calling NewSpeechTestInput with e as null
-        NewSpeechTestInput(null, null);
-    }
-
-
     
-    void ResponseHistoryUpdate(object sender, SpeechTestInputEventArgs e)
-    {
-        CurrentSpeechTest.UpdateHistoricTrialResults(sender, e);
-
-    }
 
     void NewSpeechTestInput(object sender, SpeechTestInputEventArgs e)
     {
+
+        if (TestIsPaused == true)
+        {
+            // Ignores ant calls from the resonse GUI if test is paused.
+            return;
+        }
 
         switch (CurrentSpeechTest.GetSpeechTestReply(sender, e))
         {
@@ -945,7 +929,16 @@ public partial class SpeechTestView : ContentView, IDrawable
             case SpeechTest.SpeechTestReplies.TestIsCompleted:
 
                 FinalizeTest(false);
-                Messager.MsgBox("The test is finished", Messager.MsgBoxStyle.Information, "Finished", "OK");
+
+                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                {
+                    case STFN.Utils.Constants.Languages.Swedish:
+                        Messager.MsgBox("Testet är klart.", Messager.MsgBoxStyle.Information, "Klart!", "OK");
+                        break;
+                    default:
+                        Messager.MsgBox("The test is finished", Messager.MsgBoxStyle.Information, "Finished", "OK");
+                        break;
+                }
 
                 break;
 
@@ -969,6 +962,10 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
+    void ResponseHistoryUpdate(object sender, SpeechTestInputEventArgs e)
+    {
+        CurrentSpeechTest.UpdateHistoricTrialResults(sender, e);
+    }
 
     void PresentTrial()
     {
@@ -1005,7 +1002,6 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
 
     }
-
 
     void TrialEventTimer_Tick(object sender, EventArgs e)
     {
@@ -1088,11 +1084,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
                 }
             }
-
-
-
-            // Calls PresentNextTrial on the main thread
-            //MainThread.BeginInvokeOnMainThread(PresentNextTrial);
         }
     }
 
@@ -1123,13 +1114,19 @@ public partial class SpeechTestView : ContentView, IDrawable
         SetLeftPanelShow(true);
 
         // Restting start button text
-        StartTestBtn.Text = "Start";
+        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        {
+            case STFN.Utils.Constants.Languages.Swedish:
+                StartTestBtn.Text = "Start";
+                break;
+            default:
+                StartTestBtn.Text = "Start";
+                break;
+        }
 
         // Set IsEnabled values of controls
         NewTestBtn.IsEnabled = true;
         SpeechTestPicker.IsEnabled = false;
-        TestOptionsGrid.IsEnabled = true;
-        if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = false; }
         StartTestBtn.IsEnabled = false;
         PauseTestBtn.IsEnabled = false;
         StopTestBtn.IsEnabled = false;
@@ -1157,10 +1154,17 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         FinalizeTest(true);
-        Messager.MsgBox("The test had to be aborted", Messager.MsgBoxStyle.Information, "Aborted", "OK");
+        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        {
+            case STFN.Utils.Constants.Languages.Swedish:
+                Messager.MsgBox("Testet har avbrutits.", Messager.MsgBoxStyle.Information, "Avslutat", "OK");
+                break;
+            default:
+                Messager.MsgBox("The test had to be aborted.", Messager.MsgBoxStyle.Information, "Aborted", "OK");
+                break;
+        }
 
     }
-
 
     void ShowResults(TestResults results)
     {
@@ -1181,7 +1185,18 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
+    #endregion
 
+    #region Unexpected_errors
+    private void OnFatalPlayerError()
+    {
+        FinalizeTest(true);
+        Messager.MsgBox("An error occured with the sound playback! The test has been aborted!", Messager.MsgBoxStyle.Exclamation, "Sound player error!");
+    }
+
+    #endregion
+
+    #region Talkback_control
 
     private void TalkbackVolumeSlider_ValueChanged(object sender, ValueChangedEventArgs e)
     {
@@ -1226,6 +1241,35 @@ public partial class SpeechTestView : ContentView, IDrawable
             }
         }
     }
+
+    void InactivateTalkback()
+    {
+        // Inactivates tackback
+        if (STFN.OstfBase.SoundPlayerIsInitialized())
+        {
+            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
+            {
+                STFN.OstfBase.SoundPlayer.StopTalkback();
+            }
+        }
+    }
+
+    #endregion
+
+
+    #region Audiograms_related_stuff_not_yet_implemented
+
+    // This region should contain audiogram related stuff, not yet implemented
+
+    void IDrawable.Draw(ICanvas canvas, RectF dirtyRect)
+    {
+
+        //MyAudiogramView.Audiogram.Draw(canvas, dirtyRect);
+
+    }
+
+    #endregion
+
 }
 
 

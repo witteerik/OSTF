@@ -264,6 +264,12 @@ Public Class HintSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property SupportsManualPausing As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 

@@ -35,13 +35,16 @@ public partial class ScreeningAudiometerView : ContentView
 
     private Color originalButtonColor;
 
+    private double MaxSoundDuration = 3;
+    private bool IsInCalibrationMode = false;
+
     public ScreeningAudiometerView()
 	{
 		InitializeComponent();
 
         WaveFormat = new STFN.Audio.Formats.WaveFormat(48000,32, 2,"", STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints );
         Frequencies = new List<int>() { 125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000 };
-        Levels = new List<double>() { 0, 5, 10, 15, 20, 25, 30, 35, 40 };
+        Levels = new List<double>() { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70 };
         Sines = new SortedList<SignalSides, SortedList<double, SortedList<double, STFN.Audio.Sound>>>();
         List<SignalSides> possibleSides = new List<SignalSides>() { SignalSides.Left, SignalSides.Right };
 
@@ -135,6 +138,29 @@ public partial class ScreeningAudiometerView : ContentView
 
     }
 
+    public void GotoCalibrationMode() {
+
+        // Clearing sounds
+        foreach (var side in Sines.Keys)
+        {
+            foreach (var frequency in Sines[side].Keys)
+            {
+                foreach (var level in Sines[side][frequency].Keys)
+                {
+                    Sines[side][frequency][level] = null;
+                }
+            }
+        }
+
+        // Making sounds 1 minute long
+        MaxSoundDuration = 60;
+
+        IsInCalibrationMode = true;
+
+    }
+
+
+
     private STFN.Audio.Sound GetAudiometerSine(SignalSides side, int frequency, double level)
     {
 
@@ -146,6 +172,17 @@ public partial class ScreeningAudiometerView : ContentView
         double RetSplCorrectedLevel = level + RetSplList[frequency];
         double CalibratedRetSplCorrectedLevel = RetSplCorrectedLevel + PureToneCalibrationList[frequency];
         double RetSplCorrectedLevel_FS = STFN.Audio.AudioManagement.Standard_dBSPL_To_dBFS(CalibratedRetSplCorrectedLevel);
+
+        // Here, to make sure the tone does not get in distorted integer sound formats, we should also add the output channel specific general calibration gain added by the sound player and which we can get from:
+        // var CurrentMixer = OstfBase.SoundPlayer.GetMixer();
+        // CurrentMixer.GetParentTransducerSpecification.CalibrationGain();
+        // Skipping this for now
+
+        if (RetSplCorrectedLevel_FS  > -3)
+        {
+            Messager.MsgBox("This level (" + level.ToString() + " dB HL) exceeds the maximum level of the output device for the frequency " + frequency.ToString() + " Hz.\n\nThe tone will not be played.", Messager.MsgBoxStyle.Information, "Maximum output level reached!");
+            return null;
+        }
 
         // Adding the level value to the dictionary, if needed
         if (Sines[side][frequency].ContainsKey(RetSplCorrectedLevel_FS) == false)
@@ -175,11 +212,11 @@ public partial class ScreeningAudiometerView : ContentView
             switch (side)
             {
                 case SignalSides.Left:
-                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,1, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, 3);
+                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,1, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, MaxSoundDuration);
                     STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
                     break;
                 case SignalSides.Right:
-                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,2, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, 3);
+                    newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,2, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, MaxSoundDuration);
                     STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 2, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
                     break;
                 default:
@@ -211,6 +248,12 @@ public partial class ScreeningAudiometerView : ContentView
     }
 
     private void Channel1StimulusButtonReleased(object sender, EventArgs e) {
+
+        // Ignored button release in calibration mode, to keep the tone on.
+        if (IsInCalibrationMode == true)
+        {
+            return;
+        }
 
         OstfBase.SoundPlayer.FadeOutPlayback();
 

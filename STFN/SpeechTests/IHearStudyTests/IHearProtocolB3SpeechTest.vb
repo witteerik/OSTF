@@ -261,6 +261,11 @@ Public Class IHearProtocolB3SpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property SupportsManualPausing As Boolean
+        Get
+            Return False
+        End Get
+    End Property
 
     Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
         'Ignores, not used

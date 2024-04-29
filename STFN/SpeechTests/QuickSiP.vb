@@ -246,6 +246,12 @@ Public Class QuickSiP
         End Get
     End Property
 
+    Public Overrides ReadOnly Property SupportsManualPausing As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 
@@ -269,22 +275,9 @@ Public Class QuickSiP
     Private ReferenceLevel As Double = 68.34
     Private PresetName As String = "QuickSiP"
 
-    'Private TestIsStarted As Boolean = False
-    Private SipMeasurementRandomizer As Random
-    'Private TestIsPaused As Boolean = False
-
     Dim ResultsSummary As SortedList(Of Double, Tuple(Of QuickSipList, Double))
 
     Public Overrides Function InitializeCurrentTest() As Boolean
-
-
-        'Creates a new randomizer before each test start
-        Dim Seed As Integer? = Nothing
-        If Seed.HasValue Then
-            SipMeasurementRandomizer = New Random(Seed)
-        Else
-            SipMeasurementRandomizer = New Random
-        End If
 
         SelectedTransducer = AvaliableTransducers(0)
 
@@ -515,7 +508,7 @@ Public Class QuickSiP
         SoundPlayer.SwapOutputSounds(TestSound)
 
         'Premixing the first 10 sounds 
-        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
 
     End Sub
 
@@ -549,8 +542,8 @@ Public Class QuickSiP
             End If
 
             'Copies copies random sections of the background non-speech sound into two sounds
-            Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
-            Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+            Dim Background1 = BackgroundNonSpeech_Sound.CopySection(1, Randomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
+            Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, Randomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
 
             'Sets up fading specifications for the background signals
             Dim FadeSpecs_Background = New List(Of Audio.DSP.Transformations.FadeSpecifications)
@@ -560,10 +553,11 @@ Public Class QuickSiP
             'Adds the background (non-speech) signals, with fade, duck and location specifications
             Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
 
+            Dim BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
             ItemList.Add(New SoundSceneItem(Background1, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup,
-                                            CurrentSipTestMeasurement.TestProcedure.BackgroundLocations(SelectedTestparadigm)(0), SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech, 0,,,, FadeSpecs_Background))
+                                            BackgroundLocations_HeadTurnedRight(0), SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background))
             ItemList.Add(New SoundSceneItem(Background2, 1, SelectedMediaSet.BackgroundNonspeechRealisticLevel, LevelGroup,
-                                            CurrentSipTestMeasurement.TestProcedure.BackgroundLocations(SelectedTestparadigm)(1), SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background))
+                                            BackgroundLocations_HeadTurnedRight(1), SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech, 0,,,, FadeSpecs_Background))
             LevelGroup += 1
 
             MixStopWatch.Stop()
@@ -595,7 +589,7 @@ Public Class QuickSiP
 
             If (CurrentSipTestMeasurement.ObservedTrials.Count + 3) Mod 10 = 0 Then
                 'Premixing the next 10 sounds, starting three trials before the next is needed 
-                CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+                CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
             End If
 
             'Waiting for the background thread to finish mixing

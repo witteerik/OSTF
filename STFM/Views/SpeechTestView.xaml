@@ -33,7 +33,7 @@
             </Grid.ColumnDefinitions>
 
             <Button x:Name="NewTestBtn"
-                    Text="Nytt test" 
+                    Text="New test" 
                     Grid.Row="0" Grid.RowSpan="1"
                     Grid.Column="0" Grid.ColumnSpan="3"
                     Clicked="NewTestBtn_Clicked"/>

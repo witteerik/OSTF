@@ -262,6 +262,13 @@ Public Class IHearProtocolB4SpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property SupportsManualPausing As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
+
     Private IsInitialized As Boolean = False
 
     Private IsSecondTest As Boolean = False
