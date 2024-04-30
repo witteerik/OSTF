@@ -266,6 +266,7 @@ Public Class MatrixSpeechTest
         End Get
     End Property
 
+    Public Overrides Property SoundOverlapDuration As Double = 0.1
 
 #End Region
 
@@ -274,19 +275,16 @@ Public Class MatrixSpeechTest
 
     End Sub
 
-    Public Overrides Function InitializeCurrentTest() As Boolean
+    Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         ObservedTrials = New TrialHistory
 
-
         If CustomizableTestOptions.SignalLocations.Count = 0 Then
-            Messager.MsgBox("You must select at least one signal sound source!", MsgBoxStyle.Information, "Missing signal sound source!")
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
         End If
 
         If CustomizableTestOptions.MaskerLocations.Count = 0 And CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise Then
-            Messager.MsgBox("You must select at least one masker sound source in tests with adaptive noise!", MsgBoxStyle.Information, "Missing masker sound source!")
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source in tests with adaptive noise!")
         End If
 
         Dim StartAdaptiveLevel As Double
@@ -307,7 +305,7 @@ Public Class MatrixSpeechTest
 
         CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
 
-        Return True
+        Return New Tuple(Of Boolean, String)(True, "")
 
     End Function
 

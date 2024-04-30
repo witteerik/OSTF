@@ -223,8 +223,11 @@
 
 #End Region
 
-
-    Public Property SoundOverlapDuration As Double = 0
+    ''' <summary>
+    ''' The sound player crossfade overlap to be used between trials, fade-in and fade-out
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride Property SoundOverlapDuration As Double
 
 #Region "Test protocol"
 
@@ -322,7 +325,11 @@
 
 #Region "MustOverride members used in derived classes"
 
-    Public MustOverride Function InitializeCurrentTest() As Boolean
+    ''' <summary>
+    ''' Initializes the current test
+    ''' </summary>
+    ''' <returns>A tuple in which the boolean value indicates success, and the string is an optional message that may be relayed to the user.</returns>
+    Public MustOverride Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
     ''' <summary>
     ''' This method must be implemented in the derived class and must return a decision on what steps to take next. If the next step to take involves a new test trial this method is also responsible for referencing the next test trial in the CurrentTestTrial field.
@@ -349,6 +356,9 @@
     Public MustOverride ReadOnly Property FilePathRepresentation As String
 
     Public Function SaveTextFormattedResults(TestResults As TestResults) As Boolean
+
+        'Skipping saving data if it's the demo ptc ID
+        If SharedSpeechTestObjects.CurrentParticipantID.Trim = SharedSpeechTestObjects.NoTestId Then Return True
 
         If SharedSpeechTestObjects.TestResultsRootFolder = "" Then
             Messager.MsgBox("Unable to save the results to file due to missing test results output folder. This should have been selected first startup of the app!")

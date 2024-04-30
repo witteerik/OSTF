@@ -48,6 +48,9 @@ Namespace Utils
 
             Dim SpinLockTaken As Boolean = False
 
+            'Skipping logging if the demo participant ID is set
+            If CurrentParticipantID = NoTestId Then Exit Sub
+
             Try
 
                 'Blocks logging if GeneralLogIsActive is False

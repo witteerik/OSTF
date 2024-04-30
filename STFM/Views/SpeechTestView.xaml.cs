@@ -541,13 +541,13 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    void InitiateTesting()
+    async Task<bool> InitiateTesting()
     {
 
         if (TestIsInitiated == true)
         {
             // Exits right away if a test is already initiated. The user needs to pres the new-test button to be able to initiate a new test
-            return;
+            return true;
         }
 
         if (CurrentSpeechTest != null)
@@ -556,18 +556,16 @@ public partial class SpeechTestView : ContentView, IDrawable
             // Inactivates tackback
             InactivateTalkback();
 
+            Tuple<bool, string> testInitializationResponse = CurrentSpeechTest.InitializeCurrentTest();
+            await handleTestInitializationResult(testInitializationResponse);
+            if (testInitializationResponse.Item1 == false) { return false; }
 
             switch (selectedSpeechTestName)
             {
 
-
                 case "Svenska HINT":
 
-
-                    CurrentSpeechTest.InitializeCurrentTest();
-
                     // Response view
-
                     CurrentResponseView = new ResponseView_FreeRecall();
 
                     if (true)
@@ -576,7 +574,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                         Window secondWindow = new Window(responsePage);
                         secondWindow.Title = "";
                         Application.Current.OpenWindow(secondWindow);
-
 
                     }
                     else
@@ -588,16 +585,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.1;
 
                     break;
 
 
                 case "Hagermans meningar (Matrix)":
-
-
-                    CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
                     if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall)
@@ -615,16 +607,10 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0;
-
                     break;
 
 
                 case "Hörtröskel för tal (HTT)":
-
-
-                    CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
                     if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall)
@@ -641,32 +627,18 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0;
-
                     break;
 
                 case "SiP-testet":
-
-                    if (CurrentSpeechTest.InitializeCurrentTest() == false)
-                    {
-                        Messager.MsgBox("Failed to initiate test!");
-                        return;
-                    }
 
                     CurrentResponseView = new ResponseView_Mafc();
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.5;
-
                     break;
 
                 case "Protokoll B1 - TP800":
-
-                    CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
                     CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
@@ -677,15 +649,10 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
                     CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 1;
-
                     break;
 
 
                 case "Protokoll B2 - Manuell TP":
-
-                    CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
                     CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
@@ -707,15 +674,9 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
                     CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
-
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.25;
-
                     break;
 
                 case "Protokoll B3 - Användarstyrd TP":
-
-                    CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
                     CurrentResponseView = new ResponseView_Mafc();
@@ -724,14 +685,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.25;
-
                     break;
 
                 case "Protokoll B4 - Manuell HTT":
-
-                    CurrentSpeechTest.InitializeCurrentTest();
 
                     // Response view
                     CurrentResponseView = new ResponseView_FreeRecall();
@@ -741,36 +697,23 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.25;
-
                     break;
 
                 case "Protokoll B6 - Quick SiP":
-
-                    CurrentSpeechTest.InitializeCurrentTest();
 
                     CurrentResponseView = new ResponseView_Mafc();
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.5;
 
                     break;
 
                 case "Protokoll B7 - SiP-testet":
 
-                    CurrentSpeechTest.InitializeCurrentTest();
-
                     CurrentResponseView = new ResponseView_Mafc();
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    // TODO: Setting sound overlap duration, maybe better somewhere else
-                    CurrentSpeechTest.SoundOverlapDuration = 0.5;
 
                     break;
 
@@ -801,7 +744,29 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             // Setting TestIsInitiated to true to allow starting the test, and block any re-initializations
             TestIsInitiated = true;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
+    async Task handleTestInitializationResult(Tuple<bool, string> testInitializationResult)
+    {
+        if (testInitializationResult.Item2.Trim() != "")
+        {
+            string MsgBoxTitle = "";
+            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            {
+                case STFN.Utils.Constants.Languages.Swedish:
+                    MsgBoxTitle = "Test valda testet säger:";
+                    break;
+                default:
+                    MsgBoxTitle = "The selected test says:";
+                    break;
+            }
+            await Messager.MsgBoxAsync(testInitializationResult.Item2.Trim(), Messager.MsgBoxStyle.Information, MsgBoxTitle);
         }
     }
 
@@ -811,10 +776,14 @@ public partial class SpeechTestView : ContentView, IDrawable
     //The following methods should be common between all test types, and thus highly general: Basically, start test, loop over test trials, end test.
     #region Running_test 
 
-    void StartTest()
+    async void StartTest()
     {
 
-        InitiateTesting();
+        bool InitializationResult = await InitiateTesting();
+        if (InitializationResult == false)
+        {
+            return;
+        }
 
         // Set IsEnabled values of controls
         NewTestBtn.IsEnabled = false;

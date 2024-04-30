@@ -252,6 +252,8 @@ Public Class QuickSiP
         End Get
     End Property
 
+    Public Overrides Property SoundOverlapDuration As Double = 0.5
+
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 
@@ -277,7 +279,7 @@ Public Class QuickSiP
 
     Dim ResultsSummary As SortedList(Of Double, Tuple(Of QuickSipList, Double))
 
-    Public Overrides Function InitializeCurrentTest() As Boolean
+    Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         SelectedTransducer = AvaliableTransducers(0)
 
@@ -293,8 +295,7 @@ Public Class QuickSiP
 
             Dim FoundDirSimulator As Boolean = DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, SelectedTransducer, False)
             If FoundDirSimulator = False Then
-                ShowMessageBox("Unable to find the directional simulation set " & DirectionalSimulationSet)
-                Return False
+                Return New Tuple(Of Boolean, String)(False, "Unable to find the directional simulation set " & DirectionalSimulationSet)
             End If
 
         Else
@@ -305,11 +306,10 @@ Public Class QuickSiP
         PlanQuickSiPTrials(SelectedSoundPropagationType, RandomSeed)
 
         If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
-            ShowMessageBox("The measurement requires a directional simulation set to be selected!")
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "The measurement requires a directional simulation set to be selected!")
         End If
 
-        Return True
+        Return New Tuple(Of Boolean, String)(True, "")
 
     End Function
 

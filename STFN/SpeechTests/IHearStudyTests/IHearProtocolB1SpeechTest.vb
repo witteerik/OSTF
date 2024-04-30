@@ -310,6 +310,8 @@ Public Class IHearProtocolB1SpeechTest
         End Get
     End Property
 
+    Public Overrides Property SoundOverlapDuration As Double = 1
+
     Private TestListOrder As New SortedList(Of Integer, Tuple(Of Integer, Integer, Integer()))
     Private SortedSnrOrders As New SortedList(Of Integer, Double())
     Private CurrentTestListOrderIndex As Integer
@@ -332,9 +334,9 @@ Public Class IHearProtocolB1SpeechTest
 
     Private IsInitialized As Boolean = False
 
-    Public Overrides Function InitializeCurrentTest() As Boolean
+    Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        If IsInitialized = True Then Return True
+        If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         CurrentTestStage = 0
 
@@ -362,7 +364,7 @@ Public Class IHearProtocolB1SpeechTest
 
         IsInitialized = True
 
-        Return True
+        Return New Tuple(Of Boolean, String)(True, "Test-list-order index " & CurrentTestListOrderIndex & " was selected. Press OK to start the test!")
 
     End Function
 

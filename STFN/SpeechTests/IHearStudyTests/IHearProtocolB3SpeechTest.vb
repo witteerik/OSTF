@@ -271,6 +271,8 @@ Public Class IHearProtocolB3SpeechTest
         'Ignores, not used
     End Sub
 
+    Public Overrides Property SoundOverlapDuration As Double = 0.25
+
     Private PlannedTestData As New List(Of TrialHistory)
     Private ObservedTestData As New List(Of TrialHistory)
 
@@ -285,20 +287,20 @@ Public Class IHearProtocolB3SpeechTest
     Private SilentSound As Audio.Sound = Nothing
 
 
-    Public Overrides Function InitializeCurrentTest() As Boolean
+    Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        If IsInitialized = True Then Return True
+        If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         TestStage = 0
 
         If PlanTrials() = False Then
             'Send message
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "Unable to plan test trials!")
         End If
 
         IsInitialized = True
 
-        Return True
+        Return New Tuple(Of Boolean, String)(True, "")
 
     End Function
 

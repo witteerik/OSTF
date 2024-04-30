@@ -264,9 +264,11 @@ Public Class IHearProtocolB4SpeechTest
 
     Public Overrides ReadOnly Property SupportsManualPausing As Boolean
         Get
-            Return False
+            Return True
         End Get
     End Property
+
+    Public Overrides Property SoundOverlapDuration As Double = 0.25
 
 
     Private IsInitialized As Boolean = False
@@ -287,9 +289,9 @@ Public Class IHearProtocolB4SpeechTest
     Private MaximumResponseTime As Double = 5
 
 
-    Public Overrides Function InitializeCurrentTest() As Boolean
+    Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        If IsInitialized = True Then Return True
+        If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         'Randomizing the order of media sets
         TestOrder = Utils.SampleWithoutReplacement(1, 0, 2, Randomizer)(0)
@@ -329,7 +331,7 @@ Public Class IHearProtocolB4SpeechTest
 
         IsInitialized = True
 
-        Return True
+        Return New Tuple(Of Boolean, String)(True, "")
 
     End Function
 
@@ -483,12 +485,17 @@ Public Class IHearProtocolB4SpeechTest
         Dim NextTestWord = PlannedTestWords(ObservedTrials.Count)
 
         'Creating a new test trial
+        Dim CurrentContralateralMaskingLevel As Double = Double.NegativeInfinity
+        If CustomizableTestOptions.UseContralateralMasking = True Then
+            CurrentContralateralMaskingLevel = NextTaskInstruction.AdaptiveValue + CustomizableTestOptions.ContralateralLevelDifference
+        End If
+
         CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
-                        .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-                        .SpeechLevel = NextTaskInstruction.AdaptiveValue,
-                        .ContralateralMaskerLevel = NextTaskInstruction.AdaptiveValue + CustomizableTestOptions.ContralateralLevelDifference,
-                        .TestStage = NextTaskInstruction.TestStage,
-                        .Tasks = 1}
+                    .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+                    .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+                    .ContralateralMaskerLevel = CurrentContralateralMaskingLevel,
+                    .TestStage = NextTaskInstruction.TestStage,
+                    .Tasks = 1}
 
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
 

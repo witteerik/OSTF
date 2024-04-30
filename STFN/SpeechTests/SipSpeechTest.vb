@@ -253,6 +253,8 @@ Public Class SipSpeechTest
         End Get
     End Property
 
+    Public Overrides Property SoundOverlapDuration As Double = 0.5
+
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 
@@ -283,8 +285,7 @@ Public Class SipSpeechTest
     Private ResponseAlternativeDelay As Double = 0.5
 
 
-    Public Overrides Function InitializeCurrentTest() As Boolean
-
+    Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         'Creates a new randomizer before each test start
         Dim Seed As Integer? = Nothing
@@ -297,18 +298,15 @@ Public Class SipSpeechTest
         SelectedTransducer = AvaliableTransducers(0)
 
         If CustomizableTestOptions.SignalLocations.Count = 0 Then
-            Messager.MsgBox("You must select at least one signal sound source!", MsgBoxStyle.Information, "Missing signal sound source!")
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
         End If
 
         If CustomizableTestOptions.MaskerLocations.Count = 0 Then
-            Messager.MsgBox("You must select at least one masker sound source location!", MsgBoxStyle.Information, "Missing masker sound source!")
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source location!")
         End If
 
         If CustomizableTestOptions.BackgroundNonSpeechLocations.Count = 0 Then
-            Messager.MsgBox("You must select at least one background sound source location!", MsgBoxStyle.Information, "Missing background sound source!")
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "You must select at least one background sound source location!")
         End If
 
         If CustomizableTestOptions.BackgroundSpeechLocations.Count = 0 Then
@@ -367,13 +365,11 @@ Public Class SipSpeechTest
 
         'Checks to see if a simulation set is required
         If SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
-            ShowMessageBox("No directional simulation set selected!")
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "No directional simulation set selected!")
         End If
 
         If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
-            ShowMessageBox("The measurement requires a directional simulation set to be selected!")
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "The measurement requires a directional simulation set to be selected!")
         End If
 
         'Displayes the planned test length
@@ -399,9 +395,9 @@ Public Class SipSpeechTest
 
         'TryEnableTestStart()
 
-        Return True
+        Return New Tuple(Of Boolean, String)(True, "")
 
-        End Function
+    End Function
 
 
 

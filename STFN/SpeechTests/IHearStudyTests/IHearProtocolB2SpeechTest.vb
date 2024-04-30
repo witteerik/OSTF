@@ -270,6 +270,9 @@ Public Class IHearProtocolB2SpeechTest
         End Get
     End Property
 
+    Public Overrides Property SoundOverlapDuration As Double = 1
+
+
     Dim PreTestListIndex As Integer
     Dim TestListIndex As Integer
     Dim SelectedMediaSetIndex As Integer
@@ -286,25 +289,28 @@ Public Class IHearProtocolB2SpeechTest
     Private MaskerNoise As Audio.Sound = Nothing
     Private ContralateralNoise As Audio.Sound = Nothing
 
-    Private TestWordPresentationTime As Double = 0.5
+    Private TestWordPresentationTime As Double = 1.5
     Private MaximumResponseTime As Double = 5
-
-    Private TestLength As Integer = 50
-
+    Private TestLength As Integer
     Private MaximumSoundDuration As Double = 10
 
     Private IsInitialized As Boolean = False
 
-    Public Overrides Function InitializeCurrentTest() As Boolean
+    Public InitializationSpinLock As New Threading.SpinLock
 
-        If IsInitialized = True Then Return True
+    Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
+
+        Dim SpinLockTaken As Boolean = False
+
+        InitializationSpinLock.Enter(SpinLockTaken)
+
+        If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         Dim AllTestListsNames = AvailableTestListsNames()
         Dim AllMediaSets = AvailableMediasets
 
         If AllTestListsNames.Count = 0 Then
-            MsgBox("No test lists exist in the currently selected speech material!", MsgBoxStyle.Exclamation, "Missing speech material!")
-            Return False
+            Return New Tuple(Of Boolean, String)(False, "No test lists exist in the currently selected speech material!")
         End If
 
         'Creating cache variable names for storing last test list index and voice between sessions
@@ -362,9 +368,13 @@ Public Class IHearProtocolB2SpeechTest
 
         IsInitialized = True
 
-        Return True
+        'Releases any spinlock
+        If SpinLockTaken = True Then InitializationSpinLock.Exit()
+
+        Return New Tuple(Of Boolean, String)(True, "")
 
     End Function
+
 
     Private Function CreatePreTestWordsList() As Boolean
 
