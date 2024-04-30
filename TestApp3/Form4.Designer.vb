@@ -61,6 +61,7 @@ Partial Class Form4
         Me.Button30 = New System.Windows.Forms.Button()
         Me.Button31 = New System.Windows.Forms.Button()
         Me.Button32 = New System.Windows.Forms.Button()
+        Me.Button33 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -414,12 +415,22 @@ Partial Class Form4
         Me.Button32.Text = "Button32"
         Me.Button32.UseVisualStyleBackColor = True
         '
+        'Button33
+        '
+        Me.Button33.Location = New System.Drawing.Point(895, 218)
+        Me.Button33.Name = "Button33"
+        Me.Button33.Size = New System.Drawing.Size(148, 23)
+        Me.Button33.TabIndex = 49
+        Me.Button33.Text = "FilterSiPHomeBackgound"
+        Me.Button33.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button33)
         Me.Controls.Add(Me.Button32)
         Me.Controls.Add(Me.Button31)
         Me.Controls.Add(Me.Button30)
@@ -504,4 +515,5 @@ Partial Class Form4
     Friend WithEvents Button30 As Button
     Friend WithEvents Button31 As Button
     Friend WithEvents Button32 As Button
+    Friend WithEvents Button33 As Button
 End Class

@@ -2,6 +2,7 @@ using Microsoft.Maui.Controls.Internals;
 using STFM.Pages;
 using STFN;
 using STFN.Audio.SoundPlayers;
+using System.Reflection.Metadata;
 using static STFN.ResponseViewEvents;
 
 namespace STFM.Views;
@@ -422,7 +423,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                     // Speech test
-                    CurrentSpeechTest = new IHearProtocolB1SpeechTest("SwedishPB23");
+                    CurrentSpeechTest = new IHearProtocolB1SpeechTest("SwedishMonosyllablesTP800");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
@@ -437,7 +438,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                                       
 
                     // Speech test
-                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishPB23");
+                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishMonosyllablesTP800");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
@@ -576,18 +577,16 @@ public partial class SpeechTestView : ContentView, IDrawable
                         secondWindow.Title = "";
                         Application.Current.OpenWindow(secondWindow);
 
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
                     }
                     else
                     {
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
                         TestReponseGrid.Children.Add(CurrentResponseView);
                     }
 
                     //TestResponseView.StartedByTestee += StartedByTestee;
-
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
                     CurrentSpeechTest.SoundOverlapDuration = 0.1;
@@ -612,6 +611,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     //TestResponseView.StartedByTestee += StartedByTestee;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
@@ -637,6 +637,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     }
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     //TestResponseView.StartedByTestee += StartedByTestee;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
@@ -674,6 +675,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
                     CurrentSpeechTest.SoundOverlapDuration = 1;
@@ -703,6 +705,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
                     CurrentSpeechTest.SoundOverlapDuration = 0.25;
@@ -735,6 +739,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
                     // TODO: Setting sound overlap duration, maybe better somewhere else
                     CurrentSpeechTest.SoundOverlapDuration = 0.25;
@@ -867,7 +872,14 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             if (CurrentSpeechTest.PauseInformation != "")
             {
-                await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, "", "OK");
+
+                // Registering timed trial event
+                if (CurrentSpeechTest.CurrentTestTrial != null)
+                {
+                    CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.PauseMessageShown, DateTime.Now));
+                }
+
+                await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
             }
 
             StartTestBtn.IsEnabled = true;
@@ -881,13 +893,30 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             // The testee is expected to resume the test
             // Waiting for user to press OK
-            await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, "", "OK");
+
+            // Registering timed trial event
+            if (CurrentSpeechTest.CurrentTestTrial != null)
+            {
+                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.PauseMessageShown, DateTime.Now));
+            }
+
+            await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
 
             // Restarting test
             StartTest();
         }
     }
-    
+
+    void ResponseViewCorrectionButtonClicked(object sender, EventArgs e)
+    {
+        // Registering timed trial event
+        if (CurrentSpeechTest.CurrentTestTrial != null)
+        {
+            CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TestAdministratorCorrectedResponse, DateTime.Now));
+        }
+    }
+
+
 
     void NewSpeechTestInput(object sender, SpeechTestInputEventArgs e)
     {
@@ -896,6 +925,19 @@ public partial class SpeechTestView : ContentView, IDrawable
         {
             // Ignores ant calls from the resonse GUI if test is paused.
             return;
+        }
+
+        // Registering timed trial event
+        if (CurrentSpeechTest.CurrentTestTrial != null)
+        {
+            if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall == true)
+            {
+                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TestAdministratorPressedNextTrial, DateTime.Now));
+            }
+            else
+            {
+                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.ParticipantResponded, DateTime.Now));
+            }
         }
 
         switch (CurrentSpeechTest.GetSpeechTestReply(sender, e))
@@ -919,7 +961,6 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             case SpeechTest.SpeechTestReplies.PauseTestingWithCustomInformation:
 
-                string PauseInformation = CurrentSpeechTest.PauseInformation;
                 // Resets the test PauseInformation 
                 PauseTest();
                 CurrentSpeechTest.PauseInformation = "";
@@ -964,6 +1005,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     void ResponseHistoryUpdate(object sender, SpeechTestInputEventArgs e)
     {
+        // Registering timed trial event
+        //CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TestAdministratorUpdatedPreviuosResponse, DateTime.Now));
+
         CurrentSpeechTest.UpdateHistoricTrialResults(sender, e);
     }
 
@@ -994,6 +1038,13 @@ public partial class SpeechTestView : ContentView, IDrawable
             // Storing the timer here to be able to comparit later. Bad idea I know! But find no better now...
             trialEvent.Box = trialEventTimer;
         }
+
+        // Registering timed trial event
+        if (CurrentSpeechTest.CurrentTestTrial != null)
+        {
+            CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TrialStarted, DateTime.Now));
+        }
+
 
         // Starting the trial
         foreach (IDispatcherTimer timer in testTrialEventTimerList)
@@ -1038,14 +1089,43 @@ public partial class SpeechTestView : ContentView, IDrawable
                     switch (trialEvent.Type)
                     {
                         case ResponseViewEvent.ResponseViewEventTypes.PlaySound:
+
+                            if (CurrentSpeechTest.CurrentTestTrial != null)
+                            {
+                                // Registering timed trial events
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.SoundStartedPlay, DateTime.Now));
+
+                                // Actually deriving the times for the linguistic portion of the sound
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.LinguisticSoundStarted,
+                                    DateTime.Now.AddSeconds(CurrentSpeechTest.CurrentTestTrial.LinguisticSoundStimulusStartTime)));
+
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.LinguisticSoundEnded,
+                                    DateTime.Now.AddSeconds(CurrentSpeechTest.CurrentTestTrial.LinguisticSoundStimulusStartTime + CurrentSpeechTest.CurrentTestTrial.LinguisticSoundStimulusDuration)));
+                            }
+
                             OstfBase.SoundPlayer.SwapOutputSounds(ref CurrentSpeechTest.CurrentTestTrial.Sound);
+
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.StopSound:
+
+                            // Registering timed trial event
+                            if (CurrentSpeechTest.CurrentTestTrial != null)
+                            {
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.SoundStopped, DateTime.Now));
+                            }
+
                             OstfBase.SoundPlayer.FadeOutPlayback();
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowVisualSoundSources:
+
+                            // Registering timed trial event
+                            if (CurrentSpeechTest.CurrentTestTrial != null)
+                            {
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.VisualSoundSourcesShown, DateTime.Now));
+                            }
+
                             List<ResponseView.VisualizedSoundSource> soundSources = new List<ResponseView.VisualizedSoundSource>();
                             soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = SourceLocations.Left });
                             soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.7, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = 15, Text = "S2", SourceLocationsName = SourceLocations.Right });
@@ -1053,27 +1133,63 @@ public partial class SpeechTestView : ContentView, IDrawable
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives:
+
+                            // Registering timed trial event
+                            if (CurrentSpeechTest.CurrentTestTrial != null)
+                            {
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.ResponseAlternativesShown, DateTime.Now));
+                            }
+
                             CurrentResponseView.ShowResponseAlternatives(CurrentSpeechTest.CurrentTestTrial.ResponseAlternativeSpellings);
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue:
+
+                            // Registering timed trial event
+                            if (CurrentSpeechTest.CurrentTestTrial != null)
+                            {
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.VisualQueShown, DateTime.Now));
+                            }
+
                             CurrentResponseView.ShowVisualCue();
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.HideVisualCue:
+
+                            // Registering timed trial event
+                            if (CurrentSpeechTest.CurrentTestTrial != null)
+                            {
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.VisualQueHidden, DateTime.Now));
+                            }
+
                             CurrentResponseView.HideVisualCue();
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut:
+
+                            // Registering timed trial event
+                            if (CurrentSpeechTest.CurrentTestTrial != null)
+                            {
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.ResponseTimeWasOut, DateTime.Now));
+                            }
+
                             CurrentResponseView.ResponseTimesOut();
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowMessage:
+
+                            // Registering timed trial event
+                            if (CurrentSpeechTest.CurrentTestTrial != null)
+                            {
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.MessageShown, DateTime.Now));
+                            }
+
                             string tempMessage = "This is a temporary message";
                             CurrentResponseView.ShowMessage(tempMessage);
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.HideAll:
+
                             CurrentResponseView.HideAllItems();
                             break;
 

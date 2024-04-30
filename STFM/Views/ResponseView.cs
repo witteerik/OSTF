@@ -71,7 +71,16 @@ public abstract class ResponseView : ContentView
         }
     }
 
+    public event EventHandler<EventArgs> CorrectionButtonClicked;
 
+    protected virtual void OnCorrectionButtonClicked(EventArgs e)
+    {
+        EventHandler<EventArgs> handler = CorrectionButtonClicked;
+        if (handler != null)
+        {
+            handler(this, e);
+        }
+    }
 
     public abstract void AddSourceAlternatives(VisualizedSoundSource[] soundSources);
 

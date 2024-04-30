@@ -588,6 +588,10 @@ Public Class IHearProtocolB4SpeechTest
             End If
         End If
 
+        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
+        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+
     End Sub
 
 

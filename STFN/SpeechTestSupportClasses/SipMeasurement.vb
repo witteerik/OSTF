@@ -1733,10 +1733,12 @@ Namespace SipTest
                 Dim DuckSpecs_BackgroundNonSpeech = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
                 'BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel))
                 BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 6, Me.MediaSet.BackgroundNonspeechRealisticLevel)) ' Ducking 6 dB instead of 3
-                Dim BackgroundStartDuckSample As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)
+                'Dim BackgroundStartDuckSample As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)
+                Dim BackgroundStartDuckSample As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 1) ' Extending ducking fade to 1 sec before and after test word, to get a smoother fade
                 Dim BackgroundDuckFade1StageLength As Integer = TestWordStartSample - BackgroundStartDuckSample
                 DuckSpecs_BackgroundNonSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, BackgroundNonSpeechDucking, BackgroundStartDuckSample, BackgroundDuckFade1StageLength))
-                Dim BackgroundDuckFade2StageLength As Integer = Math.Min(CurrentSampleRate * 0.5, (TrialSoundLength - TestWordCompletedSample - 2))
+                'Dim BackgroundDuckFade2StageLength As Integer = Math.Min(CurrentSampleRate * 0.5, (TrialSoundLength - TestWordCompletedSample - 2))
+                Dim BackgroundDuckFade2StageLength As Integer = Math.Min(CurrentSampleRate * 1, (TrialSoundLength - TestWordCompletedSample - 2))
                 DuckSpecs_BackgroundNonSpeech.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, BackgroundDuckFade2StageLength))
 
                 'Sets up ducking specifications for the background (speech) signals

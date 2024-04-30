@@ -64,6 +64,67 @@ Public Class TestTrial
     ''' </summary>
     Public ResponseAlternativeSpellings As List(Of List(Of SpeechTestResponseAlternative))
 
+    Public TimedEventsList As New List(Of Tuple(Of TimedTrialEvents, DateTime))
+
+    Public Enum TimedTrialEvents
+        TrialStarted 'Registered in SpeechTestView
+        SoundStartedPlay 'Registered in SpeechTestView
+        LinguisticSoundStarted 'Registered in SpeechTestView, but requires LinguisticSoundStimulusStartTime to be set by each test
+        LinguisticSoundEnded 'Registered in SpeechTestView, but requires LinguisticSoundStimulusStartTime and LinguisticSoundStimulusDuration to be set by each test
+        VisualSoundSourcesShown 'Registered in SpeechTestView
+        VisualQueShown 'Registered in SpeechTestView
+        VisualQueHidden 'Registered in SpeechTestView
+        ResponseAlternativesShown 'Registered in SpeechTestView
+        ParticipantResponded 'Registered in SpeechTestView
+        TestAdministratorCorrectedResponse 'Registered in SpeechTestView, on call from the response view for free recall
+        TestAdministratorPressedNextTrial 'Registered in SpeechTestView
+        'TestAdministratorUpdatedPreviuosResponse 'Registered in SpeechTestView
+        ResponseTimeWasOut 'Registered in SpeechTestView
+        SoundStopped 'Registered in SpeechTestView, This will only happen on pause, or stop, etc and not every trial.
+        MessageShown 'Registered in SpeechTestView
+        PauseMessageShown 'Registered in SpeechTestView
+    End Enum
+
+    ''' <summary>
+    ''' Should hold the start time of the linguistic test stimulus, related to the start of the trial sound, in milliseconds
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property LinguisticSoundStimulusStartTime As Double
+
+    ''' <summary>
+    ''' Should hold the duration of the linguistic test stimulus, in milliseconds
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property LinguisticSoundStimulusDuration As Double
+
+    Public Function GetTimedEventsString() As String
+
+        Dim Output As New List(Of String)
+
+        'Getting the trial start time
+        Dim TrialStartTime As DateTime = Nothing
+        For Each TimedEvent In TimedEventsList
+            If TimedEvent.Item1 = TimedTrialEvents.TrialStarted Then
+                TrialStartTime = TimedEvent.Item2
+
+                Output.Add(TimedEvent.Item1.ToString & ": " & TimedEvent.Item2.ToString())
+
+                Exit For
+            End If
+        Next
+
+        For Each TimedEvent In TimedEventsList
+            If TimedEvent.Item1 = TimedTrialEvents.TrialStarted Then Continue For
+
+            'Calculating the time span relative to trial start
+            Dim CurrentTimeSpan = TimedEvent.Item2 - TrialStartTime
+            Output.Add(TimedEvent.Item1.ToString & ": " & CurrentTimeSpan.TotalMilliseconds)
+        Next
+
+        Return String.Join("|", Output)
+
+    End Function
+
 End Class
 
 

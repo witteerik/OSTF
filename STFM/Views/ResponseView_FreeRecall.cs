@@ -116,6 +116,7 @@ public class ResponseView_FreeRecall : ResponseView
         for (int i = 0; i < localResponseAlternatives.Count; i++)
         {
             CorrectionButton correctionButton = new CorrectionButton(localResponseAlternatives[i], textSize);
+            correctionButton.Clicked += CorrectionButton_Clicked;
             responseAlternativeGrid.Add(correctionButton, i, 1);
         }
 
@@ -205,7 +206,11 @@ public class ResponseView_FreeRecall : ResponseView
             wrapUpTrial();
         }
 
+    }
 
+    private void CorrectionButton_Clicked(object sender, EventArgs e)
+    {
+        OnCorrectionButtonClicked(e);
     }
 
     private void ReportResult(List<string> CorrectResponses)

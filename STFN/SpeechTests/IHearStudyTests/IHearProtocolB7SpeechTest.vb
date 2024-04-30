@@ -752,6 +752,10 @@ Public Class IHearProtocolB7SpeechTest
         'Mixing trial sound
         PrepareTestTrialSound()
 
+        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration 
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime
+        CurrentTestTrial.LinguisticSoundStimulusDuration = DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime - CurrentTestTrial.LinguisticSoundStimulusStartTime
+
         'Setting visual que intervals
         Dim ShowVisualQueTimer_Interval As Double
         Dim HideVisualQueTimer_Interval As Double
@@ -1175,6 +1179,8 @@ Public Class IHearProtocolB7SpeechTest
 
             'Adds IsCorrect, which is chance corrected for missing responses
             TrialList.Add(Trial.IsCorrect)
+
+            TrialList.Add(Trial.GetTimedEventsString)
 
             TestResult.FormattedTrialResults.Add(String.Join(vbTab, TrialList))
 

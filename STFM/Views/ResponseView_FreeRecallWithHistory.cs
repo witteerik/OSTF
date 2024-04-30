@@ -168,6 +168,8 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
             {
                 correctionButton.ShowAsCorrect = localResponseAlternatives[i].ParentTestTrial.IsCorrect;
                 correctionButton.setButtonAppearence();
+                correctionButton.Clicked += CorrectionButton_Clicked;
+
             }
 
             double ViewHeight = this.Height;
@@ -307,6 +309,12 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
 
     }
 
+    private void CorrectionButton_Clicked(object sender, EventArgs e)
+    {
+        OnCorrectionButtonClicked(e);
+    }
+
+    
     private void controlButton_Clicked(object sender, EventArgs e)
     {
 

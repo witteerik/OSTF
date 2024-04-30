@@ -3639,5 +3639,18 @@ Public Class Form4
         NewForm.Show()
     End Sub
 
+    Private Sub Button33_Click(sender As Object, e As EventArgs) Handles Button33.Click
 
+        Dim IR = Audio.Sound.LoadWaveFile("C:\Temp\Supplement 2.wav")
+        Dim Sound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSiPTest\Media\Home-Talker1-RVE\BackgroundNonspeech\Background1-WashingMachine_Fan.wav")
+
+        Dim OutputSound = Audio.DSP.FIRFilter(Sound, IR, New Audio.Formats.FftFormat, 1,,,,, True, True)
+
+        Audio.DSP.RemoveDcComponent(OutputSound)
+
+        Audio.DSP.MeasureAndAdjustSectionLevel(OutputSound, -36)
+
+        OutputSound.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSiPTest\Media\Home-Talker1-RVE\BackgroundNonspeech\Background1-WashingMachine_Fan_HpFiltered.wav")
+
+    End Sub
 End Class
