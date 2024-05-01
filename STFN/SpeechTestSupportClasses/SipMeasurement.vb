@@ -2684,7 +2684,7 @@ Namespace SipTest
             Dim OutputList As New List(Of String)
             OutputList.AddRange(BaseClassTestResultColumnHeadings())
 
-            OutputList.Add(vbTab & CreateExportHeadings())
+            OutputList.Add(CreateExportHeadings())
 
             ''Adding property names
             'Dim properties As PropertyInfo() = GetType(SiPTrial).GetProperties()
@@ -2707,7 +2707,7 @@ Namespace SipTest
             Dim OutputList As New List(Of String)
             OutputList.AddRange(BaseClassTestResultAsTextRow())
 
-            OutputList.Add(vbTab & CreateExportString(True))
+            OutputList.Add(CreateExportString(True))
 
             'Dim properties As PropertyInfo() = GetType(SrtTrial).GetProperties()
 

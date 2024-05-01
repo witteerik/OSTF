@@ -221,7 +221,7 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides ReadOnly Property CanHaveMaskers As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
@@ -324,7 +324,7 @@ Public Class IHearProtocolB1SpeechTest
     Private ContralateralNoise As Audio.Sound = Nothing
 
     Private TestWordPresentationTime As Double = 1.5
-    Private MaximumResponseTime As Double = 2.5
+    Private MaximumResponseTime As Double = 4.5
 
     Private TestLength As Integer = 50
 
@@ -679,6 +679,9 @@ Public Class IHearProtocolB1SpeechTest
                 CurrentTestTrial.Sound.WaveData.SampleData(1) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
         End If
+
+        'Also stores the mediaset
+        CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
 
     End Sub
 

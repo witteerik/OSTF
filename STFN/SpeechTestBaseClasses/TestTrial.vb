@@ -36,6 +36,8 @@ Public MustInherit Class TestTrial
 
     Public Sound As Audio.Sound
 
+    Public Property MediaSetName As String
+
     ''' <summary>
     ''' Indicates the number of correctly responded tasks.
     ''' </summary>

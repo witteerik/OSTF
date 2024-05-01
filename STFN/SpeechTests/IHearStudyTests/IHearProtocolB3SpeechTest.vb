@@ -546,6 +546,9 @@ Public Class IHearProtocolB3SpeechTest
             End If
         End If
 
+        'Also stores the mediaset
+        CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
+
     End Sub
 
     Public Overrides Sub FinalizeTest()

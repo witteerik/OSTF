@@ -379,22 +379,10 @@ public partial class OptionsViewAll : ContentView
 
         if (CurrentBindingContext.UsePhaseAudiometry == false)
         {
-
-            if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualSpeechLevelSelection)
-            {
                 SpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
                 BackgroundSpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundSpeech;
-            }
-
-            if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMaskingLevelSelection)
-            {
                 MaskerSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveMaskers;
-            }
-
-            if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualBackgroundLevelSelection)
-            {
                 BackgroundNonSpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundNonSpeech;
-            }
         }
     }
 

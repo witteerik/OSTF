@@ -446,6 +446,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsPB2TestView);
                     CurrentTestOptionsView = newOptionsPB2TestView;
 
+                    //((IHearProtocolB2SpeechTest)CurrentSpeechTest).TestCacheIndexation();
+
                     break;
 
                 case "Protokoll B3 - Användarstyrd TP":

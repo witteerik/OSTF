@@ -189,7 +189,7 @@ Public Class IHearProtocolB2SpeechTest
 
     Public Overrides ReadOnly Property CanHaveMaskers As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
@@ -295,13 +295,51 @@ Public Class IHearProtocolB2SpeechTest
     Private ContralateralNoise As Audio.Sound = Nothing
 
     Private TestWordPresentationTime As Double = 1.5
-    Private MaximumResponseTime As Double = 2.5
+    Private MaximumResponseTime As Double = 4.5
     Private TestLength As Integer
     Private MaximumSoundDuration As Double = 10
 
     Private IsInitialized As Boolean = False
 
     Private IsInitializeStarted As Boolean = False
+
+    Public Sub TestCacheIndexation()
+
+        'Creating cache variable names for storing last test list index and voice between sessions
+        CacheLastAdjustmentStageListVariableName = FilePathRepresentation & "LastASList"
+        CacheLastTestListVariableName = FilePathRepresentation & "LastTestList"
+        CacheLastMediaSetVariableName = FilePathRepresentation & "LastMediaSet"
+
+        AppCache.RemoveAppCacheVariable(CacheLastAdjustmentStageListVariableName)
+        AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
+        AppCache.RemoveAppCacheVariable(CacheLastMediaSetVariableName)
+
+        For testSession = 0 To 40
+
+            InitializeCurrentTest()
+
+            Utils.SendInfoToLog("testSession:" & testSession & ", SelectedMediaSetIndex: " & SelectedMediaSetIndex & ", PreTestListIndex: " & PreTestListIndex & ", TestListIndex: " & TestListIndex)
+
+            Dim TempTrialHistory As New TrialHistory
+            TempTrialHistory.Add(New WrsTrial With {.ScoreList = New List(Of Integer) From {1}})
+            ObservedTestTrials = TempTrialHistory
+
+            FinalizeTest()
+
+            IsInitialized = False
+            IsInitializeStarted = False
+
+        Next
+
+        AppCache.RemoveAppCacheVariable(CacheLastAdjustmentStageListVariableName)
+        AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
+        AppCache.RemoveAppCacheVariable(CacheLastMediaSetVariableName)
+
+        ObservedTestTrials = New TrialHistory
+
+        Messager.MsgBox("Finished test of cache indexation. Results are stored in the log folder.")
+
+    End Sub
 
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
@@ -358,6 +396,10 @@ Public Class IHearProtocolB2SpeechTest
             If TestListIndex > AllTestListsNames.Count - 1 Then
                 TestListIndex = 0
             End If
+
+            'Saving the variables the first time, so they don't get randomized again before they are saved (after the last media set has been tested)
+            AppCache.SetAppCacheVariableValue(CacheLastAdjustmentStageListVariableName, PreTestListIndex)
+            AppCache.SetAppCacheVariableValue(CacheLastTestListVariableName, TestListIndex)
 
         End If
 
@@ -687,6 +729,9 @@ Public Class IHearProtocolB2SpeechTest
             End If
         End If
 
+        'Also stores the mediaset
+        CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
+
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
@@ -755,9 +800,11 @@ Public Class IHearProtocolB2SpeechTest
                 'Storing the test list index and media set to be used in the next test session (only if NoTestId was not used)
                 AppCache.SetAppCacheVariableValue(CacheLastAdjustmentStageListVariableName, NextAdjustmentStageListIndex)
                 AppCache.SetAppCacheVariableValue(CacheLastTestListVariableName, NextTestListIndex)
-                AppCache.SetAppCacheVariableValue(CacheLastMediaSetVariableName, SelectedMediaSetIndex)
 
             End If
+
+            'Saving the media set index every time
+            AppCache.SetAppCacheVariableValue(CacheLastMediaSetVariableName, SelectedMediaSetIndex)
 
         End If
 

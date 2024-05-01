@@ -296,7 +296,7 @@ Public Class IHearProtocolB4SpeechTest
 
     Private MaximumSoundDuration As Double = 10
     Private TestWordPresentationTime As Double = 0.5
-    Private MaximumResponseTime As Double = 4
+    Private MaximumResponseTime As Double = 5
 
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
@@ -354,6 +354,9 @@ Public Class IHearProtocolB4SpeechTest
         'Store the results of the first test
         CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
         SaveTableFormatedTestResults()
+
+        ' Calling this just to store the tage 1 resulsts for the GUI
+        GetResultStringForGui()
 
         'Initialize second test
         IsSecondTest = True
@@ -642,6 +645,9 @@ Public Class IHearProtocolB4SpeechTest
                 CurrentTestTrial.Sound.WaveData.SampleData(1) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
         End If
+
+        'Also stores the mediaset
+        CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
 
     End Sub
 

@@ -170,19 +170,19 @@ Public Class IHearProtocolB7SpeechTest
 
     Public Overrides ReadOnly Property CanHaveTargets As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
     Public Overrides ReadOnly Property CanHaveMaskers As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
     Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
