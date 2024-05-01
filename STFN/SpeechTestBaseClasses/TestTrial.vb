@@ -1,4 +1,6 @@
-﻿Public Class TrialHistory
+﻿Imports System.Reflection
+
+Public Class TrialHistory
     Inherits List(Of TestTrial)
 
     Public Sub Shuffle(Randomizer As Random)
@@ -13,19 +15,19 @@
 
 End Class
 
-Public Class TestTrial
+Public MustInherit Class TestTrial
 
     ''' <summary>
-    ''' An unsigned integer value which can be used to store the test block to which the current trial belongs. While test stages should primarily differ in the applied protocol rules, test blocks should primarily differ in tested content.
+    ''' An integer value which can be used to store the test block to which the current trial belongs. While test stages should primarily differ in the applied protocol rules, test blocks should primarily differ in tested content.
     ''' </summary>
-    Public TestBlock As UInteger
+    Public Property TestBlock As Integer
 
     ''' <summary>
-    ''' An unsigned integer value which can be used to store the test stage to which the current trial belongs. While test blocks should primarily differ in tested content, test stages should primarily differ in the protocol rules applied.
+    ''' An integer value which can be used to store the test stage to which the current trial belongs. While test blocks should primarily differ in tested content, test stages should primarily differ in the protocol rules applied.
     ''' </summary>
-    Public TestStage As UInteger
+    Public Property TestStage As Integer
 
-    Public SpeechMaterialComponent As SpeechMaterialComponent
+    Public Property SpeechMaterialComponent As SpeechMaterialComponent
 
     ''' <summary>
     ''' A list specifying what is to happen at different timepoints starting from the launch of the test trial
@@ -39,30 +41,69 @@ Public Class TestTrial
     ''' </summary>
     Public ScoreList As New List(Of Integer)
 
+    Public ReadOnly Property ScoreListString As String
+        Get
+            If ScoreList IsNot Nothing Then
+                Return String.Join(", ", ScoreList)
+            Else
+                Return ""
+            End If
+        End Get
+    End Property
+
+
     ''' <summary>
     ''' Indicates if the trial as a whole was correct or not.
     ''' </summary>
     ''' <returns></returns>
     Public Property IsCorrect As Boolean
 
-
     ''' <summary>
     ''' Indicate the number of presented tasks.
     ''' </summary>
-    Public Tasks As UInteger
+    Public Property Tasks As UInteger
 
-    Public Function GetProportionTasksCorrect() As Decimal
-        If Tasks > 0 And ScoreList.Count > 0 Then
-            Return ScoreList.Sum / Tasks
-        Else
-            Return 0
-        End If
-    End Function
+    Public ReadOnly Property GetProportionTasksCorrect() As Decimal
+        Get
+            If Tasks > 0 And ScoreList.Count > 0 Then
+                Return ScoreList.Sum / Tasks
+            Else
+                Return 0
+            End If
+        End Get
+    End Property
 
     ''' <summary>
     ''' A matrix holding response alternatives in lists. While a test item with a single set of response alternatives (one dimension) should only use one list, while matrix tests should use several lists.
     ''' </summary>
     Public ResponseAlternativeSpellings As List(Of List(Of SpeechTestResponseAlternative))
+
+    Public ReadOnly Property ExportedResponseAlternativeSpellings As String
+        Get
+
+            Dim OutputList As New List(Of String)
+            If ResponseAlternativeSpellings IsNot Nothing Then
+                For Each RAL In ResponseAlternativeSpellings
+                    If RAL IsNot Nothing Then
+                        For Each RA In RAL
+                            If RA IsNot Nothing Then
+                                If RA.IsVisible = True Then
+                                    OutputList.Add(RA.Spelling)
+                                End If
+                            End If
+                        Next
+                    End If
+                Next
+            End If
+
+            If OutputList.Count > 0 Then
+                Return String.Join(", ", OutputList)
+            Else
+                Return ""
+            End If
+
+        End Get
+    End Property
 
     Public TimedEventsList As New List(Of Tuple(Of TimedTrialEvents, DateTime))
 
@@ -97,31 +138,93 @@ Public Class TestTrial
     ''' <returns></returns>
     Public Property LinguisticSoundStimulusDuration As Double
 
-    Public Function GetTimedEventsString() As String
+    Public ReadOnly Property GetTimedEventsString() As String
+        Get
 
-        Dim Output As New List(Of String)
+            Dim Output As New List(Of String)
 
-        'Getting the trial start time
-        Dim TrialStartTime As DateTime = Nothing
-        For Each TimedEvent In TimedEventsList
-            If TimedEvent.Item1 = TimedTrialEvents.TrialStarted Then
-                TrialStartTime = TimedEvent.Item2
+            If TimedEventsList IsNot Nothing Then
 
-                Output.Add(TimedEvent.Item1.ToString & ": " & TimedEvent.Item2.ToString())
+                'Getting the trial start time
+                Dim TrialStartTime As DateTime = Nothing
+                For Each TimedEvent In TimedEventsList
+                    If TimedEvent.Item1 = TimedTrialEvents.TrialStarted Then
+                        TrialStartTime = TimedEvent.Item2
 
-                Exit For
+                        Output.Add(TimedEvent.Item1.ToString & ": " & TimedEvent.Item2.ToString())
+
+                        Exit For
+                    End If
+                Next
+
+                For Each TimedEvent In TimedEventsList
+                    If TimedEvent.Item1 = TimedTrialEvents.TrialStarted Then Continue For
+
+                    'Calculating the time span relative to trial start
+                    Dim CurrentTimeSpan = TimedEvent.Item2 - TrialStartTime
+                    Output.Add(TimedEvent.Item1.ToString & ": " & CurrentTimeSpan.TotalMilliseconds)
+                Next
+
+                If Output.Count > 0 Then
+                    Return String.Join("|", Output)
+                Else
+                    Return ""
+                End If
+            Else
+                Return ""
             End If
+
+        End Get
+    End Property
+
+    Public MustOverride Function TestResultColumnHeadings() As String
+
+    Public MustOverride Function TestResultAsTextRow() As String
+
+    Protected Shared Function BaseClassTestResultColumnHeadings() As List(Of String)
+
+        Dim OutputList As New List(Of String)
+        Dim properties As PropertyInfo() = GetType(TestTrial).GetProperties()
+
+        ' Iterating through each property
+        For Each [property] As PropertyInfo In properties
+
+            ' Getting the name of the property
+            Dim propertyName As String = [property].Name
+            OutputList.Add(propertyName)
+
         Next
 
-        For Each TimedEvent In TimedEventsList
-            If TimedEvent.Item1 = TimedTrialEvents.TrialStarted Then Continue For
+        Return OutputList
 
-            'Calculating the time span relative to trial start
-            Dim CurrentTimeSpan = TimedEvent.Item2 - TrialStartTime
-            Output.Add(TimedEvent.Item1.ToString & ": " & CurrentTimeSpan.TotalMilliseconds)
+    End Function
+
+    Protected Function BaseClassTestResultAsTextRow() As List(Of String)
+
+        Dim OutputList As New List(Of String)
+        Dim properties As PropertyInfo() = GetType(TestTrial).GetProperties()
+
+        ' Iterating through each property
+        For Each [property] As PropertyInfo In properties
+
+            ' Getting the name of the property
+            Dim propertyName As String = [property].Name
+
+            ' Getting the value of the property for the current instance 
+            Dim propertyValue As Object = [property].GetValue(Me)
+
+            'If TypeOf propertyValue Is String Then
+            '    Dim stringValue As String = DirectCast(propertyValue, String)
+            'ElseIf TypeOf propertyValue Is Integer Then
+            '    Dim intValue As Integer = DirectCast(propertyValue, Integer)
+            'Else
+            'End If
+
+            OutputList.Add(propertyValue.ToString)
+
         Next
 
-        Return String.Join("|", Output)
+        Return OutputList
 
     End Function
 

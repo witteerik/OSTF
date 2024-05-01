@@ -354,11 +354,13 @@
 
     Public MustOverride Sub FinalizeTest()
 
-    Public MustOverride Function GetResults() As TestResults
+    Public MustOverride Function GetResultStringForGui() As String
+
+    Public MustOverride Function GetExportString() As String
 
     Public MustOverride ReadOnly Property FilePathRepresentation As String
 
-    Public Function SaveTextFormattedResults(TestResults As TestResults) As Boolean
+    Public Function SaveTableFormatedTestResults() As Boolean
 
         'Skipping saving data if it's the demo ptc ID
         If SharedSpeechTestObjects.CurrentParticipantID.Trim = SharedSpeechTestObjects.NoTestId Then Return True
@@ -383,7 +385,7 @@
         'Ensures that an old file with the same filename is not overwritten by adding a number to existing files
         OutputFilename = Utils.CheckFileNameConflict(OutputFilename)
 
-        Dim TestResultsString = GetResults.GetTestResultsExportString()
+        Dim TestResultsString = GetExportString()
         Utils.SendInfoToLog(TestResultsString, OutputFilename, OutputPath, False, True)
 
         Return True

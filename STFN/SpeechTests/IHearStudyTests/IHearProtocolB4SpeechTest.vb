@@ -347,8 +347,7 @@ Public Class IHearProtocolB4SpeechTest
 
         'Store the results of the first test
         CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
-        Dim Results = GetResults()
-        SaveTextFormattedResults(Results)
+        SaveTableFormatedTestResults()
 
         'Initialize second test
         IsSecondTest = True
@@ -641,53 +640,59 @@ Public Class IHearProtocolB4SpeechTest
     End Sub
 
 
-    Public Overrides Function GetResults() As TestResults
+    Public Overrides Function GetResultStringForGui() As String
 
         Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
 
-        Dim Output = New TestResults(TestResults.TestResultTypes.SRT)
-        If ProtocolThreshold.HasValue Then
-            Output.AdaptiveLevelThreshold = ProtocolThreshold
+        Dim Output As New List(Of String)
+
+        If ProtocolThreshold IsNot Nothing Then
+            If ResultSummaryForGUI.Count = 0 Then
+                ResultSummaryForGUI.Add("HTT första testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
+            Else
+                ResultSummaryForGUI.Add("HTT andra testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
+            End If
+            Output.AddRange(ResultSummaryForGUI)
         Else
-            'Storing NaN if no threshold was reached
-            Output.AdaptiveLevelThreshold = Double.NaN
+            Output.Add("Talnivå = " & vbTab & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
+            Output.Add("Kontralateral brusnivå = " & vbTab & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
         End If
 
-        'Calculating the SRT based on the adaptive threshold
-        Select Case CustomizableTestOptions.SelectedTestMode
-            Case TestModes.AdaptiveSpeech
-                Output.SpeechRecognitionThreshold = Output.AdaptiveLevelThreshold
-            Case TestModes.AdaptiveNoise
-                Output.SpeechRecognitionThreshold = Output.AdaptiveLevelThreshold
-            Case Else
-                Throw New NotImplementedException
-        End Select
+        Return String.Join(vbCrLf, Output)
 
-        'Storing the AdaptiveLevelSeries
-        'Output.AdaptiveLevelSeries = New List(Of Double)
-        Output.SpeechLevelSeries = New List(Of Double)
-        'Output.MaskerLevelSeries = New List(Of Double)
-        Output.ContralateralMaskerLevelSeries = New List(Of Double)
-        'Output.SNRLevelSeries = New List(Of Double)
-        Output.TestStageSeries = New List(Of String)
-        Output.ProportionCorrectSeries = New List(Of String)
-        Output.ScoreSeries = New List(Of String)
-        For Each Trial As SrtTrial In ObservedTrials
-            'Output.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
-            Output.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
-            'Output.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
-            Output.ContralateralMaskerLevelSeries.Add(Math.Round(Trial.ContralateralMaskerLevel))
-            'Output.SNRLevelSeries.Add(Math.Round(Trial.SNR))
-            Output.TestStageSeries.Add(Trial.TestStage)
-            Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-            If Trial.IsCorrect = True Then
-                Output.ScoreSeries.Add("Correct")
-            Else
-                Output.ScoreSeries.Add("Incorrect")
+    End Function
+
+    Private ResultSummaryForGUI As New List(Of String)
+
+    Public Overrides Function GetExportString() As String
+
+        Dim ExportStringList As New List(Of String)
+
+        Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+
+        'Exporting all trials
+        Dim TestTrialIndex As Integer = 0
+        For i = 0 To ObservedTrials.Count - 1
+
+            If TestTrialIndex = 0 Then
+                ExportStringList.Add("TrialIndex" & vbTab & ObservedTrials(i).TestResultColumnHeadings & vbTab & "SRT")
             End If
+
+            If i = ObservedTrials.Count - 1 Then
+                'Exporting SRT on last row, last column, if determined
+                If ProtocolThreshold.HasValue Then
+                    ExportStringList.Add(i & vbTab & ObservedTrials(i).TestResultAsTextRow & vbTab & ProtocolThreshold)
+                Else
+                    ExportStringList.Add(i & vbTab & ObservedTrials(i).TestResultAsTextRow & vbTab & "SRT not established")
+                End If
+            Else
+                ExportStringList.Add(i & vbTab & ObservedTrials(i).TestResultAsTextRow)
+            End If
+
+            TestTrialIndex += 1
         Next
 
-        Return Output
+        Return String.Join(vbCrLf, ExportStringList)
 
     End Function
 

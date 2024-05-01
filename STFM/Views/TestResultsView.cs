@@ -15,7 +15,7 @@ public abstract class TestResultsView : ContentView
 		};
 	}
 
-    public abstract void ShowTestResults(TestResults results);
+    public abstract void ShowTestResults(string results);
 
 
 }

@@ -3244,6 +3244,10 @@ Public Class SpeechMaterialComponent
         Distribution
     End Enum
 
+    Public Overrides Function ToString() As String
+        Return Me.Id
+    End Function
+
 End Class
 
 ''' <summary>

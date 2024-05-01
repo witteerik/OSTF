@@ -1,4 +1,6 @@
-﻿Public Class TestResults
+﻿Public Class TestResults_NOTUSE
+
+    Public ExportLines As New List(Of String)
 
     Public ReadOnly TestResultType As TestResultTypes
 
@@ -42,12 +44,20 @@
         Dim ResultsRowList = New List(Of String)
 
         Select Case TestResultType
-            Case TestResultTypes.SRT, TestResultTypes.IHPB4
-                If Double.IsInfinity(SpeechRecognitionThreshold) = False Then
+            Case TestResultTypes.SRT
+                If Double.IsNaN(SpeechRecognitionThreshold) = False Then
                     ResultsRowList.Add("HTT = " & vbTab & Math.Round(SpeechRecognitionThreshold) & " dB HL")
                 Else
-                    If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Talnivå = " & vbTab & Math.Round(SpeechLevelSeries.Last) & " dB HL")
-                    If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Kontralateral brusnivå = " & vbTab & Math.Round(ContralateralMaskerLevelSeries.Last) & " dB HL")
+                    If SpeechLevelSeries IsNot Nothing Then
+                        If SpeechLevelSeries.Count > 0 Then
+                            ResultsRowList.Add("Talnivå = " & vbTab & Math.Round(SpeechLevelSeries.Last) & " dB HL")
+                        End If
+                    End If
+                    If ContralateralMaskerLevelSeries IsNot Nothing Then
+                        If ContralateralMaskerLevelSeries.Count > 0 Then
+                            ResultsRowList.Add("Kontralateral brusnivå = " & vbTab & Math.Round(ContralateralMaskerLevelSeries.Last) & " dB HL")
+                        End If
+                    End If
                 End If
 
             Case TestResultTypes.WRS
@@ -58,8 +68,16 @@
                     End If
                 End If
                 If Double.IsNaN(ProportionCorrect) = False Then ResultsRowList.Add("TP = " & vbTab & Math.Round(Math.Round(100 * ProportionCorrect)) & " % correct")
-                If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Talnivå = " & vbTab & Math.Round(SpeechLevelSeries.Last) & " dB HL")
-                If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Kontralateral brusnivå = " & vbTab & Math.Round(ContralateralMaskerLevelSeries.Last) & " dB HL")
+                If SpeechLevelSeries IsNot Nothing Then
+                    If SpeechLevelSeries.Count > 0 Then
+                        ResultsRowList.Add("Talnivå = " & vbTab & Math.Round(SpeechLevelSeries.Last) & " dB HL")
+                    End If
+                End If
+                If ContralateralMaskerLevelSeries IsNot Nothing Then
+                    If ContralateralMaskerLevelSeries.Count > 0 Then
+                        ResultsRowList.Add("Kontralateral brusnivå = " & vbTab & Math.Round(ContralateralMaskerLevelSeries.Last) & " dB HL")
+                    End If
+                End If
 
             Case TestResultTypes.QSiP
                 If TestResultSummaryLines IsNot Nothing Then ResultsRowList.AddRange(TestResultSummaryLines)
@@ -68,6 +86,9 @@
                 If TestResultSummaryLines IsNot Nothing Then ResultsRowList.AddRange(TestResultSummaryLines)
 
             Case TestResultTypes.IHPB3
+                If TestResultSummaryLines IsNot Nothing Then ResultsRowList.AddRange(TestResultSummaryLines)
+
+            Case TestResultTypes.IHPB4
                 If TestResultSummaryLines IsNot Nothing Then ResultsRowList.AddRange(TestResultSummaryLines)
 
             Case TestResultTypes.IHPB7
@@ -82,183 +103,9 @@
 
     End Function
 
-    Public Function GetFormattedTestResultsSummaryString_OLD() As String
-
-        Dim ResultsRowList = New List(Of String)
-
-        Select Case TestResultType
-            Case TestResultTypes.SRT
-                ResultsRowList.Add("Speech recognition threshold: " & vbCrLf & Math.Round(SpeechRecognitionThreshold) & " dB SPL")
-                ResultsRowList.Add("Adaptive recognition threshold: " & vbCrLf & Math.Round(AdaptiveLevelThreshold) & " dB SPL")
-
-                If TestStageSeries IsNot Nothing Then ResultsRowList.Add("Test stage:" & vbCrLf & String.Join(vbTab, TestStageSeries))
-                If AdaptiveLevelSeries IsNot Nothing Then ResultsRowList.Add("Adaptive levels:" & vbCrLf & String.Join(vbTab, AdaptiveLevelSeries))
-                If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Speech levels:" & vbCrLf & String.Join(vbTab, SpeechLevelSeries))
-                If MaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Masker levels:" & vbCrLf & String.Join(vbTab, MaskerLevelSeries))
-                If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Contralateral masker levels:" & vbCrLf & String.Join(vbTab, ContralateralMaskerLevelSeries))
-                If SNRLevelSeries IsNot Nothing Then ResultsRowList.Add("SNR levels:" & vbCrLf & String.Join(vbTab, SNRLevelSeries))
-                If ScoreSeries IsNot Nothing Then ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
-                If ProportionCorrectSeries IsNot Nothing Then ResultsRowList.Add("Proportion correct:" & vbCrLf & String.Join(vbTab, ProportionCorrectSeries))
-
-            Case TestResultTypes.WRS
-
-                If Progress IsNot Nothing And ProgressMax IsNot Nothing Then
-                    If Progress.Count > 0 And ProgressMax.Count > 0 Then
-                        ResultsRowList.Add("Word: " & Progress.Last & " / " & ProgressMax.Last)
-                    End If
-                End If
-
-                If TrialStringComment IsNot Nothing Then
-                    If TrialStringComment.Count > 0 Then ResultsRowList.Add(TrialStringComment.Last)
-                End If
-
-                If Double.IsNaN(ProportionCorrect) = False Then ResultsRowList.Add("Word recognition score: " & Math.Round(Math.Round(100 * ProportionCorrect)) & " % correct")
-                If SpeechLevelSeries.Count > 0 Then ResultsRowList.Add("Speech level: " & Math.Round(SpeechLevelSeries.Last) & " dB SPL")
-                'If SNRLevelSeries.Count > 0 Then ResultsRowList.Add("Test SNR: " & vbCrLf & Math.Round(SNRLevelSeries.Last) & " dB SPL")
-                'If MaskerLevelSeries.Count > 0 Then ResultsRowList.Add("Masking noise level: " & vbCrLf & Math.Round(MaskerLevelSeries.Last) & " dB SPL")
-                If ContralateralMaskerLevelSeries.Count > 0 Then ResultsRowList.Add("Contralateral masking level: " & Math.Round(ContralateralMaskerLevelSeries.Last) & " dB SPL")
-
-                'If TestStageSeries IsNot Nothing Then ResultsRowList.Add("Test stage:" & vbCrLf & String.Join(vbTab, TestStageSeries))
-                'If AdaptiveLevelSeries IsNot Nothing Then ResultsRowList.Add("Adaptive levels:" & vbCrLf & String.Join(vbTab, AdaptiveLevelSeries))
-                'If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Speech levels:" & vbCrLf & String.Join(vbTab, SpeechLevelSeries))
-                'If MaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Masker levels:" & vbCrLf & String.Join(vbTab, MaskerLevelSeries))
-                'If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Contralateral masker levels:" & vbCrLf & String.Join(vbTab, ContralateralMaskerLevelSeries))
-                'If SNRLevelSeries IsNot Nothing Then ResultsRowList.Add("SNR levels:" & vbCrLf & String.Join(vbTab, SNRLevelSeries))
-                'If ScoreSeries IsNot Nothing Then ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
-                'If ProportionCorrectSeries IsNot Nothing Then ResultsRowList.Add("Proportion correct:" & vbCrLf & String.Join(vbTab, ProportionCorrectSeries))
-
-            Case TestResultTypes.QSiP
-
-                ResultsRowList.AddRange(TestResultSummaryLines)
-                'ResultsRowList.Add(FormattedTrialResultsHeadings)
-                'ResultsRowList.AddRange(FormattedTrialResults)
-
-
-            Case TestResultTypes.IHPB1
-
-                ResultsRowList.AddRange(TestResultSummaryLines)
-
-            Case TestResultTypes.IHPB3
-
-                ResultsRowList.AddRange(TestResultSummaryLines)
-
-            Case TestResultTypes.IHPB4
-                ResultsRowList.Add("Speech recognition threshold: " & vbCrLf & Math.Round(SpeechRecognitionThreshold) & " dB SPL")
-                'ResultsRowList.Add("Adaptive recognition threshold: " & vbCrLf & Math.Round(AdaptiveLevelThreshold) & " dB SPL")
-
-                If TestStageSeries IsNot Nothing Then ResultsRowList.Add("Test stage:" & vbCrLf & String.Join(vbTab, TestStageSeries))
-                If AdaptiveLevelSeries IsNot Nothing Then ResultsRowList.Add("Adaptive levels:" & vbCrLf & String.Join(vbTab, AdaptiveLevelSeries))
-                If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Speech levels:" & vbCrLf & String.Join(vbTab, SpeechLevelSeries))
-                If MaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Masker levels:" & vbCrLf & String.Join(vbTab, MaskerLevelSeries))
-                If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Contralateral masker levels:" & vbCrLf & String.Join(vbTab, ContralateralMaskerLevelSeries))
-                If SNRLevelSeries IsNot Nothing Then ResultsRowList.Add("SNR levels:" & vbCrLf & String.Join(vbTab, SNRLevelSeries))
-                If ScoreSeries IsNot Nothing Then ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
-                If ProportionCorrectSeries IsNot Nothing Then ResultsRowList.Add("Proportion correct:" & vbCrLf & String.Join(vbTab, ProportionCorrectSeries))
-
-            Case Else
-
-                Throw New NotImplementedException
-
-        End Select
-
-
-        Return String.Join(vbCrLf, ResultsRowList)
-
-    End Function
-
     Public Function GetTestResultsExportString() As String
 
-        Dim ResultsRowList = New List(Of String)
-
-        Select Case TestResultType
-            Case TestResultTypes.SRT
-                ResultsRowList.Add("Speech recognition threshold: " & vbCrLf & Math.Round(SpeechRecognitionThreshold) & " dB SPL")
-                ResultsRowList.Add("Adaptive recognition threshold: " & vbCrLf & Math.Round(AdaptiveLevelThreshold) & " dB SPL")
-
-                If TestStageSeries IsNot Nothing Then ResultsRowList.Add("Test stage:" & vbCrLf & String.Join(vbTab, TestStageSeries))
-                If AdaptiveLevelSeries IsNot Nothing Then ResultsRowList.Add("Adaptive levels:" & vbCrLf & String.Join(vbTab, AdaptiveLevelSeries))
-                If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Speech levels:" & vbCrLf & String.Join(vbTab, SpeechLevelSeries))
-                If MaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Masker levels:" & vbCrLf & String.Join(vbTab, MaskerLevelSeries))
-                If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Contralateral masker levels:" & vbCrLf & String.Join(vbTab, ContralateralMaskerLevelSeries))
-                If SNRLevelSeries IsNot Nothing Then ResultsRowList.Add("SNR levels:" & vbCrLf & String.Join(vbTab, SNRLevelSeries))
-                If ScoreSeries IsNot Nothing Then ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
-                If ProportionCorrectSeries IsNot Nothing Then ResultsRowList.Add("Proportion correct:" & vbCrLf & String.Join(vbTab, ProportionCorrectSeries))
-
-            Case TestResultTypes.WRS
-
-                If Progress IsNot Nothing And ProgressMax IsNot Nothing Then
-                    If Progress.Count > 0 And ProgressMax.Count > 0 Then
-                        ResultsRowList.Add("Word: " & Progress.Last & " / " & ProgressMax.Last)
-                    End If
-                End If
-
-                If TrialStringComment IsNot Nothing Then
-                    If TrialStringComment.Count > 0 Then ResultsRowList.Add(TrialStringComment.Last)
-                End If
-
-                If Double.IsNaN(ProportionCorrect) = False Then ResultsRowList.Add("Word recognition score: " & Math.Round(Math.Round(100 * ProportionCorrect)) & " % correct")
-                If SpeechLevelSeries.Count > 0 Then ResultsRowList.Add("Speech level: " & Math.Round(SpeechLevelSeries.Last) & " dB SPL")
-                'If SNRLevelSeries.Count > 0 Then ResultsRowList.Add("Test SNR: " & vbCrLf & Math.Round(SNRLevelSeries.Last) & " dB SPL")
-                'If MaskerLevelSeries.Count > 0 Then ResultsRowList.Add("Masking noise level: " & vbCrLf & Math.Round(MaskerLevelSeries.Last) & " dB SPL")
-                If ContralateralMaskerLevelSeries.Count > 0 Then ResultsRowList.Add("Contralateral masking level: " & Math.Round(ContralateralMaskerLevelSeries.Last) & " dB SPL")
-
-                'If TestStageSeries IsNot Nothing Then ResultsRowList.Add("Test stage:" & vbCrLf & String.Join(vbTab, TestStageSeries))
-                'If AdaptiveLevelSeries IsNot Nothing Then ResultsRowList.Add("Adaptive levels:" & vbCrLf & String.Join(vbTab, AdaptiveLevelSeries))
-                'If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Speech levels:" & vbCrLf & String.Join(vbTab, SpeechLevelSeries))
-                'If MaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Masker levels:" & vbCrLf & String.Join(vbTab, MaskerLevelSeries))
-                'If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Contralateral masker levels:" & vbCrLf & String.Join(vbTab, ContralateralMaskerLevelSeries))
-                'If SNRLevelSeries IsNot Nothing Then ResultsRowList.Add("SNR levels:" & vbCrLf & String.Join(vbTab, SNRLevelSeries))
-                'If ScoreSeries IsNot Nothing Then ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
-                'If ProportionCorrectSeries IsNot Nothing Then ResultsRowList.Add("Proportion correct:" & vbCrLf & String.Join(vbTab, ProportionCorrectSeries))
-
-            Case TestResultTypes.QSiP
-
-                ResultsRowList.AddRange(TestResultSummaryLines)
-                ResultsRowList.Add(FormattedTrialResultsHeadings & vbTab & "IsCorrect")
-                ResultsRowList.AddRange(FormattedTrialResults)
-
-            Case TestResultTypes.IHPB1
-
-                ResultsRowList.AddRange(TestResultSummaryLines)
-
-                ResultsRowList.Add("TrialStringComment" & String.Join(vbTab, TrialStringComment))
-                ResultsRowList.Add("SpeechLevelSeries" & String.Join(vbTab, SpeechLevelSeries))
-                ResultsRowList.Add("MaskerLevelSeries" & String.Join(vbTab, MaskerLevelSeries))
-                'ResultsRowList.Add("ContralateralMaskerLevelSeries" & String.Join(vbTab, ContralateralMaskerLevelSeries))
-                ResultsRowList.Add("ScoreSeries" & String.Join(vbTab, ScoreSeries))
-
-
-            Case TestResultTypes.IHPB3
-
-                ResultsRowList.AddRange(TestResultSummaryLines)
-
-                ResultsRowList.Add("TrialStringComment" & String.Join(vbTab, TrialStringComment))
-                ResultsRowList.Add("SpeechLevelSeries" & String.Join(vbTab, SpeechLevelSeries))
-                ResultsRowList.Add("ContralateralMaskerLevelSeries" & String.Join(vbTab, ContralateralMaskerLevelSeries))
-                ResultsRowList.Add("ScoreSeries" & String.Join(vbTab, ScoreSeries))
-
-            Case TestResultTypes.IHPB4
-                ResultsRowList.Add("Speech recognition threshold: " & vbCrLf & Math.Round(SpeechRecognitionThreshold) & " dB SPL")
-                'ResultsRowList.Add("Adaptive recognition threshold: " & vbCrLf & Math.Round(AdaptiveLevelThreshold) & " dB SPL")
-
-                If TestStageSeries IsNot Nothing Then ResultsRowList.Add("Test stage:" & vbCrLf & String.Join(vbTab, TestStageSeries))
-                If AdaptiveLevelSeries IsNot Nothing Then ResultsRowList.Add("Adaptive levels:" & vbCrLf & String.Join(vbTab, AdaptiveLevelSeries))
-                If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Speech levels:" & vbCrLf & String.Join(vbTab, SpeechLevelSeries))
-                If MaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Masker levels:" & vbCrLf & String.Join(vbTab, MaskerLevelSeries))
-                If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Contralateral masker levels:" & vbCrLf & String.Join(vbTab, ContralateralMaskerLevelSeries))
-                If SNRLevelSeries IsNot Nothing Then ResultsRowList.Add("SNR levels:" & vbCrLf & String.Join(vbTab, SNRLevelSeries))
-                If ScoreSeries IsNot Nothing Then ResultsRowList.Add("Trial score:" & vbCrLf & String.Join(vbTab, ScoreSeries))
-                If ProportionCorrectSeries IsNot Nothing Then ResultsRowList.Add("Proportion correct:" & vbCrLf & String.Join(vbTab, ProportionCorrectSeries))
-
-
-            Case Else
-
-                Throw New NotImplementedException
-
-        End Select
-
-
-        Return String.Join(vbCrLf, ResultsRowList)
+        Return String.Join(vbCrLf, ExportLines)
 
     End Function
 

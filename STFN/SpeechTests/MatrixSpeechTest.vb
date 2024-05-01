@@ -653,50 +653,57 @@ Public Class MatrixSpeechTest
 
     End Sub
 
-
-    Public Overrides Function GetResults() As TestResults
-
-        Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
-
-        Dim RawResults = New TestResults(TestResults.TestResultTypes.SRT)
-        If ProtocolThreshold.HasValue Then
-            RawResults.AdaptiveLevelThreshold = ProtocolThreshold
-        Else
-            'Storing NaN if no threshold was reached
-            RawResults.AdaptiveLevelThreshold = Double.NaN
-        End If
-
-        'Calculating the SRT based on the adaptive threshold
-        Select Case CustomizableTestOptions.SelectedTestMode
-            Case TestModes.AdaptiveSpeech
-                RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
-            Case TestModes.AdaptiveNoise
-                RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
-            Case Else
-                Throw New NotImplementedException
-        End Select
-
-        'Storing the AdaptiveLevelSeries
-        RawResults.AdaptiveLevelSeries = New List(Of Double)
-        RawResults.SpeechLevelSeries = New List(Of Double)
-        RawResults.MaskerLevelSeries = New List(Of Double)
-        RawResults.SNRLevelSeries = New List(Of Double)
-        RawResults.TestStageSeries = New List(Of String)
-        RawResults.ProportionCorrectSeries = New List(Of String)
-        'Trial.IsCorrect  is not used
-        'RawResults.ScoreSeries = New List(Of String)
-        For Each Trial As SrtTrial In ObservedTrials
-            RawResults.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
-            RawResults.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
-            RawResults.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
-            RawResults.SNRLevelSeries.Add(Math.Round(Trial.SNR))
-            RawResults.TestStageSeries.Add(Trial.TestStage)
-            RawResults.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-        Next
-
-        Return RawResults
-
+    Public Overrides Function GetResultStringForGui() As String
+        Throw New NotImplementedException()
     End Function
+
+    Public Overrides Function GetExportString() As String
+        Throw New NotImplementedException()
+    End Function
+
+    'Public Overrides Function GetResults() As TestResults
+
+    '    Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+
+    '    Dim RawResults = New TestResults(TestResults.TestResultTypes.SRT)
+    '    If ProtocolThreshold.HasValue Then
+    '        RawResults.AdaptiveLevelThreshold = ProtocolThreshold
+    '    Else
+    '        'Storing NaN if no threshold was reached
+    '        RawResults.AdaptiveLevelThreshold = Double.NaN
+    '    End If
+
+    '    'Calculating the SRT based on the adaptive threshold
+    '    Select Case CustomizableTestOptions.SelectedTestMode
+    '        Case TestModes.AdaptiveSpeech
+    '            RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
+    '        Case TestModes.AdaptiveNoise
+    '            RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
+    '        Case Else
+    '            Throw New NotImplementedException
+    '    End Select
+
+    '    'Storing the AdaptiveLevelSeries
+    '    RawResults.AdaptiveLevelSeries = New List(Of Double)
+    '    RawResults.SpeechLevelSeries = New List(Of Double)
+    '    RawResults.MaskerLevelSeries = New List(Of Double)
+    '    RawResults.SNRLevelSeries = New List(Of Double)
+    '    RawResults.TestStageSeries = New List(Of String)
+    '    RawResults.ProportionCorrectSeries = New List(Of String)
+    '    'Trial.IsCorrect  is not used
+    '    'RawResults.ScoreSeries = New List(Of String)
+    '    For Each Trial As SrtTrial In ObservedTrials
+    '        RawResults.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
+    '        RawResults.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
+    '        RawResults.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
+    '        RawResults.SNRLevelSeries.Add(Math.Round(Trial.SNR))
+    '        RawResults.TestStageSeries.Add(Trial.TestStage)
+    '        RawResults.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
+    '    Next
+
+    '    Return RawResults
+
+    'End Function
 
 
     Public Overrides Sub FinalizeTest()

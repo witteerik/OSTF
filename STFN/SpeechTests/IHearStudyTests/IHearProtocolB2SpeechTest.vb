@@ -686,48 +686,39 @@ Public Class IHearProtocolB2SpeechTest
 
     End Sub
 
+    Public Overrides Function GetResultStringForGui() As String
 
-    Public Overrides Function GetResults() As TestResults
-
-        Dim Output = New TestResults(TestResults.TestResultTypes.WRS)
-
-
-        'Storing the AdaptiveLevelSeries
-        'Output.AdaptiveLevelSeries = New List(Of Double)
-        Output.SpeechLevelSeries = New List(Of Double)
-        'Output.MaskerLevelSeries = New List(Of Double)
-        Output.ContralateralMaskerLevelSeries = New List(Of Double)
-        'Output.SNRLevelSeries = New List(Of Double)
-        'Output.TestStageSeries = New List(Of String)
-        Output.ProportionCorrectSeries = New List(Of String)
-        Output.ScoreSeries = New List(Of String)
-        Output.Progress = New List(Of Integer)
-        Output.ProgressMax = New List(Of Integer)
+        Dim Output As New List(Of String)
 
         Dim ScoreList As New List(Of Double)
-
         For Each Trial As WrsTrial In ObservedTestTrials
-            ScoreList.Add(DirectCast(Trial, WrsTrial).GetProportionTasksCorrect)
-
-            Output.Progress.Add(ObservedTestTrials.Count)
-            Output.ProgressMax.Add(TestLength)
-            'Output.AdaptiveLevelSeries.Add(System.Math.Round(Trial.AdaptiveValue))
-            Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
-            'Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
-            Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))
-            'Output.SNRLevelSeries.Add(System.Math.Round(Trial.SNR))
-            'Output.TestStageSeries.Add(Trial.TestStage)
-            Output.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-            'If Trial.IsCorrect = True Then
-            '    Output.ScoreSeries.Add("Correct")
-            'Else
-            '    Output.ScoreSeries.Add("Incorrect")
-            'End If
+            If Trial.IsCorrect = True Then
+                ScoreList.Add(1)
+            Else
+                ScoreList.Add(0)
+            End If
         Next
 
-        If ScoreList.Count > 0 Then Output.ProportionCorrect = ScoreList.Average
+        If ScoreList.Count > 0 Then
+            Output.Add("Resultat = " & System.Math.Round(ScoreList.Average) & " % correct")
+        End If
 
-        Return Output
+        Return String.Join(vbCrLf, Output)
+
+    End Function
+
+    Public Overrides Function GetExportString() As String
+
+        Dim ExportStringList As New List(Of String)
+
+        For i = 0 To ObservedTestTrials.Count - 1
+            If i = 0 Then
+                ExportStringList.Add("TrialIndex" & vbTab & ObservedTestTrials(i).TestResultColumnHeadings)
+            End If
+            ExportStringList.Add(i & vbTab & ObservedTestTrials(i).TestResultAsTextRow)
+        Next
+
+        Return String.Join(vbCrLf, ExportStringList)
 
     End Function
 

@@ -261,8 +261,8 @@ Public Class QuickSiP
 
     Public Overrides ReadOnly Property LevelsAredBHL As Boolean = False
 
-    Public Overrides ReadOnly Property MinimumLevel As Double = Double.NegativeInfinity ' Not used
-    Public Overrides ReadOnly Property MaximumLevel As Double = Double.NegativeInfinity ' Not used
+    Public Overrides ReadOnly Property MinimumLevel As Double = 0 ' Not used
+    Public Overrides ReadOnly Property MaximumLevel As Double = 1 ' Not used
 
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
@@ -820,358 +820,40 @@ Public Class QuickSiP
     End Function
 
 
-    Public Overrides Function GetResults() As TestResults
+    Public Overrides Function GetExportString() As String
 
-        Dim SkipExportOfSoundFiles As Boolean = True
+        Dim ExportStringList As New List(Of String)
 
-        Dim TestResult As New TestResults(TestResults.TestResultTypes.QSiP)
-        TestResult.FormattedTrialResults = New List(Of String)
+        For i = 0 To CurrentSipTestMeasurement.ObservedTrials.Count - 1
+            If i = 0 Then
+                ExportStringList.Add("TrialIndex" & vbTab & CurrentSipTestMeasurement.ObservedTrials(i).TestResultColumnHeadings)
+            End If
+            ExportStringList.Add(i & vbTab & CurrentSipTestMeasurement.ObservedTrials(i).TestResultAsTextRow)
+        Next
 
-        TestResult.TestResultSummaryLines = New List(Of String)
+        Return String.Join(vbCrLf, ExportStringList)
 
-        TestResult.TestResultSummaryLines.Add("Overall score: " & Math.Rounding(100 * GetAverageQuickSipHeadTurnScores(Nothing)) & " %")
-        TestResult.TestResultSummaryLines.Add("Head turned left: " & Math.Rounding(100 * GetAverageQuickSipHeadTurnScores(False)) & " %")
-        TestResult.TestResultSummaryLines.Add("Head turned right : " & Math.Rounding(100 * GetAverageQuickSipHeadTurnScores(True)) & " %")
+    End Function
+
+    Public Overrides Function GetResultStringForGui() As String
+
+        Dim Output As New List(Of String)
+
+        Output.Add("Overall score: " & Math.Rounding(100 * GetAverageQuickSipHeadTurnScores(Nothing)) & " %")
+        'Output.Add("Head turned left: " & Math.Rounding(100 * GetAverageQuickSipHeadTurnScores(False)) & " %")
+        'Output.Add("Head turned right : " & Math.Rounding(100 * GetAverageQuickSipHeadTurnScores(True)) & " %")
 
         ResultsSummary = GetPnrScores()
 
         If ResultsSummary IsNot Nothing Then
-            TestResult.TestResultSummaryLines.Add("Scores per PNR level:")
-            TestResult.TestResultSummaryLines.Add("PNR (dB)" & vbTab & "Score" & vbTab & "List")
+            Output.Add("Scores per PNR level:")
+            Output.Add("PNR (dB)" & vbTab & "Score" & vbTab & "List")
             For Each kvp In ResultsSummary
-                TestResult.TestResultSummaryLines.Add(kvp.Value.Item1.PNR & vbTab & Math.Rounding(100 * kvp.Value.Item2) & " %" & vbTab & kvp.Value.Item1.SMC.PrimaryStringRepresentation)
+                Output.Add(kvp.Value.Item1.PNR & vbTab & Math.Rounding(100 * kvp.Value.Item2) & " %" & vbTab & kvp.Value.Item1.SMC.PrimaryStringRepresentation)
             Next
         End If
 
-        'CurrentSipTestMeasurement.GetAverageObservedScore()
-
-        For t = 0 To CurrentSipTestMeasurement.ObservedTrials.Count - 1
-
-            Dim TrialList As New List(Of String)
-
-            Dim Trial = CurrentSipTestMeasurement.ObservedTrials(t)
-
-            If TestResult.FormattedTrialResultsHeadings = "" Then TestResult.FormattedTrialResultsHeadings = SipTrial.CreateExportHeadings()
-
-            TrialList.Add(Trial.ParentTestUnit.ParentMeasurement.ParticipantID)
-            TrialList.Add(Trial.ParentTestUnit.ParentMeasurement.MeasurementDateTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
-            TrialList.Add(Trial.ParentTestUnit.ParentMeasurement.Description)
-            TrialList.Add(Trial.ParentTestUnit.ParentMeasurement.GetParentTestUnitIndex(Trial))
-            TrialList.Add(Trial.ParentTestUnit.Description)
-            TrialList.Add(Trial.SpeechMaterialComponent.Id)
-            TrialList.Add(Trial.SpeechMaterialComponent.ParentComponent.PrimaryStringRepresentation)
-            TrialList.Add(Trial.MediaSet.MediaSetName)
-            TrialList.Add(Trial.PresentationOrder)
-            TrialList.Add(Trial.ReferenceSpeechMaterialLevel_SPL)
-            TrialList.Add(Trial.ReferenceContrastingPhonemesLevel_SPL)
-            TrialList.Add(Trial.Reference_SPL)
-            TrialList.Add(Trial.PNR)
-            If Trial.TargetMasking_SPL.HasValue = True Then
-                TrialList.Add(Trial.TargetMasking_SPL)
-            Else
-                TrialList.Add("NA")
-            End If
-            TrialList.Add(Trial.TestWordLevelLimit)
-            TrialList.Add(Trial.ContextSpeechLimit)
-
-            If Trial.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
-                TrialList.Add(Trial.EstimatedSuccessProbability(False))
-                TrialList.Add(Trial.AdjustedSuccessProbability)
-            Else
-                TrialList.Add("No audiogram stored - cannot calculate")
-                TrialList.Add("No audiogram stored - cannot calculate")
-            End If
-            TrialList.Add(Trial.SoundPropagationType.ToString)
-
-            If Trial.TargetStimulusLocations.Length > 0 Then
-                Dim Distances As New List(Of String)
-                Dim HorizontalAzimuths As New List(Of String)
-                Dim Elevations As New List(Of String)
-                Dim ActualDistances As New List(Of String)
-                Dim ActualHorizontalAzimuths As New List(Of String)
-                Dim ActualElevations As New List(Of String)
-                Dim ActualBinauralDelay_Left As New List(Of String)
-                Dim ActualBinauralDelay_Right As New List(Of String)
-                For i = 0 To Trial.TargetStimulusLocations.Length - 1
-                    Distances.Add(Trial.TargetStimulusLocations(i).Distance)
-                    HorizontalAzimuths.Add(Trial.TargetStimulusLocations(i).HorizontalAzimuth)
-                    Elevations.Add(Trial.TargetStimulusLocations(i).Elevation)
-                    If Trial.TargetStimulusLocations(i).ActualLocation Is Nothing Then Trial.TargetStimulusLocations(i).ActualLocation = New SoundSourceLocation
-                    ActualDistances.Add(Trial.TargetStimulusLocations(i).ActualLocation.Distance)
-                    ActualHorizontalAzimuths.Add(Trial.TargetStimulusLocations(i).ActualLocation.HorizontalAzimuth)
-                    ActualElevations.Add(Trial.TargetStimulusLocations(i).ActualLocation.Elevation)
-                    ActualBinauralDelay_Left.Add(Trial.TargetStimulusLocations(i).ActualLocation.BinauralDelay.LeftDelay)
-                    ActualBinauralDelay_Right.Add(Trial.TargetStimulusLocations(i).ActualLocation.BinauralDelay.RightDelay)
-                Next
-                TrialList.Add(String.Join(";", Distances))
-                TrialList.Add(String.Join(";", HorizontalAzimuths))
-                TrialList.Add(String.Join(";", Elevations))
-                TrialList.Add(String.Join(";", ActualDistances))
-                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
-                TrialList.Add(String.Join(";", ActualElevations))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
-            Else
-                For n = 1 To 8
-                    TrialList.Add("")
-                Next
-            End If
-
-            If Trial.MaskerLocations.Length > 0 Then
-                Dim Distances As New List(Of String)
-                Dim HorizontalAzimuths As New List(Of String)
-                Dim Elevations As New List(Of String)
-                Dim ActualDistances As New List(Of String)
-                Dim ActualHorizontalAzimuths As New List(Of String)
-                Dim ActualElevations As New List(Of String)
-                Dim ActualBinauralDelay_Left As New List(Of String)
-                Dim ActualBinauralDelay_Right As New List(Of String)
-                For i = 0 To Trial.MaskerLocations.Length - 1
-                    Distances.Add(Trial.MaskerLocations(i).Distance)
-                    HorizontalAzimuths.Add(Trial.MaskerLocations(i).HorizontalAzimuth)
-                    Elevations.Add(Trial.MaskerLocations(i).Elevation)
-                    If Trial.MaskerLocations(i).ActualLocation Is Nothing Then Trial.MaskerLocations(i).ActualLocation = New SoundSourceLocation
-                    ActualDistances.Add(Trial.MaskerLocations(i).ActualLocation.Distance)
-                    ActualHorizontalAzimuths.Add(Trial.MaskerLocations(i).ActualLocation.HorizontalAzimuth)
-                    ActualElevations.Add(Trial.MaskerLocations(i).ActualLocation.Elevation)
-                    ActualBinauralDelay_Left.Add(Trial.MaskerLocations(i).ActualLocation.BinauralDelay.LeftDelay)
-                    ActualBinauralDelay_Right.Add(Trial.MaskerLocations(i).ActualLocation.BinauralDelay.RightDelay)
-                Next
-                TrialList.Add(String.Join(";", Distances))
-                TrialList.Add(String.Join(";", HorizontalAzimuths))
-                TrialList.Add(String.Join(";", Elevations))
-                TrialList.Add(String.Join(";", ActualDistances))
-                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
-                TrialList.Add(String.Join(";", ActualElevations))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
-            Else
-                For n = 1 To 8
-                    TrialList.Add("")
-                Next
-            End If
-
-            If Trial.BackgroundLocations.Length > 0 Then
-                Dim Distances As New List(Of String)
-                Dim HorizontalAzimuths As New List(Of String)
-                Dim Elevations As New List(Of String)
-                Dim ActualDistances As New List(Of String)
-                Dim ActualHorizontalAzimuths As New List(Of String)
-                Dim ActualElevations As New List(Of String)
-                Dim ActualBinauralDelay_Left As New List(Of String)
-                Dim ActualBinauralDelay_Right As New List(Of String)
-                For i = 0 To Trial.BackgroundLocations.Length - 1
-                    Distances.Add(Trial.BackgroundLocations(i).Distance)
-                    HorizontalAzimuths.Add(Trial.BackgroundLocations(i).HorizontalAzimuth)
-                    Elevations.Add(Trial.BackgroundLocations(i).Elevation)
-                    If Trial.BackgroundLocations(i).ActualLocation Is Nothing Then Trial.BackgroundLocations(i).ActualLocation = New SoundSourceLocation
-                    ActualDistances.Add(Trial.BackgroundLocations(i).ActualLocation.Distance)
-                    ActualHorizontalAzimuths.Add(Trial.BackgroundLocations(i).ActualLocation.HorizontalAzimuth)
-                    ActualElevations.Add(Trial.BackgroundLocations(i).ActualLocation.Elevation)
-                    ActualBinauralDelay_Left.Add(Trial.BackgroundLocations(i).ActualLocation.BinauralDelay.LeftDelay)
-                    ActualBinauralDelay_Right.Add(Trial.BackgroundLocations(i).ActualLocation.BinauralDelay.RightDelay)
-                Next
-                TrialList.Add(String.Join(";", Distances))
-                TrialList.Add(String.Join(";", HorizontalAzimuths))
-                TrialList.Add(String.Join(";", Elevations))
-                TrialList.Add(String.Join(";", ActualDistances))
-                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
-                TrialList.Add(String.Join(";", ActualElevations))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
-            Else
-                For n = 1 To 8
-                    TrialList.Add("")
-                Next
-            End If
-
-            TrialList.Add(Trial.IsBmldTrial)
-            If Trial.IsBmldTrial = True Then
-                TrialList.Add(Trial.BmldNoiseMode.ToString)
-                TrialList.Add(Trial.BmldSignalMode.ToString)
-            Else
-                TrialList.Add("")
-                TrialList.Add("")
-            End If
-
-            TrialList.Add(Trial.Response)
-            TrialList.Add(Trial.Result.ToString)
-            TrialList.Add(Trial.Score)
-            TrialList.Add(Trial.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
-            Trial.DetermineResponseAlternativeCount()
-            If Trial.ResponseAlternativeCount.HasValue = True Then
-                TrialList.Add(Trial.ResponseAlternativeCount.Value)
-            Else
-                TrialList.Add("")
-            End If
-            TrialList.Add(Trial.IsTestTrial.ToString)
-            If Trial.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
-                TrialList.Add(Trial.PhonemeDiscriminabilityLevel(False))
-            Else
-                TrialList.Add("No audiogram stored")
-            End If
-
-            TrialList.Add(Trial.SpeechMaterialComponent.PrimaryStringRepresentation)
-            TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
-            TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("SpellingAFC"))
-            TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Transcription"))
-            TrialList.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("TranscriptionAFC"))
-
-            Dim PseudoTrialIds As New List(Of String)
-            Dim PseudoTrialSpellings As New List(Of String)
-            If Trial.PseudoTrials IsNot Nothing Then
-                For Each PseudoTrial In Trial.PseudoTrials
-                    PseudoTrialIds.Add(PseudoTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
-                    PseudoTrialSpellings.Add(PseudoTrial.SpeechMaterialComponent.Id)
-                Next
-            End If
-            TrialList.Add(String.Join("; ", PseudoTrialIds))
-            TrialList.Add(String.Join("; ", PseudoTrialSpellings))
-
-            'Adding export of sound files,
-            Dim ExportedSoundFilesList As New List(Of String)
-            If SkipExportOfSoundFiles = False Then
-                For i = 0 To Trial.TrialSoundsToExport.Count - 1
-                    Dim ExportSound = Trial.TrialSoundsToExport(i).Item2
-                    Dim FileName = IO.Path.Combine(Trial.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Trial.PresentationOrder & "_" & Trial.TrialSoundsToExport(i).Item1 & "_" & Trial.SpeechMaterialComponent.Id & ".wav")
-                    ExportSound.WriteWaveFile(FileName)
-                    ExportedSoundFilesList.Add(FileName)
-                Next
-            End If
-            TrialList.Add(String.Join(";", ExportedSoundFilesList))
-
-            Dim ExportedPseudoTrialSoundFilesList As New List(Of String)
-            If SkipExportOfSoundFiles = False Then
-                If Trial.PseudoTrials IsNot Nothing Then
-                    For Each PseudoTrial In Trial.PseudoTrials
-                        For i = 0 To PseudoTrial.TrialSoundsToExport.Count - 1
-                            Dim ExportSound = PseudoTrial.TrialSoundsToExport(i).Item2
-                            Dim FileName = IO.Path.Combine(Trial.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Trial.PresentationOrder & "_Pseudo_" & PseudoTrial.TrialSoundsToExport(i).Item1 & "_" & PseudoTrial.SpeechMaterialComponent.Id & ".wav")
-                            ExportSound.WriteWaveFile(FileName)
-                            ExportedPseudoTrialSoundFilesList.Add(FileName)
-                        Next
-                    Next
-                End If
-            End If
-            TrialList.Add(String.Join(";", ExportedPseudoTrialSoundFilesList))
-
-            TrialList.Add(Trial.SelectedTargetIndexString)
-            TrialList.Add(Trial.SelectedMaskerIndicesString)
-            TrialList.Add(Trial.BackgroundStartSamplesString)
-            TrialList.Add(Trial.BackgroundSpeechStartSamplesString)
-
-            Dim PseudoTrial_SelectedTargetIndexStringList As New List(Of String)
-            Dim PseudoTrial_SelectedMaskerIndicesStringList As New List(Of String)
-            Dim PseudoTrial_BackgroundStartSamplesStringList As New List(Of String)
-            Dim PseudoTrial_BackgroundSpeechStartSamplesStringList As New List(Of String)
-            If Trial.PseudoTrials IsNot Nothing Then
-                For Each PseduTrial In Trial.PseudoTrials
-                    PseudoTrial_SelectedTargetIndexStringList.Add(PseduTrial.SelectedTargetIndexString)
-                    PseudoTrial_SelectedMaskerIndicesStringList.Add(PseduTrial.SelectedMaskerIndicesString)
-                    PseudoTrial_BackgroundStartSamplesStringList.Add(PseduTrial.BackgroundStartSamplesString)
-                    PseudoTrial_BackgroundSpeechStartSamplesStringList.Add(PseduTrial.BackgroundSpeechStartSamplesString)
-                Next
-            End If
-            TrialList.Add(String.Join(";", PseudoTrial_SelectedTargetIndexStringList))
-            TrialList.Add(String.Join(";", PseudoTrial_SelectedMaskerIndicesStringList))
-            TrialList.Add(String.Join(";", PseudoTrial_BackgroundStartSamplesStringList))
-            TrialList.Add(String.Join(";", PseudoTrial_BackgroundSpeechStartSamplesStringList))
-
-            TrialList.Add(Trial.BackgroundNonSpeechDucking)
-            Dim PseudoTrial_BackgroundNonSpeechDuckingList As New List(Of String)
-            If Trial.PseudoTrials IsNot Nothing Then
-                For Each PseduTrial In Trial.PseudoTrials
-                    PseudoTrial_BackgroundNonSpeechDuckingList.Add(PseduTrial.BackgroundNonSpeechDucking)
-                Next
-            End If
-            TrialList.Add(String.Join(";", PseudoTrial_BackgroundNonSpeechDuckingList))
-
-            TrialList.Add(Trial.ContextRegionSpeech_SPL)
-            If Trial.TestWordLevel.HasValue = True Then
-                TrialList.Add(Trial.TestWordLevel)
-            Else
-                TrialList.Add("NA")
-            End If
-            TrialList.Add(Trial.ReferenceTestWordLevel_SPL)
-
-            Dim ContextRegionSpeech_SPL_List As New List(Of String)
-            Dim TestWordLevel_List As New List(Of String)
-            Dim ReferenceTestWordLevel_SPL_List As New List(Of String)
-            If Trial.PseudoTrials IsNot Nothing Then
-                For Each PseduTrial In Trial.PseudoTrials
-                    ContextRegionSpeech_SPL_List.Add(PseduTrial.ContextRegionSpeech_SPL)
-                    If PseduTrial.TestWordLevel.HasValue = True Then
-                        TestWordLevel_List.Add(PseduTrial.TestWordLevel)
-                    Else
-                        TestWordLevel_List.Add("NA")
-                    End If
-                    ReferenceTestWordLevel_SPL_List.Add(PseduTrial.ReferenceTestWordLevel_SPL)
-                Next
-            End If
-            TrialList.Add(String.Join(";", ContextRegionSpeech_SPL_List))
-            TrialList.Add(String.Join(";", TestWordLevel_List))
-            TrialList.Add(String.Join(";", ReferenceTestWordLevel_SPL_List))
-
-            'Target Startsamples
-            TrialList.Add(Trial.TargetStartSample)
-            Dim PseudoTrials_TargetStartSample As New List(Of String)
-            If Trial.PseudoTrials IsNot Nothing Then
-                For Each PseduTrial In Trial.PseudoTrials
-                    PseudoTrials_TargetStartSample.Add(PseduTrial.TargetStartSample)
-                Next
-            End If
-            TrialList.Add(String.Join(";", PseudoTrials_TargetStartSample))
-
-            'Test phoneme start sample and length
-            If Trial.TargetInitialMargins.Count = 0 Then Trial.TargetInitialMargins.Add(0) ' Adding an initial margin of zero if for some reason empty
-            Dim TP_SaL = Trial.GetTestPhonemeStartAndLength(Trial.TargetInitialMargins(0)) ' N.B. / TODO: Here initial margins are assumed only for one target. Need to be changed if several targets with different initial marginsa are to be used.
-            Dim TestPhonemeStartSample As Integer = TP_SaL.Item1
-            Dim TestPhonemelength As Integer = TP_SaL.Item2
-            TrialList.Add(TestPhonemeStartSample)
-            TrialList.Add(TestPhonemelength)
-
-            Dim PseudoTrials_TP_StartSamples As New List(Of String)
-            Dim PseudoTrials_TP_Length As New List(Of String)
-            If Trial.PseudoTrials IsNot Nothing Then
-                For pseudoTrialIndex = 0 To Trial.PseudoTrials.Count - 1
-                    If Trial.PseudoTrials(pseudoTrialIndex).TargetInitialMargins.Count = 0 Then Trial.PseudoTrials(pseudoTrialIndex).TargetInitialMargins.Add(0) ' Adding an initial margin of zero if for some reason empty
-                    Dim PS_TP_SaL = Trial.PseudoTrials(pseudoTrialIndex).GetTestPhonemeStartAndLength(Trial.PseudoTrials(pseudoTrialIndex).TargetInitialMargins(0)) ' N.B. / TODO: Here initial margins are assumed only for one target. Need to be changed if several targets with different initial marginsa are to be used.
-                    PseudoTrials_TP_StartSamples.Add(PS_TP_SaL.Item1)
-                    PseudoTrials_TP_Length.Add(PS_TP_SaL.Item2)
-                Next
-            End If
-            TrialList.Add(String.Join(";", PseudoTrials_TP_StartSamples))
-            TrialList.Add(String.Join(";", PseudoTrials_TP_Length))
-
-            'Gains
-            Dim TargetTrialGains As New List(Of String)
-            For Each Item In Trial.GainList
-                TargetTrialGains.Add(Item.Key.ToString & ": " & String.Join(";", Item.Value))
-            Next
-            TrialList.Add(String.Join(" / ", TargetTrialGains))
-
-            Dim PseudoTrialsGains As New List(Of String)
-            If Trial.PseudoTrials IsNot Nothing Then
-                For pseudoTrialIndex = 0 To Trial.PseudoTrials.Count - 1
-                    Dim PseudoTrialGains As New List(Of String)
-                    For Each Item In Trial.PseudoTrials(pseudoTrialIndex).GainList
-                        PseudoTrialGains.Add(Item.Key.ToString & ": " & String.Join(";", Item.Value))
-                    Next
-                    PseudoTrialsGains.Add(String.Join(" / ", PseudoTrialGains))
-                Next
-            End If
-            TrialList.Add(String.Join(" | ", PseudoTrialsGains))
-
-            'Adds IsCorrect, which is chance corrected for missing responses
-            TrialList.Add(Trial.IsCorrect)
-
-            TrialList.Add(Trial.GetTimedEventsString)
-
-            TestResult.FormattedTrialResults.Add(String.Join(vbTab, TrialList))
-
-        Next
-
-        Return TestResult
+        Return String.Join(vbCrLf, Output)
 
     End Function
 

@@ -905,12 +905,14 @@ Public Class SipSpeechTest
 
     End Sub
 
-
-
-    Public Overrides Function GetResults() As TestResults
-        ' Throw New NotImplementedException()
-        Return Nothing
+    Public Overrides Function GetResultStringForGui() As String
+        Throw New NotImplementedException()
     End Function
+
+    Public Overrides Function GetExportString() As String
+        Throw New NotImplementedException()
+    End Function
+
 
     Public Overrides Sub FinalizeTest()
         'Throw New NotImplementedException()

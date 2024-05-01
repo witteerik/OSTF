@@ -836,8 +836,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
             }
 
-            TestResults CurrentResults = CurrentSpeechTest.GetResults();
-            ShowResults(CurrentResults);
+            ShowResults(CurrentSpeechTest.GetResultStringForGui());
 
             if (CurrentSpeechTest.PauseInformation != "")
             {
@@ -966,8 +965,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Showing results if results view is visible
         if (TestResultGrid.IsVisible == true)
         {
-            var CurrentResults = CurrentSpeechTest.GetResults();
-            ShowResults(CurrentResults);
+            ShowResults(CurrentSpeechTest.GetResultStringForGui());
         }
 
     }
@@ -1225,13 +1223,12 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
 
         // Getting test results
-        TestResults CurrentResults = CurrentSpeechTest.GetResults();
 
         // Displaying test results
-        ShowResults(CurrentResults);
+        ShowResults(CurrentSpeechTest.GetResultStringForGui());
 
         // Saving test results to file
-        CurrentSpeechTest.SaveTextFormattedResults(CurrentResults);
+        CurrentSpeechTest.SaveTableFormatedTestResults();
 
     }
 
@@ -1264,7 +1261,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    void ShowResults(TestResults results)
+    void ShowResults(string results)
     {
         // Showing result panel
         SetBottomPanelShow(true);

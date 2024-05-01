@@ -89,8 +89,8 @@ Public MustInherit Class TestProtocol
         ''' </summary>
         Public AdaptiveValue As Double? = Nothing
         Public AdaptiveStepSize As Double? = Nothing
-        Public TestStage As UInteger
-        Public TestBlock As UInteger
+        Public TestStage As Integer
+        Public TestBlock As Integer
 
         ''' <summary>
         ''' Only primarily with fixed length test protocols. Enables the use of the test protocol with different (fixed) test lengths, such as 50 or 25 words. Upon initiation of a new TestProtocol, should contain the number of trials to be presented in the test stage (i.e. not practise trials) of the test.

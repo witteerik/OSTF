@@ -25,8 +25,8 @@ public class TestResultsView_Text : TestResultsView
         Content = MainScrollView;
     }
 
-    public override void ShowTestResults(TestResults results)
+    public override void ShowTestResults(string results)
     {
-        ResultsLabel.Text = results.GetFormattedTestResultsSummaryString();
+        ResultsLabel.Text = results;
      }
 }

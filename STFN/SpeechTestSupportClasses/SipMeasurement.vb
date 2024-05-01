@@ -10,6 +10,7 @@ Imports STFN.Audio
 Imports STFN.Audio.SoundScene
 Imports STFN.Audio.Formats
 Imports STFN.Audio.PortAudioVB.DuplexMixer
+Imports System.Reflection
 
 Namespace SipTest
 
@@ -1249,7 +1250,7 @@ Namespace SipTest
         ''' <summary>
         ''' A list that can hold non-presented (hypothical) test trials containing the contrasting alternatives.
         ''' </summary>
-        Public PseudoTrials As List(Of SipTrial)
+        Public PseudoTrials As New List(Of SipTrial)
 
         ''' <summary>
         ''' A list of Tuples that can hold various sound mixes used in the test trial, to be exported to sound file later. Each Sound should be come with a descriptive string (that can be used in the output file name).)
@@ -2478,7 +2479,11 @@ Namespace SipTest
             TrialList.Add(Me.Result.ToString)
             TrialList.Add(Me.Score)
             TrialList.Add(Me.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
-            TrialList.Add(Me.ResponseAlternativeCount)
+            If ResponseAlternativeCount IsNot Nothing Then
+                TrialList.Add(Me.ResponseAlternativeCount)
+            Else
+                TrialList.Add(0)
+            End If
             TrialList.Add(Me.IsTestTrial.ToString)
             If Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
                 TrialList.Add(Me.PhonemeDiscriminabilityLevel(False))
@@ -2674,6 +2679,61 @@ Namespace SipTest
 
         End Sub
 
+        Public Overrides Function TestResultColumnHeadings() As String
+
+            Dim OutputList As New List(Of String)
+            OutputList.AddRange(BaseClassTestResultColumnHeadings())
+
+            OutputList.Add(vbTab & CreateExportHeadings())
+
+            ''Adding property names
+            'Dim properties As PropertyInfo() = GetType(SiPTrial).GetProperties()
+
+            '' Iterating through each property
+            'For Each [property] As PropertyInfo In properties
+
+            '    ' Getting the name of the property
+            '    Dim propertyName As String = [property].Name
+            '    OutputList.Add(propertyName)
+
+            'Next
+
+            Return String.Join(vbTab, OutputList)
+
+        End Function
+
+        Public Overrides Function TestResultAsTextRow() As String
+
+            Dim OutputList As New List(Of String)
+            OutputList.AddRange(BaseClassTestResultAsTextRow())
+
+            OutputList.Add(vbTab & CreateExportString(True))
+
+            'Dim properties As PropertyInfo() = GetType(SrtTrial).GetProperties()
+
+            '' Iterating through each property
+            'For Each [property] As PropertyInfo In properties
+
+            '    ' Getting the name of the property
+            '    Dim propertyName As String = [property].Name
+
+            '    ' Getting the value of the property for the current instance 
+            '    Dim propertyValue As Object = [property].GetValue(Me)
+
+            '    'If TypeOf propertyValue Is String Then
+            '    '    Dim stringValue As String = DirectCast(propertyValue, String)
+            '    'ElseIf TypeOf propertyValue Is Integer Then
+            '    '    Dim intValue As Integer = DirectCast(propertyValue, Integer)
+            '    'Else
+            '    'End If
+
+            '    OutputList.Add(propertyValue.ToString)
+
+            'Next
+
+            Return String.Join(vbTab, OutputList)
+
+        End Function
 
 
     End Class

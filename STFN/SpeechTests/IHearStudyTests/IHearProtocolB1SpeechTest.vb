@@ -473,7 +473,6 @@ Public Class IHearProtocolB1SpeechTest
             Next
         Next
 
-
         Return True
 
     End Function
@@ -559,8 +558,7 @@ Public Class IHearProtocolB1SpeechTest
                 If CurrentTestStage < 8 Then
 
                     'Save data
-                    Dim Results = GetResults()
-                    SaveTextFormattedResults(Results)
+                    SaveTableFormatedTestResults()
 
                     'And informing the participant
                     NewNextTaskInstruction.Decision = SpeechTestReplies.PauseTestingWithCustomInformation
@@ -681,50 +679,50 @@ Public Class IHearProtocolB1SpeechTest
 
     End Sub
 
-    Public Overrides Function GetResults() As TestResults
+    Public Overrides Function GetResultStringForGui() As String
 
-        Dim Output = New TestResults(TestResults.TestResultTypes.IHPB1)
-
-        Output.TrialStringComment = New List(Of String)
-        Output.SpeechLevelSeries = New List(Of Double)
-        Output.MaskerLevelSeries = New List(Of Double)
-        'Output.ContralateralMaskerLevelSeries = New List(Of Double)
-        Output.ScoreSeries = New List(Of String)
-
-        Output.TestResultSummaryLines = New List(Of String)
+        Dim Output As New List(Of String)
 
         For TestStageIndex = 0 To ObservedTestData.Count - 1
 
             Dim ScoreList As New List(Of Double)
-
             For Each Trial As WrsTrial In ObservedTestData(TestStageIndex)
-
-                Output.TrialStringComment.Add(Trial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
-                Output.SpeechLevelSeries.Add(System.Math.Round(Trial.SpeechLevel))
-                Output.MaskerLevelSeries.Add(System.Math.Round(Trial.MaskerLevel))
-                'Output.ContralateralMaskerLevelSeries.Add(System.Math.Round(Trial.ContralateralMaskerLevel))
                 If Trial.IsCorrect = True Then
-                    Output.ScoreSeries.Add("1")
                     ScoreList.Add(1)
                 Else
-                    Output.ScoreSeries.Add("0")
                     ScoreList.Add(0)
                 End If
-
             Next
 
             If ScoreList.Count > 0 Then
-                Output.TestResultSummaryLines.Add("List " & TestStageIndex & " Score: " & ScoreList.Average)
+                Output.Add("Lista " & TestStageIndex & ": Resultat = " & ScoreList.Average & " % correct")
             End If
-
         Next
 
-        Return Output
-
+        Return String.Join(vbCrLf, Output)
 
     End Function
 
+    Public Overrides Function GetExportString() As String
 
+        Dim ExportStringList As New List(Of String)
+
+        Dim TestTrialIndex As Integer = 0
+        For TestStageIndex = 0 To ObservedTestData.Count - 1
+            For Each Trial As WrsTrial In ObservedTestData(TestStageIndex)
+
+                If TestTrialIndex = 0 Then
+                    ExportStringList.Add("TrialIndex" & vbTab & Trial.TestResultColumnHeadings)
+                End If
+                ExportStringList.Add(TestTrialIndex & vbTab & Trial.TestResultAsTextRow)
+                TestTrialIndex += 1
+
+            Next
+        Next
+
+        Return String.Join(vbCrLf, ExportStringList)
+
+    End Function
 
     Public Overrides Sub FinalizeTest()
 
