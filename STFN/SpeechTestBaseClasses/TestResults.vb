@@ -9,6 +9,7 @@
         IHPB1
         IHPB3
         IHPB4
+        IHPB7
     End Enum
 
     Public SpeechRecognitionThreshold As Double = Double.NaN
@@ -36,8 +37,52 @@
         Me.TestResultType = TestResultType
     End Sub
 
-
     Public Function GetFormattedTestResultsSummaryString() As String
+
+        Dim ResultsRowList = New List(Of String)
+
+        Select Case TestResultType
+            Case TestResultTypes.SRT, TestResultTypes.IHPB4
+                If Double.IsInfinity(SpeechRecognitionThreshold) = False Then
+                    ResultsRowList.Add("HTT = " & vbTab & Math.Round(SpeechRecognitionThreshold) & " dB HL")
+                Else
+                    If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Talnivå = " & vbTab & Math.Round(SpeechLevelSeries.Last) & " dB HL")
+                    If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Kontralateral brusnivå = " & vbTab & Math.Round(ContralateralMaskerLevelSeries.Last) & " dB HL")
+                End If
+
+            Case TestResultTypes.WRS
+
+                If Progress IsNot Nothing And ProgressMax IsNot Nothing Then
+                    If Progress.Count > 0 And ProgressMax.Count > 0 Then
+                        ResultsRowList.Add("Ord " & vbTab & Progress.Last & " av  " & ProgressMax.Last)
+                    End If
+                End If
+                If Double.IsNaN(ProportionCorrect) = False Then ResultsRowList.Add("TP = " & vbTab & Math.Round(Math.Round(100 * ProportionCorrect)) & " % correct")
+                If SpeechLevelSeries IsNot Nothing Then ResultsRowList.Add("Talnivå = " & vbTab & Math.Round(SpeechLevelSeries.Last) & " dB HL")
+                If ContralateralMaskerLevelSeries IsNot Nothing Then ResultsRowList.Add("Kontralateral brusnivå = " & vbTab & Math.Round(ContralateralMaskerLevelSeries.Last) & " dB HL")
+
+            Case TestResultTypes.QSiP
+                If TestResultSummaryLines IsNot Nothing Then ResultsRowList.AddRange(TestResultSummaryLines)
+
+            Case TestResultTypes.IHPB1
+                If TestResultSummaryLines IsNot Nothing Then ResultsRowList.AddRange(TestResultSummaryLines)
+
+            Case TestResultTypes.IHPB3
+                If TestResultSummaryLines IsNot Nothing Then ResultsRowList.AddRange(TestResultSummaryLines)
+
+            Case TestResultTypes.IHPB7
+                If TestResultSummaryLines IsNot Nothing Then ResultsRowList.AddRange(TestResultSummaryLines)
+
+            Case Else
+
+        End Select
+
+
+        Return String.Join(vbCrLf, ResultsRowList)
+
+    End Function
+
+    Public Function GetFormattedTestResultsSummaryString_OLD() As String
 
         Dim ResultsRowList = New List(Of String)
 
