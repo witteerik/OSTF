@@ -14,15 +14,27 @@ Public Class IHearProtocolB7SpeechTest
 
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
-            Return ""
+            Return "(Detta test går ut på att undersöka svårighetsgraden i SiP-testet.)" & vbCrLf &
+                "För detta test behövs inga inställningar." & vbCrLf &
+                "1. Informera patienten om hur testet går till." & vbCrLf &
+                "2. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
+
         End Get
     End Property
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return ""
+            Return "Patientens uppgift: " & vbCrLf &
+                "Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
+                "Under testet ska patienten lyssna efter enstaviga ord i olika ljudmiljöer och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
+                "Patienten ska gissa om hen är osäker. Många ord är mycket svåra att höra!" & vbCrLf &
+                "Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
+                "Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
+                "Testet består av två testomgångar med " & TestListCount * 3 & " ord i varje. testomgångarna körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
+
         End Get
     End Property
+
 
     Public Overrides ReadOnly Property HasOptionalPractiseTest As Boolean
         Get
@@ -228,12 +240,6 @@ Public Class IHearProtocolB7SpeechTest
         End Get
     End Property
 
-    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
-        Get
-            Return 100
-        End Get
-    End Property
-
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
             Return 1
@@ -253,6 +259,11 @@ Public Class IHearProtocolB7SpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 0.5
+
+    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = False
+
+    Public Overrides ReadOnly Property MinimumLevel As Double = Double.NegativeInfinity ' Not used
+    Public Overrides ReadOnly Property MaximumLevel As Double = Double.NegativeInfinity ' Not used
 
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
@@ -276,7 +287,7 @@ Public Class IHearProtocolB7SpeechTest
     Private ReferenceLevel As Double = 68.34
 
     Private TestListCount As Integer = 10
-    Private CurrentTestUnitIndex As Integer = 0
+    Private CurrentTestStage As Integer = 0
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
@@ -690,12 +701,12 @@ Public Class IHearProtocolB7SpeechTest
         'Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
         Dim ProtocolReply = New TestProtocol.NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial}
 
-        If CurrentSipTestMeasurement.TestUnits(CurrentTestUnitIndex).PlannedTrials.Count = 0 Then
+        If CurrentSipTestMeasurement.TestUnits(CurrentTestStage).PlannedTrials.Count = 0 Then
 
-            Select Case CurrentTestUnitIndex
+            Select Case CurrentTestStage
                 Case 0
                     'Going to next test stage
-                    CurrentTestUnitIndex += 1
+                    CurrentTestStage += 1
 
                     'Informing the participant
                     ProtocolReply.Decision = SpeechTestReplies.PauseTestingWithCustomInformation
@@ -703,7 +714,7 @@ Public Class IHearProtocolB7SpeechTest
 
                 Case 1
                     'Going to next test stage
-                    CurrentTestUnitIndex += 1
+                    CurrentTestStage += 1
 
                     'Informing the participant
                     ProtocolReply.Decision = SpeechTestReplies.PauseTestingWithCustomInformation
@@ -728,7 +739,7 @@ Public Class IHearProtocolB7SpeechTest
     Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
         'Preparing the next trial
-        CurrentTestTrial = CurrentSipTestMeasurement.TestUnits(CurrentTestUnitIndex).PlannedTrials(0) ' GetNextTrial()
+        CurrentTestTrial = CurrentSipTestMeasurement.TestUnits(CurrentTestStage).PlannedTrials(0) ' GetNextTrial()
         CurrentTestTrial.TestStage = NextTaskInstruction.TestStage
         CurrentTestTrial.Tasks = 1
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))

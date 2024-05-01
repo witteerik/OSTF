@@ -14,13 +14,24 @@ Public Class QuickSiP
 
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
-            Return ""
+            Return "(Detta test går ut på att undersöka en screening-version av SiP-testet.)" & vbCrLf &
+                "För detta test behövs inga inställningar." & vbCrLf &
+                "1. Informera patienten om hur testet går till." & vbCrLf &
+                "2. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
+
         End Get
     End Property
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return ""
+            Return "Patientens uppgift: " & vbCrLf &
+                "Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
+                "Under testet ska patienten lyssna efter enstaviga ord som uttalas i en stadsmiljö och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
+                "Patienten ska gissa om hen är osäker." & vbCrLf &
+                "Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
+                "Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
+                "Testet består av totalt 30 ord, som blir svårare och svårare ju längre testet går."
+
         End Get
     End Property
 
@@ -228,12 +239,6 @@ Public Class QuickSiP
         End Get
     End Property
 
-    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
-        Get
-            Return 100
-        End Get
-    End Property
-
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
             Return 1
@@ -253,6 +258,11 @@ Public Class QuickSiP
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 0.5
+
+    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = False
+
+    Public Overrides ReadOnly Property MinimumLevel As Double = Double.NegativeInfinity ' Not used
+    Public Overrides ReadOnly Property MaximumLevel As Double = Double.NegativeInfinity ' Not used
 
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)

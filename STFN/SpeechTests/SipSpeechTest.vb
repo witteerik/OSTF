@@ -229,12 +229,6 @@ Public Class SipSpeechTest
         End Get
     End Property
 
-    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
-        Get
-            Return 100
-        End Get
-    End Property
-
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
             Return 5
@@ -254,6 +248,11 @@ Public Class SipSpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 0.5
+
+    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = False
+
+    Public Overrides ReadOnly Property MinimumLevel As Double = 0
+    Public Overrides ReadOnly Property MaximumLevel As Double = 90
 
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)

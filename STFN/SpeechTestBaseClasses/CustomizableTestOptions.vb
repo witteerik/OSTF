@@ -112,12 +112,30 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _ReferenceLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _ReferenceLevel = Math.Min(_ReferenceLevel, SelectedTest.UpperLevelLimit_dBSPL)
+            _ReferenceLevel = Math.Clamp(_ReferenceLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property
     Private _ReferenceLevel As Double = 65
-    Public Property ReferenceLevelTitle As String = "Referensnivå (dB)"
+
+    Public ReadOnly Property ReferenceLevelTitle As String
+        Get
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Referensnivå (dB HL)"
+                    Else
+                        Return "Referensnivå (dB SPL)"
+                    End If
+                Case Else
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Reference level (dB HL)"
+                    Else
+                        Return "Reference level (dB SPL)"
+                    End If
+            End Select
+        End Get
+    End Property
 
     Public Property SpeechLevel As Double
         Get
@@ -125,12 +143,30 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _SpeechLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _SpeechLevel = Math.Min(_SpeechLevel, SelectedTest.UpperLevelLimit_dBSPL)
+            _SpeechLevel = Math.Clamp(_SpeechLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property
     Private _SpeechLevel As Double = 65
-    Public Property SpeechLevelTitle As String = "Talnivå (dB)"
+
+    Public ReadOnly Property SpeechLevelTitle As String
+        Get
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Talnivå (dB HL)"
+                    Else
+                        Return "Talnivå (dB SPL)"
+                    End If
+                Case Else
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Speech level (dB HL)"
+                    Else
+                        Return "Speech level (dB SPL)"
+                    End If
+            End Select
+        End Get
+    End Property
 
     Public Property MaskingLevel As Double
         Get
@@ -138,13 +174,30 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _MaskingLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _MaskingLevel = Math.Min(_MaskingLevel, SelectedTest.UpperLevelLimit_dBSPL)
+            _MaskingLevel = Math.Clamp(_MaskingLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property
     Private _MaskingLevel As Double = 65
-    Public Property MaskingLevelTitle As String = "Maskeringsnivå (dB)"
 
+    Public ReadOnly Property MaskingLevelTitle As String
+        Get
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Maskeringsnivå (dB HL)"
+                    Else
+                        Return "Maskeringsnivå (dB SPL)"
+                    End If
+                Case Else
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Masking level (dB HL)"
+                    Else
+                        Return "Masking level (dB SPL)"
+                    End If
+            End Select
+        End Get
+    End Property
 
     Public Property BackgroundLevel As Double
         Get
@@ -152,12 +205,30 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _BackgroundLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _BackgroundLevel = Math.Min(_BackgroundLevel, SelectedTest.UpperLevelLimit_dBSPL)
+            _BackgroundLevel = Math.Clamp(_BackgroundLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property
     Private _BackgroundLevel As Double = 55
-    Public Property BackgroundLevelTitle As String = "Bakgrundsnivå (dB)"
+
+    Public ReadOnly Property BackgroundLevelTitle As String
+        Get
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Bakgrundsnivå (dB HL)"
+                    Else
+                        Return "Bakgrundsnivå (dB SPL)"
+                    End If
+                Case Else
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Background level (dB HL)"
+                    Else
+                        Return "Background level (dB SPL)"
+                    End If
+            End Select
+        End Get
+    End Property
 
     Public Property ContralateralMaskingLevel As Double
         Get
@@ -165,13 +236,30 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _ContralateralMaskingLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _ContralateralMaskingLevel = Math.Min(_ContralateralMaskingLevel, SelectedTest.UpperLevelLimit_dBSPL)
+            _ContralateralMaskingLevel = Math.Clamp(_ContralateralMaskingLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property
     Private _ContralateralMaskingLevel As Double = 25
 
-    Public Property ContralateralMaskingLevelTitle As String = "Kontralat. maskeringsnivå (dB)"
+    Public ReadOnly Property ContralateralMaskingLevelTitle As String
+        Get
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Kontralat. maskeringsnivå (dB HL)"
+                    Else
+                        Return "Kontralat. maskeringsnivå (dB SPL)"
+                    End If
+                Case Else
+                    If SelectedTest.LevelsAredBHL = True Then
+                        Return "Contralat. masking level (dB HL)"
+                    Else
+                        Return "Contralat. masking level (dB SPL)"
+                    End If
+            End Select
+        End Get
+    End Property
 
 
     ''' <summary>

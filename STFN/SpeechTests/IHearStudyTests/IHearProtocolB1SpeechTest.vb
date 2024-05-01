@@ -61,20 +61,16 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
-            Return ""
-            '"1. Välj testöra." & vbCrLf &
-            '    "2. Ställ talnivå till TMV3 + 40 dB (Talnivån är i dB SPL)." & vbCrLf &
-            '    "3. Om kontrlateralt brus behövs, akivera kontralateralt brus och ställ in önskad brusnivå." & vbCrLf &
-            '    "4. Använd kontrollen provlyssna för att ställa in 'Lagom-nivån' innan testet börjar. (Använd knappen TB för att prata med patienten när denna har lurar på sig.)" & vbCrLf &
-            '    "5. Klicka på start för att starta testet." & vbCrLf &
-            '    "6. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen"
+            Return "1. Välj testöra (deltagaren ska ha normal hörsel på testörat)" & vbCrLf &
+                "2. Klicka på start för att starta testet." & vbCrLf &
+                "3. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen"
         End Get
     End Property
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
             Return "Patientens uppgift: " & vbCrLf &
-                "Patienten ska lyssna efter enstaviga ord och efter varje ord repetera ordet muntligt. Patienten ska gissa om hen är osäker. Testet är 400 ord långt, med pauser efter 50."
+                "Patienten ska lyssna efter enstaviga ord och efter varje ord repetera ordet muntligt. Patienten ska gissa om hen är osäker. Testet är 400 ord långt, med pauser efter 50 ord."
         End Get
     End Property
 
@@ -104,7 +100,7 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
@@ -286,12 +282,6 @@ Public Class IHearProtocolB1SpeechTest
         End Get
     End Property
 
-    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
-        Get
-            Return 100
-        End Get
-    End Property
-
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
             Return 1
@@ -311,6 +301,11 @@ Public Class IHearProtocolB1SpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 1
+    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = True
+
+    Public Overrides ReadOnly Property MinimumLevel As Double = -30
+    Public Overrides ReadOnly Property MaximumLevel As Double = 50
+
 
     Private TestListOrder As New SortedList(Of Integer, Tuple(Of Integer, Integer, Integer()))
     Private SortedSnrOrders As New SortedList(Of Integer, Double())
@@ -337,6 +332,10 @@ Public Class IHearProtocolB1SpeechTest
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
+
+        'Setting speech level to 40 dB HL, and ContralateralMaskingLevel to 0 dB HL
+        CustomizableTestOptions.SpeechLevel = 40
+        CustomizableTestOptions.ContralateralMaskingLevel = 0
 
         CurrentTestStage = 0
 
@@ -597,6 +596,11 @@ Public Class IHearProtocolB1SpeechTest
 
     Private Sub MixNextTrialSound()
 
+        Dim RETSPL_Correction As Double = 0
+        If LevelsAredBHL = True Then
+            RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
+        End If
+
         'Getting the speech signal
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
@@ -621,10 +625,10 @@ Public Class IHearProtocolB1SpeechTest
         If CustomizableTestOptions.UseContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
 
         'Calculating presentation levels
-        Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel)
+        Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel) + RETSPL_Correction
         Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
 
-        Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel)
+        Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel) + RETSPL_Correction
         Dim NeededMaskerGain = TargetMaskerLevel_FS - NominalLevel_FS
 
         'Adjusts the sound levels
@@ -634,10 +638,10 @@ Public Class IHearProtocolB1SpeechTest
         If CustomizableTestOptions.UseContralateralMasking = True Then
 
             'Setting level, 
-            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel)
+            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel) + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
-            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - NominalLevel_FS + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - NominalLevel_FS
             Audio.DSP.AmplifySection(TrialContralateralNoise, NeededContraLateralMaskerGain)
 
         End If

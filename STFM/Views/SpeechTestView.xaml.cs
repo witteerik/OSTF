@@ -1239,16 +1239,29 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         FinalizeTest(true);
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
-        {
-            case STFN.Utils.Constants.Languages.Swedish:
-                Messager.MsgBox("Testet har avbrutits.", Messager.MsgBoxStyle.Information, "Avslutat", "OK");
-                break;
-            default:
-                Messager.MsgBox("The test had to be aborted.", Messager.MsgBoxStyle.Information, "Aborted", "OK");
-                break;
-        }
 
+        bool showDefaultInfo = true;
+
+        if (CurrentSpeechTest != null)
+        {
+            if (CurrentSpeechTest.AbortInformation !="")
+            {
+                showDefaultInfo = false;
+                Messager.MsgBox(CurrentSpeechTest.AbortInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.AbortInformation, "OK");
+            }
+        }
+        if (showDefaultInfo == true)
+        {
+            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            {
+                case STFN.Utils.Constants.Languages.Swedish:
+                    Messager.MsgBox("Testet har avbrutits.", Messager.MsgBoxStyle.Information, "Avslutat", "OK");
+                    break;
+                default:
+                    Messager.MsgBox("The test had to be aborted.", Messager.MsgBoxStyle.Information, "Aborted", "OK");
+                    break;
+            }
+        }
     }
 
     void ShowResults(TestResults results)

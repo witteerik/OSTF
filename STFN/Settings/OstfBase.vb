@@ -647,6 +647,7 @@ Public Module OstfBase
                     If Line.StartsWith("HostVolumeOutputLevel") Then CurrentTransducer.HostVolumeOutputLevel = InputFileSupport.InputFileDoubleValueParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("PtaCalibrationGainFrequencies") Then CurrentTransducer.PtaCalibrationGainFrequencies = InputFileSupport.InputFileListOfIntegerParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("PtaCalibrationGainValues") Then CurrentTransducer.PtaCalibrationGainValues = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
+                    If Line.StartsWith("RETSPL_Speech") Then CurrentTransducer.RETSPL_Speech = InputFileSupport.InputFileDoubleValueParsing(Line, True, AudioSystemSpecificationFilePath)
                     If Line.StartsWith("LimiterThreshold") Then CurrentTransducer.LimiterThreshold = InputFileSupport.InputFileDoubleValueParsing(Line, True, AudioSystemSpecificationFilePath)
 
                 Next
@@ -901,6 +902,7 @@ Public Module OstfBase
 
         Public Property PtaCalibrationGainFrequencies As New List(Of Integer)
         Public Property PtaCalibrationGainValues As New List(Of Double)
+        Public Property RETSPL_Speech As Double = 0
 
 
 

@@ -244,12 +244,6 @@ Public Class SrtSpeechTest
         End Get
     End Property
 
-    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
-        Get
-            Return 100
-        End Get
-    End Property
-
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
             Return 5
@@ -269,6 +263,11 @@ Public Class SrtSpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 0.1
+
+    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = True
+
+    Public Overrides ReadOnly Property MinimumLevel As Double = -20
+    Public Overrides ReadOnly Property MaximumLevel As Double = 80
 
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
@@ -434,6 +433,23 @@ Public Class SrtSpeechTest
         'Preparing next trial if needed
         If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
             PrepareNextTrial(ProtocolReply)
+
+            'Here we abort the test if any of the levels had to be adjusted above MaximumLevel dB HL
+            If DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel > MaximumLevel Or
+                    DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel > MaximumLevel Or
+                DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel > MaximumLevel Then
+
+                'And informing the participant
+                ProtocolReply.Decision = SpeechTestReplies.AbortTest
+                Select Case GuiLanguage
+                    Case Utils.Constants.Languages.Swedish
+                        AbortInformation = "Testet har avbrutits på grund av höga ljudnivåer."
+                    Case Else
+                        AbortInformation = "The test hade to be aborted due to high sound levels."
+                End Select
+
+            End If
+
         End If
 
         Return ProtocolReply.Decision
@@ -539,10 +555,16 @@ Public Class SrtSpeechTest
 
     Private Sub MixNextTrialSound()
 
+        Dim RETSPL_Correction As Double = 0
+        If LevelsAredBHL = True Then
+            RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
+        End If
+
+
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
-        Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel)
+        Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) + RETSPL_Correction
         Dim NeededGain = TargetLevel_FS - NominalLevel_FS
 
         Audio.DSP.AmplifySection(TestWordSound, NeededGain)

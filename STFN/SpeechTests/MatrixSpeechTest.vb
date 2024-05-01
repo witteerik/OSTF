@@ -242,12 +242,6 @@ Public Class MatrixSpeechTest
         End Get
     End Property
 
-    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
-        Get
-            Return 100
-        End Get
-    End Property
-
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
             Return 5
@@ -267,6 +261,11 @@ Public Class MatrixSpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 0.1
+
+    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = False
+
+    Public Overrides ReadOnly Property MinimumLevel As Double = -20
+    Public Overrides ReadOnly Property MaximumLevel As Double = 80
 
 #End Region
 
@@ -623,10 +622,15 @@ Public Class MatrixSpeechTest
 
     Private Sub MixNextTrialSound()
 
+        Dim RETSPL_Correction As Double = 0
+        If LevelsAredBHL = True Then
+            RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
+        End If
+
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
-        Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel)
+        Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) + RETSPL_Correction
         Dim NeededGain = TargetLevel_FS - NominalLevel_FS
 
         Audio.DSP.AmplifySection(TestWordSound, NeededGain)

@@ -22,19 +22,26 @@ Public Class IHearProtocolB2SpeechTest
 
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
-            Return "1. Välj testöra." & vbCrLf &
-                "2. Ställ talnivå till TMV3 + 40 dB (Talnivån är i dB SPL)." & vbCrLf &
-                "3. Om kontrlateralt brus behövs, akivera kontralateralt brus och ställ in önskad brusnivå." & vbCrLf &
+            Return "(Detta test går ut på att undersöka svårighetsgraden hos listor med nya enstaviga testord i brus.)" & vbCrLf &
+                "1. Välj testöra." & vbCrLf &
+                "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
+                "3. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
                 "4. Använd kontrollen provlyssna för att ställa in 'Lagom-nivån' innan testet börjar. (Använd knappen TB för att prata med patienten när denna har lurar på sig.)" & vbCrLf &
                 "5. Klicka på start för att starta testet." & vbCrLf &
-                "6. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen"
+                "6. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen" & vbCrLf &
+                "7. Patienten har maximalt " & TestWordPresentationTime + MaximumResponseTime & " sekunder på sig innan nästa ord kommer."
+
         End Get
     End Property
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
             Return "Patientens uppgift: " & vbCrLf &
-                "Patienten ska lyssna efter enstaviga ord och efter varje ord repetera ordet muntligt. Patienten ska gissa om hen är osäker. Testet är 50 ord långt."
+                "Under testet ska patienten lyssna efter enstaviga ord i brus och efter varje ord ange på skärmen vilket ord hen uppfattade." & vbCrLf &
+                "Patienten ska gissa om hen är osäker." & vbCrLf &
+                "Patienten har maximalt " & TestWordPresentationTime + MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
+                "Testet är 50 ord långt."
+
         End Get
     End Property
 
@@ -246,12 +253,6 @@ Public Class IHearProtocolB2SpeechTest
         End Get
     End Property
 
-    Public Overrides ReadOnly Property UpperLevelLimit_dBSPL As Double
-        Get
-            Return 100
-        End Get
-    End Property
-
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
             Return 5
@@ -271,6 +272,10 @@ Public Class IHearProtocolB2SpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 1
+    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = True
+
+    Public Overrides ReadOnly Property MinimumLevel As Double = -10
+    Public Overrides ReadOnly Property MaximumLevel As Double = 80
 
 
     Dim PreTestListIndex As Integer
@@ -290,7 +295,7 @@ Public Class IHearProtocolB2SpeechTest
     Private ContralateralNoise As Audio.Sound = Nothing
 
     Private TestWordPresentationTime As Double = 1.5
-    Private MaximumResponseTime As Double = 5
+    Private MaximumResponseTime As Double = 2.5
     Private TestLength As Integer
     Private MaximumSoundDuration As Double = 10
 
@@ -571,58 +576,37 @@ Public Class IHearProtocolB2SpeechTest
 
         'Preparing next trial if needed
         If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
-            PrepareNextTrial(ProtocolReply)
+
+            'Preparing the next trial
+            'Getting next test word
+            CurrentTestTrial = PlannedTestTrials(ObservedTestTrials.Count)
+
+            'Creating a new test trial
+            DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel = CustomizableTestOptions.SpeechLevel
+            DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel
+            CurrentTestTrial.Tasks = 1
+
+            'Setting trial events
+            CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
+            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
+            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 2, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+
+            'Mixing trial sound
+            MixNextTrialSound()
+
         End If
 
         Return ProtocolReply.Decision
 
     End Function
 
-    Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
-
-
-        'Preparing the next trial
-        'Getting next test word
-        CurrentTestTrial = PlannedTestTrials(ObservedTestTrials.Count)
-
-        'Creating a new test trial
-        DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel = CustomizableTestOptions.SpeechLevel
-        DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel
-        CurrentTestTrial.Tasks = 1
-
-        'Dim HistoricTrialsToAdd As Integer = System.Math.Min(HistoricTrialCount, ObservedTestTrials.Count)
-
-        'Dim CurrentTrialIndex = CurrentTestTrial.ResponseAlternativeSpellings(0).Last.TrialPresentationIndex
-
-        ''Adding historic trials
-        'For index = 1 To HistoricTrialsToAdd
-
-        '    Dim CurrentHistoricTrialIndex = CurrentTrialIndex - index
-        '    Dim HistoricTrial = ObservedTestTrials(CurrentHistoricTrialIndex)
-
-        '    'We only add the spelling of first child component here, since displaying history is only supported for sigle words
-        '    Dim HistoricSpeechTestResponseAlternative = New SpeechTestResponseAlternative With {
-        '        .Spelling = HistoricTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"),
-        '        .IsScoredItem = True,
-        '        .TrialPresentationIndex = CurrentHistoricTrialIndex,
-        '        .ParentTestTrial = HistoricTrial}
-
-        '    'We insert the history
-        '    CurrentTestTrial.ResponseAlternativeSpellings(0).Insert(0, HistoricSpeechTestResponseAlternative) 'We put it into the first index as this is not multidimensional response alternatives (such as in Matrix tests)
-        'Next
-
-        'Setting trial events
-        CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 2, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
-
-        'Mixing trial sound
-        MixNextTrialSound()
-
-    End Sub
-
     Private Sub MixNextTrialSound()
+
+        Dim RETSPL_Correction As Double = 0
+        If LevelsAredBHL = True Then
+            RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
+        End If
 
         'Getting the speech signal
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
@@ -648,19 +632,21 @@ Public Class IHearProtocolB2SpeechTest
         If CustomizableTestOptions.UseContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
 
         'Calculating presentation levels
-        Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel)
+        Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel) + RETSPL_Correction
         Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
 
-        Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel)
+        'Here we're using the Speech level to set the Masker level. This means that the level of the masker file it self need to reflect the SNR, so that its mean level does not equal the nominal level, but instead deviated from the nominal level by the intended SNR. (These sound files (the Speech and the Masker) can then be mixed without any adjustment to attain the desired "clicinally" used SNR.
+        DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel = DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel
+        Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel) + RETSPL_Correction
         Dim NeededMaskerGain = TargetMaskerLevel_FS - NominalLevel_FS
 
         If CustomizableTestOptions.UseContralateralMasking = True Then
 
             'Setting level, 
-            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel)
+            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel) + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
-            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - NominalLevel_FS + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - NominalLevel_FS
             Audio.DSP.AmplifySection(TrialContralateralNoise, NeededContraLateralMaskerGain)
 
         End If

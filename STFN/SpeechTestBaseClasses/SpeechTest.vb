@@ -142,7 +142,6 @@
 
 #Region "SoundScene"
 
-    Public MustOverride ReadOnly Property UpperLevelLimit_dBSPL As Double
     ''' <summary>
     ''' Holds the level step size available in the customizable test options instance used in the test
     ''' </summary>
@@ -255,8 +254,9 @@
     Public MustOverride ReadOnly Property UseContralateralMasking As Utils.TriState
     Public MustOverride ReadOnly Property AvailablePhaseAudiometryTypes() As List(Of BmldModes)
     Public MustOverride ReadOnly Property UsePhaseAudiometry As Utils.TriState
-
-
+    Public MustOverride ReadOnly Property LevelsAredBHL As Boolean
+    Public MustOverride ReadOnly Property MinimumLevel As Double
+    Public MustOverride ReadOnly Property MaximumLevel As Double
 
 #End Region
 
@@ -268,6 +268,8 @@
     ''' This feid can be used to store information that should be shown on screen during pause. 
     ''' </summary>
     Public PauseInformation As String = ""
+
+    Public AbortInformation As String = ""
 
     Public MustOverride ReadOnly Property HistoricTrialCount As Integer
 
@@ -319,6 +321,7 @@
 #Region "Settings"
 
     Public Property CustomizableTestOptions As CustomizableTestOptions
+
 
 #End Region
 
