@@ -24,7 +24,7 @@ Public Class IHearProtocolB3SpeechTest
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
 
-            Return "(Detta test går ut på att undersöka om fyra olika testordslistor är lika svåra.)" & vbCrLf &
+            Return "(Detta test går ut på att undersöka om fyra olika testordslistor är lika svåra.)" & vbCrLf & vbCrLf &
                 "1. Välj testöra." & vbCrLf &
                 "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
                 "3. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
@@ -36,13 +36,13 @@ Public Class IHearProtocolB3SpeechTest
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return "Patientens uppgift: " & vbCrLf &
-                "Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
-                "Under testet ska patienten lyssna efter enstaviga ord och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
-                "Patienten ska gissa om hen är osäker." & vbCrLf &
-                "Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
-                "Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
-                "Testet består av fyra 25-ordslistor som körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
+            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
+                " - Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
+                " - Under testet ska patienten lyssna efter enstaviga ord och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
+                " - Patienten ska gissa om hen är osäker." & vbCrLf &
+                " - Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
+                " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
+                " - Testet består av fyra 25-ordslistor som körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
 
         End Get
     End Property
@@ -477,6 +477,10 @@ Public Class IHearProtocolB3SpeechTest
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
 
+        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
+        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+
         'Creating a silent sound (lazy method to get the same length independently of contralateral masking or not)
         Dim SilentSound = Audio.GenerateSound.CreateSilence(ContralateralNoise.WaveFormat, 1, MaximumSoundDuration)
 
@@ -542,10 +546,6 @@ Public Class IHearProtocolB3SpeechTest
             End If
         End If
 
-        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
-        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
-        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
-
     End Sub
 
     Public Overrides Sub FinalizeTest()
@@ -569,7 +569,7 @@ Public Class IHearProtocolB3SpeechTest
             Next
 
             If ScoreList.Count > 0 Then
-                Output.Add("Lista " & TestStageIndex & ": Resultat = " & ScoreList.Average & " % correct")
+                Output.Add("Lista " & TestStageIndex & ": Resultat = " & ScoreList.Average & " % korrekt (" & ScoreList.Sum & " / " & ObservedTestData(TestStageIndex).Count & ")")
             End If
         Next
 

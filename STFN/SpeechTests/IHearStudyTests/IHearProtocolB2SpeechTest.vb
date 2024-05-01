@@ -22,7 +22,7 @@ Public Class IHearProtocolB2SpeechTest
 
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
-            Return "(Detta test går ut på att undersöka svårighetsgraden hos listor med nya enstaviga testord i brus.)" & vbCrLf &
+            Return "(Detta test går ut på att undersöka svårighetsgraden hos listor med nya enstaviga testord i brus.)" & vbCrLf & vbCrLf &
                 "1. Välj testöra." & vbCrLf &
                 "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
                 "3. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
@@ -36,11 +36,11 @@ Public Class IHearProtocolB2SpeechTest
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return "Patientens uppgift: " & vbCrLf &
-                "Under testet ska patienten lyssna efter enstaviga ord i brus och efter varje ord ange på skärmen vilket ord hen uppfattade." & vbCrLf &
-                "Patienten ska gissa om hen är osäker." & vbCrLf &
-                "Patienten har maximalt " & TestWordPresentationTime + MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
-                "Testet är 50 ord långt."
+            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
+                " - Under testet ska patienten lyssna efter enstaviga ord i brus och efter varje ord ange på skärmen vilket ord hen uppfattade." & vbCrLf &
+                " - Patienten ska gissa om hen är osäker." & vbCrLf &
+                " - Patienten har maximalt " & TestWordPresentationTime + MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
+                " - Testet är 50 ord långt."
 
         End Get
     End Property
@@ -301,15 +301,17 @@ Public Class IHearProtocolB2SpeechTest
 
     Private IsInitialized As Boolean = False
 
-    Public InitializationSpinLock As New Threading.SpinLock
+    Private IsInitializeStarted As Boolean = False
+
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        Dim SpinLockTaken As Boolean = False
-
-        InitializationSpinLock.Enter(SpinLockTaken)
 
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
+
+        If IsInitializeStarted = True Then Return New Tuple(Of Boolean, String)(True, "")
+
+        IsInitializeStarted = True
 
         Dim AllTestListsNames = AvailableTestListsNames()
         Dim AllMediaSets = AvailableMediasets
@@ -372,9 +374,6 @@ Public Class IHearProtocolB2SpeechTest
         CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = CustomizableTestOptions.SpeechLevel, .TestLength = TestLength})
 
         IsInitialized = True
-
-        'Releases any spinlock
-        If SpinLockTaken = True Then InitializationSpinLock.Exit()
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -612,6 +611,10 @@ Public Class IHearProtocolB2SpeechTest
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
 
+        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
+        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+
         'Getting a random section of the noise
         Dim TotalNoiseLength As Integer = MaskerNoise.WaveData.SampleData(1).Length
         Dim IntendedNoiseLength As Integer = MaskerNoise.WaveFormat.SampleRate * MaximumSoundDuration
@@ -639,6 +642,10 @@ Public Class IHearProtocolB2SpeechTest
         DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel = DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel
         Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel) + RETSPL_Correction
         Dim NeededMaskerGain = TargetMaskerLevel_FS - NominalLevel_FS
+
+        'Adjusts the sound levels
+        Audio.DSP.AmplifySection(TestWordSound, NeededSpeechGain)
+        Audio.DSP.AmplifySection(TrialNoise, NeededMaskerGain)
 
         If CustomizableTestOptions.UseContralateralMasking = True Then
 
@@ -680,10 +687,6 @@ Public Class IHearProtocolB2SpeechTest
             End If
         End If
 
-        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
-        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
-        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
-
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
@@ -700,7 +703,7 @@ Public Class IHearProtocolB2SpeechTest
         Next
 
         If ScoreList.Count > 0 Then
-            Output.Add("Resultat = " & System.Math.Round(ScoreList.Average) & " % correct")
+            Output.Add("Resultat = " & System.Math.Round(ScoreList.Average) & " % korrekt (" & ScoreList.Sum & " / " & ObservedTestTrials.Count & ")")
         End If
 
         Return String.Join(vbCrLf, Output)

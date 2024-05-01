@@ -14,8 +14,8 @@ Public Class IHearProtocolB7SpeechTest
 
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
-            Return "(Detta test går ut på att undersöka svårighetsgraden i SiP-testet.)" & vbCrLf &
-                "För detta test behövs inga inställningar." & vbCrLf &
+            Return "(Detta test går ut på att undersöka svårighetsgraden i SiP-testet.)" & vbCrLf & vbCrLf &
+                "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
                 "1. Informera patienten om hur testet går till." & vbCrLf &
                 "2. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
 
@@ -24,13 +24,13 @@ Public Class IHearProtocolB7SpeechTest
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return "Patientens uppgift: " & vbCrLf &
-                "Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
-                "Under testet ska patienten lyssna efter enstaviga ord i olika ljudmiljöer och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
-                "Patienten ska gissa om hen är osäker. Många ord är mycket svåra att höra!" & vbCrLf &
-                "Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
-                "Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
-                "Testet består av två testomgångar med " & TestListCount * 3 & " ord i varje. testomgångarna körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
+            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
+                " - Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
+                " - Under testet ska patienten lyssna efter enstaviga ord i olika ljudmiljöer och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
+                " - Patienten ska gissa om hen är osäker. Många ord är mycket svåra att höra!" & vbCrLf &
+                " - Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
+                " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
+                " - Testet består av två testomgångar med " & TestListCount * 3 & " ord i varje. testomgångarna körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
 
         End Get
     End Property

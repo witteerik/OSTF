@@ -281,6 +281,8 @@ Public Class IHearProtocolB4SpeechTest
 
     Private IsInitialized As Boolean = False
 
+    Private IsInitializeStarted As Boolean = False
+
     Private IsSecondTest As Boolean = False
 
     'TestOrder holds rendomized order in which the two tests are run (specifying MediaSet and List index)
@@ -300,6 +302,10 @@ Public Class IHearProtocolB4SpeechTest
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
+
+        If IsInitializeStarted = True Then Return New Tuple(Of Boolean, String)(True, "")
+
+        IsInitializeStarted = True
 
         'Randomizing the order of media sets
         TestOrder = Utils.SampleWithoutReplacement(1, 0, 2, Randomizer)(0)
@@ -568,6 +574,10 @@ Public Class IHearProtocolB4SpeechTest
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
 
+        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
+        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+
         'Creating a silent sound (lazy method to get the same length independently of contralateral masking or not)
         Dim SilentSound = Audio.GenerateSound.CreateSilence(ContralateralNoise.WaveFormat, 1, MaximumSoundDuration)
 
@@ -633,12 +643,11 @@ Public Class IHearProtocolB4SpeechTest
             End If
         End If
 
-        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
-        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
-        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
-
     End Sub
 
+
+    Dim HasAddedSRT_Stage1 As Boolean = False
+    Dim HasAddedSRT_Stage2 As Boolean = False
 
     Public Overrides Function GetResultStringForGui() As String
 
@@ -647,15 +656,23 @@ Public Class IHearProtocolB4SpeechTest
         Dim Output As New List(Of String)
 
         If ProtocolThreshold IsNot Nothing Then
-            If ResultSummaryForGUI.Count = 0 Then
-                ResultSummaryForGUI.Add("HTT första testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
+
+            If IsSecondTest = False Then
+                If HasAddedSRT_Stage1 = False Then
+                    ResultSummaryForGUI.Add("HTT första testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
+                    HasAddedSRT_Stage1 = True
+                End If
             Else
-                ResultSummaryForGUI.Add("HTT andra testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
+                If HasAddedSRT_Stage2 = False Then
+                    ResultSummaryForGUI.Add("HTT andra testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
+                    HasAddedSRT_Stage2 = True
+                End If
             End If
             Output.AddRange(ResultSummaryForGUI)
         Else
-            Output.Add("Talnivå = " & vbTab & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
-            Output.Add("Kontralateral brusnivå = " & vbTab & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
+            Output.Add("Testord nummer " & ObservedTrials.Count & " av " & PlannedTestWords.Count)
+            Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
+            Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
         End If
 
         Return String.Join(vbCrLf, Output)

@@ -27,7 +27,7 @@ Public Class WrsTrial
         OutputList.AddRange(BaseClassTestResultColumnHeadings())
 
         'Adding property names
-        Dim properties As PropertyInfo() = GetType(SrtTrial).GetProperties()
+        Dim properties As PropertyInfo() = GetType(WrsTrial).GetProperties()
 
         ' Iterating through each property
         For Each [property] As PropertyInfo In properties
@@ -47,7 +47,7 @@ Public Class WrsTrial
         Dim OutputList As New List(Of String)
         OutputList.AddRange(BaseClassTestResultAsTextRow())
 
-        Dim properties As PropertyInfo() = GetType(SrtTrial).GetProperties()
+        Dim properties As PropertyInfo() = GetType(WrsTrial).GetProperties()
 
         ' Iterating through each property
         For Each [property] As PropertyInfo In properties

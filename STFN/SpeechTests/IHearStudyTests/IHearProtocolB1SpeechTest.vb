@@ -69,8 +69,11 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return "Patientens uppgift: " & vbCrLf &
-                "Patienten ska lyssna efter enstaviga ord och efter varje ord repetera ordet muntligt. Patienten ska gissa om hen är osäker. Testet är 400 ord långt, med pauser efter 50 ord."
+            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
+                " - Under testet ska patienten lyssna efter enstaviga ord i brus och efter varje ord ange på skärmen vilket ord hen uppfattade." & vbCrLf &
+                " - Patienten ska gissa om hen är osäker." & vbCrLf &
+                " - Patienten har maximalt " & TestWordPresentationTime + MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
+                " - Testet är 400 ord långt, med pauser efter var femtionde ord."
         End Get
     End Property
 
@@ -603,6 +606,10 @@ Public Class IHearProtocolB1SpeechTest
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
 
+        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
+        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+
         'Getting a random section of the noise
         Dim TotalNoiseLength As Integer = MaskerNoise.WaveData.SampleData(1).Length
         Dim IntendedNoiseLength As Integer = MaskerNoise.WaveFormat.SampleRate * MaximumSoundDuration
@@ -673,10 +680,6 @@ Public Class IHearProtocolB1SpeechTest
             End If
         End If
 
-        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
-        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
-        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
-
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
@@ -695,7 +698,7 @@ Public Class IHearProtocolB1SpeechTest
             Next
 
             If ScoreList.Count > 0 Then
-                Output.Add("Lista " & TestStageIndex & ": Resultat = " & ScoreList.Average & " % correct")
+                Output.Add("Lista " & TestStageIndex + 1 & ": Resultat = " & System.Math.Round(100 * ScoreList.Average) & " % korrekt (" & ScoreList.Sum & " / " & ObservedTestData(TestStageIndex).Count & ")")
             End If
         Next
 
