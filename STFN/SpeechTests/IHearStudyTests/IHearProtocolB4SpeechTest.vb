@@ -15,11 +15,8 @@ Public Class IHearProtocolB4SpeechTest
         End Get
     End Property
 
-
-    ''' <summary>
-    ''' This collection contains MaximumNumberOfTestWords which can be used troughout the test, in sequential order.
-    ''' </summary>
     Private PlannedTestWords As List(Of SpeechMaterialComponent)
+    Private PlannedFamiliarizationWords As List(Of SpeechMaterialComponent)
 
     Private ObservedTrials As TrialHistory
 
@@ -28,23 +25,25 @@ Public Class IHearProtocolB4SpeechTest
 
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
-            Return "(Detta test går ut på att undersöka nya HTT-listor med muntliga svar, med manlig och kvinnlig röst.)" & vbCrLf &
+            Return "(Detta test går ut på att undersöka nya HTT-listor med muntliga svar, med manlig och kvinnlig röst.)" & vbCrLf & vbCrLf &
                 "1. Välj testöra." & vbCrLf &
                 "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
                 "3. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
-                "4. Klicka på start för att starta testet." & vbCrLf &
-                "5. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen (nivåjusteringen sker automatiskt)"
+                "4. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att patienten kan uppfatta dem. Hör talnivån om patienten inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
+                "(Använd knappen TB för att prata med patienten när denna har lurar på sig.)" & vbCrLf &
+                "5. Klicka på start för att starta testet." & vbCrLf &
+                "6. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen (nivåjusteringen sker automatiskt)"
 
         End Get
     End Property
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return "Patientens uppgift: " & vbCrLf &
-                "Patienten ska lyssna efter tvåstaviga ord och efter varje ord repetera ordet muntligt. " & vbCrLf &
-                "Patienten ska gissa om hen är osäker. " & vbCrLf &
-                "Patienten har maximalt " & MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
-                "Testet består av två 25-ordslistor (en med manlig och en med kvinnlig röst) som körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
+            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
+                " - Patienten ska lyssna efter tvåstaviga ord och efter varje ord repetera ordet muntligt. " & vbCrLf &
+                " - Patienten ska gissa om hen är osäker. " & vbCrLf &
+                " - Patienten har maximalt " & MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
+                " - Testet består av två 25-ordslistor (en med manlig och en med kvinnlig röst) som körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
 
         End Get
     End Property
@@ -93,7 +92,7 @@ Public Class IHearProtocolB4SpeechTest
 
     Public Overrides ReadOnly Property SupportsPrelistening As Boolean
         Get
-            Return False
+            Return True
         End Get
     End Property
 
@@ -409,12 +408,30 @@ Public Class IHearProtocolB4SpeechTest
 
         'Adding all planned test words, and stopping after NumberOfWordsToAdd have been added
         PlannedTestWords = New List(Of SpeechMaterialComponent)
-        Dim CurrentWords = CurrentListSMC.GetChildren()
+        PlannedFamiliarizationWords = New List(Of SpeechMaterialComponent)
+        Dim AllWords = CurrentListSMC.GetChildren()
 
-        'Adding in randomized order
-        Dim RandomizedOrder = Utils.SampleWithoutReplacement(CurrentWords.Count, 0, CurrentWords.Count, Randomizer)
-        For Each RandomIndex In RandomizedOrder
-            PlannedTestWords.Add(CurrentWords(RandomIndex))
+        'Adding the first words to be used for familiarization
+        Dim FamiliarizationWords As New List(Of SpeechMaterialComponent)
+        Dim TestStageWords As New List(Of SpeechMaterialComponent)
+        For i = 0 To AllWords.Count - 1
+            If i < 5 Then
+                FamiliarizationWords.Add(AllWords(i))
+            Else
+                TestStageWords.Add(AllWords(i))
+            End If
+        Next
+
+        'Adding familiarization words in randomized order
+        Dim RandomizedOrder1 = Utils.SampleWithoutReplacement(FamiliarizationWords.Count, 0, FamiliarizationWords.Count, Randomizer)
+        For Each RandomIndex In RandomizedOrder1
+            PlannedFamiliarizationWords.Add(FamiliarizationWords(RandomIndex))
+        Next
+
+        'Adding test words in randomized order
+        Dim RandomizedOrder2 = Utils.SampleWithoutReplacement(TestStageWords.Count, 0, TestStageWords.Count, Randomizer)
+        For Each RandomIndex In RandomizedOrder2
+            PlannedTestWords.Add(TestStageWords(RandomIndex))
         Next
 
         'Getting the contralateral noise from the first SMC
@@ -699,13 +716,49 @@ Public Class IHearProtocolB4SpeechTest
 
     End Sub
 
+
+    Dim PreTestWordIndex As Integer = 0
     Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)
-        Throw New NotImplementedException
+
+        InitializeCurrentTest()
+
+        'Creating PreTestTrial
+
+        'Selecting pre-test word index
+        If PreTestWordIndex >= PlannedFamiliarizationWords.Count - 1 Then
+            'Resetting PreTestWordIndex, if all pre-testwords have been used
+            PreTestWordIndex = 0
+        End If
+
+        'Getting the test word
+        Dim NextTestWord = PlannedFamiliarizationWords(PreTestWordIndex)
+        PreTestWordIndex += 1
+
+        'Getting the spelling
+        Dim TestWordSpelling = NextTestWord.GetCategoricalVariableValue("Spelling")
+
+        'Creating a new pretest trial
+        CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+            .SpeechLevel = CustomizableTestOptions.SpeechLevel,
+            .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel}
+
+        'Mixing the test sound
+        MixNextTrialSound()
+
+        'Storing the test sound locally
+        Dim PreTestSound = CurrentTestTrial.Sound
+
+        'Resetting CurrentTestTrial 
+        CurrentTestTrial = Nothing
+
+        Return New Tuple(Of Audio.Sound, String)(PreTestSound, TestWordSpelling)
+
     End Function
 
-    Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
-        Throw New NotImplementedException()
-    End Sub
 
+    Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
+        'Not supported
+        'Throw New NotImplementedException()
+    End Sub
 
 End Class

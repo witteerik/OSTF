@@ -112,7 +112,7 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _ReferenceLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _ReferenceLevel = Math.Clamp(_ReferenceLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
+            _ReferenceLevel = Math.Min(_ReferenceLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property
@@ -143,7 +143,7 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _SpeechLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _SpeechLevel = Math.Clamp(_SpeechLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
+            _SpeechLevel = Math.Min(_SpeechLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property
@@ -174,7 +174,7 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _MaskingLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _MaskingLevel = Math.Clamp(_MaskingLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
+            _MaskingLevel = Math.Min(_MaskingLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property
@@ -205,7 +205,7 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _BackgroundLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _BackgroundLevel = Math.Clamp(_BackgroundLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
+            _BackgroundLevel = Math.Min(_BackgroundLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property
@@ -236,7 +236,7 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Double)
             _ContralateralMaskingLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _ContralateralMaskingLevel = Math.Clamp(_ContralateralMaskingLevel, SelectedTest.MinimumLevel, SelectedTest.MaximumLevel)
+            _ContralateralMaskingLevel = Math.Min(_ContralateralMaskingLevel, SelectedTest.MaximumLevel)
             OnPropertyChanged()
         End Set
     End Property

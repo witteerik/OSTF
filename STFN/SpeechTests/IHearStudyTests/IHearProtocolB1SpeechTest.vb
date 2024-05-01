@@ -321,7 +321,7 @@ Public Class IHearProtocolB1SpeechTest
     Private ContralateralNoise As Audio.Sound = Nothing
 
     Private TestWordPresentationTime As Double = 1.5
-    Private MaximumResponseTime As Double = 5
+    Private MaximumResponseTime As Double = 2.5
 
     Private TestLength As Integer = 50
 

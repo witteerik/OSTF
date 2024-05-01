@@ -76,7 +76,7 @@
             'Checks if all taks were correct
             If ProportionTasksCorrect = 1 Then
 
-                'Increasing the level
+                'Decreasing the level
                 NextAdaptiveLevel -= BallparkStageAdaptiveStepSize
 
             ElseIf ProportionTasksCorrect < 1 Then
