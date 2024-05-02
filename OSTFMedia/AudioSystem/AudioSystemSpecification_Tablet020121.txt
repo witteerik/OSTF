@@ -1,0 +1,24 @@
+<New media player>
+MediaPlayerType = AudioTrackBased 
+
+<AudioDevices>
+OutputDevice = USB-Audio - AudioQuest DragonFly Black v1.5 // TB328FU 
+InputDevice = TB328FU+WiredHeadset // Device name + Device type
+
+BufferSize = 1024 // Must be powers of 2
+
+AllowDefaultOutputDevice = False // Value must be True or False. If True, OSTF is allowed to select the default audio output device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system.
+AllowDefaultInputDevice = False // Value must be True or False. If True, OSTF is allowed to select the default audio input device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system.
+
+<New transducer>
+Name = Headphones
+LoudspeakerAzimuths = -90, 90 // Should indicate the actual physical azimuth angle between each loudspeaker and the frontal angle at the listener's position (in degrees)
+LoudspeakerElevations = 0, 0 // Should indicate the actual physical elevation angle between each loudspeaker and the horizon at the listener's position (in degrees)
+LoudspeakerDistances = 0, 0 // Should indicate the actual physical distance from the loudspeakers to the listener (in meters)
+HardwareOutputChannels = 1, 2
+CalibrationGain = 4.5, 5 //Sets the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). The hardware channels values should be comma separated, and dots (.) should be used as decimal mark.
+HostVolumeOutputLevel = 70 // The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests.
+PtaCalibrationGainFrequencies = 125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000 //Available values for DD65v2:  125, 160, 200, 250, 315, 400, 500, 630, 750, 800, 1000, 1250, 1500, 1600, 2000, 2500, 3000, 3150, 4000, 5000, 6000, 6300, 8000
+PtaCalibrationGainValues = 0,0,0,0,0,0,0,0,0,0,0 
+RETSPL_Speech = 17 
+LimiterThreshold = 100  // (dB SPL) Leave empty to disable limiter

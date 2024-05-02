@@ -32,7 +32,8 @@ Public Class IHearProtocolB1SpeechTest
         TestListOrder.Add(19, New Tuple(Of Integer, Integer, Integer())(1, 4, {6, 15, 10, 11, 8, 3, 14, 5}))
 
         'Dim TestSnrs() As Double = {-9, -6, -3, 1, 7} ' Initial attempt, based on Magnusson, 1995 to get 10, 30, 50 70 and 90 % correct
-        Dim TestSnrs() As Double = {-12, -9, -6, -2, 4} ' Three dB lower SNR
+        'Dim TestSnrs() As Double = {-12, -9, -6, -2, 4} ' Three dB lower SNR
+        Dim TestSnrs() As Double = {-12, -9, -6, -3, 0} ' Adjustment after Pilot testing
         Dim BaseSnrOrders As New List(Of Double())
         BaseSnrOrders.Add({TestSnrs(0), TestSnrs(1), TestSnrs(2), TestSnrs(3), TestSnrs(4)})
         BaseSnrOrders.Add({TestSnrs(1), TestSnrs(2), TestSnrs(3), TestSnrs(4), TestSnrs(0)})

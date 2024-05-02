@@ -431,7 +431,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsPB1TestView);
                     CurrentTestOptionsView = newOptionsPB1TestView;
 
-                    ((IHearProtocolB1SpeechTest)CurrentSpeechTest).TestCacheIndexation();
+                    //((IHearProtocolB1SpeechTest)CurrentSpeechTest).TestCacheIndexation();
 
                     break;
 
