@@ -317,9 +317,9 @@ Public Class IHearProtocolB3SpeechTest
 
         Dim AllMediaSets = AvailableMediasets
 
-        'Select MediaSet / voice, Male only?
+        'Select MediaSet / voice, using female voice only, as in AMTEST
         For Each MediaSet In AllMediaSets
-            If MediaSet.TalkerGender = MediaSet.Genders.Male Then
+            If MediaSet.TalkerGender = MediaSet.Genders.Female Then
                 CustomizableTestOptions.SelectedMediaSet = MediaSet
                 Exit For
             End If

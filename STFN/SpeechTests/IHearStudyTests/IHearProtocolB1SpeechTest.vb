@@ -332,6 +332,32 @@ Public Class IHearProtocolB1SpeechTest
 
     Private IsInitialized As Boolean = False
 
+    Public Sub TestCacheIndexation()
+
+        'Creating cache variable names for storing last test list index and voice between sessions
+        CacheLastTestListOrderVariableName = FilePathRepresentation & "LastTestListOrder"
+
+        AppCache.RemoveAppCacheVariable(CacheLastTestListOrderVariableName)
+
+        For testSession = 0 To 25
+
+            InitializeCurrentTest()
+
+            Utils.SendInfoToLog("testSession:" & testSession & ", CurrentTestListOrderIndex : " & CurrentTestListOrderIndex)
+
+            FinalizeTest()
+
+            IsInitialized = False
+
+        Next
+
+        AppCache.RemoveAppCacheVariable(CacheLastTestListOrderVariableName)
+
+        Messager.MsgBox("Finished test of cache indexation. Results are stored in the log folder.")
+
+    End Sub
+
+
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
@@ -356,6 +382,12 @@ Public Class IHearProtocolB1SpeechTest
 
         Else
             'Setting CurrentTestListOrderIndex to 1 for the first participant
+            CurrentTestListOrderIndex = 0
+        End If
+
+        If CurrentTestListOrderIndex > TestListOrder.Keys.Max Then
+            Messager.MsgBox("The maximum number of participants ( " & TestListOrder.Keys.Max + 1 & ") has been is reached." & vbCrLf & "Press ok to reset the list order memory.")
+            AppCache.RemoveAppCacheVariable(CacheLastTestListOrderVariableName)
             CurrentTestListOrderIndex = 0
         End If
 

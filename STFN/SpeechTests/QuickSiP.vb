@@ -24,7 +24,7 @@ Public Class QuickSiP
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return "Patientens uppgift: " & vbCrLf &
+            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
                 " - Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
                 " - Under testet ska patienten lyssna efter enstaviga ord som uttalas i en stadsmiljö och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
                 " - Patienten ska gissa om hen är osäker." & vbCrLf &

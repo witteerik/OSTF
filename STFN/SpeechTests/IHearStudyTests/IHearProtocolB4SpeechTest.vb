@@ -1,5 +1,4 @@
 ﻿Imports STFN.TestProtocol
-Imports Utils
 
 Public Class IHearProtocolB4SpeechTest
     Inherits SpeechTest
@@ -298,6 +297,31 @@ Public Class IHearProtocolB4SpeechTest
     Private TestWordPresentationTime As Double = 0.5
     Private MaximumResponseTime As Double = 5
 
+    Public Sub TestCacheIndexation()
+
+        'Creating cache variable names for storing last test list index and voice between sessions
+        CacheLastTestListVariableName = FilePathRepresentation & "LastTestListOrder"
+
+        Utils.AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
+
+        For testSession = 0 To 25
+
+            InitializeCurrentTest()
+
+            Utils.SendInfoToLog("testSession:" & testSession & ", StoredTestListIndex : " & StoredTestListIndex)
+
+            FinalizeTest()
+
+            IsInitialized = False
+            IsInitializeStarted = False
+
+        Next
+
+        Utils.AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
+
+        Messager.MsgBox("Finished test of cache indexation. Results are stored in the log folder.")
+
+    End Sub
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
@@ -317,7 +341,6 @@ Public Class IHearProtocolB4SpeechTest
         Dim StartAdaptiveLevel As Double = CustomizableTestOptions.SpeechLevel
 
         Dim AllTestListsNames = AvailableTestListsNames()
-        Dim AllMediaSets = AvailableMediasets
 
         'Creating cache variable names for storing last test list index and voice between sessions
         CacheLastTestListVariableName = FilePathRepresentation & "LastTestList"

@@ -17,7 +17,15 @@ public partial class WelcomePageR : ContentView
 		InitializeComponent();
 
         SelectedLanguage_Picker.ItemsSource = AvailableGuiLanguages;
-        SelectedLanguage_Picker.SelectedIndex = 0;
+        if (AvailableGuiLanguages.Count>0)
+        {
+            // Picking the second language, which is Swedish when this is written
+            SelectedLanguage_Picker.SelectedIndex = 1;
+        }
+        else
+        {
+            SelectedLanguage_Picker.SelectedIndex = 0;
+        }
 
         //SoundFieldSimulation_Label.IsVisible = false;
         //UseSoundFieldSimulation_Switch.IsVisible = false;
