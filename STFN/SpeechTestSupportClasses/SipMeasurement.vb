@@ -2705,6 +2705,20 @@ Namespace SipTest
         Public Overrides Function TestResultAsTextRow() As String
 
             Dim OutputList As New List(Of String)
+
+            'Copies the MediaSetName, as this has not been stored in SiP trials
+            If MediaSet IsNot Nothing Then
+                MediaSetName = MediaSet.MediaSetName
+            Else
+                MediaSetName = ""
+            End If
+
+            'Notes that contralateral noise on/off setting is false (Always false in SiP-test)
+            UseContralateralNoise = False
+
+            'And the EM term (which is not used int the SiP-test)
+            EfficientContralateralMaskingTerm = 0
+
             OutputList.AddRange(BaseClassTestResultAsTextRow())
 
             OutputList.Add(CreateExportString(True))
@@ -2727,7 +2741,11 @@ Namespace SipTest
             '    'Else
             '    'End If
 
-            '    OutputList.Add(propertyValue.ToString)
+            '   If propertyValue IsNot Nothing Then
+            '        OutputList.Add(propertyValue.ToString)
+            '   Else
+            '        OutputList.Add("NotSet")
+            '   End If
 
             'Next
 

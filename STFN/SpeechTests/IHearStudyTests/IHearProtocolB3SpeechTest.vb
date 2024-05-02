@@ -26,7 +26,7 @@ Public Class IHearProtocolB3SpeechTest
 
             Return "(Detta test går ut på att undersöka om fyra olika testordslistor är lika svåra.)" & vbCrLf & vbCrLf &
                 "1. Välj testöra." & vbCrLf &
-                "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
+                "2. Ställ talnivå till patientes TMV3 på testörat, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
                 "3. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
                 "4. Informera patienten om hur testet går till." & vbCrLf &
                 "5. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
@@ -358,6 +358,9 @@ Public Class IHearProtocolB3SpeechTest
                     End If
                 Next
 
+                'Shuffling the order of response alternatives
+                ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+
                 NewTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
                 NewTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
 
@@ -548,6 +551,12 @@ Public Class IHearProtocolB3SpeechTest
 
         'Also stores the mediaset
         CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
+
+        'And the contralateral noise on/off setting
+        CurrentTestTrial.UseContralateralNoise = CustomizableTestOptions.UseContralateralMasking
+
+        'And the EM term
+        CurrentTestTrial.EfficientContralateralMaskingTerm = CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
 
     End Sub
 

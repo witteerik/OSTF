@@ -286,7 +286,7 @@ Public Class IHearProtocolB7SpeechTest
     Private DirectionalSimulationSet As String = "ARC - Harcellen - HATS - SiP"
     Private ReferenceLevel As Double = 68.34
 
-    Private TestListCount As Integer = 10
+    Private TestListCount As Integer = 11
     Private CurrentTestStage As Integer = 0
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
@@ -416,12 +416,20 @@ Public Class IHearProtocolB7SpeechTest
 
 
         'Creating a list of PNRs from which to sample
-        Dim PNRs As New List(Of Double)
+        Dim OrderedPNRs As New List(Of Double)
         Dim TempPnr As Double = 15
-        For i = 0 To 9
-            PNRs.Add(TempPnr)
+        For i = 0 To TestListCount - 1
+            OrderedPNRs.Add(TempPnr)
             TempPnr -= 3.5
         Next
+
+        'Sampling a PNR-order
+        Dim RandomizedPnrIndices = Utils.SampleWithoutReplacement(OrderedPNRs.Count, 0, OrderedPNRs.Count, Randomizer)
+        Dim RandomizedPNRs As New List(Of Double)
+        For Each Index In RandomizedPnrIndices
+            RandomizedPNRs.Add(OrderedPNRs(Index))
+        Next
+
 
         For i = 0 To SelectedTestLists.Count - 1
 
@@ -430,9 +438,7 @@ Public Class IHearProtocolB7SpeechTest
             Dim RandomizedMediaSetIndex = Utils.SampleWithoutReplacement(1, 0, SelectedMediaSets.Count, Randomizer)(0)
             Dim MediaSet = SelectedMediaSets(RandomizedMediaSetIndex)
 
-            'Sampling a PNR
-            Dim RandomizedPnrIndex As Integer = Utils.SampleWithoutReplacement(1, 0, PNRs.Count, Randomizer)(0)
-            Dim PNR = PNRs(RandomizedPnrIndex)
+            Dim PNR = RandomizedPNRs(i)
 
             TestUnit1.SpeechMaterialComponents.AddRange(TestWords)
             TestUnit2.SpeechMaterialComponents.AddRange(TestWords)

@@ -61,7 +61,11 @@ Public Class SrtTrial
             'Else
             'End If
 
-            OutputList.Add(propertyValue.ToString)
+            If propertyValue IsNot Nothing Then
+                OutputList.Add(propertyValue.ToString)
+            Else
+                OutputList.Add("NotSet")
+            End If
 
         Next
 

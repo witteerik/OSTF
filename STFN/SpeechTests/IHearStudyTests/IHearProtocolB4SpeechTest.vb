@@ -672,6 +672,12 @@ Public Class IHearProtocolB4SpeechTest
         'Also stores the mediaset
         CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
 
+        'And the contralateral noise on/off setting
+        CurrentTestTrial.UseContralateralNoise = CustomizableTestOptions.UseContralateralMasking
+
+        'And the EM term
+        CurrentTestTrial.EfficientContralateralMaskingTerm = CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+
     End Sub
 
 

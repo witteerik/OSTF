@@ -29,6 +29,16 @@ Public MustInherit Class TestTrial
 
     Public Property SpeechMaterialComponent As SpeechMaterialComponent
 
+    Public ReadOnly Property Spelling As String
+        Get
+            If SpeechMaterialComponent IsNot Nothing Then
+                Return SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
+            Else
+                Return ""
+            End If
+        End Get
+    End Property
+
     ''' <summary>
     ''' A list specifying what is to happen at different timepoints starting from the launch of the test trial
     ''' </summary>
@@ -37,6 +47,10 @@ Public MustInherit Class TestTrial
     Public Sound As Audio.Sound
 
     Public Property MediaSetName As String
+
+    Public Property UseContralateralNoise As Boolean
+
+    Public Property EfficientContralateralMaskingTerm As Double
 
     ''' <summary>
     ''' Indicates the number of correctly responded tasks.
@@ -222,7 +236,11 @@ Public MustInherit Class TestTrial
             'Else
             'End If
 
-            OutputList.Add(propertyValue.ToString)
+            If propertyValue IsNot Nothing Then
+                OutputList.Add(propertyValue.ToString)
+            Else
+                OutputList.Add("NotSet")
+            End If
 
         Next
 
