@@ -27,7 +27,7 @@ Public Class IHearProtocolB4SpeechTest
             Return "(Detta test går ut på att undersöka nya HTT-listor med muntliga svar, med manlig och kvinnlig röst.)" & vbCrLf & vbCrLf &
                 "1. Välj testöra." & vbCrLf &
                 "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
-                "3. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
+                "3. Akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
                 "4. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att patienten kan uppfatta dem. Hör talnivån om patienten inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
                 "(Använd knappen TB för att prata med patienten när denna har lurar på sig.)" & vbCrLf &
                 "5. Klicka på start för att starta testet." & vbCrLf &
@@ -274,7 +274,7 @@ Public Class IHearProtocolB4SpeechTest
     Public Overrides Property SoundOverlapDuration As Double = 0.25
 
     Public Overrides ReadOnly Property LevelsAredBHL As Boolean = True
-    Public Overrides ReadOnly Property MinimumLevel As Double = -20
+    Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 80
 
 

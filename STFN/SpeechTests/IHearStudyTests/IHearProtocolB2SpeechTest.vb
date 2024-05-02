@@ -274,7 +274,7 @@ Public Class IHearProtocolB2SpeechTest
     Public Overrides Property SoundOverlapDuration As Double = 1
     Public Overrides ReadOnly Property LevelsAredBHL As Boolean = True
 
-    Public Overrides ReadOnly Property MinimumLevel As Double = -10
+    Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 80
 
 
