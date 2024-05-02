@@ -46,6 +46,9 @@ Public Class IHearProtocolB1SpeechTest
                 OrderList.AddRange(BaseSnrOrders(TestListOrder(p).Item2))
             Next
             SortedSnrOrders.Add(p, OrderList.ToArray)
+
+            'SendInfoToLog(p & vbTab & String.Join(vbCrLf, OrderList))
+
         Next
 
     End Sub
@@ -334,20 +337,43 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Sub TestCacheIndexation()
 
+        Dim IncludeTestTrialExport As Boolean = True
+
         'Creating cache variable names for storing last test list index and voice between sessions
         CacheLastTestListOrderVariableName = FilePathRepresentation & "LastTestListOrder"
 
         AppCache.RemoveAppCacheVariable(CacheLastTestListOrderVariableName)
 
-        For testSession = 0 To 25
+        For testSession = 0 To 19
 
             InitializeCurrentTest()
 
             Utils.SendInfoToLog("testSession:" & testSession & ", CurrentTestListOrderIndex : " & CurrentTestListOrderIndex)
 
+            If IncludeTestTrialExport = True Then
+                For TempTestStageIndex = 0 To PlannedTestData.Count - 1
+                    Do
+                        Dim TempCurrentTestTrial = PlannedTestData(TempTestStageIndex)(0)
+
+                        'Adding the test trial
+                        ObservedTestData(TempTestStageIndex).Add(TempCurrentTestTrial)
+
+                        'Removing the trial from the planned data
+                        PlannedTestData(TempTestStageIndex).Remove(TempCurrentTestTrial)
+
+                        If PlannedTestData(TempTestStageIndex).Count = 0 Then Exit Do
+                    Loop
+                Next
+            End If
+
             FinalizeTest()
 
+            If IncludeTestTrialExport = True Then SaveTableFormatedTestResults()
+
             IsInitialized = False
+
+            PlannedTestData.Clear()
+            ObservedTestData.Clear()
 
         Next
 
@@ -407,7 +433,6 @@ Public Class IHearProtocolB1SpeechTest
         Dim TestOrderData = TestListOrder(CurrentTestListOrderIndex)
 
         Dim MediaSetIndex = TestOrderData.Item1
-        Dim SnrOrderIndex = TestOrderData.Item2
         Dim SelectedListIndices = TestOrderData.Item3
 
         Dim AllMediaSets = AvailableMediasets
@@ -428,7 +453,7 @@ Public Class IHearProtocolB1SpeechTest
 
                 Dim Sentence_SMC = List.ChildComponents(i)
 
-                Dim TrialSNR As Double = SortedSnrOrders(SnrOrderIndex)(i)
+                Dim TrialSNR As Double = SortedSnrOrders(CurrentTestListOrderIndex)(i)
 
                 Dim NewTrial = New WrsTrial
                 NewTrial.SpeechMaterialComponent = Sentence_SMC

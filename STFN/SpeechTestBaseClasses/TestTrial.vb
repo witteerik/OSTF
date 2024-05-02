@@ -134,6 +134,7 @@ Public MustInherit Class TestTrial
         ResponseAlternativesShown 'Registered in SpeechTestView
         ParticipantResponded 'Registered in SpeechTestView
         TestAdministratorCorrectedResponse 'Registered in SpeechTestView, on call from the response view for free recall
+        TestAdministratorCorrectedHistoricResponse 'Registered in SpeechTestView, on call from the response view for free recall
         TestAdministratorPressedNextTrial 'Registered in SpeechTestView
         'TestAdministratorUpdatedPreviuosResponse 'Registered in SpeechTestView
         ResponseTimeWasOut 'Registered in SpeechTestView

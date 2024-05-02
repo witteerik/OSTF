@@ -431,7 +431,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsPB1TestView);
                     CurrentTestOptionsView = newOptionsPB1TestView;
 
-                    //((IHearProtocolB1SpeechTest)CurrentSpeechTest).TestCacheIndexation();
+                    ((IHearProtocolB1SpeechTest)CurrentSpeechTest).TestCacheIndexation();
 
                     break;
 
@@ -590,7 +590,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     //TestResponseView.StartedByTestee += StartedByTestee;
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
 
                     break;
 
@@ -853,7 +852,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.PauseMessageShown, DateTime.Now));
                 }
 
-                await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
+                // Putting the message in the caption to enlarge the font size... (lazy idea, I know...)
+                await Messager.MsgBoxAsync("", Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
             }
 
             StartTestBtn.IsEnabled = true;
@@ -874,7 +874,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                 CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.PauseMessageShown, DateTime.Now));
             }
 
-            await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
+            // Putting the message in the caption to enlarge the font size... (lazy idea, I know...)
+            await Messager.MsgBoxAsync("", Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
 
             // Restarting test
             StartTest();
@@ -890,7 +891,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-
+    
 
     void NewSpeechTestInput(object sender, SpeechTestInputEventArgs e)
     {
@@ -978,8 +979,12 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     void ResponseHistoryUpdate(object sender, SpeechTestInputEventArgs e)
     {
+
         // Registering timed trial event
-        //CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TestAdministratorUpdatedPreviuosResponse, DateTime.Now));
+        if (CurrentSpeechTest.CurrentTestTrial != null)
+        {
+            CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TestAdministratorCorrectedHistoricResponse, DateTime.Now));
+        }
 
         CurrentSpeechTest.UpdateHistoricTrialResults(sender, e);
     }

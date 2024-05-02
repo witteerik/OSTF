@@ -82,6 +82,7 @@ public abstract class ResponseView : ContentView
         }
     }
 
+
     public abstract void AddSourceAlternatives(VisualizedSoundSource[] soundSources);
 
     /// <summary>

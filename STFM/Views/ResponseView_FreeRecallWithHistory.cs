@@ -168,8 +168,6 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
             {
                 correctionButton.ShowAsCorrect = localResponseAlternatives[i].ParentTestTrial.IsCorrect;
                 correctionButton.setButtonAppearence();
-                correctionButton.Clicked += CorrectionButton_Clicked;
-
             }
 
             double ViewHeight = this.Height;
@@ -189,6 +187,11 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
                 {
                     correctionButton.Clicked += HistoricTrial_Clicked;
                     // The last button is the current test trial and does not trigger any event.
+                }
+                else
+                {
+                    // This is the current trial correctionButton, adding the CorrectionButton_Clicked event
+                    correctionButton.Clicked += CorrectionButton_Clicked;
                 }
             }
             else
