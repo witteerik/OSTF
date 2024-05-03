@@ -159,6 +159,12 @@ namespace STFM
         {
             throw new NotImplementedException();
         }
+
+        public static string GetAvaliableDeviceInformation()
+        {
+            throw new Exception();
+        }
+
     }
 
 
@@ -185,6 +191,7 @@ namespace STFM
         {
             throw new NotImplementedException();
         }
+
     }
 
 }

@@ -1,4 +1,6 @@
-﻿using Android;
+﻿#if __ANDROID__
+
+using Android;
 using Android.AdServices.AdIds;
 using Android.AdServices.Common;
 using Android.AdServices.Topics;
@@ -943,3 +945,5 @@ namespace ExoPlayerTestApp
     }
 
 }
+
+#endif

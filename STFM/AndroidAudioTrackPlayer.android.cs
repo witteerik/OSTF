@@ -62,10 +62,15 @@ namespace STFM
             }
         }
 
+        private double? currentOverlapDuration = null;
+
         private void SetOverlapDuration(double Duration)
         {
+            currentOverlapDuration = Duration;
+
             //Enforcing at least one sample overlap
             OverlapFrameCount = (int)Math.Max(1, (double)SampleRate * Duration);
+
         }
 
         public double GetOverlapDuration()
@@ -120,9 +125,9 @@ namespace STFM
             this.AudioSettings = AudioSettings;
             this.Mixer = Mixer;
         }
+         
 
-
-        [SupportedOSPlatform("Android31.0")]
+    [SupportedOSPlatform("Android31.0")]
         void StartPlayer()
         {
 
@@ -132,7 +137,9 @@ namespace STFM
                 this.SampleRate = (int)CurrentFormat.SampleRate;
                 NumberOfOutputChannels = Mixer.GetHighestOutputChannel();
 
-                SetOverlapDuration(0.05); // This value is default, but should be set by each user of the player by a call to ChangePlayerSettings
+                if (currentOverlapDuration == null) { currentOverlapDuration = 0.05; } // This value is default, set only on first call
+                SetOverlapDuration(currentOverlapDuration.Value); 
+
                 SilentBuffer = new float[AudioSettings.FramesPerBuffer * NumberOfOutputChannels];
                 PlaybackBuffer = new float[AudioSettings.FramesPerBuffer * NumberOfOutputChannels];
 
@@ -181,7 +188,7 @@ namespace STFM
 
                 audioTrackBuilder.SetAudioAttributes(new Android.Media.AudioAttributes.Builder()
                     .SetUsage(AudioUsageKind.Media)
-                    .SetContentType(AudioContentType.Music)
+                    .SetContentType( AudioContentType.Music)
                     .Build());
 
                 audioTrackBuilder.SetPerformanceMode(AudioTrackPerformanceMode.None);
@@ -280,14 +287,20 @@ namespace STFM
             //'Updating values
             //  If PortAudioApiSettings IsNot Nothing Then SetApiAndDevice(PortAudioApiSettings, True)
 
-            if (OverlapDuration != null)
-            {
-                SetOverlapDuration(OverlapDuration.Value);
-            }
-
             if (Mixer != null)
             {
                 this.Mixer = Mixer;
+            }
+
+            if (this.Mixer != null)
+            {
+                // Updating the number of output channels
+                NumberOfOutputChannels = Mixer.GetHighestOutputChannel();
+            }
+
+            if (OverlapDuration != null)
+            {
+                SetOverlapDuration(OverlapDuration.Value);
             }
 
             // SoundDirection is ignored, since this class is only PlaybackOnly
@@ -482,7 +495,7 @@ namespace STFM
                 {
                     if (castAudioTrack.State == AudioTrackState.Initialized)
                     {
-                        if (CheckAudioSettings(AudioSettings.SelectedOutputDeviceName, AudioSettings.AllowDefaultOutputDevice.Value, Mixer.HostVolumeOutputLevel) == false)
+                        if (CheckAudioSettings() == false)
                         {
                             // Playback should stop immediately and 
                             runBufferLoop = false;
@@ -503,7 +516,7 @@ namespace STFM
         }
 
         [SupportedOSPlatform("Android31.0")]
-        public bool CheckAudioSettings(string IntendedOutputDeviceName, bool AllowAnyOutputDevice, int IntendedVolumePercentage)
+        public bool CheckAudioSettings()
         {
 
             // This method checks to ensure that the intended output device is selected, and that the intended android media volume is set as intended, and that all other volume types are set to zero volume.
@@ -566,6 +579,12 @@ namespace STFM
                     return false;
                 }
 
+                AudioTrack castaudioTrack = (AudioTrack)audioTrack;
+                if (castaudioTrack.StreamType != Android.Media.Stream.Music)
+                {
+                    Messager.MsgBoxAsync("AudioTrack no longer Music!" + castaudioTrack.StreamType.ToString());
+                }
+
                 AudioManager audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
 
                 //Checks that the main AudioTrack has the correct output device set
@@ -574,14 +593,12 @@ namespace STFM
                 //Checks that the talkback AudioTrack has the correct output device set
                 CheckTalkBackAudioDevice(audioManager);
 
-
-                // Checks that the intended volume is set
                 int? MaxVol = audioManager?.GetStreamMaxVolume(Android.Media.Stream.Music);
                 int? MinVol = audioManager?.GetStreamMinVolume(Android.Media.Stream.Music);
                 int? currentVolume = audioManager?.GetStreamVolume(Android.Media.Stream.Music);
                 //audioManager?.GetStreamVolumeDb(Android.Media.Stream.Music);
                 int volumeRange = MaxVol.Value - MinVol.Value;
-                int indendedVolume = (int)Math.Clamp((double)((double)IntendedVolumePercentage / (double)100) * (double)volumeRange, (double)MinVol.Value, (double)MaxVol.Value);
+                int indendedVolume = (int)Math.Clamp((double)((double)Mixer.HostVolumeOutputLevel / (double)100) * (double)volumeRange, (double)MinVol.Value, (double)MaxVol.Value);
 
                 if (indendedVolume != currentVolume)
                 {
@@ -589,7 +606,7 @@ namespace STFM
 
                     // Checking that the correct volume was also set
                     currentVolume = audioManager?.GetStreamVolume(Android.Media.Stream.Music);
-                    indendedVolume = (int)Math.Clamp((double)((double)IntendedVolumePercentage / (double)100) * (double)volumeRange, (double)MinVol.Value, (double)MaxVol.Value);
+                    indendedVolume = (int)Math.Clamp((double)((double)Mixer.HostVolumeOutputLevel / (double)100) * (double)volumeRange, (double)MinVol.Value, (double)MaxVol.Value);
 
                     if (indendedVolume != currentVolume)
                     {
@@ -953,7 +970,7 @@ namespace STFM
                     {
                         for (int c = 0; c < NumberOfOutputChannels; c++)
                         {
-                            OverlapFadeInArray[n * NumberOfOutputChannels + c] = n / (_OverlapFrameCount - 1);
+                            OverlapFadeInArray[n * NumberOfOutputChannels + c] = (float)n / (float)(_OverlapFrameCount - 1);
                         }
                     }
 
@@ -963,7 +980,7 @@ namespace STFM
                     {
                         for (int c = 0; c < NumberOfOutputChannels; c++)
                         {
-                            OverlapFadeOutArray[n * NumberOfOutputChannels + c] = 1 - (n / (_OverlapFrameCount - 1));
+                            OverlapFadeOutArray[n * NumberOfOutputChannels + c] = (float)1 - (float)((float)n / (float)(_OverlapFrameCount - 1));
                         }
                     }
 

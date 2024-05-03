@@ -52,6 +52,8 @@ public partial class SpeechTestCalibrationView : ContentView
         Close_Button.Clicked += Close_Button_Click;
         Help_Button.Clicked += Help_Button_Click;
         Close_Button.Clicked += Close_Button_Click;
+        Show_SoundDevices_Button.Clicked += Show_SoundDevices_Button_Click;
+
 
         // Add any initialization after the InitializeComponent() call.
         this.IsStandAlone = true;
@@ -517,6 +519,7 @@ public partial class SpeechTestCalibrationView : ContentView
         ShowHelp();
     }
 
+
     private void ShowHelp()
     {
 
@@ -539,6 +542,31 @@ public partial class SpeechTestCalibrationView : ContentView
 
         Messager.MsgBox(CalibrationInfoString, Messager.MsgBoxStyle.Information, "How to calibrate", "Close");
 
+    }
+
+    private void Show_SoundDevices_Button_Click(object sender, EventArgs e)
+    {
+        ShowSoundDevices();
+    }
+
+    private void ShowSoundDevices()
+    {
+
+        //var InstructionsForm = new STFN.InfoForm();
+
+        string AudioSystemSpecificationFilePath = System.IO.Path.Combine(STFN.OstfBase.MediaRootDirectory, STFN.OstfBase.AudioSystemSettingsFile);
+
+        string SoundDeviceInfoString = "";
+
+        if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.AudioTrackBased)
+        {
+            SoundDeviceInfoString = AndroidAudioTrackPlayer.GetAvaliableDeviceInformation();
+        }else
+        {
+            SoundDeviceInfoString = "Function not yet implemented on the current platform";
+        }
+
+        Messager.MsgBox(SoundDeviceInfoString, Messager.MsgBoxStyle.Information, "Avaliable sound devices", "Close");
     }
 
     //private void CalibrationForm_FormClosing(object sender, System.Windows.Forms.FormClosingEventArgs e)
@@ -577,4 +605,8 @@ public partial class SpeechTestCalibrationView : ContentView
         //this.Close();
     }
 
+    private void Show_ShondDevices_Button_Clicked(object sender, EventArgs e)
+    {
+
+    }
 }
