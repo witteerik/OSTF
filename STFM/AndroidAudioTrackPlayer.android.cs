@@ -292,11 +292,12 @@ namespace STFM
                 this.Mixer = Mixer;
             }
 
-            if (this.Mixer != null)
-            {
-                // Updating the number of output channels
-                NumberOfOutputChannels = Mixer.GetHighestOutputChannel();
-            }
+            // I would like to update the NumberOfOutputChannels here but it crashed the calibrationapp, don't know why, but probably a threadig problem...
+            //if (this.Mixer != null)
+            //{
+            //    // Updating the number of output channels
+            //    NumberOfOutputChannels = Mixer.GetHighestOutputChannel();
+            //}
 
             if (OverlapDuration != null)
             {

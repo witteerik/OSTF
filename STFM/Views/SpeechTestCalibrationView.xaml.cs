@@ -27,7 +27,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
         // Create and setup init timer // TODO: There should be a better solution for this... The reason it's used it to first show the GUI then call functions that need the GUI handle
         IDispatcherTimer trialEventTimer = Application.Current.Dispatcher.CreateTimer();
-        trialEventTimer.Interval = TimeSpan.FromMilliseconds(1000);
+        trialEventTimer.Interval = TimeSpan.FromMilliseconds(2000);
         trialEventTimer.Tick += InitByTimer;
         trialEventTimer.IsRepeating = false;
         trialEventTimer.Start();
