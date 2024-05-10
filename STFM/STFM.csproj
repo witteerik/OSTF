@@ -40,12 +40,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="STFN">
-	    <HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
-	  </Reference>
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Compile Update="Views\WelcomePageR.xaml.cs">
 	    <DependentUpon>WelcomePageR.xaml</DependentUpon>
 	  </Compile>
@@ -84,6 +78,12 @@
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.7" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="STFN">
+	    <HintPath>..\STFN\bin\Release\net8.0\STFN.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 	<!--<ItemGroup>
