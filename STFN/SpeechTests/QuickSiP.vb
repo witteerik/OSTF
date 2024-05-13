@@ -354,7 +354,12 @@ Public Class QuickSiP
                 End If
             Next
 
-            ResultList.Add(New Tuple(Of QuickSipList, Double)(CurrentSipTestList, CurrentScoresList.Average))
+            Dim AverageScore As Double = -1
+            If CurrentScoresList.Count > 0 Then
+                AverageScore = CurrentScoresList.Average
+            End If
+
+            ResultList.Add(New Tuple(Of QuickSipList, Double)(CurrentSipTestList, AverageScore))
         Next
 
         Dim PnrSortedList As New SortedList(Of Double, Tuple(Of QuickSipList, Double))

@@ -115,7 +115,7 @@ namespace STFM
         volatile bool runBufferLoop = false;
         int buffersSent = 0;
 
-        bool runAudioCheckLoop = false;
+        volatile bool runAudioCheckLoop = false;
 
         volatile bool runTalkBackLoop = true;
 
@@ -234,7 +234,7 @@ namespace STFM
             if (Encoding != null)
             {
                 if (SupportedWaveFormatEncodings.Contains(Encoding.Value) == false)
-                {
+                {                    
                     throw new Exception("Unable to start the sound AndroidAudioTrackPlayer. Unsupported audio encoding.");
                 }
             }
@@ -323,7 +323,10 @@ namespace STFM
             if (audioTrack != null)
             {
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
-                castAudioTrack.Stop();
+                if (castAudioTrack.PlayState == PlayState.Playing)
+                {
+                    castAudioTrack.Stop();
+                }
             }
         }
 
@@ -336,7 +339,10 @@ namespace STFM
             if (audioTrack != null)
             {
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
-                castAudioTrack.Stop();
+                if (castAudioTrack.PlayState == PlayState.Playing)
+                {
+                    castAudioTrack.Stop();
+                }
                 castAudioTrack.Release();
                 castAudioTrack.Dispose();
                 audioTrack = null;
@@ -384,7 +390,9 @@ namespace STFM
 
             if (IsPlaying == false)
             {
-                throw new Exception("The AndroidAudioTrackPlayer is no longer running, and was unable to restart!");
+                // Raising event FatalPlayerError
+                FatalPlayerError?.Invoke();
+                //throw new Exception("The AndroidAudioTrackPlayer is no longer running, and was unable to restart!");
             }
 
             double BitdepthScaling;
@@ -499,10 +507,7 @@ namespace STFM
                         if (CheckAudioSettings() == false)
                         {
                             // Playback should stop immediately and 
-                            runBufferLoop = false;
-                            runAudioCheckLoop = false;
-                            castAudioTrack.Stop();
-                            castAudioTrack.Release();
+                            Dispose();
 
                             // Raising event FatalPlayerError
                             FatalPlayerError?.Invoke();
@@ -589,10 +594,15 @@ namespace STFM
                 AudioManager audioManager = Android.App.Application.Context.GetSystemService(Context.AudioService) as Android.Media.AudioManager;
 
                 //Checks that the main AudioTrack has the correct output device set
-                CheckAndSetRequiredMainOutputDevice(audioManager);
+                if (CheckAndSetRequiredMainOutputDevice(audioManager) == false)
+                {
+                    // A non-allowed sound player has been selected, returning false. 
+                    return false;
+                }
 
                 //Checks that the talkback AudioTrack has the correct output device set
                 CheckTalkBackAudioDevice(audioManager);
+                // For now, we igonore any errors in talkback and let testing proceed
 
                 int? MaxVol = audioManager?.GetStreamMaxVolume(Android.Media.Stream.Music);
                 int? MinVol = audioManager?.GetStreamMinVolume(Android.Media.Stream.Music);
@@ -1000,7 +1010,7 @@ namespace STFM
                 }
                 catch (Exception ex)
                 {
-                    Messager.MsgBox(ex.ToString());
+                    //Messager.MsgBox(ex.ToString());
                 }
             }
         }
@@ -1011,10 +1021,10 @@ namespace STFM
         /// <summary>
         /// Checks if an output or input sound device with the ProductName of DeviceProductName exist on the system. 
         /// </summary>
-        /// <param name="DeviceProductName"></param>
+        /// <param name="DeviceProductNameAndType"></param>
         /// <returns>Returns true if output exists on the system, or false if not.</returns>
         [SupportedOSPlatform("Android31.0")]
-        public static bool CheckIfDeviceExists(string DeviceProductName, bool IsOutput)
+        public static bool CheckIfDeviceExists(string DeviceProductNameAndType, bool IsOutput)
         {
             try
             {
@@ -1034,21 +1044,11 @@ namespace STFM
                     if (device.ProductName != null)
                     {
                         string ProductName = device.ProductName;
-                        if (IsOutput == true)
+                        string deviceType = device.Type.ToString();
+                        string evaluationString = ProductName + "+" + deviceType;
+                        if (evaluationString == DeviceProductNameAndType)
                         {
-                            if (ProductName == DeviceProductName)
-                            {
-                                return true;
-                            }
-                        }
-                        else
-                        {
-                            string deviceType = device.Type.ToString();
-                            string evaluationString = ProductName + "+" + deviceType;
-                            if (evaluationString == DeviceProductName)
-                            {
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }
@@ -1056,7 +1056,7 @@ namespace STFM
             }
             catch (Exception ex)
             {
-                Messager.MsgBox(ex.ToString());
+                //Messager.MsgBox(ex.ToString());
                 //throw;
                 return false;
             }
@@ -1087,31 +1087,15 @@ namespace STFM
                 {
                     if (device.ProductName != null)
                     {
-                        if (IsOutput == true)
+                        if (device.ProductName + "+" + device.Type.ToString() == IntendedDevice)
                         {
-                            if (device.ProductName == IntendedDevice)
+                            int[] channelCounts = device.GetChannelCounts();
+                            List<string> ChannelCountList = new List<string>();
+                            foreach (int c in channelCounts)
                             {
-                                int[] channelCounts = device.GetChannelCounts();
-                                List<string> ChannelCountList = new List<string>();
-                                foreach (int c in channelCounts)
-                                {
-                                    ChannelCountList.Add(c.ToString());
-                                }
-                                return channelCounts.Max();
+                                ChannelCountList.Add(c.ToString());
                             }
-                        }
-                        else
-                        {
-                            if (device.ProductName + "+" + device.Type.ToString() == IntendedDevice)
-                            {
-                                int[] channelCounts = device.GetChannelCounts();
-                                List<string> ChannelCountList = new List<string>();
-                                foreach (int c in channelCounts)
-                                {
-                                    ChannelCountList.Add(c.ToString());
-                                }
-                                return channelCounts.Max();
-                            }
+                            return channelCounts.Max();
                         }
                     }
                 }
@@ -1119,7 +1103,7 @@ namespace STFM
             }
             catch (Exception ex)
             {
-                Messager.MsgBox(ex.ToString());
+                //Messager.MsgBox(ex.ToString());
                 //throw;
                 return -1;
             }
@@ -1146,7 +1130,7 @@ namespace STFM
 
                 if (CurrentlySelectedOutputDevice != null)
                 {
-                    if (AudioSettings.SelectedOutputDeviceName == CurrentlySelectedOutputDevice.ProductName)
+                    if (AudioSettings.SelectedOutputDeviceName == CurrentlySelectedOutputDevice.ProductName + "+" + CurrentlySelectedOutputDevice.Type.ToString())
                     {
                         return true;
                     }
@@ -1158,7 +1142,9 @@ namespace STFM
                     if (device.ProductName != null)
                     {
                         string ProductName = device.ProductName;
-                        if (ProductName == AudioSettings.SelectedOutputDeviceName)
+                        string deviceType = device.Type.ToString();
+                        string evaluationString = ProductName + "+" + deviceType;
+                        if (evaluationString == AudioSettings.SelectedOutputDeviceName)
                         {
                             if (castAudioTrack.SetPreferredDevice(device) == true)
                             {
@@ -1426,7 +1412,7 @@ namespace STFM
 
             if (CurrentlySelectedOutputDevice != null)
             {
-                if (AudioSettings.SelectedOutputDeviceName == CurrentlySelectedOutputDevice.ProductName)
+                if (AudioSettings.SelectedOutputDeviceName == CurrentlySelectedOutputDevice.ProductName + "+" + CurrentlySelectedOutputDevice.Type.ToString())
                 {
                     return true;
                 }
@@ -1438,7 +1424,9 @@ namespace STFM
                 if (device.ProductName != null)
                 {
                     string ProductName = device.ProductName;
-                    if (ProductName == AudioSettings.SelectedOutputDeviceName)
+                    string deviceType = device.Type.ToString();
+                    string evaluationString = ProductName + "+" + deviceType;
+                    if (evaluationString == AudioSettings.SelectedOutputDeviceName)
                     {
                         if (castTalkbackAudioTrack.SetPreferredDevice(device) == true)
                         {

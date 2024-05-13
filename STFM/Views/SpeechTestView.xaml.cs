@@ -240,6 +240,10 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     private void NewTest()
     {
+
+        // Inactivates tackback
+        InactivateTalkback();
+
         // Setting TestIsInitiated to false to allow starting a new test
         TestIsInitiated = false;
 
@@ -275,13 +279,14 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Deselecting previous test
         SpeechTestPicker.SelectedIndex = -1;
 
-        // Inactivates tackback
-        InactivateTalkback();
-
     }
 
     void OnSpeechTestPickerSelectedItemChanged(object sender, EventArgs e)
     {
+
+        // Inactivates tackback
+        InactivateTalkback();
+
         var picker = (Picker)sender;
         var selectedItem = picker.SelectedItem;
 
@@ -852,8 +857,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.PauseMessageShown, DateTime.Now));
                 }
 
-                // Putting the message in the caption to enlarge the font size... (lazy idea, I know...)
-                await Messager.MsgBoxAsync("", Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
+                // Reduplicating the message also in the caption to get at larger font size... (lazy idea, TOSO: improve in future versions)
+                await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
             }
 
             StartTestBtn.IsEnabled = true;
@@ -874,8 +879,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                 CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.PauseMessageShown, DateTime.Now));
             }
 
-            // Putting the message in the caption to enlarge the font size... (lazy idea, I know...)
-            await Messager.MsgBoxAsync("", Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
+            // Reduplicating the message also in the caption to get at larger font size... (lazy idea, TOSO: improve in future versions)
+            await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
 
             // Restarting test
             StartTest();
@@ -960,7 +965,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             case SpeechTest.SpeechTestReplies.AbortTest:
 
-                AbortTest();
+                AbortTest(false);
 
                 break;
 
@@ -1198,10 +1203,19 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         // Stopping all timers
         StopAllTrialEventTimers();
-        CurrentResponseView.HideAllItems();
+        if (CurrentResponseView != null)
+        {
+            CurrentResponseView.HideAllItems();
+        }
 
         // Fading out sound
-        OstfBase.SoundPlayer.FadeOutPlayback();
+        if (OstfBase.SoundPlayer != null)
+        {
+            if (OstfBase.SoundPlayer.IsPlaying == true)
+            {
+                OstfBase.SoundPlayer.FadeOutPlayback();
+            }
+        }
 
         // Showing panels again
         SetBottomPanelShow(true);
@@ -1243,19 +1257,20 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
-    void AbortTest()
+    async void AbortTest(bool closeApp)
     {
 
         FinalizeTest(true);
 
         bool showDefaultInfo = true;
+        bool msgBoxResult;
 
         if (CurrentSpeechTest != null)
         {
             if (CurrentSpeechTest.AbortInformation !="")
             {
                 showDefaultInfo = false;
-                Messager.MsgBox(CurrentSpeechTest.AbortInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.AbortInformation, "OK");
+                msgBoxResult = await Messager.MsgBoxAsync(CurrentSpeechTest.AbortInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.AbortInformation, "OK");
             }
         }
         if (showDefaultInfo == true)
@@ -1263,12 +1278,16 @@ public partial class SpeechTestView : ContentView, IDrawable
             switch (STFN.SharedSpeechTestObjects.GuiLanguage)
             {
                 case STFN.Utils.Constants.Languages.Swedish:
-                    Messager.MsgBox("Testet har avbrutits.", Messager.MsgBoxStyle.Information, "Avslutat", "OK");
+                    msgBoxResult = await Messager.MsgBoxAsync("Testet har avbrutits.", Messager.MsgBoxStyle.Information, "Avslutat", "OK");
                     break;
                 default:
-                    Messager.MsgBox("The test had to be aborted.", Messager.MsgBoxStyle.Information, "Aborted", "OK");
+                    msgBoxResult = await Messager.MsgBoxAsync("The test had to be aborted.", Messager.MsgBoxStyle.Information, "Aborted", "OK");
                     break;
             }
+        }
+        if (closeApp == true)
+        {
+            Messager.RequestCloseApp();
         }
     }
 
@@ -1294,10 +1313,30 @@ public partial class SpeechTestView : ContentView, IDrawable
     #endregion
 
     #region Unexpected_errors
+
     private void OnFatalPlayerError()
     {
-        FinalizeTest(true);
-        Messager.MsgBox("An error occured with the sound playback! The test has been aborted!", Messager.MsgBoxStyle.Exclamation, "Sound player error!");
+        Dispatcher.Dispatch(() => 
+        {
+            OnFatalPlayerErrorSafe();
+        });
+    }
+
+    private void OnFatalPlayerErrorSafe()
+    {
+
+        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        {
+            case STFN.Utils.Constants.Languages.Swedish:
+                CurrentSpeechTest.AbortInformation = "Ett fel har uppstått med ljuduppspelningen! \n\nHar ljudgivarna kopplats ur?\n\nTestet måste avbrytas och appen stängas!\n\nKlicka OK, se till att rätt ljudgivare är inkopplade och starta sedan om appen.";
+                break;
+            default:
+                CurrentSpeechTest.AbortInformation = "An error occured with the sound playback! \n\nHas the sound device been disconnected?\n\nThe test must be aborted and the app closed.\n\nPlease Click OK, ensure that the sound device is connected and then restart the app!";
+                break;
+        }
+
+       AbortTest(true);
+
     }
 
     #endregion
@@ -1325,37 +1364,50 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        if (STFN.OstfBase.SoundPlayerIsInitialized())
+        if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
         {
-            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
+            if (TalkbackOn == true)
             {
-                if (TalkbackOn == true)
-                {
-                    TalkbackButton.BackgroundColor = Colors.Gray;
-                    TalkbackButton.BorderColor = Colors.LightGrey;
-                    TalkbackOn = false;
-                    InactivateTalkback();
-                }
-                else
-                {
-                    TalkbackButton.BackgroundColor = Colors.GreenYellow;
-                    TalkbackButton.BorderColor = Colors.YellowGreen;
-                    TalkbackOn = true;
-                    // Activates tackback
-                    STFN.OstfBase.SoundPlayer.StartTalkback();
-                }
+                InactivateTalkback();
+            }
+            else
+            {
+                ActivateTalkback();
             }
         }
     }
 
     void InactivateTalkback()
     {
+
+        TalkbackButton.BackgroundColor = Colors.Gray;
+        TalkbackButton.BorderColor = Colors.LightGrey;
+
         // Inactivates tackback
         if (STFN.OstfBase.SoundPlayerIsInitialized())
         {
             if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
             {
                 STFN.OstfBase.SoundPlayer.StopTalkback();
+            }
+        }
+
+        TalkbackOn = false;
+    }
+
+    void ActivateTalkback()
+    {
+
+        if (STFN.OstfBase.SoundPlayerIsInitialized())
+        {
+            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
+            {
+                // Activates tackback
+                STFN.OstfBase.SoundPlayer.StartTalkback();
+                TalkbackButton.BackgroundColor = Colors.GreenYellow;
+                TalkbackButton.BorderColor = Colors.YellowGreen;
+
+                TalkbackOn = true;
             }
         }
     }

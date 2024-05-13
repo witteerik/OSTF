@@ -706,8 +706,10 @@ Public Class IHearProtocolB4SpeechTest
             Output.AddRange(ResultSummaryForGUI)
         Else
             Output.Add("Testord nummer " & ObservedTrials.Count & " av " & PlannedTestWords.Count)
-            Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
-            Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
+            If CurrentTestTrial IsNot Nothing Then
+                Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
+                Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
+            End If
         End If
 
         Return String.Join(vbCrLf, Output)
