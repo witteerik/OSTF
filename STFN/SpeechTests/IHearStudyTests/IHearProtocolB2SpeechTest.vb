@@ -754,7 +754,7 @@ Public Class IHearProtocolB2SpeechTest
         Next
 
         If ScoreList.Count > 0 Then
-            Output.Add("Resultat = " & System.Math.Round(ScoreList.Average) & " % korrekt (" & ScoreList.Sum & " / " & ObservedTestTrials.Count & ")")
+            Output.Add("Resultat = " & System.Math.Round(100 * ScoreList.Average) & " % korrekt (" & ScoreList.Sum & " / " & ObservedTestTrials.Count & ")")
         End If
 
         Return String.Join(vbCrLf, Output)
