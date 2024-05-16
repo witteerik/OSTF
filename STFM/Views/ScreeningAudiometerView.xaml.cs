@@ -17,7 +17,8 @@ public partial class ScreeningAudiometerView : ContentView
 
     private SortedList<int, double> RetSplList;
     private SortedList<int, double> PureToneCalibrationList = new SortedList<int, double>();
-    
+
+    private STFN.Audio.Sound silentSound = null;
 
     private enum SignalSides
     {
@@ -43,6 +44,9 @@ public partial class ScreeningAudiometerView : ContentView
 		InitializeComponent();
 
         WaveFormat = new STFN.Audio.Formats.WaveFormat(48000,32, 2,"", STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints );
+
+        silentSound = STFN.Audio.GenerateSound.Signals.CreateSilence(ref this.WaveFormat, null, 3);
+
         Frequencies = new List<int>() { 125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000 };
         Levels = new List<double>() { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70 };
         Sines = new SortedList<SignalSides, SortedList<double, SortedList<double, STFN.Audio.Sound>>>();
@@ -213,10 +217,12 @@ public partial class ScreeningAudiometerView : ContentView
             {
                 case SignalSides.Left:
                     newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,1, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, MaxSoundDuration);
+                    STFN.Audio.DSP.Transformations.Fade(ref newSine, null, 0, 1, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
                     STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
                     break;
                 case SignalSides.Right:
                     newSine = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,2, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, MaxSoundDuration);
+                    STFN.Audio.DSP.Transformations.Fade(ref newSine, null, 0, 2, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
                     STFN.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 2, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
                     break;
                 default:
@@ -255,7 +261,10 @@ public partial class ScreeningAudiometerView : ContentView
             return;
         }
 
-        OstfBase.SoundPlayer.FadeOutPlayback();
+        
+        OstfBase.SoundPlayer.SwapOutputSounds(ref silentSound);
+
+        //OstfBase.SoundPlayer.FadeOutPlayback();
 
         // Light off
         Channel1StimulusButton.BackgroundColor = originalButtonColor;

@@ -7,13 +7,14 @@ ApiName = MME // "MME", "Windows DirectSound", "Windows WASAPI", "ASIO" // N.B. 
 
 // OutputDevices is only relevant with the MME API on Windows, for Android use OutputDevice instead
 OutputDevices = Högtalare (AudioQuest DragonFly // Högtalare (Realtek(R) Audio) // Högtalare (RME Fireface UCX), Analog (3+4) (RME Fireface UCX), Analog (5+6) (RME Fireface UCX) //Högtalare (AudioQuest DragonFly // Högtalare (iFi USB Audio SE)
+//OutputDevice = USB-Audio - AudioQuest DragonFly Black v1.5+UsbHeadset
 
 //OutputDevices = 1-2 (OCTA-CAPTURE), 3-4 (OCTA-CAPTURE), 5-6 (OCTA-CAPTURE), 7-8 (OCTA-CAPTURE), // Högtalare/Hörlurar (Realtek(R) 
 
 // InputDevices is only relevant with the MME API on Windows, for Android use InputDevice instead
 InputDevices = //1-2 (OCTA-CAPTURE)
 
-OutputDevice = // 1-2 (OCTA-CAPTURE) // Högtalare/Hörlurar (Realtek(R) 
+//OutputDevice = // 1-2 (OCTA-CAPTURE) // Högtalare/Hörlurar (Realtek(R) 
 InputDevice = // 1-2 (OCTA-CAPTURE)  // Mikrofonuppsättning (Intel® Sma
 
 BufferSize = 1024 // Must be powers of 2
