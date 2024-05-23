@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TextFileMerger</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="STFN">
+      <HintPath>..\STFN\bin\Release\net8.0\STFN.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

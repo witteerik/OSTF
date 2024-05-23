@@ -142,9 +142,7 @@
     <Compile Include="OSTF_suite_R.Designer.vb">
       <DependentUpon>OSTF_suite_R.vb</DependentUpon>
     </Compile>
-    <Compile Include="OSTF_suite_R.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="OSTF_suite_R.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">

@@ -763,6 +763,69 @@ Namespace Utils
 
         End Function
 
+        ''' <summary>
+        ''' Merges (by row concatenation) the content of text files in the specified directory into a single text file.
+        ''' </summary>
+        ''' <param name="Directory">The directory from which files should be read. If left empty, the directory in which the application file is located will be used.</param>
+        ''' <param name="SkipRows">Skips this number of rows in all files.</param>
+        ''' <param name="HeadingLine">The zero based index of the column headings, read only from the first file. If left to -1, the add-heading-line functionality is ignored.</param>
+        ''' <param name="Encoding">The encoding used to read the text files.</param>
+        ''' <returns></returns>
+        Public Function MergeTextFiles(ByVal SkipRows As Integer, ByVal Encoding As Text.Encoding, Optional ByVal HeadingLine As Integer = -1, Optional ByVal Directory As String = "") As Boolean
+
+            Try
+
+                Dim TextFiles As New List(Of String)
+
+                Dim AllIncludedTextLines As New List(Of String)
+
+                If Directory = "" Then Directory = AppContext.BaseDirectory
+
+                Dim AllTextFiles() As String = IO.Directory.GetFiles(Directory, "*.txt")
+
+                Dim FileNameOfFirstFile As String = ""
+                If AllTextFiles.Length > 0 Then FileNameOfFirstFile = IO.Path.GetFileNameWithoutExtension(AllTextFiles(0))
+
+                For i = 0 To AllTextFiles.Length - 1
+
+                    Dim FileLines = IO.File.ReadAllLines(AllTextFiles(i), Encoding)
+
+                    For j = 0 To FileLines.Length - 1
+
+                        'Adding heading line only from the first file and only if specified
+                        If HeadingLine > -1 Then
+                            If i = 0 Then
+                                If j = HeadingLine Then
+                                    AllIncludedTextLines.Add(FileLines(j))
+                                    Continue For
+                                End If
+                            End If
+                        End If
+
+                        'Skips rows in all non-initial files
+                        If j < SkipRows Then Continue For
+
+                            'Adding the row
+                            AllIncludedTextLines.Add(FileLines(j))
+
+                    Next
+                Next
+
+                If AllIncludedTextLines.Count > 0 Then
+
+                    Dim OutputDirectory As String = Path.Combine(Directory, "MergedTextFiles")
+                    SendInfoToLog(String.Join(vbCrLf, AllIncludedTextLines), "MergedTextFiles", OutputDirectory, True, False, True)
+
+                End If
+
+                Return True
+
+            Catch ex As Exception
+                Return False
+            End Try
+
+        End Function
+
     End Module
 
     Public Class Utf8ToByteStringConverter
