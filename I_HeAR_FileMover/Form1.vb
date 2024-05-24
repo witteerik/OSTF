@@ -28,6 +28,7 @@ Public Class Form1
                 ID_Error_Label.Text = ""
                 VerifiedId = ID_TextBox.Text
                 MoveFiles_Button.Enabled = True
+                MoveFiles_Button.Focus()
             Else
                 ID_Error_Label.Text = "Koden har felaktigt format!"
                 MoveFiles_Button.Enabled = False
