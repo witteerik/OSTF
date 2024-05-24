@@ -50,7 +50,7 @@ Module Program
 
         Console.WriteLine(vbCrLf & "Working on it...")
 
-        If STFN.Utils.MergeTextFiles(LinesToSkip, Text.Encoding.UTF8, HeadingLineIndex, TargetDirectory) = True Then
+        If STFN.Utils.MergeTextFiles(True, LinesToSkip, Text.Encoding.UTF8, HeadingLineIndex, TargetDirectory) = True Then
             Console.WriteLine(vbCrLf & vbCrLf & "Merging completed. Press any key to close the application.")
         Else
             Console.WriteLine(vbCrLf & vbCrLf & "An error occurred during merging. Press any key to close the application.")

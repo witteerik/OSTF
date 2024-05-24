@@ -766,12 +766,13 @@ Namespace Utils
         ''' <summary>
         ''' Merges (by row concatenation) the content of text files in the specified directory into a single text file.
         ''' </summary>
-        ''' <param name="Directory">The directory from which files should be read. If left empty, the directory in which the application file is located will be used.</param>
+        ''' <param name="AddFileNameColumn">Adds the file name from which the data was added as a tab delimited first coumn on each row.</param>
         ''' <param name="SkipRows">Skips this number of rows in all files.</param>
-        ''' <param name="HeadingLine">The zero based index of the column headings, read only from the first file. If left to -1, the add-heading-line functionality is ignored.</param>
         ''' <param name="Encoding">The encoding used to read the text files.</param>
+        ''' <param name="HeadingLine">The zero based index of the column headings, read only from the first file. If left to -1, the add-heading-line functionality is ignored.</param>
+        ''' <param name="Directory">The directory from which files should be read. If left empty, the directory in which the application file is located will be used.</param>
         ''' <returns></returns>
-        Public Function MergeTextFiles(ByVal SkipRows As Integer, ByVal Encoding As Text.Encoding, Optional ByVal HeadingLine As Integer = -1, Optional ByVal Directory As String = "") As Boolean
+        Public Function MergeTextFiles(ByVal AddFileNameColumn As Boolean, ByVal SkipRows As Integer, ByVal Encoding As Text.Encoding, Optional ByVal HeadingLine As Integer = -1, Optional ByVal Directory As String = "") As Boolean
 
             Try
 
@@ -796,7 +797,11 @@ Namespace Utils
                         If HeadingLine > -1 Then
                             If i = 0 Then
                                 If j = HeadingLine Then
-                                    AllIncludedTextLines.Add(FileLines(j))
+                                    If AddFileNameColumn = False Then
+                                        AllIncludedTextLines.Add(FileLines(j))
+                                    Else
+                                        AllIncludedTextLines.Add("FileName" & vbTab & FileLines(j))
+                                    End If
                                     Continue For
                                 End If
                             End If
@@ -805,8 +810,12 @@ Namespace Utils
                         'Skips rows in all non-initial files
                         If j < SkipRows Then Continue For
 
-                            'Adding the row
+                        'Adding the row
+                        If AddFileNameColumn = False Then
                             AllIncludedTextLines.Add(FileLines(j))
+                        Else
+                            AllIncludedTextLines.Add(IO.Path.GetFileNameWithoutExtension(AllTextFiles(i)) & vbTab & FileLines(j))
+                        End If
 
                     Next
                 Next
