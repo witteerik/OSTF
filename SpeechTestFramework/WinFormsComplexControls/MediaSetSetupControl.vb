@@ -16,10 +16,10 @@ Public Class MediaSetSetupControl
             TalkerGender_ComboBox.Items.AddRange([Enum].GetNames(GetType(MediaSet.Genders)))
 
             'Adding sound file linguistic levels
-            SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
-            SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
-            SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
-            SoundFileLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+            AudioFileLinguisticLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
+            AudioFileLinguisticLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            AudioFileLinguisticLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
+            AudioFileLinguisticLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
             'Adding common masker sound file linguistic levels
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
@@ -27,6 +27,12 @@ Public Class MediaSetSetupControl
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
             SharedMaskersLevelComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
+
+            SharedContralateralMaskersLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection)
+            SharedContralateralMaskersLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.List)
+            SharedContralateralMaskersLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            SharedContralateralMaskersLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Word)
+            SharedContralateralMaskersLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.Phoneme)
 
             'Adding linguistic levels for the modified linguistic level of sound files function
             'ModifiedMediaSetLinguisticLevel_ComboBox.Items.Add(SpeechMaterialComponent.LinguisticLevels.ListCollection) ' TODO: It's not possible to convert to ListCollection lince a ListCollection cannot fit within the SMA (v1.1) specification.
@@ -218,23 +224,25 @@ Public Class MediaSetSetupControl
 
         MediaSetName_TextBox.Text = SelectedMediaSet.MediaSetName
         TalkerName_TextBox.Text = SelectedMediaSet.TalkerName
-
         TalkerGender_ComboBox.SelectedItem = SelectedMediaSet.TalkerGender.ToString
-
         TalkerAge_IntegerParsingTextBox.Text = SelectedMediaSet.TalkerAge
-        SoundFileLevelComboBox.Text = SelectedMediaSet.AudioFileLinguisticLevel.ToString
-        SharedMaskersLevelComboBox.Text = SelectedMediaSet.SharedMaskersLevel.ToString
         TalkerDialect_TextBox.Text = SelectedMediaSet.TalkerDialect
         VoiceType_TextBox.Text = SelectedMediaSet.VoiceType
+        AudioFileLinguisticLevelComboBox.Text = SelectedMediaSet.AudioFileLinguisticLevel.ToString
+        SharedMaskersLevelComboBox.Text = SelectedMediaSet.SharedMaskersLevel.ToString
+        SharedContralateralMaskersLevel_ComboBox.Text = SelectedMediaSet.SharedContralateralMaskersLevel.ToString
         MediaAudioItems_IntegerParsingTextBox.Text = SelectedMediaSet.MediaAudioItems
         MaskerAudioItems_IntegerParsingTextBox.Text = SelectedMediaSet.MaskerAudioItems
+        ContralateralMaskerAudioItems_IntegerParsingTextBox.Text = SelectedMediaSet.ContralateralMaskerAudioItems
         MediaImageItems_IntegerParsingTextBox.Text = SelectedMediaSet.MediaImageItems
         MaskerImageItems_IntegerParsingTextBox.Text = SelectedMediaSet.MaskerImageItems
         CustomVariablesFolder_TextBox.Text = SelectedMediaSet.CustomVariablesFolder
         MediaParentFolder_TextBox.Text = SelectedMediaSet.MediaParentFolder
         MaskerParentFolder_TextBox.Text = SelectedMediaSet.MaskerParentFolder
-        BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Text = SelectedMediaSet.BackgroundNonspeechRealisticLevel
+        ContralateralMaskerParentFolder_TextBox.Text = SelectedMediaSet.ContralateralMaskerParentFolder
+        EffectiveContralateralMaskingGain_DoubleParsingTextBox.Text = SelectedMediaSet.EffectiveContralateralMaskingGain
         BackgroundNonspeechParentFolder_TextBox.Text = SelectedMediaSet.BackgroundNonspeechParentFolder
+        BackgroundNonspeechRealisticLevel_DoubleParsingTextBox.Text = SelectedMediaSet.BackgroundNonspeechRealisticLevel
         BackgroundSpeechParentFolder_TextBox.Text = SelectedMediaSet.BackgroundSpeechParentFolder
         PrototypeMediaParentFolder_TextBox.Text = SelectedMediaSet.PrototypeMediaParentFolder
         MasterPrototypeRecordingPath_TextBox.Text = SelectedMediaSet.MasterPrototypeRecordingPath
@@ -243,7 +251,6 @@ Public Class MediaSetSetupControl
         LombardNoiseLevel_DoubleParsingTextBox.Text = SelectedMediaSet.LombardNoiseLevel
         WaveFileSampleRate_IntegerParsingTextBox.Text = SelectedMediaSet.WaveFileSampleRate
         WaveFileBitDepth_ComboBox.SelectedItem = SelectedMediaSet.WaveFileBitDepth
-
         WaveFileEncoding_ComboBox.SelectedItem = SelectedMediaSet.WaveFileEncoding.ToString
 
         'And also adding to other controls
@@ -282,8 +289,8 @@ Public Class MediaSetSetupControl
         TempMediaSet.VoiceType = VoiceType_TextBox.Text.Trim
 
         'Parsing the info about which linguistic level sound recording should be used
-        If SoundFileLevelComboBox.SelectedItem IsNot Nothing Then
-            TempMediaSet.AudioFileLinguisticLevel = [Enum].Parse(GetType(SpeechMaterialComponent.LinguisticLevels), SoundFileLevelComboBox.SelectedItem.ToString)
+        If AudioFileLinguisticLevelComboBox.SelectedItem IsNot Nothing Then
+            TempMediaSet.AudioFileLinguisticLevel = [Enum].Parse(GetType(SpeechMaterialComponent.LinguisticLevels), AudioFileLinguisticLevelComboBox.SelectedItem.ToString)
         Else
             MsgBox("You must select a value for 'Linguistic level of sound files'.", MsgBoxStyle.Information, "Checking input data")
             Exit Sub
@@ -296,6 +303,12 @@ Public Class MediaSetSetupControl
             Exit Sub
         End If
 
+        If SharedContralateralMaskersLevel_ComboBox.SelectedItem IsNot Nothing Then
+            TempMediaSet.SharedContralateralMaskersLevel = [Enum].Parse(GetType(SpeechMaterialComponent.LinguisticLevels), SharedContralateralMaskersLevel_ComboBox.SelectedItem.ToString)
+        Else
+            MsgBox("You must select a value for 'Linguistic level on which to share contralateral maskers sound files'.", MsgBoxStyle.Information, "Checking input data")
+            Exit Sub
+        End If
 
         If MediaAudioItems_IntegerParsingTextBox.Value IsNot Nothing Then
             TempMediaSet.MediaAudioItems = MediaAudioItems_IntegerParsingTextBox.Value
@@ -306,6 +319,13 @@ Public Class MediaSetSetupControl
 
         If MaskerAudioItems_IntegerParsingTextBox.Value IsNot Nothing Then
             TempMediaSet.MaskerAudioItems = MaskerAudioItems_IntegerParsingTextBox.Value
+        Else
+            MsgBox("Supply a value for number of duplicate audio maskers")
+            Exit Sub
+        End If
+
+        If ContralateralMaskerAudioItems_IntegerParsingTextBox.Value IsNot Nothing Then
+            TempMediaSet.ContralateralMaskerAudioItems = ContralateralMaskerAudioItems_IntegerParsingTextBox.Value
         Else
             MsgBox("Supply a value for number of duplicate audio maskers")
             Exit Sub
@@ -332,15 +352,30 @@ Public Class MediaSetSetupControl
         End If
 
         TempMediaSet.MediaParentFolder = MediaParentFolder_TextBox.Text.Trim
-        If TempMediaSet.MediaAudioItems + TempMediaSet.MediaImageItems = 0 And TempMediaSet.MediaParentFolder = "" Then
+        If TempMediaSet.MediaAudioItems + TempMediaSet.MediaImageItems > 0 And TempMediaSet.MediaParentFolder = "" Then
             MsgBox("You must supply a subfolder containing target files")
             Exit Sub
         End If
 
         TempMediaSet.MaskerParentFolder = MaskerParentFolder_TextBox.Text.Trim
-        If TempMediaSet.MaskerAudioItems + TempMediaSet.MaskerImageItems = 0 And TempMediaSet.MaskerParentFolder = "" Then
+        If TempMediaSet.MaskerAudioItems + TempMediaSet.MaskerImageItems > 0 And TempMediaSet.MaskerParentFolder = "" Then
             MsgBox("You must supply a subfolder containing masker files")
             Exit Sub
+        End If
+
+        TempMediaSet.ContralateralMaskerParentFolder = ContralateralMaskerParentFolder_TextBox.Text.Trim
+        If TempMediaSet.ContralateralMaskerAudioItems > 0 And TempMediaSet.ContralateralMaskerParentFolder = "" Then
+            MsgBox("You must supply a subfolder containing contralateral masker files")
+            Exit Sub
+        End If
+
+        If EffectiveContralateralMaskingGain_DoubleParsingTextBox.Value IsNot Nothing Then
+            TempMediaSet.EffectiveContralateralMaskingGain = EffectiveContralateralMaskingGain_DoubleParsingTextBox.Value
+        Else
+            If TempMediaSet.ContralateralMaskerAudioItems > 0 Then
+                MsgBox("You must supply a sample rate (48000 is recommended)")
+                Exit Sub
+            End If
         End If
 
         TempMediaSet.BackgroundNonspeechParentFolder = BackgroundNonspeechParentFolder_TextBox.Text.Trim

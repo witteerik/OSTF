@@ -64,9 +64,11 @@ Public Class MediaSet
     ''' </summary>
     ''' <returns></returns>
     Public Property SharedMaskersLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
+    Public Property SharedContralateralMaskersLevel As SpeechMaterialComponent.LinguisticLevels = SpeechMaterialComponent.LinguisticLevels.List
 
     Public Property MediaAudioItems As Integer = 5
     Public Property MaskerAudioItems As Integer = 5
+    Public Property ContralateralMaskerAudioItems As Integer = 0
     Public Property MediaImageItems As Integer = 0
     Public Property MaskerImageItems As Integer = 0
 
@@ -74,6 +76,8 @@ Public Class MediaSet
 
     Public Property MediaParentFolder As String = ""
     Public Property MaskerParentFolder As String = ""
+    Public Property ContralateralMaskerParentFolder As String = ""
+    Public Property EffectiveContralateralMaskingGain As Double = 0 'Holds the value in dB of the amplification that should be added to the contralateral masking to achieve effective masking
 
     ''' <summary>
     ''' Should store the approximate sound pressure level (SPL) of the audio recorded in the auditory non-speech background sounds stored in BackgroundNonspeechParentFolder, and should represent an ecologically feasible situation
@@ -154,13 +158,17 @@ Public Class MediaSet
         OutputList.Add("VoiceType = " & VoiceType)
         OutputList.Add("AudioFileLinguisticLevel = " & AudioFileLinguisticLevel.ToString)
         OutputList.Add("SharedMaskersLevel = " & SharedMaskersLevel.ToString)
+        OutputList.Add("SharedContralateralMaskersLevel = " & SharedContralateralMaskersLevel.ToString)
         OutputList.Add("MediaAudioItems = " & MediaAudioItems)
         OutputList.Add("MaskerAudioItems = " & MaskerAudioItems)
+        OutputList.Add("ContralateralMaskerAudioItems = " & ContralateralMaskerAudioItems)
         OutputList.Add("MediaImageItems = " & MediaImageItems)
         OutputList.Add("MaskerImageItems = " & MaskerImageItems)
         OutputList.Add("CustomVariablesFolder = " & CustomVariablesFolder)
         OutputList.Add("MediaParentFolder = " & MediaParentFolder)
         OutputList.Add("MaskerParentFolder = " & MaskerParentFolder)
+        OutputList.Add("ContralateralMaskerParentFolder = " & ContralateralMaskerParentFolder)
+        OutputList.Add("EffectiveContralateralMaskingGain = " & EffectiveContralateralMaskingGain)
         OutputList.Add("BackgroundNonspeechParentFolder = " & BackgroundNonspeechParentFolder)
         OutputList.Add("BackgroundNonspeechRealisticLevel = " & BackgroundNonspeechRealisticLevel)
         OutputList.Add("BackgroundSpeechParentFolder = " & BackgroundSpeechParentFolder)
@@ -395,9 +403,15 @@ Public Class MediaSet
             'Also skipping commentary only lines 
             If Line.Trim.StartsWith("//") Then Continue For
 
-            If Line.StartsWith("MediaSetName") Then Output.MediaSetName = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("MediaSetName") Then
+                Output.MediaSetName = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
-            If Line.StartsWith("TalkerName") Then Output.TalkerName = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("TalkerName") Then
+                Output.TalkerName = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
             If Line.StartsWith("TalkerGender") Then
                 Dim Value = InputFileSupport.InputFileEnumValueParsing(Line, GetType(Genders), FilePath, True)
@@ -407,6 +421,7 @@ Public Class MediaSet
                     MsgBox("Failed to read the TalkerGender value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
             If Line.StartsWith("TalkerAge") Then
@@ -417,11 +432,18 @@ Public Class MediaSet
                     MsgBox("Failed to read the TalkerAge value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
-            If Line.StartsWith("TalkerDialect") Then Output.TalkerDialect = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("TalkerDialect") Then
+                Output.TalkerDialect = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
-            If Line.StartsWith("VoiceType") Then Output.VoiceType = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("VoiceType") Then
+                Output.VoiceType = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
             If Line.StartsWith("AudioFileLinguisticLevel") Then
                 Dim Value = InputFileSupport.InputFileEnumValueParsing(Line, GetType(SpeechMaterialComponent.LinguisticLevels), FilePath, True)
@@ -431,6 +453,7 @@ Public Class MediaSet
                     MsgBox("Failed to read the AudioFileLinguisticLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
             If Line.StartsWith("SharedMaskersLevel") Then
@@ -441,6 +464,18 @@ Public Class MediaSet
                     MsgBox("Failed to read the SharedMaskersLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
+            End If
+
+            If Line.StartsWith("SharedContralateralMaskersLevel") Then
+                Dim Value = InputFileSupport.InputFileEnumValueParsing(Line, GetType(SpeechMaterialComponent.LinguisticLevels), FilePath, True)
+                If Value.HasValue Then
+                    Output.SharedContralateralMaskersLevel = Value
+                Else
+                    MsgBox("Failed to read the SharedContralateralMaskersLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    Return Nothing
+                End If
+                Continue For
             End If
 
             If Line.StartsWith("MediaAudioItems") Then
@@ -451,6 +486,7 @@ Public Class MediaSet
                     MsgBox("Failed to read the MediaAudioItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
             If Line.StartsWith("MaskerAudioItems") Then
@@ -461,6 +497,18 @@ Public Class MediaSet
                     MsgBox("Failed to read the MaskerAudioItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
+            End If
+
+            If Line.StartsWith("ContralateralMaskerAudioItems") Then
+                Dim Value = InputFileSupport.InputFileIntegerValueParsing(Line, True, FilePath)
+                If Value.HasValue Then
+                    Output.ContralateralMaskerAudioItems = Value
+                Else
+                    MsgBox("Failed to read the ContralateralMaskerAudioItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    Return Nothing
+                End If
+                Continue For
             End If
 
             If Line.StartsWith("MediaImageItems") Then
@@ -471,6 +519,7 @@ Public Class MediaSet
                     MsgBox("Failed to read the MediaImageItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
             If Line.StartsWith("MaskerImageItems") Then
@@ -481,15 +530,44 @@ Public Class MediaSet
                     MsgBox("Failed to read the MaskerImageItems value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
-            If Line.StartsWith("CustomVariablesFolder") Then Output.CustomVariablesFolder = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("CustomVariablesFolder") Then
+                Output.CustomVariablesFolder = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
-            If Line.StartsWith("MediaParentFolder") Then Output.MediaParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("MediaParentFolder") Then
+                Output.MediaParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
-            If Line.StartsWith("MaskerParentFolder") Then Output.MaskerParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("MaskerParentFolder") Then
+                Output.MaskerParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
-            If Line.StartsWith("BackgroundNonspeechParentFolder") Then Output.BackgroundNonspeechParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("ContralateralMaskerParentFolder") Then
+                Output.ContralateralMaskerParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
+
+            If Line.StartsWith("EffectiveContralateralMaskingGain") Then
+                Dim Value = InputFileSupport.InputFileDoubleValueParsing(Line, True, FilePath)
+                If Value.HasValue Then
+                    Output.EffectiveContralateralMaskingGain = Value
+                Else
+                    MsgBox("Failed to read the EffectiveContralateralMaskingGain value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
+                    Return Nothing
+                End If
+                Continue For
+            End If
+
+            If Line.StartsWith("BackgroundNonspeechParentFolder") Then
+                Output.BackgroundNonspeechParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
             If Line.StartsWith("BackgroundNonspeechRealisticLevel") Then
                 Dim Value = InputFileSupport.InputFileDoubleValueParsing(Line, True, FilePath)
@@ -499,13 +577,23 @@ Public Class MediaSet
                     MsgBox("Failed to read the BackgroundNonspeechRealisticLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
-            If Line.StartsWith("BackgroundSpeechParentFolder") Then Output.BackgroundSpeechParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("BackgroundSpeechParentFolder") Then
+                Output.BackgroundSpeechParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
-            If Line.StartsWith("PrototypeMediaParentFolder") Then Output.PrototypeMediaParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("PrototypeMediaParentFolder") Then
+                Output.PrototypeMediaParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
-            If Line.StartsWith("MasterPrototypeRecordingPath") Then Output.MasterPrototypeRecordingPath = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("MasterPrototypeRecordingPath") Then
+                Output.MasterPrototypeRecordingPath = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
             If Line.StartsWith("PrototypeRecordingLevel") Then
                 Dim Value = InputFileSupport.InputFileDoubleValueParsing(Line, True, FilePath)
@@ -515,9 +603,13 @@ Public Class MediaSet
                     MsgBox("Failed to read the PrototypeRecordingLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
-            If Line.StartsWith("LombardNoisePath") Then Output.LombardNoisePath = InputFileSupport.GetInputFileValue(Line, True)
+            If Line.StartsWith("LombardNoisePath") Then
+                Output.LombardNoisePath = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
 
             If Line.StartsWith("LombardNoiseLevel") Then
                 Dim Value = InputFileSupport.InputFileDoubleValueParsing(Line, True, FilePath)
@@ -527,6 +619,7 @@ Public Class MediaSet
                     MsgBox("Failed to read the LombardNoiseLevel value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
             If Line.StartsWith("WaveFileSampleRate") Then
@@ -537,6 +630,7 @@ Public Class MediaSet
                     MsgBox("Failed to read the WaveFileSampleRate value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
             If Line.StartsWith("WaveFileBitDepth") Then
@@ -547,6 +641,7 @@ Public Class MediaSet
                     MsgBox("Failed to read the WaveFileBitDepth value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
             If Line.StartsWith("WaveFileEncoding") Then
@@ -557,9 +652,21 @@ Public Class MediaSet
                     MsgBox("Failed to read the WaveFileEncoding value from the file " & FilePath, MsgBoxStyle.Exclamation, "Reading media set specification file")
                     Return Nothing
                 End If
+                Continue For
             End If
 
         Next
+
+        'Normalizing paths read from file
+        Output.BackgroundNonspeechParentFolder = Utils.NormalizeCrossPlatformPath(Output.BackgroundNonspeechParentFolder)
+        Output.BackgroundSpeechParentFolder = Utils.NormalizeCrossPlatformPath(Output.BackgroundSpeechParentFolder)
+        Output.CustomVariablesFolder = Utils.NormalizeCrossPlatformPath(Output.CustomVariablesFolder)
+        Output.LombardNoisePath = Utils.NormalizeCrossPlatformPath(Output.LombardNoisePath)
+        Output.MaskerParentFolder = Utils.NormalizeCrossPlatformPath(Output.MaskerParentFolder)
+        Output.ContralateralMaskerParentFolder = Utils.NormalizeCrossPlatformPath(Output.ContralateralMaskerParentFolder)
+        Output.MasterPrototypeRecordingPath = Utils.NormalizeCrossPlatformPath(Output.MasterPrototypeRecordingPath)
+        Output.MediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.MediaParentFolder)
+        Output.PrototypeMediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.PrototypeMediaParentFolder)
 
         'Also loading custom variables
         If Output IsNot Nothing Then
