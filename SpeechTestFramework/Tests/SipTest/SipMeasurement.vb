@@ -1741,10 +1741,24 @@ Namespace SipTest
                 FadeSpecs_Background.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
                 'Sets up ducking specifications for the background (non-speech) signals
+                'Previous incorrect code:
+                'Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
+                'BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel))
+                'DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
+                'DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
+
+                'Sets up ducking specifications for the background (non-speech) signals
                 Dim DuckSpecs_BackgroundNonSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
                 BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel))
-                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, BackgroundNonSpeechDucking, Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5), TestWordStartSample))
-                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, Math.Max(0, TestWordCompletedSample - CurrentSampleRate * 0.5)))
+                'BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 6, Me.MediaSet.BackgroundNonspeechRealisticLevel)) ' STFN version ducks 6 dB instead of 3, leaves it to 3 dB here
+                Dim BackgroundStartDuckSample As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)
+                'Dim BackgroundStartDuckSample As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 1) ' STFN version is extending ducking fade to 1 sec before and after test word, to get a smoother fade, leaving it to 0.5 here
+                Dim BackgroundDuckFade1StageLength As Integer = TestWordStartSample - BackgroundStartDuckSample
+                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(0, BackgroundNonSpeechDucking, BackgroundStartDuckSample, BackgroundDuckFade1StageLength))
+                Dim BackgroundDuckFade2StageLength As Integer = Math.Min(CurrentSampleRate * 0.5, (TrialSoundLength - TestWordCompletedSample - 2))
+                'Dim BackgroundDuckFade2StageLength As Integer = Math.Min(CurrentSampleRate * 1, (TrialSoundLength - TestWordCompletedSample - 2)) ' STFN version is extending ducking fade to 1 sec before and after test word, to get a smoother fade, leaving it to 0.5 here
+                DuckSpecs_BackgroundNonSpeech.Add(New SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, BackgroundDuckFade2StageLength))
+
 
                 'Sets up ducking specifications for the background (speech) signals
                 Dim DuckSpecs_BackgroundSpeech = New List(Of SpeechTestFramework.Audio.DSP.Transformations.FadeSpecifications)
