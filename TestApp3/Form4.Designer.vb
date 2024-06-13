@@ -62,6 +62,7 @@ Partial Class Form4
         Me.Button31 = New System.Windows.Forms.Button()
         Me.Button32 = New System.Windows.Forms.Button()
         Me.Button33 = New System.Windows.Forms.Button()
+        Me.Button34 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -424,12 +425,22 @@ Partial Class Form4
         Me.Button33.Text = "FilterSiPHomeBackgound"
         Me.Button33.UseVisualStyleBackColor = True
         '
+        'Button34
+        '
+        Me.Button34.Location = New System.Drawing.Point(796, 315)
+        Me.Button34.Name = "Button34"
+        Me.Button34.Size = New System.Drawing.Size(134, 23)
+        Me.Button34.TabIndex = 50
+        Me.Button34.Text = "Move and rename files"
+        Me.Button34.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button34)
         Me.Controls.Add(Me.Button33)
         Me.Controls.Add(Me.Button32)
         Me.Controls.Add(Me.Button31)
@@ -516,4 +527,5 @@ Partial Class Form4
     Friend WithEvents Button31 As Button
     Friend WithEvents Button32 As Button
     Friend WithEvents Button33 As Button
+    Friend WithEvents Button34 As Button
 End Class

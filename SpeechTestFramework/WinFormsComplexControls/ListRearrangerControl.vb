@@ -611,14 +611,25 @@ Public Class ListRearrangerControl
                         OptimalOrder = CandidateOrder
 
                         'X. Reporting progress
-                        Console.WriteLine("Iteration: " & Iteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList))
-
+                        Console.WriteLine("Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList))
+                        Log_TextBox.Text = Log_TextBox.Text & "Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList) & vbCrLf
+                        Log_TextBox.SelectionStart = Log_TextBox.Text.Length
+                        Log_TextBox.ScrollToCaret()
+                        Log_TextBox.Invalidate()
+                        Log_TextBox.Update()
+                        'System.Windows.Forms.Application.DoEvents()
                     Else
                         'The new order did not improve the balance, ignoring it and keeps the optimal order
 
                         'X. Reporting progress in with regular intervals
                         If Iteration Mod 100 = 0 Then
-                            Console.WriteLine("Iteration: " & Iteration)
+                            Console.WriteLine("Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration)
+                            Log_TextBox.Text = Log_TextBox.Text & "Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbCrLf
+                            Log_TextBox.SelectionStart = Log_TextBox.Text.Length
+                            Log_TextBox.ScrollToCaret()
+                            Log_TextBox.Invalidate()
+                            Log_TextBox.Update()
+                            'System.Windows.Forms.Application.DoEvents()
                         End If
 
                     End If
@@ -776,7 +787,7 @@ Public Class ListRearrangerControl
         Dim CategoricalTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double))) 'This lists the averall variable distributions for the whole material
         Dim CategoricalListDistributions As New List(Of List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double)))) 'This lists the list specific variable distributions for the whole material (list index is in the top level list)
 
-        Dim NumericTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))) 'The first double value represents upper decentile limits, and the second double value represents the number with in each decentile
+        Dim NumericTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))) 'The first double value represents upper interval limits, and the second double value represents the number with in each interval
         Dim NumericListDistributions As New List(Of List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))))
 
         Dim NumericVariableGrandAverages As New List(Of Tuple(Of CustomVariableSpecification, Double))
@@ -802,13 +813,17 @@ Public Class ListRearrangerControl
 
             Else
 
+                'Determining the number of bins (intervals) to use to describe the distribution. Using number of items in each list, divided by 10, and rounding upwards 
+                Dim ItemsPerList As Integer = CandidateListComposition.Values(0).Count ' Picking the list length from the first candidate list
+                Dim BinCount As Integer = Math.Ceiling(ItemsPerList / 10)
+
                 'Calculating and adding the distribution of all items
-                NumericTargetDistributions.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDecentileDistribution(AllSentenceList, Variable, Nothing)))
+                NumericTargetDistributions.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDistribution(AllSentenceList, Variable, BinCount, Nothing)))
 
                 'Calculating and adding the distributions within lists
                 NumericListDistributions.Add(New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))))
                 For Each List In CandidateListComposition.Values
-                    NumericListDistributions.Last.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDecentileDistribution(List, Variable, NumericTargetDistributions.Last.Item2.Keys.ToList)))
+                    NumericListDistributions.Last.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDistribution(List, Variable, BinCount, NumericTargetDistributions.Last.Item2.Keys.ToList)))
                 Next
 
 
@@ -824,7 +839,7 @@ Public Class ListRearrangerControl
             End If
         Next
 
-        'NB TODO: 'Percentile values are no longer important, and could be replaced by categorical values so that the same RMS error algorithm below can be used for both types
+        'NB TODO: 'Numeric distribution interval limits are no longer important, and could be replaced by categorical values so that the same RMS error algorithm below can be used for both types
 
         'Comparing distributions by RMS error for the categorical distributions
         Dim Distances As New List(Of Double) ' This list contains the average RMS error for each variable
@@ -978,17 +993,17 @@ Public Class ListRearrangerControl
 
     End Sub
 
-    Private Function GetNumericDecentileDistribution(ByVal List As List(Of SpeechMaterialComponent), ByVal VariableSpecification As CustomVariableSpecification, Optional ByVal UpperDecentileLimits As List(Of Double) = Nothing) As SortedList(Of Double, Double)
+    Private Function GetNumericDistribution(ByVal List As List(Of SpeechMaterialComponent), ByVal VariableSpecification As CustomVariableSpecification, ByVal BinCount As Integer, Optional ByVal UpperIntervalLimits As List(Of Double) = Nothing) As SortedList(Of Double, Double)
 
         If VariableSpecification.IsNumericVariable = False Then Return Nothing
 
         Dim Output As New SortedList(Of Double, Double)
 
-        If UpperDecentileLimits Is Nothing Then
+        If UpperIntervalLimits Is Nothing Then
 
-            UpperDecentileLimits = New List(Of Double)
+            UpperIntervalLimits = New List(Of Double)
 
-            'Determining decentiles based on the full (target) distribution
+            'Determining min and max values of the full (target) distribution
             Dim AllvaluesList As New List(Of Double)
             For Each Sentence In List
                 If VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
@@ -1012,32 +1027,37 @@ Public Class ListRearrangerControl
             'Sorting AllvaluesList
             AllvaluesList.Sort()
 
-            For n = 0.1 To 0.9 Step 0.1
-                Dim DecentileIndex As Integer = Math.Floor(n * (AllvaluesList.Count))
-                DecentileIndex = Math.Min(DecentileIndex, AllvaluesList.Count - 1)
-                UpperDecentileLimits.Add(AllvaluesList(DecentileIndex))
+            'Adding intervals
+            Dim DistributionMin As Double = AllvaluesList.Min
+            Dim DistributionMax As Double = AllvaluesList.Max
+            Dim IntervalRange As Double = DistributionMax - DistributionMin
+            Dim IntervalWidth As Double = IntervalRange / BinCount
+
+            For n = 1 To BinCount - 1
+                UpperIntervalLimits.Add(DistributionMin + n * IntervalWidth)
             Next
-            'Adding also double max value to get all values above the 90th percentile in the last interval
-            UpperDecentileLimits.Add(Double.MaxValue)
+
+            'Adding also double max value to get all values above the 9:th interval
+            UpperIntervalLimits.Add(Double.MaxValue)
 
         End If
 
-        'Filling up Output with decentile limits
-        For Each Key In UpperDecentileLimits
+        'Filling up Output with interval limits
+        For Each Key In UpperIntervalLimits
             Output.Add(Key, 0)
         Next
 
         For Each Sentence In List
             If VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
-                AddNumericVariableToPercentile(Output, Sentence, VariableSpecification.VariableName)
+                AddNumericVariableToDistribution(Output, Sentence, VariableSpecification.VariableName)
             ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Word Then
                 For Each Word In Sentence.ChildComponents
-                    AddNumericVariableToPercentile(Output, Word, VariableSpecification.VariableName)
+                    AddNumericVariableToDistribution(Output, Word, VariableSpecification.VariableName)
                 Next
             ElseIf VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Phoneme Then
                 For Each Word In Sentence.ChildComponents
                     For Each Phoneme In Word.ChildComponents
-                        AddNumericVariableToPercentile(Output, Phoneme, VariableSpecification.VariableName)
+                        AddNumericVariableToDistribution(Output, Phoneme, VariableSpecification.VariableName)
                     Next
                 Next
             End If
@@ -1047,20 +1067,18 @@ Public Class ListRearrangerControl
 
     End Function
 
-    Private Sub AddNumericVariableToPercentile(ByRef TargetCollection As SortedList(Of Double, Double), ByRef SpeechMaterialComponent As SpeechMaterialComponent, ByVal VariableName As String)
+    Private Sub AddNumericVariableToDistribution(ByRef TargetCollection As SortedList(Of Double, Double), ByRef SpeechMaterialComponent As SpeechMaterialComponent, ByVal VariableName As String)
 
-        Dim PercentileList As List(Of Double) = TargetCollection.Keys.ToList
-
-        If PercentileList.Count <> 10 Then Throw New Exception("Detected percentile list not containing 10 limits. This should not happen, and must be a bug!")
+        Dim IntervalList As List(Of Double) = TargetCollection.Keys.ToList
 
         Dim VariableValue = SpeechMaterialComponent.GetNumericVariableValue(VariableName)
 
-        'Determining in which percentile the value falls
-        For i = 0 To PercentileList.Count - 1
-            If VariableValue < PercentileList(i) Then
+        'Determining in which interval the value falls
+        For i = 0 To IntervalList.Count - 1
+            If VariableValue < IntervalList(i) Then
                 'All keys should already have been added to TargetCollection, and there is thus no need to check that here
-                TargetCollection(PercentileList(i)) += 1
-                'Exiting loop after the value has been added to its percentile
+                TargetCollection(IntervalList(i)) += 1
+                'Exiting loop after the value has been added to its interval
                 Exit For
             End If
         Next
@@ -1071,7 +1089,6 @@ Public Class ListRearrangerControl
 
         If VariableSpecification.IsNumericVariable = False Then Throw New Exception("Detected non-numeric variable where numeric variable was expected")
 
-        'Determining decentiles based on the full (target) distribution
         Dim AllvaluesList As New List(Of Double)
         For Each Sentence In List
             If VariableSpecification.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
