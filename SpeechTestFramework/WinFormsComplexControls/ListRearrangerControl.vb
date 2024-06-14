@@ -366,14 +366,16 @@ Public Class ListRearrangerControl
         End If
 
         'Rearranging lists (TODO: the following code should probably be moved to the MediaSet class?
-        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, BalanceIterations, FixedbalancePercentage, CustomOrderStrings, OverrideSentenceByFirstWord_CheckBox.Checked, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix)
+        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, BalanceIterations, FixedbalancePercentage, BalanceNumericDistributions_CheckBox.Checked, CustomOrderStrings, OverrideSentenceByFirstWord_CheckBox.Checked, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix)
 
 
     End Sub
 
     Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer,
                          ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal BalanceIterations As Integer, ByVal FixedbalancePercentage As Integer?,
-                         ByVal CustomOrderStrings As List(Of String), ByVal OverrideSentenceByFirstWord As Boolean, ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "")
+                         ByVal BalanceNumericDistributions As Boolean,
+                         ByVal CustomOrderStrings As List(Of String), ByVal OverrideSentenceByFirstWord As Boolean,
+                         ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "")
 
         If SentencePrefix = "" Then SentencePrefix = SpeechMaterialComponent.DefaultSentencePrefix
 
@@ -518,14 +520,14 @@ Public Class ListRearrangerControl
                 Dim MaxIterations As Integer = BalanceIterations
 
                 'Setting OptimalOrder initially to CurrentSentenceOrder
-                Dim OptimalOrder() As Integer = CurrentSentenceOrder
+                Dim OptimalOrder() As Integer = CurrentSentenceOrder.Clone
                 Dim LowestListImbalanceList As New List(Of Double)
                 For Each Variable In BalancedVariables
                     If Variable.IsNumericVariable = False Then
                         LowestListImbalanceList.Add(Double.MaxValue)
                     Else
                         'Adding two values for each numeric variable (one representing distribution and one representing average)
-                        LowestListImbalanceList.Add(Double.MaxValue)
+                        If BalanceNumericDistributions = True Then LowestListImbalanceList.Add(Double.MaxValue)
                         LowestListImbalanceList.Add(Double.MaxValue)
                     End If
                 Next
@@ -589,26 +591,26 @@ Public Class ListRearrangerControl
 
                     '2. Evaluating the order
                     'Calculating the im-balance measure
-                    Dim CurrentListImbalanceList = CalculateListImbalance(CandidateListComposition, BalancedVariables)
+                    Dim CurrentListImbalanceList = CalculateListImbalance(CandidateListComposition, BalancedVariables, BalanceNumericDistributions)
 
-                    'Checking if all values are better
-                    Dim AllAreBetter As Boolean = True
+                    'Checking if all values are equal or better
+                    Dim AllAreEqualOrBetter As Boolean = True
                     For n = 0 To CurrentListImbalanceList.Count - 1
                         If CurrentListImbalanceList(n) > LowestListImbalanceList(n) Then
-                            AllAreBetter = False
+                            AllAreEqualOrBetter = False
                             Exit For
                         End If
                     Next
 
                     'Comparing the imbalance value to the value from the previous best iteration
-                    If AllAreBetter = True Then
+                    If AllAreEqualOrBetter = True Then
                         'The new order inproved the balance 
 
                         'Storing the new LowestListImbalanceList value
                         LowestListImbalanceList = CurrentListImbalanceList
 
                         'Storing the candidate order as the new optimal order
-                        OptimalOrder = CandidateOrder
+                        OptimalOrder = CandidateOrder.Clone
 
                         'X. Reporting progress
                         Console.WriteLine("Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList))
@@ -640,9 +642,15 @@ Public Class ListRearrangerControl
                 Next
 
                 'When iterations has stopped we take the sentence order in the selected optimal iteration
-                CurrentSentenceOrder = OptimalOrder
+                CurrentSentenceOrder = OptimalOrder.Clone
 
             End If
+
+            Log_TextBox.Text = Log_TextBox.Text & "Editing sounds..." & vbCrLf
+            Log_TextBox.SelectionStart = Log_TextBox.Text.Length
+            Log_TextBox.ScrollToCaret()
+            Log_TextBox.Invalidate()
+            Log_TextBox.Update()
 
             'Picking sentences in the order specified in CurrentSentenceOrder
             For s = 0 To AllSentences.Count - 1
@@ -782,12 +790,12 @@ Public Class ListRearrangerControl
     End Function
 
 
-    Private Function CalculateListImbalance(ByVal CandidateListComposition As SortedList(Of Integer, List(Of SpeechMaterialComponent)), ByVal BalancedVariables As List(Of CustomVariableSpecification)) As List(Of Double)
+    Private Function CalculateListImbalance(ByVal CandidateListComposition As SortedList(Of Integer, List(Of SpeechMaterialComponent)), ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal IncludeNumericDistributionControl As Boolean) As List(Of Double)
 
         Dim CategoricalTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double))) 'This lists the averall variable distributions for the whole material
         Dim CategoricalListDistributions As New List(Of List(Of Tuple(Of CustomVariableSpecification, SortedList(Of String, Double)))) 'This lists the list specific variable distributions for the whole material (list index is in the top level list)
 
-        Dim NumericTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))) 'The first double value represents upper interval limits, and the second double value represents the number with in each interval
+        Dim NumericTargetDistributions As New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))) 'The first double value represents upper interval limits, and the second double value represents the number within each interval
         Dim NumericListDistributions As New List(Of List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))))
 
         Dim NumericVariableGrandAverages As New List(Of Tuple(Of CustomVariableSpecification, Double))
@@ -813,19 +821,20 @@ Public Class ListRearrangerControl
 
             Else
 
-                'Determining the number of bins (intervals) to use to describe the distribution. Using number of items in each list, divided by 10, and rounding upwards 
-                Dim ItemsPerList As Integer = CandidateListComposition.Values(0).Count ' Picking the list length from the first candidate list
-                Dim BinCount As Integer = Math.Ceiling(ItemsPerList / 10)
+                If IncludeNumericDistributionControl = True Then
+                    'Determining the number of bins (intervals) to use to describe the distribution. Using number of items in each list, divided by 10, and rounding upwards 
+                    Dim ItemsPerList As Integer = CandidateListComposition.Values(0).Count ' Picking the list length from the first candidate list
+                    Dim BinCount As Integer = Math.Ceiling(ItemsPerList / 10)
 
-                'Calculating and adding the distribution of all items
-                NumericTargetDistributions.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDistribution(AllSentenceList, Variable, BinCount, Nothing)))
+                    'Calculating and adding the distribution of all items
+                    NumericTargetDistributions.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDistribution(AllSentenceList, Variable, BinCount, Nothing)))
 
-                'Calculating and adding the distributions within lists
-                NumericListDistributions.Add(New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))))
-                For Each List In CandidateListComposition.Values
-                    NumericListDistributions.Last.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDistribution(List, Variable, BinCount, NumericTargetDistributions.Last.Item2.Keys.ToList)))
-                Next
-
+                    'Calculating and adding the distributions within lists
+                    NumericListDistributions.Add(New List(Of Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))))
+                    For Each List In CandidateListComposition.Values
+                        NumericListDistributions.Last.Add(New Tuple(Of CustomVariableSpecification, SortedList(Of Double, Double))(Variable, GetNumericDistribution(List, Variable, BinCount, NumericTargetDistributions.Last.Item2.Keys.ToList)))
+                    Next
+                End If
 
                 'Calculating and adding the distribution of all items
                 NumericVariableGrandAverages.Add(New Tuple(Of CustomVariableSpecification, Double)(Variable, GetNumericVariableAverage(AllSentenceList, Variable)))
@@ -879,55 +888,56 @@ Public Class ListRearrangerControl
 
         Next
 
-        'Comparing distributions by RMS error for the numeric distributions
-        For i = 0 To NumericTargetDistributions.Count - 1
+        If IncludeNumericDistributionControl = True Then
 
-            Dim RmsErrorsPerList As New List(Of Double)
+            'Comparing distributions by RMS error for the numeric distributions
+            For i = 0 To NumericTargetDistributions.Count - 1
 
-            'Dividing the target distribution ny ListCount to get the same scale
-            Dim TargetValues = NumericTargetDistributions(i).Item2.Values.ToArray
-            Dim TotalObservations = TargetValues.Sum
+                Dim RmsErrorsPerList As New List(Of Double)
 
-            'Iterating over Lists
-            For j = 0 To NumericListDistributions(i).Count - 1
+                'Dividing the target distribution ny ListCount to get the same scale
+                Dim TargetValues = NumericTargetDistributions(i).Item2.Values.ToArray
+                Dim TotalObservations = TargetValues.Sum
 
-                'We now have one list, compared to all lists
-                Dim ListValues = NumericListDistributions(i)(j).Item2.Values.ToArray
+                'Iterating over Lists
+                For j = 0 To NumericListDistributions(i).Count - 1
 
-                'Normalizing each list
-                Dim ListObservations = ListValues.Sum
-                Dim CurrentScale As Double = TotalObservations / ListObservations
+                    'We now have one list, compared to all lists
+                    Dim ListValues = NumericListDistributions(i)(j).Item2.Values.ToArray
 
-                'Calculating RMS error
-                Dim SquaredErrors(ListValues.Length - 1) As Double
+                    'Normalizing each list
+                    Dim ListObservations = ListValues.Sum
+                    Dim CurrentScale As Double = TotalObservations / ListObservations
 
-                'Iterating over variable values
-                For q = 0 To SquaredErrors.Length - 1
-                    SquaredErrors(q) = (CurrentScale * ListValues(q) - TargetValues(q)) ^ 2
+                    'Calculating RMS error
+                    Dim SquaredErrors(ListValues.Length - 1) As Double
+
+                    'Iterating over variable values
+                    For q = 0 To SquaredErrors.Length - 1
+                        SquaredErrors(q) = (CurrentScale * ListValues(q) - TargetValues(q)) ^ 2
+                    Next
+
+
+                    Dim RmsError = Math.Sqrt(SquaredErrors.Average)
+                    RmsErrorsPerList.Add(RmsError)
                 Next
 
+                'Adding the average RMS error across lists as the distance measure
+                Distances.Add(RmsErrorsPerList.Average)
 
-                Dim RmsError = Math.Sqrt(SquaredErrors.Average)
-                RmsErrorsPerList.Add(RmsError)
             Next
-
-            'Adding the average RMS error across lists as the distance measure
-            Distances.Add(RmsErrorsPerList.Average)
-
-        Next
+        End If
 
         'Comparing distributions by RMS error for the averages
 
         'Iterating over variables
         For i = 0 To NumericVariableGrandAverages.Count - 1
 
-            'Dividing the target distribution ny ListCount to get the same scale
-            Dim ListCount As Integer = NumericListDistributions(i).Count
-            Dim TargetVariableValue = NumericVariableGrandAverages(i).Item2 / ListCount
+            Dim TargetVariableValue = NumericVariableGrandAverages(i).Item2
 
             'Iterating over Lists
             Dim SquaredErrors As New List(Of Double)
-            For j = 0 To NumericListDistributions(i).Count - 1
+            For j = 0 To NumericVariableGrandListAverages(i).Count - 1
 
                 'We now have one list, compared to all lists
                 Dim ListValue = NumericVariableGrandListAverages(i)(j).Item2
