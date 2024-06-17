@@ -707,7 +707,11 @@ Public Class ListRearrangerControl
 
                     'Picking sentences in the order specified in CandidateOrder
                     Dim AddedSentences As Integer = 0
-                    Dim SelectOneItemPerGroup As Boolean = True
+                    Dim SelectOneItemPerGroup As Boolean = False
+                    If GroupingVariables.Count > 0 Then
+                        SelectOneItemPerGroup = True
+                    End If
+
                     Dim AddedGroups As New SortedSet(Of String)
                     For s = 0 To AllSentences.Count - 1
 
