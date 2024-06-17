@@ -27,6 +27,8 @@ Public Class ListRearrangerControl
         BalanceItarations_IntegerParsingTextBox.Enabled = False
         BalanceProportion_Label.Enabled = False
         FixedBalancePercentage_IntegerParsingTextBox.Enabled = False
+        BalanceNumericDistributions_CheckBox.Enabled = False
+        BalanceNumericSD_CheckBox.Enabled = False
 
         CustomOrder_RadioButton.Enabled = False
         CustomPsrOrder_RadioButton.Enabled = False
@@ -46,6 +48,8 @@ Public Class ListRearrangerControl
         BalanceItarations_IntegerParsingTextBox.Enabled = True
         BalanceProportion_Label.Enabled = True
         FixedBalancePercentage_IntegerParsingTextBox.Enabled = True
+        BalanceNumericDistributions_CheckBox.Enabled = True
+        BalanceNumericSD_CheckBox.Enabled = True
 
         CustomOrder_RadioButton.Enabled = True
         CustomPsrOrder_RadioButton.Enabled = True
@@ -365,8 +369,19 @@ Public Class ListRearrangerControl
 
         End If
 
+        Dim RandomSeed As Integer = -1 ' Using -1 as default not-set value
+
+        If RandomSeed_IntegerParsingTextBox.Value.HasValue Then
+            RandomSeed = RandomSeed_IntegerParsingTextBox.Value
+            If RandomSeed < 0 Then
+                MsgBox("Random seed must be a non-negative integer, or empty.")
+                Exit Sub
+            End If
+        End If
+
         'Rearranging lists (TODO: the following code should probably be moved to the MediaSet class?
-        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, BalanceIterations, FixedbalancePercentage, BalanceNumericDistributions_CheckBox.Checked, CustomOrderStrings, OverrideSentenceByFirstWord_CheckBox.Checked, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix)
+        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, BalanceIterations, FixedbalancePercentage, BalanceNumericDistributions_CheckBox.Checked, CustomOrderStrings,
+                  OverrideSentenceByFirstWord_CheckBox.Checked, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix, RandomSeed)
 
 
     End Sub
@@ -375,11 +390,17 @@ Public Class ListRearrangerControl
                          ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal BalanceIterations As Integer, ByVal FixedbalancePercentage As Integer?,
                          ByVal BalanceNumericDistributions As Boolean,
                          ByVal CustomOrderStrings As List(Of String), ByVal OverrideSentenceByFirstWord As Boolean,
-                         ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, Optional ByVal SentencePrefix As String = "")
+                         ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, ByVal RandomSeed As Integer,
+                         Optional ByVal SentencePrefix As String = "")
 
         If SentencePrefix = "" Then SentencePrefix = SpeechMaterialComponent.DefaultSentencePrefix
 
-        Dim rnd = New Random
+        Dim rnd As Random
+        If RandomSeed < 0 Then
+            rnd = New Random
+        Else
+            rnd = New Random(RandomSeed)
+        End If
 
         'Clears previously loaded sounds
         SpeechMaterialComponent.ClearAllLoadedSounds()
