@@ -62,6 +62,8 @@ Partial Class ListRearrangerControl
         Me.LogGroupBox = New System.Windows.Forms.GroupBox()
         Me.Log_TextBox = New System.Windows.Forms.TextBox()
         Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
+        Me.Label6 = New System.Windows.Forms.Label()
+        Me.MaxListCount_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.ListDescriptives_GroupBox.SuspendLayout()
@@ -93,12 +95,12 @@ Partial Class ListRearrangerControl
         Me.TableLayoutPanel1.RowCount = 7
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 76.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 77.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 349.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 73.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 101.0!))
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 448.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 135.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(599, 728)
+        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 9.0!))
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(599, 877)
         Me.TableLayoutPanel1.TabIndex = 0
         '
         'GroupBox1
@@ -109,7 +111,7 @@ Partial Class ListRearrangerControl
         Me.GroupBox1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GroupBox1.Location = New System.Drawing.Point(3, 53)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(593, 70)
+        Me.GroupBox1.Size = New System.Drawing.Size(593, 67)
         Me.GroupBox1.TabIndex = 0
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Scope"
@@ -141,9 +143,9 @@ Partial Class ListRearrangerControl
         Me.TableLayoutPanel1.SetColumnSpan(Me.ListDescriptives_GroupBox, 2)
         Me.ListDescriptives_GroupBox.Controls.Add(Me.TableLayoutPanel2)
         Me.ListDescriptives_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ListDescriptives_GroupBox.Location = New System.Drawing.Point(3, 129)
+        Me.ListDescriptives_GroupBox.Location = New System.Drawing.Point(3, 126)
         Me.ListDescriptives_GroupBox.Name = "ListDescriptives_GroupBox"
-        Me.ListDescriptives_GroupBox.Size = New System.Drawing.Size(593, 71)
+        Me.ListDescriptives_GroupBox.Size = New System.Drawing.Size(593, 95)
         Me.ListDescriptives_GroupBox.TabIndex = 1
         Me.ListDescriptives_GroupBox.TabStop = False
         Me.ListDescriptives_GroupBox.Text = "List names and lengths"
@@ -157,13 +159,16 @@ Partial Class ListRearrangerControl
         Me.TableLayoutPanel2.Controls.Add(Me.Label3, 0, 1)
         Me.TableLayoutPanel2.Controls.Add(Me.ListNamePrefix_TextBox, 1, 0)
         Me.TableLayoutPanel2.Controls.Add(Me.ListLength_IntegerParsingTextBox, 1, 1)
+        Me.TableLayoutPanel2.Controls.Add(Me.Label6, 0, 2)
+        Me.TableLayoutPanel2.Controls.Add(Me.MaxListCount_IntegerParsingTextBox, 1, 2)
         Me.TableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel2.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel2.Name = "TableLayoutPanel2"
-        Me.TableLayoutPanel2.RowCount = 2
+        Me.TableLayoutPanel2.RowCount = 3
         Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel2.Size = New System.Drawing.Size(587, 52)
+        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
+        Me.TableLayoutPanel2.Size = New System.Drawing.Size(587, 76)
         Me.TableLayoutPanel2.TabIndex = 0
         '
         'Label2
@@ -181,7 +186,7 @@ Partial Class ListRearrangerControl
         Me.Label3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.Label3.Location = New System.Drawing.Point(3, 25)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(287, 27)
+        Me.Label3.Size = New System.Drawing.Size(287, 25)
         Me.Label3.TabIndex = 1
         Me.Label3.Text = "Target list length"
         Me.Label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
@@ -208,9 +213,9 @@ Partial Class ListRearrangerControl
         Me.TableLayoutPanel1.SetColumnSpan(Me.Order_GroupBox, 2)
         Me.Order_GroupBox.Controls.Add(Me.TableLayoutPanel3)
         Me.Order_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Order_GroupBox.Location = New System.Drawing.Point(3, 206)
+        Me.Order_GroupBox.Location = New System.Drawing.Point(3, 227)
         Me.Order_GroupBox.Name = "Order_GroupBox"
-        Me.Order_GroupBox.Size = New System.Drawing.Size(593, 343)
+        Me.Order_GroupBox.Size = New System.Drawing.Size(593, 442)
         Me.Order_GroupBox.TabIndex = 2
         Me.Order_GroupBox.TabStop = False
         Me.Order_GroupBox.Text = "Order"
@@ -259,7 +264,7 @@ Partial Class ListRearrangerControl
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 10.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26.0!))
         Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel3.Size = New System.Drawing.Size(587, 324)
+        Me.TableLayoutPanel3.Size = New System.Drawing.Size(587, 423)
         Me.TableLayoutPanel3.TabIndex = 4
         '
         'RandomOrder_RadioButton
@@ -306,7 +311,7 @@ Partial Class ListRearrangerControl
         Me.OrderInputHeading_GroupBox.Name = "OrderInputHeading_GroupBox"
         Me.OrderInputHeading_GroupBox.Padding = New System.Windows.Forms.Padding(3, 16, 3, 3)
         Me.TableLayoutPanel3.SetRowSpan(Me.OrderInputHeading_GroupBox, 13)
-        Me.OrderInputHeading_GroupBox.Size = New System.Drawing.Size(138, 318)
+        Me.OrderInputHeading_GroupBox.Size = New System.Drawing.Size(138, 417)
         Me.OrderInputHeading_GroupBox.TabIndex = 3
         Me.OrderInputHeading_GroupBox.TabStop = False
         Me.OrderInputHeading_GroupBox.Text = "Select variables to balance"
@@ -321,7 +326,7 @@ Partial Class ListRearrangerControl
         Me.OrderInput_TableLayoutPanel.Name = "OrderInput_TableLayoutPanel"
         Me.OrderInput_TableLayoutPanel.RowCount = 1
         Me.OrderInput_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.OrderInput_TableLayoutPanel.Size = New System.Drawing.Size(132, 286)
+        Me.OrderInput_TableLayoutPanel.Size = New System.Drawing.Size(132, 385)
         Me.OrderInput_TableLayoutPanel.TabIndex = 0
         '
         'CustomOrder_RadioButton
@@ -460,7 +465,7 @@ Partial Class ListRearrangerControl
         Me.Splitter2.Location = New System.Drawing.Point(290, 3)
         Me.Splitter2.Name = "Splitter2"
         Me.TableLayoutPanel3.SetRowSpan(Me.Splitter2, 13)
-        Me.Splitter2.Size = New System.Drawing.Size(2, 318)
+        Me.Splitter2.Size = New System.Drawing.Size(2, 417)
         Me.Splitter2.TabIndex = 16
         Me.Splitter2.TabStop = False
         '
@@ -472,7 +477,7 @@ Partial Class ListRearrangerControl
         Me.GroupingVariable_GroupBox.Name = "GroupingVariable_GroupBox"
         Me.GroupingVariable_GroupBox.Padding = New System.Windows.Forms.Padding(3, 16, 3, 3)
         Me.TableLayoutPanel3.SetRowSpan(Me.GroupingVariable_GroupBox, 13)
-        Me.GroupingVariable_GroupBox.Size = New System.Drawing.Size(140, 318)
+        Me.GroupingVariable_GroupBox.Size = New System.Drawing.Size(140, 417)
         Me.GroupingVariable_GroupBox.TabIndex = 17
         Me.GroupingVariable_GroupBox.TabStop = False
         Me.GroupingVariable_GroupBox.Text = "Select grouping variable"
@@ -487,16 +492,16 @@ Partial Class ListRearrangerControl
         Me.GroupingVariable_TableLayoutPanel.Name = "GroupingVariable_TableLayoutPanel"
         Me.GroupingVariable_TableLayoutPanel.RowCount = 1
         Me.GroupingVariable_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.GroupingVariable_TableLayoutPanel.Size = New System.Drawing.Size(134, 286)
+        Me.GroupingVariable_TableLayoutPanel.Size = New System.Drawing.Size(134, 385)
         Me.GroupingVariable_TableLayoutPanel.TabIndex = 0
         '
         'ReArrangeButton
         '
         Me.TableLayoutPanel1.SetColumnSpan(Me.ReArrangeButton, 2)
         Me.ReArrangeButton.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ReArrangeButton.Location = New System.Drawing.Point(3, 690)
+        Me.ReArrangeButton.Location = New System.Drawing.Point(3, 810)
         Me.ReArrangeButton.Name = "ReArrangeButton"
-        Me.ReArrangeButton.Size = New System.Drawing.Size(593, 35)
+        Me.ReArrangeButton.Size = New System.Drawing.Size(593, 64)
         Me.ReArrangeButton.TabIndex = 5
         Me.ReArrangeButton.Text = "Re-arrage"
         Me.ReArrangeButton.UseVisualStyleBackColor = True
@@ -541,7 +546,7 @@ Partial Class ListRearrangerControl
         Me.TableLayoutPanel1.SetColumnSpan(Me.LogGroupBox, 2)
         Me.LogGroupBox.Controls.Add(Me.Log_TextBox)
         Me.LogGroupBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LogGroupBox.Location = New System.Drawing.Point(3, 555)
+        Me.LogGroupBox.Location = New System.Drawing.Point(3, 675)
         Me.LogGroupBox.Name = "LogGroupBox"
         Me.LogGroupBox.Size = New System.Drawing.Size(593, 129)
         Me.LogGroupBox.TabIndex = 8
@@ -561,6 +566,25 @@ Partial Class ListRearrangerControl
         Me.Log_TextBox.TabIndex = 0
         Me.Log_TextBox.WordWrap = False
         '
+        'Label6
+        '
+        Me.Label6.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label6.Location = New System.Drawing.Point(3, 50)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(287, 26)
+        Me.Label6.TabIndex = 4
+        Me.Label6.Text = "Maximum number of lists (Optional)"
+        Me.Label6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'MaxListCount_IntegerParsingTextBox
+        '
+        Me.MaxListCount_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MaxListCount_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.MaxListCount_IntegerParsingTextBox.Location = New System.Drawing.Point(296, 53)
+        Me.MaxListCount_IntegerParsingTextBox.Name = "MaxListCount_IntegerParsingTextBox"
+        Me.MaxListCount_IntegerParsingTextBox.Size = New System.Drawing.Size(288, 20)
+        Me.MaxListCount_IntegerParsingTextBox.TabIndex = 5
+        '
         'ListRearrangerControl
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -568,7 +592,7 @@ Partial Class ListRearrangerControl
         Me.AutoScroll = True
         Me.Controls.Add(Me.TableLayoutPanel1)
         Me.Name = "ListRearrangerControl"
-        Me.Size = New System.Drawing.Size(599, 732)
+        Me.Size = New System.Drawing.Size(599, 880)
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.TableLayoutPanel1.PerformLayout()
         Me.GroupBox1.ResumeLayout(False)
@@ -627,4 +651,6 @@ Partial Class ListRearrangerControl
     Friend WithEvents Splitter2 As Windows.Forms.Splitter
     Friend WithEvents GroupingVariable_GroupBox As Windows.Forms.GroupBox
     Friend WithEvents GroupingVariable_TableLayoutPanel As Windows.Forms.TableLayoutPanel
+    Friend WithEvents Label6 As Windows.Forms.Label
+    Friend WithEvents MaxListCount_IntegerParsingTextBox As IntegerParsingTextBox
 End Class
