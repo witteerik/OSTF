@@ -28,7 +28,7 @@ Public Class ListRearrangerControl
         BalanceProportion_Label.Enabled = False
         FixedBalancePercentage_IntegerParsingTextBox.Enabled = False
         BalanceNumericDistributions_CheckBox.Enabled = False
-        BalanceNumericSD_CheckBox.Enabled = False
+        UseGroupingVariable_CheckBox.Enabled = False
 
         CustomOrder_RadioButton.Enabled = False
         CustomPsrOrder_RadioButton.Enabled = False
@@ -49,7 +49,7 @@ Public Class ListRearrangerControl
         BalanceProportion_Label.Enabled = True
         FixedBalancePercentage_IntegerParsingTextBox.Enabled = True
         BalanceNumericDistributions_CheckBox.Enabled = True
-        BalanceNumericSD_CheckBox.Enabled = True
+        UseGroupingVariable_CheckBox.Enabled = True
 
         CustomOrder_RadioButton.Enabled = True
         CustomPsrOrder_RadioButton.Enabled = True
@@ -101,14 +101,39 @@ Public Class ListRearrangerControl
             OrderInput_TableLayoutPanel.Enabled = True
             OrderInputHeading_GroupBox.Visible = True
             AddCustomVariablesToSelectionBox()
+
+            GroupingVariable_TableLayoutPanel.Enabled = True
+            GroupingVariable_GroupBox.Visible = True
+            AddCustomVariablesToGroupingVariableSelectionBox()
+
+            UpdateGroupingVariable_GroupBox_Visibility()
+
         Else
             If CustomOrder_RadioButton.Checked = False And CustomPsrOrder_RadioButton.Checked = False Then
                 OrderInput_TableLayoutPanel.Enabled = False
                 OrderInputHeading_GroupBox.Visible = False
                 OrderInput_TableLayoutPanel.Controls.Clear()
+
             End If
+
+            GroupingVariable_TableLayoutPanel.Enabled = False
+            GroupingVariable_GroupBox.Visible = False
+            GroupingVariable_TableLayoutPanel.Controls.Clear()
+
         End If
 
+    End Sub
+
+    Private Sub UseGroupingVariable_CheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles UseGroupingVariable_CheckBox.CheckedChanged
+        UpdateGroupingVariable_GroupBox_Visibility()
+    End Sub
+
+    Private Sub UpdateGroupingVariable_GroupBox_Visibility()
+        If UseGroupingVariable_CheckBox.Checked = True Then
+            GroupingVariable_GroupBox.Visible = True
+        Else
+            GroupingVariable_GroupBox.Visible = False
+        End If
     End Sub
 
     Private CustomOrderInputBox As New Windows.Forms.TextBox With {.Multiline = True, .Dock = Windows.Forms.DockStyle.Fill, .ScrollBars = Windows.Forms.ScrollBars.Vertical}
@@ -190,6 +215,62 @@ Public Class ListRearrangerControl
 
     End Sub
 
+    Private Sub AddCustomVariablesToGroupingVariableSelectionBox()
+
+        GroupingVariable_TableLayoutPanel.SuspendLayout()
+
+        Dim LingusticLevels As New List(Of SpeechMaterialComponent.LinguisticLevels) From {SpeechMaterialComponent.LinguisticLevels.Phoneme, SpeechMaterialComponent.LinguisticLevels.Word, SpeechMaterialComponent.LinguisticLevels.Sentence}
+
+        For Each LinguisticLevel In LingusticLevels
+
+            'Getting all variable names and types at the source linguistic level
+            Dim AllCustomVariables As SortedList(Of String, Boolean) = SourceMediaSet.ParentTestSpecification.SpeechMaterial.GetCustomVariableNameAndTypes(LinguisticLevel) ' Variable name, IsNumeric
+
+            Dim rnd As New Random(CInt(LinguisticLevel))
+
+            For Each CustomVariable In AllCustomVariables
+
+                'Determining if the variable is numeric or not
+                Dim IsNumericVariable As Boolean = CustomVariable.Value
+
+                'Including only categorical variables
+                If IsNumericVariable = True Then Continue For
+
+                Dim NewVariableControl As New VariableSelectionCheckBox
+
+                'Setting the variable name in the variable selection control
+                Dim VariableName = CustomVariable.Key
+                NewVariableControl.Text = VariableName & " (" & LinguisticLevel.ToString & " level)"
+
+                'Storing variable information
+                NewVariableControl.VariableSpecification.VariableName = VariableName
+                NewVariableControl.VariableSpecification.LinguisticLevel = LinguisticLevel
+
+                'Setting the IsNumericVariable value of the variable selection control
+                NewVariableControl.VariableSpecification.IsNumericVariable = IsNumericVariable
+
+                'Setting a random background color on the control
+                NewVariableControl.BackColor = Drawing.Color.FromArgb(20, CSng(rnd.Next(10, 255)), CSng(rnd.Next(10, 255)), CSng(rnd.Next(10, 255)))
+
+                'Adding the variable selection control
+                NewVariableControl.Dock = Windows.Forms.DockStyle.Fill
+                GroupingVariable_TableLayoutPanel.Controls.Add(NewVariableControl)
+
+            Next
+        Next
+
+        GroupingVariable_TableLayoutPanel.Controls.Add(New Windows.Forms.Panel With {.Dock = Windows.Forms.DockStyle.Fill})
+
+        GroupingVariable_TableLayoutPanel.RowStyles.Clear()
+        For r = 0 To GroupingVariable_TableLayoutPanel.Controls.Count - 1
+            GroupingVariable_TableLayoutPanel.RowStyles.Add(New Windows.Forms.RowStyle(Windows.Forms.SizeType.Absolute, 26))
+        Next
+
+        GroupingVariable_TableLayoutPanel.ResumeLayout()
+
+
+    End Sub
+
     Private Class VariableSelectionCheckBox
         Inherits Windows.Forms.CheckBox
 
@@ -252,6 +333,7 @@ Public Class ListRearrangerControl
         Dim CustomOrderStrings As New List(Of String)
         Dim BalanceIterations As Integer
         Dim FixedbalancePercentage As Integer? = Nothing
+        Dim GroupingVariables As New List(Of CustomVariableSpecification)
         If OrderType = OrderType.Balanced Then
             For Each Control In OrderInput_TableLayoutPanel.Controls
                 Dim CastControl = TryCast(Control, VariableSelectionCheckBox)
@@ -287,6 +369,30 @@ Public Class ListRearrangerControl
                 End If
             End If
 
+            'Getting grouping variable
+            If UseGroupingVariable_CheckBox.Checked Then
+                For Each Control In GroupingVariable_TableLayoutPanel.Controls
+                    Dim CastControl = TryCast(Control, VariableSelectionCheckBox)
+                    If CastControl IsNot Nothing Then
+                        If CastControl.Checked = True Then
+                            GroupingVariables.Add(CastControl.VariableSpecification)
+                            'CastControl.IsNumericVariable is also available if needed
+                        End If
+                    End If
+                Next
+
+                'Checking that one and only one grouping variable is selected
+                If GroupingVariables.Count = 0 Then
+                    MsgBox("You must select one grouping variable!")
+                    Exit Sub
+                End If
+                If GroupingVariables.Count > 1 Then
+                    MsgBox("Only one grouping variable can be selected!!")
+                    Exit Sub
+                End If
+            End If
+
+
         ElseIf OrderType = OrderType.CustomId Then
             Dim CustomOrderInput = CustomOrderInputBox.Lines
 
@@ -321,14 +427,14 @@ Public Class ListRearrangerControl
 
 
             For Each CustomOrderId In CustomOrderStrings
-                    If SentenceIds.Contains(CustomOrderId) = False Then
-                        MsgBox("Detected the following sentence level SpeechMaterialComponent Id which do not exist in the selected speech material: " & CustomOrderId & vbCrLf & "Correct it and try again!")
-                        Exit Sub
-                    End If
-                Next
+                If SentenceIds.Contains(CustomOrderId) = False Then
+                    MsgBox("Detected the following sentence level SpeechMaterialComponent Id which do not exist in the selected speech material: " & CustomOrderId & vbCrLf & "Correct it and try again!")
+                    Exit Sub
+                End If
+            Next
 
-            ElseIf OrderType = OrderType.CustomPrimaryStringRepresentation Then
-                Dim CustomOrderInput = CustomOrderInputBox.Lines
+        ElseIf OrderType = OrderType.CustomPrimaryStringRepresentation Then
+            Dim CustomOrderInput = CustomOrderInputBox.Lines
 
             For Each Line In CustomOrderInput
                 If Line.Trim <> "" Then
@@ -380,7 +486,7 @@ Public Class ListRearrangerControl
         End If
 
         'Rearranging lists (TODO: the following code should probably be moved to the MediaSet class?
-        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, BalanceIterations, FixedbalancePercentage, BalanceNumericDistributions_CheckBox.Checked, CustomOrderStrings,
+        Rearrange(ReArrangeAcrossLists, OrderType, TargetListLength, BalancedVariables, BalanceIterations, FixedbalancePercentage, BalanceNumericDistributions_CheckBox.Checked, GroupingVariables, CustomOrderStrings,
                   OverrideSentenceByFirstWord_CheckBox.Checked, NewMediasSetName, NewSpeechMaterialName, ListNamePrefix, RandomSeed)
 
 
@@ -388,7 +494,7 @@ Public Class ListRearrangerControl
 
     Public Sub Rearrange(ByVal ReArrangeAcrossLists As Boolean, ByVal OrderType As OrderType, ByVal TargetListLength As Integer,
                          ByVal BalancedVariables As List(Of CustomVariableSpecification), ByVal BalanceIterations As Integer, ByVal FixedbalancePercentage As Integer?,
-                         ByVal BalanceNumericDistributions As Boolean,
+                         ByVal BalanceNumericDistributions As Boolean, ByVal GroupingVariables As List(Of CustomVariableSpecification),
                          ByVal CustomOrderStrings As List(Of String), ByVal OverrideSentenceByFirstWord As Boolean,
                          ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, ByVal RandomSeed As Integer,
                          Optional ByVal SentencePrefix As String = "")
@@ -597,17 +703,43 @@ Public Class ListRearrangerControl
                     'Creating a variable that holds the current candidate list index
                     Dim CandidateListIndex As Integer = -1
 
+                    Dim IndentedFullListCount As Integer = Math.Floor(AllSentences.Count / TargetListLength)
+
                     'Picking sentences in the order specified in CandidateOrder
+                    Dim AddedSentences As Integer = 0
+                    Dim SelectOneItemPerGroup As Boolean = True
+                    Dim AddedGroups As New SortedSet(Of String)
                     For s = 0 To AllSentences.Count - 1
 
-                        'Adding a new list at multiples of TargetListLength
-                        If s Mod TargetListLength = 0 Then
+                        'Exiting when the intended number of lists is reached (excluding items beyond that point in the current list composition)
+                        If CandidateListIndex >= IndentedFullListCount Then Exit For
+
+                        'Adding a new list when each list has been filled up with TargetListLength items
+                        If AddedSentences Mod TargetListLength = 0 Then
                             CandidateListIndex += 1
                             CandidateListComposition.Add(CandidateListIndex, New List(Of SpeechMaterialComponent))
                         End If
 
-                        'Adding the sentence to list CandidateListIndex 
-                        CandidateListComposition(CandidateListIndex).Add(AllSentences(CandidateOrder(s)))
+                        If SelectOneItemPerGroup = False Then
+
+                            'Adding the sentence to list CandidateListIndex 
+                            CandidateListComposition(CandidateListIndex).Add(AllSentences(CandidateOrder(s)))
+                            AddedSentences += 1
+
+                        Else
+
+                            'Getting the grouping variable value (TODO: NB! This code only support a single grouping variable! If more that one grouping variable is to be used in the future the structure of this code bit needs to be changed!
+                            Dim GroupID As String = AllSentences(CandidateOrder(s)).GetCategoricalVariableValue(GroupingVariables(0).VariableName).Trim ' Indexing the first item, and ignoring any other items in the list!
+
+                            If AddedGroups.Contains(GroupID) = False Then
+                                'Adding the sentence to list CandidateListIndex, only if no other item in the same group has been added
+                                CandidateListComposition(CandidateListIndex).Add(AllSentences(CandidateOrder(s)))
+                                AddedSentences += 1
+                                AddedGroups.Add(GroupID)
+                            End If
+
+                        End If
+
                     Next
 
                     '2. Evaluating the order
@@ -1153,5 +1285,6 @@ Public Class ListRearrangerControl
         CustomId
         CustomPrimaryStringRepresentation
     End Enum
+
 
 End Class

@@ -47,7 +47,13 @@ Partial Class ListRearrangerControl
         Me.CustomPsrOrder_RadioButton = New System.Windows.Forms.RadioButton()
         Me.OverrideSentenceByFirstWord_CheckBox = New System.Windows.Forms.CheckBox()
         Me.BalanceNumericDistributions_CheckBox = New System.Windows.Forms.CheckBox()
-        Me.BalanceNumericSD_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.UseGroupingVariable_CheckBox = New System.Windows.Forms.CheckBox()
+        Me.Label5 = New System.Windows.Forms.Label()
+        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.Splitter1 = New System.Windows.Forms.Splitter()
+        Me.Splitter2 = New System.Windows.Forms.Splitter()
+        Me.GroupingVariable_GroupBox = New System.Windows.Forms.GroupBox()
+        Me.GroupingVariable_TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
         Me.ReArrangeButton = New System.Windows.Forms.Button()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.NewMediaSetName_TextBox = New System.Windows.Forms.TextBox()
@@ -56,10 +62,6 @@ Partial Class ListRearrangerControl
         Me.LogGroupBox = New System.Windows.Forms.GroupBox()
         Me.Log_TextBox = New System.Windows.Forms.TextBox()
         Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
-        Me.Label5 = New System.Windows.Forms.Label()
-        Me.RandomSeed_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
-        Me.Splitter1 = New System.Windows.Forms.Splitter()
-        Me.Splitter2 = New System.Windows.Forms.Splitter()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.ListDescriptives_GroupBox.SuspendLayout()
@@ -67,6 +69,7 @@ Partial Class ListRearrangerControl
         Me.Order_GroupBox.SuspendLayout()
         Me.TableLayoutPanel3.SuspendLayout()
         Me.OrderInputHeading_GroupBox.SuspendLayout()
+        Me.GroupingVariable_GroupBox.SuspendLayout()
         Me.LogGroupBox.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -214,12 +217,13 @@ Partial Class ListRearrangerControl
         '
         'TableLayoutPanel3
         '
-        Me.TableLayoutPanel3.ColumnCount = 5
+        Me.TableLayoutPanel3.ColumnCount = 6
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 22.0!))
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 185.0!))
-        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 21.80851!))
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 21.85035!))
         Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 10.0!))
-        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 78.19149!))
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 39.07483!))
+        Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 39.07483!))
         Me.TableLayoutPanel3.Controls.Add(Me.RandomOrder_RadioButton, 0, 0)
         Me.TableLayoutPanel3.Controls.Add(Me.OriginalOrder_RadioButton, 0, 1)
         Me.TableLayoutPanel3.Controls.Add(Me.BalancedOrder_RadioButton, 0, 2)
@@ -232,11 +236,12 @@ Partial Class ListRearrangerControl
         Me.TableLayoutPanel3.Controls.Add(Me.CustomPsrOrder_RadioButton, 0, 8)
         Me.TableLayoutPanel3.Controls.Add(Me.OverrideSentenceByFirstWord_CheckBox, 1, 9)
         Me.TableLayoutPanel3.Controls.Add(Me.BalanceNumericDistributions_CheckBox, 1, 5)
-        Me.TableLayoutPanel3.Controls.Add(Me.BalanceNumericSD_CheckBox, 1, 6)
+        Me.TableLayoutPanel3.Controls.Add(Me.UseGroupingVariable_CheckBox, 1, 6)
         Me.TableLayoutPanel3.Controls.Add(Me.Label5, 0, 11)
         Me.TableLayoutPanel3.Controls.Add(Me.RandomSeed_IntegerParsingTextBox, 2, 11)
         Me.TableLayoutPanel3.Controls.Add(Me.Splitter1, 0, 10)
         Me.TableLayoutPanel3.Controls.Add(Me.Splitter2, 3, 0)
+        Me.TableLayoutPanel3.Controls.Add(Me.GroupingVariable_GroupBox, 5, 0)
         Me.TableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill
         Me.TableLayoutPanel3.Location = New System.Drawing.Point(3, 16)
         Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
@@ -299,8 +304,9 @@ Partial Class ListRearrangerControl
         Me.OrderInputHeading_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.OrderInputHeading_GroupBox.Location = New System.Drawing.Point(300, 3)
         Me.OrderInputHeading_GroupBox.Name = "OrderInputHeading_GroupBox"
+        Me.OrderInputHeading_GroupBox.Padding = New System.Windows.Forms.Padding(3, 16, 3, 3)
         Me.TableLayoutPanel3.SetRowSpan(Me.OrderInputHeading_GroupBox, 13)
-        Me.OrderInputHeading_GroupBox.Size = New System.Drawing.Size(284, 318)
+        Me.OrderInputHeading_GroupBox.Size = New System.Drawing.Size(138, 318)
         Me.OrderInputHeading_GroupBox.TabIndex = 3
         Me.OrderInputHeading_GroupBox.TabStop = False
         Me.OrderInputHeading_GroupBox.Text = "Select variables to balance"
@@ -311,11 +317,11 @@ Partial Class ListRearrangerControl
         Me.OrderInput_TableLayoutPanel.ColumnCount = 1
         Me.OrderInput_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.OrderInput_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.OrderInput_TableLayoutPanel.Location = New System.Drawing.Point(3, 16)
+        Me.OrderInput_TableLayoutPanel.Location = New System.Drawing.Point(3, 29)
         Me.OrderInput_TableLayoutPanel.Name = "OrderInput_TableLayoutPanel"
         Me.OrderInput_TableLayoutPanel.RowCount = 1
         Me.OrderInput_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.OrderInput_TableLayoutPanel.Size = New System.Drawing.Size(278, 299)
+        Me.OrderInput_TableLayoutPanel.Size = New System.Drawing.Size(132, 286)
         Me.OrderInput_TableLayoutPanel.TabIndex = 0
         '
         'CustomOrder_RadioButton
@@ -405,18 +411,84 @@ Partial Class ListRearrangerControl
         Me.BalanceNumericDistributions_CheckBox.Text = "Balance distributions for numeric variables "
         Me.BalanceNumericDistributions_CheckBox.UseVisualStyleBackColor = True
         '
-        'BalanceNumericSD_CheckBox
+        'UseGroupingVariable_CheckBox
         '
-        Me.BalanceNumericSD_CheckBox.AutoSize = True
-        Me.TableLayoutPanel3.SetColumnSpan(Me.BalanceNumericSD_CheckBox, 2)
-        Me.BalanceNumericSD_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.BalanceNumericSD_CheckBox.Location = New System.Drawing.Point(25, 159)
-        Me.BalanceNumericSD_CheckBox.Name = "BalanceNumericSD_CheckBox"
-        Me.BalanceNumericSD_CheckBox.Size = New System.Drawing.Size(259, 20)
-        Me.BalanceNumericSD_CheckBox.TabIndex = 12
-        Me.BalanceNumericSD_CheckBox.Text = "Balance standard deviations for numeric variables"
-        Me.BalanceNumericSD_CheckBox.UseVisualStyleBackColor = True
-        Me.BalanceNumericSD_CheckBox.Visible = False
+        Me.UseGroupingVariable_CheckBox.AutoSize = True
+        Me.TableLayoutPanel3.SetColumnSpan(Me.UseGroupingVariable_CheckBox, 2)
+        Me.UseGroupingVariable_CheckBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.UseGroupingVariable_CheckBox.Location = New System.Drawing.Point(25, 159)
+        Me.UseGroupingVariable_CheckBox.Name = "UseGroupingVariable_CheckBox"
+        Me.UseGroupingVariable_CheckBox.Size = New System.Drawing.Size(259, 20)
+        Me.UseGroupingVariable_CheckBox.TabIndex = 12
+        Me.UseGroupingVariable_CheckBox.Text = "Use grouping variable"
+        Me.UseGroupingVariable_CheckBox.UseVisualStyleBackColor = True
+        '
+        'Label5
+        '
+        Me.TableLayoutPanel3.SetColumnSpan(Me.Label5, 2)
+        Me.Label5.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label5.Location = New System.Drawing.Point(3, 282)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(201, 26)
+        Me.Label5.TabIndex = 13
+        Me.Label5.Text = "Random seed (Optional):"
+        Me.Label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'RandomSeed_IntegerParsingTextBox
+        '
+        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 285)
+        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
+        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(74, 20)
+        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 14
+        '
+        'Splitter1
+        '
+        Me.Splitter1.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.TableLayoutPanel3.SetColumnSpan(Me.Splitter1, 3)
+        Me.Splitter1.Dock = System.Windows.Forms.DockStyle.Top
+        Me.Splitter1.Location = New System.Drawing.Point(3, 275)
+        Me.Splitter1.Name = "Splitter1"
+        Me.Splitter1.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.Splitter1.Size = New System.Drawing.Size(281, 2)
+        Me.Splitter1.TabIndex = 15
+        Me.Splitter1.TabStop = False
+        '
+        'Splitter2
+        '
+        Me.Splitter2.BackColor = System.Drawing.SystemColors.ControlLight
+        Me.Splitter2.Location = New System.Drawing.Point(290, 3)
+        Me.Splitter2.Name = "Splitter2"
+        Me.TableLayoutPanel3.SetRowSpan(Me.Splitter2, 13)
+        Me.Splitter2.Size = New System.Drawing.Size(2, 318)
+        Me.Splitter2.TabIndex = 16
+        Me.Splitter2.TabStop = False
+        '
+        'GroupingVariable_GroupBox
+        '
+        Me.GroupingVariable_GroupBox.Controls.Add(Me.GroupingVariable_TableLayoutPanel)
+        Me.GroupingVariable_GroupBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.GroupingVariable_GroupBox.Location = New System.Drawing.Point(444, 3)
+        Me.GroupingVariable_GroupBox.Name = "GroupingVariable_GroupBox"
+        Me.GroupingVariable_GroupBox.Padding = New System.Windows.Forms.Padding(3, 16, 3, 3)
+        Me.TableLayoutPanel3.SetRowSpan(Me.GroupingVariable_GroupBox, 13)
+        Me.GroupingVariable_GroupBox.Size = New System.Drawing.Size(140, 318)
+        Me.GroupingVariable_GroupBox.TabIndex = 17
+        Me.GroupingVariable_GroupBox.TabStop = False
+        Me.GroupingVariable_GroupBox.Text = "Select grouping variable"
+        Me.GroupingVariable_GroupBox.Visible = False
+        '
+        'GroupingVariable_TableLayoutPanel
+        '
+        Me.GroupingVariable_TableLayoutPanel.ColumnCount = 1
+        Me.GroupingVariable_TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.GroupingVariable_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.GroupingVariable_TableLayoutPanel.Location = New System.Drawing.Point(3, 29)
+        Me.GroupingVariable_TableLayoutPanel.Name = "GroupingVariable_TableLayoutPanel"
+        Me.GroupingVariable_TableLayoutPanel.RowCount = 1
+        Me.GroupingVariable_TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+        Me.GroupingVariable_TableLayoutPanel.Size = New System.Drawing.Size(134, 286)
+        Me.GroupingVariable_TableLayoutPanel.TabIndex = 0
         '
         'ReArrangeButton
         '
@@ -489,47 +561,6 @@ Partial Class ListRearrangerControl
         Me.Log_TextBox.TabIndex = 0
         Me.Log_TextBox.WordWrap = False
         '
-        'Label5
-        '
-        Me.TableLayoutPanel3.SetColumnSpan(Me.Label5, 2)
-        Me.Label5.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label5.Location = New System.Drawing.Point(3, 282)
-        Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(201, 26)
-        Me.Label5.TabIndex = 13
-        Me.Label5.Text = "Random seed:"
-        Me.Label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'RandomSeed_IntegerParsingTextBox
-        '
-        Me.RandomSeed_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.RandomSeed_IntegerParsingTextBox.Location = New System.Drawing.Point(210, 285)
-        Me.RandomSeed_IntegerParsingTextBox.Name = "RandomSeed_IntegerParsingTextBox"
-        Me.RandomSeed_IntegerParsingTextBox.Size = New System.Drawing.Size(74, 20)
-        Me.RandomSeed_IntegerParsingTextBox.TabIndex = 14
-        '
-        'Splitter1
-        '
-        Me.Splitter1.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.TableLayoutPanel3.SetColumnSpan(Me.Splitter1, 3)
-        Me.Splitter1.Dock = System.Windows.Forms.DockStyle.Top
-        Me.Splitter1.Location = New System.Drawing.Point(3, 275)
-        Me.Splitter1.Name = "Splitter1"
-        Me.Splitter1.RightToLeft = System.Windows.Forms.RightToLeft.No
-        Me.Splitter1.Size = New System.Drawing.Size(281, 2)
-        Me.Splitter1.TabIndex = 15
-        Me.Splitter1.TabStop = False
-        '
-        'Splitter2
-        '
-        Me.Splitter2.BackColor = System.Drawing.SystemColors.ControlLight
-        Me.Splitter2.Location = New System.Drawing.Point(290, 3)
-        Me.Splitter2.Name = "Splitter2"
-        Me.TableLayoutPanel3.SetRowSpan(Me.Splitter2, 13)
-        Me.Splitter2.Size = New System.Drawing.Size(2, 318)
-        Me.Splitter2.TabIndex = 16
-        Me.Splitter2.TabStop = False
-        '
         'ListRearrangerControl
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -549,6 +580,7 @@ Partial Class ListRearrangerControl
         Me.TableLayoutPanel3.ResumeLayout(False)
         Me.TableLayoutPanel3.PerformLayout()
         Me.OrderInputHeading_GroupBox.ResumeLayout(False)
+        Me.GroupingVariable_GroupBox.ResumeLayout(False)
         Me.LogGroupBox.ResumeLayout(False)
         Me.LogGroupBox.PerformLayout()
         Me.ResumeLayout(False)
@@ -588,9 +620,11 @@ Partial Class ListRearrangerControl
     Friend WithEvents LogGroupBox As Windows.Forms.GroupBox
     Friend WithEvents Log_TextBox As Windows.Forms.TextBox
     Friend WithEvents BalanceNumericDistributions_CheckBox As Windows.Forms.CheckBox
-    Friend WithEvents BalanceNumericSD_CheckBox As Windows.Forms.CheckBox
+    Friend WithEvents UseGroupingVariable_CheckBox As Windows.Forms.CheckBox
     Friend WithEvents Label5 As Windows.Forms.Label
     Friend WithEvents RandomSeed_IntegerParsingTextBox As IntegerParsingTextBox
     Friend WithEvents Splitter1 As Windows.Forms.Splitter
     Friend WithEvents Splitter2 As Windows.Forms.Splitter
+    Friend WithEvents GroupingVariable_GroupBox As Windows.Forms.GroupBox
+    Friend WithEvents GroupingVariable_TableLayoutPanel As Windows.Forms.TableLayoutPanel
 End Class
