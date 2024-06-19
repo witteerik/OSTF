@@ -56,7 +56,7 @@ Public Class ProgressDisplay
     End Sub
 
     Public Sub UpdateProgress(NewProgressValue As Double, Optional ByRef NewMaxValue As Double = Nothing, Optional AddToTitle As String = "",
-                              Optional AutoCorrectRange As Boolean = True)
+                              Optional AutoCorrectRange As Boolean = True, Optional ProcessingTextPrefix As String = "Processing item ")
 
         If Utils.BlockProgressForm = True Then Exit Sub
 
@@ -82,7 +82,7 @@ Public Class ProgressDisplay
             ProgressBar1.Refresh()
 
             If UseText = True Then
-                ProgressLabel.Text = "Processing item " & NewProgressValue & " of " & MaxValue - MinValue & " " & AddToTitle
+                ProgressLabel.Text = ProcessingTextPrefix & NewProgressValue & " of " & MaxValue - MinValue & " " & AddToTitle
             Else
                 ProgressLabel.Text = ""
             End If

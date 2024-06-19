@@ -32,6 +32,8 @@ Partial Class ListRearrangerControl
         Me.Label3 = New System.Windows.Forms.Label()
         Me.ListNamePrefix_TextBox = New System.Windows.Forms.TextBox()
         Me.ListLength_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
+        Me.Label6 = New System.Windows.Forms.Label()
+        Me.MaxListCount_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.Order_GroupBox = New System.Windows.Forms.GroupBox()
         Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
         Me.RandomOrder_RadioButton = New System.Windows.Forms.RadioButton()
@@ -62,8 +64,6 @@ Partial Class ListRearrangerControl
         Me.LogGroupBox = New System.Windows.Forms.GroupBox()
         Me.Log_TextBox = New System.Windows.Forms.TextBox()
         Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
-        Me.Label6 = New System.Windows.Forms.Label()
-        Me.MaxListCount_IntegerParsingTextBox = New SpeechTestFramework.IntegerParsingTextBox()
         Me.TableLayoutPanel1.SuspendLayout()
         Me.GroupBox1.SuspendLayout()
         Me.ListDescriptives_GroupBox.SuspendLayout()
@@ -207,6 +207,25 @@ Partial Class ListRearrangerControl
         Me.ListLength_IntegerParsingTextBox.Name = "ListLength_IntegerParsingTextBox"
         Me.ListLength_IntegerParsingTextBox.Size = New System.Drawing.Size(288, 20)
         Me.ListLength_IntegerParsingTextBox.TabIndex = 3
+        '
+        'Label6
+        '
+        Me.Label6.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Label6.Location = New System.Drawing.Point(3, 50)
+        Me.Label6.Name = "Label6"
+        Me.Label6.Size = New System.Drawing.Size(287, 26)
+        Me.Label6.TabIndex = 4
+        Me.Label6.Text = "Maximum number of lists (Optional)"
+        Me.Label6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'MaxListCount_IntegerParsingTextBox
+        '
+        Me.MaxListCount_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MaxListCount_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
+        Me.MaxListCount_IntegerParsingTextBox.Location = New System.Drawing.Point(296, 53)
+        Me.MaxListCount_IntegerParsingTextBox.Name = "MaxListCount_IntegerParsingTextBox"
+        Me.MaxListCount_IntegerParsingTextBox.Size = New System.Drawing.Size(288, 20)
+        Me.MaxListCount_IntegerParsingTextBox.TabIndex = 5
         '
         'Order_GroupBox
         '
@@ -565,25 +584,6 @@ Partial Class ListRearrangerControl
         Me.Log_TextBox.Size = New System.Drawing.Size(587, 110)
         Me.Log_TextBox.TabIndex = 0
         Me.Log_TextBox.WordWrap = False
-        '
-        'Label6
-        '
-        Me.Label6.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Label6.Location = New System.Drawing.Point(3, 50)
-        Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(287, 26)
-        Me.Label6.TabIndex = 4
-        Me.Label6.Text = "Maximum number of lists (Optional)"
-        Me.Label6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-        '
-        'MaxListCount_IntegerParsingTextBox
-        '
-        Me.MaxListCount_IntegerParsingTextBox.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.MaxListCount_IntegerParsingTextBox.ForeColor = System.Drawing.Color.Red
-        Me.MaxListCount_IntegerParsingTextBox.Location = New System.Drawing.Point(296, 53)
-        Me.MaxListCount_IntegerParsingTextBox.Name = "MaxListCount_IntegerParsingTextBox"
-        Me.MaxListCount_IntegerParsingTextBox.Size = New System.Drawing.Size(288, 20)
-        Me.MaxListCount_IntegerParsingTextBox.TabIndex = 5
         '
         'ListRearrangerControl
         '

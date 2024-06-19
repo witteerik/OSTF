@@ -508,7 +508,11 @@ Public Class ListRearrangerControl
                          ByVal NewMediasSetName As String, ByVal NewSpeechMaterialName As String, ByVal ListNamePrefix As String, ByVal RandomSeed As Integer,
                          Optional ByVal SentencePrefix As String = "")
 
+        Log_TextBox.Text = ""
+
         If SentencePrefix = "" Then SentencePrefix = SpeechMaterialComponent.DefaultSentencePrefix
+
+        Dim LogList As New List(Of String)
 
         Dim rnd As Random
         If RandomSeed < 0 Then
@@ -593,6 +597,25 @@ Public Class ListRearrangerControl
             'Getting the all sentence level SMCs in the whole speech material
             Dim AllSentences = SourceMediaSet.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
 
+            'Filtering items not assigned to a group if GroupingVariables are used
+            If GroupingVariables.Count > 0 Then
+
+                Dim TempAlliSentences As New List(Of SpeechMaterialComponent)
+
+                For i = 0 To AllSentences.Count - 1
+
+                    'Getting the grouping variable value (TODO: NB! This code only support a single grouping variable! If more that one grouping variable is to be used in the future the structure of this code bit needs to be changed!
+                    Dim GroupID As String = AllSentences(i).GetCategoricalVariableValue(GroupingVariables(0).VariableName).Trim ' Indexing the first item, and ignoring any other items in the list!
+
+                    'Adding only if the item has been assigned to a group.
+                    If GroupID <> "" Then
+                        TempAlliSentences.Add(AllSentences(i))
+                    End If
+                Next
+                AllSentences = TempAlliSentences
+            End If
+
+
             'Getting a vector of indices, sequential or random
             Dim CurrentSentenceOrder() As Integer
             Select Case OrderType
@@ -653,7 +676,19 @@ Public Class ListRearrangerControl
             'Balancing order 
             If OrderType = OrderType.Balanced Then
 
+                Log_TextBox.Text = "Balancing lists..."
+
                 Dim MaxIterations As Integer = BalanceIterations
+
+                'Starting a progress window
+                Dim myProgress As New ProgressDisplay
+                myProgress.Initialize(MaxIterations, 0, "Balancing words lists...")
+                myProgress.Show()
+
+                'Logging balanced variables as log headings
+                Dim LogListHeadings As New List(Of String)
+                LogListHeadings.Add("Iteration")
+                LogListHeadings.Add("NumberOfSwapsInIteration")
 
                 'Setting OptimalOrder initially to CurrentSentenceOrder
                 Dim OptimalOrder() As Integer = CurrentSentenceOrder.Clone
@@ -661,12 +696,19 @@ Public Class ListRearrangerControl
                 For Each Variable In BalancedVariables
                     If Variable.IsNumericVariable = False Then
                         LowestListImbalanceList.Add(Double.MaxValue)
+                        LogListHeadings.Add(Variable.VariableName)
                     Else
                         'Adding two values for each numeric variable (one representing distribution and one representing average)
-                        If BalanceNumericDistributions = True Then LowestListImbalanceList.Add(Double.MaxValue)
+                        If BalanceNumericDistributions = True Then
+                            LowestListImbalanceList.Add(Double.MaxValue)
+                            LogListHeadings.Add(Variable.VariableName & "Dispersion")
+                        End If
                         LowestListImbalanceList.Add(Double.MaxValue)
+                        LogListHeadings.Add(Variable.VariableName & "Mean")
                     End If
                 Next
+
+                LogList.Add(String.Join(vbTab, LogListHeadings))
 
                 For Iteration = 0 To MaxIterations
 
@@ -720,8 +762,17 @@ Public Class ListRearrangerControl
 
                         'Adding a new list when each list has been filled up with TargetListLength items
                         If AddedSentences Mod TargetListLength = 0 Then
-                            CandidateListIndex += 1
-                            CandidateListComposition.Add(CandidateListIndex, New List(Of SpeechMaterialComponent))
+                            If CandidateListComposition.Count = 0 Then
+                                'Adding always if there is no list yet
+                                CandidateListIndex += 1
+                                CandidateListComposition.Add(CandidateListIndex, New List(Of SpeechMaterialComponent))
+                            Else
+                                'If there is already a list, adding only if that list is not empty
+                                If CandidateListComposition(CandidateListIndex).Count > 0 Then
+                                    CandidateListIndex += 1
+                                    CandidateListComposition.Add(CandidateListIndex, New List(Of SpeechMaterialComponent))
+                                End If
+                            End If
                         End If
 
                         If GroupingVariables.Count > 0 Then
@@ -730,7 +781,9 @@ Public Class ListRearrangerControl
                             Dim GroupID As String = AllSentences(CandidateOrder(s)).GetCategoricalVariableValue(GroupingVariables(0).VariableName).Trim ' Indexing the first item, and ignoring any other items in the list!
 
                             'Skipping if the item has not been assigned to a group.
-                            If GroupID = "" Then Continue For
+                            If GroupID = "" Then
+                                Throw New Exception("An items not assigned to a group has passed through the initial filter that should have removed such items. This must be a bug!")
+                            End If
 
                             If AddedGroups.Contains(GroupID) = False Then
                                 'Adding the sentence to list CandidateListIndex, only if no other item in the same group has been added
@@ -749,23 +802,23 @@ Public Class ListRearrangerControl
 
                     Next
 
-                    'Excluding empty lists
-                    Dim TempCandidateListComposition As New SortedList(Of Integer, List(Of SpeechMaterialComponent))
-                    Dim TempAddedListCount As Integer = 0
-                    For Each kvp In CandidateListComposition
+                    ''Excluding empty lists
+                    'Dim TempCandidateListComposition As New SortedList(Of Integer, List(Of SpeechMaterialComponent))
+                    'Dim TempAddedListCount As Integer = 0
+                    'For Each kvp In CandidateListComposition
 
-                        'Exiting the loop if MaxListCount have allready been added
-                        If MaxListCount > 0 Then
-                            If TempCandidateListComposition.Count = MaxListCount Then Exit For
-                        End If
+                    '    'Exiting the loop if MaxListCount have allready been added
+                    '    If MaxListCount > 0 Then
+                    '        If TempCandidateListComposition.Count = MaxListCount Then Exit For
+                    '    End If
 
-                        'Adding only non-empty lists
-                        If kvp.Value.Count > 0 Then
-                            TempCandidateListComposition.Add(TempAddedListCount, kvp.Value)
-                            TempAddedListCount += 1
-                        End If
-                    Next
-                    CandidateListComposition = TempCandidateListComposition
+                    '    'Adding only non-empty lists
+                    '    If kvp.Value.Count > 0 Then
+                    '        TempCandidateListComposition.Add(TempAddedListCount, kvp.Value)
+                    '        TempAddedListCount += 1
+                    '    End If
+                    'Next
+                    'CandidateListComposition = TempCandidateListComposition
 
                     '2. Evaluating the order
                     'Calculating the im-balance measure
@@ -791,27 +844,37 @@ Public Class ListRearrangerControl
                         OptimalOrder = CandidateOrder.Clone
 
                         'X. Reporting progress
-                        Console.WriteLine("Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList))
-                        Log_TextBox.Text = "Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList) & vbCrLf
+                        'Console.WriteLine("Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList))
+                        'Log_TextBox.Text = "Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList) & vbCrLf
                         'Log_TextBox.Text = Log_TextBox.Text & "Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbTab & "Lower (or equal) imbalance detected (space delimited imbalance values): " & String.Join(" ", LowestListImbalanceList) & vbCrLf
-                        Log_TextBox.SelectionStart = Log_TextBox.Text.Length
-                        Log_TextBox.ScrollToCaret()
-                        Log_TextBox.Invalidate()
-                        Log_TextBox.Update()
+                        'Log_TextBox.SelectionStart = Log_TextBox.Text.Length
+                        'Log_TextBox.ScrollToCaret()
+                        'Me.Invalidate()
+                        'Me.Update()
                         'System.Windows.Forms.Application.DoEvents()
+
+                        'Updating progress
+                        myProgress.UpdateProgress(Iteration,,,, "Completed iteration ")
+                        myProgress.UpdateExtraInfoLabel("Lower (or equal) imbalance detected at iteration " & Iteration & " (Throw count: " & NumberOfSwapsInIteration & ")")
+
+                        LogList.Add(Iteration & vbTab & NumberOfSwapsInIteration & vbTab & String.Join(vbTab, LowestListImbalanceList))
                     Else
                         'The new order did not improve the balance, ignoring it and keeps the optimal order
 
                         'X. Reporting progress in with regular intervals
                         If Iteration Mod 100 = 0 Then
-                            Console.WriteLine("Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration)
-                            Log_TextBox.Text = "Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbCrLf
+                            'Console.WriteLine("Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration)
+                            'Log_TextBox.Text = "Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbCrLf
                             'Log_TextBox.Text = Log_TextBox.Text & "Iteration: " & Iteration & " Current throw count: " & NumberOfSwapsInIteration & vbCrLf
-                            Log_TextBox.SelectionStart = Log_TextBox.Text.Length
-                            Log_TextBox.ScrollToCaret()
-                            Log_TextBox.Invalidate()
-                            Log_TextBox.Update()
+                            'Log_TextBox.SelectionStart = Log_TextBox.Text.Length
+                            'Log_TextBox.ScrollToCaret()
+                            'Log_TextBox.Invalidate()
+                            'Log_TextBox.Update()
                             'System.Windows.Forms.Application.DoEvents()
+
+                            'Updating progress
+                            myProgress.UpdateProgress(Iteration,,,, "Completed iteration ")
+
                         End If
 
                     End If
@@ -824,6 +887,9 @@ Public Class ListRearrangerControl
                 'When iterations has stopped we take the sentence order in the selected optimal iteration
                 CurrentSentenceOrder = OptimalOrder.Clone
 
+                'Closing the progress display
+                myProgress.Close()
+
             End If
 
             Log_TextBox.Text = Log_TextBox.Text & "Editing sounds..." & vbCrLf
@@ -833,6 +899,8 @@ Public Class ListRearrangerControl
             Log_TextBox.Update()
 
             'Picking sentences in the order specified in CurrentSentenceOrder
+            Dim PickedSentences As Integer = 0
+            Dim PickedGroups As New SortedSet(Of String)
             For s = 0 To AllSentences.Count - 1
 
                 If s > CurrentSentenceOrder.Count - 1 Then
@@ -840,7 +908,7 @@ Public Class ListRearrangerControl
                 End If
 
                 'Adding a new list at multiples of TargetListLength
-                If s Mod TargetListLength = 0 Then
+                If PickedSentences Mod TargetListLength = 0 Then
 
                     'Exiting the loop if MaxListCount have allready been added
                     If MaxListCount > 0 Then
@@ -849,16 +917,48 @@ Public Class ListRearrangerControl
                         End If
                     End If
 
-                    CurrentOutputListIndex += 1
-                    RearrangedMaterial.Add(CurrentOutputListIndex, New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))))
+                    If RearrangedMaterial.Count = 0 Then
+                        'Adding always if there is no list yet
+                        CurrentOutputListIndex += 1
+                        RearrangedMaterial.Add(CurrentOutputListIndex, New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))))
+                    Else
+                        'If there is already a list, adding only if that list is not empty
+                        If RearrangedMaterial(CurrentOutputListIndex).Count > 0 Then
+                            CurrentOutputListIndex += 1
+                            RearrangedMaterial.Add(CurrentOutputListIndex, New List(Of Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))))
+                        End If
+                    End If
 
                 End If
 
-                'Getting the sentence level sound with modified SMA chunk
-                Dim SentenceSounds = GetSentenceSounds(AllSentences(CurrentSentenceOrder(s)), SoundChannel)
+                If GroupingVariables.Count > 0 Then
 
-                'Adding the SMC and its sounds
-                RearrangedMaterial(CurrentOutputListIndex).Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))(AllSentences(CurrentSentenceOrder(s)), SentenceSounds))
+                    'Getting the grouping variable value (TODO: NB! This code only support a single grouping variable! If more that one grouping variable is to be used in the future the structure of this code bit needs to be changed!
+                    Dim GroupID As String = AllSentences(CurrentSentenceOrder(s)).GetCategoricalVariableValue(GroupingVariables(0).VariableName).Trim ' Indexing the first item, and ignoring any other items in the list!
+
+                    If PickedGroups.Contains(GroupID) = False Then
+                        'Adding the sentence, only if no other item in the same group has been added
+
+                        'Getting the sentence level sound with modified SMA chunk
+                        Dim SentenceSounds = GetSentenceSounds(AllSentences(CurrentSentenceOrder(s)), SoundChannel)
+
+                        'Adding the SMC and its sounds
+                        RearrangedMaterial(CurrentOutputListIndex).Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))(AllSentences(CurrentSentenceOrder(s)), SentenceSounds))
+                        PickedSentences += 1
+                        PickedGroups.Add(GroupID)
+
+                    End If
+
+                Else
+
+                    'Getting the sentence level sound with modified SMA chunk
+                    Dim SentenceSounds = GetSentenceSounds(AllSentences(CurrentSentenceOrder(s)), SoundChannel)
+
+                    'Adding the SMC and its sounds
+                    RearrangedMaterial(CurrentOutputListIndex).Add(New Tuple(Of SpeechMaterialComponent, List(Of Audio.Sound))(AllSentences(CurrentSentenceOrder(s)), SentenceSounds))
+                    PickedSentences += 1
+
+                End If
 
             Next
 
@@ -954,6 +1054,9 @@ Public Class ListRearrangerControl
 
         'Storing the conversion data
         Utils.SendInfoToLog(String.Join(vbCrLf, RearrageHistory), "SpeechMaterialRearragementResult", OutputSMC.ParentTestSpecification.GetTestRootPath)
+
+        'Logging
+        Utils.SendInfoToLog(String.Join(vbCrLf, LogList), "SpeechMaterialRearragementResultLog", OutputSMC.ParentTestSpecification.GetTestRootPath)
 
     End Sub
 
