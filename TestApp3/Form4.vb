@@ -4231,4 +4231,31 @@ Public Class Form4
         MsgBox("Done!")
 
     End Sub
+
+    Private Sub Button35_Click(sender As Object, e As EventArgs) Handles Button35.Click
+
+        Dim WF = Audio.Sound.LoadWaveFile("C:\EriksDokument\Software\Temporary Affinity Suite\Affinity Suite\AmtasSound\such.wav")
+
+    End Sub
+
+    Private Sub ClearMetadata_Button_Click(sender As Object, e As EventArgs) Handles ClearMetadata_Button.Click
+
+        Dim InputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixII\Media\Talker2-RVE\AMTEST-sounds-CDq"
+
+        Dim OutputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixII\Media\Talker2-RVE\AMTEST-sounds-CDq2"
+
+        Dim Files = IO.Directory.GetFiles(InputFolder)
+
+        For Each File In Files
+
+            Dim LoadedSound = Audio.Sound.LoadWaveFile(File)
+            LoadedSound.RemoveUnparsedWaveChunks()
+            LoadedSound.SMA = Nothing
+            LoadedSound.WriteWaveFile(IO.Path.Combine(OutputFolder, IO.Path.GetFileName(File)))
+
+        Next
+
+        MsgBox("Finished")
+
+    End Sub
 End Class

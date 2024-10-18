@@ -44,4 +44,8 @@
     Private Sub MySpeechMaterialComponentCreator_Load(sender As Object, e As EventArgs) Handles MySpeechMaterialComponentCreator.Load
 
     End Sub
+
+    Private Sub MediaSetSetupControl1_Load(sender As Object, e As EventArgs) Handles MediaSetSetupControl1.Load
+
+    End Sub
 End Class

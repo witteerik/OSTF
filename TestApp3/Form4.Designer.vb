@@ -63,6 +63,8 @@ Partial Class Form4
         Me.Button32 = New System.Windows.Forms.Button()
         Me.Button33 = New System.Windows.Forms.Button()
         Me.Button34 = New System.Windows.Forms.Button()
+        Me.Button35 = New System.Windows.Forms.Button()
+        Me.ClearMetadata_Button = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -434,12 +436,32 @@ Partial Class Form4
         Me.Button34.Text = "Move and rename files"
         Me.Button34.UseVisualStyleBackColor = True
         '
+        'Button35
+        '
+        Me.Button35.Location = New System.Drawing.Point(63, 14)
+        Me.Button35.Name = "Button35"
+        Me.Button35.Size = New System.Drawing.Size(128, 23)
+        Me.Button35.TabIndex = 51
+        Me.Button35.Text = "LoadSoundFile"
+        Me.Button35.UseVisualStyleBackColor = True
+        '
+        'ClearMetadata_Button
+        '
+        Me.ClearMetadata_Button.Location = New System.Drawing.Point(35, 63)
+        Me.ClearMetadata_Button.Name = "ClearMetadata_Button"
+        Me.ClearMetadata_Button.Size = New System.Drawing.Size(156, 23)
+        Me.ClearMetadata_Button.TabIndex = 52
+        Me.ClearMetadata_Button.Text = "Clear all soundfile metadata"
+        Me.ClearMetadata_Button.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.ClearMetadata_Button)
+        Me.Controls.Add(Me.Button35)
         Me.Controls.Add(Me.Button34)
         Me.Controls.Add(Me.Button33)
         Me.Controls.Add(Me.Button32)
@@ -528,4 +550,6 @@ Partial Class Form4
     Friend WithEvents Button32 As Button
     Friend WithEvents Button33 As Button
     Friend WithEvents Button34 As Button
+    Friend WithEvents Button35 As Button
+    Friend WithEvents ClearMetadata_Button As Button
 End Class

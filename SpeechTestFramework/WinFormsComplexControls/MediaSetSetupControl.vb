@@ -895,7 +895,7 @@ Public Class MediaSetSetupControl
         Dim OutputFolder As String = SelectedMediaSet.GetFullMediaParentFolder
         Dim fbd = New Windows.Forms.FolderBrowserDialog
         fbd.SelectedPath = OutputFolder
-        fbd.Description = "Where do you want to save you files?"
+        fbd.Description = "Where do you want to save your files?"
         Dim result = fbd.ShowDialog
         If result = Windows.Forms.DialogResult.OK Then
             OutputFolder = fbd.SelectedPath
@@ -1126,7 +1126,65 @@ Public Class MediaSetSetupControl
         GenerateSnrRangeStimuli_InsertConcatenationSilence_CheckBox.Enabled = GenerateSnrRangeStimuli_ConcatenatedSound_CheckBox.Checked
     End Sub
 
+    Private Sub ExportSpelledSoundFiles_Button_Click(sender As Object, e As EventArgs) Handles ExportSpelledSoundFiles_Button.Click
 
+        Dim SpeechMaterial = SelectedMediaSet.ParentTestSpecification.SpeechMaterial
+
+        Dim SentenceLevelComponents = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+
+        'Asks the user for an output path.
+        Dim OutputFolder As String = SelectedMediaSet.GetFullMediaParentFolder
+        Dim fbd = New Windows.Forms.FolderBrowserDialog
+        fbd.SelectedPath = OutputFolder
+        fbd.Description = "Where do you want to save your files?"
+        Dim result = fbd.ShowDialog
+        If result = Windows.Forms.DialogResult.OK Then
+            OutputFolder = fbd.SelectedPath
+        Else
+            Exit Sub
+        End If
+
+        For Each SentenceLevelComponent In SentenceLevelComponents
+
+            Dim Spelling = SentenceLevelComponent.GetCategoricalVariableValue("Spelling")
+            If Spelling = "" Then
+                MsgBox("Unable to save the sound for speech material component " & SentenceLevelComponent.Id & " due to lack of spelling. Exiting process!")
+                Exit Sub
+            End If
+
+            If SelectedMediaSet.MediaAudioItems > 1 Then
+
+                For n = 0 To SelectedMediaSet.MediaAudioItems - 1
+
+                    Dim SentenceSound = SentenceLevelComponent.GetSound(SelectedMediaSet, n, 1)
+                    SentenceSound.SMA = Nothing
+
+                    Try
+                        SentenceSound.WriteWaveFile(IO.Path.Combine(OutputFolder, Spelling & "_" & n & ".wav"))
+                    Catch ex As Exception
+                        MsgBox("Unable to save the sound for speech material component " & SentenceLevelComponent.Id & " sound index " & n & ". Unknown reason. Exiting process!")
+                        Exit Sub
+                    End Try
+                Next
+
+            Else
+
+                Dim SentenceSound = SentenceLevelComponent.GetSound(SelectedMediaSet, 0, 1)
+                SentenceSound.SMA = Nothing
+
+                Try
+                    SentenceSound.WriteWaveFile(IO.Path.Combine(OutputFolder, Spelling & ".wav"))
+                Catch ex As Exception
+                    MsgBox("Unable to save the sound for speech material component " & SentenceLevelComponent.Id & ". Unknown reason. Exiting process!")
+                    Exit Sub
+                End Try
+
+            End If
+        Next
+
+        MsgBox("Finished saving files!")
+
+    End Sub
 End Class
 
 

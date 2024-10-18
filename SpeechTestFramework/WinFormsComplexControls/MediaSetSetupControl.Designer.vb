@@ -193,6 +193,7 @@ Partial Class MediaSetSetupControl
         Me.CreateSipTestMaskersButton = New System.Windows.Forms.Button()
         Me.CalculateSipTestMaskerSpectrumLevels_Button = New System.Windows.Forms.Button()
         Me.TempButton = New System.Windows.Forms.Button()
+        Me.ExportSpelledSoundFiles_Button = New System.Windows.Forms.Button()
         Me.TableLayoutPanel2.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
@@ -1890,6 +1891,7 @@ Partial Class MediaSetSetupControl
         '
         'ListRearrangerControl1
         '
+        Me.ListRearrangerControl1.AutoScroll = True
         Me.ListRearrangerControl1.BackColor = System.Drawing.SystemColors.Control
         Me.ListRearrangerControl1.Dock = System.Windows.Forms.DockStyle.Fill
         Me.ListRearrangerControl1.Enabled = False
@@ -2196,6 +2198,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel4.Controls.Add(Me.CreateSipTestMaskersButton, 0, 0)
         Me.TableLayoutPanel4.Controls.Add(Me.CalculateSipTestMaskerSpectrumLevels_Button, 1, 0)
         Me.TableLayoutPanel4.Controls.Add(Me.TempButton, 0, 1)
+        Me.TableLayoutPanel4.Controls.Add(Me.ExportSpelledSoundFiles_Button, 1, 1)
         Me.TableLayoutPanel4.Location = New System.Drawing.Point(5, 51)
         Me.TableLayoutPanel4.Name = "TableLayoutPanel4"
         Me.TableLayoutPanel4.RowCount = 2
@@ -2230,6 +2233,15 @@ Partial Class MediaSetSetupControl
         Me.TempButton.TabIndex = 2
         Me.TempButton.Text = "Temporary Button"
         Me.TempButton.UseVisualStyleBackColor = True
+        '
+        'ExportSpelledSoundFiles_Button
+        '
+        Me.ExportSpelledSoundFiles_Button.Location = New System.Drawing.Point(306, 151)
+        Me.ExportSpelledSoundFiles_Button.Name = "ExportSpelledSoundFiles_Button"
+        Me.ExportSpelledSoundFiles_Button.Size = New System.Drawing.Size(234, 49)
+        Me.ExportSpelledSoundFiles_Button.TabIndex = 3
+        Me.ExportSpelledSoundFiles_Button.Text = "Export sound files with spelling as names"
+        Me.ExportSpelledSoundFiles_Button.UseVisualStyleBackColor = True
         '
         'MediaSetSetupControl
         '
@@ -2452,4 +2464,5 @@ Partial Class MediaSetSetupControl
     Friend WithEvents ContralateralMaskerAudioItems_IntegerParsingTextBox As IntegerParsingTextBox
     Friend WithEvents ContralateralMaskerParentFolder_TextBox As Windows.Forms.TextBox
     Friend WithEvents EffectiveContralateralMaskingGain_DoubleParsingTextBox As DoubleParsingTextBox
+    Friend WithEvents ExportSpelledSoundFiles_Button As Windows.Forms.Button
 End Class
