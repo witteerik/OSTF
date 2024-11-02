@@ -442,10 +442,11 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                 case "Protokoll B2 - Manuell TP":
-                                      
+
 
                     // Speech test
-                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishMonosyllablesTP800");
+                    //CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishMonosyllablesTP800"); // This line was used during I HeAR data collection. The speech material name was changed after Protocol B1, but as this line was hard coded in the tablets a temporary speech material named SwedishMonosyllablesTP800 but located in the "SwedishTP50" folder was used. 
+                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishTP50"); // This line is new from 2024-11-02 (but not used in the data collection for protocol B2.
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
@@ -511,6 +512,20 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
+                case "TP50 - Ljudfält":
+
+                    // Speech test
+                    CurrentSpeechTest = new TP50_SoundField("SwedishTP50"); 
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsTP50_SoundField_TestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsTP50_SoundField_TestView);
+                    CurrentTestOptionsView = newOptionsTP50_SoundField_TestView;
+
+                    //((TP50_SoundField)CurrentSpeechTest).TestCacheIndexation();
+
+                    break;
 
                 default:
                     TestOptionsGrid.Children.Clear();
@@ -727,6 +742,29 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
+                case "TP50 - Ljudfält":
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
+
+                    bool openTP50InSeparateWindow = false;
+                    if (openTP50InSeparateWindow)
+                    {
+                        ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
+                        Window PB2secondWindow = new Window(PB2responsePage);
+                        PB2secondWindow.Title = "";
+                        Application.Current.OpenWindow(PB2secondWindow);
+                    }
+                    else
+                    {
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+                    }
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                    break;
 
                 default:
                     TestOptionsGrid.Children.Clear();

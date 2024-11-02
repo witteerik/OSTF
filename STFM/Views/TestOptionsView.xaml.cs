@@ -77,11 +77,11 @@ public partial class OptionsViewAll : ContentView
         BackgroundLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualBackgroundLevelSelection;
         SetSoundFieldSimulationVisibility();
 
-
-        if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualSpeechLevelSelection)
-        {
-            SpeechLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
-        }
+        // Outcommented 2024-11-02 to allow for showing speech level slider without the speech level direction control. May break other protocols?
+        //if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualSpeechLevelSelection)
+        //{
+        //    SpeechLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
+        //}
 
         if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMaskingLevelSelection)
         {
