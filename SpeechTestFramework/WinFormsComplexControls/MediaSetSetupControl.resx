@@ -117,16 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="TextBox1.Text" xml:space="preserve">
-    <value>Use this functionality to create sound files of the selected media set in which items are mixed to various degress of masking noise.
-Specify the lower and upper limits of the masker noise, in dB SNR compared to the nominal level of the speech material, and the step size between generated SNRs.
-Specify also what type of masking noise you want, either White, Speech Weighted (generated from the speech material), or threshold simulating noise (for normal hearing), and a frequency weighting to be applied to the noise level measurement (appropriately the same as used for the speech materials).
-If threshold simulating noise is used, specify also the (approximate) intended loudness level in phones (assuming normal hearing).
-
-The original sound files will be exported. In addition separate sound files, one for each SNR can be created and exported, with or without intermediate silence of one second. 
-
-Finally press 'Create sound files' and wait! You will be notified when the process is finished.</value>
-  </data>
   <data name="TextBox2.Text" xml:space="preserve">
     <value>Specify the amout to amplify each speech material component according to the following template:
 [SpeechMaterialComponentID] | [SoundIndex] | [Gain (dB)]
@@ -137,6 +127,16 @@ L03S06 | 1 | -2.3
 L03S08 | 1 | -0.3
 
 Paste the information into the "Component gain" text box and click "Apply gain".</value>
+  </data>
+  <data name="TextBox1.Text" xml:space="preserve">
+    <value>Use this functionality to create sound files of the selected media set in which items are mixed to various degress of masking noise.
+Specify the lower and upper limits of the masker noise, in dB SNR compared to the nominal level of the speech material, and the step size between generated SNRs.
+Specify also what type of masking noise you want, either White, Speech Weighted (generated from the speech material), or threshold simulating noise (for normal hearing), and a frequency weighting to be applied to the noise level measurement (appropriately the same as used for the speech materials).
+If threshold simulating noise is used, specify also the (approximate) intended loudness level in phones (assuming normal hearing).
+
+The original sound files will be exported. In addition separate sound files, one for each SNR can be created and exported, with or without intermediate silence of one second. 
+
+Finally press 'Create sound files' and wait! You will be notified when the process is finished.</value>
   </data>
   <data name="RichTextBox1.Text" xml:space="preserve">
     <value>Use this tab page to change the linguistic level of the sound files in your media set.

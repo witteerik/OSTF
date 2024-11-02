@@ -4234,28 +4234,73 @@ Public Class Form4
 
     Private Sub Button35_Click(sender As Object, e As EventArgs) Handles Button35.Click
 
-        Dim WF = Audio.Sound.LoadWaveFile("C:\EriksDokument\Software\Temporary Affinity Suite\Affinity Suite\AmtasSound\such.wav")
+        'Dim WF = Audio.Sound.LoadWaveFile("C:\EriksDokument\Software\Temporary Affinity Suite\Affinity Suite\AmtasSound\such.wav")
+
+        Dim WF = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixII\Media\Talker2-RVE\AMTEST-sounds-CDq\blek.wav")
+
+
 
     End Sub
 
-    Private Sub ClearMetadata_Button_Click(sender As Object, e As EventArgs) Handles ClearMetadata_Button.Click
 
-        Dim InputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixII\Media\Talker2-RVE\AMTEST-sounds-CDq"
+    Private Sub ConvertSampleRate_Button_Click(sender As Object, e As EventArgs) Handles FixAmtestFiles_Button.Click
 
-        Dim OutputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixII\Media\Talker2-RVE\AMTEST-sounds-CDq2"
+        'Dim InputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST-sounds-Step1-Names"
+        'Dim OutputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST-sounds-Step2-Format"
+        'Dim OutputFolder2 = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST-sounds-Step3-noMetadata"
 
-        Dim Files = IO.Directory.GetFiles(InputFolder)
+        Dim InputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST-sounds-Step1-Names"
+        Dim OutputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST-sounds-Step2-Format"
+        Dim OutputFolder2 = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST-sounds-Step3-noMetadata"
+
+        SpeechTestFramework.Audio.AudioIOs.SamplerateConversion_DirectBatch(InputFolder, OutputFolder, New SpeechTestFramework.Audio.Formats.WaveFormat(44100, 32, 1, , SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints))
+
+        MsgBox("Finished converting format")
+
+        Dim Files = IO.Directory.GetFiles(OutputFolder)
 
         For Each File In Files
 
             Dim LoadedSound = Audio.Sound.LoadWaveFile(File)
             LoadedSound.RemoveUnparsedWaveChunks()
             LoadedSound.SMA = Nothing
-            LoadedSound.WriteWaveFile(IO.Path.Combine(OutputFolder, IO.Path.GetFileName(File)))
+            LoadedSound.WriteWaveFile(IO.Path.Combine(OutputFolder2, IO.Path.GetFileName(File)))
 
         Next
 
-        MsgBox("Finished")
+        MsgBox("Finished removing chunks")
+
+    End Sub
+
+    Private Sub CreateAmtestCalibSign_Button_Click(sender As Object, e As EventArgs) Handles CreateAmtestCalibSign_Button.Click
+
+        Dim CalibrationLevel_dBFS = -25
+        Dim TemplateSound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST sounds\AMTEST-sounds-Step4-sortedInLists\nSwRhyme-1\bot.wav")
+        Dim CalibrationSignalFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST sounds\"
+        Dim CalibrationSignalPath = Utils.GetSaveFilePath(CalibrationSignalFolder, "CalibrationSignal_" & CalibrationLevel_dBFS.ToString().Replace(",", ".") & "dB.wav")
+
+        'Creates a standard calibration signal (frequency modulated sine wave)
+        Dim CarrierFrequency As Double = 1000
+        Dim ModulationFrequency As Double = 20
+        Dim ModulationDepth As Double = 0.125
+        Dim Duration As Double = 60
+
+        Dim GeneratedWarble = Audio.GenerateSound.CreateFrequencyModulatedSineWave(TemplateSound.WaveFormat, , CarrierFrequency, 0.5, ModulationFrequency, ModulationDepth,, Duration)
+
+        'Sets its level using Z-weighting even if some other weighting was used for the speech material 
+        Audio.DSP.MeasureAndAdjustSectionLevel(GeneratedWarble, CalibrationLevel_dBFS,,,,)
+
+        'Removes the SMA iXML chunk
+        GeneratedWarble.SMA = Nothing
+
+        'Stores the calibration signal
+        GeneratedWarble.WriteWaveFile(CalibrationSignalPath)
+
+        'Shows and stores information about the calibration signal
+        Dim CalibrationSignalDescription = "The calibration signal (frequency modulated sine wave) in " & CalibrationSignalPath & " is frequency modulated around " & CarrierFrequency & " Hz by ±" & (ModulationDepth * 100).ToString & " %, with a modulation frequency of " & ModulationFrequency & " Hz. Samplerate: " & GeneratedWarble.WaveFormat.SampleRate & " Hz, duration: " & Duration & " seconds."
+        Utils.SendInfoToLog(CalibrationSignalDescription, "Calibration signal info", IO.Path.GetDirectoryName(CalibrationSignalPath))
+        MsgBox(CalibrationSignalDescription, MsgBoxStyle.Information, "Calibration signal info.")
+
 
     End Sub
 End Class
