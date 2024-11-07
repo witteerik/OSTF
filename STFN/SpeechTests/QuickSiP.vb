@@ -85,7 +85,7 @@ Public Class QuickSiP
 
     Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
         Get
-            Return TriState.True
+            Return TriState.Optional
         End Get
     End Property
 
@@ -409,14 +409,42 @@ Public Class QuickSiP
 
         'Getting the sound source locations
         'Head slightly turned right (i.e. Speech on left side)
-        Dim TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}}
-        Dim MaskerLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
-        Dim BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
+        Dim TargetStimulusLocations_HeadTurnedRight As SoundSourceLocation()
+        Dim MaskerLocations_HeadTurnedRight As SoundSourceLocation()
+        Dim BackgroundLocations_HeadTurnedRight As SoundSourceLocation()
 
         'Head slightly turned left (i.e. Speech on right side)
-        Dim TargetStimulusLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}}
-        Dim MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
-        Dim BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
+        Dim TargetStimulusLocations_HeadTurnedLeft As SoundSourceLocation()
+        Dim MaskerLocations_HeadTurnedLeft As SoundSourceLocation()
+        Dim BackgroundLocations_HeadTurnedLeft As SoundSourceLocation()
+
+        If CustomizableTestOptions.UseSimulatedSoundField = True Then
+
+            'Head slightly turned right (i.e. Speech on left side)
+            TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}}
+            MaskerLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
+            BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
+
+            'Head slightly turned left (i.e. Speech on right side)
+            TargetStimulusLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}}
+            MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
+            BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
+
+        Else
+
+            'Not using head turn simulation in sound field presentation, but instead a S0N180 situation
+            'Still using the same object names (these names should be changed in future verisons)
+            TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}}
+            MaskerLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
+            BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
+
+            'Head slightly turned left (i.e. Speech on right side)
+            TargetStimulusLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}}
+            MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
+            BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
+
+        End If
+
 
         'Clearing any trials that may have been planned by a previous call
         CurrentSipTestMeasurement.ClearTrials()
