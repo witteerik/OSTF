@@ -66,6 +66,7 @@ Partial Class Form4
         Me.Button35 = New System.Windows.Forms.Button()
         Me.FixAmtestFiles_Button = New System.Windows.Forms.Button()
         Me.CreateAmtestCalibSign_Button = New System.Windows.Forms.Button()
+        Me.Button36 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -464,12 +465,22 @@ Partial Class Form4
         Me.CreateAmtestCalibSign_Button.Text = "Create AMTEST calibration signal"
         Me.CreateAmtestCalibSign_Button.UseVisualStyleBackColor = True
         '
+        'Button36
+        '
+        Me.Button36.Location = New System.Drawing.Point(35, 169)
+        Me.Button36.Name = "Button36"
+        Me.Button36.Size = New System.Drawing.Size(156, 23)
+        Me.Button36.TabIndex = 54
+        Me.Button36.Text = "Add simulated noises"
+        Me.Button36.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button36)
         Me.Controls.Add(Me.CreateAmtestCalibSign_Button)
         Me.Controls.Add(Me.FixAmtestFiles_Button)
         Me.Controls.Add(Me.Button35)
@@ -564,4 +575,5 @@ Partial Class Form4
     Friend WithEvents Button35 As Button
     Friend WithEvents FixAmtestFiles_Button As Button
     Friend WithEvents CreateAmtestCalibSign_Button As Button
+    Friend WithEvents Button36 As Button
 End Class

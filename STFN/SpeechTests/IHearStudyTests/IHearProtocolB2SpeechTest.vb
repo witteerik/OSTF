@@ -642,6 +642,8 @@ Public Class IHearProtocolB2SpeechTest
 
     End Function
 
+    Private LastPresentedMediaSet As MediaSet
+
     Private Sub MixNextTrialSound()
 
         Dim RETSPL_Correction As Double = 0

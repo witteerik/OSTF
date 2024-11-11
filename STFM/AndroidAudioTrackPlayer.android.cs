@@ -34,7 +34,7 @@ namespace STFM
             set { raisePlaybackBufferTickEvents = value; }
         }
 
-        private bool equalPowerCrossFade = false;
+        private bool equalPowerCrossFade = true;
         bool iSoundPlayer.EqualPowerCrossFade
         {
             get { return equalPowerCrossFade; }
@@ -974,38 +974,56 @@ namespace STFM
 
                     int fadeArrayLength = NumberOfOutputChannels * (int)_OverlapFrameCount;
 
-                    // Linear fading
-                    // fade in array
-                    OverlapFadeInArray = new float[fadeArrayLength];
-                    for (int n = 0; n < _OverlapFrameCount; n++)
-                    {
-                        for (int c = 0; c < NumberOfOutputChannels; c++)
-                        {
-                            OverlapFadeInArray[n * NumberOfOutputChannels + c] = (float)n / (float)(_OverlapFrameCount - 1);
-                        }
-                    }
-
-                    // fade out array
-                    OverlapFadeOutArray = new float[fadeArrayLength];
-                    for (int n = 0; n < _OverlapFrameCount; n++)
-                    {
-                        for (int c = 0; c < NumberOfOutputChannels; c++)
-                        {
-                            OverlapFadeOutArray[n * NumberOfOutputChannels + c] = (float)1 - (float)((float)n / (float)(_OverlapFrameCount - 1));
-                        }
-                    }
-
-                    // Adjusting to equal power fades
                     if (equalPowerCrossFade)
                     {
-                        for (int n = 0; n < fadeArrayLength; n++)
+
+                        // Equal power fades
+
+                        // fade in array
+                        OverlapFadeInArray = new float[fadeArrayLength];
+                        for (int n = 0; n < _OverlapFrameCount; n++)
                         {
-                            OverlapFadeInArray[n] = (float)Math.Sqrt(OverlapFadeInArray[n]);
+                            for (int c = 0; c < NumberOfOutputChannels; c++)
+                            {
+                                OverlapFadeInArray[n * NumberOfOutputChannels + c] = (float)Math.Sqrt( n / (float)(_OverlapFrameCount - 1));
+                            }
                         }
-                        for (int n = 0; n < fadeArrayLength; n++)
+
+                        // fade out array
+                        OverlapFadeOutArray = new float[fadeArrayLength];
+                        for (int n = 0; n < _OverlapFrameCount; n++)
                         {
-                            OverlapFadeOutArray[n] = (float)Math.Sqrt(OverlapFadeOutArray[n]);
+                            for (int c = 0; c < NumberOfOutputChannels; c++)
+                            {
+                                OverlapFadeOutArray[n * NumberOfOutputChannels + c] = (float)Math.Sqrt(1 - (float)((float)n / (float)(_OverlapFrameCount - 1)));
+                            }
                         }
+
+                    }
+                    else
+                    {
+
+                        // Linear fading
+                        // fade in array
+                        OverlapFadeInArray = new float[fadeArrayLength];
+                        for (int n = 0; n < _OverlapFrameCount; n++)
+                        {
+                            for (int c = 0; c < NumberOfOutputChannels; c++)
+                            {
+                                OverlapFadeInArray[n * NumberOfOutputChannels + c] = (float)n / (float)(_OverlapFrameCount - 1);
+                            }
+                        }
+
+                        // fade out array
+                        OverlapFadeOutArray = new float[fadeArrayLength];
+                        for (int n = 0; n < _OverlapFrameCount; n++)
+                        {
+                            for (int c = 0; c < NumberOfOutputChannels; c++)
+                            {
+                                OverlapFadeOutArray[n * NumberOfOutputChannels + c] = (float)1 - (float)((float)n / (float)(_OverlapFrameCount - 1));
+                            }
+                        }
+
                     }
                 }
                 catch (Exception ex)

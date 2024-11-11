@@ -392,7 +392,9 @@
     <Compile Include="WinFormsComplexControls\StatisticalSummaryControl.Designer.vb">
       <DependentUpon>StatisticalSummaryControl.vb</DependentUpon>
     </Compile>
-    <Compile Include="WinFormsComplexControls\StatisticalSummaryControl.vb" />
+    <Compile Include="WinFormsComplexControls\StatisticalSummaryControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="WinForms\CalibrationForm.Designer.vb">
       <DependentUpon>CalibrationForm.vb</DependentUpon>
     </Compile>

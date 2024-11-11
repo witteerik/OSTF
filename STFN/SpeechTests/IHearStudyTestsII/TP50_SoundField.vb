@@ -301,44 +301,6 @@ Public Class TP50_SoundField
 
     Private IsInitializeStarted As Boolean = False
 
-    Public Sub TestCacheIndexation()
-
-        'Creating cache variable names for storing last test list index and voice between sessions
-        CacheLastAdjustmentStageListVariableName = FilePathRepresentation & "LastASList"
-        CacheLastTestListVariableName = FilePathRepresentation & "LastTestList"
-        CacheLastMediaSetVariableName = FilePathRepresentation & "LastMediaSet"
-
-        AppCache.RemoveAppCacheVariable(CacheLastAdjustmentStageListVariableName)
-        AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
-        AppCache.RemoveAppCacheVariable(CacheLastMediaSetVariableName)
-
-        For testSession = 0 To 40
-
-            InitializeCurrentTest()
-
-            Utils.SendInfoToLog("testSession:" & testSession & ", SelectedMediaSetIndex: " & SelectedMediaSetIndex & ", PreTestListIndex: " & PreTestListIndex & ", TestListIndex: " & TestListIndex)
-
-            Dim TempTrialHistory As New TrialHistory
-            TempTrialHistory.Add(New WrsTrial With {.ScoreList = New List(Of Integer) From {1}})
-            ObservedTestTrials = TempTrialHistory
-
-            FinalizeTest()
-
-            IsInitialized = False
-            IsInitializeStarted = False
-
-        Next
-
-        AppCache.RemoveAppCacheVariable(CacheLastAdjustmentStageListVariableName)
-        AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
-        AppCache.RemoveAppCacheVariable(CacheLastMediaSetVariableName)
-
-        ObservedTestTrials = New TrialHistory
-
-        Messager.MsgBox("Finished test of cache indexation. Results are stored in the log folder.")
-
-    End Sub
-
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
@@ -350,58 +312,10 @@ Public Class TP50_SoundField
         IsInitializeStarted = True
 
         Dim AllTestListsNames = AvailableTestListsNames()
-        Dim AllMediaSets = AvailableMediasets
 
         If AllTestListsNames.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "No test lists exist in the currently selected speech material!")
         End If
-
-        'Creating cache variable names for storing last test list index and voice between sessions
-        CacheLastAdjustmentStageListVariableName = FilePathRepresentation & "LastASList"
-        CacheLastTestListVariableName = FilePathRepresentation & "LastTestList"
-        CacheLastMediaSetVariableName = FilePathRepresentation & "LastMediaSet"
-
-        ' Getting the last used voice
-        If AppCache.AppCacheVariableExists(CacheLastMediaSetVariableName) = False Then
-            'Randomizing a new list number if no list has been run previously 
-            SelectedMediaSetIndex = Randomizer.Next(0, AllMediaSets.Count)
-        Else
-            'Getting the last tested media set
-            SelectedMediaSetIndex = AppCache.GetAppCacheIntegerVariableValue(CacheLastMediaSetVariableName)
-        End If
-
-        'Increasing the media set index and unwrapping it to the number of available media sets.
-        SelectedMediaSetIndex += 1
-        If SelectedMediaSetIndex > AllMediaSets.Count - 1 Then
-            SelectedMediaSetIndex = 0
-        End If
-
-        'Selecting test list
-        If AppCache.AppCacheVariableExists(CacheLastAdjustmentStageListVariableName) And AppCache.AppCacheVariableExists(CacheLastTestListVariableName) = True Then
-
-            'Getting the last tested index
-            PreTestListIndex = AppCache.GetAppCacheIntegerVariableValue(CacheLastAdjustmentStageListVariableName)
-            TestListIndex = AppCache.GetAppCacheIntegerVariableValue(CacheLastTestListVariableName)
-
-        Else
-            'Randomizing a new list number if no list has been run previously 
-            PreTestListIndex = Randomizer.Next(0, AllTestListsNames.Count)
-
-            'Storing the TestListIndex as the next list
-            TestListIndex = PreTestListIndex + 1
-
-            'Unwrapping TestListIndex
-            If TestListIndex > AllTestListsNames.Count - 1 Then
-                TestListIndex = 0
-            End If
-
-            'Saving the variables the first time, so they don't get randomized again before they are saved (after the last media set has been tested)
-            AppCache.SetAppCacheVariableValue(CacheLastAdjustmentStageListVariableName, PreTestListIndex)
-            AppCache.SetAppCacheVariableValue(CacheLastTestListVariableName, TestListIndex)
-
-        End If
-
-        CustomizableTestOptions.SelectedMediaSet = AvailableMediasets(SelectedMediaSetIndex)
 
         CreatePreTestWordsList()
         CreatePlannedWordsList()
@@ -410,6 +324,8 @@ Public Class TP50_SoundField
         MaskerNoise = PlannedLevelAdjustmentWords(0).GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
         'We always load ContralateralNoise even if it's not used, since the test will crash if it's suddenly switched on the the administrator (such as in pretest stimulus generation)
         ContralateralNoise = PlannedLevelAdjustmentWords(0).GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+        'Storing last presented MediaSet to determine which noises were loaded. (These are reloaded in MixNextTrialSound if needed)
+        LastPresentedMediaSet = CustomizableTestOptions.SelectedMediaSet
 
         CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = CustomizableTestOptions.SpeechLevel, .TestLength = TestLength})
 
@@ -640,7 +556,20 @@ Public Class TP50_SoundField
 
     End Function
 
+    Private LastPresentedMediaSet As MediaSet = Nothing
+
     Private Sub MixNextTrialSound()
+
+        'Updating the noises if needed
+        'Only done when MediaSet is changed
+        If LastPresentedMediaSet IsNot CustomizableTestOptions.SelectedMediaSet Then
+            'Getting the masker noise only once (this should be a long section of noise with its using nominal level set
+            MaskerNoise = PlannedLevelAdjustmentWords(0).GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+            'We always load ContralateralNoise even if it's not used, since the test will crash if it's suddenly switched on the the administrator (such as in pretest stimulus generation)
+            ContralateralNoise = PlannedLevelAdjustmentWords(0).GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+            LastPresentedMediaSet = CustomizableTestOptions.SelectedMediaSet
+        End If
+
 
         Dim RETSPL_Correction As Double = 0
         If LevelsAredBHL = True Then
@@ -767,39 +696,6 @@ Public Class TP50_SoundField
     Public Overrides Sub FinalizeTest()
 
         CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTestTrials)
-
-        If CurrentParticipantID <> NoTestId Then
-
-            'Saving updated cache data values, only if a real test was completed
-            Dim AllTestListsNames = AvailableTestListsNames()
-
-            Dim NextTestListIndex As Integer = TestListIndex
-            Dim NextAdjustmentStageListIndex As Integer = PreTestListIndex
-
-            If SelectedMediaSetIndex >= AvailableMediasets.Count - 1 Then
-                'Increasing list index for the next test session, after the last media set has been tested (each list is run once with each media set before next list is started)
-                NextTestListIndex += 1
-                NextAdjustmentStageListIndex += 1
-
-                'Unwrapping these
-                If NextTestListIndex > AllTestListsNames.Count - 1 Then
-                    NextTestListIndex = 0
-                End If
-
-                If NextAdjustmentStageListIndex > AllTestListsNames.Count - 1 Then
-                    NextAdjustmentStageListIndex = 0
-                End If
-
-                'Storing the test list index and media set to be used in the next test session (only if NoTestId was not used)
-                AppCache.SetAppCacheVariableValue(CacheLastAdjustmentStageListVariableName, NextAdjustmentStageListIndex)
-                AppCache.SetAppCacheVariableValue(CacheLastTestListVariableName, NextTestListIndex)
-
-            End If
-
-            'Saving the media set index every time
-            AppCache.SetAppCacheVariableValue(CacheLastMediaSetVariableName, SelectedMediaSetIndex)
-
-        End If
 
     End Sub
 

@@ -4303,4 +4303,76 @@ Public Class Form4
 
 
     End Sub
+
+    Private Sub Button36_Click(sender As Object, e As EventArgs) Handles Button36.Click
+
+        Dim OutputFolder As String = "C:\Temp6"
+
+        Dim InitialKernel = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\Data\ARC\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones\KEMAR_0_L.wav")
+
+        'Dim OriginalNoise = Audio.GenerateSound.CreateWhiteNoise(InitialKernel.WaveFormat, 1, 0.5, 5)
+        Dim OriginalNoise = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker1-RVE\Maskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav")
+        Audio.DSP.CropSection(OriginalNoise, 1, OriginalNoise.WaveFormat.SampleRate * 6)
+
+        Audio.DSP.MeasureAndAdjustSectionLevel(OriginalNoise, -25)
+        OriginalNoise.WriteWaveFile("C:\Temp4\OriginalNoise.wav")
+
+        Dim MyFftFormat As Audio.Formats.FftFormat = New Audio.Formats.FftFormat
+
+        Dim AzimuthPairs As New List(Of Tuple(Of Integer, Integer))
+        AzimuthPairs.Add(New Tuple(Of Integer, Integer)(90, 270))
+        AzimuthPairs.Add(New Tuple(Of Integer, Integer)(120, 240))
+        AzimuthPairs.Add(New Tuple(Of Integer, Integer)(150, 210))
+
+        Dim FrontKernel_L = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\Data\ARC\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones\KEMAR_0_L.wav")
+        Dim FilteredSound_Front_L = Audio.DSP.FIRFilter(OriginalNoise, FrontKernel_L, MyFftFormat,,,,,, True)
+        FilteredSound_Front_L.WriteWaveFile(IO.Path.Combine(OutputFolder, "FrontNoise-noise_KEMAR_L.wav"))
+
+        Dim FrontKernel_R = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\Data\ARC\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones\KEMAR_0_R.wav")
+        Dim FilteredSound_Front_R = Audio.DSP.FIRFilter(OriginalNoise, FrontKernel_R, MyFftFormat,,,,,, True)
+        FilteredSound_Front_R.WriteWaveFile(IO.Path.Combine(OutputFolder, "FrontNoise-noise_KEMAR_R.wav"))
+
+        Dim BinarualFrontSound As New Audio.Sound(New Audio.Formats.WaveFormat(InitialKernel.WaveFormat.SampleRate, InitialKernel.WaveFormat.BitDepth, 2))
+        BinarualFrontSound.WaveData.SampleData(1) = FilteredSound_Front_L.WaveData.SampleData(1)
+        BinarualFrontSound.WaveData.SampleData(2) = FilteredSound_Front_R.WaveData.SampleData(1)
+        BinarualFrontSound.WriteWaveFile(IO.Path.Combine(OutputFolder, "BinarualFrontSound_KEMAR.wav"))
+
+        Dim Delays As New List(Of Double) From {0, 0.001, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.1, 0.15, 0.2, 0.25, 0.3}
+
+        For Each Delay In Delays
+
+            For Each AzimuthPair In AzimuthPairs
+
+                Dim Kernel1_L = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\Data\ARC\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones\KEMAR_" & AzimuthPair.Item1 & "_L.wav")
+                Dim Kernel2_L = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\Data\ARC\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones\KEMAR_" & AzimuthPair.Item2 & "_L.wav")
+
+                Dim Kernel1_R = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\Data\ARC\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones\KEMAR_" & AzimuthPair.Item1 & "_R.wav")
+                Dim Kernel2_R = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\RoomImpulses\Data\ARC\ARC_Harcellen_KEMAR\48000Hz\UnspecifiedHeadphones\KEMAR_" & AzimuthPair.Item2 & "_R.wav")
+
+                'Applies FIR-filtering
+                Dim FilteredSound1_L = Audio.DSP.FIRFilter(OriginalNoise, Kernel1_L, MyFftFormat,,,,,, True)
+                Dim FilteredSound2_L = Audio.DSP.FIRFilter(OriginalNoise, Kernel2_L, MyFftFormat,,,,,, True)
+
+                Dim FilteredSound1_R = Audio.DSP.FIRFilter(OriginalNoise, Kernel1_R, MyFftFormat,,,,,, True)
+                Dim FilteredSound2_R = Audio.DSP.FIRFilter(OriginalNoise, Kernel2_R, MyFftFormat,,,,,, True)
+
+                'Delaying sound 1 (the right side sound)
+                Audio.DSP.ShiftSection(FilteredSound1_L, Delay * Kernel1_L.WaveFormat.SampleRate)
+                Audio.DSP.ShiftSection(FilteredSound1_R, Delay * Kernel1_R.WaveFormat.SampleRate)
+
+                Dim CombinedSound_L = Audio.DSP.SuperpositionEqualLengthSounds(New List(Of Audio.Sound) From {FilteredSound1_L, FilteredSound2_L})
+                CombinedSound_L.WriteWaveFile(IO.Path.Combine(OutputFolder, "SNODD-noise_KEMAR_L_" & AzimuthPair.Item1 & "_" & AzimuthPair.Item2 & "_" & Delay & "ms_" & ".wav"))
+
+                Dim CombinedSound_R = Audio.DSP.SuperpositionEqualLengthSounds(New List(Of Audio.Sound) From {FilteredSound1_R, FilteredSound2_R})
+                CombinedSound_R.WriteWaveFile(IO.Path.Combine(OutputFolder, "SNODD-noise_KEMAR_R_" & AzimuthPair.Item1 & "_" & AzimuthPair.Item2 & "_" & Delay & "ms_" & ".wav"))
+
+                Dim BinarualSnoddSound As New Audio.Sound(BinarualFrontSound.WaveFormat)
+                BinarualSnoddSound.WaveData.SampleData(1) = CombinedSound_L.WaveData.SampleData(1)
+                BinarualSnoddSound.WaveData.SampleData(2) = CombinedSound_R.WaveData.SampleData(1)
+                BinarualSnoddSound.WriteWaveFile(IO.Path.Combine(OutputFolder, "BinarualSNODD-noise_KEMAR_" & AzimuthPair.Item1 & "_" & AzimuthPair.Item2 & "_" & Delay & "ms_" & ".wav"))
+
+            Next
+        Next
+
+    End Sub
 End Class

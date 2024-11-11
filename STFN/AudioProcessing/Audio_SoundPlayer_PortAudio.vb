@@ -397,6 +397,7 @@ Namespace Audio
 
 
             Private _OverlapFrameCount As Double
+
             ''' <summary>
             ''' A value that holds the number of overlapping frames between two sounds. Setting this value automatically creates overlap fade arrays (OverlapFadeInArray and OverlapFadeOutArray). 
             ''' </summary>
@@ -413,32 +414,44 @@ Namespace Audio
 
                         Dim FadeArrayLength As Integer = NumberOfOutputChannels * _OverlapFrameCount
 
-                        'Linear fading
-                        'fade in array
-                        ReDim OverlapFadeInArray(FadeArrayLength - 1)
-                        For n = 0 To _OverlapFrameCount - 1
-                            For c = 0 To NumberOfOutputChannels - 1
-                                OverlapFadeInArray(n * NumberOfOutputChannels + c) = n / (_OverlapFrameCount - 1)
-                            Next
-                        Next
-
-                        'fade out array
-                        ReDim OverlapFadeOutArray(FadeArrayLength - 1)
-                        For n = 0 To _OverlapFrameCount - 1
-                            For c = 0 To NumberOfOutputChannels - 1
-                                OverlapFadeOutArray(n * NumberOfOutputChannels + c) = 1 - (n / (_OverlapFrameCount - 1))
-                            Next
-                        Next
-
-
-                        'Adjusting to equal power fades
                         If EqualPowerCrossFade = True Then
-                            For n = 0 To FadeArrayLength - 1
-                                OverlapFadeInArray(n) = Math.Sqrt(OverlapFadeInArray(n))
+
+                            'Linear equal power fades
+                            'fade in array
+                            ReDim OverlapFadeInArray(FadeArrayLength - 1)
+                            For n = 0 To _OverlapFrameCount - 1
+                                For c = 0 To NumberOfOutputChannels - 1
+                                    OverlapFadeInArray(n * NumberOfOutputChannels + c) = Math.Sqrt(n / (_OverlapFrameCount - 1))
+                                Next
                             Next
-                            For n = 0 To FadeArrayLength - 1
-                                OverlapFadeOutArray(n) = Math.Sqrt(OverlapFadeOutArray(n))
+
+                            'fade out array
+                            ReDim OverlapFadeOutArray(FadeArrayLength - 1)
+                            For n = 0 To _OverlapFrameCount - 1
+                                For c = 0 To NumberOfOutputChannels - 1
+                                    OverlapFadeOutArray(n * NumberOfOutputChannels + c) = Math.Sqrt(1 - (n / (_OverlapFrameCount - 1)))
+                                Next
                             Next
+
+                        Else
+
+                            'Linear fading
+                            'fade in array
+                            ReDim OverlapFadeInArray(FadeArrayLength - 1)
+                            For n = 0 To _OverlapFrameCount - 1
+                                For c = 0 To NumberOfOutputChannels - 1
+                                    OverlapFadeInArray(n * NumberOfOutputChannels + c) = n / (_OverlapFrameCount - 1)
+                                Next
+                            Next
+
+                            'fade out array
+                            ReDim OverlapFadeOutArray(FadeArrayLength - 1)
+                            For n = 0 To _OverlapFrameCount - 1
+                                For c = 0 To NumberOfOutputChannels - 1
+                                    OverlapFadeOutArray(n * NumberOfOutputChannels + c) = 1 - (n / (_OverlapFrameCount - 1))
+                                Next
+                            Next
+
                         End If
 
                     Catch ex As Exception
