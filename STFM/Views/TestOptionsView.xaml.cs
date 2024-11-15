@@ -1,5 +1,6 @@
 
 using CommunityToolkit.Maui.Media;
+using Microsoft.VisualBasic;
 using STFN;
 
 namespace STFM.Views;
@@ -70,7 +71,7 @@ public partial class OptionsViewAll : ContentView
             if (SelectedMediaSet_Picker.Items.Count < 2) { SelectedMediaSet_Picker.IsVisible = false; }
         }
         else { SelectedMediaSet_Picker.IsVisible = false; }
-
+        
         ReferenceLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualReferenceLevelSelection;
         SpeechLevelControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualSpeechLevelSelection;
         MaskerLevelControl.IsVisible= SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualMaskingLevelSelection;
@@ -99,6 +100,24 @@ public partial class OptionsViewAll : ContentView
         if (AvailableTestProtocols_Picker.Items.Count > 0) { AvailableTestProtocols_Picker.SelectedIndex = 0; }
         if (AvailableTestProtocols_Picker.Items.Count <2) { AvailableTestProtocols_Picker.IsVisible= false; }
 
+        switch (SharedSpeechTestObjects.CurrentSpeechTest.UseRetsplCorrection)
+        {
+            case STFN.Utils.Constants.TriState.True:
+                // The test does not allow changing this value manually. This indirectly sets the corresponding variable value in CustimoxableTestOptions
+                UseRetsplCorrection_Switch.IsToggled = true;
+                // Then hiding the control
+                UseRetsplCorrectionControl.IsVisible = false;
+                break;
+
+            case STFN.Utils.Constants.TriState.False:
+                UseRetsplCorrection_Switch.IsToggled = false;
+                UseRetsplCorrectionControl.IsVisible = false;
+                break;
+
+            default:
+                UseRetsplCorrectionControl.IsVisible = true;
+                break;
+        }
 
         switch (SharedSpeechTestObjects.CurrentSpeechTest.UseKeyWordScoring)
         {

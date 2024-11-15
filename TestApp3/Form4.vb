@@ -4361,18 +4361,58 @@ Public Class Form4
                 Audio.DSP.ShiftSection(FilteredSound1_R, Delay * Kernel1_R.WaveFormat.SampleRate)
 
                 Dim CombinedSound_L = Audio.DSP.SuperpositionEqualLengthSounds(New List(Of Audio.Sound) From {FilteredSound1_L, FilteredSound2_L})
-                CombinedSound_L.WriteWaveFile(IO.Path.Combine(OutputFolder, "SNODD-noise_KEMAR_L_" & AzimuthPair.Item1 & "_" & AzimuthPair.Item2 & "_" & Delay & "ms_" & ".wav"))
+                CombinedSound_L.WriteWaveFile(IO.Path.Combine(OutputFolder, "SNODD-noise_KEMAR_L_" & AzimuthPair.Item1 & "_" & AzimuthPair.Item2 & "_" & 1000 * Delay & "ms_" & ".wav"))
 
                 Dim CombinedSound_R = Audio.DSP.SuperpositionEqualLengthSounds(New List(Of Audio.Sound) From {FilteredSound1_R, FilteredSound2_R})
-                CombinedSound_R.WriteWaveFile(IO.Path.Combine(OutputFolder, "SNODD-noise_KEMAR_R_" & AzimuthPair.Item1 & "_" & AzimuthPair.Item2 & "_" & Delay & "ms_" & ".wav"))
+                CombinedSound_R.WriteWaveFile(IO.Path.Combine(OutputFolder, "SNODD-noise_KEMAR_R_" & AzimuthPair.Item1 & "_" & AzimuthPair.Item2 & "_" & 1000 * Delay & "ms_" & ".wav"))
 
                 Dim BinarualSnoddSound As New Audio.Sound(BinarualFrontSound.WaveFormat)
                 BinarualSnoddSound.WaveData.SampleData(1) = CombinedSound_L.WaveData.SampleData(1)
                 BinarualSnoddSound.WaveData.SampleData(2) = CombinedSound_R.WaveData.SampleData(1)
-                BinarualSnoddSound.WriteWaveFile(IO.Path.Combine(OutputFolder, "BinarualSNODD-noise_KEMAR_" & AzimuthPair.Item1 & "_" & AzimuthPair.Item2 & "_" & Delay & "ms_" & ".wav"))
+                BinarualSnoddSound.WriteWaveFile(IO.Path.Combine(OutputFolder, "BinarualSNODD-noise_KEMAR_" & AzimuthPair.Item1 & "_" & AzimuthPair.Item2 & "_" & 1000 * Delay & "ms_" & ".wav"))
 
             Next
         Next
+
+    End Sub
+
+    Private Sub Button37_Click(sender As Object, e As EventArgs) Handles Button37.Click
+
+        Dim TimeWeighting As Double = 0.125
+
+        Dim SwedishTiBCalibSignal = Audio.Sound.LoadWaveFile("C:\Temp4\CalibrationSignal_TiB_Cropped.wav")
+
+        Dim SpondeesList2 = Audio.Sound.LoadWaveFile("C:\Temp4\SpondeLista2_NoIntroduction.wav")
+        Dim SpondeesList3 = Audio.Sound.LoadWaveFile("C:\Temp4\SpondeLista3_NoIntroduction.wav")
+        Dim SpondeesList4 = Audio.Sound.LoadWaveFile("C:\Temp4\SpondeLista4_NoIntroduction.wav")
+
+        Dim SpondeeList2WithoutSilence = Audio.Sound.LoadWaveFile("C:\Temp4\SpondeLista2_UtanMellanrum.wav")
+        Dim SpondeeList3WithoutSilence = Audio.Sound.LoadWaveFile("C:\Temp4\SpondeLista3_UtanMellanrum.wav")
+        Dim SpondeeList4WithoutSilence = Audio.Sound.LoadWaveFile("C:\Temp4\SpondeLista4_UtanMellanrum.wav")
+
+        Dim SwedishTiBCalibSignalLevel = Audio.DSP.MeasureSectionLevel(SwedishTiBCalibSignal, 1)
+        Dim List2_SpeechLevelC = Audio.DSP.MeasureSectionLevel(SpondeeList2WithoutSilence, 1,,,,, Audio.BasicAudioEnums.FrequencyWeightings.C)
+        Dim List3_SpeechLevelC = Audio.DSP.MeasureSectionLevel(SpondeeList3WithoutSilence, 1,,,,, Audio.BasicAudioEnums.FrequencyWeightings.C)
+        Dim List4_SpeechLevelC = Audio.DSP.MeasureSectionLevel(SpondeeList4WithoutSilence, 1,,,,, Audio.BasicAudioEnums.FrequencyWeightings.C)
+
+        Dim List2_SpeechLevelC_TimeWeighted = Audio.DSP.GetLevelOfLoudestWindow(SpondeesList2, 1, TimeWeighting * SpondeesList2.WaveFormat.SampleRate,,,, Audio.BasicAudioEnums.FrequencyWeightings.C)
+        Dim List3_SpeechLevelC_TimeWeighted = Audio.DSP.GetLevelOfLoudestWindow(SpondeesList3, 1, TimeWeighting * SpondeesList3.WaveFormat.SampleRate,,,, Audio.BasicAudioEnums.FrequencyWeightings.C)
+        Dim List4_SpeechLevelC_TimeWeighted = Audio.DSP.GetLevelOfLoudestWindow(SpondeesList4, 1, TimeWeighting * SpondeesList4.WaveFormat.SampleRate,,,, Audio.BasicAudioEnums.FrequencyWeightings.C)
+
+        Dim List2Peak = Audio.DSP.MeasureSectionLevel(SpondeesList2, 1,,,, Audio.AudioManagement.SoundMeasurementType.AbsolutePeakAmplitude, Audio.BasicAudioEnums.FrequencyWeightings.C)
+        Dim List3Peak = Audio.DSP.MeasureSectionLevel(SpondeesList3, 1,,,, Audio.AudioManagement.SoundMeasurementType.AbsolutePeakAmplitude, Audio.BasicAudioEnums.FrequencyWeightings.C)
+        Dim List4Peak = Audio.DSP.MeasureSectionLevel(SpondeesList4, 1,,,, Audio.AudioManagement.SoundMeasurementType.AbsolutePeakAmplitude, Audio.BasicAudioEnums.FrequencyWeightings.C)
+
+        MsgBox("List 2 Level = " & Math.Round(List2_SpeechLevelC.Value, 1) & " dB C (" & Math.Round(List2_SpeechLevelC.Value - SwedishTiBCalibSignalLevel.Value, 1) & " dB above calibration level)" & vbCrLf &
+            "List 3 Level = " & Math.Round(List3_SpeechLevelC.Value, 1) & " dB C (" & Math.Round(List3_SpeechLevelC.Value - SwedishTiBCalibSignalLevel.Value, 1) & " dB above calibration level)" & vbCrLf &
+            "List 4 Level = " & Math.Round(List4_SpeechLevelC.Value, 1) & " dB C (" & Math.Round(List4_SpeechLevelC.Value - SwedishTiBCalibSignalLevel.Value, 1) & " dB above calibration level)" & vbCrLf &
+            "List 2 Level (TW: " & 1000 * TimeWeighting & "ms) = " & Math.Round(List2_SpeechLevelC_TimeWeighted, 1) & " dB C (" & Math.Round(List2_SpeechLevelC_TimeWeighted - SwedishTiBCalibSignalLevel.Value, 1) & " dB above calibration level)" & vbCrLf &
+            "List 3 Level (TW: " & 1000 * TimeWeighting & "ms) = " & Math.Round(List3_SpeechLevelC_TimeWeighted, 1) & " dB C (" & Math.Round(List3_SpeechLevelC_TimeWeighted - SwedishTiBCalibSignalLevel.Value, 1) & " dB above calibration level)" & vbCrLf &
+            "List 4 Level (TW: " & 1000 * TimeWeighting & "ms) = " & Math.Round(List4_SpeechLevelC_TimeWeighted, 1) & " dB C (" & Math.Round(List4_SpeechLevelC_TimeWeighted - SwedishTiBCalibSignalLevel.Value, 1) & " dB above calibration level)" & vbCrLf &
+            "List 2 Level (Peak) = " & Math.Round(List2Peak.Value, 1) & " dB C (" & Math.Round(List2Peak.Value - SwedishTiBCalibSignalLevel.Value, 1) & " dB above calibration level)" & vbCrLf &
+            "List 3 Level (Peak) = " & Math.Round(List3Peak.Value, 1) & " dB C (" & Math.Round(List3Peak.Value - SwedishTiBCalibSignalLevel.Value, 1) & " dB above calibration level)" & vbCrLf &
+            "List 4 Level (Peak) = " & Math.Round(List4Peak.Value, 1) & " dB C (" & Math.Round(List4Peak.Value - SwedishTiBCalibSignalLevel.Value, 1) & " dB above calibration level)" & vbCrLf &
+               "SwedishTiBCalibSignalLevel  = " & Math.Round(SwedishTiBCalibSignalLevel.Value, 1) & " dB FS")
 
     End Sub
 End Class

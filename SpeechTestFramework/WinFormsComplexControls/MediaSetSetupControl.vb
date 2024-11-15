@@ -587,7 +587,7 @@ Public Class MediaSetSetupControl
                 MsgBox("You must specify a SMA temporal Integration time.", MsgBoxStyle.Information, "Checking input data")
                 Exit Sub
             Else
-                SmaTemporalIntegration = SmaTemporalIntegration_DoubleParsingTextBox.Value
+                SmaTemporalIntegration = SmaTemporalIntegration_DoubleParsingTextBox.Value / 1000 ' Converting to seconds
             End If
         End If
 

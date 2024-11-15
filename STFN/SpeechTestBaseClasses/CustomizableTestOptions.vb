@@ -122,13 +122,13 @@ Public Class CustomizableTestOptions
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Referensnivå (dB HL)"
                     Else
                         Return "Referensnivå (dB SPL)"
                     End If
                 Case Else
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Reference level (dB HL)"
                     Else
                         Return "Reference level (dB SPL)"
@@ -153,13 +153,13 @@ Public Class CustomizableTestOptions
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Talnivå (dB HL)"
                     Else
                         Return "Talnivå (dB SPL)"
                     End If
                 Case Else
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Speech level (dB HL)"
                     Else
                         Return "Speech level (dB SPL)"
@@ -184,13 +184,13 @@ Public Class CustomizableTestOptions
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Maskeringsnivå (dB HL)"
                     Else
                         Return "Maskeringsnivå (dB SPL)"
                     End If
                 Case Else
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Masking level (dB HL)"
                     Else
                         Return "Masking level (dB SPL)"
@@ -215,13 +215,13 @@ Public Class CustomizableTestOptions
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Bakgrundsnivå (dB HL)"
                     Else
                         Return "Bakgrundsnivå (dB SPL)"
                     End If
                 Case Else
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Background level (dB HL)"
                     Else
                         Return "Background level (dB SPL)"
@@ -246,13 +246,13 @@ Public Class CustomizableTestOptions
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Kontralat. maskeringsnivå (dB HL)"
                     Else
                         Return "Kontralat. maskeringsnivå (dB SPL)"
                     End If
                 Case Else
-                    If SelectedTest.LevelsAredBHL = True Then
+                    If UseRetsplCorrection = True Then
                         Return "Contralat. masking level (dB HL)"
                     Else
                         Return "Contralat. masking level (dB SPL)"
@@ -390,6 +390,22 @@ Public Class CustomizableTestOptions
     End Property
     Private _SelectedTransducer As AudioSystemSpecification
     Public Property SelectedTransducerTitle As String = "Ljudgivare"
+
+    ''' <summary>
+    ''' If True, speech and noise levels should be interpreted as dB HL. If False, speech and noise levels should be interpreted as dB SPL.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property UseRetsplCorrection As Boolean
+        Get
+            Return _UseRetsplCorrection
+        End Get
+        Set(value As Boolean)
+            _UseRetsplCorrection = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _UseRetsplCorrection As Boolean = False
+    Public Property UseRetsplCorrectionTitle As String = "Ange nivåer i dB HL"
 
     Public Property UseSimulatedSoundField As Boolean
         Get

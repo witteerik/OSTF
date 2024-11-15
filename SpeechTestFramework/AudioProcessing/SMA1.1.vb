@@ -149,7 +149,7 @@ Namespace Audio
                 Next
 
                 If IncludeHeadings = True Then
-                    Return String.Join(vbTab, HeadingList) & vbCrLf & String.Join(vbCrLf, OutputList)
+                    Return String.Join(vbTab, HeadingList) & vbCrLf & String.Join(vbTab, OutputList)
                 Else
                     Return String.Join(vbTab, OutputList)
                 End If
@@ -236,7 +236,7 @@ Namespace Audio
                 If LogMeasurementResults = True Then
                     SendInfoToAudioLog(vbCrLf &
                                    "FileName" & vbTab & ParentSound.FileName & vbTab &
-                                   "FailedMeasurementCount: " & vbTab & AttemptedMeasurementCount - SuccesfullMeasurementsCount & vbTab &
+                                   "FailedMeasurementCount: " & vbTab & AttemptedMeasurementCount - SuccesfullMeasurementsCount & vbCrLf &
                                    ToString(True), "SoundMeasurementLog.txt", LogFolder)
                 End If
 
@@ -1115,7 +1115,7 @@ Namespace Audio
 
                 Public Property FrequencyWeighting As FrequencyWeightings = FrequencyWeightings.Z
 
-                Public Property TimeWeighting As Double = 0 'A time weighting of 0 indicates "no time weighting", thus the average RMS level is indicated.
+                Public Property TimeWeighting As Double = 0 'The time weighting to use, in seconds. A time weighting of 0 indicates "no time weighting", thus the average RMS level is indicated.
 
                 Public Property WeightedLevel As Double? = Nothing
 
@@ -1449,54 +1449,59 @@ Namespace Audio
                         'Checks that parent the current channel of the parent sound contains sounds
                         If ParentSound.WaveData.SampleData(c).Length > 0 Then
 
-                            'Measuring sound levels
+                            'Measuring sound levels, only if length is longer than 0
+                            If Length > 0 Then
 
-                            'Measuring UnWeightedLevel
-                            UnWeightedLevel = Nothing
-                            UnWeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB)
-                            AttemptedMeasurementCount += 1
-                            If UnWeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
-
-                            'Meaures UnWeightedPeakLevel
-                            UnWeightedPeakLevel = Nothing
-                            UnWeightedPeakLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.AbsolutePeakAmplitude)
-                            AttemptedMeasurementCount += 1
-                            If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
-
-                            'Measures weighted level
-                            WeightedLevel = Nothing
-                            If GetTimeWeighting() <> 0 Then
-                                WeightedLevel = DSP.GetLevelOfLoudestWindow(ParentSound, c,
-                                                                                     GetTimeWeighting() * ParentSound.WaveFormat.SampleRate,
-                                                                                      StartSample, Length, , GetFrequencyWeighting, True)
-                            Else
-                                WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.RMS, GetFrequencyWeighting)
-                            End If
-                            AttemptedMeasurementCount += 1
-                            If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
-
-                            'Measures critical band levels
-                            If IncludeCriticalBandLevels = True Then
-
-                                'Gets the sound section
-                                Dim SoundFileSection = Me.GetSoundFileSection(c)
-
-                                'Calculating and storing the band levels
-                                Dim TempBandLevelList = Audio.DSP.CalculateBandLevels(SoundFileSection, 1, BandInfo)
+                                'Measuring UnWeightedLevel
+                                UnWeightedLevel = Nothing
+                                UnWeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB)
                                 AttemptedMeasurementCount += 1
-                                If TempBandLevelList IsNot Nothing Then
-                                    SuccesfullMeasurementsCount += 1
-                                    Me.BandLevels = TempBandLevelList.ToArray
-                                    Me.CentreFrequencies = BandInfo.GetCentreFrequencies
-                                    Me.BandWidths = BandInfo.GetBandWidths
+                                If UnWeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
+
+                                'Meaures UnWeightedPeakLevel
+                                UnWeightedPeakLevel = Nothing
+                                UnWeightedPeakLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.AbsolutePeakAmplitude)
+                                AttemptedMeasurementCount += 1
+                                If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
+
+                                'Measures weighted level
+                                WeightedLevel = Nothing
+                                If GetTimeWeighting() <> 0 Then
+                                    WeightedLevel = DSP.GetLevelOfLoudestWindow(ParentSound, c,
+                                                                                         GetTimeWeighting() * ParentSound.WaveFormat.SampleRate,
+                                                                                          StartSample, Length, , GetFrequencyWeighting, True)
                                 Else
-                                    Me.BandLevels = {}
-                                    Me.CentreFrequencies = {}
-                                    Me.BandWidths = {}
+                                    WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.RMS, GetFrequencyWeighting)
+                                End If
+                                AttemptedMeasurementCount += 1
+                                If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
+
+                                'Measures critical band levels
+                                If IncludeCriticalBandLevels = True Then
+
+                                    'Gets the sound section
+                                    Dim SoundFileSection = Me.GetSoundFileSection(c)
+
+                                    'Calculating and storing the band levels
+                                    Dim TempBandLevelList = Audio.DSP.CalculateBandLevels(SoundFileSection, 1, BandInfo)
+                                    AttemptedMeasurementCount += 1
+                                    If TempBandLevelList IsNot Nothing Then
+                                        SuccesfullMeasurementsCount += 1
+                                        Me.BandLevels = TempBandLevelList.ToArray
+                                        Me.CentreFrequencies = BandInfo.GetCentreFrequencies
+                                        Me.BandWidths = BandInfo.GetBandWidths
+                                    Else
+                                        Me.BandLevels = {}
+                                        Me.CentreFrequencies = {}
+                                        Me.BandWidths = {}
+                                    End If
+
                                 End If
 
+                            Else
+                                'Notes a missing measurement
+                                AttemptedMeasurementCount += 1
                             End If
-
                         Else
                             'Notes a missing measurement
                             AttemptedMeasurementCount += 1

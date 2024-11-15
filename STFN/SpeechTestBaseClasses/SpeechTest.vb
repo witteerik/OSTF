@@ -254,7 +254,12 @@
     Public MustOverride ReadOnly Property UseContralateralMasking As Utils.TriState
     Public MustOverride ReadOnly Property AvailablePhaseAudiometryTypes() As List(Of BmldModes)
     Public MustOverride ReadOnly Property UsePhaseAudiometry As Utils.TriState
-    Public MustOverride ReadOnly Property LevelsAredBHL As Boolean
+
+    ''' <summary>
+    ''' If True, speech and noise levels should be interpreted as dB HL. If False, speech and noise levels should be interpreted as dB SPL.
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride ReadOnly Property UseRetsplCorrection As Utils.TriState
     Public MustOverride ReadOnly Property MinimumLevel As Double
     Public MustOverride ReadOnly Property MaximumLevel As Double
 

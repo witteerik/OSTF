@@ -251,6 +251,12 @@ Public Class TP50_SoundField
         End Get
     End Property
 
+    Public Overrides ReadOnly Property UseRetsplCorrection As TriState
+        Get
+            Return Utils.Constants.TriState.Optional
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
             Return 5
@@ -270,7 +276,7 @@ Public Class TP50_SoundField
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 1
-    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = False
+
 
     Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 100
@@ -572,7 +578,7 @@ Public Class TP50_SoundField
 
 
         Dim RETSPL_Correction As Double = 0
-        If LevelsAredBHL = True Then
+        If CustomizableTestOptions.UseRetsplCorrection = True Then
             RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
         End If
 

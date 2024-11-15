@@ -273,7 +273,7 @@ Public Class IHearProtocolB4SpeechTest
 
     Public Overrides Property SoundOverlapDuration As Double = 0.25
 
-    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = True
+    Public Overrides ReadOnly Property UseRetsplCorrection As Utils.TriState = Utils.TriState.True
     Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 80
 
@@ -592,7 +592,7 @@ Public Class IHearProtocolB4SpeechTest
     Private Sub MixNextTrialSound()
 
         Dim RETSPL_Correction As Double = 0
-        If LevelsAredBHL = True Then
+        If CustomizableTestOptions.UseRetsplCorrection = True Then
             RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
         End If
 
