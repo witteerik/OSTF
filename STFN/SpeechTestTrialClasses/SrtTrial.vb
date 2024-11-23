@@ -11,6 +11,8 @@ Public Class SrtTrial
 
     Public Property AdaptiveValue As Double
 
+    Public Property TestEar As Utils.SidesWithBoth
+
     Public ReadOnly Property SNR As Double
         Get
             Return SpeechLevel - MaskerLevel

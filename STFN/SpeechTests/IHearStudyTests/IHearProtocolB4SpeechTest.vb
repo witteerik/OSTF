@@ -669,6 +669,16 @@ Public Class IHearProtocolB4SpeechTest
             End If
         End If
 
+        'Stores the test ear (added nov 2024)
+        Select Case CustomizableTestOptions.SignalLocations(0).HorizontalAzimuth
+            Case -90
+                DirectCast(CurrentTestTrial, SrtTrial).TestEar = Utils.Constants.SidesWithBoth.Left
+            Case 90
+                DirectCast(CurrentTestTrial, SrtTrial).TestEar = Utils.Constants.SidesWithBoth.Right
+            Case Else
+                Throw New Exception("Unsupported signal azimuth: " & CustomizableTestOptions.SignalLocations(0).HorizontalAzimuth)
+        End Select
+
         'Also stores the mediaset
         CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
 
