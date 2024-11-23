@@ -486,6 +486,20 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
+                case "Protokoll B5 - Användarstyrd TP II":
+
+                    // Speech test
+                    CurrentSpeechTest = new IHearProtocolB5SpeechTest("AMTEST_(SE)_MixIV - NominalLevel-25dB");
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsPB5TestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsPB5TestView);
+                    CurrentTestOptionsView = newOptionsPB5TestView;
+
+                    break;
+                    
+
                 case "Protokoll B6 - Quick SiP":
 
                     // Speech test
@@ -706,6 +720,17 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                    break;
+
+                case "Protokoll B5 - Användarstyrd TP II":
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_Mafc();
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
                     break;
 

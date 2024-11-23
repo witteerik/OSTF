@@ -5,7 +5,7 @@ Imports STFN.Audio
 Imports STFN.TestProtocol
 Imports STFN.Utils
 
-Public Class IHearProtocolB3SpeechTest
+Public Class IHearProtocolB5SpeechTest
     Inherits SpeechTest
 
     Public Sub New(SpeechMaterialName As String)
@@ -15,7 +15,7 @@ Public Class IHearProtocolB3SpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String
         Get
-            Return "ProtocolB3_UserOperatedWRS"
+            Return "ProtocolB5_UserOperatedWRS"
         End Get
     End Property
 
@@ -24,12 +24,14 @@ Public Class IHearProtocolB3SpeechTest
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
 
-            Return "(Detta test går ut på att undersöka om fyra olika testordslistor är lika svåra.)" & vbCrLf & vbCrLf &
-                "1. Välj testöra." & vbCrLf &
-                "2. Ställ talnivå till patientes TMV3 på testörat, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
-                "3. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
-                "4. Informera patienten om hur testet går till." & vbCrLf &
-                "5. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
+            Return "(Detta test går ut på att undersöka svårighetsgraden hos fyra olika testordslistor när man varierar ljudnivån.)" & vbCrLf & vbCrLf &
+                "1. Ange experimentnummer." & vbCrLf &
+                "2. Välj testöra." & vbCrLf &
+                "3. Ställ talnivå till patientes Fletcher-regel-TMV på testörat (medelvärdet av de två bästa hörtrösklarna på 500, 1000 och 2000 Hz)" & vbCrLf &
+                "     (OBS! Talnivån kommer sedan ändras automatiskt under testet.)" & vbCrLf &
+                "4. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
+                "5. Informera patienten om hur testet går till." & vbCrLf &
+                "6. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
 
         End Get
     End Property
@@ -42,7 +44,8 @@ Public Class IHearProtocolB3SpeechTest
                 " - Patienten ska gissa om hen är osäker." & vbCrLf &
                 " - Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
                 " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
-                " - Testet består av fyra 25-ordslistor som körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
+                " - Testet består av åtta 25-ordslistor som körs direkt efter varandra, med möjlighet till en kort paus mellan varje." & vbCrLf &
+                " - OBS! I vissa listor är orden mycket svaga, ibland knappast hörbara."
 
         End Get
     End Property
@@ -278,12 +281,16 @@ Public Class IHearProtocolB3SpeechTest
     Public Overrides Property SoundOverlapDuration As Double = 0.25
     Public Overrides ReadOnly Property LevelsAredBHL As Boolean = True
 
-    Public Overrides ReadOnly Property MinimumLevel As Double = -40
-    Public Overrides ReadOnly Property MaximumLevel As Double = 80
+    Public Overrides ReadOnly Property MinimumLevel As Double = -50
+    Public Overrides ReadOnly Property MaximumLevel As Double = 50
 
     Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
         Get
-            Return {}
+            Dim OutputList As New List(Of Integer)
+            For i = 1 To 30
+                OutputList.Add(i)
+            Next
+            Return OutputList.ToArray
         End Get
     End Property
 
@@ -307,10 +314,12 @@ Public Class IHearProtocolB3SpeechTest
 
         TestStage = 0
 
-        If PlanTrials() = False Then
+        If PlanTrials(CustomizableTestOptions.ExperimentNumber - 1) = False Then
             'Send message
             Return New Tuple(Of Boolean, String)(False, "Unable to plan test trials!")
         End If
+
+        'SendInfoToLog("Initiated new test with the following test trials:" & vbCrLf & GetPlannedTrialsExportString())
 
         IsInitialized = True
 
@@ -318,7 +327,7 @@ Public Class IHearProtocolB3SpeechTest
 
     End Function
 
-    Private Function PlanTrials()
+    Private Function PlanTrials(ByVal ZeroBasePtcID As Integer)
 
         Dim AllMediaSets = AvailableMediasets
 
@@ -332,62 +341,90 @@ Public Class IHearProtocolB3SpeechTest
 
         'Plan trials, in four test stages
         Dim SMC_Lists = Me.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
-        For Each List In SMC_Lists
-            Dim NewTestList As New TrialHistory
 
-            For Each Sentence_SMC In List.ChildComponents
+        Dim SpeechLevels As New List(Of Double)
+        Dim LowestSpeechLevel As Double = 2
+        Dim SpeechLevelStep As Double = 4
+        Dim SpeechLevelCount As Double = 8
+        Dim RepetitionsNeeded As Integer = Me.AvailableExperimentNumbers.Max / SpeechLevelCount
+        For r = 0 To RepetitionsNeeded
+            For i = 0 To SpeechLevelCount - 1
+                SpeechLevels.Add(LowestSpeechLevel + i * SpeechLevelStep)
+            Next
+        Next
 
-                Dim NewTrial = New WrsTrial
-                NewTrial.SpeechMaterialComponent = Sentence_SMC
-                NewTrial.SpeechLevel = CustomizableTestOptions.SpeechLevel
-                NewTrial.ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel
+        Dim CurrentSessionSpeechLevels As New List(Of Double)
+        For i = ZeroBasePtcID To ZeroBasePtcID + SpeechLevelCount - 1
+            CurrentSessionSpeechLevels.Add(SpeechLevels(i))
+        Next
 
-                Select Case CustomizableTestOptions.SignalLocations(0).HorizontalAzimuth
-                    Case -90
-                        NewTrial.TestEar = SidesWithBoth.Left
-                    Case 90
-                        NewTrial.TestEar = SidesWithBoth.Right
-                    Case Else
-                        Throw New Exception("Unsupported signal azimuth: " & CustomizableTestOptions.SignalLocations(0).HorizontalAzimuth)
-                End Select
+        'Holds the level set by the audiologist (this should equal the Fletcher Rule PTA)
+        Dim SpeechLevelReference = CustomizableTestOptions.SpeechLevel
+        Dim ContralateralMaskingLeveldBBelowSpeech = CustomizableTestOptions.SpeechLevel - CustomizableTestOptions.ContralateralMaskingLevel
 
-                'Setting response alternatives
-                Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
-                ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = NewTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
+        For ListBlockIndex As Integer = 0 To 1
 
-                Dim ResponseAlternativeString = NewTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Alternatives")
-                Dim ResponseAlternativeStringSplit = ResponseAlternativeString.Split(",")
-                For Each ResponseAlternative In ResponseAlternativeStringSplit
-                    If ResponseAlternative.Trim <> "" Then
-                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = ResponseAlternative.Trim, .IsScoredItem = True})
-                    End If
+            For ListIndex = 0 To SMC_Lists.Count - 1
+
+                Dim List = SMC_Lists(ListIndex)
+                Dim SpeechLevel = CurrentSessionSpeechLevels(ListBlockIndex * SMC_Lists.Count + ListIndex) + SpeechLevelReference
+                'Setting the contralateral masking to retain the same relation as initially set by the audiologist
+                Dim ContralateralMaskingLevel = SpeechLevel - ContralateralMaskingLeveldBBelowSpeech
+
+                Dim NewTestList As New TrialHistory
+
+                For Each Sentence_SMC In List.ChildComponents
+
+                    Dim NewTrial = New WrsTrial
+                    NewTrial.SpeechMaterialComponent = Sentence_SMC
+                    NewTrial.SpeechLevel = SpeechLevel
+                    NewTrial.ContralateralMaskerLevel = ContralateralMaskingLevel
+
+                    Select Case CustomizableTestOptions.SignalLocations(0).HorizontalAzimuth
+                        Case -90
+                            NewTrial.TestEar = SidesWithBoth.Left
+                        Case 90
+                            NewTrial.TestEar = SidesWithBoth.Right
+                        Case Else
+                            Throw New Exception("Unsupported signal azimuth: " & CustomizableTestOptions.SignalLocations(0).HorizontalAzimuth)
+                    End Select
+
+                    'Setting response alternatives
+                    Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
+                    ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = NewTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
+
+                    Dim ResponseAlternativeString = NewTrial.SpeechMaterialComponent.ChildComponents(0).GetCategoricalVariableValue("Alternatives")
+                    Dim ResponseAlternativeStringSplit = ResponseAlternativeString.Split(",")
+                    For Each ResponseAlternative In ResponseAlternativeStringSplit
+                        If ResponseAlternative.Trim <> "" Then
+                            ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = ResponseAlternative.Trim, .IsScoredItem = True})
+                        End If
+                    Next
+
+                    'Shuffling the order of response alternatives
+                    ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+
+                    NewTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
+                    NewTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
+
+                    'Setting trial events
+                    NewTrial.TrialEventList = New List(Of ResponseViewEvent)
+                    NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
+                    NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * TestWordPresentationTime), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+                    NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+
+                    NewTestList.Add(NewTrial)
+
                 Next
 
-                'Shuffling the order of response alternatives
-                ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+                PlannedTestData.Add(NewTestList)
 
-                NewTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
-                NewTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
-
-                'Setting trial events
-                NewTrial.TrialEventList = New List(Of ResponseViewEvent)
-                NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-                NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * TestWordPresentationTime), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-                NewTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
-
-                NewTestList.Add(NewTrial)
+                'Also creating a list to hold observed test data, into which obesrved trials should be moved
+                ObservedTestData.Add(New TrialHistory)
 
             Next
 
-            PlannedTestData.Add(NewTestList)
-
-            'Also creating a list to hold observed test data, into which obesrved trials should be moved
-            ObservedTestData.Add(New TrialHistory)
-
         Next
-
-        'Getting the contralateral noise from the first trial SMC
-        ContralateralNoise = PlannedTestData(0)(0).SpeechMaterialComponent.GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
 
         'Ranomizing list order
         If CustomizableTestOptions.RandomizeListOrder = True Then
@@ -401,6 +438,9 @@ Public Class IHearProtocolB3SpeechTest
             PlannedTestData.AddRange(TempList)
 
         End If
+
+        'Getting the contralateral noise from the first trial SMC
+        ContralateralNoise = PlannedTestData(0)(0).SpeechMaterialComponent.GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
 
         'Ranomizing within-list trial order
         If CustomizableTestOptions.RandomizeListOrder = True Then
@@ -554,6 +594,9 @@ Public Class IHearProtocolB3SpeechTest
             End If
         End If
 
+        'Also stores the test stage
+        CurrentTestTrial.TestStage = TestStage
+
         'Also stores the mediaset
         CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
 
@@ -601,6 +644,27 @@ Public Class IHearProtocolB3SpeechTest
         Dim TestTrialIndex As Integer = 0
         For TestStageIndex = 0 To ObservedTestData.Count - 1
             For Each Trial As WrsTrial In ObservedTestData(TestStageIndex)
+
+                If TestTrialIndex = 0 Then
+                    ExportStringList.Add("TrialIndex" & vbTab & Trial.TestResultColumnHeadings)
+                End If
+                ExportStringList.Add(TestTrialIndex & vbTab & Trial.TestResultAsTextRow)
+                TestTrialIndex += 1
+
+            Next
+        Next
+
+        Return String.Join(vbCrLf, ExportStringList)
+
+    End Function
+
+    Public Function GetPlannedTrialsExportString() As String
+
+        Dim ExportStringList As New List(Of String)
+
+        Dim TestTrialIndex As Integer = 0
+        For TestStageIndex = 0 To PlannedTestData.Count - 1
+            For Each Trial As WrsTrial In PlannedTestData(TestStageIndex)
 
                 If TestTrialIndex = 0 Then
                     ExportStringList.Add("TrialIndex" & vbTab & Trial.TestResultColumnHeadings)

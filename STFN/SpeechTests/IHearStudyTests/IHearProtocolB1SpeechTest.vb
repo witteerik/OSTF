@@ -313,6 +313,11 @@ Public Class IHearProtocolB1SpeechTest
     Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 50
 
+    Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
+        Get
+            Return {}
+        End Get
+    End Property
 
     Private TestListOrder As New SortedList(Of Integer, Tuple(Of Integer, Integer, Integer()))
     Private SortedSnrOrders As New SortedList(Of Integer, Double())

@@ -39,7 +39,7 @@ Public Class IHearProtocolB4SpeechTest
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
             Return "Patientens uppgift: " & vbCrLf & vbCrLf &
-                " - Patienten ska lyssna efter tvåstaviga ord och efter varje ord repetera ordet muntligt. " & vbCrLf &
+                " - Patienten ska lyssna efter tvåstaviga ord och efter varje ord repetera ordet muntligt." & vbCrLf &
                 " - Patienten ska gissa om hen är osäker. " & vbCrLf &
                 " - Patienten har maximalt " & MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
                 " - Testet består av två 25-ordslistor (en med manlig och en med kvinnlig röst) som körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
@@ -277,6 +277,11 @@ Public Class IHearProtocolB4SpeechTest
     Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 80
 
+    Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
+        Get
+            Return {}
+        End Get
+    End Property
 
     Private IsInitialized As Boolean = False
 
