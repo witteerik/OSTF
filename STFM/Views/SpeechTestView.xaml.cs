@@ -472,6 +472,21 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
+                case "Protokoll B3 - II - Användarstyrd TP":
+
+
+                    // Speech test
+                    CurrentSpeechTest = new IHearProtocolB3_II_SpeechTest("AMTEST_(SE)_MixIV - NominalLevel-25dB");
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsPB3BTestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsPB3BTestView);
+                    CurrentTestOptionsView = newOptionsPB3BTestView;
+
+                    break;
+                    
+
                 case "Protokoll B4 - Manuell HTT":
 
                     // Speech test
@@ -709,7 +724,16 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    break;
 
+                case "Protokoll B3 - II - Användarstyrd TP":
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_Mafc();
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     break;
 
                 case "Protokoll B4 - Manuell HTT":

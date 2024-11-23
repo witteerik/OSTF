@@ -4249,9 +4249,19 @@ Public Class Form4
         'Dim OutputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST-sounds-Step2-Format"
         'Dim OutputFolder2 = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST-sounds-Step3-noMetadata"
 
-        Dim InputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST-sounds-Step1-Names"
-        Dim OutputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST-sounds-Step2-Format"
-        Dim OutputFolder2 = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST-sounds-Step3-noMetadata"
+        'Dim InputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST-sounds-Step1-Names"
+        'Dim OutputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST-sounds-Step2-Format"
+        'Dim OutputFolder2 = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST-sounds-Step3-noMetadata"
+
+        'Seconds verison, with nominal level of -21 dB FS
+        'Dim InputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST sounds new\Step2-Selected files"
+        'Dim OutputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST sounds new\Step3-Format"
+        'Dim OutputFolder2 = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\AMTEST sounds new\Step4-noMetaData"
+
+        Dim InputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST sounds new\Step2-Selected files"
+        Dim OutputFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST sounds new\Step3-Format"
+        Dim OutputFolder2 = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST sounds new\Step4-noMetaData"
+
 
         SpeechTestFramework.Audio.AudioIOs.SamplerateConversion_DirectBatch(InputFolder, OutputFolder, New SpeechTestFramework.Audio.Formats.WaveFormat(44100, 32, 1, , SpeechTestFramework.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints))
 
@@ -4274,9 +4284,10 @@ Public Class Form4
 
     Private Sub CreateAmtestCalibSign_Button_Click(sender As Object, e As EventArgs) Handles CreateAmtestCalibSign_Button.Click
 
-        Dim CalibrationLevel_dBFS = -25
-        Dim TemplateSound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST sounds\AMTEST-sounds-Step4-sortedInLists\nSwRhyme-1\bot.wav")
-        Dim CalibrationSignalFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST sounds\"
+        'Dim CalibrationLevel_dBFS = -25
+        Dim CalibrationLevel_dBFS = -21
+        Dim TemplateSound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST sounds new\Step4-noMetaData\bot.wav")
+        Dim CalibrationSignalFolder = "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV\Media\Talker2-RVE\AMTEST sounds new"
         Dim CalibrationSignalPath = Utils.GetSaveFilePath(CalibrationSignalFolder, "CalibrationSignal_" & CalibrationLevel_dBFS.ToString().Replace(",", ".") & "dB.wav")
 
         'Creates a standard calibration signal (frequency modulated sine wave)
