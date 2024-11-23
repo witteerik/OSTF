@@ -354,13 +354,16 @@ MigrationBackup/
 OSTFMedia/SpeechMaterials/SwedishEikholtTest/
 
 # Temporary PB50 and Swedish Spondee materials
-OSTFMedia/SpeechMaterials/SwedishMonosyllablesTP800/
-OSTFMedia/SpeechMaterials/SwedishPB23/
-OSTFMedia/SpeechMaterials/SwedishPB23_Balanced/
-OSTFMedia/SpeechMaterials/SwedishSpondees23/
-OSTFMedia/SpeechMaterials/AMTEST_SE/
+OSTFMedia/SpeechMaterials/SwedishMonosyllablesTP800*/
+OSTFMedia/SpeechMaterials/SwedishPB23*/
+OSTFMedia/SpeechMaterials/SwedishSpondees23*/
+OSTFMedia/SpeechMaterials/AMTEST_SE*/
+OSTFMedia/SpeechMaterials/SwedishTP50*/
 OSTFMedia/ForTablets/
 AMTEST_SE*.*
+AMTEST_(SE*.*
+AMTEST_SE*/
+AMTEST_(SE*/
 
 # Files to ignore
 SrtMargolis2021_TestProtocol.vb
