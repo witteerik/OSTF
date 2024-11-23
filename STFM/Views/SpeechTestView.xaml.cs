@@ -489,7 +489,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Protokoll B5 - Användarstyrd TP II":
 
                     // Speech test
-                    CurrentSpeechTest = new IHearProtocolB5SpeechTest("AMTEST_(SE)_MixIV - NominalLevel-25dB");
+                    CurrentSpeechTest = new IHearProtocolB5SpeechTest("AMTEST_(SE)_MixIV");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
