@@ -4426,4 +4426,17 @@ Public Class Form4
                "SwedishTiBCalibSignalLevel  = " & Math.Round(SwedishTiBCalibSignalLevel.Value, 1) & " dB FS")
 
     End Sub
+
+    Private Sub Button38_Click(sender As Object, e As EventArgs) Handles Button38.Click
+
+        Utils.CompareFiles("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV - NominalLevel-25dB\Media\Talker2-RVE\ContralateralMaskers\AMTEST_(SE)_MixIV_AMTEST_(SE)_MixIV\SpeechMaterialWeightedSNR_0.wav",
+                           "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareWaveFileData, False, True)
+
+        Utils.CompareFiles("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV - NominalLevel-25dB\Media\Talker2-RVE\ContralateralMaskers\AMTEST_(SE)_MixIV_AMTEST_(SE)_MixIV\SpeechMaterialWeightedSNR_0.wav",
+                           "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareBytes, False, True)
+
+        Utils.CompareFiles("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV - NominalLevel-25dB\Media\Talker2-RVE\ContralateralMaskers\AMTEST_(SE)_MixIV_AMTEST_(SE)_MixIV\SpeechMaterialWeightedSNR_0.wav",
+                           "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareBits, False, True)
+
+    End Sub
 End Class

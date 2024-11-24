@@ -669,14 +669,91 @@ SavingFile: Dim ofd As New OpenFileDialog
         End Function
 
         Public Enum FileComparisonMethods
+            CompareBits
             CompareBytes
             CompareWaveFileData
         End Enum
 
-        Public Function CompareFiles(ByVal FilePath1 As String, ByVal FilePath2 As String, Optional Method As FileComparisonMethods = FileComparisonMethods.CompareBytes, Optional ByVal ShowDifferences As Boolean = False) As Boolean
+        Public Function CompareFiles(ByVal FilePath1 As String, ByVal FilePath2 As String, Optional Method As FileComparisonMethods = FileComparisonMethods.CompareBytes, Optional ByVal ShowDifferences As Boolean = False, Optional ByVal LogDifferences As Boolean = False) As Boolean
+
+            Dim DifferenceLog As New List(Of String)
 
             Select Case Method
+                Case FileComparisonMethods.CompareBits
+
+                    If LogDifferences = True Then
+                        DifferenceLog.Add("FilePath1: " & vbTab & FilePath1)
+                        DifferenceLog.Add("FilePath2: " & vbTab & FilePath2)
+                        DifferenceLog.Add("Detected differences:")
+                        DifferenceLog.Add("ByteIndex" & vbTab & "BitIndex" & vbTab & "Bit value file 1 " & vbTab & "Bit value file 2")
+                    End If
+
+                    'Reads the files
+                    Dim InputFileStream1 As FileStream = New FileStream(FilePath1, FileMode.Open)
+                    Dim InputFileStream2 As FileStream = New FileStream(FilePath2, FileMode.Open)
+
+                    'Returns false if the streams are of unequal length
+                    If InputFileStream1.Length <> InputFileStream2.Length Then
+                        If ShowDifferences = True Then MsgBox("The files are of different lengths and cannot be identical.")
+                        If LogDifferences = True Then DifferenceLog.Add("The files are of different lengths and cannot be identical.")
+                        SendInfoToLog(String.Join(vbCrLf, DifferenceLog), "FileDifferences")
+                        InputFileStream1.Close()
+                        InputFileStream2.Close()
+                        Return False
+                    End If
+
+                    'Checks that each bit in the streams is the same
+                    Dim DifferenceCount As Long = 0
+
+                    For byteIndex As Long = 0 To InputFileStream1.Length - 1
+                        Dim Byte1 As Integer = InputFileStream1.ReadByte()
+                        Dim Byte2 As Integer = InputFileStream2.ReadByte()
+
+                        ' Compare the bits within the bytes
+                        For bitIndex As Integer = 0 To 7
+                            Dim Bit1 As Integer = (Byte1 >> bitIndex) And 1
+                            Dim Bit2 As Integer = (Byte2 >> bitIndex) And 1
+
+                            If Bit1 <> Bit2 Then
+                                If ShowDifferences = True Then
+                                    MsgBox("Detected difference at byte: " & byteIndex & ", bit: " & bitIndex & vbCrLf &
+                                           "Between the following files:" & vbCrLf & vbCrLf &
+                                           FilePath1 & vbCrLf & vbCrLf &
+                                           FilePath2 & vbCrLf & vbCrLf &
+                                           "Bit value file 1: " & Bit1.ToString() & vbCrLf &
+                                           "Bit value file 2: " & Bit2.ToString())
+                                End If
+
+                                If LogDifferences = True Then
+                                    DifferenceLog.Add(byteIndex & vbTab & bitIndex & vbTab & Bit1.ToString() & vbTab & Bit2.ToString())
+                                End If
+
+                                DifferenceCount += 1
+                            End If
+                        Next
+                    Next
+
+                    SendInfoToLog(String.Join(vbCrLf, DifferenceLog), "FileDifferences")
+
+                    ' Close the streams
+                    InputFileStream1.Close()
+                    InputFileStream2.Close()
+
+                    If DifferenceCount > 0 Then
+                        Return False
+                    End If
+
+                    'Returns true if no differences were found
+                    Return True
+
                 Case FileComparisonMethods.CompareBytes
+
+                    If LogDifferences = True Then
+                        DifferenceLog.Add("FilePath1: " & vbTab & FilePath1)
+                        DifferenceLog.Add("FilePath2: " & vbTab & FilePath2)
+                        DifferenceLog.Add("Detected differences:")
+                        DifferenceLog.Add("ByteIndex" & vbTab & "Byte value file 1 " & vbTab & "Byte value file 2")
+                    End If
 
                     'Checks if its the same file, then they must be identical
                     If FilePath1 = FilePath2 Then Return True
@@ -686,20 +763,54 @@ SavingFile: Dim ofd As New OpenFileDialog
                     Dim InputFileStream2 As FileStream = New FileStream(FilePath2, FileMode.Open)
 
                     'Returns false if the streams are of unequal length
-                    If InputFileStream1.Length <> InputFileStream2.Length Then Return False
+                    If InputFileStream1.Length <> InputFileStream2.Length Then
+                        If ShowDifferences = True Then MsgBox("The files are of different lengths and cannot be identical.")
+                        If LogDifferences = True Then DifferenceLog.Add("The files are of different lengths and cannot be identical.")
+                        SendInfoToLog(String.Join(vbCrLf, DifferenceLog), "FileDifferences")
+                        InputFileStream1.Close()
+                        InputFileStream2.Close()
+                        Return False
+                    End If
 
                     'Checks that each byte in the stream are the same
-                    For n = 0 To InputFileStream1.Length - 1
-                        If InputFileStream1.ReadByte() <> InputFileStream2.ReadByte() Then
-                            If ShowDifferences = True Then MsgBox("Detected difference at byte: " & n & " between the following files:" & vbCrLf & vbCrLf & FilePath1 & vbCrLf & FilePath2)
-                            Return False
+                    Dim DifferenceCount As Long = 0
+                    For byteIndex = 0 To InputFileStream1.Length - 1
+                        Dim Byte1 = InputFileStream1.ReadByte()
+                        Dim Byte2 = InputFileStream2.ReadByte()
+                        If Byte1 <> Byte2 Then
+                            If ShowDifferences = True Then MsgBox("Detected difference at byte: " & byteIndex & " between the following files:" & vbCrLf & vbCrLf & FilePath1 & vbCrLf & vbCrLf & FilePath2 & vbCrLf & vbCrLf &
+                                                                  "Value file 1: " & Byte1.ToString() & vbCrLf & vbCrLf &
+                                                                  "Value file 2: " & Byte2.ToString())
+
+                            If LogDifferences = True Then
+                                DifferenceLog.Add(byteIndex & vbTab & Byte1.ToString() & vbTab & Byte2.ToString())
+                            End If
+
+                            DifferenceCount += 1
                         End If
                     Next
+
+                    SendInfoToLog(String.Join(vbCrLf, DifferenceLog), "FileDifferences")
+
+                    ' Close the streams
+                    InputFileStream1.Close()
+                    InputFileStream2.Close()
+
+                    If DifferenceCount > 0 Then
+                        Return False
+                    End If
 
                     'Returns true if no differences were found
                     Return True
 
                 Case FileComparisonMethods.CompareWaveFileData
+
+                    If LogDifferences = True Then
+                        DifferenceLog.Add("FilePath1: " & vbTab & FilePath1)
+                        DifferenceLog.Add("FilePath2: " & vbTab & FilePath2)
+                        DifferenceLog.Add("Detected differences:")
+                        DifferenceLog.Add("SampleIndex" & vbTab & "Channel" & vbTab & "Sample value file 1 " & vbTab & "Sample value file 2")
+                    End If
 
                     'Checks if its the same file, then they must be identical
                     If FilePath1 = FilePath2 Then Return True
@@ -707,17 +818,41 @@ SavingFile: Dim ofd As New OpenFileDialog
                     Dim Sound1 = Audio.Sound.LoadWaveFile(FilePath1)
                     Dim Sound2 = Audio.Sound.LoadWaveFile(FilePath2)
 
-                    If Sound1.WaveFormat.Channels <> Sound2.WaveFormat.Channels Then Return False
+                    If Sound1.WaveFormat.Channels <> Sound2.WaveFormat.Channels Then
+                        If ShowDifferences = True Then MsgBox("The files are of different lengths and cannot be identical.")
+                        If LogDifferences = True Then DifferenceLog.Add("The files are of different lengths and cannot be identical.")
+                        SendInfoToLog(String.Join(vbCrLf, DifferenceLog), "FileDifferences")
+                        Return False
+                    End If
+
+                    Dim DifferenceCount As Long = 0
 
                     For c = 1 To Sound1.WaveFormat.Channels
 
                         If Sound1.WaveData.SampleData.Length <> Sound2.WaveData.SampleData.Length Then Return False
                         For s = 0 To Sound1.WaveData.SampleData.Length - 1
-                            If Sound1.WaveData.SampleData(c)(s) <> Sound2.WaveData.SampleData(c)(s) Then
-                                Return False
+                            Dim Sample1 = Sound1.WaveData.SampleData(c)(s)
+                            Dim Sample2 = Sound2.WaveData.SampleData(c)(s)
+                            If Sample1 <> Sample2 Then
+
+                                If ShowDifferences = True Then MsgBox("Detected difference at sample: " & s & " channel: " & c & " between the following files:" & vbCrLf & vbCrLf & FilePath1 & vbCrLf & vbCrLf & FilePath2 & vbCrLf & vbCrLf &
+                                                                  "Value file 1: " & Sample1.ToString() & vbCrLf & vbCrLf &
+                                                                  "Value file 2: " & Sample2.ToString())
+
+                                If LogDifferences = True Then
+                                    DifferenceLog.Add(s & vbTab & c & vbTab & Sample1.ToString() & vbTab & Sample2.ToString())
+                                End If
+
+                                DifferenceCount += 1
                             End If
                         Next
                     Next
+
+                    SendInfoToLog(String.Join(vbCrLf, DifferenceLog), "FileDifferences")
+
+                    If DifferenceCount > 0 Then
+                        Return False
+                    End If
 
                     'Returns true if no differences were found
                     Return True
