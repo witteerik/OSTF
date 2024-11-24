@@ -12,7 +12,8 @@ Screening audiometer (Calibration mode)
 Protokoll B1 - TP800
 Protokoll B2 - Manuell TP
 Protokoll B3 - Användarstyrd TP
-Protokoll B4 - Manuell HTT
+Protokoll B4 - Manuell HTT - Klinik
+Protokoll B4 - Manuell HTT - Normalhörande
 Protokoll B5 - Användarstyrd TP II
 Protokoll B6 - Quick SiP
 Protokoll B7 - SiP-testet
