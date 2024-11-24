@@ -69,6 +69,8 @@ Partial Class Form4
         Me.Button36 = New System.Windows.Forms.Button()
         Me.Button37 = New System.Windows.Forms.Button()
         Me.Button38 = New System.Windows.Forms.Button()
+        Me.Button39 = New System.Windows.Forms.Button()
+        Me.Button40 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -494,12 +496,32 @@ Partial Class Form4
         Me.Button38.Text = "CompareSoundFiles"
         Me.Button38.UseVisualStyleBackColor = True
         '
+        'Button39
+        '
+        Me.Button39.Location = New System.Drawing.Point(35, 296)
+        Me.Button39.Name = "Button39"
+        Me.Button39.Size = New System.Drawing.Size(156, 23)
+        Me.Button39.TabIndex = 57
+        Me.Button39.Text = "AdjustNoises"
+        Me.Button39.UseVisualStyleBackColor = True
+        '
+        'Button40
+        '
+        Me.Button40.Location = New System.Drawing.Point(35, 335)
+        Me.Button40.Name = "Button40"
+        Me.Button40.Size = New System.Drawing.Size(156, 23)
+        Me.Button40.TabIndex = 58
+        Me.Button40.Text = "CompareSpeechLevels"
+        Me.Button40.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button40)
+        Me.Controls.Add(Me.Button39)
         Me.Controls.Add(Me.Button38)
         Me.Controls.Add(Me.Button37)
         Me.Controls.Add(Me.Button36)
@@ -600,4 +622,6 @@ Partial Class Form4
     Friend WithEvents Button36 As Button
     Friend WithEvents Button37 As Button
     Friend WithEvents Button38 As Button
+    Friend WithEvents Button39 As Button
+    Friend WithEvents Button40 As Button
 End Class

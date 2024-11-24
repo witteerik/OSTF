@@ -4439,4 +4439,74 @@ Public Class Form4
                            "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareBits, False, True)
 
     End Sub
+
+    Private Sub Button39_Click(sender As Object, e As EventArgs) Handles Button39.Click
+
+        'This peice of code was used to change the masker signal from using a nominal level of -25 dBC to -21 dBC
+        Dim OutputFolder = IO.Path.Combine(Utils.logFilePath, "Noises-21dB")
+
+        'Dim InputSound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav")
+        'Dim InputSound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker1-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav")
+        'Dim InputSound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\ContralateralMaskers\Swedish_Spondees_23_Swedish_Spondees_23\SpeechMaterialWeightedSNR_0.wav")
+        Dim InputSound = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker2-RVE\ContralateralMaskers\Swedish_Spondees_23_Swedish_Spondees_23\SpeechMaterialWeightedSNR_0.wav")
+
+        'Dim WindowLevels As New List(Of Double)
+        'Dim TimeWeightedLevel = Audio.DSP.GetLevelOfLoudestWindow(InputSound, 1, InputSound.WaveFormat.SampleRate * 0.125,, , , Audio.BasicAudioEnums.FrequencyWeightings.C, True, WindowLevels)
+        'Dim AverageWindowLevel = WindowLevels.Average 'This is approximately the same as the measurement below without time weighting
+
+        Dim NoiseLevel = Audio.DSP.MeasureSectionLevel(InputSound, 1,,, ,, Audio.BasicAudioEnums.FrequencyWeightings.C)
+
+        Dim TargetLevel As Double = -21
+        Dim NeededGain As Double = TargetLevel - NoiseLevel
+
+        Audio.DSP.AmplifySection(InputSound, NeededGain)
+
+        InputSound.SMA.NominalLevel = TargetLevel
+        InputSound.SMA.InferNominalLevelToAllDescendants()
+        InputSound.SMA.SetFrequencyWeighting(Audio.BasicAudioEnums.FrequencyWeightings.C, True)
+        InputSound.SMA.MeasureSoundLevels()
+
+        InputSound.WriteWaveFile(IO.Path.Combine(OutputFolder, "SpeechMaterialWeightedSNR_0.wav"))
+
+    End Sub
+
+    Private Sub Button40_Click(sender As Object, e As EventArgs) Handles Button40.Click
+
+        'This code was used to determine the differences in relation to the calibration signal that was caused in the Spondee and TP materials when changing from speech level measurments without time weighting to using time weighted (125 ms) speech level definitions.
+
+        Dim FS_SPL_Diff As Double = 100
+        Dim NomLev1 As Double = -25 + FS_SPL_Diff
+        Dim NomLev2 As Double = -21 + FS_SPL_Diff
+        Dim NomLevDiff As Double = NomLev2 - NomLev1
+
+        Dim InputSound_21_SP_T1 = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\TestWordRecordings\L00_Lista_1\Sound00.wav")
+        Dim InputSound_25_SP_T1 = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23 - backup - 2024-11-15 - Protocol B4 version\Media\Talker1-RVE\TestWordRecordings\L00_Lista_1\Sound00.wav")
+        Dim SpeechLevel_21_SP_T1 = Audio.DSP.MeasureSectionLevel(InputSound_21_SP_T1, 1,,, ,, Audio.BasicAudioEnums.FrequencyWeightings.C) + FS_SPL_Diff
+        Dim SpeechLevel_25_SP_T1 = Audio.DSP.MeasureSectionLevel(InputSound_25_SP_T1, 1,,, ,, Audio.BasicAudioEnums.FrequencyWeightings.C) + FS_SPL_Diff
+        Dim SpeechLevelDifference_SP_T1 As Double = SpeechLevel_25_SP_T1 - (SpeechLevel_21_SP_T1 - NomLevDiff)
+
+        Dim InputSound_21_SP_T2 = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker2-RVE\TestWordRecordings\L00_Lista_1\Sound00.wav")
+        Dim InputSound_25_SP_T2 = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23 - backup - 2024-11-15 - Protocol B4 version\Media\Talker2-RVE\TestWordRecordings\L00_Lista_1\Sound00.wav")
+        Dim SpeechLevel_21_SP_T2 = Audio.DSP.MeasureSectionLevel(InputSound_21_SP_T2, 1,,, ,, Audio.BasicAudioEnums.FrequencyWeightings.C) + FS_SPL_Diff
+        Dim SpeechLevel_25_SP_T2 = Audio.DSP.MeasureSectionLevel(InputSound_25_SP_T2, 1,,, ,, Audio.BasicAudioEnums.FrequencyWeightings.C) + FS_SPL_Diff
+        Dim SpeechLevelDifference_SP_T2 As Double = SpeechLevel_25_SP_T2 - (SpeechLevel_21_SP_T2 - NomLevDiff)
+
+        Dim InputSound_21_TP_T1 = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker1-RVE\TestWordRecordings\L00S00_Sentence00\Sound00.wav")
+        Dim InputSound_25_TP_T1 = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50 - backup 2024-11-15 - Protocol B2 version\Media\Talker1-RVE\TestWordRecordings\L00S00_Sentence00\Sound00.wav")
+        Dim SpeechLevel_21_TP_T1 = Audio.DSP.MeasureSectionLevel(InputSound_21_TP_T1, 1,,, ,, Audio.BasicAudioEnums.FrequencyWeightings.C) + FS_SPL_Diff
+        Dim SpeechLevel_25_TP_T1 = Audio.DSP.MeasureSectionLevel(InputSound_25_TP_T1, 1,,, ,, Audio.BasicAudioEnums.FrequencyWeightings.C) + FS_SPL_Diff
+        Dim SpeechLevelDifference_TP_T1 As Double = SpeechLevel_25_TP_T1 - (SpeechLevel_21_TP_T1 - NomLevDiff)
+
+        Dim InputSound_21_TP_T2 = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\TestWordRecordings\L00S00_Sentence00\Sound00.wav")
+        Dim InputSound_25_TP_T2 = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50 - backup 2024-11-15 - Protocol B2 version\Media\Talker2-RVE\TestWordRecordings\L00S00_Sentence00\Sound00.wav")
+        Dim SpeechLevel_21_TP_T2 = Audio.DSP.MeasureSectionLevel(InputSound_21_TP_T2, 1,,, ,, Audio.BasicAudioEnums.FrequencyWeightings.C) + FS_SPL_Diff
+        Dim SpeechLevel_25_TP_T2 = Audio.DSP.MeasureSectionLevel(InputSound_25_TP_T2, 1,,, ,, Audio.BasicAudioEnums.FrequencyWeightings.C) + FS_SPL_Diff
+        Dim SpeechLevelDifference_TP_T2 As Double = SpeechLevel_25_TP_T2 - (SpeechLevel_21_TP_T2 - NomLevDiff)
+
+        MsgBox("Difference spondees - Talker1: " & Math.Round(SpeechLevelDifference_SP_T1, 1) & " dBC" & vbCrLf & vbCrLf &
+            "Difference spondees - Talker2: " & Math.Round(SpeechLevelDifference_SP_T2, 1) & " dBC" & vbCrLf & vbCrLf &
+               "Difference TP  - Talker1: " & Math.Round(SpeechLevelDifference_TP_T1, 1) & " dBC" & vbCrLf & vbCrLf &
+               "Difference TP  - Talker2: " & Math.Round(SpeechLevelDifference_TP_T2, 1) & " dBC")
+
+    End Sub
 End Class
