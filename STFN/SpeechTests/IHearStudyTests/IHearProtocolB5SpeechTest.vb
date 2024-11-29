@@ -629,7 +629,7 @@ Public Class IHearProtocolB5SpeechTest
             Next
 
             If ScoreList.Count > 0 Then
-                Output.Add("Lista " & TestStageIndex & ": Resultat = " & System.Math.Round(100 * ScoreList.Average) & " % korrekt (" & ScoreList.Sum & " / " & ObservedTestData(TestStageIndex).Count & ")")
+                Output.Add("Lista " & TestStageIndex + 1 & ": Resultat = " & System.Math.Round(100 * ScoreList.Average) & " % korrekt (" & ScoreList.Sum & " / " & ObservedTestData(TestStageIndex).Count & ")")
             End If
         Next
 
