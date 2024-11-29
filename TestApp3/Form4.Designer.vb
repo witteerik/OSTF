@@ -475,7 +475,7 @@ Partial Class Form4
         Me.Button36.Name = "Button36"
         Me.Button36.Size = New System.Drawing.Size(156, 23)
         Me.Button36.TabIndex = 54
-        Me.Button36.Text = "Add simulated noises"
+        Me.Button36.Text = "Test SNODD signals"
         Me.Button36.UseVisualStyleBackColor = True
         '
         'Button37
