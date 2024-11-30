@@ -26,6 +26,12 @@ Namespace Utils
 
     Public Module Constants 'TODO: This should be renamed!!! It no longer contains any constants!!! ;-)
 
+        Public Enum ElevationChange
+            Ascending
+            Unchanged
+            Descendning
+        End Enum
+
         Public Enum TriState
             [True]
             [False]

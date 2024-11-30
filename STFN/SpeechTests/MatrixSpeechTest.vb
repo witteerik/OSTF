@@ -302,7 +302,7 @@ Public Class MatrixSpeechTest
 
         CreatePlannedWordsSentences()
 
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
+        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0, .TestLength = 20})
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -654,11 +654,11 @@ Public Class MatrixSpeechTest
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
-        Throw New NotImplementedException()
+        ' Throw New NotImplementedException()
     End Function
 
     Public Overrides Function GetExportString() As String
-        Throw New NotImplementedException()
+        ' Throw New NotImplementedException()
     End Function
 
     'Public Overrides Function GetResults() As TestResults
