@@ -16,3 +16,4 @@ Protokoll B4 - Manuell HTT
 Protokoll B6 - Quick SiP
 Protokoll B7 - SiP-testet
 TP50 - Ljudfält
+I HeAR CS - SiP-testet

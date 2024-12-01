@@ -2,7 +2,7 @@
 Imports STFN.Audio.SoundScene
 Imports STFN.Utils
 
-Public Class IHearProtocolB7SpeechTest
+Public Class IHearSC_SiP_SpeechTest
 
     Inherits SpeechTest
 
@@ -14,8 +14,7 @@ Public Class IHearProtocolB7SpeechTest
 
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
-            Return "(Detta test går ut på att undersöka svårighetsgraden i SiP-testet.)" & vbCrLf & vbCrLf &
-                "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
+            Return "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
                 "1. Informera patienten om hur testet går till." & vbCrLf &
                 "2. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
 
@@ -86,7 +85,7 @@ Public Class IHearProtocolB7SpeechTest
 
     Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
         Get
-            Return TriState.True
+            Return TriState.False
         End Get
     End Property
 
@@ -275,8 +274,8 @@ Public Class IHearProtocolB7SpeechTest
     Private RandomSeed As Integer? = Nothing
     Private SelectedTestparadigm As Testparadigm = Testparadigm.Quick
     Private SelectedTransducer As AudioSystemSpecification
-    Private MinimumStimulusOnsetTime As Double = 0.3
-    Private MaximumStimulusOnsetTime As Double = 0.8
+    Private MinimumStimulusOnsetTime As Double = 0.3 + 0.3 ' 0.3 in sound field
+    Private MaximumStimulusOnsetTime As Double = 0.8 + 0.3 ' 0.3 in sound field
     Private TrialSoundMaxDuration As Double = 10
     Private UseBackgroundSpeech As Boolean = False
     Private MaximumResponseTime As Double = 4
@@ -329,14 +328,23 @@ Public Class IHearProtocolB7SpeechTest
         'Clearing any trials that may have been planned by a previous call
         CurrentSipTestMeasurement.ClearTrials()
 
-        'Using all media sets
-        Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
-
         'Creating a new random if seed is supplied
         If RandomSeed.HasValue Then CurrentSipTestMeasurement.Randomizer = New Random(RandomSeed)
 
+        'Sampling a MediaSet
+        'Dim MediaSet = CustomizableTestOptions.SelectedMediaSet
+        Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
+        Dim MediaSet = SelectedMediaSets(0)
+
         'Getting all lists 
-        Dim AllLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
+
+        'Getting the preset
+        Dim TestLists As List(Of SpeechMaterialComponent) = Nothing
+        If CustomizableTestOptions.IsPractiseTest Then
+            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, False, True)
+        Else
+            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest("IHeAR_CS").Members 'TODO! Specify correct members in text file
+        End If
 
         'Getting the sound source locations
         'Head slightly turned right (i.e. Speech on left side)
@@ -349,185 +357,83 @@ Public Class IHearProtocolB7SpeechTest
         Dim MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
         Dim BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
 
-        'Creating Test units
-        Dim PractiseTestUnit = New SiPTestUnit(CurrentSipTestMeasurement)
-        Dim TestUnit1 = New SiPTestUnit(CurrentSipTestMeasurement)
-        Dim TestUnit2 = New SiPTestUnit(CurrentSipTestMeasurement)
-        'N.B. We're inserting the PractiseTestUnit later, since the code below adding test trials iterates over all added test units
-        CurrentSipTestMeasurement.TestUnits.Add(TestUnit1)
-        CurrentSipTestMeasurement.TestUnits.Add(TestUnit2)
-
-        'Setting up Practise trials
-        'Inserting practise trials test initially, at PNR 15 dB
-        Dim PractiseLists As New List(Of SpeechMaterialComponent)
-        For Each List In AllLists
-            If List.IsPractiseComponent = True Then PractiseLists.Add(List)
-        Next
-
-        For i = 0 To PractiseLists.Count - 1
-
-            Dim PractiseWords = PractiseLists(i).GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
-
-            'Setting the first MediaSet as practise MediaSet
-            Dim MediaSet = SelectedMediaSets(0)
-
-            'Setting PNR to 15 dB
-            Dim PNR = 15
-
-            PractiseTestUnit.SpeechMaterialComponents.AddRange(PractiseWords)
-
-            For c = 0 To PractiseWords.Count - 1
-                Dim NewTrial As SipTrial = Nothing
-
-                'Randomizing head turn for the practise trials
-                Dim HeadTurn As Integer = Randomizer.Next(0, 2)
-                If HeadTurn = 0 Then
-                    NewTrial = New SipTrial(PractiseTestUnit, PractiseWords(c), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, PractiseTestUnit.ParentMeasurement.Randomizer)
-                ElseIf HeadTurn = 1 Then
-                    NewTrial = New SipTrial(PractiseTestUnit, PractiseWords(c), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, PractiseTestUnit.ParentMeasurement.Randomizer)
-                Else
-                    Throw New Exception("This is a bug. The value of HeadTurn should always be 0 or 1.")
-                End If
-
-                'Setting levels
-                NewTrial.SetLevels(ReferenceLevel, PNR)
-
-                'Indicating that it's a practise trial
-                NewTrial.IsTestTrial = False
-
-                'Adding the trial to the test unit
-                PractiseTestUnit.PlannedTrials.Add(NewTrial)
-            Next
-        Next
-
         'Setting up test trials
+        Dim TempLeftTurnTrials As New List(Of Object)
+        Dim TempRightTurnTrials As New List(Of Object)
 
-        Dim TestWordLists As New List(Of SpeechMaterialComponent)
-        For Each List In AllLists
-            If List.IsPractiseComponent = False Then TestWordLists.Add(List)
-        Next
+        'Creating a test unit
+        Dim CurrentTestUnit = New SiPTestUnit(CurrentSipTestMeasurement)
+        CurrentSipTestMeasurement.TestUnits.Add(CurrentTestUnit)
 
-        'Selecting TestListCount random test lists to run
-        Dim SelectedListsIndices = Utils.SampleWithoutReplacement(TestListCount, 0, TestWordLists.Count, Randomizer)
-        Dim SelectedTestLists As New List(Of SpeechMaterialComponent)
-        For Each TestListIndex In SelectedListsIndices
-            SelectedTestLists.Add(TestWordLists(TestListIndex))
-        Next
+        For i = 0 To TestLists.Count - 1
 
+            Dim TestWords = TestLists(i).GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
 
-        'Creating a list of PNRs from which to sample
-        Dim OrderedPNRs As New List(Of Double)
-        Dim TempPnr As Double = 15
-        For i = 0 To TestListCount - 1
-            OrderedPNRs.Add(TempPnr)
-            TempPnr -= 3.5
-        Next
-
-        'Sampling a PNR-order
-        Dim RandomizedPnrIndices = Utils.SampleWithoutReplacement(OrderedPNRs.Count, 0, OrderedPNRs.Count, Randomizer)
-        Dim RandomizedPNRs As New List(Of Double)
-        For Each Index In RandomizedPnrIndices
-            RandomizedPNRs.Add(OrderedPNRs(Index))
-        Next
-
-
-        For i = 0 To SelectedTestLists.Count - 1
-
-            Dim TestWords = SelectedTestLists(i).GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
-            'Sampling a MediaSet
-            Dim RandomizedMediaSetIndex = Utils.SampleWithoutReplacement(1, 0, SelectedMediaSets.Count, Randomizer)(0)
-            Dim MediaSet = SelectedMediaSets(RandomizedMediaSetIndex)
-
-            Dim PNR = RandomizedPNRs(i)
-
-            TestUnit1.SpeechMaterialComponents.AddRange(TestWords)
-            TestUnit2.SpeechMaterialComponents.AddRange(TestWords)
-
-            For Each CurrentTestUnit In CurrentSipTestMeasurement.TestUnits
-
-                For c = 0 To TestWords.Count - 1
-                    Dim NewTrial As SipTrial = Nothing
-
-                    'Randomizing head turn for every single trial, freely between test-retest units (which reflects a real life test situation)
-                    Dim HeadTurn As Integer = Randomizer.Next(0, 2)
-                    If HeadTurn = 0 Then
-                        NewTrial = New SipTrial(CurrentTestUnit, TestWords(c), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
-                    ElseIf HeadTurn = 1 Then
-                        NewTrial = New SipTrial(CurrentTestUnit, TestWords(c), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, CurrentTestUnit.ParentMeasurement.Randomizer)
-                    Else
-                        Throw New Exception("This is a bug. The value of HeadTurn should always be 0 or 1.")
-                    End If
-
-                    'Setting levels
-                    NewTrial.SetLevels(ReferenceLevel, PNR)
-
-                    'Adding the trial to the test unit
-                    CurrentTestUnit.PlannedTrials.Add(NewTrial)
-
-                Next
-            Next
-        Next
-
-        'Inserting the practise trials TestUnit test initially
-        CurrentSipTestMeasurement.TestUnits.Insert(0, PractiseTestUnit)
-
-        'Randomizing the order within units
-        For Each TestUnit In CurrentSipTestMeasurement.TestUnits
-            Dim RandomList As New List(Of SipTrial)
-            Do Until TestUnit.PlannedTrials.Count = 0
-                Dim RandomIndex As Integer = CurrentSipTestMeasurement.Randomizer.Next(0, TestUnit.PlannedTrials.Count)
-                RandomList.Add(TestUnit.PlannedTrials(RandomIndex))
-                TestUnit.PlannedTrials.RemoveAt(RandomIndex)
-            Loop
-            TestUnit.PlannedTrials = RandomList
-        Next
-
-        'Noting the test stage in each trial
-        For i = 0 To CurrentSipTestMeasurement.TestUnits.Count - 1
-            For Each TU In CurrentSipTestMeasurement.TestUnits
-                For Each Trial In TU.PlannedTrials
-                    Trial.TestStage = CurrentTestStage
-                Next
-            Next
-        Next
-
-        'Sorting Trials so that the city envoriment either gets randomized first or last in each test unit
-        For Each TestUnit In CurrentSipTestMeasurement.TestUnits
-            Dim CityTrials As New List(Of SipTrial)
-            Dim HomeTrials As New List(Of SipTrial)
-
-            For Each TestTrial In TestUnit.PlannedTrials
-                If TestTrial.MediaSet.MediaSetName.StartsWith("City") Then
-                    CityTrials.Add(TestTrial)
-                ElseIf TestTrial.MediaSet.MediaSetName.StartsWith("Home") Then
-                    HomeTrials.Add(TestTrial)
-                Else
-                    Throw New Exception("Unknown MediaSet name")
-                End If
-            Next
-
-            TestUnit.PlannedTrials.Clear()
-
-            Dim RandomizedMediaSetOrder As Integer = Randomizer.Next(0, 2)
-            If RandomizedMediaSetOrder = 0 Then
-                TestUnit.PlannedTrials.AddRange(CityTrials)
-                TestUnit.PlannedTrials.AddRange(HomeTrials)
-            ElseIf RandomizedMediaSetOrder = 1 Then
-                TestUnit.PlannedTrials.AddRange(HomeTrials)
-                TestUnit.PlannedTrials.AddRange(CityTrials)
+            Dim PNR As Double
+            If CustomizableTestOptions.IsPractiseTest Then
+                PNR = 15
             Else
-                Throw New Exception("This is a bug. The value of RandomizedMediaSetOrder should always be 0 or 1.")
+                PNR = 0 'TODO! Select correct PNR
             End If
 
-        Next
+            For c = 0 To TestWords.Count - 1
+                Dim NewLeftTurnTrial As SipTrial = New SipTrial(CurrentTestUnit, TestWords(c), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, CurrentTestUnit.ParentMeasurement.Randomizer)
+                Dim NewRightTurnTrial As SipTrial = New SipTrial(CurrentTestUnit, TestWords(c), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
 
+                'Setting levels
+                NewLeftTurnTrial.SetLevels(ReferenceLevel, PNR)
+                NewRightTurnTrial.SetLevels(ReferenceLevel, PNR)
 
-        'Adding the trials CurrentSipTestMeasurement (from which they can be drawn during testing)
-        For Each TestUnit In CurrentSipTestMeasurement.TestUnits
-            For Each Trial In TestUnit.PlannedTrials
-                CurrentSipTestMeasurement.PlannedTrials.Add(Trial)
+                'Adding the trials to the test unit
+                CurrentTestUnit.PlannedTrials.Add(NewLeftTurnTrial)
+                CurrentTestUnit.PlannedTrials.Add(NewRightTurnTrial)
+
+                TempLeftTurnTrials.Add(NewLeftTurnTrial)
+                TempRightTurnTrials.Add(NewRightTurnTrial)
+
             Next
         Next
+
+        'Randomizing the order within trial lists
+        TempLeftTurnTrials = Utils.Shuffle(TempLeftTurnTrials, Randomizer)
+        TempRightTurnTrials = Utils.Shuffle(TempRightTurnTrials, Randomizer)
+
+        'Putting the Trials in a list of the correct type
+        Dim LeftTurnTrials As New List(Of SipTrial)
+        For Each Item As SipTrial In TempLeftTurnTrials
+            LeftTurnTrials.Add(Item)
+        Next
+        Dim RightTurnTrials As New List(Of SipTrial)
+        For Each Item As SipTrial In TempRightTurnTrials
+            RightTurnTrials.Add(Item)
+        Next
+
+        'Putting equal number trials to the left and then to the right in CurrentSipTestMeasurement (from which they can be drawn during testing)
+        'Randomizing the side to start with
+        Dim AddSideFirst As Integer = Randomizer.Next(0, 2)
+        Dim TrialsBeforeSideSwap As Integer = 5 ' The number of trials to present on each head turn
+
+        Dim AddedSets As Integer = 0
+        For i = 0 To TempLeftTurnTrials.Count - 1 Step TrialsBeforeSideSwap
+
+            Dim TrialsToGet As Integer = TrialsBeforeSideSwap
+            If AddedSets * TrialsBeforeSideSwap + TrialsBeforeSideSwap > TempLeftTurnTrials.Count Then
+                'Get the remaining number of trials
+                TrialsToGet = TempLeftTurnTrials.Count - AddedSets * TrialsBeforeSideSwap
+            End If
+
+            If AddSideFirst = 0 Then
+                CurrentSipTestMeasurement.PlannedTrials.AddRange(LeftTurnTrials.GetRange(i, TrialsToGet))
+                CurrentSipTestMeasurement.PlannedTrials.AddRange(RightTurnTrials.GetRange(i, TrialsToGet))
+            Else
+                CurrentSipTestMeasurement.PlannedTrials.AddRange(RightTurnTrials.GetRange(i, TrialsToGet))
+                CurrentSipTestMeasurement.PlannedTrials.AddRange(LeftTurnTrials.GetRange(i, TrialsToGet))
+            End If
+
+            AddedSets += 1
+
+        Next
+
 
     End Sub
 
@@ -716,29 +622,9 @@ Public Class IHearProtocolB7SpeechTest
         'Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
         Dim ProtocolReply = New TestProtocol.NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial}
 
-        If CurrentSipTestMeasurement.TestUnits(CurrentTestStage).PlannedTrials.Count = 0 Then
-
-            Select Case CurrentTestStage
-                Case 0
-                    'Going to next test stage
-                    CurrentTestStage += 1
-
-                    'Informing the participant
-                    ProtocolReply.Decision = SpeechTestReplies.PauseTestingWithCustomInformation
-                    PauseInformation = "Övningstestet är klart." & vbCrLf & vbCrLf & " Klicka på Ok för att starta det riktiga testet!"
-
-                Case 1
-                    'Going to next test stage
-                    CurrentTestStage += 1
-
-                    'Informing the participant
-                    ProtocolReply.Decision = SpeechTestReplies.PauseTestingWithCustomInformation
-                    PauseInformation = "Den första delen av testet är klar." & vbCrLf & vbCrLf & " Klicka på OK för att starta den andra och sista delen av testet!"
-
-                Case 2
-                    'Test is completed
-                    Return SpeechTestReplies.TestIsCompleted
-            End Select
+        If CurrentSipTestMeasurement.PlannedTrials.Count = 0 Then
+            'Test is completed
+            Return SpeechTestReplies.TestIsCompleted
         End If
 
         'Preparing next trial if needed
@@ -754,7 +640,7 @@ Public Class IHearProtocolB7SpeechTest
     Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
         'Preparing the next trial
-        CurrentTestTrial = CurrentSipTestMeasurement.TestUnits(CurrentTestStage).PlannedTrials(0) ' GetNextTrial()
+        CurrentTestTrial = CurrentSipTestMeasurement.PlannedTrials(0) ' GetNextTrial()
         CurrentTestTrial.TestStage = NextTaskInstruction.TestStage
         CurrentTestTrial.Tasks = 1
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
@@ -803,7 +689,7 @@ Public Class IHearProtocolB7SpeechTest
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-        Dim ShowTestSide As Boolean = False
+        Dim ShowTestSide As Boolean = True
         If ShowTestSide = True Then
             CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 400, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternativePositions})
         End If
@@ -821,52 +707,50 @@ Public Class IHearProtocolB7SpeechTest
     Private Function GetAverageHeadTurnScores(Optional ByVal TurnedRight As Boolean? = Nothing)
 
         Dim TrialScoreList As New List(Of Integer)
-        For Each TestUnit In CurrentSipTestMeasurement.TestUnits
-            For Each Trial In TestUnit.ObservedTrials
+        For Each Trial In CurrentSipTestMeasurement.ObservedTrials
 
-                'Skipping to next if it's a practise trial
-                If Trial.IsTestTrial = False Then Continue For
+            'Skipping to next if it's a practise trial
+            If Trial.IsTestTrial = False Then Continue For
 
-                If TurnedRight.HasValue = False Then
+            If TurnedRight.HasValue = False Then
 
-                    'Getting all results
+                'Getting all results
+                If Trial.IsCorrect = True Then
+                    TrialScoreList.Add(1)
+                Else
+                    TrialScoreList.Add(0)
+                End If
+
+            Else
+
+                Dim TrialIsTurnRight As Boolean
+                If Trial.TargetStimulusLocations(0).HorizontalAzimuth = -10 Then
+                    TrialIsTurnRight = True
+                ElseIf Trial.TargetStimulusLocations(0).HorizontalAzimuth = 10 Then
+                    TrialIsTurnRight = False
+                Else
+                    Throw New Exception("Incompatible head-turn data. This is a bug!")
+                End If
+
+                'Getting results only from the indicated head turn
+                If TurnedRight = True And TrialIsTurnRight = True Then
                     If Trial.IsCorrect = True Then
                         TrialScoreList.Add(1)
                     Else
                         TrialScoreList.Add(0)
                     End If
-
-                Else
-
-                    Dim TrialIsTurnRight As Boolean
-                    If Trial.TargetStimulusLocations(0).HorizontalAzimuth = -10 Then
-                        TrialIsTurnRight = True
-                    ElseIf Trial.TargetStimulusLocations(0).HorizontalAzimuth = 10 Then
-                        TrialIsTurnRight = False
-                    Else
-                        Throw New Exception("Incompatible head-turn data. This is a bug!")
-                    End If
-
-                    'Getting results only from the indicated head turn
-                    If TurnedRight = True And TrialIsTurnRight = True Then
-                        If Trial.IsCorrect = True Then
-                            TrialScoreList.Add(1)
-                        Else
-                            TrialScoreList.Add(0)
-                        End If
-                    End If
-
-                    If TurnedRight = False And TrialIsTurnRight = False Then
-                        If Trial.IsCorrect = True Then
-                            TrialScoreList.Add(1)
-                        Else
-                            TrialScoreList.Add(0)
-                        End If
-                    End If
-
                 End If
 
-            Next
+                If TurnedRight = False And TrialIsTurnRight = False Then
+                    If Trial.IsCorrect = True Then
+                        TrialScoreList.Add(1)
+                    Else
+                        TrialScoreList.Add(0)
+                    End If
+                End If
+
+            End If
+
         Next
 
         If TrialScoreList.Count > 0 Then

@@ -85,6 +85,13 @@ public abstract class ResponseView : ContentView
 
     public abstract void AddSourceAlternatives(VisualizedSoundSource[] soundSources);
 
+    
+    /// <summary>
+    /// Should contain a list of lists of response alternatives, order column wise
+    /// </summary>
+    /// <param name="ResponseAlternatives"></param>
+    public abstract void ShowResponseAlternativePositions(List<List<SpeechTestResponseAlternative>> ResponseAlternatives);
+
     /// <summary>
     /// Should contain a list of lists of response alternatives, order column wise
     /// </summary>

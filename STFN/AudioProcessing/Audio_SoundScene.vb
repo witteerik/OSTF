@@ -487,7 +487,7 @@ Namespace Audio.SoundScene
             For Each kvp In HardwareOutputChannelSpeakerLocations
 
                 'Calculates and stores the absolute difference between the speaker azimuth and the target azimuth
-                DistanceList.Add(New Tuple(Of Integer, SoundSourceLocation, Double)(kvp.Key, kvp.Value, Math.Abs(UnwrappedAzimuth - kvp.Value.HorizontalAzimuth)))
+                DistanceList.Add(New Tuple(Of Integer, SoundSourceLocation, Double)(kvp.Key, kvp.Value, Math.Abs(Utils.UnwrapAngle(UnwrappedAzimuth - kvp.Value.HorizontalAzimuth))))
             Next
 
             'Gets the minimum distance value

@@ -38,7 +38,10 @@ public class ResponseView_FreeRecall : ResponseView
         HideAllTimer.Stop();
     }
 
-
+    public override void ShowResponseAlternativePositions(List<List<SpeechTestResponseAlternative>> ResponseAlternatives)
+    {
+        throw new NotImplementedException("ShowResponseAlternativePositions is not implemented");
+    }        
 
     public override void ShowResponseAlternatives(List<List<SpeechTestResponseAlternative>> ResponseAlternatives)
     {

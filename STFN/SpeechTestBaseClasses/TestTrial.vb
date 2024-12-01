@@ -131,6 +131,7 @@ Public MustInherit Class TestTrial
         VisualSoundSourcesShown 'Registered in SpeechTestView
         VisualQueShown 'Registered in SpeechTestView
         VisualQueHidden 'Registered in SpeechTestView
+        ResponseAlternativePositionsShown 'Registered in SpeechTestView
         ResponseAlternativesShown 'Registered in SpeechTestView
         ParticipantResponded 'Registered in SpeechTestView
         TestAdministratorCorrectedResponse 'Registered in SpeechTestView, on call from the response view for free recall

@@ -542,6 +542,18 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
+                case "I HeAR CS - SiP-testet":
+
+                    // Speech test
+                    CurrentSpeechTest = new IHearSC_SiP_SpeechTest("Swedish SiP-test");
+
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsSipSCTestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsSipSCTestView);
+                    CurrentTestOptionsView = newOptionsSipSCTestView;
+
+                    break;
+
                 default:
                     TestOptionsGrid.Children.Clear();
                     success = false;
@@ -787,6 +799,15 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
                     CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                    break;
+
+                case "I HeAR CS - SiP-testet":
+
+                    CurrentResponseView = new ResponseView_SiP_SF();
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
                     break;
 
@@ -1175,6 +1196,17 @@ public partial class SpeechTestView : ContentView, IDrawable
                             soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = SourceLocations.Left });
                             soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.7, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = 15, Text = "S2", SourceLocationsName = SourceLocations.Right });
                             CurrentResponseView.AddSourceAlternatives(soundSources.ToArray());
+                            break;
+
+                        case ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternativePositions:
+
+                            // Registering timed trial event
+                            if (CurrentSpeechTest.CurrentTestTrial != null)
+                            {
+                                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.ResponseAlternativePositionsShown, DateTime.Now));
+                            }
+                            
+                            CurrentResponseView.ShowResponseAlternativePositions(CurrentSpeechTest.CurrentTestTrial.ResponseAlternativeSpellings);
                             break;
 
                         case ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives:

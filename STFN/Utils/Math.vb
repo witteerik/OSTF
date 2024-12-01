@@ -1967,6 +1967,7 @@ Namespace Utils
 
             'Sets the Azimuth in the following range: -180 < Azimuth <= 180
             If UnwrappedAngle > 180 Then UnwrappedAngle -= 360
+            If UnwrappedAngle <= -180 Then UnwrappedAngle += 360
 
             Return UnwrappedAngle
         End Function

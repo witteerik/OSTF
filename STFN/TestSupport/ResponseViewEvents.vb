@@ -14,6 +14,7 @@
             StopSound
             ShowVisualSoundSources
             ShowResponseAlternatives
+            ShowResponseAlternativePositions
             ShowVisualCue
             HideVisualCue
             ShowResponseTimesOut
