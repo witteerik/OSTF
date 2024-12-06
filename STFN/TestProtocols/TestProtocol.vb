@@ -8,6 +8,7 @@ Public Module TestProtocols
 
         'Adding suitable protocols
         Output.Add(New SrtIso8253_TestProtocol)
+        Output.Add(New HagermanKinnefors1995_TestProtocol)
         Output.Add(New BrandKollmeier2002_TestProtocol)
         Output.Add(New SrtChaiklinVentry1964_TestProtocol)
         Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
@@ -30,6 +31,7 @@ Public Module TestProtocols
 
         'Adding suitable protocols
         Output.Add(New SrtIso8253_TestProtocol)
+        Output.Add(New HagermanKinnefors1995_TestProtocol)
         Output.Add(New BrandKollmeier2002_TestProtocol)
         Output.Add(New SrtChaiklinVentry1964_TestProtocol)
         Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
@@ -44,6 +46,7 @@ Public Module TestProtocols
 
         'Adding suitable protocols
         Output.Add(New SrtIso8253_TestProtocol)
+        Output.Add(New HagermanKinnefors1995_TestProtocol)
         Output.Add(New BrandKollmeier2002_TestProtocol)
         Output.Add(New SrtChaiklinVentry1964_TestProtocol)
         Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)

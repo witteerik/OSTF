@@ -1003,22 +1003,29 @@ Public Module OstfBase
         End Function
 
         ''' <summary>
-        ''' Checks to see if the transducers connected to HardWareChannelLeft and HardWareChannelRight are headphones.
+        ''' Checks to see if the transducers connected to HardWareChannelLeft and HardWareChannelRight are headphones, assuming that the first two specified channels are the headphone channels.
         ''' </summary>
         ''' <param name="HardWareChannelLeft"></param>
         ''' <param name="HardWareChannelRight"></param>
         ''' <returns></returns>
-        Public Function IsHeadphones(Optional ByVal HardWareChannelLeft As Integer = 1, Optional ByVal HardWareChannelRight As Integer = 2) As Boolean
+        Public Function IsHeadphones() As Boolean
 
-            'Returns false if both channels are the same
-            If HardWareChannelLeft = HardWareChannelRight Then Return False
+            'Returns false if there is only one output channel
+            If HardwareOutputChannels.Count < 2 Then Return False
 
-            'Checks that the specified hardware channels exist in the current instance of AudioSystemSpecification
-            Dim LeftChannelIndex = HardwareOutputChannels.IndexOf(HardWareChannelLeft)
-            If LeftChannelIndex = -1 Then Return False
-
-            Dim RightChannelIndex = HardwareOutputChannels.IndexOf(HardWareChannelRight)
-            If RightChannelIndex = -1 Then Return False
+            'Tries to determine which is left and which is right
+            Dim LeftChannelIndex As Integer
+            Dim RightChannelIndex As Integer
+            If LoudspeakerAzimuths(0) < 0 And LoudspeakerAzimuths(1) > 0 Then
+                LeftChannelIndex = 0
+                RightChannelIndex = 1
+            ElseIf LoudspeakerAzimuths(0) > 0 And LoudspeakerAzimuths(1) < 0 Then
+                LeftChannelIndex = 1
+                RightChannelIndex = 0
+            Else
+                'The channel azimuths does not seem to be stereo. Returning False
+                Return False
+            End If
 
             'Requres azimuths to be -90 and 90
             If LoudspeakerAzimuths(LeftChannelIndex) <> -90 Then Return False

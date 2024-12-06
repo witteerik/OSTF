@@ -383,8 +383,7 @@ Public Class CustomizableTestOptions
             _SelectedTransducer = value
 
             'Inactivates the use of simulated sound field is the transducer is not headphones
-            'TODO. Note that this only works if headphones are connected to hardware output 1 and 2. In order to work in other cases, the software somehow needs to know to what hardware the headphones are connected.
-            If _SelectedTransducer.IsHeadphones(1, 2) = False Then UseSimulatedSoundField = False
+            If _SelectedTransducer.IsHeadphones() = False Then UseSimulatedSoundField = False
             OnPropertyChanged()
         End Set
     End Property
@@ -401,6 +400,12 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Boolean)
             _UseRetsplCorrection = value
+
+            If value = True And UseSimulatedSoundField = True Then
+                'Inactivates sound field simulation if dB HL values should be used
+                UseSimulatedSoundField = False
+            End If
+
             OnPropertyChanged()
         End Set
     End Property
@@ -413,6 +418,12 @@ Public Class CustomizableTestOptions
         End Get
         Set(value As Boolean)
             _UseSimulatedSoundField = value
+
+            If value = True And UseRetsplCorrection = True Then
+                'Inactivates UseRetsplCorrection to prohibit the use of dB HL in sound field simulations
+                UseRetsplCorrection = False
+            End If
+
             OnPropertyChanged()
         End Set
     End Property

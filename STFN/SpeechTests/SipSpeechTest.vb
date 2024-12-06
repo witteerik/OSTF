@@ -29,6 +29,12 @@ Public Class SipSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property AllowsUseRetsplChoice As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
         Get
             Return False
@@ -248,8 +254,6 @@ Public Class SipSpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 0.5
-
-    Public Overrides ReadOnly Property UseRetsplCorrection As Utils.Constants.TriState = Utils.Constants.TriState.False
 
     Public Overrides ReadOnly Property MinimumLevel As Double = 0
     Public Overrides ReadOnly Property MaximumLevel As Double = 90

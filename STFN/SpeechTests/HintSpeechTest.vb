@@ -43,6 +43,12 @@ Public Class HintSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property AllowsUseRetsplChoice As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
         Get
             Return False
@@ -265,8 +271,6 @@ Public Class HintSpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 0.1
-
-    Public Overrides ReadOnly Property UseRetsplCorrection As Utils.TriState = Utils.TriState.False
 
     Public Overrides ReadOnly Property MinimumLevel As Double = 20
     Public Overrides ReadOnly Property MaximumLevel As Double = 80

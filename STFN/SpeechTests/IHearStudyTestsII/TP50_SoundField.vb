@@ -49,6 +49,12 @@ Public Class TP50_SoundField
         End Get
     End Property
 
+    Public Overrides ReadOnly Property AllowsUseRetsplChoice As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
         Get
             Return False
@@ -248,12 +254,6 @@ Public Class TP50_SoundField
     Public Overrides ReadOnly Property UsePhaseAudiometry As Utils.TriState
         Get
             Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseRetsplCorrection As TriState
-        Get
-            Return Utils.Constants.TriState.Optional
         End Get
     End Property
 

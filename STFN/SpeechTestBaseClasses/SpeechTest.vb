@@ -159,6 +159,7 @@
     Public MustOverride ReadOnly Property MinimumSoundFieldBackgroundSpeechLocations As Integer
 
     Public MustOverride ReadOnly Property HasOptionalPractiseTest As Boolean
+    Public MustOverride ReadOnly Property AllowsUseRetsplChoice As Boolean
     Public MustOverride ReadOnly Property AllowsManualPreSetSelection As Boolean
     Public MustOverride ReadOnly Property AllowsManualStartListSelection As Boolean
     Public MustOverride ReadOnly Property AllowsManualMediaSetSelection As Boolean
@@ -259,7 +260,7 @@
     ''' If True, speech and noise levels should be interpreted as dB HL. If False, speech and noise levels should be interpreted as dB SPL.
     ''' </summary>
     ''' <returns></returns>
-    Public MustOverride ReadOnly Property UseRetsplCorrection As Utils.TriState
+    Public Property UseRetsplCorrection As Boolean
     Public MustOverride ReadOnly Property MinimumLevel As Double
     Public MustOverride ReadOnly Property MaximumLevel As Double
 

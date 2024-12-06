@@ -16,7 +16,14 @@
 
             <Button x:Name="ShowTesterInstructionsButton" Text="{Binding TesterInstructionsButtonText}" Clicked="ShowTesterInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="0,2,1,1"></Button>
             <Button x:Name="ShowParticipantInstructionsButton" Text="{Binding ParticipantInstructionsButtonText}" Clicked="ShowParticipantInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="1,1,0,10"></Button>
-            
+
+            <Picker x:Name="SelectedTransducer_Picker" SelectedIndexChanged="SelectedTransducer_Picker_SelectedIndexChanged"  Title="{Binding SelectedTransducerTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedTransducers}" SelectedItem="{Binding SelectedTransducer}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
+
+            <HorizontalStackLayout x:Name="UseRetsplCorrectionControl">
+                <Label Text="{Binding UseRetsplCorrectionTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Switch x:Name="UseRetsplCorrection_Switch" IsToggled="{Binding UseRetsplCorrection}" VerticalOptions="Center" Margin="0,5,0,5" />
+            </HorizontalStackLayout>
+
             <HorizontalStackLayout x:Name="PractiseTestControl">
                 <Label Text="{Binding IsPractiseTestTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5"/>
                 <Switch IsToggled="{Binding IsPractiseTest}" VerticalOptions="Center" Margin="0,5,0,5" />
@@ -66,12 +73,6 @@
 
             <Picker x:Name="AvailableFixedResponseAlternativeCounts_Picker" Title="{Binding FixedResponseAlternativeCountTitle}" ItemsSource="{Binding SelectedTest.AvailableFixedResponseAlternativeCounts}" SelectedItem="{Binding FixedResponseAlternativeCount}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
 
-            <Picker x:Name="SelectedTransducer_Picker" SelectedIndexChanged="SelectedTransducer_Picker_SelectedIndexChanged"  Title="{Binding SelectedTransducerTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedTransducers}" SelectedItem="{Binding SelectedTransducer}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
-
-            <HorizontalStackLayout x:Name="UseRetsplCorrectionControl">
-                <Label Text="{Binding UseRetsplCorrectionTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="UseRetsplCorrection_Switch" IsToggled="{Binding UseRetsplCorrection}" VerticalOptions="Center" Margin="0,5,0,5" />
-            </HorizontalStackLayout>
 
             <HorizontalStackLayout x:Name="UseSimulatedSoundFieldControl">
                 <Label Text="{Binding UseSimulatedSoundFieldTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />

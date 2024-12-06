@@ -42,6 +42,12 @@ Public Class MatrixSpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property AllowsUseRetsplChoice As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
         Get
             Return False
@@ -74,19 +80,19 @@ Public Class MatrixSpeechTest
 
     Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
     Public Overrides ReadOnly Property SupportsPrelistening As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
     Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
         Get
-            Return TriState.True
+            Return Utils.TriState.False
         End Get
     End Property
 
@@ -238,7 +244,7 @@ Public Class MatrixSpeechTest
 
     Public Overrides ReadOnly Property UsePhaseAudiometry As Utils.TriState
         Get
-            Return Utils.Constants.TriState.Optional
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
@@ -261,8 +267,6 @@ Public Class MatrixSpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 0.1
-
-    Public Overrides ReadOnly Property UseRetsplCorrection As Utils.Constants.TriState = Utils.Constants.TriState.False
 
     Public Overrides ReadOnly Property MinimumLevel As Double = -20
     Public Overrides ReadOnly Property MaximumLevel As Double = 80
@@ -302,7 +306,51 @@ Public Class MatrixSpeechTest
 
         CreatePlannedWordsSentences()
 
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0, .TestLength = 20})
+        Dim TestLength As Integer
+
+        Select Case True
+            Case TypeOf CustomizableTestOptions.SelectedTestProtocol Is HagermanKinnefors1995_TestProtocol
+
+                If HasNoise = False Then
+                    DirectCast(CustomizableTestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInSilence
+                    CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveSpeech
+                    TestLength = 20
+                Else
+                    If CustomizableTestOptions.IsPractiseTest = True Then
+                        DirectCast(CustomizableTestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.PractiseTestThresholdInNoise
+                        CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise
+                        TestLength = 30
+                    Else
+                        DirectCast(CustomizableTestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
+                        CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise
+                        TestLength = 20
+                    End If
+                End If
+
+            Case TypeOf CustomizableTestOptions.SelectedTestProtocol Is BrandKollmeier2002_TestProtocol
+
+                DirectCast(CustomizableTestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
+                CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise
+                CustomizableTestOptions.SpeechLevel = 65
+                CustomizableTestOptions.MaskingLevel = 65
+                StartAdaptiveLevel = SignalToNoiseRatio(CustomizableTestOptions.SpeechLevel, CustomizableTestOptions.MaskingLevel)
+                TestLength = 20
+
+            Case Else
+
+                If HasNoise = True Then
+                    'It's a speech in noise test, using adaptive SNR
+                    StartAdaptiveLevel = SignalToNoiseRatio(CustomizableTestOptions.SpeechLevel, CustomizableTestOptions.MaskingLevel)
+                Else
+                    'It's a speech only test, using adaptive speech level
+                    StartAdaptiveLevel = CustomizableTestOptions.SpeechLevel
+                End If
+
+                TestLength = 20
+
+        End Select
+
+        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0, .TestLength = TestLength})
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -489,20 +537,20 @@ Public Class MatrixSpeechTest
                 If HasNoise = True Then
 
                     CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
-            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
-            .MaskerLevel = CustomizableTestOptions.MaskingLevel,
-            .TestStage = NextTaskInstruction.TestStage,
-            .Tasks = 5}
+                        .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+                        .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
+                        .MaskerLevel = CustomizableTestOptions.MaskingLevel,
+                        .TestStage = NextTaskInstruction.TestStage,
+                        .Tasks = 5}
 
                 Else
 
                     CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
-            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = NextTaskInstruction.AdaptiveValue,
-            .MaskerLevel = Double.NegativeInfinity,
-            .TestStage = NextTaskInstruction.TestStage,
-            .Tasks = 5}
+                        .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+                        .SpeechLevel = NextTaskInstruction.AdaptiveValue,
+                        .MaskerLevel = Double.NegativeInfinity,
+                        .TestStage = NextTaskInstruction.TestStage,
+                        .Tasks = 5}
 
                 End If
 
@@ -510,11 +558,11 @@ Public Class MatrixSpeechTest
             Case TestModes.AdaptiveNoise
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
-            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = CustomizableTestOptions.SpeechLevel,
-            .MaskerLevel = CustomizableTestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
-            .TestStage = NextTaskInstruction.TestStage,
-            .Tasks = 5}
+                    .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
+                    .SpeechLevel = CustomizableTestOptions.SpeechLevel,
+                    .MaskerLevel = CustomizableTestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
+                    .TestStage = NextTaskInstruction.TestStage,
+                    .Tasks = 5}
 
             Case Else
                 Throw New NotImplementedException

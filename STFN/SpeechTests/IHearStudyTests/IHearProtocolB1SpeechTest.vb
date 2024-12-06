@@ -87,6 +87,12 @@ Public Class IHearProtocolB1SpeechTest
         End Get
     End Property
 
+    Public Overrides ReadOnly Property AllowsUseRetsplChoice As Boolean
+        Get
+            Return False
+        End Get
+    End Property
+
     Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
         Get
             Return False
@@ -308,7 +314,6 @@ Public Class IHearProtocolB1SpeechTest
     End Property
 
     Public Overrides Property SoundOverlapDuration As Double = 1
-    Public Overrides ReadOnly Property UseRetsplCorrection As TriState = TriState.True
 
     Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 50
