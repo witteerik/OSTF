@@ -1,4 +1,6 @@
-﻿Imports System.IO
+﻿'This file contains a temporary SpeechTest version for pilot testing of the SRT using the method of constant stimuli across a number of levels, to approximate the P/I-function
+
+Imports System.IO
 Imports MathNet.Numerics
 Imports MathNet.Numerics.Distributions
 Imports STFN.Audio
