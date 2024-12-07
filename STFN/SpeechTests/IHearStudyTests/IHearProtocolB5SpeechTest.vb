@@ -24,10 +24,10 @@ Public Class IHearProtocolB5SpeechTest
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
 
-            Return "(Detta test går ut på att undersöka svårighetsgraden hos fyra olika testordslistor när man varierar ljudnivån.)" & vbCrLf & vbCrLf &
+            Return "(Detta test går ut på att undersöka svårighetsgraden hos listorna med enstaviga ord (för svenska AMTEST) när man varierar ljudnivån.)" & vbCrLf & vbCrLf &
                 "1. Ange experimentnummer." & vbCrLf &
                 "2. Välj testöra." & vbCrLf &
-                "3. Ställ talnivå till patientes Fletcher-regel-TMV på testörat (medelvärdet av de två bästa hörtrösklarna på 500, 1000 och 2000 Hz)" & vbCrLf &
+                "3. Ställ talnivå till deltagarens Fletcher-regel-TMV på testörat (dvs. medelvärdet av de två bästa hörtrösklarna på 500, 1000 och 2000 Hz)" & vbCrLf &
                 "     (OBS! Talnivån kommer sedan ändras automatiskt under testet.)" & vbCrLf &
                 "4. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
                 "5. Informera patienten om hur testet går till." & vbCrLf &
@@ -38,12 +38,12 @@ Public Class IHearProtocolB5SpeechTest
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
-                " - Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
-                " - Under testet ska patienten lyssna efter enstaviga ord och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
-                " - Patienten ska gissa om hen är osäker." & vbCrLf &
-                " - Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
-                " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
+            Return "Deltagarens uppgift: " & vbCrLf & vbCrLf &
+                " - Deltagaren startar testet genom att klicka på knappen 'Start'" & vbCrLf &
+                " - Under testet ska deltagaren lyssna efter enstaviga ord och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
+                " - Deltagaren ska gissa om hen är osäker." & vbCrLf &
+                " - Efter varje ord har deltagaren maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
+                " - Om svarsalternativen blinkar i röd färg har deltagaren inte svarat i tid." & vbCrLf &
                 " - Testet består av åtta 25-ordslistor som körs direkt efter varandra, med möjlighet till en kort paus mellan varje." & vbCrLf &
                 " - OBS! I vissa listor är orden mycket svaga, ibland knappast hörbara."
 
@@ -319,7 +319,15 @@ Public Class IHearProtocolB5SpeechTest
             Return New Tuple(Of Boolean, String)(False, "Unable to plan test trials!")
         End If
 
-        'SendInfoToLog("Initiated new test with the following test trials:" & vbCrLf & GetPlannedTrialsExportString())
+        ''Temporary code for testing list-level combinations
+        'Dim TempExportData = New List(Of String)
+        'For n = 0 To 49
+        '    PlannedTestData.Clear()
+        '    PlanTrials(n)
+        '    TempExportData.Add(GetPlannedTrialsExportString(n))
+        '    PlannedTestData.Clear()
+        'Next
+        'SendInfoToLog(String.Join(vbCrLf, TempExportData), "ProtocolB5_PlannedTestTrials")
 
         IsInitialized = True
 
@@ -342,26 +350,29 @@ Public Class IHearProtocolB5SpeechTest
         'Plan trials, in four test stages
         Dim SMC_Lists = Me.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
 
+        'Creating a repeating sequence of levels that should be tested
         Dim SpeechLevels As New List(Of Double)
         Dim LowestSpeechLevel As Double = 2
         Dim SpeechLevelStep As Double = 4
         Dim SpeechLevelCount As Double = 8
-        Dim RepetitionsNeeded As Integer = Me.AvailableExperimentNumbers.Max / SpeechLevelCount
+        Dim RepetitionsNeeded As Integer = 1 + Me.AvailableExperimentNumbers.Max / SpeechLevelCount
         For r = 0 To RepetitionsNeeded
             For i = 0 To SpeechLevelCount - 1
                 SpeechLevels.Add(LowestSpeechLevel + i * SpeechLevelStep)
             Next
         Next
 
+        'Picking the levels that should be tested in the current session, based on the ZeroBasePtcID 
         Dim CurrentSessionSpeechLevels As New List(Of Double)
         For i = ZeroBasePtcID To ZeroBasePtcID + SpeechLevelCount - 1
             CurrentSessionSpeechLevels.Add(SpeechLevels(i))
         Next
 
-        'Holds the level set by the audiologist (this should equal the Fletcher Rule PTA)
+        'Gets the speech and cl-masking levels set by the audiologist (this should equal the Fletcher Rule PTA)
         Dim SpeechLevelReference = CustomizableTestOptions.SpeechLevel
         Dim ContralateralMaskingLeveldBBelowSpeech = CustomizableTestOptions.SpeechLevel - CustomizableTestOptions.ContralateralMaskingLevel
 
+        'Adding each list twice, in order, and assigning the speech levels in the order specified in CurrentSessionSpeechLevels
         For ListBlockIndex As Integer = 0 To 1
 
             For ListIndex = 0 To SMC_Lists.Count - 1
@@ -658,7 +669,7 @@ Public Class IHearProtocolB5SpeechTest
 
     End Function
 
-    Public Function GetPlannedTrialsExportString() As String
+    Public Function GetPlannedTrialsExportString(Optional ByVal ID As String = "") As String
 
         Dim ExportStringList As New List(Of String)
 
@@ -667,9 +678,9 @@ Public Class IHearProtocolB5SpeechTest
             For Each Trial As WrsTrial In PlannedTestData(TestStageIndex)
 
                 If TestTrialIndex = 0 Then
-                    ExportStringList.Add("TrialIndex" & vbTab & Trial.TestResultColumnHeadings)
+                    ExportStringList.Add("ID" & vbTab & "TrialIndex" & vbTab & Trial.TestResultColumnHeadings)
                 End If
-                ExportStringList.Add(TestTrialIndex & vbTab & Trial.TestResultAsTextRow)
+                ExportStringList.Add(ID & vbTab & TestTrialIndex & vbTab & Trial.TestResultAsTextRow)
                 TestTrialIndex += 1
 
             Next

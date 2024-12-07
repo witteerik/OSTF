@@ -25,6 +25,7 @@ Public Class IHearProtocolB4SpeechTest
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
             Return "(Detta test går ut på att undersöka nya HTT-listor med muntliga svar, med manlig och kvinnlig röst.)" & vbCrLf & vbCrLf &
+                "Testet ska användas med personer som är hörselvårdspatienter." & vbCrLf &
                 "1. Välj testöra." & vbCrLf &
                 "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
                 "3. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
@@ -255,7 +256,7 @@ Public Class IHearProtocolB4SpeechTest
 
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
-            Return 5
+            Return 1
         End Get
     End Property
 

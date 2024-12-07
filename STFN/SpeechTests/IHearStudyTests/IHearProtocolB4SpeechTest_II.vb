@@ -25,12 +25,13 @@ Public Class IHearProtocolB4SpeechTest_II
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
             Return "(Detta test går ut på att undersöka nya HTT-listor med muntliga svar, med manlig och kvinnlig röst.)" & vbCrLf & vbCrLf &
+                "Testet ska användas med normalhörande personer, som inte är hörselvårdspatienter." & vbCrLf &
                 "1. Ange experimentnummer." & vbCrLf &
                 "2. Välj testöra." & vbCrLf &
                 "3. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
                 "4. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
-                "5. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att patienten kan uppfatta dem. Höj talnivån om patienten inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
-                "(Använd knappen TB för att prata med patienten när denna har lurar på sig.)" & vbCrLf &
+                "5. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att deltagaren kan uppfatta dem. Höj talnivån om deltagaren inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
+                "(Använd knappen TB för att prata med deltagaren när denna har lurar på sig.)" & vbCrLf &
                 "6. Klicka på start för att starta testet." & vbCrLf &
                 "7. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen (nivåjusteringen sker automatiskt)"
 
@@ -39,10 +40,10 @@ Public Class IHearProtocolB4SpeechTest_II
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
-                " - Patienten ska lyssna efter tvåstaviga ord och efter varje ord repetera ordet muntligt." & vbCrLf &
-                " - Patienten ska gissa om hen är osäker. " & vbCrLf &
-                " - Patienten har maximalt " & MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
+            Return "Deltagarens uppgift: " & vbCrLf & vbCrLf &
+                " - Deltagarens ska lyssna efter tvåstaviga ord och efter varje ord repetera ordet muntligt." & vbCrLf &
+                " - Deltagarens ska gissa om hen är osäker. " & vbCrLf &
+                " - Deltagarens har maximalt " & MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
                 " - Testet består av åtta 25-ordslistor (med varierande manlig eller kvinnlig röst) som körs direkt efter varandra, med möjlighet till korta pauser mellan varje."
 
         End Get
