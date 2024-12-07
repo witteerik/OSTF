@@ -24,8 +24,15 @@
 
             <Picker x:Name="SelectedPreset_Picker" Title="{Binding SelectedPresetTitle}" ItemsSource="{Binding SelectedTest.AvailablePresets}" SelectedItem="{Binding SelectedPreset}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10" />
 
-            <Picker x:Name="ExperimentNumber_Picker" Title="{Binding ExperimentNumberTitle}" ItemsSource="{Binding SelectedTest.AvailableExperimentNumbers}" SelectedItem="{Binding ExperimentNumber}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10" />
-
+            <Frame x:Name="ExperimentNumberControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,5,10,5" Margin="0,5,0,15">
+                <VerticalStackLayout Margin="0,0,0,0" Padding="0,0,0,0">
+                    <HorizontalStackLayout>
+                        <Label Text="{Binding ExperimentNumberTitle}" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Picker x:Name="ExperimentNumber_Picker" Title="{Binding ExperimentNumberTitle}" ItemsSource="{Binding SelectedTest.AvailableExperimentNumbers}" SelectedItem="{Binding ExperimentNumber}" HorizontalTextAlignment="Center"  WidthRequest="200" Margin="5,0,0,0" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+            
             <Picker x:Name="StartList_Picker" Title="{Binding StartListTitle}" ItemsSource="{Binding SelectedTest.AvailableTestListsNames}" SelectedItem="{Binding StartList}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10" />
 
             <Picker x:Name="SelectedMediaSet_Picker" Title="{Binding SelectedMediaSetTitle}" ItemsSource="{Binding SelectedTest.AvailableMediasets}" SelectedItem="{Binding SelectedMediaSet}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10" />

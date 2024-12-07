@@ -29,7 +29,7 @@ Public Class IHearProtocolB5SpeechTest
                 "2. Välj testöra." & vbCrLf &
                 "3. Ställ talnivå till patientes Fletcher-regel-TMV på testörat (medelvärdet av de två bästa hörtrösklarna på 500, 1000 och 2000 Hz)" & vbCrLf &
                 "     (OBS! Talnivån kommer sedan ändras automatiskt under testet.)" & vbCrLf &
-                "4. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
+                "4. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
                 "5. Informera patienten om hur testet går till." & vbCrLf &
                 "6. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
 
@@ -287,7 +287,7 @@ Public Class IHearProtocolB5SpeechTest
     Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
         Get
             Dim OutputList As New List(Of Integer)
-            For i = 1 To 30
+            For i = 1 To 50
                 OutputList.Add(i)
             Next
             Return OutputList.ToArray

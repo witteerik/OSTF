@@ -34,7 +34,7 @@ namespace STFM
             set { raisePlaybackBufferTickEvents = value; }
         }
 
-        private bool equalPowerCrossFade = false;
+        private bool equalPowerCrossFade = true;
         bool iSoundPlayer.EqualPowerCrossFade
         {
             get { return equalPowerCrossFade; }
@@ -125,9 +125,9 @@ namespace STFM
             this.AudioSettings = AudioSettings;
             this.Mixer = Mixer;
         }
-         
 
-    [SupportedOSPlatform("Android31.0")]
+
+        [SupportedOSPlatform("Android31.0")]
         void StartPlayer()
         {
 
@@ -138,7 +138,7 @@ namespace STFM
                 NumberOfOutputChannels = Mixer.GetHighestOutputChannel();
 
                 if (currentOverlapDuration == null) { currentOverlapDuration = 0.05; } // This value is default, set only on first call
-                SetOverlapDuration(currentOverlapDuration.Value); 
+                SetOverlapDuration(currentOverlapDuration.Value);
 
                 SilentBuffer = new float[AudioSettings.FramesPerBuffer * NumberOfOutputChannels];
                 PlaybackBuffer = new float[AudioSettings.FramesPerBuffer * NumberOfOutputChannels];
@@ -188,7 +188,7 @@ namespace STFM
 
                 audioTrackBuilder.SetAudioAttributes(new Android.Media.AudioAttributes.Builder()
                     .SetUsage(AudioUsageKind.Media)
-                    .SetContentType( AudioContentType.Music)
+                    .SetContentType(AudioContentType.Music)
                     .Build());
 
                 audioTrackBuilder.SetPerformanceMode(AudioTrackPerformanceMode.None);
@@ -234,7 +234,7 @@ namespace STFM
             if (Encoding != null)
             {
                 if (SupportedWaveFormatEncodings.Contains(Encoding.Value) == false)
-                {                    
+                {
                     throw new Exception("Unable to start the sound AndroidAudioTrackPlayer. Unsupported audio encoding.");
                 }
             }
@@ -974,38 +974,56 @@ namespace STFM
 
                     int fadeArrayLength = NumberOfOutputChannels * (int)_OverlapFrameCount;
 
-                    // Linear fading
-                    // fade in array
-                    OverlapFadeInArray = new float[fadeArrayLength];
-                    for (int n = 0; n < _OverlapFrameCount; n++)
-                    {
-                        for (int c = 0; c < NumberOfOutputChannels; c++)
-                        {
-                            OverlapFadeInArray[n * NumberOfOutputChannels + c] = (float)n / (float)(_OverlapFrameCount - 1);
-                        }
-                    }
-
-                    // fade out array
-                    OverlapFadeOutArray = new float[fadeArrayLength];
-                    for (int n = 0; n < _OverlapFrameCount; n++)
-                    {
-                        for (int c = 0; c < NumberOfOutputChannels; c++)
-                        {
-                            OverlapFadeOutArray[n * NumberOfOutputChannels + c] = (float)1 - (float)((float)n / (float)(_OverlapFrameCount - 1));
-                        }
-                    }
-
-                    // Adjusting to equal power fades
                     if (equalPowerCrossFade)
                     {
-                        for (int n = 0; n < fadeArrayLength; n++)
+
+                        // Equal power fades
+
+                        // fade in array
+                        OverlapFadeInArray = new float[fadeArrayLength];
+                        for (int n = 0; n < _OverlapFrameCount; n++)
                         {
-                            OverlapFadeInArray[n] = (float)Math.Sqrt(OverlapFadeInArray[n]);
+                            for (int c = 0; c < NumberOfOutputChannels; c++)
+                            {
+                                OverlapFadeInArray[n * NumberOfOutputChannels + c] = (float)Math.Sqrt(n / (float)(_OverlapFrameCount - 1));
+                            }
                         }
-                        for (int n = 0; n < fadeArrayLength; n++)
+
+                        // fade out array
+                        OverlapFadeOutArray = new float[fadeArrayLength];
+                        for (int n = 0; n < _OverlapFrameCount; n++)
                         {
-                            OverlapFadeOutArray[n] = (float)Math.Sqrt(OverlapFadeOutArray[n]);
+                            for (int c = 0; c < NumberOfOutputChannels; c++)
+                            {
+                                OverlapFadeOutArray[n * NumberOfOutputChannels + c] = (float)Math.Sqrt(1 - (float)((float)n / (float)(_OverlapFrameCount - 1)));
+                            }
                         }
+
+                    }
+                    else
+                    {
+
+                        // Linear fading
+                        // fade in array
+                        OverlapFadeInArray = new float[fadeArrayLength];
+                        for (int n = 0; n < _OverlapFrameCount; n++)
+                        {
+                            for (int c = 0; c < NumberOfOutputChannels; c++)
+                            {
+                                OverlapFadeInArray[n * NumberOfOutputChannels + c] = (float)n / (float)(_OverlapFrameCount - 1);
+                            }
+                        }
+
+                        // fade out array
+                        OverlapFadeOutArray = new float[fadeArrayLength];
+                        for (int n = 0; n < _OverlapFrameCount; n++)
+                        {
+                            for (int c = 0; c < NumberOfOutputChannels; c++)
+                            {
+                                OverlapFadeOutArray[n * NumberOfOutputChannels + c] = (float)1 - (float)((float)n / (float)(_OverlapFrameCount - 1));
+                            }
+                        }
+
                     }
                 }
                 catch (Exception ex)
@@ -1483,7 +1501,7 @@ namespace STFM
                 return false;
             }
             //Else, leaves the default device (which should have been selected upon audio track creation
-            
+
             return true;
         }
     }
