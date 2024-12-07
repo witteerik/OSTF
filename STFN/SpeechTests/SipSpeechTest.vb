@@ -93,7 +93,7 @@ Public Class SipSpeechTest
 
     Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
         Get
-            Return TestProtocols.GetSipProtocols
+            Return New List(Of TestProtocol)
         End Get
     End Property
 

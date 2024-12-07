@@ -455,10 +455,10 @@ public partial class OptionsViewAll : ContentView
             UseContralateralMaskingControl.IsVisible = false;
         }
 
-        UpdateContralteralNoiseLevelIsVisible();
+        UpdateContralateralNoiseLevelIsVisible();
     }
 
-    private void UpdateContralteralNoiseLevelIsVisible()
+    private void UpdateContralateralNoiseLevelIsVisible()
     {
         if (UseContralateralMaskingControl.IsVisible && UseContralateralMasking_Switch.IsToggled)
         {
@@ -474,7 +474,7 @@ public partial class OptionsViewAll : ContentView
 
     private void UseContralateralMaskingControl_Switch_Toggled(object sender, ToggledEventArgs e)
     {
-        UpdateContralteralNoiseLevelIsVisible();
+        UpdateContralateralNoiseLevelIsVisible();
     }
 
     private bool CurrentTransducerIsHeadPhones()

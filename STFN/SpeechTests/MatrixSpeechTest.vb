@@ -96,8 +96,6 @@ Public Class MatrixSpeechTest
         End Get
     End Property
 
-
-
     Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
         Get
             Return New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
@@ -106,7 +104,10 @@ Public Class MatrixSpeechTest
 
     Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
         Get
-            Return TestProtocols.GetSrtProtocols
+            'Returning new instances of supported protocols
+            Return New List(Of TestProtocol) From {
+                New HagermanKinnefors1995_TestProtocol,
+                New BrandKollmeier2002_TestProtocol}
         End Get
     End Property
 

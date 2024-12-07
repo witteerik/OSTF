@@ -1,63 +1,6 @@
 ﻿Imports STFN.SpeechTest
 Imports STFN.SrtSpeechTest
 
-Public Module TestProtocols
-
-    Public Function GetSrtProtocols() As List(Of TestProtocol)
-        Dim Output = New List(Of TestProtocol)
-
-        'Adding suitable protocols
-        Output.Add(New SrtIso8253_TestProtocol)
-        Output.Add(New HagermanKinnefors1995_TestProtocol)
-        Output.Add(New BrandKollmeier2002_TestProtocol)
-        Output.Add(New SrtChaiklinVentry1964_TestProtocol)
-        Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
-        Output.Add(New SrtMargolis2021_TestProtocol)
-
-        Return Output
-
-    End Function
-
-    Public Function GetSipProtocols() As List(Of TestProtocol)
-
-        Dim Output = New List(Of TestProtocol)
-        'Adding suitable protocols
-        Return Output
-
-    End Function
-
-    Public Function GetThresholdProtocols() As List(Of TestProtocol)
-        Dim Output = New List(Of TestProtocol)
-
-        'Adding suitable protocols
-        Output.Add(New SrtIso8253_TestProtocol)
-        Output.Add(New HagermanKinnefors1995_TestProtocol)
-        Output.Add(New BrandKollmeier2002_TestProtocol)
-        Output.Add(New SrtChaiklinVentry1964_TestProtocol)
-        Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
-        Output.Add(New SrtMargolis2021_TestProtocol)
-
-        Return Output
-
-    End Function
-
-    Public Function GetAllProtocols() As List(Of TestProtocol)
-        Dim Output = New List(Of TestProtocol)
-
-        'Adding suitable protocols
-        Output.Add(New SrtIso8253_TestProtocol)
-        Output.Add(New HagermanKinnefors1995_TestProtocol)
-        Output.Add(New BrandKollmeier2002_TestProtocol)
-        Output.Add(New SrtChaiklinVentry1964_TestProtocol)
-        Output.Add(New SrtChaiklinFontDixon1967_TestProtocol)
-        Output.Add(New SrtMargolis2021_TestProtocol)
-
-        Return Output
-
-    End Function
-
-End Module
-
 Public MustInherit Class TestProtocol
 
     Public Overridable Property IsInPretestMode As Boolean = False
