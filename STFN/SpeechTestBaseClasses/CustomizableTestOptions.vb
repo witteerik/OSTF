@@ -6,8 +6,12 @@ Public Class CustomizableTestOptions
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
+    Public Property SkipGuiUpdates As Boolean = False
+
     Public Sub OnPropertyChanged(<CallerMemberName> Optional name As String = "")
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(name))
+        If SkipGuiUpdates = False Then
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(name))
+        End If
     End Sub
 
     Public Sub New()

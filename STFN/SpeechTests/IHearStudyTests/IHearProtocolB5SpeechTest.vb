@@ -669,7 +669,7 @@ Public Class IHearProtocolB5SpeechTest
 
     End Function
 
-    Public Function GetPlannedTrialsExportString(Optional ByVal ID As String = "") As String
+    Private Function GetPlannedTrialsExportString(Optional ByVal ID As String = "") As String
 
         Dim ExportStringList As New List(Of String)
 

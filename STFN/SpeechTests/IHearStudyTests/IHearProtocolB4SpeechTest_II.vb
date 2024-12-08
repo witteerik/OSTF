@@ -347,6 +347,53 @@ Public Class IHearProtocolB4SpeechTest_II
     End Function
 
 
+    Public Sub TestListCombinations()
+
+        ''Temporary code for testing list-level combinations
+
+        CustomizableTestOptions.SkipGuiUpdates = True
+
+        Dim CounterBalanceList = GetCounterBalanceList()
+
+        Dim TempExportData = New List(Of String)
+
+        For i = CounterBalanceList.Keys.Min To CounterBalanceList.Keys.Max
+
+            ListTalkerCollection.Clear()
+            TestsCompleted = 0
+            CustomizableTestOptions.ExperimentNumber = i
+            'Initializing the first test
+            IsInitialized = False
+            InitializeCurrentTest()
+
+            'Storing for export
+            If i = CounterBalanceList.Keys.Min Then
+                TempExportData.Add(GetPlannedTrialsExportString(i, TestsCompleted, False))
+            Else
+                TempExportData.Add(GetPlannedTrialsExportString(i, TestsCompleted, True))
+            End If
+
+            TestsCompleted += 1
+
+            For j = 1 To TotalNumberOfLists - 1
+
+                'Initializing the second test
+                InitializeTestWithNewList()
+
+                'Storing for export
+                TempExportData.Add(GetPlannedTrialsExportString(i, TestsCompleted, True))
+
+                TestsCompleted += 1
+
+            Next
+
+        Next
+
+            Utils.SendInfoToLog(String.Join(vbCrLf, TempExportData), "ProtocolB4II_PlannedTestTrials")
+
+    End Sub
+
+
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
@@ -406,6 +453,10 @@ Public Class IHearProtocolB4SpeechTest_II
         'Gets the selected MediaSet and stores it into the CustomizableTestOptions for the current test stage
         CustomizableTestOptions.SelectedMediaSet = ListTalkerCollection(TestsCompleted).Item2
 
+        If CustomizableTestOptions.SelectedMediaSet Is Nothing Then
+            Dim X As Integer = 0
+        End If
+
         'Adding all planned test words, and stopping after NumberOfWordsToAdd have been added
         PlannedTestWords = New List(Of SpeechMaterialComponent)
         PlannedFamiliarizationWords = New List(Of SpeechMaterialComponent)
@@ -435,7 +486,7 @@ Public Class IHearProtocolB4SpeechTest_II
         Next
 
         'Getting the contralateral noise from the first SMC
-        ContralateralNoise = PlannedTestWords.First.GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+        ContralateralNoise = PlannedTestWords.First.GetContralateralMaskerSound(ListTalkerCollection(TestsCompleted).Item2, 0)
 
         Return True
 
@@ -718,6 +769,26 @@ Public Class IHearProtocolB4SpeechTest_II
             End If
 
             TestTrialIndex += 1
+        Next
+
+        Return String.Join(vbCrLf, ExportStringList)
+
+    End Function
+
+    Private Function GetPlannedTrialsExportString(ByVal ID As String, ByVal TestIndex As Integer, ByVal SkipHeading As Boolean) As String
+
+        Dim ExportStringList As New List(Of String)
+
+        Dim TestTrialIndex As Integer = 0
+        For Each TestWord In PlannedTestWords
+
+            If TestTrialIndex = 0 And SkipHeading = False Then
+                ExportStringList.Add("ID" & vbTab & "TestIndex" & vbTab & "TrialIndex" & vbTab & "SMCID" & vbTab & "Spelling" & vbTab & "MediaSetName")
+            End If
+
+            ExportStringList.Add(ID & vbTab & TestIndex & vbTab & TestTrialIndex & vbTab & TestWord.Id & vbTab & TestWord.GetCategoricalVariableValue("Spelling") & vbTab & CustomizableTestOptions.SelectedMediaSet.MediaSetName)
+            TestTrialIndex += 1
+
         Next
 
         Return String.Join(vbCrLf, ExportStringList)
