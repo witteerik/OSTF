@@ -609,6 +609,11 @@ public partial class SpeechTestView : ContentView, IDrawable
             // Inactivates tackback
             InactivateTalkback();
 
+            // Inactivating GUI updates of the CustomizableTestOptions of the selected test. // N.B. As of now, this is never turned on again, which means that the GUI connection will not work properly after the test has been started. 
+            // The reason we need to inactivate the GUI connection is that when the GUI is updated asynchronosly, some objects needed for testing may not have been set before they are needed.
+            CurrentSpeechTest.CustomizableTestOptions.SkipGuiUpdates = true;
+
+            // Initializing the test
             Tuple<bool, string> testInitializationResponse = CurrentSpeechTest.InitializeCurrentTest();
             await handleTestInitializationResult(testInitializationResponse);
             if (testInitializationResponse.Item1 == false) { return false; }

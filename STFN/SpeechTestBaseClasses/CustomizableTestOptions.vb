@@ -6,8 +6,18 @@ Public Class CustomizableTestOptions
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
+    ''' <summary>
+    '''Set to True to inactivate GUI updates of the CustomizableTestOptions from the selected test.
+    '''The reason we may need to inactivate the GUI connection is that when the GUI is updated asynchronosly, some objects needed during testing may not have been set before they are needed.
+    '''Therefore, this value should be changed to True whenever a test is started or resumed, and optionally to False when the test is completed or paused.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property SkipGuiUpdates As Boolean = False
+
     Public Sub OnPropertyChanged(<CallerMemberName> Optional name As String = "")
-        RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(name))
+        If SkipGuiUpdates = False Then
+            RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(name))
+        End If
     End Sub
 
     Public Sub New()
