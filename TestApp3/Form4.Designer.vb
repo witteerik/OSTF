@@ -71,6 +71,7 @@ Partial Class Form4
         Me.Button38 = New System.Windows.Forms.Button()
         Me.Button39 = New System.Windows.Forms.Button()
         Me.Button40 = New System.Windows.Forms.Button()
+        Me.Button41 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -514,12 +515,22 @@ Partial Class Form4
         Me.Button40.Text = "CompareSpeechLevels"
         Me.Button40.UseVisualStyleBackColor = True
         '
+        'Button41
+        '
+        Me.Button41.Location = New System.Drawing.Point(796, 432)
+        Me.Button41.Name = "Button41"
+        Me.Button41.Size = New System.Drawing.Size(75, 23)
+        Me.Button41.TabIndex = 59
+        Me.Button41.Text = "Button41"
+        Me.Button41.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button41)
         Me.Controls.Add(Me.Button40)
         Me.Controls.Add(Me.Button39)
         Me.Controls.Add(Me.Button38)
@@ -624,4 +635,5 @@ Partial Class Form4
     Friend WithEvents Button38 As Button
     Friend WithEvents Button39 As Button
     Friend WithEvents Button40 As Button
+    Friend WithEvents Button41 As Button
 End Class

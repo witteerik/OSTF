@@ -4546,4 +4546,5 @@ Public Class Form4
                "Difference TP  - Talker2: " & Math.Round(SpeechLevelDifference_TP_T2, 1) & " dBC")
 
     End Sub
+
 End Class
