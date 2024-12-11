@@ -617,6 +617,9 @@ Public Class IHearProtocolB5SpeechTest
         'And the EM term
         CurrentTestTrial.EfficientContralateralMaskingTerm = CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
 
+        'And the experiment number
+        CurrentTestTrial.ExperimentNumber = CustomizableTestOptions.ExperimentNumber
+
     End Sub
 
     Public Overrides Sub FinalizeTest()

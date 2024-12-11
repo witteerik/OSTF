@@ -18,6 +18,12 @@ End Class
 Public MustInherit Class TestTrial
 
     ''' <summary>
+    ''' An integer value that can be used to store the current experiment number used. 
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ExperimentNumber As Integer
+
+    ''' <summary>
     ''' An integer value which can be used to store the test block to which the current trial belongs. While test stages should primarily differ in the applied protocol rules, test blocks should primarily differ in tested content.
     ''' </summary>
     Public Property TestBlock As Integer

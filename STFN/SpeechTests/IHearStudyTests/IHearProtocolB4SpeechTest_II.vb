@@ -718,6 +718,9 @@ Public Class IHearProtocolB4SpeechTest_II
         'And the EM term
         CurrentTestTrial.EfficientContralateralMaskingTerm = CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
 
+        'And the experiment number
+        CurrentTestTrial.ExperimentNumber = CustomizableTestOptions.ExperimentNumber
+
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
