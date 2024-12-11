@@ -34,7 +34,7 @@ Public Class SrtSwedishHint2018_TestProtocol
     End Property
 
 
-    Private LargerAdaptiveStepSize As Double = 2
+    Private AdaptiveStepSize As Double = 2
 
     Private NextAdaptiveLevel As Double = 0
 
@@ -70,20 +70,13 @@ Public Class SrtSwedishHint2018_TestProtocol
         Dim ProportionTasksCorrect = TrialHistory.Last.GetProportionTasksCorrect
 
         'Determines adaptive change
-        Select Case ProportionTasksCorrect
-            Case 0.5
-                'This only happens when there are multiple tasks
-                'Leaving the level onchanged and returns
-
-            Case > 0.5
-                'Decreasing the level (making the test more difficult)
-                NextAdaptiveLevel -= LargerAdaptiveStepSize
-
-            Case Else
-                'Increasing the level (making the test more easy)
-                NextAdaptiveLevel += LargerAdaptiveStepSize
-
-        End Select
+        If ProportionTasksCorrect = 1 Then
+            'Decreasing the level (making the test more difficult)
+            NextAdaptiveLevel -= AdaptiveStepSize
+        Else
+            'Increasing the level (making the test more easy)
+            NextAdaptiveLevel += AdaptiveStepSize
+        End If
 
         'Checking if test is complete (presenting max number of trials)
         If TrialHistory.Count >= TotalTrialCount Then

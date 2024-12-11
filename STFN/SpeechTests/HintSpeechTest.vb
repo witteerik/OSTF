@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports MathNet.Numerics
+Imports MathNet.Numerics.Distributions
 Imports STFN.TestProtocol
 
 Public Class HintSpeechTest
@@ -13,9 +14,9 @@ Public Class HintSpeechTest
     ''' <summary>
     ''' This collection contains MaximumNumberOfTestWords which can be used troughout the test, in sequential order.
     ''' </summary>
-    Private PlannedTestWords As List(Of SpeechMaterialComponent)
+    Private PlannedTestSentencess As List(Of SpeechMaterialComponent)
 
-    Private MaximumNumberOfTestWords As Integer = 200
+    Private MaximumNumberOfTestSentences As Integer = 40
 
     Private HasNoise As Boolean
 
@@ -69,7 +70,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
@@ -102,7 +103,8 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
         Get
-            Return New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
+            'Return New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
+            Return New List(Of TestModes) From {TestModes.AdaptiveNoise}
         End Get
     End Property
 
@@ -206,7 +208,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property UseKeyWordScoring As Utils.TriState
         Get
-            Return Utils.Constants.TriState.Optional
+            Return Utils.Constants.TriState.True
         End Get
     End Property
 
@@ -218,7 +220,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property UseWithinListRandomization As Utils.TriState
         Get
-            Return Utils.Constants.TriState.Optional
+            Return Utils.Constants.TriState.False
         End Get
     End Property
 
@@ -254,7 +256,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property LevelStepSize As Double
         Get
-            Return 5
+            Return 1
         End Get
     End Property
 
@@ -272,8 +274,8 @@ Public Class HintSpeechTest
 
     Public Overrides Property SoundOverlapDuration As Double = 0.1
 
-    Public Overrides ReadOnly Property MinimumLevel As Double = 20
-    Public Overrides ReadOnly Property MaximumLevel As Double = 80
+    Public Overrides ReadOnly Property MinimumLevel As Double = 35
+    Public Overrides ReadOnly Property MaximumLevel As Double = 85
 
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
@@ -283,6 +285,9 @@ Public Class HintSpeechTest
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         ObservedTrials = New TrialHistory
+
+        ' Using a fixed speech level
+        CustomizableTestOptions.SpeechLevel = 65
 
         If CustomizableTestOptions.SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
@@ -316,18 +321,26 @@ Public Class HintSpeechTest
 
     Private Function CreatePlannedWordsList() As Boolean
 
-        'Adding NumberOfWordsToAdd words, starting from the start list (excluding practise items), and re-using lists if needed 
+        'Adding MaximumNumberOfTestSentences words, starting from the start list (excluding practise items), and re-using lists if needed 
         Dim TempAvailableLists As New List(Of SpeechMaterialComponent)
-        Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, True, False)
+        Dim AllAvailableLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, False, False)
 
-        Dim ListCount As Integer = AllLists.Count
-        Dim TotalWordCount As Integer = 0
-        For Each List In AllLists
-            TotalWordCount += List.ChildComponents.Count ' N.B. We get sentence components here, but in spondee materials, each sentence only contains one word.
+        Dim AllLists As New List(Of SpeechMaterialComponent)
+        'Filtering out lists which are or are not pracise lists depending on the selected value in CustomizableTestOptions
+        For Each List In AllAvailableLists
+            If List.IsPractiseComponent = CustomizableTestOptions.IsPractiseTest Then
+                AllLists.Add(List)
+            End If
         Next
 
-        'Calculating the number of loops around the material that is needed to get NumberOfWordsToAdd words, and adding one loop to compensate for not starting the adding of words at the first list
-        Dim LoopsNeeded As Integer = Math.Ceiling(TotalWordCount / MaximumNumberOfTestWords) + 1
+        Dim ListCount As Integer = AllLists.Count
+        Dim TotalSentenceCount As Integer = 0
+        For Each List In AllLists
+            TotalSentenceCount += List.ChildComponents.Count
+        Next
+
+        'Calculating the number of loops around the material that is needed to get TotalSentenceCount sentences, and adding one loop to compensate for not starting the adding of sentences at the first list
+        Dim LoopsNeeded As Integer = Math.Ceiling(TotalSentenceCount / MaximumNumberOfTestSentences) + 1
         'Adding the number of lists needed 
         For i = 1 To LoopsNeeded
             TempAvailableLists.AddRange(AllLists)
@@ -340,7 +353,7 @@ Public Class HintSpeechTest
                 Exit For
             End If
         Next
-        'Collecting the lists to use, starting with the stat list
+        'Collecting the lists to use, starting with the start list
         Dim ListsToUse As New List(Of SpeechMaterialComponent)
         If SelectedStartListIndex > -1 Then
             For i = SelectedStartListIndex To TempAvailableLists.Count - 1
@@ -348,22 +361,22 @@ Public Class HintSpeechTest
             Next
         Else
             'This should not happen unless there are no lists loaded!
-            Messager.MsgBox("Unable to add test words, probably since the selected speech material only contains " & TotalWordCount & " words!",, "An error occurred!")
+            Messager.MsgBox("Unable to add test sentences, probably since the selected speech material only contains " & TotalSentenceCount & " sentences!",, "An error occurred!")
             Return False
         End If
 
-        'Adding all planned test words, and stopping after NumberOfWordsToAdd have been added
-        PlannedTestWords = New List(Of SpeechMaterialComponent)
-        Dim TargetNumberOfWordsReached As Boolean = False
+        'Adding all planned test sentences, and stopping after MaximumNumberOfTestSentences have been added
+        PlannedTestSentencess = New List(Of SpeechMaterialComponent)
+        Dim TargetNumberOfSentencesReached As Boolean = False
         For Each List In ListsToUse
             Dim CurrentWords = List.GetChildren()
 
             If CustomizableTestOptions.RandomizeItemsWithinLists = False Then
                 For Each Word In CurrentWords
-                    PlannedTestWords.Add(Word)
-                    'Checking if enough words have been added
-                    If PlannedTestWords.Count = MaximumNumberOfTestWords Then
-                        TargetNumberOfWordsReached = True
+                    PlannedTestSentencess.Add(Word)
+                    'Checking if enough sentences have been added
+                    If PlannedTestSentencess.Count = MaximumNumberOfTestSentences Then
+                        TargetNumberOfSentencesReached = True
                         Exit For
                     End If
                 Next
@@ -371,25 +384,25 @@ Public Class HintSpeechTest
                 'Randomizing order
                 Dim RandomizedOrder = Utils.SampleWithoutReplacement(CurrentWords.Count, 0, CurrentWords.Count, Randomizer)
                 For Each RandomIndex In RandomizedOrder
-                    PlannedTestWords.Add(CurrentWords(RandomIndex))
+                    PlannedTestSentencess.Add(CurrentWords(RandomIndex))
                     'Checking if enough words have been added
-                    If PlannedTestWords.Count = MaximumNumberOfTestWords Then
-                        TargetNumberOfWordsReached = True
+                    If PlannedTestSentencess.Count = MaximumNumberOfTestSentences Then
+                        TargetNumberOfSentencesReached = True
                         Exit For
                     End If
                 Next
             End If
 
-            If TargetNumberOfWordsReached = True Then
-                'Breaking out of the outer loop if we have enough words
+            If TargetNumberOfSentencesReached = True Then
+                'Breaking out of the outer loop if we have enough sentences
                 Exit For
             End If
 
         Next
 
-        'Checking that we really have NumberOfWordsToAdd words
-        If MaximumNumberOfTestWords <> PlannedTestWords.Count Then
-            Messager.MsgBox("The wrong number of test items were added. It should have been " & MaximumNumberOfTestWords & " but instead " & PlannedTestWords.Count & " items were added!",, "An error occurred!")
+        'Checking that we really have MaximumNumberOfTestSentences words
+        If MaximumNumberOfTestSentences <> PlannedTestSentencess.Count Then
+            Messager.MsgBox("The wrong number of test items were added. It should have been " & MaximumNumberOfTestSentences & " but instead " & PlannedTestSentencess.Count & " items were added!",, "An error occurred!")
             Return False
         End If
 
@@ -411,11 +424,21 @@ Public Class HintSpeechTest
             'Resets the CurrentTestTrial.ScoreList
             CurrentTestTrial.ScoreList = New List(Of Integer)
             For i = 0 To e.LinguisticResponses.Count - 1
+
+                If CustomizableTestOptions.ScoreOnlyKeyWords = True Then
+                    If WordsInSentence(i).IsKeyComponent = False Then
+                        'In keyword correction mode, skipping to next if the word is not a keyword
+                        Continue For
+                    End If
+                End If
+
+                'Correcting the word
                 If e.LinguisticResponses(i) = WordsInSentence(i).GetCategoricalVariableValue("Spelling") Then
                     CurrentTestTrial.ScoreList.Add(1)
                 Else
                     CurrentTestTrial.ScoreList.Add(0)
                 End If
+
             Next
 
             'Checks if the trial is finished
@@ -450,7 +473,7 @@ Public Class HintSpeechTest
 
         'Preparing the next trial
         'Getting next test word
-        Dim NextTestWord = PlannedTestWords(ObservedTrials.Count)
+        Dim NextTestWord = PlannedTestSentencess(ObservedTrials.Count)
 
         'Creating a new test trial
         Select Case CustomizableTestOptions.SelectedTestMode
@@ -501,12 +524,15 @@ Public Class HintSpeechTest
                 For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
 
                     If CustomizableTestOptions.ScoreOnlyKeyWords = True Then
-                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
+                        Dim IsKeyComponent = Child.IsKeyComponent
+                        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = IsKeyComponent})
+                        If IsKeyComponent = True Then
+                            CurrentTestTrial.Tasks += 1
+                        End If
                     Else
                         ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
                     End If
 
-                    CurrentTestTrial.Tasks += 1
                 Next
             End If
 
@@ -621,19 +647,19 @@ Public Class HintSpeechTest
     'End Function
 
     Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)
-        Throw New NotImplementedException
+        'Throw New NotImplementedException
     End Function
 
     Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
-        Throw New NotImplementedException()
+        'Throw New NotImplementedException()
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
-        Throw New NotImplementedException()
+        'Throw New NotImplementedException()
     End Function
 
     Public Overrides Function GetExportString() As String
-        Throw New NotImplementedException()
+        'Throw New NotImplementedException()
     End Function
 End Class
 

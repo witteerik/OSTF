@@ -626,7 +626,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Response view
                     CurrentResponseView = new ResponseView_FreeRecall();
 
-                    if (true)
+                    // Select separate response window here, code not finished
+                    if (false)
                     {
                         ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
                         Window secondWindow = new Window(responsePage);
