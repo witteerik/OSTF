@@ -281,6 +281,13 @@ Public Class TP50_SoundField
     Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 100
 
+    Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
+        Get
+            Dim OutputList As New List(Of Integer)
+            Return OutputList.ToArray
+        End Get
+    End Property
+
 
     Dim PreTestListIndex As Integer
     Dim TestListIndex As Integer
