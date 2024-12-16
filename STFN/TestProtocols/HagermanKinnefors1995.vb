@@ -63,6 +63,14 @@ Public Class HagermanKinnefors1995_TestProtocol
 
     End Function
 
+    ''' <summary>
+    ''' Returns the number of trials remaining or -1 if this is not possible to determine.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function TotalTrialCount() As Integer
+        Return TestLength
+    End Function
+
     Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
 
         If TrialHistory.Count = 0 Then

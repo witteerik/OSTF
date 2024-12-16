@@ -596,6 +596,7 @@ Public Class TP50_SoundField
         'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
         CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
         CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+        CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
 
         'Getting a random section of the noise
         Dim TotalNoiseLength As Integer = MaskerNoise.WaveData.SampleData(1).Length

@@ -27,6 +27,12 @@ Public MustInherit Class TestProtocol
         TrialCount
     End Enum
 
+    ''' <summary>
+    ''' This function should return the number of trials remaining or -1 if not possible to determine.
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride Function TotalTrialCount() As Integer
+
     Public MustOverride Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
     Public MustOverride Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction

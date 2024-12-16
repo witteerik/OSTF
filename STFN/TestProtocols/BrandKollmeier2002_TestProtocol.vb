@@ -40,7 +40,6 @@ Public Class BrandKollmeier2002_TestProtocol
     Public Property TargetThreshold As Double = 0.5 'This is the 'tar' variable in Brand and Kollmeier 2002, indicating the target threshold percentage correct
     Public Property Slope As Double = 0.16 'This is the slope of the psychometric function of the test material (0.16 is the slope for the Swedish Hagerman test according to Kollmeier et al 2015)' This parameter could be read from the MediaSet specification file to allow for different speech materials 
 
-
     Public Overrides Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
         'Setting the (initial) adaptive level (should be the speech level) specified by the calling code
@@ -51,6 +50,14 @@ Public Class BrandKollmeier2002_TestProtocol
 
         Return True
 
+    End Function
+
+    ''' <summary>
+    ''' Returns the number of trials remaining or -1 if this is not possible to determine.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function TotalTrialCount() As Integer
+        Return TestLength
     End Function
 
     Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction

@@ -162,6 +162,18 @@ Public MustInherit Class TestTrial
     ''' <returns></returns>
     Public Property LinguisticSoundStimulusDuration As Double
 
+    ''' <summary>
+    ''' Should hold the maximum response time, in milliseconds (N.B. This may be in reference to different events in different tests)
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property MaximumResponseTime As Double
+
+    ''' <summary>
+    ''' Should hol information whether the current trial is a practise trial or not
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property IsPractiseTrial As Boolean
+
     Public ReadOnly Property GetTimedEventsString() As String
         Get
 

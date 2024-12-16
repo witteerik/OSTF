@@ -128,12 +128,27 @@
 
     Public MustOverride ReadOnly Property AvailableExperimentNumbers As Integer()
 
+    Public ReadOnly Property AvailablePractiseListsNames() As List(Of String)
+        Get
+            Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
+            Dim Output As New List(Of String)
+            For Each List In AllLists
+                If List.IsPractiseComponent = True Then
+                    Output.Add(List.PrimaryStringRepresentation)
+                End If
+            Next
+            Return Output
+        End Get
+    End Property
+
     Public ReadOnly Property AvailableTestListsNames() As List(Of String)
         Get
             Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
             Dim Output As New List(Of String)
             For Each List In AllLists
-                Output.Add(List.PrimaryStringRepresentation)
+                If List.IsPractiseComponent = False Then
+                    Output.Add(List.PrimaryStringRepresentation)
+                End If
             Next
             Return Output
         End Get

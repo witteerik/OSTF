@@ -278,7 +278,13 @@ Public Class MatrixSpeechTest
         End Get
     End Property
 
+
+    Private MaximumSoundDuration As Double = 21
+    Private TestWordPresentationTime As Double = 0.5
+    Private MaximumResponseTime As Double = 20.5
+
 #End Region
+
 
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
@@ -642,9 +648,13 @@ Public Class MatrixSpeechTest
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
+        'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
+        'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+        'If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = TestWordPresentationTime, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaximumResponseTime, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 
@@ -684,6 +694,11 @@ Public Class MatrixSpeechTest
 
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
+        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+        CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
+
+
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
         Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) + RETSPL_Correction
         Dim NeededGain = TargetLevel_FS - NominalLevel_FS
@@ -705,6 +720,9 @@ Public Class MatrixSpeechTest
             CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
 
         End If
+
+
+        ' CurrentTestTrial.IsPractiseTrial = ... TODO add this...
 
     End Sub
 

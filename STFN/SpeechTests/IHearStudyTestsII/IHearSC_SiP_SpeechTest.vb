@@ -678,6 +678,7 @@ Public Class IHearSC_SiP_SpeechTest
         'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration 
         CurrentTestTrial.LinguisticSoundStimulusStartTime = DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime
         CurrentTestTrial.LinguisticSoundStimulusDuration = DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime - CurrentTestTrial.LinguisticSoundStimulusStartTime
+        CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
 
         'Setting visual que intervals
         Dim ShowVisualQueTimer_Interval As Double

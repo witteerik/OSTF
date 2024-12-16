@@ -44,7 +44,7 @@
 
     Private FinalThreshold As Double? = Nothing
 
-    Public Property TotalTrialCount As Integer = 20
+    Public Property TestLength As Integer = 20
 
 
 
@@ -58,6 +58,14 @@
 
         Return True
 
+    End Function
+
+    ''' <summary>
+    ''' Returns the number of trials remaining or -1 if this is not possible to determine.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function TotalTrialCount() As Integer
+        Return TestLength
     End Function
 
     Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
@@ -135,7 +143,7 @@
             End Select
 
             'Checking if test is complete (presenting max number of trials)
-            If TrialHistory.Count >= TotalTrialCount Then
+            If TrialHistory.Count >= TestLength Then
 
                 'Exits the test
                 Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}

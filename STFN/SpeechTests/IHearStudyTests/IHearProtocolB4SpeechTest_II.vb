@@ -458,10 +458,6 @@ Public Class IHearProtocolB4SpeechTest_II
         'Gets the selected MediaSet and stores it into the CustomizableTestOptions for the current test stage
         CustomizableTestOptions.SelectedMediaSet = ListTalkerCollection(TestsCompleted).Item2
 
-        If CustomizableTestOptions.SelectedMediaSet Is Nothing Then
-            Dim X As Integer = 0
-        End If
-
         'Adding all planned test words, and stopping after NumberOfWordsToAdd have been added
         PlannedTestWords = New List(Of SpeechMaterialComponent)
         PlannedFamiliarizationWords = New List(Of SpeechMaterialComponent)
@@ -638,6 +634,7 @@ Public Class IHearProtocolB4SpeechTest_II
         'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
         CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
         CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+        CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
 
         'Creating a silent sound (lazy method to get the same length independently of contralateral masking or not)
         Dim SilentSound = Audio.GenerateSound.CreateSilence(ContralateralNoise.WaveFormat, 1, MaximumSoundDuration)

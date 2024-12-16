@@ -88,7 +88,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property SupportsPrelistening As Boolean
         Get
-            Return True
+            Return False
         End Get
     End Property
 
@@ -283,6 +283,10 @@ Public Class HintSpeechTest
         End Get
     End Property
 
+    Private MaximumSoundDuration As Double = 10
+    Private TestWordPresentationTime As Double = 0.5
+    Private MaximumResponseTime As Double = 5
+
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 
@@ -334,7 +338,7 @@ Public Class HintSpeechTest
         Dim AllLists As New List(Of SpeechMaterialComponent)
         'Filtering out lists which are or are not pracise lists depending on the selected value in CustomizableTestOptions
         For Each List In AllAvailableLists
-            If List.IsPractiseComponent = CustomizableTestOptions.IsPractiseTest Then
+            If List.IsPractiseComponent = CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode Then
                 AllLists.Add(List)
             End If
         Next
@@ -353,12 +357,23 @@ Public Class HintSpeechTest
         Next
         'Determines the index of the start list
         Dim SelectedStartListIndex As Integer = -1
-        For i = 0 To AllLists.Count - 1
-            If AllLists(i).PrimaryStringRepresentation = CustomizableTestOptions.StartList Then
-                SelectedStartListIndex = i
-                Exit For
+        If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = False Then
+            '...based on the CustomizableTestOptions.StartList 
+            For i = 0 To AllLists.Count - 1
+                If AllLists(i).PrimaryStringRepresentation = CustomizableTestOptions.StartList Then
+                    SelectedStartListIndex = i
+                    Exit For
+                End If
+            Next
+        Else
+            '...randomly from the number of practise lists
+            If AllLists.Count = 0 Then
+                Messager.MsgBox("Unable to add test sentences, probably since the selected speech material has no dedicated practise lists ",, "An error occurred!")
+                Return False
             End If
-        Next
+            SelectedStartListIndex = Randomizer.Next(0, AllLists.Count)
+        End If
+
         'Collecting the lists to use, starting with the start list
         Dim ListsToUse As New List(Of SpeechMaterialComponent)
         If SelectedStartListIndex > -1 Then
@@ -465,6 +480,43 @@ Public Class HintSpeechTest
         'Calculating the speech level
         Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
 
+        'Preparing a full test if the practise list is finished
+        If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+            If ProtocolReply.Decision = SpeechTestReplies.TestIsCompleted Then
+
+                'Finalizing the protocol
+                CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+
+                'Showing results in the GUI
+                GetResultStringForGui()
+
+                'Saving results of the practise test
+                SaveTableFormatedTestResults()
+
+                'Initializing a new test protocol for main testing stage and move directly to test mode
+                'Setting the start value in the new protocol to the current AdaptiveValue
+                Dim NewProtocol As Object = Nothing
+                For Each AvailableProtocol In Me.AvailableTestProtocols
+                    If AvailableProtocol.GetType = CustomizableTestOptions.SelectedTestProtocol.GetType Then
+                        NewProtocol = AvailableProtocol
+                        Exit For
+                    End If
+                Next
+                CustomizableTestOptions.SelectedTestProtocol = NewProtocol
+
+                'Initializing the new protocol with the adaptive threshold determined in the practise test as the start value
+                CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = ProtocolReply.AdaptiveValue})
+
+                'Clearing observed and planned sentences (since these are based on practise lists), and plan new lists based on the intended start list
+                ObservedTrials.Clear()
+                PlannedTestSentencess.Clear()
+                CreatePlannedWordsList()
+
+                ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
+
+            End If
+        End If
+
         'Preparing next trial if needed
         If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
             PrepareNextTrial(ProtocolReply)
@@ -553,8 +605,12 @@ Public Class HintSpeechTest
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1000, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1001, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+        'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1000, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
+        'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1001, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * TestWordPresentationTime), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
     End Sub
 
@@ -568,6 +624,11 @@ Public Class HintSpeechTest
         End If
 
         Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+
+        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
+        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+        CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
 
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
         Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) + RETSPL_Correction
@@ -600,6 +661,10 @@ Public Class HintSpeechTest
         'And the EM term
         CurrentTestTrial.EfficientContralateralMaskingTerm = CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
 
+        'DirectCast(CurrentTestTrial, SrtTrial).TestEar = ... TODO. Set this!
+
+        CurrentTestTrial.IsPractiseTrial = CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode
+
     End Sub
 
     Public Overrides Sub FinalizeTest()
@@ -608,65 +673,84 @@ Public Class HintSpeechTest
 
     End Sub
 
-    'Public Overrides Function GetResults() As TestResults
+    Public Overrides Function GetResultStringForGui() As String
 
-    '    Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
 
-    '    Dim RawResults = New TestResults(TestResults.TestResultTypes.SRT)
-    '    If ProtocolThreshold.HasValue Then
-    '        RawResults.AdaptiveLevelThreshold = ProtocolThreshold
-    '    Else
-    '        'Storing NaN if no threshold was reached
-    '        RawResults.AdaptiveLevelThreshold = Double.NaN
-    '    End If
+        Dim Output As New List(Of String)
 
-    '    'Calculating the SRT based on the adaptive threshold
-    '    Select Case CustomizableTestOptions.SelectedTestMode
-    '        Case TestModes.AdaptiveSpeech
-    '            RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
-    '        Case TestModes.AdaptiveNoise
-    '            RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
-    '        Case Else
-    '            Throw New NotImplementedException
-    '    End Select
+        If ProtocolThreshold IsNot Nothing Then
+            If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+                ResultSummaryForGUI.Add("Resultat för övningstestet: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
+            Else
+                ResultSummaryForGUI.Add("Testresultat: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
+            End If
 
-    '    'Storing the AdaptiveLevelSeries
-    '    RawResults.AdaptiveLevelSeries = New List(Of Double)
-    '    RawResults.SpeechLevelSeries = New List(Of Double)
-    '    RawResults.MaskerLevelSeries = New List(Of Double)
-    '    RawResults.SNRLevelSeries = New List(Of Double)
-    '    RawResults.TestStageSeries = New List(Of String)
-    '    RawResults.ProportionCorrectSeries = New List(Of String)
-    '    'Trial.IsCorrect  is not used
-    '    'RawResults.ScoreSeries = New List(Of String)
-    '    For Each Trial As SrtTrial In ObservedTrials
-    '        RawResults.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
-    '        RawResults.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
-    '        RawResults.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
-    '        RawResults.SNRLevelSeries.Add(Math.Round(Trial.SNR))
-    '        RawResults.TestStageSeries.Add(Trial.TestStage)
-    '        RawResults.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-    '    Next
+            Output.AddRange(ResultSummaryForGUI)
+        Else
+            If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+                Output.Add("Övningstest!")
+            End If
 
-    '    Return RawResults
+            If CurrentTestTrial IsNot Nothing Then
+                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & CustomizableTestOptions.SelectedTestProtocol.TotalTrialCount)
+                Output.Add("SNR = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SNR) & " dB HL")
+                Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
+                Output.Add("Brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel) & " dB HL")
+                If CustomizableTestOptions.UseContralateralMasking = True Then
+                    Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
+                End If
+            End If
+        End If
 
-    'End Function
+            Return String.Join(vbCrLf, Output)
+
+    End Function
+
+    Private ResultSummaryForGUI As New List(Of String)
+
+    Public Overrides Function GetExportString() As String
+
+        Dim ExportStringList As New List(Of String)
+
+        Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+
+        'Exporting all trials
+        Dim TestTrialIndex As Integer = 0
+        For i = 0 To ObservedTrials.Count - 1
+
+            If TestTrialIndex = 0 Then
+                ExportStringList.Add("TrialIndex" & vbTab & ObservedTrials(i).TestResultColumnHeadings & vbTab & "SRT")
+            End If
+
+            If i = ObservedTrials.Count - 1 Then
+                'Exporting SRT on last row, last column, if determined
+                If ProtocolThreshold.HasValue Then
+                    ExportStringList.Add(i & vbTab & ObservedTrials(i).TestResultAsTextRow & vbTab & ProtocolThreshold)
+                Else
+                    ExportStringList.Add(i & vbTab & ObservedTrials(i).TestResultAsTextRow & vbTab & "SRT not established")
+                End If
+            Else
+                ExportStringList.Add(i & vbTab & ObservedTrials(i).TestResultAsTextRow)
+            End If
+
+            TestTrialIndex += 1
+        Next
+
+        Return String.Join(vbCrLf, ExportStringList)
+
+    End Function
 
     Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)
-        'Throw New NotImplementedException
+        Throw New NotImplementedException("Creating pre-test stimuli is not supported in the HINT test.")
     End Function
 
     Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
+        'This is not used in HINT, just ignores any calls
         'Throw New NotImplementedException()
     End Sub
 
-    Public Overrides Function GetResultStringForGui() As String
-        'Throw New NotImplementedException()
-    End Function
 
-    Public Overrides Function GetExportString() As String
-        'Throw New NotImplementedException()
-    End Function
 End Class
 
 

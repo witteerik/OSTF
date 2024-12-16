@@ -38,16 +38,6 @@ Public Class SrtSwedishHint2018_TestProtocol
 
     Private NextAdaptiveLevel As Double = 0
 
-    Public ReadOnly Property TotalTrialCount As Integer
-        Get
-            If IsInPretestMode = True Then
-                Return 10
-            Else
-                Return 20
-            End If
-        End Get
-    End Property
-
 
     Private FinalAdaptiveThreshold As Double? = Nothing
 
@@ -58,6 +48,17 @@ Public Class SrtSwedishHint2018_TestProtocol
         Return True
     End Function
 
+    ''' <summary>
+    ''' Returns the number of trials remaining or -1 if this is not possible to determine.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function TotalTrialCount() As Integer
+        If IsInPretestMode = True Then
+            Return 10
+        Else
+            Return 20
+        End If
+    End Function
 
     Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
 
@@ -90,6 +91,7 @@ Public Class SrtSwedishHint2018_TestProtocol
         Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
 
     End Function
+
 
     Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
