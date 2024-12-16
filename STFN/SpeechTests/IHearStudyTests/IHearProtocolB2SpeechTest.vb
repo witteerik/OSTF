@@ -37,7 +37,7 @@ Public Class IHearProtocolB2SpeechTest
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
             Return "Patientens uppgift: " & vbCrLf & vbCrLf &
-                " - Under testet ska patienten lyssna efter enstaviga ord i brus och efter varje ord ange på skärmen vilket ord hen uppfattade." & vbCrLf &
+                " - Under testet ska patienten lyssna efter enstaviga ord i brus och efter varje ord repetera ordet muntligt." & vbCrLf &
                 " - Patienten ska gissa om hen är osäker." & vbCrLf &
                 " - Patienten har maximalt " & TestWordPresentationTime + MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
                 " - Testet är 50 ord långt."
@@ -282,6 +282,11 @@ Public Class IHearProtocolB2SpeechTest
     Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 80
 
+    Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
+        Get
+            Return {}
+        End Get
+    End Property
 
     Dim PreTestListIndex As Integer
     Dim TestListIndex As Integer

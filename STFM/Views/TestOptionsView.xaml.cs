@@ -58,6 +58,13 @@ public partial class OptionsViewAll : ContentView
         }
         else { SelectedPreset_Picker.IsVisible = false; }
 
+        if (SharedSpeechTestObjects.CurrentSpeechTest.AvailableExperimentNumbers.Length > 0)
+        {
+            if (ExperimentNumber_Picker.Items.Count > 0) { ExperimentNumber_Picker.SelectedIndex = 0; }
+            if (ExperimentNumber_Picker.Items.Count < 2) { ExperimentNumberControl.IsVisible = false; }
+        }
+        else { ExperimentNumberControl.IsVisible = false; }
+
         if (SharedSpeechTestObjects.CurrentSpeechTest.AllowsManualStartListSelection == true)
         {
             if (StartList_Picker.Items.Count > 0) { StartList_Picker.SelectedIndex = 0; }

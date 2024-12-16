@@ -66,6 +66,22 @@ Public Class CustomizableTestOptions
     Private _SelectedPreset As SmcPresets.Preset
     Public Property SelectedPresetTitle As String = "Förval"
 
+    ''' <summary>
+    ''' If specified, should contain the (one-based) index of the current experiment in the series of experiments in the current data collection (Optional).
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ExperimentNumber As Integer
+        Get
+            Return _ExperimentNumber
+        End Get
+        Set(value As Integer)
+            _ExperimentNumber = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _ExperimentNumber As Integer
+    Public Property ExperimentNumberTitle As String = "Experiment nr"
+
 
     ''' <summary>
     ''' If specified, should contain the name of the list to present first (Optional).

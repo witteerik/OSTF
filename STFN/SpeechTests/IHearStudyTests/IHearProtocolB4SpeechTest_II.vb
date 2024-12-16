@@ -1,6 +1,6 @@
 ﻿Imports STFN.TestProtocol
 
-Public Class IHearProtocolB4SpeechTest
+Public Class IHearProtocolB4SpeechTest_II
     Inherits SpeechTest
 
     Public Sub New(SpeechMaterialName As String)
@@ -10,7 +10,7 @@ Public Class IHearProtocolB4SpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String
         Get
-            Return "ProtocolB4_ManualSRT"
+            Return "ProtocolB4_II_ManualSRT"
         End Get
     End Property
 
@@ -25,36 +25,31 @@ Public Class IHearProtocolB4SpeechTest
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
             Return "(Detta test går ut på att undersöka nya HTT-listor med muntliga svar, med manlig och kvinnlig röst.)" & vbCrLf & vbCrLf &
-                "Testet ska användas med personer som är hörselvårdspatienter." & vbCrLf &
-                "1. Välj testöra." & vbCrLf &
-                "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
-                "3. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
-                "4. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att patienten kan uppfatta dem. Höj talnivån om patienten inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
-                "(Använd knappen TB för att prata med patienten när denna har lurar på sig.)" & vbCrLf &
-                "5. Klicka på start för att starta testet." & vbCrLf &
-                "6. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen (nivåjusteringen sker automatiskt)"
+                "Testet ska användas med normalhörande personer, som inte är hörselvårdspatienter." & vbCrLf &
+                "1. Ange experimentnummer." & vbCrLf &
+                "2. Välj testöra." & vbCrLf &
+                "3. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
+                "4. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
+                "5. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att deltagaren kan uppfatta dem. Höj talnivån om deltagaren inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
+                "(Använd knappen TB för att prata med deltagaren när denna har lurar på sig.)" & vbCrLf &
+                "6. Klicka på start för att starta testet." & vbCrLf &
+                "7. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen (nivåjusteringen sker automatiskt)"
 
         End Get
     End Property
 
     Public Overrides ReadOnly Property ParticipantInstructions As String
         Get
-            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
-                " - Patienten ska lyssna efter tvåstaviga ord och efter varje ord repetera ordet muntligt." & vbCrLf &
-                " - Patienten ska gissa om hen är osäker. " & vbCrLf &
-                " - Patienten har maximalt " & MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
-                " - Testet består av två 25-ordslistor (en med manlig och en med kvinnlig röst) som körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
+            Return "Deltagarens uppgift: " & vbCrLf & vbCrLf &
+                " - Deltagarens ska lyssna efter tvåstaviga ord och efter varje ord repetera ordet muntligt." & vbCrLf &
+                " - Deltagarens ska gissa om hen är osäker. " & vbCrLf &
+                " - Deltagarens har maximalt " & MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
+                " - Testet består av åtta 25-ordslistor (med varierande manlig eller kvinnlig röst) som körs direkt efter varandra, med möjlighet till korta pauser mellan varje."
 
         End Get
     End Property
 
     Public Overrides ReadOnly Property HasOptionalPractiseTest As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsUseRetsplChoice As Boolean
         Get
             Return False
         End Get
@@ -280,26 +275,25 @@ Public Class IHearProtocolB4SpeechTest
 
     Public Overrides Property SoundOverlapDuration As Double = 0.25
 
+    Public Overrides ReadOnly Property LevelsAredBHL As Boolean = True
     Public Overrides ReadOnly Property MinimumLevel As Double = -40
     Public Overrides ReadOnly Property MaximumLevel As Double = 80
 
     Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
         Get
-            Return {}
+            Dim OutputList As New List(Of Integer)
+            For i = 1 To 30
+                OutputList.Add(i)
+            Next
+            Return OutputList.ToArray
         End Get
     End Property
 
+
     Private IsInitialized As Boolean = False
 
-    Private IsInitializeStarted As Boolean = False
-
-    Private IsSecondTest As Boolean = False
-
-    'TestOrder holds rendomized order in which the two tests are run (specifying MediaSet and List index)
-    Private TestOrder As Integer
-
-    Dim CacheLastTestListVariableName As String
-    Dim StoredTestListIndex As Integer
+    Private TestsCompleted As Integer = 0
+    Private TotalNumberOfLists As Integer
 
     Private ContralateralNoise As Audio.Sound = Nothing
     Private SilentSound As Audio.Sound = Nothing
@@ -308,74 +302,127 @@ Public Class IHearProtocolB4SpeechTest
     Private TestWordPresentationTime As Double = 0.5
     Private MaximumResponseTime As Double = 5
 
-    Public Sub TestCacheIndexation()
+    Private ListTalkerCollection As New List(Of Tuple(Of SpeechMaterialComponent, MediaSet))
 
-        'Creating cache variable names for storing last test list index and voice between sessions
-        CacheLastTestListVariableName = FilePathRepresentation & "LastTestListOrder"
+    ''' <summary>
+    ''' Returns a list for counter-balancing two talkers between the eight lists in 30 experiments
+    ''' </summary>
+    ''' <returns></returns>
+    Private Function GetCounterBalanceList() As SortedList(Of Integer, Integer())
 
-        Utils.AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
+        Dim CounterBalanceList As New SortedList(Of Integer, Integer())
+        CounterBalanceList.Add(1, {0, 0, 0, 0, 1, 1, 1, 1})
+        CounterBalanceList.Add(2, {0, 0, 1, 1, 0, 0, 1, 1})
+        CounterBalanceList.Add(3, {0, 1, 0, 1, 0, 1, 0, 1})
+        CounterBalanceList.Add(4, {1, 0, 0, 1, 1, 0, 0, 1})
+        CounterBalanceList.Add(5, {1, 1, 0, 0, 1, 1, 0, 0})
+        CounterBalanceList.Add(6, {1, 0, 1, 0, 1, 0, 1, 0})
+        CounterBalanceList.Add(7, {0, 1, 1, 0, 0, 1, 1, 0})
+        CounterBalanceList.Add(8, {1, 1, 1, 1, 0, 0, 0, 0})
+        CounterBalanceList.Add(9, {0, 0, 0, 0, 1, 1, 1, 1})
+        CounterBalanceList.Add(10, {0, 0, 1, 1, 0, 0, 1, 1})
+        CounterBalanceList.Add(11, {0, 1, 0, 1, 0, 1, 0, 1})
+        CounterBalanceList.Add(12, {1, 0, 0, 1, 1, 0, 0, 1})
+        CounterBalanceList.Add(13, {1, 1, 0, 0, 1, 1, 0, 0})
+        CounterBalanceList.Add(14, {1, 0, 1, 0, 1, 0, 1, 0})
+        CounterBalanceList.Add(15, {0, 1, 1, 0, 0, 1, 1, 0})
+        CounterBalanceList.Add(16, {1, 1, 1, 1, 0, 0, 0, 0})
+        CounterBalanceList.Add(17, {0, 0, 0, 0, 1, 1, 1, 1})
+        CounterBalanceList.Add(18, {0, 0, 1, 1, 0, 0, 1, 1})
+        CounterBalanceList.Add(19, {0, 1, 0, 1, 0, 1, 0, 1})
+        CounterBalanceList.Add(20, {1, 0, 0, 1, 1, 0, 0, 1})
+        CounterBalanceList.Add(21, {1, 1, 0, 0, 1, 1, 0, 0})
+        CounterBalanceList.Add(22, {1, 0, 1, 0, 1, 0, 1, 0})
+        CounterBalanceList.Add(23, {0, 1, 1, 0, 0, 1, 1, 0})
+        CounterBalanceList.Add(24, {1, 1, 1, 1, 0, 0, 0, 0})
+        CounterBalanceList.Add(25, {0, 0, 0, 0, 1, 1, 1, 1})
+        CounterBalanceList.Add(26, {0, 0, 1, 1, 0, 0, 1, 1})
+        CounterBalanceList.Add(27, {0, 1, 0, 1, 0, 1, 0, 1})
+        CounterBalanceList.Add(28, {1, 1, 1, 1, 0, 0, 0, 0})
+        CounterBalanceList.Add(29, {1, 1, 0, 0, 1, 1, 0, 0})
+        CounterBalanceList.Add(30, {1, 0, 1, 0, 1, 0, 1, 0})
 
-        For testSession = 0 To 25
+        Return CounterBalanceList
 
+    End Function
+
+
+    Public Sub TestListCombinations()
+
+        ''Temporary code for testing list-level combinations
+
+        CustomizableTestOptions.SkipGuiUpdates = True
+
+        Dim CounterBalanceList = GetCounterBalanceList()
+
+        Dim TempExportData = New List(Of String)
+
+        For i = CounterBalanceList.Keys.Min To CounterBalanceList.Keys.Max
+
+            ListTalkerCollection.Clear()
+            TestsCompleted = 0
+            CustomizableTestOptions.ExperimentNumber = i
+            'Initializing the first test
+            IsInitialized = False
             InitializeCurrentTest()
 
-            Utils.SendInfoToLog("testSession:" & testSession & ", StoredTestListIndex : " & StoredTestListIndex)
+            'Storing for export
+            If i = CounterBalanceList.Keys.Min Then
+                TempExportData.Add(GetPlannedTrialsExportString(i, TestsCompleted, False))
+            Else
+                TempExportData.Add(GetPlannedTrialsExportString(i, TestsCompleted, True))
+            End If
 
-            FinalizeTest()
+            TestsCompleted += 1
 
-            IsInitialized = False
-            IsInitializeStarted = False
+            For j = 1 To TotalNumberOfLists - 1
+
+                'Initializing the second test
+                InitializeTestWithNewList()
+
+                'Storing for export
+                TempExportData.Add(GetPlannedTrialsExportString(i, TestsCompleted, True))
+
+                TestsCompleted += 1
+
+            Next
 
         Next
 
-        Utils.AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
-
-        Messager.MsgBox("Finished test of cache indexation. Results are stored in the log folder.")
+            Utils.SendInfoToLog(String.Join(vbCrLf, TempExportData), "ProtocolB4II_PlannedTestTrials")
 
     End Sub
+
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
-        If IsInitializeStarted = True Then Return New Tuple(Of Boolean, String)(True, "")
-
-        IsInitializeStarted = True
-
-        'Randomizing the order of media sets
-        TestOrder = Utils.SampleWithoutReplacement(1, 0, 2, Randomizer)(0)
-
-        ObservedTrials = New TrialHistory
-        CustomizableTestOptions.SelectedTestProtocol = New SrtIso8253_TestProtocol
-        CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveSpeech
-
-        Dim StartAdaptiveLevel As Double = CustomizableTestOptions.SpeechLevel
-
-        Dim AllTestListsNames = AvailableTestListsNames()
-
-        'Creating cache variable names for storing last test list index and voice between sessions
-        CacheLastTestListVariableName = FilePathRepresentation & "LastTestList"
-
-        'Selecting test list
-        If Utils.AppCache.AppCacheVariableExists(CacheLastTestListVariableName) = True Then
-
-            'Getting the last tested index
-            StoredTestListIndex = Utils.AppCache.GetAppCacheIntegerVariableValue(CacheLastTestListVariableName)
-
-        Else
-            'Randomizing a new list number if no list has been run previously 
-            StoredTestListIndex = Randomizer.Next(0, AllTestListsNames.Count)
-
-            'Unwrapping TestListIndex
-            If StoredTestListIndex > AllTestListsNames.Count - 1 Then
-                StoredTestListIndex = 0
-            End If
-
+        Dim ExperimentNumber As Integer = CustomizableTestOptions.ExperimentNumber
+        If ExperimentNumber < 1 Or ExperimentNumber > 30 Then
+            Throw New ArgumentException("Invalid experiment number. It must be in the range 1-30!")
         End If
 
-        CreatePlannedWordsList()
+        Dim CounterBalanceList = GetCounterBalanceList()
+        Dim CurrentListTalkerCombination = CounterBalanceList(ExperimentNumber)
 
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
+        'Adds the list talker combinations into a list of objects (so that it can be randomized using Utils.Shuffle)
+        Dim ListTalkerCollectionObjects As New List(Of Object)
+        Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, True, False)
+        TotalNumberOfLists = AllLists.Count
+        For ListIndex = 0 To AllLists.Count - 1
+            ListTalkerCollectionObjects.Add(New Tuple(Of SpeechMaterialComponent, MediaSet)(AllLists(ListIndex), AvailableMediasets(CurrentListTalkerCombination(ListIndex)))) 'Holds List-level SpeechMaterialComponent and MediaSet to be used
+        Next
+
+        'Randomizing the presentation order
+        ListTalkerCollectionObjects = Utils.Shuffle(ListTalkerCollectionObjects, Randomizer)
+
+        'Adding the randomized list talker combinations into ListTalkerCollection, from where they're drawn in each stage of the testing
+        For Each Item As Tuple(Of SpeechMaterialComponent, MediaSet) In ListTalkerCollectionObjects
+            ListTalkerCollection.Add(Item)
+        Next
+
+        InitializeTestWithNewList()
 
         IsInitialized = True
 
@@ -383,17 +430,9 @@ Public Class IHearProtocolB4SpeechTest
 
     End Function
 
-    Private Sub InitializeSecondTest()
+    Private Sub InitializeTestWithNewList()
 
-        'Store the results of the first test
-        CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
-        SaveTableFormatedTestResults()
-
-        ' Calling this just to store the tage 1 resulsts for the GUI
-        GetResultStringForGui()
-
-        'Initialize second test
-        IsSecondTest = True
+        'Initialize the test
         ObservedTrials = New TrialHistory
         CustomizableTestOptions.SelectedTestProtocol = New SrtIso8253_TestProtocol
         CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveSpeech
@@ -404,48 +443,18 @@ Public Class IHearProtocolB4SpeechTest
 
         CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
 
-
     End Sub
 
     Private Function CreatePlannedWordsList() As Boolean
 
-        'Adding NumberOfWordsToAdd words, starting from the start list (excluding practise items), and re-using lists if needed 
-        Dim TempAvailableLists As New List(Of SpeechMaterialComponent)
-        Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, True, False)
+        'Gets the selected List
+        Dim CurrentListSMC As SpeechMaterialComponent = ListTalkerCollection(TestsCompleted).Item1
 
-        Dim CurrentListSMC As SpeechMaterialComponent
+        'Gets the selected MediaSet and stores it into the CustomizableTestOptions for the current test stage
+        CustomizableTestOptions.SelectedMediaSet = ListTalkerCollection(TestsCompleted).Item2
 
-        'Determining which combination of MediaSet and test List that should be run. 
-        If IsSecondTest = False Then
-            'First test
-            If TestOrder = 0 Then
-                CustomizableTestOptions.SelectedMediaSet = AvailableMediasets(0)
-                CurrentListSMC = AllLists(StoredTestListIndex)
-            Else
-                ' I.e. TestOrder = 1
-                CustomizableTestOptions.SelectedMediaSet = AvailableMediasets(1)
-
-                Dim CurrentListIndex As Integer = StoredTestListIndex + 1
-                If CurrentListIndex > AllLists.Count - 1 Then
-                    CurrentListIndex = 0
-                End If
-                CurrentListSMC = AllLists(CurrentListIndex)
-            End If
-        Else
-            'Second test
-            If TestOrder = 0 Then
-                CustomizableTestOptions.SelectedMediaSet = AvailableMediasets(1)
-
-                Dim CurrentListIndex As Integer = StoredTestListIndex + 1
-                If CurrentListIndex > AllLists.Count - 1 Then
-                    CurrentListIndex = 0
-                End If
-                CurrentListSMC = AllLists(CurrentListIndex)
-            Else
-                ' I.e. TestOrder = 1
-                CustomizableTestOptions.SelectedMediaSet = AvailableMediasets(0)
-                CurrentListSMC = AllLists(StoredTestListIndex)
-            End If
+        If CustomizableTestOptions.SelectedMediaSet Is Nothing Then
+            Dim X As Integer = 0
         End If
 
         'Adding all planned test words, and stopping after NumberOfWordsToAdd have been added
@@ -477,7 +486,7 @@ Public Class IHearProtocolB4SpeechTest
         Next
 
         'Getting the contralateral noise from the first SMC
-        ContralateralNoise = PlannedTestWords.First.GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+        ContralateralNoise = PlannedTestWords.First.GetContralateralMaskerSound(ListTalkerCollection(TestsCompleted).Item2, 0)
 
         Return True
 
@@ -538,14 +547,24 @@ Public Class IHearProtocolB4SpeechTest
         'Checking if first test is finished
         If ProtocolReply.Decision = SpeechTestReplies.TestIsCompleted Then
 
-            If IsSecondTest = False Then
+            'Increments TestsCompleted 
+            TestsCompleted += 1
+
+            'Store the results of the last test
+            CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+            SaveTableFormatedTestResults()
+
+            If TestsCompleted < TotalNumberOfLists Then
+
+                ' Calling this just to store the results of the previous test for the GUI (the last time we don't need to call it since its then called by the speech test view)
+                GetResultStringForGui()
 
                 'It's the first test, initializing the second test
-                InitializeSecondTest()
+                InitializeTestWithNewList()
 
                 'And informing the participant
                 ProtocolReply.Decision = SpeechTestReplies.PauseTestingWithCustomInformation
-                PauseInformation = "Första delen är klar av testet är klart." & vbCrLf & " Klicka OK för att starta den andra och sista delen."
+                PauseInformation = "Test " & TestsCompleted & " av " & TotalNumberOfLists & " är klart." & vbCrLf & " Klicka OK och Fortsätt för att starta nästa test."
 
             End If
         End If
@@ -603,7 +622,7 @@ Public Class IHearProtocolB4SpeechTest
     Private Sub MixNextTrialSound()
 
         Dim RETSPL_Correction As Double = 0
-        If CustomizableTestOptions.UseRetsplCorrection = True Then
+        If LevelsAredBHL = True Then
             RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
         End If
 
@@ -699,11 +718,10 @@ Public Class IHearProtocolB4SpeechTest
         'And the EM term
         CurrentTestTrial.EfficientContralateralMaskingTerm = CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
 
+        'And the experiment number
+        CurrentTestTrial.ExperimentNumber = CustomizableTestOptions.ExperimentNumber
+
     End Sub
-
-
-    Dim HasAddedSRT_Stage1 As Boolean = False
-    Dim HasAddedSRT_Stage2 As Boolean = False
 
     Public Overrides Function GetResultStringForGui() As String
 
@@ -712,18 +730,7 @@ Public Class IHearProtocolB4SpeechTest
         Dim Output As New List(Of String)
 
         If ProtocolThreshold IsNot Nothing Then
-
-            If IsSecondTest = False Then
-                If HasAddedSRT_Stage1 = False Then
-                    ResultSummaryForGUI.Add("HTT första testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
-                    HasAddedSRT_Stage1 = True
-                End If
-            Else
-                If HasAddedSRT_Stage2 = False Then
-                    ResultSummaryForGUI.Add("HTT andra testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
-                    HasAddedSRT_Stage2 = True
-                End If
-            End If
+            ResultSummaryForGUI.Add("HTT för test nr " & TestsCompleted & " = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
             Output.AddRange(ResultSummaryForGUI)
         Else
             Output.Add("Testord nummer " & ObservedTrials.Count & " av " & PlannedTestWords.Count)
@@ -771,28 +778,29 @@ Public Class IHearProtocolB4SpeechTest
 
     End Function
 
+    Private Function GetPlannedTrialsExportString(ByVal ID As String, ByVal TestIndex As Integer, ByVal SkipHeading As Boolean) As String
+
+        Dim ExportStringList As New List(Of String)
+
+        Dim TestTrialIndex As Integer = 0
+        For Each TestWord In PlannedTestWords
+
+            If TestTrialIndex = 0 And SkipHeading = False Then
+                ExportStringList.Add("ID" & vbTab & "TestIndex" & vbTab & "TrialIndex" & vbTab & "SMCID" & vbTab & "Spelling" & vbTab & "MediaSetName")
+            End If
+
+            ExportStringList.Add(ID & vbTab & TestIndex & vbTab & TestTrialIndex & vbTab & TestWord.Id & vbTab & TestWord.GetCategoricalVariableValue("Spelling") & vbTab & CustomizableTestOptions.SelectedMediaSet.MediaSetName)
+            TestTrialIndex += 1
+
+        Next
+
+        Return String.Join(vbCrLf, ExportStringList)
+
+    End Function
+
     Public Overrides Sub FinalizeTest()
 
         CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
-
-        If CurrentParticipantID <> NoTestId Then
-
-            'Saving updated cache data values, only if a real test was completed
-            Dim AllTestListsNames = AvailableTestListsNames()
-
-            Dim NextTestListIndex As Integer = StoredTestListIndex
-
-            NextTestListIndex += 1
-
-            'Unwrapping NextTestListIndex 
-            If NextTestListIndex > AllTestListsNames.Count - 1 Then
-                NextTestListIndex = 0
-            End If
-
-            'Storing the test list index to be used in the next test session (only if NoTestId was not used)
-            Utils.AppCache.SetAppCacheVariableValue(CacheLastTestListVariableName, NextTestListIndex)
-
-        End If
 
     End Sub
 

@@ -221,6 +221,10 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     private void StartTestBtn_Clicked(object sender, EventArgs e)
     {
+
+        //IHearProtocolB4SpeechTest_II TempObject = (IHearProtocolB4SpeechTest_II)CurrentSpeechTest;
+        //TempObject.TestListCombinations();
+
         StartTest();
     }
 
@@ -472,22 +476,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "Protokoll B3 - II - Användarstyrd TP":
-
-
-                    // Speech test
-                    CurrentSpeechTest = new IHearProtocolB3_II_SpeechTest("AMTEST_(SE)_MixIV - NominalLevel-25dB");
-
-                    // Testoptions
-                    TestOptionsGrid.Children.Clear();
-                    var newOptionsPB3BTestView = new OptionsViewAll();
-                    TestOptionsGrid.Children.Add(newOptionsPB3BTestView);
-                    CurrentTestOptionsView = newOptionsPB3BTestView;
-
-                    break;
-                    
-
-                case "Protokoll B4 - Manuell HTT":
+                case "Protokoll B4 - Manuell HTT - Klinik":
 
                     // Speech test
                     CurrentSpeechTest = new IHearProtocolB4SpeechTest("Swedish Spondees 23");
@@ -501,6 +490,34 @@ public partial class SpeechTestView : ContentView, IDrawable
                     //((IHearProtocolB4SpeechTest)CurrentSpeechTest).TestCacheIndexation();
 
                     break;
+
+                case "Protokoll B4 - Manuell HTT - Normalhörande":
+
+                    // Speech test
+                    CurrentSpeechTest = new IHearProtocolB4SpeechTest_II("Swedish Spondees 23");
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsPB4IITestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsPB4IITestView);
+                    CurrentTestOptionsView = newOptionsPB4IITestView;
+
+                    break;
+
+
+                case "Protokoll B5 - Användarstyrd TP II":
+
+                    // Speech test
+                    CurrentSpeechTest = new IHearProtocolB5SpeechTest("AMTEST_(SE)_MixIV");
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsPB5TestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsPB5TestView);
+                    CurrentTestOptionsView = newOptionsPB5TestView;
+
+                    break;
+                    
 
                 case "Protokoll B6 - Quick SiP":
 
@@ -742,19 +759,10 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
                     break;
 
-                case "Protokoll B3 - II - Användarstyrd TP":
-
-                    // Response view
-                    CurrentResponseView = new ResponseView_Mafc();
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    break;
-
-                case "Protokoll B4 - Manuell HTT":
+                case "Protokoll B4 - Manuell HTT - Klinik":
 
                     // Response view
                     CurrentResponseView = new ResponseView_FreeRecall();
@@ -763,6 +771,30 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
                     CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    break;
+
+                case "Protokoll B4 - Manuell HTT - Normalhörande":
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_FreeRecall();
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                    break;
+
+                case "Protokoll B5 - Användarstyrd TP II":
+
+                    // Response view
+                    CurrentResponseView = new ResponseView_Mafc();
+
+                    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
                     break;
 

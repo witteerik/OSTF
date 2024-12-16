@@ -126,6 +126,8 @@
         End Get
     End Property
 
+    Public MustOverride ReadOnly Property AvailableExperimentNumbers As Integer()
+
     Public ReadOnly Property AvailableTestListsNames() As List(Of String)
         Get
             Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)

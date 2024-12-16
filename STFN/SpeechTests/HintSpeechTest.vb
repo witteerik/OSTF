@@ -277,6 +277,12 @@ Public Class HintSpeechTest
     Public Overrides ReadOnly Property MinimumLevel As Double = 35
     Public Overrides ReadOnly Property MaximumLevel As Double = 85
 
+    Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
+        Get
+            Return {}
+        End Get
+    End Property
+
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
 
