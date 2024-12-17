@@ -84,7 +84,7 @@
 
 
             <HorizontalStackLayout x:Name="UseSimulatedSoundFieldControl">
-                <Label Text="{Binding UseSimulatedSoundFieldTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Label x:Name="UseSimulatedSoundField_Label" Text="{Binding UseSimulatedSoundFieldTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
                 <Switch x:Name="UseSimulatedSoundField_Switch" IsToggled="{Binding UseSimulatedSoundField}" Toggled="UseSimulatedSoundField_Switch_Toggled" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 

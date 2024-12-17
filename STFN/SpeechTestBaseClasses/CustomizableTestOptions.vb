@@ -112,7 +112,7 @@ Public Class CustomizableTestOptions
             OnPropertyChanged()
         End Set
     End Property
-    Private _SelectedMediaSet As New MediaSet
+    Private _SelectedMediaSet As MediaSet = Nothing
     Public Property SelectedMediaSetTitle As String = "Mediaset"
 
 

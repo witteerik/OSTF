@@ -94,7 +94,7 @@ Public Class HintSpeechTest
 
     Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
         Get
-            Return TriState.True
+            Return Utils.TriState.Optional
         End Get
     End Property
 

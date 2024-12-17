@@ -44,13 +44,13 @@ Public Class DirectionalSimulation
     ''' <param name="Elevation">The elevation (or inclination, theta), relative to the horizontal plane</param>
     ''' <param name="Distance">The distance (or radius, r)</param>
     ''' <returns>Returns a tuple containing the selected 3D-point and the corresponding binaural impulse response.</returns>
-    Public Function GetStereoKernel(ByVal ImpulseReponseSetName As String, ByVal Azimuth As Double, ByVal Elevation As Double, ByVal Distance As Double) As StereoKernel
+    Public Function GetStereoKernel(ByVal ImpulseResponseSetName As String, ByVal Azimuth As Double, ByVal Elevation As Double, ByVal Distance As Double) As StereoKernel
 
-        If BinauralImpulseReponseSets.ContainsKey(ImpulseReponseSetName) = False Then
-            Throw New Exception("Unable to locate the ImpulseReponseSet with the name: " & ImpulseReponseSetName)
+        If BinauralImpulseReponseSets.ContainsKey(ImpulseResponseSetName) = False Then
+            Throw New Exception("Unable to locate the ImpulseResponseSet with the name: " & ImpulseResponseSetName)
         End If
 
-        Return BinauralImpulseReponseSets(ImpulseReponseSetName).GetClosestPoint(Azimuth, Elevation, Distance)
+        Return BinauralImpulseReponseSets(ImpulseResponseSetName).GetClosestPoint(Azimuth, Elevation, Distance)
 
     End Function
 

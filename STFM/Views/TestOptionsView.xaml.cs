@@ -315,10 +315,17 @@ public partial class OptionsViewAll : ContentView
             else
             {
                 Messager.MsgBox("No HRIR for sound field simulation has been loaded! Sound field simulation will be disabled!", Messager.MsgBoxStyle.Information, "Cannot locate needed resources!");
+                UseSimulatedSoundField_Switch.IsToggled = false;
+                //SharedSpeechTestObjects.CurrentSpeechTest.UseSoundFieldSimulation = STFN.Utils.Constants.TriState.False; 'Cannot be done, as this is readonly!
+                // Hiding the controls instead
+                UseSimulatedSoundFieldControl.IsEnabled = false;
+                UseSimulatedSoundFieldControl.IsVisible = false;
+                UseSimulatedSoundField_Label.IsEnabled = false;
+                UseSimulatedSoundField_Label.IsVisible = false;
                 UseSimulatedSoundField_Switch.IsEnabled = false;
-                SelectedIrSet_Picker.IsEnabled = false;
                 UseSimulatedSoundField_Switch.IsVisible = false;
                 SelectedIrSet_Picker.IsVisible = false;
+                SelectedIrSet_Picker.IsEnabled = false;
                 return;
             }
 

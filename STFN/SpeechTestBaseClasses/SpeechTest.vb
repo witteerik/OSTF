@@ -202,7 +202,7 @@
                 Dim SupportedIrNames As New List(Of String)
                 If CustomizableTestOptions.SelectedMediaSet IsNot Nothing Then
                     SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSet.WaveFileSampleRate)
-                ElseIf CustomizableTestOptions.SelectedMediaSets IsNot Nothing Then
+                ElseIf CustomizableTestOptions.SelectedMediaSets.Count > 0 Then
                     SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSets(0).WaveFileSampleRate)
                 Else
                     SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(AvailableMediasets(0).WaveFileSampleRate)
