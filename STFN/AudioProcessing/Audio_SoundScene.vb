@@ -904,6 +904,7 @@ Namespace Audio.SoundScene
             Masker
             BackgroundNonspeech
             BackgroundSpeech
+            ContralateralMasker
         End Enum
 
         ''' <summary>

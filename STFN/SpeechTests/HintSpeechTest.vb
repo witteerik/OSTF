@@ -540,6 +540,7 @@ Public Class HintSpeechTest
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
             .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
             .MaskerLevel = CustomizableTestOptions.MaskingLevel,
+            .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
 
@@ -549,6 +550,7 @@ Public Class HintSpeechTest
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
             .SpeechLevel = NextTaskInstruction.AdaptiveValue,
             .MaskerLevel = Double.NegativeInfinity,
+            .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
 
@@ -561,6 +563,7 @@ Public Class HintSpeechTest
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
             .SpeechLevel = CustomizableTestOptions.SpeechLevel,
             .MaskerLevel = CustomizableTestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
+            .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
 
@@ -619,10 +622,11 @@ Public Class HintSpeechTest
 
         Dim TargetLevel_SPL As Double = DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel
         Dim MaskerLevel_SPL As Double = DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel
+        Dim ContralateralMaskerLevel_SPL As Double = DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
 
         Dim TargetPresentationTime As Double = TestWordPresentationTime
         Dim MaskerPresentationTime As Double = 0
-
+        Dim ContralateralMaskerPresentationTime As Double = MaskerPresentationTime
 
 
         'Mix the signal using DuxplexMixer CreateSoundScene
@@ -631,13 +635,39 @@ Public Class HintSpeechTest
         Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
         Dim CurrentSampleRate As Integer = -1
 
+        'Determining test ear and stores in the current test trial (This should perhaps be moved outside this function. On the other hand it's good that it's always detemined when sounds are mixed, though all tests need to implement this or call this code)
+        Dim CurrentTestEar As Utils.SidesWithBoth = Utils.SidesWithBoth.Both ' Assuming both, and overriding if needed
+        If CustomizableTestOptions.SelectedTransducer.IsHeadphones = True Then
+            If CustomizableTestOptions.UseSimulatedSoundField = False Then
+                Dim HasLeftSideTarget As Boolean = False
+                Dim HasRightSideTarget As Boolean = False
+
+                For Each SignalLocation In CustomizableTestOptions.SignalLocations
+                    If SignalLocation.HorizontalAzimuth > 0 Then
+                        'At least one signal location is to the right
+                        HasRightSideTarget = True
+                    End If
+                    If SignalLocation.HorizontalAzimuth < 0 Then
+                        'At least one signal location is to the left
+                        HasLeftSideTarget = True
+                    End If
+                Next
+
+                'Overriding the value Both if signal is only the left or only the right side
+                If HasLeftSideTarget = True And HasRightSideTarget = False Then
+                    CurrentTestEar = Utils.Constants.SidesWithBoth.Left
+                ElseIf HasLeftSideTarget = False And HasRightSideTarget = True Then
+                    CurrentTestEar = Utils.Constants.SidesWithBoth.Right
+                End If
+            End If
+        End If
+        CurrentTestTrial.TestEar = CurrentTestEar
+
         ' **TARGET SOUNDS**
         If CustomizableTestOptions.SignalLocations.Count > 0 Then
 
             'Getting the target sound (i.e. test words)
             Dim TargetSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
-
-            'TODO: Make sure that the Target sound has it's SMA object containing the nominal level as this is needed for mixing later!
 
             'Storing the samplerate
             CurrentSampleRate = TargetSound.WaveFormat.SampleRate
@@ -678,7 +708,7 @@ Public Class HintSpeechTest
         End If
 
 
-        ' **Masker SOUNDS**
+        ' **MASKER SOUNDS**
         If CustomizableTestOptions.MaskerLocations.Count > 0 Then
 
             'Getting the masker sound
@@ -740,7 +770,75 @@ Public Class HintSpeechTest
         End If
 
 
-        'TODO: Add contralateral masking if selected!
+        ' **CONTRALATERAL MASKER**
+        If CustomizableTestOptions.UseContralateralMasking = True Then
+
+            'Ensures that head phones are used
+            If CustomizableTestOptions.SelectedTransducer.IsHeadphones = False Then
+                Throw New Exception("Contralateral masking cannot be used without headphone presentation.")
+            End If
+
+            'Ensures that it's not a simulated sound field
+            If CustomizableTestOptions.UseSimulatedSoundField = True Then
+                Throw New Exception("Contralateral masking cannot be used in a simulated sound field!")
+            End If
+
+            'Getting the contralateral masker sound 
+            Dim FullContralateralMaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+
+            'Picking a random section of the ContralateralMaskerSound, starting in the first half
+            Dim RandomStartReadIndex As Integer = Randomizer.Next(0, (FullContralateralMaskerSound.WaveData.SampleData(1).Length / 2) - 1)
+            Dim IndendedMaskerDuration As Integer = MaximumSoundDuration * CurrentSampleRate
+
+            'Calculating the needed sound length and checks that the contralateral masker sound is long enough
+            Dim NeededSoundLength As Integer = RandomStartReadIndex + IndendedMaskerDuration + 10
+            If FullContralateralMaskerSound.WaveData.SampleData(1).Length < NeededSoundLength Then
+                Throw New Exception("The contralateral masker sound specified is too short for the intended maximum sound duration!")
+            End If
+
+            'Gets a copy of the sound section
+            Dim ContralateralMaskerSound = Audio.DSP.CopySection(FullContralateralMaskerSound, RandomStartReadIndex, IndendedMaskerDuration, 1)
+
+            'Copying the SMA object to retain the nominal level (although other time data and other related stuff will be incorrect, if not adjusted for)
+            ContralateralMaskerSound.SMA = FullContralateralMaskerSound.SMA.CreateCopy(ContralateralMaskerSound)
+
+            'Storing the samplerate
+            If CurrentSampleRate = -1 Then CurrentSampleRate = ContralateralMaskerSound.WaveFormat.SampleRate
+
+            'Setting the insertion sample of the contralateral masker
+            Dim ContralateralMaskerStartSample As Integer = Math.Floor(ContralateralMaskerPresentationTime * CurrentSampleRate)
+
+            'Setting the ContralateralMaskerStartMeasureSample (i.e. the sample index in the ContralateralMaskerSound, not in the final mix)
+            Dim ContralateralMaskerStartMeasureSample As Integer = 0
+
+            'Getting the ContralateralMaskerMeasureLength from the length of the sound files (i.e. everything is measured)
+            Dim ContralateralMaskerMeasureLength As Integer = ContralateralMaskerSound.WaveData.SampleData(1).Length
+
+            'Sets up fading specifications for the contralateral masker
+            Dim FadeSpecs_ContralateralMasker = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+            FadeSpecs_ContralateralMasker.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+            FadeSpecs_ContralateralMasker.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+
+            'Determining which side to put the contralateral masker
+            Dim ContralateralMaskerLocation As New SoundSourceLocation With {.Distance = 0, .Elevation = 0}
+            If CurrentTestEar = Utils.Constants.SidesWithBoth.Left Then
+                'Putting contralateral masker in right ear
+                ContralateralMaskerLocation.HorizontalAzimuth = 90
+            ElseIf CurrentTestEar = Utils.Constants.SidesWithBoth.Right Then
+                'Putting contralateral masker in left ear
+                ContralateralMaskerLocation.HorizontalAzimuth = -90
+            Else
+                'This shold never happen...
+                Throw New Exception("Contralateral noise cannot be used when the target signal is on both sides!")
+            End If
+
+            'Adding the contralateral maskers sources to the ItemList
+            ItemList.Add(New SoundSceneItem(ContralateralMaskerSound, 1, ContralateralMaskerLevel_SPL, LevelGroup, ContralateralMaskerLocation, SoundSceneItem.SoundSceneItemRoles.ContralateralMasker, ContralateralMaskerStartSample, ContralateralMaskerStartMeasureSample, ContralateralMaskerMeasureLength,, FadeSpecs_ContralateralMasker))
+
+            'Incrementing LevelGroup 
+            LevelGroup += 1
+
+        End If
 
 
         Dim CurrentSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
@@ -750,9 +848,7 @@ Public Class HintSpeechTest
         End If
 
         'Creating the mix by calling CreateSoundScene of the current Mixer
-        Dim MixedTestTrialSound = CustomizableTestOptions.SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, CustomizableTestOptions.UseRetsplCorrection, CurrentSoundPropagationType)
-
-        CurrentTestTrial.Sound = MixedTestTrialSound
+        CurrentTestTrial.Sound = CustomizableTestOptions.SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, CustomizableTestOptions.UseRetsplCorrection, CurrentSoundPropagationType)
 
         'Storing other data into CurrentTestTrial (TODO: this should probably be moved out of this function)
         CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
@@ -808,7 +904,7 @@ Public Class HintSpeechTest
             End If
         End If
 
-            Return String.Join(vbCrLf, Output)
+        Return String.Join(vbCrLf, Output)
 
     End Function
 

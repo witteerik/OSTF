@@ -54,6 +54,8 @@ Public MustInherit Class TestTrial
 
     Public Property MediaSetName As String
 
+    Public Property TestEar As Utils.SidesWithBoth
+
     Public Property UseContralateralNoise As Boolean
 
     Public Property EfficientContralateralMaskingTerm As Double
