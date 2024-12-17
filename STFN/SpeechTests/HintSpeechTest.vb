@@ -2,6 +2,7 @@
 Imports MathNet.Numerics
 Imports MathNet.Numerics.Distributions
 Imports STFN.TestProtocol
+Imports STFN.Audio.SoundScene
 
 Public Class HintSpeechTest
     Inherits SpeechTest
@@ -17,8 +18,6 @@ Public Class HintSpeechTest
     Private PlannedTestSentencess As List(Of SpeechMaterialComponent)
 
     Private MaximumNumberOfTestSentences As Integer = 40
-
-    Private HasNoise As Boolean
 
     Private ObservedTrials As TrialHistory
 
@@ -310,12 +309,10 @@ Public Class HintSpeechTest
         Dim StartAdaptiveLevel As Double
         If CustomizableTestOptions.MaskerLocations.Count > 0 Then
             'It's a speech in noise test, using adaptive SNR
-            HasNoise = True
             Dim InitialSNR = SignalToNoiseRatio(CustomizableTestOptions.SpeechLevel, CustomizableTestOptions.MaskingLevel)
             StartAdaptiveLevel = InitialSNR
         Else
             'It's a speech only test, using adaptive speech level
-            HasNoise = False
             StartAdaptiveLevel = CustomizableTestOptions.SpeechLevel
         End If
 
@@ -537,7 +534,7 @@ Public Class HintSpeechTest
         Select Case CustomizableTestOptions.SelectedTestMode
             Case TestModes.AdaptiveSpeech
 
-                If HasNoise = True Then
+                If CustomizableTestOptions.MaskerLocations.Count > 0 Then
 
                     CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
@@ -618,39 +615,142 @@ Public Class HintSpeechTest
 
     Private Sub MixNextTrialSound()
 
-        Dim RETSPL_Correction As Double = 0
-        If CustomizableTestOptions.UseRetsplCorrection = True Then
-            RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
+        Dim UseNominalLevels As Boolean = True
+
+        Dim TargetLevel_SPL As Double = DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel
+        Dim MaskerLevel_SPL As Double = DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel
+
+        Dim TargetPresentationTime As Double = TestWordPresentationTime
+        Dim MaskerPresentationTime As Double = 0
+
+
+
+        'Mix the signal using DuxplexMixer CreateSoundScene
+        'Sets a List of SoundSceneItem in which to put the sounds to mix
+        Dim ItemList = New List(Of SoundSceneItem)
+        Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
+        Dim CurrentSampleRate As Integer = -1
+
+        ' **TARGET SOUNDS**
+        If CustomizableTestOptions.SignalLocations.Count > 0 Then
+
+            'Getting the target sound (i.e. test words)
+            Dim TargetSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+
+            'TODO: Make sure that the Target sound has it's SMA object containing the nominal level as this is needed for mixing later!
+
+            'Storing the samplerate
+            CurrentSampleRate = TargetSound.WaveFormat.SampleRate
+
+            'Setting the insertion sample of the target
+            Dim TargetStartSample As Integer = Math.Floor(TargetPresentationTime * CurrentSampleRate)
+
+            'Setting the TargetStartMeasureSample (i.e. the sample index in the TargetSound, not in the final mix)
+            Dim TargetStartMeasureSample As Integer = 0
+
+            'Getting the TargetMeasureLength from the length of the sound files (i.e. everything is measured)
+            Dim TargetMeasureLength As Integer = TargetSound.WaveData.SampleData(1).Length
+
+            'Sets up fading specifications for the target
+            Dim FadeSpecs_Target = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+            FadeSpecs_Target.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+            FadeSpecs_Target.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+
+            'Combining targets with the selected SignalLocations
+            Dim Targets As New List(Of Tuple(Of Audio.Sound, SoundSourceLocation))
+            For Each SignalLocation In CustomizableTestOptions.SignalLocations
+                'Re-using the same target in all selected locations
+                Targets.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(TargetSound, SignalLocation))
+            Next
+
+            'Adding the targets sources to the ItemList
+            For Index = 0 To Targets.Count - 1
+                ItemList.Add(New SoundSceneItem(Targets(Index).Item1, 1, TargetLevel_SPL, LevelGroup, Targets(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Target, TargetStartSample, TargetStartMeasureSample, TargetMeasureLength,, FadeSpecs_Target))
+            Next
+
+            'Incrementing LevelGroup 
+            LevelGroup += 1
+
+            'Storing data in the CurrentTestTrial (TODO: this should probably be moved out of this function)
+            CurrentTestTrial.LinguisticSoundStimulusStartTime = TargetPresentationTime
+            CurrentTestTrial.LinguisticSoundStimulusDuration = TargetSound.WaveData.SampleData(1).Length / TargetSound.WaveFormat.SampleRate
+
         End If
 
-        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
-        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
-        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
-        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+        ' **Masker SOUNDS**
+        If CustomizableTestOptions.MaskerLocations.Count > 0 Then
+
+            'Getting the masker sound
+            Dim MaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+
+            'Storing the samplerate
+            If CurrentSampleRate = -1 Then CurrentSampleRate = MaskerSound.WaveFormat.SampleRate
+
+            'Setting the insertion sample of the masker
+            Dim MaskerStartSample As Integer = Math.Floor(MaskerPresentationTime * CurrentSampleRate)
+
+            'Setting the MaskerStartMeasureSample (i.e. the sample index in the MaskerSound, not in the final mix)
+            Dim MaskerStartMeasureSample As Integer = 0
+
+            'Getting the MaskerMeasureLength from the length of the sound files (i.e. everything is measured)
+            Dim MaskerMeasureLength As Integer = MaskerSound.WaveData.SampleData(1).Length
+
+            'Sets up fading specifications for the masker
+            Dim FadeSpecs_Masker = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+            FadeSpecs_Masker.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+            FadeSpecs_Masker.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+
+            'Combining maskers with the selected SignalLocations
+            Dim Maskers As New List(Of Tuple(Of Audio.Sound, SoundSourceLocation))
+
+            'Randomizing a start sample in the first half of the masker signal, and then picking different sections of the masker sound, two seconds apart for the different locations.
+            Dim RandomStartReadIndex As Integer = Randomizer.Next(0, (MaskerSound.WaveData.SampleData(1).Length / 2) - 1)
+            Dim InterMaskerStepLength As Integer = CurrentSampleRate * 2
+            Dim IndendedMaskerDuration As Integer = MaximumSoundDuration * CurrentSampleRate
+
+            'Calculating the needed sound length and checks that the masker sound is long enough
+            Dim NeededSoundLength As Integer = RandomStartReadIndex + (CustomizableTestOptions.MaskerLocations.Count + 1) * InterMaskerStepLength + IndendedMaskerDuration + 10
+            If MaskerSound.WaveData.SampleData(1).Length < NeededSoundLength Then
+                Throw New Exception("The masker sound specified is too short for the intended maximum sound duration and " & CustomizableTestOptions.MaskerLocations.Count & " sound sources!")
+            End If
+
+            'Picking the masker sounds and combining them with their selected locations
+            For Index = 0 To CustomizableTestOptions.MaskerLocations.Count - 1
+
+                Dim StartCopySample As Integer = RandomStartReadIndex + Index * InterMaskerStepLength
+                Dim CurrentSourceMaskerSound = Audio.DSP.CopySection(MaskerSound, StartCopySample, IndendedMaskerDuration, 1)
+
+                'Picking the masker sound
+                Maskers.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(CurrentSourceMaskerSound, CustomizableTestOptions.MaskerLocations(Index)))
+
+            Next
+
+            'Adding the maskers sources to the ItemList
+            For Index = 0 To Maskers.Count - 1
+                ItemList.Add(New SoundSceneItem(Maskers(Index).Item1, 1, MaskerLevel_SPL, LevelGroup, Maskers(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Masker, MaskerStartSample, MaskerStartMeasureSample, MaskerMeasureLength,, FadeSpecs_Masker))
+            Next
+
+            'Incrementing LevelGroup 
+            LevelGroup += 1
+
+        End If
+
+
+        'TODO: Add contralateral masking if selected!
+
+
+        Dim CurrentSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
+        If CustomizableTestOptions.UseSimulatedSoundField Then
+            CurrentSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
+            'TODO: This needs to be modified if/when more SoundPropagationTypes are starting to be supported
+        End If
+
+        'Creating the mix by calling CreateSoundScene of the current Mixer
+        Dim MixedTestTrialSound = CustomizableTestOptions.SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, CustomizableTestOptions.UseRetsplCorrection, CurrentSoundPropagationType)
+
+        'Storing other data into CurrentTestTrial (TODO: this should probably be moved out of this function)
         CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
-
-        Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
-        Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) + RETSPL_Correction
-        Dim NeededGain = TargetLevel_FS - NominalLevel_FS
-
-        Audio.DSP.AmplifySection(TestWordSound, NeededGain)
-
-        'Setting level
-        If HasNoise = True Then
-            Dim Noise = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
-            Audio.DSP.MeasureAndAdjustSectionLevel(Noise, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel))
-
-            Dim MixedSound = Audio.DSP.SuperpositionSounds({TestWordSound, Noise}.ToList)
-
-            'Copying to stereo and storing in CurrentTestTrial.Sound 
-            CurrentTestTrial.Sound = MixedSound.ConvertMonoToMultiChannel(2, True)
-        Else
-
-            'Copying to stereo and storing in CurrentTestTrial.Sound 
-            CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
-
-        End If
 
         'Also stores the mediaset
         CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName

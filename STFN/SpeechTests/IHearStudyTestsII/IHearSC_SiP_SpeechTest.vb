@@ -519,7 +519,7 @@ Public Class IHearSC_SiP_SpeechTest
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, SelectedSoundPropagationType)
+            Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType)
 
             If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 

@@ -165,7 +165,263 @@ Namespace Audio.SoundScene
 
 #End Region
 
-        Public Function CreateSoundScene(ByRef Input As List(Of SoundSceneItem), ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal LimiterThreshold As Double? = 100) As Audio.Sound
+
+        ''' <summary>
+        ''' 
+        ''' </summary>
+        ''' <param name="Input"></param>
+        ''' <param name="UseNominalLevels">If True, applied gains are based on the nominal levels stored in the SMA object of each sound. If False, sound levels are re-calculated.</param>
+        ''' <param name="SoundPropagationType"></param>
+        ''' <param name="LimiterThreshold"></param>
+        ''' <returns></returns>
+        Public Function CreateSoundScene(ByRef Input As List(Of SoundSceneItem), ByVal UseNominalLevels As Boolean, ByVal UseRetSPLCorrection As Boolean, ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal LimiterThreshold As Double? = 100) As Audio.Sound
+
+            Try
+
+
+                Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+                'Copy sounds so that their individual sample data in the selected channel to a new (mono) sound so that the sample data may be changed without changing the original sound,
+                ' and addes them in a new list of SoundSceneItem, which should henceforth be used instead of the Input object.
+                ' However SourceLocation is referenced, as it revieces its ActualLocation value as part of the algorithm.
+                ' Also AppliedGain is referenced as the gain is calculated below (the gain is kept so that its value can be exported)
+                ' TODO: SoundLevelFormat, FadeSpecifications, DuckingSpecifications and AppliedGain is still used and not copied! 
+                ' 
+                Dim SoundSceneItemList As New List(Of SoundSceneItem)
+                For Each Item In Input
+                    'Creates a new NewSoundSceneItem 
+                    Dim NewSoundSceneItem = New SoundSceneItem(Item.Sound.CopyChannelToMonoSound(Item.ReadChannel), 1, Item.SoundLevel, Item.LevelGroup,
+                                                                Item.SourceLocation, Item.Role,
+                                                                Item.InsertSample, Item.LevelDefStartSample, Item.LevelDefLength,
+                                                               Item.SoundLevelFormat, Item.FadeSpecifications, Item.DuckingSpecifications, Item.AppliedGain)
+
+                    'Deep-copying the SMA object
+                    NewSoundSceneItem.Sound.SMA = Item.Sound.SMA.CreateCopy(NewSoundSceneItem.Sound)
+
+                    'Adds the NewSoundSceneItem 
+                    SoundSceneItemList.Add(NewSoundSceneItem)
+
+                    'Also gets and checks the wave formats for equality
+                    If WaveFormat Is Nothing Then
+                        WaveFormat = NewSoundSceneItem.Sound.WaveFormat
+                    Else
+                        If WaveFormat.IsEqual(NewSoundSceneItem.Sound.WaveFormat) = False Then Throw New ArgumentException("Different wave formats detected when mixing sound files.")
+                    End If
+                Next
+
+
+                ' Setting levels
+                'Creating sound level groups
+                Dim SoundLevelGroups = SetupSoundLevelGroups(SoundSceneItemList)
+                For Each SoundLevelGroup In SoundLevelGroups
+
+                    Dim TargetLevel_SPL = SoundLevelGroup.Value.Item1
+                    Dim SoundLevelFormat = SoundLevelGroup.Value.Item2
+                    Dim GroupMembers = SoundLevelGroup.Value.Item3
+
+                    Dim CurrentLevel_FS As Double
+
+
+                    If UseNominalLevels = False Then
+
+                        'Gets the measurement sounds
+                        Dim GroupMemberMeasurementSounds As New List(Of Sound)
+                        For Each GroupMember In GroupMembers
+                            If GroupMember.LevelDefStartSample.HasValue = False And GroupMember.LevelDefLength.HasValue = False Then
+                                GroupMemberMeasurementSounds.Add(GroupMember.Sound)
+                            Else
+                                'Checks that both have value
+                                If GroupMember.LevelDefStartSample.HasValue = True And GroupMember.LevelDefLength.HasValue = True Then
+                                    GroupMemberMeasurementSounds.Add(GroupMember.Sound.CopySection(GroupMember.ReadChannel, GroupMember.LevelDefStartSample, GroupMember.LevelDefLength))
+                                Else
+                                    Throw New ArgumentException("Either none or both of the SoundSceneItem parameters LevelDefStartSample and LevelDefLength must have a value.")
+                                End If
+                            End If
+                        Next
+
+                        Dim MasterMeasurementSound As Audio.Sound = Nothing
+                        If GroupMemberMeasurementSounds.Count = 1 Then
+
+                            'References the GroupMemberMeasurementSounds(0) into MasterMeasurementSound 
+                            MasterMeasurementSound = GroupMemberMeasurementSounds(0)
+                        ElseIf GroupMemberMeasurementSounds.Count > 1 Then
+
+                            'Adds the measurement sounds into MasterMeasurementSound 
+                            MasterMeasurementSound = Audio.DSP.SuperpositionEqualLengthSounds(GroupMemberMeasurementSounds)
+                        Else
+                            Throw New ArgumentException("Missing sound in SoundSceneItem.")
+                        End If
+
+                        'Measures the sound levels
+                        If SoundLevelFormat.LoudestSectionMeasurement = False Then
+                            CurrentLevel_FS = Audio.DSP.MeasureSectionLevel(MasterMeasurementSound, 1,,,,, SoundLevelFormat.FrequencyWeighting)
+                        Else
+                            CurrentLevel_FS = Audio.DSP.GetLevelOfLoudestWindow(MasterMeasurementSound, 1, WaveFormat.SampleRate * SoundLevelFormat.TemporalIntegrationDuration,,,, SoundLevelFormat.FrequencyWeighting, True)
+                        End If
+
+                    Else
+
+                        If GroupMembers.Count = 1 Then
+                            'There is only one sound in the group. The CurrentLevel ( is assumed to be the NominalLevel.
+                            CurrentLevel_FS = GroupMembers(0).Sound.SMA.NominalLevel
+
+                        ElseIf GroupMembers.Count > 1 Then
+
+                            'There is nore than one sound in the group. Their combined CurrentLevel is approximated, assuming that they are uncorrelated sounds.
+                            'Checking that their NominalLevel values agree
+                            For GroupMemberIndex As Integer = 1 To GroupMembers.Count - 1
+                                If GroupMembers(GroupMemberIndex - 1).Sound.SMA.NominalLevel <> GroupMembers(GroupMemberIndex).Sound.SMA.NominalLevel Then
+                                    Throw New ArgumentException("Detected sounds with different NominalLevels in the same sound-level group (in CreateSoundScene). This is not allowed!")
+                                End If
+                            Next
+
+                            'Calculating the combined sound level of GroupMembers.Count equally loud uncorrelated sound sources
+                            CurrentLevel_FS = GroupMembers(0).Sound.SMA.NominalLevel + 10 * Math.Log10(GroupMembers.Count)
+
+                        Else
+                            Throw New ArgumentException("Missing sound in SoundSceneItem.")
+                        End If
+
+                    End If
+
+                    'Adjusting TargetLevel (by RETSPL) when TargetLevel is specified in dB HL 
+                    If UseRetSPLCorrection = True Then
+                        TargetLevel_SPL += ParentTransducerSpecification.RETSPL_Speech
+                    End If
+
+                    'Calculating needed gain
+                    Dim NeededGain = TargetLevel_SPL - Standard_dBFS_To_dBSPL(CurrentLevel_FS)
+
+                    'Applying the same gain to all sounds in the group
+                    For Each Member In GroupMembers
+
+                        'Applies the gain
+                        Audio.DSP.AmplifySection(Member.Sound, NeededGain, 1)
+
+                        'Storing the applied gain
+                        Member.AppliedGain.Value = NeededGain
+                    Next
+                Next
+
+                ' Applies fading to the sounds
+                For Each Item In SoundSceneItemList
+                    If Item.FadeSpecifications IsNot Nothing Then
+                        For Each FadeSpecification In Item.FadeSpecifications
+                            Audio.DSP.Fade(Item.Sound, FadeSpecification, 1)
+                        Next
+                    End If
+                Next
+
+                'Applies ducking
+                For Each Item In SoundSceneItemList
+                    If Item.DuckingSpecifications IsNot Nothing Then
+                        For i = 0 To Item.DuckingSpecifications.Count - 1 Step 2
+
+                            Dim FadeOutSpecs = Item.DuckingSpecifications(i)
+                            Dim FadeInSpecs = Item.DuckingSpecifications(i + 1)
+                            Dim MidStartSample As Integer = FadeOutSpecs.StartSample + FadeOutSpecs.SectionLength
+                            Dim MidLength As Integer = FadeInSpecs.StartSample - MidStartSample
+                            Dim MidFadeSpecs = New Audio.DSP.FadeSpecifications(FadeOutSpecs.EndAttenuation, FadeInSpecs.StartAttenuation,
+                                                                                         MidStartSample, MidLength, FadeOutSpecs.SlopeType, FadeOutSpecs.CosinePower, FadeOutSpecs.EqualPower)
+
+                            Audio.DSP.Fade(Item.Sound, FadeOutSpecs, 1)
+                            Audio.DSP.Fade(Item.Sound, MidFadeSpecs, 1)
+                            Audio.DSP.Fade(Item.Sound, FadeInSpecs, 1)
+
+                        Next
+                    End If
+                Next
+
+                If OutputRouting.Values.Max = 0 Then Throw New Exception("No output channels specified in the DuplexMixer output routing.")
+                Dim OutputSound As Sound = Nothing
+
+                'Inserting/adding sounds to the output sound
+                'OutputSound.
+                Select Case SoundPropagationType
+                    Case SoundPropagationTypes.PointSpeakers
+
+                        'TODO, perhaps SoundPropagationTypes.Headphones should be treated separately from sound field speakers?
+
+                        'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
+                        OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
+
+                        'Adds the item sound into the single channel that is closest to the SourceLocation specified in the item
+                        For Each Item In SoundSceneItemList
+
+                            Dim ClosestHardwareOutput = FindClosestHardwareOutput(Item.SourceLocation)
+                            Dim CorrespondingChannellInOutputSound As Integer? = OutputRouting(ClosestHardwareOutput)
+
+                            'Inserts the sound into CorrespondingChannellInOutputSound
+                            Audio.DSP.InsertSound(Item.Sound, 1, OutputSound, CorrespondingChannellInOutputSound, Item.InsertSample)
+
+                        Next
+
+                    Case SoundPropagationTypes.Ambisonics
+
+                        Throw New NotImplementedException("Ambisonics presentation is not yet supported.")
+
+                    Case SoundPropagationTypes.SimulatedSoundField
+
+                        'Simulating the speaker locations into stereo headphones
+                        SimulateSoundSourceLocation(DirectionalSimulator.SelectedDirectionalSimulationSetName, SoundSceneItemList)
+
+                        'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
+                        OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
+
+                        For Each Item In SoundSceneItemList
+
+                            'Inserts the sound into CorrespondingChannellInOutputSound
+                            Audio.DSP.InsertSound(Item.Sound, 1, OutputSound, 1, Item.InsertSample)
+                            Audio.DSP.InsertSound(Item.Sound, 2, OutputSound, 2, Item.InsertSample)
+
+                        Next
+
+                    Case Else
+                        Throw New NotImplementedException("Unknown TransducerType")
+                End Select
+
+
+                ' TODO: Simulation of HL/HA
+
+
+                'Limiter
+                If LimiterThreshold.HasValue Then
+                    'Limiting the total sound level
+                    'Checking the sound levels only in channels with output sound
+                    Dim ChannelsToCheck As New SortedSet(Of Integer)
+                    For Each c In OutputRouting.Values
+                        If Not ChannelsToCheck.Contains(c) Then ChannelsToCheck.Add(c)
+                    Next
+
+                    For Each c In ChannelsToCheck
+                        Dim LimiterResult = Audio.DSP.SoftLimitSection(OutputSound, c, Standard_dBSPL_To_dBFS(LimiterThreshold),,,, FrequencyWeightings.Z, True)
+
+                        If LimiterResult <> "" Then
+                            'Limiting occurred, logging the limiter data
+                            Utils.SendInfoToLog(
+                            "channel " & c &
+                            " had it's output level limited to  " & LimiterThreshold & " dB, " & DateTime.Now.ToString & vbCrLf &
+                            "Section:" & vbTab & "Startattenuation" & vbTab & "EndAttenuation" & vbCrLf &
+                            LimiterResult)
+                        End If
+                    Next
+                End If
+
+
+                'Exporting sound for manual evaluation
+                'Audio.AudioIOs.SaveToWaveFile(OutputSound, IO.Path.Combine(Utils.logFilePath, "Step6_PostLimiter"))
+
+                Return OutputSound
+
+            Catch ex As Exception
+                MsgBox(ex.ToString)
+                Return Nothing
+            End Try
+
+        End Function
+
+
+        Public Function CreateSoundScene_Original(ByRef Input As List(Of SoundSceneItem), ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal LimiterThreshold As Double? = 100) As Audio.Sound
 
             Try
 

@@ -727,56 +727,72 @@ Public Class MatrixSpeechTest
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
-        ' Throw New NotImplementedException()
+
+        Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+
+        Dim Output As New List(Of String)
+
+        If ProtocolThreshold IsNot Nothing Then
+            If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+                ResultSummaryForGUI.Add("Resultat för övningstestet: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
+            Else
+                ResultSummaryForGUI.Add("Testresultat: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
+            End If
+
+            Output.AddRange(ResultSummaryForGUI)
+        Else
+            If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+                Output.Add("Övningstest!")
+            End If
+
+            If CurrentTestTrial IsNot Nothing Then
+                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & CustomizableTestOptions.SelectedTestProtocol.TotalTrialCount)
+                Output.Add("SNR = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SNR) & " dB HL")
+                Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
+                Output.Add("Brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel) & " dB HL")
+                If CustomizableTestOptions.UseContralateralMasking = True Then
+                    Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
+                End If
+            End If
+        End If
+
+        Return String.Join(vbCrLf, Output)
+
     End Function
+
+    Private ResultSummaryForGUI As New List(Of String)
 
     Public Overrides Function GetExportString() As String
-        ' Throw New NotImplementedException()
+
+        Dim ExportStringList As New List(Of String)
+
+        Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+
+        'Exporting all trials
+        Dim TestTrialIndex As Integer = 0
+        For i = 0 To ObservedTrials.Count - 1
+
+            If TestTrialIndex = 0 Then
+                ExportStringList.Add("TrialIndex" & vbTab & ObservedTrials(i).TestResultColumnHeadings & vbTab & "SRT")
+            End If
+
+            If i = ObservedTrials.Count - 1 Then
+                'Exporting SRT on last row, last column, if determined
+                If ProtocolThreshold.HasValue Then
+                    ExportStringList.Add(i & vbTab & ObservedTrials(i).TestResultAsTextRow & vbTab & ProtocolThreshold)
+                Else
+                    ExportStringList.Add(i & vbTab & ObservedTrials(i).TestResultAsTextRow & vbTab & "SRT not established")
+                End If
+            Else
+                ExportStringList.Add(i & vbTab & ObservedTrials(i).TestResultAsTextRow)
+            End If
+
+            TestTrialIndex += 1
+        Next
+
+        Return String.Join(vbCrLf, ExportStringList)
+
     End Function
-
-    'Public Overrides Function GetResults() As TestResults
-
-    '    Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
-
-    '    Dim RawResults = New TestResults(TestResults.TestResultTypes.SRT)
-    '    If ProtocolThreshold.HasValue Then
-    '        RawResults.AdaptiveLevelThreshold = ProtocolThreshold
-    '    Else
-    '        'Storing NaN if no threshold was reached
-    '        RawResults.AdaptiveLevelThreshold = Double.NaN
-    '    End If
-
-    '    'Calculating the SRT based on the adaptive threshold
-    '    Select Case CustomizableTestOptions.SelectedTestMode
-    '        Case TestModes.AdaptiveSpeech
-    '            RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
-    '        Case TestModes.AdaptiveNoise
-    '            RawResults.SpeechRecognitionThreshold = RawResults.AdaptiveLevelThreshold
-    '        Case Else
-    '            Throw New NotImplementedException
-    '    End Select
-
-    '    'Storing the AdaptiveLevelSeries
-    '    RawResults.AdaptiveLevelSeries = New List(Of Double)
-    '    RawResults.SpeechLevelSeries = New List(Of Double)
-    '    RawResults.MaskerLevelSeries = New List(Of Double)
-    '    RawResults.SNRLevelSeries = New List(Of Double)
-    '    RawResults.TestStageSeries = New List(Of String)
-    '    RawResults.ProportionCorrectSeries = New List(Of String)
-    '    'Trial.IsCorrect  is not used
-    '    'RawResults.ScoreSeries = New List(Of String)
-    '    For Each Trial As SrtTrial In ObservedTrials
-    '        RawResults.AdaptiveLevelSeries.Add(Math.Round(Trial.AdaptiveValue))
-    '        RawResults.SpeechLevelSeries.Add(Math.Round(Trial.SpeechLevel))
-    '        RawResults.MaskerLevelSeries.Add(Math.Round(Trial.MaskerLevel))
-    '        RawResults.SNRLevelSeries.Add(Math.Round(Trial.SNR))
-    '        RawResults.TestStageSeries.Add(Trial.TestStage)
-    '        RawResults.ProportionCorrectSeries.Add(Trial.GetProportionTasksCorrect)
-    '    Next
-
-    '    Return RawResults
-
-    'End Function
 
 
     Public Overrides Sub FinalizeTest()
