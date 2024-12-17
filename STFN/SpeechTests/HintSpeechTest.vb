@@ -721,6 +721,9 @@ Public Class HintSpeechTest
                 Dim StartCopySample As Integer = RandomStartReadIndex + Index * InterMaskerStepLength
                 Dim CurrentSourceMaskerSound = Audio.DSP.CopySection(MaskerSound, StartCopySample, IndendedMaskerDuration, 1)
 
+                'Copying the SMA object to retain the nominal level (although other time data and other related stuff will be incorrect, if not adjusted for)
+                CurrentSourceMaskerSound.SMA = MaskerSound.SMA.CreateCopy(CurrentSourceMaskerSound)
+
                 'Picking the masker sound
                 Maskers.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(CurrentSourceMaskerSound, CustomizableTestOptions.MaskerLocations(Index)))
 
@@ -748,6 +751,8 @@ Public Class HintSpeechTest
 
         'Creating the mix by calling CreateSoundScene of the current Mixer
         Dim MixedTestTrialSound = CustomizableTestOptions.SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, CustomizableTestOptions.UseRetsplCorrection, CurrentSoundPropagationType)
+
+        CurrentTestTrial.Sound = MixedTestTrialSound
 
         'Storing other data into CurrentTestTrial (TODO: this should probably be moved out of this function)
         CurrentTestTrial.MaximumResponseTime = MaximumResponseTime

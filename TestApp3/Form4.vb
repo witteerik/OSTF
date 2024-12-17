@@ -4547,4 +4547,21 @@ Public Class Form4
 
     End Sub
 
+    Private Sub Button42_Click(sender As Object, e As EventArgs) Handles Button42.Click
+
+        'Dim TestFile = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard_Sentences\TestWordRecordings\L00S00_Sentence00\Sound00.wav")
+
+        Dim InputFile = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard_Sentences\Maskers\HINT_Swedish_HINT\List #01female only noise.wav")
+
+        InputFile = InputFile.Convert16to32bitSound()
+
+        InputFile.SMA.NominalLevel = -20
+        InputFile.SMA.InferNominalLevelToAllDescendants()
+
+        InputFile.SMA.SetFrequencyWeighting(Audio.BasicAudioEnums.FrequencyWeightings.C, True)
+        InputFile.SMA.MeasureSoundLevels()
+
+        InputFile.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard_Sentences\Maskers\HINT_Swedish_HINT\List #01female only noise_withSMA.wav")
+
+    End Sub
 End Class
