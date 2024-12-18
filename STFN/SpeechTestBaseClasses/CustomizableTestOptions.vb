@@ -1,4 +1,5 @@
 ﻿Imports System.ComponentModel
+Imports System.Reflection
 Imports System.Runtime.CompilerServices
 
 Public Class CustomizableTestOptions
@@ -12,7 +13,7 @@ Public Class CustomizableTestOptions
     '''Therefore, this value should be changed to True whenever a test is started or resumed, and optionally to False when the test is completed or paused.
     ''' </summary>
     ''' <returns></returns>
-    Public Property SkipGuiUpdates As Boolean = False
+    Public SkipGuiUpdates As Boolean = False
 
     Public Sub OnPropertyChanged(<CallerMemberName> Optional name As String = "")
         If SkipGuiUpdates = False Then
@@ -673,5 +674,78 @@ Public Class CustomizableTestOptions
     Public Property PreListenStopButtonTitle As String = "Stop"
     Public Property PreListenLouderButtonTitle As String = "Öka nivån (5 dB)"
     Public Property PreListenSofterButtonTitle As String = "Minska nivån (5 dB)"
+
+    Public Function ExportColumnHeadings() As String
+
+        Dim OutputList As New List(Of String)
+
+        'Adding property names
+        Dim properties As PropertyInfo() = GetType(CustomizableTestOptions).GetProperties()
+
+        ' Iterating through each property
+        For Each [property] As PropertyInfo In properties
+
+            ' Getting the name of the property
+            Dim propertyName As String = [property].Name
+            OutputList.Add(propertyName)
+
+        Next
+
+        Return String.Join(vbTab, OutputList)
+
+    End Function
+
+    Public Function ExportSettingsAsTextRow() As String
+
+        Dim OutputList As New List(Of String)
+
+        Dim properties As PropertyInfo() = GetType(CustomizableTestOptions).GetProperties()
+
+        ' Iterating through each property
+        For Each [property] As PropertyInfo In properties
+
+            ' Getting the name of the property
+            Dim propertyName As String = [property].Name
+
+            ' Getting the value of the property for the current instance 
+            Dim propertyValue As Object = [property].GetValue(Me)
+
+            If propertyValue IsNot Nothing Then
+
+                ' Check if the property value is a List(Of T)
+                Dim propertyType As Type = propertyValue.GetType()
+                If propertyType.IsGenericType AndAlso propertyType.GetGenericTypeDefinition() = GetType(List(Of)) Then
+
+                    ' Iterate through the List(Of T) and call ToString on each item
+                    Dim items As New List(Of String)
+                    Dim enumerable As IEnumerable = DirectCast(propertyValue, IEnumerable)
+                    For Each item In enumerable
+                        items.Add(item.ToString())
+                    Next
+
+                    ' Join the items with commas (or any separator you prefer)
+                    OutputList.Add(String.Join("; ", items))
+
+                Else
+                    OutputList.Add(propertyValue.ToString())
+                End If
+
+            Else
+                OutputList.Add("NotSet")
+            End If
+
+        Next
+
+        Return String.Join(vbTab, OutputList)
+
+    End Function
+
+    'If TypeOf propertyValue Is String Then
+    '    Dim stringValue As String = DirectCast(propertyValue, String)
+    'ElseIf TypeOf propertyValue Is Integer Then
+    '    Dim intValue As Integer = DirectCast(propertyValue, Integer)
+    'Else
+    'End If
+
 
 End Class

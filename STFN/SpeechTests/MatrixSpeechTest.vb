@@ -317,8 +317,6 @@ Public Class MatrixSpeechTest
 
         CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = CustomizableTestOptions.IsPractiseTest
 
-        CreatePlannedWordsSentences()
-
         Dim TestLength As Integer
 
         Select Case True
@@ -362,6 +360,8 @@ Public Class MatrixSpeechTest
                 TestLength = 20
 
         End Select
+
+        CreatePlannedWordsSentences()
 
         CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0, .TestLength = TestLength})
 
@@ -553,6 +553,7 @@ Public Class MatrixSpeechTest
                         .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                         .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
                         .MaskerLevel = CustomizableTestOptions.MaskingLevel,
+                        .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
                         .TestStage = NextTaskInstruction.TestStage,
                         .Tasks = 5}
 
@@ -562,6 +563,7 @@ Public Class MatrixSpeechTest
                         .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                         .SpeechLevel = NextTaskInstruction.AdaptiveValue,
                         .MaskerLevel = Double.NegativeInfinity,
+                        .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
                         .TestStage = NextTaskInstruction.TestStage,
                         .Tasks = 5}
 
@@ -574,6 +576,7 @@ Public Class MatrixSpeechTest
                     .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                     .SpeechLevel = CustomizableTestOptions.SpeechLevel,
                     .MaskerLevel = CustomizableTestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
+                    .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
                     .TestStage = NextTaskInstruction.TestStage,
                     .Tasks = 5}
 
@@ -644,7 +647,12 @@ Public Class MatrixSpeechTest
         CurrentTestTrial.ResponseAlternativeSpellings = ResponseAlternativeList
 
         'Mixing trial sound
-        MixNextTrialSound()
+        MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
+                          TargetLevel:=DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel,
+                          TargetPresentationTime:=TestWordPresentationTime,
+                          MaskerLevel:=DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel,
+                          ContralateralMaskerLevel:=DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel,
+                          ExportSounds:=False)
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
@@ -652,9 +660,9 @@ Public Class MatrixSpeechTest
         'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
         'If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = TestWordPresentationTime, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaximumResponseTime, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * TestWordPresentationTime), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 
@@ -685,46 +693,7 @@ Public Class MatrixSpeechTest
     End Function
 
 
-    Private Sub MixNextTrialSound()
 
-        Dim RETSPL_Correction As Double = 0
-        If CustomizableTestOptions.UseRetsplCorrection = True Then
-            RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
-        End If
-
-        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
-
-        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
-        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
-        CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
-
-
-        Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
-        Dim TargetLevel_FS = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) + RETSPL_Correction
-        Dim NeededGain = TargetLevel_FS - NominalLevel_FS
-
-        Audio.DSP.AmplifySection(TestWordSound, NeededGain)
-
-        'Setting level
-        If HasNoise = True Then
-            Dim Noise = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
-            Audio.DSP.MeasureAndAdjustSectionLevel(Noise, Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel))
-
-            Dim MixedSound = Audio.DSP.SuperpositionSounds({TestWordSound, Noise}.ToList)
-
-            'Copying to stereo and storing in CurrentTestTrial.Sound 
-            CurrentTestTrial.Sound = MixedSound.ConvertMonoToMultiChannel(2, True)
-        Else
-
-            'Copying to stereo and storing in CurrentTestTrial.Sound 
-            CurrentTestTrial.Sound = TestWordSound.ConvertMonoToMultiChannel(2, True)
-
-        End If
-
-
-        ' CurrentTestTrial.IsPractiseTrial = ... TODO add this...
-
-    End Sub
 
     Public Overrides Function GetResultStringForGui() As String
 
@@ -762,7 +731,11 @@ Public Class MatrixSpeechTest
 
     Private ResultSummaryForGUI As New List(Of String)
 
-    Public Overrides Function GetExportString() As String
+    Public Overrides Function GetTestTrialResultExportString() As String
+        Return "Export of trial level test results is not yet implemented"
+    End Function
+
+    Public Overrides Function GetTestResultsExportString() As String
 
         Dim ExportStringList As New List(Of String)
 

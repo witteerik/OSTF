@@ -919,7 +919,11 @@ Public Class SipSpeechTest
         Throw New NotImplementedException()
     End Function
 
-    Public Overrides Function GetExportString() As String
+    Public Overrides Function GetTestTrialResultExportString() As String
+        Return "Export of trial level test results is not yet implemented"
+    End Function
+
+    Public Overrides Function GetTestResultsExportString() As String
         Throw New NotImplementedException()
     End Function
 

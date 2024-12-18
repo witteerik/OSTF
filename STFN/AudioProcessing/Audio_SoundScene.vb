@@ -173,8 +173,11 @@ Namespace Audio.SoundScene
         ''' <param name="UseNominalLevels">If True, applied gains are based on the nominal levels stored in the SMA object of each sound. If False, sound levels are re-calculated.</param>
         ''' <param name="SoundPropagationType"></param>
         ''' <param name="LimiterThreshold"></param>
+        ''' <param name="ExportSounds">Can be used to debug or analyse presented sounds. Default value is False. Sounds are stored into the current log folder.</param>
         ''' <returns></returns>
-        Public Function CreateSoundScene(ByRef Input As List(Of SoundSceneItem), ByVal UseNominalLevels As Boolean, ByVal UseRetSPLCorrection As Boolean, ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal LimiterThreshold As Double? = 100) As Audio.Sound
+        Public Function CreateSoundScene(ByRef Input As List(Of SoundSceneItem), ByVal UseNominalLevels As Boolean, ByVal UseRetSPLCorrection As Boolean,
+                                         ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal LimiterThreshold As Double? = 100,
+                                         Optional ExportSounds As Boolean = False, Optional ExportPrefix As String = "") As Audio.Sound
 
             Try
 
@@ -346,10 +349,18 @@ Namespace Audio.SoundScene
                         OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
 
                         'Adds the item sound into the single channel that is closest to the SourceLocation specified in the item
+                        Dim ExportSoundIndex As Integer = 1
                         For Each Item In SoundSceneItemList
 
                             Dim ClosestHardwareOutput = FindClosestHardwareOutput(Item.SourceLocation)
                             Dim CorrespondingChannellInOutputSound As Integer? = OutputRouting(ClosestHardwareOutput)
+
+                            If ExportSounds = True Then
+                                Item.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ExportSounds", ExportPrefix & "_" & ExportSoundIndex & "_PointSpeakers_" & Item.Role & "_" &
+                                                                         Item.SoundLevel & "dB_(AppliedGain_" & Math.Round(Item.AppliedGain.Value.Value, 1) & ")") & "_" &
+                                                                         Math.Round(Item.SourceLocation.HorizontalAzimuth, 1) & "deg_(Channel_" & CorrespondingChannellInOutputSound & ").wav")
+                                ExportSoundIndex += 1
+                            End If
 
                             'Inserts the sound into CorrespondingChannellInOutputSound
                             Audio.DSP.InsertSound(Item.Sound, 1, OutputSound, CorrespondingChannellInOutputSound, Item.InsertSample)
@@ -368,7 +379,15 @@ Namespace Audio.SoundScene
                         'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
                         OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
 
+                        Dim ExportSoundIndex As Integer = 1
                         For Each Item In SoundSceneItemList
+
+                            If ExportSounds = True Then
+                                Item.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ExportSounds", ExportPrefix & "_" & ExportSoundIndex & "_SimulatedSoundField_" & Item.Role & "_" &
+                                                                         Item.SoundLevel & "dB_(AppliedGain_" & Math.Round(Item.AppliedGain.Value.Value, 1) & ")") & "_" &
+                                                                         Math.Round(Item.SourceLocation.HorizontalAzimuth, 1) & ".wav")
+                                ExportSoundIndex += 1
+                            End If
 
                             'Inserts the sound into CorrespondingChannellInOutputSound
                             Audio.DSP.InsertSound(Item.Sound, 1, OutputSound, 1, Item.InsertSample)
@@ -386,6 +405,11 @@ Namespace Audio.SoundScene
 
                 'Limiter
                 If LimiterThreshold.HasValue Then
+
+                    If ExportSounds = True Then
+                        OutputSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ExportSounds", ExportPrefix & "_PreLimiterMix.wav"))
+                    End If
+
                     'Limiting the total sound level
                     'Checking the sound levels only in channels with output sound
                     Dim ChannelsToCheck As New SortedSet(Of Integer)
@@ -407,9 +431,9 @@ Namespace Audio.SoundScene
                     Next
                 End If
 
-
-                'Exporting sound for manual evaluation
-                'Audio.AudioIOs.SaveToWaveFile(OutputSound, IO.Path.Combine(Utils.logFilePath, "Step6_PostLimiter"))
+                If ExportSounds = True Then
+                    OutputSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ExportSounds", ExportPrefix & "_FinalMix.wav"))
+                End If
 
                 Return OutputSound
 
@@ -1003,7 +1027,7 @@ Namespace Audio.SoundScene
         Public ActualLocation As SoundSourceLocation
 
         Public Overrides Function ToString() As String
-            Return "Azimuth: " & Math.Round(HorizontalAzimuth) & "°, Elevation: " & Math.Round(Elevation) & "°, Distance: " & Math.Round(Distance, 2) & "m."
+            Return "Azimuth: " & Math.Round(HorizontalAzimuth) & "°, Elevation: " & Math.Round(Elevation) & "°, Distance: " & Math.Round(Distance, 2) & "m"
         End Function
 
     End Class

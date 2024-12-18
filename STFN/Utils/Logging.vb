@@ -44,7 +44,14 @@ Namespace Utils
                                  Optional LogFileTemporaryPath As String = "",
                                  Optional ByVal OmitDateInsideLog As Boolean = False,
                                  Optional ByVal OmitDateInFileName As Boolean = False,
-                                 Optional ByVal OverWrite As Boolean = False)
+                                 Optional ByVal OverWrite As Boolean = False,
+                                 Optional ByVal AddDateOnEveryRow As Boolean = False,
+                                 Optional ByVal SkipIfEmpty As Boolean = False)
+
+            'Skipping directly if message is empty
+            If SkipIfEmpty = True Then
+                If message = "" Then Exit Sub
+            End If
 
             Dim SpinLockTaken As Boolean = False
 
@@ -100,7 +107,20 @@ Namespace Utils
 
                     Dim Writer As New StreamWriter(OutputFilePath, FileMode.Append)
                     If OmitDateInsideLog = False Then
-                        Writer.WriteLine(DateTime.Now.ToString & vbCrLf & message)
+                        If AddDateOnEveryRow = False Then
+                            Writer.WriteLine(DateTime.Now.ToString & vbCrLf & message)
+                        Else
+
+                            Dim lineBreaks As String() = {vbCr, vbCrLf, vbLf}
+                            Dim MessageSplit = message.Split(lineBreaks, StringSplitOptions.None)
+                            Dim MessageRowsWithDate As New List(Of String)
+                            For Each MessageRow In MessageSplit
+                                If SkipIfEmpty = True And MessageRow = "" Then Continue For
+                                MessageRowsWithDate.Add(DateTime.Now.ToString & vbTab & MessageRow)
+                            Next
+                            Writer.WriteLine(String.Join(vbCrLf, MessageRowsWithDate))
+
+                        End If
                     Else
                         Writer.WriteLine(message)
                     End If

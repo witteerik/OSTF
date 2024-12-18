@@ -219,56 +219,49 @@ Public MustInherit Class TestTrial
 
     Public MustOverride Function TestResultAsTextRow() As String
 
-    Protected Shared Function BaseClassTestResultColumnHeadings() As List(Of String)
+    'Protected Shared Function BaseClassTestResultColumnHeadings() As List(Of String)
 
-        Dim OutputList As New List(Of String)
-        Dim properties As PropertyInfo() = GetType(TestTrial).GetProperties()
+    '    Dim OutputList As New List(Of String)
+    '    Dim properties As PropertyInfo() = GetType(TestTrial).GetProperties()
 
-        ' Iterating through each property
-        For Each [property] As PropertyInfo In properties
+    '    ' Iterating through each property
+    '    For Each [property] As PropertyInfo In properties
 
-            ' Getting the name of the property
-            Dim propertyName As String = [property].Name
-            OutputList.Add(propertyName)
+    '        ' Getting the name of the property
+    '        Dim propertyName As String = [property].Name
+    '        OutputList.Add(propertyName)
 
-        Next
+    '    Next
 
-        Return OutputList
+    '    Return OutputList
 
-    End Function
+    'End Function
 
-    Protected Function BaseClassTestResultAsTextRow() As List(Of String)
+    'Protected Function BaseClassTestResultAsTextRow() As List(Of String)
 
-        Dim OutputList As New List(Of String)
-        Dim properties As PropertyInfo() = GetType(TestTrial).GetProperties()
+    '    Dim OutputList As New List(Of String)
+    '    Dim properties As PropertyInfo() = GetType(TestTrial).GetProperties()
 
-        ' Iterating through each property
-        For Each [property] As PropertyInfo In properties
+    '    ' Iterating through each property
+    '    For Each [property] As PropertyInfo In properties
 
-            ' Getting the name of the property
-            Dim propertyName As String = [property].Name
+    '        ' Getting the name of the property
+    '        Dim propertyName As String = [property].Name
 
-            ' Getting the value of the property for the current instance 
-            Dim propertyValue As Object = [property].GetValue(Me)
+    '        ' Getting the value of the property for the current instance 
+    '        Dim propertyValue As Object = [property].GetValue(Me)
 
-            'If TypeOf propertyValue Is String Then
-            '    Dim stringValue As String = DirectCast(propertyValue, String)
-            'ElseIf TypeOf propertyValue Is Integer Then
-            '    Dim intValue As Integer = DirectCast(propertyValue, Integer)
-            'Else
-            'End If
+    '        If propertyValue IsNot Nothing Then
+    '            OutputList.Add(propertyValue.ToString)
+    '        Else
+    '            OutputList.Add("NotSet")
+    '        End If
 
-            If propertyValue IsNot Nothing Then
-                OutputList.Add(propertyValue.ToString)
-            Else
-                OutputList.Add("NotSet")
-            End If
+    '    Next
 
-        Next
+    '    Return OutputList
 
-        Return OutputList
-
-    End Function
+    'End Function
 
 End Class
 

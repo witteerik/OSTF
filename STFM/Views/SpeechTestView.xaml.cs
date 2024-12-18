@@ -879,6 +879,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             }
 
             // Updating settings needed for the loaded test
+            // This is actually done also after selecting the test, do we need to do it also here?
             var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
             var argMixer = SelectedTransducer.Mixer;
             if (CurrentSpeechTest != null)
@@ -893,7 +894,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 }
             }
 
-            // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
+            // Starts listening to the FatalPlayerError event (first unsubscribing to avoid multiple subscriptions)
             OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
             OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
 
@@ -1079,12 +1080,16 @@ public partial class SpeechTestView : ContentView, IDrawable
                 // Stops all event timers
                 StopAllTrialEventTimers();
 
+                CurrentSpeechTest.SaveTestTrialResults();
+
                 // Starting the trial
                 PresentTrial();
 
                 break;
 
             case SpeechTest.SpeechTestReplies.PauseTestingWithCustomInformation:
+
+                CurrentSpeechTest.SaveTestTrialResults();
 
                 // Resets the test PauseInformation 
                 PauseTest();
@@ -1095,6 +1100,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             case SpeechTest.SpeechTestReplies.TestIsCompleted:
 
                 FinalizeTest(false);
+
+                CurrentSpeechTest.SaveTestTrialResults();
 
                 switch (STFN.SharedSpeechTestObjects.GuiLanguage)
                 {
@@ -1109,6 +1116,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                 break;
 
             case SpeechTest.SpeechTestReplies.AbortTest:
+
+                CurrentSpeechTest.SaveTestTrialResults();
 
                 AbortTest(false);
 

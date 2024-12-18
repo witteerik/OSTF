@@ -1,15 +1,15 @@
-// Setup
-SequentiallyOrderedLists = True
-SequentiallyOrderedSentences = True
-SequentiallyOrderedWords = True
-SequentiallyOrderedPhonemes = True
-PresetLevel = ListCollection
-
-// Components
+// Setup				
+SequentiallyOrderedLists = True				
+SequentiallyOrderedSentences = True				
+SequentiallyOrderedWords = True				
+SequentiallyOrderedPhonemes = True				
+PresetLevel = ListCollection				
+				
+// Components				
 // LinguisticLevel	Id	ParentId	PrimaryStringRepresentation	IsPractiseComponent
-
+				
 ListCollection	Swedish Matrix Test (Hagerman)		Swedish Matrix Test (Hagerman)	False
-
+				
 List	L02	Swedish Matrix Test (Hagerman)	Lista 2	False
 Sentence	L02S00	L02	Sentence00	False
 Word	L02S00W00	L02S00	Elsa	False
@@ -158,7 +158,7 @@ Word	L02S09W03	L02S09	svarta	False
 Phoneme	L02S09W03P00	L02S09W03	svarta	False
 Word	L02S09W04	L02S09	ringar	False
 Phoneme	L02S09W04P00	L02S09W04	ringar	False
-
+				
 List	L03	Swedish Matrix Test (Hagerman)	Lista 3	False
 Sentence	L03S00	L03	Sentence00	False
 Word	L03S00W00	L03S00	Gustav	False
@@ -307,7 +307,7 @@ Word	L03S09W03	L03S09	lätta	False
 Phoneme	L03S09W03P00	L03S09W03	lätta	False
 Word	L03S09W04	L03S09	korgar	False
 Phoneme	L03S09W04P00	L03S09W04	korgar	False
-
+				
 List	L04	Swedish Matrix Test (Hagerman)	Lista 4	False
 Sentence	L04S00	L04	Sentence00	False
 Word	L04S00W00	L04S00	Peter	False
@@ -456,7 +456,7 @@ Word	L04S09W03	L04S09	ljusa	False
 Phoneme	L04S09W03P00	L04S09W03	ljusa	False
 Word	L04S09W04	L04S09	skålar	False
 Phoneme	L04S09W04P00	L04S09W04	skålar	False
-
+				
 List	L05	Swedish Matrix Test (Hagerman)	Lista 5	False
 Sentence	L05S00	L05	Sentence00	False
 Word	L05S00W00	L05S00	Jonas	False
@@ -605,7 +605,7 @@ Word	L05S09W03	L05S09	gamla	False
 Phoneme	L05S09W03P00	L05S09W03	gamla	False
 Word	L05S09W04	L05S09	bollar	False
 Phoneme	L05S09W04P00	L05S09W04	bollar	False
-
+				
 List	L06	Swedish Matrix Test (Hagerman)	Lista 6	False
 Sentence	L06S00	L06	Sentence00	False
 Word	L06S00W00	L06S00	Elsa	False
@@ -754,7 +754,7 @@ Word	L06S09W03	L06S09	ljusa	False
 Phoneme	L06S09W03P00	L06S09W03	ljusa	False
 Word	L06S09W04	L06S09	knappar	False
 Phoneme	L06S09W04P00	L06S09W04	knappar	False
-
+				
 List	L07	Swedish Matrix Test (Hagerman)	Lista 7	False
 Sentence	L07S00	L07	Sentence00	False
 Word	L07S00W00	L07S00	Karin	False
@@ -903,7 +903,7 @@ Word	L07S09W03	L07S09	gamla	False
 Phoneme	L07S09W03P00	L07S09W03	gamla	False
 Word	L07S09W04	L07S09	skålar	False
 Phoneme	L07S09W04P00	L07S09W04	skålar	False
-
+				
 List	L09	Swedish Matrix Test (Hagerman)	Lista 9	False
 Sentence	L09S00	L09	Sentence00	False
 Word	L09S00W00	L09S00	Bosse	False
@@ -1052,7 +1052,7 @@ Word	L09S09W03	L09S09	vackra	False
 Phoneme	L09S09W03P00	L09S09W03	vackra	False
 Word	L09S09W04	L09S09	mössor	False
 Phoneme	L09S09W04P00	L09S09W04	mössor	False
-
+				
 List	L10	Swedish Matrix Test (Hagerman)	Lista 10	False
 Sentence	L10S00	L10	Sentence00	False
 Word	L10S00W00	L10S00	Bosse	False
@@ -1201,7 +1201,7 @@ Word	L10S09W03	L10S09	stora	False
 Phoneme	L10S09W03P00	L10S09W03	stora	False
 Word	L10S09W04	L10S09	ringar	False
 Phoneme	L10S09W04P00	L10S09W04	ringar	False
-
+				
 List	L11	Swedish Matrix Test (Hagerman)	Lista 11	False
 Sentence	L11S00	L11	Sentence00	False
 Word	L11S00W00	L11S00	Svante	False
@@ -1350,152 +1350,152 @@ Word	L11S09W03	L11S09	vackra	False
 Phoneme	L11S09W03P00	L11S09W03	vackra	False
 Word	L11S09W04	L11S09	mössor	False
 Phoneme	L11S09W04P00	L11S09W04	mössor	False
-
-List	L20	Swedish Matrix Test (Hagerman)	Lista 20 träning	False
-Sentence	L20S00	L20	Sentence00	False
-Word	L20S00W00	L20S00	Britta	False
-Phoneme	L20S00W00P00	L20S00W00	b	False
-Phoneme	L20S00W00P01	L20S00W00	r	False
-Phoneme	L20S00W00P02	L20S00W00	ɪ	False
-Phoneme	L20S00W00P03	L20S00W00	tː	False
-Phoneme	L20S00W00P04	L20S00W00	a	False
-Word	L20S00W01	L20S00	flyttar	False
-Phoneme	L20S00W01P00	L20S00W01	flyttar	False
-Word	L20S00W02	L20S00	åtta	False
-Phoneme	L20S00W02P00	L20S00W02	åtta	False
-Word	L20S00W03	L20S00	svarta	False
-Phoneme	L20S00W03P00	L20S00W03	svarta	False
-Word	L20S00W04	L20S00	ringar	False
-Phoneme	L20S00W04P00	L20S00W04	ringar	False
-Sentence	L20S01	L20	Sentence01	False
-Word	L20S01W00	L20S01	Elsa	False
-Phoneme	L20S01W00P00	L20S01W00	ɛ̝	False
-Phoneme	L20S01W00P01	L20S01W00	lː	False
-Phoneme	L20S01W00P02	L20S01W00	s	False
-Phoneme	L20S01W00P03	L20S01W00	a	False
-Word	L20S01W01	L20S01	gav	False
-Phoneme	L20S01W01P00	L20S01W01	gav	False
-Word	L20S01W02	L20S01	sex	False
-Phoneme	L20S01W02P00	L20S01W02	sex	False
-Word	L20S01W03	L20S01	nya	False
-Phoneme	L20S01W03P00	L20S01W03	nya	False
-Word	L20S01W04	L20S01	vantar	False
-Phoneme	L20S01W04P00	L20S01W04	vantar	False
-Sentence	L20S02	L20	Sentence02	False
-Word	L20S02W00	L20S02	Peter	False
-Phoneme	L20S02W00P00	L20S02W00	p	False
-Phoneme	L20S02W00P01	L20S02W00	eː	False
-Phoneme	L20S02W00P02	L20S02W00	t	False
-Phoneme	L20S02W00P03	L20S02W00	e̞	False
-Phoneme	L20S02W00P04	L20S02W00	r	False
-Word	L20S02W01	L20S02	köpte	False
-Phoneme	L20S02W01P00	L20S02W01	köpte	False
-Word	L20S02W02	L20S02	sju	False
-Phoneme	L20S02W02P00	L20S02W02	sju	False
-Word	L20S02W03	L20S02	ljusa	False
-Phoneme	L20S02W03P00	L20S02W03	ljusa	False
-Word	L20S02W04	L20S02	skålar	False
-Phoneme	L20S02W04P00	L20S02W04	skålar	False
-Sentence	L20S03	L20	Sentence03	False
-Word	L20S03W00	L20S03	Karin	False
-Phoneme	L20S03W00P00	L20S03W00	k	False
-Phoneme	L20S03W00P01	L20S03W00	ɑː	False
-Phoneme	L20S03W00P02	L20S03W00	r	False
-Phoneme	L20S03W00P03	L20S03W00	ɪ	False
-Phoneme	L20S03W00P04	L20S03W00	n	False
-Word	L20S03W01	L20S03	ägde	False
-Phoneme	L20S03W01P00	L20S03W01	ägde	False
-Word	L20S03W02	L20S03	fyra	False
-Phoneme	L20S03W02P00	L20S03W02	fyra	False
-Word	L20S03W03	L20S03	vackra	False
-Phoneme	L20S03W03P00	L20S03W03	vackra	False
-Word	L20S03W04	L20S03	knappar	False
-Phoneme	L20S03W04P00	L20S03W04	knappar	False
-Sentence	L20S04	L20	Sentence04	False
-Word	L20S04W00	L20S04	Bosse	False
-Phoneme	L20S04W00P00	L20S04W00	b	False
-Phoneme	L20S04W00P01	L20S04W00	ʊ	False
-Phoneme	L20S04W00P02	L20S04W00	sː	False
-Phoneme	L20S04W00P03	L20S04W00	e̞	False
-Word	L20S04W01	L20S04	visar	False
-Phoneme	L20S04W01P00	L20S04W01	visar	False
-Word	L20S04W02	L20S04	tre	False
-Phoneme	L20S04W02P00	L20S04W02	tre	False
-Word	L20S04W03	L20S04	lätta	False
-Phoneme	L20S04W03P00	L20S04W03	lätta	False
-Word	L20S04W04	L20S04	dukar	False
-Phoneme	L20S04W04P00	L20S04W04	dukar	False
-Sentence	L20S05	L20	Sentence05	False
-Word	L20S05W00	L20S05	Anna	False
-Phoneme	L20S05W00P00	L20S05W00	a	False
-Phoneme	L20S05W00P01	L20S05W00	nː	False
-Phoneme	L20S05W00P02	L20S05W00	a	False
-Word	L20S05W01	L20S05	höll	False
-Phoneme	L20S05W01P00	L20S05W01	höll	False
-Word	L20S05W02	L20S05	två	False
-Phoneme	L20S05W02P00	L20S05W02	två	False
-Word	L20S05W03	L20S05	mörka	False
-Phoneme	L20S05W03P00	L20S05W03	mörka	False
-Word	L20S05W04	L20S05	korgar	False
-Phoneme	L20S05W04P00	L20S05W04	korgar	False
-Sentence	L20S06	L20	Sentence06	False
-Word	L20S06W00	L20S06	Jonas	False
-Phoneme	L20S06W00P00	L20S06W00	ʝ	False
-Phoneme	L20S06W00P01	L20S06W00	uː	False
-Phoneme	L20S06W00P02	L20S06W00	n	False
-Phoneme	L20S06W00P03	L20S06W00	a	False
-Phoneme	L20S06W00P04	L20S06W00	s	False
-Word	L20S06W01	L20S06	lånar	False
-Phoneme	L20S06W01P00	L20S06W01	lånar	False
-Word	L20S06W02	L20S06	elva	False
-Phoneme	L20S06W02P00	L20S06W02	elva	False
-Word	L20S06W03	L20S06	hela	False
-Phoneme	L20S06W03P00	L20S06W03	hela	False
-Word	L20S06W04	L20S06	lådor	False
-Phoneme	L20S06W04P00	L20S06W04	lådor	False
-Sentence	L20S07	L20	Sentence07	False
-Word	L20S07W00	L20S07	Svante	False
-Phoneme	L20S07W00P00	L20S07W00	s	False
-Phoneme	L20S07W00P01	L20S07W00	v	False
-Phoneme	L20S07W00P02	L20S07W00	a	False
-Phoneme	L20S07W00P03	L20S07W00	nː	False
-Phoneme	L20S07W00P04	L20S07W00	t	False
-Phoneme	L20S07W00P05	L20S07W00	e̞	False
-Word	L20S07W01	L20S07	tog	False
-Phoneme	L20S07W01P00	L20S07W01	tog	False
-Word	L20S07W02	L20S07	arton	False
-Phoneme	L20S07W02P00	L20S07W02	arton	False
-Word	L20S07W03	L20S07	gamla	False
-Phoneme	L20S07W03P00	L20S07W03	gamla	False
-Word	L20S07W04	L20S07	bollar	False
-Phoneme	L20S07W04P00	L20S07W04	bollar	False
-Sentence	L20S08	L20	Sentence08	False
-Word	L20S08W00	L20S08	Gustav	False
-Phoneme	L20S08W00P00	L20S08W00	ɡ	False
-Phoneme	L20S08W00P01	L20S08W00	ɵ	False
-Phoneme	L20S08W00P02	L20S08W00	sː	False
-Phoneme	L20S08W00P03	L20S08W00	t	False
-Phoneme	L20S08W00P04	L20S08W00	ɑ	False
-Phoneme	L20S08W00P05	L20S08W00	v	False
-Word	L20S08W01	L20S08	ser	False
-Phoneme	L20S08W01P00	L20S08W01	ser	False
-Word	L20S08W02	L20S08	nio	False
-Phoneme	L20S08W02P00	L20S08W02	nio	False
-Word	L20S08W03	L20S08	fina	False
-Phoneme	L20S08W03P00	L20S08W03	fina	False
-Word	L20S08W04	L20S08	pennor	False
-Phoneme	L20S08W04P00	L20S08W04	pennor	False
-Sentence	L20S09	L20	Sentence09	False
-Word	L20S09W00	L20S09	Märta	False
-Phoneme	L20S09W00P00	L20S09W00	m	False
-Phoneme	L20S09W00P01	L20S09W00	ɛ̝	False
-Phoneme	L20S09W00P02	L20S09W00	ʈː	False
-Phoneme	L20S09W00P03	L20S09W00	a	False
-Word	L20S09W01	L20S09	har	False
-Phoneme	L20S09W01P00	L20S09W01	har	False
-Word	L20S09W02	L20S09	tolv	False
-Phoneme	L20S09W02P00	L20S09W02	tolv	False
-Word	L20S09W03	L20S09	stora	False
-Phoneme	L20S09W03P00	L20S09W03	stora	False
-Word	L20S09W04	L20S09	mössor	False
-Phoneme	L20S09W04P00	L20S09W04	mössor	False
+				
+List	L20	Swedish Matrix Test (Hagerman)	Lista 20 träning	True
+Sentence	L20S00	L20	Sentence00	True
+Word	L20S00W00	L20S00	Britta	True
+Phoneme	L20S00W00P00	L20S00W00	b	True
+Phoneme	L20S00W00P01	L20S00W00	r	True
+Phoneme	L20S00W00P02	L20S00W00	ɪ	True
+Phoneme	L20S00W00P03	L20S00W00	tː	True
+Phoneme	L20S00W00P04	L20S00W00	a	True
+Word	L20S00W01	L20S00	flyttar	True
+Phoneme	L20S00W01P00	L20S00W01	flyttar	True
+Word	L20S00W02	L20S00	åtta	True
+Phoneme	L20S00W02P00	L20S00W02	åtta	True
+Word	L20S00W03	L20S00	svarta	True
+Phoneme	L20S00W03P00	L20S00W03	svarta	True
+Word	L20S00W04	L20S00	ringar	True
+Phoneme	L20S00W04P00	L20S00W04	ringar	True
+Sentence	L20S01	L20	Sentence01	True
+Word	L20S01W00	L20S01	Elsa	True
+Phoneme	L20S01W00P00	L20S01W00	ɛ̝	True
+Phoneme	L20S01W00P01	L20S01W00	lː	True
+Phoneme	L20S01W00P02	L20S01W00	s	True
+Phoneme	L20S01W00P03	L20S01W00	a	True
+Word	L20S01W01	L20S01	gav	True
+Phoneme	L20S01W01P00	L20S01W01	gav	True
+Word	L20S01W02	L20S01	sex	True
+Phoneme	L20S01W02P00	L20S01W02	sex	True
+Word	L20S01W03	L20S01	nya	True
+Phoneme	L20S01W03P00	L20S01W03	nya	True
+Word	L20S01W04	L20S01	vantar	True
+Phoneme	L20S01W04P00	L20S01W04	vantar	True
+Sentence	L20S02	L20	Sentence02	True
+Word	L20S02W00	L20S02	Peter	True
+Phoneme	L20S02W00P00	L20S02W00	p	True
+Phoneme	L20S02W00P01	L20S02W00	eː	True
+Phoneme	L20S02W00P02	L20S02W00	t	True
+Phoneme	L20S02W00P03	L20S02W00	e̞	True
+Phoneme	L20S02W00P04	L20S02W00	r	True
+Word	L20S02W01	L20S02	köpte	True
+Phoneme	L20S02W01P00	L20S02W01	köpte	True
+Word	L20S02W02	L20S02	sju	True
+Phoneme	L20S02W02P00	L20S02W02	sju	True
+Word	L20S02W03	L20S02	ljusa	True
+Phoneme	L20S02W03P00	L20S02W03	ljusa	True
+Word	L20S02W04	L20S02	skålar	True
+Phoneme	L20S02W04P00	L20S02W04	skålar	True
+Sentence	L20S03	L20	Sentence03	True
+Word	L20S03W00	L20S03	Karin	True
+Phoneme	L20S03W00P00	L20S03W00	k	True
+Phoneme	L20S03W00P01	L20S03W00	ɑː	True
+Phoneme	L20S03W00P02	L20S03W00	r	True
+Phoneme	L20S03W00P03	L20S03W00	ɪ	True
+Phoneme	L20S03W00P04	L20S03W00	n	True
+Word	L20S03W01	L20S03	ägde	True
+Phoneme	L20S03W01P00	L20S03W01	ägde	True
+Word	L20S03W02	L20S03	fyra	True
+Phoneme	L20S03W02P00	L20S03W02	fyra	True
+Word	L20S03W03	L20S03	vackra	True
+Phoneme	L20S03W03P00	L20S03W03	vackra	True
+Word	L20S03W04	L20S03	knappar	True
+Phoneme	L20S03W04P00	L20S03W04	knappar	True
+Sentence	L20S04	L20	Sentence04	True
+Word	L20S04W00	L20S04	Bosse	True
+Phoneme	L20S04W00P00	L20S04W00	b	True
+Phoneme	L20S04W00P01	L20S04W00	ʊ	True
+Phoneme	L20S04W00P02	L20S04W00	sː	True
+Phoneme	L20S04W00P03	L20S04W00	e̞	True
+Word	L20S04W01	L20S04	visar	True
+Phoneme	L20S04W01P00	L20S04W01	visar	True
+Word	L20S04W02	L20S04	tre	True
+Phoneme	L20S04W02P00	L20S04W02	tre	True
+Word	L20S04W03	L20S04	lätta	True
+Phoneme	L20S04W03P00	L20S04W03	lätta	True
+Word	L20S04W04	L20S04	dukar	True
+Phoneme	L20S04W04P00	L20S04W04	dukar	True
+Sentence	L20S05	L20	Sentence05	True
+Word	L20S05W00	L20S05	Anna	True
+Phoneme	L20S05W00P00	L20S05W00	a	True
+Phoneme	L20S05W00P01	L20S05W00	nː	True
+Phoneme	L20S05W00P02	L20S05W00	a	True
+Word	L20S05W01	L20S05	höll	True
+Phoneme	L20S05W01P00	L20S05W01	höll	True
+Word	L20S05W02	L20S05	två	True
+Phoneme	L20S05W02P00	L20S05W02	två	True
+Word	L20S05W03	L20S05	mörka	True
+Phoneme	L20S05W03P00	L20S05W03	mörka	True
+Word	L20S05W04	L20S05	korgar	True
+Phoneme	L20S05W04P00	L20S05W04	korgar	True
+Sentence	L20S06	L20	Sentence06	True
+Word	L20S06W00	L20S06	Jonas	True
+Phoneme	L20S06W00P00	L20S06W00	ʝ	True
+Phoneme	L20S06W00P01	L20S06W00	uː	True
+Phoneme	L20S06W00P02	L20S06W00	n	True
+Phoneme	L20S06W00P03	L20S06W00	a	True
+Phoneme	L20S06W00P04	L20S06W00	s	True
+Word	L20S06W01	L20S06	lånar	True
+Phoneme	L20S06W01P00	L20S06W01	lånar	True
+Word	L20S06W02	L20S06	elva	True
+Phoneme	L20S06W02P00	L20S06W02	elva	True
+Word	L20S06W03	L20S06	hela	True
+Phoneme	L20S06W03P00	L20S06W03	hela	True
+Word	L20S06W04	L20S06	lådor	True
+Phoneme	L20S06W04P00	L20S06W04	lådor	True
+Sentence	L20S07	L20	Sentence07	True
+Word	L20S07W00	L20S07	Svante	True
+Phoneme	L20S07W00P00	L20S07W00	s	True
+Phoneme	L20S07W00P01	L20S07W00	v	True
+Phoneme	L20S07W00P02	L20S07W00	a	True
+Phoneme	L20S07W00P03	L20S07W00	nː	True
+Phoneme	L20S07W00P04	L20S07W00	t	True
+Phoneme	L20S07W00P05	L20S07W00	e̞	True
+Word	L20S07W01	L20S07	tog	True
+Phoneme	L20S07W01P00	L20S07W01	tog	True
+Word	L20S07W02	L20S07	arton	True
+Phoneme	L20S07W02P00	L20S07W02	arton	True
+Word	L20S07W03	L20S07	gamla	True
+Phoneme	L20S07W03P00	L20S07W03	gamla	True
+Word	L20S07W04	L20S07	bollar	True
+Phoneme	L20S07W04P00	L20S07W04	bollar	True
+Sentence	L20S08	L20	Sentence08	True
+Word	L20S08W00	L20S08	Gustav	True
+Phoneme	L20S08W00P00	L20S08W00	ɡ	True
+Phoneme	L20S08W00P01	L20S08W00	ɵ	True
+Phoneme	L20S08W00P02	L20S08W00	sː	True
+Phoneme	L20S08W00P03	L20S08W00	t	True
+Phoneme	L20S08W00P04	L20S08W00	ɑ	True
+Phoneme	L20S08W00P05	L20S08W00	v	True
+Word	L20S08W01	L20S08	ser	True
+Phoneme	L20S08W01P00	L20S08W01	ser	True
+Word	L20S08W02	L20S08	nio	True
+Phoneme	L20S08W02P00	L20S08W02	nio	True
+Word	L20S08W03	L20S08	fina	True
+Phoneme	L20S08W03P00	L20S08W03	fina	True
+Word	L20S08W04	L20S08	pennor	True
+Phoneme	L20S08W04P00	L20S08W04	pennor	True
+Sentence	L20S09	L20	Sentence09	True
+Word	L20S09W00	L20S09	Märta	True
+Phoneme	L20S09W00P00	L20S09W00	m	True
+Phoneme	L20S09W00P01	L20S09W00	ɛ̝	True
+Phoneme	L20S09W00P02	L20S09W00	ʈː	True
+Phoneme	L20S09W00P03	L20S09W00	a	True
+Word	L20S09W01	L20S09	har	True
+Phoneme	L20S09W01P00	L20S09W01	har	True
+Word	L20S09W02	L20S09	tolv	True
+Phoneme	L20S09W02P00	L20S09W02	tolv	True
+Word	L20S09W03	L20S09	stora	True
+Phoneme	L20S09W03P00	L20S09W03	stora	True
+Word	L20S09W04	L20S09	mössor	True
+Phoneme	L20S09W04P00	L20S09W04	mössor	True

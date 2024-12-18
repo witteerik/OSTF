@@ -694,6 +694,7 @@ Public Class IHearProtocolB2SpeechTest
         Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
 
         'Here we're using the Speech level to set the Masker level. This means that the level of the masker file it self need to reflect the SNR, so that its mean level does not equal the nominal level, but instead deviated from the nominal level by the intended SNR. (These sound files (the Speech and the Masker) can then be mixed without any adjustment to attain the desired "clicinally" used SNR.
+        'Note from 2024-12-18: This situation has been changed after changing the level definitions in the speech files from average RMS-levels to time weighted (125ms) levels, and the calibration level from -25 to -21 dBFS. The SNR of 0 dB in the materials before the change approximately equals + 6 dB in the new materials, since the speech level dropped by appr 6 dB (more precicely 6,8 dB for Talker1 and 6.3 for Talker2).
         DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel = DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel
         Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel) + RETSPL_Correction
         Dim NeededMaskerGain = TargetMaskerLevel_FS - NominalLevel_FS
@@ -774,7 +775,11 @@ Public Class IHearProtocolB2SpeechTest
 
     End Function
 
-    Public Overrides Function GetExportString() As String
+    Public Overrides Function GetTestTrialResultExportString() As String
+        Return "Export of trial level test results is not yet implemented"
+    End Function
+
+    Public Overrides Function GetTestResultsExportString() As String
 
         Dim ExportStringList As New List(Of String)
 

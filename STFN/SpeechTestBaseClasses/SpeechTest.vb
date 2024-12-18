@@ -1,4 +1,6 @@
-﻿Public MustInherit Class SpeechTest
+﻿Imports STFN.Audio.SoundScene
+
+Public MustInherit Class SpeechTest
 
 
 #Region "Instructions"
@@ -238,6 +240,290 @@
         End Get
     End Property
 
+    ''' <summary>
+    ''' This sub mixes targets, maskers, background-non-speech, background-speech and contralateral maskers as assigned in CustomizableTestOptions sound sources. The mixed sound is stored in the CurrentTestTrial.Sound.
+    ''' </summary>
+    ''' <param name="UseNominalLevels">If True, applied gains are based on the nominal levels stored in the SMA object of each sound. If False, sound levels are re-calculated.</param>
+    ''' <param name="MaximumSoundDuration">The intended duration (ins seconds) of the mixed sound.</param>
+    ''' <param name="TargetLevel">The combined level of all targets.</param>
+    ''' <param name="TargetPresentationTime">The insertion time of the targets</param>
+    ''' <param name="MaskerLevel">The combined level of all maskers.</param>
+    ''' <param name="MaskerPresentationTime">The insertion time of the maskers</param>
+    ''' <param name="BackgroundNonSpeechLevel">The combined level of all background non-speech sources.</param>
+    ''' <param name="BackgroundNonSpeechPresentationTime">The insertion time of the background non-speech sounds</param>
+    ''' <param name="BackgroundSpeechLevel">The combined level of all background speech sources</param>
+    ''' <param name="BackgroundSpeechPresentationTime">The insertion time of the background-speech sounds</param>
+    ''' <param name="ContralateralMaskerLevel">The level of the contralateral masker. Should be specified without correction for efficient masking (EM). (EM is added internally in the function.)</param>
+    ''' <param name="ContralateralMaskerPresentationTime">The insertion time of the contralateral maskers</param>
+    ''' <param name="FadeSpecs_Target">Optional fading specifications for the targets. If not specified, the function supplies default values that will be used.</param>
+    ''' <param name="FadeSpecs_Masker">Optional fading specifications for the maskers. If not specified, the function supplies default values that will be used.</param>
+    ''' <param name="FadeSpecs_BackgroundNonSpeech">Optional fading specifications for the background non-speech sounds. If not specified, the function supplies default values that will be used.</param>
+    ''' <param name="FadeSpecs_BackgroundSpeech">Optional fading specifications for the background-speech sounds. If not specified, the function supplies default values that will be used.</param>
+    ''' <param name="FadeSpecs_ContralateralMasker">Optional fading specifications for the contralateral masker. If not specified, the function supplies default values that will be used.</param>
+    ''' <param name="ExportSounds">Can be used to debug or analyse presented sounds. Default value is False. Sounds are stored into the current log folder.</param>
+    Protected Sub MixStandardTestTrialSound(ByVal UseNominalLevels As Boolean, ByVal MaximumSoundDuration As Double,
+                                  ByVal TargetLevel As Double, ByVal TargetPresentationTime As Double,
+                                  Optional ByVal MaskerLevel As Nullable(Of Double) = Nothing, Optional ByVal MaskerPresentationTime As Double = 0,
+                                  Optional ByVal BackgroundNonSpeechLevel As Nullable(Of Double) = Nothing, Optional ByVal BackgroundNonSpeechPresentationTime As Double = 0,
+                                  Optional ByVal BackgroundSpeechLevel As Nullable(Of Double) = Nothing, Optional ByVal BackgroundSpeechPresentationTime As Double = 0,
+                                  Optional ByVal ContralateralMaskerLevel As Nullable(Of Double) = Nothing, Optional ByVal ContralateralMaskerPresentationTime As Double = 0,
+                                  Optional ByRef FadeSpecs_Target As List(Of STFN.Audio.DSP.Transformations.FadeSpecifications) = Nothing,
+                                  Optional ByRef FadeSpecs_Masker As List(Of STFN.Audio.DSP.Transformations.FadeSpecifications) = Nothing,
+                                  Optional ByRef FadeSpecs_BackgroundNonSpeech As List(Of STFN.Audio.DSP.Transformations.FadeSpecifications) = Nothing,
+                                  Optional ByRef FadeSpecs_BackgroundSpeech As List(Of STFN.Audio.DSP.Transformations.FadeSpecifications) = Nothing,
+                                  Optional ByRef FadeSpecs_ContralateralMasker As List(Of STFN.Audio.DSP.Transformations.FadeSpecifications) = Nothing,
+                                            Optional ExportSounds As Boolean = False)
+
+        'TODO: This function is not finished, it still need implementation of BackgroundNonSpeech and BackgroundSpeech
+
+        'Calculates the EM corrected Contralateral masker level (the level supplied should not be EM corrected but be as it would appear on an audiometer attenuator
+        Dim ContralateralMaskerLevel_EmCorrected As Double = ContralateralMaskerLevel + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+
+        'Mix the signal using DuxplexMixer CreateSoundScene
+        'Sets a List of SoundSceneItem in which to put the sounds to mix
+        Dim ItemList = New List(Of SoundSceneItem)
+        Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
+        Dim CurrentSampleRate As Integer = -1
+
+        'Determining test ear and stores in the current test trial (This should perhaps be moved outside this function. On the other hand it's good that it's always detemined when sounds are mixed, though all tests need to implement this or call this code)
+        Dim CurrentTestEar As Utils.SidesWithBoth = Utils.SidesWithBoth.Both ' Assuming both, and overriding if needed
+        If CustomizableTestOptions.SelectedTransducer.IsHeadphones = True Then
+            If CustomizableTestOptions.UseSimulatedSoundField = False Then
+                Dim HasLeftSideTarget As Boolean = False
+                Dim HasRightSideTarget As Boolean = False
+
+                For Each SignalLocation In CustomizableTestOptions.SignalLocations
+                    If SignalLocation.HorizontalAzimuth > 0 Then
+                        'At least one signal location is to the right
+                        HasRightSideTarget = True
+                    End If
+                    If SignalLocation.HorizontalAzimuth < 0 Then
+                        'At least one signal location is to the left
+                        HasLeftSideTarget = True
+                    End If
+                Next
+
+                'Overriding the value Both if signal is only the left or only the right side
+                If HasLeftSideTarget = True And HasRightSideTarget = False Then
+                    CurrentTestEar = Utils.Constants.SidesWithBoth.Left
+                ElseIf HasLeftSideTarget = False And HasRightSideTarget = True Then
+                    CurrentTestEar = Utils.Constants.SidesWithBoth.Right
+                End If
+            End If
+        End If
+        CurrentTestTrial.TestEar = CurrentTestEar
+
+
+        ' **TARGET SOUNDS**
+        If CustomizableTestOptions.SignalLocations.Count > 0 Then
+
+            'Getting the target sound (i.e. test words)
+            Dim TargetSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+
+            'Storing the samplerate
+            CurrentSampleRate = TargetSound.WaveFormat.SampleRate
+
+            'Setting the insertion sample of the target
+            Dim TargetStartSample As Integer = Math.Floor(TargetPresentationTime * CurrentSampleRate)
+
+            'Setting the TargetStartMeasureSample (i.e. the sample index in the TargetSound, not in the final mix)
+            Dim TargetStartMeasureSample As Integer = 0
+
+            'Getting the TargetMeasureLength from the length of the sound files (i.e. everything is measured)
+            Dim TargetMeasureLength As Integer = TargetSound.WaveData.SampleData(1).Length
+
+            'Sets up default fading specifications for the target
+            If FadeSpecs_Target Is Nothing Then
+                FadeSpecs_Target = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+                FadeSpecs_Target.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                FadeSpecs_Target.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+            End If
+
+            'Combining targets with the selected SignalLocations
+            Dim Targets As New List(Of Tuple(Of Audio.Sound, SoundSourceLocation))
+            For Each SignalLocation In CustomizableTestOptions.SignalLocations
+                'Re-using the same target in all selected locations
+                Targets.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(TargetSound, SignalLocation))
+            Next
+
+            'Adding the targets sources to the ItemList
+            For Index = 0 To Targets.Count - 1
+                ItemList.Add(New SoundSceneItem(Targets(Index).Item1, 1, TargetLevel, LevelGroup, Targets(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Target, TargetStartSample, TargetStartMeasureSample, TargetMeasureLength,, FadeSpecs_Target))
+            Next
+
+            'Incrementing LevelGroup 
+            LevelGroup += 1
+
+            'Storing data in the CurrentTestTrial
+            CurrentTestTrial.LinguisticSoundStimulusStartTime = TargetPresentationTime
+            CurrentTestTrial.LinguisticSoundStimulusDuration = TargetSound.WaveData.SampleData(1).Length / TargetSound.WaveFormat.SampleRate
+
+        End If
+
+
+        ' **MASKER SOUNDS**
+        If CustomizableTestOptions.MaskerLocations.Count > 0 Then
+
+            'Ensures that MaskerLevel has a value
+            If MaskerLevel.HasValue = False Then Throw New ArgumentException("MaskerLevel value cannot be Nothing!")
+
+            'Getting the masker sound
+            Dim MaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+
+            'Storing the samplerate
+            If CurrentSampleRate = -1 Then CurrentSampleRate = MaskerSound.WaveFormat.SampleRate
+
+            'Setting the insertion sample of the masker
+            Dim MaskerStartSample As Integer = Math.Floor(MaskerPresentationTime * CurrentSampleRate)
+
+            'Setting the MaskerStartMeasureSample (i.e. the sample index in the MaskerSound, not in the final mix)
+            Dim MaskerStartMeasureSample As Integer = 0
+
+            'Getting the MaskerMeasureLength from the length of the sound files (i.e. everything is measured)
+            Dim MaskerMeasureLength As Integer = MaskerSound.WaveData.SampleData(1).Length
+
+            'Sets up fading specifications for the masker
+            If FadeSpecs_Masker Is Nothing Then
+                FadeSpecs_Masker = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+                FadeSpecs_Masker.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                FadeSpecs_Masker.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+            End If
+
+            'Combining maskers with the selected SignalLocations
+            Dim Maskers As New List(Of Tuple(Of Audio.Sound, SoundSourceLocation))
+
+            'Randomizing a start sample in the first half of the masker signal, and then picking different sections of the masker sound, two seconds apart for the different locations.
+            Dim RandomStartReadIndex As Integer = Randomizer.Next(0, (MaskerSound.WaveData.SampleData(1).Length / 2) - 1)
+            Dim InterMaskerStepLength As Integer = CurrentSampleRate * 2
+            Dim IndendedMaskerLength As Integer = MaximumSoundDuration * CurrentSampleRate - MaskerStartSample
+
+            'Calculating the needed sound length and checks that the masker sound is long enough
+            Dim NeededSoundLength As Integer = RandomStartReadIndex + (CustomizableTestOptions.MaskerLocations.Count + 1) * InterMaskerStepLength + IndendedMaskerLength + 10
+            If MaskerSound.WaveData.SampleData(1).Length < NeededSoundLength Then
+                Throw New Exception("The masker sound specified is too short for the intended maximum sound duration and " & CustomizableTestOptions.MaskerLocations.Count & " sound sources!")
+            End If
+
+            'Picking the masker sounds and combining them with their selected locations
+            For Index = 0 To CustomizableTestOptions.MaskerLocations.Count - 1
+
+                Dim StartCopySample As Integer = RandomStartReadIndex + Index * InterMaskerStepLength
+                Dim CurrentSourceMaskerSound = Audio.DSP.CopySection(MaskerSound, StartCopySample, IndendedMaskerLength, 1)
+
+                'Copying the SMA object to retain the nominal level (although other time data and other related stuff will be incorrect, if not adjusted for)
+                CurrentSourceMaskerSound.SMA = MaskerSound.SMA.CreateCopy(CurrentSourceMaskerSound)
+
+                'Picking the masker sound
+                Maskers.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(CurrentSourceMaskerSound, CustomizableTestOptions.MaskerLocations(Index)))
+
+            Next
+
+            'Adding the maskers sources to the ItemList
+            For Index = 0 To Maskers.Count - 1
+                ItemList.Add(New SoundSceneItem(Maskers(Index).Item1, 1, MaskerLevel, LevelGroup, Maskers(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Masker, MaskerStartSample, MaskerStartMeasureSample, MaskerMeasureLength,, FadeSpecs_Masker))
+            Next
+
+            'Incrementing LevelGroup 
+            LevelGroup += 1
+
+        End If
+
+        'TODO: implement BackgroundNonSpeech and BackgroundSpeech here
+
+        ' **CONTRALATERAL MASKER**
+        If CustomizableTestOptions.UseContralateralMasking = True Then
+
+            'Ensures that ContralateralMaskerLevel has a value
+            If ContralateralMaskerLevel.HasValue = False Then Throw New ArgumentException("ContralateralMaskerLevel value cannot be Nothing!")
+
+            'Ensures that head phones are used
+            If CustomizableTestOptions.SelectedTransducer.IsHeadphones = False Then
+                Throw New Exception("Contralateral masking cannot be used without headphone presentation.")
+            End If
+
+            'Ensures that it's not a simulated sound field
+            If CustomizableTestOptions.UseSimulatedSoundField = True Then
+                Throw New Exception("Contralateral masking cannot be used in a simulated sound field!")
+            End If
+
+            'Getting the contralateral masker sound 
+            Dim FullContralateralMaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+
+            'Storing the samplerate
+            If CurrentSampleRate = -1 Then CurrentSampleRate = FullContralateralMaskerSound.WaveFormat.SampleRate
+
+            'Setting the insertion sample of the contralateral masker
+            Dim ContralateralMaskerStartSample As Integer = Math.Floor(ContralateralMaskerPresentationTime * CurrentSampleRate)
+
+            'Setting the ContralateralMaskerStartMeasureSample (i.e. the sample index in the ContralateralMaskerSound, not in the final mix)
+            Dim ContralateralMaskerStartMeasureSample As Integer = 0
+
+            'Picking a random section of the ContralateralMaskerSound, starting in the first half
+            Dim RandomStartReadIndex As Integer = Randomizer.Next(0, (FullContralateralMaskerSound.WaveData.SampleData(1).Length / 2) - 1)
+            Dim IndendedMaskerLength As Integer = MaximumSoundDuration * CurrentSampleRate - ContralateralMaskerStartSample
+
+            'Calculating the needed sound length and checks that the contralateral masker sound is long enough
+            Dim NeededSoundLength As Integer = RandomStartReadIndex + IndendedMaskerLength + 10
+            If FullContralateralMaskerSound.WaveData.SampleData(1).Length < NeededSoundLength Then
+                Throw New Exception("The contralateral masker sound specified is too short for the intended maximum sound duration!")
+            End If
+
+            'Gets a copy of the sound section
+            Dim ContralateralMaskerSound = Audio.DSP.CopySection(FullContralateralMaskerSound, RandomStartReadIndex, IndendedMaskerLength, 1)
+
+            'Copying the SMA object to retain the nominal level (although other time data and other related stuff will be incorrect, if not adjusted for)
+            ContralateralMaskerSound.SMA = FullContralateralMaskerSound.SMA.CreateCopy(ContralateralMaskerSound)
+
+            'Getting the ContralateralMaskerMeasureLength from the length of the sound files (i.e. everything is measured)
+            Dim ContralateralMaskerMeasureLength As Integer = ContralateralMaskerSound.WaveData.SampleData(1).Length
+
+            'Sets up fading specifications for the contralateral masker
+            If FadeSpecs_ContralateralMasker Is Nothing Then
+                FadeSpecs_ContralateralMasker = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+                FadeSpecs_ContralateralMasker.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                FadeSpecs_ContralateralMasker.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+            End If
+
+            'Determining which side to put the contralateral masker
+            Dim ContralateralMaskerLocation As New SoundSourceLocation With {.Distance = 0, .Elevation = 0}
+            If CurrentTestEar = Utils.Constants.SidesWithBoth.Left Then
+                'Putting contralateral masker in right ear
+                ContralateralMaskerLocation.HorizontalAzimuth = 90
+            ElseIf CurrentTestEar = Utils.Constants.SidesWithBoth.Right Then
+                'Putting contralateral masker in left ear
+                ContralateralMaskerLocation.HorizontalAzimuth = -90
+            Else
+                'This shold never happen...
+                Throw New Exception("Contralateral noise cannot be used when the target signal is on both sides!")
+            End If
+
+            'Adding the contralateral maskers sources to the ItemList
+            ItemList.Add(New SoundSceneItem(ContralateralMaskerSound, 1, ContralateralMaskerLevel_EmCorrected, LevelGroup, ContralateralMaskerLocation, SoundSceneItem.SoundSceneItemRoles.ContralateralMasker, ContralateralMaskerStartSample, ContralateralMaskerStartMeasureSample, ContralateralMaskerMeasureLength,, FadeSpecs_ContralateralMasker))
+
+            'Incrementing LevelGroup 
+            LevelGroup += 1
+
+        End If
+
+
+        Dim CurrentSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
+        If CustomizableTestOptions.UseSimulatedSoundField Then
+            CurrentSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
+            'TODO: This needs to be modified if/when more SoundPropagationTypes are starting to be supported
+        End If
+
+        'Creating the mix by calling CreateSoundScene of the current Mixer
+        CurrentTestTrial.Sound = CustomizableTestOptions.SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, CustomizableTestOptions.UseRetsplCorrection, CurrentSoundPropagationType, CustomizableTestOptions.SelectedTransducer.LimiterThreshold, ExportSounds, CurrentTestTrial.Spelling)
+
+
+        'TODO: Reasonably this method should only store values into the CurrentTestTrial that are derived within this function! Leaving these for now
+        CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
+        CurrentTestTrial.UseContralateralNoise = CustomizableTestOptions.UseContralateralMasking
+        CurrentTestTrial.EfficientContralateralMaskingTerm = CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+
+    End Sub
+
+
+
 #End Region
 
     ''' <summary>
@@ -379,9 +665,40 @@
 
     Public MustOverride Function GetResultStringForGui() As String
 
-    Public MustOverride Function GetExportString() As String
+    Public MustOverride Function GetTestResultsExportString() As String
+
+    Public MustOverride Function GetTestTrialResultExportString() As String
 
     Public MustOverride ReadOnly Property FilePathRepresentation As String
+
+    Public Function SaveTestTrialResults() As Boolean
+
+        'Skipping saving data if it's the demo ptc ID
+        If SharedSpeechTestObjects.CurrentParticipantID.Trim = SharedSpeechTestObjects.NoTestId Then Return True
+
+        If SharedSpeechTestObjects.TestResultsRootFolder = "" Then
+            Messager.MsgBox("Unable to save the results to file due to missing test results output folder. This should have been selected first startup of the app!")
+            Return False
+        End If
+
+        If IO.Directory.Exists(SharedSpeechTestObjects.TestResultsRootFolder) = False Then
+            Try
+                IO.Directory.CreateDirectory(SharedSpeechTestObjects.TestResultsRootFolder)
+            Catch ex As Exception
+                Messager.MsgBox("Unable to save the results to the test results output folder (" & SharedSpeechTestObjects.TestResultsRootFolder & "). The path does not exist, and could not be created!")
+            End Try
+            Return False
+        End If
+
+        Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, Me.FilePathRepresentation)
+        Dim OutputFilename = Me.FilePathRepresentation & "_TrialResults_" & SharedSpeechTestObjects.CurrentParticipantID
+
+        Dim TestTrialResultsString = GetTestTrialResultExportString()
+        Utils.SendInfoToLog(TestTrialResultsString, OutputFilename, OutputPath, False, True, False, True, True)
+
+        Return True
+
+    End Function
 
     Public Function SaveTableFormatedTestResults() As Boolean
 
@@ -397,7 +714,7 @@
             Try
                 IO.Directory.CreateDirectory(SharedSpeechTestObjects.TestResultsRootFolder)
             Catch ex As Exception
-                Messager.MsgBox("Unable to save the results to as the test results output folder (" & SharedSpeechTestObjects.TestResultsRootFolder & "). The path does not exist, and could not be created!")
+                Messager.MsgBox("Unable to save the results to the test results output folder (" & SharedSpeechTestObjects.TestResultsRootFolder & "). The path does not exist, and could not be created!")
             End Try
             Return False
         End If
@@ -405,11 +722,8 @@
         Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, Me.FilePathRepresentation)
         Dim OutputFilename = Me.FilePathRepresentation & "_Results_" & SharedSpeechTestObjects.CurrentParticipantID
 
-        'Ensures that an old file with the same filename is not overwritten by adding a number to existing files
-        OutputFilename = Utils.CheckFileNameConflict(OutputFilename)
-
-        Dim TestResultsString = GetExportString()
-        Utils.SendInfoToLog(TestResultsString, OutputFilename, OutputPath, False, True)
+        Dim TestResultsString = GetTestResultsExportString()
+        Utils.SendInfoToLog(TestResultsString, OutputFilename, OutputPath, False, True, False, False, True)
 
         Return True
     End Function

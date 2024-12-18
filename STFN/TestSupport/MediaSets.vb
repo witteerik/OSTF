@@ -26,6 +26,10 @@ Public Class MediaSetLibrary
 
     End Function
 
+    Public Overrides Function ToString() As String
+        Return String.Join("; ", GetNames())
+    End Function
+
 End Class
 
 <Serializable>

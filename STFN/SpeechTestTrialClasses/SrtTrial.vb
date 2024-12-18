@@ -20,7 +20,7 @@ Public Class SrtTrial
     Public Overrides Function TestResultColumnHeadings() As String
 
         Dim OutputList As New List(Of String)
-        OutputList.AddRange(BaseClassTestResultColumnHeadings())
+        'OutputList.AddRange(BaseClassTestResultColumnHeadings())
 
         'Adding property names
         Dim properties As PropertyInfo() = GetType(SrtTrial).GetProperties()
@@ -41,7 +41,7 @@ Public Class SrtTrial
     Public Overrides Function TestResultAsTextRow() As String
 
         Dim OutputList As New List(Of String)
-        OutputList.AddRange(BaseClassTestResultAsTextRow())
+        'OutputList.AddRange(BaseClassTestResultAsTextRow())
 
         Dim properties As PropertyInfo() = GetType(SrtTrial).GetProperties()
 

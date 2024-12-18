@@ -691,7 +691,11 @@ Public Class TP50_SoundField
 
     End Function
 
-    Public Overrides Function GetExportString() As String
+    Public Overrides Function GetTestTrialResultExportString() As String
+        Return "Export of trial level test results is not yet implemented"
+    End Function
+
+    Public Overrides Function GetTestResultsExportString() As String
 
         Dim ExportStringList As New List(Of String)
 

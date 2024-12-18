@@ -2682,7 +2682,7 @@ Namespace SipTest
         Public Overrides Function TestResultColumnHeadings() As String
 
             Dim OutputList As New List(Of String)
-            OutputList.AddRange(BaseClassTestResultColumnHeadings())
+            'OutputList.AddRange(BaseClassTestResultColumnHeadings())
 
             OutputList.Add(CreateExportHeadings())
 
@@ -2719,7 +2719,7 @@ Namespace SipTest
             'And the EM term (which is not used int the SiP-test)
             EfficientContralateralMaskingTerm = 0
 
-            OutputList.AddRange(BaseClassTestResultAsTextRow())
+            'OutputList.AddRange(BaseClassTestResultAsTextRow())
 
             OutputList.Add(CreateExportString(True))
 

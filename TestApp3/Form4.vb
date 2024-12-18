@@ -4564,4 +4564,27 @@ Public Class Form4
         InputFile.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard_Sentences\Maskers\HINT_Swedish_HINT\List #01female only noise_withSMA.wav")
 
     End Sub
+
+    Private Sub Button43_Click(sender As Object, e As EventArgs) Handles Button43.Click
+
+        'Dim TestFile = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard_Sentences\TestWordRecordings\L02S00_Sentence00\Sound00.wav")
+
+        Dim InputFile = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard_Sentences\Maskers\Noise(cut_from_List11)_WithoutSMA.wav")
+
+        'Dim SameWaveFormats = TestFile.WaveFormat.IsEqual(InputFile.WaveFormat)
+
+        'InputFile = InputFile.Convert16to32bitSound()
+
+        InputFile.SMA.NominalLevel = -20
+        InputFile.SMA.InferNominalLevelToAllDescendants()
+
+        InputFile.SMA.SetFrequencyWeighting(Audio.BasicAudioEnums.FrequencyWeightings.C, True)
+        InputFile.SMA.MeasureSoundLevels()
+
+        InputFile.SMA = Nothing
+
+        InputFile.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard_Sentences\Maskers\Swedish_Matrix_Test_(Hagerman)_Swedish_Matrix_Test_(Hagerman)\Noise(cut_from_List11)_WithSMA.wav")
+
+
+    End Sub
 End Class
