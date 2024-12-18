@@ -4561,6 +4561,8 @@ Public Class Form4
         InputFile.SMA.SetFrequencyWeighting(Audio.BasicAudioEnums.FrequencyWeightings.C, True)
         InputFile.SMA.MeasureSoundLevels()
 
+        'InputFile.RemoveUnparsedWaveChunks()
+
         InputFile.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard_Sentences\Maskers\HINT_Swedish_HINT\List #01female only noise_withSMA.wav")
 
     End Sub
@@ -4581,10 +4583,9 @@ Public Class Form4
         InputFile.SMA.SetFrequencyWeighting(Audio.BasicAudioEnums.FrequencyWeightings.C, True)
         InputFile.SMA.MeasureSoundLevels()
 
-        InputFile.SMA = Nothing
+        InputFile.RemoveUnparsedWaveChunks()
 
         InputFile.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard_Sentences\Maskers\Swedish_Matrix_Test_(Hagerman)_Swedish_Matrix_Test_(Hagerman)\Noise(cut_from_List11)_WithSMA.wav")
-
 
     End Sub
 End Class
