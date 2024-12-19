@@ -307,7 +307,7 @@ Public Class IHearProtocolB7SpeechTest
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
-        If CustomizableTestOptions.UseSimulatedSoundField = True Then
+        If TestOptions.UseSimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
@@ -723,7 +723,7 @@ Public Class IHearProtocolB7SpeechTest
         'TODO: We must store the responses and response times!!!
 
         'Calculating the speech level
-        'Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
+        'Dim ProtocolReply = TestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
         Dim ProtocolReply = New TestProtocol.NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial}
 
         If CurrentSipTestMeasurement.TestUnits(CurrentTestStage).PlannedTrials.Count = 0 Then

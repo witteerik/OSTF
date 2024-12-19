@@ -2,13 +2,13 @@
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
 
-Public Class CustomizableTestOptions
+Public Class TestOptions
     Implements INotifyPropertyChanged
 
     Public Event PropertyChanged As PropertyChangedEventHandler Implements INotifyPropertyChanged.PropertyChanged
 
     ''' <summary>
-    '''Set to True to inactivate GUI updates of the CustomizableTestOptions from the selected test.
+    '''Set to True to inactivate GUI updates of the TestOptions from the selected test.
     '''The reason we may need to inactivate the GUI connection is that when the GUI is updated asynchronosly, some objects needed during testing may not have been set before they are needed.
     '''Therefore, this value should be changed to True whenever a test is started or resumed, and optionally to False when the test is completed or paused.
     ''' </summary>
@@ -22,8 +22,21 @@ Public Class CustomizableTestOptions
     End Sub
 
     Public Sub New()
-        SelectedTest.CustomizableTestOptions = Me
+        SelectedTest.TestOptions = Me
     End Sub
+
+    Public Property SelectedSpeechMaterial As SpeechMaterialSpecification
+        Get
+            Return _SelectedSpeechMaterial
+        End Get
+        Set(value As SpeechMaterialSpecification)
+            _SelectedSpeechMaterial = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _SelectedSpeechMaterial As SpeechMaterialSpecification
+    Public Property SelectSpeechMaterialTitle As String = "Välj talmaterial"
+
 
     Public ReadOnly Property SelectedTest As SpeechTest
         Get
@@ -680,7 +693,7 @@ Public Class CustomizableTestOptions
         Dim OutputList As New List(Of String)
 
         'Adding property names
-        Dim properties As PropertyInfo() = GetType(CustomizableTestOptions).GetProperties()
+        Dim properties As PropertyInfo() = GetType(TestOptions).GetProperties()
 
         ' Iterating through each property
         For Each [property] As PropertyInfo In properties
@@ -699,7 +712,7 @@ Public Class CustomizableTestOptions
 
         Dim OutputList As New List(Of String)
 
-        Dim properties As PropertyInfo() = GetType(CustomizableTestOptions).GetProperties()
+        Dim properties As PropertyInfo() = GetType(TestOptions).GetProperties()
 
         ' Iterating through each property
         For Each [property] As PropertyInfo In properties

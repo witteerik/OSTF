@@ -307,7 +307,7 @@ Public Class QuickSiP
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
-        If CustomizableTestOptions.UseSimulatedSoundField = True Then
+        If TestOptions.UseSimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
@@ -428,7 +428,7 @@ Public Class QuickSiP
         Dim MaskerLocations_HeadTurnedLeft As SoundSourceLocation()
         Dim BackgroundLocations_HeadTurnedLeft As SoundSourceLocation()
 
-        If CustomizableTestOptions.UseSimulatedSoundField = True Then
+        If TestOptions.UseSimulatedSoundField = True Then
 
             'Head slightly turned right (i.e. Speech on left side)
             TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}}
@@ -729,7 +729,7 @@ Public Class QuickSiP
         'TODO: We must store the responses and response times!!!
 
         'Calculating the speech level
-        'Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
+        'Dim ProtocolReply = TestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
         Dim ProtocolReply = New TestProtocol.NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial}
 
         If CurrentSipTestMeasurement.PlannedTrials.Count = 0 Then

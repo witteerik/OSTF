@@ -295,66 +295,66 @@ Public Class MatrixSpeechTest
 
         ObservedTrials = New TrialHistory
 
-        If CustomizableTestOptions.SignalLocations.Count = 0 Then
+        If TestOptions.SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
         End If
 
-        If CustomizableTestOptions.MaskerLocations.Count = 0 And CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise Then
+        If TestOptions.MaskerLocations.Count = 0 And TestOptions.SelectedTestMode = TestModes.AdaptiveNoise Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source in tests with adaptive noise!")
         End If
 
         Dim StartAdaptiveLevel As Double
-        If CustomizableTestOptions.MaskerLocations.Count > 0 Then
+        If TestOptions.MaskerLocations.Count > 0 Then
             'It's a speech in noise test, using adaptive SNR
             HasNoise = True
-            Dim InitialSNR = SignalToNoiseRatio(CustomizableTestOptions.SpeechLevel, CustomizableTestOptions.MaskingLevel)
+            Dim InitialSNR = SignalToNoiseRatio(TestOptions.SpeechLevel, TestOptions.MaskingLevel)
             StartAdaptiveLevel = InitialSNR
         Else
             'It's a speech only test, using adaptive speech level
             HasNoise = False
-            StartAdaptiveLevel = CustomizableTestOptions.SpeechLevel
+            StartAdaptiveLevel = TestOptions.SpeechLevel
         End If
 
-        CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = CustomizableTestOptions.IsPractiseTest
+        TestOptions.SelectedTestProtocol.IsInPretestMode = TestOptions.IsPractiseTest
 
         Dim TestLength As Integer
 
         Select Case True
-            Case TypeOf CustomizableTestOptions.SelectedTestProtocol Is HagermanKinnefors1995_TestProtocol
+            Case TypeOf TestOptions.SelectedTestProtocol Is HagermanKinnefors1995_TestProtocol
 
                 If HasNoise = False Then
-                    DirectCast(CustomizableTestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInSilence
-                    CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveSpeech
+                    DirectCast(TestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInSilence
+                    TestOptions.SelectedTestMode = TestModes.AdaptiveSpeech
                     TestLength = 20
                 Else
-                    If CustomizableTestOptions.IsPractiseTest = True Then
-                        DirectCast(CustomizableTestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.PractiseTestThresholdInNoise
-                        CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise
+                    If TestOptions.IsPractiseTest = True Then
+                        DirectCast(TestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.PractiseTestThresholdInNoise
+                        TestOptions.SelectedTestMode = TestModes.AdaptiveNoise
                         TestLength = 30
                     Else
-                        DirectCast(CustomizableTestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
-                        CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise
+                        DirectCast(TestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
+                        TestOptions.SelectedTestMode = TestModes.AdaptiveNoise
                         TestLength = 20
                     End If
                 End If
 
-            Case TypeOf CustomizableTestOptions.SelectedTestProtocol Is BrandKollmeier2002_TestProtocol
+            Case TypeOf TestOptions.SelectedTestProtocol Is BrandKollmeier2002_TestProtocol
 
-                DirectCast(CustomizableTestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
-                CustomizableTestOptions.SelectedTestMode = TestModes.AdaptiveNoise
-                CustomizableTestOptions.SpeechLevel = 65
-                CustomizableTestOptions.MaskingLevel = 65
-                StartAdaptiveLevel = SignalToNoiseRatio(CustomizableTestOptions.SpeechLevel, CustomizableTestOptions.MaskingLevel)
+                DirectCast(TestOptions.SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
+                TestOptions.SelectedTestMode = TestModes.AdaptiveNoise
+                TestOptions.SpeechLevel = 65
+                TestOptions.MaskingLevel = 65
+                StartAdaptiveLevel = SignalToNoiseRatio(TestOptions.SpeechLevel, TestOptions.MaskingLevel)
                 TestLength = 20
 
             Case Else
 
                 If HasNoise = True Then
                     'It's a speech in noise test, using adaptive SNR
-                    StartAdaptiveLevel = SignalToNoiseRatio(CustomizableTestOptions.SpeechLevel, CustomizableTestOptions.MaskingLevel)
+                    StartAdaptiveLevel = SignalToNoiseRatio(TestOptions.SpeechLevel, TestOptions.MaskingLevel)
                 Else
                     'It's a speech only test, using adaptive speech level
-                    StartAdaptiveLevel = CustomizableTestOptions.SpeechLevel
+                    StartAdaptiveLevel = TestOptions.SpeechLevel
                 End If
 
                 TestLength = 20
@@ -363,7 +363,7 @@ Public Class MatrixSpeechTest
 
         CreatePlannedWordsSentences()
 
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0, .TestLength = TestLength})
+        TestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0, .TestLength = TestLength})
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -390,7 +390,7 @@ Public Class MatrixSpeechTest
         'Determines the index of the start list
         Dim SelectedStartListIndex As Integer = -1
         For i = 0 To AllLists.Count - 1
-            If AllLists(i).PrimaryStringRepresentation = CustomizableTestOptions.StartList Then
+            If AllLists(i).PrimaryStringRepresentation = TestOptions.StartList Then
                 SelectedStartListIndex = i
                 Exit For
             End If
@@ -414,7 +414,7 @@ Public Class MatrixSpeechTest
             Dim CurrentSentences = List.GetChildren()
 
             'Adding sentence in the original order
-            If CustomizableTestOptions.RandomizeItemsWithinLists = False Then
+            If TestOptions.RandomizeItemsWithinLists = False Then
                 For Each Sentence In CurrentSentences
                     PlannedTestSentences.Add(Sentence)
                     'Checking if enough words have been added
@@ -526,7 +526,7 @@ Public Class MatrixSpeechTest
 
 
         'Calculating the speech level
-        Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
+        Dim ProtocolReply = TestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
 
         ' Returning if we should not move to the next trial
         If ProtocolReply.Decision <> SpeechTestReplies.GotoNextTrial Then
@@ -544,16 +544,16 @@ Public Class MatrixSpeechTest
         Dim NextTestSentence = PlannedTestSentences(ObservedTrials.Count)
 
         'Creating a new test trial
-        Select Case CustomizableTestOptions.SelectedTestMode
+        Select Case TestOptions.SelectedTestMode
             Case TestModes.AdaptiveSpeech
 
                 If HasNoise = True Then
 
                     CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
                         .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-                        .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
-                        .MaskerLevel = CustomizableTestOptions.MaskingLevel,
-                        .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
+                        .SpeechLevel = TestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
+                        .MaskerLevel = TestOptions.MaskingLevel,
+                        .ContralateralMaskerLevel = TestOptions.ContralateralMaskingLevel,
                         .TestStage = NextTaskInstruction.TestStage,
                         .Tasks = 5}
 
@@ -563,7 +563,7 @@ Public Class MatrixSpeechTest
                         .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                         .SpeechLevel = NextTaskInstruction.AdaptiveValue,
                         .MaskerLevel = Double.NegativeInfinity,
-                        .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
+                        .ContralateralMaskerLevel = TestOptions.ContralateralMaskingLevel,
                         .TestStage = NextTaskInstruction.TestStage,
                         .Tasks = 5}
 
@@ -574,9 +574,9 @@ Public Class MatrixSpeechTest
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
                     .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-                    .SpeechLevel = CustomizableTestOptions.SpeechLevel,
-                    .MaskerLevel = CustomizableTestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
-                    .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel,
+                    .SpeechLevel = TestOptions.SpeechLevel,
+                    .MaskerLevel = TestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
+                    .ContralateralMaskerLevel = TestOptions.ContralateralMaskingLevel,
                     .TestStage = NextTaskInstruction.TestStage,
                     .Tasks = 5}
 
@@ -587,7 +587,7 @@ Public Class MatrixSpeechTest
 
         Dim ResponseAlternativeSpellingsList As New List(Of List(Of String))
 
-        If CustomizableTestOptions.IsFreeRecall = True Then
+        If TestOptions.IsFreeRecall = True Then
 
             'Adding only the correct words to the GUI
             Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
@@ -625,7 +625,7 @@ Public Class MatrixSpeechTest
             'Add other buttons needed ?
 
             'A Did-Not-Hear-Response Alternative ?
-            If CustomizableTestOptions.ShowDidNotHearResponseAlternative = True Then
+            If TestOptions.ShowDidNotHearResponseAlternative = True Then
                 For Each Item In ResponseAlternativeSpellingsList
                     Item.Add("?")
                 Next
@@ -658,11 +658,11 @@ Public Class MatrixSpeechTest
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 500, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 501, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        'If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        'If TestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 20500, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * TestWordPresentationTime), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        If TestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 
@@ -697,12 +697,12 @@ Public Class MatrixSpeechTest
 
     Public Overrides Function GetResultStringForGui() As String
 
-        Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = TestOptions.SelectedTestProtocol.GetFinalResult()
 
         Dim Output As New List(Of String)
 
         If ProtocolThreshold IsNot Nothing Then
-            If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+            If TestOptions.SelectedTestProtocol.IsInPretestMode = True Then
                 ResultSummaryForGUI.Add("Resultat för övningstestet: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
             Else
                 ResultSummaryForGUI.Add("Testresultat: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
@@ -710,16 +710,16 @@ Public Class MatrixSpeechTest
 
             Output.AddRange(ResultSummaryForGUI)
         Else
-            If CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+            If TestOptions.SelectedTestProtocol.IsInPretestMode = True Then
                 Output.Add("Övningstest!")
             End If
 
             If CurrentTestTrial IsNot Nothing Then
-                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & CustomizableTestOptions.SelectedTestProtocol.TotalTrialCount)
+                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestOptions.SelectedTestProtocol.TotalTrialCount)
                 Output.Add("SNR = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SNR) & " dB HL")
                 Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
                 Output.Add("Brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel) & " dB HL")
-                If CustomizableTestOptions.UseContralateralMasking = True Then
+                If TestOptions.UseContralateralMasking = True Then
                     Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
                 End If
             End If
@@ -739,7 +739,7 @@ Public Class MatrixSpeechTest
 
         Dim ExportStringList As New List(Of String)
 
-        Dim ProtocolThreshold = CustomizableTestOptions.SelectedTestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = TestOptions.SelectedTestProtocol.GetFinalResult()
 
         'Exporting all trials
         Dim TestTrialIndex As Integer = 0
@@ -770,7 +770,7 @@ Public Class MatrixSpeechTest
 
     Public Overrides Sub FinalizeTest()
 
-        CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+        TestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
 
     End Sub
 

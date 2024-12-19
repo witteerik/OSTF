@@ -413,17 +413,17 @@ Public Class IHearProtocolB2SpeechTest
 
         End If
 
-        CustomizableTestOptions.SelectedMediaSet = AvailableMediasets(SelectedMediaSetIndex)
+        TestOptions.SelectedMediaSet = AvailableMediasets(SelectedMediaSetIndex)
 
         CreatePreTestWordsList()
         CreatePlannedWordsList()
 
         'Getting the masker noise only once (this should be a long section of noise with its using nominal level set
-        MaskerNoise = PlannedLevelAdjustmentWords(0).GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+        MaskerNoise = PlannedLevelAdjustmentWords(0).GetMaskerSound(TestOptions.SelectedMediaSet, 0)
         'We always load ContralateralNoise even if it's not used, since the test will crash if it's suddenly switched on the the administrator (such as in pretest stimulus generation)
-        ContralateralNoise = PlannedLevelAdjustmentWords(0).GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+        ContralateralNoise = PlannedLevelAdjustmentWords(0).GetContralateralMaskerSound(TestOptions.SelectedMediaSet, 0)
 
-        CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = CustomizableTestOptions.SpeechLevel, .TestLength = TestLength})
+        TestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = TestOptions.SpeechLevel, .TestLength = TestLength})
 
         IsInitialized = True
 
@@ -505,7 +505,7 @@ Public Class IHearProtocolB2SpeechTest
 
         Next
 
-        If CustomizableTestOptions.RandomizeItemsWithinLists = True Then
+        If TestOptions.RandomizeItemsWithinLists = True Then
             PlannedTestTrials.Shuffle(Randomizer)
         End If
 
@@ -618,11 +618,11 @@ Public Class IHearProtocolB2SpeechTest
             'TODO: We must store the responses and response times!!!
 
             'Calculating the speech level
-            ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTestTrials)
+            ProtocolReply = TestOptions.SelectedTestProtocol.NewResponse(ObservedTestTrials)
 
         Else
             'Nothing to correct (this should be the start of a new test, or a resuming of a paused test)
-            ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(New TrialHistory)
+            ProtocolReply = TestOptions.SelectedTestProtocol.NewResponse(New TrialHistory)
         End If
 
         'Preparing next trial if needed
@@ -633,8 +633,8 @@ Public Class IHearProtocolB2SpeechTest
             CurrentTestTrial = PlannedTestTrials(ObservedTestTrials.Count)
 
             'Creating a new test trial
-            DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel = CustomizableTestOptions.SpeechLevel
-            DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel
+            DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel = TestOptions.SpeechLevel
+            DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = TestOptions.ContralateralMaskingLevel
             CurrentTestTrial.Tasks = 1
 
             'Setting trial events
@@ -657,12 +657,12 @@ Public Class IHearProtocolB2SpeechTest
     Private Sub MixNextTrialSound()
 
         Dim RETSPL_Correction As Double = 0
-        If CustomizableTestOptions.UseRetsplCorrection = True Then
-            RETSPL_Correction = CustomizableTestOptions.SelectedTransducer.RETSPL_Speech
+        If TestOptions.UseRetsplCorrection = True Then
+            RETSPL_Correction = TestOptions.SelectedTransducer.RETSPL_Speech
         End If
 
         'Getting the speech signal
-        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(TestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
 
         'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
@@ -678,7 +678,7 @@ Public Class IHearProtocolB2SpeechTest
 
         'Creating contalateral masking noise (with the same length as the masking noise)
         Dim TrialContralateralNoise As Audio.Sound = Nothing
-        If CustomizableTestOptions.UseContralateralMasking = True Then
+        If TestOptions.UseContralateralMasking = True Then
             TotalNoiseLength = ContralateralNoise.WaveData.SampleData(1).Length
             IntendedNoiseLength = ContralateralNoise.WaveFormat.SampleRate * MaximumSoundDuration
             RandomStartReadSample = Randomizer.Next(0, TotalNoiseLength - IntendedNoiseLength)
@@ -687,7 +687,7 @@ Public Class IHearProtocolB2SpeechTest
 
         'Checking that Nominal levels agree between signal masker and contralateral masker
         If MaskerNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and noise files!")
-        If CustomizableTestOptions.UseContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
+        If TestOptions.UseContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
 
         'Calculating presentation levels
         Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel) + RETSPL_Correction
@@ -703,10 +703,10 @@ Public Class IHearProtocolB2SpeechTest
         Audio.DSP.AmplifySection(TestWordSound, NeededSpeechGain)
         Audio.DSP.AmplifySection(TrialNoise, NeededMaskerGain)
 
-        If CustomizableTestOptions.UseContralateralMasking = True Then
+        If TestOptions.UseContralateralMasking = True Then
 
             'Setting level, 
-            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel) + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
+            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel) + TestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
             Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - NominalLevel_FS
@@ -724,12 +724,12 @@ Public Class IHearProtocolB2SpeechTest
         'Creating an output sound
         CurrentTestTrial.Sound = New Audio.Sound(New Audio.Formats.WaveFormat(TestWordSound.WaveFormat.SampleRate, TestWordSound.WaveFormat.BitDepth, 2,, TestWordSound.WaveFormat.Encoding))
 
-        If CustomizableTestOptions.SignalLocations(0).HorizontalAzimuth < 0 Then
+        If TestOptions.SignalLocations(0).HorizontalAzimuth < 0 Then
             'Left test ear
             'Adding speech and noise
             CurrentTestTrial.Sound.WaveData.SampleData(1) = TestSound.WaveData.SampleData(1)
             'Adding contralateral masking
-            If CustomizableTestOptions.UseContralateralMasking = True Then
+            If TestOptions.UseContralateralMasking = True Then
                 CurrentTestTrial.Sound.WaveData.SampleData(2) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
 
@@ -738,19 +738,19 @@ Public Class IHearProtocolB2SpeechTest
             'Adding speech and noise
             CurrentTestTrial.Sound.WaveData.SampleData(2) = TestSound.WaveData.SampleData(1)
             'Adding contralateral masking
-            If CustomizableTestOptions.UseContralateralMasking = True Then
+            If TestOptions.UseContralateralMasking = True Then
                 CurrentTestTrial.Sound.WaveData.SampleData(1) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
         End If
 
         'Also stores the mediaset
-        CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
+        CurrentTestTrial.MediaSetName = TestOptions.SelectedMediaSet.MediaSetName
 
         'And the contralateral noise on/off setting
-        CurrentTestTrial.UseContralateralNoise = CustomizableTestOptions.UseContralateralMasking
+        CurrentTestTrial.UseContralateralNoise = TestOptions.UseContralateralMasking
 
         'And the EM term
-        CurrentTestTrial.EfficientContralateralMaskingTerm = CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+        CurrentTestTrial.EfficientContralateralMaskingTerm = TestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
 
     End Sub
 
@@ -797,7 +797,7 @@ Public Class IHearProtocolB2SpeechTest
 
     Public Overrides Sub FinalizeTest()
 
-        CustomizableTestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTestTrials)
+        TestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTestTrials)
 
         If CurrentParticipantID <> NoTestId Then
 
@@ -856,8 +856,8 @@ Public Class IHearProtocolB2SpeechTest
 
         'Creating a new pretest trial
         CurrentTestTrial = New WrsTrial With {.SpeechMaterialComponent = NextTestWord,
-            .SpeechLevel = CustomizableTestOptions.SpeechLevel,
-            .ContralateralMaskerLevel = CustomizableTestOptions.ContralateralMaskingLevel}
+            .SpeechLevel = TestOptions.SpeechLevel,
+            .ContralateralMaskerLevel = TestOptions.ContralateralMaskingLevel}
 
         'Mixing the test sound
         MixNextTrialSound()

@@ -4,10 +4,10 @@
              xmlns:local="clr-namespace:STFN;assembly=STFN"
              xmlns:drawable="clr-namespace:STFM.Views"
              x:Class="STFM.Views.OptionsViewAll"
-             x:DataType="local:CustomizableTestOptions">
+             x:DataType="local:TestOptions">
         
     <ContentView.BindingContext>
-        <local:CustomizableTestOptions />
+        <local:TestOptions />
     </ContentView.BindingContext>
 
     <ScrollView VerticalOptions="FillAndExpand" >
@@ -16,6 +16,15 @@
 
             <Button x:Name="ShowTesterInstructionsButton" Text="{Binding TesterInstructionsButtonText}" Clicked="ShowTesterInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="0,2,1,1"></Button>
             <Button x:Name="ShowParticipantInstructionsButton" Text="{Binding ParticipantInstructionsButtonText}" Clicked="ShowParticipantInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="1,1,0,10"></Button>
+
+            <Frame x:Name="SpeechMaterialSelectionControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,5,10,5" Margin="0,5,0,15">
+                <VerticalStackLayout Margin="0,0,0,0" Padding="0,0,0,0">
+                    <HorizontalStackLayout>
+                        <Label Text="{Binding SelectSpeechMaterialTitle}" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Picker x:Name="SpeechMaterial_Picker" Title="{Binding SelectSpeechMaterialTitle}" ItemsSource="{Binding SelectedTest.AvailableSpeechMaterialSpecifications}" SelectedItem="{Binding SelectedSpeechMaterial}" HorizontalTextAlignment="Center"  WidthRequest="200" Margin="5,0,0,0" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
 
             <Picker x:Name="SelectedTransducer_Picker" SelectedIndexChanged="SelectedTransducer_Picker_SelectedIndexChanged"  Title="{Binding SelectedTransducerTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedTransducers}" SelectedItem="{Binding SelectedTransducer}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
 

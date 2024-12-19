@@ -202,10 +202,10 @@ Public MustInherit Class SpeechTest
 
             If OstfBase.AllowDirectionalSimulation = True Then
                 Dim SupportedIrNames As New List(Of String)
-                If CustomizableTestOptions.SelectedMediaSet IsNot Nothing Then
-                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSet.WaveFileSampleRate)
-                ElseIf CustomizableTestOptions.SelectedMediaSets.Count > 0 Then
-                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(CustomizableTestOptions.SelectedMediaSets(0).WaveFileSampleRate)
+                If TestOptions.SelectedMediaSet IsNot Nothing Then
+                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(TestOptions.SelectedMediaSet.WaveFileSampleRate)
+                ElseIf TestOptions.SelectedMediaSets.Count > 0 Then
+                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(TestOptions.SelectedMediaSets(0).WaveFileSampleRate)
                 Else
                     SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(AvailableMediasets(0).WaveFileSampleRate)
                 End If
@@ -241,7 +241,7 @@ Public MustInherit Class SpeechTest
     End Property
 
     ''' <summary>
-    ''' This sub mixes targets, maskers, background-non-speech, background-speech and contralateral maskers as assigned in CustomizableTestOptions sound sources. The mixed sound is stored in the CurrentTestTrial.Sound.
+    ''' This sub mixes targets, maskers, background-non-speech, background-speech and contralateral maskers as assigned in TestOptions sound sources. The mixed sound is stored in the CurrentTestTrial.Sound.
     ''' </summary>
     ''' <param name="UseNominalLevels">If True, applied gains are based on the nominal levels stored in the SMA object of each sound. If False, sound levels are re-calculated.</param>
     ''' <param name="MaximumSoundDuration">The intended duration (ins seconds) of the mixed sound.</param>
@@ -277,7 +277,7 @@ Public MustInherit Class SpeechTest
         'TODO: This function is not finished, it still need implementation of BackgroundNonSpeech and BackgroundSpeech
 
         'Calculates the EM corrected Contralateral masker level (the level supplied should not be EM corrected but be as it would appear on an audiometer attenuator
-        Dim ContralateralMaskerLevel_EmCorrected As Double = ContralateralMaskerLevel + CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+        Dim ContralateralMaskerLevel_EmCorrected As Double = ContralateralMaskerLevel + TestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
 
         'Mix the signal using DuxplexMixer CreateSoundScene
         'Sets a List of SoundSceneItem in which to put the sounds to mix
@@ -287,12 +287,12 @@ Public MustInherit Class SpeechTest
 
         'Determining test ear and stores in the current test trial (This should perhaps be moved outside this function. On the other hand it's good that it's always detemined when sounds are mixed, though all tests need to implement this or call this code)
         Dim CurrentTestEar As Utils.SidesWithBoth = Utils.SidesWithBoth.Both ' Assuming both, and overriding if needed
-        If CustomizableTestOptions.SelectedTransducer.IsHeadphones = True Then
-            If CustomizableTestOptions.UseSimulatedSoundField = False Then
+        If TestOptions.SelectedTransducer.IsHeadphones = True Then
+            If TestOptions.UseSimulatedSoundField = False Then
                 Dim HasLeftSideTarget As Boolean = False
                 Dim HasRightSideTarget As Boolean = False
 
-                For Each SignalLocation In CustomizableTestOptions.SignalLocations
+                For Each SignalLocation In TestOptions.SignalLocations
                     If SignalLocation.HorizontalAzimuth > 0 Then
                         'At least one signal location is to the right
                         HasRightSideTarget = True
@@ -315,10 +315,10 @@ Public MustInherit Class SpeechTest
 
 
         ' **TARGET SOUNDS**
-        If CustomizableTestOptions.SignalLocations.Count > 0 Then
+        If TestOptions.SignalLocations.Count > 0 Then
 
             'Getting the target sound (i.e. test words)
-            Dim TargetSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(CustomizableTestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+            Dim TargetSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(TestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
 
             'Storing the samplerate
             CurrentSampleRate = TargetSound.WaveFormat.SampleRate
@@ -341,7 +341,7 @@ Public MustInherit Class SpeechTest
 
             'Combining targets with the selected SignalLocations
             Dim Targets As New List(Of Tuple(Of Audio.Sound, SoundSourceLocation))
-            For Each SignalLocation In CustomizableTestOptions.SignalLocations
+            For Each SignalLocation In TestOptions.SignalLocations
                 'Re-using the same target in all selected locations
                 Targets.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(TargetSound, SignalLocation))
             Next
@@ -362,13 +362,13 @@ Public MustInherit Class SpeechTest
 
 
         ' **MASKER SOUNDS**
-        If CustomizableTestOptions.MaskerLocations.Count > 0 Then
+        If TestOptions.MaskerLocations.Count > 0 Then
 
             'Ensures that MaskerLevel has a value
             If MaskerLevel.HasValue = False Then Throw New ArgumentException("MaskerLevel value cannot be Nothing!")
 
             'Getting the masker sound
-            Dim MaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+            Dim MaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(TestOptions.SelectedMediaSet, 0)
 
             'Storing the samplerate
             If CurrentSampleRate = -1 Then CurrentSampleRate = MaskerSound.WaveFormat.SampleRate
@@ -398,13 +398,13 @@ Public MustInherit Class SpeechTest
             Dim IndendedMaskerLength As Integer = MaximumSoundDuration * CurrentSampleRate - MaskerStartSample
 
             'Calculating the needed sound length and checks that the masker sound is long enough
-            Dim NeededSoundLength As Integer = RandomStartReadIndex + (CustomizableTestOptions.MaskerLocations.Count + 1) * InterMaskerStepLength + IndendedMaskerLength + 10
+            Dim NeededSoundLength As Integer = RandomStartReadIndex + (TestOptions.MaskerLocations.Count + 1) * InterMaskerStepLength + IndendedMaskerLength + 10
             If MaskerSound.WaveData.SampleData(1).Length < NeededSoundLength Then
-                Throw New Exception("The masker sound specified is too short for the intended maximum sound duration and " & CustomizableTestOptions.MaskerLocations.Count & " sound sources!")
+                Throw New Exception("The masker sound specified is too short for the intended maximum sound duration and " & TestOptions.MaskerLocations.Count & " sound sources!")
             End If
 
             'Picking the masker sounds and combining them with their selected locations
-            For Index = 0 To CustomizableTestOptions.MaskerLocations.Count - 1
+            For Index = 0 To TestOptions.MaskerLocations.Count - 1
 
                 Dim StartCopySample As Integer = RandomStartReadIndex + Index * InterMaskerStepLength
                 Dim CurrentSourceMaskerSound = Audio.DSP.CopySection(MaskerSound, StartCopySample, IndendedMaskerLength, 1)
@@ -413,7 +413,7 @@ Public MustInherit Class SpeechTest
                 CurrentSourceMaskerSound.SMA = MaskerSound.SMA.CreateCopy(CurrentSourceMaskerSound)
 
                 'Picking the masker sound
-                Maskers.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(CurrentSourceMaskerSound, CustomizableTestOptions.MaskerLocations(Index)))
+                Maskers.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(CurrentSourceMaskerSound, TestOptions.MaskerLocations(Index)))
 
             Next
 
@@ -430,23 +430,23 @@ Public MustInherit Class SpeechTest
         'TODO: implement BackgroundNonSpeech and BackgroundSpeech here
 
         ' **CONTRALATERAL MASKER**
-        If CustomizableTestOptions.UseContralateralMasking = True Then
+        If TestOptions.UseContralateralMasking = True Then
 
             'Ensures that ContralateralMaskerLevel has a value
             If ContralateralMaskerLevel.HasValue = False Then Throw New ArgumentException("ContralateralMaskerLevel value cannot be Nothing!")
 
             'Ensures that head phones are used
-            If CustomizableTestOptions.SelectedTransducer.IsHeadphones = False Then
+            If TestOptions.SelectedTransducer.IsHeadphones = False Then
                 Throw New Exception("Contralateral masking cannot be used without headphone presentation.")
             End If
 
             'Ensures that it's not a simulated sound field
-            If CustomizableTestOptions.UseSimulatedSoundField = True Then
+            If TestOptions.UseSimulatedSoundField = True Then
                 Throw New Exception("Contralateral masking cannot be used in a simulated sound field!")
             End If
 
             'Getting the contralateral masker sound 
-            Dim FullContralateralMaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetContralateralMaskerSound(CustomizableTestOptions.SelectedMediaSet, 0)
+            Dim FullContralateralMaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetContralateralMaskerSound(TestOptions.SelectedMediaSet, 0)
 
             'Storing the samplerate
             If CurrentSampleRate = -1 Then CurrentSampleRate = FullContralateralMaskerSound.WaveFormat.SampleRate
@@ -506,19 +506,19 @@ Public MustInherit Class SpeechTest
 
 
         Dim CurrentSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
-        If CustomizableTestOptions.UseSimulatedSoundField Then
+        If TestOptions.UseSimulatedSoundField Then
             CurrentSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
             'TODO: This needs to be modified if/when more SoundPropagationTypes are starting to be supported
         End If
 
         'Creating the mix by calling CreateSoundScene of the current Mixer
-        CurrentTestTrial.Sound = CustomizableTestOptions.SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, CustomizableTestOptions.UseRetsplCorrection, CurrentSoundPropagationType, CustomizableTestOptions.SelectedTransducer.LimiterThreshold, ExportSounds, CurrentTestTrial.Spelling)
+        CurrentTestTrial.Sound = TestOptions.SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, TestOptions.UseRetsplCorrection, CurrentSoundPropagationType, TestOptions.SelectedTransducer.LimiterThreshold, ExportSounds, CurrentTestTrial.Spelling)
 
 
         'TODO: Reasonably this method should only store values into the CurrentTestTrial that are derived within this function! Leaving these for now
-        CurrentTestTrial.MediaSetName = CustomizableTestOptions.SelectedMediaSet.MediaSetName
-        CurrentTestTrial.UseContralateralNoise = CustomizableTestOptions.UseContralateralMasking
-        CurrentTestTrial.EfficientContralateralMaskingTerm = CustomizableTestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+        CurrentTestTrial.MediaSetName = TestOptions.SelectedMediaSet.MediaSetName
+        CurrentTestTrial.UseContralateralNoise = TestOptions.UseContralateralMasking
+        CurrentTestTrial.EfficientContralateralMaskingTerm = TestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
 
     End Sub
 
@@ -629,7 +629,7 @@ Public MustInherit Class SpeechTest
 
 #Region "Settings"
 
-    Public Property CustomizableTestOptions As CustomizableTestOptions
+    Public Property TestOptions As TestOptions
 
 
 #End Region

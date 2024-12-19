@@ -373,6 +373,20 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Returns right here to skip test-related adjustments
                     return;
 
+                case "Talaudiometri":
+
+                    // Speech test
+                    CurrentSpeechTest = new SpeechAudiometryTest("");
+
+                    // Testoptions
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsSpeechAudiometryTestView = new OptionsViewAll();
+                    TestOptionsGrid.Children.Add(newOptionsSpeechAudiometryTestView);
+                    CurrentTestOptionsView = newOptionsSpeechAudiometryTestView;
+
+                    break;
+
+
                 case "Svenska HINT":
 
                     // Speech test
@@ -640,9 +654,9 @@ public partial class SpeechTestView : ContentView, IDrawable
             // Inactivates tackback
             InactivateTalkback();
 
-            // Inactivating GUI updates of the CustomizableTestOptions of the selected test. // N.B. As of now, this is never turned on again, which means that the GUI connection will not work properly after the test has been started. 
+            // Inactivating GUI updates of the TestOptions of the selected test. // N.B. As of now, this is never turned on again, which means that the GUI connection will not work properly after the test has been started. 
             // The reason we need to inactivate the GUI connection is that when the GUI is updated asynchronosly, some objects needed for testing may not have been set before they are needed.
-            CurrentSpeechTest.CustomizableTestOptions.SkipGuiUpdates = true;
+            CurrentSpeechTest.TestOptions.SkipGuiUpdates = true;
 
             // Initializing the test
             Tuple<bool, string> testInitializationResponse = CurrentSpeechTest.InitializeCurrentTest();
@@ -651,6 +665,47 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             switch (selectedSpeechTestName)
             {
+
+                case "Talaudiometri":
+
+                    // Pick appropriate response view
+                    if (CurrentSpeechTest.TestOptions.IsFreeRecall)
+                    {
+                        CurrentResponseView = new ResponseView_FreeRecall();
+                    }
+                    else
+                    {
+                        CurrentResponseView = new ResponseView_Mafc();
+
+                        // We have to choose between:
+                        //CurrentResponseView = new ResponseView_Matrix();
+
+                        //CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
+                        //Which also requires:
+                        // CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+
+                        //CurrentResponseView = new ResponseView_SiP_SF();
+
+                    }
+
+                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+                    //TestResponseView.StartedByTestee += StartedByTestee;
+
+                    // Add the response view to TestReponseGrid (or put it in a separate window, code not finished there)
+                    if (true)
+                    {
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+                    }
+                    else
+                    {
+                        ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
+                        Window secondWindow = new Window(responsePage);
+                        secondWindow.Title = "";
+                        Application.Current.OpenWindow(secondWindow);
+                    }
+
+                    break;
 
                 case "Svenska HINT":
 
@@ -681,7 +736,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Hagermans meningar (Matrix)":
 
                     // Response view
-                    if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall)
+                    if (CurrentSpeechTest.TestOptions.IsFreeRecall)
                     {
                         CurrentResponseView = new ResponseView_FreeRecall();
                     }
@@ -702,7 +757,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Hörtröskel för tal (HTT)":
 
                     // Response view
-                    if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall)
+                    if (CurrentSpeechTest.TestOptions.IsFreeRecall)
                     {
                         CurrentResponseView = new ResponseView_FreeRecall();
                     }
@@ -953,8 +1008,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         if (CurrentSpeechTest.SupportsManualPausing) { PauseTestBtn.IsEnabled = true; }
 
         // Showing / hiding panels during test
-        SetBottomPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
-        SetLeftPanelShow(CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall);
+        SetBottomPanelShow(CurrentSpeechTest.TestOptions.IsFreeRecall);
+        SetLeftPanelShow(CurrentSpeechTest.TestOptions.IsFreeRecall);
 
         StopTestBtn.IsEnabled = true;
         TestReponseGrid.IsEnabled = true;
@@ -977,7 +1032,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Pause testing
         StopAllTrialEventTimers();
 
-        if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall == true )
+        if (CurrentSpeechTest.TestOptions.IsFreeRecall == true )
         {
 
             // The test administrator must resume the test
@@ -1056,7 +1111,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Registering timed trial event
         if (CurrentSpeechTest.CurrentTestTrial != null)
         {
-            if (CurrentSpeechTest.CustomizableTestOptions.IsFreeRecall == true)
+            if (CurrentSpeechTest.TestOptions.IsFreeRecall == true)
             {
                 CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TestAdministratorPressedNextTrial, DateTime.Now));
             }

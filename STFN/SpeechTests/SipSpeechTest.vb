@@ -306,25 +306,25 @@ Public Class SipSpeechTest
 
         SelectedTransducer = AvaliableTransducers(0)
 
-        If CustomizableTestOptions.SignalLocations.Count = 0 Then
+        If TestOptions.SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
         End If
 
-        If CustomizableTestOptions.MaskerLocations.Count = 0 Then
+        If TestOptions.MaskerLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source location!")
         End If
 
-        If CustomizableTestOptions.BackgroundNonSpeechLocations.Count = 0 Then
+        If TestOptions.BackgroundNonSpeechLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one background sound source location!")
         End If
 
-        If CustomizableTestOptions.BackgroundSpeechLocations.Count = 0 Then
+        If TestOptions.BackgroundSpeechLocations.Count = 0 Then
             UseBackgroundSpeech = False
         Else
             UseBackgroundSpeech = True
         End If
 
-        'CustomizableTestOptions.SelectedTestProtocol.IsInPretestMode = CustomizableTestOptions.IsPractiseTest
+        'TestOptions.SelectedTestProtocol.IsInPretestMode = TestOptions.IsPractiseTest
 
         'Creates a new test 
         CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
@@ -334,11 +334,11 @@ Public Class SipSpeechTest
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
-        If CustomizableTestOptions.UseSimulatedSoundField = True Then
+        If TestOptions.UseSimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
             Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
-            DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer, CustomizableTestOptions.UsePhaseAudiometry)
+            DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer, TestOptions.UsePhaseAudiometry)
 
         Else
             SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
@@ -349,11 +349,11 @@ Public Class SipSpeechTest
 
                 If SelectedTestparadigm = Testparadigm.FlexibleLocations Then
 
-                    CurrentSipTestMeasurement.TestProcedure.SetTargetStimulusLocations(SelectedTestparadigm, CustomizableTestOptions.SignalLocations)
+                    CurrentSipTestMeasurement.TestProcedure.SetTargetStimulusLocations(SelectedTestparadigm, TestOptions.SignalLocations)
 
-                    CurrentSipTestMeasurement.TestProcedure.SetMaskerLocations(SelectedTestparadigm, CustomizableTestOptions.MaskerLocations)
+                    CurrentSipTestMeasurement.TestProcedure.SetMaskerLocations(SelectedTestparadigm, TestOptions.MaskerLocations)
 
-                    CurrentSipTestMeasurement.TestProcedure.SetBackgroundLocations(SelectedTestparadigm, CustomizableTestOptions.MaskerLocations)
+                    CurrentSipTestMeasurement.TestProcedure.SetBackgroundLocations(SelectedTestparadigm, TestOptions.MaskerLocations)
 
                 End If
 
@@ -364,9 +364,9 @@ Public Class SipSpeechTest
                 'End If
 
                 'Setting up test trials to run
-                SelectedPNRs.Add(SignalToNoiseRatio(CustomizableTestOptions.SpeechLevel, CustomizableTestOptions.MaskingLevel))
+                SelectedPNRs.Add(SignalToNoiseRatio(TestOptions.SpeechLevel, TestOptions.MaskingLevel))
 
-                PlanDirectionalTestTrials(CurrentSipTestMeasurement, CustomizableTestOptions.ReferenceLevel, CustomizableTestOptions.SelectedPreset.Name, {CustomizableTestOptions.SelectedMediaSet}.ToList, SelectedPNRs, NumberOfSimultaneousMaskers, SelectedSoundPropagationType, RandomSeed)
+                PlanDirectionalTestTrials(CurrentSipTestMeasurement, TestOptions.ReferenceLevel, TestOptions.SelectedPreset.Name, {TestOptions.SelectedMediaSet}.ToList, SelectedPNRs, NumberOfSimultaneousMaskers, SelectedSoundPropagationType, RandomSeed)
 
             Case Else
                 Throw New NotImplementedException
@@ -393,14 +393,14 @@ Public Class SipSpeechTest
 
 
 
-        'CustomizableTestOptions.SpeechLevel
-        'CustomizableTestOptions.MaskingLevel
-        'CustomizableTestOptions.ReferenceLevel
+        'TestOptions.SpeechLevel
+        'TestOptions.MaskingLevel
+        'TestOptions.ReferenceLevel
 
 
         'Dim StartAdaptiveLevel As Double
 
-        'CustomizableTestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
+        'TestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
 
         'TryEnableTestStart()
 
@@ -576,7 +576,7 @@ Public Class SipSpeechTest
         'ParticipantControl.ResetTestItemPanel()
 
         'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds, using audio from the first selected MediaSet
-        Dim TestSound As Audio.Sound = CreateInitialSound(CustomizableTestOptions.SelectedMediaSet)
+        Dim TestSound As Audio.Sound = CreateInitialSound(TestOptions.SelectedMediaSet)
 
         'Plays sound
         SoundPlayer.SwapOutputSounds(TestSound)
@@ -811,7 +811,7 @@ Public Class SipSpeechTest
         'TODO: We must store the responses and response times!!!
 
         'Calculating the speech level
-        'Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
+        'Dim ProtocolReply = TestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
         Dim ProtocolReply = New TestProtocol.NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial}
 
         If CurrentSipTestMeasurement.PlannedTrials.Count = 0 Then
@@ -839,21 +839,21 @@ Public Class SipSpeechTest
 
         'CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
         '                .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-        '                .SpeechLevel = CustomizableTestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
-        '                .MaskerLevel = CustomizableTestOptions.MaskingLevel,
+        '                .SpeechLevel = TestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
+        '                .MaskerLevel = TestOptions.MaskingLevel,
         '                .TestStage = NextTaskInstruction.TestStage,
         '                .Tasks = 1}
 
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
 
         Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
-        If CustomizableTestOptions.IsFreeRecall Then
+        If TestOptions.IsFreeRecall Then
             If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 0 Then
 
                 CurrentTestTrial.Tasks = 0
                 For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
 
-                    If CustomizableTestOptions.ScoreOnlyKeyWords = True Then
+                    If TestOptions.ScoreOnlyKeyWords = True Then
                         ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
                     Else
                         ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})
@@ -911,7 +911,7 @@ Public Class SipSpeechTest
             CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = HideVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.HideVisualCue})
         End If
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativesTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        If CustomizableTestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        If TestOptions.IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
     End Sub
 

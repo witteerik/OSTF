@@ -307,7 +307,7 @@ Public Class IHearSC_SiP_SpeechTest
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
-        If CustomizableTestOptions.UseSimulatedSoundField = True Then
+        If TestOptions.UseSimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
@@ -343,7 +343,7 @@ Public Class IHearSC_SiP_SpeechTest
         If RandomSeed.HasValue Then CurrentSipTestMeasurement.Randomizer = New Random(RandomSeed)
 
         'Sampling a MediaSet
-        'Dim MediaSet = CustomizableTestOptions.SelectedMediaSet
+        'Dim MediaSet = TestOptions.SelectedMediaSet
         Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
         Dim MediaSet = SelectedMediaSets(0)
 
@@ -351,7 +351,7 @@ Public Class IHearSC_SiP_SpeechTest
 
         'Getting the preset
         Dim TestLists As List(Of SpeechMaterialComponent) = Nothing
-        If CustomizableTestOptions.IsPractiseTest Then
+        If TestOptions.IsPractiseTest Then
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, False, True)
         Else
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest("IHeAR_CS").Members 'TODO! Specify correct members in text file
@@ -381,7 +381,7 @@ Public Class IHearSC_SiP_SpeechTest
             Dim TestWords = TestLists(i).GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
 
             Dim PNR As Double
-            If CustomizableTestOptions.IsPractiseTest Then
+            If TestOptions.IsPractiseTest Then
                 PNR = 15
             Else
                 PNR = 0 'TODO! Select correct PNR
@@ -630,7 +630,7 @@ Public Class IHearSC_SiP_SpeechTest
         'TODO: We must store the responses and response times!!!
 
         'Calculating the speech level
-        'Dim ProtocolReply = CustomizableTestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
+        'Dim ProtocolReply = TestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
         Dim ProtocolReply = New TestProtocol.NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial}
 
         If CurrentSipTestMeasurement.PlannedTrials.Count = 0 Then
