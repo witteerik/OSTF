@@ -22,6 +22,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.7*" />
                 <RowDefinition Height="0.6*" />
+                <RowDefinition Height="0.6*" />
                 <RowDefinition Height="5*" />
                 <RowDefinition Height="0.9*" />
                 <RowDefinition Height="0.7*" />
@@ -37,18 +38,28 @@
                     Grid.Row="0" Grid.RowSpan="1"
                     Grid.Column="0" Grid.ColumnSpan="3"
                     Clicked="NewTestBtn_Clicked"/>
-            
+
             <Picker x:Name="SpeechTestPicker"
                    Title="Välj ett taltest"
                    Grid.Row="1" Grid.RowSpan="1"
                    Grid.Column="0" Grid.ColumnSpan="3"
+                    Margin="5,0,0,0" 
                     HorizontalOptions="Fill"
                     SelectedIndexChanged="OnSpeechTestPickerSelectedItemChanged">
             </Picker>
 
+            <Picker x:Name="SpeechMaterialPicker" 
+                    Title="Välj talmaterial"
+                    Grid.Row="2" Grid.RowSpan="1"
+                    Grid.Column="0" Grid.ColumnSpan="3"
+                    Margin="5,0,0,0" 
+                    HorizontalOptions="Fill" 
+                    SelectedIndexChanged="SpeechMaterial_Picker_SelectedIndexChanged"
+                    IsEnabled="False" />
+
             <Grid 
             x:Name="TestOptionsGrid"
-            Grid.Row="2" Grid.RowSpan="1"
+            Grid.Row="3" Grid.RowSpan="1"
             Grid.Column="0" Grid.ColumnSpan="3">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
@@ -62,7 +73,7 @@
                 x:Name="TalkbackControl" 
                 BackgroundColor="MistyRose"   
                 BorderColor="Black"
-                Grid.Row="3" Grid.RowSpan="1"
+                Grid.Row="4" Grid.RowSpan="1"
                 Grid.Column="0" Grid.ColumnSpan="3"
                 Padding="8,8,8,8">
                 <VerticalStackLayout>
@@ -115,21 +126,21 @@
 
             <Button x:Name="StartTestBtn"
                     Text="Start" 
-                    Grid.Row="4" Grid.RowSpan="1"
+                    Grid.Row="5" Grid.RowSpan="1"
                     Grid.Column="0" Grid.ColumnSpan="1"
                     Margin="0,0,1,0"
                     Clicked="StartTestBtn_Clicked"/>
 
             <Button x:Name="PauseTestBtn"
                     Text="Paus" 
-                    Grid.Row="4" Grid.RowSpan="1"
+                    Grid.Row="5" Grid.RowSpan="1"
                     Grid.Column="1" Grid.ColumnSpan="1"
                     Margin="1,0,0,0"
                     Clicked="PauseTestBtn_Clicked"/>
 
             <Button x:Name="StopTestBtn"
                     Text="Stopp" 
-                    Grid.Row="4" Grid.RowSpan="1"
+                    Grid.Row="5" Grid.RowSpan="1"
                     Grid.Column="2" Grid.ColumnSpan="1"
                     Margin="1,0,0,0"
                     Clicked="StopTestBtn_Clicked"/>

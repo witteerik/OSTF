@@ -17,6 +17,8 @@ public partial class SpeechTestView : ContentView, IDrawable
     ResponseView CurrentResponseView;
     TestResultsView CurrentTestResultsView;
 
+    string SelectedSpeechMaterialName ="";
+
     SpeechTest CurrentSpeechTest
     {
         get { return STFN.SharedSpeechTestObjects.CurrentSpeechTest; }
@@ -83,6 +85,19 @@ public partial class SpeechTestView : ContentView, IDrawable
                 Messager.RequestCloseApp();
             }
         }
+
+        OstfBase.LoadAvailableSpeechMaterialSpecifications();
+        var OSTF_AvailableSpeechMaterials = OstfBase.AvailableSpeechMaterials;
+        if (OSTF_AvailableSpeechMaterials.Count == 0)
+        {
+            await Messager.MsgBoxAsync("Unable to load any speech materials.\n\n Unable to start the application. Press OK to close.", Messager.MsgBoxStyle.Exclamation);
+            Messager.RequestCloseApp();
+        }
+        foreach (SpeechMaterialSpecification speechMaterial in OSTF_AvailableSpeechMaterials)
+        {
+            SpeechMaterialPicker.Items.Add(speechMaterial.Name);
+        }
+                
 
         var OSTF_AvailableTests = OstfBase.AvailableTests;
         if (OSTF_AvailableTests == null)
@@ -285,8 +300,12 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
+
     void OnSpeechTestPickerSelectedItemChanged(object sender, EventArgs e)
     {
+
+        // Inactivates the SpeechMaterialPicker and re-activates it again only if it should be needed depending on the choice
+        SpeechMaterialPicker.IsEnabled = false;
 
         // Inactivates tackback
         InactivateTalkback();
@@ -375,19 +394,14 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Talaudiometri":
 
-                    // Speech test
-                    CurrentSpeechTest = new SpeechAudiometryTest("");
+                    SpeechMaterialPicker.IsEnabled = true;
 
-                    // Testoptions
-                    TestOptionsGrid.Children.Clear();
-                    var newOptionsSpeechAudiometryTestView = new OptionsViewAll();
-                    TestOptionsGrid.Children.Add(newOptionsSpeechAudiometryTestView);
-                    CurrentTestOptionsView = newOptionsSpeechAudiometryTestView;
-
-                    break;
+                    return;
 
 
                 case "Svenska HINT":
+
+                    SpeechMaterialPicker.SelectedItem = "Swedish HINT";
 
                     // Speech test
                     CurrentSpeechTest = new HintSpeechTest("Swedish HINT");
@@ -403,6 +417,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Hagermans meningar (Matrix)":
 
+                    SpeechMaterialPicker.SelectedItem = "Swedish Matrix Test (Hagerman)";
 
                     // Speech test
                     CurrentSpeechTest = new MatrixSpeechTest("Swedish Matrix Test (Hagerman)");
@@ -418,6 +433,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Hörtröskel för tal (HTT)":
 
+                    SpeechMaterialPicker.SelectedItem = "Swedish Spondees 23";
+
                     // Speech test
                     CurrentSpeechTest = new SrtSpeechTest("Swedish Spondees 23");
 
@@ -430,6 +447,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
 
                 case "SiP-testet":
+
+                    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
                     // Speech test
                     CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
@@ -444,6 +463,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Protokoll B1 - TP800":
 
+                    SpeechMaterialPicker.SelectedItem = "SwedishMonosyllablesTP800";
 
                     // Speech test
                     CurrentSpeechTest = new IHearProtocolB1SpeechTest("SwedishMonosyllablesTP800");
@@ -461,6 +481,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Protokoll B2 - Manuell TP":
 
+                    SpeechMaterialPicker.SelectedItem = "SwedishTP50";
 
                     // Speech test
                     //CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishMonosyllablesTP800"); // This line was used during I HeAR data collection. The speech material name was changed after Protocol B1, but as this line was hard coded in the tablets a temporary speech material named SwedishMonosyllablesTP800 but located in the "SwedishTP50" folder was used. 
@@ -478,6 +499,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Protokoll B3 - Användarstyrd TP":
 
+                    SpeechMaterialPicker.SelectedItem = "AMTEST (SE)";
 
                     // Speech test
                     CurrentSpeechTest = new IHearProtocolB3SpeechTest("AMTEST (SE)");
@@ -492,7 +514,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                 case "Protokoll B3 - II - Användarstyrd TP":
-                                         
+
+                    SpeechMaterialPicker.SelectedItem = "AMTEST_(SE)_MixIV - NominalLevel-25dB";
+
                     // Speech test
                     CurrentSpeechTest = new IHearProtocolB3_II_SpeechTest("AMTEST_(SE)_MixIV - NominalLevel-25dB");
 
@@ -505,6 +529,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
 
                 case "Protokoll B4 - Manuell HTT - Klinik":
+
+                    SpeechMaterialPicker.SelectedItem = "Swedish Spondees 23";
 
                     // Speech test
                     CurrentSpeechTest = new IHearProtocolB4SpeechTest("Swedish Spondees 23");
@@ -521,6 +547,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Protokoll B4 - Manuell HTT - Normalhörande":
 
+                    SpeechMaterialPicker.SelectedItem = "Swedish Spondees 23";
+
                     // Speech test
                     CurrentSpeechTest = new IHearProtocolB4SpeechTest_II("Swedish Spondees 23");
 
@@ -534,6 +562,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                 case "Protokoll B5 - Användarstyrd TP II":
+
+                    SpeechMaterialPicker.SelectedItem = "AMTEST_(SE)_MixIV";
 
                     // Speech test
                     CurrentSpeechTest = new IHearProtocolB5SpeechTest("AMTEST_(SE)_MixIV");
@@ -549,6 +579,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Protokoll B6 - Quick SiP":
 
+                    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+
                     // Speech test
                     CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
 
@@ -562,6 +594,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "Protokoll B7 - SiP-testet":
 
+                    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+
                     // Speech test
                     CurrentSpeechTest = new IHearProtocolB7SpeechTest("Swedish SiP-test");
 
@@ -573,6 +607,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
 
                 case "TP50 - Ljudfält":
+
+                    SpeechMaterialPicker.SelectedItem = "SwedishTP50";
 
                     // Speech test
                     CurrentSpeechTest = new TP50_SoundField("SwedishTP50"); 
@@ -588,6 +624,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
 
                 case "I HeAR CS - SiP-testet":
+
+                    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
                     // Speech test
                     CurrentSpeechTest = new IHearSC_SiP_SpeechTest("Swedish SiP-test");
@@ -637,6 +675,80 @@ public partial class SpeechTestView : ContentView, IDrawable
                 TestResultGrid.IsEnabled = false;
             }
         }
+    }
+
+
+    void SpeechMaterial_Picker_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+        // Inactivates tackback
+        InactivateTalkback();
+
+        var picker = (Picker)sender;
+        var selectedItem = picker.SelectedItem;
+
+        SelectedSpeechMaterialName = (string)selectedItem;
+
+        bool success = true;
+
+        // Here we should have options depending on which test is selected
+
+        switch (selectedSpeechTestName)
+        {
+
+            case "Talaudiometri":
+
+                // Assigning a new SpeechTest to the options
+                CurrentSpeechTest = new SpeechAudiometryTest(SelectedSpeechMaterialName);
+
+                // Testoptions
+                TestOptionsGrid.Children.Clear();
+                var newOptionsSpeechAudiometryTestView = new OptionsViewAll();
+                TestOptionsGrid.Children.Add(newOptionsSpeechAudiometryTestView);
+                CurrentTestOptionsView = newOptionsSpeechAudiometryTestView;
+
+                break;
+
+            default:
+                TestOptionsGrid.Children.Clear();
+                success = false;
+                break;
+        }
+
+
+        // Updating settings needed for the loaded test (TODO: this code exists in sevaral places!)
+        var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+        var argMixer = SelectedTransducer.Mixer;
+        if (CurrentSpeechTest != null)
+        {
+            var mediaSets = CurrentSpeechTest.AvailableMediasets;
+            if (mediaSets.Count > 0)
+            {
+                OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings,
+                    mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
+                    CurrentSpeechTest.SoundOverlapDuration, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
+                SelectedTransducer.Mixer = argMixer;
+            }
+        }
+
+        // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
+        OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
+        OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
+
+        if (success)
+        {
+            // Set IsEnabled values of controls
+            NewTestBtn.IsEnabled = false;
+            TestOptionsGrid.IsEnabled = true;
+            if (CurrentTestOptionsView != null) { CurrentTestOptionsView.IsEnabled = true; }
+            StartTestBtn.IsEnabled = true;
+            PauseTestBtn.IsEnabled = false;
+            StopTestBtn.IsEnabled = false;
+            TestReponseGrid.IsEnabled = false;
+            TestResultGrid.IsEnabled = false;
+        }
+
+
     }
 
     async Task<bool> InitiateTesting()

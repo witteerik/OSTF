@@ -280,8 +280,26 @@ Public Class SrtSpeechTest
 
     Public Overrides Property SoundOverlapDuration As Double = 0.1
 
-    Public Overrides ReadOnly Property MinimumLevel As Double = -20
-    Public Overrides ReadOnly Property MaximumLevel As Double = 80
+    Public Overrides ReadOnly Property DefaultReferenceLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultSpeechLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultMaskerLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultBackgroundLevel As Double = 50
+    Public Overrides ReadOnly Property DefaultContralateralMaskerLevel As Double = 25
+
+    Public Overrides ReadOnly Property MinimumReferenceLevel As Double = -20
+    Public Overrides ReadOnly Property MaximumReferenceLevel As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_Targets As Double = -20
+    Public Overrides ReadOnly Property MaximumLevel_Targets As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_Maskers As Double = -20
+    Public Overrides ReadOnly Property MaximumLevel_Maskers As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_Background As Double = -20
+    Public Overrides ReadOnly Property MaximumLevel_Background As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_ContralateralMaskers As Double = -20
+    Public Overrides ReadOnly Property MaximumLevel_ContralateralMaskers As Double = 80
 
     Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
         Get
@@ -455,9 +473,9 @@ Public Class SrtSpeechTest
             PrepareNextTrial(ProtocolReply)
 
             'Here we abort the test if any of the levels had to be adjusted above MaximumLevel dB HL
-            If DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel > MaximumLevel Or
-                    DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel > MaximumLevel Or
-                DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel > MaximumLevel Then
+            If DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel > MaximumLevel_Targets Or
+                    DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel > MaximumLevel_Maskers Or
+                DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel > MaximumLevel_ContralateralMaskers Then
 
                 'And informing the participant
                 ProtocolReply.Decision = SpeechTestReplies.AbortTest

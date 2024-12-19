@@ -315,8 +315,26 @@ Public Class IHearProtocolB1SpeechTest
 
     Public Overrides Property SoundOverlapDuration As Double = 1
 
-    Public Overrides ReadOnly Property MinimumLevel As Double = -40
-    Public Overrides ReadOnly Property MaximumLevel As Double = 50
+    Public Overrides ReadOnly Property DefaultReferenceLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultSpeechLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultMaskerLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultBackgroundLevel As Double = 50
+    Public Overrides ReadOnly Property DefaultContralateralMaskerLevel As Double = 25
+
+    Public Overrides ReadOnly Property MinimumReferenceLevel As Double = -40
+    Public Overrides ReadOnly Property MaximumReferenceLevel As Double = 50
+
+    Public Overrides ReadOnly Property MinimumLevel_Targets As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_Targets As Double = 50
+
+    Public Overrides ReadOnly Property MinimumLevel_Maskers As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_Maskers As Double = 50
+
+    Public Overrides ReadOnly Property MinimumLevel_Background As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_Background As Double = 50
+
+    Public Overrides ReadOnly Property MinimumLevel_ContralateralMaskers As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_ContralateralMaskers As Double = 50
 
     Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
         Get

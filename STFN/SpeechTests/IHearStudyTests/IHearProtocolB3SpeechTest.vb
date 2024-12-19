@@ -26,7 +26,7 @@ Public Class IHearProtocolB3SpeechTest
 
             Return "(Detta test går ut på att undersöka om fyra olika testordslistor är lika svåra.)" & vbCrLf & vbCrLf &
                 "1. Välj testöra." & vbCrLf &
-                "2. Ställ talnivå till patientes TMV3 på testörat, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
+                "2. Ställ talnivå till patientes TMV3 på testörat, eller maximalt " & MaximumLevel_Targets & " dB HL." & vbCrLf &
                 "3. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
                 "4. Informera patienten om hur testet går till." & vbCrLf &
                 "5. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
@@ -283,8 +283,26 @@ Public Class IHearProtocolB3SpeechTest
 
     Public Overrides Property SoundOverlapDuration As Double = 0.25
 
-    Public Overrides ReadOnly Property MinimumLevel As Double = -40
-    Public Overrides ReadOnly Property MaximumLevel As Double = 80
+    Public Overrides ReadOnly Property DefaultReferenceLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultSpeechLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultMaskerLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultBackgroundLevel As Double = 50
+    Public Overrides ReadOnly Property DefaultContralateralMaskerLevel As Double = 25
+
+    Public Overrides ReadOnly Property MinimumReferenceLevel As Double = -40
+    Public Overrides ReadOnly Property MaximumReferenceLevel As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_Targets As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_Targets As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_Maskers As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_Maskers As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_Background As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_Background As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_ContralateralMaskers As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_ContralateralMaskers As Double = 80
 
     Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
         Get

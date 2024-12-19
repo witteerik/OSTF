@@ -14,19 +14,13 @@
 
         <VerticalStackLayout x:Name="MainStackLayout" Padding="10, 5, 10, 5">
 
-            <Button x:Name="ShowTesterInstructionsButton" Text="{Binding TesterInstructionsButtonText}" Clicked="ShowTesterInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="0,2,1,1"></Button>
-            <Button x:Name="ShowParticipantInstructionsButton" Text="{Binding ParticipantInstructionsButtonText}" Clicked="ShowParticipantInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="1,1,0,10"></Button>
-
-            <Frame x:Name="SpeechMaterialSelectionControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,5,10,5" Margin="0,5,0,15">
-                <VerticalStackLayout Margin="0,0,0,0" Padding="0,0,0,0">
-                    <HorizontalStackLayout>
-                        <Label Text="{Binding SelectSpeechMaterialTitle}" VerticalOptions="Center" Margin="0,0,10,0" />
-                        <Picker x:Name="SpeechMaterial_Picker" Title="{Binding SelectSpeechMaterialTitle}" ItemsSource="{Binding SelectedTest.AvailableSpeechMaterialSpecifications}" SelectedItem="{Binding SelectedSpeechMaterial}" HorizontalTextAlignment="Center"  WidthRequest="200" Margin="5,0,0,0" />
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
+            <Frame BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,5,10,5" Margin="0,5,0,15" CornerRadius="3" MinimumHeightRequest="4">
             </Frame>
 
-            <Picker x:Name="SelectedTransducer_Picker" SelectedIndexChanged="SelectedTransducer_Picker_SelectedIndexChanged"  Title="{Binding SelectedTransducerTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedTransducers}" SelectedItem="{Binding SelectedTransducer}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
+            <Button x:Name="ShowTesterInstructionsButton" Text="{Binding TesterInstructionsButtonText}" Clicked="ShowTesterInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="0,2,1,1"></Button>
+            <Button x:Name="ShowParticipantInstructionsButton" Text="{Binding ParticipantInstructionsButtonText}" Clicked="ShowParticipantInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="1,1,0,10"></Button>
+            
+            <Picker x:Name="SelectedTransducer_Picker" SelectedIndexChanged="SelectedTransducer_Picker_SelectedIndexChanged"  Title="{Binding SelectedTransducerTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedTransducers}" SelectedItem="{Binding SelectedTransducer}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand"/>
 
             <HorizontalStackLayout x:Name="UseRetsplCorrectionControl">
                 <Label Text="{Binding UseRetsplCorrectionTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
@@ -38,7 +32,7 @@
                 <Switch IsToggled="{Binding IsPractiseTest}" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
-            <Picker x:Name="SelectedPreset_Picker" Title="{Binding SelectedPresetTitle}" ItemsSource="{Binding SelectedTest.AvailablePresets}" SelectedItem="{Binding SelectedPreset}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10" />
+            <Picker x:Name="SelectedPreset_Picker" Title="{Binding SelectedPresetTitle}" ItemsSource="{Binding SelectedTest.AvailablePresets}" SelectedItem="{Binding SelectedPreset}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand" />
 
             <Frame x:Name="ExperimentNumberControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,5,10,5" Margin="0,5,0,15">
                 <VerticalStackLayout Margin="0,0,0,0" Padding="0,0,0,0">
@@ -48,16 +42,16 @@
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Frame>
-            
-            <Picker x:Name="StartList_Picker" Title="{Binding StartListTitle}" ItemsSource="{Binding SelectedTest.AvailableTestListsNames}" SelectedItem="{Binding StartList}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10" />
 
-            <Picker x:Name="SelectedMediaSet_Picker" Title="{Binding SelectedMediaSetTitle}" ItemsSource="{Binding SelectedTest.AvailableMediasets}" SelectedItem="{Binding SelectedMediaSet}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10" />
+            <Picker x:Name="StartList_Picker" Title="{Binding StartListTitle}" ItemsSource="{Binding SelectedTest.AvailableTestListsNames}" SelectedItem="{Binding StartList}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand" />
+
+            <Picker x:Name="SelectedMediaSet_Picker" Title="{Binding SelectedMediaSetTitle}" ItemsSource="{Binding SelectedTest.AvailableMediasets}" SelectedItem="{Binding SelectedMediaSet}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand" />
 
             <!--Skipping MediaSets (i.e. selecting multiple media sets) for now-->
 
-            <Picker x:Name="AvailableTestModes_Picker" SelectedIndexChanged="AvailableTestModes_Picker_SelectedIndexChanged" Title="{Binding SelectedTestModeTitle}" ItemsSource="{Binding SelectedTest.AvailableTestModes}" SelectedItem="{Binding SelectedTestMode}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
+            <Picker x:Name="AvailableTestModes_Picker" SelectedIndexChanged="AvailableTestModes_Picker_SelectedIndexChanged" Title="{Binding SelectedTestModeTitle}" ItemsSource="{Binding SelectedTest.AvailableTestModes}" SelectedItem="{Binding SelectedTestMode}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
-            <Picker x:Name="AvailableTestProtocols_Picker" Title="{Binding SelectedTestProtocolTitle}" ItemsSource="{Binding SelectedTest.AvailableTestProtocols}" SelectedItem="{Binding SelectedTestProtocol}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
+            <Picker x:Name="AvailableTestProtocols_Picker" Title="{Binding SelectedTestProtocolTitle}" ItemsSource="{Binding SelectedTest.AvailableTestProtocols}" SelectedItem="{Binding SelectedTestProtocol}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
             <HorizontalStackLayout x:Name="KeyWordScoringControl">
                 <Label Text="{Binding ScoreOnlyKeyWordsTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
@@ -89,7 +83,7 @@
                 <Switch x:Name="UseDidNotHearAlternative_Switch" IsToggled="{Binding ShowDidNotHearResponseAlternative}" VerticalOptions="Center" Margin="0,5,0,5"/>
             </HorizontalStackLayout>
 
-            <Picker x:Name="AvailableFixedResponseAlternativeCounts_Picker" Title="{Binding FixedResponseAlternativeCountTitle}" ItemsSource="{Binding SelectedTest.AvailableFixedResponseAlternativeCounts}" SelectedItem="{Binding FixedResponseAlternativeCount}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
+            <Picker x:Name="AvailableFixedResponseAlternativeCounts_Picker" Title="{Binding FixedResponseAlternativeCountTitle}" ItemsSource="{Binding SelectedTest.AvailableFixedResponseAlternativeCounts}" SelectedItem="{Binding FixedResponseAlternativeCount}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
 
             <HorizontalStackLayout x:Name="UseSimulatedSoundFieldControl">
@@ -97,7 +91,7 @@
                 <Switch x:Name="UseSimulatedSoundField_Switch" IsToggled="{Binding UseSimulatedSoundField}" Toggled="UseSimulatedSoundField_Switch_Toggled" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
-            <Picker x:Name="SelectedIrSet_Picker" SelectedIndexChanged="SelectedIrSet_Picker_SelectedIndexChanged" Title="{Binding SelectedIrSetTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedIrSets}" SelectedItem="{Binding SelectedIrSet}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
+            <Picker x:Name="SelectedIrSet_Picker" SelectedIndexChanged="SelectedIrSet_Picker_SelectedIndexChanged" Title="{Binding SelectedIrSetTitle}" ItemsSource="{Binding SelectedTest.CurrentlySupportedIrSets}" SelectedItem="{Binding SelectedIrSet}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
             <!--<Picker x:Name="SelectedPresentationMode_Picker"  Title="{Binding SelectedPresentationModeTitle}" ItemsSource="{Binding SelectedTest.AvailablePresentationModes}" SelectedItem="{Binding SelectedPresentationMode}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>-->
 
@@ -115,7 +109,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider Value="{Binding ReferenceLevel}" Margin="10,0,10,5" Maximum="{Binding SelectedTest.MaximumLevel}" Minimum="{Binding SelectedTest.MinimumLevel}" MinimumTrackColor="DarkSlateGrey" ThumbColor="DarkSlateGrey"/>
+                <Slider x:Name="ReferenceLevelSlider" Value="{Binding ReferenceLevel}" Margin="10,0,10,5" Maximum="{Binding SelectedTest.MaximumReferenceLevel }" Minimum="{Binding SelectedTest.MinimumReferenceLevel }" MinimumTrackColor="DarkSlateGrey" ThumbColor="DarkSlateGrey"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout x:Name="SpeechLevelControl">
@@ -127,7 +121,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider x:Name="SpeechLevelSlider" Value="{Binding SpeechLevel}" ValueChanged="SpeechLevelSlider_ValueChanged" Margin="10,0,10,5" Maximum="{Binding SelectedTest.MaximumLevel}" Minimum="{Binding SelectedTest.MinimumLevel}" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
+                <Slider x:Name="SpeechLevelSlider" Value="{Binding SpeechLevel}" ValueChanged="SpeechLevelSlider_ValueChanged" Margin="10,0,10,5" Maximum="{Binding SelectedTest.MaximumLevel_Targets }" Minimum="{Binding SelectedTest.MinimumLevel_Targets }" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout x:Name="MaskerLevelControl">
@@ -139,7 +133,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider Value="{Binding MaskingLevel}" Margin="10,0,10,5" Maximum="{Binding SelectedTest.MaximumLevel}" Minimum="{Binding SelectedTest.MinimumLevel}" MinimumTrackColor="Red" ThumbColor="Red"/>
+                <Slider x:Name="MaskerLevelSlider" Value="{Binding MaskingLevel}" Margin="10,0,10,5" Maximum="{Binding SelectedTest.MaximumLevel_Maskers }" Minimum="{Binding SelectedTest.MinimumLevel_Maskers }" MinimumTrackColor="Red" ThumbColor="Red"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout x:Name="BackgroundLevelControl">
@@ -151,7 +145,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider Value="{Binding BackgroundLevel}" Margin="10,0,10,5" Maximum="{Binding SelectedTest.MaximumLevel}" Minimum="{Binding SelectedTest.MinimumLevel}" MinimumTrackColor="Pink" ThumbColor="Pink"/>
+                <Slider  x:Name="BackgroundLevelSlider" Value="{Binding BackgroundLevel}" Margin="10,0,10,5" Maximum="{Binding SelectedTest.MaximumLevel_Background}" Minimum="{Binding SelectedTest.MinimumLevel_Background}" MinimumTrackColor="Pink" ThumbColor="Pink"/>
             </VerticalStackLayout>
 
             <Frame x:Name="UseContralateralMaskingControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0">
@@ -175,7 +169,7 @@
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
-                        <Slider Value="{Binding ContralateralMaskingLevel}" Margin="10,0,10,0" Maximum="{Binding SelectedTest.MaximumLevel}" Minimum="{Binding SelectedTest.MinimumLevel}" MinimumTrackColor="DarkSlateGray"  ThumbColor="DarkSlateGray"/>
+                        <Slider  x:Name="ContralateralMaskerLevelSlider"  Value="{Binding ContralateralMaskingLevel}" Margin="10,0,10,0" Maximum="{Binding SelectedTest.MaximumLevel_ContralateralMaskers }" Minimum="{Binding SelectedTest.MinimumLevel_ContralateralMaskers }" MinimumTrackColor="DarkSlateGray"  ThumbColor="DarkSlateGray"/>
                     </VerticalStackLayout>
 
                 </VerticalStackLayout>
@@ -187,7 +181,7 @@
                 <Switch x:Name="UsePhaseAudiometry_Switch" Toggled="UsePhaseAudiometry_Switch_Toggled" IsToggled="{Binding UsePhaseAudiometry}" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
-            <Picker x:Name="AvailablePhaseAudiometryTypes_Picker"  Title="{Binding SelectedPhaseAudiometryTypeTitle}" ItemsSource="{Binding SelectedTest.AvailablePhaseAudiometryTypes}" SelectedItem="{Binding SelectedPhaseAudiometryType}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>
+            <Picker x:Name="AvailablePhaseAudiometryTypes_Picker"  Title="{Binding SelectedPhaseAudiometryTypeTitle}" ItemsSource="{Binding SelectedTest.AvailablePhaseAudiometryTypes}" SelectedItem="{Binding SelectedPhaseAudiometryType}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
             <Frame x:Name="PreListenControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0">
 

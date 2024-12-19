@@ -25,16 +25,16 @@ Public Class TestOptions
         SelectedTest.TestOptions = Me
     End Sub
 
-    Public Property SelectedSpeechMaterial As SpeechMaterialSpecification
-        Get
-            Return _SelectedSpeechMaterial
-        End Get
-        Set(value As SpeechMaterialSpecification)
-            _SelectedSpeechMaterial = value
-            OnPropertyChanged()
-        End Set
-    End Property
-    Private _SelectedSpeechMaterial As SpeechMaterialSpecification
+    'Public Property SelectedSpeechMaterial As SpeechMaterialSpecification
+    '    Get
+    '        Return _SelectedSpeechMaterial
+    '    End Get
+    '    Set(value As SpeechMaterialSpecification)
+    '        _SelectedSpeechMaterial = value
+    '        OnPropertyChanged()
+    '    End Set
+    'End Property
+    'Private _SelectedSpeechMaterial As SpeechMaterialSpecification
     Public Property SelectSpeechMaterialTitle As String = "Välj talmaterial"
 
 
@@ -152,7 +152,7 @@ Public Class TestOptions
         End Get
         Set(value As Double)
             _ReferenceLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _ReferenceLevel = Math.Min(_ReferenceLevel, SelectedTest.MaximumLevel)
+            _ReferenceLevel = Math.Min(_ReferenceLevel, SelectedTest.MaximumReferenceLevel)
             OnPropertyChanged()
         End Set
     End Property
@@ -183,7 +183,7 @@ Public Class TestOptions
         End Get
         Set(value As Double)
             _SpeechLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _SpeechLevel = Math.Min(_SpeechLevel, SelectedTest.MaximumLevel)
+            _SpeechLevel = Math.Min(_SpeechLevel, SelectedTest.MaximumLevel_Targets)
             OnPropertyChanged()
         End Set
     End Property
@@ -214,7 +214,7 @@ Public Class TestOptions
         End Get
         Set(value As Double)
             _MaskingLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _MaskingLevel = Math.Min(_MaskingLevel, SelectedTest.MaximumLevel)
+            _MaskingLevel = Math.Min(_MaskingLevel, SelectedTest.MaximumLevel_Maskers)
             OnPropertyChanged()
         End Set
     End Property
@@ -245,7 +245,7 @@ Public Class TestOptions
         End Get
         Set(value As Double)
             _BackgroundLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _BackgroundLevel = Math.Min(_BackgroundLevel, SelectedTest.MaximumLevel)
+            _BackgroundLevel = Math.Min(_BackgroundLevel, SelectedTest.MaximumLevel_Background)
             OnPropertyChanged()
         End Set
     End Property
@@ -276,7 +276,7 @@ Public Class TestOptions
         End Get
         Set(value As Double)
             _ContralateralMaskingLevel = Math.Round(Math.Round(value / SelectedTest.LevelStepSize) * SelectedTest.LevelStepSize)
-            _ContralateralMaskingLevel = Math.Min(_ContralateralMaskingLevel, SelectedTest.MaximumLevel)
+            _ContralateralMaskingLevel = Math.Min(_ContralateralMaskingLevel, SelectedTest.MaximumLevel_ContralateralMaskers)
             OnPropertyChanged()
         End Set
     End Property

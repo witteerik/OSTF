@@ -1,6 +1,7 @@
 
 using CommunityToolkit.Maui.Media;
 using STFN;
+using System.Collections.ObjectModel;
 
 namespace STFM.Views;
 
@@ -26,23 +27,14 @@ public partial class OptionsViewAll : ContentView
         }
     }
 
+
+
+
     public OptionsViewAll()
     {
         InitializeComponent();
 
-
-        if (SharedSpeechTestObjects.CurrentSpeechTest != null)
-        {
-            VisualizeSelectedSpeechMaterialSettings();
-        }
-
-    }
-
-    
-
-
-    public void VisualizeSelectedSpeechMaterialSettings()
-    {
+        SetDefaultLevels();
 
         if (SharedSpeechTestObjects.CurrentSpeechTest.TesterInstructions.Trim() != "")
         {
@@ -257,11 +249,22 @@ public partial class OptionsViewAll : ContentView
         PreListenControl.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.SupportsPrelistening;
 
 
-
-
-
     }
 
+
+    private void SetDefaultLevels()
+    {
+
+        if (SharedSpeechTestObjects.CurrentSpeechTest != null)
+        {
+            ReferenceLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultReferenceLevel;
+            SpeechLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultSpeechLevel;
+            MaskerLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultMaskerLevel;
+            BackgroundLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultBackgroundLevel;
+            ContralateralMaskerLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultContralateralMaskerLevel;
+        }
+
+    }
 
     private void SetSoundFieldSimulationVisibility()
     {
@@ -572,4 +575,5 @@ public partial class OptionsViewAll : ContentView
     {
         await Messager.MsgBoxAsync(SharedSpeechTestObjects.CurrentSpeechTest.ParticipantInstructions, Messager.MsgBoxStyle.Information, CurrentTestOptions.ParticipantInstructionsButtonText);
     }
+
 }

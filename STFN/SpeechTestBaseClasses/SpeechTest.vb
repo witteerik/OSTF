@@ -22,7 +22,31 @@ Public MustInherit Class SpeechTest
 
 #Region "SpeechMaterial"
 
+    Public Function ChangeSpeechMaterial(ByVal NewSpeechMaterialName As String) As Boolean
+
+        If LoadSpeechMaterialSpecification(NewSpeechMaterialName) = True Then
+            Me.SpeechMaterialName = NewSpeechMaterialName
+            Return True
+        Else
+            Return False
+        End If
+
+    End Function
+
     Private Function LoadSpeechMaterialSpecification(ByVal SpeechMaterialName As String, Optional ByVal EnforceReloading As Boolean = False) As Boolean
+
+        'Selecting the first available speech material if not specified in the calling code.
+        If SpeechMaterialName = "" Then
+
+            Messager.MsgBox("No speech material is selected!" & vbCrLf & "Attempting to select the first speech material available.", Messager.MsgBoxStyle.Information, "Speech material not selected!")
+
+            If AvailableSpeechMaterialSpecifications.Count = 0 Then
+                Messager.MsgBox("No speech material is available!" & vbCrLf & "Cannot continue.", Messager.MsgBoxStyle.Information, "Missing speech material!")
+                Return False
+            Else
+                SpeechMaterialName = AvailableSpeechMaterialSpecifications(0)
+            End If
+        End If
 
         If LoadedSpeechMaterialSpecifications.ContainsKey(SpeechMaterialName) = False Or EnforceReloading = True Then
 
@@ -564,8 +588,27 @@ Public MustInherit Class SpeechTest
     ''' </summary>
     ''' <returns></returns>
     Public Property UseRetsplCorrection As Boolean
-    Public MustOverride ReadOnly Property MinimumLevel As Double
-    Public MustOverride ReadOnly Property MaximumLevel As Double
+
+    Public MustOverride ReadOnly Property DefaultReferenceLevel As Double
+    Public MustOverride ReadOnly Property DefaultSpeechLevel As Double
+    Public MustOverride ReadOnly Property DefaultMaskerLevel As Double
+    Public MustOverride ReadOnly Property DefaultBackgroundLevel As Double
+    Public MustOverride ReadOnly Property DefaultContralateralMaskerLevel As Double
+
+    Public MustOverride ReadOnly Property MinimumReferenceLevel As Double
+    Public MustOverride ReadOnly Property MaximumReferenceLevel As Double
+
+    Public MustOverride ReadOnly Property MinimumLevel_Targets As Double
+    Public MustOverride ReadOnly Property MaximumLevel_Targets As Double
+
+    Public MustOverride ReadOnly Property MinimumLevel_Maskers As Double
+    Public MustOverride ReadOnly Property MaximumLevel_Maskers As Double
+
+    Public MustOverride ReadOnly Property MinimumLevel_Background As Double
+    Public MustOverride ReadOnly Property MaximumLevel_Background As Double
+
+    Public MustOverride ReadOnly Property MinimumLevel_ContralateralMaskers As Double
+    Public MustOverride ReadOnly Property MaximumLevel_ContralateralMaskers As Double
 
 #End Region
 

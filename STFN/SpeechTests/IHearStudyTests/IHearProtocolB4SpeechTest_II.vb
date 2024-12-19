@@ -28,7 +28,7 @@ Public Class IHearProtocolB4SpeechTest_II
                 "Testet ska användas med normalhörande personer, som inte är hörselvårdspatienter." & vbCrLf &
                 "1. Ange experimentnummer." & vbCrLf &
                 "2. Välj testöra." & vbCrLf &
-                "3. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
+                "3. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel_Targets & " dB HL." & vbCrLf &
                 "4. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
                 "5. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att deltagaren kan uppfatta dem. Höj talnivån om deltagaren inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
                 "(Använd knappen TB för att prata med deltagaren när denna har lurar på sig.)" & vbCrLf &
@@ -281,8 +281,27 @@ Public Class IHearProtocolB4SpeechTest_II
 
     Public Overrides Property SoundOverlapDuration As Double = 0.25
 
-    Public Overrides ReadOnly Property MinimumLevel As Double = -40
-    Public Overrides ReadOnly Property MaximumLevel As Double = 80
+    Public Overrides ReadOnly Property DefaultReferenceLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultSpeechLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultMaskerLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultBackgroundLevel As Double = 50
+    Public Overrides ReadOnly Property DefaultContralateralMaskerLevel As Double = 25
+
+
+    Public Overrides ReadOnly Property MinimumReferenceLevel As Double = -40
+    Public Overrides ReadOnly Property MaximumReferenceLevel As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_Targets As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_Targets As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_Maskers As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_Maskers As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_Background As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_Background As Double = 80
+
+    Public Overrides ReadOnly Property MinimumLevel_ContralateralMaskers As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_ContralateralMaskers As Double = 80
 
     Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
         Get
@@ -535,8 +554,8 @@ Public Class IHearProtocolB4SpeechTest_II
             PrepareNextTrial(ProtocolReply)
 
             'Here we abort the test if any of the levels had to be adjusted above MaximumLevel dB HL
-            If DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel > MaximumLevel Or
-                DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel > MaximumLevel Then
+            If DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel > MaximumLevel_Targets Or
+                DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel > MaximumLevel_ContralateralMaskers Then
 
                 'And informing the participant
                 ProtocolReply.Decision = SpeechTestReplies.AbortTest

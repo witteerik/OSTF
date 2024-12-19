@@ -22,7 +22,7 @@ Public Class TP50_SoundField
 
     Public Overrides ReadOnly Property TesterInstructions As String
         Get
-            Return "1. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel & " dB HL." & vbCrLf &
+            Return "1. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel_Targets & " dB HL." & vbCrLf &
                 "2. Använd kontrollen provlyssna för att ställa in 'Lagom-nivån' innan testet börjar." & vbCrLf &
                 "3. Klicka på start för att starta testet." & vbCrLf &
                 "4. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen" & vbCrLf &
@@ -277,9 +277,28 @@ Public Class TP50_SoundField
 
     Public Overrides Property SoundOverlapDuration As Double = 1
 
+    Public Overrides ReadOnly Property DefaultReferenceLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultSpeechLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultMaskerLevel As Double = 65
+    Public Overrides ReadOnly Property DefaultBackgroundLevel As Double = 50
+    Public Overrides ReadOnly Property DefaultContralateralMaskerLevel As Double = 25
 
-    Public Overrides ReadOnly Property MinimumLevel As Double = -40
-    Public Overrides ReadOnly Property MaximumLevel As Double = 100
+
+    Public Overrides ReadOnly Property MinimumReferenceLevel As Double = -10
+    Public Overrides ReadOnly Property MaximumReferenceLevel As Double = 100
+
+    Public Overrides ReadOnly Property MinimumLevel_Targets As Double = -10
+    Public Overrides ReadOnly Property MaximumLevel_Targets As Double = 100
+
+    Public Overrides ReadOnly Property MinimumLevel_Maskers As Double = -10
+    Public Overrides ReadOnly Property MaximumLevel_Maskers As Double = 100
+
+    Public Overrides ReadOnly Property MinimumLevel_Background As Double = -10
+    Public Overrides ReadOnly Property MaximumLevel_Background As Double = 100
+
+    Public Overrides ReadOnly Property MinimumLevel_ContralateralMaskers As Double = -40
+    Public Overrides ReadOnly Property MaximumLevel_ContralateralMaskers As Double = 100
+
 
     Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
         Get
