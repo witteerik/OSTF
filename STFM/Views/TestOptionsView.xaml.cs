@@ -37,7 +37,6 @@ public partial class OptionsViewAll : ContentView
         // Assign the custom instance of SpeechTest
         BindingContext = currentSpeechTest;
 
-        SetDefaultLevels();
 
         if (SharedSpeechTestObjects.CurrentSpeechTest.TesterInstructions.Trim() != "")
         {
@@ -232,17 +231,15 @@ public partial class OptionsViewAll : ContentView
         }
 
 
-        switch (SharedSpeechTestObjects.CurrentSpeechTest.UsePhaseAudiometry_DefaultValue)
+        switch (SharedSpeechTestObjects.CurrentSpeechTest.UsePhaseAudiometry)
         {
-            case STFN.Utils.Constants.TriState.True:
+            case true:
                 UsePhaseAudiometry_Switch.IsToggled = true;
                 UsePhaseAudiometryControl.IsVisible = false;
                 break;
-            case STFN.Utils.Constants.TriState.False:
+            case false:
                 UsePhaseAudiometry_Switch.IsToggled = false;
                 UsePhaseAudiometryControl.IsVisible = false;
-                break;
-            default:
                 break;
         }
 
@@ -255,19 +252,6 @@ public partial class OptionsViewAll : ContentView
     }
 
 
-    private void SetDefaultLevels()
-    {
-
-        if (SharedSpeechTestObjects.CurrentSpeechTest != null)
-        {
-            ReferenceLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultReferenceLevel;
-            SpeechLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultSpeechLevel;
-            MaskerLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultMaskerLevel;
-            BackgroundLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultBackgroundLevel;
-            ContralateralMaskerLevelSlider.Value = SharedSpeechTestObjects.CurrentSpeechTest.DefaultContralateralMaskerLevel;
-        }
-
-    }
 
     private void SetSoundFieldSimulationVisibility()
     {
