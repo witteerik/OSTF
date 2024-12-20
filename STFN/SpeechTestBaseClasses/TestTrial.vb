@@ -1,4 +1,5 @@
 ﻿Imports System.Reflection
+Imports System.Dynamic
 
 Public Class TrialHistory
     Inherits List(Of TestTrial)
@@ -218,6 +219,13 @@ Public MustInherit Class TestTrial
     Public MustOverride Function TestResultColumnHeadings() As String
 
     Public MustOverride Function TestResultAsTextRow() As String
+
+
+    Public SpeechTestStage As List(Of Tuple(Of String, String))
+
+
+
+
 
     'Protected Shared Function BaseClassTestResultColumnHeadings() As List(Of String)
 

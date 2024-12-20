@@ -11,6 +11,7 @@ Imports STFN.Audio.SoundScene
 Imports STFN.Audio.Formats
 Imports STFN.Audio.PortAudioVB.DuplexMixer
 Imports System.Reflection
+Imports System.Runtime.Serialization
 
 Namespace SipTest
 

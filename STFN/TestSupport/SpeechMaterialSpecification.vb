@@ -1,4 +1,6 @@
-﻿<Serializable>
+﻿Imports System.Runtime.Serialization
+
+<Serializable>
 Public Class SpeechMaterialSpecification
 
     Public Const FormatFlag As String = "{OSTF_SPEECH_MATERIAL_SPECIFICATION_FILE}"

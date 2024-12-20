@@ -3,14 +3,92 @@ Imports MathNet.Numerics
 Imports MathNet.Numerics.Distributions
 Imports STFN.TestProtocol
 Imports STFN.Audio.SoundScene
+Imports System.Dynamic
+Imports System.Reflection
 
+<Serializable>
 Public Class HintSpeechTest
     Inherits SpeechTest
-    Public Overrides ReadOnly Property FilePathRepresentation As String
-        Get
-            Return "HINT"
-        End Get
-    End Property
+
+    Public Overrides ReadOnly Property FilePathRepresentation As String = "HINT"
+
+
+    Public Sub New(ByVal SpeechMaterialName As String)
+        MyBase.New(SpeechMaterialName)
+        ApplyTestSpecificSettings()
+    End Sub
+
+    Public Sub ApplyTestSpecificSettings()
+
+        TesterInstructions = ""
+        ParticipantInstructions = ""
+        HasOptionalPractiseTest = True
+        AllowsUseRetsplChoice = False
+        AllowsManualPreSetSelection = False
+        AllowsManualStartListSelection = True
+        AllowsManualMediaSetSelection = True
+        SupportsPrelistening = False
+        UseSoundFieldSimulation = Utils.TriState.Optional
+        AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveNoise}
+        AvailableTestProtocols = New List(Of TestProtocol) From {New SrtSwedishHint2018_TestProtocol}
+        AvailableFixedResponseAlternativeCounts = New List(Of Integer)
+        AvailablePhaseAudiometryTypes = New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
+        MaximumSoundFieldSpeechLocations = 1
+        MaximumSoundFieldMaskerLocations = 1000
+        MaximumSoundFieldBackgroundNonSpeechLocations = 1000
+        MaximumSoundFieldBackgroundSpeechLocations = 1000
+        MinimumSoundFieldSpeechLocations = 1
+        MinimumSoundFieldMaskerLocations = 1
+        MinimumSoundFieldBackgroundNonSpeechLocations = 0
+        MinimumSoundFieldBackgroundSpeechLocations = 0
+        AllowsManualReferenceLevelSelection = False
+        UseKeyWordScoring = Utils.Constants.TriState.True
+        UseListOrderRandomization = Utils.Constants.TriState.False
+        UseWithinListRandomization = Utils.Constants.TriState.False
+        UseAcrossListRandomization = Utils.Constants.TriState.False
+        UseFreeRecall = Utils.TriState.True
+        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        UsePhaseAudiometry_DefaultValue = Utils.Constants.TriState.False
+        TargetLevel_StepSize = 1
+        HistoricTrialCount = 0
+        SupportsManualPausing = True
+        SoundOverlapDuration = 0.1
+        DefaultReferenceLevel = 65
+        DefaultSpeechLevel = 65
+        DefaultMaskerLevel = 65
+        DefaultBackgroundLevel = 50
+        DefaultContralateralMaskerLevel = 25
+        MinimumReferenceLevel = 0
+        MaximumReferenceLevel = 80
+        MinimumLevel_Targets = 60
+        MaximumLevel_Targets = 80
+        MinimumLevel_Maskers = 35
+        MaximumLevel_Maskers = 85
+        MinimumLevel_Background = 0
+        MaximumLevel_Background = 80
+        MinimumLevel_ContralateralMaskers = 0
+        MaximumLevel_ContralateralMaskers = 80
+        AvailableExperimentNumbers = {}
+
+    End Sub
+
+    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean = False
+    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean = True
+    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean = True
+
+    Public Overrides ReadOnly Property CanHaveTargets As Boolean = True
+    Public Overrides ReadOnly Property CanHaveMaskers As Boolean = True
+    Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean = False
+    Public Overrides ReadOnly Property CanHaveBackgroundSpeech As Boolean = False
+
+    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.Constants.TriState = Utils.Constants.TriState.Optional
+
+
+    Private MaximumSoundDuration As Double = 10
+    Private TestWordPresentationTime As Double = 0.5
+    Private MaximumResponseTime As Double = 5
+
+    Private ResultSummaryForGUI As New List(Of String)
 
     ''' <summary>
     ''' This collection contains MaximumNumberOfTestWords which can be used troughout the test, in sequential order.
@@ -22,323 +100,39 @@ Public Class HintSpeechTest
     Private ObservedTrials As TrialHistory
 
 
-#Region "Settings"
-
-    Public Overrides ReadOnly Property TesterInstructions As String
-        Get
-            Return ""
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property ParticipantInstructions As String
-        Get
-            Return ""
-        End Get
-    End Property
 
 
-    Public Overrides ReadOnly Property HasOptionalPractiseTest As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsUseRetsplChoice As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualStartListSelection As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualMediaSetSelection As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property SupportsPrelistening As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-
-    Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
-        Get
-            Return Utils.TriState.Optional
-        End Get
-    End Property
-
-
-
-    Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
-        Get
-            'Return New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
-            Return New List(Of TestModes) From {TestModes.AdaptiveNoise}
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
-        Get
-            Return New List(Of TestProtocol) From {New SrtSwedishHint2018_TestProtocol}
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailableFixedResponseAlternativeCounts As List(Of Integer)
-        Get
-            Return New List(Of Integer)
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailablePhaseAudiometryTypes As List(Of BmldModes)
-        Get
-            Return New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
-        End Get
-    End Property
-
-#End Region
-
-    Public Overrides ReadOnly Property MaximumSoundFieldSpeechLocations As Integer
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
-        Get
-            Return 1000
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
-        Get
-            Return 1000
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
-        Get
-            Return 1000
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldSpeechLocations As Integer
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldMaskerLocations As Integer
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldBackgroundNonSpeechLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldBackgroundSpeechLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualReferenceLevelSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveTargets As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveMaskers As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveBackgroundSpeech As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseKeyWordScoring As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseListOrderRandomization As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseWithinListRandomization As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseAcrossListRandomization As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseFreeRecall As Utils.TriState
-        Get
-            Return Utils.TriState.True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseDidNotHearAlternative As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseContralateralMasking As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.Optional
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UsePhaseAudiometry As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property LevelStepSize As Double
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property HistoricTrialCount As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property SupportsManualPausing As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides Property SoundOverlapDuration As Double = 0.1
-
-    Public Overrides ReadOnly Property DefaultReferenceLevel As Double = 65
-    Public Overrides ReadOnly Property DefaultSpeechLevel As Double = 65
-    Public Overrides ReadOnly Property DefaultMaskerLevel As Double = 65
-    Public Overrides ReadOnly Property DefaultBackgroundLevel As Double = 50
-    Public Overrides ReadOnly Property DefaultContralateralMaskerLevel As Double = 25
-
-    Public Overrides ReadOnly Property MinimumReferenceLevel As Double = 0
-    Public Overrides ReadOnly Property MaximumReferenceLevel As Double = 80
-
-    Public Overrides ReadOnly Property MinimumLevel_Targets As Double = 60
-    Public Overrides ReadOnly Property MaximumLevel_Targets As Double = 80
-
-    Public Overrides ReadOnly Property MinimumLevel_Maskers As Double = 35
-    Public Overrides ReadOnly Property MaximumLevel_Maskers As Double = 85
-
-    Public Overrides ReadOnly Property MinimumLevel_Background As Double = 0
-    Public Overrides ReadOnly Property MaximumLevel_Background As Double = 80
-
-    Public Overrides ReadOnly Property MinimumLevel_ContralateralMaskers As Double = 0
-    Public Overrides ReadOnly Property MaximumLevel_ContralateralMaskers As Double = 80
-
-    Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
-        Get
-            Return {}
-        End Get
-    End Property
-
-    Private MaximumSoundDuration As Double = 10
-    Private TestWordPresentationTime As Double = 0.5
-    Private MaximumResponseTime As Double = 5
-
-    Public Sub New(ByVal SpeechMaterialName As String)
-        MyBase.New(SpeechMaterialName)
-
-    End Sub
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         ObservedTrials = New TrialHistory
 
         ' Using a fixed speech level
-        TestOptions.SpeechLevel = 65
+        SpeechLevel = 65
 
-        If TestOptions.SignalLocations.Count = 0 Then
+        If SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
         End If
 
-        If TestOptions.MaskerLocations.Count = 0 And TestOptions.SelectedTestMode = TestModes.AdaptiveNoise Then
+        If MaskerLocations.Count = 0 And SelectedTestMode = TestModes.AdaptiveNoise Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source in tests with adaptive noise!")
         End If
 
         Dim StartAdaptiveLevel As Double
-        If TestOptions.MaskerLocations.Count > 0 Then
+        If MaskerLocations.Count > 0 Then
             'It's a speech in noise test, using adaptive SNR
-            Dim InitialSNR = SignalToNoiseRatio(TestOptions.SpeechLevel, TestOptions.MaskingLevel)
+            Dim InitialSNR = SignalToNoiseRatio(SpeechLevel, MaskingLevel)
             StartAdaptiveLevel = InitialSNR
         Else
             'It's a speech only test, using adaptive speech level
-            StartAdaptiveLevel = TestOptions.SpeechLevel
+            StartAdaptiveLevel = SpeechLevel
         End If
 
-        TestOptions.SelectedTestProtocol.IsInPretestMode = TestOptions.IsPractiseTest
+        SelectedTestProtocol.IsInPretestMode = IsPractiseTest
 
         CreatePlannedWordsList()
 
-        TestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = StartAdaptiveLevel})
+        SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = StartAdaptiveLevel})
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -353,7 +147,7 @@ Public Class HintSpeechTest
         Dim AllLists As New List(Of SpeechMaterialComponent)
         'Filtering out lists which are or are not pracise lists depending on the selected value in TestOptions
         For Each List In AllAvailableLists
-            If List.IsPractiseComponent = TestOptions.SelectedTestProtocol.IsInPretestMode Then
+            If List.IsPractiseComponent = SelectedTestProtocol.IsInPretestMode Then
                 AllLists.Add(List)
             End If
         Next
@@ -372,10 +166,10 @@ Public Class HintSpeechTest
         Next
         'Determines the index of the start list
         Dim SelectedStartListIndex As Integer = -1
-        If TestOptions.SelectedTestProtocol.IsInPretestMode = False Then
-            '...based on the TestOptions.StartList 
+        If SelectedTestProtocol.IsInPretestMode = False Then
+            '...based on the StartList 
             For i = 0 To AllLists.Count - 1
-                If AllLists(i).PrimaryStringRepresentation = TestOptions.StartList Then
+                If AllLists(i).PrimaryStringRepresentation = StartList Then
                     SelectedStartListIndex = i
                     Exit For
                 End If
@@ -407,7 +201,7 @@ Public Class HintSpeechTest
         For Each List In ListsToUse
             Dim CurrentWords = List.GetChildren()
 
-            If TestOptions.RandomizeItemsWithinLists = False Then
+            If RandomizeItemsWithinLists = False Then
                 For Each Word In CurrentWords
                     PlannedTestSentencess.Add(Word)
                     'Checking if enough sentences have been added
@@ -461,7 +255,7 @@ Public Class HintSpeechTest
             CurrentTestTrial.ScoreList = New List(Of Integer)
             For i = 0 To e.LinguisticResponses.Count - 1
 
-                If TestOptions.ScoreOnlyKeyWords = True Then
+                If ScoreOnlyKeyWords = True Then
                     If WordsInSentence(i).IsKeyComponent = False Then
                         'In keyword correction mode, skipping to next if the word is not a keyword
                         Continue For
@@ -493,14 +287,14 @@ Public Class HintSpeechTest
         'TODO: We must store the responses and response times!!!
 
         'Calculating the speech level
-        Dim ProtocolReply = TestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
+        Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
 
         'Preparing a full test if the practise list is finished
-        If TestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+        If SelectedTestProtocol.IsInPretestMode = True Then
             If ProtocolReply.Decision = SpeechTestReplies.TestIsCompleted Then
 
                 'Finalizing the protocol
-                TestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+                SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
 
                 'Showing results in the GUI
                 GetResultStringForGui()
@@ -512,15 +306,15 @@ Public Class HintSpeechTest
                 'Setting the start value in the new protocol to the current AdaptiveValue
                 Dim NewProtocol As Object = Nothing
                 For Each AvailableProtocol In Me.AvailableTestProtocols
-                    If AvailableProtocol.GetType = TestOptions.SelectedTestProtocol.GetType Then
+                    If AvailableProtocol.GetType = SelectedTestProtocol.GetType Then
                         NewProtocol = AvailableProtocol
                         Exit For
                     End If
                 Next
-                TestOptions.SelectedTestProtocol = NewProtocol
+                SelectedTestProtocol = NewProtocol
 
                 'Initializing the new protocol with the adaptive threshold determined in the practise test as the start value
-                TestOptions.SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = ProtocolReply.AdaptiveValue})
+                SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = ProtocolReply.AdaptiveValue})
 
                 'Clearing observed and planned sentences (since these are based on practise lists), and plan new lists based on the intended start list
                 ObservedTrials.Clear()
@@ -549,16 +343,16 @@ Public Class HintSpeechTest
         Dim NextTestWord = PlannedTestSentencess(ObservedTrials.Count)
 
         'Creating a new test trial
-        Select Case TestOptions.SelectedTestMode
+        Select Case SelectedTestMode
             Case TestModes.AdaptiveSpeech
 
-                If TestOptions.MaskerLocations.Count > 0 Then
+                If MaskerLocations.Count > 0 Then
 
                     CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = TestOptions.MaskingLevel + NextTaskInstruction.AdaptiveValue,
-            .MaskerLevel = TestOptions.MaskingLevel,
-            .ContralateralMaskerLevel = TestOptions.ContralateralMaskingLevel,
+            .SpeechLevel = MaskingLevel + NextTaskInstruction.AdaptiveValue,
+            .MaskerLevel = MaskingLevel,
+            .ContralateralMaskerLevel = ContralateralMaskingLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
 
@@ -568,7 +362,7 @@ Public Class HintSpeechTest
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
             .SpeechLevel = NextTaskInstruction.AdaptiveValue,
             .MaskerLevel = Double.NegativeInfinity,
-            .ContralateralMaskerLevel = TestOptions.ContralateralMaskingLevel,
+            .ContralateralMaskerLevel = ContralateralMaskingLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
 
@@ -579,9 +373,9 @@ Public Class HintSpeechTest
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = TestOptions.SpeechLevel,
-            .MaskerLevel = TestOptions.SpeechLevel - NextTaskInstruction.AdaptiveValue,
-            .ContralateralMaskerLevel = TestOptions.ContralateralMaskingLevel,
+            .SpeechLevel = SpeechLevel,
+            .MaskerLevel = SpeechLevel - NextTaskInstruction.AdaptiveValue,
+            .ContralateralMaskerLevel = ContralateralMaskingLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}
 
@@ -593,13 +387,13 @@ Public Class HintSpeechTest
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
 
         Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
-        If TestOptions.IsFreeRecall Then
+        If IsFreeRecall Then
             If CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count > 0 Then
 
                 CurrentTestTrial.Tasks = 0
                 For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
 
-                    If TestOptions.ScoreOnlyKeyWords = True Then
+                    If ScoreOnlyKeyWords = True Then
                         Dim IsKeyComponent = Child.IsKeyComponent
                         ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = IsKeyComponent})
                         If IsKeyComponent = True Then
@@ -643,18 +437,18 @@ Public Class HintSpeechTest
 
     Public Overrides Sub FinalizeTest()
 
-        TestOptions.SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+        SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
 
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
 
-        Dim ProtocolThreshold = TestOptions.SelectedTestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = SelectedTestProtocol.GetFinalResult()
 
         Dim Output As New List(Of String)
 
         If ProtocolThreshold IsNot Nothing Then
-            If TestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+            If SelectedTestProtocol.IsInPretestMode = True Then
                 ResultSummaryForGUI.Add("Resultat för övningstestet: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
             Else
                 ResultSummaryForGUI.Add("Testresultat: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
@@ -662,16 +456,16 @@ Public Class HintSpeechTest
 
             Output.AddRange(ResultSummaryForGUI)
         Else
-            If TestOptions.SelectedTestProtocol.IsInPretestMode = True Then
+            If SelectedTestProtocol.IsInPretestMode = True Then
                 Output.Add("Övningstest!")
             End If
 
             If CurrentTestTrial IsNot Nothing Then
-                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestOptions.SelectedTestProtocol.TotalTrialCount)
+                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & SelectedTestProtocol.TotalTrialCount)
                 Output.Add("SNR = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SNR) & " dB HL")
                 Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
                 Output.Add("Brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel) & " dB HL")
-                If TestOptions.UseContralateralMasking = True Then
+                If UseContralateralMasking = True Then
                     Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
                 End If
             End If
@@ -681,7 +475,6 @@ Public Class HintSpeechTest
 
     End Function
 
-    Private ResultSummaryForGUI As New List(Of String)
 
     Public Overrides Function GetTestTrialResultExportString() As String
 
@@ -689,22 +482,24 @@ Public Class HintSpeechTest
 
         Dim ExportStringList As New List(Of String)
 
-        Dim ProtocolThreshold = TestOptions.SelectedTestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = SelectedTestProtocol.GetFinalResult()
 
         'Exporting only the current trial (last added to ObservedTrials)
         Dim TestTrialIndex As Integer = ObservedTrials.Count - 1
 
         'Adding column headings on the first row
         If TestTrialIndex = 0 Then
-            ExportStringList.Add("TrialIndex" & vbTab & ObservedTrials.Last.TestResultColumnHeadings & vbTab & "SRT" & vbTab & TestOptions.ExportColumnHeadings)
+            ExportStringList.Add("TrialIndex" & vbTab & ObservedTrials.Last.TestResultColumnHeadings & vbTab & "SRT" & vbTab & ExportColumnHeadings())
         End If
 
         'Adding trial data 
         If ProtocolThreshold.HasValue = False Then
-            ExportStringList.Add(TestTrialIndex & vbTab & ObservedTrials.Last.TestResultAsTextRow & vbTab & "SRT not yet established" & vbTab & TestOptions.ExportSettingsAsTextRow)
+            ExportStringList.Add(TestTrialIndex & vbTab & ObservedTrials.Last.TestResultAsTextRow & vbTab & "SRT not yet established" & vbTab & ExportSettingsAsTextRow())
         Else
-            ExportStringList.Add(TestTrialIndex & vbTab & ObservedTrials.Last.TestResultAsTextRow & vbTab & ProtocolThreshold & vbTab & TestOptions.ExportSettingsAsTextRow)
+            ExportStringList.Add(TestTrialIndex & vbTab & ObservedTrials.Last.TestResultAsTextRow & vbTab & ProtocolThreshold & vbTab & ExportSettingsAsTextRow())
         End If
+
+        StoreSpeechTestState()
 
         Return String.Join(vbCrLf, ExportStringList)
 
@@ -727,6 +522,57 @@ Public Class HintSpeechTest
         'Throw New NotImplementedException()
     End Sub
 
+
+    Public Sub StoreSpeechTestState()
+
+        Dim OutputList As New List(Of Tuple(Of String, String))
+
+        Dim properties As PropertyInfo() = GetType(SpeechTest).GetProperties()
+
+        ' Iterating through each property
+        For Each [property] As PropertyInfo In properties
+
+            ' Getting the name of the property
+            Dim propertyName As String = [property].Name
+
+            ' Getting the value of the property for the current instance 
+            Dim propertyValue As Object = [property].GetValue(Me)
+
+            If [property].GetCustomAttribute(Of SkipExportAttribute)() IsNot Nothing Then
+                ' Skip this property
+                Continue For
+            End If
+
+            If propertyValue IsNot Nothing Then
+
+                ' Check if the property value is a List(Of T)
+                Dim propertyType As Type = propertyValue.GetType()
+                If propertyType.IsGenericType AndAlso propertyType.GetGenericTypeDefinition() = GetType(List(Of)) Then
+
+                    ' Iterate through the List(Of T) and call ToString on each item
+                    Dim items As New List(Of String)
+                    Dim enumerable As IEnumerable = DirectCast(propertyValue, IEnumerable)
+                    Dim Index As Integer = 0
+                    For Each item In enumerable
+
+                        ' Join the items with commas (or any separator you prefer)
+                        OutputList.Add(New Tuple(Of String, String)(propertyName & "-" & Index, item.ToString()))
+                        Index += 1
+
+                    Next
+                Else
+                    OutputList.Add(New Tuple(Of String, String)(propertyName, propertyValue.ToString()))
+                End If
+
+            Else
+                'OutputList.Add(New Tuple(Of String, String)(propertyName, "NotSet"))
+            End If
+
+        Next
+
+        CurrentTestTrial.SpeechTestStage = OutputList
+
+    End Sub
 
 End Class
 

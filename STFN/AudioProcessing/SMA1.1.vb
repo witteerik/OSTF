@@ -4,6 +4,7 @@ Imports System.Xml
 Imports System.Globalization.CultureInfo
 Imports STFN.SpeechMaterialComponent
 Imports System.Xml.Serialization
+Imports System.Runtime.Serialization
 
 Namespace Audio
 

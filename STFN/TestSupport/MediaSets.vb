@@ -5,6 +5,7 @@ Imports STFN.Audio.DSP
 Imports STFN.Audio.Sound.SpeechMaterialAnnotation
 Imports STFN.Audio.Formats
 Imports System.Xml.Serialization
+Imports System.Runtime.Serialization
 
 <Serializable>
 Public Class MediaSetLibrary

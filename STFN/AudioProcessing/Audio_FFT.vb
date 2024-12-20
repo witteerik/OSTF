@@ -22,6 +22,7 @@
 'SOFTWARE.
 
 Imports System.IO
+Imports System.Runtime.Serialization
 Imports System.Xml.Serialization
 
 Namespace Audio
@@ -123,7 +124,7 @@ Namespace Audio
                 Return _BarkSpectrumTimeWindowData(Channel - 1)(windowNumber)
             End Get
             Set(value As TimeWindow)
-                checkChannelValue(Channel, _BarkSpectrumTimeWindowData.Count)
+                CheckChannelValue(Channel, _BarkSpectrumTimeWindowData.Count)
                 If windowNumber > _BarkSpectrumTimeWindowData(Channel - 1).Count - 1 Then ExtendFrequencyDomainData(_BarkSpectrumTimeWindowData, windowNumber - _BarkSpectrumTimeWindowData(Channel - 1).Count + 1)
                 _BarkSpectrumTimeWindowData(Channel - 1)(windowNumber) = value
             End Set
@@ -166,12 +167,12 @@ Namespace Audio
 
         Public Property AmplitudeSpectrum(ByVal channel As Integer, ByVal windowNumber As Integer) As TimeWindow
             Get
-                checkChannelValue(channel, _AmplitudeSpectrum.Count)
+                CheckChannelValue(channel, _AmplitudeSpectrum.Count)
                 'Behövs kontroll av adderingsbehov här?
                 Return _AmplitudeSpectrum(channel - 1)(windowNumber)
             End Get
             Set(value As TimeWindow)
-                checkChannelValue(channel, _AmplitudeSpectrum.Count)
+                CheckChannelValue(channel, _AmplitudeSpectrum.Count)
                 If windowNumber > _AmplitudeSpectrum(channel - 1).Count - 1 Then ExtendFrequencyDomainData(_AmplitudeSpectrum, windowNumber - _AmplitudeSpectrum(channel - 1).Count + 1)
                 _AmplitudeSpectrum(channel - 1)(windowNumber) = value
 
@@ -180,12 +181,12 @@ Namespace Audio
 
         Public Property PhaseSpectrum(ByVal channel As Integer, ByVal windowNumber As Integer) As TimeWindow
             Get
-                checkChannelValue(channel, _PhaseSpectrum.Count)
+                CheckChannelValue(channel, _PhaseSpectrum.Count)
                 'Behövs kontroll av adderingsbehov här?
                 Return _PhaseSpectrum(channel - 1)(windowNumber)
             End Get
             Set(value As TimeWindow)
-                checkChannelValue(channel, _PhaseSpectrum.Count)
+                CheckChannelValue(channel, _PhaseSpectrum.Count)
                 If windowNumber > _PhaseSpectrum(channel - 1).Count - 1 Then ExtendFrequencyDomainData(_PhaseSpectrum, windowNumber - _PhaseSpectrum(channel - 1).Count + 1)
                 _PhaseSpectrum(channel - 1)(windowNumber) = value
 
@@ -194,12 +195,12 @@ Namespace Audio
 
         Public Property PowerSpectrumData(ByVal channel As Integer, ByVal windowNumber As Integer) As TimeWindow
             Get
-                checkChannelValue(channel, _PowerSpectrumData.Count)
+                CheckChannelValue(channel, _PowerSpectrumData.Count)
                 'Behövs kontroll av adderingsbehov här?
                 Return _PowerSpectrumData(channel - 1)(windowNumber)
             End Get
             Set(value As TimeWindow)
-                checkChannelValue(channel, _PowerSpectrumData.Count)
+                CheckChannelValue(channel, _PowerSpectrumData.Count)
                 If windowNumber > _PowerSpectrumData(channel - 1).Count - 1 Then ExtendFrequencyDomainData(_PowerSpectrumData, windowNumber - _PowerSpectrumData(channel - 1).Count + 1)
                 _PowerSpectrumData(channel - 1)(windowNumber) = value
 
@@ -208,12 +209,12 @@ Namespace Audio
 
         Public Property SpectrogramData(ByVal channel As Integer, ByVal windowNumber As Integer) As TimeWindow
             Get
-                checkChannelValue(channel, _SpectrogramData.Count)
+                CheckChannelValue(channel, _SpectrogramData.Count)
                 'Behövs kontroll av adderingsbehov här?
                 Return _SpectrogramData(channel - 1)(windowNumber)
             End Get
             Set(value As TimeWindow)
-                checkChannelValue(channel, _SpectrogramData.Count)
+                CheckChannelValue(channel, _SpectrogramData.Count)
                 If windowNumber > _SpectrogramData(channel - 1).Count - 1 Then ExtendFrequencyDomainData(_SpectrogramData, windowNumber - _SpectrogramData(channel - 1).Count + 1)
                 _SpectrogramData(channel - 1)(windowNumber) = value
 
@@ -1138,7 +1139,7 @@ Namespace Audio
                         Next
 
                         'Windowing the filter array to create a triangual filter array
-                        windowingFunction(myFilter, WindowingType.Triangular)
+                        WindowingFunction(myFilter, WindowingType.Triangular)
 
                         'Adding the filter array for re-use
                         TriangularFilters.Add(BandBinCount, myFilter)
@@ -1319,7 +1320,7 @@ Namespace Audio
 
                 'Creating a BandDescriptionList if not already done
                 If CurrentBandTemplateList Is Nothing Then CurrentBandTemplateList = New BandTemplateList(FilterOverlapRatio, LowestIncludedFrequency, HighestIncludedFrequency,
-                                            InputSound.WaveFormat, InputSound.FFT.fftFormat)
+InputSound.WaveFormat, InputSound.FFT.FftFormat)
 
                 'Creating an IsoPhonfilter
                 If CurrentIsoPhonFilter Is Nothing Then
@@ -1350,15 +1351,14 @@ Namespace Audio
                 Next
 
                 'Analysing all time windows
-                For TimeWindowIndex = 0 To InputSound.FFT.windowCount(Channel) - 1
-
+                For TimeWindowIndex = 0 To InputSound.FFT.WindowCount(Channel) - 1
                     MyDetailedList.Add(TimeWindowIndex, New List(Of BarkBand))
 
                     'Creating Bark bands
                     For n = 0 To CurrentBandTemplateList.Count - 1
                         MyDetailedList(TimeWindowIndex).Add(New BarkBand(CurrentBandTemplateList, n,
                                         InputSound.FFT.PowerSpectrumData(Channel, TimeWindowIndex), CurrentIsoPhonFilter, CurrentAuditoryFilters,
-                                       InputSound.WaveFormat, InputSound.FFT.fftFormat, dbFSToSplDifference))
+                                       InputSound.WaveFormat, InputSound.FFT.FftFormat, dbFSToSplDifference))
                     Next
 
                     'Applying spread of masking across Bark bands

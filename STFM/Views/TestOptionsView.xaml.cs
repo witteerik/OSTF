@@ -8,15 +8,15 @@ namespace STFM.Views;
 public partial class OptionsViewAll : ContentView
 {
 
-    private TestOptions CurrentTestOptions
+    private SpeechTest CurrentSpeechTest
     {
         get
         {
-            if (BindingContext is TestOptions testOptions)
+            if (BindingContext is SpeechTest speechTest)
             {
-                if (testOptions != null)
+                if (speechTest != null)
                 {
-                    return testOptions;
+                    return speechTest;
                 }
             }
             return null;
@@ -30,9 +30,12 @@ public partial class OptionsViewAll : ContentView
 
 
 
-    public OptionsViewAll()
+    public OptionsViewAll(SpeechTest currentSpeechTest)
     {
         InitializeComponent();
+
+        // Assign the custom instance of SpeechTest
+        BindingContext = currentSpeechTest;
 
         SetDefaultLevels();
 
@@ -214,7 +217,7 @@ public partial class OptionsViewAll : ContentView
 
         UpdateSoundSourceViewsIsVisible();
 
-        switch (SharedSpeechTestObjects.CurrentSpeechTest.UseContralateralMasking)
+        switch (SharedSpeechTestObjects.CurrentSpeechTest.UseContralateralMasking_DefaultValue)
         {
             case STFN.Utils.Constants.TriState.True:
                 UseContralateralMasking_Switch.IsToggled = true;
@@ -229,7 +232,7 @@ public partial class OptionsViewAll : ContentView
         }
 
 
-        switch (SharedSpeechTestObjects.CurrentSpeechTest.UsePhaseAudiometry)
+        switch (SharedSpeechTestObjects.CurrentSpeechTest.UsePhaseAudiometry_DefaultValue)
         {
             case STFN.Utils.Constants.TriState.True:
                 UsePhaseAudiometry_Switch.IsToggled = true;
@@ -350,7 +353,7 @@ public partial class OptionsViewAll : ContentView
                 return;
             }
 
-            CurrentTestOptions.UseContralateralMasking = false;
+            CurrentSpeechTest.UseContralateralMasking = false;
         }
 
         UpdateSoundSourceLocations();
@@ -381,34 +384,34 @@ public partial class OptionsViewAll : ContentView
         BackgroundNonSpeechSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
         BackgroundSpeechSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
 
-        if (CurrentTestOptions != null)
+        if (CurrentSpeechTest != null)
         {
-            if (CurrentTestOptions.SelectedTransducer != null)
+            if (CurrentSpeechTest.SelectedTransducer != null)
             {
-                if (CurrentTestOptions.UseSimulatedSoundField == false)
+                if (CurrentSpeechTest.UseSimulatedSoundField == false)
                 {
-                    SpeechSoundSourceView.SoundSources = CurrentTestOptions.SelectedTransducer.GetVisualSoundSourceLocations();
-                    MaskerSoundSourceView.SoundSources = CurrentTestOptions.SelectedTransducer.GetVisualSoundSourceLocations();
-                    BackgroundNonSpeechSoundSourceView.SoundSources = CurrentTestOptions.SelectedTransducer.GetVisualSoundSourceLocations();
-                    BackgroundSpeechSoundSourceView.SoundSources = CurrentTestOptions.SelectedTransducer.GetVisualSoundSourceLocations();
+                    SpeechSoundSourceView.SoundSources = CurrentSpeechTest.SelectedTransducer.GetVisualSoundSourceLocations();
+                    MaskerSoundSourceView.SoundSources = CurrentSpeechTest.SelectedTransducer.GetVisualSoundSourceLocations();
+                    BackgroundNonSpeechSoundSourceView.SoundSources = CurrentSpeechTest.SelectedTransducer.GetVisualSoundSourceLocations();
+                    BackgroundSpeechSoundSourceView.SoundSources = CurrentSpeechTest.SelectedTransducer.GetVisualSoundSourceLocations();
                 }
                 else
                 {
                     // Adding simulated sound filed locations
-                    if (CurrentTestOptions.SelectedIrSet != null)
+                    if (CurrentSpeechTest.SelectedIrSet != null)
                     {
-                        SpeechSoundSourceView.SoundSources = CurrentTestOptions.SelectedIrSet.GetVisualSoundSourceLocations();
-                        MaskerSoundSourceView.SoundSources = CurrentTestOptions.SelectedIrSet.GetVisualSoundSourceLocations();
-                        BackgroundNonSpeechSoundSourceView.SoundSources = CurrentTestOptions.SelectedIrSet.GetVisualSoundSourceLocations();
-                        BackgroundSpeechSoundSourceView.SoundSources = CurrentTestOptions.SelectedIrSet.GetVisualSoundSourceLocations();
+                        SpeechSoundSourceView.SoundSources = CurrentSpeechTest.SelectedIrSet.GetVisualSoundSourceLocations();
+                        MaskerSoundSourceView.SoundSources = CurrentSpeechTest.SelectedIrSet.GetVisualSoundSourceLocations();
+                        BackgroundNonSpeechSoundSourceView.SoundSources = CurrentSpeechTest.SelectedIrSet.GetVisualSoundSourceLocations();
+                        BackgroundSpeechSoundSourceView.SoundSources = CurrentSpeechTest.SelectedIrSet.GetVisualSoundSourceLocations();
                     }
                 }
 
 
-                if (CurrentTestOptions.SelectedTransducer.IsHeadphones())
+                if (CurrentSpeechTest.SelectedTransducer.IsHeadphones())
                 {
 
-                    if (CurrentTestOptions.UseSimulatedSoundField == false)
+                    if (CurrentSpeechTest.UseSimulatedSoundField == false)
                     {
                         // If the transducer is headphones, dB HL should be used, as long as the headphones do not present a simulated sound field
                         UseRetsplCorrection_Switch.IsToggled = true;
@@ -464,7 +467,7 @@ public partial class OptionsViewAll : ContentView
         BackgroundNonSpeechSoundSourceView.IsVisible = false;
         BackgroundSpeechSoundSourceView.IsVisible = false;
 
-        if (CurrentTestOptions.UsePhaseAudiometry == false)
+        if (CurrentSpeechTest.UsePhaseAudiometry == false)
         {
             SpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveTargets;
             BackgroundSpeechSoundSourceView.IsVisible = SharedSpeechTestObjects.CurrentSpeechTest.CanHaveBackgroundSpeech;
@@ -478,15 +481,15 @@ public partial class OptionsViewAll : ContentView
 
         // Hiding the UseContralateralMaskingControl in cases where it cannot be used, and deselecting UseContralateralMasking
         if (CurrentTransducerIsHeadPhones() == true &
-            SharedSpeechTestObjects.CurrentSpeechTest.UseContralateralMasking == STFN.Utils.Constants.TriState.Optional &
-            CurrentTestOptions.UseSimulatedSoundField == false &
-            CurrentTestOptions.UsePhaseAudiometry == false)
+            SharedSpeechTestObjects.CurrentSpeechTest.UseContralateralMasking_DefaultValue == STFN.Utils.Constants.TriState.Optional &
+            CurrentSpeechTest.UseSimulatedSoundField == false &
+            CurrentSpeechTest.UsePhaseAudiometry == false)
         {
             UseContralateralMaskingControl.IsVisible = true;
         }
         else
         {
-            CurrentTestOptions.UseContralateralMasking = false;
+            CurrentSpeechTest.UseContralateralMasking = false;
             UseContralateralMaskingControl.IsVisible = false;
         }
 
@@ -514,11 +517,11 @@ public partial class OptionsViewAll : ContentView
 
     private bool CurrentTransducerIsHeadPhones()
     {
-        if (CurrentTestOptions != null)
+        if (CurrentSpeechTest != null)
         {
-            if (CurrentTestOptions.SelectedTransducer != null)
+            if (CurrentSpeechTest.SelectedTransducer != null)
             {
-                return CurrentTestOptions.SelectedTransducer.IsHeadphones();
+                return CurrentSpeechTest.SelectedTransducer.IsHeadphones();
             }
         }
 
@@ -561,19 +564,19 @@ public partial class OptionsViewAll : ContentView
             {
                 // Adjusting the contralateral masking by the new level difference
                 double differenceValue = e.NewValue - e.OldValue;
-                CurrentTestOptions.ContralateralMaskingLevel += differenceValue;
+                CurrentSpeechTest.ContralateralMaskingLevel += differenceValue;
             }
         }
     }
 
     private async void ShowTesterInstructionsButton_Clicked(object sender, EventArgs e)
     {
-        await Messager.MsgBoxAsync(SharedSpeechTestObjects.CurrentSpeechTest.TesterInstructions, Messager.MsgBoxStyle.Information, CurrentTestOptions.TesterInstructionsButtonText);
+        await Messager.MsgBoxAsync(SharedSpeechTestObjects.CurrentSpeechTest.TesterInstructions, Messager.MsgBoxStyle.Information, CurrentSpeechTest.TesterInstructionsButtonText);
     }
 
     private async void ShowParticipantInstructionsButton_Clicked(object sender, EventArgs e)
     {
-        await Messager.MsgBoxAsync(SharedSpeechTestObjects.CurrentSpeechTest.ParticipantInstructions, Messager.MsgBoxStyle.Information, CurrentTestOptions.ParticipantInstructionsButtonText);
+        await Messager.MsgBoxAsync(SharedSpeechTestObjects.CurrentSpeechTest.ParticipantInstructions, Messager.MsgBoxStyle.Information, CurrentSpeechTest.ParticipantInstructionsButtonText);
     }
 
 }

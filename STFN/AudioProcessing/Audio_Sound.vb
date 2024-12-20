@@ -25,6 +25,7 @@ Imports System.IO
 Imports System.Xml
 Imports System.Globalization.CultureInfo
 Imports System.Xml.Serialization
+Imports System.Runtime.Serialization
 
 Namespace Audio
 

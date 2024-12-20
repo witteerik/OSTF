@@ -1,5 +1,6 @@
 ﻿Imports System.Globalization
 Imports STFN.Audio.Sound.SpeechMaterialAnnotation
+Imports System.Runtime.Serialization
 
 <Serializable>
 Public Class SpeechMaterialComponent

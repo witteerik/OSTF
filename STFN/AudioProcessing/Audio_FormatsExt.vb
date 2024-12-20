@@ -1,6 +1,8 @@
 ﻿
 
 
+Imports System.Runtime.Serialization
+
 Namespace Audio
 
     Namespace Formats

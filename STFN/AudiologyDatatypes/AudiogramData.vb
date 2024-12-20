@@ -1,4 +1,5 @@
 ﻿Imports System.Xml.Serialization
+Imports System.Runtime.Serialization
 
 <Serializable>
 Public Class AudiogramData

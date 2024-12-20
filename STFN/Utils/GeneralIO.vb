@@ -22,6 +22,7 @@
 'SOFTWARE.
 
 Imports System.IO
+Imports System.Runtime.Serialization
 Imports System.Xml.Serialization
 
 Namespace Utils

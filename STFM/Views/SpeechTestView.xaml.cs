@@ -408,7 +408,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsHintTestView = new OptionsViewAll();
+                    var newOptionsHintTestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsHintTestView);
                     CurrentTestOptionsView = newOptionsHintTestView;
 
@@ -424,7 +424,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsMatrixTestView = new OptionsViewAll();
+                    var newOptionsMatrixTestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsMatrixTestView);
                     CurrentTestOptionsView = newOptionsMatrixTestView;
 
@@ -440,7 +440,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsSrtTestView = new OptionsViewAll();
+                    var newOptionsSrtTestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsSrtTestView);
                     CurrentTestOptionsView = newOptionsSrtTestView;
 
@@ -454,7 +454,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsSipTestView2 = new OptionsViewAll();
+                    var newOptionsSipTestView2 = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsSipTestView2);
                     CurrentTestOptionsView = newOptionsSipTestView2;
 
@@ -470,7 +470,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsPB1TestView = new OptionsViewAll();
+                    var newOptionsPB1TestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsPB1TestView);
                     CurrentTestOptionsView = newOptionsPB1TestView;
 
@@ -489,7 +489,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsPB2TestView = new OptionsViewAll();
+                    var newOptionsPB2TestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsPB2TestView);
                     CurrentTestOptionsView = newOptionsPB2TestView;
 
@@ -506,7 +506,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsPB3TestView = new OptionsViewAll();
+                    var newOptionsPB3TestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsPB3TestView);
                     CurrentTestOptionsView = newOptionsPB3TestView;
 
@@ -522,7 +522,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsPB3BTestView = new OptionsViewAll();
+                    var newOptionsPB3BTestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsPB3BTestView);
                     CurrentTestOptionsView = newOptionsPB3BTestView;
 
@@ -537,7 +537,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsPB4TestView = new OptionsViewAll();
+                    var newOptionsPB4TestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsPB4TestView);
                     CurrentTestOptionsView = newOptionsPB4TestView;
 
@@ -554,7 +554,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsPB4IITestView = new OptionsViewAll();
+                    var newOptionsPB4IITestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsPB4IITestView);
                     CurrentTestOptionsView = newOptionsPB4IITestView;
 
@@ -570,7 +570,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsPB5TestView = new OptionsViewAll();
+                    var newOptionsPB5TestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsPB5TestView);
                     CurrentTestOptionsView = newOptionsPB5TestView;
 
@@ -585,7 +585,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsQSipView = new OptionsViewAll();
+                    var newOptionsQSipView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsQSipView);
                     CurrentTestOptionsView = newOptionsQSipView;
 
@@ -600,7 +600,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest = new IHearProtocolB7SpeechTest("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsSipTestView = new OptionsViewAll();
+                    var newOptionsSipTestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsSipTestView);
                     CurrentTestOptionsView = newOptionsSipTestView;
 
@@ -615,7 +615,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsTP50_SoundField_TestView = new OptionsViewAll();
+                    var newOptionsTP50_SoundField_TestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsTP50_SoundField_TestView);
                     CurrentTestOptionsView = newOptionsTP50_SoundField_TestView;
 
@@ -631,7 +631,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentSpeechTest = new IHearSC_SiP_SpeechTest("Swedish SiP-test");
 
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsSipSCTestView = new OptionsViewAll();
+                    var newOptionsSipSCTestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsSipSCTestView);
                     CurrentTestOptionsView = newOptionsSipSCTestView;
 
@@ -703,7 +703,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 // Testoptions
                 TestOptionsGrid.Children.Clear();
-                var newOptionsSpeechAudiometryTestView = new OptionsViewAll();
+                var newOptionsSpeechAudiometryTestView = new OptionsViewAll(CurrentSpeechTest);
                 TestOptionsGrid.Children.Add(newOptionsSpeechAudiometryTestView);
                 CurrentTestOptionsView = newOptionsSpeechAudiometryTestView;
 
@@ -768,7 +768,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             // Inactivating GUI updates of the TestOptions of the selected test. // N.B. As of now, this is never turned on again, which means that the GUI connection will not work properly after the test has been started. 
             // The reason we need to inactivate the GUI connection is that when the GUI is updated asynchronosly, some objects needed for testing may not have been set before they are needed.
-            CurrentSpeechTest.TestOptions.SkipGuiUpdates = true;
+            CurrentSpeechTest.SkipGuiUpdates = true;
 
             // Initializing the test
             Tuple<bool, string> testInitializationResponse = CurrentSpeechTest.InitializeCurrentTest();
@@ -781,7 +781,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Talaudiometri":
 
                     // Pick appropriate response view
-                    if (CurrentSpeechTest.TestOptions.IsFreeRecall)
+                    if (CurrentSpeechTest.IsFreeRecall)
                     {
                         CurrentResponseView = new ResponseView_FreeRecall();
                     }
@@ -848,7 +848,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Hagermans meningar (Matrix)":
 
                     // Response view
-                    if (CurrentSpeechTest.TestOptions.IsFreeRecall)
+                    if (CurrentSpeechTest.IsFreeRecall)
                     {
                         CurrentResponseView = new ResponseView_FreeRecall();
                     }
@@ -869,7 +869,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 case "Hörtröskel för tal (HTT)":
 
                     // Response view
-                    if (CurrentSpeechTest.TestOptions.IsFreeRecall)
+                    if (CurrentSpeechTest.IsFreeRecall)
                     {
                         CurrentResponseView = new ResponseView_FreeRecall();
                     }
@@ -1120,8 +1120,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         if (CurrentSpeechTest.SupportsManualPausing) { PauseTestBtn.IsEnabled = true; }
 
         // Showing / hiding panels during test
-        SetBottomPanelShow(CurrentSpeechTest.TestOptions.IsFreeRecall);
-        SetLeftPanelShow(CurrentSpeechTest.TestOptions.IsFreeRecall);
+        SetBottomPanelShow(CurrentSpeechTest.IsFreeRecall);
+        SetLeftPanelShow(CurrentSpeechTest.IsFreeRecall);
 
         StopTestBtn.IsEnabled = true;
         TestReponseGrid.IsEnabled = true;
@@ -1144,7 +1144,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Pause testing
         StopAllTrialEventTimers();
 
-        if (CurrentSpeechTest.TestOptions.IsFreeRecall == true )
+        if (CurrentSpeechTest.IsFreeRecall == true )
         {
 
             // The test administrator must resume the test
@@ -1223,7 +1223,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Registering timed trial event
         if (CurrentSpeechTest.CurrentTestTrial != null)
         {
-            if (CurrentSpeechTest.TestOptions.IsFreeRecall == true)
+            if (CurrentSpeechTest.IsFreeRecall == true)
             {
                 CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TestAdministratorPressedNextTrial, DateTime.Now));
             }

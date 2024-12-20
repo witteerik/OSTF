@@ -8,315 +8,105 @@ Imports STFN.Utils
 Public Class IHearProtocolB5SpeechTest
     Inherits SpeechTest
 
+    Public Overrides ReadOnly Property FilePathRepresentation As String = "ProtocolB5_UserOperatedWRS"
+
     Public Sub New(SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
+        ApplyTestSpecificSettings()
+    End Sub
+
+    Public Sub ApplyTestSpecificSettings()
+
+        TesterInstructions = "(Detta test går ut på att undersöka svårighetsgraden hos listorna med enstaviga ord (för svenska AMTEST) när man varierar ljudnivån.)" & vbCrLf & vbCrLf &
+            "1. Ange experimentnummer." & vbCrLf &
+            "2. Välj testöra." & vbCrLf &
+            "3. Ställ talnivå till deltagarens Fletcher-regel-TMV på testörat (dvs. medelvärdet av de två bästa hörtrösklarna på 500, 1000 och 2000 Hz)" & vbCrLf &
+            "     (OBS! Talnivån kommer sedan ändras automatiskt under testet.)" & vbCrLf &
+            "4. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
+            "5. Informera patienten om hur testet går till." & vbCrLf &
+            "6. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
+
+        ParticipantInstructions = "Deltagarens uppgift: " & vbCrLf & vbCrLf &
+            " - Deltagaren startar testet genom att klicka på knappen 'Start'" & vbCrLf &
+            " - Under testet ska deltagaren lyssna efter enstaviga ord och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
+            " - Deltagaren ska gissa om hen är osäker." & vbCrLf &
+            " - Efter varje ord har deltagaren maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
+            " - Om svarsalternativen blinkar i röd färg har deltagaren inte svarat i tid." & vbCrLf &
+            " - Testet består av åtta 25-ordslistor som körs direkt efter varandra, med möjlighet till en kort paus mellan varje." & vbCrLf &
+            " - OBS! I vissa listor är orden mycket svaga, ibland knappast hörbara."
+
+        HasOptionalPractiseTest = False
+        AllowsUseRetsplChoice = False
+        AllowsManualPreSetSelection = False
+        AllowsManualStartListSelection = False
+        AllowsManualMediaSetSelection = False
+        SupportsPrelistening = False
+        UseSoundFieldSimulation = TriState.False
+        AvailableTestModes = New List(Of TestModes) From {TestModes.ConstantStimuli}
+        AvailableTestProtocols = New List(Of TestProtocol)
+        AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {4}
+        AvailablePhaseAudiometryTypes = New List(Of BmldModes)
+        MaximumSoundFieldSpeechLocations = 1
+        MaximumSoundFieldMaskerLocations = 0
+        MaximumSoundFieldBackgroundNonSpeechLocations = 0
+        MaximumSoundFieldBackgroundSpeechLocations = 0
+        MinimumSoundFieldSpeechLocations = 1
+        MinimumSoundFieldMaskerLocations = 0
+        MinimumSoundFieldBackgroundNonSpeechLocations = 0
+        MinimumSoundFieldBackgroundSpeechLocations = 0
+        AllowsManualReferenceLevelSelection = False
+        UseKeyWordScoring = Utils.Constants.TriState.False
+        UseListOrderRandomization = Utils.Constants.TriState.True
+        UseWithinListRandomization = Utils.Constants.TriState.True
+        UseAcrossListRandomization = Utils.Constants.TriState.False
+        UseFreeRecall = Utils.TriState.False
+        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        UsePhaseAudiometry_DefaultValue = Utils.Constants.TriState.False
+        TargetLevel_StepSize = 1
+        HistoricTrialCount = 0
+        SupportsManualPausing = False
+        DefaultReferenceLevel = 50
+        DefaultSpeechLevel = 50
+        DefaultMaskerLevel = 50
+        DefaultBackgroundLevel = 50
+        DefaultContralateralMaskerLevel = 10
+        MinimumReferenceLevel = -50
+        MaximumReferenceLevel = 50
+        MinimumLevel_Targets = -50
+        MaximumLevel_Targets = 50
+        MinimumLevel_Maskers = -50
+        MaximumLevel_Maskers = 50
+        MinimumLevel_Background = -50
+        MaximumLevel_Background = 50
+        MinimumLevel_ContralateralMaskers = -50
+        MaximumLevel_ContralateralMaskers = 50
+
+        Dim AvailableExperimentNumbersList As New List(Of Integer)
+        For i = 1 To 50
+            AvailableExperimentNumbersList.Add(i)
+        Next
+        AvailableExperimentNumbers = AvailableExperimentNumbersList.ToArray
+
+        SoundOverlapDuration = 0.25
 
     End Sub
 
-    Public Overrides ReadOnly Property FilePathRepresentation As String
-        Get
-            Return "ProtocolB5_UserOperatedWRS"
-        End Get
-    End Property
-
-#Region "Settings"
-
-    Public Overrides ReadOnly Property TesterInstructions As String
-        Get
-
-            Return "(Detta test går ut på att undersöka svårighetsgraden hos listorna med enstaviga ord (för svenska AMTEST) när man varierar ljudnivån.)" & vbCrLf & vbCrLf &
-                "1. Ange experimentnummer." & vbCrLf &
-                "2. Välj testöra." & vbCrLf &
-                "3. Ställ talnivå till deltagarens Fletcher-regel-TMV på testörat (dvs. medelvärdet av de två bästa hörtrösklarna på 500, 1000 och 2000 Hz)" & vbCrLf &
-                "     (OBS! Talnivån kommer sedan ändras automatiskt under testet.)" & vbCrLf &
-                "4. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
-                "5. Informera patienten om hur testet går till." & vbCrLf &
-                "6. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
-
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property ParticipantInstructions As String
-        Get
-            Return "Deltagarens uppgift: " & vbCrLf & vbCrLf &
-                " - Deltagaren startar testet genom att klicka på knappen 'Start'" & vbCrLf &
-                " - Under testet ska deltagaren lyssna efter enstaviga ord och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
-                " - Deltagaren ska gissa om hen är osäker." & vbCrLf &
-                " - Efter varje ord har deltagaren maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
-                " - Om svarsalternativen blinkar i röd färg har deltagaren inte svarat i tid." & vbCrLf &
-                " - Testet består av åtta 25-ordslistor som körs direkt efter varandra, med möjlighet till en kort paus mellan varje." & vbCrLf &
-                " - OBS! I vissa listor är orden mycket svaga, ibland knappast hörbara."
-
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property HasOptionalPractiseTest As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsUseRetsplChoice As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualStartListSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualMediaSetSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property SupportsPrelistening As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
-        Get
-            Return TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
-        Get
-            Return New List(Of TestModes) From {TestModes.ConstantStimuli}
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
-        Get
-            Return New List(Of TestProtocol)
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailableFixedResponseAlternativeCounts As List(Of Integer)
-        Get
-            Return New List(Of Integer) From {4}
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailablePhaseAudiometryTypes As List(Of BmldModes)
-        Get
-            Return New List(Of BmldModes)
-        End Get
-    End Property
-
-#End Region
-
-    Public Overrides ReadOnly Property MaximumSoundFieldSpeechLocations As Integer
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldSpeechLocations As Integer
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldMaskerLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldBackgroundNonSpeechLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldBackgroundSpeechLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualReferenceLevelSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveTargets As Boolean
-        Get
-            Return True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveMaskers As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveBackgroundSpeech As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseKeyWordScoring As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseListOrderRandomization As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseWithinListRandomization As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.True
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseAcrossListRandomization As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseFreeRecall As Utils.TriState
-        Get
-            Return Utils.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseDidNotHearAlternative As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseContralateralMasking As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.Optional
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UsePhaseAudiometry As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property LevelStepSize As Double
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property HistoricTrialCount As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property SupportsManualPausing As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
-        'Ignores, not used
-    End Sub
-
-    Public Overrides Property SoundOverlapDuration As Double = 0.25
-
-    Public Overrides ReadOnly Property DefaultReferenceLevel As Double = 50
-    Public Overrides ReadOnly Property DefaultSpeechLevel As Double = 50
-    Public Overrides ReadOnly Property DefaultMaskerLevel As Double = 50
-    Public Overrides ReadOnly Property DefaultBackgroundLevel As Double = 50
-    Public Overrides ReadOnly Property DefaultContralateralMaskerLevel As Double = 10
 
 
-    Public Overrides ReadOnly Property MinimumReferenceLevel As Double = -50
-    Public Overrides ReadOnly Property MaximumReferenceLevel As Double = 50
+    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean = True
+    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean = False
+    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean = False
 
-    Public Overrides ReadOnly Property MinimumLevel_Targets As Double = -50
-    Public Overrides ReadOnly Property MaximumLevel_Targets As Double = 50
+    Public Overrides ReadOnly Property CanHaveTargets As Boolean = True
+    Public Overrides ReadOnly Property CanHaveMaskers As Boolean = False
+    Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean = False
+    Public Overrides ReadOnly Property CanHaveBackgroundSpeech As Boolean = False
 
-    Public Overrides ReadOnly Property MinimumLevel_Maskers As Double = -50
-    Public Overrides ReadOnly Property MaximumLevel_Maskers As Double = 50
+    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.Optional
 
-    Public Overrides ReadOnly Property MinimumLevel_Background As Double = -50
-    Public Overrides ReadOnly Property MaximumLevel_Background As Double = 50
 
-    Public Overrides ReadOnly Property MinimumLevel_ContralateralMaskers As Double = -50
-    Public Overrides ReadOnly Property MaximumLevel_ContralateralMaskers As Double = 50
 
-    Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
-        Get
-            Dim OutputList As New List(Of Integer)
-            For i = 1 To 50
-                OutputList.Add(i)
-            Next
-            Return OutputList.ToArray
-        End Get
-    End Property
+
 
     Private PlannedTestData As New List(Of TrialHistory)
     Private ObservedTestData As New List(Of TrialHistory)
@@ -338,7 +128,7 @@ Public Class IHearProtocolB5SpeechTest
 
         TestStage = 0
 
-        If PlanTrials(TestOptions.ExperimentNumber - 1) = False Then
+        If PlanTrials(ExperimentNumber - 1) = False Then
             'Send message
             Return New Tuple(Of Boolean, String)(False, "Unable to plan test trials!")
         End If
@@ -366,7 +156,7 @@ Public Class IHearProtocolB5SpeechTest
         'Select MediaSet / voice, using female voice only, as in AMTEST
         For Each MediaSet In AllMediaSets
             If MediaSet.TalkerGender = MediaSet.Genders.Female Then
-                TestOptions.SelectedMediaSet = MediaSet
+                SelectedMediaSet = MediaSet
                 Exit For
             End If
         Next
@@ -393,8 +183,8 @@ Public Class IHearProtocolB5SpeechTest
         Next
 
         'Gets the speech and cl-masking levels set by the audiologist (this should equal the Fletcher Rule PTA)
-        Dim SpeechLevelReference = TestOptions.SpeechLevel
-        Dim ContralateralMaskingLeveldBBelowSpeech = TestOptions.SpeechLevel - TestOptions.ContralateralMaskingLevel
+        Dim SpeechLevelReference = SpeechLevel
+        Dim ContralateralMaskingLeveldBBelowSpeech = SpeechLevel - ContralateralMaskingLevel
 
         'Adding each list twice, in order, and assigning the speech levels in the order specified in CurrentSessionSpeechLevels
         For ListBlockIndex As Integer = 0 To 1
@@ -415,13 +205,13 @@ Public Class IHearProtocolB5SpeechTest
                     NewTrial.SpeechLevel = SpeechLevel
                     NewTrial.ContralateralMaskerLevel = ContralateralMaskingLevel
 
-                    Select Case TestOptions.SignalLocations(0).HorizontalAzimuth
+                    Select Case SignalLocations(0).HorizontalAzimuth
                         Case -90
                             NewTrial.TestEar = SidesWithBoth.Left
                         Case 90
                             NewTrial.TestEar = SidesWithBoth.Right
                         Case Else
-                            Throw New Exception("Unsupported signal azimuth: " & TestOptions.SignalLocations(0).HorizontalAzimuth)
+                            Throw New Exception("Unsupported signal azimuth: " & SignalLocations(0).HorizontalAzimuth)
                     End Select
 
                     'Setting response alternatives
@@ -462,7 +252,7 @@ Public Class IHearProtocolB5SpeechTest
         Next
 
         'Ranomizing list order
-        If TestOptions.RandomizeListOrder = True Then
+        If RandomizeListOrder = True Then
 
             Dim SampleOrder = Utils.SampleWithoutReplacement(PlannedTestData.Count, 0, PlannedTestData.Count, Randomizer)
             Dim TempList As New List(Of TrialHistory)
@@ -475,10 +265,10 @@ Public Class IHearProtocolB5SpeechTest
         End If
 
         'Getting the contralateral noise from the first trial SMC
-        ContralateralNoise = PlannedTestData(0)(0).SpeechMaterialComponent.GetContralateralMaskerSound(TestOptions.SelectedMediaSet, 0)
+        ContralateralNoise = PlannedTestData(0)(0).SpeechMaterialComponent.GetContralateralMaskerSound(SelectedMediaSet, 0)
 
         'Ranomizing within-list trial order
-        If TestOptions.RandomizeListOrder = True Then
+        If RandomizeListOrder = True Then
             For Each List In PlannedTestData
                 List.Shuffle(Randomizer)
             Next
@@ -552,12 +342,12 @@ Public Class IHearProtocolB5SpeechTest
     Private Sub MixNextTrialSound()
 
         Dim RETSPL_Correction As Double = 0
-        If TestOptions.UseRetsplCorrection = True Then
-            RETSPL_Correction = TestOptions.SelectedTransducer.RETSPL_Speech
+        If UseRetsplCorrection = True Then
+            RETSPL_Correction = SelectedTransducer.RETSPL_Speech
         End If
 
         'Getting the speech signal
-        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(TestOptions.SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
 
         'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
@@ -571,7 +361,7 @@ Public Class IHearProtocolB5SpeechTest
         'Creating contalateral masking noise (with the same length as the masking noise)
         Dim TrialContralateralNoise As Audio.Sound = Nothing
         Dim IntendedNoiseLength As Integer
-        If TestOptions.UseContralateralMasking = True Then
+        If UseContralateralMasking = True Then
             Dim TotalSoundLength = ContralateralNoise.WaveData.SampleData(1).Length
             IntendedNoiseLength = ContralateralNoise.WaveFormat.SampleRate * MaximumSoundDuration
             Dim RandomStartReadSample = Randomizer.Next(0, TotalSoundLength - IntendedNoiseLength)
@@ -579,7 +369,7 @@ Public Class IHearProtocolB5SpeechTest
         End If
 
         'Checking that Nominal levels agree between signal masker and contralateral masker
-        If TestOptions.UseContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
+        If UseContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
 
         'Calculating presentation levels
         Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel) + RETSPL_Correction
@@ -588,12 +378,12 @@ Public Class IHearProtocolB5SpeechTest
         'Adjusts the sound levels
         Audio.DSP.AmplifySection(TestWordSound, NeededSpeechGain)
 
-        If TestOptions.UseContralateralMasking = True Then
+        If UseContralateralMasking = True Then
 
             'Setting level, 
             'Very important: The contralateral masking sound file cannot be the same as the ipsilateral masker sound. The level of the contralateral masker sound must be set to agree with the Nominal level (while the ipsilateral masker sound sound have a level that deviates from the nominal level to attain the desired SNR!)
             Dim ContralateralMaskingNominalLevel_FS = ContralateralNoise.SMA.NominalLevel
-            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel) + TestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
+            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel) + SelectedMediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
             Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - ContralateralMaskingNominalLevel_FS
@@ -611,12 +401,12 @@ Public Class IHearProtocolB5SpeechTest
         'Creating an output sound
         CurrentTestTrial.Sound = New Audio.Sound(New Audio.Formats.WaveFormat(TestWordSound.WaveFormat.SampleRate, TestWordSound.WaveFormat.BitDepth, 2,, TestWordSound.WaveFormat.Encoding))
 
-        If TestOptions.SignalLocations(0).HorizontalAzimuth < 0 Then
+        If SignalLocations(0).HorizontalAzimuth < 0 Then
             'Left test ear
             'Adding speech and noise
             CurrentTestTrial.Sound.WaveData.SampleData(1) = TestSound.WaveData.SampleData(1)
             'Adding contralateral masking
-            If TestOptions.UseContralateralMasking = True Then
+            If UseContralateralMasking = True Then
                 CurrentTestTrial.Sound.WaveData.SampleData(2) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
 
@@ -625,7 +415,7 @@ Public Class IHearProtocolB5SpeechTest
             'Adding speech and noise
             CurrentTestTrial.Sound.WaveData.SampleData(2) = TestSound.WaveData.SampleData(1)
             'Adding contralateral masking
-            If TestOptions.UseContralateralMasking = True Then
+            If UseContralateralMasking = True Then
                 CurrentTestTrial.Sound.WaveData.SampleData(1) = TrialContralateralNoise.WaveData.SampleData(1)
             End If
         End If
@@ -634,16 +424,16 @@ Public Class IHearProtocolB5SpeechTest
         CurrentTestTrial.TestStage = TestStage
 
         'Also stores the mediaset
-        CurrentTestTrial.MediaSetName = TestOptions.SelectedMediaSet.MediaSetName
+        CurrentTestTrial.MediaSetName = SelectedMediaSet.MediaSetName
 
         'And the contralateral noise on/off setting
-        CurrentTestTrial.UseContralateralNoise = TestOptions.UseContralateralMasking
+        CurrentTestTrial.UseContralateralNoise = UseContralateralMasking
 
         'And the EM term
-        CurrentTestTrial.EfficientContralateralMaskingTerm = TestOptions.SelectedMediaSet.EffectiveContralateralMaskingGain
+        CurrentTestTrial.EfficientContralateralMaskingTerm = SelectedMediaSet.EffectiveContralateralMaskingGain
 
         'And the experiment number
-        CurrentTestTrial.ExperimentNumber = TestOptions.ExperimentNumber
+        CurrentTestTrial.ExperimentNumber = ExperimentNumber
 
     End Sub
 
@@ -729,5 +519,9 @@ Public Class IHearProtocolB5SpeechTest
         Return Nothing
 
     End Function
+
+    Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
+        'Ignores, not used
+    End Sub
 
 End Class

@@ -6,24 +6,21 @@ Public Class IHearSC_SiP_SpeechTest
 
     Inherits SpeechTest
 
-    Public Overrides ReadOnly Property FilePathRepresentation As String
-        Get
-            Return "ProtocolB7_SipTest"
-        End Get
-    End Property
+    Public Overrides ReadOnly Property FilePathRepresentation As String = "ProtocolB7_SipTest"
 
-    Public Overrides ReadOnly Property TesterInstructions As String
-        Get
-            Return "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
+    Public Sub New(ByVal SpeechMaterialName As String)
+        MyBase.New(SpeechMaterialName)
+        ApplyTestSpecificSettings()
+    End Sub
+
+    Public Sub ApplyTestSpecificSettings()
+
+        TesterInstructions = "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
                 "1. Informera patienten om hur testet går till." & vbCrLf &
                 "2. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
 
-        End Get
-    End Property
 
-    Public Overrides ReadOnly Property ParticipantInstructions As String
-        Get
-            Return "Patientens uppgift: " & vbCrLf & vbCrLf &
+        ParticipantInstructions = "Patientens uppgift: " & vbCrLf & vbCrLf &
                 " - Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
                 " - Under testet ska patienten lyssna efter enstaviga ord i olika ljudmiljöer och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
                 " - Patienten ska gissa om hen är osäker. Många ord är mycket svåra att höra!" & vbCrLf &
@@ -31,278 +28,77 @@ Public Class IHearSC_SiP_SpeechTest
                 " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
                 " - Testet består av två testomgångar med " & TestListCount * 3 & " ord i varje. testomgångarna körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
 
-        End Get
-    End Property
+        HasOptionalPractiseTest = False
+        AllowsUseRetsplChoice = False
+        AllowsManualPreSetSelection = False
+        AllowsManualStartListSelection = False
+        AllowsManualMediaSetSelection = False
+        SupportsPrelistening = False
+        UseSoundFieldSimulation = TriState.False
+        AvailableTestModes = New List(Of TestModes) From {TestModes.Custom}
+        AvailableTestProtocols = Nothing
+        AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {3}
+        AvailablePhaseAudiometryTypes = New List(Of BmldModes)
+        MaximumSoundFieldSpeechLocations = 1
+        MaximumSoundFieldMaskerLocations = 1
+        MaximumSoundFieldBackgroundNonSpeechLocations = 2
+        MaximumSoundFieldBackgroundSpeechLocations = 0
+        MinimumSoundFieldSpeechLocations = 1
+        MinimumSoundFieldMaskerLocations = 1
+        MinimumSoundFieldBackgroundNonSpeechLocations = 2
+        MinimumSoundFieldBackgroundSpeechLocations = 0
+        AllowsManualReferenceLevelSelection = False
+        UseKeyWordScoring = Utils.TriState.False
+        UseListOrderRandomization = Utils.TriState.False
+        UseWithinListRandomization = Utils.TriState.False
+        UseAcrossListRandomization = Utils.TriState.False
+        UseFreeRecall = Utils.TriState.False
+        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        UsePhaseAudiometry_DefaultValue = Utils.Constants.TriState.False
+        TargetLevel_StepSize = 1
+        HistoricTrialCount = 0
+        SupportsManualPausing = False
+        DefaultReferenceLevel = 68.34
+        DefaultSpeechLevel = 65
+        DefaultMaskerLevel = 65
+        DefaultBackgroundLevel = 50
+        DefaultContralateralMaskerLevel = 25
+        MinimumReferenceLevel = 0 ' Not used
+        MaximumReferenceLevel = 80 ' Not used
+        MinimumLevel_Targets = 0 ' Not used
+        MaximumLevel_Targets = 80 ' Not used
+        MinimumLevel_Maskers = 0 ' Not used
+        MaximumLevel_Maskers = 80 ' Not used
+        MinimumLevel_Background = 0 ' Not used
+        MaximumLevel_Background = 80 ' Not used
+        MinimumLevel_ContralateralMaskers = 0 ' Not used
+        MaximumLevel_ContralateralMaskers = 80 ' Not used
+        AvailableExperimentNumbers = {}
 
-
-    Public Overrides ReadOnly Property HasOptionalPractiseTest As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsUseRetsplChoice As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualPreSetSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualStartListSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualMediaSetSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property SupportsPrelistening As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseSoundFieldSimulation As Utils.TriState
-        Get
-            Return TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailableTestModes As List(Of TestModes)
-        Get
-            Return New List(Of TestModes) From {TestModes.Custom}
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailableTestProtocols As List(Of TestProtocol)
-        Get
-            Return Nothing
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailableFixedResponseAlternativeCounts As List(Of Integer)
-        Get
-            Return New List(Of Integer) From {3}
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AvailablePhaseAudiometryTypes As List(Of BmldModes)
-        Get
-            Return New List(Of BmldModes)
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldSpeechLocations As Integer
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldMaskerLocations As Integer
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer
-        Get
-            Return 2
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MaximumSoundFieldBackgroundSpeechLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldSpeechLocations As Integer
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldMaskerLocations As Integer
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldBackgroundNonSpeechLocations As Integer
-        Get
-            Return 2
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property MinimumSoundFieldBackgroundSpeechLocations As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property AllowsManualReferenceLevelSelection As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveTargets As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveMaskers As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property CanHaveBackgroundSpeech As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseKeyWordScoring As Utils.TriState
-        Get
-            Return Utils.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseListOrderRandomization As Utils.TriState
-        Get
-            Return Utils.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseWithinListRandomization As Utils.TriState
-        Get
-            Return Utils.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseAcrossListRandomization As Utils.TriState
-        Get
-            Return Utils.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseFreeRecall As Utils.TriState
-        Get
-            Return Utils.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseDidNotHearAlternative As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UseContralateralMasking As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property UsePhaseAudiometry As Utils.TriState
-        Get
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property LevelStepSize As Double
-        Get
-            Return 1
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property HistoricTrialCount As Integer
-        Get
-            Return 0
-        End Get
-    End Property
-
-    Public Overrides ReadOnly Property SupportsManualPausing As Boolean
-        Get
-            Return False
-        End Get
-    End Property
-
-    Public Overrides Property SoundOverlapDuration As Double = 0.5
-
-    Public Overrides ReadOnly Property DefaultReferenceLevel As Double = 65
-    Public Overrides ReadOnly Property DefaultSpeechLevel As Double = 65
-    Public Overrides ReadOnly Property DefaultMaskerLevel As Double = 65
-    Public Overrides ReadOnly Property DefaultBackgroundLevel As Double = 50
-    Public Overrides ReadOnly Property DefaultContralateralMaskerLevel As Double = 25
-
-    Public Overrides ReadOnly Property MinimumReferenceLevel As Double = 0 ' Not used
-    Public Overrides ReadOnly Property MaximumReferenceLevel As Double = 80 ' Not used
-
-    Public Overrides ReadOnly Property MinimumLevel_Targets As Double = 0 ' Not used
-    Public Overrides ReadOnly Property MaximumLevel_Targets As Double = 80 ' Not used
-
-    Public Overrides ReadOnly Property MinimumLevel_Maskers As Double = 0 ' Not used
-    Public Overrides ReadOnly Property MaximumLevel_Maskers As Double = 80 ' Not used
-
-    Public Overrides ReadOnly Property MinimumLevel_Background As Double = 0 ' Not used
-    Public Overrides ReadOnly Property MaximumLevel_Background As Double = 80 ' Not used
-
-    Public Overrides ReadOnly Property MinimumLevel_ContralateralMaskers As Double = 0 ' Not used
-    Public Overrides ReadOnly Property MaximumLevel_ContralateralMaskers As Double = 80 ' Not used
-
-    Public Overrides ReadOnly Property AvailableExperimentNumbers As Integer()
-        Get
-            Dim OutputList As New List(Of Integer)
-            Return OutputList.ToArray
-        End Get
-    End Property
-
-    Public Sub New(ByVal SpeechMaterialName As String)
-        MyBase.New(SpeechMaterialName)
+        SoundOverlapDuration = 0.5
 
     End Sub
+
+
+
+    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean = False
+    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean = False
+    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean = False
+
+    Public Overrides ReadOnly Property CanHaveTargets As Boolean = False
+    Public Overrides ReadOnly Property CanHaveMaskers As Boolean = False
+    Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean = False
+    Public Overrides ReadOnly Property CanHaveBackgroundSpeech As Boolean = False
+
+    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.False
+
+
+
 
     Private CurrentSipTestMeasurement As SipMeasurement
     Public SelectedSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.SimulatedSoundField
     Private RandomSeed As Integer? = Nothing
     Private SelectedTestparadigm As Testparadigm = Testparadigm.Quick
-    Private SelectedTransducer As AudioSystemSpecification
     Private MinimumStimulusOnsetTime As Double = 0.3 + 0.3 ' 0.3 in sound field
     Private MaximumStimulusOnsetTime As Double = 0.8 + 0.3 ' 0.3 in sound field
     Private TrialSoundMaxDuration As Double = 10
@@ -312,7 +108,6 @@ Public Class IHearSC_SiP_SpeechTest
     Private UseVisualQue As Boolean = False
     Private ResponseAlternativeDelay As Double = 0.5
     Private DirectionalSimulationSet As String = "ARC - Harcellen - HATS - SiP"
-    Private ReferenceLevel As Double = 68.34
 
     Private TestListCount As Integer = 11
     Private CurrentTestStage As Integer = 0
@@ -325,7 +120,7 @@ Public Class IHearSC_SiP_SpeechTest
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
-        If TestOptions.UseSimulatedSoundField = True Then
+        If UseSimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
@@ -361,7 +156,7 @@ Public Class IHearSC_SiP_SpeechTest
         If RandomSeed.HasValue Then CurrentSipTestMeasurement.Randomizer = New Random(RandomSeed)
 
         'Sampling a MediaSet
-        'Dim MediaSet = TestOptions.SelectedMediaSet
+        'Dim MediaSet = SelectedMediaSet
         Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
         Dim MediaSet = SelectedMediaSets(0)
 
@@ -369,7 +164,7 @@ Public Class IHearSC_SiP_SpeechTest
 
         'Getting the preset
         Dim TestLists As List(Of SpeechMaterialComponent) = Nothing
-        If TestOptions.IsPractiseTest Then
+        If IsPractiseTest Then
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, False, True)
         Else
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest("IHeAR_CS").Members 'TODO! Specify correct members in text file
@@ -399,7 +194,7 @@ Public Class IHearSC_SiP_SpeechTest
             Dim TestWords = TestLists(i).GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
 
             Dim PNR As Double
-            If TestOptions.IsPractiseTest Then
+            If IsPractiseTest Then
                 PNR = 15
             Else
                 PNR = 0 'TODO! Select correct PNR
@@ -648,7 +443,7 @@ Public Class IHearSC_SiP_SpeechTest
         'TODO: We must store the responses and response times!!!
 
         'Calculating the speech level
-        'Dim ProtocolReply = TestOptions.SelectedTestProtocol.NewResponse(ObservedTrials)
+        'Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
         Dim ProtocolReply = New TestProtocol.NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial}
 
         If CurrentSipTestMeasurement.PlannedTrials.Count = 0 Then
@@ -833,6 +628,5 @@ Public Class IHearSC_SiP_SpeechTest
     Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
         'Not supported, just ignores any calls
     End Sub
-
 
 End Class
