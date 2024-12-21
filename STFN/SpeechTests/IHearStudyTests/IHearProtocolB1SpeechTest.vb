@@ -91,18 +91,18 @@ Public Class IHearProtocolB1SpeechTest
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        UseKeyWordScoring = Utils.Constants.TriState.False
-        UseListOrderRandomization = Utils.Constants.TriState.False
-        UseWithinListRandomization = Utils.Constants.TriState.True
-        UseAcrossListRandomization = Utils.Constants.TriState.False
-        UseFreeRecall = Utils.TriState.True
-        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        ShowGuiChoice_KeyWordScoring = False
+        ShowGuiChoice_ListOrderRandomization = False
+        ShowGuiChoice_WithinListRandomization = True
+        ShowGuiChoice_AcrossListRandomization = False
+        ShowGuiChoice_FreeRecall = True
+        ShowGuiChoice_DidNotHearAlternative = False
         PhaseAudiometry = False
         TargetLevel_StepSize = 1
         HistoricTrialCount = 3
         SupportsManualPausing = True
         ReferenceLevel = 65
-        SpeechLevel = 65
+        TargetLevel = 65
         MaskingLevel = 65
         BackgroundLevel = 50
         ContralateralMaskingLevel = 25
@@ -134,8 +134,7 @@ Public Class IHearProtocolB1SpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.False
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
 
 
 
@@ -219,7 +218,7 @@ Public Class IHearProtocolB1SpeechTest
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         'Setting speech level to 40 dB HL, and ContralateralMaskingLevel to 0 dB HL
-        SpeechLevel = 40
+        TargetLevel = 40
         ContralateralMaskingLevel = 0
 
         CurrentTestStage = 0
@@ -287,8 +286,8 @@ Public Class IHearProtocolB1SpeechTest
 
                 Dim NewTrial = New WrsTrial
                 NewTrial.SpeechMaterialComponent = Sentence_SMC
-                NewTrial.SpeechLevel = SpeechLevel
-                NewTrial.MaskerLevel = GetNoiseLevel(SpeechLevel, TrialSNR) 'We're modifying the Masker level to get the intended SNR
+                NewTrial.SpeechLevel = TargetLevel
+                NewTrial.MaskerLevel = GetNoiseLevel(TargetLevel, TrialSNR) 'We're modifying the Masker level to get the intended SNR
                 NewTrial.ContralateralMaskerLevel = ContralateralMaskingLevel
                 'Or if we decide to change the signal level: NewTrial.ContralateralMaskerLevel = SpeechLevel + ContralateralLevelDifference
 

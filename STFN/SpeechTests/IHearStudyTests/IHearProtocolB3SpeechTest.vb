@@ -52,18 +52,18 @@ Public Class IHearProtocolB3SpeechTest
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        UseKeyWordScoring = Utils.Constants.TriState.False
-        UseListOrderRandomization = Utils.Constants.TriState.True
-        UseWithinListRandomization = Utils.Constants.TriState.True
-        UseAcrossListRandomization = Utils.Constants.TriState.False
-        UseFreeRecall = Utils.TriState.False
-        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        ShowGuiChoice_KeyWordScoring = False
+        ShowGuiChoice_ListOrderRandomization = True
+        ShowGuiChoice_WithinListRandomization = True
+        ShowGuiChoice_AcrossListRandomization = False
+        ShowGuiChoice_FreeRecall = False
+        ShowGuiChoice_DidNotHearAlternative = False
         PhaseAudiometry = False
         TargetLevel_StepSize = 1
         HistoricTrialCount = 0
         SupportsManualPausing = False
         ReferenceLevel = 65
-        SpeechLevel = 65
+        TargetLevel = 65
         MaskingLevel = 65
         BackgroundLevel = 50
         ContralateralMaskingLevel = 25
@@ -93,8 +93,7 @@ Public Class IHearProtocolB3SpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.Optional
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = True
 
 
 
@@ -152,7 +151,7 @@ Public Class IHearProtocolB3SpeechTest
 
                 Dim NewTrial = New WrsTrial
                 NewTrial.SpeechMaterialComponent = Sentence_SMC
-                NewTrial.SpeechLevel = SpeechLevel
+                NewTrial.SpeechLevel = TargetLevel
                 NewTrial.ContralateralMaskerLevel = ContralateralMaskingLevel
 
                 Select Case SignalLocations(0).HorizontalAzimuth

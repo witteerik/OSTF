@@ -44,18 +44,18 @@ Public Class SrtSpeechTest
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        UseKeyWordScoring = Utils.Constants.TriState.False
-        UseListOrderRandomization = Utils.Constants.TriState.Optional
-        UseWithinListRandomization = Utils.Constants.TriState.Optional
-        UseAcrossListRandomization = Utils.Constants.TriState.False
-        UseFreeRecall = Utils.TriState.Optional
-        UseDidNotHearAlternative = Utils.Constants.TriState.Optional
+        ShowGuiChoice_KeyWordScoring = False
+        ShowGuiChoice_ListOrderRandomization = True
+        ShowGuiChoice_WithinListRandomization = True
+        ShowGuiChoice_AcrossListRandomization = False
+        ShowGuiChoice_FreeRecall = True
+        ShowGuiChoice_DidNotHearAlternative = True
         PhaseAudiometry = False
         TargetLevel_StepSize = 5
         HistoricTrialCount = 0
         SupportsManualPausing = False
         ReferenceLevel = 65
-        SpeechLevel = 65
+        TargetLevel = 65
         MaskingLevel = 65
         BackgroundLevel = 50
         ContralateralMaskingLevel = 25
@@ -86,7 +86,7 @@ Public Class SrtSpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = True
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = True
 
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.False
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
 
 
 
@@ -118,12 +118,12 @@ Public Class SrtSpeechTest
         If MaskerLocations.Count > 0 Then
             'It's a speech in noise test, using adaptive SNR
             HasNoise = True
-            Dim InitialSNR = SignalToNoiseRatio(SpeechLevel, MaskingLevel)
+            Dim InitialSNR = SignalToNoiseRatio(TargetLevel, MaskingLevel)
             StartAdaptiveLevel = InitialSNR
         Else
             'It's a speech only test, using adaptive speech level
             HasNoise = False
-            StartAdaptiveLevel = SpeechLevel
+            StartAdaptiveLevel = TargetLevel
         End If
 
         TestProtocol.IsInPretestMode = IsPractiseTest
@@ -319,8 +319,8 @@ Public Class SrtSpeechTest
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
                     .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-                    .SpeechLevel = SpeechLevel,
-                    .MaskerLevel = SpeechLevel - NextTaskInstruction.AdaptiveValue,
+                    .SpeechLevel = TargetLevel,
+                    .MaskerLevel = TargetLevel - NextTaskInstruction.AdaptiveValue,
                     .TestStage = NextTaskInstruction.TestStage,
                     .Tasks = 1}
 

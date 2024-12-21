@@ -49,18 +49,18 @@ Public Class IHearProtocolB4SpeechTest_II
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        UseKeyWordScoring = Utils.Constants.TriState.False
-        UseListOrderRandomization = Utils.Constants.TriState.False
-        UseWithinListRandomization = Utils.Constants.TriState.True
-        UseAcrossListRandomization = Utils.Constants.TriState.False
-        UseFreeRecall = Utils.TriState.True
-        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        ShowGuiChoice_KeyWordScoring = False
+        ShowGuiChoice_ListOrderRandomization = False
+        ShowGuiChoice_WithinListRandomization = True
+        ShowGuiChoice_AcrossListRandomization = False
+        ShowGuiChoice_FreeRecall = True
+        ShowGuiChoice_DidNotHearAlternative = False
         PhaseAudiometry = False
         TargetLevel_StepSize = 1
         HistoricTrialCount = 0
         SupportsManualPausing = True
         ReferenceLevel = 65
-        SpeechLevel = 65
+        TargetLevel = 65
         MaskingLevel = 65
         BackgroundLevel = 50
         ContralateralMaskingLevel = 25
@@ -95,9 +95,7 @@ Public Class IHearProtocolB4SpeechTest_II
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-
-
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.Optional
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = True
 
 
 
@@ -259,7 +257,7 @@ Public Class IHearProtocolB4SpeechTest_II
         TestProtocol = New SrtIso8253_TestProtocol
         TestMode = TestModes.AdaptiveSpeech
 
-        Dim StartAdaptiveLevel As Double = SpeechLevel
+        Dim StartAdaptiveLevel As Double = TargetLevel
 
         CreatePlannedWordsList()
 
@@ -647,7 +645,7 @@ Public Class IHearProtocolB4SpeechTest_II
 
         'Creating a new pretest trial
         CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
-            .SpeechLevel = SpeechLevel,
+            .SpeechLevel = TargetLevel,
             .ContralateralMaskerLevel = ContralateralMaskingLevel}
 
         'Mixing the test sound

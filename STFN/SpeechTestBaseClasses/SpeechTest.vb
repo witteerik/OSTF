@@ -297,7 +297,7 @@ Public MustInherit Class SpeechTest
     End Property
 
     <SkipExport>
-    Public ReadOnly Property SpeechLevelTitle As String
+    Public ReadOnly Property TargetLevelTitle As String
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
@@ -416,7 +416,7 @@ Public MustInherit Class SpeechTest
     Public Property IrSetTitle As String = "HRIR"
 
     <SkipExport>
-    Public Property SignalLocationsTitle As String = "Placering av talkälla/or"
+    Public Property TargetLocationsTitle As String = "Placering av talkälla/or"
 
     <SkipExport>
     Public Property MaskerLocationsTitle As String = "Placering av maskeringsljud"
@@ -526,7 +526,7 @@ Public MustInherit Class SpeechTest
 
     Public Overridable ReadOnly Property ShowGuiChoice_TargetLevel As Boolean
         Get
-            If CanHaveTargets = True Then
+            If CanHaveTargets() = True Then
                 Return True
             Else
                 Return False
@@ -536,7 +536,7 @@ Public MustInherit Class SpeechTest
 
     Public Overridable ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean
         Get
-            If CanHaveMaskers = True Then
+            If CanHaveMaskers() = True Then
                 Return True
             Else
                 Return False
@@ -546,7 +546,7 @@ Public MustInherit Class SpeechTest
 
     Public Overridable ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean
         Get
-            If CanHaveBackgroundNonSpeech = True Then
+            If CanHaveBackgroundNonSpeech() = True Then
                 Return True
             Else
                 Return False
@@ -554,17 +554,37 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    'TODO: These four properties should determine which sound-source
+    Public Overridable ReadOnly Property ShowGuiChoice_ContralateralMaskingLevel As Boolean
+        Get
+            If CanHaveContralateralMasking() = True Then
+                Return True
+            Else
+                Return False
+            End If
+        End Get
+    End Property
+
+    Public Overridable ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean
+        Get
+            If CanHaveContralateralMasking() = True Then
+                Return True
+            Else
+                Return False
+            End If
+        End Get
+    End Property
+
     Public Property ShowGuiChoice_TargetLocations As Boolean
         Get
             Return _ShowGuiChoice_TargetLocations
         End Get
         Set(value As Boolean)
-            If CanHaveTargets = True Then
+            If CanHaveTargets() = True Then
                 _ShowGuiChoice_TargetLocations = value
             Else
                 _ShowGuiChoice_TargetLocations = False
             End If
+            OnPropertyChanged()
         End Set
     End Property
     Private _ShowGuiChoice_TargetLocations As Boolean
@@ -574,11 +594,12 @@ Public MustInherit Class SpeechTest
             Return _ShowGuiChoice_MaskerLocations
         End Get
         Set(value As Boolean)
-            If CanHaveMaskers = True Then
+            If CanHaveMaskers() = True Then
                 _ShowGuiChoice_MaskerLocations = value
             Else
                 _ShowGuiChoice_MaskerLocations = False
             End If
+            OnPropertyChanged()
         End Set
     End Property
     Private _ShowGuiChoice_MaskerLocations As Boolean
@@ -588,11 +609,12 @@ Public MustInherit Class SpeechTest
             Return _ShowGuiChoice_BackgroundNonSpeechLocations
         End Get
         Set(value As Boolean)
-            If CanHaveBackgroundNonSpeech = True Then
+            If CanHaveBackgroundNonSpeech() = True Then
                 _ShowGuiChoice_BackgroundNonSpeechLocations = value
             Else
                 _ShowGuiChoice_BackgroundNonSpeechLocations = False
             End If
+            OnPropertyChanged()
         End Set
     End Property
     Private _ShowGuiChoice_BackgroundNonSpeechLocations As Boolean
@@ -602,16 +624,37 @@ Public MustInherit Class SpeechTest
             Return _ShowGuiChoice_BackgroundSpeechLocations
         End Get
         Set(value As Boolean)
-            If CanHaveBackgroundSpeech = True Then
+            If CanHaveBackgroundSpeech() = True Then
                 _ShowGuiChoice_BackgroundSpeechLocations = value
             Else
                 _ShowGuiChoice_BackgroundSpeechLocations = False
             End If
+            OnPropertyChanged()
         End Set
     End Property
     Private _ShowGuiChoice_BackgroundSpeechLocations As Boolean
 
 
+    <SkipExport>
+    Public Property ShowGuiChoice_KeyWordScoring As Boolean = True
+
+    <SkipExport>
+    Public Property ShowGuiChoice_ListOrderRandomization As Boolean = True
+
+    <SkipExport>
+    Public Property ShowGuiChoice_WithinListRandomization As Boolean = True
+
+    <SkipExport>
+    Public Property ShowGuiChoice_AcrossListRandomization As Boolean = True
+
+    <SkipExport>
+    Public Property ShowGuiChoice_FreeRecall As Boolean = True
+
+    <SkipExport>
+    Public Property ShowGuiChoice_DidNotHearAlternative As Boolean = True
+
+    <SkipExport>
+    Public Property ShowGuiChoice_PhaseAudiometry As Boolean = False
 
 
 #End Region
@@ -805,6 +848,118 @@ Public MustInherit Class SpeechTest
     Private _MediaSets As New MediaSetLibrary
 
 
+    Private _MinimumReferenceLevel As Double = 0
+    Public Property MinimumReferenceLevel As Double
+        Get
+            Return _MinimumReferenceLevel
+        End Get
+        Set(value As Double)
+            _MinimumReferenceLevel = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MaximumReferenceLevel As Double = 80
+    Public Property MaximumReferenceLevel As Double
+        Get
+            Return _MaximumReferenceLevel
+        End Get
+        Set(value As Double)
+            _MaximumReferenceLevel = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MinimumLevel_Targets As Double = 0
+
+    Public Property MinimumLevel_Targets As Double
+        Get
+            Return _MinimumLevel_Targets
+        End Get
+        Set(value As Double)
+            _MinimumLevel_Targets = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MaximumLevel_Targets As Double = 80
+    Public Property MaximumLevel_Targets As Double
+        Get
+            Return _MaximumLevel_Targets
+        End Get
+        Set(value As Double)
+            _MaximumLevel_Targets = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MinimumLevel_Maskers As Double = 0
+    Public Property MinimumLevel_Maskers As Double
+        Get
+            Return _MinimumLevel_Maskers
+        End Get
+        Set(value As Double)
+            _MinimumLevel_Maskers = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MaximumLevel_Maskers As Double = 80
+    Public Property MaximumLevel_Maskers As Double
+        Get
+            Return _MaximumLevel_Maskers
+        End Get
+        Set(value As Double)
+            _MaximumLevel_Maskers = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MinimumLevel_Background As Double = 0
+    Public Property MinimumLevel_Background As Double
+        Get
+            Return _MinimumLevel_Background
+        End Get
+        Set(value As Double)
+            _MinimumLevel_Background = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MaximumLevel_Background As Double = 80
+    Public Property MaximumLevel_Background As Double
+        Get
+            Return _MaximumLevel_Background
+        End Get
+        Set(value As Double)
+            _MaximumLevel_Background = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MinimumLevel_ContralateralMaskers As Double = 0
+    Public Property MinimumLevel_ContralateralMaskers As Double
+        Get
+            Return _MinimumLevel_ContralateralMaskers
+        End Get
+        Set(value As Double)
+            _MinimumLevel_ContralateralMaskers = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MaximumLevel_ContralateralMaskers As Double = 80
+    Public Property MaximumLevel_ContralateralMaskers As Double
+        Get
+            Return _MaximumLevel_ContralateralMaskers
+        End Get
+        Set(value As Double)
+            _MaximumLevel_ContralateralMaskers = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
     Public Property ReferenceLevel As Double
         Get
             Return _ReferenceLevel
@@ -818,17 +973,17 @@ Public MustInherit Class SpeechTest
     Private _ReferenceLevel As Double = 65
 
 
-    Public Property SpeechLevel As Double
+    Public Property TargetLevel As Double
         Get
-            Return _SpeechLevel
+            Return _TargetLevel
         End Get
         Set(value As Double)
-            _SpeechLevel = Math.Round(Math.Round(value / TargetLevel_StepSize) * TargetLevel_StepSize)
-            _SpeechLevel = Math.Min(_SpeechLevel, MaximumLevel_Targets)
+            _TargetLevel = Math.Round(Math.Round(value / TargetLevel_StepSize) * TargetLevel_StepSize)
+            _TargetLevel = Math.Min(_TargetLevel, MaximumLevel_Targets)
             OnPropertyChanged()
         End Set
     End Property
-    Private _SpeechLevel As Double = 65
+    Private _TargetLevel As Double = 65
 
 
     Public Property MaskingLevel As Double
@@ -1196,6 +1351,12 @@ Public MustInherit Class SpeechTest
                 If MediaSet.MediaAudioItems > 0 Then
                     Return True
                 End If
+            Else
+                If AvailableMediasets.Count > 0 Then
+                    If AvailableMediasets(0).MediaAudioItems > 0 Then
+                        Return True
+                    End If
+                End If
             End If
         End If
         'Returns False otherwise
@@ -1208,6 +1369,12 @@ Public MustInherit Class SpeechTest
                 If MediaSet.MaskerAudioItems > 0 Then
                     Return True
                 End If
+            Else
+                If AvailableMediasets.Count > 0 Then
+                    If AvailableMediasets(0).MaskerAudioItems > 0 Then
+                        Return True
+                    End If
+                End If
             End If
         End If
         'Returns False otherwise
@@ -1217,13 +1384,19 @@ Public MustInherit Class SpeechTest
     Public Function CanHaveBackgroundNonSpeech() As Boolean
 
         If SpeechMaterial IsNot Nothing Then
-                If MediaSet IsNot Nothing Then
-                    'TODO: This is not a good solution, as it doesn't really specify the number of available sound files. Consider adding BackgroundNonspeechAudioItems to the MediaSet specification
-                    If MediaSet.BackgroundNonspeechParentFolder.Trim <> "" Then
+            If MediaSet IsNot Nothing Then
+                'TODO: This is not a good solution, as it doesn't really specify the number of available sound files. Consider adding BackgroundNonspeechAudioItems to the MediaSet specification
+                If MediaSet.BackgroundNonspeechParentFolder.Trim <> "" Then
+                    Return True
+                End If
+            Else
+                If AvailableMediasets.Count > 0 Then
+                    If AvailableMediasets(0).BackgroundNonspeechParentFolder.Trim <> "" Then
                         Return True
                     End If
                 End If
             End If
+        End If
         'Returns False otherwise
         Return False
     End Function
@@ -1231,19 +1404,40 @@ Public MustInherit Class SpeechTest
     Public Function CanHaveBackgroundSpeech() As Boolean
 
         If SpeechMaterial IsNot Nothing Then
-                If MediaSet IsNot Nothing Then
-                    'TODO: This is not a good solution, as it doesn't really specify the number of available sound files. Consider adding BackgroundSpeechAudioItems to the MediaSet specification
-                    If MediaSet.BackgroundSpeechParentFolder.Trim <> "" Then
+            If MediaSet IsNot Nothing Then
+                'TODO: This is not a good solution, as it doesn't really specify the number of available sound files. Consider adding BackgroundNonspeechAudioItems to the MediaSet specification
+                If MediaSet.BackgroundSpeechParentFolder.Trim <> "" Then
+                    Return True
+                End If
+            Else
+                If AvailableMediasets.Count > 0 Then
+                    If AvailableMediasets(0).BackgroundSpeechParentFolder.Trim <> "" Then
                         Return True
                     End If
                 End If
             End If
+        End If
         'Returns False otherwise
         Return False
     End Function
 
-
-
+    Public Function CanHaveContralateralMasking() As Boolean
+        If SpeechMaterial IsNot Nothing Then
+            If MediaSet IsNot Nothing Then
+                If MediaSet.ContralateralMaskerAudioItems > 0 Then
+                    Return True
+                End If
+            Else
+                If AvailableMediasets.Count > 0 Then
+                    If AvailableMediasets(0).ContralateralMaskerAudioItems > 0 Then
+                        Return True
+                    End If
+                End If
+            End If
+        End If
+        'Returns False otherwise
+        Return False
+    End Function
 
     ''' <summary>
     ''' Returns the difference between the ContralateralMaskingLevel and the SpeechLevel (i.e. ContralateralMaskingLevel - SpeechLevel)
@@ -1251,7 +1445,7 @@ Public MustInherit Class SpeechTest
     ''' <returns></returns>
     Public Function ContralateralLevelDifference() As Double?
         If ContralateralMasking = True Then
-            Return ContralateralMaskingLevel - SpeechLevel
+            Return ContralateralMaskingLevel - TargetLevel
         Else
             Return Nothing
         End If
@@ -1605,74 +1799,14 @@ Public MustInherit Class SpeechTest
                 New SrtIso8253_TestProtocol,
                 New SrtSwedishHint2018_TestProtocol}
 
-    <SkipExport>
-    Public Property UseKeyWordScoring As Utils.TriState = Utils.Constants.TriState.True
 
-    <SkipExport>
-    Public Property UseListOrderRandomization As Utils.TriState = Utils.Constants.TriState.Optional
-
-    <SkipExport>
-    Public Property UseWithinListRandomization As Utils.TriState = Utils.Constants.TriState.Optional
-
-    <SkipExport>
-    Public Property UseAcrossListRandomization As Utils.TriState = Utils.Constants.TriState.Optional
-
-    <SkipExport>
-    Public Property UseFreeRecall As Utils.TriState = Utils.TriState.Optional
-
-    <SkipExport>
-    Public Property UseDidNotHearAlternative As Utils.TriState = Utils.Constants.TriState.Optional
 
     <SkipExport>
     Public Property AvailableFixedResponseAlternativeCounts As List(Of Integer) = New List(Of Integer)
 
     <SkipExport>
-    Public Overridable ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState
-        Get
-            If SpeechMaterial IsNot Nothing Then
-                If MediaSet IsNot Nothing Then
-                    If MediaSet.ContralateralMaskerAudioItems > 0 Then
-                        Return Utils.Constants.TriState.Optional
-                    End If
-                End If
-            End If
-            'Returns False otherwise
-            Return Utils.Constants.TriState.False
-        End Get
-    End Property
-
-    <SkipExport>
     Public Property AvailablePhaseAudiometryTypes As List(Of BmldModes) = New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
 
-    <SkipExport>
-    Public Property MinimumReferenceLevel As Double = 0
-
-    <SkipExport>
-    Public Property MaximumReferenceLevel As Double = 80
-
-    <SkipExport>
-    Public Property MinimumLevel_Targets As Double = 0
-
-    <SkipExport>
-    Public Property MaximumLevel_Targets As Double = 80
-
-    <SkipExport>
-    Public Property MinimumLevel_Maskers As Double = 0
-
-    <SkipExport>
-    Public Property MaximumLevel_Maskers As Double = 80
-
-    <SkipExport>
-    Public Property MinimumLevel_Background As Double = 0
-
-    <SkipExport>
-    Public Property MaximumLevel_Background As Double = 80
-
-    <SkipExport>
-    Public Property MinimumLevel_ContralateralMaskers As Double = 0
-
-    <SkipExport>
-    Public Property MaximumLevel_ContralateralMaskers As Double = 80
 
 #End Region
 

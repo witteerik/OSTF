@@ -95,7 +95,7 @@
 
             <!--<Picker x:Name="SelectedPresentationMode_Picker"  Title="{Binding PresentationModeTitle}" ItemsSource="{Binding AvailablePresentationModes}" SelectedItem="{Binding PresentationMode}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>-->
 
-            <drawable:HorizontalSoundSourceView x:Name="SpeechSoundSourceView" RoleType ="Target" Title="{Binding SignalLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldSpeechLocations}" IsSoundFieldSimulation="{Binding SimulatedSoundField}"  SoundSources="{Binding SignalLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
+            <drawable:HorizontalSoundSourceView x:Name="SpeechSoundSourceView" RoleType ="Target" Title="{Binding TargetLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldSpeechLocations}" IsSoundFieldSimulation="{Binding SimulatedSoundField}"  SoundSources="{Binding SignalLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
             <drawable:HorizontalSoundSourceView x:Name="MaskerSoundSourceView" RoleType ="Masker" Title="{Binding MaskerLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldMaskerLocations}" MinSelected ="{Binding MinimumSoundFieldMaskerLocations}" IsSoundFieldSimulation="{Binding SimulatedSoundField}" SoundSources="{Binding MaskerLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
             <drawable:HorizontalSoundSourceView x:Name="BackgroundNonSpeechSoundSourceView" RoleType ="BackgroundNonspeech" Title="{Binding BackgroundNonSpeechLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldBackgroundNonSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldBackgroundNonSpeechLocations}" IsSoundFieldSimulation="{Binding SimulatedSoundField}" SoundSources="{Binding BackgroundNonSpeechLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
             <drawable:HorizontalSoundSourceView x:Name="BackgroundSpeechSoundSourceView" RoleType ="BackgroundSpeech" Title="{Binding BackgroundSpeechLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldBackgroundSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldBackgroundSpeechLocations}" IsSoundFieldSimulation="{Binding SimulatedSoundField}" SoundSources="{Binding BackgroundSpeechLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
@@ -109,19 +109,19 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider x:Name="ReferenceLevelSlider" Value="{Binding ReferenceLevel}" Margin="10,0,10,5" Maximum="{Binding MaximumReferenceLevel }" Minimum="{Binding MinimumReferenceLevel }" MinimumTrackColor="DarkSlateGrey" ThumbColor="DarkSlateGrey"/>
+                <Slider x:Name="ReferenceLevelSlider" Margin="10,0,10,5" Maximum="{Binding MaximumReferenceLevel }" Minimum="{Binding MinimumReferenceLevel }" Value="{Binding ReferenceLevel}" MinimumTrackColor="DarkSlateGrey" ThumbColor="DarkSlateGrey"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout x:Name="SpeechLevelControl">
                 <Label HorizontalOptions="Center" Margin="0,5,0,0">
                     <Label.FormattedText>
                         <FormattedString>
-                            <Span Text="{Binding SpeechLevelTitle}" />
-                            <Span Text="{Binding SpeechLevel, StringFormat=' = {0:F0}'}" />
+                            <Span Text="{Binding TargetLevelTitle}" />
+                            <Span Text="{Binding TargetLevel, StringFormat=' = {0:F0}'}" />
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider x:Name="SpeechLevelSlider" Value="{Binding SpeechLevel}" ValueChanged="SpeechLevelSlider_ValueChanged" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_Targets }" Minimum="{Binding MinimumLevel_Targets }" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
+                <Slider x:Name="SpeechLevelSlider" ValueChanged="SpeechLevelSlider_ValueChanged" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_Targets }" Minimum="{Binding MinimumLevel_Targets }"  Value="{Binding TargetLevel}" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout x:Name="MaskerLevelControl">
@@ -133,7 +133,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider x:Name="MaskerLevelSlider" Value="{Binding MaskingLevel}" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_Maskers }" Minimum="{Binding MinimumLevel_Maskers }" MinimumTrackColor="Red" ThumbColor="Red"/>
+                <Slider x:Name="MaskerLevelSlider" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_Maskers }" Minimum="{Binding MinimumLevel_Maskers }" Value="{Binding MaskingLevel}" MinimumTrackColor="Red" ThumbColor="Red"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout x:Name="BackgroundLevelControl">
@@ -145,7 +145,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider  x:Name="BackgroundLevelSlider" Value="{Binding BackgroundLevel}" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_Background}" Minimum="{Binding MinimumLevel_Background}" MinimumTrackColor="Pink" ThumbColor="Pink"/>
+                <Slider  x:Name="BackgroundLevelSlider" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_Background}" Minimum="{Binding MinimumLevel_Background}" Value="{Binding BackgroundLevel}" MinimumTrackColor="Pink" ThumbColor="Pink"/>
             </VerticalStackLayout>
 
             <Frame x:Name="UseContralateralMaskingControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0">
@@ -169,7 +169,7 @@
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
-                        <Slider  x:Name="ContralateralMaskerLevelSlider"  Value="{Binding ContralateralMaskingLevel}" Margin="10,0,10,0" Maximum="{Binding MaximumLevel_ContralateralMaskers }" Minimum="{Binding MinimumLevel_ContralateralMaskers }" MinimumTrackColor="DarkSlateGray"  ThumbColor="DarkSlateGray"/>
+                        <Slider  x:Name="ContralateralMaskerLevelSlider"  Margin="10,0,10,0" Maximum="{Binding MaximumLevel_ContralateralMaskers }" Minimum="{Binding MinimumLevel_ContralateralMaskers }" Value="{Binding ContralateralMaskingLevel}" MinimumTrackColor="DarkSlateGray"  ThumbColor="DarkSlateGray"/>
                     </VerticalStackLayout>
 
                 </VerticalStackLayout>

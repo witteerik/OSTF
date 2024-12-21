@@ -48,18 +48,18 @@ Public Class TP50_SoundField
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        UseKeyWordScoring = Utils.Constants.TriState.False
-        UseListOrderRandomization = Utils.Constants.TriState.False
-        UseWithinListRandomization = Utils.Constants.TriState.True
-        UseAcrossListRandomization = Utils.Constants.TriState.False
-        UseFreeRecall = Utils.TriState.True
-        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        ShowGuiChoice_KeyWordScoring = False
+        ShowGuiChoice_ListOrderRandomization = False
+        ShowGuiChoice_WithinListRandomization = True
+        ShowGuiChoice_AcrossListRandomization = False
+        ShowGuiChoice_FreeRecall = True
+        ShowGuiChoice_DidNotHearAlternative = False
         PhaseAudiometry = False
         TargetLevel_StepSize = 5
         HistoricTrialCount = 3
         SupportsManualPausing = True
         ReferenceLevel = 65
-        SpeechLevel = 65
+        TargetLevel = 65
         MaskingLevel = 65
         BackgroundLevel = 50
         ContralateralMaskingLevel = 25
@@ -86,7 +86,7 @@ Public Class TP50_SoundField
 
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.False
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
 
 
 
@@ -144,7 +144,7 @@ Public Class TP50_SoundField
         'Storing last presented MediaSet to determine which noises were loaded. (These are reloaded in MixNextTrialSound if needed)
         LastPresentedMediaSet = MediaSet
 
-        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = SpeechLevel, .TestLength = TestLength})
+        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = TargetLevel, .TestLength = TestLength})
 
         IsInitialized = True
 
@@ -354,7 +354,7 @@ Public Class TP50_SoundField
             CurrentTestTrial = PlannedTestTrials(ObservedTestTrials.Count)
 
             'Creating a new test trial
-            DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel = SpeechLevel
+            DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel = TargetLevel
             DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = ContralateralMaskingLevel
             CurrentTestTrial.Tasks = 1
 
@@ -541,7 +541,7 @@ Public Class TP50_SoundField
 
         'Creating a new pretest trial
         CurrentTestTrial = New WrsTrial With {.SpeechMaterialComponent = NextTestWord,
-            .SpeechLevel = SpeechLevel,
+            .SpeechLevel = TargetLevel,
             .ContralateralMaskerLevel = ContralateralMaskingLevel}
 
         'Mixing the test sound

@@ -55,18 +55,18 @@ Public Class IHearProtocolB5SpeechTest
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        UseKeyWordScoring = Utils.Constants.TriState.False
-        UseListOrderRandomization = Utils.Constants.TriState.True
-        UseWithinListRandomization = Utils.Constants.TriState.True
-        UseAcrossListRandomization = Utils.Constants.TriState.False
-        UseFreeRecall = Utils.TriState.False
-        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        ShowGuiChoice_KeyWordScoring = False
+        ShowGuiChoice_ListOrderRandomization = True
+        ShowGuiChoice_WithinListRandomization = True
+        ShowGuiChoice_AcrossListRandomization = False
+        ShowGuiChoice_FreeRecall = False
+        ShowGuiChoice_DidNotHearAlternative = False
         PhaseAudiometry = False
         TargetLevel_StepSize = 1
         HistoricTrialCount = 0
         SupportsManualPausing = False
         ReferenceLevel = 50
-        SpeechLevel = 50
+        TargetLevel = 50
         MaskingLevel = 50
         BackgroundLevel = 50
         ContralateralMaskingLevel = 10
@@ -102,7 +102,7 @@ Public Class IHearProtocolB5SpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.Optional
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = True
 
 
 
@@ -183,8 +183,8 @@ Public Class IHearProtocolB5SpeechTest
         Next
 
         'Gets the speech and cl-masking levels set by the audiologist (this should equal the Fletcher Rule PTA)
-        Dim SpeechLevelReference = SpeechLevel
-        Dim ContralateralMaskingLeveldBBelowSpeech = SpeechLevel - ContralateralMaskingLevel
+        Dim SpeechLevelReference = TargetLevel
+        Dim ContralateralMaskingLeveldBBelowSpeech = TargetLevel - ContralateralMaskingLevel
 
         'Adding each list twice, in order, and assigning the speech levels in the order specified in CurrentSessionSpeechLevels
         For ListBlockIndex As Integer = 0 To 1

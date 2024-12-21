@@ -42,32 +42,32 @@ Public Class HintSpeechTest
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        UseKeyWordScoring = Utils.Constants.TriState.True
-        UseListOrderRandomization = Utils.Constants.TriState.False
-        UseWithinListRandomization = Utils.Constants.TriState.False
-        UseAcrossListRandomization = Utils.Constants.TriState.False
-        UseFreeRecall = Utils.TriState.True
-        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        ShowGuiChoice_KeyWordScoring = True
+        ShowGuiChoice_ListOrderRandomization = False
+        ShowGuiChoice_WithinListRandomization = False
+        ShowGuiChoice_AcrossListRandomization = False
+        ShowGuiChoice_FreeRecall = False
+        ShowGuiChoice_DidNotHearAlternative = False
         PhaseAudiometry = False
         TargetLevel_StepSize = 1
         HistoricTrialCount = 0
         SupportsManualPausing = True
         SoundOverlapDuration = 0.1
         ReferenceLevel = 65
-        SpeechLevel = 65
-        MaskingLevel = 65
+        TargetLevel = 65
+        MaskingLevel = 60
         BackgroundLevel = 50
         ContralateralMaskingLevel = 25
         MinimumReferenceLevel = 0
         MaximumReferenceLevel = 80
-        MinimumLevel_Targets = 60
-        MaximumLevel_Targets = 80
-        MinimumLevel_Maskers = 35
+        MinimumLevel_Targets = 40
+        MaximumLevel_Targets = 85
+        MinimumLevel_Maskers = 40
         MaximumLevel_Maskers = 85
         MinimumLevel_Background = 0
         MaximumLevel_Background = 80
         MinimumLevel_ContralateralMaskers = 0
-        MaximumLevel_ContralateralMaskers = 80
+        MaximumLevel_ContralateralMaskers = 85
         AvailableExperimentNumbers = {}
 
         ShowGuiChoice_TargetLocations = True
@@ -75,14 +75,15 @@ Public Class HintSpeechTest
         ShowGuiChoice_BackgroundNonSpeechLocations = False
         ShowGuiChoice_BackgroundSpeechLocations = False
 
+        IsFreeRecall = True
+
     End Sub
 
-    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = False
+    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = True
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = True
-    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.Constants.TriState = Utils.Constants.TriState.Optional
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
 
 
     Private MaximumSoundDuration As Double = 10
@@ -109,7 +110,7 @@ Public Class HintSpeechTest
         ObservedTrials = New TrialHistory
 
         ' Using a fixed speech level
-        SpeechLevel = 65
+        TargetLevel = 65
 
         If SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
@@ -122,11 +123,11 @@ Public Class HintSpeechTest
         Dim StartAdaptiveLevel As Double
         If MaskerLocations.Count > 0 Then
             'It's a speech in noise test, using adaptive SNR
-            Dim InitialSNR = SignalToNoiseRatio(SpeechLevel, MaskingLevel)
+            Dim InitialSNR = SignalToNoiseRatio(TargetLevel, MaskingLevel)
             StartAdaptiveLevel = InitialSNR
         Else
             'It's a speech only test, using adaptive speech level
-            StartAdaptiveLevel = SpeechLevel
+            StartAdaptiveLevel = TargetLevel
         End If
 
         TestProtocol.IsInPretestMode = IsPractiseTest
@@ -374,8 +375,8 @@ Public Class HintSpeechTest
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = SpeechLevel,
-            .MaskerLevel = SpeechLevel - NextTaskInstruction.AdaptiveValue,
+            .SpeechLevel = TargetLevel,
+            .MaskerLevel = TargetLevel - NextTaskInstruction.AdaptiveValue,
             .ContralateralMaskerLevel = ContralateralMaskingLevel,
             .TestStage = NextTaskInstruction.TestStage,
             .Tasks = 1}

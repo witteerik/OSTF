@@ -47,18 +47,18 @@ Public Class QuickSiP
         MinimumSoundFieldBackgroundNonSpeechLocations = 2
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        UseKeyWordScoring = Utils.TriState.False
-        UseListOrderRandomization = Utils.TriState.False
-        UseWithinListRandomization = Utils.TriState.False
-        UseAcrossListRandomization = Utils.TriState.False
-        UseFreeRecall = Utils.TriState.False
-        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        ShowGuiChoice_KeyWordScoring = False
+        ShowGuiChoice_ListOrderRandomization = False
+        ShowGuiChoice_WithinListRandomization = False
+        ShowGuiChoice_AcrossListRandomization = False
+        ShowGuiChoice_FreeRecall = False
+        ShowGuiChoice_DidNotHearAlternative = False
         PhaseAudiometry = False
         TargetLevel_StepSize = 1
         HistoricTrialCount = 0
         SupportsManualPausing = False
         ReferenceLevel = 68.34
-        SpeechLevel = 65
+        TargetLevel = 65
         MaskingLevel = 65
         BackgroundLevel = 50
         ContralateralMaskingLevel = 25
@@ -92,7 +92,7 @@ Public Class QuickSiP
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
 
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.False
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
 
 
 

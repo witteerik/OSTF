@@ -36,18 +36,18 @@ Public Class SipSpeechTest
         MinimumSoundFieldBackgroundNonSpeechLocations = 2
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = True
-        UseKeyWordScoring = Utils.TriState.False
-        UseListOrderRandomization = Utils.TriState.True
-        UseWithinListRandomization = Utils.TriState.True
-        UseAcrossListRandomization = Utils.TriState.True
-        UseFreeRecall = Utils.TriState.False
-        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        ShowGuiChoice_KeyWordScoring = False
+        ShowGuiChoice_ListOrderRandomization = True
+        ShowGuiChoice_WithinListRandomization = True
+        ShowGuiChoice_AcrossListRandomization = True
+        ShowGuiChoice_FreeRecall = False
+        ShowGuiChoice_DidNotHearAlternative = False
         PhaseAudiometry = False
         TargetLevel_StepSize = 5
         HistoricTrialCount = 0
         SupportsManualPausing = False
         ReferenceLevel = 68.34
-        SpeechLevel = 65
+        TargetLevel = 65
         MaskingLevel = 65
         BackgroundLevel = 50
         ContralateralMaskingLevel = 25
@@ -69,12 +69,10 @@ Public Class SipSpeechTest
 
 
     Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = True
-
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = True
-
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = True
 
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.False
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
 
 
 
@@ -174,7 +172,7 @@ Public Class SipSpeechTest
                 'End If
 
                 'Setting up test trials to run
-                SelectedPNRs.Add(SignalToNoiseRatio(SpeechLevel, MaskingLevel))
+                SelectedPNRs.Add(SignalToNoiseRatio(TargetLevel, MaskingLevel))
 
                 PlanDirectionalTestTrials(CurrentSipTestMeasurement, ReferenceLevel, Preset.Name, {MediaSet}.ToList, SelectedPNRs, NumberOfSimultaneousMaskers, SelectedSoundPropagationType, RandomSeed)
 

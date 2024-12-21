@@ -32,12 +32,6 @@ Namespace Utils
             Descendning
         End Enum
 
-        Public Enum TriState
-            [True]
-            [False]
-            [Optional]
-        End Enum
-
         Public Enum Sides
             Left
             Right

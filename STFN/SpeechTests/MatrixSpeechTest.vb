@@ -40,18 +40,18 @@ Public Class MatrixSpeechTest
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        UseKeyWordScoring = Utils.TriState.False
-        UseListOrderRandomization = Utils.TriState.False
-        UseWithinListRandomization = Utils.TriState.False
-        UseAcrossListRandomization = Utils.TriState.False
-        UseFreeRecall = Utils.TriState.Optional
-        UseDidNotHearAlternative = Utils.Constants.TriState.False
+        ShowGuiChoice_KeyWordScoring = False
+        ShowGuiChoice_ListOrderRandomization = False
+        ShowGuiChoice_WithinListRandomization = False
+        ShowGuiChoice_AcrossListRandomization = False
+        ShowGuiChoice_FreeRecall = True
+        ShowGuiChoice_DidNotHearAlternative = False
         PhaseAudiometry = False
         TargetLevel_StepSize = 5
         HistoricTrialCount = 0
         SupportsManualPausing = True
         ReferenceLevel = 65
-        SpeechLevel = 65
+        TargetLevel = 65
         MaskingLevel = 65
         BackgroundLevel = 50
         ContralateralMaskingLevel = 25
@@ -70,7 +70,7 @@ Public Class MatrixSpeechTest
         SoundOverlapDuration = 0.1
 
         ShowGuiChoice_TargetLocations = True
-        ShowGuiChoice_MaskerLocations = False
+        ShowGuiChoice_MaskerLocations = True
         ShowGuiChoice_BackgroundNonSpeechLocations = False
         ShowGuiChoice_BackgroundSpeechLocations = False
 
@@ -99,7 +99,7 @@ Public Class MatrixSpeechTest
 
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-    Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.Optional
+    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = True
 
 
 
@@ -131,12 +131,12 @@ Public Class MatrixSpeechTest
         If MaskerLocations.Count > 0 Then
             'It's a speech in noise test, using adaptive SNR
             HasNoise = True
-            Dim InitialSNR = SignalToNoiseRatio(SpeechLevel, MaskingLevel)
+            Dim InitialSNR = SignalToNoiseRatio(TargetLevel, MaskingLevel)
             StartAdaptiveLevel = InitialSNR
         Else
             'It's a speech only test, using adaptive speech level
             HasNoise = False
-            StartAdaptiveLevel = SpeechLevel
+            StartAdaptiveLevel = TargetLevel
         End If
 
         TestProtocol.IsInPretestMode = IsPractiseTest
@@ -166,19 +166,19 @@ Public Class MatrixSpeechTest
 
                 DirectCast(TestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
                 TestMode = TestModes.AdaptiveNoise
-                SpeechLevel = 65
+                TargetLevel = 65
                 MaskingLevel = 65
-                StartAdaptiveLevel = SignalToNoiseRatio(SpeechLevel, MaskingLevel)
+                StartAdaptiveLevel = SignalToNoiseRatio(TargetLevel, MaskingLevel)
                 TestLength = 20
 
             Case Else
 
                 If HasNoise = True Then
                     'It's a speech in noise test, using adaptive SNR
-                    StartAdaptiveLevel = SignalToNoiseRatio(SpeechLevel, MaskingLevel)
+                    StartAdaptiveLevel = SignalToNoiseRatio(TargetLevel, MaskingLevel)
                 Else
                     'It's a speech only test, using adaptive speech level
-                    StartAdaptiveLevel = SpeechLevel
+                    StartAdaptiveLevel = TargetLevel
                 End If
 
                 TestLength = 20
@@ -398,8 +398,8 @@ Public Class MatrixSpeechTest
 
                 CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestSentence,
                     .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-                    .SpeechLevel = SpeechLevel,
-                    .MaskerLevel = SpeechLevel - NextTaskInstruction.AdaptiveValue,
+                    .SpeechLevel = TargetLevel,
+                    .MaskerLevel = TargetLevel - NextTaskInstruction.AdaptiveValue,
                     .ContralateralMaskerLevel = ContralateralMaskingLevel,
                     .TestStage = NextTaskInstruction.TestStage,
                     .Tasks = 5}
