@@ -19,12 +19,12 @@
 
             <Button x:Name="ShowTesterInstructionsButton" Text="{Binding TesterInstructionsButtonText}" Clicked="ShowTesterInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="0,2,1,1"></Button>
             <Button x:Name="ShowParticipantInstructionsButton" Text="{Binding ParticipantInstructionsButtonText}" Clicked="ShowParticipantInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="1,1,0,10"></Button>
-            
-            <Picker x:Name="SelectedTransducer_Picker" SelectedIndexChanged="SelectedTransducer_Picker_SelectedIndexChanged"  Title="{Binding SelectedTransducerTitle}" ItemsSource="{Binding CurrentlySupportedTransducers}" SelectedItem="{Binding SelectedTransducer}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand"/>
+
+            <Picker x:Name="SelectedTransducer_Picker" SelectedIndexChanged="SelectedTransducer_Picker_SelectedIndexChanged"  Title="{Binding TransducerTitle}" ItemsSource="{Binding CurrentlySupportedTransducers}" SelectedItem="{Binding Transducer}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand"/>
 
             <HorizontalStackLayout x:Name="UseRetsplCorrectionControl">
-                <Label Text="{Binding UseRetsplCorrectionTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="UseRetsplCorrection_Switch" IsToggled="{Binding UseRetsplCorrection}" VerticalOptions="Center" Margin="0,5,0,5" />
+                <Label Text="{Binding LevelsAreIn_dBHLTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Switch x:Name="UseRetsplCorrection_Switch" IsToggled="{Binding LevelsAreIn_dBHL}" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
             <HorizontalStackLayout x:Name="PractiseTestControl">
@@ -32,7 +32,7 @@
                 <Switch IsToggled="{Binding IsPractiseTest}" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
-            <Picker x:Name="SelectedPreset_Picker" Title="{Binding SelectedPresetTitle}" ItemsSource="{Binding AvailablePresets}" SelectedItem="{Binding SelectedPreset}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand" />
+            <Picker x:Name="SelectedPreset_Picker" Title="{Binding SelectedPresetTitle}" ItemsSource="{Binding AvailablePresets}" SelectedItem="{Binding Preset}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand" />
 
             <Frame x:Name="ExperimentNumberControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,5,10,5" Margin="0,5,0,15">
                 <VerticalStackLayout Margin="0,0,0,0" Padding="0,0,0,0">
@@ -45,32 +45,32 @@
 
             <Picker x:Name="StartList_Picker" Title="{Binding StartListTitle}" ItemsSource="{Binding AvailableTestListsNames}" SelectedItem="{Binding StartList}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand" />
 
-            <Picker x:Name="SelectedMediaSet_Picker" Title="{Binding SelectedMediaSetTitle}" ItemsSource="{Binding AvailableMediasets}" SelectedItem="{Binding SelectedMediaSet}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand" />
+            <Picker x:Name="SelectedMediaSet_Picker" Title="{Binding SelectedMediaSetTitle}" ItemsSource="{Binding AvailableMediasets}" SelectedItem="{Binding MediaSet}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand" />
 
             <!--Skipping MediaSets (i.e. selecting multiple media sets) for now-->
 
-            <Picker x:Name="AvailableTestModes_Picker" SelectedIndexChanged="AvailableTestModes_Picker_SelectedIndexChanged" Title="{Binding SelectedTestModeTitle}" ItemsSource="{Binding AvailableTestModes}" SelectedItem="{Binding SelectedTestMode}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
+            <Picker x:Name="AvailableTestModes_Picker" SelectedIndexChanged="AvailableTestModes_Picker_SelectedIndexChanged" Title="{Binding SelectedTestModeTitle}" ItemsSource="{Binding AvailableTestModes}" SelectedItem="{Binding TestMode}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
-            <Picker x:Name="AvailableTestProtocols_Picker" Title="{Binding SelectedTestProtocolTitle}" ItemsSource="{Binding AvailableTestProtocols}" SelectedItem="{Binding SelectedTestProtocol}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
+            <Picker x:Name="AvailableTestProtocols_Picker" Title="{Binding SelectedTestProtocolTitle}" ItemsSource="{Binding AvailableTestProtocols}" SelectedItem="{Binding TestProtocol}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
             <HorizontalStackLayout x:Name="KeyWordScoringControl">
-                <Label Text="{Binding ScoreOnlyKeyWordsTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="KeyWords_Switch" IsToggled="{Binding ScoreOnlyKeyWords}" VerticalOptions="Center" Margin="0,5,0,5" />
+                <Label Text="{Binding KeyWordScoringTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Switch x:Name="KeyWords_Switch" IsToggled="{Binding KeyWordScoring}" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
             <HorizontalStackLayout x:Name="ListOrderRandomizationControl">
-                <Label Text="{Binding RandomizeListOrderTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="ListOrderRandomization_Switch" IsToggled="{Binding RandomizeListOrder}" VerticalOptions="Center" Margin="0,5,0,5" />
+                <Label Text="{Binding ListOrderRandomizationTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Switch x:Name="ListOrderRandomization_Switch" IsToggled="{Binding ListOrderRandomization}" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
             <HorizontalStackLayout x:Name="WithinListRandomizationControl">
-                <Label Text="{Binding RandomizeItemsWithinListsTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="WithinListRandomization_Switch" IsToggled="{Binding RandomizeItemsWithinLists}" VerticalOptions="Center" Margin="0,5,0,5" />
+                <Label Text="{Binding WithinListRandomizationTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Switch x:Name="WithinListRandomization_Switch" IsToggled="{Binding WithinListRandomization}" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
             <HorizontalStackLayout x:Name="AcrossListRandomizationControl">
-                <Label Text="{Binding RandomizeItemsAcrossListsTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="AcrossListRandomization_Switch" IsToggled="{Binding RandomizeItemsAcrossLists}" VerticalOptions="Center" Margin="0,5,0,5" />
+                <Label Text="{Binding AcrossListsRandomizationTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Switch x:Name="AcrossListRandomization_Switch" IsToggled="{Binding AcrossListsRandomization}" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
             <HorizontalStackLayout x:Name="UseFreeRecallControl">
@@ -79,26 +79,26 @@
             </HorizontalStackLayout>
 
             <HorizontalStackLayout x:Name="UseDidNotHearAlternativeControl">
-                <Label Text="{Binding ShowDidNotHearResponseAlternativeTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="UseDidNotHearAlternative_Switch" IsToggled="{Binding ShowDidNotHearResponseAlternative}" VerticalOptions="Center" Margin="0,5,0,5"/>
+                <Label Text="{Binding IncludeDidNotHearResponseAlternativeTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Switch x:Name="UseDidNotHearAlternative_Switch" IsToggled="{Binding IncludeDidNotHearResponseAlternative}" VerticalOptions="Center" Margin="0,5,0,5"/>
             </HorizontalStackLayout>
 
             <Picker x:Name="AvailableFixedResponseAlternativeCounts_Picker" Title="{Binding FixedResponseAlternativeCountTitle}" ItemsSource="{Binding AvailableFixedResponseAlternativeCounts}" SelectedItem="{Binding FixedResponseAlternativeCount}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
 
             <HorizontalStackLayout x:Name="UseSimulatedSoundFieldControl">
-                <Label x:Name="UseSimulatedSoundField_Label" Text="{Binding UseSimulatedSoundFieldTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="UseSimulatedSoundField_Switch" IsToggled="{Binding UseSimulatedSoundField}" Toggled="UseSimulatedSoundField_Switch_Toggled" VerticalOptions="Center" Margin="0,5,0,5" />
+                <Label x:Name="UseSimulatedSoundField_Label" Text="{Binding SimulatedSoundFieldTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Switch x:Name="UseSimulatedSoundField_Switch" IsToggled="{Binding SimulatedSoundField}" Toggled="UseSimulatedSoundField_Switch_Toggled" VerticalOptions="Center" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
-            <Picker x:Name="SelectedIrSet_Picker" SelectedIndexChanged="SelectedIrSet_Picker_SelectedIndexChanged" Title="{Binding SelectedIrSetTitle}" ItemsSource="{Binding CurrentlySupportedIrSets}" SelectedItem="{Binding SelectedIrSet}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
+            <Picker x:Name="SelectedIrSet_Picker" SelectedIndexChanged="SelectedIrSet_Picker_SelectedIndexChanged" Title="{Binding IrSetTitle}" ItemsSource="{Binding CurrentlySupportedIrSets}" SelectedItem="{Binding IrSet}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
-            <!--<Picker x:Name="SelectedPresentationMode_Picker"  Title="{Binding SelectedPresentationModeTitle}" ItemsSource="{Binding AvailablePresentationModes}" SelectedItem="{Binding SelectedPresentationMode}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>-->
+            <!--<Picker x:Name="SelectedPresentationMode_Picker"  Title="{Binding PresentationModeTitle}" ItemsSource="{Binding AvailablePresentationModes}" SelectedItem="{Binding PresentationMode}" MinimumWidthRequest="160" HorizontalOptions="Start" Margin="0,10,0,10"/>-->
 
-            <drawable:HorizontalSoundSourceView x:Name="SpeechSoundSourceView" RoleType ="Target" Title="{Binding SignalLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldSpeechLocations}" IsSoundFieldSimulation="{Binding UseSimulatedSoundField}"  SoundSources="{Binding SignalLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
-            <drawable:HorizontalSoundSourceView x:Name="MaskerSoundSourceView" RoleType ="Masker" Title="{Binding MaskerLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldMaskerLocations}" MinSelected ="{Binding MinimumSoundFieldMaskerLocations}" IsSoundFieldSimulation="{Binding UseSimulatedSoundField}" SoundSources="{Binding MaskerLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
-            <drawable:HorizontalSoundSourceView x:Name="BackgroundNonSpeechSoundSourceView" RoleType ="BackgroundNonspeech" Title="{Binding BackgroundNonSpeechLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldBackgroundNonSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldBackgroundNonSpeechLocations}" IsSoundFieldSimulation="{Binding UseSimulatedSoundField}" SoundSources="{Binding BackgroundNonSpeechLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
-            <drawable:HorizontalSoundSourceView x:Name="BackgroundSpeechSoundSourceView" RoleType ="BackgroundSpeech" Title="{Binding BackgroundSpeechLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldBackgroundSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldBackgroundSpeechLocations}" IsSoundFieldSimulation="{Binding UseSimulatedSoundField}" SoundSources="{Binding BackgroundSpeechLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
+            <drawable:HorizontalSoundSourceView x:Name="SpeechSoundSourceView" RoleType ="Target" Title="{Binding SignalLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldSpeechLocations}" IsSoundFieldSimulation="{Binding SimulatedSoundField}"  SoundSources="{Binding SignalLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
+            <drawable:HorizontalSoundSourceView x:Name="MaskerSoundSourceView" RoleType ="Masker" Title="{Binding MaskerLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldMaskerLocations}" MinSelected ="{Binding MinimumSoundFieldMaskerLocations}" IsSoundFieldSimulation="{Binding SimulatedSoundField}" SoundSources="{Binding MaskerLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
+            <drawable:HorizontalSoundSourceView x:Name="BackgroundNonSpeechSoundSourceView" RoleType ="BackgroundNonspeech" Title="{Binding BackgroundNonSpeechLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldBackgroundNonSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldBackgroundNonSpeechLocations}" IsSoundFieldSimulation="{Binding SimulatedSoundField}" SoundSources="{Binding BackgroundNonSpeechLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
+            <drawable:HorizontalSoundSourceView x:Name="BackgroundSpeechSoundSourceView" RoleType ="BackgroundSpeech" Title="{Binding BackgroundSpeechLocationsTitle}" MaxSelected ="{Binding MaximumSoundFieldBackgroundSpeechLocations}" MinSelected ="{Binding MinimumSoundFieldBackgroundSpeechLocations}" IsSoundFieldSimulation="{Binding SimulatedSoundField}" SoundSources="{Binding BackgroundSpeechLocationCandidates}" Margin="0,0,0,5" ></drawable:HorizontalSoundSourceView>
 
             <VerticalStackLayout x:Name="ReferenceLevelControl">
                 <Label HorizontalOptions="Center" Margin="0,5,0,0">
@@ -151,8 +151,8 @@
             <Frame x:Name="UseContralateralMaskingControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0">
                 <VerticalStackLayout Margin="0,0,0,0" Padding="0,0,0,0">
                     <HorizontalStackLayout>
-                        <Label Text="{Binding UseContralateralMaskingTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,0" />
-                        <Switch x:Name="UseContralateralMasking_Switch" IsToggled="{Binding UseContralateralMasking}" Toggled="UseContralateralMaskingControl_Switch_Toggled" Margin="0,5,0,0" />
+                        <Label Text="{Binding ContralateralMaskingTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,0" />
+                        <Switch x:Name="UseContralateralMasking_Switch" IsToggled="{Binding ContralateralMasking}" Toggled="UseContralateralMaskingControl_Switch_Toggled" Margin="0,5,0,0" />
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout x:Name="LockSpeechLevelToContralateralMaskingControl">
@@ -177,11 +177,11 @@
             
 
             <HorizontalStackLayout x:Name="UsePhaseAudiometryControl">
-                <Label Text="{Binding UsePhaseAudiometryTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
-                <Switch x:Name="UsePhaseAudiometry_Switch" Toggled="UsePhaseAudiometry_Switch_Toggled" IsToggled="{Binding UsePhaseAudiometry}" Margin="0,5,0,5" />
+                <Label Text="{Binding PhaseAudiometryTitle}" VerticalOptions="Center" WidthRequest="170" Margin="0,5,0,5" />
+                <Switch x:Name="UsePhaseAudiometry_Switch" Toggled="UsePhaseAudiometry_Switch_Toggled" IsToggled="{Binding PhaseAudiometry}" Margin="0,5,0,5" />
             </HorizontalStackLayout>
 
-            <Picker x:Name="AvailablePhaseAudiometryTypes_Picker"  Title="{Binding SelectedPhaseAudiometryTypeTitle}" ItemsSource="{Binding AvailablePhaseAudiometryTypes}" SelectedItem="{Binding SelectedPhaseAudiometryType}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
+            <Picker x:Name="AvailablePhaseAudiometryTypes_Picker"  Title="{Binding PhaseAudiometryTypeTitle}" ItemsSource="{Binding AvailablePhaseAudiometryTypes}" SelectedItem="{Binding PhaseAudiometryType}" MinimumWidthRequest="160" HorizontalOptions="FillAndExpand" Margin="0,10,0,10"/>
 
             <Frame x:Name="PreListenControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0">
 

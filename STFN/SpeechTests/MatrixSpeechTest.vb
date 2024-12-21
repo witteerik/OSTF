@@ -14,13 +14,13 @@ Public Class MatrixSpeechTest
 
         TesterInstructions = ""
         ParticipantInstructions = ""
-        HasOptionalPractiseTest = True
-        AllowsUseRetsplChoice = False
-        AllowsManualPreSetSelection = False
-        AllowsManualStartListSelection = True
-        AllowsManualMediaSetSelection = True
+        ShowGuiChoice_PractiseTest = True
+        ShowGuiChoice_dBHL = False
+        ShowGuiChoice_PreSet = False
+        ShowGuiChoice_StartList = True
+        ShowGuiChoice_MediaSet = True
         SupportsPrelistening = False
-        UseSoundFieldSimulation = Utils.TriState.False
+        ShowGuiChoice_SoundFieldSimulation = False
         AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
 
         AvailableTestProtocols = New List(Of TestProtocol) From {
@@ -39,14 +39,14 @@ Public Class MatrixSpeechTest
         MinimumSoundFieldMaskerLocations = 0
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
-        AllowsManualReferenceLevelSelection = False
+        ShowGuiChoice_ReferenceLevel = False
         UseKeyWordScoring = Utils.TriState.False
         UseListOrderRandomization = Utils.TriState.False
         UseWithinListRandomization = Utils.TriState.False
         UseAcrossListRandomization = Utils.TriState.False
         UseFreeRecall = Utils.TriState.Optional
         UseDidNotHearAlternative = Utils.Constants.TriState.False
-        UsePhaseAudiometry = False
+        PhaseAudiometry = False
         TargetLevel_StepSize = 5
         HistoricTrialCount = 0
         SupportsManualPausing = True
@@ -69,6 +69,11 @@ Public Class MatrixSpeechTest
 
         SoundOverlapDuration = 0.1
 
+        ShowGuiChoice_TargetLocations = True
+        ShowGuiChoice_MaskerLocations = False
+        ShowGuiChoice_BackgroundNonSpeechLocations = False
+        ShowGuiChoice_BackgroundSpeechLocations = False
+
     End Sub
 
 
@@ -88,11 +93,11 @@ Public Class MatrixSpeechTest
 
 
 
-    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = True
 
-    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = True
 
-    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean = False
+    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
     Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.Optional
 
@@ -118,7 +123,7 @@ Public Class MatrixSpeechTest
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
         End If
 
-        If MaskerLocations.Count = 0 And SelectedTestMode = TestModes.AdaptiveNoise Then
+        If MaskerLocations.Count = 0 And TestMode = TestModes.AdaptiveNoise Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source in tests with adaptive noise!")
         End If
 
@@ -134,33 +139,33 @@ Public Class MatrixSpeechTest
             StartAdaptiveLevel = SpeechLevel
         End If
 
-        SelectedTestProtocol.IsInPretestMode = IsPractiseTest
+        TestProtocol.IsInPretestMode = IsPractiseTest
 
         Dim TestLength As Integer
 
         Select Case True
-            Case TypeOf SelectedTestProtocol Is HagermanKinnefors1995_TestProtocol
+            Case TypeOf TestProtocol Is HagermanKinnefors1995_TestProtocol
 
                 If HasNoise = False Then
-                    DirectCast(SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInSilence
-                    SelectedTestMode = TestModes.AdaptiveSpeech
+                    DirectCast(TestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInSilence
+                    TestMode = TestModes.AdaptiveSpeech
                     TestLength = 20
                 Else
                     If IsPractiseTest = True Then
-                        DirectCast(SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.PractiseTestThresholdInNoise
-                        SelectedTestMode = TestModes.AdaptiveNoise
+                        DirectCast(TestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.PractiseTestThresholdInNoise
+                        TestMode = TestModes.AdaptiveNoise
                         TestLength = 30
                     Else
-                        DirectCast(SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
-                        SelectedTestMode = TestModes.AdaptiveNoise
+                        DirectCast(TestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
+                        TestMode = TestModes.AdaptiveNoise
                         TestLength = 20
                     End If
                 End If
 
-            Case TypeOf SelectedTestProtocol Is BrandKollmeier2002_TestProtocol
+            Case TypeOf TestProtocol Is BrandKollmeier2002_TestProtocol
 
-                DirectCast(SelectedTestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
-                SelectedTestMode = TestModes.AdaptiveNoise
+                DirectCast(TestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
+                TestMode = TestModes.AdaptiveNoise
                 SpeechLevel = 65
                 MaskingLevel = 65
                 StartAdaptiveLevel = SignalToNoiseRatio(SpeechLevel, MaskingLevel)
@@ -182,7 +187,7 @@ Public Class MatrixSpeechTest
 
         CreatePlannedWordsSentences()
 
-        SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0, .TestLength = TestLength})
+        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0, .TestLength = TestLength})
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -233,7 +238,7 @@ Public Class MatrixSpeechTest
             Dim CurrentSentences = List.GetChildren()
 
             'Adding sentence in the original order
-            If RandomizeItemsWithinLists = False Then
+            If WithinListRandomization = False Then
                 For Each Sentence In CurrentSentences
                     PlannedTestSentences.Add(Sentence)
                     'Checking if enough words have been added
@@ -345,7 +350,7 @@ Public Class MatrixSpeechTest
 
 
         'Calculating the speech level
-        Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
+        Dim ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
 
         ' Returning if we should not move to the next trial
         If ProtocolReply.Decision <> SpeechTestReplies.GotoNextTrial Then
@@ -363,7 +368,7 @@ Public Class MatrixSpeechTest
         Dim NextTestSentence = PlannedTestSentences(ObservedTrials.Count)
 
         'Creating a new test trial
-        Select Case SelectedTestMode
+        Select Case TestMode
             Case TestModes.AdaptiveSpeech
 
                 If HasNoise = True Then
@@ -444,7 +449,7 @@ Public Class MatrixSpeechTest
             'Add other buttons needed ?
 
             'A Did-Not-Hear-Response Alternative ?
-            If ShowDidNotHearResponseAlternative = True Then
+            If IncludeDidNotHearResponseAlternative = True Then
                 For Each Item In ResponseAlternativeSpellingsList
                     Item.Add("?")
                 Next
@@ -516,12 +521,12 @@ Public Class MatrixSpeechTest
 
     Public Overrides Function GetResultStringForGui() As String
 
-        Dim ProtocolThreshold = SelectedTestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = TestProtocol.GetFinalResult()
 
         Dim Output As New List(Of String)
 
         If ProtocolThreshold IsNot Nothing Then
-            If SelectedTestProtocol.IsInPretestMode = True Then
+            If TestProtocol.IsInPretestMode = True Then
                 ResultSummaryForGUI.Add("Resultat för övningstestet: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
             Else
                 ResultSummaryForGUI.Add("Testresultat: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
@@ -529,16 +534,16 @@ Public Class MatrixSpeechTest
 
             Output.AddRange(ResultSummaryForGUI)
         Else
-            If SelectedTestProtocol.IsInPretestMode = True Then
+            If TestProtocol.IsInPretestMode = True Then
                 Output.Add("Övningstest!")
             End If
 
             If CurrentTestTrial IsNot Nothing Then
-                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & SelectedTestProtocol.TotalTrialCount)
+                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestProtocol.TotalTrialCount)
                 Output.Add("SNR = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SNR) & " dB HL")
                 Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
                 Output.Add("Brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel) & " dB HL")
-                If UseContralateralMasking = True Then
+                If ContralateralMasking = True Then
                     Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
                 End If
             End If
@@ -557,7 +562,7 @@ Public Class MatrixSpeechTest
 
         Dim ExportStringList As New List(Of String)
 
-        Dim ProtocolThreshold = SelectedTestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = TestProtocol.GetFinalResult()
 
         'Exporting all trials
         Dim TestTrialIndex As Integer = 0
@@ -588,7 +593,7 @@ Public Class MatrixSpeechTest
 
     Public Overrides Sub FinalizeTest()
 
-        SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+        TestProtocol.FinalizeProtocol(ObservedTrials)
 
     End Sub
 

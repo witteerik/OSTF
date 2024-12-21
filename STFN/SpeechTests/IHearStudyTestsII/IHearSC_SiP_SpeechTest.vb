@@ -28,13 +28,13 @@ Public Class IHearSC_SiP_SpeechTest
                 " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
                 " - Testet består av två testomgångar med " & TestListCount * 3 & " ord i varje. testomgångarna körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
 
-        HasOptionalPractiseTest = False
-        AllowsUseRetsplChoice = False
-        AllowsManualPreSetSelection = False
-        AllowsManualStartListSelection = False
-        AllowsManualMediaSetSelection = False
+        ShowGuiChoice_PractiseTest = False
+        ShowGuiChoice_dBHL = False
+        ShowGuiChoice_PreSet = False
+        ShowGuiChoice_StartList = False
+        ShowGuiChoice_MediaSet = False
         SupportsPrelistening = False
-        UseSoundFieldSimulation = TriState.False
+        ShowGuiChoice_SoundFieldSimulation = False
         AvailableTestModes = New List(Of TestModes) From {TestModes.Custom}
         AvailableTestProtocols = Nothing
         AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {3}
@@ -47,14 +47,14 @@ Public Class IHearSC_SiP_SpeechTest
         MinimumSoundFieldMaskerLocations = 1
         MinimumSoundFieldBackgroundNonSpeechLocations = 2
         MinimumSoundFieldBackgroundSpeechLocations = 0
-        AllowsManualReferenceLevelSelection = False
+        ShowGuiChoice_ReferenceLevel = False
         UseKeyWordScoring = Utils.TriState.False
         UseListOrderRandomization = Utils.TriState.False
         UseWithinListRandomization = Utils.TriState.False
         UseAcrossListRandomization = Utils.TriState.False
         UseFreeRecall = Utils.TriState.False
         UseDidNotHearAlternative = Utils.Constants.TriState.False
-        UsePhaseAudiometry = False
+        PhaseAudiometry = False
         TargetLevel_StepSize = 1
         HistoricTrialCount = 0
         SupportsManualPausing = False
@@ -77,18 +77,19 @@ Public Class IHearSC_SiP_SpeechTest
 
         SoundOverlapDuration = 0.5
 
+
+        ShowGuiChoice_TargetLocations = False
+        ShowGuiChoice_MaskerLocations = False
+        ShowGuiChoice_BackgroundNonSpeechLocations = False
+        ShowGuiChoice_BackgroundSpeechLocations = False
+
     End Sub
 
 
 
-    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean = False
-    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean = False
-    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean = False
-
-    Public Overrides ReadOnly Property CanHaveTargets As Boolean = False
-    Public Overrides ReadOnly Property CanHaveMaskers As Boolean = False
-    Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean = False
-    Public Overrides ReadOnly Property CanHaveBackgroundSpeech As Boolean = False
+    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = False
+    Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
+    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
     Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.False
 
@@ -114,19 +115,19 @@ Public Class IHearSC_SiP_SpeechTest
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        SelectedTransducer = AvaliableTransducers(0)
+        Transducer = AvaliableTransducers(0)
 
         CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
-        If UseSimulatedSoundField = True Then
+        If SimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
             'DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer, False)
 
-            Dim FoundDirSimulator As Boolean = DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, SelectedTransducer, False)
+            Dim FoundDirSimulator As Boolean = DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, Transducer, False)
             If FoundDirSimulator = False Then
                 Return New Tuple(Of Boolean, String)(False, "Unable to find the directional simulation set " & DirectionalSimulationSet)
             End If
@@ -275,7 +276,7 @@ Public Class IHearSC_SiP_SpeechTest
         SoundPlayer.SwapOutputSounds(TestSound)
 
         'Premixing the first 10 sounds 
-        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
 
     End Sub
 
@@ -332,7 +333,7 @@ Public Class IHearSC_SiP_SpeechTest
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType)
+            Dim MixedInitialSound As Audio.Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType)
 
             If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
@@ -356,7 +357,7 @@ Public Class IHearSC_SiP_SpeechTest
 
             If (CurrentSipTestMeasurement.ObservedTrials.Count + 3) Mod 10 = 0 Then
                 'Premixing the next 10 sounds, starting three trials before the next is needed 
-                CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+                CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
             End If
 
             'Waiting for the background thread to finish mixing

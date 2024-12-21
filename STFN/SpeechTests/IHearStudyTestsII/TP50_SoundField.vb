@@ -28,13 +28,13 @@ Public Class TP50_SoundField
             " - Patienten ska ha huvudet riktat rakt framåt under mätningen." & vbCrLf &
             " - Testet är 50 ord långt."
 
-        HasOptionalPractiseTest = False
-        AllowsUseRetsplChoice = False
-        AllowsManualPreSetSelection = False
-        AllowsManualStartListSelection = True
-        AllowsManualMediaSetSelection = True
+        ShowGuiChoice_PractiseTest = False
+        ShowGuiChoice_dBHL = False
+        ShowGuiChoice_PreSet = False
+        ShowGuiChoice_StartList = True
+        ShowGuiChoice_MediaSet = True
         SupportsPrelistening = True
-        UseSoundFieldSimulation = TriState.False
+        ShowGuiChoice_SoundFieldSimulation = False
         AvailableTestModes = New List(Of TestModes) From {TestModes.ConstantStimuli}
         AvailableTestProtocols = New List(Of TestProtocol) From {New FixedLengthWordsInNoise_WithPreTestLevelAdjustment_TestProtocol}
         AvailableFixedResponseAlternativeCounts = New List(Of Integer)
@@ -47,14 +47,14 @@ Public Class TP50_SoundField
         MinimumSoundFieldMaskerLocations = 1
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
-        AllowsManualReferenceLevelSelection = False
+        ShowGuiChoice_ReferenceLevel = False
         UseKeyWordScoring = Utils.Constants.TriState.False
         UseListOrderRandomization = Utils.Constants.TriState.False
         UseWithinListRandomization = Utils.Constants.TriState.True
         UseAcrossListRandomization = Utils.Constants.TriState.False
         UseFreeRecall = Utils.TriState.True
         UseDidNotHearAlternative = Utils.Constants.TriState.False
-        UsePhaseAudiometry = False
+        PhaseAudiometry = False
         TargetLevel_StepSize = 5
         HistoricTrialCount = 3
         SupportsManualPausing = True
@@ -80,11 +80,11 @@ Public Class TP50_SoundField
     End Sub
 
 
-    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = True
 
-    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean = False
+    Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
 
-    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean = False
+    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
     Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.False
 
@@ -138,13 +138,13 @@ Public Class TP50_SoundField
         CreatePlannedWordsList()
 
         'Getting the masker noise only once (this should be a long section of noise with its using nominal level set
-        MaskerNoise = PlannedLevelAdjustmentWords(0).GetMaskerSound(SelectedMediaSet, 0)
+        MaskerNoise = PlannedLevelAdjustmentWords(0).GetMaskerSound(MediaSet, 0)
         'We always load ContralateralNoise even if it's not used, since the test will crash if it's suddenly switched on the the administrator (such as in pretest stimulus generation)
-        ContralateralNoise = PlannedLevelAdjustmentWords(0).GetContralateralMaskerSound(SelectedMediaSet, 0)
+        ContralateralNoise = PlannedLevelAdjustmentWords(0).GetContralateralMaskerSound(MediaSet, 0)
         'Storing last presented MediaSet to determine which noises were loaded. (These are reloaded in MixNextTrialSound if needed)
-        LastPresentedMediaSet = SelectedMediaSet
+        LastPresentedMediaSet = MediaSet
 
-        SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = SpeechLevel, .TestLength = TestLength})
+        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = SpeechLevel, .TestLength = TestLength})
 
         IsInitialized = True
 
@@ -226,7 +226,7 @@ Public Class TP50_SoundField
 
         Next
 
-        If RandomizeItemsWithinLists = True Then
+        If WithinListRandomization = True Then
             PlannedTestTrials.Shuffle(Randomizer)
         End If
 
@@ -339,11 +339,11 @@ Public Class TP50_SoundField
             'TODO: We must store the responses and response times!!!
 
             'Calculating the speech level
-            ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTestTrials)
+            ProtocolReply = TestProtocol.NewResponse(ObservedTestTrials)
 
         Else
             'Nothing to correct (this should be the start of a new test, or a resuming of a paused test)
-            ProtocolReply = SelectedTestProtocol.NewResponse(New TrialHistory)
+            ProtocolReply = TestProtocol.NewResponse(New TrialHistory)
         End If
 
         'Preparing next trial if needed
@@ -378,22 +378,22 @@ Public Class TP50_SoundField
 
         'Updating the noises if needed
         'Only done when MediaSet is changed
-        If LastPresentedMediaSet IsNot SelectedMediaSet Then
+        If LastPresentedMediaSet IsNot MediaSet Then
             'Getting the masker noise only once (this should be a long section of noise with its using nominal level set
-            MaskerNoise = PlannedLevelAdjustmentWords(0).GetMaskerSound(SelectedMediaSet, 0)
+            MaskerNoise = PlannedLevelAdjustmentWords(0).GetMaskerSound(MediaSet, 0)
             'We always load ContralateralNoise even if it's not used, since the test will crash if it's suddenly switched on the the administrator (such as in pretest stimulus generation)
-            ContralateralNoise = PlannedLevelAdjustmentWords(0).GetContralateralMaskerSound(SelectedMediaSet, 0)
-            LastPresentedMediaSet = SelectedMediaSet
+            ContralateralNoise = PlannedLevelAdjustmentWords(0).GetContralateralMaskerSound(MediaSet, 0)
+            LastPresentedMediaSet = MediaSet
         End If
 
 
         Dim RETSPL_Correction As Double = 0
-        If UseRetsplCorrection = True Then
-            RETSPL_Correction = SelectedTransducer.RETSPL_Speech
+        If LevelsAreIn_dBHL = True Then
+            RETSPL_Correction = Transducer.RETSPL_Speech
         End If
 
         'Getting the speech signal
-        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(MediaSet, 0, 1, , , , , False, False, False, , , False)
         Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
 
         'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
@@ -409,7 +409,7 @@ Public Class TP50_SoundField
 
         'Creating contalateral masking noise (with the same length as the masking noise)
         Dim TrialContralateralNoise As Audio.Sound = Nothing
-        If UseContralateralMasking = True Then
+        If ContralateralMasking = True Then
             TotalNoiseLength = ContralateralNoise.WaveData.SampleData(1).Length
             IntendedNoiseLength = ContralateralNoise.WaveFormat.SampleRate * MaximumSoundDuration
             RandomStartReadSample = Randomizer.Next(0, TotalNoiseLength - IntendedNoiseLength)
@@ -418,7 +418,7 @@ Public Class TP50_SoundField
 
         'Checking that Nominal levels agree between signal masker and contralateral masker
         If MaskerNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and noise files!")
-        If UseContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
+        If ContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
 
         'Calculating presentation levels
         Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel) + RETSPL_Correction
@@ -433,10 +433,10 @@ Public Class TP50_SoundField
         Audio.DSP.AmplifySection(TestWordSound, NeededSpeechGain)
         Audio.DSP.AmplifySection(TrialNoise, NeededMaskerGain)
 
-        If UseContralateralMasking = True Then
+        If ContralateralMasking = True Then
 
             'Setting level, 
-            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel) + SelectedMediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
+            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel) + MediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
             Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - NominalLevel_FS
@@ -463,13 +463,13 @@ Public Class TP50_SoundField
 
 
         'Also stores the mediaset
-        CurrentTestTrial.MediaSetName = SelectedMediaSet.MediaSetName
+        CurrentTestTrial.MediaSetName = MediaSet.MediaSetName
 
         'And the contralateral noise on/off setting
-        CurrentTestTrial.UseContralateralNoise = UseContralateralMasking
+        CurrentTestTrial.UseContralateralNoise = ContralateralMasking
 
         'And the EM term
-        CurrentTestTrial.EfficientContralateralMaskingTerm = SelectedMediaSet.EffectiveContralateralMaskingGain
+        CurrentTestTrial.EfficientContralateralMaskingTerm = MediaSet.EffectiveContralateralMaskingGain
 
     End Sub
 
@@ -516,7 +516,7 @@ Public Class TP50_SoundField
 
     Public Overrides Sub FinalizeTest()
 
-        SelectedTestProtocol.FinalizeProtocol(ObservedTestTrials)
+        TestProtocol.FinalizeProtocol(ObservedTestTrials)
 
     End Sub
 

@@ -138,8 +138,8 @@ Public MustInherit Class SpeechTest
     Public ReadOnly Property AvailablePresets() As List(Of SmcPresets.Preset)
         Get
             Dim Output = New List(Of SmcPresets.Preset)
-            For Each Preset In SpeechMaterial.Presets
-                Output.Add(Preset)
+            For Each AvailablePreset In SpeechMaterial.Presets
+                Output.Add(AvailablePreset)
             Next
             Return Output
         End Get
@@ -179,6 +179,55 @@ Public MustInherit Class SpeechTest
 #End Region
 #End Region
 
+#Region "IrSets"
+
+    <SkipExport>
+    Public ReadOnly Property CurrentlySupportedIrSets As List(Of BinauralImpulseReponseSet)
+        Get
+            Dim Output As New List(Of BinauralImpulseReponseSet)
+
+            If OstfBase.AllowDirectionalSimulation = True Then
+                Dim SupportedIrNames As New List(Of String)
+                If MediaSet IsNot Nothing Then
+                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(MediaSet.WaveFileSampleRate)
+                ElseIf MediaSets.Count > 0 Then
+                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(MediaSets(0).WaveFileSampleRate)
+                Else
+                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(AvailableMediasets(0).WaveFileSampleRate)
+                End If
+
+                Dim AvaliableSets = DirectionalSimulator.GetAllDirectionalSimulationSets()
+                For Each AvaliableSet In AvaliableSets
+                    If SupportedIrNames.Contains(AvaliableSet.Key) Then
+                        Output.Add(AvaliableSet.Value)
+                    End If
+                Next
+            End If
+
+            Return Output
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Returns the set of transducers from OstfBase.AvaliableTransducers expected to work with the currently connected hardware.
+    ''' </summary>
+    ''' <returns></returns>
+    <SkipExport>
+    Public ReadOnly Property CurrentlySupportedTransducers As List(Of OstfBase.AudioSystemSpecification)
+        Get
+            Dim Output = New List(Of OstfBase.AudioSystemSpecification)
+            Dim AllTransducers = OstfBase.AvaliableTransducers
+
+            'Adding only transducers that can be used with the current sound system.
+            For Each AvailableTransducer In AllTransducers
+                If AvailableTransducer.CanPlay() = True Then Output.Add(AvailableTransducer)
+            Next
+
+            Return Output
+        End Get
+    End Property
+
+#End Region
 
 
 #Region "GuiInteraction"
@@ -199,6 +248,9 @@ Public MustInherit Class SpeechTest
             RaiseEvent PropertyChanged(Me, New PropertyChangedEventArgs(name))
         End If
     End Sub
+
+#Region "GuiTexts"
+
 
     <SkipExport>
     Public Property TesterInstructionsButtonText As String = "Instruktioner för inställningar"
@@ -229,13 +281,13 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Referensnivå (dB HL)"
                     Else
                         Return "Referensnivå (dB SPL)"
                     End If
                 Case Else
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Reference level (dB HL)"
                     Else
                         Return "Reference level (dB SPL)"
@@ -249,13 +301,13 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Talnivå (dB HL)"
                     Else
                         Return "Talnivå (dB SPL)"
                     End If
                 Case Else
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Speech level (dB HL)"
                     Else
                         Return "Speech level (dB SPL)"
@@ -269,13 +321,13 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Maskeringsnivå (dB HL)"
                     Else
                         Return "Maskeringsnivå (dB SPL)"
                     End If
                 Case Else
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Masking level (dB HL)"
                     Else
                         Return "Masking level (dB SPL)"
@@ -289,13 +341,13 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Bakgrundsnivå (dB HL)"
                     Else
                         Return "Bakgrundsnivå (dB SPL)"
                     End If
                 Case Else
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Background level (dB HL)"
                     Else
                         Return "Background level (dB SPL)"
@@ -309,13 +361,13 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Kontralat. maskeringsnivå (dB HL)"
                     Else
                         Return "Kontralat. maskeringsnivå (dB SPL)"
                     End If
                 Case Else
-                    If UseRetsplCorrection = True Then
+                    If LevelsAreIn_dBHL = True Then
                         Return "Contralat. masking level (dB HL)"
                     Else
                         Return "Contralat. masking level (dB SPL)"
@@ -331,74 +383,360 @@ Public MustInherit Class SpeechTest
     Public Property SelectedTestProtocolTitle As String = "Testprotokoll"
 
     <SkipExport>
-    Public Property ScoreOnlyKeyWordsTitle As String = "Rätta på nyckelord"
+    Public Property KeyWordScoringTitle As String = "Rätta på nyckelord"
 
     <SkipExport>
-    Public Property RandomizeListOrderTitle As String = "Slumpa listordning"
+    Public Property ListOrderRandomizationTitle As String = "Slumpa listordning"
 
     <SkipExport>
-    Public Property RandomizeItemsWithinListsTitle As String = "Slumpa inom listor"
+    Public Property WithinListRandomizationTitle As String = "Slumpa inom listor"
 
     <SkipExport>
-    Public Property RandomizeItemsAcrossListsTitle As String = "Slumpa mellan listor"
+    Public Property AcrossListsRandomizationTitle As String = "Slumpa mellan listor"
 
     <SkipExport>
     Public Property IsFreeRecallTitle As String = "Fri rapportering"
 
     <SkipExport>
-    Public Property ShowDidNotHearResponseAlternativeTitle As String = "Visa ? som alternativ"
+    Public Property IncludeDidNotHearResponseAlternativeTitle As String = "Visa ? som alternativ"
 
     <SkipExport>
     Public Property FixedResponseAlternativeCountTitle As String = "Antal svarsalternativ"
 
     <SkipExport>
-    Public Property SelectedTransducerTitle As String = "Ljudgivare"
+    Public Property TransducerTitle As String = "Ljudgivare"
 
     <SkipExport>
-    Public Property UseRetsplCorrectionTitle As String = "Ange nivåer i dB HL"
+    Public Property LevelsAreIn_dBHLTitle As String = "Ange nivåer i dB HL"
 
     <SkipExport>
-    Public Property UseSimulatedSoundFieldTitle As String = "Simulera ljudfält"
+    Public Property SimulatedSoundFieldTitle As String = "Simulera ljudfält"
 
     <SkipExport>
-    Public Property SelectedIrSetTitle As String = "HRIR"
+    Public Property IrSetTitle As String = "HRIR"
 
     <SkipExport>
     Public Property SignalLocationsTitle As String = "Placering av talkälla/or"
 
+    <SkipExport>
+    Public Property MaskerLocationsTitle As String = "Placering av maskeringsljud"
+
+    <SkipExport>
+    Public Property BackgroundNonSpeechLocationsTitle As String = "Placering av bakgrundsljud"
+
+    <SkipExport>
+    Public Property BackgroundSpeechLocationsTitle As String = "Placering av bakgrundstal"
+
+    <SkipExport>
+    Public Property ContralateralMaskingTitle As String = "Kontralateral maskering"
+
+    <SkipExport>
+    Public Property LockContralateralMaskingTitle As String = "Koppla till talnivå"
+
+    <SkipExport>
+    Public Property PhaseAudiometryTitle As String = "Fasaudiometri"
+
+    <SkipExport>
+    Public Property PhaseAudiometryTypeTitle As String = "Fasaudiometrityp"
 
 
+    <SkipExport>
+    Public Property PreListenTitle As String = "Provlyssna"
+
+    <SkipExport>
+    Public Property PreListenPlayButtonTitle As String = "Spela nästa"
+
+    <SkipExport>
+    Public Property PreListenStopButtonTitle As String = "Stop"
+
+    <SkipExport>
+    Public Property PreListenLouderButtonTitle As String = "Öka nivån"
+
+    <SkipExport>
+    Public Property PreListenSofterButtonTitle As String = "Minska nivån"
+
+
+
+#End Region
+
+
+#Region "GuiSettings"
 
     ''' <summary>
-    ''' Should indicate whether the test is a practise test or not (Obligatory).
+    ''' Holds the reference level step size available for the settings GUI 
     ''' </summary>
     ''' <returns></returns>
-    Public Property IsPractiseTest As Boolean
+    Public Property ReferenceLevel_StepSize As Double = 1
+
+    ''' <summary>
+    ''' Holds the target level step size available for the settings GUI 
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property TargetLevel_StepSize As Double = 1
+
+    ''' <summary>
+    ''' Holds the masker level step size available for the settings GUI 
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property MaskingLevel_StepSize As Double = 1
+
+    ''' <summary>
+    ''' Holds the background sounds level step size available for the settings GUI 
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property BackgroundLevel_StepSize As Double = 1
+
+    ''' <summary>
+    ''' Holds the contralateral masker level step size available for the settings GUI 
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ContralateralMaskingLevel_StepSize As Double = 1
+
+    Public Property MaximumSoundFieldSpeechLocations As Integer = 1
+
+    Public Property MaximumSoundFieldMaskerLocations As Integer = 1000
+
+    Public Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer = 1000
+
+    Public Property MaximumSoundFieldBackgroundSpeechLocations As Integer = 1000
+
+    Public Property MinimumSoundFieldSpeechLocations As Integer = 1
+
+    Public Property MinimumSoundFieldMaskerLocations As Integer = 0
+
+    Public Property MinimumSoundFieldBackgroundNonSpeechLocations As Integer = 0
+
+    Public Property MinimumSoundFieldBackgroundSpeechLocations As Integer = 0
+
+    Public Property ShowGuiChoice_PractiseTest As Boolean = False
+
+
+    Public Property ShowGuiChoice_dBHL As Boolean = False
+
+    Public Property ShowGuiChoice_PreSet As Boolean = True
+
+    Public Property ShowGuiChoice_StartList As Boolean = True
+
+    Public Property ShowGuiChoice_MediaSet As Boolean = True
+
+    Public Property ShowGuiChoice_SoundFieldSimulation As Boolean = True
+
+
+    Public Property ShowGuiChoice_ReferenceLevel As Boolean = False
+
+    Public Overridable ReadOnly Property ShowGuiChoice_TargetLevel As Boolean
         Get
-            Return _IsPractiseTest
+            If CanHaveTargets = True Then
+                Return True
+            Else
+                Return False
+            End If
+        End Get
+    End Property
+
+    Public Overridable ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean
+        Get
+            If CanHaveMaskers = True Then
+                Return True
+            Else
+                Return False
+            End If
+        End Get
+    End Property
+
+    Public Overridable ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean
+        Get
+            If CanHaveBackgroundNonSpeech = True Then
+                Return True
+            Else
+                Return False
+            End If
+        End Get
+    End Property
+
+    'TODO: These four properties should determine which sound-source
+    Public Property ShowGuiChoice_TargetLocations As Boolean
+        Get
+            Return _ShowGuiChoice_TargetLocations
         End Get
         Set(value As Boolean)
-            _IsPractiseTest = value
+            If CanHaveTargets = True Then
+                _ShowGuiChoice_TargetLocations = value
+            Else
+                _ShowGuiChoice_TargetLocations = False
+            End If
+        End Set
+    End Property
+    Private _ShowGuiChoice_TargetLocations As Boolean
+
+    Public Property ShowGuiChoice_MaskerLocations As Boolean
+        Get
+            Return _ShowGuiChoice_MaskerLocations
+        End Get
+        Set(value As Boolean)
+            If CanHaveMaskers = True Then
+                _ShowGuiChoice_MaskerLocations = value
+            Else
+                _ShowGuiChoice_MaskerLocations = False
+            End If
+        End Set
+    End Property
+    Private _ShowGuiChoice_MaskerLocations As Boolean
+
+    Public Property ShowGuiChoice_BackgroundNonSpeechLocations As Boolean
+        Get
+            Return _ShowGuiChoice_BackgroundNonSpeechLocations
+        End Get
+        Set(value As Boolean)
+            If CanHaveBackgroundNonSpeech = True Then
+                _ShowGuiChoice_BackgroundNonSpeechLocations = value
+            Else
+                _ShowGuiChoice_BackgroundNonSpeechLocations = False
+            End If
+        End Set
+    End Property
+    Private _ShowGuiChoice_BackgroundNonSpeechLocations As Boolean
+
+    Public Property ShowGuiChoice_BackgroundSpeechLocations As Boolean
+        Get
+            Return _ShowGuiChoice_BackgroundSpeechLocations
+        End Get
+        Set(value As Boolean)
+            If CanHaveBackgroundSpeech = True Then
+                _ShowGuiChoice_BackgroundSpeechLocations = value
+            Else
+                _ShowGuiChoice_BackgroundSpeechLocations = False
+            End If
+        End Set
+    End Property
+    Private _ShowGuiChoice_BackgroundSpeechLocations As Boolean
+
+
+
+
+#End Region
+
+
+#Region "SoundSourceLocationCandidates"
+
+    'The location candidates contains information for displaying the sound source locations graphically
+    'They can be collected using a call to either
+    'BinauralImpulseReponseSet.GetVisualSoundSourceLocations() or
+    'CurrentSpeechTest.Transducer.GetVisualSoundSourceLocations()
+    'When used in the GUI, these call are implemented automatically in the TestOptionsView, and done when needed.
+    'If not used from the GUI, a call to PopulateSoundSourceLocationCandidates is needed
+
+    Public Sub PopulateSoundSourceLocationCandidates()
+
+        If Transducer IsNot Nothing Then
+
+            If SimulatedSoundField = False Then
+
+                SignalLocationCandidates = Transducer.GetVisualSoundSourceLocations()
+                MaskerLocationCandidates = Transducer.GetVisualSoundSourceLocations()
+                BackgroundNonSpeechLocationCandidates = Transducer.GetVisualSoundSourceLocations()
+                BackgroundSpeechLocationCandidates = Transducer.GetVisualSoundSourceLocations()
+
+            Else
+
+                If IrSet IsNot Nothing Then
+                    SignalLocationCandidates = IrSet.GetVisualSoundSourceLocations()
+                    MaskerLocationCandidates = IrSet.GetVisualSoundSourceLocations()
+                    BackgroundNonSpeechLocationCandidates = IrSet.GetVisualSoundSourceLocations()
+                    BackgroundSpeechLocationCandidates = IrSet.GetVisualSoundSourceLocations()
+
+                End If
+            End If
+        End If
+
+    End Sub
+
+    ''' <summary>
+    ''' Should specify the locations from which the signals should come
+    ''' </summary>
+    ''' <returns></returns>
+    <SkipExport>
+    Public Property SignalLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
+        Get
+            Return _SignalLocationCandidates
+        End Get
+        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
+            _SignalLocationCandidates = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _IsPractiseTest As Boolean = False
+    Private _SignalLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
+
+    ''' <summary>
+    ''' Should specify the locations from which the Maskers should come
+    ''' </summary>
+    ''' <returns></returns>
+    <SkipExport>
+    Public Property MaskerLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
+        Get
+            Return _MaskerLocationCandidates
+        End Get
+        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
+            _MaskerLocationCandidates = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _MaskerLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
+
+    ''' <summary>
+    ''' Should specify the locations from which the background (non-speech) sounds should come
+    ''' </summary>
+    ''' <returns></returns>
+    <SkipExport>
+    Public Property BackgroundNonSpeechLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
+        Get
+            Return _BackgroundNonSpeechLocationCandidates
+        End Get
+        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
+            _BackgroundNonSpeechLocationCandidates = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _BackgroundNonSpeechLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
+
+    ''' <summary>
+    ''' Should specify the locations from which the background speech sounds should come
+    ''' </summary>
+    ''' <returns></returns>
+    <SkipExport>
+    Public Property BackgroundSpeechLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
+        Get
+            Return _BackgroundSpeechLocationCandidates
+        End Get
+        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
+            _BackgroundSpeechLocationCandidates = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _BackgroundSpeechLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
+
+#End Region
+
+#End Region
+
+
+#Region "TestSettings"
 
 
     ''' <summary>
     ''' If specified, should indicate the name of the selected pretest (Optional).
     ''' </summary>
     ''' <returns></returns>
-    Public Property SelectedPreset As SmcPresets.Preset
+    Public Property Preset As SmcPresets.Preset
         Get
-            Return _SelectedPreset
+            Return _Preset
         End Get
         Set(value As SmcPresets.Preset)
-            _SelectedPreset = value
+            _Preset = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _SelectedPreset As SmcPresets.Preset
+    Private _Preset As SmcPresets.Preset
 
     ''' <summary>
     ''' If specified, should contain the (one-based) index of the current experiment in the series of experiments in the current data collection (Optional).
@@ -436,32 +774,35 @@ Public MustInherit Class SpeechTest
     ''' Should contain the media sets to be included in the test (Obligatory). (Note that this determines the type of signal, masking and background sounds used, and should be used for instance to select type of masking sounds (i.e. babble noise, SWN, etc., which then need to be implemented as separate MediaSets for each SpeechMaterial)
     ''' </summary>
     ''' <returns></returns>
-    Public Property SelectedMediaSet As MediaSet
+    Public Property MediaSet As MediaSet
         Get
-            Return _SelectedMediaSet
+            Return _MediaSet
         End Get
         Set(value As MediaSet)
-            _SelectedMediaSet = value
+            _MediaSet = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _SelectedMediaSet As MediaSet = Nothing
+    Private _MediaSet As MediaSet = Nothing
 
 
     ''' <summary>
     ''' Should contain the media sets to be included in the test (Obligatory). (Note that this determines the type of signal, masking and background sounds used, and should be used for instance to select type of masking sounds (i.e. babble noise, SWN, etc., which then need to be implemented as separate MediaSets for each SpeechMaterial)
     ''' </summary>
     ''' <returns></returns>
-    Public Property SelectedMediaSets As MediaSetLibrary
+    Public Property MediaSets As MediaSetLibrary
         Get
-            Return _SelectedMediaSets
+            Return _MediaSets
         End Get
         Set(value As MediaSetLibrary)
-            _SelectedMediaSets = value
+
+            'TODO: This is not yet implemented in the TestOptions GUI
+
+            _MediaSets = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _SelectedMediaSets As New MediaSetLibrary
+    Private _MediaSets As New MediaSetLibrary
 
 
     Public Property ReferenceLevel As Double
@@ -516,7 +857,6 @@ Public MustInherit Class SpeechTest
     Private _BackgroundLevel As Double = 55
 
 
-
     Public Property ContralateralMaskingLevel As Double
         Get
             Return _ContralateralMaskingLevel
@@ -530,12 +870,11 @@ Public MustInherit Class SpeechTest
     Private _ContralateralMaskingLevel As Double = 25
 
 
-
     ''' <summary>
-    ''' The SelectedTestMode property is used to determine which type of test protocol that should be used
+    ''' The TestMode property is used to determine which type of test protocol that should be used
     ''' </summary>
     ''' <returns></returns>
-    Public Property SelectedTestMode As SpeechTest.TestModes
+    Public Property TestMode As SpeechTest.TestModes
         Get
             Return _TestMode
         End Get
@@ -547,68 +886,64 @@ Public MustInherit Class SpeechTest
     Private _TestMode As SpeechTest.TestModes
 
 
-
-    Public Property SelectedTestProtocol As TestProtocol
+    Public Property TestProtocol As TestProtocol
         Get
-            Return _SelectedTestProtocol
+            Return _TestProtocol
         End Get
         Set(value As TestProtocol)
-            _SelectedTestProtocol = value
+            _TestProtocol = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _SelectedTestProtocol As TestProtocol
+    Private _TestProtocol As TestProtocol
 
 
-
-
-    Public Property ScoreOnlyKeyWords As Boolean
+    Public Property KeyWordScoring As Boolean
         Get
-            Return _ScoreOnlyKeyWords
+            Return _KeyWordScoring
         End Get
         Set(value As Boolean)
-            _ScoreOnlyKeyWords = value
+            _KeyWordScoring = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _ScoreOnlyKeyWords As Boolean = False
+    Private _KeyWordScoring As Boolean = False
 
 
-    Public Property RandomizeListOrder As Boolean
+    Public Property ListOrderRandomization As Boolean
         Get
-            Return _RandomizeListOrder
+            Return _ListOrderRandomization
         End Get
         Set(value As Boolean)
-            _RandomizeListOrder = value
+            _ListOrderRandomization = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _RandomizeListOrder As Boolean = False
+    Private _ListOrderRandomization As Boolean = False
 
 
-    Public Property RandomizeItemsWithinLists As Boolean
+    Public Property WithinListRandomization As Boolean
         Get
-            Return _RandomizeItemsWithinLists
+            Return _WithinListRandomization
         End Get
         Set(value As Boolean)
-            _RandomizeItemsWithinLists = value
+            _WithinListRandomization = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _RandomizeItemsWithinLists As Boolean = False
+    Private _WithinListRandomization As Boolean = False
 
 
-    Public Property RandomizeItemsAcrossLists As Boolean
+    Public Property AcrossListsRandomization As Boolean
         Get
-            Return _RandomizeItemsAcrossLists
+            Return _AcrossListsRandomization
         End Get
         Set(value As Boolean)
-            _RandomizeItemsAcrossLists = value
+            _AcrossListsRandomization = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _RandomizeItemsAcrossLists As Boolean = False
-
+    Private _AcrossListsRandomization As Boolean = False
 
     Public Property IsFreeRecall As Boolean
         Get
@@ -622,17 +957,16 @@ Public MustInherit Class SpeechTest
     Private _IsFreeRecall As Boolean = False
 
 
-
-    Public Property ShowDidNotHearResponseAlternative As Boolean
+    Public Property IncludeDidNotHearResponseAlternative As Boolean
         Get
-            Return _ShowDidNotHearResponseAlternative
+            Return _IncludeDidNotHearResponseAlternative
         End Get
         Set(value As Boolean)
-            _ShowDidNotHearResponseAlternative = value
+            _IncludeDidNotHearResponseAlternative = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _ShowDidNotHearResponseAlternative As Boolean = False
+    Private _IncludeDidNotHearResponseAlternative As Boolean = False
 
 
     Public Property FixedResponseAlternativeCount As Integer
@@ -647,40 +981,38 @@ Public MustInherit Class SpeechTest
     Private _FixedResponseAlternativeCount As Integer = 4
 
 
-    Public Property SelectedTransducer As AudioSystemSpecification
+    Public Property Transducer As AudioSystemSpecification
         Get
-            Return _SelectedTransducer
+            Return _Transducer
         End Get
         Set(value As AudioSystemSpecification)
-            _SelectedTransducer = value
+            _Transducer = value
 
             'Inactivates the use of simulated sound field is the transducer is not headphones
-            If _SelectedTransducer.IsHeadphones() = False Then UseSimulatedSoundField = False
+            If _Transducer.IsHeadphones() = False Then SimulatedSoundField = False
             OnPropertyChanged()
         End Set
     End Property
-    Private _SelectedTransducer As AudioSystemSpecification
-
-
+    Private _Transducer As AudioSystemSpecification
 
     ''' <summary>
     ''' If True, speech and noise levels should be interpreted as dB HL. If False, speech and noise levels should be interpreted as dB SPL.
     ''' </summary>
     ''' <returns></returns>
-    Public Property UseRetsplCorrection As Boolean
+    Public Property LevelsAreIn_dBHL As Boolean
         Get
-            Return _UseRetsplCorrection
+            Return _LevelsAreIn_dBHL
         End Get
         Set(value As Boolean)
 
             'Changing the value only if AllowsUseRetsplChoice is true
-            If AllowsUseRetsplChoice = True Then
+            If ShowGuiChoice_dBHL = True Then
 
-                _UseRetsplCorrection = value
+                _LevelsAreIn_dBHL = value
 
-                If value = True And UseSimulatedSoundField = True Then
+                If value = True And SimulatedSoundField = True Then
                     'Inactivates sound field simulation if dB HL values should be used
-                    UseSimulatedSoundField = False
+                    SimulatedSoundField = False
                 End If
 
             End If
@@ -688,43 +1020,41 @@ Public MustInherit Class SpeechTest
             OnPropertyChanged()
         End Set
     End Property
-    Private _UseRetsplCorrection As Boolean = False
+    Private _LevelsAreIn_dBHL As Boolean = False
 
-
-    Public Property UseSimulatedSoundField As Boolean
+    Public Property SimulatedSoundField As Boolean
         Get
-            Return _UseSimulatedSoundField
+            Return _SimulatedSoundField
         End Get
         Set(value As Boolean)
-            _UseSimulatedSoundField = value
+            _SimulatedSoundField = value
 
-            If value = True And UseRetsplCorrection = True Then
+            If value = True And LevelsAreIn_dBHL = True Then
                 'Inactivates UseRetsplCorrection to prohibit the use of dB HL in sound field simulations
-                UseRetsplCorrection = False
+                LevelsAreIn_dBHL = False
             End If
 
             OnPropertyChanged()
         End Set
     End Property
-    Private _UseSimulatedSoundField As Boolean = False
+    Private _SimulatedSoundField As Boolean = False
 
-
-    Public Property SelectedIrSet As BinauralImpulseReponseSet
+    Public Property IrSet As BinauralImpulseReponseSet
         Get
-            Return _SelectedIrSet
+            Return _IrSet
         End Get
         Set(value As BinauralImpulseReponseSet)
-            _SelectedIrSet = value
+            _IrSet = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _SelectedIrSet As BinauralImpulseReponseSet = Nothing
+    Private _IrSet As BinauralImpulseReponseSet = Nothing
 
 
     'Returns the selected SelectedPresentationMode indirectly based on the UseSimulatedSoundField property. In the future if more options are supported, this will have to be exposed to the GUI.
-    Public ReadOnly Property SelectedPresentationMode As SoundPropagationTypes
+    Public ReadOnly Property PresentationMode As SoundPropagationTypes
         Get
-            If UseSimulatedSoundField = False Then
+            If SimulatedSoundField = False Then
                 Return SoundPropagationTypes.PointSpeakers
             Else
                 Return SoundPropagationTypes.SimulatedSoundField
@@ -734,24 +1064,8 @@ Public MustInherit Class SpeechTest
 
 
     ''' <summary>
-    ''' Should specify the locations from which the signals should come
-    ''' </summary>
-    ''' <returns></returns>
-    <SkipExport>
-    Public Property SignalLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
-        Get
-            Return _SignalLocationCandidates
-        End Get
-        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
-            _SignalLocationCandidates = value
-            OnPropertyChanged()
-        End Set
-    End Property
-    Private _SignalLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
-
-
-    ''' <summary>
-    ''' Returns the selected locations from which the signals should come
+    ''' Returns the selected locations from which the signals should come. 
+    ''' If not selected in the GUI, selection of sound-source candidates must be doen in code, after a call to PopulateSoundSourceLocationCandidates (after the selection of transducer and, if needed, IrSet.
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property SignalLocations As List(Of Audio.SoundScene.SoundSourceLocation)
@@ -765,62 +1079,8 @@ Public MustInherit Class SpeechTest
     End Property
 
     ''' <summary>
-    ''' Should specify the locations from which the Maskers should come
-    ''' </summary>
-    ''' <returns></returns>
-    <SkipExport>
-    Public Property MaskerLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
-        Get
-            Return _MaskerLocationCandidates
-        End Get
-        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
-            _MaskerLocationCandidates = value
-            OnPropertyChanged()
-        End Set
-    End Property
-    Private _MaskerLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
-
-    <SkipExport>
-    Public Property MaskerLocationsTitle As String = "Placering av maskeringsljud"
-
-    <SkipExport>
-    Public Property BackgroundNonSpeechLocationsTitle As String = "Placering av bakgrundsljud"
-
-    <SkipExport>
-    Public Property BackgroundSpeechLocationsTitle As String = "Placering av bakgrundstal"
-
-    <SkipExport>
-    Public Property UseContralateralMaskingTitle As String = "Kontralateral maskering"
-
-    <SkipExport>
-    Public Property LockContralateralMaskingTitle As String = "Koppla till talnivå"
-
-    <SkipExport>
-    Public Property UsePhaseAudiometryTitle As String = "Fasaudiometri"
-
-    <SkipExport>
-    Public Property SelectedPhaseAudiometryTypeTitle As String = "Fasaudiometrityp"
-
-
-    <SkipExport>
-    Public Property PreListenTitle As String = "Provlyssna"
-
-    <SkipExport>
-    Public Property PreListenPlayButtonTitle As String = "Spela nästa"
-
-    <SkipExport>
-    Public Property PreListenStopButtonTitle As String = "Stop"
-
-    <SkipExport>
-    Public Property PreListenLouderButtonTitle As String = "Öka nivån (5 dB)"
-
-    <SkipExport>
-    Public Property PreListenSofterButtonTitle As String = "Minska nivån (5 dB)"
-
-
-
-    ''' <summary>
     ''' Should specify the locations from which the maskers should come
+    ''' If not selected in the GUI, selection of sound-source candidates must be doen in code, after a call to PopulateSoundSourceLocationCandidates (after the selection of transducer and, if needed, IrSet.
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property MaskerLocations As List(Of Audio.SoundScene.SoundSourceLocation)
@@ -835,25 +1095,8 @@ Public MustInherit Class SpeechTest
 
 
     ''' <summary>
-    ''' Should specify the locations from which the background (non-speech) sounds should come
-    ''' </summary>
-    ''' <returns></returns>
-    <SkipExport>
-    Public Property BackgroundNonSpeechLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
-        Get
-            Return _BackgroundNonSpeechLocationCandidates
-        End Get
-        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
-            _BackgroundNonSpeechLocationCandidates = value
-            OnPropertyChanged()
-        End Set
-    End Property
-    Private _BackgroundNonSpeechLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
-
-
-
-    ''' <summary>
     ''' Should specify the locations from which the BackgroundNonSpeech non-speech sounds should come
+    ''' If not selected in the GUI, selection of sound-source candidates must be doen in code, after a call to PopulateSoundSourceLocationCandidates (after the selection of transducer and, if needed, IrSet.
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property BackgroundNonSpeechLocations As List(Of Audio.SoundScene.SoundSourceLocation)
@@ -866,26 +1109,10 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    ''' <summary>
-    ''' Should specify the locations from which the background speech sounds should come
-    ''' </summary>
-    ''' <returns></returns>
-    <SkipExport>
-    Public Property BackgroundSpeechLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
-        Get
-            Return _BackgroundSpeechLocationCandidates
-        End Get
-        Set(value As List(Of Audio.SoundScene.VisualSoundSourceLocation))
-            _BackgroundSpeechLocationCandidates = value
-            OnPropertyChanged()
-        End Set
-    End Property
-    Private _BackgroundSpeechLocationCandidates As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
-
-
 
     ''' <summary>
     ''' Should specify the locations from which the BackgroundSpeech speech sounds should come
+    ''' If not selected in the GUI, selection of sound-source candidates must be doen in code, after a call to PopulateSoundSourceLocationCandidates (after the selection of transducer and, if needed, IrSet.
     ''' </summary>
     ''' <returns></returns>
     Public ReadOnly Property BackgroundSpeechLocations As List(Of Audio.SoundScene.SoundSourceLocation)
@@ -903,16 +1130,118 @@ Public MustInherit Class SpeechTest
     ''' This is intended as a shortcut which must override the MaskerLocations property, but can only be specified if SelectedPresentationMode is PointSpeakers at -90 and 90 degrees with distance of 0 (i.e. headphones), and where the signal i set to come from only one side.
     ''' </summary>
     ''' <returns></returns>
-    Public Property UseContralateralMasking As Boolean
+    Public Property ContralateralMasking As Boolean
         Get
-            Return _UseContralateralMasking
+            Return _ContralateralMasking
         End Get
         Set(value As Boolean)
-            _UseContralateralMasking = value
+            _ContralateralMasking = value
             OnPropertyChanged()
         End Set
     End Property
-    Private _UseContralateralMasking As Boolean = False
+    Private _ContralateralMasking As Boolean = False
+
+
+
+
+    ''' <summary>
+    ''' This is intended as a shortcut which must override all of the SignalLocations, MaskerLocations and BackgroundLocations properties. It can only be specified if SelectedPresentationMode is either SimulatedSoundField with locations along the mid-sagittal plane, or PointSpeakers at -90 and 90 degrees with distance of 0 (i.e. headphones), and where the signal i set to come from only one side.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property PhaseAudiometry As Boolean
+        Get
+            Return _PhaseAudiometry
+        End Get
+        Set(value As Boolean)
+            _PhaseAudiometry = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _PhaseAudiometry As Boolean = False
+
+
+    ''' <summary>
+    ''' Determines which type of phase audiometry to use, if UsePhaseAudiometry is True.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property PhaseAudiometryType As BmldModes
+        Get
+            Return _PhaseAudiometryType
+        End Get
+        Set(value As BmldModes)
+            _PhaseAudiometryType = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _PhaseAudiometryType As BmldModes
+
+
+#End Region
+
+
+
+#Region "SoundSceneGeneration"
+
+
+    ''' <summary>
+    ''' The sound player crossfade overlap to be used between trials, fade-in and fade-out
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property SoundOverlapDuration As Double = 0.1
+
+
+    Public Function CanHaveTargets() As Boolean
+        If SpeechMaterial IsNot Nothing Then
+            If MediaSet IsNot Nothing Then
+                If MediaSet.MediaAudioItems > 0 Then
+                    Return True
+                End If
+            End If
+        End If
+        'Returns False otherwise
+        Return False
+    End Function
+
+    Public Function CanHaveMaskers() As Boolean
+        If SpeechMaterial IsNot Nothing Then
+            If MediaSet IsNot Nothing Then
+                If MediaSet.MaskerAudioItems > 0 Then
+                    Return True
+                End If
+            End If
+        End If
+        'Returns False otherwise
+        Return False
+    End Function
+
+    Public Function CanHaveBackgroundNonSpeech() As Boolean
+
+        If SpeechMaterial IsNot Nothing Then
+                If MediaSet IsNot Nothing Then
+                    'TODO: This is not a good solution, as it doesn't really specify the number of available sound files. Consider adding BackgroundNonspeechAudioItems to the MediaSet specification
+                    If MediaSet.BackgroundNonspeechParentFolder.Trim <> "" Then
+                        Return True
+                    End If
+                End If
+            End If
+        'Returns False otherwise
+        Return False
+    End Function
+
+    Public Function CanHaveBackgroundSpeech() As Boolean
+
+        If SpeechMaterial IsNot Nothing Then
+                If MediaSet IsNot Nothing Then
+                    'TODO: This is not a good solution, as it doesn't really specify the number of available sound files. Consider adding BackgroundSpeechAudioItems to the MediaSet specification
+                    If MediaSet.BackgroundSpeechParentFolder.Trim <> "" Then
+                        Return True
+                    End If
+                End If
+            End If
+        'Returns False otherwise
+        Return False
+    End Function
+
 
 
 
@@ -921,266 +1250,15 @@ Public MustInherit Class SpeechTest
     ''' </summary>
     ''' <returns></returns>
     Public Function ContralateralLevelDifference() As Double?
-        If UseContralateralMasking = True Then
+        If ContralateralMasking = True Then
             Return ContralateralMaskingLevel - SpeechLevel
         Else
             Return Nothing
         End If
     End Function
 
-    ''' <summary>
-    ''' This is intended as a shortcut which must override all of the SignalLocations, MaskerLocations and BackgroundLocations properties. It can only be specified if SelectedPresentationMode is either SimulatedSoundField with locations along the mid-sagittal plane, or PointSpeakers at -90 and 90 degrees with distance of 0 (i.e. headphones), and where the signal i set to come from only one side.
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property UsePhaseAudiometry As Boolean
-        Get
-            Return _UsePhaseAudiometry
-        End Get
-        Set(value As Boolean)
-            _UsePhaseAudiometry = value
-            OnPropertyChanged()
-        End Set
-    End Property
-    Private _UsePhaseAudiometry As Boolean = False
 
 
-
-
-    ''' <summary>
-    ''' Determines which type of phase audiometry to use, if UsePhaseAudiometry is True.
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property SelectedPhaseAudiometryType As BmldModes
-        Get
-            Return _SelectedPhaseAudiometryType
-        End Get
-        Set(value As BmldModes)
-            _SelectedPhaseAudiometryType = value
-            OnPropertyChanged()
-        End Set
-    End Property
-    Private _SelectedPhaseAudiometryType As BmldModes
-
-
-
-
-
-#End Region
-
-#Region "Instructions"
-
-    Public Property TesterInstructions As String = ""
-
-    Public Property ParticipantInstructions As String = ""
-
-#End Region
-
-
-
-
-#Region "SoundScene"
-
-
-
-
-    ''' <summary>
-    ''' Holds the reference level step size available for the settings GUI 
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property ReferenceLevel_StepSize As Double = 1
-
-    ''' <summary>
-    ''' Holds the target level step size available for the settings GUI 
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property TargetLevel_StepSize As Double = 1
-
-    ''' <summary>
-    ''' Holds the masker level step size available for the settings GUI 
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property MaskingLevel_StepSize As Double = 1
-
-    ''' <summary>
-    ''' Holds the background sounds level step size available for the settings GUI 
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property BackgroundLevel_StepSize As Double = 1
-
-    ''' <summary>
-    ''' Holds the contralateral masker level step size available for the settings GUI 
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property ContralateralMaskingLevel_StepSize As Double = 1
-
-    Public Property MaximumSoundFieldSpeechLocations As Integer = 1
-
-    Public Property MaximumSoundFieldMaskerLocations As Integer = 1000
-
-    Public Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer = 1000
-
-    Public Property MaximumSoundFieldBackgroundSpeechLocations As Integer = 1000
-
-    Public Property MinimumSoundFieldSpeechLocations As Integer = 1
-
-    Public Property MinimumSoundFieldMaskerLocations As Integer = 0
-
-    Public Property MinimumSoundFieldBackgroundNonSpeechLocations As Integer = 0
-
-    Public Property MinimumSoundFieldBackgroundSpeechLocations As Integer = 0
-
-    Public Property HasOptionalPractiseTest As Boolean = True
-
-    Public Property AllowsUseRetsplChoice As Boolean = False
-
-    Public Property AllowsManualPreSetSelection As Boolean = True
-
-    Public Property AllowsManualStartListSelection As Boolean = True
-
-    Public Property AllowsManualMediaSetSelection As Boolean = True
-
-    Public Property AllowsManualReferenceLevelSelection As Boolean = False
-
-    Public Overridable ReadOnly Property AllowsManualSpeechLevelSelection As Boolean
-        Get
-            If CanHaveTargets = True Then
-                Return True
-            Else
-                Return False
-            End If
-        End Get
-    End Property
-
-    Public Overridable ReadOnly Property AllowsManualMaskingLevelSelection As Boolean
-        Get
-            If CanHaveMaskers = True Then
-                Return True
-            Else
-                Return False
-            End If
-        End Get
-    End Property
-
-    Public Overridable ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean
-        Get
-            If CanHaveBackgroundNonSpeech = True Then
-                Return True
-            Else
-                Return False
-            End If
-        End Get
-    End Property
-
-    <SkipExport>
-    Public Property SupportsPrelistening As Boolean = True
-
-    Public Overridable ReadOnly Property CanHaveTargets As Boolean
-        Get
-            If SpeechMaterial IsNot Nothing Then
-                If SelectedMediaSet IsNot Nothing Then
-                    If SelectedMediaSet.MediaAudioItems > 0 Then
-                        Return True
-                    End If
-                End If
-            End If
-            'Returns False otherwise
-            Return False
-        End Get
-    End Property
-
-    Public Overridable ReadOnly Property CanHaveMaskers As Boolean
-        Get
-            If SpeechMaterial IsNot Nothing Then
-                If SelectedMediaSet IsNot Nothing Then
-                    If SelectedMediaSet.MaskerAudioItems > 0 Then
-                        Return True
-                    End If
-                End If
-            End If
-            'Returns False otherwise
-            Return False
-        End Get
-    End Property
-
-    Public Overridable ReadOnly Property CanHaveBackgroundNonSpeech As Boolean
-        Get
-            If SpeechMaterial IsNot Nothing Then
-                If SelectedMediaSet IsNot Nothing Then
-                    'TODO: This is not a good solution, as it doesn't really specify the number of available sound files. Consider adding BackgroundNonspeechAudioItems to the MediaSet specification
-                    If SelectedMediaSet.BackgroundNonspeechParentFolder.Trim <> "" Then
-                        Return True
-                    End If
-                End If
-            End If
-            'Returns False otherwise
-            Return False
-        End Get
-    End Property
-
-    Public Overridable ReadOnly Property CanHaveBackgroundSpeech As Boolean
-        Get
-            If SpeechMaterial IsNot Nothing Then
-                If SelectedMediaSet IsNot Nothing Then
-                    'TODO: This is not a good solution, as it doesn't really specify the number of available sound files. Consider adding BackgroundSpeechAudioItems to the MediaSet specification
-                    If SelectedMediaSet.BackgroundSpeechParentFolder.Trim <> "" Then
-                        Return True
-                    End If
-                End If
-            End If
-            'Returns False otherwise
-            Return False
-        End Get
-    End Property
-
-    Public Property UseSoundFieldSimulation As Utils.TriState = Utils.TriState.Optional
-
-    Public Property SupportsManualPausing As Boolean = True
-
-    <SkipExport>
-    Public ReadOnly Property CurrentlySupportedIrSets As List(Of BinauralImpulseReponseSet)
-        Get
-            Dim Output As New List(Of BinauralImpulseReponseSet)
-
-            If OstfBase.AllowDirectionalSimulation = True Then
-                Dim SupportedIrNames As New List(Of String)
-                If SelectedMediaSet IsNot Nothing Then
-                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(SelectedMediaSet.WaveFileSampleRate)
-                ElseIf SelectedMediaSets.Count > 0 Then
-                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(SelectedMediaSets(0).WaveFileSampleRate)
-                Else
-                    SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(AvailableMediasets(0).WaveFileSampleRate)
-                End If
-
-                Dim AvaliableSets = DirectionalSimulator.GetAllDirectionalSimulationSets()
-                For Each AvaliableSet In AvaliableSets
-                    If SupportedIrNames.Contains(AvaliableSet.Key) Then
-                        Output.Add(AvaliableSet.Value)
-                    End If
-                Next
-            End If
-
-            Return Output
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Returns the set of transducers from OstfBase.AvaliableTransducers expected to work with the currently connected hardware.
-    ''' </summary>
-    ''' <returns></returns>
-    <SkipExport>
-    Public ReadOnly Property CurrentlySupportedTransducers As List(Of OstfBase.AudioSystemSpecification)
-        Get
-            Dim Output = New List(Of OstfBase.AudioSystemSpecification)
-            Dim AllTransducers = OstfBase.AvaliableTransducers
-
-            'Adding only transducers that can be used with the current sound system.
-            For Each Transducer In AllTransducers
-                If Transducer.CanPlay() = True Then Output.Add(Transducer)
-            Next
-
-            Return Output
-        End Get
-    End Property
 
     ''' <summary>
     ''' This sub mixes targets, maskers, background-non-speech, background-speech and contralateral maskers as assigned in TestOptions sound sources. The mixed sound is stored in the CurrentTestTrial.Sound.
@@ -1219,7 +1297,7 @@ Public MustInherit Class SpeechTest
         'TODO: This function is not finished, it still need implementation of BackgroundNonSpeech and BackgroundSpeech
 
         'Calculates the EM corrected Contralateral masker level (the level supplied should not be EM corrected but be as it would appear on an audiometer attenuator
-        Dim ContralateralMaskerLevel_EmCorrected As Double = ContralateralMaskerLevel + SelectedMediaSet.EffectiveContralateralMaskingGain
+        Dim ContralateralMaskerLevel_EmCorrected As Double = ContralateralMaskerLevel + MediaSet.EffectiveContralateralMaskingGain
 
         'Mix the signal using DuxplexMixer CreateSoundScene
         'Sets a List of SoundSceneItem in which to put the sounds to mix
@@ -1229,8 +1307,8 @@ Public MustInherit Class SpeechTest
 
         'Determining test ear and stores in the current test trial (This should perhaps be moved outside this function. On the other hand it's good that it's always detemined when sounds are mixed, though all tests need to implement this or call this code)
         Dim CurrentTestEar As Utils.SidesWithBoth = Utils.SidesWithBoth.Both ' Assuming both, and overriding if needed
-        If SelectedTransducer.IsHeadphones = True Then
-            If UseSimulatedSoundField = False Then
+        If Transducer.IsHeadphones = True Then
+            If SimulatedSoundField = False Then
                 Dim HasLeftSideTarget As Boolean = False
                 Dim HasRightSideTarget As Boolean = False
 
@@ -1260,7 +1338,7 @@ Public MustInherit Class SpeechTest
         If SignalLocations.Count > 0 Then
 
             'Getting the target sound (i.e. test words)
-            Dim TargetSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(SelectedMediaSet, 0, 1, , , , , False, False, False, , , False)
+            Dim TargetSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(MediaSet, 0, 1, , , , , False, False, False, , , False)
 
             'Storing the samplerate
             CurrentSampleRate = TargetSound.WaveFormat.SampleRate
@@ -1310,7 +1388,7 @@ Public MustInherit Class SpeechTest
             If MaskerLevel.HasValue = False Then Throw New ArgumentException("MaskerLevel value cannot be Nothing!")
 
             'Getting the masker sound
-            Dim MaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(SelectedMediaSet, 0)
+            Dim MaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(MediaSet, 0)
 
             'Storing the samplerate
             If CurrentSampleRate = -1 Then CurrentSampleRate = MaskerSound.WaveFormat.SampleRate
@@ -1372,23 +1450,23 @@ Public MustInherit Class SpeechTest
         'TODO: implement BackgroundNonSpeech and BackgroundSpeech here
 
         ' **CONTRALATERAL MASKER**
-        If UseContralateralMasking = True Then
+        If ContralateralMasking = True Then
 
             'Ensures that ContralateralMaskerLevel has a value
             If ContralateralMaskerLevel.HasValue = False Then Throw New ArgumentException("ContralateralMaskerLevel value cannot be Nothing!")
 
             'Ensures that head phones are used
-            If SelectedTransducer.IsHeadphones = False Then
+            If Transducer.IsHeadphones = False Then
                 Throw New Exception("Contralateral masking cannot be used without headphone presentation.")
             End If
 
             'Ensures that it's not a simulated sound field
-            If UseSimulatedSoundField = True Then
+            If SimulatedSoundField = True Then
                 Throw New Exception("Contralateral masking cannot be used in a simulated sound field!")
             End If
 
             'Getting the contralateral masker sound 
-            Dim FullContralateralMaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetContralateralMaskerSound(SelectedMediaSet, 0)
+            Dim FullContralateralMaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetContralateralMaskerSound(MediaSet, 0)
 
             'Storing the samplerate
             If CurrentSampleRate = -1 Then CurrentSampleRate = FullContralateralMaskerSound.WaveFormat.SampleRate
@@ -1448,27 +1526,23 @@ Public MustInherit Class SpeechTest
 
 
         Dim CurrentSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
-        If UseSimulatedSoundField Then
+        If SimulatedSoundField Then
             CurrentSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
             'TODO: This needs to be modified if/when more SoundPropagationTypes are starting to be supported
         End If
 
         'Creating the mix by calling CreateSoundScene of the current Mixer
-        CurrentTestTrial.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, UseRetsplCorrection, CurrentSoundPropagationType, SelectedTransducer.LimiterThreshold, ExportSounds, CurrentTestTrial.Spelling)
+        CurrentTestTrial.Sound = Transducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, LevelsAreIn_dBHL, CurrentSoundPropagationType, Transducer.LimiterThreshold, ExportSounds, CurrentTestTrial.Spelling)
 
 
         'TODO: Reasonably this method should only store values into the CurrentTestTrial that are derived within this function! Leaving these for now
-        CurrentTestTrial.MediaSetName = SelectedMediaSet.MediaSetName
-        CurrentTestTrial.UseContralateralNoise = UseContralateralMasking
-        CurrentTestTrial.EfficientContralateralMaskingTerm = SelectedMediaSet.EffectiveContralateralMaskingGain
+        CurrentTestTrial.MediaSetName = MediaSet.MediaSetName
+        CurrentTestTrial.UseContralateralNoise = ContralateralMasking
+        CurrentTestTrial.EfficientContralateralMaskingTerm = MediaSet.EffectiveContralateralMaskingGain
 
     End Sub
 
-    ''' <summary>
-    ''' The sound player crossfade overlap to be used between trials, fade-in and fade-out
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property SoundOverlapDuration As Double = 0.1
+
 
 
 #End Region
@@ -1477,7 +1551,36 @@ Public MustInherit Class SpeechTest
 
 #Region "Test protocol"
 
+    Public Property TesterInstructions As String = ""
+
+    Public Property ParticipantInstructions As String = ""
+
+
     Public Shared Randomizer As Random = New Random
+
+
+    ''' <summary>
+    ''' Should indicate whether the test is a practise test or not (Obligatory).
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property IsPractiseTest As Boolean
+        Get
+            Return _IsPractiseTest
+        End Get
+        Set(value As Boolean)
+            _IsPractiseTest = value
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _IsPractiseTest As Boolean = False
+
+
+    Public Property SupportsManualPausing As Boolean = True
+
+
+    <SkipExport>
+    Public Property SupportsPrelistening As Boolean = True
+
 
     <SkipExport>
     Public Property AvailableTestModes As List(Of TestModes) = New List(Of TestModes) From {TestModes.ConstantStimuli, TestModes.AdaptiveNoise, TestModes.AdaptiveSpeech}
@@ -1527,8 +1630,8 @@ Public MustInherit Class SpeechTest
     Public Overridable ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState
         Get
             If SpeechMaterial IsNot Nothing Then
-                If SelectedMediaSet IsNot Nothing Then
-                    If SelectedMediaSet.ContralateralMaskerAudioItems > 0 Then
+                If MediaSet IsNot Nothing Then
+                    If MediaSet.ContralateralMaskerAudioItems > 0 Then
                         Return Utils.Constants.TriState.Optional
                     End If
                 End If

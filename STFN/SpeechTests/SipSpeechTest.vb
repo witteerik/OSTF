@@ -16,13 +16,13 @@ Public Class SipSpeechTest
 
         TesterInstructions = ""
         ParticipantInstructions = ""
-        HasOptionalPractiseTest = False
-        AllowsUseRetsplChoice = False
-        AllowsManualPreSetSelection = False
-        AllowsManualStartListSelection = True
-        AllowsManualMediaSetSelection = True
+        ShowGuiChoice_PractiseTest = False
+        ShowGuiChoice_dBHL = False
+        ShowGuiChoice_PreSet = False
+        ShowGuiChoice_StartList = True
+        ShowGuiChoice_MediaSet = True
         SupportsPrelistening = True
-        UseSoundFieldSimulation = TriState.True
+        ShowGuiChoice_SoundFieldSimulation = True
         AvailableTestModes = New List(Of TestModes) From {TestModes.ConstantStimuli, TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise, TestModes.AdaptiveDirectionality}
         AvailableTestProtocols = New List(Of TestProtocol)
         AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {3}
@@ -35,14 +35,14 @@ Public Class SipSpeechTest
         MinimumSoundFieldMaskerLocations = 1
         MinimumSoundFieldBackgroundNonSpeechLocations = 2
         MinimumSoundFieldBackgroundSpeechLocations = 0
-        AllowsManualReferenceLevelSelection = True
+        ShowGuiChoice_ReferenceLevel = True
         UseKeyWordScoring = Utils.TriState.False
         UseListOrderRandomization = Utils.TriState.True
         UseWithinListRandomization = Utils.TriState.True
         UseAcrossListRandomization = Utils.TriState.True
         UseFreeRecall = Utils.TriState.False
         UseDidNotHearAlternative = Utils.Constants.TriState.False
-        UsePhaseAudiometry = False
+        PhaseAudiometry = False
         TargetLevel_StepSize = 5
         HistoricTrialCount = 0
         SupportsManualPausing = False
@@ -68,11 +68,11 @@ Public Class SipSpeechTest
     End Sub
 
 
-    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = True
 
-    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = True
 
-    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = True
 
     Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.TriState = Utils.Constants.TriState.False
 
@@ -114,7 +114,7 @@ Public Class SipSpeechTest
             SipMeasurementRandomizer = New Random
         End If
 
-        SelectedTransducer = AvaliableTransducers(0)
+        Transducer = AvaliableTransducers(0)
 
         If SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
@@ -144,11 +144,11 @@ Public Class SipSpeechTest
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
-        If UseSimulatedSoundField = True Then
+        If SimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
-            Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
-            DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer, UsePhaseAudiometry)
+            Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(Transducer)
+            DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), Transducer, PhaseAudiometry)
 
         Else
             SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
@@ -176,7 +176,7 @@ Public Class SipSpeechTest
                 'Setting up test trials to run
                 SelectedPNRs.Add(SignalToNoiseRatio(SpeechLevel, MaskingLevel))
 
-                PlanDirectionalTestTrials(CurrentSipTestMeasurement, ReferenceLevel, SelectedPreset.Name, {SelectedMediaSet}.ToList, SelectedPNRs, NumberOfSimultaneousMaskers, SelectedSoundPropagationType, RandomSeed)
+                PlanDirectionalTestTrials(CurrentSipTestMeasurement, ReferenceLevel, Preset.Name, {MediaSet}.ToList, SelectedPNRs, NumberOfSimultaneousMaskers, SelectedSoundPropagationType, RandomSeed)
 
             Case Else
                 Throw New NotImplementedException
@@ -240,7 +240,7 @@ Public Class SipSpeechTest
 
 
         For Each PresetComponent In Preset
-            For Each MediaSet In SelectedMediaSets
+            For Each SelectedMediaSet In SelectedMediaSets
                 For Each PNR In SelectedPNRs
                     For Each TargetLocation In CurrentTargetLocations
 
@@ -261,7 +261,7 @@ Public Class SipSpeechTest
 
                             For c = 0 To TestWords.Count - 1
                                 'TODO/NB: The following line uses only a single TargetLocation, even though several could in principle be set
-                                Dim NewTrial As New SipTrial(NewTestUnit, TestWords(c), MediaSet, SoundPropagationType, {TargetLocation}, CurrentMaskerLocations.ToArray, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
+                                Dim NewTrial As New SipTrial(NewTestUnit, TestWords(c), SelectedMediaSet, SoundPropagationType, {TargetLocation}, CurrentMaskerLocations.ToArray, BackgroundLocations, NewTestUnit.ParentMeasurement.Randomizer)
                                 NewTrial.SetLevels(ReferenceLevel, PNR)
                                 NewTestUnit.PlannedTrials.Add(NewTrial)
                             Next
@@ -386,7 +386,7 @@ Public Class SipSpeechTest
         'ParticipantControl.ResetTestItemPanel()
 
         'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds, using audio from the first selected MediaSet
-        Dim TestSound As Audio.Sound = CreateInitialSound(SelectedMediaSet)
+        Dim TestSound As Audio.Sound = CreateInitialSound(MediaSet)
 
         'Plays sound
         SoundPlayer.SwapOutputSounds(TestSound)
@@ -395,7 +395,7 @@ Public Class SipSpeechTest
         'StartTrialTimer.Interval = Math.Max(1, PretestSoundDuration * 1000)
 
         'Premixing the first 10 sounds 
-        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
 
     End Sub
 
@@ -452,7 +452,7 @@ Public Class SipSpeechTest
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedInitialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType)
+            Dim MixedInitialSound As Audio.Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType)
 
             If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
@@ -523,7 +523,7 @@ Public Class SipSpeechTest
 
             If (CurrentSipTestMeasurement.ObservedTrials.Count + 3) Mod 10 = 0 Then
                 'Premixing the next 10 sounds, starting three trials before the next is needed 
-                CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+                CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
             End If
 
             'Waiting for the background thread to finish mixing
@@ -663,7 +663,7 @@ Public Class SipSpeechTest
                 CurrentTestTrial.Tasks = 0
                 For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
 
-                    If ScoreOnlyKeyWords = True Then
+                    If KeyWordScoring = True Then
                         ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = Child.IsKeyComponent})
                     Else
                         ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = True})

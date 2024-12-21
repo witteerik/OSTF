@@ -22,13 +22,13 @@ Public Class HintSpeechTest
 
         TesterInstructions = ""
         ParticipantInstructions = ""
-        HasOptionalPractiseTest = True
-        AllowsUseRetsplChoice = False
-        AllowsManualPreSetSelection = False
-        AllowsManualStartListSelection = True
-        AllowsManualMediaSetSelection = True
+        ShowGuiChoice_PractiseTest = True
+        ShowGuiChoice_dBHL = False
+        ShowGuiChoice_PreSet = False
+        ShowGuiChoice_StartList = True
+        ShowGuiChoice_MediaSet = True
         SupportsPrelistening = False
-        UseSoundFieldSimulation = Utils.TriState.Optional
+        ShowGuiChoice_SoundFieldSimulation = True
         AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveNoise}
         AvailableTestProtocols = New List(Of TestProtocol) From {New SrtSwedishHint2018_TestProtocol}
         AvailableFixedResponseAlternativeCounts = New List(Of Integer)
@@ -41,14 +41,14 @@ Public Class HintSpeechTest
         MinimumSoundFieldMaskerLocations = 1
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
-        AllowsManualReferenceLevelSelection = False
+        ShowGuiChoice_ReferenceLevel = False
         UseKeyWordScoring = Utils.Constants.TriState.True
         UseListOrderRandomization = Utils.Constants.TriState.False
         UseWithinListRandomization = Utils.Constants.TriState.False
         UseAcrossListRandomization = Utils.Constants.TriState.False
         UseFreeRecall = Utils.TriState.True
         UseDidNotHearAlternative = Utils.Constants.TriState.False
-        UsePhaseAudiometry = False
+        PhaseAudiometry = False
         TargetLevel_StepSize = 1
         HistoricTrialCount = 0
         SupportsManualPausing = True
@@ -70,16 +70,17 @@ Public Class HintSpeechTest
         MaximumLevel_ContralateralMaskers = 80
         AvailableExperimentNumbers = {}
 
+        ShowGuiChoice_TargetLocations = True
+        ShowGuiChoice_MaskerLocations = True
+        ShowGuiChoice_BackgroundNonSpeechLocations = False
+        ShowGuiChoice_BackgroundSpeechLocations = False
+
     End Sub
 
-    Public Overrides ReadOnly Property AllowsManualSpeechLevelSelection As Boolean = False
-    Public Overrides ReadOnly Property AllowsManualMaskingLevelSelection As Boolean = True
-    Public Overrides ReadOnly Property AllowsManualBackgroundLevelSelection As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = False
+    Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = True
 
-    Public Overrides ReadOnly Property CanHaveTargets As Boolean = True
-    Public Overrides ReadOnly Property CanHaveMaskers As Boolean = True
-    Public Overrides ReadOnly Property CanHaveBackgroundNonSpeech As Boolean = False
-    Public Overrides ReadOnly Property CanHaveBackgroundSpeech As Boolean = False
 
     Public Overrides ReadOnly Property UseContralateralMasking_DefaultValue As Utils.Constants.TriState = Utils.Constants.TriState.Optional
 
@@ -114,7 +115,7 @@ Public Class HintSpeechTest
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
         End If
 
-        If MaskerLocations.Count = 0 And SelectedTestMode = TestModes.AdaptiveNoise Then
+        If MaskerLocations.Count = 0 And TestMode = TestModes.AdaptiveNoise Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source in tests with adaptive noise!")
         End If
 
@@ -128,11 +129,11 @@ Public Class HintSpeechTest
             StartAdaptiveLevel = SpeechLevel
         End If
 
-        SelectedTestProtocol.IsInPretestMode = IsPractiseTest
+        TestProtocol.IsInPretestMode = IsPractiseTest
 
         CreatePlannedWordsList()
 
-        SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = StartAdaptiveLevel})
+        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = StartAdaptiveLevel})
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -147,7 +148,7 @@ Public Class HintSpeechTest
         Dim AllLists As New List(Of SpeechMaterialComponent)
         'Filtering out lists which are or are not pracise lists depending on the selected value in TestOptions
         For Each List In AllAvailableLists
-            If List.IsPractiseComponent = SelectedTestProtocol.IsInPretestMode Then
+            If List.IsPractiseComponent = TestProtocol.IsInPretestMode Then
                 AllLists.Add(List)
             End If
         Next
@@ -166,7 +167,7 @@ Public Class HintSpeechTest
         Next
         'Determines the index of the start list
         Dim SelectedStartListIndex As Integer = -1
-        If SelectedTestProtocol.IsInPretestMode = False Then
+        If TestProtocol.IsInPretestMode = False Then
             '...based on the StartList 
             For i = 0 To AllLists.Count - 1
                 If AllLists(i).PrimaryStringRepresentation = StartList Then
@@ -201,7 +202,7 @@ Public Class HintSpeechTest
         For Each List In ListsToUse
             Dim CurrentWords = List.GetChildren()
 
-            If RandomizeItemsWithinLists = False Then
+            If WithinListRandomization = False Then
                 For Each Word In CurrentWords
                     PlannedTestSentencess.Add(Word)
                     'Checking if enough sentences have been added
@@ -255,7 +256,7 @@ Public Class HintSpeechTest
             CurrentTestTrial.ScoreList = New List(Of Integer)
             For i = 0 To e.LinguisticResponses.Count - 1
 
-                If ScoreOnlyKeyWords = True Then
+                If KeyWordScoring = True Then
                     If WordsInSentence(i).IsKeyComponent = False Then
                         'In keyword correction mode, skipping to next if the word is not a keyword
                         Continue For
@@ -287,14 +288,14 @@ Public Class HintSpeechTest
         'TODO: We must store the responses and response times!!!
 
         'Calculating the speech level
-        Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
+        Dim ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
 
         'Preparing a full test if the practise list is finished
-        If SelectedTestProtocol.IsInPretestMode = True Then
+        If TestProtocol.IsInPretestMode = True Then
             If ProtocolReply.Decision = SpeechTestReplies.TestIsCompleted Then
 
                 'Finalizing the protocol
-                SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+                TestProtocol.FinalizeProtocol(ObservedTrials)
 
                 'Showing results in the GUI
                 GetResultStringForGui()
@@ -306,15 +307,15 @@ Public Class HintSpeechTest
                 'Setting the start value in the new protocol to the current AdaptiveValue
                 Dim NewProtocol As Object = Nothing
                 For Each AvailableProtocol In Me.AvailableTestProtocols
-                    If AvailableProtocol.GetType = SelectedTestProtocol.GetType Then
+                    If AvailableProtocol.GetType = TestProtocol.GetType Then
                         NewProtocol = AvailableProtocol
                         Exit For
                     End If
                 Next
-                SelectedTestProtocol = NewProtocol
+                TestProtocol = NewProtocol
 
                 'Initializing the new protocol with the adaptive threshold determined in the practise test as the start value
-                SelectedTestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = ProtocolReply.AdaptiveValue})
+                TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = ProtocolReply.AdaptiveValue})
 
                 'Clearing observed and planned sentences (since these are based on practise lists), and plan new lists based on the intended start list
                 ObservedTrials.Clear()
@@ -343,7 +344,7 @@ Public Class HintSpeechTest
         Dim NextTestWord = PlannedTestSentencess(ObservedTrials.Count)
 
         'Creating a new test trial
-        Select Case SelectedTestMode
+        Select Case TestMode
             Case TestModes.AdaptiveSpeech
 
                 If MaskerLocations.Count > 0 Then
@@ -393,7 +394,7 @@ Public Class HintSpeechTest
                 CurrentTestTrial.Tasks = 0
                 For Each Child In CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
 
-                    If ScoreOnlyKeyWords = True Then
+                    If KeyWordScoring = True Then
                         Dim IsKeyComponent = Child.IsKeyComponent
                         ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = Child.GetCategoricalVariableValue("Spelling"), .IsScoredItem = IsKeyComponent})
                         If IsKeyComponent = True Then
@@ -437,18 +438,18 @@ Public Class HintSpeechTest
 
     Public Overrides Sub FinalizeTest()
 
-        SelectedTestProtocol.FinalizeProtocol(ObservedTrials)
+        TestProtocol.FinalizeProtocol(ObservedTrials)
 
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
 
-        Dim ProtocolThreshold = SelectedTestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = TestProtocol.GetFinalResult()
 
         Dim Output As New List(Of String)
 
         If ProtocolThreshold IsNot Nothing Then
-            If SelectedTestProtocol.IsInPretestMode = True Then
+            If TestProtocol.IsInPretestMode = True Then
                 ResultSummaryForGUI.Add("Resultat för övningstestet: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
             Else
                 ResultSummaryForGUI.Add("Testresultat: SNR = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB")
@@ -456,16 +457,16 @@ Public Class HintSpeechTest
 
             Output.AddRange(ResultSummaryForGUI)
         Else
-            If SelectedTestProtocol.IsInPretestMode = True Then
+            If TestProtocol.IsInPretestMode = True Then
                 Output.Add("Övningstest!")
             End If
 
             If CurrentTestTrial IsNot Nothing Then
-                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & SelectedTestProtocol.TotalTrialCount)
+                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestProtocol.TotalTrialCount)
                 Output.Add("SNR = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SNR) & " dB HL")
                 Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
                 Output.Add("Brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel) & " dB HL")
-                If UseContralateralMasking = True Then
+                If ContralateralMasking = True Then
                     Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
                 End If
             End If
@@ -482,7 +483,7 @@ Public Class HintSpeechTest
 
         Dim ExportStringList As New List(Of String)
 
-        Dim ProtocolThreshold = SelectedTestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = TestProtocol.GetFinalResult()
 
         'Exporting only the current trial (last added to ObservedTrials)
         Dim TestTrialIndex As Integer = ObservedTrials.Count - 1
