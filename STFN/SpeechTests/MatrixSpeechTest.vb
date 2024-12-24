@@ -1,7 +1,7 @@
 ﻿Imports MathNet.Numerics
 
 Public Class MatrixSpeechTest
-    Inherits SpeechTest
+    Inherits SpeechAudiometryTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String = "Matrix"
 
@@ -10,7 +10,7 @@ Public Class MatrixSpeechTest
         ApplyTestSpecificSettings()
     End Sub
 
-    Public Sub ApplyTestSpecificSettings()
+    Public Shadows Sub ApplyTestSpecificSettings()
 
         TesterInstructions = ""
         ParticipantInstructions = ""
@@ -84,8 +84,6 @@ Public Class MatrixSpeechTest
     Private MaximumNumberOfTestSentences As Integer = 100
 
     Private HasNoise As Boolean
-
-    Private ObservedTrials As TrialHistory
 
 
 #Region "Settings"

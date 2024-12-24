@@ -67,11 +67,11 @@ Public MustInherit Class SpeechTest
     ''' (Note that this also means that test specifications and speech material components should not be altered once loaded.
     ''' </summary>
     ''' <returns></returns>
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Private Shared Property LoadedSpeechMaterialSpecifications As New SortedList(Of String, SpeechMaterialSpecification)
 
     'A shared function to load tests
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property AvailableSpeechMaterialSpecifications() As List(Of String)
         Get
             Dim OutputList As New List(Of String)
@@ -126,7 +126,7 @@ Public MustInherit Class SpeechTest
 
 #Region "MediaSets"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property AvailableMediasets() As List(Of MediaSet)
         Get
             SpeechMaterial.ParentTestSpecification.LoadAvailableMediaSetSpecifications()
@@ -134,7 +134,7 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property AvailablePresets() As List(Of SmcPresets.Preset)
         Get
             Dim Output = New List(Of SmcPresets.Preset)
@@ -145,10 +145,10 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property AvailableExperimentNumbers As Integer() = {}
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property AvailablePractiseListsNames() As List(Of String)
         Get
             Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
@@ -162,7 +162,7 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property AvailableTestListsNames() As List(Of String)
         Get
             Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List)
@@ -181,7 +181,7 @@ Public MustInherit Class SpeechTest
 
 #Region "IrSets"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property CurrentlySupportedIrSets As List(Of BinauralImpulseReponseSet)
         Get
             Dim Output As New List(Of BinauralImpulseReponseSet)
@@ -212,7 +212,7 @@ Public MustInherit Class SpeechTest
     ''' Returns the set of transducers from OstfBase.AvaliableTransducers expected to work with the currently connected hardware.
     ''' </summary>
     ''' <returns></returns>
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property CurrentlySupportedTransducers As List(Of OstfBase.AudioSystemSpecification)
         Get
             Dim Output = New List(Of OstfBase.AudioSystemSpecification)
@@ -252,31 +252,31 @@ Public MustInherit Class SpeechTest
 #Region "GuiTexts"
 
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property TesterInstructionsButtonText As String = "Instruktioner för inställningar"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ParticipantInstructionsButtonText As String = "Patientinstruktioner"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property IsPractiseTestTitle As String = "Övningstest"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property SelectedPresetTitle As String = "Förval"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ExperimentNumberTitle As String = "Experiment nr"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property StartListTitle As String = "StartLista"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property SelectedMediaSetTitle As String = "Mediaset"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property SelectedMediaSetsTitle As String = "Mediaset"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property ReferenceLevelTitle As String
         Get
             Select Case GuiLanguage
@@ -296,7 +296,7 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property TargetLevelTitle As String
         Get
             Select Case GuiLanguage
@@ -316,7 +316,7 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property MaskingLevelTitle As String
         Get
             Select Case GuiLanguage
@@ -336,7 +336,7 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property BackgroundLevelTitle As String
         Get
             Select Case GuiLanguage
@@ -356,7 +356,7 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public ReadOnly Property ContralateralMaskingLevelTitle As String
         Get
             Select Case GuiLanguage
@@ -376,83 +376,83 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property SelectedTestModeTitle As String = "Testläge"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property SelectedTestProtocolTitle As String = "Testprotokoll"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property KeyWordScoringTitle As String = "Rätta på nyckelord"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ListOrderRandomizationTitle As String = "Slumpa listordning"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property WithinListRandomizationTitle As String = "Slumpa inom listor"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property AcrossListsRandomizationTitle As String = "Slumpa mellan listor"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property IsFreeRecallTitle As String = "Fri rapportering"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property IncludeDidNotHearResponseAlternativeTitle As String = "Visa ? som alternativ"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property FixedResponseAlternativeCountTitle As String = "Antal svarsalternativ"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property TransducerTitle As String = "Ljudgivare"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property LevelsAreIn_dBHLTitle As String = "Ange nivåer i dB HL"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property SimulatedSoundFieldTitle As String = "Simulera ljudfält"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property IrSetTitle As String = "HRIR"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property TargetLocationsTitle As String = "Placering av talkälla/or"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property MaskerLocationsTitle As String = "Placering av maskeringsljud"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property BackgroundNonSpeechLocationsTitle As String = "Placering av bakgrundsljud"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property BackgroundSpeechLocationsTitle As String = "Placering av bakgrundstal"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ContralateralMaskingTitle As String = "Kontralateral maskering"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property LockContralateralMaskingTitle As String = "Koppla till talnivå"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property PhaseAudiometryTitle As String = "Fasaudiometri"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property PhaseAudiometryTypeTitle As String = "Fasaudiometrityp"
 
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property PreListenTitle As String = "Provlyssna"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property PreListenPlayButtonTitle As String = "Spela nästa"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property PreListenStopButtonTitle As String = "Stop"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property PreListenLouderButtonTitle As String = "Öka nivån"
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property PreListenSofterButtonTitle As String = "Minska nivån"
 
 
@@ -633,25 +633,25 @@ Public MustInherit Class SpeechTest
     Private _ShowGuiChoice_BackgroundSpeechLocations As Boolean
 
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_KeyWordScoring As Boolean = False
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_ListOrderRandomization As Boolean = False
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_WithinListRandomization As Boolean = False
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_AcrossListRandomization As Boolean = False
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_FreeRecall As Boolean = False
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_DidNotHearAlternative As Boolean = False
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_PhaseAudiometry As Boolean = False
 
 
@@ -696,7 +696,7 @@ Public MustInherit Class SpeechTest
     ''' Should specify the locations from which the signals should come
     ''' </summary>
     ''' <returns></returns>
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property SignalLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
         Get
             Return _SignalLocationCandidates
@@ -712,7 +712,7 @@ Public MustInherit Class SpeechTest
     ''' Should specify the locations from which the Maskers should come
     ''' </summary>
     ''' <returns></returns>
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property MaskerLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
         Get
             Return _MaskerLocationCandidates
@@ -728,7 +728,7 @@ Public MustInherit Class SpeechTest
     ''' Should specify the locations from which the background (non-speech) sounds should come
     ''' </summary>
     ''' <returns></returns>
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property BackgroundNonSpeechLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
         Get
             Return _BackgroundNonSpeechLocationCandidates
@@ -744,7 +744,7 @@ Public MustInherit Class SpeechTest
     ''' Should specify the locations from which the background speech sounds should come
     ''' </summary>
     ''' <returns></returns>
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property BackgroundSpeechLocationCandidates As List(Of Audio.SoundScene.VisualSoundSourceLocation)
         Get
             Return _BackgroundSpeechLocationCandidates
@@ -1771,11 +1771,11 @@ Public MustInherit Class SpeechTest
     Public Property SupportsManualPausing As Boolean = False
 
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property SupportsPrelistening As Boolean = False
 
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property AvailableTestModes As List(Of TestModes) = New List(Of TestModes)
 
     Public Enum TestModes
@@ -1786,10 +1786,10 @@ Public MustInherit Class SpeechTest
         Custom
     End Enum
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property AvailableTestProtocols As List(Of TestProtocol) = New List(Of TestProtocol)
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property AllTestProtocols As List(Of TestProtocol) = New List(Of TestProtocol) From {
                 New SrtSwedishHint2018_TestProtocol,
                 New BrandKollmeier2002_TestProtocol,
@@ -1802,10 +1802,10 @@ Public MustInherit Class SpeechTest
                 New SrtSwedishHint2018_TestProtocol}
 
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property AvailableFixedResponseAlternativeCounts As List(Of Integer) = New List(Of Integer)
 
-    <SkipExport>
+    <ExludeFromPropertyListing>
     Public Property AvailablePhaseAudiometryTypes As List(Of BmldModes) = New List(Of BmldModes)
 
 
@@ -1905,7 +1905,6 @@ Public MustInherit Class SpeechTest
     Public MustOverride Function GetTestTrialResultExportString() As String
 
 
-
     Public Function SaveTestTrialResults() As Boolean
 
         'Skipping saving data if it's the demo ptc ID
@@ -1927,6 +1926,8 @@ Public MustInherit Class SpeechTest
 
         Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, Me.FilePathRepresentation)
         Dim OutputFilename = Me.FilePathRepresentation & "_TrialResults_" & SharedSpeechTestObjects.CurrentParticipantID
+
+        Dim MyType = Me.GetType
 
         Dim TestTrialResultsString = GetTestTrialResultExportString()
         Utils.SendInfoToLog(TestTrialResultsString, OutputFilename, OutputPath, False, True, False, True, True)
@@ -1972,77 +1973,10 @@ Public MustInherit Class SpeechTest
 
 #End Region
 
-    Public Function ExportColumnHeadings() As String
 
-        Dim OutputList As New List(Of String)
-
-        'Adding property names
-        Dim properties As PropertyInfo() = GetType(SpeechTest).GetProperties()
-
-        ' Iterating through each property
-        For Each [property] As PropertyInfo In properties
-
-            ' Getting the name of the property
-            Dim propertyName As String = [property].Name
-            OutputList.Add(propertyName)
-
-        Next
-
-        Return String.Join(vbTab, OutputList)
-
-    End Function
-
-    Public Function ExportSettingsAsTextRow() As String
-
-        Dim OutputList As New List(Of String)
-
-        Dim properties As PropertyInfo() = GetType(SpeechTest).GetProperties()
-
-        ' Iterating through each property
-        For Each [property] As PropertyInfo In properties
-
-            ' Getting the name of the property
-            Dim propertyName As String = [property].Name
-
-            ' Getting the value of the property for the current instance 
-            Dim propertyValue As Object = [property].GetValue(Me)
-
-            If propertyValue IsNot Nothing Then
-
-                ' Check if the property value is a List(Of T)
-                Dim propertyType As Type = propertyValue.GetType()
-                If propertyType.IsGenericType AndAlso propertyType.GetGenericTypeDefinition() = GetType(List(Of)) Then
-
-                    ' Iterate through the List(Of T) and call ToString on each item
-                    Dim items As New List(Of String)
-                    Dim enumerable As IEnumerable = DirectCast(propertyValue, IEnumerable)
-                    For Each item In enumerable
-                        items.Add(item.ToString())
-                    Next
-
-                    ' Join the items with commas (or any separator you prefer)
-                    OutputList.Add(String.Join("; ", items))
-
-                Else
-                    OutputList.Add(propertyValue.ToString())
-                End If
-
-            Else
-                OutputList.Add("NotSet")
-            End If
-
-        Next
-
-        Return String.Join(vbTab, OutputList)
-
-    End Function
 
 
 End Class
 
 
 
-<AttributeUsage(AttributeTargets.Property)>
-Public Class SkipExportAttribute
-    Inherits Attribute
-End Class

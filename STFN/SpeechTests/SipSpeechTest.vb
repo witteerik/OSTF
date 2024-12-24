@@ -33,6 +33,8 @@ Public Class SipSpeechTest
 
         SelectedTestparadigm = Testparadigm.Slow
 
+        SipTestMode = SiPTestModes.Directional
+
     End Sub
 
 
@@ -40,17 +42,11 @@ Public Class SipSpeechTest
     'Public Overrides ReadOnly Property ShowGuiChoice_SNR As Boolean = True
 
 
-
-    Public SipTestMode As SiPTestModes = SiPTestModes.Directional
     Private NumberOfSimultaneousMaskers As Integer = 1
     Private SelectedPNRs As New List(Of Double)
-
-    Public Enum SiPTestModes
-        Directional
-        BMLD
-        Binaural
-    End Enum
-
+    Private TestIsStarted As Boolean = False
+    Private SipMeasurementRandomizer As Random
+    Private TestIsPaused As Boolean = False
 
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
@@ -282,9 +278,6 @@ Public Class SipSpeechTest
 
     End Sub
 
-    Private TestIsStarted As Boolean = False
-    Private SipMeasurementRandomizer As Random
-    Private TestIsPaused As Boolean = False
 
     Private Sub TryStartTest()
 
@@ -322,7 +315,7 @@ Public Class SipSpeechTest
     End Sub
 
 
-    Private Sub InitiateTestByPlayingSound()
+    Protected Overrides Sub InitiateTestByPlayingSound()
 
         'UpdateTestProgress()
         ''Updates the progress bar
@@ -509,86 +502,7 @@ Public Class SipSpeechTest
 
 
 
-    ''' <summary>
-    ''' This method can be called by the backend in order to display a message box message to the user.
-    ''' </summary>
-    ''' <param name="Message"></param>
-    Private Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "")
-
-        If Title = "" Then
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    Title = "SiP-testet"
-                Case Else
-                    Title = "SiP-test"
-            End Select
-        End If
-
-        MsgBox(Message, MsgBoxStyle.Information, Title)
-
-    End Sub
-
-    Public Overrides Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
-
-        If e IsNot Nothing Then
-
-            'Corrects the trial response, based on the given response
-            Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
-            Dim CorrectWordsList As New List(Of String)
-
-            'Resets the CurrentTestTrial.ScoreList
-            CurrentTestTrial.ScoreList = New List(Of Integer)
-            For i = 0 To e.LinguisticResponses.Count - 1
-                If e.LinguisticResponses(i) = WordsInSentence(i).GetCategoricalVariableValue("Spelling") Then
-                    CurrentTestTrial.ScoreList.Add(1)
-                Else
-                    CurrentTestTrial.ScoreList.Add(0)
-                End If
-            Next
-
-            'Checks if the trial is finished
-            If CurrentTestTrial.ScoreList.Count < CurrentTestTrial.Tasks Then
-                'Returns to continue the trial
-                Return SpeechTestReplies.ContinueTrial
-            End If
-
-            'Adding the test trial
-            'ObservedTrials.Add(CurrentTestTrial)
-
-            'This is an incoming test trial response
-            If CurrentTestTrial IsNot Nothing Then
-                CurrentSipTestMeasurement.MoveTrialToHistory(CurrentTestTrial)
-            End If
-
-        Else
-            'Nothing to correct (this should be the start of a new test)
-            'Playing initial sound, and premixing trials
-            InitiateTestByPlayingSound()
-
-        End If
-
-        'TODO: We must store the responses and response times!!!
-
-        'Calculating the speech level
-        'Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
-        Dim ProtocolReply = New TestProtocol.NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial}
-
-        If CurrentSipTestMeasurement.PlannedTrials.Count = 0 Then
-            Return SpeechTestReplies.TestIsCompleted
-        End If
-
-        'Preparing next trial if needed
-        If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
-            PrepareNextTrial(ProtocolReply)
-        End If
-
-        Return ProtocolReply.Decision
-
-
-    End Function
-
-
-    Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
+    Protected Overrides Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
         'Preparing the next trial
         'Creating a new test trial
@@ -675,28 +589,8 @@ Public Class SipSpeechTest
     End Sub
 
     Public Overrides Function GetResultStringForGui() As String
-        Throw New NotImplementedException()
-    End Function
-
-    Public Overrides Function GetTestTrialResultExportString() As String
-        Return "Export of trial level test results is not yet implemented"
-    End Function
-
-    Public Overrides Function GetTestResultsExportString() As String
-        Throw New NotImplementedException()
-    End Function
-
-
-    Public Overrides Sub FinalizeTest()
         'Throw New NotImplementedException()
-    End Sub
-
-    Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)
-        Throw New NotImplementedException
+        Return ""
     End Function
-
-    Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
-        Throw New NotImplementedException()
-    End Sub
 
 End Class

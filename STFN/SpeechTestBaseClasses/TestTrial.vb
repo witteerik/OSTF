@@ -18,6 +18,25 @@ End Class
 
 Public MustInherit Class TestTrial
 
+    Public SpeechTestPropertyDump As New SortedList(Of String, Object)
+
+    Public Function ListedSpeechTestPropertyNames() As String
+        If SpeechTestPropertyDump IsNot Nothing Then
+            Return String.Join(vbTab, SpeechTestPropertyDump.Keys)
+        Else
+            Return ""
+        End If
+    End Function
+
+    Public Function ListedSpeechTestPropertyValues() As String
+        If SpeechTestPropertyDump IsNot Nothing Then
+            Return String.Join(vbTab, SpeechTestPropertyDump.Values)
+        Else
+            Return ""
+        End If
+    End Function
+
+
     ''' <summary>
     ''' An integer value that can be used to store the current experiment number used. 
     ''' </summary>

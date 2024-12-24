@@ -8,7 +8,7 @@ Imports System.Reflection
 
 <Serializable>
 Public Class HintSpeechTest
-    Inherits SpeechTest
+    Inherits SpeechAudiometryTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String = "HINT"
 
@@ -18,7 +18,7 @@ Public Class HintSpeechTest
         ApplyTestSpecificSettings()
     End Sub
 
-    Public Sub ApplyTestSpecificSettings()
+    Public Shadows Sub ApplyTestSpecificSettings()
 
         TesterInstructions = ""
         ParticipantInstructions = ""
@@ -99,7 +99,6 @@ Public Class HintSpeechTest
 
     Private MaximumNumberOfTestSentences As Integer = 40
 
-    Private ObservedTrials As TrialHistory
 
 
 
@@ -478,34 +477,6 @@ Public Class HintSpeechTest
     End Function
 
 
-    Public Overrides Function GetTestTrialResultExportString() As String
-
-        If ObservedTrials.Count = 0 Then Return ""
-
-        Dim ExportStringList As New List(Of String)
-
-        Dim ProtocolThreshold = TestProtocol.GetFinalResult()
-
-        'Exporting only the current trial (last added to ObservedTrials)
-        Dim TestTrialIndex As Integer = ObservedTrials.Count - 1
-
-        'Adding column headings on the first row
-        If TestTrialIndex = 0 Then
-            ExportStringList.Add("TrialIndex" & vbTab & ObservedTrials.Last.TestResultColumnHeadings & vbTab & "SRT" & vbTab & ExportColumnHeadings())
-        End If
-
-        'Adding trial data 
-        If ProtocolThreshold.HasValue = False Then
-            ExportStringList.Add(TestTrialIndex & vbTab & ObservedTrials.Last.TestResultAsTextRow & vbTab & "SRT not yet established" & vbTab & ExportSettingsAsTextRow())
-        Else
-            ExportStringList.Add(TestTrialIndex & vbTab & ObservedTrials.Last.TestResultAsTextRow & vbTab & ProtocolThreshold & vbTab & ExportSettingsAsTextRow())
-        End If
-
-        StoreSpeechTestState()
-
-        Return String.Join(vbCrLf, ExportStringList)
-
-    End Function
 
 
     Public Overrides Function GetTestResultsExportString() As String
@@ -525,56 +496,6 @@ Public Class HintSpeechTest
     End Sub
 
 
-    Public Sub StoreSpeechTestState()
-
-        Dim OutputList As New List(Of Tuple(Of String, String))
-
-        Dim properties As PropertyInfo() = GetType(SpeechTest).GetProperties()
-
-        ' Iterating through each property
-        For Each [property] As PropertyInfo In properties
-
-            ' Getting the name of the property
-            Dim propertyName As String = [property].Name
-
-            ' Getting the value of the property for the current instance 
-            Dim propertyValue As Object = [property].GetValue(Me)
-
-            If [property].GetCustomAttribute(Of SkipExportAttribute)() IsNot Nothing Then
-                ' Skip this property
-                Continue For
-            End If
-
-            If propertyValue IsNot Nothing Then
-
-                ' Check if the property value is a List(Of T)
-                Dim propertyType As Type = propertyValue.GetType()
-                If propertyType.IsGenericType AndAlso propertyType.GetGenericTypeDefinition() = GetType(List(Of)) Then
-
-                    ' Iterate through the List(Of T) and call ToString on each item
-                    Dim items As New List(Of String)
-                    Dim enumerable As IEnumerable = DirectCast(propertyValue, IEnumerable)
-                    Dim Index As Integer = 0
-                    For Each item In enumerable
-
-                        ' Join the items with commas (or any separator you prefer)
-                        OutputList.Add(New Tuple(Of String, String)(propertyName & "-" & Index, item.ToString()))
-                        Index += 1
-
-                    Next
-                Else
-                    OutputList.Add(New Tuple(Of String, String)(propertyName, propertyValue.ToString()))
-                End If
-
-            Else
-                'OutputList.Add(New Tuple(Of String, String)(propertyName, "NotSet"))
-            End If
-
-        Next
-
-        CurrentTestTrial.SpeechTestStage = OutputList
-
-    End Sub
 
 End Class
 

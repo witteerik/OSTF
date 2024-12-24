@@ -295,7 +295,7 @@ Public Class QuickSiP
 
     End Sub
 
-    Private Sub InitiateTestByPlayingSound()
+    Protected Overrides Sub InitiateTestByPlayingSound()
 
         'Sets the measurement datetime
         CurrentSipTestMeasurement.MeasurementDateTime = DateTime.Now
@@ -409,92 +409,7 @@ Public Class QuickSiP
     End Sub
 
 
-    ''' <summary>
-    ''' This method can be called by the backend in order to display a message box message to the user.
-    ''' </summary>
-    ''' <param name="Message"></param>
-    Private Sub ShowMessageBox(Message As String, Optional ByVal Title As String = "")
-
-        If Title = "" Then
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    Title = "SiP-testet"
-                Case Else
-                    Title = "SiP-test"
-            End Select
-        End If
-
-        Messager.MsgBox(Message, MsgBoxStyle.Information, Title)
-
-    End Sub
-
-    Public Overrides Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
-
-        If e IsNot Nothing Then
-
-            'Corrects the trial response, based on the given response
-            Dim CorrectWordsList As New List(Of String)
-
-            'Resets the CurrentTestTrial.ScoreList
-            'And also storing SiP-test type data
-            CurrentTestTrial.ScoreList = New List(Of Integer)
-            Select Case e.LinguisticResponses(0)
-                Case CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
-                    CurrentTestTrial.ScoreList.Add(1)
-                    DirectCast(CurrentTestTrial, SipTrial).Result = PossibleResults.Correct
-                    DirectCast(CurrentTestTrial, SipTrial).IsCorrect = True
-
-                Case ""
-                    CurrentTestTrial.ScoreList.Add(0)
-                    DirectCast(CurrentTestTrial, SipTrial).Result = PossibleResults.Missing
-
-                    'Randomizing IsCorrect with a 1/3 chance for True
-                    Dim ChanceList As New List(Of Boolean) From {True, False, False}
-                    Dim RandomIndex As Integer = Randomizer.Next(ChanceList.Count)
-                    DirectCast(CurrentTestTrial, SipTrial).IsCorrect = ChanceList(RandomIndex)
-
-                Case Else
-                    CurrentTestTrial.ScoreList.Add(0)
-                    DirectCast(CurrentTestTrial, SipTrial).Result = PossibleResults.Incorrect
-                    DirectCast(CurrentTestTrial, SipTrial).IsCorrect = False
-
-            End Select
-
-            DirectCast(CurrentTestTrial, SipTrial).Response = e.LinguisticResponses(0)
-
-            'This is an incoming test trial response
-            If CurrentTestTrial IsNot Nothing Then
-                CurrentSipTestMeasurement.MoveTrialToHistory(CurrentTestTrial)
-            End If
-
-        Else
-            'Nothing to correct (this should be the start of a new test)
-            'Playing initial sound, and premixing trials
-            InitiateTestByPlayingSound()
-
-        End If
-
-        'TODO: We must store the responses and response times!!!
-
-        'Calculating the speech level
-        'Dim ProtocolReply = SelectedTestProtocol.NewResponse(ObservedTrials)
-        Dim ProtocolReply = New TestProtocol.NextTaskInstruction With {.Decision = SpeechTestReplies.GotoNextTrial}
-
-        If CurrentSipTestMeasurement.PlannedTrials.Count = 0 Then
-            Return SpeechTestReplies.TestIsCompleted
-        End If
-
-        'Preparing next trial if needed
-        If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
-            PrepareNextTrial(ProtocolReply)
-        End If
-
-        Return ProtocolReply.Decision
-
-    End Function
-
-
-    Private Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
+    Protected Overrides Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
         'Preparing the next trial
         CurrentTestTrial = CurrentSipTestMeasurement.GetNextTrial()
@@ -611,24 +526,6 @@ Public Class QuickSiP
 
     End Function
 
-    Public Overrides Function GetTestTrialResultExportString() As String
-        Return "Export of trial level test results is not yet implemented"
-    End Function
-
-    Public Overrides Function GetTestResultsExportString() As String
-
-        Dim ExportStringList As New List(Of String)
-
-        For i = 0 To CurrentSipTestMeasurement.ObservedTrials.Count - 1
-            If i = 0 Then
-                ExportStringList.Add("TrialIndex" & vbTab & CurrentSipTestMeasurement.ObservedTrials(i).TestResultColumnHeadings)
-            End If
-            ExportStringList.Add(i & vbTab & CurrentSipTestMeasurement.ObservedTrials(i).TestResultAsTextRow)
-        Next
-
-        Return String.Join(vbCrLf, ExportStringList)
-
-    End Function
 
     Public Overrides Function GetResultStringForGui() As String
 
@@ -651,17 +548,5 @@ Public Class QuickSiP
         Return String.Join(vbCrLf, Output)
 
     End Function
-
-    Public Overrides Sub FinalizeTest()
-        'Throw New NotImplementedException()
-    End Sub
-
-    Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)
-        Return Nothing
-    End Function
-
-    Public Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
-        'Not supported, just ignores any calls
-    End Sub
 
 End Class
