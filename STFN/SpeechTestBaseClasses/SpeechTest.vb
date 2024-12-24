@@ -494,11 +494,11 @@ Public MustInherit Class SpeechTest
 
     Public Property MaximumSoundFieldSpeechLocations As Integer = 1
 
-    Public Property MaximumSoundFieldMaskerLocations As Integer = 1000
+    Public Property MaximumSoundFieldMaskerLocations As Integer = 5
 
-    Public Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer = 1000
+    Public Property MaximumSoundFieldBackgroundNonSpeechLocations As Integer = 5
 
-    Public Property MaximumSoundFieldBackgroundSpeechLocations As Integer = 1000
+    Public Property MaximumSoundFieldBackgroundSpeechLocations As Integer = 5
 
     Public Property MinimumSoundFieldSpeechLocations As Integer = 1
 
@@ -510,17 +510,15 @@ Public MustInherit Class SpeechTest
 
     Public Property ShowGuiChoice_PractiseTest As Boolean = False
 
-
     Public Property ShowGuiChoice_dBHL As Boolean = False
 
-    Public Property ShowGuiChoice_PreSet As Boolean = True
+    Public Property ShowGuiChoice_PreSet As Boolean = False
 
-    Public Property ShowGuiChoice_StartList As Boolean = True
+    Public Property ShowGuiChoice_StartList As Boolean = False
 
-    Public Property ShowGuiChoice_MediaSet As Boolean = True
+    Public Property ShowGuiChoice_MediaSet As Boolean = False
 
-    Public Property ShowGuiChoice_SoundFieldSimulation As Boolean = True
-
+    Public Property ShowGuiChoice_SoundFieldSimulation As Boolean = False
 
     Public Property ShowGuiChoice_ReferenceLevel As Boolean = False
 
@@ -636,22 +634,22 @@ Public MustInherit Class SpeechTest
 
 
     <SkipExport>
-    Public Property ShowGuiChoice_KeyWordScoring As Boolean = True
+    Public Property ShowGuiChoice_KeyWordScoring As Boolean = False
 
     <SkipExport>
-    Public Property ShowGuiChoice_ListOrderRandomization As Boolean = True
+    Public Property ShowGuiChoice_ListOrderRandomization As Boolean = False
 
     <SkipExport>
-    Public Property ShowGuiChoice_WithinListRandomization As Boolean = True
+    Public Property ShowGuiChoice_WithinListRandomization As Boolean = False
 
     <SkipExport>
-    Public Property ShowGuiChoice_AcrossListRandomization As Boolean = True
+    Public Property ShowGuiChoice_AcrossListRandomization As Boolean = False
 
     <SkipExport>
-    Public Property ShowGuiChoice_FreeRecall As Boolean = True
+    Public Property ShowGuiChoice_FreeRecall As Boolean = False
 
     <SkipExport>
-    Public Property ShowGuiChoice_DidNotHearAlternative As Boolean = True
+    Public Property ShowGuiChoice_DidNotHearAlternative As Boolean = False
 
     <SkipExport>
     Public Property ShowGuiChoice_PhaseAudiometry As Boolean = False
@@ -970,7 +968,7 @@ Public MustInherit Class SpeechTest
             OnPropertyChanged()
         End Set
     End Property
-    Private _ReferenceLevel As Double = 65
+    Private _ReferenceLevel As Double = 68.34
 
 
     Public Property TargetLevel As Double
@@ -1009,7 +1007,7 @@ Public MustInherit Class SpeechTest
             OnPropertyChanged()
         End Set
     End Property
-    Private _BackgroundLevel As Double = 55
+    Private _BackgroundLevel As Double = 50
 
 
     Public Property ContralateralMaskingLevel As Double
@@ -1133,7 +1131,7 @@ Public MustInherit Class SpeechTest
             OnPropertyChanged()
         End Set
     End Property
-    Private _FixedResponseAlternativeCount As Integer = 4
+    Private _FixedResponseAlternativeCount As Integer = 0
 
 
     Public Property Transducer As AudioSystemSpecification
@@ -1749,6 +1747,7 @@ Public MustInherit Class SpeechTest
 
     Public Property ParticipantInstructions As String = ""
 
+    Protected RandomSeed As Integer? = Nothing
 
     Public Shared Randomizer As Random = New Random
 
@@ -1769,11 +1768,11 @@ Public MustInherit Class SpeechTest
     Private _IsPractiseTest As Boolean = False
 
 
-    Public Property SupportsManualPausing As Boolean = True
+    Public Property SupportsManualPausing As Boolean = False
 
 
     <SkipExport>
-    Public Property SupportsPrelistening As Boolean = True
+    Public Property SupportsPrelistening As Boolean = False
 
 
     <SkipExport>
@@ -1788,7 +1787,10 @@ Public MustInherit Class SpeechTest
     End Enum
 
     <SkipExport>
-    Public Property AvailableTestProtocols As List(Of TestProtocol) = New List(Of TestProtocol) From {
+    Public Property AvailableTestProtocols As List(Of TestProtocol) = New List(Of TestProtocol)
+
+    <SkipExport>
+    Public Property AllTestProtocols As List(Of TestProtocol) = New List(Of TestProtocol) From {
                 New SrtSwedishHint2018_TestProtocol,
                 New BrandKollmeier2002_TestProtocol,
                 New FixedLengthWordsInNoise_WithPreTestLevelAdjustment_TestProtocol,
@@ -1800,12 +1802,11 @@ Public MustInherit Class SpeechTest
                 New SrtSwedishHint2018_TestProtocol}
 
 
-
     <SkipExport>
     Public Property AvailableFixedResponseAlternativeCounts As List(Of Integer) = New List(Of Integer)
 
     <SkipExport>
-    Public Property AvailablePhaseAudiometryTypes As List(Of BmldModes) = New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
+    Public Property AvailablePhaseAudiometryTypes As List(Of BmldModes) = New List(Of BmldModes)
 
 
 #End Region

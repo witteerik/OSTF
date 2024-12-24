@@ -4,7 +4,7 @@ Imports STFN.Utils
 
 Public Class IHearSC_SiP_SpeechTest
 
-    Inherits SpeechTest
+    Inherits SipBaseSpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String = "ProtocolB7_SipTest"
 
@@ -13,7 +13,7 @@ Public Class IHearSC_SiP_SpeechTest
         ApplyTestSpecificSettings()
     End Sub
 
-    Public Sub ApplyTestSpecificSettings()
+    Public Shadows Sub ApplyTestSpecificSettings()
 
         TesterInstructions = "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
                 "1. Informera patienten om hur testet går till." & vbCrLf &
@@ -25,93 +25,24 @@ Public Class IHearSC_SiP_SpeechTest
                 " - Under testet ska patienten lyssna efter enstaviga ord i olika ljudmiljöer och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
                 " - Patienten ska gissa om hen är osäker. Många ord är mycket svåra att höra!" & vbCrLf &
                 " - Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
-                " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
-                " - Testet består av två testomgångar med " & TestListCount * 3 & " ord i varje. testomgångarna körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
+                " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid."
 
-        ShowGuiChoice_PractiseTest = False
-        ShowGuiChoice_dBHL = False
-        ShowGuiChoice_PreSet = False
-        ShowGuiChoice_StartList = False
-        ShowGuiChoice_MediaSet = False
-        SupportsPrelistening = False
-        ShowGuiChoice_SoundFieldSimulation = False
-        AvailableTestModes = New List(Of TestModes) From {TestModes.Custom}
-        AvailableTestProtocols = Nothing
-        AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {3}
-        AvailablePhaseAudiometryTypes = New List(Of BmldModes)
-        MaximumSoundFieldSpeechLocations = 1
-        MaximumSoundFieldMaskerLocations = 1
-        MaximumSoundFieldBackgroundNonSpeechLocations = 2
-        MaximumSoundFieldBackgroundSpeechLocations = 0
-        MinimumSoundFieldSpeechLocations = 1
-        MinimumSoundFieldMaskerLocations = 1
-        MinimumSoundFieldBackgroundNonSpeechLocations = 2
-        MinimumSoundFieldBackgroundSpeechLocations = 0
-        ShowGuiChoice_ReferenceLevel = False
-        ShowGuiChoice_KeyWordScoring = False
-        ShowGuiChoice_ListOrderRandomization = False
-        ShowGuiChoice_WithinListRandomization = False
-        ShowGuiChoice_AcrossListRandomization = False
-        ShowGuiChoice_FreeRecall = False
-        ShowGuiChoice_DidNotHearAlternative = False
-        PhaseAudiometry = False
-        TargetLevel_StepSize = 1
-        HistoricTrialCount = 0
-        SupportsManualPausing = False
-        ReferenceLevel = 68.34
-        TargetLevel = 65
-        MaskingLevel = 65
-        BackgroundLevel = 50
-        ContralateralMaskingLevel = 25
-        MinimumReferenceLevel = 0 ' Not used
-        MaximumReferenceLevel = 80 ' Not used
-        MinimumLevel_Targets = 0 ' Not used
-        MaximumLevel_Targets = 80 ' Not used
-        MinimumLevel_Maskers = 0 ' Not used
-        MaximumLevel_Maskers = 80 ' Not used
-        MinimumLevel_Background = 0 ' Not used
-        MaximumLevel_Background = 80 ' Not used
-        MinimumLevel_ContralateralMaskers = 0 ' Not used
-        MaximumLevel_ContralateralMaskers = 80 ' Not used
-        AvailableExperimentNumbers = {}
-
-        SoundOverlapDuration = 0.5
-
+        'SupportsManualPausing = False
 
         ShowGuiChoice_TargetLocations = False
         ShowGuiChoice_MaskerLocations = False
         ShowGuiChoice_BackgroundNonSpeechLocations = False
         ShowGuiChoice_BackgroundSpeechLocations = False
 
+        MinimumStimulusOnsetTime = 0.3 + 0.3 ' 0.3 in sound field
+        MaximumStimulusOnsetTime = 0.8 + 0.3 ' 0.3 in sound field
+
+        DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
+
     End Sub
 
+    Private PresetName As String = "IHeAR_CS"
 
-
-    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = False
-    Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
-    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
-
-    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
-
-
-
-
-    Private CurrentSipTestMeasurement As SipMeasurement
-    Public SelectedSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.SimulatedSoundField
-    Private RandomSeed As Integer? = Nothing
-    Private SelectedTestparadigm As Testparadigm = Testparadigm.Quick
-    Private MinimumStimulusOnsetTime As Double = 0.3 + 0.3 ' 0.3 in sound field
-    Private MaximumStimulusOnsetTime As Double = 0.8 + 0.3 ' 0.3 in sound field
-    Private TrialSoundMaxDuration As Double = 10
-    Private UseBackgroundSpeech As Boolean = False
-    Private MaximumResponseTime As Double = 4
-    Private PretestSoundDuration As Double = 5
-    Private UseVisualQue As Boolean = False
-    Private ResponseAlternativeDelay As Double = 0.5
-    Private DirectionalSimulationSet As String = "ARC - Harcellen - HATS - SiP"
-
-    Private TestListCount As Integer = 11
-    Private CurrentTestStage As Integer = 0
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
@@ -168,7 +99,7 @@ Public Class IHearSC_SiP_SpeechTest
         If IsPractiseTest Then
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, False, True)
         Else
-            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest("IHeAR_CS").Members 'TODO! Specify correct members in text file
+            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members 'TODO! Specify correct members in text file
         End If
 
         'Getting the sound source locations

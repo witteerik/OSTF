@@ -485,7 +485,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Speech test
                     //CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishMonosyllablesTP800"); // This line was used during I HeAR data collection. The speech material name was changed after Protocol B1, but as this line was hard coded in the tablets a temporary speech material named SwedishMonosyllablesTP800 but located in the "SwedishTP50" folder was used. 
-                    CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishTP50"); // This line is new from 2024-11-02 (but not used in the data collection for protocol B2.
+                    CurrentSpeechTest = new TP50SpeechTest("SwedishTP50"); // This line is new from 2024-11-02 (but not used in the data collection for protocol B2.
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
@@ -533,7 +533,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     SpeechMaterialPicker.SelectedItem = "Swedish Spondees 23";
 
                     // Speech test
-                    CurrentSpeechTest = new IHearProtocolB4SpeechTest("Swedish Spondees 23");
+                    CurrentSpeechTest = new HTT23SpeechTest("Swedish Spondees 23");
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();

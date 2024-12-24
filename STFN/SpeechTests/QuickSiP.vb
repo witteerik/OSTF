@@ -3,7 +3,7 @@ Imports STFN.Audio.SoundScene
 Imports STFN.Utils
 
 Public Class QuickSiP
-    Inherits SpeechTest
+    Inherits SipBaseSpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String = "QuickSiP"
 
@@ -12,7 +12,7 @@ Public Class QuickSiP
         ApplyTestSpecificSettings()
     End Sub
 
-    Public Sub ApplyTestSpecificSettings()
+    Public Shadows Sub ApplyTestSpecificSettings()
 
         TesterInstructions = "(Detta test går ut på att undersöka en screening-version av SiP-testet.)" & vbCrLf & vbCrLf &
              "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
@@ -27,91 +27,20 @@ Public Class QuickSiP
              " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
              " - Testet består av totalt 30 ord, som blir svårare och svårare ju längre testet går."
 
-        ShowGuiChoice_PractiseTest = False
-        ShowGuiChoice_dBHL = False
-        ShowGuiChoice_PreSet = False
-        ShowGuiChoice_StartList = False
-        ShowGuiChoice_MediaSet = False
-        SupportsPrelistening = False
         ShowGuiChoice_SoundFieldSimulation = True
-        AvailableTestModes = New List(Of TestModes) From {TestModes.Custom}
-        AvailableTestProtocols = Nothing
-        AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {3}
-        AvailablePhaseAudiometryTypes = New List(Of BmldModes)
-        MaximumSoundFieldSpeechLocations = 1
-        MaximumSoundFieldMaskerLocations = 1
-        MaximumSoundFieldBackgroundNonSpeechLocations = 2
-        MaximumSoundFieldBackgroundSpeechLocations = 0
-        MinimumSoundFieldSpeechLocations = 1
-        MinimumSoundFieldMaskerLocations = 1
-        MinimumSoundFieldBackgroundNonSpeechLocations = 2
-        MinimumSoundFieldBackgroundSpeechLocations = 0
-        ShowGuiChoice_ReferenceLevel = False
-        ShowGuiChoice_KeyWordScoring = False
-        ShowGuiChoice_ListOrderRandomization = False
-        ShowGuiChoice_WithinListRandomization = False
-        ShowGuiChoice_AcrossListRandomization = False
-        ShowGuiChoice_FreeRecall = False
-        ShowGuiChoice_DidNotHearAlternative = False
-        PhaseAudiometry = False
-        TargetLevel_StepSize = 1
-        HistoricTrialCount = 0
-        SupportsManualPausing = False
-        ReferenceLevel = 68.34
-        TargetLevel = 65
-        MaskingLevel = 65
-        BackgroundLevel = 50
-        ContralateralMaskingLevel = 25
-        MinimumReferenceLevel = 0 ' Not used
-        MaximumReferenceLevel = 80 ' Not used
-        MinimumLevel_Targets = 0 ' Not used
-        MaximumLevel_Targets = 80 ' Not used
-        MinimumLevel_Maskers = 0 ' Not used
-        MaximumLevel_Maskers = 80 ' Not used
-        MinimumLevel_Background = 0 ' Not used
-        MaximumLevel_Background = 80 ' Not used
-        MinimumLevel_ContralateralMaskers = 0 ' Not used
-        MaximumLevel_ContralateralMaskers = 80 ' Not used
-        AvailableExperimentNumbers = {}
-
-        SoundOverlapDuration = 0.5
 
         ShowGuiChoice_TargetLocations = False
         ShowGuiChoice_MaskerLocations = False
         ShowGuiChoice_BackgroundNonSpeechLocations = False
         ShowGuiChoice_BackgroundSpeechLocations = False
 
+        DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
+        ' DirectionalSimulationSet = "ARC - Harcellen - HATS 256 - 48kHz"
+
+
     End Sub
 
 
-
-    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = False
-
-    Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
-
-    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
-
-
-    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
-
-
-
-
-
-    Private CurrentSipTestMeasurement As SipMeasurement
-    Public SelectedSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.SimulatedSoundField
-    Private RandomSeed As Integer? = Nothing
-    Private SelectedTestparadigm As Testparadigm = Testparadigm.Quick
-    Private MinimumStimulusOnsetTime As Double = 0.3
-    Private MaximumStimulusOnsetTime As Double = 0.8
-    Private TrialSoundMaxDuration As Double = 10
-    Private UseBackgroundSpeech As Boolean = False
-    Private MaximumResponseTime As Double = 4
-    Private PretestSoundDuration As Double = 5
-    Private UseVisualQue As Boolean = False
-    Private ResponseAlternativeDelay As Double = 0.5
-    Private DirectionalSimulationSet As String = "ARC - Harcellen - HATS - SiP"
-    'Private DirectionalSimulationSet As String = "ARC - Harcellen - HATS 256 - 48kHz"
     Private PresetName As String = "QuickSiP"
 
     Private ResultsSummary As SortedList(Of Double, Tuple(Of QuickSipList, Double))

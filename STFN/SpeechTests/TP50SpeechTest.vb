@@ -3,7 +3,7 @@ Imports MathNet.Numerics
 Imports STFN.TestProtocol
 Imports STFN.Utils
 
-Public Class IHearProtocolB2SpeechTest
+Public Class TP50SpeechTest
     Inherits SpeechTest
 
     Public Sub New(SpeechMaterialName As String)

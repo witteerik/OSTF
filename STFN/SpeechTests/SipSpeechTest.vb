@@ -3,7 +3,7 @@ Imports STFN.Audio.SoundScene
 Imports STFN.Utils
 
 Public Class SipSpeechTest
-    Inherits SpeechTest
+    Inherits SipBaseSpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String = "SiP"
 
@@ -12,79 +12,38 @@ Public Class SipSpeechTest
         ApplyTestSpecificSettings()
     End Sub
 
-    Public Sub ApplyTestSpecificSettings()
+    Public Shadows Sub ApplyTestSpecificSettings()
 
         TesterInstructions = ""
         ParticipantInstructions = ""
-        ShowGuiChoice_PractiseTest = False
-        ShowGuiChoice_dBHL = False
-        ShowGuiChoice_PreSet = False
-        ShowGuiChoice_StartList = True
-        ShowGuiChoice_MediaSet = True
-        SupportsPrelistening = True
+        ShowGuiChoice_PreSet = True
         ShowGuiChoice_SoundFieldSimulation = True
-        AvailableTestModes = New List(Of TestModes) From {TestModes.ConstantStimuli, TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise, TestModes.AdaptiveDirectionality}
-        AvailableTestProtocols = New List(Of TestProtocol)
-        AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {3}
         AvailablePhaseAudiometryTypes = New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
         MaximumSoundFieldSpeechLocations = 1
-        MaximumSoundFieldMaskerLocations = 1000
-        MaximumSoundFieldBackgroundNonSpeechLocations = 1000
-        MaximumSoundFieldBackgroundSpeechLocations = 1000
+        MaximumSoundFieldMaskerLocations = 12
+        MaximumSoundFieldBackgroundNonSpeechLocations = 12
+        MaximumSoundFieldBackgroundSpeechLocations = 12
         MinimumSoundFieldSpeechLocations = 1
         MinimumSoundFieldMaskerLocations = 1
         MinimumSoundFieldBackgroundNonSpeechLocations = 2
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = True
-        ShowGuiChoice_KeyWordScoring = False
-        ShowGuiChoice_ListOrderRandomization = True
-        ShowGuiChoice_WithinListRandomization = True
-        ShowGuiChoice_AcrossListRandomization = True
-        ShowGuiChoice_FreeRecall = False
-        ShowGuiChoice_DidNotHearAlternative = False
-        PhaseAudiometry = False
-        TargetLevel_StepSize = 5
-        HistoricTrialCount = 0
-        SupportsManualPausing = False
-        ReferenceLevel = 68.34
-        TargetLevel = 65
-        MaskingLevel = 65
-        BackgroundLevel = 50
-        ContralateralMaskingLevel = 25
-        MinimumReferenceLevel = 0
-        MaximumReferenceLevel = 90
-        MinimumLevel_Targets = 0
-        MaximumLevel_Targets = 90
-        MinimumLevel_Maskers = 0
-        MaximumLevel_Maskers = 90
-        MinimumLevel_Background = 0
-        MaximumLevel_Background = 90
-        MinimumLevel_ContralateralMaskers = 0
-        MaximumLevel_ContralateralMaskers = 90
-        AvailableExperimentNumbers = {}
+        'ShowGuiChoice_PhaseAudiometry = True
+        'SupportsManualPausing = False
 
-        SoundOverlapDuration = 0.5
+        SelectedTestparadigm = Testparadigm.Slow
 
     End Sub
 
 
-    Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = True
-    Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = True
-    Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = True
-
-    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
+    'TODO: We need to be able to input PNR in the GUI! Something like this is needed:
+    'Public Overrides ReadOnly Property ShowGuiChoice_SNR As Boolean = True
 
 
 
-
-
-    Private CurrentSipTestMeasurement As SipMeasurement
     Public SipTestMode As SiPTestModes = SiPTestModes.Directional
-    Public SelectedSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
-    Private RandomSeed As Integer? = Nothing
     Private NumberOfSimultaneousMaskers As Integer = 1
     Private SelectedPNRs As New List(Of Double)
-    Private SelectedTestparadigm As Testparadigm
 
     Public Enum SiPTestModes
         Directional
@@ -92,14 +51,6 @@ Public Class SipSpeechTest
         Binaural
     End Enum
 
-    Private MinimumStimulusOnsetTime As Double = 0.3
-    Private MaximumStimulusOnsetTime As Double = 0.8
-    Private TrialSoundMaxDuration As Double = 10
-    Private UseBackgroundSpeech As Boolean = False
-    Private MaximumResponseTime As Double = 4
-    Private PretestSoundDuration As Double = 5
-    Private UseVisualQue As Boolean = False
-    Private ResponseAlternativeDelay As Double = 0.5
 
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
@@ -135,7 +86,7 @@ Public Class SipSpeechTest
         'SelectedTestProtocol.IsInPretestMode = IsPractiseTest
 
         'Creates a new test 
-        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification)
+        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification,, SelectedTestparadigm)
         CurrentSipTestMeasurement.TestProcedure.LengthReduplications = 1 'SelectedLengthReduplications
         CurrentSipTestMeasurement.TestProcedure.TestParadigm = Testparadigm.FlexibleLocations 'SelectedTestparadigm
         SelectedTestparadigm = CurrentSipTestMeasurement.TestProcedure.TestParadigm
