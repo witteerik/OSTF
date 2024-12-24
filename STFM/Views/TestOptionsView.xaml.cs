@@ -209,8 +209,8 @@ public partial class OptionsViewAll : ContentView
 
         if (e.Value == true)
         {
-
-            if (SelectedIrSet_Picker.Items.Count > 0)
+            // SelectedIrSet_Picker.Items.Count > 0
+            if (CurrentSpeechTest.CurrentlySupportedIrSets.Count > 0)
             {
                 SelectedIrSet_Picker.SelectedIndex = 0;
             }

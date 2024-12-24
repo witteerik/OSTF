@@ -21,15 +21,14 @@ Public Class MatrixSpeechTest
         ShowGuiChoice_MediaSet = True
         SupportsPrelistening = False
         ShowGuiChoice_SoundFieldSimulation = False
-        AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
+        AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveNoise}
+        'AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
 
-        AvailableTestProtocols = New List(Of TestProtocol) From {
-            New HagermanKinnefors1995_TestProtocol,
-            New BrandKollmeier2002_TestProtocol}
+        AvailableTestProtocols = New List(Of TestProtocol) From {New HagermanKinnefors1995_TestProtocol}
+        'AvailableTestProtocols = New List(Of TestProtocol) From {New HagermanKinnefors1995_TestProtocol, New BrandKollmeier2002_TestProtocol}
 
         AvailableFixedResponseAlternativeCounts = New List(Of Integer)
 
-        AvailablePhaseAudiometryTypes = New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}
 
         MaximumSoundFieldSpeechLocations = 1
         MaximumSoundFieldMaskerLocations = 1000

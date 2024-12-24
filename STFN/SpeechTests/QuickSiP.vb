@@ -27,16 +27,18 @@ Public Class QuickSiP
              " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
              " - Testet består av totalt 30 ord, som blir svårare och svårare ju längre testet går."
 
-        ShowGuiChoice_SoundFieldSimulation = True
+        'ShowGuiChoice_SoundFieldSimulation = True
+
+        DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
+        PopulateSoundSourceLocationCandidates()
+        SimulatedSoundField = True
 
         ShowGuiChoice_TargetLocations = False
         ShowGuiChoice_MaskerLocations = False
         ShowGuiChoice_BackgroundNonSpeechLocations = False
         ShowGuiChoice_BackgroundSpeechLocations = False
 
-        DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
         ' DirectionalSimulationSet = "ARC - Harcellen - HATS 256 - 48kHz"
-
 
     End Sub
 

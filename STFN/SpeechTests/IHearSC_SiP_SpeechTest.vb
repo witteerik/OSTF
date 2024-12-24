@@ -37,7 +37,7 @@ Public Class IHearSC_SiP_SpeechTest
         MinimumStimulusOnsetTime = 0.3 + 0.3 ' 0.3 in sound field
         MaximumStimulusOnsetTime = 0.8 + 0.3 ' 0.3 in sound field
 
-        DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
+        'DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
 
     End Sub
 

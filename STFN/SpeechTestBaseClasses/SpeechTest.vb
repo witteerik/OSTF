@@ -1776,7 +1776,7 @@ Public MustInherit Class SpeechTest
 
 
     <SkipExport>
-    Public Property AvailableTestModes As List(Of TestModes) = New List(Of TestModes) From {TestModes.ConstantStimuli, TestModes.AdaptiveNoise, TestModes.AdaptiveSpeech}
+    Public Property AvailableTestModes As List(Of TestModes) = New List(Of TestModes)
 
     Public Enum TestModes
         ConstantStimuli
