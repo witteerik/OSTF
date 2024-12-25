@@ -18,6 +18,9 @@ Public MustInherit Class SipBaseSpeechTest
 
         AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {3}
 
+        'Allows two decimal points for the reference level
+        ReferenceLevel_StepSize = 0.01
+
         ReferenceLevel = 68.34
         MinimumReferenceLevel = 50
         MaximumReferenceLevel = 90
@@ -147,45 +150,15 @@ Public MustInherit Class SipBaseSpeechTest
     End Function
 
 
+    Public Overrides Function GetObservedTestTrials() As IEnumerable(Of TestTrial)
+        Return CurrentSipTestMeasurement.ObservedTrials
+    End Function
+
+    Public MustOverride Overrides Function GetSelectedExportVariables() As List(Of String)
+
 
     Public MustOverride Overrides Function GetResultStringForGui() As String
 
-    Public Overrides Function GetTestResultsExportString() As String
-
-        Dim ExportStringList As New List(Of String)
-
-        For i = 0 To CurrentSipTestMeasurement.ObservedTrials.Count - 1
-            If i = 0 Then
-                ExportStringList.Add("TrialIndex" & vbTab & CurrentSipTestMeasurement.ObservedTrials(i).TestResultColumnHeadings & vbTab & CurrentSipTestMeasurement.ObservedTrials.Last.ListedSpeechTestPropertyNames)
-            End If
-            ExportStringList.Add(i & vbTab & CurrentSipTestMeasurement.ObservedTrials(i).TestResultAsTextRow & vbTab & CurrentSipTestMeasurement.ObservedTrials.Last.ListedSpeechTestPropertyValues)
-        Next
-
-        Return String.Join(vbCrLf, ExportStringList)
-
-    End Function
-
-
-    Public Overrides Function GetTestTrialResultExportString() As String
-
-        If CurrentSipTestMeasurement.ObservedTrials.Count = 0 Then Return ""
-
-        Dim ExportStringList As New List(Of String)
-
-        'Exporting only the current trial (last added to ObservedTrials)
-        Dim TestTrialIndex As Integer = CurrentSipTestMeasurement.ObservedTrials.Count - 1
-
-        'Adding column headings on the first row
-        If TestTrialIndex = 0 Then
-            ExportStringList.Add("TrialIndex" & vbTab & CurrentSipTestMeasurement.ObservedTrials.Last.TestResultColumnHeadings & vbTab & CurrentSipTestMeasurement.ObservedTrials.Last.ListedSpeechTestPropertyNames)
-        End If
-
-        'Adding trial data 
-        ExportStringList.Add(TestTrialIndex & vbTab & CurrentSipTestMeasurement.ObservedTrials.Last.TestResultAsTextRow & vbTab & CurrentSipTestMeasurement.ObservedTrials.Last.ListedSpeechTestPropertyValues)
-
-        Return String.Join(vbCrLf, ExportStringList)
-
-    End Function
 
 
 

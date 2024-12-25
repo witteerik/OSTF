@@ -963,7 +963,7 @@ Public MustInherit Class SpeechTest
             Return _ReferenceLevel
         End Get
         Set(value As Double)
-            _ReferenceLevel = Math.Round(Math.Round(value / ReferenceLevel_StepSize) * ReferenceLevel_StepSize)
+            _ReferenceLevel = Math.Round(value / ReferenceLevel_StepSize) * ReferenceLevel_StepSize
             _ReferenceLevel = Math.Min(_ReferenceLevel, MaximumReferenceLevel)
             OnPropertyChanged()
         End Set
@@ -976,7 +976,7 @@ Public MustInherit Class SpeechTest
             Return _TargetLevel
         End Get
         Set(value As Double)
-            _TargetLevel = Math.Round(Math.Round(value / TargetLevel_StepSize) * TargetLevel_StepSize)
+            _TargetLevel = Math.Round(value / TargetLevel_StepSize) * TargetLevel_StepSize
             _TargetLevel = Math.Min(_TargetLevel, MaximumLevel_Targets)
             OnPropertyChanged()
         End Set
@@ -989,7 +989,7 @@ Public MustInherit Class SpeechTest
             Return _MaskingLevel
         End Get
         Set(value As Double)
-            _MaskingLevel = Math.Round(Math.Round(value / MaskingLevel_StepSize) * MaskingLevel_StepSize)
+            _MaskingLevel = Math.Round(value / MaskingLevel_StepSize) * MaskingLevel_StepSize
             _MaskingLevel = Math.Min(_MaskingLevel, MaximumLevel_Maskers)
             OnPropertyChanged()
         End Set
@@ -1002,7 +1002,7 @@ Public MustInherit Class SpeechTest
             Return _BackgroundLevel
         End Get
         Set(value As Double)
-            _BackgroundLevel = Math.Round(Math.Round(value / BackgroundLevel_StepSize) * BackgroundLevel_StepSize)
+            _BackgroundLevel = Math.Round(value / BackgroundLevel_StepSize) * BackgroundLevel_StepSize
             _BackgroundLevel = Math.Min(_BackgroundLevel, MaximumLevel_Background)
             OnPropertyChanged()
         End Set
@@ -1015,7 +1015,7 @@ Public MustInherit Class SpeechTest
             Return _ContralateralMaskingLevel
         End Get
         Set(value As Double)
-            _ContralateralMaskingLevel = Math.Round(Math.Round(value / ContralateralMaskingLevel_StepSize) * ContralateralMaskingLevel_StepSize)
+            _ContralateralMaskingLevel = Math.Round(value / ContralateralMaskingLevel_StepSize) * ContralateralMaskingLevel_StepSize
             _ContralateralMaskingLevel = Math.Min(_ContralateralMaskingLevel, MaximumLevel_ContralateralMaskers)
             OnPropertyChanged()
         End Set
@@ -1808,6 +1808,43 @@ Public MustInherit Class SpeechTest
     <ExludeFromPropertyListing>
     Public Property AvailablePhaseAudiometryTypes As List(Of BmldModes) = New List(Of BmldModes)
 
+    ''' <summary>
+    ''' Returns a string that descripbes the data returned by finalTestProtocolResultValue. If TestProtocol object is not used, the string TestProtocolNotUsed is returned.
+    ''' This function is utilized to export the type of the final test protocol value, by storing it in the TestTrial.SpeechTestPropertyDump
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property TestProtocolResultType As String
+        Get
+            If TestProtocol IsNot Nothing Then
+
+                Return TestProtocol.GetFinalResultType
+            Else
+                Return "TestProtocolNotUsed"
+            End If
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' Returns the final result of the current test protocol, if established. If not established, or if a TestProtocol object is not used, Double.NaN is returned.
+    ''' This function is utilized to export the final test protocol value, by storing it in the TestTrial.SpeechTestPropertyDump
+    ''' </summary>
+    ''' <returns></returns>
+    Public ReadOnly Property TestProtocolResultValue As Double
+        Get
+            If TestProtocol IsNot Nothing Then
+                Dim FinalResultValue = TestProtocol.GetFinalResultValue
+
+                If FinalResultValue IsNot Nothing Then
+                    Return FinalResultValue
+                Else
+                    Return Double.NaN
+                End If
+            Else
+                Return Double.NaN
+            End If
+        End Get
+    End Property
+
 
 #End Region
 
@@ -1900,9 +1937,7 @@ Public MustInherit Class SpeechTest
 
     Public MustOverride Function GetResultStringForGui() As String
 
-    Public MustOverride Function GetTestResultsExportString() As String
 
-    Public MustOverride Function GetTestTrialResultExportString() As String
 
 
     Public Function SaveTestTrialResults() As Boolean
@@ -1927,10 +1962,18 @@ Public MustInherit Class SpeechTest
         Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, Me.FilePathRepresentation)
         Dim OutputFilename = Me.FilePathRepresentation & "_TrialResults_" & SharedSpeechTestObjects.CurrentParticipantID
 
-        Dim MyType = Me.GetType
-
         Dim TestTrialResultsString = GetTestTrialResultExportString()
         Utils.SendInfoToLog(TestTrialResultsString, OutputFilename, OutputPath, False, True, False, True, True)
+
+        Dim SelectedVariables = GetSelectedExportVariables()
+        If SelectedVariables IsNot Nothing Then
+
+            Dim OutputFilename_SelectedVariables = Me.FilePathRepresentation & "_TrialResults_SelectedVariables_" & SharedSpeechTestObjects.CurrentParticipantID
+
+            Dim TestTrialResultsString_SelectedVariables = GetTestTrialResultExportString(SelectedVariables)
+            Utils.SendInfoToLog(TestTrialResultsString_SelectedVariables, OutputFilename_SelectedVariables, OutputPath, False, True, False, True, True)
+
+        End If
 
         Return True
 
@@ -1961,8 +2004,63 @@ Public MustInherit Class SpeechTest
         Dim TestResultsString = GetTestResultsExportString()
         Utils.SendInfoToLog(TestResultsString, OutputFilename, OutputPath, False, True, False, False, True)
 
+        Dim SelectedVariables = GetSelectedExportVariables()
+        If SelectedVariables IsNot Nothing Then
+
+            Dim OutputFilename_SelectedVariables = Me.FilePathRepresentation & "_Results_SelectedVariables_" & SharedSpeechTestObjects.CurrentParticipantID
+
+            Dim TestResultsString_SelectedVariables = GetTestResultsExportString(SelectedVariables)
+            Utils.SendInfoToLog(TestResultsString_SelectedVariables, OutputFilename_SelectedVariables, OutputPath, False, True, False, False, True)
+
+        End If
+
         Return True
     End Function
+
+    Public MustOverride Function GetObservedTestTrials() As IEnumerable(Of TestTrial)
+
+    Public Function GetTestResultsExportString(Optional ByVal SelectedVariables As List(Of String) = Nothing) As String
+
+        Dim ExportStringList As New List(Of String)
+
+        Dim LocalObservedTrials = GetObservedTestTrials()
+
+        For i = 0 To LocalObservedTrials.Count - 1
+            If i = 0 Then
+                ExportStringList.Add("TrialIndex" & vbTab & LocalObservedTrials(i).TestResultColumnHeadings & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyNames(SelectedVariables))
+            End If
+            ExportStringList.Add(i & vbTab & LocalObservedTrials(i).TestResultAsTextRow & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyValues(SelectedVariables))
+        Next
+
+        Return String.Join(vbCrLf, ExportStringList)
+
+    End Function
+
+
+    Public Function GetTestTrialResultExportString(Optional ByVal SelectedVariables As List(Of String) = Nothing) As String
+
+        Dim LocalObservedTrials = GetObservedTestTrials()
+
+        If LocalObservedTrials.Count = 0 Then Return ""
+
+        Dim ExportStringList As New List(Of String)
+
+        'Exporting only the current trial (last added to ObservedTrials)
+        Dim TestTrialIndex As Integer = LocalObservedTrials.Count - 1
+
+        'Adding column headings on the first row
+        If TestTrialIndex = 0 Then
+            ExportStringList.Add("TrialIndex" & vbTab & LocalObservedTrials.Last.TestResultColumnHeadings & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyNames(SelectedVariables))
+        End If
+
+        'Adding trial data 
+        ExportStringList.Add(TestTrialIndex & vbTab & LocalObservedTrials.Last.TestResultAsTextRow & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyValues(SelectedVariables))
+
+        Return String.Join(vbCrLf, ExportStringList)
+
+    End Function
+
+    Public MustOverride Function GetSelectedExportVariables() As List(Of String)
 
 
 #End Region

@@ -55,7 +55,17 @@ Public MustInherit Class TestProtocol
 
     Public MustOverride Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
-    Public MustOverride Function GetFinalResult() As Double?
+    ''' <summary>
+    ''' Should hold a text description of the type of the value stored in the final result, e.g. SRT, WRS, etc
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride Function GetFinalResultType() As String
+
+    ''' <summary>
+    ''' Should hold the final result of the test protocol or Nothing if the final result has not yet been attained
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride Function GetFinalResultValue() As Double?
 
     Public Overrides Function ToString() As String
         Return Name

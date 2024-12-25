@@ -444,5 +444,13 @@ Public Class IHearSC_SiP_SpeechTest
 
     End Function
 
+    ''' <summary>
+    ''' This function should list the names of variables included SpeechTestDump of each test trial to be exported in the "selected-variables" export file.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function GetSelectedExportVariables() As List(Of String)
+        Return New List(Of String)
+    End Function
+
 
 End Class

@@ -184,7 +184,11 @@
 
     End Sub
 
-    Public Overrides Function GetFinalResult() As Double?
+    Public Overrides Function GetFinalResultType() As String
+        Return "SRT"
+    End Function
+
+    Public Overrides Function GetFinalResultValue() As Double?
 
         Return FinalThreshold
 

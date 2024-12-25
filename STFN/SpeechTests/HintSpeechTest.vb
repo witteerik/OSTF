@@ -244,6 +244,8 @@ Public Class HintSpeechTest
 
     Public Overrides Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
 
+        Dim ProtocolReply As NextTaskInstruction = Nothing
+
         If e IsNot Nothing Then
 
             'This is an incoming test trial response
@@ -281,14 +283,22 @@ Public Class HintSpeechTest
             'Adding the test trial
             ObservedTrials.Add(CurrentTestTrial)
 
+            'Calculating the speech level
+            ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
+
+            'Taking a dump of the SpeechTest before swapping to the new trial, but after the protocol reply so that the protocol results also gets dumped
+            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+
         Else
             'Nothing to correct (this should be the start of a new test)
+
+            'Calculating the speech level (of the first trial)
+            ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
+
         End If
 
         'TODO: We must store the responses and response times!!!
 
-        'Calculating the speech level
-        Dim ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
 
         'Preparing a full test if the practise list is finished
         If TestProtocol.IsInPretestMode = True Then
@@ -444,7 +454,7 @@ Public Class HintSpeechTest
 
     Public Overrides Function GetResultStringForGui() As String
 
-        Dim ProtocolThreshold = TestProtocol.GetFinalResult()
+        Dim ProtocolThreshold = TestProtocol.GetFinalResultValue()
 
         Dim Output As New List(Of String)
 
@@ -476,14 +486,12 @@ Public Class HintSpeechTest
 
     End Function
 
-
-
-
-    Public Overrides Function GetTestResultsExportString() As String
-
-        'This test exports results only on trial-by-trial basis
-        Return ""
-
+    ''' <summary>
+    ''' This function should list the names of variables included SpeechTestDump of each test trial to be exported in the "selected-variables" export file.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function GetSelectedExportVariables() As List(Of String)
+        Return New List(Of String)
     End Function
 
     Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)

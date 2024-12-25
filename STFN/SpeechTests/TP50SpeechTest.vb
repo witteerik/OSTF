@@ -4,7 +4,7 @@ Imports STFN.TestProtocol
 Imports STFN.Utils
 
 Public Class TP50SpeechTest
-    Inherits SpeechTest
+    Inherits SpeechAudiometryTest
 
     Public Sub New(SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
@@ -13,7 +13,7 @@ Public Class TP50SpeechTest
 
     Public Overrides ReadOnly Property FilePathRepresentation As String = "ProtocolB2_ManualWRS"
 
-    Public Sub ApplyTestSpecificSettings()
+    Public Shadows Sub ApplyTestSpecificSettings()
 
         TesterInstructions = "(Detta test går ut på att undersöka svårighetsgraden hos listor med nya enstaviga testord i brus.)" & vbCrLf & vbCrLf &
             "1. Välj testöra." & vbCrLf &
@@ -432,6 +432,9 @@ Public Class TP50SpeechTest
 
             'TODO: We must store the responses and response times!!!
 
+            'Taking a dump of the SpeechTest before swapping to the new trial, but after the protocol reply so that the protocol results also gets dumped
+            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+
             'Calculating the speech level
             ProtocolReply = TestProtocol.NewResponse(ObservedTestTrials)
 
@@ -439,6 +442,7 @@ Public Class TP50SpeechTest
             'Nothing to correct (this should be the start of a new test, or a resuming of a paused test)
             ProtocolReply = TestProtocol.NewResponse(New TrialHistory)
         End If
+
 
         'Preparing next trial if needed
         If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
@@ -589,23 +593,12 @@ Public Class TP50SpeechTest
 
     End Function
 
-    Public Overrides Function GetTestTrialResultExportString() As String
-        Return "Export of trial level test results is not yet implemented"
-    End Function
-
-    Public Overrides Function GetTestResultsExportString() As String
-
-        Dim ExportStringList As New List(Of String)
-
-        For i = 0 To ObservedTestTrials.Count - 1
-            If i = 0 Then
-                ExportStringList.Add("TrialIndex" & vbTab & ObservedTestTrials(i).TestResultColumnHeadings)
-            End If
-            ExportStringList.Add(i & vbTab & ObservedTestTrials(i).TestResultAsTextRow)
-        Next
-
-        Return String.Join(vbCrLf, ExportStringList)
-
+    ''' <summary>
+    ''' This function should list the names of variables included SpeechTestDump of each test trial to be exported in the "selected-variables" export file.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function GetSelectedExportVariables() As List(Of String)
+        Return New List(Of String)
     End Function
 
 

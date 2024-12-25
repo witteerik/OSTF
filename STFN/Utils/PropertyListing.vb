@@ -50,7 +50,7 @@ Namespace Utils
                                 Else
                                     ' Handle reference type items (calling ToString to get a value instead of a reference)
                                     ' Joining the items with hypens
-                                    OutputList.Add(propertyName & "-" & Index, item.ToString())
+                                    OutputList.Add(propertyName & "-" & Index, item.ToString().Replace(vbCrLf, "\n").Replace(vbCr, "\n").Replace(vbLf, "\n").Replace(vbTab, "\t"))
                                 End If
                             Else
                                 OutputList.Add(propertyName & "-" & Index, "NA")
@@ -65,7 +65,7 @@ Namespace Utils
                             OutputList.Add(propertyName, propertyValue)
                         Else
                             ' Handle reference type items (calling ToString to get a value instead of a reference)
-                            OutputList.Add(propertyName, propertyValue.ToString())
+                            OutputList.Add(propertyName, propertyValue.ToString().Replace(vbCrLf, "\n").Replace(vbCr, "\n").Replace(vbLf, "\n").Replace(vbTab, "\t"))
                         End If
                     End If
 

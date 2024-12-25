@@ -20,22 +20,60 @@ Public MustInherit Class TestTrial
 
     Public SpeechTestPropertyDump As New SortedList(Of String, Object)
 
-    Public Function ListedSpeechTestPropertyNames() As String
-        If SpeechTestPropertyDump IsNot Nothing Then
-            Return String.Join(vbTab, SpeechTestPropertyDump.Keys)
+    Public Function ListedSpeechTestPropertyNames(Optional ByVal SelectedVariableNames As List(Of String) = Nothing) As String
+        If SelectedVariableNames Is Nothing Then
+
+            If SpeechTestPropertyDump IsNot Nothing Then
+                Return String.Join(vbTab, SpeechTestPropertyDump.Keys)
+            Else
+                Return ""
+            End If
+
         Else
-            Return ""
+
+            If SpeechTestPropertyDump IsNot Nothing Then
+                Dim OutputList As New List(Of String)
+                For Each SelectedVariableName In SelectedVariableNames
+                    If SpeechTestPropertyDump.Keys.Contains(SelectedVariableName) Then
+                        OutputList.Add(SelectedVariableName)
+                    End If
+                Next
+                Return String.Join(vbTab, OutputList)
+            Else
+                Return ""
+            End If
+
         End If
+
     End Function
 
-    Public Function ListedSpeechTestPropertyValues() As String
-        If SpeechTestPropertyDump IsNot Nothing Then
-            Return String.Join(vbTab, SpeechTestPropertyDump.Values)
-        Else
-            Return ""
-        End If
-    End Function
+    Public Function ListedSpeechTestPropertyValues(ByVal SelectedVariableNames As List(Of String)) As String
 
+        If SelectedVariableNames Is Nothing Then
+
+            If SpeechTestPropertyDump IsNot Nothing Then
+                Return String.Join(vbTab, SpeechTestPropertyDump.Values)
+            Else
+                Return ""
+            End If
+
+        Else
+
+            If SpeechTestPropertyDump IsNot Nothing Then
+                Dim OutputList As New List(Of String)
+                For Each SelectedVariableName In SelectedVariableNames
+                    If SpeechTestPropertyDump.Keys.Contains(SelectedVariableName) Then
+                        OutputList.Add(SpeechTestPropertyDump(SelectedVariableName))
+                    End If
+                Next
+                Return String.Join(vbTab, OutputList)
+            Else
+                Return ""
+            End If
+
+        End If
+
+    End Function
 
     ''' <summary>
     ''' An integer value that can be used to store the current experiment number used. 
@@ -116,6 +154,7 @@ Public MustInherit Class TestTrial
             End If
         End Get
     End Property
+
 
     ''' <summary>
     ''' A matrix holding response alternatives in lists. While a test item with a single set of response alternatives (one dimension) should only use one list, while matrix tests should use several lists.
@@ -241,54 +280,6 @@ Public MustInherit Class TestTrial
 
 
     Public SpeechTestStage As List(Of Tuple(Of String, String))
-
-
-
-
-
-    'Protected Shared Function BaseClassTestResultColumnHeadings() As List(Of String)
-
-    '    Dim OutputList As New List(Of String)
-    '    Dim properties As PropertyInfo() = GetType(TestTrial).GetProperties()
-
-    '    ' Iterating through each property
-    '    For Each [property] As PropertyInfo In properties
-
-    '        ' Getting the name of the property
-    '        Dim propertyName As String = [property].Name
-    '        OutputList.Add(propertyName)
-
-    '    Next
-
-    '    Return OutputList
-
-    'End Function
-
-    'Protected Function BaseClassTestResultAsTextRow() As List(Of String)
-
-    '    Dim OutputList As New List(Of String)
-    '    Dim properties As PropertyInfo() = GetType(TestTrial).GetProperties()
-
-    '    ' Iterating through each property
-    '    For Each [property] As PropertyInfo In properties
-
-    '        ' Getting the name of the property
-    '        Dim propertyName As String = [property].Name
-
-    '        ' Getting the value of the property for the current instance 
-    '        Dim propertyValue As Object = [property].GetValue(Me)
-
-    '        If propertyValue IsNot Nothing Then
-    '            OutputList.Add(propertyValue.ToString)
-    '        Else
-    '            OutputList.Add("NotSet")
-    '        End If
-
-    '    Next
-
-    '    Return OutputList
-
-    'End Function
 
 End Class
 

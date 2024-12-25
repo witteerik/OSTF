@@ -80,7 +80,11 @@
 
     Private FinalWordRecognition As Double? = Nothing
 
-    Public Overrides Function GetFinalResult() As Double?
+    Public Overrides Function GetFinalResultType() As String
+        Return "WRS"
+    End Function
+
+    Public Overrides Function GetFinalResultValue() As Double?
 
         If FinalWordRecognition IsNot Nothing Then
             Return FinalWordRecognition
