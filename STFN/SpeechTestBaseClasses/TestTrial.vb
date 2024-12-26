@@ -24,22 +24,11 @@ Public Class TestTrial
     ''' <returns></returns>
     Public Property PresentationOrder As Integer
 
-
-    Public Property SpeechLevel As Double
-
-    Public Property MaskerLevel As Double
-
-    Public Property ContralateralMaskerLevel As Double
-
-    Public Property AdaptiveValue As Double
-
-    Public ReadOnly Property SNR As Double
-        Get
-            Return SpeechLevel - MaskerLevel
-        End Get
-    End Property
-
-
+    ''' <summary>
+    ''' An abstract value that can hold the current adaptive value / change that has been applied to the trial by the selected TestProtocol class. The value can for instance represent TargetLevel, MaskingLevel, SNR or som other adaptively altered variable.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property AdaptiveProtocolValue As Double
 
 
     Public SpeechTestPropertyDump As New SortedList(Of String, Object)

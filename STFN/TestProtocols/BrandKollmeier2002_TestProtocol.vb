@@ -79,9 +79,9 @@ Public Class BrandKollmeier2002_TestProtocol
         Dim DirectionList As New List(Of Utils.ElevationChange)
 
         For i = 1 To TrialHistory.Count - 1
-            If (TrialHistory(i).AdaptiveValue > TrialHistory(i - 1).AdaptiveValue) Then
+            If (TrialHistory(i).AdaptiveProtocolValue > TrialHistory(i - 1).AdaptiveProtocolValue) Then
                 DirectionList.Add(Utils.Constants.ElevationChange.Ascending)
-            ElseIf TrialHistory(i).AdaptiveValue < TrialHistory(i - 1).AdaptiveValue Then
+            ElseIf TrialHistory(i).AdaptiveProtocolValue < TrialHistory(i - 1).AdaptiveProtocolValue Then
                 DirectionList.Add(Utils.Constants.ElevationChange.Descendning)
             Else
                 'TODO: how should Unchanged be counted?

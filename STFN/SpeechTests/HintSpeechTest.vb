@@ -352,36 +352,42 @@ Public Class HintSpeechTest
 
                 If MaskerLocations.Count > 0 Then
 
+                    'Adjusting levels
+                    TargetLevel = MaskingLevel + NextTaskInstruction.AdaptiveValue
+                    'MaskingLevel = MaskingLevel
+                    'ContralateralMaskingLevel = ContralateralMaskingLevel
+
                     CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord,
-            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = MaskingLevel + NextTaskInstruction.AdaptiveValue,
-            .MaskerLevel = MaskingLevel,
-            .ContralateralMaskerLevel = ContralateralMaskingLevel,
-            .TestStage = NextTaskInstruction.TestStage,
-            .Tasks = 1}
+                        .AdaptiveProtocolValue = NextTaskInstruction.AdaptiveValue,
+                        .TestStage = NextTaskInstruction.TestStage,
+                        .Tasks = 1}
 
                 Else
 
+                    'Adjusting levels
+                    TargetLevel = NextTaskInstruction.AdaptiveValue
+                    MaskingLevel = Double.NegativeInfinity
+                    'ContralateralMaskingLevel = ContralateralMaskingLevel
+
                     CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord,
-            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = NextTaskInstruction.AdaptiveValue,
-            .MaskerLevel = Double.NegativeInfinity,
-            .ContralateralMaskerLevel = ContralateralMaskingLevel,
-            .TestStage = NextTaskInstruction.TestStage,
-            .Tasks = 1}
+                        .AdaptiveProtocolValue = NextTaskInstruction.AdaptiveValue,
+                        .TestStage = NextTaskInstruction.TestStage,
+                        .Tasks = 1}
 
                 End If
 
 
             Case TestModes.AdaptiveNoise
 
+                'Adjusting levels
+                'TargetLevel = TargetLevel
+                MaskingLevel = TargetLevel - NextTaskInstruction.AdaptiveValue
+                'ContralateralMaskingLevel = ContralateralMaskingLevel
+
                 CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord,
-            .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
-            .SpeechLevel = TargetLevel,
-            .MaskerLevel = TargetLevel - NextTaskInstruction.AdaptiveValue,
-            .ContralateralMaskerLevel = ContralateralMaskingLevel,
-            .TestStage = NextTaskInstruction.TestStage,
-            .Tasks = 1}
+                    .AdaptiveProtocolValue = NextTaskInstruction.AdaptiveValue,
+                    .TestStage = NextTaskInstruction.TestStage,
+                    .Tasks = 1}
 
             Case Else
                 Throw New NotImplementedException
@@ -421,10 +427,10 @@ Public Class HintSpeechTest
 
         'Mixing trial sound
         MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
-                          TargetLevel:=CurrentTestTrial.SpeechLevel,
+                          TargetLevel:=Me.TargetLevel,
                           TargetPresentationTime:=TestWordPresentationTime,
-                          MaskerLevel:=CurrentTestTrial.MaskerLevel,
-                          ContralateralMaskerLevel:=CurrentTestTrial.ContralateralMaskerLevel,
+                          MaskerLevel:=Me.MaskingLevel,
+                          ContralateralMaskerLevel:=Me.ContralateralMaskingLevel,
                           ExportSounds:=False)
 
         'Setting trial events
@@ -465,12 +471,13 @@ Public Class HintSpeechTest
             End If
 
             If CurrentTestTrial IsNot Nothing Then
+
                 Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestProtocol.TotalTrialCount)
-                Output.Add("SNR = " & Math.Round(CurrentTestTrial.SNR) & " dB HL")
-                Output.Add("Talnivå = " & Math.Round(CurrentTestTrial.SpeechLevel) & " dB HL")
-                Output.Add("Brusnivå = " & Math.Round(CurrentTestTrial.MaskerLevel) & " dB HL")
+                Output.Add("SNR = " & Math.Round(SNR) & " " & dBString)
+                Output.Add("Talnivå = " & Math.Round(TargetLevel) & " " & dBString)
+                Output.Add("Brusnivå = " & Math.Round(MaskingLevel) & " " & dBString)
                 If ContralateralMasking = True Then
-                    Output.Add("Kontralateral brusnivå = " & Math.Round(CurrentTestTrial.ContralateralMaskerLevel) & " dB HL")
+                    Output.Add("Kontralateral brusnivå = " & Math.Round(ContralateralMaskingLevel) & " " & dBString)
                 End If
             End If
         End If

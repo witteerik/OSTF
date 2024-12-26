@@ -2,6 +2,7 @@
 Imports System.ComponentModel
 Imports System.Reflection
 Imports System.Runtime.CompilerServices
+Imports System.Runtime.InteropServices.JavaScript.JSType
 Imports System.Runtime.Serialization
 Imports System.Xml.Serialization
 
@@ -975,6 +976,13 @@ Public MustInherit Class SpeechTest
     End Property
     Private _TargetLevel As Double = 65
 
+    'Returns the TargetLevel - MaskingLevel signal-to-noise ratio
+    Public ReadOnly Property SNR As Double
+        Get
+            Return TargetLevel - MaskingLevel
+        End Get
+    End Property
+
 
     Public Property MaskingLevel As Double
         Get
@@ -1172,6 +1180,18 @@ Public MustInherit Class SpeechTest
         End Set
     End Property
     Private _LevelsAreIn_dBHL As Boolean = False
+
+    ''' <summary>
+    ''' Returns the strings dB HL or dB SPL depending on the value of the property LevelsAreIn_dBHL
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function dBString() As String
+        If LevelsAreIn_dBHL = False Then
+            Return "dB SPL"
+        Else
+            Return "dB HL"
+        End If
+    End Function
 
     Public Property SimulatedSoundField As Boolean
         Get
