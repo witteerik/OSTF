@@ -431,55 +431,22 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
 
 
-                //case "Hörtröskel för tal (HTT)":
+                case "Hörtröskel för tal (HTT)":
 
-                //    SpeechMaterialPicker.SelectedItem = "Swedish Spondees 23";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new SrtSpeechTest("Swedish Spondees 23");
-
-                //    // Testoptions
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsSrtTestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsSrtTestView);
-                //    CurrentTestOptionsView = newOptionsSrtTestView;
-
-                //    break;
-
-                case "SiP-testet":
-
-                    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+                    SpeechMaterialPicker.SelectedItem = "Swedish Spondees 23";
 
                     // Speech test
-                    CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
+                    CurrentSpeechTest = new HTT23SpeechTest("Swedish Spondees 23");
 
+                    // Testoptions
                     TestOptionsGrid.Children.Clear();
-                    var newOptionsSipTestView2 = new OptionsViewAll(CurrentSpeechTest);
-                    TestOptionsGrid.Children.Add(newOptionsSipTestView2);
-                    CurrentTestOptionsView = newOptionsSipTestView2;
+                    var newOptionsSrtTestView = new OptionsViewAll(CurrentSpeechTest);
+                    TestOptionsGrid.Children.Add(newOptionsSrtTestView);
+                    CurrentTestOptionsView = newOptionsSrtTestView;
 
                     break;
 
-
-                //case "Protokoll B1 - TP800":
-
-                //    SpeechMaterialPicker.SelectedItem = "SwedishMonosyllablesTP800";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new IHearProtocolB1SpeechTest("SwedishMonosyllablesTP800");
-
-                //    // Testoptions
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsPB1TestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsPB1TestView);
-                //    CurrentTestOptionsView = newOptionsPB1TestView;
-
-                //    //((IHearProtocolB1SpeechTest)CurrentSpeechTest).TestCacheIndexation();
-
-                //    break;
-
-
-                case "Protokoll B2 - Manuell TP":
+                case "Manuell TP i brus":
 
                     SpeechMaterialPicker.SelectedItem = "SwedishTP50";
 
@@ -497,87 +464,22 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                //case "Protokoll B3 - Användarstyrd TP":
+                //case "SiP-testet":
 
-                //    SpeechMaterialPicker.SelectedItem = "AMTEST (SE)";
+                //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
                 //    // Speech test
-                //    CurrentSpeechTest = new IHearProtocolB3SpeechTest("AMTEST (SE)");
+                //    CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
 
-                //    // Testoptions
                 //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsPB3TestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsPB3TestView);
-                //    CurrentTestOptionsView = newOptionsPB3TestView;
+                //    var newOptionsSipTestView2 = new OptionsViewAll(CurrentSpeechTest);
+                //    TestOptionsGrid.Children.Add(newOptionsSipTestView2);
+                //    CurrentTestOptionsView = newOptionsSipTestView2;
 
                 //    break;
 
 
-                //case "Protokoll B3 - II - Användarstyrd TP":
-
-                //    SpeechMaterialPicker.SelectedItem = "AMTEST_(SE)_MixIV - NominalLevel-25dB";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new IHearProtocolB3_II_SpeechTest("AMTEST_(SE)_MixIV - NominalLevel-25dB");
-
-                //    // Testoptions
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsPB3BTestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsPB3BTestView);
-                //    CurrentTestOptionsView = newOptionsPB3BTestView;
-
-                //    break;
-
-                case "Protokoll B4 - Manuell HTT - Klinik":
-
-                    SpeechMaterialPicker.SelectedItem = "Swedish Spondees 23";
-
-                    // Speech test
-                    CurrentSpeechTest = new HTT23SpeechTest("Swedish Spondees 23");
-
-                    // Testoptions
-                    TestOptionsGrid.Children.Clear();
-                    var newOptionsPB4TestView = new OptionsViewAll(CurrentSpeechTest);
-                    TestOptionsGrid.Children.Add(newOptionsPB4TestView);
-                    CurrentTestOptionsView = newOptionsPB4TestView;
-
-                    //((IHearProtocolB4SpeechTest)CurrentSpeechTest).TestCacheIndexation();
-
-                    break;
-
-                //case "Protokoll B4 - Manuell HTT - Normalhörande":
-
-                //    SpeechMaterialPicker.SelectedItem = "Swedish Spondees 23";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new IHearProtocolB4SpeechTest_II("Swedish Spondees 23");
-
-                //    // Testoptions
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsPB4IITestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsPB4IITestView);
-                //    CurrentTestOptionsView = newOptionsPB4IITestView;
-
-                //    break;
-
-
-                //case "Protokoll B5 - Användarstyrd TP II":
-
-                //    SpeechMaterialPicker.SelectedItem = "AMTEST_(SE)_MixIV";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new IHearProtocolB5SpeechTest("AMTEST_(SE)_MixIV");
-
-                //    // Testoptions
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsPB5TestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsPB5TestView);
-                //    CurrentTestOptionsView = newOptionsPB5TestView;
-
-                //    break;
-                    
-
-                case "Protokoll B6 - Quick SiP":
+                case "Quick SiP":
 
                     SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
@@ -590,38 +492,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = newOptionsQSipView;
 
                     break;
-
-
-                //case "Protokoll B7 - SiP-testet":
-
-                //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new IHearProtocolB7SpeechTest("Swedish SiP-test");
-
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsSipTestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsSipTestView);
-                //    CurrentTestOptionsView = newOptionsSipTestView;
-
-                //    break;
-
-                //case "TP50 - Ljudfält":
-
-                //    SpeechMaterialPicker.SelectedItem = "SwedishTP50";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new TP50_SoundField("SwedishTP50"); 
-
-                //    // Testoptions
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsTP50_SoundField_TestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsTP50_SoundField_TestView);
-                //    CurrentTestOptionsView = newOptionsTP50_SoundField_TestView;
-
-                //    //((TP50_SoundField)CurrentSpeechTest).TestCacheIndexation();
-
-                //    break;
 
                 case "I HeAR CS - SiP-testet":
 
@@ -885,30 +755,17 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "SiP-testet":
+                //case "SiP-testet":
 
-                    CurrentResponseView = new ResponseView_Mafc();
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                //    CurrentResponseView = new ResponseView_Mafc();
+                //    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
-                    TestReponseGrid.Children.Add(CurrentResponseView);
+                //    TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    break;
-
-                case "Protokoll B1 - TP800":
-
-                    // Response view
-                    CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
-                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                    break;
+                //    break;
 
 
-                case "Protokoll B2 - Manuell TP":
+                case "Manuell TP i brus":
 
                     // Response view
                     CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
@@ -932,80 +789,25 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "Protokoll B3 - Användarstyrd TP":
 
-                    // Response view
-                    CurrentResponseView = new ResponseView_Mafc();
+                case "Quick SiP":
 
+                    CurrentResponseView = new ResponseView_SiP_SF(); // Using the same respons GUI as with head movements
+                    //CurrentResponseView = new ResponseView_Mafc();
                     TestReponseGrid.Children.Add(CurrentResponseView);
 
                     CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
                     break;
 
-                case "Protokoll B3 - II - Användarstyrd TP":
+                //case "SiP-testet":
 
-                    // Response view
-                    CurrentResponseView = new ResponseView_Mafc();
+                //    CurrentResponseView = new ResponseView_Mafc();
+                //    TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    TestReponseGrid.Children.Add(CurrentResponseView);
+                //    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
 
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    break;
-
-                case "Protokoll B4 - Manuell HTT - Klinik":
-
-                    // Response view
-                    CurrentResponseView = new ResponseView_FreeRecall();
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    break;
-
-                case "Protokoll B4 - Manuell HTT - Normalhörande":
-
-                    // Response view
-                    CurrentResponseView = new ResponseView_FreeRecall();
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                    break;
-
-                case "Protokoll B5 - Användarstyrd TP II":
-
-                    // Response view
-                    CurrentResponseView = new ResponseView_Mafc();
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    break;
-
-                case "Protokoll B6 - Quick SiP":
-
-                    CurrentResponseView = new ResponseView_Mafc();
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    break;
-
-                case "Protokoll B7 - SiP-testet":
-
-                    CurrentResponseView = new ResponseView_Mafc();
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    break;
+                //    break;
 
                 case "TP50 - Ljudfält":
 

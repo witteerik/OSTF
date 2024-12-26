@@ -127,8 +127,6 @@ Public Class TestTrial
 
     Public Property TestEar As Utils.SidesWithBoth
 
-    Public Property UseContralateralNoise As Boolean
-
     Public Property EfficientContralateralMaskingTerm As Double
 
     ''' <summary>

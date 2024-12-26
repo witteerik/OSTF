@@ -1030,6 +1030,19 @@ Namespace Audio.SoundScene
             Return "Azimuth: " & Math.Round(HorizontalAzimuth) & "°, Elevation: " & Math.Round(Elevation) & "°, Distance: " & Math.Round(Distance, 2) & "m"
         End Function
 
+        ''' <summary>
+        ''' Creates a new instance of SoundSourceLocation with the same Distance, HorizontalAzimuth and Elevation as the current SoundSourceLocation.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function CreateLocationCopy() As SoundSourceLocation
+            Dim Output As New SoundSourceLocation
+            Output.Distance = Distance
+            Output.HorizontalAzimuth = HorizontalAzimuth
+            Output.Elevation = Elevation
+            Return Output
+        End Function
+
+
     End Class
 
     Public Class VisualSoundSourceLocation
@@ -1085,6 +1098,18 @@ Namespace Audio.SoundScene
             Y += Shift
 
         End Sub
+
+        Public Function IsSameLocation(ByVal ComparisonLocation As VisualSoundSourceLocation) As Boolean
+
+            If ComparisonLocation Is Nothing Then Return False
+
+            If ParentSoundSourceLocation.HorizontalAzimuth <> ComparisonLocation.ParentSoundSourceLocation.HorizontalAzimuth Then Return False
+            If ParentSoundSourceLocation.Distance <> ComparisonLocation.ParentSoundSourceLocation.Distance Then Return False
+            If ParentSoundSourceLocation.Elevation <> ComparisonLocation.ParentSoundSourceLocation.Elevation Then Return False
+            Return True
+
+        End Function
+
 
     End Class
 

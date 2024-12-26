@@ -20,6 +20,8 @@ Public MustInherit Class SpeechTest
         LoadSpeechMaterialSpecification(SpeechMaterialName)
     End Sub
 
+    Protected IsInitialized As Boolean = False
+
 #End Region
 
 
@@ -282,17 +284,9 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Referensnivå (dB HL)"
-                    Else
-                        Return "Referensnivå (dB SPL)"
-                    End If
+                    Return "Referensnivå (" & dBString() & ")"
                 Case Else
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Reference level (dB HL)"
-                    Else
-                        Return "Reference level (dB SPL)"
-                    End If
+                    Return "Reference level (" & dBString() & ")"
             End Select
         End Get
     End Property
@@ -302,17 +296,9 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Talnivå (dB HL)"
-                    Else
-                        Return "Talnivå (dB SPL)"
-                    End If
+                    Return "Talnivå (" & dBString() & ")"
                 Case Else
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Speech level (dB HL)"
-                    Else
-                        Return "Speech level (dB SPL)"
-                    End If
+                    Return "Speech level (" & dBString() & ")"
             End Select
         End Get
     End Property
@@ -322,17 +308,9 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Maskeringsnivå (dB HL)"
-                    Else
-                        Return "Maskeringsnivå (dB SPL)"
-                    End If
+                    Return "Maskeringsnivå (" & dBString() & ")"
                 Case Else
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Masking level (dB HL)"
-                    Else
-                        Return "Masking level (dB SPL)"
-                    End If
+                    Return "Masking level (" & dBString() & ")"
             End Select
         End Get
     End Property
@@ -342,17 +320,9 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Bakgrundsnivå (dB HL)"
-                    Else
-                        Return "Bakgrundsnivå (dB SPL)"
-                    End If
+                    Return "Bakgrundsnivå (" & dBString() & ")"
                 Case Else
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Background level (dB HL)"
-                    Else
-                        Return "Background level (dB SPL)"
-                    End If
+                    Return "Background level (" & dBString() & ")"
             End Select
         End Get
     End Property
@@ -362,20 +332,26 @@ Public MustInherit Class SpeechTest
         Get
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Kontralat. maskeringsnivå (dB HL)"
-                    Else
-                        Return "Kontralat. maskeringsnivå (dB SPL)"
-                    End If
+                    Return "Kontralat. maskeringsnivå (" & dBString() & ")"
                 Case Else
-                    If LevelsAreIn_dBHL = True Then
-                        Return "Contralat. masking level (dB HL)"
-                    Else
-                        Return "Contralat. masking level (dB SPL)"
-                    End If
+                    Return "Contralat. masking level (" & dBString() & ")"
             End Select
         End Get
     End Property
+
+    <ExludeFromPropertyListing>
+    Public Overridable ReadOnly Property TargetSNRTitle As String
+        Get
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    Return "SNR (" & dBString() & ")"
+                Case Else
+                    Return "SNR (" & dBString() & ")"
+            End Select
+        End Get
+    End Property
+
+
 
     <ExludeFromPropertyListing>
     Public Property SelectedTestModeTitle As String = "Testläge"
@@ -464,34 +440,41 @@ Public MustInherit Class SpeechTest
 #Region "GuiSettings"
 
     ''' <summary>
-    ''' Holds the reference level step size available for the settings GUI 
+    ''' Holds the minimum reference level step size
     ''' </summary>
     ''' <returns></returns>
     Public Property ReferenceLevel_StepSize As Double = 1
 
     ''' <summary>
-    ''' Holds the target level step size available for the settings GUI 
+    ''' Holds the minimum target level step size 
     ''' </summary>
     ''' <returns></returns>
     Public Property TargetLevel_StepSize As Double = 1
 
     ''' <summary>
-    ''' Holds the masker level step size available for the settings GUI 
+    ''' Holds the minimum masker level step size 
     ''' </summary>
     ''' <returns></returns>
     Public Property MaskingLevel_StepSize As Double = 1
 
     ''' <summary>
-    ''' Holds the background sounds level step size available for the settings GUI 
+    ''' Holds the minimum background sounds level step size 
     ''' </summary>
     ''' <returns></returns>
     Public Property BackgroundLevel_StepSize As Double = 1
 
     ''' <summary>
-    ''' Holds the contralateral masker level step size available for the settings GUI 
+    ''' Holds the minimum contralateral masker level step size 
     ''' </summary>
     ''' <returns></returns>
     Public Property ContralateralMaskingLevel_StepSize As Double = 1
+
+    ''' <summary>
+    ''' Holds the minimum target SNR level step size
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property TargetSNR_StepSize As Double = 1
+
 
     Public Property MaximumSoundFieldSpeechLocations As Integer = 1
 
@@ -522,6 +505,8 @@ Public MustInherit Class SpeechTest
     Public Property ShowGuiChoice_SoundFieldSimulation As Boolean = False
 
     Public Property ShowGuiChoice_ReferenceLevel As Boolean = False
+
+    Public Overridable ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
 
     Public Overridable ReadOnly Property ShowGuiChoice_TargetLevel As Boolean
         Get
@@ -950,6 +935,27 @@ Public MustInherit Class SpeechTest
         End Set
     End Property
 
+    Private _MinimumLevel_TargetSNR As Double = -30
+    Public Property MinimumLevel_TargetSNR As Double
+        Get
+            Return _MinimumLevel_TargetSNR
+        End Get
+        Set(value As Double)
+            _MinimumLevel_TargetSNR = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _MaximumLevel_TargetSNR As Double = 30
+    Public Property MaximumLevel_TargetSNR As Double
+        Get
+            Return _MaximumLevel_TargetSNR
+        End Get
+        Set(value As Double)
+            _MaximumLevel_TargetSNR = value
+            OnPropertyChanged()
+        End Set
+    End Property
 
     Public Property ReferenceLevel As Double
         Get
@@ -977,12 +983,11 @@ Public MustInherit Class SpeechTest
     Private _TargetLevel As Double = 65
 
     'Returns the TargetLevel - MaskingLevel signal-to-noise ratio
-    Public ReadOnly Property SNR As Double
+    Public ReadOnly Property CurrentSNR As Double
         Get
             Return TargetLevel - MaskingLevel
         End Get
     End Property
-
 
     Public Property MaskingLevel As Double
         Get
@@ -1021,6 +1026,22 @@ Public MustInherit Class SpeechTest
         End Set
     End Property
     Private _ContralateralMaskingLevel As Double = 25
+
+    ''' <summary>
+    ''' The desired SNR value to use in a test. The value can be set from the GUI, or internally in the test. This value should never directly adjust target and masker levels, be instead these levels should be set internally in each test.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property TargetSNR As Double
+        Get
+            Return _TargetSNR
+        End Get
+        Set(value As Double)
+            _TargetSNR = Math.Round(value / TargetSNR_StepSize) * TargetSNR_StepSize
+            '_TargetSNR = Math.Min(_TargetSNR, MaximumLevel_TargetSNR)
+            OnPropertyChanged()
+        End Set
+    End Property
+    Private _TargetSNR As Double = 0
 
 
     ''' <summary>
@@ -1263,6 +1284,21 @@ Public MustInherit Class SpeechTest
             Return Output
         End Get
     End Property
+
+
+    ''' <summary>
+    ''' Selecting the same SoundSourceLocations in MaskerLocations as selected in TargetLocations
+    ''' </summary>
+    Protected Sub SelectSameMaskersAsTargetSoundSources()
+        For Each TagetLocationCandidate In _SignalLocationCandidates
+            For Each MaskerLocationCandidate In _MaskerLocationCandidates
+                If TagetLocationCandidate.IsSameLocation(MaskerLocationCandidate) Then
+                    MaskerLocationCandidate.Selected = TagetLocationCandidate.Selected
+                End If
+            Next
+        Next
+        OnPropertyChanged()
+    End Sub
 
 
     ''' <summary>
@@ -1764,10 +1800,8 @@ Public MustInherit Class SpeechTest
         'Creating the mix by calling CreateSoundScene of the current Mixer
         CurrentTestTrial.Sound = Transducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, LevelsAreIn_dBHL, CurrentSoundPropagationType, Transducer.LimiterThreshold, ExportSounds, CurrentTestTrial.Spelling)
 
-
         'TODO: Reasonably this method should only store values into the CurrentTestTrial that are derived within this function! Leaving these for now
         CurrentTestTrial.MediaSetName = MediaSet.MediaSetName
-        CurrentTestTrial.UseContralateralNoise = ContralateralMasking
         CurrentTestTrial.EfficientContralateralMaskingTerm = MediaSet.EffectiveContralateralMaskingGain
 
     End Sub

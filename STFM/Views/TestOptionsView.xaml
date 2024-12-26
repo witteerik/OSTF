@@ -112,6 +112,18 @@
                 <Slider x:Name="ReferenceLevelSlider" Margin="10,0,10,5" Maximum="{Binding MaximumReferenceLevel }" Minimum="{Binding MinimumReferenceLevel }" Value="{Binding ReferenceLevel}" MinimumTrackColor="DarkSlateGrey" ThumbColor="DarkSlateGrey"/>
             </VerticalStackLayout>
 
+            <VerticalStackLayout x:Name="TargetSNRControl">
+                <Label HorizontalOptions="Center" Margin="0,5,0,0">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding TargetSNRTitle}" />
+                            <Span Text="{Binding TargetSNR, StringFormat=' = {0:F0}'}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Slider x:Name="TargetSNRSlider" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_TargetSNR }" Minimum="{Binding MinimumLevel_TargetSNR }"  Value="{Binding TargetSNR}" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
+            </VerticalStackLayout>
+
             <VerticalStackLayout x:Name="SpeechLevelControl">
                 <Label HorizontalOptions="Center" Margin="0,5,0,0">
                     <Label.FormattedText>

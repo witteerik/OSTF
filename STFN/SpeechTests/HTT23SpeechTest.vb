@@ -28,17 +28,12 @@ Public Class HTT23SpeechTest
              " - Patienten har maximalt " & MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
              " - Testet består av två 25-ordslistor (en med manlig och en med kvinnlig röst) som körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
 
-        ShowGuiChoice_PractiseTest = False
-        ShowGuiChoice_dBHL = False
-        ShowGuiChoice_PreSet = False
-        ShowGuiChoice_StartList = False
-        ShowGuiChoice_MediaSet = False
+        ShowGuiChoice_StartList = True
+        ShowGuiChoice_MediaSet = True
         SupportsPrelistening = True
-        ShowGuiChoice_SoundFieldSimulation = False
-        AvailableTestModes = Nothing
-        AvailableTestProtocols = Nothing
-        AvailableFixedResponseAlternativeCounts = New List(Of Integer)
-        AvailablePhaseAudiometryTypes = Nothing
+        AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveSpeech}
+        AvailableTestProtocols = New List(Of TestProtocol) From {New SrtIso8253_TestProtocol}
+        AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {4}
         MaximumSoundFieldSpeechLocations = 1
         MaximumSoundFieldMaskerLocations = 0
         MaximumSoundFieldBackgroundNonSpeechLocations = 0
@@ -47,41 +42,28 @@ Public Class HTT23SpeechTest
         MinimumSoundFieldMaskerLocations = 0
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
-        ShowGuiChoice_ReferenceLevel = False
-        ShowGuiChoice_KeyWordScoring = False
-        ShowGuiChoice_ListOrderRandomization = False
+
         ShowGuiChoice_WithinListRandomization = True
-        ShowGuiChoice_AcrossListRandomization = False
+        WithinListRandomization = True
+
         ShowGuiChoice_FreeRecall = True
-        ShowGuiChoice_DidNotHearAlternative = False
-        PhaseAudiometry = False
+        IsFreeRecall = True
+
         TargetLevel_StepSize = 1
-        HistoricTrialCount = 0
+
         SupportsManualPausing = True
-        ReferenceLevel = 65
-        TargetLevel = 65
-        MaskingLevel = 65
-        BackgroundLevel = 50
-        ContralateralMaskingLevel = 25
-        MinimumReferenceLevel = -40
-        MaximumReferenceLevel = 80
-        MinimumLevel_Targets = -40
+
+        TargetLevel = 60
+        ContralateralMaskingLevel = 20
+
+        MinimumLevel_Targets = -10
         MaximumLevel_Targets = 80
-        MinimumLevel_Maskers = -40
-        MaximumLevel_Maskers = 80
-        MinimumLevel_Background = -40
-        MaximumLevel_Background = 80
-        MinimumLevel_ContralateralMaskers = -40
+        MinimumLevel_ContralateralMaskers = -10
         MaximumLevel_ContralateralMaskers = 80
-        AvailableExperimentNumbers = {}
 
         SoundOverlapDuration = 0.25
 
-
         ShowGuiChoice_TargetLocations = True
-        ShowGuiChoice_MaskerLocations = False
-        ShowGuiChoice_BackgroundNonSpeechLocations = False
-        ShowGuiChoice_BackgroundSpeechLocations = False
 
     End Sub
 
@@ -93,104 +75,28 @@ Public Class HTT23SpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
 
-
     Private PlannedTestWords As List(Of SpeechMaterialComponent)
     Private PlannedFamiliarizationWords As List(Of SpeechMaterialComponent)
-
-
-    Private IsInitialized As Boolean = False
-
-    Private IsInitializeStarted As Boolean = False
-
-    Private IsSecondTest As Boolean = False
-
-    'TestOrder holds rendomized order in which the two tests are run (specifying MediaSet and List index)
-    Private TestOrder As Integer
-
-    Private CacheLastTestListVariableName As String
-    Private StoredTestListIndex As Integer
-
-    Private ContralateralNoise As Audio.Sound = Nothing
-    Private SilentSound As Audio.Sound = Nothing
 
     Private MaximumSoundDuration As Double = 10
     Private TestWordPresentationTime As Double = 0.5
     Private MaximumResponseTime As Double = 5
 
     Private ResultSummaryForGUI As New List(Of String)
-    Private HasAddedSRT_Stage1 As Boolean = False
-    Private HasAddedSRT_Stage2 As Boolean = False
     Private PreTestWordIndex As Integer = 0
 
-
-    Public Sub TestCacheIndexation()
-
-        'Creating cache variable names for storing last test list index and voice between sessions
-        CacheLastTestListVariableName = FilePathRepresentation & "LastTestListOrder"
-
-        Utils.AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
-
-        For testSession = 0 To 25
-
-            InitializeCurrentTest()
-
-            Utils.SendInfoToLog("testSession:" & testSession & ", StoredTestListIndex : " & StoredTestListIndex)
-
-            FinalizeTest()
-
-            IsInitialized = False
-            IsInitializeStarted = False
-
-        Next
-
-        Utils.AppCache.RemoveAppCacheVariable(CacheLastTestListVariableName)
-
-        Messager.MsgBox("Finished test of cache indexation. Results are stored in the log folder.")
-
-    End Sub
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
-        If IsInitializeStarted = True Then Return New Tuple(Of Boolean, String)(True, "")
-
-        IsInitializeStarted = True
-
-        'Randomizing the order of media sets
-        TestOrder = Utils.SampleWithoutReplacement(1, 0, 2, Randomizer)(0)
-
-        ObservedTrials = New TrialHistory
-        TestProtocol = New SrtIso8253_TestProtocol
-        TestMode = TestModes.AdaptiveSpeech
-
-        Dim StartAdaptiveLevel As Double = TargetLevel
-
-        Dim AllTestListsNames = AvailableTestListsNames()
-
-        'Creating cache variable names for storing last test list index and voice between sessions
-        CacheLastTestListVariableName = FilePathRepresentation & "LastTestList"
-
-        'Selecting test list
-        If Utils.AppCache.AppCacheVariableExists(CacheLastTestListVariableName) = True Then
-
-            'Getting the last tested index
-            StoredTestListIndex = Utils.AppCache.GetAppCacheIntegerVariableValue(CacheLastTestListVariableName)
-
-        Else
-            'Randomizing a new list number if no list has been run previously 
-            StoredTestListIndex = Randomizer.Next(0, AllTestListsNames.Count)
-
-            'Unwrapping TestListIndex
-            If StoredTestListIndex > AllTestListsNames.Count - 1 Then
-                StoredTestListIndex = 0
-            End If
-
+        If SignalLocations.Count = 0 Then
+            Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
         End If
 
         CreatePlannedWordsList()
 
-        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
+        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = TargetLevel, .TestStage = 0})
 
         IsInitialized = True
 
@@ -198,72 +104,29 @@ Public Class HTT23SpeechTest
 
     End Function
 
-    Private Sub InitializeSecondTest()
-
-        'Store the results of the first test
-        TestProtocol.FinalizeProtocol(ObservedTrials)
-        SaveTableFormatedTestResults()
-
-        ' Calling this just to store the tage 1 resulsts for the GUI
-        GetResultStringForGui()
-
-        'Initialize second test
-        IsSecondTest = True
-        ObservedTrials = New TrialHistory
-        TestProtocol = New SrtIso8253_TestProtocol
-        TestMode = TestModes.AdaptiveSpeech
-
-        Dim StartAdaptiveLevel As Double = TargetLevel
-
-        CreatePlannedWordsList()
-
-        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0})
-
-
-    End Sub
 
     Private Function CreatePlannedWordsList() As Boolean
 
-        'Adding NumberOfWordsToAdd words, starting from the start list (excluding practise items), and re-using lists if needed 
-        Dim TempAvailableLists As New List(Of SpeechMaterialComponent)
+        'Adding NumberOfWordsToAdd words, starting from the start list (excluding practise items)
         Dim AllLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, True, False)
 
-        Dim CurrentListSMC As SpeechMaterialComponent
-
-        'Determining which combination of MediaSet and test List that should be run. 
-        If IsSecondTest = False Then
-            'First test
-            If TestOrder = 0 Then
-                MediaSet = AvailableMediasets(0)
-                CurrentListSMC = AllLists(StoredTestListIndex)
-            Else
-                ' I.e. TestOrder = 1
-                MediaSet = AvailableMediasets(1)
-
-                Dim CurrentListIndex As Integer = StoredTestListIndex + 1
-                If CurrentListIndex > AllLists.Count - 1 Then
-                    CurrentListIndex = 0
-                End If
-                CurrentListSMC = AllLists(CurrentListIndex)
+        'Determines the index of the start list
+        Dim SelectedStartListIndex As Integer = -1
+        For i = 0 To AllLists.Count - 1
+            If AllLists(i).PrimaryStringRepresentation = StartList Then
+                SelectedStartListIndex = i
+                Exit For
             End If
-        Else
-            'Second test
-            If TestOrder = 0 Then
-                MediaSet = AvailableMediasets(1)
+        Next
 
-                Dim CurrentListIndex As Integer = StoredTestListIndex + 1
-                If CurrentListIndex > AllLists.Count - 1 Then
-                    CurrentListIndex = 0
-                End If
-                CurrentListSMC = AllLists(CurrentListIndex)
-            Else
-                ' I.e. TestOrder = 1
-                MediaSet = AvailableMediasets(0)
-                CurrentListSMC = AllLists(StoredTestListIndex)
-            End If
+        If SelectedStartListIndex = -1 Then
+            Messager.MsgBox("Unable to find the selected start list",, "An error occurred!")
+            Return False
         End If
 
-        'Adding all planned test words, and stopping after NumberOfWordsToAdd have been added
+        Dim CurrentListSMC As SpeechMaterialComponent = AllLists(SelectedStartListIndex)
+
+        'Adding the planned test words
         PlannedTestWords = New List(Of SpeechMaterialComponent)
         PlannedFamiliarizationWords = New List(Of SpeechMaterialComponent)
         Dim AllWords = CurrentListSMC.GetChildren()
@@ -290,9 +153,6 @@ Public Class HTT23SpeechTest
         For Each RandomIndex In RandomizedOrder2
             PlannedTestWords.Add(TestStageWords(RandomIndex))
         Next
-
-        'Getting the contralateral noise from the first SMC
-        ContralateralNoise = PlannedTestWords.First.GetContralateralMaskerSound(MediaSet, 0)
 
         Return True
 
@@ -360,21 +220,6 @@ Public Class HTT23SpeechTest
             End If
         End If
 
-        'Checking if first test is finished
-        If ProtocolReply.Decision = SpeechTestReplies.TestIsCompleted Then
-
-            If IsSecondTest = False Then
-
-                'It's the first test, initializing the second test
-                InitializeSecondTest()
-
-                'And informing the participant
-                ProtocolReply.Decision = SpeechTestReplies.PauseTestingWithCustomInformation
-                PauseInformation = "Första delen är klar av testet är klart." & vbCrLf & " Klicka OK för att starta den andra och sista delen."
-
-            End If
-        End If
-
         Return ProtocolReply.Decision
 
     End Function
@@ -415,7 +260,14 @@ Public Class HTT23SpeechTest
         CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
 
         'Mixing trial sound
-        MixNextTrialSound()
+        'MixNextTrialSound()
+
+        MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
+                          TargetLevel:=Me.TargetLevel,
+                          TargetPresentationTime:=TestWordPresentationTime,
+                          MaskerLevel:=Me.MaskingLevel,
+                          ContralateralMaskerLevel:=Me.ContralateralMaskingLevel,
+                          ExportSounds:=False)
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
@@ -427,107 +279,104 @@ Public Class HTT23SpeechTest
 
 
 
-    Private Sub MixNextTrialSound()
+    'Private Sub MixNextTrialSound()
 
-        Dim RETSPL_Correction As Double = 0
-        If LevelsAreIn_dBHL = True Then
-            RETSPL_Correction = Transducer.RETSPL_Speech
-        End If
+    '    Dim RETSPL_Correction As Double = 0
+    '    If LevelsAreIn_dBHL = True Then
+    '        RETSPL_Correction = Transducer.RETSPL_Speech
+    '    End If
 
-        'Getting the speech signal
-        Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(MediaSet, 0, 1, , , , , False, False, False, , , False)
-        Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
+    '    'Getting the speech signal
+    '    Dim TestWordSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(MediaSet, 0, 1, , , , , False, False, False, , , False)
+    '    Dim NominalLevel_FS = TestWordSound.SMA.NominalLevel
 
-        'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
-        CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
-        CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
-        CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
+    '    'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration (assuming that the linguistic recording is in channel 1)
+    '    CurrentTestTrial.LinguisticSoundStimulusStartTime = TestWordPresentationTime
+    '    CurrentTestTrial.LinguisticSoundStimulusDuration = TestWordSound.WaveData.SampleData(1).Length / TestWordSound.WaveFormat.SampleRate
+    '    CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
 
-        'Creating a silent sound (lazy method to get the same length independently of contralateral masking or not)
-        Dim SilentSound = Audio.GenerateSound.CreateSilence(ContralateralNoise.WaveFormat, 1, MaximumSoundDuration)
+    '    'Creating a silent sound (lazy method to get the same length independently of contralateral masking or not)
+    '    Dim SilentSound = Audio.GenerateSound.CreateSilence(ContralateralNoise.WaveFormat, 1, MaximumSoundDuration)
 
-        'Creating contalateral masking noise (with the same length as the masking noise)
-        Dim TrialContralateralNoise As Audio.Sound = Nothing
-        Dim IntendedNoiseLength As Integer
-        If ContralateralMasking = True Then
-            Dim TotalSoundLength = ContralateralNoise.WaveData.SampleData(1).Length
-            IntendedNoiseLength = ContralateralNoise.WaveFormat.SampleRate * MaximumSoundDuration
-            Dim RandomStartReadSample = Randomizer.Next(0, TotalSoundLength - IntendedNoiseLength)
-            TrialContralateralNoise = ContralateralNoise.CopySection(1, RandomStartReadSample - 1, IntendedNoiseLength) ' TODO: Here we should check to ensure that the MaskerNoise is long enough
-        End If
+    '    'Creating contalateral masking noise (with the same length as the masking noise)
+    '    Dim TrialContralateralNoise As Audio.Sound = Nothing
+    '    Dim IntendedNoiseLength As Integer
+    '    If ContralateralMasking = True Then
+    '        Dim TotalSoundLength = ContralateralNoise.WaveData.SampleData(1).Length
+    '        IntendedNoiseLength = ContralateralNoise.WaveFormat.SampleRate * MaximumSoundDuration
+    '        Dim RandomStartReadSample = Randomizer.Next(0, TotalSoundLength - IntendedNoiseLength)
+    '        TrialContralateralNoise = ContralateralNoise.CopySection(1, RandomStartReadSample - 1, IntendedNoiseLength) ' TODO: Here we should check to ensure that the MaskerNoise is long enough
+    '    End If
 
-        'Checking that Nominal levels agree between signal masker and contralateral masker
-        If ContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
+    '    'Checking that Nominal levels agree between signal masker and contralateral masker
+    '    If ContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
 
-        'Calculating presentation levels
-        Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(TargetLevel) + RETSPL_Correction
-        Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
+    '    'Calculating presentation levels
+    '    Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(TargetLevel) + RETSPL_Correction
+    '    Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
 
-        'Adjusts the sound levels
-        Audio.DSP.AmplifySection(TestWordSound, NeededSpeechGain)
+    '    'Adjusts the sound levels
+    '    Audio.DSP.AmplifySection(TestWordSound, NeededSpeechGain)
 
-        If ContralateralMasking = True Then
+    '    If ContralateralMasking = True Then
 
-            'Setting level, 
-            'Very important: The contralateral masking sound file cannot be the same as the ipsilateral masker sound. The level of the contralateral masker sound must be set to agree with the Nominal level (while the ipsilateral masker sound sound have a level that deviates from the nominal level to attain the desired SNR!)
-            Dim ContralateralMaskingNominalLevel_FS = ContralateralNoise.SMA.NominalLevel
-            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(ContralateralMaskingLevel) + MediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
+    '        'Setting level, 
+    '        'Very important: The contralateral masking sound file cannot be the same as the ipsilateral masker sound. The level of the contralateral masker sound must be set to agree with the Nominal level (while the ipsilateral masker sound sound have a level that deviates from the nominal level to attain the desired SNR!)
+    '        Dim ContralateralMaskingNominalLevel_FS = ContralateralNoise.SMA.NominalLevel
+    '        Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(ContralateralMaskingLevel) + MediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
 
-            'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
-            Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - ContralateralMaskingNominalLevel_FS
-            Audio.DSP.AmplifySection(TrialContralateralNoise, NeededContraLateralMaskerGain)
+    '        'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
+    '        Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - ContralateralMaskingNominalLevel_FS
+    '        Audio.DSP.AmplifySection(TrialContralateralNoise, NeededContraLateralMaskerGain)
 
-        End If
+    '    End If
 
-        'Mixing speech and noise
-        Dim TestWordInsertionSample As Integer = TestWordSound.WaveFormat.SampleRate * TestWordPresentationTime
-        Dim Silence = Audio.GenerateSound.CreateSilence(SilentSound.WaveFormat, 1, TestWordInsertionSample, Audio.BasicAudioEnums.TimeUnits.samples)
-        Audio.DSP.InsertSoundAt(TestWordSound, Silence, 0)
-        TestWordSound.ZeroPad(IntendedNoiseLength)
-        Dim TestSound = Audio.DSP.SuperpositionSounds({TestWordSound, SilentSound}.ToList)
+    '    'Mixing speech and noise
+    '    Dim TestWordInsertionSample As Integer = TestWordSound.WaveFormat.SampleRate * TestWordPresentationTime
+    '    Dim Silence = Audio.GenerateSound.CreateSilence(SilentSound.WaveFormat, 1, TestWordInsertionSample, Audio.BasicAudioEnums.TimeUnits.samples)
+    '    Audio.DSP.InsertSoundAt(TestWordSound, Silence, 0)
+    '    TestWordSound.ZeroPad(IntendedNoiseLength)
+    '    Dim TestSound = Audio.DSP.SuperpositionSounds({TestWordSound, SilentSound}.ToList)
 
-        'Creating an output sound
-        CurrentTestTrial.Sound = New Audio.Sound(New Audio.Formats.WaveFormat(TestWordSound.WaveFormat.SampleRate, TestWordSound.WaveFormat.BitDepth, 2,, TestWordSound.WaveFormat.Encoding))
+    '    'Creating an output sound
+    '    CurrentTestTrial.Sound = New Audio.Sound(New Audio.Formats.WaveFormat(TestWordSound.WaveFormat.SampleRate, TestWordSound.WaveFormat.BitDepth, 2,, TestWordSound.WaveFormat.Encoding))
 
-        If SignalLocations(0).HorizontalAzimuth < 0 Then
-            'Left test ear
-            'Adding speech and noise
-            CurrentTestTrial.Sound.WaveData.SampleData(1) = TestSound.WaveData.SampleData(1)
-            'Adding contralateral masking
-            If ContralateralMasking = True Then
-                CurrentTestTrial.Sound.WaveData.SampleData(2) = TrialContralateralNoise.WaveData.SampleData(1)
-            End If
+    '    If SignalLocations(0).HorizontalAzimuth < 0 Then
+    '        'Left test ear
+    '        'Adding speech and noise
+    '        CurrentTestTrial.Sound.WaveData.SampleData(1) = TestSound.WaveData.SampleData(1)
+    '        'Adding contralateral masking
+    '        If ContralateralMasking = True Then
+    '            CurrentTestTrial.Sound.WaveData.SampleData(2) = TrialContralateralNoise.WaveData.SampleData(1)
+    '        End If
 
-        Else
-            'Right test ear
-            'Adding speech and noise
-            CurrentTestTrial.Sound.WaveData.SampleData(2) = TestSound.WaveData.SampleData(1)
-            'Adding contralateral masking
-            If ContralateralMasking = True Then
-                CurrentTestTrial.Sound.WaveData.SampleData(1) = TrialContralateralNoise.WaveData.SampleData(1)
-            End If
-        End If
+    '    Else
+    '        'Right test ear
+    '        'Adding speech and noise
+    '        CurrentTestTrial.Sound.WaveData.SampleData(2) = TestSound.WaveData.SampleData(1)
+    '        'Adding contralateral masking
+    '        If ContralateralMasking = True Then
+    '            CurrentTestTrial.Sound.WaveData.SampleData(1) = TrialContralateralNoise.WaveData.SampleData(1)
+    '        End If
+    '    End If
 
-        'Stores the test ear (added nov 2024)
-        Select Case SignalLocations(0).HorizontalAzimuth
-            Case -90
-                CurrentTestTrial.TestEar = Utils.Constants.SidesWithBoth.Left
-            Case 90
-                CurrentTestTrial.TestEar = Utils.Constants.SidesWithBoth.Right
-            Case Else
-                Throw New Exception("Unsupported signal azimuth: " & SignalLocations(0).HorizontalAzimuth)
-        End Select
+    '    'Stores the test ear (added nov 2024)
+    '    Select Case SignalLocations(0).HorizontalAzimuth
+    '        Case -90
+    '            CurrentTestTrial.TestEar = Utils.Constants.SidesWithBoth.Left
+    '        Case 90
+    '            CurrentTestTrial.TestEar = Utils.Constants.SidesWithBoth.Right
+    '        Case Else
+    '            Throw New Exception("Unsupported signal azimuth: " & SignalLocations(0).HorizontalAzimuth)
+    '    End Select
 
-        'Also stores the mediaset
-        CurrentTestTrial.MediaSetName = MediaSet.MediaSetName
+    '    'Also stores the mediaset
+    '    CurrentTestTrial.MediaSetName = MediaSet.MediaSetName
 
-        'And the contralateral noise on/off setting
-        CurrentTestTrial.UseContralateralNoise = ContralateralMasking
+    '    'And the EM term
+    '    CurrentTestTrial.EfficientContralateralMaskingTerm = MediaSet.EffectiveContralateralMaskingGain
 
-        'And the EM term
-        CurrentTestTrial.EfficientContralateralMaskingTerm = MediaSet.EffectiveContralateralMaskingGain
-
-    End Sub
+    'End Sub
 
 
 
@@ -539,23 +388,14 @@ Public Class HTT23SpeechTest
 
         If ProtocolThreshold IsNot Nothing Then
 
-            If IsSecondTest = False Then
-                If HasAddedSRT_Stage1 = False Then
-                    ResultSummaryForGUI.Add("HTT första testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
-                    HasAddedSRT_Stage1 = True
-                End If
-            Else
-                If HasAddedSRT_Stage2 = False Then
-                    ResultSummaryForGUI.Add("HTT andra testet = " & vbTab & Math.Round(ProtocolThreshold.Value) & " dB HL")
-                    HasAddedSRT_Stage2 = True
-                End If
-            End If
+            ResultSummaryForGUI.Add("HTT = " & vbTab & Math.Round(ProtocolThreshold.Value) & " " & dBString())
             Output.AddRange(ResultSummaryForGUI)
+
         Else
             Output.Add("Testord nummer " & ObservedTrials.Count & " av " & PlannedTestWords.Count)
             If CurrentTestTrial IsNot Nothing Then
-                Output.Add("Talnivå = " & Math.Round(TargetLevel) & " dB HL")
-                Output.Add("Kontralateral brusnivå = " & Math.Round(ContralateralMaskingLevel) & " dB HL")
+                Output.Add("Talnivå = " & Math.Round(TargetLevel) & " " & dBString())
+                Output.Add("Kontralateral brusnivå = " & Math.Round(ContralateralMaskingLevel) & " " & dBString())
             End If
         End If
 
@@ -575,25 +415,6 @@ Public Class HTT23SpeechTest
     Public Overrides Sub FinalizeTest()
 
         TestProtocol.FinalizeProtocol(ObservedTrials)
-
-        If CurrentParticipantID <> NoTestId Then
-
-            'Saving updated cache data values, only if a real test was completed
-            Dim AllTestListsNames = AvailableTestListsNames()
-
-            Dim NextTestListIndex As Integer = StoredTestListIndex
-
-            NextTestListIndex += 1
-
-            'Unwrapping NextTestListIndex 
-            If NextTestListIndex > AllTestListsNames.Count - 1 Then
-                NextTestListIndex = 0
-            End If
-
-            'Storing the test list index to be used in the next test session (only if NoTestId was not used)
-            Utils.AppCache.SetAppCacheVariableValue(CacheLastTestListVariableName, NextTestListIndex)
-
-        End If
 
     End Sub
 
@@ -622,7 +443,12 @@ Public Class HTT23SpeechTest
         CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord}
 
         'Mixing the test sound
-        MixNextTrialSound()
+        MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
+                          TargetLevel:=Me.TargetLevel,
+                          TargetPresentationTime:=TestWordPresentationTime,
+                          MaskerLevel:=Me.MaskingLevel,
+                          ContralateralMaskerLevel:=Me.ContralateralMaskingLevel,
+                          ExportSounds:=False)
 
         'Storing the test sound locally
         Dim PreTestSound = CurrentTestTrial.Sound

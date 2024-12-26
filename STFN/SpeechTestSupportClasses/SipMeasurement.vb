@@ -2704,9 +2704,6 @@ Namespace SipTest
                 MediaSetName = ""
             End If
 
-            'Notes that contralateral noise on/off setting is false (Always false in SiP-test)
-            UseContralateralNoise = False
-
             'And the EM term (which is not used int the SiP-test)
             EfficientContralateralMaskingTerm = 0
 

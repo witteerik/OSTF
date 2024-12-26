@@ -90,6 +90,7 @@ public partial class OptionsViewAll : ContentView
         else { SelectedMediaSet_Picker.IsVisible = false; }
 
         ReferenceLevelControl.IsVisible = CurrentSpeechTest.ShowGuiChoice_ReferenceLevel;
+        TargetSNRControl.IsVisible = CurrentSpeechTest.ShowGuiChoice_TargetSNRLevel;
         SpeechLevelControl.IsVisible = CurrentSpeechTest.ShowGuiChoice_TargetLevel;
         MaskerLevelControl.IsVisible = CurrentSpeechTest.ShowGuiChoice_MaskingLevel;
         BackgroundLevelControl.IsVisible = CurrentSpeechTest.ShowGuiChoice_BackgroundLevel;
@@ -433,6 +434,7 @@ public partial class OptionsViewAll : ContentView
             }
         }
     }
+
 
     private async void ShowTesterInstructionsButton_Clicked(object sender, EventArgs e)
     {

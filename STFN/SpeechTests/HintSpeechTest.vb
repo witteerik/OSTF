@@ -101,15 +101,9 @@ Public Class HintSpeechTest
 
 
 
-
-
-
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        ObservedTrials = New TrialHistory
-
-        ' Using a fixed speech level
-        TargetLevel = 65
+        If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         If SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
@@ -122,8 +116,7 @@ Public Class HintSpeechTest
         Dim StartAdaptiveLevel As Double
         If MaskerLocations.Count > 0 Then
             'It's a speech in noise test, using adaptive SNR
-            Dim InitialSNR = SignalToNoiseRatio(TargetLevel, MaskingLevel)
-            StartAdaptiveLevel = InitialSNR
+            StartAdaptiveLevel = CurrentSNR
         Else
             'It's a speech only test, using adaptive speech level
             StartAdaptiveLevel = TargetLevel
@@ -134,6 +127,8 @@ Public Class HintSpeechTest
         CreatePlannedWordsList()
 
         TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = StartAdaptiveLevel})
+
+        IsInitialized = True
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -473,7 +468,7 @@ Public Class HintSpeechTest
             If CurrentTestTrial IsNot Nothing Then
 
                 Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestProtocol.TotalTrialCount)
-                Output.Add("SNR = " & Math.Round(SNR) & " " & dBString)
+                Output.Add("SNR = " & Math.Round(CurrentSNR) & " " & dBString())
                 Output.Add("Talnivå = " & Math.Round(TargetLevel) & " " & dBString)
                 Output.Add("Brusnivå = " & Math.Round(MaskingLevel) & " " & dBString)
                 If ContralateralMasking = True Then

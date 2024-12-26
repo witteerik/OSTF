@@ -17,7 +17,7 @@ Public MustInherit Class SpeechAudiometryTest
 
     End Sub
 
-    Protected ObservedTrials As TrialHistory
+    Protected ObservedTrials As New TrialHistory
 
 
     Public MustOverride Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)

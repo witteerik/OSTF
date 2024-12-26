@@ -38,12 +38,26 @@ Public MustInherit Class SipBaseSpeechTest
 
     End Sub
 
+    Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = True
+
     Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = False
 
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
 
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
+
+    <ExludeFromPropertyListing>
+    Public Overrides ReadOnly Property TargetSNRTitle As String
+        Get
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    Return "PNR (dB)"
+                Case Else
+                    Return "PNR (dB)"
+            End Select
+        End Get
+    End Property
 
 
     Protected CurrentSipTestMeasurement As SipMeasurement

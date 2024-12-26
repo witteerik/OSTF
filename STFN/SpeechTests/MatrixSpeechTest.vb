@@ -98,7 +98,6 @@ Public Class MatrixSpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
 
-
     Private MaximumSoundDuration As Double = 21
     Private TestWordPresentationTime As Double = 0.5
     Private MaximumResponseTime As Double = 20.5
@@ -107,12 +106,9 @@ Public Class MatrixSpeechTest
 
 #End Region
 
-
-
-
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        ObservedTrials = New TrialHistory
+        If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         If SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
@@ -126,8 +122,7 @@ Public Class MatrixSpeechTest
         If MaskerLocations.Count > 0 Then
             'It's a speech in noise test, using adaptive SNR
             HasNoise = True
-            Dim InitialSNR = SignalToNoiseRatio(TargetLevel, MaskingLevel)
-            StartAdaptiveLevel = InitialSNR
+            StartAdaptiveLevel = CurrentSNR
         Else
             'It's a speech only test, using adaptive speech level
             HasNoise = False
@@ -183,6 +178,8 @@ Public Class MatrixSpeechTest
         CreatePlannedWordsSentences()
 
         TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = StartAdaptiveLevel, .TestStage = 0, .TestLength = TestLength})
+
+        IsInitialized = True
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -550,7 +547,7 @@ Public Class MatrixSpeechTest
 
             If CurrentTestTrial IsNot Nothing Then
                 Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestProtocol.TotalTrialCount)
-                Output.Add("SNR = " & Math.Round(SNR) & " dB HL")
+                Output.Add("SNR = " & Math.Round(CurrentSNR) & " dB HL")
                 Output.Add("Talnivå = " & Math.Round(TargetLevel) & " dB HL")
                 Output.Add("Brusnivå = " & Math.Round(MaskingLevel) & " dB HL")
                 If ContralateralMasking = True Then

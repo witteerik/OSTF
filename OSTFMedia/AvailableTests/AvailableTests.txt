@@ -1,22 +1,15 @@
 // This is an OSTF setup file used to determine which hearing tests that should be available in OSTF Suite.
 // Available tests need to be specified by name below, one test per row.
 // Exact test names are required, possible values are:
+
+Screening audiometer
+Screening audiometer (Calibration mode)
+
 Talaudiometri
 Svenska HINT
 Hagermans meningar (Matrix)
 Hörtröskel för tal (HTT)
-PB50
-
-
-Screening audiometer
-Screening audiometer (Calibration mode)
-Protokoll B1 - TP800
-Protokoll B2 - Manuell TP
-Protokoll B3 - Användarstyrd TP
-Protokoll B4 - Manuell HTT - Klinik
-Protokoll B4 - Manuell HTT - Normalhörande
-Protokoll B5 - Användarstyrd TP II
-Protokoll B6 - Quick SiP
-Protokoll B7 - SiP-testet
-TP50 - Ljudfält
+Manuell TP i brus
+SiP-testet
+Quick SiP
 I HeAR CS - SiP-testet
