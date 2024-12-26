@@ -133,8 +133,6 @@ public partial class OptionsViewAll : ContentView
 
         UpdateSoundSourceViewsIsVisible();
 
-        UseContralateralMaskingControl.IsVisible = CurrentSpeechTest.CanHaveContralateralMasking();
-
         UsePhaseAudiometryControl.IsVisible = CurrentSpeechTest.ShowGuiChoice_PhaseAudiometry;
 
         if (AvailablePhaseAudiometryTypes_Picker.Items.Count > 0) { AvailablePhaseAudiometryTypes_Picker.SelectedIndex = 0; }
@@ -349,26 +347,30 @@ public partial class OptionsViewAll : ContentView
     private void UpdateContralteralNoiseIsVisible()
     {
 
-        // Hiding the UseContralateralMaskingControl in cases where it cannot be used, and deselecting UseContralateralMasking
-        if (CurrentTransducerIsHeadPhones() == true &
-            CurrentSpeechTest.ShowGuiChoice_ContralateralMaskingLevel == true & CurrentSpeechTest.SimulatedSoundField == false & CurrentSpeechTest.PhaseAudiometry == false)
-        {
-            UseContralateralMaskingControl.IsVisible = true;
-        }
-        else
-        {
-            UseContralateralMaskingControl.IsVisible = false;
-        }
+        bool ShowGuiChoice_ContralateralMasking = CurrentSpeechTest.ShowGuiChoice_ContralateralMasking;
 
+        UseContralateralMaskingControl.IsVisible = ShowGuiChoice_ContralateralMasking;
+        UseContralateralMasking_Switch.IsVisible = ShowGuiChoice_ContralateralMasking;
+
+        UpdateContralateralNoiseLevelIsVisible();
+    }
+
+    private void UseContralateralMaskingControl_Switch_Toggled(object sender, ToggledEventArgs e)
+    {
         UpdateContralateralNoiseLevelIsVisible();
     }
 
     private void UpdateContralateralNoiseLevelIsVisible()
     {
-        if (UseContralateralMaskingControl.IsVisible && UseContralateralMasking_Switch.IsToggled)
+
+        bool ShowGuiChoice_ContralateralMaskingLevel = CurrentSpeechTest.ShowGuiChoice_ContralateralMaskingLevel;
+
+        UseContralateralMaskingControl.IsVisible = ShowGuiChoice_ContralateralMaskingLevel;
+
+        if (CurrentSpeechTest.ContralateralMasking == true)
         {
-            ContralateralMaskingLevelControl.IsVisible = true;
-            LockSpeechLevelToContralateralMaskingControl.IsVisible = true;
+            ContralateralMaskingLevelControl.IsVisible = ShowGuiChoice_ContralateralMaskingLevel;
+            LockSpeechLevelToContralateralMaskingControl.IsVisible = ShowGuiChoice_ContralateralMaskingLevel;
         }
         else
         {
@@ -377,10 +379,6 @@ public partial class OptionsViewAll : ContentView
         }
     }
 
-    private void UseContralateralMaskingControl_Switch_Toggled(object sender, ToggledEventArgs e)
-    {
-        UpdateContralateralNoiseLevelIsVisible();
-    }
 
     private bool CurrentTransducerIsHeadPhones()
     {

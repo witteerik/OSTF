@@ -93,9 +93,6 @@ Public Class TP50SpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = True
-
-
 
 
 

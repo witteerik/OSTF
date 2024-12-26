@@ -97,9 +97,6 @@ Public Class MatrixSpeechTest
 
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = True
-
-
 
 
     Private MaximumSoundDuration As Double = 21

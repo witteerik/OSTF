@@ -554,21 +554,13 @@ Public MustInherit Class SpeechTest
 
     Public Overridable ReadOnly Property ShowGuiChoice_ContralateralMaskingLevel As Boolean
         Get
-            If CanHaveContralateralMasking() = True Then
-                Return True
-            Else
-                Return False
-            End If
+            Return CanHaveContralateralMasking()
         End Get
     End Property
 
     Public Overridable ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean
         Get
-            If CanHaveContralateralMasking() = True Then
-                Return True
-            Else
-                Return False
-            End If
+            Return CanHaveContralateralMasking()
         End Get
     End Property
 
@@ -1143,6 +1135,12 @@ Public MustInherit Class SpeechTest
 
             'Inactivates the use of simulated sound field is the transducer is not headphones
             If _Transducer.IsHeadphones() = False Then SimulatedSoundField = False
+
+            'Inactivates contralateral masking if not supported
+            If Transducer.IsHeadphones = False Then ContralateralMasking = False
+            If Transducer.IsHeadphones = True And CurrentSpeechTest.SimulatedSoundField = True Then ContralateralMasking = False
+            If Transducer.IsHeadphones = True And CurrentSpeechTest.SimulatedSoundField = False And PhaseAudiometry = True Then ContralateralMasking = False
+
             OnPropertyChanged()
         End Set
     End Property
@@ -1419,16 +1417,36 @@ Public MustInherit Class SpeechTest
         Return False
     End Function
 
+    ''' <summary>
+    ''' Determines based on the selected MediaSet, Transducer Soundfield simulation and phase audiometry settings if vaontalateral masking can be used
+    ''' </summary>
+    ''' <returns></returns>
     Public Function CanHaveContralateralMasking() As Boolean
         If SpeechMaterial IsNot Nothing Then
             If MediaSet IsNot Nothing Then
                 If MediaSet.ContralateralMaskerAudioItems > 0 Then
-                    Return True
+                    If Transducer IsNot Nothing Then
+                        If Transducer.IsHeadphones = True Then
+                            If CurrentSpeechTest.SimulatedSoundField = False Then
+                                If CurrentSpeechTest.PhaseAudiometry = False Then
+                                    Return True
+                                End If
+                            End If
+                        End If
+                    End If
                 End If
             Else
                 If AvailableMediasets.Count > 0 Then
                     If AvailableMediasets(0).ContralateralMaskerAudioItems > 0 Then
-                        Return True
+                        If Transducer IsNot Nothing Then
+                            If Transducer.IsHeadphones = True Then
+                                If CurrentSpeechTest.SimulatedSoundField = False Then
+                                    If CurrentSpeechTest.PhaseAudiometry = False Then
+                                        Return True
+                                    End If
+                                End If
+                            End If
+                        End If
                     End If
                 End If
             End If

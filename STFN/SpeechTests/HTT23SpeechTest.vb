@@ -92,15 +92,10 @@ Public Class HTT23SpeechTest
 
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = True
-
-
 
 
     Private PlannedTestWords As List(Of SpeechMaterialComponent)
     Private PlannedFamiliarizationWords As List(Of SpeechMaterialComponent)
-
-    Private ObservedTrials As TrialHistory
 
 
     Private IsInitialized As Boolean = False

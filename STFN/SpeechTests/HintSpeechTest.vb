@@ -42,7 +42,8 @@ Public Class HintSpeechTest
         MinimumSoundFieldBackgroundNonSpeechLocations = 0
         MinimumSoundFieldBackgroundSpeechLocations = 0
         ShowGuiChoice_ReferenceLevel = False
-        ShowGuiChoice_KeyWordScoring = True
+        ShowGuiChoice_KeyWordScoring = False
+        KeyWordScoring = True
         ShowGuiChoice_ListOrderRandomization = False
         ShowGuiChoice_WithinListRandomization = False
         ShowGuiChoice_AcrossListRandomization = False
@@ -83,7 +84,6 @@ Public Class HintSpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = True
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
 
 
     Private MaximumSoundDuration As Double = 10

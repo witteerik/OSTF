@@ -44,7 +44,6 @@ Public MustInherit Class SipBaseSpeechTest
 
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
-    Public Overrides ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean = False
 
 
     Protected CurrentSipTestMeasurement As SipMeasurement
