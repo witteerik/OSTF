@@ -350,8 +350,8 @@ Public Class HTT23SpeechTest
             PrepareNextTrial(ProtocolReply)
 
             'Here we abort the test if any of the levels had to be adjusted above MaximumLevel dB HL
-            If DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel > MaximumLevel_Targets Or
-                DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel > MaximumLevel_ContralateralMaskers Then
+            If CurrentTestTrial.SpeechLevel > MaximumLevel_Targets Or
+                CurrentTestTrial.ContralateralMaskerLevel > MaximumLevel_ContralateralMaskers Then
 
                 'And informing the participant
                 ProtocolReply.Decision = SpeechTestReplies.AbortTest
@@ -391,7 +391,7 @@ Public Class HTT23SpeechTest
             CurrentContralateralMaskingLevel = NextTaskInstruction.AdaptiveValue + ContralateralLevelDifference()
         End If
 
-        CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+        CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord,
                     .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
                     .SpeechLevel = NextTaskInstruction.AdaptiveValue,
                     .ContralateralMaskerLevel = CurrentContralateralMaskingLevel,
@@ -458,7 +458,7 @@ Public Class HTT23SpeechTest
         If ContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
 
         'Calculating presentation levels
-        Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) + RETSPL_Correction
+        Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(CurrentTestTrial.SpeechLevel) + RETSPL_Correction
         Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
 
         'Adjusts the sound levels
@@ -469,7 +469,7 @@ Public Class HTT23SpeechTest
             'Setting level, 
             'Very important: The contralateral masking sound file cannot be the same as the ipsilateral masker sound. The level of the contralateral masker sound must be set to agree with the Nominal level (while the ipsilateral masker sound sound have a level that deviates from the nominal level to attain the desired SNR!)
             Dim ContralateralMaskingNominalLevel_FS = ContralateralNoise.SMA.NominalLevel
-            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) + MediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
+            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(CurrentTestTrial.ContralateralMaskerLevel) + MediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
             Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - ContralateralMaskingNominalLevel_FS
@@ -552,8 +552,8 @@ Public Class HTT23SpeechTest
         Else
             Output.Add("Testord nummer " & ObservedTrials.Count & " av " & PlannedTestWords.Count)
             If CurrentTestTrial IsNot Nothing Then
-                Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
-                Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
+                Output.Add("Talnivå = " & Math.Round(CurrentTestTrial.SpeechLevel) & " dB HL")
+                Output.Add("Kontralateral brusnivå = " & Math.Round(CurrentTestTrial.ContralateralMaskerLevel) & " dB HL")
             End If
         End If
 
@@ -616,7 +616,7 @@ Public Class HTT23SpeechTest
         Dim TestWordSpelling = NextTestWord.GetCategoricalVariableValue("Spelling")
 
         'Creating a new pretest trial
-        CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+        CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord,
             .SpeechLevel = TargetLevel,
             .ContralateralMaskerLevel = ContralateralMaskingLevel}
 

@@ -165,7 +165,7 @@
             If Trial.TestStage > 0 Then
                 'Skipping the first two trials in the main stage
                 If SkippedSentences > 1 Then
-                    LevelList.Add(DirectCast(Trial, SrtTrial).AdaptiveValue)
+                    LevelList.Add(Trial.AdaptiveValue)
                 Else
                     SkippedSentences += 1
                 End If

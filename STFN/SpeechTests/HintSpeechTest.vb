@@ -352,7 +352,7 @@ Public Class HintSpeechTest
 
                 If MaskerLocations.Count > 0 Then
 
-                    CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+                    CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord,
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
             .SpeechLevel = MaskingLevel + NextTaskInstruction.AdaptiveValue,
             .MaskerLevel = MaskingLevel,
@@ -362,7 +362,7 @@ Public Class HintSpeechTest
 
                 Else
 
-                    CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+                    CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord,
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
             .SpeechLevel = NextTaskInstruction.AdaptiveValue,
             .MaskerLevel = Double.NegativeInfinity,
@@ -375,7 +375,7 @@ Public Class HintSpeechTest
 
             Case TestModes.AdaptiveNoise
 
-                CurrentTestTrial = New SrtTrial With {.SpeechMaterialComponent = NextTestWord,
+                CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord,
             .AdaptiveValue = NextTaskInstruction.AdaptiveValue,
             .SpeechLevel = TargetLevel,
             .MaskerLevel = TargetLevel - NextTaskInstruction.AdaptiveValue,
@@ -421,10 +421,10 @@ Public Class HintSpeechTest
 
         'Mixing trial sound
         MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
-                          TargetLevel:=DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel,
+                          TargetLevel:=CurrentTestTrial.SpeechLevel,
                           TargetPresentationTime:=TestWordPresentationTime,
-                          MaskerLevel:=DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel,
-                          ContralateralMaskerLevel:=DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel,
+                          MaskerLevel:=CurrentTestTrial.MaskerLevel,
+                          ContralateralMaskerLevel:=CurrentTestTrial.ContralateralMaskerLevel,
                           ExportSounds:=False)
 
         'Setting trial events
@@ -466,11 +466,11 @@ Public Class HintSpeechTest
 
             If CurrentTestTrial IsNot Nothing Then
                 Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestProtocol.TotalTrialCount)
-                Output.Add("SNR = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SNR) & " dB HL")
-                Output.Add("Talnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).SpeechLevel) & " dB HL")
-                Output.Add("Brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).MaskerLevel) & " dB HL")
+                Output.Add("SNR = " & Math.Round(CurrentTestTrial.SNR) & " dB HL")
+                Output.Add("Talnivå = " & Math.Round(CurrentTestTrial.SpeechLevel) & " dB HL")
+                Output.Add("Brusnivå = " & Math.Round(CurrentTestTrial.MaskerLevel) & " dB HL")
                 If ContralateralMasking = True Then
-                    Output.Add("Kontralateral brusnivå = " & Math.Round(DirectCast(CurrentTestTrial, SrtTrial).ContralateralMaskerLevel) & " dB HL")
+                    Output.Add("Kontralateral brusnivå = " & Math.Round(CurrentTestTrial.ContralateralMaskerLevel) & " dB HL")
                 End If
             End If
         End If

@@ -97,13 +97,13 @@ Public Class SrtSwedishHint2018_TestProtocol
 
         If IsInPretestMode = True Then
             'Storing the last value as threshold
-            FinalAdaptiveThreshold = DirectCast(TrialHistory.Last, SrtTrial).AdaptiveValue
+            FinalAdaptiveThreshold = TrialHistory.Last.AdaptiveValue
 
         Else
             'Calculating threshold
             Dim LevelList As New List(Of Double)
             For i As Integer = 4 To 19
-                LevelList.Add(DirectCast(TrialHistory(i), SrtTrial).AdaptiveValue)
+                LevelList.Add(TrialHistory(i).AdaptiveValue)
             Next
 
             'And adding the last non-presented trial level

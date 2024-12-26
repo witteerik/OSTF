@@ -1143,11 +1143,6 @@ Namespace SipTest
     Public Class SipTrial
         Inherits TestTrial
 
-        ''' <summary>
-        ''' The object should store the order in which the trial was presented, and be set by the code presenting the trial.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property PresentationOrder As Integer
 
         ''' <summary>
         ''' Holds a reference to the test unit to which the current test trial belongs
@@ -1176,11 +1171,6 @@ Namespace SipTest
         ''' <returns></returns>
         Public ReadOnly Property MediaSet As MediaSet
 
-        ''' <summary>
-        ''' The response given in a test trial
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property Response As String = ""
 
         'The result of a test trial
         Public Property Result As PossibleResults

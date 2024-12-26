@@ -143,7 +143,7 @@ Public Class TP50SpeechTest
             Utils.SendInfoToLog("testSession:" & testSession & ", SelectedMediaSetIndex: " & SelectedMediaSetIndex & ", PreTestListIndex: " & PreTestListIndex & ", TestListIndex: " & TestListIndex)
 
             Dim TempTrialHistory As New TrialHistory
-            TempTrialHistory.Add(New WrsTrial With {.ScoreList = New List(Of Integer) From {1}})
+            TempTrialHistory.Add(New TestTrial With {.ScoreList = New List(Of Integer) From {1}})
             ObservedTestTrials = TempTrialHistory
 
             FinalizeTest()
@@ -299,7 +299,7 @@ Public Class TP50SpeechTest
 
             Dim CurrentSMC = PlannedTestListWords(i)
 
-            Dim NewTestTrial = New WrsTrial With {.SpeechMaterialComponent = CurrentSMC,
+            Dim NewTestTrial = New TestTrial With {.SpeechMaterialComponent = CurrentSMC,
                 .Tasks = 1,
                 .ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))}
 
@@ -449,8 +449,8 @@ Public Class TP50SpeechTest
             CurrentTestTrial = PlannedTestTrials(ObservedTestTrials.Count)
 
             'Creating a new test trial
-            DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel = TargetLevel
-            DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel = ContralateralMaskingLevel
+            CurrentTestTrial.SpeechLevel = TargetLevel
+            CurrentTestTrial.ContralateralMaskerLevel = ContralateralMaskingLevel
             CurrentTestTrial.Tasks = 1
 
             'Setting trial events
@@ -505,13 +505,13 @@ Public Class TP50SpeechTest
         If ContralateralMasking = True Then If ContralateralNoise.SMA.NominalLevel <> NominalLevel_FS Then Throw New Exception("Nominal level is required to be the same between speech and contralateral noise files!")
 
         'Calculating presentation levels
-        Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel) + RETSPL_Correction
+        Dim TargetSpeechLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(CurrentTestTrial.SpeechLevel) + RETSPL_Correction
         Dim NeededSpeechGain = TargetSpeechLevel_FS - NominalLevel_FS
 
         'Here we're using the Speech level to set the Masker level. This means that the level of the masker file it self need to reflect the SNR, so that its mean level does not equal the nominal level, but instead deviated from the nominal level by the intended SNR. (These sound files (the Speech and the Masker) can then be mixed without any adjustment to attain the desired "clicinally" used SNR.
         'Note from 2024-12-18: This situation has been changed after changing the level definitions in the speech files from average RMS-levels to time weighted (125ms) levels, and the calibration level from -25 to -21 dBFS. The SNR of 0 dB in the materials before the change approximately equals + 6 dB in the new materials, since the speech level dropped by appr 6 dB (more precicely 6,8 dB for Talker1 and 6.3 for Talker2).
-        DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel = DirectCast(CurrentTestTrial, WrsTrial).SpeechLevel
-        Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).MaskerLevel) + RETSPL_Correction
+        CurrentTestTrial.MaskerLevel = CurrentTestTrial.SpeechLevel
+        Dim TargetMaskerLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(CurrentTestTrial.MaskerLevel) + RETSPL_Correction
         Dim NeededMaskerGain = TargetMaskerLevel_FS - NominalLevel_FS
 
         'Adjusts the sound levels
@@ -521,7 +521,7 @@ Public Class TP50SpeechTest
         If ContralateralMasking = True Then
 
             'Setting level, 
-            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(DirectCast(CurrentTestTrial, WrsTrial).ContralateralMaskerLevel) + MediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
+            Dim TargetContralateralMaskingLevel_FS As Double = Audio.Standard_dBSPL_To_dBFS(CurrentTestTrial.ContralateralMaskerLevel) + MediaSet.EffectiveContralateralMaskingGain + RETSPL_Correction
 
             'Calculating the needed gain, also adding the EffectiveContralateralMaskingGain specified in the SelectedMediaSet
             Dim NeededContraLateralMaskerGain = TargetContralateralMaskingLevel_FS - NominalLevel_FS
@@ -574,7 +574,7 @@ Public Class TP50SpeechTest
         Dim Output As New List(Of String)
 
         Dim ScoreList As New List(Of Double)
-        For Each Trial As WrsTrial In ObservedTestTrials
+        For Each Trial As TestTrial In ObservedTestTrials
             If Trial.IsCorrect = True Then
                 ScoreList.Add(1)
             Else
@@ -658,7 +658,7 @@ Public Class TP50SpeechTest
         Dim TestWordSpelling = NextTestWord.GetCategoricalVariableValue("Spelling")
 
         'Creating a new pretest trial
-        CurrentTestTrial = New WrsTrial With {.SpeechMaterialComponent = NextTestWord,
+        CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord,
             .SpeechLevel = TargetLevel,
             .ContralateralMaskerLevel = ContralateralMaskingLevel}
 

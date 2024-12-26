@@ -1,5 +1,5 @@
-﻿Imports System.Reflection
-Imports System.Dynamic
+﻿
+Imports System.Reflection
 
 Public Class TrialHistory
     Inherits List(Of TestTrial)
@@ -16,7 +16,31 @@ Public Class TrialHistory
 
 End Class
 
-Public MustInherit Class TestTrial
+Public Class TestTrial
+
+    ''' <summary>
+    ''' The object should store the order in which the trial was presented, and be set by the code presenting the trial.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property PresentationOrder As Integer
+
+
+    Public Property SpeechLevel As Double
+
+    Public Property MaskerLevel As Double
+
+    Public Property ContralateralMaskerLevel As Double
+
+    Public Property AdaptiveValue As Double
+
+    Public ReadOnly Property SNR As Double
+        Get
+            Return SpeechLevel - MaskerLevel
+        End Get
+    End Property
+
+
+
 
     Public SpeechTestPropertyDump As New SortedList(Of String, Object)
 
@@ -117,6 +141,12 @@ Public MustInherit Class TestTrial
     Public Property UseContralateralNoise As Boolean
 
     Public Property EfficientContralateralMaskingTerm As Double
+
+    ''' <summary>
+    ''' The response given in a test trial
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Response As String = ""
 
     ''' <summary>
     ''' Indicates the number of correctly responded tasks.
@@ -274,12 +304,60 @@ Public MustInherit Class TestTrial
         End Get
     End Property
 
-    Public MustOverride Function TestResultColumnHeadings() As String
-
-    Public MustOverride Function TestResultAsTextRow() As String
-
 
     Public SpeechTestStage As List(Of Tuple(Of String, String))
+
+
+    Public Overridable Function TestResultColumnHeadings() As String
+
+        Dim OutputList As New List(Of String)
+        'OutputList.AddRange(BaseClassTestResultColumnHeadings())
+
+        'Adding property names
+        Dim properties As PropertyInfo() = Me.GetType.GetProperties()
+
+        ' Iterating through each property
+        For Each [property] As PropertyInfo In properties
+
+            ' Getting the name of the property
+            Dim propertyName As String = [property].Name
+            OutputList.Add(propertyName)
+
+        Next
+
+        Return String.Join(vbTab, OutputList)
+
+    End Function
+
+    Public Overridable Function TestResultAsTextRow() As String
+
+        Dim OutputList As New List(Of String)
+        'OutputList.AddRange(BaseClassTestResultAsTextRow())
+
+        Dim properties As PropertyInfo() = Me.GetType.GetProperties()
+
+        ' Iterating through each property
+        For Each [property] As PropertyInfo In properties
+
+            ' Getting the name of the property
+            Dim propertyName As String = [property].Name
+
+            ' Getting the value of the property for the current instance 
+            Dim propertyValue As Object = [property].GetValue(Me)
+
+            If propertyValue IsNot Nothing Then
+                OutputList.Add(propertyValue.ToString)
+            Else
+                OutputList.Add("NotSet")
+            End If
+
+        Next
+
+        Return String.Join(vbTab, OutputList)
+
+    End Function
+
+
 
 End Class
 

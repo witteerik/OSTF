@@ -172,7 +172,7 @@ Public Class HagermanKinnefors1995_TestProtocol
             Dim LevelList As New List(Of Double)
             For i = TrialHistory.Count - 10 To TrialHistory.Count - 1
                 'Adding the adaptive levels for each of the last nine trials
-                LevelList.Add(DirectCast(TrialHistory(i), SrtTrial).AdaptiveValue)
+                LevelList.Add(TrialHistory(i).AdaptiveValue)
             Next
             'Adding the NextAdaptiveLevel variable from the last (tenth) trial which has not yet been presented
             LevelList.Add(NextAdaptiveLevel)

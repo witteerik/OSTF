@@ -98,7 +98,7 @@
 
         Dim ScoreList As New List(Of Double)
         For Each Trial In TrialHistory
-            ScoreList.Add(DirectCast(Trial, WrsTrial).GetProportionTasksCorrect)
+            ScoreList.Add(Trial.GetProportionTasksCorrect)
         Next
         If ScoreList.Count > 0 Then
             FinalWordRecognition = ScoreList.Average
