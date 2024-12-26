@@ -88,7 +88,7 @@ Public Class HintSpeechTest
 
     Private MaximumSoundDuration As Double = 10
     Private TestWordPresentationTime As Double = 0.5
-    Private MaximumResponseTime As Double = 5
+    Private MaximumResponseTime As Double = 7
 
     Private ResultSummaryForGUI As New List(Of String)
 
@@ -315,14 +315,7 @@ Public Class HintSpeechTest
 
                 'Initializing a new test protocol for main testing stage and move directly to test mode
                 'Setting the start value in the new protocol to the current AdaptiveValue
-                Dim NewProtocol As Object = Nothing
-                For Each AvailableProtocol In Me.AvailableTestProtocols
-                    If AvailableProtocol.GetType = TestProtocol.GetType Then
-                        NewProtocol = AvailableProtocol
-                        Exit For
-                    End If
-                Next
-                TestProtocol = NewProtocol
+                TestProtocol = TestProtocol.ProduceFreshInstance
 
                 'Initializing the new protocol with the adaptive threshold determined in the practise test as the start value
                 TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = ProtocolReply.AdaptiveValue})

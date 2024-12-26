@@ -67,8 +67,19 @@ Public MustInherit Class TestProtocol
     ''' <returns></returns>
     Public MustOverride Function GetFinalResultValue() As Double?
 
+    ''' <summary>
+    ''' Instantiates a new instance of (the derived type of) a the current TestProtocol with the default settings.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function ProduceFreshInstance() As TestProtocol
+        Return Activator.CreateInstance(Me.GetType)
+    End Function
+
+
     Public Overrides Function ToString() As String
         Return Name
     End Function
 
 End Class
+
+
