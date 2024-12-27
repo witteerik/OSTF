@@ -74,6 +74,8 @@ Public MustInherit Class SipBaseSpeechTest
     Protected PretestSoundDuration As Double = 5
     Protected UseVisualQue As Boolean = False
     Protected ResponseAlternativeDelay As Double = 0.5
+    Protected ShowTestSide As Boolean = True
+    Protected ShowResponseAlternativePositionsTime As Double = 0.4
     Protected DirectionalSimulationSet As String = "ARC - Harcellen - HATS - SiP"
 
     Public SipTestMode As SiPTestModes = SiPTestModes.Binaural

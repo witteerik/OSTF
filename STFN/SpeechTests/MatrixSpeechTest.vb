@@ -15,64 +15,39 @@ Public Class MatrixSpeechTest
 
         TesterInstructions = ""
         ParticipantInstructions = ""
+
         ShowGuiChoice_PractiseTest = True
-        ShowGuiChoice_dBHL = False
-        ShowGuiChoice_PreSet = False
         ShowGuiChoice_StartList = True
         ShowGuiChoice_MediaSet = True
-        SupportsPrelistening = False
-        ShowGuiChoice_SoundFieldSimulation = False
         AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveNoise}
         'AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveSpeech, TestModes.AdaptiveNoise}
 
         AvailableTestProtocols = New List(Of TestProtocol) From {New HagermanKinnefors1995_TestProtocol}
         'AvailableTestProtocols = New List(Of TestProtocol) From {New HagermanKinnefors1995_TestProtocol, New BrandKollmeier2002_TestProtocol}
 
-        AvailableFixedResponseAlternativeCounts = New List(Of Integer)
-
-
         MaximumSoundFieldSpeechLocations = 1
-        MaximumSoundFieldMaskerLocations = 1000
-        MaximumSoundFieldBackgroundNonSpeechLocations = 1000
-        MaximumSoundFieldBackgroundSpeechLocations = 1000
+        MaximumSoundFieldMaskerLocations = 1
         MinimumSoundFieldSpeechLocations = 1
-        MinimumSoundFieldMaskerLocations = 0
-        MinimumSoundFieldBackgroundNonSpeechLocations = 0
-        MinimumSoundFieldBackgroundSpeechLocations = 0
-        ShowGuiChoice_ReferenceLevel = False
-        ShowGuiChoice_KeyWordScoring = False
-        ShowGuiChoice_ListOrderRandomization = False
-        ShowGuiChoice_WithinListRandomization = False
-        ShowGuiChoice_AcrossListRandomization = False
-        ShowGuiChoice_FreeRecall = True
-        ShowGuiChoice_DidNotHearAlternative = False
-        PhaseAudiometry = False
-        TargetLevel_StepSize = 5
-        HistoricTrialCount = 0
+        MinimumSoundFieldMaskerLocations = 1
+
+        IsFreeRecall = True
         SupportsManualPausing = True
-        ReferenceLevel = 65
+
         TargetLevel = 65
         MaskingLevel = 65
-        BackgroundLevel = 50
         ContralateralMaskingLevel = 25
-        MinimumReferenceLevel = 0
-        MaximumReferenceLevel = 80
+
         MinimumLevel_Targets = 0
-        MaximumLevel_Targets = 80
+        MaximumLevel_Targets = 90
         MinimumLevel_Maskers = 0
-        MaximumLevel_Maskers = 80
-        MinimumLevel_Background = 0
-        MaximumLevel_Background = 80
+        MaximumLevel_Maskers = 90
         MinimumLevel_ContralateralMaskers = 0
-        MaximumLevel_ContralateralMaskers = 80
-        AvailableExperimentNumbers = {}
+        MaximumLevel_ContralateralMaskers = 90
 
         SoundOverlapDuration = 0.1
 
         ShowGuiChoice_TargetLocations = True
         ShowGuiChoice_MaskerLocations = True
-        ShowGuiChoice_BackgroundNonSpeechLocations = False
-        ShowGuiChoice_BackgroundSpeechLocations = False
 
     End Sub
 
@@ -478,12 +453,10 @@ Public Class MatrixSpeechTest
         CurrentTestTrial.ResponseAlternativeSpellings = ResponseAlternativeList
 
         'Mixing trial sound
-        MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
-                          TargetLevel:=Me.TargetLevel,
-                          TargetPresentationTime:=TestWordPresentationTime,
-                          MaskerLevel:=Me.MaskingLevel,
-                          ContralateralMaskerLevel:=ContralateralMasking,
-                          ExportSounds:=False)
+        MixStandardTestTrialSound(UseNominalLevels:=True,
+                                  MaximumSoundDuration:=MaximumSoundDuration,
+                                  TargetPresentationTime:=TestWordPresentationTime,
+                                  ExportSounds:=False)
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)

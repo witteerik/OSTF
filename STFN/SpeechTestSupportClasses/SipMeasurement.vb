@@ -1801,7 +1801,7 @@ Namespace SipTest
                     Dim ExportAllItemTypes As Boolean = False
                     If ExportAllItemTypes = True Then
                         If Me.IsBmldTrial = True Then Throw New NotImplementedException("Exporting the final mix directly is not supported with BMLD trials.")
-                        Dim TempMixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, False, False, Me.SoundPropagationType)
+                        Dim TempMixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, False, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
                         TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("OriginalMix", TempMixedTestTrialSound))
                     End If
 
@@ -1839,25 +1839,25 @@ Namespace SipTest
                     Next
 
                     'Creating the target mix by calling CreateSoundScene of the current Mixer
-                    Dim TargetSound = SelectedTransducer.Mixer.CreateSoundScene(Target_Items, False, False, Me.SoundPropagationType)
+                    Dim TargetSound = SelectedTransducer.Mixer.CreateSoundScene(Target_Items, False, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
 
                     Dim MaskerItemsSound As Audio.Sound = Nothing
                     If Masker_Items.Count > 0 Then
-                        MaskerItemsSound = SelectedTransducer.Mixer.CreateSoundScene(Masker_Items, False, False, Me.SoundPropagationType)
+                        MaskerItemsSound = SelectedTransducer.Mixer.CreateSoundScene(Masker_Items, False, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
                     End If
 
                     Dim BackgroundNonspeechItemsSound As Audio.Sound = Nothing
                     If BackgroundNonspeech_Items.Count > 0 Then
-                        BackgroundNonspeechItemsSound = SelectedTransducer.Mixer.CreateSoundScene(BackgroundNonspeech_Items, False, False, Me.SoundPropagationType)
+                        BackgroundNonspeechItemsSound = SelectedTransducer.Mixer.CreateSoundScene(BackgroundNonspeech_Items, False, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
                     End If
 
                     Dim BackgroundSpeechItemsSound As Audio.Sound = Nothing
                     If BackgroundSpeech_Items.Count > 0 Then
-                        BackgroundSpeechItemsSound = SelectedTransducer.Mixer.CreateSoundScene(BackgroundSpeech_Items, False, False, Me.SoundPropagationType)
+                        BackgroundSpeechItemsSound = SelectedTransducer.Mixer.CreateSoundScene(BackgroundSpeech_Items, False, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
                     End If
 
                     'Creating the non-target mix by calling CreateSoundScene of the current Mixer
-                    Dim NontargetSound = SelectedTransducer.Mixer.CreateSoundScene(Nontarget_Items, False, False, Me.SoundPropagationType)
+                    Dim NontargetSound = SelectedTransducer.Mixer.CreateSoundScene(Nontarget_Items, False, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
 
                     'If, BMLD trial, applying frontal left ear only room simulation,phase inverting the appropriate sounds
                     If Me.IsBmldTrial = True Then
@@ -1959,7 +1959,7 @@ Namespace SipTest
                 Else
 
                     'Creating the mix by calling CreateSoundScene of the current Mixer
-                    MixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, False, False, Me.SoundPropagationType)
+                    MixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, False, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
                 End If
 
                 'Getting the applied gain for all items

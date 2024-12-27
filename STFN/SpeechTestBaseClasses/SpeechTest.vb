@@ -635,6 +635,23 @@ Public MustInherit Class SpeechTest
 
 #End Region
 
+#Region "GUI lock / unlock"
+
+    Private _ListSelectionControlIsEnabled As Boolean = True
+    Public Property ListSelectionControlIsEnabled() As Boolean
+        Get
+            Return _ListSelectionControlIsEnabled
+        End Get
+        Set(value As Boolean)
+            _ListSelectionControlIsEnabled = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+
+#End Region
+
 
 #Region "SoundSourceLocationCandidates"
 
@@ -975,12 +992,27 @@ Public MustInherit Class SpeechTest
             Return _TargetLevel
         End Get
         Set(value As Double)
+
+            'Dim NewValue As Double = value
+            Dim OldValue As Double = _TargetLevel
+
             _TargetLevel = Math.Round(value / TargetLevel_StepSize) * TargetLevel_StepSize
             _TargetLevel = Math.Min(_TargetLevel, MaximumLevel_Targets)
+
+            Dim NewValue As Double = _TargetLevel
+
+            If LockContralateralMaskingLevelToSpeechLevel = True Then
+
+                'Adjusting the contralateral masking by the New level difference
+                Dim differenceValue As Double = NewValue - OldValue
+                ContralateralMaskingLevel += differenceValue
+
+            End If
+
             OnPropertyChanged()
         End Set
     End Property
-    Private _TargetLevel As Double = 65
+    Private _TargetLevel As Double = 0
 
     'Returns the TargetLevel - MaskingLevel signal-to-noise ratio
     Public ReadOnly Property CurrentSNR As Double
@@ -999,7 +1031,7 @@ Public MustInherit Class SpeechTest
             OnPropertyChanged()
         End Set
     End Property
-    Private _MaskingLevel As Double = 65
+    Private _MaskingLevel As Double = 0
 
 
     Public Property BackgroundLevel As Double
@@ -1012,7 +1044,7 @@ Public MustInherit Class SpeechTest
             OnPropertyChanged()
         End Set
     End Property
-    Private _BackgroundLevel As Double = 50
+    Private _BackgroundLevel As Double = 0
 
 
     Public Property ContralateralMaskingLevel As Double
@@ -1025,7 +1057,18 @@ Public MustInherit Class SpeechTest
             OnPropertyChanged()
         End Set
     End Property
-    Private _ContralateralMaskingLevel As Double = 25
+    Private _ContralateralMaskingLevel As Double = 0
+
+    Private _LockContralateralMaskingLevelToSpeechLevel As Boolean = False
+    Public Property LockContralateralMaskingLevelToSpeechLevel As Boolean
+        Get
+            Return _LockContralateralMaskingLevelToSpeechLevel
+        End Get
+        Set(value As Boolean)
+            _LockContralateralMaskingLevelToSpeechLevel = value
+            OnPropertyChanged()
+        End Set
+    End Property
 
     ''' <summary>
     ''' The desired SNR value to use in a test. The value can be set from the GUI, or internally in the test. This value should never directly adjust target and masker levels, be instead these levels should be set internally in each test.
@@ -1185,16 +1228,11 @@ Public MustInherit Class SpeechTest
         End Get
         Set(value As Boolean)
 
-            'Changing the value only if AllowsUseRetsplChoice is true
-            If ShowGuiChoice_dBHL = True Then
+            _LevelsAreIn_dBHL = value
 
-                _LevelsAreIn_dBHL = value
-
-                If value = True And SimulatedSoundField = True Then
-                    'Inactivates sound field simulation if dB HL values should be used
-                    SimulatedSoundField = False
-                End If
-
+            If value = True And SimulatedSoundField = True Then
+                'Inactivates sound field simulation if dB HL values should be used
+                SimulatedSoundField = False
             End If
 
             OnPropertyChanged()
@@ -1548,11 +1586,11 @@ Public MustInherit Class SpeechTest
     ''' <param name="FadeSpecs_ContralateralMasker">Optional fading specifications for the contralateral masker. If not specified, the function supplies default values that will be used.</param>
     ''' <param name="ExportSounds">Can be used to debug or analyse presented sounds. Default value is False. Sounds are stored into the current log folder.</param>
     Protected Sub MixStandardTestTrialSound(ByVal UseNominalLevels As Boolean, ByVal MaximumSoundDuration As Double,
-                                  ByVal TargetLevel As Double, ByVal TargetPresentationTime As Double,
-                                  Optional ByVal MaskerLevel As Nullable(Of Double) = Nothing, Optional ByVal MaskerPresentationTime As Double = 0,
-                                  Optional ByVal BackgroundNonSpeechLevel As Nullable(Of Double) = Nothing, Optional ByVal BackgroundNonSpeechPresentationTime As Double = 0,
-                                  Optional ByVal BackgroundSpeechLevel As Nullable(Of Double) = Nothing, Optional ByVal BackgroundSpeechPresentationTime As Double = 0,
-                                  Optional ByVal ContralateralMaskerLevel As Nullable(Of Double) = Nothing, Optional ByVal ContralateralMaskerPresentationTime As Double = 0,
+                                  ByVal TargetPresentationTime As Double,
+                                  Optional ByVal MaskerPresentationTime As Double = 0,
+                                  Optional ByVal BackgroundNonSpeechPresentationTime As Double = 0,
+                                  Optional ByVal BackgroundSpeechPresentationTime As Double = 0,
+                                  Optional ByVal ContralateralMaskerPresentationTime As Double = 0,
                                   Optional ByRef FadeSpecs_Target As List(Of STFN.Audio.DSP.Transformations.FadeSpecifications) = Nothing,
                                   Optional ByRef FadeSpecs_Masker As List(Of STFN.Audio.DSP.Transformations.FadeSpecifications) = Nothing,
                                   Optional ByRef FadeSpecs_BackgroundNonSpeech As List(Of STFN.Audio.DSP.Transformations.FadeSpecifications) = Nothing,
@@ -1562,8 +1600,6 @@ Public MustInherit Class SpeechTest
 
         'TODO: This function is not finished, it still need implementation of BackgroundNonSpeech and BackgroundSpeech
 
-        'Calculates the EM corrected Contralateral masker level (the level supplied should not be EM corrected but be as it would appear on an audiometer attenuator
-        Dim ContralateralMaskerLevel_EmCorrected As Double = ContralateralMaskerLevel + MediaSet.EffectiveContralateralMaskingGain
 
         'Mix the signal using DuxplexMixer CreateSoundScene
         'Sets a List of SoundSceneItem in which to put the sounds to mix
@@ -1650,9 +1686,6 @@ Public MustInherit Class SpeechTest
         ' **MASKER SOUNDS**
         If MaskerLocations.Count > 0 Then
 
-            'Ensures that MaskerLevel has a value
-            If MaskerLevel.HasValue = False Then Throw New ArgumentException("MaskerLevel value cannot be Nothing!")
-
             'Getting the masker sound
             Dim MaskerSound = CurrentTestTrial.SpeechMaterialComponent.GetMaskerSound(MediaSet, 0)
 
@@ -1705,7 +1738,7 @@ Public MustInherit Class SpeechTest
 
             'Adding the maskers sources to the ItemList
             For Index = 0 To Maskers.Count - 1
-                ItemList.Add(New SoundSceneItem(Maskers(Index).Item1, 1, MaskerLevel, LevelGroup, Maskers(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Masker, MaskerStartSample, MaskerStartMeasureSample, MaskerMeasureLength,, FadeSpecs_Masker))
+                ItemList.Add(New SoundSceneItem(Maskers(Index).Item1, 1, MaskingLevel, LevelGroup, Maskers(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Masker, MaskerStartSample, MaskerStartMeasureSample, MaskerMeasureLength,, FadeSpecs_Masker))
             Next
 
             'Incrementing LevelGroup 
@@ -1718,8 +1751,8 @@ Public MustInherit Class SpeechTest
         ' **CONTRALATERAL MASKER**
         If ContralateralMasking = True Then
 
-            'Ensures that ContralateralMaskerLevel has a value
-            If ContralateralMaskerLevel.HasValue = False Then Throw New ArgumentException("ContralateralMaskerLevel value cannot be Nothing!")
+            'Calculates the EM corrected Contralateral masker level (the level supplied should not be EM corrected but be as it would appear on an audiometer attenuator
+            Dim ContralateralMaskerLevel_EmCorrected As Double = ContralateralMaskingLevel + MediaSet.EffectiveContralateralMaskingGain
 
             'Ensures that head phones are used
             If Transducer.IsHeadphones = False Then

@@ -34,19 +34,17 @@ Public Class HTT23SpeechTest
         AvailableTestModes = New List(Of TestModes) From {TestModes.AdaptiveSpeech}
         AvailableTestProtocols = New List(Of TestProtocol) From {New SrtIso8253_TestProtocol}
         AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {4}
+
         MaximumSoundFieldSpeechLocations = 1
         MaximumSoundFieldMaskerLocations = 0
-        MaximumSoundFieldBackgroundNonSpeechLocations = 0
-        MaximumSoundFieldBackgroundSpeechLocations = 0
+
         MinimumSoundFieldSpeechLocations = 1
         MinimumSoundFieldMaskerLocations = 0
-        MinimumSoundFieldBackgroundNonSpeechLocations = 0
-        MinimumSoundFieldBackgroundSpeechLocations = 0
 
-        ShowGuiChoice_WithinListRandomization = True
+        ShowGuiChoice_WithinListRandomization = False
         WithinListRandomization = True
 
-        ShowGuiChoice_FreeRecall = True
+        ShowGuiChoice_FreeRecall = False
         IsFreeRecall = True
 
         TargetLevel_StepSize = 1
@@ -56,10 +54,10 @@ Public Class HTT23SpeechTest
         TargetLevel = 60
         ContralateralMaskingLevel = 20
 
-        MinimumLevel_Targets = -10
-        MaximumLevel_Targets = 80
-        MinimumLevel_ContralateralMaskers = -10
-        MaximumLevel_ContralateralMaskers = 80
+        MinimumLevel_Targets = -20
+        MaximumLevel_Targets = 90
+        MinimumLevel_ContralateralMaskers = -20
+        MaximumLevel_ContralateralMaskers = 90
 
         SoundOverlapDuration = 0.25
 
@@ -153,6 +151,9 @@ Public Class HTT23SpeechTest
         For Each RandomIndex In RandomizedOrder2
             PlannedTestWords.Add(TestStageWords(RandomIndex))
         Next
+
+        'Locks the list selection control, as it is not possible to swap list after this point
+        ListSelectionControlIsEnabled = False
 
         Return True
 
@@ -262,12 +263,10 @@ Public Class HTT23SpeechTest
         'Mixing trial sound
         'MixNextTrialSound()
 
-        MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
-                          TargetLevel:=Me.TargetLevel,
-                          TargetPresentationTime:=TestWordPresentationTime,
-                          MaskerLevel:=Me.MaskingLevel,
-                          ContralateralMaskerLevel:=Me.ContralateralMaskingLevel,
-                          ExportSounds:=False)
+        MixStandardTestTrialSound(UseNominalLevels:=True,
+                                  MaximumSoundDuration:=MaximumSoundDuration,
+                                  TargetPresentationTime:=TestWordPresentationTime,
+                                  ExportSounds:=False)
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
@@ -443,12 +442,10 @@ Public Class HTT23SpeechTest
         CurrentTestTrial = New TestTrial With {.SpeechMaterialComponent = NextTestWord}
 
         'Mixing the test sound
-        MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
-                          TargetLevel:=Me.TargetLevel,
-                          TargetPresentationTime:=TestWordPresentationTime,
-                          MaskerLevel:=Me.MaskingLevel,
-                          ContralateralMaskerLevel:=Me.ContralateralMaskingLevel,
-                          ExportSounds:=False)
+        MixStandardTestTrialSound(UseNominalLevels:=True,
+                                  MaximumSoundDuration:=MaximumSoundDuration,
+                                  TargetPresentationTime:=TestWordPresentationTime,
+                                  ExportSounds:=False)
 
         'Storing the test sound locally
         Dim PreTestSound = CurrentTestTrial.Sound

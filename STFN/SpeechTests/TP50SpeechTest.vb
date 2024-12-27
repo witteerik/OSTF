@@ -40,14 +40,12 @@ Public Class TP50SpeechTest
         AvailableTestModes = New List(Of TestModes) From {TestModes.ConstantStimuli}
         AvailableTestProtocols = New List(Of TestProtocol) From {New FixedLengthWordsInNoise_WithPreTestLevelAdjustment_TestProtocol}
         AvailableFixedResponseAlternativeCounts = New List(Of Integer) From {4}
+
         MaximumSoundFieldSpeechLocations = 1
         MaximumSoundFieldMaskerLocations = 1
-        MaximumSoundFieldBackgroundNonSpeechLocations = 0
-        MaximumSoundFieldBackgroundSpeechLocations = 0
+
         MinimumSoundFieldSpeechLocations = 1
         MinimumSoundFieldMaskerLocations = 0
-        MinimumSoundFieldBackgroundNonSpeechLocations = 0
-        MinimumSoundFieldBackgroundSpeechLocations = 0
 
         ShowGuiChoice_WithinListRandomization = True
         WithinListRandomization = True
@@ -55,12 +53,14 @@ Public Class TP50SpeechTest
         ShowGuiChoice_FreeRecall = True
         IsFreeRecall = True
 
-        TargetLevel_StepSize = 5
         HistoricTrialCount = 3
         SupportsManualPausing = True
 
         TargetLevel = 65
         ContralateralMaskingLevel = 25
+        TargetSNR_StepSize = 1
+        ContralateralMaskingLevel_StepSize = 1
+        MaskingLevel_StepSize = 1
 
         MinimumLevel_Targets = -10
         MaximumLevel_Targets = 90
@@ -320,11 +320,8 @@ Public Class TP50SpeechTest
 
             'Mixing trial sound
             MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
-                          TargetLevel:=Me.TargetLevel,
-                          TargetPresentationTime:=TestWordPresentationTime,
-                          MaskerLevel:=Me.MaskingLevel,
-                          ContralateralMaskerLevel:=Me.ContralateralMaskingLevel,
-                          ExportSounds:=False)
+                                      TargetPresentationTime:=TestWordPresentationTime,
+                                      ExportSounds:=False)
 
         End If
 
@@ -513,15 +510,21 @@ Public Class TP50SpeechTest
         'Mixing the test sound
         'MixNextTrialSound()
 
+        If SignalLocations.Count = 0 Then
+            Messager.MsgBox("You must select at least one signal sound source!", MsgBoxStyle.Exclamation, "Select a signal location!")
+            Return Nothing
+        End If
+
+        'Copying the target location to the masker location
+        SelectSameMaskersAsTargetSoundSources()
+
         'Setting masker level, based on the selected TargetSNR (Not that the limitations in MaskingLevel may cause a mismatch between the the intended TargetSNR and the actual SNR (CurrentSNR)
         MaskingLevel = TargetLevel - TargetSNR
 
-        MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
-                          TargetLevel:=Me.TargetLevel,
-                          TargetPresentationTime:=TestWordPresentationTime,
-                          MaskerLevel:=Me.MaskingLevel,
-                          ContralateralMaskerLevel:=Me.ContralateralMaskingLevel,
-                          ExportSounds:=False)
+        MixStandardTestTrialSound(UseNominalLevels:=True,
+                                  MaximumSoundDuration:=MaximumSoundDuration,
+                                  TargetPresentationTime:=TestWordPresentationTime,
+                                  ExportSounds:=False)
 
         'Storing the test sound locally
         Dim PreTestSound = CurrentTestTrial.Sound

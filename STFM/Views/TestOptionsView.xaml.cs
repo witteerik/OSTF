@@ -422,18 +422,18 @@ public partial class OptionsViewAll : ContentView
     //    CurrentBindingContext.ContralateralMaskingLevel -= 5;
     //}
 
-    private void SpeechLevelSlider_ValueChanged(object sender, ValueChangedEventArgs e)
-    {
-        if (LockSpeechLevelToContralateralMasking_Switch != null)
-        {
-            if (LockSpeechLevelToContralateralMasking_Switch.IsToggled == true)
-            {
-                // Adjusting the contralateral masking by the new level difference
-                double differenceValue = e.NewValue - e.OldValue;
-                CurrentSpeechTest.ContralateralMaskingLevel += differenceValue;
-            }
-        }
-    }
+    //private void SpeechLevelSlider_ValueChanged(object sender, ValueChangedEventArgs e)
+    //{
+    //    if (LockSpeechLevelToContralateralMasking_Switch != null)
+    //    {
+    //        if (LockSpeechLevelToContralateralMasking_Switch.IsToggled == true)
+    //        {
+    //            // Adjusting the contralateral masking by the new level difference
+    //            double differenceValue = e.NewValue - e.OldValue;
+    //            CurrentSpeechTest.ContralateralMaskingLevel += differenceValue;
+    //        }
+    //    }
+    //}
 
 
     private async void ShowTesterInstructionsButton_Clicked(object sender, EventArgs e)

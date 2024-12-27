@@ -41,6 +41,9 @@ Public Class IHearSC_SiP_SpeechTest
 
     End Sub
 
+    Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
+
+
     Private PresetName As String = "IHeAR_CS"
 
 
@@ -264,7 +267,7 @@ Public Class IHearSC_SiP_SpeechTest
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedInitialSound As Audio.Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType)
+            Dim MixedInitialSound As Audio.Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType, Transducer.LimiterThreshold)
 
             If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
@@ -342,6 +345,7 @@ Public Class IHearSC_SiP_SpeechTest
         'Setting visual que intervals
         Dim ShowVisualQueTimer_Interval As Double
         Dim HideVisualQueTimer_Interval As Double
+        Dim ShowResponseAlternativePositions_Interval As Integer
         Dim ShowResponseAlternativesTimer_Interval As Double
         Dim MaxResponseTimeTimer_Interval As Double
 
@@ -351,24 +355,25 @@ Public Class IHearSC_SiP_SpeechTest
             ShowResponseAlternativesTimer_Interval = HideVisualQueTimer_Interval + 1000 * ResponseAlternativeDelay 'TestSetup.CurrentEnvironment.TestSoundMixerSettings.ResponseAlternativeDelay * 1000
             MaxResponseTimeTimer_Interval = System.Math.Max(1, ShowResponseAlternativesTimer_Interval + 1000 * MaximumResponseTime)  ' TestSetup.CurrentEnvironment.TestSoundMixerSettings.MaximumResponseTime * 1000
         Else
+            ShowResponseAlternativePositions_Interval = ShowResponseAlternativePositionsTime * 1000
             ShowResponseAlternativesTimer_Interval = System.Math.Max(1, DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime * 1000) + 1000 * ResponseAlternativeDelay
             MaxResponseTimeTimer_Interval = System.Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000) + 1000 * MaximumResponseTime
         End If
 
-
-
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
-        Dim ShowTestSide As Boolean = True
-        If ShowTestSide = True Then
-            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 400, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternativePositions})
-        End If
 
-        If UseVisualQue = True Then
+        If UseVisualQue = False Then
+            ' Test word alternatives on the sides are only supported when the visual que is not shown
+            If ShowTestSide = True Then
+                CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativePositions_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternativePositions})
+            End If
+        Else
             CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue})
             CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = HideVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.HideVisualCue})
         End If
+
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativesTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
