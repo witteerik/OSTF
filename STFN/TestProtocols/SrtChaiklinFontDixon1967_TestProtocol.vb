@@ -154,8 +154,9 @@
 
     End Function
 
-
-    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
-        'This is ignored, since results are determines in NewResponse
+    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+        'Setting FinalThreshold to NaN, since it's not possible to finalize early
+        FinalThreshold = Double.NaN
     End Sub
+
 End Class

@@ -39,7 +39,6 @@ Public Class HagermanKinnefors1995_TestProtocol
 
     Public Enum AdaptiveTypes
         ThresholdInNoise
-        PractiseTestThresholdInNoise
         ThresholdInSilence
     End Enum
 
@@ -75,7 +74,7 @@ Public Class HagermanKinnefors1995_TestProtocol
 
         If TrialHistory.Count = 0 Then
 
-            If AdaptiveType = AdaptiveTypes.PractiseTestThresholdInNoise Then
+            If AdaptiveType = AdaptiveTypes.ThresholdInNoise And IsInPretestMode = True Then
                 'This is the start of the test, returns the start SNR
                 Return New NextTaskInstruction With {.AdaptiveValue = 20, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
             Else
@@ -92,51 +91,63 @@ Public Class HagermanKinnefors1995_TestProtocol
 
         Dim LastTrial_TasksCorrect As Double = TrialHistory.Last.ScoreList.Sum
 
+        'Skips out of pretest mode if two or less correct answers were given
+        If AdaptiveType = AdaptiveTypes.ThresholdInNoise And IsInPretestMode = True Then
+            If LastTrial_TasksCorrect < 3 Then
+                IsInPretestMode = False
+            End If
+        End If
+
+
         'Calculate the stepsize, DeltaL 
         Dim DeltaL As Double
 
         Select Case AdaptiveType
             Case AdaptiveTypes.ThresholdInNoise
-                'Here the speech level i adjusted
-                DeltaL = -(LastTrial_TasksCorrect - 2)
 
-                'This is acctually the opposite sign as in Hagerman and Kinnefors, but it used as such here since the Adaptve value should always signal the SNR (positive changes should make it easier, and vice versa)
-                'This would be the original: DeltaL = LastTrial_TasksCorrect - 2
+                If IsInPretestMode = True Then
 
-                'Modifying the NextAdaptiveLevel by DeltaL
-                NextAdaptiveLevel += DeltaL
+                    'Also here, the speech level is adjusted (with opposite sign as in Hagerman and Kinnefors)
+                    Dim PreviousAdaptiveLevel As Double = NextAdaptiveLevel
+                    Select Case TrialHistory.Count
+                        Case 1
+                            NextAdaptiveLevel = 10
+                            DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
+                        Case 2
+                            NextAdaptiveLevel = 5
+                            DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
+                        Case 3
+                            NextAdaptiveLevel = 0
+                            DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
+                        Case 4
+                            NextAdaptiveLevel = -5
+                            DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
+                        Case 5
+                            NextAdaptiveLevel = -8
+                            DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
 
-            Case AdaptiveTypes.PractiseTestThresholdInNoise
-                'Also here, the speech level is adjusted (with opposite sign as in Hagerman and Kinnefors)
-                Dim PreviousAdaptiveLevel As Double = NextAdaptiveLevel
-                Select Case TrialHistory.Count
-                    Case 1
-                        NextAdaptiveLevel = 10
-                        DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
-                    Case 2
-                        NextAdaptiveLevel = 5
-                        DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
-                    Case 3
-                        NextAdaptiveLevel = 0
-                        DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
-                    Case 4
-                        NextAdaptiveLevel = -5
-                        DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
-                    Case 5
-                        NextAdaptiveLevel = -8
-                        DeltaL = NextAdaptiveLevel - PreviousAdaptiveLevel
-                    Case Else
+                            'Skips out of the pretest mode
+                            IsInPretestMode = False
 
-                        'Modifying level as in ThresholdInNoise after the first six trials
-                        'Here the speech level i adjusted
-                        DeltaL = -(LastTrial_TasksCorrect - 2)
+                        Case Else
+                            'Skips out of the pretest mode (this code should never be reached, but is left here just in case...
+                            IsInPretestMode = False
 
-                        'This is acctually the opposite sign as in Hagerman and Kinnefors, but it used as such here since the Adaptve value should always signal the SNR (positive changes should make it easier, and vice versa)
-                        'This would be the original: DeltaL = LastTrial_TasksCorrect - 2
+                    End Select
 
-                        NextAdaptiveLevel += DeltaL
+                Else
 
-                End Select
+                    'Here the speech level i adjusted
+                    DeltaL = -(LastTrial_TasksCorrect - 2)
+
+                    'This is acctually the opposite sign as in Hagerman and Kinnefors, but it used as such here since the Adaptve value should always signal the SNR (positive changes should make it easier, and vice versa)
+                    'This would be the original: DeltaL = LastTrial_TasksCorrect - 2
+
+                    'Modifying the NextAdaptiveLevel by DeltaL
+                    NextAdaptiveLevel += DeltaL
+
+                End If
+
 
             Case AdaptiveTypes.ThresholdInSilence
 
@@ -154,6 +165,9 @@ Public Class HagermanKinnefors1995_TestProtocol
         'Checking if test is complete (presenting max number of trials)
         If TrialHistory.Count >= TestLength Then
 
+            'Finalizing the protocol
+            FinalizeProtocol(TrialHistory)
+
             'Exits the test
             Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = DeltaL, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
 
@@ -164,9 +178,9 @@ Public Class HagermanKinnefors1995_TestProtocol
 
     End Function
 
-    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+    Private Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
-        If TrialHistory.Count < TestLength Then
+        If TrialHistory.Count >= TestLength Then
 
             'Calculating the threshold
             Dim LevelList As New List(Of Double)
@@ -181,7 +195,7 @@ Public Class HagermanKinnefors1995_TestProtocol
             FinalThreshold = LevelList.Average
         Else
 
-            'Returning NaN is not all trials have been tested
+            'Returning NaN if not all trials have been tested
             FinalThreshold = Double.NaN
         End If
 
@@ -197,5 +211,8 @@ Public Class HagermanKinnefors1995_TestProtocol
 
     End Function
 
+    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+        FinalizeProtocol(TrialHistory)
+    End Sub
 
 End Class

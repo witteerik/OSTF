@@ -145,6 +145,9 @@
             'Checking if test is complete (presenting max number of trials)
             If TrialHistory.Count >= TestLength Then
 
+                'Finalizing the protocol
+                FinalizeProtocol(TrialHistory)
+
                 'Exits the test
                 Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .TestStage = CurrentTestStage, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
 
@@ -157,7 +160,7 @@
 
     End Function
 
-    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+    Private Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
         Dim LevelList As New List(Of Double)
         Dim SkippedSentences As Integer = 0
@@ -194,5 +197,8 @@
 
     End Function
 
+    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+        FinalizeProtocol(TrialHistory)
+    End Sub
 
 End Class

@@ -976,43 +976,44 @@ Public MustInherit Class SpeechTest
 
     Public Property ReferenceLevel As Double
         Get
-            Return _ReferenceLevel
+            Return Math.Clamp(_UnlimitedUnderlying_ReferenceLevel, MinimumReferenceLevel, MaximumReferenceLevel)
         End Get
         Set(value As Double)
-            _ReferenceLevel = Math.Round(value / ReferenceLevel_StepSize) * ReferenceLevel_StepSize
-            _ReferenceLevel = Math.Min(_ReferenceLevel, MaximumReferenceLevel)
+            _UnlimitedUnderlying_ReferenceLevel = Math.Round(value / ReferenceLevel_StepSize) * ReferenceLevel_StepSize
             OnPropertyChanged()
         End Set
     End Property
-    Private _ReferenceLevel As Double = 68.34
+    Private _UnlimitedUnderlying_ReferenceLevel As Double = 68.34
 
 
     Public Property TargetLevel As Double
         Get
-            Return _TargetLevel
+            Return Math.Clamp(_UnlimitedUnderlying_TargetLevel, MinimumLevel_Targets, MaximumLevel_Targets)
         End Get
         Set(value As Double)
 
             'Dim NewValue As Double = value
-            Dim OldValue As Double = _TargetLevel
+            Dim OldValue As Double = _UnlimitedUnderlying_TargetLevel
 
-            _TargetLevel = Math.Round(value / TargetLevel_StepSize) * TargetLevel_StepSize
-            _TargetLevel = Math.Min(_TargetLevel, MaximumLevel_Targets)
+            _UnlimitedUnderlying_TargetLevel = Math.Round(value / TargetLevel_StepSize) * TargetLevel_StepSize
 
-            Dim NewValue As Double = _TargetLevel
+            Dim NewValue As Double = _UnlimitedUnderlying_TargetLevel
 
             If LockContralateralMaskingLevelToSpeechLevel = True Then
 
                 'Adjusting the contralateral masking by the New level difference
                 Dim differenceValue As Double = NewValue - OldValue
-                ContralateralMaskingLevel += differenceValue
+                _UnlimitedUnderlying_ContralateralMaskingLevel += differenceValue
+
+                'Trigger OnPropertyChanged() for ContralateralMasker
+                OnPropertyChanged("ContralateralMaskingLevel")
 
             End If
 
             OnPropertyChanged()
         End Set
     End Property
-    Private _TargetLevel As Double = 0
+    Private _UnlimitedUnderlying_TargetLevel As Double = 0
 
     'Returns the TargetLevel - MaskingLevel signal-to-noise ratio
     Public ReadOnly Property CurrentSNR As Double
@@ -1023,41 +1024,39 @@ Public MustInherit Class SpeechTest
 
     Public Property MaskingLevel As Double
         Get
-            Return _MaskingLevel
+            Return Math.Clamp(_UnlimitedUnderlying_MaskingLevel, MinimumLevel_Maskers, MaximumLevel_Maskers)
         End Get
         Set(value As Double)
-            _MaskingLevel = Math.Round(value / MaskingLevel_StepSize) * MaskingLevel_StepSize
-            _MaskingLevel = Math.Min(_MaskingLevel, MaximumLevel_Maskers)
+            _UnlimitedUnderlying_MaskingLevel = Math.Round(value / MaskingLevel_StepSize) * MaskingLevel_StepSize
             OnPropertyChanged()
         End Set
     End Property
-    Private _MaskingLevel As Double = 0
+    Private _UnlimitedUnderlying_MaskingLevel As Double = 0
 
 
     Public Property BackgroundLevel As Double
         Get
-            Return _BackgroundLevel
+            Return Math.Clamp(_UnlimitedUnderlying_BackgroundLevel, MinimumLevel_Background, MaximumLevel_Background)
         End Get
         Set(value As Double)
-            _BackgroundLevel = Math.Round(value / BackgroundLevel_StepSize) * BackgroundLevel_StepSize
-            _BackgroundLevel = Math.Min(_BackgroundLevel, MaximumLevel_Background)
+            _UnlimitedUnderlying_BackgroundLevel = Math.Round(value / BackgroundLevel_StepSize) * BackgroundLevel_StepSize
             OnPropertyChanged()
         End Set
     End Property
-    Private _BackgroundLevel As Double = 0
+    Private _UnlimitedUnderlying_BackgroundLevel As Double = 0
 
 
     Public Property ContralateralMaskingLevel As Double
         Get
-            Return _ContralateralMaskingLevel
+            Return Math.Clamp(_UnlimitedUnderlying_ContralateralMaskingLevel, MinimumLevel_ContralateralMaskers, MaximumLevel_ContralateralMaskers)
         End Get
         Set(value As Double)
-            _ContralateralMaskingLevel = Math.Round(value / ContralateralMaskingLevel_StepSize) * ContralateralMaskingLevel_StepSize
-            _ContralateralMaskingLevel = Math.Min(_ContralateralMaskingLevel, MaximumLevel_ContralateralMaskers)
+            _UnlimitedUnderlying_ContralateralMaskingLevel = Math.Round(value / ContralateralMaskingLevel_StepSize) * ContralateralMaskingLevel_StepSize
             OnPropertyChanged()
         End Set
     End Property
-    Private _ContralateralMaskingLevel As Double = 0
+    Private _UnlimitedUnderlying_ContralateralMaskingLevel As Double = 0
+
 
     Private _LockContralateralMaskingLevelToSpeechLevel As Boolean = False
     Public Property LockContralateralMaskingLevelToSpeechLevel As Boolean
@@ -1076,15 +1075,14 @@ Public MustInherit Class SpeechTest
     ''' <returns></returns>
     Public Property TargetSNR As Double
         Get
-            Return _TargetSNR
+            Return Math.Clamp(_UnlimitedUnderlying_TargetSNR, MinimumLevel_TargetSNR, MaximumLevel_TargetSNR)
         End Get
         Set(value As Double)
-            _TargetSNR = Math.Round(value / TargetSNR_StepSize) * TargetSNR_StepSize
-            '_TargetSNR = Math.Min(_TargetSNR, MaximumLevel_TargetSNR)
+            _UnlimitedUnderlying_TargetSNR = Math.Round(value / TargetSNR_StepSize) * TargetSNR_StepSize
             OnPropertyChanged()
         End Set
     End Property
-    Private _TargetSNR As Double = 0
+    Private _UnlimitedUnderlying_TargetSNR As Double = 0
 
 
     ''' <summary>
@@ -2038,7 +2036,7 @@ Public MustInherit Class SpeechTest
         AbortTest
     End Enum
 
-    Public MustOverride Sub FinalizeTest()
+    Public MustOverride Sub FinalizeTestAheadOfTime()
 
     Public MustOverride Function GetResultStringForGui() As String
 

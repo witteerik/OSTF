@@ -39,7 +39,7 @@ Public Class SrtSwedishHint2018_TestProtocol
     Private NextAdaptiveLevel As Double = 0
 
 
-    Private FinalAdaptiveThreshold As Double? = Nothing
+    Private FinalThreshold As Double? = Nothing
 
     Public Overrides Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
@@ -82,6 +82,9 @@ Public Class SrtSwedishHint2018_TestProtocol
         'Checking if test is complete (presenting max number of trials)
         If TrialHistory.Count >= TotalTrialCount Then
 
+            'Finalizing the protocol
+            FinalizeProtocol(TrialHistory)
+
             'Exits the test
             Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
 
@@ -93,11 +96,11 @@ Public Class SrtSwedishHint2018_TestProtocol
     End Function
 
 
-    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+    Private Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
         If IsInPretestMode = True Then
             'Storing the last value as threshold
-            FinalAdaptiveThreshold = TrialHistory.Last.AdaptiveProtocolValue
+            FinalThreshold = TrialHistory.Last.AdaptiveProtocolValue
 
         Else
             'Calculating threshold
@@ -111,9 +114,9 @@ Public Class SrtSwedishHint2018_TestProtocol
 
             'Getting the average
             If LevelList.Count > 0 Then
-                FinalAdaptiveThreshold = LevelList.Average
+                FinalThreshold = LevelList.Average
             Else
-                FinalAdaptiveThreshold = Double.NaN
+                FinalThreshold = Double.NaN
             End If
         End If
 
@@ -125,9 +128,13 @@ Public Class SrtSwedishHint2018_TestProtocol
 
     Public Overrides Function GetFinalResultValue() As Double?
 
-        Return FinalAdaptiveThreshold
+        Return FinalThreshold
 
     End Function
 
+    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+        'Setting FinalThreshold to NaN, since it's not possible to finalize early
+        FinalThreshold = Double.NaN
+    End Sub
 
 End Class

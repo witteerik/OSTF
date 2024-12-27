@@ -96,11 +96,15 @@ Public Class TP50SpeechTest
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
-
+        'Checking/updating things that may have changed since initial initalization on every call
         If SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
         End If
+
+        'Ensuring that contralateral masking level is always used with contralateral masking
+        LockContralateralMaskingLevelToSpeechLevel = ContralateralMasking
+
+        If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         'Copying the target location to the masker location
         SelectSameMaskersAsTargetSoundSources()
@@ -457,8 +461,8 @@ Public Class TP50SpeechTest
     End Function
 
 
-    Public Overrides Sub FinalizeTest()
-        TestProtocol.FinalizeProtocol(ObservedTrials)
+    Public Overrides Sub FinalizeTestAheadOfTime()
+        TestProtocol.AbortAheadOfTime(ObservedTrials)
     End Sub
 
     Public Overrides Function CreatePreTestStimulus() As Tuple(Of Audio.Sound, String)

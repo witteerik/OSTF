@@ -1375,10 +1375,10 @@ public partial class SpeechTestView : ContentView, IDrawable
         TestReponseGrid.IsEnabled = false;
         TestResultGrid.IsEnabled = true;
 
-        // Finalizing test protocol
-        if (wasStoppedBeforeFinished == false)
+        // Attempting to finalize the test protocol, if aborted ahead of time
+        if (wasStoppedBeforeFinished == true)
         {
-            CurrentSpeechTest.FinalizeTest();
+            CurrentSpeechTest.FinalizeTestAheadOfTime();
         }
 
         // Getting test results

@@ -73,6 +73,11 @@
         If TrialHistory.Count < TestLength Then
             Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
         Else
+
+            'Finalizing the protocol
+            FinalizeProtocol(TrialHistory)
+
+            'And marks the protocol as completed
             Return New NextTaskInstruction With {.Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
         End If
 
@@ -94,7 +99,7 @@
 
     End Function
 
-    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+    Private Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
         Dim ScoreList As New List(Of Double)
         For Each Trial In TrialHistory
@@ -103,9 +108,13 @@
         If ScoreList.Count > 0 Then
             FinalWordRecognition = ScoreList.Average
         Else
-            FinalWordRecognition = -1
+            FinalWordRecognition = Double.NaN
         End If
 
+    End Sub
+
+    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+        FinalizeProtocol(TrialHistory)
     End Sub
 
 End Class

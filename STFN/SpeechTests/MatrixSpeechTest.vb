@@ -116,15 +116,16 @@ Public Class MatrixSpeechTest
                     TestMode = TestModes.AdaptiveSpeech
                     TestLength = 20
                 Else
-                    If IsPractiseTest = True Then
-                        DirectCast(TestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.PractiseTestThresholdInNoise
-                        TestMode = TestModes.AdaptiveNoise
+
+                    DirectCast(TestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
+                    TestMode = TestModes.AdaptiveNoise
+
+                    If TestProtocol.IsInPretestMode = True Then
                         TestLength = 30
                     Else
-                        DirectCast(TestProtocol, HagermanKinnefors1995_TestProtocol).AdaptiveType = HagermanKinnefors1995_TestProtocol.AdaptiveTypes.ThresholdInNoise
-                        TestMode = TestModes.AdaptiveNoise
                         TestLength = 20
                     End If
+
                 End If
 
             Case TypeOf TestProtocol Is BrandKollmeier2002_TestProtocol
@@ -149,6 +150,9 @@ Public Class MatrixSpeechTest
                 TestLength = 20
 
         End Select
+
+        'Ensuring that contralateral masking level is always used with contralateral masking
+        LockContralateralMaskingLevelToSpeechLevel = ContralateralMasking
 
         CreatePlannedWordsSentences()
 
@@ -520,11 +524,11 @@ Public Class MatrixSpeechTest
 
             If CurrentTestTrial IsNot Nothing Then
                 Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestProtocol.TotalTrialCount)
-                Output.Add("SNR = " & Math.Round(CurrentSNR) & " dB HL")
-                Output.Add("Talnivå = " & Math.Round(TargetLevel) & " dB HL")
-                Output.Add("Brusnivå = " & Math.Round(MaskingLevel) & " dB HL")
+                Output.Add("SNR = " & Math.Round(CurrentSNR) & " " & dBString())
+                Output.Add("Talnivå = " & Math.Round(TargetLevel) & " " & dBString())
+                Output.Add("Brusnivå = " & Math.Round(MaskingLevel) & " " & dBString())
                 If ContralateralMasking = True Then
-                    Output.Add("Kontralateral brusnivå = " & Math.Round(ContralateralMaskingLevel) & " dB HL")
+                    Output.Add("Kontralateral brusnivå = " & Math.Round(ContralateralMaskingLevel) & " " & dBString())
                 End If
             End If
         End If
@@ -541,9 +545,9 @@ Public Class MatrixSpeechTest
         Return New List(Of String)
     End Function
 
-    Public Overrides Sub FinalizeTest()
+    Public Overrides Sub FinalizeTestAheadOfTime()
 
-        TestProtocol.FinalizeProtocol(ObservedTrials)
+        TestProtocol.AbortAheadOfTime(ObservedTrials)
 
     End Sub
 

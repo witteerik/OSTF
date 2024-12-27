@@ -205,8 +205,8 @@ Public MustInherit Class SipBaseSpeechTest
         'This is not used in the SiP-test
     End Sub
 
-    Public Overrides Sub FinalizeTest()
-        'This is not used in the SiP-test
+    Public Overrides Sub FinalizeTestAheadOfTime()
+        'This is currently not used in the SiP-test
     End Sub
 
 

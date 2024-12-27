@@ -53,7 +53,12 @@ Public MustInherit Class TestProtocol
         Public TestLength As Integer
     End Class
 
-    Public MustOverride Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+
+    ''' <summary>
+    ''' When possible, this method calculates the test results if the test is aborted before completion.
+    ''' </summary>
+    ''' <param name="TrialHistory"></param>
+    Public MustOverride Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
 
     ''' <summary>
     ''' Should hold a text description of the type of the value stored in the final result, e.g. SRT, WRS, etc

@@ -111,6 +111,9 @@ Public Class BrandKollmeier2002_TestProtocol
         'Checking if test is complete (presenting max number of trials)
         If TrialHistory.Count >= TestLength Then
 
+            'Finalizing the protocol
+            FinalizeProtocol(TrialHistory)
+
             'Exits the test
             Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = DeltaL, .Decision = SpeechTest.SpeechTestReplies.TestIsCompleted}
 
@@ -121,7 +124,7 @@ Public Class BrandKollmeier2002_TestProtocol
 
     End Function
 
-    Public Overrides Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+    Private Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
 
         If TrialHistory.Count > 0 Then
             'Using the NextAdaptiveLevel variable from the last trial which has not yet been presented
@@ -143,5 +146,8 @@ Public Class BrandKollmeier2002_TestProtocol
 
     End Function
 
-
+    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+        'Setting FinalThreshold to NaN, since it's not possible to finalize early
+        FinalThreshold = Double.NaN
+    End Sub
 End Class

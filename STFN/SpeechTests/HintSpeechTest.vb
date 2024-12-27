@@ -104,6 +104,9 @@ Public Class HintSpeechTest
 
         TestProtocol.IsInPretestMode = IsPractiseTest
 
+        'Ensuring that contralateral masking level is always used with contralateral masking
+        LockContralateralMaskingLevelToSpeechLevel = ContralateralMasking
+
         CreatePlannedWordsList()
 
         TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.TestStage = 0, .AdaptiveValue = StartAdaptiveLevel})
@@ -279,9 +282,6 @@ Public Class HintSpeechTest
         If TestProtocol.IsInPretestMode = True Then
             If ProtocolReply.Decision = SpeechTestReplies.TestIsCompleted Then
 
-                'Finalizing the protocol
-                TestProtocol.FinalizeProtocol(ObservedTrials)
-
                 'Showing results in the GUI
                 GetResultStringForGui()
 
@@ -418,9 +418,9 @@ Public Class HintSpeechTest
     End Sub
 
 
-    Public Overrides Sub FinalizeTest()
+    Public Overrides Sub FinalizeTestAheadOfTime()
 
-        TestProtocol.FinalizeProtocol(ObservedTrials)
+        TestProtocol.AbortAheadOfTime(ObservedTrials)
 
     End Sub
 

@@ -26,7 +26,7 @@ Public MustInherit Class SpeechAudiometryTest
 
     Public MustOverride Overrides Sub UpdateHistoricTrialResults(sender As Object, e As SpeechTestInputEventArgs)
 
-    Public MustOverride Overrides Sub FinalizeTest()
+    Public MustOverride Overrides Sub FinalizeTestAheadOfTime()
 
 
     Public Overrides Function GetObservedTestTrials() As IEnumerable(Of TestTrial)
