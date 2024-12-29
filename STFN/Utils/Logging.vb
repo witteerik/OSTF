@@ -37,7 +37,7 @@ Namespace Utils
         Public logErrors As Boolean = True
         Public logIsMultiThreadApplication As Boolean = False
 
-        Public LoggingSpinLock As New Threading.SpinLock
+        Private LoggingSpinLock As New Threading.SpinLock
 
         Public Sub SendInfoToLog(ByVal message As String,
                                  Optional ByVal LogFileNameWithoutExtension As String = "",

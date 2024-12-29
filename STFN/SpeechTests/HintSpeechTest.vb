@@ -230,7 +230,6 @@ Public Class HintSpeechTest
 
             'Corrects the trial response, based on the given response
             Dim WordsInSentence = CurrentTestTrial.SpeechMaterialComponent.ChildComponents()
-            Dim CorrectWordsList As New List(Of String)
 
             'Resets the CurrentTestTrial.ScoreList
             CurrentTestTrial.ScoreList = New List(Of Integer)

@@ -37,6 +37,18 @@ Public MustInherit Class TestProtocol
 
     Public MustOverride Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
 
+    Public Function NewResponse(ByRef TrialHistory As List(Of SipTest.SipTrial)) As NextTaskInstruction
+
+        Dim NewTrialHistory As New TrialHistory
+        For Each Trial In TrialHistory
+            NewTrialHistory.Add(Trial)
+        Next
+        Return NewResponse(NewTrialHistory)
+
+    End Function
+
+
+
     Public Class NextTaskInstruction
         Public Decision As SpeechTestReplies
         ''' <summary>
@@ -59,6 +71,16 @@ Public MustInherit Class TestProtocol
     ''' </summary>
     ''' <param name="TrialHistory"></param>
     Public MustOverride Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+
+    'Public Function AbortAheadOfTime(ByRef TrialHistory As List(Of SipTest.SipTrial)) 
+
+    '    Dim NewTrialHistory As New TrialHistory
+    '    For Each Trial In TrialHistory
+    '        NewTrialHistory.Add(Trial)
+    '    Next
+    '    Return NewResponse(NewTrialHistory)
+
+    'End Function
 
     ''' <summary>
     ''' Should hold a text description of the type of the value stored in the final result, e.g. SRT, WRS, etc

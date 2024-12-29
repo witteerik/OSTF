@@ -1,6 +1,7 @@
 ﻿Imports System.Globalization
 Imports STFN.Audio.Sound.SpeechMaterialAnnotation
 Imports System.Runtime.Serialization
+Imports System.Xml.Serialization
 
 <Serializable>
 Public Class SpeechMaterialComponent
@@ -233,6 +234,7 @@ Public Class SpeechMaterialComponent
     End Property
 
     Public Property IsPractiseComponent As Boolean = False
+
 
     ''' <summary>
     ''' Searches among the numeric custom variables for a variable named IsKeyComponent and returns its value (1=True and 0=False), or True if no such numeric variable exists.
@@ -1391,27 +1393,35 @@ Public Class SpeechMaterialComponent
     End Function
 
 
+    Private SoundFileLock As New Object()
+
     Public Function GetSoundFile(ByVal Path As String) As Audio.Sound
 
         Select Case AudioFileLoadMode
-            Case MediaFileLoadModes.LoadEveryTime
-                Return Audio.Sound.LoadWaveFile(Path)
+                Case MediaFileLoadModes.LoadEveryTime
+                    Return Audio.Sound.LoadWaveFile(Path)
 
-            Case MediaFileLoadModes.LoadOnFirstUse
+                Case MediaFileLoadModes.LoadOnFirstUse
 
-                If SoundLibrary.ContainsKey(Path) Then
-                    Return SoundLibrary(Path)
-                Else
-                    Dim NewSound As Audio.Sound = Audio.Sound.LoadWaveFile(Path)
-                    SoundLibrary.Add(Path, NewSound)
-                    Return SoundLibrary(Path)
-                End If
+                SyncLock SoundFileLock
+
+                    'Enterring a synclock since multiple threads may call this method very close in time, which will cause an exception if it takes longer to load the file than the time between the calls (since an attempt will be mande to add it twice to the SoundLibrary)
+                    If SoundLibrary.ContainsKey(Path) Then
+                        Return SoundLibrary(Path)
+                    Else
+                        Dim NewSound As Audio.Sound = Audio.Sound.LoadWaveFile(Path)
+                        SoundLibrary.Add(Path, NewSound)
+                        Return SoundLibrary(Path)
+                    End If
+
+                End SyncLock
 
             Case Else
-                Throw New NotImplementedException
-        End Select
+                    Throw New NotImplementedException
+            End Select
 
     End Function
+
 
     Public Sub ClearAllLoadedSounds()
         SoundLibrary.Clear()
@@ -3248,6 +3258,7 @@ Public Class SpeechMaterialComponent
     Public Overrides Function ToString() As String
         Return Me.Id
     End Function
+
 
 End Class
 

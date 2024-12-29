@@ -1,12 +1,13 @@
 ﻿Imports STFN.SipTest
 Imports STFN.Audio.SoundScene
 Imports STFN.Utils
+Imports STFN.TestProtocol
 
-Public Class IHearSC_SiP_SpeechTest
+Public Class AdaptiveSiP
 
     Inherits SipBaseSpeechTest
 
-    Public Overrides ReadOnly Property FilePathRepresentation As String = "SipTest"
+    Public Overrides ReadOnly Property FilePathRepresentation As String = "Adaptive_SipTest"
 
     Public Sub New(ByVal SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
@@ -45,6 +46,8 @@ Public Class IHearSC_SiP_SpeechTest
 
 
     Private PresetName As String = "IHeAR_CS"
+    'Private PresetName As String = "QuickSiP"
+
 
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
@@ -93,7 +96,7 @@ Public Class IHearSC_SiP_SpeechTest
         'Sampling a MediaSet
         'Dim MediaSet = SelectedMediaSet
         Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
-        Dim MediaSet = SelectedMediaSets(0)
+        Dim MediaSet = SelectedMediaSets(1) ' Selecting the female voice
 
         'Getting all lists 
 
@@ -103,6 +106,10 @@ Public Class IHearSC_SiP_SpeechTest
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, False, True)
         Else
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members 'TODO! Specify correct members in text file
+        End If
+
+        If TestLists.Count Mod 2 = 1 Then
+            Throw New Exception("We must use an even number of test lists in the AdaptiveSiP!")
         End If
 
         'Getting the sound source locations
@@ -116,81 +123,98 @@ Public Class IHearSC_SiP_SpeechTest
         Dim MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
         Dim BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
 
-        'Setting up test trials
-        Dim TempLeftTurnTrials As New List(Of Object)
-        Dim TempRightTurnTrials As New List(Of Object)
-
-        'Creating a test unit
-        Dim CurrentTestUnit = New SiPTestUnit(CurrentSipTestMeasurement)
-        CurrentSipTestMeasurement.TestUnits.Add(CurrentTestUnit)
+        Dim NumberOfTrialsPerList As Integer = 14
 
         For i = 0 To TestLists.Count - 1
 
-            Dim TestWords = TestLists(i).GetAllDescenentsAtLevel(SpeechMaterialComponent.LinguisticLevels.Sentence)
+            'Creating one test unit per list
+            Dim CurrentTestUnit = New SiPTestUnit(CurrentSipTestMeasurement)
+            CurrentSipTestMeasurement.TestUnits.Add(CurrentTestUnit)
 
-            Dim PNR As Double
-            If IsPractiseTest Then
-                PNR = 15
-            Else
-                PNR = 0 'TODO! Select correct PNR
-            End If
+            'Creating a test protocol
+            CurrentTestUnit.TestProtocol = New BrandKollmeier2002_TestProtocol()
+            CurrentTestUnit.TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = 10, .TestStage = 0, .TestLength = NumberOfTrialsPerList})
 
-            For c = 0 To TestWords.Count - 1
-                Dim NewLeftTurnTrial As SipTrial = New SipTrial(CurrentTestUnit, TestWords(c), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, CurrentTestUnit.ParentMeasurement.Randomizer)
-                Dim NewRightTurnTrial As SipTrial = New SipTrial(CurrentTestUnit, TestWords(c), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
+            For t = 0 To NumberOfTrialsPerList - 1
 
-                'Setting levels
-                NewLeftTurnTrial.SetLevels(ReferenceLevel, PNR)
-                NewRightTurnTrial.SetLevels(ReferenceLevel, PNR)
+                'Using left for every other list
+                Dim NewSiPTrial As SipTrial
+                If i Mod 2 = 0 Then
+                    NewSiPTrial = New SipTrial(CurrentTestUnit, TestLists(i), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, CurrentTestUnit.ParentMeasurement.Randomizer)
+                Else
+                    NewSiPTrial = New SipTrial(CurrentTestUnit, TestLists(i), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
+                End If
 
-                'Adding the trials to the test unit
-                CurrentTestUnit.PlannedTrials.Add(NewLeftTurnTrial)
-                CurrentTestUnit.PlannedTrials.Add(NewRightTurnTrial)
+                'Getting a random child component as catch components
+                Dim CatchTrialSourceIndex As Integer = Randomizer.Next(0, TestLists(i).ChildComponents.Count)
+                NewSiPTrial.CatchComponent = TestLists(i).ChildComponents(CatchTrialSourceIndex)
+                CurrentTestUnit.PlannedTrials.Add(NewSiPTrial)
 
-                TempLeftTurnTrials.Add(NewLeftTurnTrial)
-                TempRightTurnTrials.Add(NewRightTurnTrial)
+                'Planning the word presentation order
+                NewSiPTrial.RandomWordPresentationOrderList = Utils.SampleWithoutReplacement(TestLists(i).ChildComponents.Count, 0, TestLists(i).ChildComponents.Count, Randomizer).ToList
+
+                Dim NewCatchTrialIndex As Integer = -1
+                For k = 0 To NewSiPTrial.RandomWordPresentationOrderList.Count - 1
+                    If TestLists(i).ChildComponents(NewSiPTrial.RandomWordPresentationOrderList(k)) Is NewSiPTrial.CatchComponent Then
+                        NewCatchTrialIndex = k
+                        Exit For
+                    End If
+                Next
+
+                'Getting valid places to insert the catch word
+                Dim ValidIndices As New List(Of Integer)
+                For k As Integer = 0 To TestLists(i).ChildComponents.Count
+                    If k = NewCatchTrialIndex Then
+                        'Not adding
+                    ElseIf k < NewCatchTrialIndex Then
+                        If System.Math.Abs(k - NewCatchTrialIndex) >= 1 Then
+                            ValidIndices.Add(k)
+                        End If
+                    Else
+                        If System.Math.Abs(k - NewCatchTrialIndex) > 1 Then
+                            ValidIndices.Add(k)
+                        End If
+                    End If
+                Next
+
+                'Inserting the catch word (with an index value one higher than the highest test word index) in a randomly selected valid position
+                Dim RandomValidInsertionIndex = ValidIndices(Randomizer.Next(0, ValidIndices.Count))
+                NewSiPTrial.RandomWordPresentationOrderList.Insert(RandomValidInsertionIndex, TestLists(i).ChildComponents.Count)
+
+                Dim TestList As New List(Of String)
+                For j = 0 To NewSiPTrial.RandomWordPresentationOrderList.Count - 1
+                    If NewSiPTrial.RandomWordPresentationOrderList(j) >= TestLists(i).ChildComponents.Count Then
+                        TestList.Add(NewSiPTrial.CatchComponent.PrimaryStringRepresentation)
+                    Else
+                        TestList.Add(TestLists(i).ChildComponents(NewSiPTrial.RandomWordPresentationOrderList(j)).PrimaryStringRepresentation)
+                    End If
+                Next
+
+                For j = 0 To TestList.Count - 2
+                    If TestList(j) = TestList(j + 1) Then
+                        Throw New Exception("A bug! Words next to each other detected!")
+                    End If
+                Next
+
+                'Now RandomWordPresentationOrderList holds the following information:
+                'Presentation order (index) -  SMC index
+                '0                                               2 'The third SMC in the list, e.g. kil_fil_sil in (sil)
+                '1                                               0 'The first SMC in the list, e.g. kil_fil_sil in (kil)
+                '2                                               3 'The repeated catch component
+                '3                                               1 'The second SMC in the list, e.g. kil_fil_sil in (fil)
 
             Next
         Next
 
-        'Randomizing the order within trial lists
-        TempLeftTurnTrials = Utils.Shuffle(TempLeftTurnTrials, Randomizer)
-        TempRightTurnTrials = Utils.Shuffle(TempRightTurnTrials, Randomizer)
-
-        'Putting the Trials in a list of the correct type
-        Dim LeftTurnTrials As New List(Of SipTrial)
-        For Each Item As SipTrial In TempLeftTurnTrials
-            LeftTurnTrials.Add(Item)
-        Next
-        Dim RightTurnTrials As New List(Of SipTrial)
-        For Each Item As SipTrial In TempRightTurnTrials
-            RightTurnTrials.Add(Item)
-        Next
-
-        'Putting equal number trials to the left and then to the right in CurrentSipTestMeasurement (from which they can be drawn during testing)
-        'Randomizing the side to start with
-        Dim AddSideFirst As Integer = Randomizer.Next(0, 2)
-        Dim TrialsBeforeSideSwap As Integer = 5 ' The number of trials to present on each head turn
-
-        Dim AddedSets As Integer = 0
-        For i = 0 To TempLeftTurnTrials.Count - 1 Step TrialsBeforeSideSwap
-
-            Dim TrialsToGet As Integer = TrialsBeforeSideSwap
-            If AddedSets * TrialsBeforeSideSwap + TrialsBeforeSideSwap > TempLeftTurnTrials.Count Then
-                'Get the remaining number of trials
-                TrialsToGet = TempLeftTurnTrials.Count - AddedSets * TrialsBeforeSideSwap
-            End If
-
-            If AddSideFirst = 0 Then
-                CurrentSipTestMeasurement.PlannedTrials.AddRange(LeftTurnTrials.GetRange(i, TrialsToGet))
-                CurrentSipTestMeasurement.PlannedTrials.AddRange(RightTurnTrials.GetRange(i, TrialsToGet))
-            Else
-                CurrentSipTestMeasurement.PlannedTrials.AddRange(RightTurnTrials.GetRange(i, TrialsToGet))
-                CurrentSipTestMeasurement.PlannedTrials.AddRange(LeftTurnTrials.GetRange(i, TrialsToGet))
-            End If
-
-            AddedSets += 1
-
+        'Putting two presentations each of left turn trials in even-index lists in a row, and the swapping to right turn trials, and so on..., in CurrentSipTestMeasurement (from which they can be drawn during testing)
+        For TrialIndexInList = 0 To NumberOfTrialsPerList - 1 Step 2
+            For TrialIndexInList_shift = 0 To 1
+                For u_shift = 0 To 1
+                    For u = 0 To CurrentSipTestMeasurement.TestUnits.Count - 1 Step 2
+                        CurrentSipTestMeasurement.PlannedTrials.Add(CurrentSipTestMeasurement.TestUnits(u + u_shift).PlannedTrials(TrialIndexInList + TrialIndexInList_shift))
+                    Next
+                Next
+            Next
         Next
 
 
@@ -209,8 +233,27 @@ Public Class IHearSC_SiP_SpeechTest
         'Plays sound
         SoundPlayer.SwapOutputSounds(TestSound)
 
-        'Premixing the first 10 sounds 
-        CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
+        'And also premixing the first sounds in each SipTestUnit
+
+        For Each TestUnit In CurrentSipTestMeasurement.TestUnits
+
+            'Calculating the speech level (of the first trial)
+            Dim ProtocolReply = TestUnit.TestProtocol.NewResponse(New TrialHistory)
+
+            'Getting the new adaptive value
+            TestUnit.PlannedTrials(0).PNR = ProtocolReply.AdaptiveValue
+
+            'Storing it also in AdaptiveProtocolValue, as this is used by the protocol
+            TestUnit.PlannedTrials(0).AdaptiveProtocolValue = ProtocolReply.AdaptiveValue
+
+            'Applying the levels
+            TestUnit.PlannedTrials(0).SetLevels(ReferenceLevel, TestUnit.PlannedTrials(0).PNR)
+
+            'Mixing the next sound in the unit
+            TestUnit.PlannedTrials(0).MixSound(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+            'TestUnit.PlannedTrials(0).PreMixTestTrialSoundOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+
+        Next
 
     End Sub
 
@@ -284,15 +327,123 @@ Public Class IHearSC_SiP_SpeechTest
 
     End Function
 
+    Private GivenResponses As New List(Of String)
 
-    Private Sub PrepareTestTrialSound()
+    Public Overrides Function GetSpeechTestReply(sender As Object, e As SpeechTestInputEventArgs) As SpeechTestReplies
+
+        Dim ProtocolReply As NextTaskInstruction = Nothing
+
+        If e IsNot Nothing Then
+
+            'This is an incoming test trial response. Adding the first response to GivenResponses
+            GivenResponses.Add(e.LinguisticResponses(0))
+
+            'Checks if the trial is finished
+            If GivenResponses.Count < CurrentTestTrial.Tasks Then
+                'Returns to continue the trial
+                Return SpeechTestReplies.ContinueTrial
+            End If
+
+            'Storing the lingustic responses
+            DirectCast(CurrentTestTrial, SipTrial).Response = String.Join("-", GivenResponses)
+
+            Dim CatchTrialPresentationIndex As Integer = -1
+            For i = 0 To CurrentTestTrial.RandomWordPresentationOrderList.Count - 1
+                If CurrentTestTrial.RandomWordPresentationOrderList(i) >= CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count Then
+                    CatchTrialPresentationIndex = i
+                    Exit For
+                End If
+            Next
+
+
+            For i = 0 To GivenResponses.Count - 1
+
+                Dim ResponseSpelling = GivenResponses(i)
+                Dim CorrectSpelling As String
+                If i <> CatchTrialPresentationIndex Then
+                    CorrectSpelling = CurrentTestTrial.SpeechMaterialComponent.ChildComponents(CurrentTestTrial.RandomWordPresentationOrderList(i)).GetCategoricalVariableValue("Spelling")
+
+                    'Corrects the trial response, based on the given response
+                    If ResponseSpelling = CorrectSpelling Then
+                        CurrentTestTrial.ScoreList.Add(1)
+                    Else
+                        CurrentTestTrial.ScoreList.Add(0)
+                    End If
+                Else
+                    CorrectSpelling = CurrentTestTrial.CatchComponent.GetCategoricalVariableValue("Spelling")
+
+                    'Skipping scoring of the catch trial, but stores it in a separate score list for export
+                    If ResponseSpelling = CorrectSpelling Then
+                        CurrentTestTrial.CatchTaskScoreList.Add(1)
+                    Else
+                        CurrentTestTrial.CatchTaskScoreList.Add(0)
+                    End If
+                End If
+            Next
+
+            'Clearing GivenResponses before next trial
+            GivenResponses.Clear()
+
+            'Adding the test trial
+            CurrentSipTestMeasurement.MoveTrialToHistory(CurrentTestTrial)
+
+            'Calculating the speech level
+            ProtocolReply = DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.TestProtocol.NewResponse(DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.ObservedTrials)
+
+            'Premixing the next trial in the test unit
+            If DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.PlannedTrials.Count > 0 Then
+
+                'We must set the levels of the next trial in the unit here, before mixing it
+                Dim NextUnitTrial As SipTrial = DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.PlannedTrials(0)
+
+                'Getting the new adaptive value
+                NextUnitTrial.PNR = ProtocolReply.AdaptiveValue
+
+                'Storing it also in AdaptiveProtocolValue, as this is used by the protocol
+                NextUnitTrial.AdaptiveProtocolValue = ProtocolReply.AdaptiveValue
+
+                'Applying the levels
+                NextUnitTrial.SetLevels(ReferenceLevel, NextUnitTrial.PNR)
+
+                'Mixing the next sound in the unit
+                NextUnitTrial.PreMixTestTrialSoundOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+            End If
+
+            'Taking a dump of the SpeechTest before swapping to the new trial
+            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+
+        Else
+            'Nothing to correct (this should be the start of a new test)
+
+            'The protocol repy is not used here, but needed to avoid a null exception
+            ProtocolReply = New NextTaskInstruction
+            ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
+
+            'And mixing and playing initial sound, and the first sounds in each test unit
+            InitiateTestByPlayingSound()
+
+        End If
+
+        'TODO: We must store the responses and response times!!!
+
+        If CurrentSipTestMeasurement.PlannedTrials.Count = 0 Then
+            'Test is completed
+            Return SpeechTestReplies.TestIsCompleted
+        End If
+
+        'Preparing next trial if needed
+        If ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial Then
+            PrepareNextTrial(ProtocolReply)
+        End If
+
+        Return ProtocolReply.Decision
+
+    End Function
+
+
+    Private Sub WaitForTestTrialSound()
 
         Try
-
-            If (CurrentSipTestMeasurement.ObservedTrials.Count + 3) Mod 10 = 0 Then
-                'Premixing the next 10 sounds, starting three trials before the next is needed 
-                CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)
-            End If
 
             'Waiting for the background thread to finish mixing
             Dim WaitPeriods As Integer = 0
@@ -312,19 +463,20 @@ Public Class IHearSC_SiP_SpeechTest
 
     Protected Overrides Sub PrepareNextTrial(ByVal NextTaskInstruction As TestProtocol.NextTaskInstruction)
 
+        'N.B. NextTaskInstruction is not used here
+
         'Preparing the next trial
         CurrentTestTrial = CurrentSipTestMeasurement.PlannedTrials(0) ' GetNextTrial()
-        CurrentTestTrial.TestStage = NextTaskInstruction.TestStage
-        CurrentTestTrial.Tasks = 1
+        CurrentTestTrial.Tasks = 4
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
         Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
 
         'Adding the current word spelling as a response alternative
-        ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"), .IsScoredItem = CurrentTestTrial.SpeechMaterialComponent.IsKeyComponent, .ParentTestTrial = CurrentTestTrial})
+        'ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"), .IsScoredItem = CurrentTestTrial.SpeechMaterialComponent.IsKeyComponent, .ParentTestTrial = CurrentTestTrial})
 
-        'Picking random response alternatives from all available test words
-        Dim AllContrastingWords = CurrentTestTrial.SpeechMaterialComponent.GetSiblingsExcludingSelf()
-        For Each ContrastingWord In AllContrastingWords
+        'Adding list members as response alternatives
+        Dim AllListWords = CurrentTestTrial.SpeechMaterialComponent.GetChildren()
+        For Each ContrastingWord In AllListWords
             ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = ContrastingWord.GetCategoricalVariableValue("Spelling"), .IsScoredItem = ContrastingWord.IsKeyComponent, .ParentTestTrial = CurrentTestTrial})
         Next
 
@@ -334,8 +486,8 @@ Public Class IHearSC_SiP_SpeechTest
         'Adding the response alternatives
         CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
 
-        'Mixing trial sound
-        PrepareTestTrialSound()
+        'Waiting for the trial sound to be mixed, if not yet completed
+        WaitForTestTrialSound()
 
         'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration 
         CurrentTestTrial.LinguisticSoundStimulusStartTime = DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime

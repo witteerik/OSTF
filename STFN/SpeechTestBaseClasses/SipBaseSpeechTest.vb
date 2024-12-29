@@ -98,8 +98,9 @@ Public MustInherit Class SipBaseSpeechTest
 
         If e IsNot Nothing Then
 
+            'This is an incoming test trial response
+
             'Corrects the trial response, based on the given response
-            Dim CorrectWordsList As New List(Of String)
 
             'Resets the CurrentTestTrial.ScoreList
             'And also storing SiP-test type data
@@ -128,14 +129,11 @@ Public MustInherit Class SipBaseSpeechTest
 
             DirectCast(CurrentTestTrial, SipTrial).Response = e.LinguisticResponses(0)
 
-            'This is an incoming test trial response
-            If CurrentTestTrial IsNot Nothing Then
+            'Taking a dump of the SpeechTest
+            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
 
-                'Taking a dump of the SpeechTest
-                CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+            CurrentSipTestMeasurement.MoveTrialToHistory(CurrentTestTrial)
 
-                CurrentSipTestMeasurement.MoveTrialToHistory(CurrentTestTrial)
-            End If
 
         Else
             'Nothing to correct (this should be the start of a new test)

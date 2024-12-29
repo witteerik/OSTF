@@ -106,6 +106,20 @@ Public Class TestTrial
 
     Public Property SpeechMaterialComponent As SpeechMaterialComponent
 
+    ''' <summary>
+    ''' Can be used to store a component used as a catch component or similar (i.e. lure, probe, decoy filler etc...)
+    ''' Corrently this property is not read or written to SMC files, but can only be used "code internally".
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property CatchComponent As SpeechMaterialComponent = Nothing
+
+    ''' <summary>
+    ''' This list should hold the order of speech material components in a single trial. A catch component can be specified with an index higher that the number of test components -1.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property RandomWordPresentationOrderList As List(Of Integer) = Nothing
+
+
     Public ReadOnly Property Spelling As String
         Get
             If SpeechMaterialComponent IsNot Nothing Then
@@ -150,6 +164,21 @@ Public Class TestTrial
         End Get
     End Property
 
+    ''' <summary>
+    ''' Indicates the number of correctly responded catch tasks.
+    ''' </summary>
+    Public CatchTaskScoreList As New List(Of Integer)
+
+    Public ReadOnly Property CatchTaskScoreListString As String
+        Get
+            If CatchTaskScoreList IsNot Nothing Then
+                Return String.Join(", ", CatchTaskScoreList)
+            Else
+                Return ""
+            End If
+        End Get
+    End Property
+
 
     ''' <summary>
     ''' Indicates if the trial as a whole was correct or not.
@@ -164,8 +193,8 @@ Public Class TestTrial
 
     Public ReadOnly Property GetProportionTasksCorrect() As Decimal
         Get
-            If Tasks > 0 And ScoreList.Count > 0 Then
-                Return ScoreList.Sum / Tasks
+            If ScoreList.Count > 0 Then
+                Return ScoreList.Sum / ScoreList.Count
             Else
                 Return 0
             End If

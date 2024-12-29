@@ -495,15 +495,35 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "I HeAR CS - SiP-testet":
 
-                    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+                    bool useAdaptive = true;
+                    if (useAdaptive)
+                    {
+                                                
+                        SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
-                    // Speech test
-                    CurrentSpeechTest = new IHearSC_SiP_SpeechTest("Swedish SiP-test");
+                        // Speech test
+                        CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
 
-                    TestOptionsGrid.Children.Clear();
-                    var newOptionsSipSCTestView = new OptionsViewAll(CurrentSpeechTest);
-                    TestOptionsGrid.Children.Add(newOptionsSipSCTestView);
-                    CurrentTestOptionsView = newOptionsSipSCTestView;
+                        TestOptionsGrid.Children.Clear();
+                        var newOptionsSipSCTestView = new OptionsViewAll(CurrentSpeechTest);
+                        TestOptionsGrid.Children.Add(newOptionsSipSCTestView);
+                        CurrentTestOptionsView = newOptionsSipSCTestView;
+
+                    }
+                    else
+                    {
+
+                        SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+
+                        // Speech test
+                        CurrentSpeechTest = new IHearSC_SiP_SpeechTest("Swedish SiP-test");
+
+                        TestOptionsGrid.Children.Clear();
+                        var newOptionsSipSCTestView = new OptionsViewAll(CurrentSpeechTest);
+                        TestOptionsGrid.Children.Add(newOptionsSipSCTestView);
+                        CurrentTestOptionsView = newOptionsSipSCTestView;
+
+                    }
 
                     break;
 
@@ -835,10 +855,23 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "I HeAR CS - SiP-testet":
 
-                    CurrentResponseView = new ResponseView_SiP_SF();
-                    TestReponseGrid.Children.Add(CurrentResponseView);
+                    bool useAdaptive = true;
+                    if (useAdaptive)
+                    {
+                        CurrentResponseView = new ResponseView_SiP_SF2();
+                        TestReponseGrid.Children.Add(CurrentResponseView);
 
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                    }
+                    else
+                    {
+                        CurrentResponseView = new ResponseView_SiP_SF();
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                    }
 
                     break;
 
