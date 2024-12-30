@@ -17,17 +17,29 @@ namespace STFM.Views
             //this.LoadFromXaml(typeof(ResponseView_AdaptiveSiP));
             InitializeComponent();
 
-            //RightSideControl.IsVisible = false;
-            //LeftSideControl.IsVisible = false;
-            //MessageButton.IsVisible = false;
+            RightSideControl.IsVisible = false;
+            LeftSideControl.IsVisible = false;
+            MessageButton.IsVisible = false;
+
+            // Creating a timer for sending responses
+            SendReplyTimer = Microsoft.Maui.Controls.Application.Current.Dispatcher.CreateTimer();
+            SendReplyTimer.Interval = TimeSpan.FromMilliseconds(200);
+            SendReplyTimer.Tick += SendReply;
+            SendReplyTimer.IsRepeating = false;
+
         }
+
+        private IDispatcherTimer SendReplyTimer;
 
         Color LampOnColor = Color.FromArgb("#00FFFA");
         Color LampOnBorderColor = Color.FromArgb("#00A7A3");
         Color LampOffColor = Color.FromArgb("#585858");
         Color LampOffBorderColor = Color.FromArgb("#4E4E4E");
-        Color LampRedColor = Color.FromArgb("#585858");
-        Color LampRedBorderColor = Color.FromArgb("#4E4E4E");
+        Color LampRedColor = Color.FromArgb("#FF0000");
+        Color LampRedBorderColor = Color.FromArgb("#D95B3D");
+        Color RedButtonColor = Color.FromArgb("#FF0000");
+        Color DefaultButtonColor = Color.FromArgb("#FFFF80");
+        Color Button_DisabledColor = Color.FromArgb("#D0D0D0");
         
         private STFN.Utils.Constants.Sides CurrentSide = STFN.Utils.Constants.Sides.Left;
 
@@ -40,6 +52,8 @@ namespace STFM.Views
 
         private int RightSideLampsOn = 0;
         private int LeftSideLampsOn = 0;
+
+        private List<string> ReplyList = new List<string>();
 
         public override void AddSourceAlternatives(STFM.Views.ResponseView.VisualizedSoundSource[] soundSources)
         {
@@ -68,18 +82,43 @@ namespace STFM.Views
             LeftSideControl.IsVisible = false;
             MessageButton.IsVisible = false;
 
+            RightSideLampsOn = 0;
+            LeftSideLampsOn = 0;
+
             ButtonClicks_Left_1 = 0;
             ButtonClicks_Left_2 = 0;
             ButtonClicks_Left_3 = 0;
             ButtonClicks_Right_1 = 0;
             ButtonClicks_Right_2 = 0;
             ButtonClicks_Right_3 = 0;
-            
+
+            LeftButton1.Background = DefaultButtonColor;
+            LeftButton2.Background = DefaultButtonColor;
+            LeftButton3.Background = DefaultButtonColor;
+            RightButton1.Background = DefaultButtonColor;
+            RightButton2.Background = DefaultButtonColor;
+            RightButton3.Background = DefaultButtonColor;
+
+            TurnOffLamps();
+
+            ReplyList.Clear();
+
         }
 
-    public override void ResponseTimesOut()
+        public override void ResponseTimesOut()
         {
-            //throw new NotImplementedException();
+
+            TurnLampsRed();
+
+            LeftButton1.Background = RedButtonColor;
+            LeftButton2.Background = RedButtonColor;
+            LeftButton3.Background = RedButtonColor;
+            RightButton1.Background = RedButtonColor;
+            RightButton2.Background = RedButtonColor;
+            RightButton3.Background = RedButtonColor;
+
+            SendReplyTimer.Start();
+
         }
 
         public override void ShowMessage(string Message)
@@ -173,7 +212,7 @@ namespace STFM.Views
 
         public override void StopAllTimers()
         {
-
+            SendReplyTimer.Stop();
         }
 
         public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
@@ -185,7 +224,7 @@ namespace STFM.Views
         {
             base.OnSizeAllocated(width, height);
 
-            //ResizeStuff(width, height);
+            ResizeStuff(width, height);
 
         }
 
@@ -193,33 +232,52 @@ namespace STFM.Views
         {
             var textSize = System.Math.Round(height / 12);
 
-            LeftButton1.FontSize = textSize;
-            LeftButton2.FontSize = textSize;
-            LeftButton3.FontSize = textSize;
+            if (LeftButton1 != null)
+            {
 
-            RightButton1.FontSize = textSize;
-            RightButton2.FontSize = textSize;
-            RightButton3.FontSize = textSize;
 
-            var lampsize = System.Math.Round(height / 20);
+                LeftButton1.FontSize = textSize;
+                LeftButton2.FontSize = textSize;
+                LeftButton3.FontSize = textSize;
 
-            LeftLamp1.HeightRequest = lampsize;
-            LeftLamp1.WidthRequest = lampsize;
-            LeftLamp2.HeightRequest = lampsize;
-            LeftLamp2.WidthRequest = lampsize;
-            LeftLamp3.HeightRequest = lampsize;
-            LeftLamp3.WidthRequest = lampsize;
-            LeftLamp4.HeightRequest = lampsize;
-            LeftLamp4.WidthRequest = lampsize;
+                RightButton1.FontSize = textSize;
+                RightButton2.FontSize = textSize;
+                RightButton3.FontSize = textSize;
 
-            RightLamp1.HeightRequest = lampsize;
-            RightLamp1.WidthRequest = lampsize;
-            RightLamp2.HeightRequest = lampsize;
-            RightLamp2.WidthRequest = lampsize;
-            RightLamp3.HeightRequest = lampsize;
-            RightLamp3.WidthRequest = lampsize;
-            RightLamp4.HeightRequest = lampsize;
-            RightLamp4.WidthRequest = lampsize;
+                var lampsize = System.Math.Round(height / 20);
+                float halfLampSize = (float)(lampsize / 2);
+
+                // Updating size
+                LeftLamp1.HeightRequest = lampsize;
+                LeftLamp1.WidthRequest = lampsize;
+                LeftLamp2.HeightRequest = lampsize;
+                LeftLamp2.WidthRequest = lampsize;
+                LeftLamp3.HeightRequest = lampsize;
+                LeftLamp3.WidthRequest = lampsize;
+                LeftLamp4.HeightRequest = lampsize;
+                LeftLamp4.WidthRequest = lampsize;
+
+                RightLamp1.HeightRequest = lampsize;
+                RightLamp1.WidthRequest = lampsize;
+                RightLamp2.HeightRequest = lampsize;
+                RightLamp2.WidthRequest = lampsize;
+                RightLamp3.HeightRequest = lampsize;
+                RightLamp3.WidthRequest = lampsize;
+                RightLamp4.HeightRequest = lampsize;
+                RightLamp4.WidthRequest = lampsize;
+
+                // Updating corner radius
+                LeftLamp1.CornerRadius = halfLampSize;
+                LeftLamp2.CornerRadius = halfLampSize;
+                LeftLamp3.CornerRadius = halfLampSize;
+                LeftLamp4.CornerRadius = halfLampSize;
+                RightLamp1.CornerRadius = halfLampSize;
+                RightLamp2.CornerRadius = halfLampSize;
+                RightLamp3.CornerRadius = halfLampSize;
+                RightLamp4.CornerRadius = halfLampSize;
+
+
+            }
 
         }
 
@@ -228,7 +286,17 @@ namespace STFM.Views
 
             Button clickedButton = (Button)sender;
 
-            if (clickedButton == LeftButton1) { ButtonClicks_Left_1 += 1;}
+            if (ReplyList.Count >= 4)
+            {
+                // This should not happen but, if it does, this call is blocked and a reply is sent
+                SendReplyTimer.Start();
+                return;
+            }
+
+            //Adding the clicked response
+            ReplyList.Add(clickedButton.Text);
+
+            if (clickedButton == LeftButton1) { ButtonClicks_Left_1 += 1; }
             if (clickedButton == LeftButton2) { ButtonClicks_Left_2 += 1; }
             if (clickedButton == LeftButton3) { ButtonClicks_Left_3 += 1; }
 
@@ -236,25 +304,33 @@ namespace STFM.Views
             if (clickedButton == RightButton2) { ButtonClicks_Right_2 += 1; }
             if (clickedButton == RightButton3) { ButtonClicks_Right_3 += 1; }
 
-            if (ButtonClicks_Left_1 == 2) { LeftButton1.IsEnabled = false;}
-            if (ButtonClicks_Left_2 == 2) { LeftButton2.IsEnabled = false; }
-            if (ButtonClicks_Left_3 == 2) { LeftButton3.IsEnabled = false; }
-
+            // Disables the buttons after 2 clicks
+            if (ButtonClicks_Left_1 == 2) { LeftButton1.IsEnabled = false;  }
+            if (ButtonClicks_Left_2 == 2) { LeftButton2.IsEnabled = false;  }
+            if (ButtonClicks_Left_3 == 2) { LeftButton3.IsEnabled = false;  }
             if (ButtonClicks_Right_1 == 2) { RightButton1.IsEnabled = false; }
             if (ButtonClicks_Right_2 == 2) { RightButton2.IsEnabled = false; }
             if (ButtonClicks_Right_3 == 2) { RightButton3.IsEnabled = false; }
+
+            // Emphasizes that the button should not be clicked by making it gray after three clicks
+            if (ButtonClicks_Left_1 == 3) { LeftButton1.Background = Button_DisabledColor; }
+            if (ButtonClicks_Left_2 == 3) { LeftButton2.Background = Button_DisabledColor; }
+            if (ButtonClicks_Left_3 == 3) { LeftButton3.Background = Button_DisabledColor; }
+            if (ButtonClicks_Right_1 == 3) { RightButton1.Background = Button_DisabledColor; }
+            if (ButtonClicks_Right_2 == 3) { RightButton2.Background = Button_DisabledColor; }
+            if (ButtonClicks_Right_3 == 3) { RightButton3.Background = Button_DisabledColor; }
 
             switch (CurrentSide)
             {
                 case STFN.Utils.Constants.Sides.Left:
                     LeftSideLampsOn += 1;
                     UpdateLampsOn();
-                    if (LeftSideLampsOn == 4) { SendReply(); }
+                    if (LeftSideLampsOn == 4) {SendReplyTimer.Start(); }
                     break;
                 case STFN.Utils.Constants.Sides.Right:
                     RightSideLampsOn += 1;
                     UpdateLampsOn();
-                    if (RightSideLampsOn == 4) { SendReply(); }
+                    if (RightSideLampsOn == 4) { SendReplyTimer.Start(); }
                     break;
                 default:
                     break;
@@ -269,18 +345,18 @@ namespace STFM.Views
             {
                 case STFN.Utils.Constants.Sides.Left:
 
-                    if (LeftSideLampsOn < 2) { LeftLamp1.Background = LampOnColor; LeftLamp1.BorderColor = LampOnBorderColor; }
-                    if (LeftSideLampsOn < 3) { LeftLamp2.Background = LampOnColor; LeftLamp2.BorderColor = LampOnBorderColor; }
-                    if (LeftSideLampsOn < 4) { LeftLamp3.Background = LampOnColor; LeftLamp3.BorderColor = LampOnBorderColor; }
-                    if (LeftSideLampsOn < 5) { LeftLamp4.Background = LampOnColor; LeftLamp4.BorderColor = LampOnBorderColor; }
+                    if (LeftSideLampsOn > 0) { LeftLamp1.Background = LampOnColor; LeftLamp1.BorderColor = LampOnBorderColor; }
+                    if (LeftSideLampsOn > 1) { LeftLamp2.Background = LampOnColor; LeftLamp2.BorderColor = LampOnBorderColor; }
+                    if (LeftSideLampsOn > 2) { LeftLamp3.Background = LampOnColor; LeftLamp3.BorderColor = LampOnBorderColor; }
+                    if (LeftSideLampsOn > 3) { LeftLamp4.Background = LampOnColor; LeftLamp4.BorderColor = LampOnBorderColor; }
 
                     break;
                 case STFN.Utils.Constants.Sides.Right:
 
-                    if (RightSideLampsOn < 2) { RightLamp1.Background = LampOnColor; RightLamp1.BorderColor = LampOnBorderColor; }
-                    if (RightSideLampsOn < 3) { RightLamp2.Background = LampOnColor; RightLamp2.BorderColor = LampOnBorderColor; }
-                    if (RightSideLampsOn < 4) { RightLamp3.Background = LampOnColor; RightLamp3.BorderColor = LampOnBorderColor; }
-                    if (RightSideLampsOn < 5) { RightLamp4.Background = LampOnColor; RightLamp4.BorderColor = LampOnBorderColor; }
+                    if (RightSideLampsOn > 0) { RightLamp1.Background = LampOnColor; RightLamp1.BorderColor = LampOnBorderColor; }
+                    if (RightSideLampsOn > 1) { RightLamp2.Background = LampOnColor; RightLamp2.BorderColor = LampOnBorderColor; }
+                    if (RightSideLampsOn > 2) { RightLamp3.Background = LampOnColor; RightLamp3.BorderColor = LampOnBorderColor; }
+                    if (RightSideLampsOn > 3) { RightLamp4.Background = LampOnColor; RightLamp4.BorderColor = LampOnBorderColor; }
 
                     break;
                 default:
@@ -317,13 +393,34 @@ namespace STFM.Views
 
         }
 
-        private void SendReply()
+        private void SendReply(object sender, EventArgs e)
         {
+                       
 
+            // Filling up the response list with empty responses. This happens when the response time has ended before all responses has been given.
+            if (ReplyList.Count < 4)
+            {
+                for (int i = 0; i < (4 - ReplyList.Count); i++)
+                {
+                    ReplyList.Add("");
+                }
+            }
 
+            // Copies the responses to a new list (so that the reply has its own instance of the list)
+            List<string> ReplyListCopy = new List<string>();
+            for (int i = 0; i < ReplyList.Count; i++)
+            {
+                ReplyListCopy.Add(ReplyList[i]);
+            }
+
+            // Storing the raw response
+            SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
+            args.LinguisticResponses = ReplyListCopy;
+            args.LinguisticResponseTime = DateTime.Now;
+
+            // Raising the Response given event in the base class
+            OnResponseGiven(args);
 
         }
-
     }
-
 }

@@ -2087,26 +2087,62 @@ Namespace SipTest
                 Dim MaskerCentralizedSectionLength As Integer
 
                 Dim Maskers As New List(Of Tuple(Of Audio.Sound, SoundSourceLocation))
-                For MaskerIndex = 0 To NumberOfMaskers - 1
-                    Dim Masker As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(MaskerIndex)))
 
-                    If MaskerIndex = 0 Then
-                        'Stores the sample rate and the wave format
-                        CurrentSampleRate = Masker.WaveFormat.SampleRate
-                        SoundWaveFormat = Masker.WaveFormat
+                'Change 2024-12-30
+                Dim ConcatenateMaskers As Boolean = True
+                If ConcatenateMaskers = True Then
 
-                        'Getting the lengths of the maskers (Assuming same lengths of all maskers)
-                        MaskersLength = Masker.WaveData.SampleData(1).Length
+                    Dim TargetCount = Me.SpeechMaterialComponent.ChildComponents.Count
+                    If Me.CatchComponent IsNot Nothing Then TargetCount += 1
 
-                        'Getting the length of the fade-in region before the centralized section (assuming all masker in the test word group to have the same specifications)
-                        MaskerFadeInLength = Masker.SMA.ChannelData(1)(0)(0).Length ' Should be stored as the length of the first word in the first sentence
-                        MaskerFadeOutLength = Masker.SMA.ChannelData(1)(0)(2).Length ' Should be stored as the length of the third (and last) word in the first sentence
-                        MaskerCentralizedSectionLength = MaskersLength - MaskerFadeInLength - MaskerFadeOutLength
+                    If TargetCount > Me.MediaSet.MaskerAudioItems Then Throw New Exception("Not enough maskers sounds for " & TargetCount & " tasks / words / targets!")
 
-                    End If
+                    Dim AllMaskerSounds As New List(Of Sound)
+                    Dim MaskersToUse = Utils.SampleWithoutReplacement(TargetCount, 0, Me.MediaSet.MaskerAudioItems)
+                    'For MaskerIndex = 0 To Me.MediaSet.MaskerAudioItems - 1
+                    For MaskerIndex = 0 To MaskersToUse.Count - 1
+                        Dim Masker As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, MaskersToUse(MaskerIndex)))
+                        AllMaskerSounds.Add(Masker)
+                    Next
+                    Dim ConcatenatedMasker = DSP.ConcatenateSounds(AllMaskerSounds,,,,,, AllMaskerSounds(0).WaveFormat.SampleRate * 2)
+                    'Stores the sample rate and the wave format
+                    CurrentSampleRate = ConcatenatedMasker.WaveFormat.SampleRate
+                    SoundWaveFormat = ConcatenatedMasker.WaveFormat
 
-                    Maskers.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(Masker, MaskerLocations(MaskerIndex)))
-                Next
+                    'Getting the lengths of the maskers (Assuming same lengths of all maskers)
+                    MaskersLength = ConcatenatedMasker.WaveData.SampleData(1).Length
+                    MaskerFadeInLength = SoundWaveFormat.SampleRate * 1
+                    MaskerFadeOutLength = SoundWaveFormat.SampleRate * 1
+
+                    MaskerCentralizedSectionLength = MaskersLength - MaskerFadeInLength - MaskerFadeOutLength
+
+                    Maskers.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(ConcatenatedMasker, MaskerLocations(0)))
+
+                Else
+
+                    For MaskerIndex = 0 To NumberOfMaskers - 1
+                        Dim Masker As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, SelectedMaskerIndices(MaskerIndex)))
+
+                        If MaskerIndex = 0 Then
+                            'Stores the sample rate and the wave format
+                            CurrentSampleRate = Masker.WaveFormat.SampleRate
+                            SoundWaveFormat = Masker.WaveFormat
+
+                            'Getting the lengths of the maskers (Assuming same lengths of all maskers)
+                            MaskersLength = Masker.WaveData.SampleData(1).Length
+
+                            'Getting the length of the fade-in region before the centralized section (assuming all masker in the test word group to have the same specifications)
+                            MaskerFadeInLength = Masker.SMA.ChannelData(1)(0)(0).Length ' Should be stored as the length of the first word in the first sentence
+                            MaskerFadeOutLength = Masker.SMA.ChannelData(1)(0)(2).Length ' Should be stored as the length of the third (and last) word in the first sentence
+
+                            MaskerCentralizedSectionLength = MaskersLength - MaskerFadeInLength - MaskerFadeOutLength
+
+                        End If
+
+                        Maskers.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(Masker, MaskerLocations(MaskerIndex)))
+                    Next
+
+                End If
 
                 'Duplicating the maskers for BMLD
                 If IsBmldTrial = True Then
@@ -2151,16 +2187,44 @@ Namespace SipTest
                         Dim TestWordsSounds As New List(Of Sound)
                         Dim SentenceTargets = Me.SpeechMaterialComponent.ChildComponents
 
+                        Dim LastSoundLength As Integer = 0
+                        Dim WordInterval As Double = 1 '(seconds)
+                        Dim WordIntervalLength As Integer = WordInterval * SoundWaveFormat.SampleRate
+
                         For PresentationOrderListIndex = 0 To RandomWordPresentationOrderList.Count - 1
 
                             Dim PresentationOrder = RandomWordPresentationOrderList(PresentationOrderListIndex)
 
                             If PresentationOrder < SentenceTargets.Count Then
+
+                                If LastSoundLength > 0 And LastSoundLength < WordIntervalLength Then
+                                    'Inserting an empty sound to get the desired interval between words
+                                    Dim SoundArray(WordIntervalLength - LastSoundLength - 1) As Single
+                                    Dim SilentSound = New Sound(SoundWaveFormat)
+                                    SilentSound.WaveData.SampleData(1) = SoundArray
+                                    TestWordsSounds.Add(SilentSound)
+                                End If
+
                                 'Adding the test components
-                                TestWordsSounds.Add(SentenceTargets(PresentationOrder).GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin))
+                                Dim LoadedSound = SentenceTargets(PresentationOrder).GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin)
+                                LastSoundLength = LoadedSound.WaveData.SampleData(1).Length
+                                TestWordsSounds.Add(LoadedSound)
                             Else
                                 'Adding the CatchComponent 
-                                If CatchComponent IsNot Nothing Then TestWordsSounds.Add(Me.CatchComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin))
+                                If CatchComponent IsNot Nothing Then
+
+                                    If LastSoundLength > 0 And LastSoundLength < WordIntervalLength Then
+                                        'Inserting an empty sound to get the desired interval between words
+                                        Dim SoundArray(WordIntervalLength - LastSoundLength - 1) As Single
+                                        Dim SilentSound = New Sound(SoundWaveFormat)
+                                        SilentSound.WaveData.SampleData(1) = SoundArray
+                                        TestWordsSounds.Add(SilentSound)
+                                    End If
+
+                                    Dim LoadedSound = Me.CatchComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin)
+                                    LastSoundLength = LoadedSound.WaveData.SampleData(1).Length
+                                    TestWordsSounds.Add(LoadedSound)
+                                End If
                             End If
                         Next
 

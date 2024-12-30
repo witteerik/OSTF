@@ -43,7 +43,7 @@
                 <Frame x:Name="LeftLamp2" 
                        Grid.Row="0" Grid.RowSpan="1"
                        Grid.Column="1" Grid.ColumnSpan="1" 
-                       CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#00FFFA" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#00A7A3">
+                       CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#FF0000" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#D95B3D">
                 </Frame>
 
                 <Frame x:Name="LeftLamp3" 
@@ -82,7 +82,7 @@
                         x:Name="LeftButton3" 
                        Grid.Row="3" Grid.RowSpan="1"
                        Grid.Column="0" Grid.ColumnSpan="4" 
-                        BackgroundColor="#FFFF80"
+                        BackgroundColor="#D0D0D0"
                         TextColor="#282828"
                        CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="0,10,0,10"  
                         FontSize="80"

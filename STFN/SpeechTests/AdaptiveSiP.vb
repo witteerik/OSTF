@@ -38,6 +38,8 @@ Public Class AdaptiveSiP
         MinimumStimulusOnsetTime = 0.3 + 0.3 ' 0.3 in sound field
         MaximumStimulusOnsetTime = 0.8 + 0.3 ' 0.3 in sound field
 
+        ResponseAlternativeDelay = 0.02
+
         'DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
 
     End Sub
@@ -137,9 +139,10 @@ Public Class AdaptiveSiP
 
             For t = 0 To NumberOfTrialsPerList - 1
 
-                'Using left for every other list
+                'Starting with left for every other list (and right for the other) and then swapping between every presentation
                 Dim NewSiPTrial As SipTrial
-                If i Mod 2 = 0 Then
+                Dim modValue = i + t Mod 2
+                If (i + t) Mod 2 = 0 Then
                     NewSiPTrial = New SipTrial(CurrentTestUnit, TestLists(i), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, CurrentTestUnit.ParentMeasurement.Randomizer)
                 Else
                     NewSiPTrial = New SipTrial(CurrentTestUnit, TestLists(i), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
@@ -336,13 +339,7 @@ Public Class AdaptiveSiP
         If e IsNot Nothing Then
 
             'This is an incoming test trial response. Adding the first response to GivenResponses
-            GivenResponses.Add(e.LinguisticResponses(0))
-
-            'Checks if the trial is finished
-            If GivenResponses.Count < CurrentTestTrial.Tasks Then
-                'Returns to continue the trial
-                Return SpeechTestReplies.ContinueTrial
-            End If
+            GivenResponses = e.LinguisticResponses
 
             'Storing the lingustic responses
             DirectCast(CurrentTestTrial, SipTrial).Response = String.Join("-", GivenResponses)
