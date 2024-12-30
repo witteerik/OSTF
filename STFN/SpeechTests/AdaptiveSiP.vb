@@ -393,6 +393,9 @@ Public Class AdaptiveSiP
             'Premixing the next trial in the test unit
             If DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.PlannedTrials.Count > 0 Then
 
+                'Overriding the protocol reply decicion if there are more trials left (these will have their on protocols)
+                ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
+
                 'We must set the levels of the next trial in the unit here, before mixing it
                 Dim NextUnitTrial As SipTrial = DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.PlannedTrials(0)
 

@@ -3,7 +3,6 @@ using STFN.Audio.SoundScene;
 
 namespace STFM.Views;
 
-
 public abstract class ResponseView : ContentView
 {
     public ResponseView()

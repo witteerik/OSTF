@@ -858,7 +858,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     bool useAdaptive = true;
                     if (useAdaptive)
                     {
-                        CurrentResponseView = new ResponseView_SiP_SF2();
+                        CurrentResponseView = new ResponseView_AdaptiveSiP();
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
                         CurrentResponseView.ResponseGiven += NewSpeechTestInput;
