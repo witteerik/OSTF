@@ -107,18 +107,16 @@ Public Class TestTrial
     Public Property SpeechMaterialComponent As SpeechMaterialComponent
 
     ''' <summary>
-    ''' Can be used to store a component used as a catch component or similar (i.e. lure, probe, decoy filler etc...)
-    ''' Corrently this property is not read or written to SMC files, but can only be used "code internally".
+    ''' This list can hold the order of speech material components in a multi-task test trial. 
     ''' </summary>
     ''' <returns></returns>
-    Public Property CatchComponent As SpeechMaterialComponent = Nothing
+    Public Property TaskPresentationOrderList As List(Of Integer) = Nothing
 
     ''' <summary>
-    ''' This list should hold the order of speech material components in a single trial. A catch component can be specified with an index higher that the number of test components -1.
+    ''' This list can hold the presentation indices that should be scored in a multi-task test trial.
     ''' </summary>
     ''' <returns></returns>
-    Public Property RandomWordPresentationOrderList As List(Of Integer) = Nothing
-
+    Public Property ScoredTasksPresentationIndices As List(Of Integer) = Nothing
 
     Public ReadOnly Property Spelling As String
         Get

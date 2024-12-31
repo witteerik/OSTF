@@ -148,64 +148,50 @@ Public Class AdaptiveSiP
                     NewSiPTrial = New SipTrial(CurrentTestUnit, TestLists(i), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
                 End If
 
-                'Getting a random child component as catch components
-                Dim CatchTrialSourceIndex As Integer = Randomizer.Next(0, TestLists(i).ChildComponents.Count)
-                NewSiPTrial.CatchComponent = TestLists(i).ChildComponents(CatchTrialSourceIndex)
+                'Adding the trial
                 CurrentTestUnit.PlannedTrials.Add(NewSiPTrial)
 
-                'Planning the word presentation order
-                NewSiPTrial.RandomWordPresentationOrderList = Utils.SampleWithoutReplacement(TestLists(i).ChildComponents.Count, 0, TestLists(i).ChildComponents.Count, Randomizer).ToList
+                'Planning the word/task presentation order for the list
+                NewSiPTrial.TaskPresentationOrderList = Utils.SampleWithoutReplacement(TestLists(i).ChildComponents.Count, 0, TestLists(i).ChildComponents.Count, Randomizer).ToList
 
-                Dim NewCatchTrialIndex As Integer = -1
-                For k = 0 To NewSiPTrial.RandomWordPresentationOrderList.Count - 1
-                    If TestLists(i).ChildComponents(NewSiPTrial.RandomWordPresentationOrderList(k)) Is NewSiPTrial.CatchComponent Then
-                        NewCatchTrialIndex = k
-                        Exit For
-                    End If
-                Next
-
-                'Getting valid places to insert the catch word
-                Dim ValidIndices As New List(Of Integer)
-                For k As Integer = 0 To TestLists(i).ChildComponents.Count
-                    If k = NewCatchTrialIndex Then
-                        'Not adding
-                    ElseIf k < NewCatchTrialIndex Then
-                        If System.Math.Abs(k - NewCatchTrialIndex) >= 1 Then
-                            ValidIndices.Add(k)
-                        End If
-                    Else
-                        If System.Math.Abs(k - NewCatchTrialIndex) > 1 Then
-                            ValidIndices.Add(k)
-                        End If
-                    End If
-                Next
-
-                'Inserting the catch word (with an index value one higher than the highest test word index) in a randomly selected valid position
-                Dim RandomValidInsertionIndex = ValidIndices(Randomizer.Next(0, ValidIndices.Count))
-                NewSiPTrial.RandomWordPresentationOrderList.Insert(RandomValidInsertionIndex, TestLists(i).ChildComponents.Count)
-
-                Dim TestList As New List(Of String)
-                For j = 0 To NewSiPTrial.RandomWordPresentationOrderList.Count - 1
-                    If NewSiPTrial.RandomWordPresentationOrderList(j) >= TestLists(i).ChildComponents.Count Then
-                        TestList.Add(NewSiPTrial.CatchComponent.PrimaryStringRepresentation)
-                    Else
-                        TestList.Add(TestLists(i).ChildComponents(NewSiPTrial.RandomWordPresentationOrderList(j)).PrimaryStringRepresentation)
-                    End If
-                Next
-
-                For j = 0 To TestList.Count - 2
-                    If TestList(j) = TestList(j + 1) Then
-                        Throw New Exception("A bug! Words next to each other detected!")
-                    End If
-                Next
+                'Inserting a randomly selected repeated components last in the presentation list
+                Dim RepeatedWordSmcIndex As Integer = NewSiPTrial.TaskPresentationOrderList(Randomizer.Next(0, NewSiPTrial.TaskPresentationOrderList.Count))
+                NewSiPTrial.TaskPresentationOrderList.Add(RepeatedWordSmcIndex)
 
                 'Now RandomWordPresentationOrderList holds the following information:
                 'Presentation order (index) -  SMC index
                 '0                                               2 'The third SMC in the list, e.g. kil_fil_sil in (sil)
                 '1                                               0 'The first SMC in the list, e.g. kil_fil_sil in (kil)
-                '2                                               3 'The repeated catch component
+                '2                                               1 'The second SMC in the list, e.g. kil_fil_sil in (fil)
                 '3                                               1 'The second SMC in the list, e.g. kil_fil_sil in (fil)
 
+
+                'Determines which of the tasks/words that should be scored (skipping either the first or the repeated word)
+                NewSiPTrial.ScoredTasksPresentationIndices = New List(Of Integer)
+                If Randomizer.Next(0, 2) = 0 Then
+                    'Scoring the first, ignoring the last presentation
+                    For PresentationOrderIndex = 0 To NewSiPTrial.TaskPresentationOrderList.Count - 2
+                        'Adding the presentation index for scoring (note that this loop skips the last item in TaskPresentationOrderList)
+                        NewSiPTrial.ScoredTasksPresentationIndices.Add(PresentationOrderIndex)
+                    Next
+                Else
+                    'Scoring the repeated presentation (ignoring the first time the later repeated word is presented)
+                    Dim HasBeenIgnored As Boolean = False
+                    For PresentationOrderIndex = 0 To NewSiPTrial.TaskPresentationOrderList.Count - 1
+
+                        If HasBeenIgnored = False Then
+                            If NewSiPTrial.TaskPresentationOrderList(PresentationOrderIndex) = RepeatedWordSmcIndex Then
+                                'Noting that the first instence of the repaeted word has been skipped
+                                HasBeenIgnored = True
+                                'Skipping to next presentation index
+                                Continue For
+                            End If
+                        End If
+
+                        'Adding the presentation index for scoring, if not skipped above
+                        NewSiPTrial.ScoredTasksPresentationIndices.Add(PresentationOrderIndex)
+                    Next
+                End If
             Next
         Next
 
@@ -344,21 +330,12 @@ Public Class AdaptiveSiP
             'Storing the lingustic responses
             DirectCast(CurrentTestTrial, SipTrial).Response = String.Join("-", GivenResponses)
 
-            Dim CatchTrialPresentationIndex As Integer = -1
-            For i = 0 To CurrentTestTrial.RandomWordPresentationOrderList.Count - 1
-                If CurrentTestTrial.RandomWordPresentationOrderList(i) >= CurrentTestTrial.SpeechMaterialComponent.ChildComponents.Count Then
-                    CatchTrialPresentationIndex = i
-                    Exit For
-                End If
-            Next
-
-
             For i = 0 To GivenResponses.Count - 1
 
-                Dim ResponseSpelling = GivenResponses(i)
-                Dim CorrectSpelling As String
-                If i <> CatchTrialPresentationIndex Then
-                    CorrectSpelling = CurrentTestTrial.SpeechMaterialComponent.ChildComponents(CurrentTestTrial.RandomWordPresentationOrderList(i)).GetCategoricalVariableValue("Spelling")
+                Dim ResponseSpelling As String = GivenResponses(i)
+                Dim CorrectSpelling As String = CurrentTestTrial.SpeechMaterialComponent.ChildComponents(CurrentTestTrial.TaskPresentationOrderList(i)).GetCategoricalVariableValue("Spelling")
+
+                If CurrentTestTrial.ScoredTasksPresentationIndices.Contains(i) Then
 
                     'Corrects the trial response, based on the given response
                     If ResponseSpelling = CorrectSpelling Then
@@ -367,7 +344,6 @@ Public Class AdaptiveSiP
                         CurrentTestTrial.ScoreList.Add(0)
                     End If
                 Else
-                    CorrectSpelling = CurrentTestTrial.CatchComponent.GetCategoricalVariableValue("Spelling")
 
                     'Skipping scoring of the catch trial, but stores it in a separate score list for export
                     If ResponseSpelling = CorrectSpelling Then

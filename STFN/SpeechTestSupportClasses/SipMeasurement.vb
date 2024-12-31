@@ -2092,14 +2092,12 @@ Namespace SipTest
                 Dim ConcatenateMaskers As Boolean = True
                 If ConcatenateMaskers = True Then
 
-                    Dim TargetCount = Me.SpeechMaterialComponent.ChildComponents.Count
-                    If Me.CatchComponent IsNot Nothing Then TargetCount += 1
+                    Dim TargetCount = Me.TaskPresentationOrderList.Count
 
                     If TargetCount > Me.MediaSet.MaskerAudioItems Then Throw New Exception("Not enough maskers sounds for " & TargetCount & " tasks / words / targets!")
 
                     Dim AllMaskerSounds As New List(Of Sound)
                     Dim MaskersToUse = Utils.SampleWithoutReplacement(TargetCount, 0, Me.MediaSet.MaskerAudioItems)
-                    'For MaskerIndex = 0 To Me.MediaSet.MaskerAudioItems - 1
                     For MaskerIndex = 0 To MaskersToUse.Count - 1
                         Dim Masker As Audio.Sound = (Me.SpeechMaterialComponent.GetMaskerSound(Me.MediaSet, MaskersToUse(MaskerIndex)))
                         AllMaskerSounds.Add(Masker)
@@ -2176,7 +2174,7 @@ Namespace SipTest
                     Dim InitialMargin As Integer = 0
 
                     Dim TestWordSound As Audio.Sound = Nothing
-                    If RandomWordPresentationOrderList Is Nothing Then
+                    If TaskPresentationOrderList Is Nothing Then
                         'Adds the components in order
                         TestWordSound = Me.SpeechMaterialComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin)
 
@@ -2191,13 +2189,13 @@ Namespace SipTest
                         Dim WordInterval As Double = 1 '(seconds)
                         Dim WordIntervalLength As Integer = WordInterval * SoundWaveFormat.SampleRate
 
-                        For PresentationOrderListIndex = 0 To RandomWordPresentationOrderList.Count - 1
+                        Dim AvoidRepetitionOfMediaIndexList As New SortedList(Of String, List(Of Integer))
 
-                            Dim PresentationOrder = RandomWordPresentationOrderList(PresentationOrderListIndex)
+                        For PresentationOrderIndex = 0 To TaskPresentationOrderList.Count - 1
 
-                            If PresentationOrder < SentenceTargets.Count Then
+                            Dim SmcIndex = TaskPresentationOrderList(PresentationOrderIndex)
 
-                                If LastSoundLength > 0 And LastSoundLength < WordIntervalLength Then
+                            If LastSoundLength > 0 And LastSoundLength < WordIntervalLength Then
                                     'Inserting an empty sound to get the desired interval between words
                                     Dim SoundArray(WordIntervalLength - LastSoundLength - 1) As Single
                                     Dim SilentSound = New Sound(SoundWaveFormat)
@@ -2205,27 +2203,40 @@ Namespace SipTest
                                     TestWordsSounds.Add(SilentSound)
                                 End If
 
-                                'Adding the test components
-                                Dim LoadedSound = SentenceTargets(PresentationOrder).GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin)
-                                LastSoundLength = LoadedSound.WaveData.SampleData(1).Length
-                                TestWordsSounds.Add(LoadedSound)
+                            'Checking the media index, so that it's not repeated for the same SMC (i.e. so that the same recording is not used twice, if it can be avoided)
+                            If AvoidRepetitionOfMediaIndexList.ContainsKey(SentenceTargets(SmcIndex).Id) = False Then
+                                AvoidRepetitionOfMediaIndexList.Add(SentenceTargets(SmcIndex).Id, New List(Of Integer) From {SelectedMediaIndex})
                             Else
-                                'Adding the CatchComponent 
-                                If CatchComponent IsNot Nothing Then
+                                'Checking if SelectedMediaIndex has already been used with this SMC
+                                If AvoidRepetitionOfMediaIndexList(SentenceTargets(SmcIndex).Id).Contains(SelectedMediaIndex) = False Then
+                                    'This is ok. Adding the SelectedMediaIndex to mark that it's been used
+                                    AvoidRepetitionOfMediaIndexList(SentenceTargets(SmcIndex).Id).Add(SelectedMediaIndex)
+                                Else
+                                    'The SelectedMediaIndex has already been used. Swapping it for one that hasn't
+                                    Dim AvailableMediaIndices As New List(Of Integer)
+                                    For ExistingMediaIndex = 0 To Me.MediaSet.MediaAudioItems - 1
+                                        If AvoidRepetitionOfMediaIndexList(SentenceTargets(SmcIndex).Id).Contains(ExistingMediaIndex) = False Then
+                                            AvailableMediaIndices.Add(ExistingMediaIndex)
+                                        End If
+                                    Next
 
-                                    If LastSoundLength > 0 And LastSoundLength < WordIntervalLength Then
-                                        'Inserting an empty sound to get the desired interval between words
-                                        Dim SoundArray(WordIntervalLength - LastSoundLength - 1) As Single
-                                        Dim SilentSound = New Sound(SoundWaveFormat)
-                                        SilentSound.WaveData.SampleData(1) = SoundArray
-                                        TestWordsSounds.Add(SilentSound)
+                                    If AvailableMediaIndices.Count = 0 Then
+                                            'It's not possible to swap media index
+                                            'Leaves it as is
+                                        Else
+                                        'Picking a new random media index from the available ones
+                                        SelectedMediaIndex = AvailableMediaIndices(SipMeasurementRandomizer.Next(0, AvailableMediaIndices.Count))
+
+                                        'Adding the SelectedMediaIndex to mark that it's been used
+                                        AvoidRepetitionOfMediaIndexList(SentenceTargets(SmcIndex).Id).Add(SelectedMediaIndex)
                                     End If
-
-                                    Dim LoadedSound = Me.CatchComponent.GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin)
-                                    LastSoundLength = LoadedSound.WaveData.SampleData(1).Length
-                                    TestWordsSounds.Add(LoadedSound)
                                 End If
                             End If
+
+                            'Adding the test components
+                            Dim LoadedSound = SentenceTargets(SmcIndex).GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin)
+                                LastSoundLength = LoadedSound.WaveData.SampleData(1).Length
+                                TestWordsSounds.Add(LoadedSound)
                         Next
 
                         TestWordSound = Audio.DSP.ConcatenateSounds(TestWordsSounds)
