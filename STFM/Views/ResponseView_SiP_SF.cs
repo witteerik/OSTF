@@ -10,8 +10,9 @@ namespace STFM.Views;
 
 public class ResponseView_SiP_SF : ResponseView
 {
-
+    Grid mainGrid = null;
     Grid responseAlternativeGrid = null;
+    Frame responseAlternativeFrame = null;
     private IDispatcherTimer HideAllTimer;
 
 
@@ -19,7 +20,7 @@ public class ResponseView_SiP_SF : ResponseView
     {
 
         // Setting background color
-        this.BackgroundColor = Color.FromRgb(40, 40, 40);
+        this.BackgroundColor = Color.FromRgba("#000000");
 
         // Creating a hide-all timer
         HideAllTimer = Microsoft.Maui.Controls.Application.Current.Dispatcher.CreateTimer();
@@ -49,25 +50,47 @@ public class ResponseView_SiP_SF : ResponseView
 
         List<SpeechTestResponseAlternative> localResponseAlternatives = responseAlternatives[0];
 
-
         int nItems = localResponseAlternatives.Count;
         int nRows = nItems;
         int nCols = 3;
 
+        // Creating a main grid
+        mainGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
+        mainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        for (int i = 0; i < nCols; i++)
+        {
+            mainGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        }
+
+        // Creating a frame
+        responseAlternativeFrame = new Frame { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, CornerRadius = 10, 
+            BorderColor = Color.FromRgb(123,123,123), Background = Color.FromRgb(47,79,79), Margin = new Thickness(15), Padding = new Thickness(10,10,10,10)};
+
+        // Putting hte frame in column 0 or 2 depending on which side to put the response alternatives (based on the first one)
+        SipTrial parentTestTrial = (SipTrial)localResponseAlternatives[0].ParentTestTrial;
+        if (parentTestTrial.TargetStimulusLocations[0].HorizontalAzimuth > 0)
+        {
+            // the sound source is to the right, head turn to the left
+            mainGrid.Add(responseAlternativeFrame, 0, 0);
+        }
+        else
+        {
+            // the sound source is to the left, head turn to the right
+            mainGrid.Add(responseAlternativeFrame, 2, 0);
+        }
+
         // Creating a grid
-        responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
-        responseAlternativeGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
+        responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, Background = Color.FromRgb(47, 79, 79)};
+
+        // Putting the responseAlternativeGrid in the responseAlternativeFrame
+        responseAlternativeFrame.Content = responseAlternativeGrid;
 
         // Setting up row and columns
         for (int i = 0; i < nRows; i++)
         {
             responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         }
-
-        for (int i = 0; i < nCols; i++)
-        {
-            responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        }
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
         //// Determining suitable text size (TODO: This is a bad method, since it doesn't care for the lengths of any strings.....
         //var myHeight = this.Height;
@@ -76,19 +99,6 @@ public class ResponseView_SiP_SF : ResponseView
         // Creating controls and positioning them in the responseAlternativeGrid
         int currentRow = -1;
         int currentColumn = 0;
-
-        // Reading which side to put the response alternatives, based on the first one
-        SipTrial parentTestTrial = (SipTrial)localResponseAlternatives[0].ParentTestTrial;
-        if (parentTestTrial.TargetStimulusLocations[0].HorizontalAzimuth > 0)
-        {
-            // the sound source is to the right, head turn to the left
-            currentColumn = 0;
-        }
-        else
-        {
-            // the sound source is to the left, head turn to the right
-            currentColumn = 2;
-        }
 
 
         for (int i = 0; i < localResponseAlternatives.Count; i++)
@@ -113,8 +123,10 @@ public class ResponseView_SiP_SF : ResponseView
                 CornerRadius = 8,
                 ClassId = "TWA",
                 Padding = 10,
-                Margin = 4,
+                Margin = new Thickness(10,10,10,10)
                 //Content = repsonseBtn
+                //Background = Color.FromRgb(47, 79, 79)
+                //BackgroundColor = Color.FromRgb(47, 79, 79)
             };
 
             currentRow += 1;
@@ -122,8 +134,8 @@ public class ResponseView_SiP_SF : ResponseView
             responseAlternativeGrid.Add(frame, currentColumn, currentRow);
 
         }
-
-        Content = responseAlternativeGrid;
+                
+        Content = mainGrid;
 
     }
 
@@ -390,7 +402,7 @@ public class ResponseView_SiP_SF : ResponseView
 
     //}
 
-    private void reponseButton_Clicked(object sender, EventArgs e)
+    private async void reponseButton_Clicked(object sender, EventArgs e)
     {
 
         // Getting the responsed label
@@ -422,14 +434,16 @@ public class ResponseView_SiP_SF : ResponseView
                 else
                 {
                     // Modifies the frame color to mark that it's selected
-                    // frame.BorderColor = Color.FromRgb(4, 255, 61);
-                    // frame.BackgroundColor = Color.FromRgb(4, 255, 61);
+                    currentFrame.BorderColor = Color.FromRgb(4, 255, 61);
+                    currentFrame.BackgroundColor = Color.FromRgb(4, 255, 61);
                 }
             }
         }
 
-        // Sends the linguistic response
-        ReportResult(responseBtn.Text);
+        // Run the long-running method on a background thread
+        await Task.Run(() => ReportResult(responseBtn.Text));
+
+        HideAllTimer.Start();
 
     }
 
@@ -444,8 +458,6 @@ public class ResponseView_SiP_SF : ResponseView
         // Raising the Response given event in the base class
         OnResponseGiven(args);
 
-        HideAllTimer.Start();
-
     }
 
 
@@ -456,7 +468,7 @@ public class ResponseView_SiP_SF : ResponseView
 
     public void clearMainGrid()
     {
-        Content = null;
+        //Content = null;
     }
 
 

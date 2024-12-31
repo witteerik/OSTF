@@ -21,15 +21,7 @@ namespace STFM.Views
             LeftSideControl.IsVisible = false;
             MessageButton.IsVisible = false;
 
-            // Creating a timer for sending responses
-            SendReplyTimer = Microsoft.Maui.Controls.Application.Current.Dispatcher.CreateTimer();
-            SendReplyTimer.Interval = TimeSpan.FromMilliseconds(200);
-            SendReplyTimer.Tick += SendReply;
-            SendReplyTimer.IsRepeating = false;
-
         }
-
-        private IDispatcherTimer SendReplyTimer;
 
         Color LampOnColor = Color.FromArgb("#00FFFA");
         Color LampOnBorderColor = Color.FromArgb("#00A7A3");
@@ -72,8 +64,18 @@ namespace STFM.Views
             //throw new NotImplementedException();
         }
 
+
         public override void InitializeNewTrial()
         {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                Inner_InitializeNewTrial();
+            });
+        }
+
+        public void Inner_InitializeNewTrial()
+        {
+
             StopAllTimers();
 
             TurnOffLamps();
@@ -99,8 +101,6 @@ namespace STFM.Views
             RightButton2.Background = DefaultButtonColor;
             RightButton3.Background = DefaultButtonColor;
 
-            TurnOffLamps();
-
             ReplyList.Clear();
 
         }
@@ -117,7 +117,7 @@ namespace STFM.Views
             RightButton2.Background = RedButtonColor;
             RightButton3.Background = RedButtonColor;
 
-            SendReplyTimer.Start();
+            SendReply();
 
         }
 
@@ -212,7 +212,7 @@ namespace STFM.Views
 
         public override void StopAllTimers()
         {
-            SendReplyTimer.Stop();
+            //SendReplyTimer.Stop();
         }
 
         public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
@@ -281,7 +281,7 @@ namespace STFM.Views
 
         }
 
-        private void ButtonButton_Clicked(object sender, EventArgs e)
+        private async void ButtonButton_Clicked(object sender, EventArgs e)
         {
 
             Button clickedButton = (Button)sender;
@@ -289,7 +289,10 @@ namespace STFM.Views
             if (ReplyList.Count >= 4)
             {
                 // This should not happen but, if it does, this call is blocked and a reply is sent
-                SendReplyTimer.Start();
+
+                // Sending the reply on on a background thread
+                await Task.Run(() => SendReply());
+
                 return;
             }
 
@@ -325,12 +328,18 @@ namespace STFM.Views
                 case STFN.Utils.Constants.Sides.Left:
                     LeftSideLampsOn += 1;
                     UpdateLampsOn();
-                    if (LeftSideLampsOn == 4) {SendReplyTimer.Start(); }
+                    if (LeftSideLampsOn == 4) {
+                        // Sending the reply on on a background thread
+                        await Task.Run(() => SendReply());
+                    }
                     break;
                 case STFN.Utils.Constants.Sides.Right:
                     RightSideLampsOn += 1;
                     UpdateLampsOn();
-                    if (RightSideLampsOn == 4) { SendReplyTimer.Start(); }
+                    if (RightSideLampsOn == 4) {
+                        // Sending the reply on on a background thread
+                        await Task.Run(() => SendReply());
+                    }
                     break;
                 default:
                     break;
@@ -393,7 +402,7 @@ namespace STFM.Views
 
         }
 
-        private void SendReply(object sender, EventArgs e)
+        private void SendReply()
         {
                        
 
