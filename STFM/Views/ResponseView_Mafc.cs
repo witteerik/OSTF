@@ -218,7 +218,7 @@ public class ResponseView_Mafc : ResponseView
 
     }
 
-    private void reponseButton_Clicked(object sender, EventArgs e)
+    private async void reponseButton_Clicked(object sender, EventArgs e)
     {
 
         // Getting the responsed label
@@ -257,7 +257,8 @@ public class ResponseView_Mafc : ResponseView
         }
 
         // Sends the linguistic response
-        ReportResult(responseBtn.Text);
+        // Run the long-running method on a background thread
+        await Task.Run(() => ReportResult(responseBtn.Text));
 
     }
 

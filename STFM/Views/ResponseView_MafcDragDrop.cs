@@ -151,7 +151,7 @@ public class ResponseView_MafcDragDrop : ResponseView
     double tempy = 0;
 
 
-    private void PanGestureRecognizer_PanUpdated(object sender, PanUpdatedEventArgs e)
+    private async void PanGestureRecognizer_PanUpdated(object sender, PanUpdatedEventArgs e)
     {
 
         // Getting the responsed label
@@ -185,7 +185,9 @@ public class ResponseView_MafcDragDrop : ResponseView
         if (CurrentLinguisticResponseGiven == false)
         {
             CurrentLinguisticResponseGiven = true;
-            ReportLingusticResult(label.Text);
+            // Run the long-running method on a background thread
+            await Task.Run(() => ReportLingusticResult(label.Text));
+            //ReportLingusticResult(label.Text);
         }
 
         switch (e.StatusType)
@@ -235,7 +237,7 @@ public class ResponseView_MafcDragDrop : ResponseView
                 //label.TranslationY = 0;
 
                 // Transitions back to the start location
-                frame.TranslateTo(e.TotalX, e.TotalY, 100);
+                await frame.TranslateTo(e.TotalX, e.TotalY, 100);
                 break;
 
             default:
@@ -253,7 +255,9 @@ public class ResponseView_MafcDragDrop : ResponseView
             {
                 //Hides the label
                 frame.IsVisible = false;
-                ReportDirectionResult(OverlappedSourceLocation);
+                // Run the long-running method on a background thread
+                await Task.Run(() => ReportDirectionResult(OverlappedSourceLocation));
+                //ReportDirectionResult(OverlappedSourceLocation);
 
                 CurrentDirectionResponseGiven = true;
 

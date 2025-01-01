@@ -6,12 +6,18 @@ Public Interface IOstfGui
     ''' Should display a message to the user
     ''' </summary>
     ''' <param name="Title"></param>
-    Sub DisplayMessage(ByVal Title As String, ByVal Message As String, ByVal CancelButtonText As String)
+    Function DisplayMessage(ByVal Title As String, ByVal Message As String, ByVal CancelButtonText As String) As Task
+
+    ''' <summary>
+    ''' Should display a message to the user
+    ''' </summary>
+    ''' <param name="Title"></param>
+    Function DisplayMessageAsync(ByVal sender As Object, ByVal e As MessageEventArgs) As Task
 
     ''' <summary>
     ''' Should ask the user to respond to a question
     ''' </summary>
-    Sub DisplayBooleanQuestion(ByVal sender As Object, ByVal e As QuestionEventArgs)
+    Function DisplayBooleanQuestion(ByVal sender As Object, ByVal e As QuestionEventArgs) As Task
 
     ''' <summary>
     ''' Should ask the user to supply a file path by using a save file dialog box.

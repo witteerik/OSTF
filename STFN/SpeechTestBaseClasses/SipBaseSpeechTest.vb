@@ -129,10 +129,11 @@ Public MustInherit Class SipBaseSpeechTest
 
             DirectCast(CurrentTestTrial, SipTrial).Response = e.LinguisticResponses(0)
 
+            'Moving to trial history
+            CurrentSipTestMeasurement.MoveTrialToHistory(CurrentTestTrial)
+
             'Taking a dump of the SpeechTest
             CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
-
-            CurrentSipTestMeasurement.MoveTrialToHistory(CurrentTestTrial)
 
 
         Else

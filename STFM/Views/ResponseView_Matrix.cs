@@ -91,7 +91,7 @@ public class ResponseView_Matrix : ResponseView
     }
 
 
-    private void Column_NewSelection(SelectionButtonSet.SelectionTextButtonEventArgs e)
+    private async void Column_NewSelection(SelectionButtonSet.SelectionTextButtonEventArgs e)
     {
 
         if (e != null) { 
@@ -105,7 +105,8 @@ public class ResponseView_Matrix : ResponseView
             }
 
             // If so, sends the response
-            ReportResult();
+            // Run the long-running method on a background thread
+            await Task.Run(() => ReportResult());
 
         }
     }

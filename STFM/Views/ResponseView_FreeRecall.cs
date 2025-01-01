@@ -161,7 +161,7 @@ public class ResponseView_FreeRecall : ResponseView
     }
 
 
-    private void wrapUpTrial()
+    private async Task wrapUpTrial()
     {
 
         List<string> CorrectResponses = new List<string>();
@@ -193,11 +193,13 @@ public class ResponseView_FreeRecall : ResponseView
         clearMainGrid();
 
         // Sends the linguistic response
-        ReportResult(CorrectResponses);
+        // Run the long-running method on a background thread
+        await Task.Run(() => ReportResult(CorrectResponses));
+        //ReportResult(CorrectResponses);
 
     }
 
-    private void controlButton_Clicked(object sender, EventArgs e)
+    private async void controlButton_Clicked(object sender, EventArgs e)
     {
 
         // Getting the responsed label
@@ -206,7 +208,7 @@ public class ResponseView_FreeRecall : ResponseView
 
         if (controlButtonParentFrame.ClassId == "NextButton")
         {
-            wrapUpTrial();
+            await wrapUpTrial();
         }
 
     }
@@ -252,7 +254,7 @@ public class ResponseView_FreeRecall : ResponseView
         throw new NotImplementedException();
     }
 
-    public override void ResponseTimesOut()
+    public async override void ResponseTimesOut()
     {
         foreach (var child in responseAlternativeGrid.Children)
         {
@@ -266,7 +268,7 @@ public class ResponseView_FreeRecall : ResponseView
         }
 
         // Auto wrapping up the trial
-        wrapUpTrial();
+        await wrapUpTrial();
     }
 
     public override void ShowMessage(string Message)

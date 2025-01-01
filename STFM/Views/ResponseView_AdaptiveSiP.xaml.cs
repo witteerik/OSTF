@@ -4,6 +4,7 @@ using Microsoft.Maui.Controls;
 using STFN;
 using STFN.Utils;
 using STFN.SipTest;
+using System.Reflection;
 
 namespace STFM.Views
 {
@@ -65,15 +66,21 @@ namespace STFM.Views
         }
 
 
-        public override void InitializeNewTrial()
-        {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                Inner_InitializeNewTrial();
-            });
-        }
+        //public override void InitializeNewTrial()
+        //{
 
-        public void Inner_InitializeNewTrial()
+        //    if (MainThread.IsMainThread == false)
+        //    {
+        //        MainThread.BeginInvokeOnMainThread(() =>
+        //        {
+        //            Inner_InitializeNewTrial();
+        //        });
+        //        return;
+        //    }
+
+        //}
+
+        public override void InitializeNewTrial()
         {
 
             StopAllTimers();
