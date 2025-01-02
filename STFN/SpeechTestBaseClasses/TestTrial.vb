@@ -106,6 +106,9 @@ Public Class TestTrial
 
     Public Property SpeechMaterialComponent As SpeechMaterialComponent
 
+    Public Property SubTrials As List(Of TestTrial)
+
+
     ''' <summary>
     ''' This list can hold the order of speech material components in a multi-task test trial. 
     ''' </summary>

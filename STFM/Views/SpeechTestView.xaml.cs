@@ -517,7 +517,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                         SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
                         // Speech test
-                        CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
+                        CurrentSpeechTest = new AdaptiveSiP2("Swedish SiP-test");
 
                         TestOptionsGrid.Children.Clear();
                         var newOptionsSipSCTestView = new OptionsViewAll(CurrentSpeechTest);
@@ -873,7 +873,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     bool useAdaptive = true;
                     if (useAdaptive)
                     {
-                        CurrentResponseView = new ResponseView_AdaptiveSiP();
+                        CurrentResponseView = new ResponseView_AdaptiveSiP2();
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
                         CurrentResponseView.ResponseGiven += NewSpeechTestInput;
