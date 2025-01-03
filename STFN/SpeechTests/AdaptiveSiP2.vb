@@ -69,7 +69,7 @@ Public Class AdaptiveSiP2
 
         CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
 
-        CurrentSipTestMeasurement.ExportTrialSoundFiles = False
+        CurrentSipTestMeasurement.ExportTrialSoundFiles = False ' TODO Set to false!
 
         If SimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
@@ -100,8 +100,8 @@ Public Class AdaptiveSiP2
 
 
         'Creating a test protocol
-        'TestProtocol = New BrandKollmeier2002_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
-        TestProtocol = New AdaptiveSiP_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
+        TestProtocol = New BrandKollmeier2002_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
+        'TestProtocol = New AdaptiveSiP_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
         TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = 10, .TestStage = 0, .TestLength = TestLength})
 
 
@@ -356,35 +356,37 @@ Public Class AdaptiveSiP2
             ObservedTrials.Add(CurrentTestTrial)
             PlannedTestTrials.RemoveAt(0)
 
-            'Updating the speech level only after three trials (i.e. when all words in each TWG has been presented)
-            If ObservedTrials.Count Mod 3 = 0 Then
+            ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
 
-                'Calculating the speech level
+            ''Updating the speech level only after three trials (i.e. when all words in each TWG has been presented)
+            'If ObservedTrials.Count Mod 3 = 0 Then
 
-                'Creating a New temporary TrialHistory in which the scores of the observed trials are concatenated in set of three trials so that the score lists of the temporary trials becoma 5*3, and the number of trials a third of the observed trials so far.
-                'This means that the TestProtocol will evaluate the results of 15 instead of 5 responses, every third trial.
-                Dim ObservedTrialsInSetsOfThree As New TrialHistory
-                For i = 0 To ObservedTrials.Count - 1 Step 3
+            '    'Calculating the speech level
 
-                    Dim NewTrial As New TestTrial
-                    NewTrial.AdaptiveProtocolValue = ObservedTrials(i).AdaptiveProtocolValue ' Note that this value should be the same in all three trials (i + n = 0 To 2)
-                    For n = 0 To 2
-                        NewTrial.ScoreList.AddRange(ObservedTrials(i + n).ScoreList)
-                    Next
-                    ObservedTrialsInSetsOfThree.Add(NewTrial)
+            '    'Creating a New temporary TrialHistory in which the scores of the observed trials are concatenated in set of three trials so that the score lists of the temporary trials becoma 5*3, and the number of trials a third of the observed trials so far.
+            '    'This means that the TestProtocol will evaluate the results of 15 instead of 5 responses, every third trial.
+            '    Dim ObservedTrialsInSetsOfThree As New TrialHistory
+            '    For i = 0 To ObservedTrials.Count - 1 Step 3
 
-                Next
+            '        Dim NewTrial As New TestTrial
+            '        NewTrial.AdaptiveProtocolValue = ObservedTrials(i).AdaptiveProtocolValue ' Note that this value should be the same in all three trials (i + n = 0 To 2)
+            '        For n = 0 To 2
+            '            NewTrial.ScoreList.AddRange(ObservedTrials(i + n).ScoreList)
+            '        Next
+            '        ObservedTrialsInSetsOfThree.Add(NewTrial)
 
-                ProtocolReply = TestProtocol.NewResponse(ObservedTrialsInSetsOfThree)
+            '    Next
 
-            Else
-                'Manually creating a new ProtocolReply, with its AdaptiveValue copied from the AdaptiveProtocolValue of the last test trial
-                ProtocolReply = New NextTaskInstruction
-                ProtocolReply.AdaptiveValue = ObservedTrials.Last.AdaptiveProtocolValue
-                ProtocolReply.AdaptiveStepSize = 0
-                ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
+            '    ProtocolReply = TestProtocol.NewResponse(ObservedTrialsInSetsOfThree)
 
-            End If
+            'Else
+            '    'Manually creating a new ProtocolReply, with its AdaptiveValue copied from the AdaptiveProtocolValue of the last test trial
+            '    ProtocolReply = New NextTaskInstruction
+            '    ProtocolReply.AdaptiveValue = ObservedTrials.Last.AdaptiveProtocolValue
+            '    ProtocolReply.AdaptiveStepSize = 0
+            '    ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
+
+            'End If
 
             'Taking a dump of the SpeechTest before swapping to the new trial
             CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
@@ -473,7 +475,10 @@ Public Class AdaptiveSiP2
 
         'Storing also in all subtrials, and mixes their sounds
         Dim TrialSounds As New List(Of Audio.Sound)
-        For Each SubTrial In CurrentTestTrial.SubTrials
+        Dim TaskStartTimes As New List(Of Double)
+        For i = 0 To CurrentTestTrial.SubTrials.Count - 1
+
+            Dim SubTrial = CurrentTestTrial.SubTrials(i)
 
             DirectCast(SubTrial, SipTrial).PNR = NextTaskInstruction.AdaptiveValue
 
@@ -484,16 +489,31 @@ Public Class AdaptiveSiP2
             DirectCast(SubTrial, SipTrial).SetLevels(ReferenceLevel, NextTaskInstruction.AdaptiveValue)
 
             'Mixing the next sound in the unit
-            DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0.01, 0.01, Randomizer, 2, UseBackgroundSpeech)
 
+            If i = 0 Then
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, MinimumStimulusOnsetTime, MinimumStimulusOnsetTime, Randomizer, MinimumStimulusOnsetTime + 3, UseBackgroundSpeech, ,, False, True) ' Using only MinimumStimulusOnsetTime here
+            ElseIf i = CurrentTestTrial.SubTrials.Count - 1 Then
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, ,, True, True) ' TrialSoundMaxDuration should be shorter!
+            Else
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, 3, UseBackgroundSpeech, ,, True, False)
+            End If
+
+            'Exports sound file
+            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i & "wav"))
+
+            'Storing the test word start times
+            TaskStartTimes.Add(DirectCast(SubTrial, SipTrial).TestWordStartTime + i * 2)
+
+            'Adds the sound
             TrialSounds.Add(DirectCast(SubTrial, SipTrial).Sound)
 
         Next
 
         'Mix full trial sound
-        For Each Sound In TrialSounds
-            CurrentTestTrial.Sound = Audio.DSP.ConcatenateSounds(TrialSounds, ,,,,, TrialSounds(0).WaveFormat.SampleRate * 1)
-        Next
+        CurrentTestTrial.Sound = Audio.DSP.ConcatenateSounds(TrialSounds, ,,,,, TrialSounds(0).WaveFormat.SampleRate * 1)
+
+        'Exports sound file
+        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix" & "wav"))
 
         'Waiting for the trial sound to be mixed, if not yet completed
         'WaitForTestTrialSound()
@@ -537,6 +557,10 @@ Public Class AdaptiveSiP2
             CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue})
             CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = HideVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.HideVisualCue})
         End If
+
+        For Each Value In TaskStartTimes
+            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = Value * 1000, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue})
+        Next
 
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativesTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
         'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})

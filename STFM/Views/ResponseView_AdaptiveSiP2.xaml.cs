@@ -43,6 +43,7 @@ namespace STFM.Views
         private STFN.Utils.Constants.Sides CurrentSide = STFN.Utils.Constants.Sides.Left;
 
         private int ResponseCount  = 0;
+        private int VisualCueCount = 0;
 
         private List<string> ReplyList = new List<string>();
 
@@ -88,7 +89,14 @@ namespace STFM.Views
             MessageButton.IsVisible = false;
 
             ResponseCount  = 0;
-               
+            VisualCueCount = 0;
+
+            Circle1.IsVisible = false;
+            Circle2.IsVisible = false;
+            Circle3.IsVisible = false;
+            Circle4.IsVisible = false;
+            Circle5.IsVisible = false;
+
             LeftButton1_1.Background = DefaultButtonColor;
             LeftButton1_2.Background = DefaultButtonColor;
             LeftButton1_3.Background = DefaultButtonColor;
@@ -173,10 +181,14 @@ namespace STFM.Views
             if (parentTestTrial.TargetStimulusLocations[0].HorizontalAzimuth > 0)
             {
                 // the sound source is to the right, head turn to the left
-                CurrentSide = STFN.Utils.Constants.Sides.Left;
+                CurrentSide = STFN.Utils.Constants.Sides.Right;
 
                 //RightSideControl.IsVisible = false;
                 LeftSideControl.IsVisible = true;
+
+                MainGrid.SetColumn(LeftSideControl, 0);
+                MainGrid.SetColumn(LeftOrderGrid, 1);
+
             }
             else
             {
@@ -186,6 +198,10 @@ namespace STFM.Views
                 //RightSideControl.IsVisible = true;
                 LeftSideControl.IsVisible = true;
                 //LeftSideControl.IsVisible = false;
+
+                MainGrid.SetColumn(LeftSideControl, 4);
+                MainGrid.SetColumn(LeftOrderGrid, 3);
+
             }
 
         }
@@ -200,9 +216,9 @@ namespace STFM.Views
             List<SpeechTestResponseAlternative> localResponseAlternatives4 = ResponseAlternatives[3];
             List<SpeechTestResponseAlternative> localResponseAlternatives5 = ResponseAlternatives[4];
 
-            switch (CurrentSide)
-            {
-                case STFN.Utils.Constants.Sides.Left:
+            //switch (CurrentSide)
+            //{
+            //    case STFN.Utils.Constants.Sides.Left:
 
                     LeftButton1_1.Text = localResponseAlternatives5[0].Spelling;
                     LeftButton1_2.Text = localResponseAlternatives5[1].Spelling;
@@ -264,27 +280,50 @@ namespace STFM.Views
                     LeftButton5_2.IsVisible = true;
                     LeftButton5_3.IsVisible = true;
 
-                    break;
-                case STFN.Utils.Constants.Sides.Right:
+            //        break;
+            //    case STFN.Utils.Constants.Sides.Right:
 
-                    //RightButton1_1.Text = localResponseAlternatives[0].Spelling;
-                    //RightButton1_2.Text = localResponseAlternatives[1].Spelling;
-                    //RightButton1_3.Text = localResponseAlternatives[2].Spelling;
+            //        //RightButton1_1.Text = localResponseAlternatives[0].Spelling;
+            //        //RightButton1_2.Text = localResponseAlternatives[1].Spelling;
+            //        //RightButton1_3.Text = localResponseAlternatives[2].Spelling;
 
-                    //RightButton1_1.IsEnabled = true;
-                    //RightButton1_2.IsEnabled = true;
-                    //RightButton1_3.IsEnabled = true;
+            //        //RightButton1_1.IsEnabled = true;
+            //        //RightButton1_2.IsEnabled = true;
+            //        //RightButton1_3.IsEnabled = true;
 
-                    break;
-                default:
-                    break;
-            }
+            //        break;
+            //    default:
+            //        break;
+            //}
 
         }
 
         public override void ShowVisualCue()
         {
-            //throw new NotImplementedException();
+
+            VisualCueCount += 1;
+
+            switch (VisualCueCount)
+            {
+                case 1:
+                    Circle1.IsVisible = true;
+                    break;
+                case 2:
+                    Circle2.IsVisible = true;
+                    break;
+                case 3:
+                    Circle3.IsVisible = true;
+                    break;
+                case 4:
+                    Circle4.IsVisible = true;
+                    break;
+                case 5:
+                    Circle5.IsVisible = true;
+                    break;
+                default:
+                    break;
+            }
+
         }
 
         public override void StopAllTimers()
@@ -398,7 +437,12 @@ namespace STFM.Views
                         break;
                     case STFN.Utils.Constants.Sides.Right:
 
-                        throw new NotImplementedException("Add right side rows here...");
+                        // Adding from bottom to top
+                        ReplyList.Add(GetRowResponse(LeftSideGrid5));
+                        ReplyList.Add(GetRowResponse(LeftSideGrid4));
+                        ReplyList.Add(GetRowResponse(LeftSideGrid3));
+                        ReplyList.Add(GetRowResponse(LeftSideGrid2));
+                        ReplyList.Add(GetRowResponse(LeftSideGrid1));
 
                         break;
                     default:

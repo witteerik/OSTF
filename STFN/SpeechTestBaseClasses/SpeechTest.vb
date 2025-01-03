@@ -2153,11 +2153,11 @@ Public MustInherit Class SpeechTest
 
         'Adding column headings on the first row
         If TestTrialIndex = 0 Then
-            ExportStringList.Add("TrialIndex" & vbTab & LocalObservedTrials.Last.TestResultColumnHeadings & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyNames(SelectedVariables))
+            ExportStringList.Add("TrialIndex" & vbTab & LocalObservedTrials(TestTrialIndex).TestResultColumnHeadings & vbTab & LocalObservedTrials(TestTrialIndex).ListedSpeechTestPropertyNames(SelectedVariables))
         End If
 
         'Adding trial data 
-        ExportStringList.Add(TestTrialIndex & vbTab & LocalObservedTrials.Last.TestResultAsTextRow & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyValues(SelectedVariables))
+        ExportStringList.Add(TestTrialIndex & vbTab & LocalObservedTrials(TestTrialIndex).TestResultAsTextRow & vbTab & LocalObservedTrials(TestTrialIndex).ListedSpeechTestPropertyValues(SelectedVariables))
 
         Return String.Join(vbCrLf, ExportStringList)
 

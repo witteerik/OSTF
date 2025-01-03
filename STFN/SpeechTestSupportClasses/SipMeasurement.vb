@@ -1553,13 +1553,13 @@ Namespace SipTest
         Public Sub MixSound(ByRef SelectedTransducer As AudioSystemSpecification,
                             ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                             ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
-                            Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing)
+                            Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing, Optional ByVal SkipNoiseFadeIn As Boolean = False, Optional ByVal SkipNoiseFadeOut As Boolean = False)
 
 
             If Me.SpeechMaterialComponent.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.Sentence Then
-                MixSound_SingleWord(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices, FixedSpeechIndex)
+                MixSound_SingleWord(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices, FixedSpeechIndex, SkipNoiseFadeIn, SkipNoiseFadeOut)
             ElseIf Me.SpeechMaterialComponent.LinguisticLevel = SpeechMaterialComponent.LinguisticLevels.List Then
-                MixSound_MultipleWords(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices, FixedSpeechIndex)
+                MixSound_MultipleWords(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices, FixedSpeechIndex, SkipNoiseFadeIn, SkipNoiseFadeOut)
             Else
                 Throw New NotImplementedException("Mixing of SiP-test trials on " & Me.SpeechMaterialComponent.LinguisticLevel & " level is not implemented!")
             End If
@@ -1571,7 +1571,7 @@ Namespace SipTest
         Private Sub MixSound_SingleWord(ByRef SelectedTransducer As AudioSystemSpecification,
                             ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                             ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
-                            Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing)
+                            Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing, Optional ByVal SkipNoiseFadeIn As Boolean = False, Optional ByVal SkipNoiseFadeOut As Boolean = False)
 
             'If Me.IsBmldTrial = True Then
             '    FixedMaskerIndices = New List(Of Integer) From {1, 2}
@@ -1754,13 +1754,21 @@ Namespace SipTest
 
                 'Sets up fading specifications for the maskers
                 Dim FadeSpecs_Maskers = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, MaskerFadeInLength))
-                FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -MaskerFadeOutLength))
+                If SkipNoiseFadeIn = False Then
+                    FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, MaskerFadeInLength))
+                End If
+                If SkipNoiseFadeOut = False Then
+                    FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -MaskerFadeOutLength))
+                End If
 
                 'Sets up fading specifications for the background signals
                 Dim FadeSpecs_Background = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
-                FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+                If SkipNoiseFadeIn = False Then
+                    FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
+                End If
+                If SkipNoiseFadeOut = False Then
+                    FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+                End If
 
                 'Sets up ducking specifications for the background (non-speech) signals
                 Dim DuckSpecs_BackgroundNonSpeech = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
@@ -2047,7 +2055,7 @@ Namespace SipTest
         Private Sub MixSound_MultipleWords(ByRef SelectedTransducer As AudioSystemSpecification,
                             ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                             ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
-                            Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing)
+                            Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing, Optional ByVal SkipNoiseFadeIn As Boolean = False, Optional ByVal SkipNoiseFadeOut As Boolean = False)
 
             'If Me.IsBmldTrial = True Then
             '    FixedMaskerIndices = New List(Of Integer) From {1, 2}
@@ -2196,12 +2204,12 @@ Namespace SipTest
                             Dim SmcIndex = TaskPresentationOrderList(PresentationOrderIndex)
 
                             If LastSoundLength > 0 And LastSoundLength < WordIntervalLength Then
-                                    'Inserting an empty sound to get the desired interval between words
-                                    Dim SoundArray(WordIntervalLength - LastSoundLength - 1) As Single
-                                    Dim SilentSound = New Sound(SoundWaveFormat)
-                                    SilentSound.WaveData.SampleData(1) = SoundArray
-                                    TestWordsSounds.Add(SilentSound)
-                                End If
+                                'Inserting an empty sound to get the desired interval between words
+                                Dim SoundArray(WordIntervalLength - LastSoundLength - 1) As Single
+                                Dim SilentSound = New Sound(SoundWaveFormat)
+                                SilentSound.WaveData.SampleData(1) = SoundArray
+                                TestWordsSounds.Add(SilentSound)
+                            End If
 
                             'Checking the media index, so that it's not repeated for the same SMC (i.e. so that the same recording is not used twice, if it can be avoided)
                             If AvoidRepetitionOfMediaIndexList.ContainsKey(SentenceTargets(SmcIndex).Id) = False Then
@@ -2221,9 +2229,9 @@ Namespace SipTest
                                     Next
 
                                     If AvailableMediaIndices.Count = 0 Then
-                                            'It's not possible to swap media index
-                                            'Leaves it as is
-                                        Else
+                                        'It's not possible to swap media index
+                                        'Leaves it as is
+                                    Else
                                         'Picking a new random media index from the available ones
                                         SelectedMediaIndex = AvailableMediaIndices(SipMeasurementRandomizer.Next(0, AvailableMediaIndices.Count))
 
@@ -2235,8 +2243,8 @@ Namespace SipTest
 
                             'Adding the test components
                             Dim LoadedSound = SentenceTargets(SmcIndex).GetSound(Me.MediaSet, SelectedMediaIndex, 1, , ,, InitialMargin)
-                                LastSoundLength = LoadedSound.WaveData.SampleData(1).Length
-                                TestWordsSounds.Add(LoadedSound)
+                            LastSoundLength = LoadedSound.WaveData.SampleData(1).Length
+                            TestWordsSounds.Add(LoadedSound)
                         Next
 
                         TestWordSound = Audio.DSP.ConcatenateSounds(TestWordsSounds)
@@ -2334,13 +2342,21 @@ Namespace SipTest
 
                 'Sets up fading specifications for the maskers
                 Dim FadeSpecs_Maskers = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, MaskerFadeInLength))
-                FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -MaskerFadeOutLength))
+                If SkipNoiseFadeIn = False Then
+                    FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, MaskerFadeInLength))
+                End If
+                If SkipNoiseFadeOut = False Then
+                    FadeSpecs_Maskers.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -MaskerFadeOutLength))
+                End If
 
                 'Sets up fading specifications for the background signals
                 Dim FadeSpecs_Background = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
-                FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+                If SkipNoiseFadeIn = False Then
+                    FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
+                End If
+                If SkipNoiseFadeOut = False Then
+                    FadeSpecs_Background.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+                End If
 
                 'Sets up ducking specifications for the background (non-speech) signals
                 Dim DuckSpecs_BackgroundNonSpeech = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
