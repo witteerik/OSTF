@@ -35,11 +35,11 @@ Public MustInherit Class TestProtocol
 
     Public MustOverride Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
-    Public MustOverride Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
+    Public MustOverride Function NewResponse(ByRef TrialHistory As TestTrialCollection) As NextTaskInstruction
 
     Public Function NewResponse(ByRef TrialHistory As List(Of SipTest.SipTrial)) As NextTaskInstruction
 
-        Dim NewTrialHistory As New TrialHistory
+        Dim NewTrialHistory As New TestTrialCollection
         For Each Trial In TrialHistory
             NewTrialHistory.Add(Trial)
         Next
@@ -70,7 +70,7 @@ Public MustInherit Class TestProtocol
     ''' When possible, this method calculates the test results if the test is aborted before completion.
     ''' </summary>
     ''' <param name="TrialHistory"></param>
-    Public MustOverride Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+    Public MustOverride Sub AbortAheadOfTime(ByRef TrialHistory As TestTrialCollection)
 
     'Public Function AbortAheadOfTime(ByRef TrialHistory As List(Of SipTest.SipTrial)) 
 

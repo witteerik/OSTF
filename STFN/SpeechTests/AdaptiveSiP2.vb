@@ -55,8 +55,8 @@ Public Class AdaptiveSiP2
     'Determines the number of test trials (this must be amultiple of 3, so that each trial is tested an equal number of times)
     Private TrialCount As Integer
 
-    Private PlannedTestTrials As New TrialHistory
-    Protected ObservedTrials As New TrialHistory
+    Private PlannedTestTrials As New TestTrialCollection
+    Protected ObservedTrials As New TestTrialCollection
 
     Public Overrides Function GetObservedTestTrials() As IEnumerable(Of TestTrial)
         Return ObservedTrials
@@ -87,7 +87,7 @@ Public Class AdaptiveSiP2
         End If
 
         'Defines the number of times each test word group is tested
-        TestLength = 14
+        TestLength = 10
         'Determines the number of test trials (this must be amultiple of 3, so that each trial is tested an equal number of times)
         TrialCount = TestLength * 3
 
@@ -163,7 +163,7 @@ Public Class AdaptiveSiP2
 
                 'Starting with left for every other list (and right for the other) and then swapping between every presentation
                 Dim NewTestTrial As New TestTrial
-                NewTestTrial.SubTrials = New List(Of TestTrial)
+                NewTestTrial.SubTrials = New TestTrialCollection
 
                 Dim modValue = i Mod 2
                 If (i) Mod 2 = 0 Then
@@ -171,11 +171,8 @@ Public Class AdaptiveSiP2
                     For twgi = 0 To TestLists.Count - 1
 
                         Dim SMC = TestLists(twgi).ChildComponents(RandomList(twgi)(w))
-                        Dim NewSiPTrial = New SipTrial(CurrentTestUnit, SMC, MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, CurrentTestUnit.ParentMeasurement.Randomizer)
-                        NewTestTrial.SubTrials.Add(NewSiPTrial)
-
-                        'Adding the trial also to the test unit
-                        CurrentTestUnit.PlannedTrials.Add(NewSiPTrial)
+                        Dim NewSipSubTrial = New SipTrial(CurrentTestUnit, SMC, MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, CurrentTestUnit.ParentMeasurement.Randomizer)
+                        NewTestTrial.SubTrials.Add(NewSipSubTrial)
 
                     Next
 
@@ -184,21 +181,23 @@ Public Class AdaptiveSiP2
                     For twgi = 0 To TestLists.Count - 1
 
                         Dim SMC = TestLists(twgi).ChildComponents(RandomList(twgi)(w))
-                        Dim NewSiPTrial = New SipTrial(CurrentTestUnit, SMC, MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
-                        NewTestTrial.SubTrials.Add(NewSiPTrial)
-
-                        'Adding the trial also to the test unit
-                        CurrentTestUnit.PlannedTrials.Add(NewSiPTrial)
+                        Dim NewSipSubTrial = New SipTrial(CurrentTestUnit, SMC, MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
+                        NewTestTrial.SubTrials.Add(NewSipSubTrial)
 
                     Next
 
                 End If
 
+                'Shuffling the order of sub-trials
+                NewTestTrial.SubTrials.Shuffle(CurrentTestUnit.ParentMeasurement.Randomizer)
+
+                'Adding the test trial to the list of planned trials
                 PlannedTestTrials.Add(NewTestTrial)
 
             Next
-
         Next
+
+
 
         ''Putting two presentations each of left turn trials in even-index lists in a row, and the swapping to right turn trials, and so on..., in CurrentSipTestMeasurement (from which they can be drawn during testing)
         'For TrialIndexInList = 0 To NumberOfTrialsPerList - 1 Step 2
@@ -493,16 +492,20 @@ Public Class AdaptiveSiP2
             If i = 0 Then
                 DirectCast(SubTrial, SipTrial).MixSound(Transducer, MinimumStimulusOnsetTime, MinimumStimulusOnsetTime, Randomizer, MinimumStimulusOnsetTime + 3, UseBackgroundSpeech, ,, False, True) ' Using only MinimumStimulusOnsetTime here
             ElseIf i = CurrentTestTrial.SubTrials.Count - 1 Then
-                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, ,, True, True) ' TrialSoundMaxDuration should be shorter!
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, ,, True, False) ' TrialSoundMaxDuration should be shorter!
             Else
-                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, 3, UseBackgroundSpeech, ,, True, False)
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, 3, UseBackgroundSpeech, ,, True, True)
             End If
 
             'Exports sound file
             If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i & "wav"))
 
             'Storing the test word start times
-            TaskStartTimes.Add(DirectCast(SubTrial, SipTrial).TestWordStartTime + i * 2)
+            If i = 0 Then
+                TaskStartTimes.Add(DirectCast(SubTrial, SipTrial).TestWordStartTime)
+            Else
+                TaskStartTimes.Add(MinimumStimulusOnsetTime + i * 2 + DirectCast(SubTrial, SipTrial).TestWordStartTime)
+            End If
 
             'Adds the sound
             TrialSounds.Add(DirectCast(SubTrial, SipTrial).Sound)

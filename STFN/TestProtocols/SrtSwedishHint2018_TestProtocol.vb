@@ -60,7 +60,7 @@ Public Class SrtSwedishHint2018_TestProtocol
         End If
     End Function
 
-    Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
+    Public Overrides Function NewResponse(ByRef TrialHistory As TestTrialCollection) As NextTaskInstruction
 
         If TrialHistory.Count = 0 Then
             'This is the start of the test, returns the initial settings
@@ -96,7 +96,7 @@ Public Class SrtSwedishHint2018_TestProtocol
     End Function
 
 
-    Private Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+    Private Sub FinalizeProtocol(ByRef TrialHistory As TestTrialCollection)
 
         If IsInPretestMode = True Then
             'Storing the last value as threshold
@@ -132,7 +132,7 @@ Public Class SrtSwedishHint2018_TestProtocol
 
     End Function
 
-    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TestTrialCollection)
         'Setting FinalThreshold to NaN, since it's not possible to finalize early
         FinalThreshold = Double.NaN
     End Sub

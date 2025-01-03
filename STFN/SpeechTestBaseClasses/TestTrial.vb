@@ -1,7 +1,7 @@
 ﻿
 Imports System.Reflection
 
-Public Class TrialHistory
+Public Class TestTrialCollection
     Inherits List(Of TestTrial)
 
     Public Sub Shuffle(Randomizer As Random)
@@ -106,7 +106,7 @@ Public Class TestTrial
 
     Public Property SpeechMaterialComponent As SpeechMaterialComponent
 
-    Public Property SubTrials As List(Of TestTrial)
+    Public Property SubTrials As TestTrialCollection
 
 
     ''' <summary>

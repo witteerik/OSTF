@@ -227,7 +227,7 @@ Public Class AdaptiveSiP
         For Each TestUnit In CurrentSipTestMeasurement.TestUnits
 
             'Calculating the speech level (of the first trial)
-            Dim ProtocolReply = TestUnit.TestProtocol.NewResponse(New TrialHistory)
+            Dim ProtocolReply = TestUnit.TestProtocol.NewResponse(New TestTrialCollection)
 
             'Getting the new adaptive value
             TestUnit.PlannedTrials(0).PNR = ProtocolReply.AdaptiveValue

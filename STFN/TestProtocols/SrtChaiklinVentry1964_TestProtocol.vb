@@ -82,7 +82,7 @@
         Return -1
     End Function
 
-    Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
+    Public Overrides Function NewResponse(ByRef TrialHistory As TestTrialCollection) As NextTaskInstruction
 
         If TrialHistory.Count = 0 Then
             'This is the start of the test, returns the initial settings
@@ -184,7 +184,7 @@
 
     End Function
 
-    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TestTrialCollection)
         'Setting FinalThreshold to NaN, since it's not possible to finalize early
         FinalThreshold = Double.NaN
     End Sub

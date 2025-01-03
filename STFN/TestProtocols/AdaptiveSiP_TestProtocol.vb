@@ -60,7 +60,7 @@ Public Class AdaptiveSiP_TestProtocol
         Return TestLength
     End Function
 
-    Public Overrides Function NewResponse(ByRef TrialHistory As TrialHistory) As NextTaskInstruction
+    Public Overrides Function NewResponse(ByRef TrialHistory As TestTrialCollection) As NextTaskInstruction
 
         If TrialHistory.Count = 0 Then
             'This is the start of the test, returns the initial settings
@@ -127,7 +127,7 @@ Public Class AdaptiveSiP_TestProtocol
 
     End Function
 
-    Private Sub FinalizeProtocol(ByRef TrialHistory As TrialHistory)
+    Private Sub FinalizeProtocol(ByRef TrialHistory As TestTrialCollection)
 
         If TrialHistory.Count > 0 Then
             'Using the NextAdaptiveLevel variable from the last trial which has not yet been presented
@@ -149,7 +149,7 @@ Public Class AdaptiveSiP_TestProtocol
 
     End Function
 
-    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TrialHistory)
+    Public Overrides Sub AbortAheadOfTime(ByRef TrialHistory As TestTrialCollection)
         'Setting FinalThreshold to NaN, since it's not possible to finalize early
         FinalThreshold = Double.NaN
     End Sub

@@ -83,7 +83,7 @@ Public Class TP50SpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
 
-    Private PlannedTestTrials As New TrialHistory
+    Private PlannedTestTrials As New TestTrialCollection
 
     Private TestWordPresentationTime As Double = 0.5
     Private MaximumResponseTime As Double = 4.5
@@ -145,7 +145,7 @@ Public Class TP50SpeechTest
             Return False
         End If
 
-        PlannedTestTrials = New TrialHistory
+        PlannedTestTrials = New TestTrialCollection
 
         For i = 0 To PlannedTestListWords.Count - 1
 
@@ -288,7 +288,7 @@ Public Class TP50SpeechTest
 
         Else
             'Nothing to correct (this should be the start of a new test, or a resuming of a paused test)
-            ProtocolReply = TestProtocol.NewResponse(New TrialHistory)
+            ProtocolReply = TestProtocol.NewResponse(New TestTrialCollection)
         End If
 
 
