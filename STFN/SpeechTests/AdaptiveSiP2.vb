@@ -48,7 +48,7 @@ Public Class AdaptiveSiP2
 
 
     'Private PresetName As String = "IHeAR_CS"
-    Private PresetName As String = "QuickSiP"
+    Private PresetName As String = "AdaptiveSiP"
 
     'Defines the number of times each test word group is tested
     Private TestLength As Integer
@@ -87,7 +87,7 @@ Public Class AdaptiveSiP2
         End If
 
         'Defines the number of times each test word group is tested
-        TestLength = 10
+        TestLength = 14
         'Determines the number of test trials (this must be amultiple of 3, so that each trial is tested an equal number of times)
         TrialCount = TestLength * 3
 
@@ -100,8 +100,9 @@ Public Class AdaptiveSiP2
 
 
         'Creating a test protocol
-        TestProtocol = New BrandKollmeier2002_TestProtocol()
-        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = 10, .TestStage = 0, .TestLength = TrialCount})
+        'TestProtocol = New BrandKollmeier2002_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
+        TestProtocol = New AdaptiveSiP_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
+        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = 10, .TestStage = 0, .TestLength = TestLength})
 
 
         Return New Tuple(Of Boolean, String)(True, "")
@@ -355,8 +356,35 @@ Public Class AdaptiveSiP2
             ObservedTrials.Add(CurrentTestTrial)
             PlannedTestTrials.RemoveAt(0)
 
-            'Calculating the speech level
-            ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
+            'Updating the speech level only after three trials (i.e. when all words in each TWG has been presented)
+            If ObservedTrials.Count Mod 3 = 0 Then
+
+                'Calculating the speech level
+
+                'Creating a New temporary TrialHistory in which the scores of the observed trials are concatenated in set of three trials so that the score lists of the temporary trials becoma 5*3, and the number of trials a third of the observed trials so far.
+                'This means that the TestProtocol will evaluate the results of 15 instead of 5 responses, every third trial.
+                Dim ObservedTrialsInSetsOfThree As New TrialHistory
+                For i = 0 To ObservedTrials.Count - 1 Step 3
+
+                    Dim NewTrial As New TestTrial
+                    NewTrial.AdaptiveProtocolValue = ObservedTrials(i).AdaptiveProtocolValue ' Note that this value should be the same in all three trials (i + n = 0 To 2)
+                    For n = 0 To 2
+                        NewTrial.ScoreList.AddRange(ObservedTrials(i + n).ScoreList)
+                    Next
+                    ObservedTrialsInSetsOfThree.Add(NewTrial)
+
+                Next
+
+                ProtocolReply = TestProtocol.NewResponse(ObservedTrialsInSetsOfThree)
+
+            Else
+                'Manually creating a new ProtocolReply, with its AdaptiveValue copied from the AdaptiveProtocolValue of the last test trial
+                ProtocolReply = New NextTaskInstruction
+                ProtocolReply.AdaptiveValue = ObservedTrials.Last.AdaptiveProtocolValue
+                ProtocolReply.AdaptiveStepSize = 0
+                ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
+
+            End If
 
             'Taking a dump of the SpeechTest before swapping to the new trial
             CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
@@ -511,7 +539,7 @@ Public Class AdaptiveSiP2
         End If
 
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativesTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
     End Sub
 
