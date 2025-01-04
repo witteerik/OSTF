@@ -13,7 +13,9 @@ public class ResponseView_SiP_SF : ResponseView
     Grid mainGrid = null;
     Grid responseAlternativeGrid = null;
     Frame responseAlternativeFrame = null;
+    ProgressBar PtcProgressBar = null;
     private IDispatcherTimer HideAllTimer;
+    Button messageBtn = null;
 
 
     public ResponseView_SiP_SF()
@@ -27,6 +29,33 @@ public class ResponseView_SiP_SF : ResponseView
         HideAllTimer.Interval = TimeSpan.FromMilliseconds(200);
         HideAllTimer.Tick += HideAllItems;
         HideAllTimer.IsRepeating = false;
+
+        // Creating a main grid
+        mainGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
+        mainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(30, GridUnitType.Star) });
+        mainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        for (int i = 0; i < 3; i++)
+        {
+            mainGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        }
+
+        ProgressBar PtcProgressBar = new ProgressBar { Progress = 0.5 };
+
+        Frame progressBarFrame = new Frame
+        {
+            HorizontalOptions = LayoutOptions.Fill,
+            VerticalOptions = LayoutOptions.Fill,
+            CornerRadius = 10,
+            BorderColor = Color.FromRgb(123, 123, 123),
+            Background = Color.FromRgb(47, 79, 79),
+            Margin = new Thickness(15),
+            Padding = new Thickness(10, 10, 10, 10)
+        };
+
+        progressBarFrame.Content = PtcProgressBar;
+        mainGrid.Add(progressBarFrame, 0, 1);
+        mainGrid.SetColumnSpan(progressBarFrame, 3);
+
     }
 
     public override void InitializeNewTrial()
@@ -51,16 +80,6 @@ public class ResponseView_SiP_SF : ResponseView
         List<SpeechTestResponseAlternative> localResponseAlternatives = responseAlternatives[0];
 
         int nItems = localResponseAlternatives.Count;
-        int nRows = nItems;
-        int nCols = 3;
-
-        // Creating a main grid
-        mainGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
-        mainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        for (int i = 0; i < nCols; i++)
-        {
-            mainGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        }
 
         // Creating a frame
         responseAlternativeFrame = new Frame { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, CornerRadius = 10, 
@@ -135,7 +154,7 @@ public class ResponseView_SiP_SF : ResponseView
 
         //}
                 
-        Content = mainGrid;
+        //Content = mainGrid;
 
     }
 
@@ -312,7 +331,10 @@ public class ResponseView_SiP_SF : ResponseView
 
     public void clearMainGrid()
     {
-        //Content = null;
+
+        responseAlternativeGrid.Clear();
+        mainGrid.Remove(messageBtn);
+
     }
 
 
@@ -375,7 +397,8 @@ public class ResponseView_SiP_SF : ResponseView
             VerticalOptions = LayoutOptions.Fill
         };
 
-        Content = messageBtn;
+
+        mainGrid.Add(messageBtn, 1, 1);
 
     }
 
@@ -385,9 +408,11 @@ public class ResponseView_SiP_SF : ResponseView
         throw new NotImplementedException();
     }
 
-    public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
+    public async override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
     {
-        throw new NotImplementedException();
+        double range = Maximum - Minimum;
+        double progressProp = Value / range;
+        await PtcProgressBar.ProgressTo(progressProp, 50, Easing.Linear);
     }
 
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
