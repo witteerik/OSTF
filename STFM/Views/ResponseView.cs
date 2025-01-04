@@ -110,6 +110,31 @@ public abstract class ResponseView : ContentView
     public abstract void ShowMessage(string Message);
 
 
+    private readonly object ResponseIsGiven_LockObject = new object();
+    private bool responseIsGiven = false;
+
+    /// <summary>
+    /// A thread-syncronization safe way to mark the current instance of a ResponseView derived class as having started to process a response.
+    /// It should be used to block other possible responses from other threads, such as automatic response coming from a response-times-out timer.
+    /// </summary>
+    public bool ResponseIsGiven
+    {
+        get
+        {
+            lock (ResponseIsGiven_LockObject)
+            {
+                return responseIsGiven;
+            }
+        }
+        set
+        {
+            lock (ResponseIsGiven_LockObject)
+            {
+                responseIsGiven = value;
+            }
+        }
+    }
+
     public class VisualizedSoundSource
     {
         public string Text = "";

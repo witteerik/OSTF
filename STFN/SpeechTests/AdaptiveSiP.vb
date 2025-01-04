@@ -17,16 +17,20 @@ Public Class AdaptiveSiP
     Public Shadows Sub ApplyTestSpecificSettings()
 
         TesterInstructions = "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
-                "1. Informera patienten om hur testet går till." & vbCrLf &
-                "2. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
+                "1. Informera deltagaren om hur testet går till." & vbCrLf &
+                "2. Vänd skärmen till deltagaren. Be sedan deltagaren klicka på start för att starta testet."
 
 
-        ParticipantInstructions = "Patientens uppgift: " & vbCrLf & vbCrLf &
-                " - Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
-                " - Under testet ska patienten lyssna efter enstaviga ord i olika ljudmiljöer och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
-                " - Patienten ska gissa om hen är osäker. Många ord är mycket svåra att höra!" & vbCrLf &
-                " - Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
-                " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid."
+        ParticipantInstructions = "Deltagarens uppgift: " & vbCrLf & vbCrLf &
+                " - Deltagaren startar testet genom att klicka på knappen 'Start'" & vbCrLf &
+                " - Under testet ska deltagaren lyssna efter enstaviga ord i olika ljudmiljöer. Orden presenteras fem i taget och deltagaren ska ange så snabbt och korrekt som möjligt vilka ord hen uppfattat. " & vbCrLf &
+                " - Svarsalternativen finns i en tabell med fem rader och tre kolumner." & vbCrLf &
+                "      - Första ordet är ett av de tre orden i raden längst ned." & vbCrLf &
+                "      - Nästa ord finns i raden näst längst ned." & vbCrLf &
+                "      - Fortsätt uppåt tills alla ord besvarats. " & vbCrLf &
+                " - Om deltagaren är osäker ska hen gissa." & vbCrLf &
+                " - Den maximala svarstiden är " & MaximumResponseTime & " sekunder efter att sista ordet spelats upp." & vbCrLf &
+                " - Om svarsalternativen ändras till i röd färg har deltagaren inte svarat i tid. Testet går då vidare."
 
         'SupportsManualPausing = False
 
@@ -38,18 +42,27 @@ Public Class AdaptiveSiP
         MinimumStimulusOnsetTime = 0.3 + 0.3 ' 0.3 in sound field
         MaximumStimulusOnsetTime = 0.8 + 0.3 ' 0.3 in sound field
 
-        ResponseAlternativeDelay = 0.02
-
-        'DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
+        ResponseAlternativeDelay = 0.1
 
     End Sub
 
     Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
 
 
-    Private PresetName As String = "IHeAR_CS"
-    'Private PresetName As String = "QuickSiP"
+    'Private PresetName As String = "IHeAR_CS"
+    Private PresetName As String = "AdaptiveSiP"
 
+    'Defines the number of times each test word group is tested
+    Private TestLength As Integer
+    'Determines the number of test trials (this must be amultiple of 3, so that each trial is tested an equal number of times)
+    Private TrialCount As Integer
+
+    Private PlannedTestTrials As New TestTrialCollection
+    Protected ObservedTrials As New TestTrialCollection
+
+    Public Overrides Function GetObservedTestTrials() As IEnumerable(Of TestTrial)
+        Return ObservedTrials
+    End Function
 
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
@@ -58,7 +71,7 @@ Public Class AdaptiveSiP
 
         CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
 
-        CurrentSipTestMeasurement.ExportTrialSoundFiles = False
+        CurrentSipTestMeasurement.ExportTrialSoundFiles = False ' TODO Set to false!
 
         If SimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
@@ -75,12 +88,24 @@ Public Class AdaptiveSiP
             SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
         End If
 
+        'Defines the number of times each test word group is tested
+        TestLength = 10
+        'Determines the number of test trials (this must be amultiple of 3, so that each trial is tested an equal number of times)
+        TrialCount = TestLength * 3
+
         'Setting up test trials to run
         PlanSiPTrials(SelectedSoundPropagationType, RandomSeed)
 
         If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
             Return New Tuple(Of Boolean, String)(False, "The measurement requires a directional simulation set to be selected!")
         End If
+
+
+        'Creating a test protocol
+        TestProtocol = New BrandKollmeier2002_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
+        'TestProtocol = New AdaptiveSiP_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
+        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = 10, .TestStage = 0, .TestLength = TrialCount})
+
 
         Return New Tuple(Of Boolean, String)(True, "")
 
@@ -110,9 +135,6 @@ Public Class AdaptiveSiP
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members 'TODO! Specify correct members in text file
         End If
 
-        If TestLists.Count Mod 2 = 1 Then
-            Throw New Exception("We must use an even number of test lists in the AdaptiveSiP!")
-        End If
 
         'Getting the sound source locations
         'Head slightly turned right (i.e. Speech on left side)
@@ -125,86 +147,70 @@ Public Class AdaptiveSiP
         Dim MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
         Dim BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
 
-        Dim NumberOfTrialsPerList As Integer = 14
+        'Creating one test unit per list
+        Dim CurrentTestUnit = New SiPTestUnit(CurrentSipTestMeasurement)
+        CurrentSipTestMeasurement.TestUnits.Add(CurrentTestUnit)
 
-        For i = 0 To TestLists.Count - 1
+        'Creating test trials
+        For i = 0 To TestLength - 1
 
-            'Creating one test unit per list
-            Dim CurrentTestUnit = New SiPTestUnit(CurrentSipTestMeasurement)
-            CurrentSipTestMeasurement.TestUnits.Add(CurrentTestUnit)
+            'Creating a random order to draw words from 
+            Dim RandomList As New SortedList(Of Integer, List(Of Integer)) 'TWG index, TW index presentation order
+            For twgi = 0 To TestLists.Count - 1
+                RandomList.Add(twgi, Utils.SampleWithoutReplacement(3, 0, 3, Randomizer).ToList)
+            Next
 
-            'Creating a test protocol
-            CurrentTestUnit.TestProtocol = New BrandKollmeier2002_TestProtocol()
-            CurrentTestUnit.TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = 10, .TestStage = 0, .TestLength = NumberOfTrialsPerList})
-
-            For t = 0 To NumberOfTrialsPerList - 1
+            'Iterating over three TWG indices
+            For w = 0 To 2
 
                 'Starting with left for every other list (and right for the other) and then swapping between every presentation
-                Dim NewSiPTrial As SipTrial
-                Dim modValue = i + t Mod 2
-                If (i + t) Mod 2 = 0 Then
-                    NewSiPTrial = New SipTrial(CurrentTestUnit, TestLists(i), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, CurrentTestUnit.ParentMeasurement.Randomizer)
+                Dim NewTestTrial As New TestTrial
+                NewTestTrial.SubTrials = New TestTrialCollection
+
+                Dim modValue = i Mod 2
+                If (i) Mod 2 = 0 Then
+
+                    For twgi = 0 To TestLists.Count - 1
+
+                        Dim SMC = TestLists(twgi).ChildComponents(RandomList(twgi)(w))
+                        Dim NewSipSubTrial = New SipTrial(CurrentTestUnit, SMC, MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedLeft.ToArray, MaskerLocations_HeadTurnedLeft.ToArray, BackgroundLocations_HeadTurnedLeft, CurrentTestUnit.ParentMeasurement.Randomizer)
+                        NewTestTrial.SubTrials.Add(NewSipSubTrial)
+
+                    Next
+
                 Else
-                    NewSiPTrial = New SipTrial(CurrentTestUnit, TestLists(i), MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
+
+                    For twgi = 0 To TestLists.Count - 1
+
+                        Dim SMC = TestLists(twgi).ChildComponents(RandomList(twgi)(w))
+                        Dim NewSipSubTrial = New SipTrial(CurrentTestUnit, SMC, MediaSet, SoundPropagationType, TargetStimulusLocations_HeadTurnedRight.ToArray, MaskerLocations_HeadTurnedRight.ToArray, BackgroundLocations_HeadTurnedRight, CurrentTestUnit.ParentMeasurement.Randomizer)
+                        NewTestTrial.SubTrials.Add(NewSipSubTrial)
+
+                    Next
+
                 End If
 
-                'Adding the trial
-                CurrentTestUnit.PlannedTrials.Add(NewSiPTrial)
+                'Shuffling the order of sub-trials
+                NewTestTrial.SubTrials.Shuffle(CurrentTestUnit.ParentMeasurement.Randomizer)
 
-                'Planning the word/task presentation order for the list
-                NewSiPTrial.TaskPresentationOrderList = Utils.SampleWithoutReplacement(TestLists(i).ChildComponents.Count, 0, TestLists(i).ChildComponents.Count, Randomizer).ToList
+                'Adding the test trial to the list of planned trials
+                PlannedTestTrials.Add(NewTestTrial)
 
-                'Inserting a randomly selected repeated components last in the presentation list
-                Dim RepeatedWordSmcIndex As Integer = NewSiPTrial.TaskPresentationOrderList(Randomizer.Next(0, NewSiPTrial.TaskPresentationOrderList.Count))
-                NewSiPTrial.TaskPresentationOrderList.Add(RepeatedWordSmcIndex)
-
-                'Now RandomWordPresentationOrderList holds the following information:
-                'Presentation order (index) -  SMC index
-                '0                                               2 'The third SMC in the list, e.g. kil_fil_sil in (sil)
-                '1                                               0 'The first SMC in the list, e.g. kil_fil_sil in (kil)
-                '2                                               1 'The second SMC in the list, e.g. kil_fil_sil in (fil)
-                '3                                               1 'The second SMC in the list, e.g. kil_fil_sil in (fil)
-
-
-                'Determines which of the tasks/words that should be scored (skipping either the first or the repeated word)
-                NewSiPTrial.ScoredTasksPresentationIndices = New List(Of Integer)
-                If Randomizer.Next(0, 2) = 0 Then
-                    'Scoring the first, ignoring the last presentation
-                    For PresentationOrderIndex = 0 To NewSiPTrial.TaskPresentationOrderList.Count - 2
-                        'Adding the presentation index for scoring (note that this loop skips the last item in TaskPresentationOrderList)
-                        NewSiPTrial.ScoredTasksPresentationIndices.Add(PresentationOrderIndex)
-                    Next
-                Else
-                    'Scoring the repeated presentation (ignoring the first time the later repeated word is presented)
-                    Dim HasBeenIgnored As Boolean = False
-                    For PresentationOrderIndex = 0 To NewSiPTrial.TaskPresentationOrderList.Count - 1
-
-                        If HasBeenIgnored = False Then
-                            If NewSiPTrial.TaskPresentationOrderList(PresentationOrderIndex) = RepeatedWordSmcIndex Then
-                                'Noting that the first instence of the repaeted word has been skipped
-                                HasBeenIgnored = True
-                                'Skipping to next presentation index
-                                Continue For
-                            End If
-                        End If
-
-                        'Adding the presentation index for scoring, if not skipped above
-                        NewSiPTrial.ScoredTasksPresentationIndices.Add(PresentationOrderIndex)
-                    Next
-                End If
             Next
         Next
 
-        'Putting two presentations each of left turn trials in even-index lists in a row, and the swapping to right turn trials, and so on..., in CurrentSipTestMeasurement (from which they can be drawn during testing)
-        For TrialIndexInList = 0 To NumberOfTrialsPerList - 1 Step 2
-            For TrialIndexInList_shift = 0 To 1
-                For u_shift = 0 To 1
-                    For u = 0 To CurrentSipTestMeasurement.TestUnits.Count - 1 Step 2
-                        CurrentSipTestMeasurement.PlannedTrials.Add(CurrentSipTestMeasurement.TestUnits(u + u_shift).PlannedTrials(TrialIndexInList + TrialIndexInList_shift))
-                    Next
-                Next
-            Next
-        Next
+
+
+        ''Putting two presentations each of left turn trials in even-index lists in a row, and the swapping to right turn trials, and so on..., in CurrentSipTestMeasurement (from which they can be drawn during testing)
+        'For TrialIndexInList = 0 To NumberOfTrialsPerList - 1 Step 2
+        '    For TrialIndexInList_shift = 0 To 1
+        '        For u_shift = 0 To 1
+        '            For u = 0 To CurrentSipTestMeasurement.TestUnits.Count - 1 Step 2
+        '                CurrentSipTestMeasurement.PlannedTrials.Add(CurrentSipTestMeasurement.TestUnits(u + u_shift).PlannedTrials(TrialIndexInList + TrialIndexInList_shift))
+        '            Next
+        '        Next
+        '    Next
+        'Next
 
 
     End Sub
@@ -224,25 +230,25 @@ Public Class AdaptiveSiP
 
         'And also premixing the first sounds in each SipTestUnit
 
-        For Each TestUnit In CurrentSipTestMeasurement.TestUnits
+        'For Each TestUnit In CurrentSipTestMeasurement.TestUnits
 
-            'Calculating the speech level (of the first trial)
-            Dim ProtocolReply = TestUnit.TestProtocol.NewResponse(New TestTrialCollection)
+        '    'Calculating the speech level (of the first trial)
+        '    Dim ProtocolReply = TestUnit.TestProtocol.NewResponse(New TrialHistory)
 
-            'Getting the new adaptive value
-            TestUnit.PlannedTrials(0).PNR = ProtocolReply.AdaptiveValue
+        '    'Getting the new adaptive value
+        '    TestUnit.PlannedTrials(0).PNR = ProtocolReply.AdaptiveValue
 
-            'Storing it also in AdaptiveProtocolValue, as this is used by the protocol
-            TestUnit.PlannedTrials(0).AdaptiveProtocolValue = ProtocolReply.AdaptiveValue
+        '    'Storing it also in AdaptiveProtocolValue, as this is used by the protocol
+        '    TestUnit.PlannedTrials(0).AdaptiveProtocolValue = ProtocolReply.AdaptiveValue
 
-            'Applying the levels
-            TestUnit.PlannedTrials(0).SetLevels(ReferenceLevel, TestUnit.PlannedTrials(0).PNR)
+        '    'Applying the levels
+        '    TestUnit.PlannedTrials(0).SetLevels(ReferenceLevel, TestUnit.PlannedTrials(0).PNR)
 
-            'Mixing the next sound in the unit
-            TestUnit.PlannedTrials(0).MixSound(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
-            'TestUnit.PlannedTrials(0).PreMixTestTrialSoundOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+        '    'Mixing the next sound in the unit
+        '    TestUnit.PlannedTrials(0).MixSound(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
+        '    'TestUnit.PlannedTrials(0).PreMixTestTrialSoundOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
 
-        Next
+        'Next
 
     End Sub
 
@@ -328,62 +334,60 @@ Public Class AdaptiveSiP
             GivenResponses = e.LinguisticResponses
 
             'Storing the lingustic responses
-            DirectCast(CurrentTestTrial, SipTrial).Response = String.Join("-", GivenResponses)
+            CurrentTestTrial.Response = String.Join("-", GivenResponses)
 
-            For i = 0 To GivenResponses.Count - 1
+            For i = 0 To CurrentTestTrial.SubTrials.Count - 1
 
                 Dim ResponseSpelling As String = GivenResponses(i)
-                Dim CorrectSpelling As String = CurrentTestTrial.SpeechMaterialComponent.ChildComponents(CurrentTestTrial.TaskPresentationOrderList(i)).GetCategoricalVariableValue("Spelling")
+                Dim CorrectSpelling As String = CurrentTestTrial.SubTrials(i).SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
 
-                If CurrentTestTrial.ScoredTasksPresentationIndices.Contains(i) Then
-
-                    'Corrects the trial response, based on the given response
-                    If ResponseSpelling = CorrectSpelling Then
-                        CurrentTestTrial.ScoreList.Add(1)
-                    Else
-                        CurrentTestTrial.ScoreList.Add(0)
-                    End If
+                'Corrects the trial response, based on the given response
+                If ResponseSpelling = CorrectSpelling Then
+                    CurrentTestTrial.ScoreList.Add(1)
                 Else
-
-                    'Skipping scoring of the catch trial, but stores it in a separate score list for export
-                    If ResponseSpelling = CorrectSpelling Then
-                        CurrentTestTrial.CatchTaskScoreList.Add(1)
-                    Else
-                        CurrentTestTrial.CatchTaskScoreList.Add(0)
-                    End If
+                    CurrentTestTrial.ScoreList.Add(0)
                 End If
+
             Next
 
             'Clearing GivenResponses before next trial
             GivenResponses.Clear()
 
-            'Adding the test trial
-            CurrentSipTestMeasurement.MoveTrialToHistory(CurrentTestTrial)
+            'Moving test trial to trial history
+            ObservedTrials.Add(CurrentTestTrial)
+            PlannedTestTrials.RemoveAt(0)
 
-            'Calculating the speech level
-            ProtocolReply = DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.TestProtocol.NewResponse(DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.ObservedTrials)
+            ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
 
-            'Premixing the next trial in the test unit
-            If DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.PlannedTrials.Count > 0 Then
+            ''Updating the speech level only after three trials (i.e. when all words in each TWG has been presented)
+            'If ObservedTrials.Count Mod 3 = 0 Then
 
-                'Overriding the protocol reply decicion if there are more trials left (these will have their on protocols)
-                ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
+            '    'Calculating the speech level
 
-                'We must set the levels of the next trial in the unit here, before mixing it
-                Dim NextUnitTrial As SipTrial = DirectCast(CurrentTestTrial, SipTrial).ParentTestUnit.PlannedTrials(0)
+            '    'Creating a New temporary TrialHistory in which the scores of the observed trials are concatenated in set of three trials so that the score lists of the temporary trials becoma 5*3, and the number of trials a third of the observed trials so far.
+            '    'This means that the TestProtocol will evaluate the results of 15 instead of 5 responses, every third trial.
+            '    Dim ObservedTrialsInSetsOfThree As New TrialHistory
+            '    For i = 0 To ObservedTrials.Count - 1 Step 3
 
-                'Getting the new adaptive value
-                NextUnitTrial.PNR = ProtocolReply.AdaptiveValue
+            '        Dim NewTrial As New TestTrial
+            '        NewTrial.AdaptiveProtocolValue = ObservedTrials(i).AdaptiveProtocolValue ' Note that this value should be the same in all three trials (i + n = 0 To 2)
+            '        For n = 0 To 2
+            '            NewTrial.ScoreList.AddRange(ObservedTrials(i + n).ScoreList)
+            '        Next
+            '        ObservedTrialsInSetsOfThree.Add(NewTrial)
 
-                'Storing it also in AdaptiveProtocolValue, as this is used by the protocol
-                NextUnitTrial.AdaptiveProtocolValue = ProtocolReply.AdaptiveValue
+            '    Next
 
-                'Applying the levels
-                NextUnitTrial.SetLevels(ReferenceLevel, NextUnitTrial.PNR)
+            '    ProtocolReply = TestProtocol.NewResponse(ObservedTrialsInSetsOfThree)
 
-                'Mixing the next sound in the unit
-                NextUnitTrial.PreMixTestTrialSoundOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech)
-            End If
+            'Else
+            '    'Manually creating a new ProtocolReply, with its AdaptiveValue copied from the AdaptiveProtocolValue of the last test trial
+            '    ProtocolReply = New NextTaskInstruction
+            '    ProtocolReply.AdaptiveValue = ObservedTrials.Last.AdaptiveProtocolValue
+            '    ProtocolReply.AdaptiveStepSize = 0
+            '    ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
+
+            'End If
 
             'Taking a dump of the SpeechTest before swapping to the new trial
             CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
@@ -391,9 +395,8 @@ Public Class AdaptiveSiP
         Else
             'Nothing to correct (this should be the start of a new test)
 
-            'The protocol repy is not used here, but needed to avoid a null exception
-            ProtocolReply = New NextTaskInstruction
-            ProtocolReply.Decision = SpeechTestReplies.GotoNextTrial
+            'Calculating the speech level
+            ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
 
             'And mixing and playing initial sound, and the first sounds in each test unit
             InitiateTestByPlayingSound()
@@ -402,7 +405,7 @@ Public Class AdaptiveSiP
 
         'TODO: We must store the responses and response times!!!
 
-        If CurrentSipTestMeasurement.PlannedTrials.Count = 0 Then
+        If PlannedTestTrials.Count = 0 Then
             'Test is completed
             Return SpeechTestReplies.TestIsCompleted
         End If
@@ -442,136 +445,125 @@ Public Class AdaptiveSiP
         'N.B. NextTaskInstruction is not used here
 
         'Preparing the next trial
-        CurrentTestTrial = CurrentSipTestMeasurement.PlannedTrials(0) ' GetNextTrial()
-        CurrentTestTrial.Tasks = 4
+        CurrentTestTrial = PlannedTestTrials(0)
+        CurrentTestTrial.Tasks = 5
         CurrentTestTrial.ResponseAlternativeSpellings = New List(Of List(Of SpeechTestResponseAlternative))
-        Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
 
-        'Adding the current word spelling as a response alternative
-        'ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"), .IsScoredItem = CurrentTestTrial.SpeechMaterialComponent.IsKeyComponent, .ParentTestTrial = CurrentTestTrial})
+        For Each SubTrial In CurrentTestTrial.SubTrials
 
-        'Adding list members as response alternatives
-        Dim AllListWords = CurrentTestTrial.SpeechMaterialComponent.GetChildren()
-        For Each ContrastingWord In AllListWords
-            ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = ContrastingWord.GetCategoricalVariableValue("Spelling"), .IsScoredItem = ContrastingWord.IsKeyComponent, .ParentTestTrial = CurrentTestTrial})
+            Dim ResponseAlternatives As New List(Of SpeechTestResponseAlternative)
+
+            'Adding all list members as response alternatives
+            Dim AllListWords = SubTrial.SpeechMaterialComponent.GetSiblings()
+            For Each ListMembers In AllListWords
+                ResponseAlternatives.Add(New SpeechTestResponseAlternative With {.Spelling = ListMembers.GetCategoricalVariableValue("Spelling"), .IsScoredItem = ListMembers.IsKeyComponent, .ParentTestTrial = CurrentTestTrial})
+            Next
+
+            'Shuffling the order of response alternatives
+            ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+
+            'Adding the response alternatives
+            CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
+
         Next
 
-        'Shuffling the order of response alternatives
-        ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
 
-        'Adding the response alternatives
-        CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
+        'Getting the new adaptive value
+        'Storing values into the TestTrial
+        CurrentTestTrial.AdaptiveProtocolValue = NextTaskInstruction.AdaptiveValue
+        'DirectCast(CurrentTestTrial, SipTrial).PNR = NextTaskInstruction.AdaptiveValue
+        'DirectCast(CurrentTestTrial, SipTrial).AdaptiveProtocolValue = NextTaskInstruction.AdaptiveValue
+
+        'Storing also in all subtrials, and mixes their sounds
+        Dim TrialSounds As New List(Of Audio.Sound)
+        Dim TaskStartTimes As New List(Of Double)
+        For i = 0 To CurrentTestTrial.SubTrials.Count - 1
+
+            Dim SubTrial = CurrentTestTrial.SubTrials(i)
+
+            DirectCast(SubTrial, SipTrial).PNR = NextTaskInstruction.AdaptiveValue
+
+            'Storing it also in AdaptiveProtocolValue, as this is used by the protocol
+            DirectCast(SubTrial, SipTrial).AdaptiveProtocolValue = NextTaskInstruction.AdaptiveValue
+
+            'Applying the levels
+            DirectCast(SubTrial, SipTrial).SetLevels(ReferenceLevel, NextTaskInstruction.AdaptiveValue)
+
+            'Mixing the next sound in the unit
+
+            If i = 0 Then
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, MinimumStimulusOnsetTime, MinimumStimulusOnsetTime, Randomizer, MinimumStimulusOnsetTime + 3, UseBackgroundSpeech, ,, False, True) ' Using only MinimumStimulusOnsetTime here
+            ElseIf i = CurrentTestTrial.SubTrials.Count - 1 Then
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, ,, True, False) ' TrialSoundMaxDuration should be shorter!
+            Else
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, 3, UseBackgroundSpeech, ,, True, True)
+            End If
+
+            'Exports sound file
+            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i & "wav"))
+
+            'Storing the test word start times
+            If i = 0 Then
+                TaskStartTimes.Add(DirectCast(SubTrial, SipTrial).TestWordStartTime)
+            Else
+                TaskStartTimes.Add(MinimumStimulusOnsetTime + i * 2 + DirectCast(SubTrial, SipTrial).TestWordStartTime)
+            End If
+
+            'Adds the sound
+            TrialSounds.Add(DirectCast(SubTrial, SipTrial).Sound)
+
+        Next
+
+        'Mix full trial sound
+        CurrentTestTrial.Sound = Audio.DSP.ConcatenateSounds(TrialSounds, ,,,,, TrialSounds(0).WaveFormat.SampleRate * 1)
+
+        'Exports sound file
+        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix" & "wav"))
 
         'Waiting for the trial sound to be mixed, if not yet completed
-        WaitForTestTrialSound()
+        'WaitForTestTrialSound()
 
         'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration 
-        CurrentTestTrial.LinguisticSoundStimulusStartTime = DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime
-        CurrentTestTrial.LinguisticSoundStimulusDuration = DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime - CurrentTestTrial.LinguisticSoundStimulusStartTime
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = TaskStartTimes.First
+        CurrentTestTrial.LinguisticSoundStimulusDuration = TaskStartTimes.Last + DirectCast(CurrentTestTrial.SubTrials.Last, SipTrial).TestWordCompletedTime - TaskStartTimes.First
         CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
 
         'Setting visual que intervals
-        Dim ShowVisualQueTimer_Interval As Double
-        Dim HideVisualQueTimer_Interval As Double
-        Dim ShowResponseAlternativePositions_Interval As Integer
-        Dim ShowResponseAlternativesTimer_Interval As Double
-        Dim MaxResponseTimeTimer_Interval As Double
+        Dim ShowResponseAlternativePositions_Interval As Integer = ShowResponseAlternativePositionsTime * 1000
+        Dim ShowResponseAlternativesTimer_Interval As Double = ShowResponseAlternativePositions_Interval + 1000 * ResponseAlternativeDelay
+        Dim MaxResponseTimeTimer_Interval As Double = System.Math.Max(1, TaskStartTimes.Last + DirectCast(CurrentTestTrial.SubTrials.Last, SipTrial).TestWordCompletedTime + MaximumResponseTime) * 1000
 
-        If UseVisualQue = True Then
-            ShowVisualQueTimer_Interval = System.Math.Max(1, DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime * 1000)
-            HideVisualQueTimer_Interval = System.Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000)
-            ShowResponseAlternativesTimer_Interval = HideVisualQueTimer_Interval + 1000 * ResponseAlternativeDelay 'TestSetup.CurrentEnvironment.TestSoundMixerSettings.ResponseAlternativeDelay * 1000
-            MaxResponseTimeTimer_Interval = System.Math.Max(1, ShowResponseAlternativesTimer_Interval + 1000 * MaximumResponseTime)  ' TestSetup.CurrentEnvironment.TestSoundMixerSettings.MaximumResponseTime * 1000
-        Else
-            ShowResponseAlternativePositions_Interval = ShowResponseAlternativePositionsTime * 1000
-            ShowResponseAlternativesTimer_Interval = System.Math.Max(1, DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime * 1000) + 1000 * ResponseAlternativeDelay
-            MaxResponseTimeTimer_Interval = System.Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000) + 1000 * MaximumResponseTime
-        End If
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
 
-        If UseVisualQue = False Then
-            ' Test word alternatives on the sides are only supported when the visual que is not shown
-            If ShowTestSide = True Then
-                CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativePositions_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternativePositions})
-            End If
-        Else
-            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue})
-            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = HideVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.HideVisualCue})
+        If ShowTestSide = True Then
+            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativePositions_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternativePositions})
         End If
 
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativesTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
+
+        For Each Value In TaskStartTimes
+            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = Value * 1000, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue})
+        Next
+
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
     End Sub
 
 
-    Private Function GetAverageHeadTurnScores(Optional ByVal TurnedRight As Boolean? = Nothing)
-
-        Dim TrialScoreList As New List(Of Integer)
-        For Each Trial In CurrentSipTestMeasurement.ObservedTrials
-
-            'Skipping to next if it's a practise trial
-            If Trial.IsTestTrial = False Then Continue For
-
-            If TurnedRight.HasValue = False Then
-
-                'Getting all results
-                If Trial.IsCorrect = True Then
-                    TrialScoreList.Add(1)
-                Else
-                    TrialScoreList.Add(0)
-                End If
-
-            Else
-
-                Dim TrialIsTurnRight As Boolean
-                If Trial.TargetStimulusLocations(0).HorizontalAzimuth = -10 Then
-                    TrialIsTurnRight = True
-                ElseIf Trial.TargetStimulusLocations(0).HorizontalAzimuth = 10 Then
-                    TrialIsTurnRight = False
-                Else
-                    Throw New Exception("Incompatible head-turn data. This is a bug!")
-                End If
-
-                'Getting results only from the indicated head turn
-                If TurnedRight = True And TrialIsTurnRight = True Then
-                    If Trial.IsCorrect = True Then
-                        TrialScoreList.Add(1)
-                    Else
-                        TrialScoreList.Add(0)
-                    End If
-                End If
-
-                If TurnedRight = False And TrialIsTurnRight = False Then
-                    If Trial.IsCorrect = True Then
-                        TrialScoreList.Add(1)
-                    Else
-                        TrialScoreList.Add(0)
-                    End If
-                End If
-
-            End If
-
-        Next
-
-        If TrialScoreList.Count > 0 Then
-            Return TrialScoreList.Average
-        Else
-            Return -1
-        End If
-
-    End Function
-
 
     Public Overrides Function GetResultStringForGui() As String
 
+        Dim FinalResult = TestProtocol.GetFinalResultValue
+
         Dim TestResultSummaryLines = New List(Of String)
-        TestResultSummaryLines.Add("Resultat: " & vbTab & Math.Rounding(100 * GetAverageHeadTurnScores(Nothing)) & " % rätt")
-        'TestResult.TestResultSummaryLines.Add("Head turned left: " & Math.Rounding(100 * GetAverageHeadTurnScores(False)) & " %")
-        'TestResult.TestResultSummaryLines.Add("Head turned right : " & Math.Rounding(100 * GetAverageHeadTurnScores(True)) & " %")
+        If FinalResult.HasValue Then
+            TestResultSummaryLines.Add("Resultat: " & vbTab & Math.Rounding(FinalResult.Value, 1) & " dB PNR")
+        Else
+            TestResultSummaryLines.Add("Resultat: Slutgiltigt tröskelvärde kunde ej bestämmas.")
+        End If
 
         Return String.Join(vbCrLf, TestResultSummaryLines)
 
@@ -587,15 +579,12 @@ Public Class AdaptiveSiP
 
     Public Overrides Function GetProgress() As ProgressInfo
 
-        If CurrentSipTestMeasurement IsNot Nothing Then
-            Dim NewProgressInfo As New ProgressInfo
-            NewProgressInfo.Value = GetObservedTestTrials.Count
-            NewProgressInfo.Maximum = CurrentSipTestMeasurement.PlannedTrials.Count
-            Return NewProgressInfo
-        Else
-            Return Nothing
-        End If
+        Dim NewProgressInfo As New ProgressInfo
+        NewProgressInfo.Value = GetObservedTestTrials.Count + 1 ' Adds one to show started instead of completed trials.
+        NewProgressInfo.Maximum = TrialCount
+        Return NewProgressInfo
 
     End Function
+
 
 End Class

@@ -508,7 +508,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                case "I HeAR CS - SiP-testet":
+                case "SiP-testet (Adaptivt)":
 
                     bool useAdaptive = true;
                     if (useAdaptive)
@@ -517,7 +517,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                         SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
                         // Speech test
-                        CurrentSpeechTest = new AdaptiveSiP2("Swedish SiP-test");
+                        CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
 
                         TestOptionsGrid.Children.Clear();
                         var newOptionsSipSCTestView = new OptionsViewAll(CurrentSpeechTest);
@@ -691,7 +691,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         }
 
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
                         //TestResponseView.StartedByTestee += StartedByTestee;
 
@@ -730,7 +730,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                         }
 
                         //TestResponseView.StartedByTestee += StartedByTestee;
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
                         break;
@@ -748,7 +748,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                             CurrentResponseView = new ResponseView_Matrix();
                         }
 
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
                         //TestResponseView.StartedByTestee += StartedByTestee;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
@@ -768,7 +768,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                         {
                             CurrentResponseView = new ResponseView_Mafc();
                         }
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
                         //TestResponseView.StartedByTestee += StartedByTestee;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
@@ -804,7 +804,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                             TestReponseGrid.Children.Add(CurrentResponseView);
                         }
 
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
                         CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
@@ -817,7 +817,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                         //CurrentResponseView = new ResponseView_Mafc();
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
 
                         break;
 
@@ -848,13 +848,13 @@ public partial class SpeechTestView : ContentView, IDrawable
                             TestReponseGrid.Children.Add(CurrentResponseView);
                         }
 
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
                         CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
                         break;
 
-                    case "I HeAR CS - SiP-testet":
+                    case "SiP-testet (Adaptivt)":
 
                         bool useAdaptive = true;
                         if (useAdaptive)
@@ -862,7 +862,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                             CurrentResponseView = new ResponseView_AdaptiveSiP();
                             TestReponseGrid.Children.Add(CurrentResponseView);
 
-                            CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                            CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
 
                         }
                         else
@@ -870,7 +870,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                             CurrentResponseView = new ResponseView_SiP_SF();
                             TestReponseGrid.Children.Add(CurrentResponseView);
 
-                            CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                            CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
                         }
 
                         break;
@@ -924,7 +924,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 if (CurrentResponseView != null)
                 {
                     // Removing event handlers
-                    CurrentResponseView.ResponseGiven -= NewSpeechTestInput;
+                    CurrentResponseView.ResponseGiven -= HandleResponseView_ResponseGiven;
                     CurrentResponseView.ResponseHistoryUpdated -= ResponseHistoryUpdate;
                     CurrentResponseView.CorrectionButtonClicked -= ResponseViewCorrectionButtonClicked;
                     CurrentResponseView.StartedByTestee -= StartedByTestee;
@@ -1045,7 +1045,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         // Calling NewSpeechTestInput with e as null
         // Making the call on a separate a background thread so that the GUI changes doesn't have to wait for the creation of the initial test stimuli 
-        await Task.Run(() => NewSpeechTestInput(null, null));
+        await Task.Run(() => HandleResponseView_ResponseGiven(null, null));
 
     }
 
@@ -1152,13 +1152,13 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
-    void NewSpeechTestInput(object sender, SpeechTestInputEventArgs e)
+    void HandleResponseView_ResponseGiven(object sender, SpeechTestInputEventArgs e)
     {
 
-        // Acctually this should probably be dealt with on a worker thread, so leaves it on the incoming thread
-        // Directing the call to the main thread if not already on the main thread
-        // if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [sender, e]); }); return; }
+        // This method handles the event triggered by a response in the response view, and calls the GetSpeechTestReply method of the CurrentSpeechTest to determine what should happen next.
 
+        // Stops all event timers. N.B. This disallows automatic response after the first incoming respone
+        StopAllTrialEventTimers();
 
         if (TestIsPaused == true)
         {
@@ -1189,9 +1189,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                 break;
 
             case SpeechTest.SpeechTestReplies.GotoNextTrial:
-
-                // Stops all event timers
-                StopAllTrialEventTimers();
 
                 CurrentSpeechTest.SaveTestTrialResults();
 
@@ -1487,8 +1484,9 @@ public partial class SpeechTestView : ContentView, IDrawable
     void StopAllTrialEventTimers()
     {
 
+        // This call is done on whichever thread that calls it, since no GUI object should be updated by this call.
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
+        //if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
         // Stops all event timers
         if (testTrialEventTimerList != null)

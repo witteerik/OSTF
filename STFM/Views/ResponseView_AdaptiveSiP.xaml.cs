@@ -6,6 +6,7 @@ using STFN.Utils;
 using STFN.SipTest;
 using System.Reflection;
 using Microsoft.Maui.Platform;
+using System.Diagnostics;
 
 namespace STFM.Views
 {
@@ -66,13 +67,10 @@ namespace STFM.Views
 
         private void ResetGui_TimerTick(object sender, EventArgs e)
         {
-            ResetGui();
+            //ResetGuiToInitialState();
         }
 
-        public void ResetGui()
-        {
-                ResetGuiToInitialState();
-        }
+
 
         public override void HideVisualCue()
         {
@@ -130,16 +128,6 @@ namespace STFM.Views
                 TestWordButton5_2.Background = RedButtonColor;
                 TestWordButton5_3.Background = RedButtonColor;
             }
-
-            // starting timer that hides everything
-            ResetGuiTimer.Start();
-
-            // Getting responded words (so far)
-            ReplyList.Add(GetRowResponse(TestWordGrid5));
-            ReplyList.Add(GetRowResponse(TestWordGrid4));
-            ReplyList.Add(GetRowResponse(TestWordGrid3));
-            ReplyList.Add(GetRowResponse(TestWordGrid2));
-            ReplyList.Add(GetRowResponse(TestWordGrid1));
 
             // Sending the reply on on a background thread, so that the GUI gets updated
             await Task.Run(() => SendReply());
@@ -213,7 +201,7 @@ namespace STFM.Views
             TestWordRow5.IsVisible = true;
 
             TestWordMatrix.IsVisible = true;
-            TestWordGrid.IsVisible = false;
+            TestWordGrid.IsVisible = true;
             MessageButton.IsVisible = false;
             OrderGrid.IsVisible = true;
 
@@ -359,6 +347,10 @@ namespace STFM.Views
                     TestWordButton1_2.IsEnabled = true;
                     TestWordButton1_3.IsEnabled = true;
                     Circle5.IsVisible = true;
+
+                    // Setting ResponseIsGiven as late as here to ensure that no responses is sent before this time (could likely also be done right as the start of the trial)
+                    ResponseIsGiven = false;
+
                     break;
                 default:
                     break;
@@ -476,16 +468,6 @@ namespace STFM.Views
             if (ResponseCount == 5)
             {
 
-                // Adding from bottom to top
-                ReplyList.Add(GetRowResponse(TestWordGrid5));
-                ReplyList.Add(GetRowResponse(TestWordGrid4));
-                ReplyList.Add(GetRowResponse(TestWordGrid3));
-                ReplyList.Add(GetRowResponse(TestWordGrid2));
-                ReplyList.Add(GetRowResponse(TestWordGrid1));
-
-                // starting timer that hides everything
-                ResetGuiTimer.Start();
-
                 // Sending the reply on on a background thread
                 await Task.Run(() => SendReply());
             }
@@ -520,23 +502,50 @@ namespace STFM.Views
             }
         }
 
+        private readonly object SendReplySyncLock = new object();
+
         private void SendReply()
         {
 
-            // Copies the responses to a new list (so that the reply has its own instance of the list)
-            List<string> ReplyListCopy = new List<string>();
-            for (int i = 0; i < ReplyList.Count; i++)
+            //Messager.MsgBoxAsync("New Replies" + GetRowResponse(TestWordGrid1));
+
+            lock (SendReplySyncLock)
             {
-                ReplyListCopy.Add(ReplyList[i]);
+
+                //Messager.MsgBoxAsync("In Lock" + GetRowResponse(TestWordGrid1));
+
+                if (ResponseIsGiven == true)
+                {
+                    return;
+                }
+                ResponseIsGiven = true;
+
+                // Collecting responses (including missing), adding from bottom to top
+                ReplyList.Add(GetRowResponse(TestWordGrid5));
+                ReplyList.Add(GetRowResponse(TestWordGrid4));
+                ReplyList.Add(GetRowResponse(TestWordGrid3));
+                ReplyList.Add(GetRowResponse(TestWordGrid2));
+                ReplyList.Add(GetRowResponse(TestWordGrid1));
+
+                // Copies the responses to a new list (so that the reply has its own instance of the list)
+                List<string> ReplyListCopy = new List<string>();
+                for (int i = 0; i < ReplyList.Count; i++)
+                {
+                    ReplyListCopy.Add(ReplyList[i]);
+                }
+
+                // Storing the raw response
+                SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
+                args.LinguisticResponses = ReplyListCopy;
+                args.LinguisticResponseTime = DateTime.Now;
+
+                // Raising the Response given event in the base class
+                OnResponseGiven(args);
+
+                // starting timer that hides everything
+                ResetGuiTimer.Start();
+
             }
-
-            // Storing the raw response
-            SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
-            args.LinguisticResponses = ReplyListCopy;
-            args.LinguisticResponseTime = DateTime.Now;
-
-            // Raising the Response given event in the base class
-            OnResponseGiven(args);
 
         }               
 

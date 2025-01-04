@@ -12,4 +12,4 @@ Hörtröskel för tal (HTT)
 Manuell TP i brus
 SiP-testet
 Quick SiP
-I HeAR CS - SiP-testet
+SiP-testet (Adaptivt)
