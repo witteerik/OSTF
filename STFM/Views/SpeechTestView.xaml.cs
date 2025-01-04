@@ -656,7 +656,247 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
-    async Task<bool> InitiateTesting()
+
+    private bool CreateTestGui()
+    {
+
+        if (CurrentSpeechTest != null)
+        {
+
+            try
+            {
+
+                switch (selectedSpeechTestName)
+                {
+
+                    case "Talaudiometri":
+
+                        // Pick appropriate response view
+                        if (CurrentSpeechTest.IsFreeRecall)
+                        {
+                            CurrentResponseView = new ResponseView_FreeRecall();
+                        }
+                        else
+                        {
+                            CurrentResponseView = new ResponseView_Mafc();
+
+                            // We have to choose between:
+                            //CurrentResponseView = new ResponseView_Matrix();
+
+                            //CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
+                            //Which also requires:
+                            // CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+
+                            //CurrentResponseView = new ResponseView_SiP_SF();
+
+                        }
+
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+                        //TestResponseView.StartedByTestee += StartedByTestee;
+
+                        // Add the response view to TestReponseGrid (or put it in a separate window, code not finished there)
+                        if (true)
+                        {
+                            TestReponseGrid.Children.Add(CurrentResponseView);
+                        }
+                        else
+                        {
+                            ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
+                            Window secondWindow = new Window(responsePage);
+                            secondWindow.Title = "";
+                            Application.Current.OpenWindow(secondWindow);
+                        }
+
+                        break;
+
+                    case "Svenska HINT":
+
+                        // Response view
+                        CurrentResponseView = new ResponseView_FreeRecall();
+
+                        // Select separate response window here, code not finished
+                        if (false)
+                        {
+                            ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
+                            Window secondWindow = new Window(responsePage);
+                            secondWindow.Title = "";
+                            Application.Current.OpenWindow(secondWindow);
+
+                        }
+                        else
+                        {
+                            TestReponseGrid.Children.Add(CurrentResponseView);
+                        }
+
+                        //TestResponseView.StartedByTestee += StartedByTestee;
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                        break;
+
+
+                    case "Hagermans meningar (Matrix)":
+
+                        // Response view
+                        if (CurrentSpeechTest.IsFreeRecall)
+                        {
+                            CurrentResponseView = new ResponseView_FreeRecall();
+                        }
+                        else
+                        {
+                            CurrentResponseView = new ResponseView_Matrix();
+                        }
+
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        //TestResponseView.StartedByTestee += StartedByTestee;
+                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+
+                        break;
+
+
+                    case "Hörtröskel för tal (HTT)":
+
+                        // Response view
+                        if (CurrentSpeechTest.IsFreeRecall)
+                        {
+                            CurrentResponseView = new ResponseView_FreeRecall();
+                        }
+                        else
+                        {
+                            CurrentResponseView = new ResponseView_Mafc();
+                        }
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        //TestResponseView.StartedByTestee += StartedByTestee;
+                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+
+                        break;
+
+                    //case "SiP-testet":
+
+                    //    CurrentResponseView = new ResponseView_Mafc();
+                    //    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                    //    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    //    break;
+
+
+                    case "Manuell TP i brus":
+
+                        // Response view
+                        CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
+
+                        bool openInSeparateWindow = false;
+                        if (openInSeparateWindow)
+                        {
+                            ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
+                            Window PB2secondWindow = new Window(PB2responsePage);
+                            PB2secondWindow.Title = "";
+                            Application.Current.OpenWindow(PB2secondWindow);
+                        }
+                        else
+                        {
+                            TestReponseGrid.Children.Add(CurrentResponseView);
+                        }
+
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                        break;
+
+
+                    case "Quick SiP":
+
+                        CurrentResponseView = new ResponseView_SiP_SF(); // Using the same respons GUI as with head movements
+                        //CurrentResponseView = new ResponseView_Mafc();
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                        break;
+
+                    //case "SiP-testet":
+
+                    //    CurrentResponseView = new ResponseView_Mafc();
+                    //    TestReponseGrid.Children.Add(CurrentResponseView);
+
+                    //    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                    //    break;
+
+                    case "TP50 - Ljudfält":
+
+                        // Response view
+                        CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
+
+                        bool openTP50InSeparateWindow = false;
+                        if (openTP50InSeparateWindow)
+                        {
+                            ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
+                            Window PB2secondWindow = new Window(PB2responsePage);
+                            PB2secondWindow.Title = "";
+                            Application.Current.OpenWindow(PB2secondWindow);
+                        }
+                        else
+                        {
+                            TestReponseGrid.Children.Add(CurrentResponseView);
+                        }
+
+                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
+
+                        break;
+
+                    case "I HeAR CS - SiP-testet":
+
+                        bool useAdaptive = true;
+                        if (useAdaptive)
+                        {
+                            CurrentResponseView = new ResponseView_AdaptiveSiP2();
+                            TestReponseGrid.Children.Add(CurrentResponseView);
+
+                            CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+
+                        }
+                        else
+                        {
+                            CurrentResponseView = new ResponseView_SiP_SF();
+                            TestReponseGrid.Children.Add(CurrentResponseView);
+
+                            CurrentResponseView.ResponseGiven += NewSpeechTestInput;
+                        }
+
+                        break;
+
+                    default:
+                        Messager.MsgBox("No participant response GUI available for the selected test! This is must likely a bug which should not occur!"); 
+                        return false;
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                Messager.MsgBox("Something went wrong when creating the participant response GUI! Unable to start the selected test!", Messager.MsgBoxStyle.Information,"Something went wrong!");
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
+
+
+        async Task<bool> InitiateTesting()
     {
 
         if (TestIsInitiated == true)
@@ -677,223 +917,31 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             // Initializing the test
             Tuple<bool, string> testInitializationResponse = CurrentSpeechTest.InitializeCurrentTest();
-            await handleTestInitializationResult(testInitializationResponse);
-            if (testInitializationResponse.Item1 == false) { return false; }
+            await HandleTestInitializationResult(testInitializationResponse);
+            if (testInitializationResponse.Item1 == false) {
 
-            switch (selectedSpeechTestName)
-            {
+                // Initialization was not successful
+                if (CurrentResponseView != null)
+                {
+                    // Removing event handlers
+                    CurrentResponseView.ResponseGiven -= NewSpeechTestInput;
+                    CurrentResponseView.ResponseHistoryUpdated -= ResponseHistoryUpdate;
+                    CurrentResponseView.CorrectionButtonClicked -= ResponseViewCorrectionButtonClicked;
+                    CurrentResponseView.StartedByTestee -= StartedByTestee;
 
-                case "Talaudiometri":
+                    // Removing the response view
+                    CurrentResponseView = null;
 
-                    // Pick appropriate response view
-                    if (CurrentSpeechTest.IsFreeRecall)
-                    {
-                        CurrentResponseView = new ResponseView_FreeRecall();
-                    }
-                    else
-                    {
-                        CurrentResponseView = new ResponseView_Mafc();
+                }
 
-                        // We have to choose between:
-                        //CurrentResponseView = new ResponseView_Matrix();
+                // Removing the speech test
+                CurrentSpeechTest = null;
 
-                        //CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
-                        //Which also requires:
-                        // CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+                Messager.MsgBox("Something went wrong when trying to start the test! Unable to start the selected test!", Messager.MsgBoxStyle.Information, "Something went wrong!");
 
-                        //CurrentResponseView = new ResponseView_SiP_SF();
-
-                    }
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-                    //TestResponseView.StartedByTestee += StartedByTestee;
-
-                    // Add the response view to TestReponseGrid (or put it in a separate window, code not finished there)
-                    if (true)
-                    {
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-                    }
-                    else
-                    {
-                        ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
-                        Window secondWindow = new Window(responsePage);
-                        secondWindow.Title = "";
-                        Application.Current.OpenWindow(secondWindow);
-                    }
-
-                    break;
-
-                case "Svenska HINT":
-
-                    // Response view
-                    CurrentResponseView = new ResponseView_FreeRecall();
-
-                    // Select separate response window here, code not finished
-                    if (false)
-                    {
-                        ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
-                        Window secondWindow = new Window(responsePage);
-                        secondWindow.Title = "";
-                        Application.Current.OpenWindow(secondWindow);
-
-                    }
-                    else
-                    {
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-                    }
-
-                    //TestResponseView.StartedByTestee += StartedByTestee;
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                    break;
-
-
-                case "Hagermans meningar (Matrix)":
-
-                    // Response view
-                    if (CurrentSpeechTest.IsFreeRecall)
-                    {
-                        CurrentResponseView = new ResponseView_FreeRecall();
-                    }
-                    else
-                    {
-                        CurrentResponseView = new ResponseView_Matrix();
-                    }
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    //TestResponseView.StartedByTestee += StartedByTestee;
-                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    break;
-
-
-                case "Hörtröskel för tal (HTT)":
-
-                    // Response view
-                    if (CurrentSpeechTest.IsFreeRecall)
-                    {
-                        CurrentResponseView = new ResponseView_FreeRecall();
-                    }
-                    else
-                    {
-                        CurrentResponseView = new ResponseView_Mafc();
-                    }
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    //TestResponseView.StartedByTestee += StartedByTestee;
-                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    break;
-
-                //case "SiP-testet":
-
-                //    CurrentResponseView = new ResponseView_Mafc();
-                //    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                //    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                //    break;
-
-
-                case "Manuell TP i brus":
-
-                    // Response view
-                    CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
-
-                    bool openInSeparateWindow = false;
-                    if (openInSeparateWindow)
-                    {
-                        ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
-                        Window PB2secondWindow = new Window(PB2responsePage);
-                        PB2secondWindow.Title = "";
-                        Application.Current.OpenWindow(PB2secondWindow);
-                    }
-                    else
-                    {
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-                    }
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
-                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                    break;
-
-
-                case "Quick SiP":
-
-                    CurrentResponseView = new ResponseView_SiP_SF(); // Using the same respons GUI as with head movements
-                    //CurrentResponseView = new ResponseView_Mafc();
-                    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    break;
-
-                //case "SiP-testet":
-
-                //    CurrentResponseView = new ResponseView_Mafc();
-                //    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                //    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                //    break;
-
-                case "TP50 - Ljudfält":
-
-                    // Response view
-                    CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
-
-                    bool openTP50InSeparateWindow = false;
-                    if (openTP50InSeparateWindow)
-                    {
-                        ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
-                        Window PB2secondWindow = new Window(PB2responsePage);
-                        PB2secondWindow.Title = "";
-                        Application.Current.OpenWindow(PB2secondWindow);
-                    }
-                    else
-                    {
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-                    }
-
-                    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-                    CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
-                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                    break;
-
-                case "I HeAR CS - SiP-testet":
-
-                    bool useAdaptive = true;
-                    if (useAdaptive)
-                    {
-                        CurrentResponseView = new ResponseView_AdaptiveSiP2();
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    }
-                    else
-                    {
-                        CurrentResponseView = new ResponseView_SiP_SF();
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-
-                        CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    }
-
-                    break;
-
-                default:
-                    TestOptionsGrid.Children.Clear();
-                    break;
+                return false; 
             }
+
 
             // Updating settings needed for the loaded test
             // This is actually done also after selecting the test, do we need to do it also here?
@@ -918,14 +966,16 @@ public partial class SpeechTestView : ContentView, IDrawable
             // Setting TestIsInitiated to true to allow starting the test, and block any re-initializations
             TestIsInitiated = true;
             return true;
+
         }
         else
         {
+            Messager.MsgBox("No test has been created!", Messager.MsgBoxStyle.Information, "Something went wrong!");
             return false;
         }
     }
 
-    async Task handleTestInitializationResult(Tuple<bool, string> testInitializationResult)
+    async Task HandleTestInitializationResult(Tuple<bool, string> testInitializationResult)
     {
         if (testInitializationResult.Item2.Trim() != "")
         {
@@ -955,10 +1005,20 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Directing the call to the main thread if not already on the main thread
         if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
+        bool TestGuiCreationResult = CreateTestGui();
+        if (TestGuiCreationResult == false)
+        {
+            FinalizeTest(false);
+            TestOptionsGrid.Children.Clear();
+            return;
+        }
+
 
         bool InitializationResult = await InitiateTesting();
         if (InitializationResult == false)
         {
+            FinalizeTest(false);
+            TestOptionsGrid.Children.Clear();
             return;
         }
 
@@ -984,7 +1044,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         TestIsPaused = false;
 
         // Calling NewSpeechTestInput with e as null
-        NewSpeechTestInput(null, null);
+        // Making the call on a separate a background thread so that the GUI changes doesn't have to wait for the creation of the initial test stimuli 
+        await Task.Run(() => NewSpeechTestInput(null, null));
 
     }
 
@@ -1057,7 +1118,14 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    void ResponseViewCorrectionButtonClicked(object sender, EventArgs e)
+    
+    void StartedByTestee(object sender, EventArgs e)
+    { 
+        // Not used
+    }
+
+
+        void ResponseViewCorrectionButtonClicked(object sender, EventArgs e)
     {
         // Acctually this should probably be dealt with on a worker thread, so leaves it on the incoming thread
         // Directing the call to the main thread if not already on the main thread
@@ -1070,7 +1138,19 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    
+
+    void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
+    {
+
+        // Directing the call to the main thread if not already on the main thread
+        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [Value, Maximum, Minimum]); }); return; }
+
+        if (CurrentResponseView != null)
+        {
+            CurrentResponseView.UpdateTestFormProgressbar(Value, Maximum, Minimum);
+        }
+
+    }
 
     void NewSpeechTestInput(object sender, SpeechTestInputEventArgs e)
     {
@@ -1159,6 +1239,13 @@ public partial class SpeechTestView : ContentView, IDrawable
             default:
                 break;
 
+        }
+
+        // Updating progress 
+        STFN.Utils.ProgressInfo CurrentProgress = CurrentSpeechTest.GetProgress();
+        if (CurrentProgress != null)
+        {
+            UpdateTestFormProgressbar(CurrentProgress.Value, CurrentProgress.Maximum, CurrentProgress.Minimum);
         }
 
         // Showing results if results view is visible
@@ -1459,19 +1546,22 @@ public partial class SpeechTestView : ContentView, IDrawable
         TestReponseGrid.IsEnabled = false;
         TestResultGrid.IsEnabled = true;
 
-        // Attempting to finalize the test protocol, if aborted ahead of time
-        if (wasStoppedBeforeFinished == true)
+        if (CurrentSpeechTest != null)
         {
-            CurrentSpeechTest.FinalizeTestAheadOfTime();
+            // Attempting to finalize the test protocol, if aborted ahead of time
+            if (wasStoppedBeforeFinished == true)
+            {
+                CurrentSpeechTest.FinalizeTestAheadOfTime();
+            }
+
+            // Getting test results
+
+            // Displaying test results
+            ShowResults(CurrentSpeechTest.GetResultStringForGui());
+
+            // Saving test results to file
+            CurrentSpeechTest.SaveTableFormatedTestResults();
         }
-
-        // Getting test results
-
-        // Displaying test results
-        ShowResults(CurrentSpeechTest.GetResultStringForGui());
-
-        // Saving test results to file
-        CurrentSpeechTest.SaveTableFormatedTestResults();
 
     }
 

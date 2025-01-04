@@ -17,16 +17,20 @@ Public Class AdaptiveSiP2
     Public Shadows Sub ApplyTestSpecificSettings()
 
         TesterInstructions = "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
-                "1. Informera patienten om hur testet går till." & vbCrLf &
-                "2. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
+                "1. Informera deltagaren om hur testet går till." & vbCrLf &
+                "2. Vänd skärmen till deltagaren. Be sedan deltagaren klicka på start för att starta testet."
 
 
-        ParticipantInstructions = "Patientens uppgift: " & vbCrLf & vbCrLf &
-                " - Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
-                " - Under testet ska patienten lyssna efter enstaviga ord i olika ljudmiljöer och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
-                " - Patienten ska gissa om hen är osäker. Många ord är mycket svåra att höra!" & vbCrLf &
-                " - Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
-                " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid."
+        ParticipantInstructions = "Deltagarens uppgift: " & vbCrLf & vbCrLf &
+                " - Deltagaren startar testet genom att klicka på knappen 'Start'" & vbCrLf &
+                " - Under testet ska deltagaren lyssna efter enstaviga ord i olika ljudmiljöer. Orden presenteras fem i taget och deltagaren ska ange så snabbt och korrekt som möjligt vilka ord hen uppfattat. " & vbCrLf &
+                " - Svarsalternativen finns i en tabell med fem rader och tre kolumner." & vbCrLf &
+                "      - Första ordet är ett av de tre orden i raden längst ned." & vbCrLf &
+                "      - Nästa ord finns i raden näst längst ned." & vbCrLf &
+                "      - Fortsätt uppåt tills alla ord besvarats. " & vbCrLf &
+                " - Om deltagaren är osäker ska hen gissa." & vbCrLf &
+                " - Den maximala svarstiden är " & MaximumResponseTime & " sekunder efter att sista ordet spelats upp." & vbCrLf &
+                " - Om svarsalternativen ändras till i röd färg har deltagaren inte svarat i tid. Testet går då vidare."
 
         'SupportsManualPausing = False
 
@@ -38,9 +42,7 @@ Public Class AdaptiveSiP2
         MinimumStimulusOnsetTime = 0.3 + 0.3 ' 0.3 in sound field
         MaximumStimulusOnsetTime = 0.8 + 0.3 ' 0.3 in sound field
 
-        ResponseAlternativeDelay = 0.02
-
-        'DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
+        ResponseAlternativeDelay = 0.01
 
     End Sub
 
@@ -102,7 +104,7 @@ Public Class AdaptiveSiP2
         'Creating a test protocol
         TestProtocol = New BrandKollmeier2002_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
         'TestProtocol = New AdaptiveSiP_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
-        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = 10, .TestStage = 0, .TestLength = TestLength})
+        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = 10, .TestStage = 0, .TestLength = TrialCount})
 
 
         Return New Tuple(Of Boolean, String)(True, "")
@@ -522,51 +524,31 @@ Public Class AdaptiveSiP2
         'WaitForTestTrialSound()
 
         'Storing the LinguisticSoundStimulusStartTime and the LinguisticSoundStimulusDuration 
-        CurrentTestTrial.LinguisticSoundStimulusStartTime = DirectCast(CurrentTestTrial.SubTrials(0), SipTrial).TestWordStartTime
-        CurrentTestTrial.LinguisticSoundStimulusDuration = (CurrentTestTrial.Sound.WaveData.SampleData(1).Length / CurrentTestTrial.Sound.WaveFormat.SampleRate) - DirectCast(CurrentTestTrial.SubTrials(4), SipTrial).TestWordCompletedTime - CurrentTestTrial.LinguisticSoundStimulusStartTime
+        CurrentTestTrial.LinguisticSoundStimulusStartTime = TaskStartTimes.First
+        CurrentTestTrial.LinguisticSoundStimulusDuration = TaskStartTimes.Last + DirectCast(CurrentTestTrial.SubTrials.Last, SipTrial).TestWordCompletedTime - TaskStartTimes.First
         CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
 
         'Setting visual que intervals
-        Dim ShowVisualQueTimer_Interval As Double
-        Dim HideVisualQueTimer_Interval As Double
-        Dim ShowResponseAlternativePositions_Interval As Integer
-        Dim ShowResponseAlternativesTimer_Interval As Double
-        Dim MaxResponseTimeTimer_Interval As Double
+        Dim ShowResponseAlternativePositions_Interval As Integer = ShowResponseAlternativePositionsTime * 1000
+        Dim ShowResponseAlternativesTimer_Interval As Double = ShowResponseAlternativePositions_Interval + 1000 * ResponseAlternativeDelay
+        Dim MaxResponseTimeTimer_Interval As Double = System.Math.Max(1, TaskStartTimes.Last + DirectCast(CurrentTestTrial.SubTrials.Last, SipTrial).TestWordCompletedTime + MaximumResponseTime) * 1000
 
-        If UseVisualQue = True Then
-            ShowVisualQueTimer_Interval = System.Math.Max(1, DirectCast(CurrentTestTrial, SipTrial).TestWordStartTime * 1000)
-            HideVisualQueTimer_Interval = System.Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000)
-            ShowResponseAlternativesTimer_Interval = HideVisualQueTimer_Interval + 1000 * ResponseAlternativeDelay 'TestSetup.CurrentEnvironment.TestSoundMixerSettings.ResponseAlternativeDelay * 1000
-            MaxResponseTimeTimer_Interval = System.Math.Max(1, ShowResponseAlternativesTimer_Interval + 1000 * MaximumResponseTime)  ' TestSetup.CurrentEnvironment.TestSoundMixerSettings.MaximumResponseTime * 1000
-        Else
-            ShowResponseAlternativePositions_Interval = ShowResponseAlternativePositionsTime * 1000
-
-            ShowResponseAlternativesTimer_Interval = ShowResponseAlternativePositions_Interval + 10 'System.Math.Max(1, CurrentTestTrial.LinguisticSoundStimulusDuration * 1000) + 1000 * ResponseAlternativeDelay
-            'ShowResponseAlternativesTimer_Interval = System.Math.Max(1, DirectCast(CurrentTestTrial.SubTrials(0), SipTrial).TestWordStartTime * 1000) + 1000 * ResponseAlternativeDelay
-            MaxResponseTimeTimer_Interval = System.Math.Max(2, CurrentTestTrial.LinguisticSoundStimulusDuration * 1000) + 1000 * MaximumResponseTime
-            'MaxResponseTimeTimer_Interval = System.Math.Max(2, DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime * 1000) + 1000 * MaximumResponseTime
-        End If
 
         'Setting trial events
         CurrentTestTrial.TrialEventList = New List(Of ResponseViewEvent)
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
 
-        If UseVisualQue = False Then
-            ' Test word alternatives on the sides are only supported when the visual que is not shown
-            If ShowTestSide = True Then
-                CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativePositions_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternativePositions})
-            End If
-        Else
-            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue})
-            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = HideVisualQueTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.HideVisualCue})
+        If ShowTestSide = True Then
+            CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativePositions_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternativePositions})
         End If
+
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativesTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
 
         For Each Value In TaskStartTimes
             CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = Value * 1000, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowVisualCue})
         Next
 
-        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = ShowResponseAlternativesTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        'CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = MaxResponseTimeTimer_Interval, .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
     End Sub
 
@@ -646,6 +628,15 @@ Public Class AdaptiveSiP2
     ''' <returns></returns>
     Public Overrides Function GetSelectedExportVariables() As List(Of String)
         Return New List(Of String)
+    End Function
+
+    Public Overrides Function GetProgress() As ProgressInfo
+
+        Dim NewProgressInfo As New ProgressInfo
+        NewProgressInfo.Value = GetObservedTestTrials.Count + 1 ' Adds one to show started instead of completed trials.
+        NewProgressInfo.Maximum = TrialCount
+        Return NewProgressInfo
+
     End Function
 
 

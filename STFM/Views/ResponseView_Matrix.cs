@@ -162,7 +162,7 @@ public class ResponseView_Matrix : ResponseView
         throw new NotImplementedException();
     }
 
-    public override void ResponseTimesOut()
+    public async override void ResponseTimesOut()
     {
         InactivateEventHandlers();
 
@@ -172,7 +172,8 @@ public class ResponseView_Matrix : ResponseView
         }
 
         // Reporting the result so far
-        ReportResult();
+        // Run the long-running method on a background thread
+        await Task.Run(() => ReportResult());
 
     }
 

@@ -250,7 +250,7 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
     }
 
 
-    private async Task wrapUpTrial()
+    private async void wrapUpTrial()
     {
 
         List<string> CorrectResponses = new List<string>();
@@ -324,7 +324,7 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
     }
 
     
-    private async void controlButton_Clicked(object sender, EventArgs e)
+    private void controlButton_Clicked(object sender, EventArgs e)
     {
 
         // Getting the responsed label
@@ -333,7 +333,7 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
 
         if (controlButtonParentFrame.ClassId == "NextButton")
         {
-           await wrapUpTrial();
+           wrapUpTrial();
         }
 
     }
@@ -374,7 +374,7 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
         throw new NotImplementedException();
     }
 
-    public async override void ResponseTimesOut()
+    public override void ResponseTimesOut()
     {
         foreach (var child in responseAlternativeGrid.Children)
         {
@@ -388,7 +388,7 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
         }
 
         // Auto wrapping up the trial
-        await wrapUpTrial();
+        wrapUpTrial();
     }
 
     public override void ShowMessage(string Message)

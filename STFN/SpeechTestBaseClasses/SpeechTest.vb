@@ -1964,6 +1964,13 @@ Public MustInherit Class SpeechTest
 
     Public Property HistoricTrialCount As Integer = 0
 
+    ''' <summary>
+    ''' Should deliver the current progress of the test, or Nothing if progress indication is not supported.
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride Function GetProgress() As Utils.ProgressInfo
+
+
 #End Region
 
 #Region "TestResults"

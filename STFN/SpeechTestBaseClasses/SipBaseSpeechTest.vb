@@ -1,5 +1,6 @@
 ﻿Imports STFN.Audio
 Imports STFN.SipTest
+Imports STFN.Utils
 
 Public MustInherit Class SipBaseSpeechTest
     Inherits SpeechTest
@@ -207,6 +208,21 @@ Public MustInherit Class SipBaseSpeechTest
     Public Overrides Sub FinalizeTestAheadOfTime()
         'This is currently not used in the SiP-test
     End Sub
+
+    Public Overrides Function GetProgress() As ProgressInfo
+
+        If CurrentSipTestMeasurement IsNot Nothing Then
+
+            Dim NewProgressInfo As New ProgressInfo
+            NewProgressInfo.Value = GetObservedTestTrials.Count
+            NewProgressInfo.Maximum = GetObservedTestTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count
+            Return NewProgressInfo
+
+        End If
+
+        Return Nothing
+
+    End Function
 
 
 End Class

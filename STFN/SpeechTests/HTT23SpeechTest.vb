@@ -466,5 +466,20 @@ Public Class HTT23SpeechTest
         'Throw New NotImplementedException()
     End Sub
 
+    Public Overrides Function GetProgress() As Utils.ProgressInfo
+
+        If TestProtocol IsNot Nothing Then
+            If TestProtocol.TotalTrialCount <> -1 Then
+                Dim NewProgressInfo As New Utils.ProgressInfo
+                NewProgressInfo.Value = GetObservedTestTrials.Count
+                NewProgressInfo.Maximum = TestProtocol.TotalTrialCount
+                Return NewProgressInfo
+            End If
+        End If
+
+        Return Nothing
+
+    End Function
+
 
 End Class

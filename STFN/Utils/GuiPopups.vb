@@ -284,3 +284,15 @@ Public Class PathsEventArgs
         Me.TaskCompletionSource = tcs
     End Sub
 End Class
+
+Namespace Utils
+
+    'TODO. Shouldn't everything in this file be in the Utils namespace?
+    Public Class ProgressInfo
+        Public Value As Integer = 0
+        Public Maximum As Integer = 0
+        Public Minimum As Integer = 0
+    End Class
+
+End Namespace
+

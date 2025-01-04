@@ -269,7 +269,7 @@ public class ResponseView_SiP_SF2 : ResponseView
         throw new NotImplementedException();
     }
 
-    public override void ResponseTimesOut()
+    public async override void ResponseTimesOut()
     {
 
         // Hides all other labels, fokuses the selected one
@@ -297,7 +297,7 @@ public class ResponseView_SiP_SF2 : ResponseView
         }
 
         // Reporting an empty response (indicating missing response)
-        ReportResult("");
+        await Task.Run(() => ReportResult(""));
 
     }
 

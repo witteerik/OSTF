@@ -585,5 +585,17 @@ Public Class AdaptiveSiP
         Return New List(Of String)
     End Function
 
+    Public Overrides Function GetProgress() As ProgressInfo
+
+        If CurrentSipTestMeasurement IsNot Nothing Then
+            Dim NewProgressInfo As New ProgressInfo
+            NewProgressInfo.Value = GetObservedTestTrials.Count
+            NewProgressInfo.Maximum = CurrentSipTestMeasurement.PlannedTrials.Count
+            Return NewProgressInfo
+        Else
+            Return Nothing
+        End If
+
+    End Function
 
 End Class

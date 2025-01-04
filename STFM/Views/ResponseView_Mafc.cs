@@ -295,7 +295,7 @@ public class ResponseView_Mafc : ResponseView
         throw new NotImplementedException();
     }
 
-    public override void ResponseTimesOut()
+    public async override void ResponseTimesOut()
     {
 
         // Hides all other labels, fokuses the selected one
@@ -323,7 +323,8 @@ public class ResponseView_Mafc : ResponseView
         }
 
         // Reporting an empty response (indicating missing response)
-        ReportResult("");
+        // Run the long-running method on a background thread
+        await Task.Run(() => ReportResult(""));
 
     }
 

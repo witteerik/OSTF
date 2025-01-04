@@ -20,6 +20,7 @@ namespace STFM.Views
             InitializeComponent();
 
             TestWordMatrix.IsVisible = false;
+            OrderGrid.IsVisible = false;
             MessageButton.IsVisible = false;
 
             // Assign the custom drawable to the GraphicsView
@@ -58,9 +59,9 @@ namespace STFM.Views
 
         public override void HideAllItems()
         {
-            //TestWordMatrix.IsVisible = false;
-            //MessageButton.IsVisible = false;
-            //OrderGrid.IsVisible = false;
+            TestWordMatrix.IsVisible = false;
+            MessageButton.IsVisible = false;
+            OrderGrid.IsVisible = false;
         }
 
         private void ResetGui_TimerTick(object sender, EventArgs e)
@@ -93,44 +94,55 @@ namespace STFM.Views
 
         }
 
-        public override void ResponseTimesOut()
+        public async override void ResponseTimesOut()
         {
-            if (GetRowResponse(TestWordGrid5) != "")
+            if (GetRowResponse(TestWordGrid1) == "")
             {
                 TestWordButton1_1.Background = RedButtonColor;
                 TestWordButton1_2.Background = RedButtonColor;
                 TestWordButton1_3.Background = RedButtonColor;
             }
 
-            if (GetRowResponse(TestWordGrid4) != "")
+            if (GetRowResponse(TestWordGrid2) == "")
             {
                 TestWordButton2_1.Background = RedButtonColor;
                 TestWordButton2_2.Background = RedButtonColor;
                 TestWordButton2_3.Background = RedButtonColor;
             }
 
-            if (GetRowResponse(TestWordGrid3) != "")
+            if (GetRowResponse(TestWordGrid3) == "")
             {
                 TestWordButton3_1.Background = RedButtonColor;
                 TestWordButton3_2.Background = RedButtonColor;
                 TestWordButton3_3.Background = RedButtonColor;
             }
 
-            if (GetRowResponse(TestWordGrid2) != "")
+            if (GetRowResponse(TestWordGrid4) == "")
             {
                 TestWordButton4_1.Background = RedButtonColor;
                 TestWordButton4_2.Background = RedButtonColor;
                 TestWordButton4_3.Background = RedButtonColor;
             }
 
-            if (GetRowResponse(TestWordGrid1) != "")
+            if (GetRowResponse(TestWordGrid5) == "")
             {
                 TestWordButton5_1.Background = RedButtonColor;
                 TestWordButton5_2.Background = RedButtonColor;
                 TestWordButton5_3.Background = RedButtonColor;
             }
 
-            SendReply();
+            // starting timer that hides everything
+            ResetGuiTimer.Start();
+
+            // Getting responded words (so far)
+            ReplyList.Add(GetRowResponse(TestWordGrid5));
+            ReplyList.Add(GetRowResponse(TestWordGrid4));
+            ReplyList.Add(GetRowResponse(TestWordGrid3));
+            ReplyList.Add(GetRowResponse(TestWordGrid2));
+            ReplyList.Add(GetRowResponse(TestWordGrid1));
+
+            // Sending the reply on on a background thread, so that the GUI gets updated
+            await Task.Run(() => SendReply());
 
         }
 
@@ -146,10 +158,6 @@ namespace STFM.Views
 
         public void ResetGuiToInitialState()
         {
-            TestWordMatrix.IsVisible = true;
-            TestWordGrid.IsVisible = false;
-            MessageButton.IsVisible = false;
-            OrderGrid.IsVisible = true;
 
             // Clearing all texts on the buttons
             TestWordButton1_1.Text = "";
@@ -203,6 +211,11 @@ namespace STFM.Views
             TestWordRow3.IsVisible = true;
             TestWordRow4.IsVisible = true;
             TestWordRow5.IsVisible = true;
+
+            TestWordMatrix.IsVisible = true;
+            TestWordGrid.IsVisible = false;
+            MessageButton.IsVisible = false;
+            OrderGrid.IsVisible = true;
 
         }
 
@@ -266,25 +279,25 @@ namespace STFM.Views
             TestWordButton5_2.Text = localResponseAlternatives1[1].Spelling;
             TestWordButton5_3.Text = localResponseAlternatives1[2].Spelling;
 
-            TestWordButton1_1.IsEnabled = true;
-            TestWordButton1_2.IsEnabled = true;
-            TestWordButton1_3.IsEnabled = true;
+            TestWordButton1_1.IsEnabled = false;
+            TestWordButton1_2.IsEnabled = false;
+            TestWordButton1_3.IsEnabled = false;
 
-            TestWordButton2_1.IsEnabled = true;
-            TestWordButton2_2.IsEnabled = true;
-            TestWordButton2_3.IsEnabled = true;
+            TestWordButton2_1.IsEnabled = false;
+            TestWordButton2_2.IsEnabled = false;
+            TestWordButton2_3.IsEnabled = false;
 
-            TestWordButton3_1.IsEnabled = true;
-            TestWordButton3_2.IsEnabled = true;
-            TestWordButton3_3.IsEnabled = true;
+            TestWordButton3_1.IsEnabled = false;
+            TestWordButton3_2.IsEnabled = false;
+            TestWordButton3_3.IsEnabled = false;
 
-            TestWordButton4_1.IsEnabled = true;
-            TestWordButton4_2.IsEnabled = true;
-            TestWordButton4_3.IsEnabled = true;
+            TestWordButton4_1.IsEnabled = false;
+            TestWordButton4_2.IsEnabled = false;
+            TestWordButton4_3.IsEnabled = false;
 
-            TestWordButton5_1.IsEnabled = true;
-            TestWordButton5_2.IsEnabled = true;
-            TestWordButton5_3.IsEnabled = true;
+            TestWordButton5_1.IsEnabled = false;
+            TestWordButton5_2.IsEnabled = false;
+            TestWordButton5_3.IsEnabled = false;
 
             TestWordButton1_1.IsVisible = true;
             TestWordButton1_2.IsVisible = true;
@@ -311,23 +324,40 @@ namespace STFM.Views
         public override void ShowVisualCue()
         {
 
+            // Using this method also to unlock the testword response buttons when each test word is presented (so that they cannot be clicked before the test word is presented)
+
             VisualCueCount += 1;
 
             switch (VisualCueCount)
             {
                 case 1:
+                    TestWordButton5_1.IsEnabled = true;
+                    TestWordButton5_2.IsEnabled = true;
+                    TestWordButton5_3.IsEnabled = true;
                     Circle1.IsVisible = true;
                     break;
                 case 2:
+                    TestWordButton4_1.IsEnabled = true;
+                    TestWordButton4_2.IsEnabled = true;
+                    TestWordButton4_3.IsEnabled = true;
                     Circle2.IsVisible = true;
                     break;
                 case 3:
+                    TestWordButton3_1.IsEnabled = true;
+                    TestWordButton3_2.IsEnabled = true;
+                    TestWordButton3_3.IsEnabled = true;
                     Circle3.IsVisible = true;
                     break;
                 case 4:
+                    TestWordButton2_1.IsEnabled = true;
+                    TestWordButton2_2.IsEnabled = true;
+                    TestWordButton2_3.IsEnabled = true;
                     Circle4.IsVisible = true;
                     break;
                 case 5:
+                    TestWordButton1_1.IsEnabled = true;
+                    TestWordButton1_2.IsEnabled = true;
+                    TestWordButton1_3.IsEnabled = true;
                     Circle5.IsVisible = true;
                     break;
                 default:
@@ -341,9 +371,11 @@ namespace STFM.Views
             ResetGuiTimer.Stop();
         }
 
-        public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
+        public async override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
         {
-            //throw new NotImplementedException();
+            double range = Maximum - Minimum;
+            double progressProp = Value / range;
+            await PtcProgressBar.ProgressTo(progressProp, 50, Easing.Linear);
         }
 
         protected override void OnSizeAllocated(double width, double height)
@@ -462,10 +494,10 @@ namespace STFM.Views
 
         private string GetRowResponse(Grid TestWordGrid)
         {
+            int visibleCount = 0;
+            string response = "";
             foreach (var item in TestWordGrid.Children)
             {
-                int visibleCount = 0;
-                string response = "";
                 if (item is Button)
                 {
                     Button button = (Button)item;
@@ -475,14 +507,17 @@ namespace STFM.Views
                         response = button.Text;
                     }
                 }
-
-                if (visibleCount == 1) {
-                    return response; 
-                }
             }
 
-            // Returning an empty response since no reponse was selected on this row.
-            return "";
+            if (visibleCount == 1)
+            {
+                return response;
+            }
+            else
+            {
+                // Returning an empty response since no reponse was selected on this row.
+                return "";
+            }
         }
 
         private void SendReply()

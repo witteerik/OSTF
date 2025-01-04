@@ -1,6 +1,4 @@
 ﻿Imports System.IO
-Imports MathNet.Numerics
-Imports MathNet.Numerics.Distributions
 Imports STFN.TestProtocol
 Imports STFN.Audio.SoundScene
 Imports System.Dynamic
@@ -475,6 +473,21 @@ Public Class HintSpeechTest
         'Throw New NotImplementedException()
     End Sub
 
+    Public Overrides Function GetProgress() As Utils.ProgressInfo
+
+        Dim NewProgressInfo As New Utils.ProgressInfo
+        NewProgressInfo.Value = GetObservedTestTrials.Count
+        If IsPractiseTest = True Then
+            'Manually specifies 30 trials here, as the test was started in practise mode (TODO: this could be solved in a better way, asking the used TestProtocol instead...)
+            NewProgressInfo.Maximum = 30
+        Else
+            'Manually specifies 20 trials here, as the test was not started in practise mode (TODO: this could be solved in a better way, asking the used TestProtocol instead...)
+            NewProgressInfo.Maximum = 20
+        End If
+
+        Return NewProgressInfo
+
+    End Function
 
 
 End Class
