@@ -40,8 +40,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Views\ResponseView_AdaptiveSiP2.xaml.cs">
-	    <DependentUpon>ResponseView_AdaptiveSiP2.xaml</DependentUpon>
+	  <Compile Update="Views\ResponseView_AdaptiveSiP.xaml.cs">
+	    <DependentUpon>ResponseView_AdaptiveSiP.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\WelcomePageR.xaml.cs">
 	    <DependentUpon>WelcomePageR.xaml</DependentUpon>
@@ -53,9 +53,6 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="Views\AudiogramView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ResponseView_AdaptiveSiP2.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ResponseView_AdaptiveSiP.xaml">

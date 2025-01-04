@@ -5,6 +5,7 @@ using STFN;
 using STFN.Utils;
 using STFN.SipTest;
 using System.Reflection;
+using Microsoft.Maui.Platform;
 
 namespace STFM.Views
 {
@@ -18,33 +19,34 @@ namespace STFM.Views
             //this.LoadFromXaml(typeof(ResponseView_AdaptiveSiP));
             InitializeComponent();
 
-            RightSideControl.IsVisible = false;
-            LeftSideControl.IsVisible = false;
+            TestWordMatrix.IsVisible = false;
+            OrderGrid.IsVisible = false;
             MessageButton.IsVisible = false;
+
+            // Assign the custom drawable to the GraphicsView
+            ArrowView.Drawable = new ArrowDrawable(ArrowView);
+            ArrowDrawable arrowDrawable = (ArrowDrawable)ArrowView.Drawable;
+            arrowDrawable.TransitionHeightRatio = 0.86f;
+            arrowDrawable.Background = Colors.DarkSlateGray;
+
+            // Force redraw on size change
+            ArrowView.SizeChanged += (s, e) => ArrowView.Invalidate();
+
+            // Creating a hide-all timer
+            ResetGuiTimer = Microsoft.Maui.Controls.Application.Current.Dispatcher.CreateTimer();
+            ResetGuiTimer.Interval = TimeSpan.FromMilliseconds(400);
+            ResetGuiTimer.Tick += ResetGui_TimerTick;
+            ResetGuiTimer.IsRepeating = false;
 
         }
 
-        Color LampOnColor = Color.FromArgb("#00FFFA");
-        Color LampOnBorderColor = Color.FromArgb("#00A7A3");
-        Color LampOffColor = Color.FromArgb("#585858");
-        Color LampOffBorderColor = Color.FromArgb("#4E4E4E");
-        Color LampRedColor = Color.FromArgb("#FF0000");
-        Color LampRedBorderColor = Color.FromArgb("#D95B3D");
+        private IDispatcherTimer ResetGuiTimer;
+
         Color RedButtonColor = Color.FromArgb("#FF0000");
         Color DefaultButtonColor = Color.FromArgb("#FFFF80");
-        Color Button_DisabledColor = Color.FromArgb("#D0D0D0");
         
-        private STFN.Utils.Constants.Sides CurrentSide = STFN.Utils.Constants.Sides.Left;
-
-        private int ButtonClicks_Left_1 = 0;
-        private int ButtonClicks_Left_2 = 0;
-        private int ButtonClicks_Left_3 = 0;
-        private int ButtonClicks_Right_1 = 0;
-        private int ButtonClicks_Right_2 = 0;
-        private int ButtonClicks_Right_3 = 0;
-
-        private int RightSideLampsOn = 0;
-        private int LeftSideLampsOn = 0;
+        private int ResponseCount  = 0;
+        private int VisualCueCount = 0;
 
         private List<string> ReplyList = new List<string>();
 
@@ -53,78 +55,94 @@ namespace STFM.Views
             //throw new NotImplementedException();
         }
 
+
+
         public override void HideAllItems()
         {
-            RightSideControl.IsVisible = false;
-            LeftSideControl.IsVisible = false;
+            TestWordMatrix.IsVisible = false;
             MessageButton.IsVisible = false;
+            OrderGrid.IsVisible = false;
+        }
+
+        private void ResetGui_TimerTick(object sender, EventArgs e)
+        {
+            ResetGui();
+        }
+
+        public void ResetGui()
+        {
+                ResetGuiToInitialState();
         }
 
         public override void HideVisualCue()
         {
-            //throw new NotImplementedException();
+            //Not used
         }
 
-
-        //public override void InitializeNewTrial()
-        //{
-
-        //    if (MainThread.IsMainThread == false)
-        //    {
-        //        MainThread.BeginInvokeOnMainThread(() =>
-        //        {
-        //            Inner_InitializeNewTrial();
-        //        });
-        //        return;
-        //    }
-
-        //}
 
         public override void InitializeNewTrial()
         {
 
             StopAllTimers();
 
-            TurnOffLamps();
+            ResponseCount  = 0;
+            VisualCueCount = 0;
 
-            RightSideControl.IsVisible = false;
-            LeftSideControl.IsVisible = false;
-            MessageButton.IsVisible = false;
-
-            RightSideLampsOn = 0;
-            LeftSideLampsOn = 0;
-
-            ButtonClicks_Left_1 = 0;
-            ButtonClicks_Left_2 = 0;
-            ButtonClicks_Left_3 = 0;
-            ButtonClicks_Right_1 = 0;
-            ButtonClicks_Right_2 = 0;
-            ButtonClicks_Right_3 = 0;
-
-            LeftButton1.Background = DefaultButtonColor;
-            LeftButton2.Background = DefaultButtonColor;
-            LeftButton3.Background = DefaultButtonColor;
-            RightButton1.Background = DefaultButtonColor;
-            RightButton2.Background = DefaultButtonColor;
-            RightButton3.Background = DefaultButtonColor;
+            ResetGuiToInitialState();
 
             ReplyList.Clear();
 
         }
 
-        public override void ResponseTimesOut()
+        public async override void ResponseTimesOut()
         {
+            if (GetRowResponse(TestWordGrid1) == "")
+            {
+                TestWordButton1_1.Background = RedButtonColor;
+                TestWordButton1_2.Background = RedButtonColor;
+                TestWordButton1_3.Background = RedButtonColor;
+            }
 
-            TurnLampsRed();
+            if (GetRowResponse(TestWordGrid2) == "")
+            {
+                TestWordButton2_1.Background = RedButtonColor;
+                TestWordButton2_2.Background = RedButtonColor;
+                TestWordButton2_3.Background = RedButtonColor;
+            }
 
-            LeftButton1.Background = RedButtonColor;
-            LeftButton2.Background = RedButtonColor;
-            LeftButton3.Background = RedButtonColor;
-            RightButton1.Background = RedButtonColor;
-            RightButton2.Background = RedButtonColor;
-            RightButton3.Background = RedButtonColor;
+            if (GetRowResponse(TestWordGrid3) == "")
+            {
+                TestWordButton3_1.Background = RedButtonColor;
+                TestWordButton3_2.Background = RedButtonColor;
+                TestWordButton3_3.Background = RedButtonColor;
+            }
 
-            SendReply();
+            if (GetRowResponse(TestWordGrid4) == "")
+            {
+                TestWordButton4_1.Background = RedButtonColor;
+                TestWordButton4_2.Background = RedButtonColor;
+                TestWordButton4_3.Background = RedButtonColor;
+            }
+
+            if (GetRowResponse(TestWordGrid5) == "")
+            {
+                TestWordButton5_1.Background = RedButtonColor;
+                TestWordButton5_2.Background = RedButtonColor;
+                TestWordButton5_3.Background = RedButtonColor;
+            }
+
+            // starting timer that hides everything
+            ResetGuiTimer.Start();
+
+            // Getting responded words (so far)
+            ReplyList.Add(GetRowResponse(TestWordGrid5));
+            ReplyList.Add(GetRowResponse(TestWordGrid4));
+            ReplyList.Add(GetRowResponse(TestWordGrid3));
+            ReplyList.Add(GetRowResponse(TestWordGrid2));
+            ReplyList.Add(GetRowResponse(TestWordGrid1));
+
+            // Sending the reply on on a background thread, so that the GUI gets updated
+            await Task.Run(() => SendReply());
 
         }
 
@@ -138,17 +156,71 @@ namespace STFM.Views
 
         }
 
-        public override void ShowResponseAlternativePositions(List<List<SpeechTestResponseAlternative>> ResponseAlternatives)
+        public void ResetGuiToInitialState()
         {
 
             // Clearing all texts on the buttons
-            RightButton1.Text = "";
-            RightButton2.Text = "";
-            RightButton3.Text = "";
+            TestWordButton1_1.Text = "";
+            TestWordButton1_2.Text = "";
+            TestWordButton1_3.Text = "";
 
-            LeftButton1.Text = "";
-            LeftButton2.Text = "";
-            LeftButton3.Text = "";
+            TestWordButton2_1.Text = "";
+            TestWordButton2_2.Text = "";
+            TestWordButton2_3.Text = "";
+
+            TestWordButton3_1.Text = "";
+            TestWordButton3_2.Text = "";
+            TestWordButton3_3.Text = "";
+
+            TestWordButton4_1.Text = "";
+            TestWordButton4_2.Text = "";
+            TestWordButton4_3.Text = "";
+
+            TestWordButton5_1.Text = "";
+            TestWordButton5_2.Text = "";
+            TestWordButton5_3.Text = "";
+
+            TestWordButton1_1.Background = DefaultButtonColor;
+            TestWordButton1_2.Background = DefaultButtonColor;
+            TestWordButton1_3.Background = DefaultButtonColor;
+
+            TestWordButton2_1.Background = DefaultButtonColor;
+            TestWordButton2_2.Background = DefaultButtonColor;
+            TestWordButton2_3.Background = DefaultButtonColor;
+
+            TestWordButton3_1.Background = DefaultButtonColor;
+            TestWordButton3_2.Background = DefaultButtonColor;
+            TestWordButton3_3.Background = DefaultButtonColor;
+
+            TestWordButton4_1.Background = DefaultButtonColor;
+            TestWordButton4_2.Background = DefaultButtonColor;
+            TestWordButton4_3.Background = DefaultButtonColor;
+
+            TestWordButton5_1.Background = DefaultButtonColor;
+            TestWordButton5_2.Background = DefaultButtonColor;
+            TestWordButton5_3.Background = DefaultButtonColor;
+
+            Circle1.IsVisible = false;
+            Circle2.IsVisible = false;
+            Circle3.IsVisible = false;
+            Circle4.IsVisible = false;
+            Circle5.IsVisible = false;
+
+            TestWordRow1.IsVisible = true;
+            TestWordRow2.IsVisible = true;
+            TestWordRow3.IsVisible = true;
+            TestWordRow4.IsVisible = true;
+            TestWordRow5.IsVisible = true;
+
+            TestWordMatrix.IsVisible = true;
+            TestWordGrid.IsVisible = false;
+            MessageButton.IsVisible = false;
+            OrderGrid.IsVisible = true;
+
+        }
+
+        public override void ShowResponseAlternativePositions(List<List<SpeechTestResponseAlternative>> ResponseAlternatives)
+        {
 
             // Calling resize on every presentation (could be done only initially)
             ResizeStuff(this.Width, this.Height);
@@ -156,23 +228,24 @@ namespace STFM.Views
             List<SpeechTestResponseAlternative> localResponseAlternatives = ResponseAlternatives[0];
 
             // Reading which side to put the response alternatives, based on the first one
-            SipTrial parentTestTrial = (SipTrial)localResponseAlternatives[0].ParentTestTrial;
+            SipTrial parentTestTrial = (SipTrial)localResponseAlternatives[0].ParentTestTrial.SubTrials[0];
             if (parentTestTrial.TargetStimulusLocations[0].HorizontalAzimuth > 0)
             {
                 // the sound source is to the right, head turn to the left
-                CurrentSide = STFN.Utils.Constants.Sides.Left;
+                MainGrid.SetColumn(TestWordMatrix, 0);
+                MainGrid.SetColumn(OrderGrid, 1);
 
-                RightSideControl.IsVisible = false;
-                LeftSideControl.IsVisible = true;
             }
             else
             {
                 // the sound source is to the left, head turn to the right
-                CurrentSide = STFN.Utils.Constants.Sides.Right;
+                MainGrid.SetColumn(TestWordMatrix, 4);
+                MainGrid.SetColumn(OrderGrid, 3);
 
-                RightSideControl.IsVisible = true;
-                LeftSideControl.IsVisible = false;
             }
+
+            TestWordGrid.IsVisible = true;
+            TestWordMatrix.IsVisible = true;
 
         }
 
@@ -180,31 +253,112 @@ namespace STFM.Views
         public override void ShowResponseAlternatives(List<List<SpeechTestResponseAlternative>> ResponseAlternatives)
         {
 
-            List<SpeechTestResponseAlternative> localResponseAlternatives = ResponseAlternatives[0];
+            List<SpeechTestResponseAlternative> localResponseAlternatives1 = ResponseAlternatives[0];
+            List<SpeechTestResponseAlternative> localResponseAlternatives2 = ResponseAlternatives[1];
+            List<SpeechTestResponseAlternative> localResponseAlternatives3 = ResponseAlternatives[2];
+            List<SpeechTestResponseAlternative> localResponseAlternatives4 = ResponseAlternatives[3];
+            List<SpeechTestResponseAlternative> localResponseAlternatives5 = ResponseAlternatives[4];
 
-            switch (CurrentSide)
+            TestWordButton1_1.Text = localResponseAlternatives5[0].Spelling;
+            TestWordButton1_2.Text = localResponseAlternatives5[1].Spelling;
+            TestWordButton1_3.Text = localResponseAlternatives5[2].Spelling;
+
+            TestWordButton2_1.Text = localResponseAlternatives4[0].Spelling;
+            TestWordButton2_2.Text = localResponseAlternatives4[1].Spelling;
+            TestWordButton2_3.Text = localResponseAlternatives4[2].Spelling;
+
+            TestWordButton3_1.Text = localResponseAlternatives3[0].Spelling;
+            TestWordButton3_2.Text = localResponseAlternatives3[1].Spelling;
+            TestWordButton3_3.Text = localResponseAlternatives3[2].Spelling;
+
+            TestWordButton4_1.Text = localResponseAlternatives2[0].Spelling;
+            TestWordButton4_2.Text = localResponseAlternatives2[1].Spelling;
+            TestWordButton4_3.Text = localResponseAlternatives2[2].Spelling;
+
+            TestWordButton5_1.Text = localResponseAlternatives1[0].Spelling;
+            TestWordButton5_2.Text = localResponseAlternatives1[1].Spelling;
+            TestWordButton5_3.Text = localResponseAlternatives1[2].Spelling;
+
+            TestWordButton1_1.IsEnabled = false;
+            TestWordButton1_2.IsEnabled = false;
+            TestWordButton1_3.IsEnabled = false;
+
+            TestWordButton2_1.IsEnabled = false;
+            TestWordButton2_2.IsEnabled = false;
+            TestWordButton2_3.IsEnabled = false;
+
+            TestWordButton3_1.IsEnabled = false;
+            TestWordButton3_2.IsEnabled = false;
+            TestWordButton3_3.IsEnabled = false;
+
+            TestWordButton4_1.IsEnabled = false;
+            TestWordButton4_2.IsEnabled = false;
+            TestWordButton4_3.IsEnabled = false;
+
+            TestWordButton5_1.IsEnabled = false;
+            TestWordButton5_2.IsEnabled = false;
+            TestWordButton5_3.IsEnabled = false;
+
+            TestWordButton1_1.IsVisible = true;
+            TestWordButton1_2.IsVisible = true;
+            TestWordButton1_3.IsVisible = true;
+
+            TestWordButton2_1.IsVisible = true;
+            TestWordButton2_2.IsVisible = true;
+            TestWordButton2_3.IsVisible = true;
+
+            TestWordButton3_1.IsVisible = true;
+            TestWordButton3_2.IsVisible = true;
+            TestWordButton3_3.IsVisible = true;
+
+            TestWordButton4_1.IsVisible = true;
+            TestWordButton4_2.IsVisible = true;
+            TestWordButton4_3.IsVisible = true;
+
+            TestWordButton5_1.IsVisible = true;
+            TestWordButton5_2.IsVisible = true;
+            TestWordButton5_3.IsVisible = true;
+
+        }
+
+        public override void ShowVisualCue()
+        {
+
+            // Using this method also to unlock the testword response buttons when each test word is presented (so that they cannot be clicked before the test word is presented)
+
+            VisualCueCount += 1;
+
+            switch (VisualCueCount)
             {
-                case STFN.Utils.Constants.Sides.Left:
-
-                    LeftButton1.Text = localResponseAlternatives[0].Spelling;
-                    LeftButton2.Text = localResponseAlternatives[1].Spelling;
-                    LeftButton3.Text = localResponseAlternatives[2].Spelling;
-
-                    LeftButton1.IsEnabled = true;
-                    LeftButton2.IsEnabled = true;
-                    LeftButton3.IsEnabled = true;
-
+                case 1:
+                    TestWordButton5_1.IsEnabled = true;
+                    TestWordButton5_2.IsEnabled = true;
+                    TestWordButton5_3.IsEnabled = true;
+                    Circle1.IsVisible = true;
                     break;
-                case STFN.Utils.Constants.Sides.Right:
-
-                    RightButton1.Text = localResponseAlternatives[0].Spelling;
-                    RightButton2.Text = localResponseAlternatives[1].Spelling;
-                    RightButton3.Text = localResponseAlternatives[2].Spelling;
-
-                    RightButton1.IsEnabled = true;
-                    RightButton2.IsEnabled = true;
-                    RightButton3.IsEnabled = true;
-
+                case 2:
+                    TestWordButton4_1.IsEnabled = true;
+                    TestWordButton4_2.IsEnabled = true;
+                    TestWordButton4_3.IsEnabled = true;
+                    Circle2.IsVisible = true;
+                    break;
+                case 3:
+                    TestWordButton3_1.IsEnabled = true;
+                    TestWordButton3_2.IsEnabled = true;
+                    TestWordButton3_3.IsEnabled = true;
+                    Circle3.IsVisible = true;
+                    break;
+                case 4:
+                    TestWordButton2_1.IsEnabled = true;
+                    TestWordButton2_2.IsEnabled = true;
+                    TestWordButton2_3.IsEnabled = true;
+                    Circle4.IsVisible = true;
+                    break;
+                case 5:
+                    TestWordButton1_1.IsEnabled = true;
+                    TestWordButton1_2.IsEnabled = true;
+                    TestWordButton1_3.IsEnabled = true;
+                    Circle5.IsVisible = true;
                     break;
                 default:
                     break;
@@ -212,19 +366,16 @@ namespace STFM.Views
 
         }
 
-        public override void ShowVisualCue()
-        {
-            //throw new NotImplementedException();
-        }
-
         public override void StopAllTimers()
         {
-            //SendReplyTimer.Stop();
+            ResetGuiTimer.Stop();
         }
 
-        public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
+        public async override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
         {
-            //throw new NotImplementedException();
+            double range = Maximum - Minimum;
+            double progressProp = Value / range;
+            await PtcProgressBar.ProgressTo(progressProp, 50, Easing.Linear);
         }
 
         protected override void OnSizeAllocated(double width, double height)
@@ -237,63 +388,64 @@ namespace STFM.Views
 
         private void ResizeStuff(double width, double height)
         {
-            var textSize = System.Math.Round(height / 12);
 
-            if (LeftButton1 != null)
+            if (TestWordButton1_1 != null) // This basically checks if the View has been initialized
             {
 
+                var textSize = System.Math.Round(width / 32);
 
-                LeftButton1.FontSize = textSize;
-                LeftButton2.FontSize = textSize;
-                LeftButton3.FontSize = textSize;
+                TestWordButton1_1.FontSize = textSize;
+                TestWordButton1_2.FontSize = textSize;
+                TestWordButton1_3.FontSize = textSize;
 
-                RightButton1.FontSize = textSize;
-                RightButton2.FontSize = textSize;
-                RightButton3.FontSize = textSize;
+                TestWordButton2_1.FontSize = textSize;
+                TestWordButton2_2.FontSize = textSize;
+                TestWordButton2_3.FontSize = textSize;
 
-                var lampsize = System.Math.Round(height / 20);
-                float halfLampSize = (float)(lampsize / 2);
+                TestWordButton3_1.FontSize = textSize;
+                TestWordButton3_2.FontSize = textSize;
+                TestWordButton3_3.FontSize = textSize;
 
-                // Updating size
-                LeftLamp1.HeightRequest = lampsize;
-                LeftLamp1.WidthRequest = lampsize;
-                LeftLamp2.HeightRequest = lampsize;
-                LeftLamp2.WidthRequest = lampsize;
-                LeftLamp3.HeightRequest = lampsize;
-                LeftLamp3.WidthRequest = lampsize;
-                LeftLamp4.HeightRequest = lampsize;
-                LeftLamp4.WidthRequest = lampsize;
+                TestWordButton4_1.FontSize = textSize;
+                TestWordButton4_2.FontSize = textSize;
+                TestWordButton4_3.FontSize = textSize;
 
-                RightLamp1.HeightRequest = lampsize;
-                RightLamp1.WidthRequest = lampsize;
-                RightLamp2.HeightRequest = lampsize;
-                RightLamp2.WidthRequest = lampsize;
-                RightLamp3.HeightRequest = lampsize;
-                RightLamp3.WidthRequest = lampsize;
-                RightLamp4.HeightRequest = lampsize;
-                RightLamp4.WidthRequest = lampsize;
+                TestWordButton5_1.FontSize = textSize;
+                TestWordButton5_2.FontSize = textSize;
+                TestWordButton5_3.FontSize = textSize;
 
-                // Updating corner radius
-                LeftLamp1.CornerRadius = halfLampSize;
-                LeftLamp2.CornerRadius = halfLampSize;
-                LeftLamp3.CornerRadius = halfLampSize;
-                LeftLamp4.CornerRadius = halfLampSize;
-                RightLamp1.CornerRadius = halfLampSize;
-                RightLamp2.CornerRadius = halfLampSize;
-                RightLamp3.CornerRadius = halfLampSize;
-                RightLamp4.CornerRadius = halfLampSize;
+                float CircleScale = 1.2f;
 
+                Circle1.WidthRequest = textSize * CircleScale;
+                Circle1.HeightRequest = textSize * CircleScale;
 
+                Circle2.WidthRequest = textSize * CircleScale;
+                Circle2.HeightRequest = textSize * CircleScale;
+
+                Circle3.WidthRequest = textSize * CircleScale;
+                Circle3.HeightRequest = textSize * CircleScale;
+
+                Circle4.WidthRequest = textSize * CircleScale;
+                Circle4.HeightRequest = textSize * CircleScale;
+
+                Circle5.WidthRequest = textSize * CircleScale;
+                Circle5.HeightRequest = textSize * CircleScale;
+
+                foreach (var item in OrderGrid.Children)
+                {
+                    if (item is Label)
+                    {
+                        Label label = (Label)item;
+                        label.FontSize = textSize;
+                    }
+                }
             }
-
         }
 
         private async void ButtonButton_Clicked(object sender, EventArgs e)
         {
 
-            Button clickedButton = (Button)sender;
-
-            if (ReplyList.Count >= 4)
+            if (ReplyList.Count >= 5)
             {
                 // This should not happen but, if it does, this call is blocked and a reply is sent
 
@@ -303,124 +455,73 @@ namespace STFM.Views
                 return;
             }
 
-            //Adding the clicked response
-            ReplyList.Add(clickedButton.Text);
+            Button clickedButton = (Button)sender;
 
-            if (clickedButton == LeftButton1) { ButtonClicks_Left_1 += 1; }
-            if (clickedButton == LeftButton2) { ButtonClicks_Left_2 += 1; }
-            if (clickedButton == LeftButton3) { ButtonClicks_Left_3 += 1; }
+            // hides the control in which the button lays
+            Grid ParentGrid = (Grid)clickedButton.Parent;
 
-            if (clickedButton == RightButton1) { ButtonClicks_Right_1 += 1; }
-            if (clickedButton == RightButton2) { ButtonClicks_Right_2 += 1; }
-            if (clickedButton == RightButton3) { ButtonClicks_Right_3 += 1; }
-
-            // Disables the buttons after 2 clicks
-            if (ButtonClicks_Left_1 == 2) { LeftButton1.IsEnabled = false;  }
-            if (ButtonClicks_Left_2 == 2) { LeftButton2.IsEnabled = false;  }
-            if (ButtonClicks_Left_3 == 2) { LeftButton3.IsEnabled = false;  }
-            if (ButtonClicks_Right_1 == 2) { RightButton1.IsEnabled = false; }
-            if (ButtonClicks_Right_2 == 2) { RightButton2.IsEnabled = false; }
-            if (ButtonClicks_Right_3 == 2) { RightButton3.IsEnabled = false; }
-
-            // Emphasizes that the button should not be clicked by making it gray after three clicks
-            if (ButtonClicks_Left_1 == 3) { LeftButton1.Background = Button_DisabledColor; }
-            if (ButtonClicks_Left_2 == 3) { LeftButton2.Background = Button_DisabledColor; }
-            if (ButtonClicks_Left_3 == 3) { LeftButton3.Background = Button_DisabledColor; }
-            if (ButtonClicks_Right_1 == 3) { RightButton1.Background = Button_DisabledColor; }
-            if (ButtonClicks_Right_2 == 3) { RightButton2.Background = Button_DisabledColor; }
-            if (ButtonClicks_Right_3 == 3) { RightButton3.Background = Button_DisabledColor; }
-
-            switch (CurrentSide)
+            foreach (Button button in ParentGrid.Children)
             {
-                case STFN.Utils.Constants.Sides.Left:
-                    LeftSideLampsOn += 1;
-                    UpdateLampsOn();
-                    if (LeftSideLampsOn == 4) {
-                        // Sending the reply on on a background thread
-                        await Task.Run(() => SendReply());
-                    }
-                    break;
-                case STFN.Utils.Constants.Sides.Right:
-                    RightSideLampsOn += 1;
-                    UpdateLampsOn();
-                    if (RightSideLampsOn == 4) {
-                        // Sending the reply on on a background thread
-                        await Task.Run(() => SendReply());
-                    }
-                    break;
-                default:
-                    break;
+                if (ReferenceEquals(button, clickedButton) == false)
+                {
+                    button.IsVisible = false;
+                }
+                else
+                {
+                    button.IsEnabled = false;
+                }
+            }
+
+            ResponseCount += 1;
+            if (ResponseCount == 5)
+            {
+
+                // Adding from bottom to top
+                ReplyList.Add(GetRowResponse(TestWordGrid5));
+                ReplyList.Add(GetRowResponse(TestWordGrid4));
+                ReplyList.Add(GetRowResponse(TestWordGrid3));
+                ReplyList.Add(GetRowResponse(TestWordGrid2));
+                ReplyList.Add(GetRowResponse(TestWordGrid1));
+
+                // starting timer that hides everything
+                ResetGuiTimer.Start();
+
+                // Sending the reply on on a background thread
+                await Task.Run(() => SendReply());
             }
 
         }
 
-        private void UpdateLampsOn()
+        private string GetRowResponse(Grid TestWordGrid)
         {
-
-            switch (CurrentSide)
+            int visibleCount = 0;
+            string response = "";
+            foreach (var item in TestWordGrid.Children)
             {
-                case STFN.Utils.Constants.Sides.Left:
-
-                    if (LeftSideLampsOn > 0) { LeftLamp1.Background = LampOnColor; LeftLamp1.BorderColor = LampOnBorderColor; }
-                    if (LeftSideLampsOn > 1) { LeftLamp2.Background = LampOnColor; LeftLamp2.BorderColor = LampOnBorderColor; }
-                    if (LeftSideLampsOn > 2) { LeftLamp3.Background = LampOnColor; LeftLamp3.BorderColor = LampOnBorderColor; }
-                    if (LeftSideLampsOn > 3) { LeftLamp4.Background = LampOnColor; LeftLamp4.BorderColor = LampOnBorderColor; }
-
-                    break;
-                case STFN.Utils.Constants.Sides.Right:
-
-                    if (RightSideLampsOn > 0) { RightLamp1.Background = LampOnColor; RightLamp1.BorderColor = LampOnBorderColor; }
-                    if (RightSideLampsOn > 1) { RightLamp2.Background = LampOnColor; RightLamp2.BorderColor = LampOnBorderColor; }
-                    if (RightSideLampsOn > 2) { RightLamp3.Background = LampOnColor; RightLamp3.BorderColor = LampOnBorderColor; }
-                    if (RightSideLampsOn > 3) { RightLamp4.Background = LampOnColor; RightLamp4.BorderColor = LampOnBorderColor; }
-
-                    break;
-                default:
-                    break;
+                if (item is Button)
+                {
+                    Button button = (Button)item;
+                    if (button.IsVisible == true)
+                    {
+                        visibleCount += 1;
+                        response = button.Text;
+                    }
+                }
             }
 
-        }
-
-        private void TurnOffLamps()
-        {
-
-            LeftLamp1.Background = LampOffColor; LeftLamp1.BorderColor = LampOffBorderColor;
-            LeftLamp2.Background = LampOffColor; LeftLamp2.BorderColor = LampOffBorderColor;
-            LeftLamp3.Background = LampOffColor; LeftLamp3.BorderColor = LampOffBorderColor;
-            LeftLamp4.Background = LampOffColor; LeftLamp4.BorderColor = LampOffBorderColor;
-            RightLamp1.Background = LampOffColor; RightLamp1.BorderColor = LampOffBorderColor;
-            RightLamp2.Background = LampOffColor; RightLamp2.BorderColor = LampOffBorderColor;
-            RightLamp3.Background = LampOffColor; RightLamp3.BorderColor = LampOffBorderColor;
-            RightLamp4.Background = LampOffColor; RightLamp4.BorderColor = LampOffBorderColor;
-
-        }
-
-        private void TurnLampsRed()
-        {
-
-            LeftLamp1.Background = LampRedColor; LeftLamp1.BorderColor = LampRedBorderColor;
-            LeftLamp2.Background = LampRedColor; LeftLamp2.BorderColor = LampRedBorderColor;
-            LeftLamp3.Background = LampRedColor; LeftLamp3.BorderColor = LampRedBorderColor;
-            LeftLamp4.Background = LampRedColor; LeftLamp4.BorderColor = LampRedBorderColor;
-            RightLamp1.Background = LampRedColor; RightLamp1.BorderColor = LampRedBorderColor;
-            RightLamp2.Background = LampRedColor; RightLamp2.BorderColor = LampRedBorderColor;
-            RightLamp3.Background = LampRedColor; RightLamp3.BorderColor = LampRedBorderColor;
-            RightLamp4.Background = LampRedColor; RightLamp4.BorderColor = LampRedBorderColor;
-
+            if (visibleCount == 1)
+            {
+                return response;
+            }
+            else
+            {
+                // Returning an empty response since no reponse was selected on this row.
+                return "";
+            }
         }
 
         private void SendReply()
         {
-                       
-
-            // Filling up the response list with empty responses. This happens when the response time has ended before all responses has been given.
-            if (ReplyList.Count < 4)
-            {
-                for (int i = 0; i < (4 - ReplyList.Count); i++)
-                {
-                    ReplyList.Add("");
-                }
-            }
 
             // Copies the responses to a new list (so that the reply has its own instance of the list)
             List<string> ReplyListCopy = new List<string>();
@@ -437,6 +538,100 @@ namespace STFM.Views
             // Raising the Response given event in the base class
             OnResponseGiven(args);
 
+        }               
+
+    }
+
+    public class ArrowDrawable : IDrawable
+    {
+
+        private GraphicsView parentView; // Reference to the parent GraphicsView
+
+        private float transitionHeightRatio = 0.9f; // 
+
+        /// <summary>
+        /// Get or set the ratio of the shaft height to the total arrow height
+        /// </summary>
+        public float TransitionHeightRatio
+        {
+            get { return transitionHeightRatio; }   
+            set {
+                if (transitionHeightRatio != value)
+                {
+                    transitionHeightRatio = value;
+                    parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+                }
+            }
+        }
+
+        public Color background = Color.FromArgb("#FFFF80");
+
+        public Color Background
+        {
+            get { return background; }
+            set
+            {
+                background = value;
+                parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+            }
+        }
+
+        public ArrowDrawable(GraphicsView view)
+        {
+            parentView = view;
+        }
+
+        public void Draw(ICanvas canvas, RectF dirtyRect)
+        {
+            // Set up the drawing properties
+            canvas.StrokeColor = Colors.Black;
+            canvas.StrokeSize = 2;
+
+            // Dynamically calculate arrow dimensions based on the dirtyRect size
+            float centerX = dirtyRect.Width / 2;
+            float centerY = dirtyRect.Height / 2;
+
+            // Arrow dimensions relative to the GraphicsView
+            float arrowWidth = dirtyRect.Width * 0.90f;        // 100% of the width
+            float arrowHeight = dirtyRect.Height * 0.96f;      // 100% of the height
+            float shaftWidth = arrowWidth * 0.5f;           // 50% of arrow width for the shaft
+            float centerShiftY = (TransitionHeightRatio - 0.5f) * arrowHeight; // Adjusts arrowhead/shaft transition
+
+            // Start drawing the arrow path
+            PathF arrowPath = new PathF();
+
+            PointF point1 = new PointF(centerX, centerY - arrowHeight / 2);
+            PointF point2 = new PointF(centerX - arrowWidth / 2, centerY - centerShiftY);
+            PointF point3 = new PointF(centerX - shaftWidth / 2, centerY - centerShiftY);
+            PointF point4 = new PointF(centerX - shaftWidth / 2, centerY + arrowHeight / 2);
+            PointF point5 = new PointF(centerX + shaftWidth / 2, centerY + arrowHeight / 2);
+            PointF point6 = new PointF(centerX + shaftWidth / 2, centerY - centerShiftY);
+            PointF point7 = new PointF(centerX + arrowWidth / 2, centerY - centerShiftY);
+
+            arrowPath.MoveTo(point1);
+            arrowPath.LineTo(point2);
+            arrowPath.LineTo(point3);
+            arrowPath.LineTo(point4);
+            arrowPath.LineTo(point5);
+            arrowPath.LineTo(point6);
+            arrowPath.LineTo(point7);
+
+            arrowPath.Close();
+
+
+            // Fill the arrow with color
+            canvas.StrokeSize = 8;
+            canvas.StrokeLineJoin = LineJoin.Round;
+
+            canvas.FillColor = background;
+            canvas.FillPath(arrowPath);
+            canvas.SetShadow(new SizeF(0, 0), 10, Colors.Grey);
+
+            // Optional: Add an outline
+            canvas.StrokeColor = background;
+            canvas.DrawPath(arrowPath);
         }
     }
+
 }
+

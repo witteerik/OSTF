@@ -813,7 +813,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     case "Quick SiP":
 
-                        CurrentResponseView = new ResponseView_SiP_SF(); // Using the same respons GUI as with head movements
+                        CurrentResponseView = new ResponseView_SiP_SF(); 
                         //CurrentResponseView = new ResponseView_Mafc();
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
@@ -859,7 +859,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                         bool useAdaptive = true;
                         if (useAdaptive)
                         {
-                            CurrentResponseView = new ResponseView_AdaptiveSiP2();
+                            CurrentResponseView = new ResponseView_AdaptiveSiP();
                             TestReponseGrid.Children.Add(CurrentResponseView);
 
                             CurrentResponseView.ResponseGiven += NewSpeechTestInput;

@@ -1,174 +1,578 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <custom:ResponseView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:custom="clr-namespace:STFM.Views"
-             x:Class="STFM.Views.ResponseView_AdaptiveSiP">
+                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                     xmlns:custom="clr-namespace:STFM.Views"
+                     x:Class="STFM.Views.ResponseView_AdaptiveSiP"
+                     xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls">
 
-    <Grid BackgroundColor="#000000">
+    <Grid x:Name="MainGrid"
+        BackgroundColor="#000000" RotationX="0" RotationY="0">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="1.25*" />
+            <ColumnDefinition Width="0.5*" />
+            <ColumnDefinition Width="1.25*" />
+            <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="30*" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
 
         <Frame 
-            x:Name="LeftSideControl"
+            x:Name="ProgressFrame"
+            Grid.Row="1" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="5" 
+            CornerRadius="5" BorderColor="#7B7B7B" Background="DarkSlateGray"  
+            Margin="10,2,10,12"
+            Padding="5,2,5,2">
+
+            <ProgressBar x:Name="PtcProgressBar" Progress="0"
+                     ProgressColor="#FFFF80"
+                     Background="DarkSlateGray"
+                     Grid.Row="1" Grid.RowSpan="1"
+                     Grid.Column="0" Grid.ColumnSpan="5" 
+                     HorizontalOptions="Fill" 
+                     VerticalOptions="Fill" 
+                     ScaleY="2"/>
+
+        </Frame>
+
+        
+        <Grid x:Name="OrderGrid"
+            Grid.Row="0" Grid.RowSpan="1"
+            Grid.Column="1" Grid.ColumnSpan="1" 
+                Margin="10"
+                Padding="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="0.02*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="0.02*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="0.02*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="0.02*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="0.02*" />
+            </Grid.RowDefinitions>
+
+            <GraphicsView x:Name="ArrowView"
+                          Grid.Row="0" Grid.RowSpan="9"
+                          Grid.Column="0" Grid.ColumnSpan="1"
+                          HorizontalOptions="Fill"
+                          VerticalOptions="Fill"
+                          Margin="0,0,0,0"/>
+
+            <shapes:Ellipse x:Name="Circle5"
+                            Grid.Row="0" Grid.RowSpan="1"
+                            Grid.Column="0" Grid.ColumnSpan="1"
+                            WidthRequest="100"
+                            HeightRequest="100"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Fill="#FFFFAC" 
+                            Stroke="Yellow" 
+                            StrokeThickness="2"
+                            Margin="0,40,0,25">
+                
+                <shapes:Ellipse.Shadow>
+                    <Shadow Brush="Yellow"
+                Offset="0,0" 
+                Radius="15" 
+                Opacity="1" />
+                </shapes:Ellipse.Shadow>
+                
+            </shapes:Ellipse>
+
+
+            <Label Text="5"
+                   TextColor="#17AF76"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   Grid.Row="0" Grid.RowSpan="1"
+                   Grid.Column="0" Grid.ColumnSpan="1"
+                   FontSize="40"
+                   Margin="0,40,0,25">
+            </Label>
+
+            <shapes:Ellipse x:Name="Circle4"
+                            Grid.Row="2" Grid.RowSpan="1"
+                            Grid.Column="0" Grid.ColumnSpan="1"
+                            WidthRequest="100"
+                            HeightRequest="100"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Fill="#FFFFAC" 
+                            Stroke="Yellow" 
+                            StrokeThickness="2"
+                            Margin="0,25,0,25">
+
+                <shapes:Ellipse.Shadow>
+                    <Shadow Brush="Yellow"
+                Offset="0,0" 
+                Radius="15" 
+                Opacity="0.95" />
+                </shapes:Ellipse.Shadow>
+
+            </shapes:Ellipse>
+
+            <Label Text="4"
+                   TextColor="#17AF76"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   Grid.Row="2" Grid.RowSpan="1"
+                   Grid.Column="0" Grid.ColumnSpan="1"
+                   FontSize="40"
+                   Margin="0,25,0,25">
+            </Label>
+
+            <shapes:Ellipse x:Name="Circle3"
+                            Grid.Row="4" Grid.RowSpan="1"
+                            Grid.Column="0" Grid.ColumnSpan="1"
+                            WidthRequest="100"
+                            HeightRequest="100"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Fill="#FFFFAC" 
+                            Stroke="Yellow" 
+                            StrokeThickness="2"
+                            Margin="0,25,0,25">
+
+                <shapes:Ellipse.Shadow>
+                    <Shadow Brush="Yellow"
+                Offset="0,0" 
+                Radius="15" 
+                Opacity="0.95" />
+                </shapes:Ellipse.Shadow>
+
+            </shapes:Ellipse>
+
+            <Label Text="3"
+                   TextColor="#17AF76"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   Grid.Row="4" Grid.RowSpan="1"
+                   Grid.Column="0" Grid.ColumnSpan="1"
+                   FontSize="40"
+                   Margin="0,25,0,25">
+            </Label>
+
+            <shapes:Ellipse x:Name="Circle2"
+                            Grid.Row="6" Grid.RowSpan="1"
+                            Grid.Column="0" Grid.ColumnSpan="1"
+                            WidthRequest="100"
+                            HeightRequest="100"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Fill="#FFFFAC" 
+                            Stroke="Yellow" 
+                            StrokeThickness="2"
+                            Margin="0,25,0,25">
+
+                <shapes:Ellipse.Shadow>
+                    <Shadow Brush="Yellow" 
+                Offset="0,0" 
+                Radius="15" 
+                Opacity="0.95" />
+                </shapes:Ellipse.Shadow>
+
+            </shapes:Ellipse>
+
+
+            <Label Text="2"
+                   TextColor="#17AF76"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   Grid.Row="6" Grid.RowSpan="1"
+                   Grid.Column="0" Grid.ColumnSpan="1"
+                   FontSize="40"
+                   Margin="0,25,0,25">
+            </Label>
+
+            <shapes:Ellipse x:Name="Circle1"
+                            Grid.Row="8" Grid.RowSpan="1"
+                            Grid.Column="0" Grid.ColumnSpan="1"
+                            WidthRequest="100"
+                            HeightRequest="100"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Fill="#FFFFAC" 
+                            Stroke="Yellow" 
+                            StrokeThickness="2"
+                            Margin="0,25,0,25">
+
+                <shapes:Ellipse.Shadow>
+                    <Shadow Brush="Yellow" 
+                Offset="0,0" 
+                Radius="15" 
+                Opacity="0.95" />
+                </shapes:Ellipse.Shadow>
+
+            </shapes:Ellipse>
+
+            <Label Text="1"
+                   TextColor="#17AF76"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   Grid.Row="8" Grid.RowSpan="1"
+                   Grid.Column="0" Grid.ColumnSpan="1"
+                   FontSize="40"
+                   Margin="0,25,0,25">
+            </Label>
+
+
+        </Grid>
+
+            <Frame 
+            x:Name="TestWordMatrix"
             Grid.Row="0" Grid.RowSpan="1"
             Grid.Column="0" Grid.ColumnSpan="1" 
-            CornerRadius="10" BorderColor="#7B7B7B" Background="DarkSlateGray"  Margin="15">
+            CornerRadius="5" BorderColor="#7B7B7B" Background="DarkSlateGray"  
+            Margin="10" 
+            Padding="2">
 
-            <Grid>
+            <Grid x:Name="TestWordGrid"
+                Margin="0"
+                Padding="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="3*" />
+                    <RowDefinition Height="0.02*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="0.02*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="0.02*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="0.02*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="0.02*" />
                 </Grid.RowDefinitions>
 
-                <Frame x:Name="LeftLamp1" 
+                <!--Row 1-->
+                
+                <Frame 
+            x:Name="TestWordRow1"
+            Grid.Row="0" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="1" 
+            CornerRadius="5" BorderColor="DarkSlateGray"   Background="DarkSlateGray"  
+                    Margin="0" Padding="0">
+
+                    <Grid x:Name="TestWordGrid1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <Button Text="fyr" 
+                        x:Name="TestWordButton1_1" 
                        Grid.Row="0" Grid.RowSpan="1"
                        Grid.Column="0" Grid.ColumnSpan="1" 
-                       CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#00FFFA" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#00A7A3">
-                </Frame>
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="9,25,5,25"  Padding="0"
+                       FontSize="40" 
+                        Clicked="ButtonButton_Clicked"/>
 
-                <Frame x:Name="LeftLamp2" 
+                        <Button Text="skyr" 
+                        x:Name="TestWordButton1_2" 
                        Grid.Row="0" Grid.RowSpan="1"
                        Grid.Column="1" Grid.ColumnSpan="1" 
-                       CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#FF0000" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#D95B3D">
-                </Frame>
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,5,25"  Padding="0"
+                        FontSize="40"
+                        Clicked="ButtonButton_Clicked"/>
 
-                <Frame x:Name="LeftLamp3" 
+                        <Button Text="syr" 
+                        x:Name="TestWordButton1_3" 
                        Grid.Row="0" Grid.RowSpan="1"
                        Grid.Column="2" Grid.ColumnSpan="1" 
-                       CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#00FFFA" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#00A7A3">
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,9,25"  Padding="0"
+                        FontSize="40"
+                        Clicked="ButtonButton_Clicked"/>
+
+                    </Grid>
+
                 </Frame>
 
-                <Frame x:Name="LeftLamp4" 
+                <Frame Grid.Row="1" Grid.RowSpan="1"
+                    Grid.Column="0" Grid.ColumnSpan="1"  
+                      HorizontalOptions="Fill" Background="LightGray"  Margin="25,0,25,0">
+                </Frame>
+
+                <!--Row 2-->
+
+                <Frame 
+            x:Name="TestWordRow2"
+            Grid.Row="2" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="1" 
+            CornerRadius="5" BorderColor="DarkSlateGray"   Background="DarkSlateGray"  
+                    Margin="0" Padding="0">
+
+                    <Grid x:Name="TestWordGrid2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <Button Text="sitt" 
+                        x:Name="TestWordButton2_1" 
                        Grid.Row="0" Grid.RowSpan="1"
-                       Grid.Column="3" Grid.ColumnSpan="1" 
-                       CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#585858" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#4E4E4E">
+                       Grid.Column="0" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="9,25,5,25"  Padding="0"
+                       FontSize="40" 
+                        Clicked="ButtonButton_Clicked"/>
+
+                        <Button Text="sytt" 
+                        x:Name="TestWordButton2_2" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="1" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,5,25"  Padding="0"
+                        FontSize="40"
+                        Clicked="ButtonButton_Clicked"/>
+
+                        <Button Text="sött" 
+                        x:Name="TestWordButton2_3" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="2" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,9,25"  Padding="0"
+                        FontSize="40"
+                        Clicked="ButtonButton_Clicked"/>
+
+                    </Grid>
+
                 </Frame>
 
-                <Button Text="Fil" 
-                        x:Name="LeftButton1" 
-                       Grid.Row="1" Grid.RowSpan="1"
-                       Grid.Column="0" Grid.ColumnSpan="4" 
+                <Frame Grid.Row="3" Grid.RowSpan="1"
+                    Grid.Column="0" Grid.ColumnSpan="1"  
+                      HorizontalOptions="Fill" Background="LightGray"  Margin="25,0,25,0">
+                </Frame>
+
+
+                <!--Row 3-->
+
+                <Frame 
+            x:Name="TestWordRow3"
+            Grid.Row="4" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="1" 
+            CornerRadius="5" BorderColor="DarkSlateGray"   Background="DarkSlateGray"  
+                    Margin="0" Padding="0">
+
+                    <Grid x:Name="TestWordGrid3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <Button Text="kil" 
+                        x:Name="TestWordButton3_1" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="0" Grid.ColumnSpan="1" 
                         BackgroundColor="#FFFF80"
                         TextColor="#282828"
-                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="0,10,0,10" 
-                       FontSize="80" 
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="9,25,5,25"  Padding="0"
+                       FontSize="40" 
                         Clicked="ButtonButton_Clicked"/>
 
-                <Button Text="Kil" 
-                        x:Name="LeftButton2" 
-                       Grid.Row="2" Grid.RowSpan="1"
-                       Grid.Column="0" Grid.ColumnSpan="4" 
+                        <Button Text="fil" 
+                        x:Name="TestWordButton3_2" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="1" Grid.ColumnSpan="1" 
                         BackgroundColor="#FFFF80"
                         TextColor="#282828"
-                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="0,10,0,10"  
-                        FontSize="80"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,5,25"  Padding="0"
+                        FontSize="40"
                         Clicked="ButtonButton_Clicked"/>
 
-                <Button Text="Sil" 
-                        x:Name="LeftButton3" 
-                       Grid.Row="3" Grid.RowSpan="1"
-                       Grid.Column="0" Grid.ColumnSpan="4" 
-                        BackgroundColor="#D0D0D0"
+                        <Button Text="sil" 
+                        x:Name="TestWordButton3_3" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="2" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
                         TextColor="#282828"
-                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="0,10,0,10"  
-                        FontSize="80"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,9,25"  Padding="0"
+                        FontSize="40"
                         Clicked="ButtonButton_Clicked"/>
+
+                    </Grid>
+
+                </Frame>
+
+                <Frame Grid.Row="5" Grid.RowSpan="1"
+                    Grid.Column="0" Grid.ColumnSpan="1"  
+                      HorizontalOptions="Fill" Background="LightGray"  Margin="25,0,25,0">
+                </Frame>
+
+
+                <!--Row 4-->
+
+                <Frame 
+            x:Name="TestWordRow4"
+            Grid.Row="6" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="1" 
+            CornerRadius="5" BorderColor="DarkSlateGray"   Background="DarkSlateGray"  
+                    Margin="0" Padding="0">
+
+                    <Grid x:Name="TestWordGrid4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <Button Text="tuff" 
+                        x:Name="TestWordButton4_1" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="0" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="9,25,5,25"  Padding="0"
+                       FontSize="40" 
+                        Clicked="ButtonButton_Clicked"/>
+
+                        <Button Text="tuss" 
+                        x:Name="TestWordButton4_2" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="1" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,5,25"  Padding="0"
+                        FontSize="40"
+                        Clicked="ButtonButton_Clicked"/>
+
+                        <Button Text="tusch" 
+                        x:Name="TestWordButton4_3" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="2" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,9,25"  Padding="0"
+                        FontSize="40"
+                        Clicked="ButtonButton_Clicked"/>
+
+                    </Grid>
+
+                </Frame>
+
+                <Frame Grid.Row="7" Grid.RowSpan="1"
+                    Grid.Column="0" Grid.ColumnSpan="1"  
+                      HorizontalOptions="Fill" Background="LightGray"  Margin="25,0,25,0">
+                </Frame>
+
+
+                <!--Row 5-->
+
+                <Frame 
+            x:Name="TestWordRow5"
+            Grid.Row="8" Grid.RowSpan="1"
+            Grid.Column="0" Grid.ColumnSpan="1" 
+            CornerRadius="5" BorderColor="DarkSlateGray"   Background="DarkSlateGray"  
+                    Margin="0" Padding="0">
+
+                    <Grid x:Name="TestWordGrid5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <Button Text="mark" 
+                        x:Name="TestWordButton5_1" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="0" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="9,25,5,25"  Padding="0"
+                       FontSize="40" 
+                        Clicked="ButtonButton_Clicked"/>
+
+                        <Button Text="märk" 
+                        x:Name="TestWordButton5_2" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="1" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,5,25"  Padding="0"
+                        FontSize="40"
+                        Clicked="ButtonButton_Clicked"/>
+
+                        <Button Text="mörk" 
+                        x:Name="TestWordButton5_3" 
+                       Grid.Row="0" Grid.RowSpan="1"
+                       Grid.Column="2" Grid.ColumnSpan="1" 
+                        BackgroundColor="#FFFF80"
+                        TextColor="#282828"
+                       CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" 
+                                Margin="5,25,9,25"  Padding="0"
+                        FontSize="40"
+                        Clicked="ButtonButton_Clicked"/>
+
+                    </Grid>
+
+                </Frame>
 
             </Grid>
 
         </Frame>
 
-        <Frame 
-     x:Name="RightSideControl"
-     Grid.Row="0" Grid.RowSpan="1"
-     Grid.Column="2" Grid.ColumnSpan="1" 
-     CornerRadius="10" BorderColor="#7B7B7B" Background="DarkSlateGray"  Margin="15">
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="3*" />
-                </Grid.RowDefinitions>
 
-                <Frame x:Name="RightLamp1" 
-                Grid.Row="0" Grid.RowSpan="1"
-                Grid.Column="0" Grid.ColumnSpan="1" 
-                CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#00FFFA" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#00A7A3">
-                </Frame>
-
-                <Frame x:Name="RightLamp2" 
-                Grid.Row="0" Grid.RowSpan="1"
-                Grid.Column="1" Grid.ColumnSpan="1" 
-                CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#00FFFA" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#00A7A3">
-                </Frame>
-
-                <Frame x:Name="RightLamp3" 
-                Grid.Row="0" Grid.RowSpan="1"
-                Grid.Column="2" Grid.ColumnSpan="1" 
-                CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#00FFFA" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#00A7A3">
-                </Frame>
-
-                <Frame x:Name="RightLamp4" 
-                Grid.Row="0" Grid.RowSpan="1"
-                Grid.Column="3" Grid.ColumnSpan="1" 
-                CornerRadius="20" HorizontalOptions="Center" VerticalOptions="Center" Background="#585858" HeightRequest="40" WidthRequest="40" Padding="0" BorderColor="#4E4E4E">
-                </Frame>
-
-                <Button Text="Fil" 
-                 x:Name="RightButton1" 
-                Grid.Row="1" Grid.RowSpan="1"
-                Grid.Column="0" Grid.ColumnSpan="4" 
-                 BackgroundColor="#FFFF80"
-                 TextColor="#282828"
-                CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="0,10,0,10" 
-                FontSize="80"
-                        Clicked="ButtonButton_Clicked"/>
-
-                <Button Text="Kil" 
-                 x:Name="RightButton2" 
-                Grid.Row="2" Grid.RowSpan="1"
-                Grid.Column="0" Grid.ColumnSpan="4" 
-                 BackgroundColor="#FFFF80"
-                 TextColor="#282828"
-                CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="0,10,0,10"  
-                 FontSize="80"
-                        Clicked="ButtonButton_Clicked"/>
-
-                <Button Text="Sil" 
-                 x:Name="RightButton3" 
-                Grid.Row="3" Grid.RowSpan="1"
-                Grid.Column="0" Grid.ColumnSpan="4" 
-                 BackgroundColor="#FFFF80"
-                 TextColor="#282828"
-                CornerRadius="8" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="0,10,0,10"  
-                 FontSize="80"
-                        Clicked="ButtonButton_Clicked"/>
-
-            </Grid>
-
-        </Frame>
 
         <Button x:Name="MessageButton"
                 Grid.Row="0" Grid.RowSpan="1"
@@ -178,11 +582,11 @@
                 BackgroundColor="LightGray"
                 TextColor="#282828"
                 CornerRadius="20" >
-            
+
         </Button>
 
     </Grid>
-    
-    
+
+
 </custom:ResponseView>
 
