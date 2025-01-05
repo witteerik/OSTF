@@ -214,7 +214,7 @@ Public MustInherit Class SipBaseSpeechTest
         If CurrentSipTestMeasurement IsNot Nothing Then
 
             Dim NewProgressInfo As New ProgressInfo
-            NewProgressInfo.Value = GetObservedTestTrials.Count
+            NewProgressInfo.Value = GetObservedTestTrials.Count + 1 ' Adds one to signal started trials
             NewProgressInfo.Maximum = GetObservedTestTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count
             Return NewProgressInfo
 

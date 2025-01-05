@@ -10,12 +10,13 @@ namespace STFM.Views;
 
 public class ResponseView_SiP_SF : ResponseView
 {
-    Grid mainGrid = null;
-    Grid responseAlternativeGrid = null;
-    Frame responseAlternativeFrame = null;
+    Grid MainGrid = null;
+    Grid ResponseAlternativeGrid = null;
+    Frame ResponseAlternativeFrame = null;
     ProgressBar PtcProgressBar = null;
-    private IDispatcherTimer HideAllTimer;
-    Button messageBtn = null;
+    IDispatcherTimer HideAllTimer = null;
+    Button MessageButton = null;
+    Frame ProgressBarFrame = null;
 
 
     public ResponseView_SiP_SF()
@@ -27,40 +28,71 @@ public class ResponseView_SiP_SF : ResponseView
         // Creating a hide-all timer
         HideAllTimer = Microsoft.Maui.Controls.Application.Current.Dispatcher.CreateTimer();
         HideAllTimer.Interval = TimeSpan.FromMilliseconds(200);
-        HideAllTimer.Tick += HideAllItems;
+        HideAllTimer.Tick += ClearMainGrid;
         HideAllTimer.IsRepeating = false;
 
         // Creating a main grid
-        mainGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
-        mainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(30, GridUnitType.Star) });
-        mainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        MainGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
+        MainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(25, GridUnitType.Star) });
+        MainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         for (int i = 0; i < 3; i++)
         {
-            mainGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            MainGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         }
 
-        ProgressBar PtcProgressBar = new ProgressBar { Progress = 0.5 };
+        PtcProgressBar = new ProgressBar
+        {
+            Progress = 0,
+            ProgressColor = Color.FromRgb(255, 255, 128),
+            Background = Color.FromRgb(47, 79, 79),
+            HorizontalOptions= LayoutOptions.Fill,
+            VerticalOptions = LayoutOptions.Fill,
+            ScaleY = 2
+        };
 
-        Frame progressBarFrame = new Frame
+        ProgressBarFrame = new Frame
         {
             HorizontalOptions = LayoutOptions.Fill,
             VerticalOptions = LayoutOptions.Fill,
             CornerRadius = 10,
             BorderColor = Color.FromRgb(123, 123, 123),
             Background = Color.FromRgb(47, 79, 79),
-            Margin = new Thickness(15),
+            Margin = new Thickness(15, 0, 15, 15),
+            Padding = new Thickness(5, 0, 5, 0)
+        };
+
+        ProgressBarFrame.Content = PtcProgressBar;
+        MainGrid.Add(ProgressBarFrame, 0, 1);
+        MainGrid.SetColumnSpan(ProgressBarFrame, 3);
+
+
+        ResponseAlternativeFrame = new Frame
+        {
+            HorizontalOptions = LayoutOptions.Fill,
+            VerticalOptions = LayoutOptions.Fill,
+            CornerRadius = 10,
+            BorderColor = Color.FromRgb(123, 123, 123),
+            Background = Color.FromRgb(47, 79, 79),
+            Margin = new Thickness(15, 15, 15, 15),
             Padding = new Thickness(10, 10, 10, 10)
         };
 
-        progressBarFrame.Content = PtcProgressBar;
-        mainGrid.Add(progressBarFrame, 0, 1);
-        mainGrid.SetColumnSpan(progressBarFrame, 3);
+        // Adding it to the left at start
+        MainGrid.Add(ResponseAlternativeFrame, 0, 0);
+        ResponseAlternativeFrame.IsVisible = false;
+
+        // Adding the MainGrid as Content of the form
+        Content = MainGrid;
 
     }
 
     public override void InitializeNewTrial()
     {
         StopAllTimers();
+
+        if (ResponseAlternativeGrid != null) { ResponseAlternativeGrid.Clear(); }
+
+        ProgressBarFrame.IsVisible = true;
     }
 
     public override void StopAllTimers()
@@ -79,82 +111,20 @@ public class ResponseView_SiP_SF : ResponseView
 
         List<SpeechTestResponseAlternative> localResponseAlternatives = responseAlternatives[0];
 
-        int nItems = localResponseAlternatives.Count;
-
-        // Creating a frame
-        responseAlternativeFrame = new Frame { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, CornerRadius = 10, 
-            BorderColor = Color.FromRgb(123,123,123), Background = Color.FromRgb(47,79,79), Margin = new Thickness(15), Padding = new Thickness(10,10,10,10)};
-
         // Putting hte frame in column 0 or 2 depending on which side to put the response alternatives (based on the first one)
         SipTrial parentTestTrial = (SipTrial)localResponseAlternatives[0].ParentTestTrial;
         if (parentTestTrial.TargetStimulusLocations[0].HorizontalAzimuth > 0)
         {
             // the sound source is to the right, head turn to the left
-            mainGrid.Add(responseAlternativeFrame, 0, 0);
+            MainGrid.SetColumn(ResponseAlternativeFrame, 0);
         }
         else
         {
             // the sound source is to the left, head turn to the right
-            mainGrid.Add(responseAlternativeFrame, 2, 0);
+            MainGrid.SetColumn(ResponseAlternativeFrame, 2);
         }
 
-        //// Creating a grid
-        //responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, Background = Color.FromRgb(47, 79, 79)};
-
-        //// Putting the responseAlternativeGrid in the responseAlternativeFrame
-        //responseAlternativeFrame.Content = responseAlternativeGrid;
-
-        //// Setting up row and columns
-        //for (int i = 0; i < nRows; i++)
-        //{
-        //    responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        //}
-        //responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-
-        //// Determining suitable text size (TODO: This is a bad method, since it doesn't care for the lengths of any strings.....
-        //var myHeight = this.Height;
-        //var textSize = Math.Round(myHeight / (4 * nRows));
-
-        //// Creating controls and positioning them in the responseAlternativeGrid
-        //int currentRow = -1;
-        //int currentColumn = 0;
-
-
-        //for (int i = 0; i < localResponseAlternatives.Count; i++)
-        //{
-
-        //    var repsonseBtn = new Button()
-        //    {
-        //        //Text = localResponseAlternatives[i].Spelling,
-        //        BackgroundColor = Color.FromRgb(255, 255, 128),
-        //        Padding = 10,
-        //        TextColor = Color.FromRgb(40, 40, 40),
-        //        FontSize = textSize,
-        //        HorizontalOptions = LayoutOptions.Fill,
-        //        VerticalOptions = LayoutOptions.Fill
-        //    };
-
-        //    repsonseBtn.Clicked += reponseButton_Clicked;
-
-        //    Frame frame = new Frame
-        //    {
-        //        BorderColor = Colors.Gray,
-        //        CornerRadius = 8,
-        //        ClassId = "TWA",
-        //        Padding = 10,
-        //        Margin = new Thickness(10,10,10,10),
-        //        Content = repsonseBtn
-        //        //Background = Color.FromRgb(47, 79, 79)
-        //        //BackgroundColor = Color.FromRgb(47, 79, 79)
-        //    };
-
-        //    currentRow += 1;
-
-        //    responseAlternativeGrid.Add(frame, currentColumn, currentRow);
-
-        //}
-                
-        //Content = mainGrid;
+        ResponseAlternativeFrame.IsVisible = true;
 
     }
 
@@ -163,21 +133,23 @@ public class ResponseView_SiP_SF : ResponseView
 
         List<SpeechTestResponseAlternative> localResponseAlternatives = responseAlternatives[0];
 
-        int nItems = localResponseAlternatives.Count;
-        int nRows = nItems;
+        int nRows = localResponseAlternatives.Count;
 
         // Creating a grid
-        responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill, Background = Color.FromRgb(47, 79, 79) };
-
-        // Putting the responseAlternativeGrid in the responseAlternativeFrame
-        responseAlternativeFrame.Content = responseAlternativeGrid;
+        ResponseAlternativeGrid = new Grid
+        {
+            HorizontalOptions = LayoutOptions.Fill,
+            VerticalOptions = LayoutOptions.Fill,
+            Background = Color.FromRgb(47, 79, 79),
+            Padding = new Thickness(20,0,20,0)
+        };
 
         // Setting up row and columns
         for (int i = 0; i < nRows; i++)
         {
-            responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            ResponseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
         }
-        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        ResponseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
         // Determining suitable text size (TODO: This is a bad method, since it doesn't care for the lengths of any strings.....
         var myHeight = this.Height;
@@ -185,8 +157,6 @@ public class ResponseView_SiP_SF : ResponseView
 
         // Creating controls and positioning them in the responseAlternativeGrid
         int currentRow = -1;
-        int currentColumn = 0;
-
 
         for (int i = 0; i < localResponseAlternatives.Count; i++)
         {
@@ -198,8 +168,8 @@ public class ResponseView_SiP_SF : ResponseView
                 BorderColor = Color.FromRgb(255, 255, 128),
                 ClassId = "TWA",
                 CornerRadius = 8,
-                Padding = 10,
-                Margin = new Thickness(10, 10, 10, 10),
+                Padding = 0,
+                Margin = new Thickness(0, 15, 0, 15),
                 TextColor = Color.FromRgb(40, 40, 40),
                 FontSize = textSize,
                 HorizontalOptions = LayoutOptions.Fill,
@@ -207,74 +177,16 @@ public class ResponseView_SiP_SF : ResponseView
             };
 
             repsonseBtn.Clicked += reponseButton_Clicked;
-
-            //Frame frame = new Frame
-            //{
-            //    BorderColor = Colors.Gray,
-            //    BackgroundColor = Color.FromRgb(255, 255, 128),
-            //    CornerRadius = 8,
-            //    ClassId = "TWA",
-            //    Padding = 10,
-            //    Margin = new Thickness(10, 10, 10, 10),
-            //    Content = repsonseBtn
-            //    //Background = Color.FromRgb(47, 79, 79)
-            //    //BackgroundColor = Color.FromRgb(47, 79, 79)
-            //};
-
             currentRow += 1;
-
-            responseAlternativeGrid.Add(repsonseBtn, currentColumn, currentRow);
+            ResponseAlternativeGrid.Add(repsonseBtn, 0, currentRow);
 
         }
 
+        // Putting the responseAlternativeGrid in the responseAlternativeFrame
+        ResponseAlternativeFrame.Content = ResponseAlternativeGrid;
 
-
-
-
-        //if (responseAlternatives.Count > 1)
-        //{
-        //    throw new ArgumentException("ShowResponseAlternatives is not yet implemented for multidimensional sets of response alternatives");
-        //}
-
-        //List<SpeechTestResponseAlternative> localResponseAlternatives = responseAlternatives[0];
-
-        //// Determining suitable text size (TODO: This is a bad method, since it doesn't care for the lengths of any strings.....
-        //var myHeight = this.Height;
-        //var textSize = Math.Round(myHeight / (4 * localResponseAlternatives.Count));
-
-        //// Adds the response text to the buttons and adds response handlers to activate them
-        //int AddedTexts = 0;
-        //foreach (var child in responseAlternativeGrid.Children)
-        //{
-        //    if (child is Frame)
-        //    {
-
-        //        var currentFrame = (Frame)child;
-        //        if (currentFrame.ClassId == "TWA")
-        //        {
-
-        //            var repsonseBtn = new Button()
-        //            {
-        //                Text = localResponseAlternatives[AddedTexts].Spelling,
-        //                BackgroundColor = Color.FromRgb(255, 255, 128),
-        //                Padding = 10,
-        //                TextColor = Color.FromRgb(40, 40, 40),
-        //                FontSize = textSize,
-        //                HorizontalOptions = LayoutOptions.Fill,
-        //                VerticalOptions = LayoutOptions.Fill
-        //            };
-
-        //            AddedTexts += 1;
-
-        //            currentFrame.Content = repsonseBtn;
-
-        //            repsonseBtn.Clicked += reponseButton_Clicked;
-
-        //        }
-        //    }
-        //}
     }
-     
+
 
     private void reponseButton_Clicked(object sender, EventArgs e)
     {
@@ -282,36 +194,37 @@ public class ResponseView_SiP_SF : ResponseView
         // Getting the responsed label
         var responseBtn = sender as Button;
 
-        // Hides all other labels, fokuses the selected one
-        foreach (var child in responseAlternativeGrid.Children)
+        if (ResponseAlternativeGrid != null)
         {
-            if (child is Button)
+
+            // Hides all other labels, fokuses the selected one
+            foreach (var child in ResponseAlternativeGrid.Children)
             {
-
-                var button = (Button)child;
-                // Removing the response handlers
-                button.Clicked -= reponseButton_Clicked;
-
-                // Hiding all buttons except the one clicked
-                if (object.ReferenceEquals(button, responseBtn) == false)
+                if (child is Button)
                 {
-                    if (button.ClassId == "TWA")
+
+                    var button = (Button)child;
+                    // Removing the response handlers
+                    button.Clicked -= reponseButton_Clicked;
+
+                    // Hiding all buttons except the one clicked
+                    if (object.ReferenceEquals(button, responseBtn) == false)
                     {
-                        button.IsVisible = false;
+                        if (button.ClassId == "TWA")
+                        {
+                            button.IsVisible = false;
+                        }
                     }
                 }
             }
+
+            ReportResult(responseBtn.Text);
+
         }
-
-        ReportResult(responseBtn.Text);
-
-        HideAllTimer.Start();
-
     }
 
     private void ReportResult(string RespondedSpelling)
     {
-
         // Storing the raw response
         SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
         args.LinguisticResponses.Add(RespondedSpelling);
@@ -321,71 +234,63 @@ public class ResponseView_SiP_SF : ResponseView
         // Note that this is done on a background thread that returns to the main thread after a short delay to allow the GUI to be updated.
         OnResponseGiven(args);
 
-    }
+        HideAllTimer.Start();
 
+    }
 
     private void StartedByTestee_ButtonClicked()
     {
         OnStartedByTestee(new EventArgs());
     }
 
-    public void clearMainGrid()
+    public void ClearMainGrid()
     {
-
-        responseAlternativeGrid.Clear();
-        mainGrid.Remove(messageBtn);
-
+        ResponseAlternativeFrame.IsVisible = false;
+        if (ResponseAlternativeGrid != null) { ResponseAlternativeGrid.Clear(); }
+        MainGrid.Remove(MessageButton);
     }
-
-
 
     public override void HideVisualCue()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public override void ResponseTimesOut()
     {
 
-        // Hides all other labels, fokuses the selected one
-        foreach (var child in responseAlternativeGrid.Children)
+        if (ResponseAlternativeGrid != null)
         {
-            if (child is Frame)
+
+            // Hides all other labels, fokuses the selected one
+            foreach (var child in ResponseAlternativeGrid.Children)
             {
-                var frame = (Frame)child;
-                // Modifies the frame color to mark that it's missed
-                // Modifies the frame border color
-                //frame.BorderColor = Colors.LightGray; 
-                //frame.BackgroundColor = Colors.LightGray;
-
-                // Modifies the button color
-                if (frame.Content is Button)
+                if (child is Button)
                 {
-                    var button = (Button)frame.Content;
-                    button.BorderColor = Colors.Red;
-                    button.BackgroundColor = Colors.Red;
+                        var button = (Button)child;
+                        button.BorderColor = Colors.Red;
+                        button.BackgroundColor = Colors.Red;
 
-                    // Also removing the event handler
-                    button.Clicked -= reponseButton_Clicked;
+                        // Also removing the event handler
+                        button.Clicked -= reponseButton_Clicked;
                 }
             }
-        }
 
-        // Reporting an empty response (indicating missing response)
-        ReportResult("");
+            // Reporting an empty response (indicating missing response)
+            ReportResult("");
+        }
 
     }
 
     public override void ShowMessage(string Message)
     {
 
-        StopAllTimers();    
+        StopAllTimers();
         //HideAllItems();
 
         var myHeight = this.Height;
         var textSize = Math.Round(myHeight / (12));
 
-        var messageBtn = new Button()
+        MessageButton = new Button()
         {
             Text = Message,
             BackgroundColor = Color.FromRgb(255, 255, 128),
@@ -396,37 +301,40 @@ public class ResponseView_SiP_SF : ResponseView
             VerticalOptions = LayoutOptions.Fill
         };
 
-
-        mainGrid.Add(messageBtn, 1, 1);
-
+        MainGrid.Add(MessageButton, 1, 1);
     }
 
 
     public override void ShowVisualCue()
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public async override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
     {
-        double range = Maximum - Minimum;
-        double progressProp = Value / range;
-        await PtcProgressBar.ProgressTo(progressProp, 50, Easing.Linear);
+        if (PtcProgressBar != null)
+        {
+            double range = Maximum - Minimum;
+            double progressProp = Value / range;
+            await PtcProgressBar.ProgressTo(progressProp, 50, Easing.Linear);
+        }
     }
 
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
-    private void HideAllItems(object sender, EventArgs e)
+    private void ClearMainGrid(object sender, EventArgs e)
     {
-        HideAllItems();
+        ClearMainGrid();
     }
+
 
     public override void HideAllItems()
     {
-        clearMainGrid();
+        ClearMainGrid();
+        ProgressBarFrame.IsVisible = false;
     }
 
 }

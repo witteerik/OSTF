@@ -51,11 +51,20 @@ Public Class QuickSiP
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        Transducer = AvaliableTransducers(0)
+        'Transducer = AvaliableTransducers(1)
 
         CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
+
+        'Setting SimulatedSoundField to depend on the type of transducer selected
+        If Transducer.IsHeadphones = True Then
+            'Quick SiP should only be used with simulated sound field in headphones
+            SimulatedSoundField = True
+        Else
+            'Or without simulated sound field (of course) in sound field presentation.
+            SimulatedSoundField = False
+        End If
 
         If SimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
@@ -178,10 +187,14 @@ Public Class QuickSiP
         Dim MaskerLocations_HeadTurnedLeft As SoundSourceLocation()
         Dim BackgroundLocations_HeadTurnedLeft As SoundSourceLocation()
 
-        If SimulatedSoundField = True Then
+        'Placing trials with 10 degress of rotation is no longer (after 2025-01-05) used only with SimulatedSoundField, but also with loadspeakers at 0 / 180 degrees.
+        'Note, however, that the actual audio signal will be rounded to the 0 / 180 degrees speakers, only if no closer speaker exist in the loudspeaker setup used. 
+        ' Thus, in sound field, this test can only be performed if speakers are more than 20 degrees (equaliiy spaces) apart (with at least one in front and back positions).
+        ' Note that for calculating speaker distance, not only the azimuth, but also the distance (and elevation?) is used.
+        'If SimulatedSoundField = True Then
 
-            'Head slightly turned right (i.e. Speech on left side)
-            TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}}
+        'Head slightly turned right (i.e. Speech on left side)
+        TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}}
             MaskerLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
             BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
 
@@ -190,20 +203,20 @@ Public Class QuickSiP
             MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
             BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
 
-        Else
+        'Else
 
-            'Not using head turn simulation in sound field presentation, but instead a S0N180 situation
-            'Still using the same object names (these names should be changed in future verisons)
-            TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}}
-            MaskerLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
-            BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
+        '    'Not using head turn simulation in sound field presentation, but instead a S0N180 situation
+        '    'Still using the same object names (these names should be changed in future verisons)
+        '    TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}}
+        '    MaskerLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
+        '    BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
 
-            'Head slightly turned left (i.e. Speech on right side)
-            TargetStimulusLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}}
-            MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
-            BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
+        '    'Head slightly turned left (i.e. Speech on right side)
+        '    TargetStimulusLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}}
+        '    MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
+        '    BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
 
-        End If
+        'End If
 
 
         'Clearing any trials that may have been planned by a previous call

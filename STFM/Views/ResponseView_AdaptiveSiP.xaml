@@ -30,8 +30,6 @@
             <ProgressBar x:Name="PtcProgressBar" Progress="0"
                      ProgressColor="#FFFF80"
                      Background="DarkSlateGray"
-                     Grid.Row="1" Grid.RowSpan="1"
-                     Grid.Column="0" Grid.ColumnSpan="5" 
                      HorizontalOptions="Fill" 
                      VerticalOptions="Fill" 
                      ScaleY="2"/>
