@@ -1547,6 +1547,7 @@ Namespace SipTest
                 Next
             End If
 
+
         End Sub
 
 
@@ -1563,7 +1564,6 @@ Namespace SipTest
             Else
                 Throw New NotImplementedException("Mixing of SiP-test trials on " & Me.SpeechMaterialComponent.LinguisticLevel & " level is not implemented!")
             End If
-
 
         End Sub
 

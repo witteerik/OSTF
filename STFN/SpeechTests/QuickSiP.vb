@@ -456,6 +456,9 @@ Public Class QuickSiP
         CurrentTestTrial.LinguisticSoundStimulusDuration = DirectCast(CurrentTestTrial, SipTrial).TestWordCompletedTime - CurrentTestTrial.LinguisticSoundStimulusStartTime
         CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
 
+        'And also the background level directly from the MediaSet (note that this is the level without any ducking applied!)
+        BackgroundLevel = DirectCast(CurrentTestTrial, SipTrial).MediaSet.BackgroundNonspeechRealisticLevel
+
         'Setting visual que intervals
         Dim ShowVisualQueTimer_Interval As Double
         Dim HideVisualQueTimer_Interval As Double

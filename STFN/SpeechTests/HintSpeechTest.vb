@@ -282,7 +282,7 @@ Public Class HintSpeechTest
                 'Showing results in the GUI
                 GetResultStringForGui()
 
-                'here we have to manually save the tst trial results, since ObservedTrials are reset before the code returns to the speech test form (from which it calls SaveTestTrialResults)
+                'Here we have to manually save the test trial results, since ObservedTrials are reset before the code returns to the speech test form (from which it calls SaveTestTrialResults)
                 SaveTestTrialResults()
 
                 'Initializing a new test protocol for main testing stage and move directly to test mode

@@ -106,7 +106,7 @@ Public Class TestTrial
 
     Public Property SpeechMaterialComponent As SpeechMaterialComponent
 
-    Public Property SubTrials As TestTrialCollection
+    Public Property SubTrials As New TestTrialCollection
 
 
     ''' <summary>

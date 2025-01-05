@@ -1214,7 +1214,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             case SpeechTest.SpeechTestReplies.PauseTestingWithCustomInformation:
 
-                CurrentSpeechTest.SaveTestTrialResults();
+                // No test results should be saved when going to pause, as the presented trial should be retaken
+                // CurrentSpeechTest.SaveTestTrialResults();
 
                 // Resets the test PauseInformation 
                 PauseTest();
@@ -1573,7 +1574,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             ShowResults(CurrentSpeechTest.GetResultStringForGui());
 
             // Saving test results to file
-            CurrentSpeechTest.SaveTableFormatedTestResults();
+            // CurrentSpeechTest.SaveTableFormatedTestResults();
         }
 
     }

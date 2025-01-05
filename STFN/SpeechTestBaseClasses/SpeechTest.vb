@@ -2089,62 +2089,62 @@ Public MustInherit Class SpeechTest
 
     End Function
 
-    Public Function SaveTableFormatedTestResults() As Boolean
+    'Public Function SaveTableFormatedTestResults() As Boolean
 
-        'Skipping saving data if it's the demo ptc ID
-        If SharedSpeechTestObjects.CurrentParticipantID.Trim = SharedSpeechTestObjects.NoTestId Then Return True
+    '    'Skipping saving data if it's the demo ptc ID
+    '    If SharedSpeechTestObjects.CurrentParticipantID.Trim = SharedSpeechTestObjects.NoTestId Then Return True
 
-        If SharedSpeechTestObjects.TestResultsRootFolder = "" Then
-            Messager.MsgBox("Unable to save the results to file due to missing test results output folder. This should have been selected first startup of the app!")
-            Return False
-        End If
+    '    If SharedSpeechTestObjects.TestResultsRootFolder = "" Then
+    '        Messager.MsgBox("Unable to save the results to file due to missing test results output folder. This should have been selected first startup of the app!")
+    '        Return False
+    '    End If
 
-        If IO.Directory.Exists(SharedSpeechTestObjects.TestResultsRootFolder) = False Then
-            Try
-                IO.Directory.CreateDirectory(SharedSpeechTestObjects.TestResultsRootFolder)
-            Catch ex As Exception
-                Messager.MsgBox("Unable to save the results to the test results output folder (" & SharedSpeechTestObjects.TestResultsRootFolder & "). The path does not exist, and could not be created!")
-            End Try
-            Return False
-        End If
+    '    If IO.Directory.Exists(SharedSpeechTestObjects.TestResultsRootFolder) = False Then
+    '        Try
+    '            IO.Directory.CreateDirectory(SharedSpeechTestObjects.TestResultsRootFolder)
+    '        Catch ex As Exception
+    '            Messager.MsgBox("Unable to save the results to the test results output folder (" & SharedSpeechTestObjects.TestResultsRootFolder & "). The path does not exist, and could not be created!")
+    '        End Try
+    '        Return False
+    '    End If
 
-        Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, Me.FilePathRepresentation)
-        Dim OutputFilename = Me.FilePathRepresentation & "_Results_" & SharedSpeechTestObjects.CurrentParticipantID
+    '    Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, Me.FilePathRepresentation)
+    '    Dim OutputFilename = Me.FilePathRepresentation & "_Results_" & SharedSpeechTestObjects.CurrentParticipantID
 
-        Dim TestResultsString = GetTestResultsExportString()
-        Utils.SendInfoToLog(TestResultsString, OutputFilename, OutputPath, False, True, False, False, True)
+    '    Dim TestResultsString = GetTestResultsExportString()
+    '    Utils.SendInfoToLog(TestResultsString, OutputFilename, OutputPath, False, True, False, False, True)
 
-        Dim SelectedVariables = GetSelectedExportVariables()
-        If SelectedVariables IsNot Nothing Then
+    '    Dim SelectedVariables = GetSelectedExportVariables()
+    '    If SelectedVariables IsNot Nothing Then
 
-            Dim OutputFilename_SelectedVariables = Me.FilePathRepresentation & "_Results_SelectedVariables_" & SharedSpeechTestObjects.CurrentParticipantID
+    '        Dim OutputFilename_SelectedVariables = Me.FilePathRepresentation & "_Results_SelectedVariables_" & SharedSpeechTestObjects.CurrentParticipantID
 
-            Dim TestResultsString_SelectedVariables = GetTestResultsExportString(SelectedVariables)
-            Utils.SendInfoToLog(TestResultsString_SelectedVariables, OutputFilename_SelectedVariables, OutputPath, False, True, False, False, True)
+    '        Dim TestResultsString_SelectedVariables = GetTestResultsExportString(SelectedVariables)
+    '        Utils.SendInfoToLog(TestResultsString_SelectedVariables, OutputFilename_SelectedVariables, OutputPath, False, True, False, False, True)
 
-        End If
+    '    End If
 
-        Return True
-    End Function
+    '    Return True
+    'End Function
 
     Public MustOverride Function GetObservedTestTrials() As IEnumerable(Of TestTrial)
 
-    Public Function GetTestResultsExportString(Optional ByVal SelectedVariables As List(Of String) = Nothing) As String
+    'Public Function GetTestResultsExportString(Optional ByVal SelectedVariables As List(Of String) = Nothing) As String
 
-        Dim ExportStringList As New List(Of String)
+    '    Dim ExportStringList As New List(Of String)
 
-        Dim LocalObservedTrials = GetObservedTestTrials()
+    '    Dim LocalObservedTrials = GetObservedTestTrials()
 
-        For i = 0 To LocalObservedTrials.Count - 1
-            If i = 0 Then
-                ExportStringList.Add("TrialIndex" & vbTab & LocalObservedTrials(i).TestResultColumnHeadings & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyNames(SelectedVariables))
-            End If
-            ExportStringList.Add(i & vbTab & LocalObservedTrials(i).TestResultAsTextRow & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyValues(SelectedVariables))
-        Next
+    '    For i = 0 To LocalObservedTrials.Count - 1
+    '        If i = 0 Then
+    '            ExportStringList.Add("TrialIndex" & vbTab & LocalObservedTrials(i).TestResultColumnHeadings & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyNames(SelectedVariables))
+    '        End If
+    '        ExportStringList.Add(i & vbTab & LocalObservedTrials(i).TestResultAsTextRow & vbTab & LocalObservedTrials.Last.ListedSpeechTestPropertyValues(SelectedVariables))
+    '    Next
 
-        Return String.Join(vbCrLf, ExportStringList)
+    '    Return String.Join(vbCrLf, ExportStringList)
 
-    End Function
+    'End Function
 
 
     Public Function GetTestTrialResultExportString(Optional ByVal SelectedVariables As List(Of String) = Nothing) As String
@@ -2158,13 +2158,33 @@ Public MustInherit Class SpeechTest
         'Exporting only the current trial (last added to ObservedTrials)
         Dim TestTrialIndex As Integer = LocalObservedTrials.Count - 1
 
-        'Adding column headings on the first row
         If TestTrialIndex = 0 Then
-            ExportStringList.Add("TrialIndex" & vbTab & LocalObservedTrials(TestTrialIndex).TestResultColumnHeadings & vbTab & LocalObservedTrials(TestTrialIndex).ListedSpeechTestPropertyNames(SelectedVariables))
+
+            'Adding column headings on the first row
+            Dim DataSetHeadingsColumnList As New List(Of String)
+            DataSetHeadingsColumnList.Add("TrialIndex")
+            DataSetHeadingsColumnList.Add(LocalObservedTrials(TestTrialIndex).TestResultColumnHeadings)
+            For st = 0 To LocalObservedTrials(TestTrialIndex).SubTrials.Count - 1
+                DataSetHeadingsColumnList.Add("SubTrial_" & st + 1 & "_" & LocalObservedTrials(TestTrialIndex).SubTrials(st).ListedSpeechTestPropertyNames(SelectedVariables))
+            Next
+            DataSetHeadingsColumnList.Add(LocalObservedTrials(TestTrialIndex).ListedSpeechTestPropertyNames(SelectedVariables))
+
+            'ExportStringList.Add("TrialIndex" & vbTab & LocalObservedTrials(TestTrialIndex).TestResultColumnHeadings & vbTab & LocalObservedTrials(TestTrialIndex).ListedSpeechTestPropertyNames(SelectedVariables))
+            ExportStringList.Add(String.Join(vbTab, DataSetHeadingsColumnList))
+
         End If
 
         'Adding trial data 
-        ExportStringList.Add(TestTrialIndex & vbTab & LocalObservedTrials(TestTrialIndex).TestResultAsTextRow & vbTab & LocalObservedTrials(TestTrialIndex).ListedSpeechTestPropertyValues(SelectedVariables))
+        Dim DataSetColumnList As New List(Of String)
+        DataSetColumnList.Add(TestTrialIndex)
+        DataSetColumnList.Add(LocalObservedTrials(TestTrialIndex).TestResultAsTextRow)
+        For st = 0 To LocalObservedTrials(TestTrialIndex).SubTrials.Count - 1
+            DataSetColumnList.Add(LocalObservedTrials(TestTrialIndex).SubTrials(st).ListedSpeechTestPropertyValues(SelectedVariables))
+        Next
+        DataSetColumnList.Add(LocalObservedTrials(TestTrialIndex).ListedSpeechTestPropertyValues(SelectedVariables))
+
+        'ExportStringList.Add(TestTrialIndex & vbTab & LocalObservedTrials(TestTrialIndex).TestResultAsTextRow & vbTab & LocalObservedTrials(TestTrialIndex).ListedSpeechTestPropertyValues(SelectedVariables))
+        ExportStringList.Add(String.Join(vbTab, DataSetColumnList))
 
         Return String.Join(vbCrLf, ExportStringList)
 

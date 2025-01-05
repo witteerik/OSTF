@@ -10,6 +10,5 @@ Svenska HINT
 Hagermans meningar (Matrix)
 Hörtröskel för tal (HTT)
 Manuell TP i brus
-SiP-testet
 Quick SiP
 SiP-testet (Adaptivt)
