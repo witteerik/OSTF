@@ -247,7 +247,7 @@ Namespace Audio
 
 
         ''' <summary>
-        ''' Copies a section of the sample data of one channel in the original sound to a new sound.
+        ''' Copies a section of the sample data of one channel in the original sound to a new sound. Also the nominal level stored in the SMA component is copied, but not the enire SMA object.
         ''' </summary>
         ''' <param name="Channel"></param>
         ''' <returns></returns>
@@ -258,6 +258,13 @@ Namespace Audio
             Dim NewChannelArray(Length - 1) As Single
             Array.Copy(WaveData.SampleData(Channel), StartSample, NewChannelArray, 0, Length)
             OutputSound.WaveData.SampleData(1) = NewChannelArray
+
+            'Copies also the nominal level
+            If SMA IsNot Nothing Then
+                If SMA.NominalLevel.HasValue Then
+                    OutputSound.SMA.NominalLevel = SMA.NominalLevel
+                End If
+            End If
 
             Return OutputSound
 

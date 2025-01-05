@@ -298,8 +298,10 @@ Namespace Audio.SoundScene
                     'Applying the same gain to all sounds in the group
                     For Each Member In GroupMembers
 
-                        'Applies the gain
-                        Audio.DSP.AmplifySection(Member.Sound, NeededGain, 1)
+                        'Applies the gain (only if not 0)
+                        If NeededGain <> 0 Then
+                            Audio.DSP.AmplifySection(Member.Sound, NeededGain, 1)
+                        End If
 
                         'Storing the applied gain
                         Member.AppliedGain.Value = NeededGain

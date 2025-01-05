@@ -746,20 +746,23 @@ Public Class SpeechMaterialComponent
             End If
 
             'Creating the concatenated output sound
-            If SoundList.Count > 0 Then
+            If SoundList.Count = 1 Then
+                ReturnSound = SoundList(0) ' Directly referencing the return sound
+            ElseIf SoundList.Count > 0 Then
                 ReturnSound = Audio.DSP.ConcatenateSounds(SoundList, ,,,,, CrossFadeLength)
-                If ReturnSound IsNot Nothing Then
-                    If RectifySmaComponents = True Then
+            End If
 
-                        'Referencing the RectifiedSMA as the SMA object of the ReturnSound, and the ReturnSound as the ParentSound of the RectifiedSMA object.
-                        ReturnSound.SMA = RectifiedSMA
-                        RectifiedSMA.ParentSound = ReturnSound
+            If ReturnSound IsNot Nothing Then
+                If RectifySmaComponents = True Then
 
-                        'Setting channel start sample to 0 and length to the actual sound length
-                        RectifiedSMA.ChannelData(SoundChannel).StartSample = 0
-                        RectifiedSMA.ChannelData(SoundChannel).Length = RectifiedSMA.ParentSound.WaveData.SampleData(SoundChannel).Length
+                    'Referencing the RectifiedSMA as the SMA object of the ReturnSound, and the ReturnSound as the ParentSound of the RectifiedSMA object.
+                    ReturnSound.SMA = RectifiedSMA
+                    RectifiedSMA.ParentSound = ReturnSound
 
-                    End If
+                    'Setting channel start sample to 0 and length to the actual sound length
+                    RectifiedSMA.ChannelData(SoundChannel).StartSample = 0
+                    RectifiedSMA.ChannelData(SoundChannel).Length = RectifiedSMA.ParentSound.WaveData.SampleData(SoundChannel).Length
+
                 End If
             End If
 
@@ -1423,7 +1426,7 @@ Public Class SpeechMaterialComponent
     End Function
 
 
-    Public Sub ClearAllLoadedSounds()
+    Public Shared Sub ClearAllLoadedSounds()
         SoundLibrary.Clear()
     End Sub
 
