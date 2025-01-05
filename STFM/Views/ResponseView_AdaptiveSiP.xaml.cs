@@ -92,7 +92,7 @@ namespace STFM.Views
 
         }
 
-        public async override void ResponseTimesOut()
+        public override void ResponseTimesOut()
         {
             if (GetRowResponse(TestWordGrid1) == "")
             {
@@ -129,8 +129,8 @@ namespace STFM.Views
                 TestWordButton5_3.Background = RedButtonColor;
             }
 
-            // Sending the reply on on a background thread, so that the GUI gets updated
-            await Task.Run(() => SendReply());
+            // Sending the reply
+            SendReply();
 
         }
 
@@ -434,18 +434,8 @@ namespace STFM.Views
             }
         }
 
-        private async void ButtonButton_Clicked(object sender, EventArgs e)
+        private void ButtonButton_Clicked(object sender, EventArgs e)
         {
-
-            if (ReplyList.Count >= 5)
-            {
-                // This should not happen but, if it does, this call is blocked and a reply is sent
-
-                // Sending the reply on on a background thread
-                await Task.Run(() => SendReply());
-
-                return;
-            }
 
             Button clickedButton = (Button)sender;
 
@@ -468,8 +458,9 @@ namespace STFM.Views
             if (ResponseCount == 5)
             {
 
-                // Sending the reply on on a background thread
-                await Task.Run(() => SendReply());
+                // Sending the reply
+                SendReply();
+
             }
 
         }
@@ -502,15 +493,10 @@ namespace STFM.Views
             }
         }
 
-        private readonly object SendReplySyncLock = new object();
-
         private void SendReply()
         {
 
             //Messager.MsgBoxAsync("New Replies" + GetRowResponse(TestWordGrid1));
-
-            lock (SendReplySyncLock)
-            {
 
                 //Messager.MsgBoxAsync("In Lock" + GetRowResponse(TestWordGrid1));
 
@@ -539,13 +525,12 @@ namespace STFM.Views
                 args.LinguisticResponses = ReplyListCopy;
                 args.LinguisticResponseTime = DateTime.Now;
 
-                // Raising the Response given event in the base class
-                OnResponseGiven(args);
+            // Raising the ResponseGiven event in the base class.
+            // Note that this is done on a background thread that returns to the main thread after a short delay to allow the GUI to be updated.
+            OnResponseGiven(args);
 
-                // starting timer that hides everything
-                ResetGuiTimer.Start();
-
-            }
+            // starting timer that hides everything
+            ResetGuiTimer.Start();
 
         }               
 

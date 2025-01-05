@@ -218,7 +218,7 @@ public class ResponseView_Mafc : ResponseView
 
     }
 
-    private async void reponseButton_Clicked(object sender, EventArgs e)
+    private void reponseButton_Clicked(object sender, EventArgs e)
     {
 
         // Getting the responsed label
@@ -257,8 +257,7 @@ public class ResponseView_Mafc : ResponseView
         }
 
         // Sends the linguistic response
-        // Run the long-running method on a background thread
-        await Task.Run(() => ReportResult(responseBtn.Text));
+        ReportResult(responseBtn.Text);
 
     }
 
@@ -270,8 +269,10 @@ public class ResponseView_Mafc : ResponseView
         args.LinguisticResponses.Add(RespondedSpelling);
         args.LinguisticResponseTime = DateTime.Now;
 
-        // Raising the Response given event in the base class
+        // Raising the ResponseGiven event in the base class.
+        // Note that this is done on a background thread that returns to the main thread after a short delay to allow the GUI to be updated.
         OnResponseGiven(args);
+
 
         HideAllTimer.Start();
 
@@ -295,7 +296,7 @@ public class ResponseView_Mafc : ResponseView
         throw new NotImplementedException();
     }
 
-    public async override void ResponseTimesOut()
+    public override void ResponseTimesOut()
     {
 
         // Hides all other labels, fokuses the selected one
@@ -323,8 +324,7 @@ public class ResponseView_Mafc : ResponseView
         }
 
         // Reporting an empty response (indicating missing response)
-        // Run the long-running method on a background thread
-        await Task.Run(() => ReportResult(""));
+        ReportResult("");
 
     }
 

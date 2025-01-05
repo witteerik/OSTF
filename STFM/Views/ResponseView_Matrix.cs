@@ -91,7 +91,7 @@ public class ResponseView_Matrix : ResponseView
     }
 
 
-    private async void Column_NewSelection(SelectionButtonSet.SelectionTextButtonEventArgs e)
+    private void Column_NewSelection(SelectionButtonSet.SelectionTextButtonEventArgs e)
     {
 
         if (e != null) { 
@@ -105,8 +105,7 @@ public class ResponseView_Matrix : ResponseView
             }
 
             // If so, sends the response
-            // Run the long-running method on a background thread
-            await Task.Run(() => ReportResult());
+            ReportResult();
 
         }
     }
@@ -126,7 +125,8 @@ public class ResponseView_Matrix : ResponseView
 
         args.LinguisticResponseTime = DateTime.Now;
 
-        // Raising the Response given event in the base class
+        // Raising the ResponseGiven event in the base class.
+        // Note that this is done on a background thread that returns to the main thread after a short delay to allow the GUI to be updated.
         OnResponseGiven(args);
 
         //HideAllTimer.Start();
@@ -162,7 +162,7 @@ public class ResponseView_Matrix : ResponseView
         throw new NotImplementedException();
     }
 
-    public async override void ResponseTimesOut()
+    public override void ResponseTimesOut()
     {
         InactivateEventHandlers();
 
@@ -172,8 +172,7 @@ public class ResponseView_Matrix : ResponseView
         }
 
         // Reporting the result so far
-        // Run the long-running method on a background thread
-        await Task.Run(() => ReportResult());
+        ReportResult();
 
     }
 

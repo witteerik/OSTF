@@ -250,7 +250,7 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
     }
 
 
-    private async void wrapUpTrial()
+    private void wrapUpTrial()
     {
 
         List<string> CorrectResponses = new List<string>();
@@ -286,9 +286,7 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
         clearMainGrid();
 
         // Sends the linguistic response
-        // Run the long-running method on a background thread
-        await Task.Run(() => ReportResult(CorrectResponse));
-        //ReportResult(CorrectResponse);
+        ReportResult(CorrectResponse);
 
     }
 
@@ -346,7 +344,8 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
         args.LinguisticResponses = CorrectResponses;
         args.LinguisticResponseTime = DateTime.Now;
 
-        // Raising the Response given event in the base class
+        // Raising the ResponseGiven event in the base class.
+        // Note that this is done on a background thread that returns to the main thread after a short delay to allow the GUI to be updated.
         OnResponseGiven(args);
 
         //HideAllTimer.Start();
@@ -425,7 +424,7 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
 
     public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)

@@ -185,9 +185,7 @@ public class ResponseView_MafcDragDrop : ResponseView
         if (CurrentLinguisticResponseGiven == false)
         {
             CurrentLinguisticResponseGiven = true;
-            // Run the long-running method on a background thread
-            await Task.Run(() => ReportLingusticResult(label.Text));
-            //ReportLingusticResult(label.Text);
+            ReportLingusticResult(label.Text);
         }
 
         switch (e.StatusType)
@@ -255,9 +253,7 @@ public class ResponseView_MafcDragDrop : ResponseView
             {
                 //Hides the label
                 frame.IsVisible = false;
-                // Run the long-running method on a background thread
-                await Task.Run(() => ReportDirectionResult(OverlappedSourceLocation));
-                //ReportDirectionResult(OverlappedSourceLocation);
+                ReportDirectionResult(OverlappedSourceLocation);
 
                 CurrentDirectionResponseGiven = true;
 
@@ -291,7 +287,8 @@ public class ResponseView_MafcDragDrop : ResponseView
         args.LinguisticResponses.Add(RespondedSpelling);
         args.LinguisticResponseTime = DateTime.Now;
 
-        // Raising the Response given event in the base class
+        // Raising the ResponseGiven event in the base class.
+        // Note that this is done on a background thread that returns to the main thread after a short delay to allow the GUI to be updated.
         OnResponseGiven(args);
 
     }
@@ -303,8 +300,10 @@ public class ResponseView_MafcDragDrop : ResponseView
         args.DirectionResponse = RespondedSourceLocation;
         args.DirectionResponseTime = DateTime.Now;
 
-        // Raising the Response given event in the base class
+        // Raising the ResponseGiven event in the base class.
+        // Note that this is done on a background thread that returns to the main thread after a short delay to allow the GUI to be updated.
         OnResponseGiven(args);
+
 
     }
 

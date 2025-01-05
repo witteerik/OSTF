@@ -161,7 +161,7 @@ public class ResponseView_FreeRecall : ResponseView
     }
 
 
-    private async Task wrapUpTrial()
+    private void wrapUpTrial()
     {
 
         List<string> CorrectResponses = new List<string>();
@@ -193,13 +193,11 @@ public class ResponseView_FreeRecall : ResponseView
         clearMainGrid();
 
         // Sends the linguistic response
-        // Run the long-running method on a background thread
-        await Task.Run(() => ReportResult(CorrectResponses));
-        //ReportResult(CorrectResponses);
+        ReportResult(CorrectResponses);
 
     }
 
-    private async void controlButton_Clicked(object sender, EventArgs e)
+    private void controlButton_Clicked(object sender, EventArgs e)
     {
 
         // Getting the responsed label
@@ -208,7 +206,7 @@ public class ResponseView_FreeRecall : ResponseView
 
         if (controlButtonParentFrame.ClassId == "NextButton")
         {
-            await wrapUpTrial();
+            wrapUpTrial();
         }
 
     }
@@ -226,8 +224,10 @@ public class ResponseView_FreeRecall : ResponseView
         args.LinguisticResponses = CorrectResponses;
         args.LinguisticResponseTime = DateTime.Now;
 
-        // Raising the Response given event in the base class
+        // Raising the ResponseGiven event in the base class.
+        // Note that this is done on a background thread that returns to the main thread after a short delay to allow the GUI to be updated.
         OnResponseGiven(args);
+
 
         //HideAllTimer.Start();
 
@@ -254,7 +254,7 @@ public class ResponseView_FreeRecall : ResponseView
         throw new NotImplementedException();
     }
 
-    public async override void ResponseTimesOut()
+    public override void ResponseTimesOut()
     {
         foreach (var child in responseAlternativeGrid.Children)
         {
@@ -268,7 +268,7 @@ public class ResponseView_FreeRecall : ResponseView
         }
 
         // Auto wrapping up the trial
-        await wrapUpTrial();
+        wrapUpTrial();
     }
 
     public override void ShowMessage(string Message)
@@ -305,7 +305,7 @@ public class ResponseView_FreeRecall : ResponseView
 
     public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)

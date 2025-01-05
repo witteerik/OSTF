@@ -48,12 +48,16 @@ public abstract class ResponseView : ContentView
 
     public event EventHandler<SpeechTestInputEventArgs> ResponseGiven;
 
-    protected virtual void OnResponseGiven(SpeechTestInputEventArgs e)
+    protected virtual async void OnResponseGiven(SpeechTestInputEventArgs e)
     {
         EventHandler<SpeechTestInputEventArgs> handler = ResponseGiven;
         if (handler != null)
         {
-            handler(this, e);
+
+            // Raising the ResponseGiven event in the base class. This is done on a background thread as expected by the SpeechTestView HandleResponseView_ResponseGiven method which should handle the event.
+            await Task.Run(() => handler(this, e));
+
+            //handler(this, e);
         }
     }
 

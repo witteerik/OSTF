@@ -160,7 +160,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
+        ///  if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
         if (OstfBase.SoundPlayer.SupportsTalkBack == true)
         {
@@ -181,7 +181,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [show]); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [show]); }); return; }
 
         // Storing the original height specified in the xaml code, so that it can be reused.
         if (originalBottomPanelHeight == null)
@@ -206,7 +206,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [show]); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [show]); }); return; }
 
 
         // Storing the original width specified in the xaml code, so that it can be reused.
@@ -273,7 +273,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
         // Inactivates tackback
         InactivateTalkback();
@@ -1003,7 +1003,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
         bool TestGuiCreationResult = CreateTestGui();
         if (TestGuiCreationResult == false)
@@ -1053,7 +1053,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
         TestIsPaused = true;
 
@@ -1125,12 +1125,8 @@ public partial class SpeechTestView : ContentView, IDrawable
     }
 
 
-        void ResponseViewCorrectionButtonClicked(object sender, EventArgs e)
+    void ResponseViewCorrectionButtonClicked(object sender, EventArgs e)
     {
-        // Acctually this should probably be dealt with on a worker thread, so leaves it on the incoming thread
-        // Directing the call to the main thread if not already on the main thread
-        //if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [sender, e]); }); return; }
-
         // Registering timed trial event
         if (CurrentSpeechTest.CurrentTestTrial != null)
         {
@@ -1143,7 +1139,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [Value, Maximum, Minimum]); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [Value, Maximum, Minimum]); }); return; }
 
         if (CurrentResponseView != null)
         {
@@ -1154,30 +1150,49 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     void HandleResponseView_ResponseGiven(object sender, SpeechTestInputEventArgs e)
     {
-
         // This method handles the event triggered by a response in the response view, and calls the GetSpeechTestReply method of the CurrentSpeechTest to determine what should happen next.
+        // Calls to this method should always be done from a worker thread! See explanation below!
 
-        // Stops all event timers. N.B. This disallows automatic response after the first incoming respone
+        // Stops all event timers. N.B. This disallows automatic response after the first incoming response
+        // Note that this is allways done twice, both before and after the SleepMilliseconds delay described below.
         StopAllTrialEventTimers();
 
-        if (TestIsPaused == true)
-        {
-            // Ignores ant calls from the resonse GUI if test is paused.
-            return;
+        // Ignores ant calls from the resonse GUI if test is paused.
+        // Note that this is allways done twice, both before and after the SleepMilliseconds delay described below.
+        if (TestIsPaused == true) { return; }
+
+
+        int SleepMilliseconds = 10;
+        // A call to this method should allways be done from a worker thread, in order to allow the GUI to be updated after a response is given.
+        // Effectively, the delay places the calls made in this method later in the MainThread Que than the GUI update. (Or at least, that's what I think it does...)
+        // However, to avoid problems associated with multiple threads in the application, the call is directed back to the main thread already at this point,
+        // after applying a delay to the worker thread of SleepMilliseconds ms, giving the MainThread time to update the GUI. 
+        // (If this for som ereason should fail, the GUI will not be immediately updated, but the next trial should be loaded just fine.)
+        // If SleepMilliseconds is not enough for the GUI to get updated, its value should be increased.
+        // Thus, any calls to this method will cause a SleepMilliseconds ms delay. This is corrected for in the registration of timed events below.
+        // The follwoing code block directs the call to the main thread (if not already on the main thread)
+        if (MainThread.IsMainThread == false) {
+            Thread.Sleep(SleepMilliseconds);
+            MethodBase currentMethod = MethodBase.GetCurrentMethod(); 
+            MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [sender, e]); });
+            //MainThread.InvokeOnMainThreadAsync(() => { currentMethod.Invoke(this, [sender, e]); });
+            return; 
         }
+                
 
         // Registering timed trial event
         if (CurrentSpeechTest.CurrentTestTrial != null)
         {
             if (CurrentSpeechTest.IsFreeRecall == true)
             {
-                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TestAdministratorPressedNextTrial, DateTime.Now));
+                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.TestAdministratorPressedNextTrial, DateTime.Now - TimeSpan.FromMilliseconds(SleepMilliseconds)));
             }
             else
             {
-                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.ParticipantResponded, DateTime.Now));
+                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.ParticipantResponded, DateTime.Now - TimeSpan.FromMilliseconds(SleepMilliseconds)));
             }
         }
+
 
         switch (CurrentSpeechTest.GetSpeechTestReply(sender, e))
         {
@@ -1273,7 +1288,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
 
         // Initializing a new trial, this should always stop any timers in the CurrentResponseView that may still be running from the previuos trial 
@@ -1320,7 +1335,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [sender, e]); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [sender, e]); }); return; }
 
 
         if (sender != null)
@@ -1502,7 +1517,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, new object[] { wasStoppedBeforeFinished }); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, new object[] { wasStoppedBeforeFinished }); }); return; }
 
         // Stopping all timers
         StopAllTrialEventTimers();
@@ -1567,7 +1582,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, new object[] { closeApp }); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, new object[] { closeApp }); }); return; }
 
         FinalizeTest(true);
 
@@ -1604,7 +1619,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [results]); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [results]); }); return; }
 
         // Showing result panel
         SetBottomPanelShow(true);
@@ -1694,7 +1709,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
         TalkbackButton.BackgroundColor = Colors.Gray;
         TalkbackButton.BorderColor = Colors.LightGrey;
@@ -1715,7 +1730,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     {
 
         // Directing the call to the main thread if not already on the main thread
-        if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
+        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
         if (STFN.OstfBase.SoundPlayerIsInitialized())
         {
