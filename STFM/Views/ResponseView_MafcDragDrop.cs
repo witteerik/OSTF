@@ -319,7 +319,7 @@ public class ResponseView_MafcDragDrop : ResponseView
 
     public override void ShowMessage(string Message)
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
 

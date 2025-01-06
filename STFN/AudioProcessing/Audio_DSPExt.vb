@@ -3628,16 +3628,41 @@ Namespace Audio
 
                     Dim SourceChannelArray = SoundToInsert.WaveData.SampleData(SourceChannel)
                     Dim TargetChannelArray = TargetSound.WaveData.SampleData(TargetChannel)
-
                     Dim CopyLength As Integer = SourceChannelArray.Length
-                    Dim RequiredTargetLength As Integer = StartInsertSample + SourceChannelArray.Length
-                    If RequiredTargetLength > TargetChannelArray.Length Then
-                        CopyLength = TargetChannelArray.Length - StartInsertSample
-                    End If
 
-                    For s = 0 To CopyLength - 1
-                        TargetChannelArray(StartInsertSample + s) += SourceChannelArray(s)
-                    Next
+                    If OstfBase.UseOptimizationLibraries = True Then
+
+                        'Placing the sound to insert in an array with the same length as TargetSound (as same length is required by AddTwoFloatArrays below)
+                        Dim ExtendedSourceArray(TargetChannelArray.Length - 1) As Single
+                        Array.Copy(SourceChannelArray, 0, ExtendedSourceArray, StartInsertSample, CopyLength)
+
+                        'Dim TestSound As New Audio.Sound(New Formats.WaveFormat(TargetSound.WaveFormat.SampleRate, TargetSound.WaveFormat.BitDepth, 1,, TargetSound.WaveFormat.Encoding))
+                        'TestSound.WaveData.SampleData(1) = ExtendedSourceArray
+                        'TestSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "TestSound_Source"))
+
+                        'Dim TestSound2 As New Audio.Sound(New Formats.WaveFormat(TargetSound.WaveFormat.SampleRate, TargetSound.WaveFormat.BitDepth, 1,, TargetSound.WaveFormat.Encoding))
+                        'TestSound2.WaveData.SampleData(1) = TargetChannelArray
+                        'TestSound2.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "TestSound_TargetChannelArray"))
+
+                        'Summing the arrays using AddTwoFloatArrays
+                        LibOstfDsp_VB.AddTwoFloatArrays(TargetChannelArray, ExtendedSourceArray)
+
+                        'Dim TestSound3 As New Audio.Sound(New Formats.WaveFormat(TargetSound.WaveFormat.SampleRate, TargetSound.WaveFormat.BitDepth, 1,, TargetSound.WaveFormat.Encoding))
+                        'TestSound3.WaveData.SampleData(1) = TargetChannelArray
+                        'TestSound3.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "TestSound_AfterMix"))
+
+                    Else
+
+                        Dim RequiredTargetLength As Integer = StartInsertSample + SourceChannelArray.Length
+                        If RequiredTargetLength > TargetChannelArray.Length Then
+                            CopyLength = TargetChannelArray.Length - StartInsertSample
+                        End If
+
+                        For s = 0 To CopyLength - 1
+                            TargetChannelArray(StartInsertSample + s) += SourceChannelArray(s)
+                        Next
+
+                    End If
 
                 Catch ex As Exception
                     AudioError(ex.ToString)

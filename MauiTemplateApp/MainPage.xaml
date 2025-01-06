@@ -3,10 +3,25 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiTemplateApp.MainPage">
 
-        <HorizontalStackLayout x:Name="MyHorizontalStackLayout"
+        <VerticalStackLayout x:Name="MyStackLayout"
             Padding="30,0"
             Spacing="25">
-            <Image
+
+        <Button
+                x:Name="TestButton"
+                Text="Test button" 
+                Clicked="TestButton_Clicked"
+                HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            />
+
+        <Label x:Name="ResultLabel"
+               Text="Results:"
+               HorizontalOptions="Fill"
+               VerticalOptions="Fill" />
+
+
+        <Image
                 Source="dotnet_bot.png"
                 HeightRequest="185"
                 Aspect="AspectFit"
@@ -43,6 +58,6 @@
                 Clicked="PreviousBtn_Clicked"
                 HorizontalOptions="Fill" />
 
-        </HorizontalStackLayout>
+        </VerticalStackLayout>
 
 </ContentPage>

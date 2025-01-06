@@ -69,7 +69,7 @@ Public MustInherit Class SipBaseSpeechTest
 
     Protected MinimumStimulusOnsetTime As Double = 0.3
     Protected MaximumStimulusOnsetTime As Double = 0.8
-    Protected TrialSoundMaxDuration As Double = 10
+    Protected TrialSoundMaxDuration As Double = 11
     Protected UseBackgroundSpeech As Boolean = False
     Protected MaximumResponseTime As Double = 4
     Protected PretestSoundDuration As Double = 5

@@ -58,7 +58,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="libostfdsp_Win32.dll" />
+	  <None Remove="libostfdsp_x64.dll" />
 	  <None Remove="Resources\AppIcon\appiconfg.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="libostfdsp_Win32.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="libostfdsp_x64.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<!--<ItemGroup>
@@ -83,6 +94,12 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="STFN">
+	    <HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 </Project>

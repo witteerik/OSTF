@@ -1114,6 +1114,197 @@ Namespace Audio
 
             End Function
 
+            ''' <summary>
+            ''' Concatenates the input sounds. All input sounds must have the same format. They may however differ in number of channels, in which case the output file will contain the lowest number of channels among the input sounds. Data in channels higher than the lowest channel count will be ignored.
+            ''' </summary>
+            ''' <param name="InputSounds">A list of Sound to concatenate.</param>
+            ''' <param name="EqualizeSoundLevel">If set to true, all sounds will be set to EqualizationLevel before conatenation.</param>
+            ''' <param name="EqualizationLevel"></param>
+            ''' <param name="EqualizationLevelFrequencyWeighting">The frequency weighting used in the sound level equalization measurement.</param>
+            ''' <param name="AllowChangingInputSounds">Set to false to work on copies of the input sounds. This will require more memory use!</param>
+            ''' <param name="CrossFadeLength">The length (in sample) of a cross-fade section.</param>
+            ''' <param name="ThrowOnUnequalNominalLevels">If True, checks to ensure that all nominal levels stored in the SMA object of each sound are the same (except if they are Nothing, then they are ignored)</param>
+            ''' <returns></returns>
+            Public Function ConcatenateSounds2(ByRef InputSounds As List(Of Sound),
+                                               Optional ByVal CrossFadeLength As Integer? = Nothing,
+                                               Optional ByVal SkewedFade As Boolean = False,
+                                               Optional ByVal CosinePower As Double = 10,
+                                               Optional ByVal EqualPower As Boolean = True,
+                                               Optional ByVal CheckForDifferentSoundFormats As Boolean = True,
+                                               Optional ByVal ThrowOnUnequalNominalLevels As Boolean = True) As Sound
+
+                Try
+
+                    'Returning nothing if there are no input sounds
+                    If InputSounds.Count = 0 Then Return Nothing
+
+                    'Returning a single input sound directly
+                    If InputSounds.Count = 1 Then Return InputSounds(0)
+
+                    Dim DetectedNominalLevel As Double? = Nothing
+                    Dim NominalLevelList As New List(Of Double)
+                    For Each Sound In InputSounds
+                        If Sound.SMA IsNot Nothing Then
+                            If Sound.SMA.NominalLevel.HasValue Then
+                                NominalLevelList.Add(Sound.SMA.NominalLevel.Value)
+                                DetectedNominalLevel = Sound.SMA.NominalLevel.Value
+                            End If
+                        End If
+                    Next
+                    If ThrowOnUnequalNominalLevels Then
+                        If NominalLevelList.Count > 0 Then
+                            For i = 0 To NominalLevelList.Count - 2
+                                If NominalLevelList(i) <> NominalLevelList(i + 1) Then Throw New Exception("Unequal nominal levels detected in concatenated sound files! This may lead to unexpected sound levels during playback!")
+                            Next
+                        End If
+                    End If
+
+                    If CheckForDifferentSoundFormats = True Then
+                        If InputSounds.Count > 1 Then
+                            For n = 1 To InputSounds.Count - 1
+                                If InputSounds(n).WaveFormat.SampleRate <> InputSounds(n - 1).WaveFormat.SampleRate Or
+                                    InputSounds(n).WaveFormat.BitDepth <> InputSounds(n - 1).WaveFormat.BitDepth Or
+                                    InputSounds(n).WaveFormat.Encoding <> InputSounds(n - 1).WaveFormat.Encoding Then
+                                    Throw New ArgumentException("Different formats in ConcatenateSounds input sounds. Aborting!")
+                                End If
+                            Next
+                        End If
+                    End If
+
+
+                    'Getting the length of the output sound
+                    Dim TotalOutputLength As Long = 0
+                    For Each InputSound In InputSounds
+                        'Getting length from channel 1 only
+                        If CrossFadeLength Is Nothing Then
+                            TotalOutputLength += InputSound.WaveData.SampleData(1).Length
+                        Else
+                            TotalOutputLength += InputSound.WaveData.SampleData(1).Length - CrossFadeLength
+                            'Ensuring that TotalOutputLength (and later in the code below, WriteSampleIndex) is never negative
+                            TotalOutputLength = System.Math.Max(0, TotalOutputLength)
+                        End If
+                    Next
+
+                    'Adjusting the length derived when crossfading, since the last sound is not faded
+                    If CrossFadeLength IsNot Nothing Then
+                        TotalOutputLength += CrossFadeLength
+                    End If
+
+                    'Getting the lowest number of channels
+                    Dim LowestNumberOfChannels As Integer = InputSounds(0).WaveFormat.Channels
+                    For n = 1 To InputSounds.Count - 1
+                        LowestNumberOfChannels = Math.Min(InputSounds(n).WaveFormat.Channels, LowestNumberOfChannels)
+                    Next
+
+                    'Creating an output sound format
+                    Dim OutputSoundWaveFormat As New Formats.WaveFormat(InputSounds(0).WaveFormat.SampleRate,
+                                                                      InputSounds(0).WaveFormat.BitDepth,
+                                                                      LowestNumberOfChannels,, InputSounds(0).WaveFormat.Encoding)
+
+                    'Creating an output sound
+                    Dim OutputSound As New Sound(OutputSoundWaveFormat)
+
+                    'Concatenating the sounds
+                    If CrossFadeLength Is Nothing Then
+
+                        'Creating sample arrays for each channel
+                        For c = 1 To OutputSound.WaveFormat.Channels
+                            Dim NewChannelArray(TotalOutputLength - 1) As Single
+                            OutputSound.WaveData.SampleData(c) = NewChannelArray
+                        Next
+
+                        Dim WriteSampleIndex As Long = 0
+                        For Each InputSound In InputSounds
+
+                            For c = 1 To OutputSound.WaveFormat.Channels
+                                Dim TargetArray = OutputSound.WaveData.SampleData(c)
+                                Dim SourceArray = InputSound.WaveData.SampleData(c)
+                                Array.Copy(SourceArray, 0, TargetArray, WriteSampleIndex, SourceArray.Length)
+                            Next
+
+                            'Increasing WriteSampleIndex after all channels have been copied, based on the channel 1 length (basicaly requires equal channel lengths in each incoming sound)
+                            WriteSampleIndex += InputSound.WaveData.SampleData(1).Length
+
+                        Next
+
+                    Else
+
+                        'Fading input sounds
+                        For InputSoundIndex = 0 To InputSounds.Count - 1
+
+                            Dim InputSound = InputSounds(InputSoundIndex)
+
+                            'Fading beginnings (not of first sound)
+                            If InputSoundIndex > 0 Then
+                                Dim CrossInFadeSlopeType As FadeSlopeType = FadeSlopeType.Linear
+                                If SkewedFade = True Then CrossInFadeSlopeType = FadeSlopeType.PowerCosine_SkewedInFadeDirection
+                                DSP.Fade(InputSound, Nothing, 0,, 0, CrossFadeLength, CrossInFadeSlopeType, CosinePower, EqualPower)
+                            End If
+
+                            'Fading ends (not of last sound)
+                            If InputSoundIndex < InputSounds.Count - 1 Then
+                                Dim CrossOutFadeSlopeType As FadeSlopeType = FadeSlopeType.Linear
+                                If SkewedFade = True Then CrossOutFadeSlopeType = FadeSlopeType.PowerCosine_SkewedFromFadeDirection
+                                DSP.Fade(InputSound, 0, Nothing, , InputSound.WaveData.SampleData(1).Length - CrossFadeLength, CrossFadeLength, CrossOutFadeSlopeType, CosinePower, EqualPower)
+                            End If
+
+                        Next
+
+                        'Copying the input sounds to their intended position in the output sound
+                        Dim WriteSampleIndex As Long = 0
+                        Dim OutputSoundLayers As New List(Of SortedList(Of Integer, Single()))
+                        For i = 0 To InputSounds.Count - 1
+                            OutputSoundLayers.Add(New SortedList(Of Integer, Single()))
+                            For c = 1 To OutputSound.WaveFormat.Channels
+                                'Creating an empty array
+                                Dim OutputSoundLayerChannelArray(TotalOutputLength - 1) As Single
+
+                                'Getting the sound in channel c
+                                Dim SourceArray = InputSounds(i).WaveData.SampleData(c)
+
+                                'Copying the sound to the OutputSoundLayerChannelArray, from the intended position (WriteSampleIndex)
+                                Array.Copy(SourceArray, 0, OutputSoundLayerChannelArray, WriteSampleIndex, SourceArray.Length)
+
+                                'Adding the OutputSoundLayerChannelArray to OutputSoundLayers
+                                OutputSoundLayers(i).Add(c, OutputSoundLayerChannelArray)
+
+                            Next
+
+                            'Increasing WriteSampleIndex after all channels have been copied, based on the channel 1 length (basicaly requires equal channel lengths in each incoming sound)
+                            WriteSampleIndex += InputSounds(i).WaveData.SampleData(1).Length
+
+                            'Moving the write position backwards
+                            WriteSampleIndex -= CrossFadeLength
+
+                            'Ensuring that WriteSampleIndex is non-negative
+                            WriteSampleIndex = System.Math.Max(0, WriteSampleIndex)
+
+                        Next
+
+                        'Superpositioning the channel-layer arrays
+                        For c = 1 To OutputSound.WaveFormat.Channels
+                            Dim OutputSoundChannelArray = OutputSoundLayers(0)(c)
+                            For i = 1 To InputSounds.Count - 1
+                                LibOstfDsp_VB.AddTwoFloatArrays(OutputSoundChannelArray, OutputSoundLayers(i)(c))
+                            Next
+                            OutputSound.WaveData.SampleData(c) = OutputSoundChannelArray
+                        Next
+
+                    End If
+
+                    If DetectedNominalLevel.HasValue Then
+                        OutputSound.SMA.NominalLevel = DetectedNominalLevel.Value
+                    End If
+
+                    Return OutputSound
+
+                Catch ex As Exception
+                    AudioError(ex.ToString)
+                    Return Nothing
+                End Try
+
+            End Function
+
 
             ''' <summary>
             ''' Concatenates the input sounds. All input sounds must have the same format. They may however differ in number of channels, in which case the output file will contain the lowest number of channels among the input sounds. Data in channels higher than the lowest channel count will be ignored.
@@ -1143,13 +1334,13 @@ Namespace Audio
                     Dim DetectedNominalLevel As Double? = Nothing
                     Dim NominalLevelList As New List(Of Double)
                     For Each Sound In InputSounds
-                            If Sound.SMA IsNot Nothing Then
-                                If Sound.SMA.NominalLevel.HasValue Then
-                                    NominalLevelList.Add(Sound.SMA.NominalLevel.Value)
-                                    DetectedNominalLevel = Sound.SMA.NominalLevel.Value
-                                End If
+                        If Sound.SMA IsNot Nothing Then
+                            If Sound.SMA.NominalLevel.HasValue Then
+                                NominalLevelList.Add(Sound.SMA.NominalLevel.Value)
+                                DetectedNominalLevel = Sound.SMA.NominalLevel.Value
                             End If
-                        Next
+                        End If
+                    Next
                     If ThrowOnUnequalNominalLevels Then
                         If NominalLevelList.Count > 0 Then
                             For i = 0 To NominalLevelList.Count - 2
@@ -1474,7 +1665,7 @@ Namespace Audio
                 ''' <param name="slopeType">Specifies the curvature of the fade section. Linear creates a linear fade, and Smooth fades using a cosine function to smoothen out the fade section.</param>
                 Public Sub New(Optional ByVal StartAttenuation As Double? = Nothing, Optional ByVal EndAttenuation As Double? = Nothing,
                             Optional ByVal StartSample As Integer = 0, Optional ByVal SectionLength As Integer? = Nothing,
-                            Optional ByVal SlopeType As FadeSlopeType = FadeSlopeType.Smooth, Optional CosinePower As Double = 10, Optional ByVal EqualPower As Boolean = False)
+                            Optional ByVal SlopeType As FadeSlopeType = FadeSlopeType.Linear, Optional CosinePower As Double = 10, Optional ByVal EqualPower As Boolean = False)
 
                     Me.StartAttenuation = StartAttenuation
                     Me.EndAttenuation = EndAttenuation
@@ -1582,22 +1773,40 @@ Namespace Audio
                             Select Case slopeType
                                 Case FadeSlopeType.Smooth
 
-                                    For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+                                    If EqualPower = True Then
 
-                                        'fadeProgress goes from 0 to 1 during the fade section
-                                        fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
+                                        For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
 
-                                        currentModFactor = ((Math.Cos(twopi * (fadeProgress / 2)) + 1) / 2)
-                                        currentFadeFactor = startFactor * currentModFactor + endFactor * (1 - currentModFactor)
+                                            'fadeProgress goes from 0 to 1 during the fade section
+                                            fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
 
-                                        If EqualPower = True Then
-                                            currentFadeFactor = Math.Sqrt(currentFadeFactor)
-                                        End If
+                                            currentModFactor = ((Math.Cos(twopi * (fadeProgress / 2)) + 1) / 2)
+                                            'currentFadeFactor = Math.Sqrt(startFactor * currentModFactor + endFactor * (1 - currentModFactor))
 
-                                        'Fading the section
-                                        inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
-                                        fadeSampleCount += 1
-                                    Next
+                                            'Fading the section
+                                            inputArray(currentSample) = inputArray(currentSample) * Math.Sqrt(startFactor * currentModFactor + endFactor * (1 - currentModFactor))
+                                            'inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
+                                            fadeSampleCount += 1
+                                        Next
+
+                                    Else
+
+                                        For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+
+                                            'fadeProgress goes from 0 to 1 during the fade section
+                                            fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
+
+                                            currentModFactor = ((Math.Cos(twopi * (fadeProgress / 2)) + 1) / 2)
+                                            'currentFadeFactor = startFactor * currentModFactor + endFactor * (1 - currentModFactor)
+
+                                            'Fading the section
+                                            inputArray(currentSample) = inputArray(currentSample) * (startFactor * currentModFactor + endFactor * (1 - currentModFactor))
+                                            'inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
+                                            fadeSampleCount += 1
+
+                                        Next
+                                    End If
+
 
                                 Case FadeSlopeType.PowerCosine_SkewedFromFadeDirection
 
@@ -1649,21 +1858,37 @@ Namespace Audio
 
                                 Case Else 'I.e. Linear!
 
-                                    For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+                                    If EqualPower = True Then
 
-                                        'fadeProgress goes from 0 to 1 during the fade section
-                                        fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
+                                        For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
 
-                                        currentFadeFactor = startFactor * (1 - fadeProgress) + endFactor * fadeProgress
+                                            'fadeProgress goes from 0 to 1 during the fade section
+                                            fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
+                                            'currentFadeFactor = Math.Sqrt(startFactor * (1 - fadeProgress) + endFactor * fadeProgress)
 
-                                        If EqualPower = True Then
-                                            currentFadeFactor = Math.Sqrt(currentFadeFactor)
-                                        End If
+                                            'Fading the section
+                                            inputArray(currentSample) = inputArray(currentSample) * Math.Sqrt(startFactor * (1 - fadeProgress) + endFactor * fadeProgress)
+                                            'inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
+                                            fadeSampleCount += 1
 
-                                        'Fading the section
-                                        inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
-                                        fadeSampleCount += 1
-                                    Next
+                                        Next
+
+                                    Else
+
+                                        For currentSample = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+
+                                            'fadeProgress goes from 0 to 1 during the fade section
+                                            fadeProgress = fadeSampleCount / (CorrectedSectionLength - 1)
+                                            'currentFadeFactor = startFactor * (1 - fadeProgress) + endFactor * fadeProgress
+
+                                            'Fading the section
+                                            inputArray(currentSample) = inputArray(currentSample) * (startFactor * (1 - fadeProgress) + endFactor * fadeProgress)
+                                            'inputArray(currentSample) = (inputArray(currentSample) * currentFadeFactor)
+                                            fadeSampleCount += 1
+
+                                        Next
+
+                                    End If
 
                             End Select
                         End If

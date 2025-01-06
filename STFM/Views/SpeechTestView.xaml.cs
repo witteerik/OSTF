@@ -510,37 +510,33 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "SiP-testet (Adaptivt)":
 
-                    bool useAdaptive = true;
-                    if (useAdaptive)
-                    {
-                                                
                         SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
                         // Speech test
                         CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
 
                         TestOptionsGrid.Children.Clear();
-                        var newOptionsSipSCTestView = new OptionsViewAll(CurrentSpeechTest);
-                        TestOptionsGrid.Children.Add(newOptionsSipSCTestView);
-                        CurrentTestOptionsView = newOptionsSipSCTestView;
+                        var newOptionsASipTestView = new OptionsViewAll(CurrentSpeechTest);
+                        TestOptionsGrid.Children.Add(newOptionsASipTestView);
+                        CurrentTestOptionsView = newOptionsASipTestView;
 
-                    }
-                    else
-                    {
+                    break;
+
+                case "SiP-testet (Adaptivt) - Övning":
 
                         SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
                         // Speech test
-                        CurrentSpeechTest = new IHearSC_SiP_SpeechTest("Swedish SiP-test");
+                        CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
+                        CurrentSpeechTest.IsPractiseTest = true;
 
                         TestOptionsGrid.Children.Clear();
-                        var newOptionsSipSCTestView = new OptionsViewAll(CurrentSpeechTest);
-                        TestOptionsGrid.Children.Add(newOptionsSipSCTestView);
-                        CurrentTestOptionsView = newOptionsSipSCTestView;
-
-                    }
+                        var newOptionsPASipTestView = new OptionsViewAll(CurrentSpeechTest);
+                        TestOptionsGrid.Children.Add(newOptionsPASipTestView);
+                        CurrentTestOptionsView = newOptionsPASipTestView;
 
                     break;
+
 
                 default:
                     TestOptionsGrid.Children.Clear();
@@ -856,24 +852,20 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     case "SiP-testet (Adaptivt)":
 
-                        bool useAdaptive = true;
-                        if (useAdaptive)
-                        {
                             CurrentResponseView = new ResponseView_AdaptiveSiP();
                             TestReponseGrid.Children.Add(CurrentResponseView);
-
                             CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-
-                        }
-                        else
-                        {
-                            CurrentResponseView = new ResponseView_SiP_SF();
-                            TestReponseGrid.Children.Add(CurrentResponseView);
-
-                            CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-                        }
 
                         break;
+
+                    case "SiP-testet (Adaptivt) - Övning":
+
+                            CurrentResponseView = new ResponseView_AdaptiveSiP();
+                            TestReponseGrid.Children.Add(CurrentResponseView);
+                            CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
+
+                        break;
+
 
                     default:
                         Messager.MsgBox("No participant response GUI available for the selected test! This is must likely a bug which should not occur!"); 
@@ -1042,6 +1034,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         TestResultGrid.IsEnabled = true;
 
         TestIsPaused = false;
+
+        //CurrentResponseView.ShowMessage("Testet börjar strax...");
 
         // Calling NewSpeechTestInput with e as null
         // Making the call on a separate a background thread so that the GUI changes doesn't have to wait for the creation of the initial test stimuli 
@@ -1232,10 +1226,10 @@ public partial class SpeechTestView : ContentView, IDrawable
                 switch (STFN.SharedSpeechTestObjects.GuiLanguage)
                 {
                     case STFN.Utils.Constants.Languages.Swedish:
-                        Messager.MsgBox("Testet är klart.", Messager.MsgBoxStyle.Information, "Klart!", "OK");
+                        Messager.MsgBox(CurrentSpeechTest.GetTestCompletedGuiMessage(), Messager.MsgBoxStyle.Information, "Klart!", "OK");
                         break;
                     default:
-                        Messager.MsgBox("The test is finished", Messager.MsgBoxStyle.Information, "Finished", "OK");
+                        Messager.MsgBox(CurrentSpeechTest.GetTestCompletedGuiMessage(), Messager.MsgBoxStyle.Information, "Finished", "OK");
                         break;
                 }
 

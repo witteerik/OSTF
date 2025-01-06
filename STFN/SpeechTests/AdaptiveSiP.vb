@@ -16,21 +16,48 @@ Public Class AdaptiveSiP
 
     Public Shadows Sub ApplyTestSpecificSettings()
 
-        TesterInstructions = "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
+        If IsPractiseTest = True Then
+
+            TesterInstructions = "SiP-testet (Adaptivt) - Övningstest" & vbCrLf & vbCrLf &
+                "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
                 "1. Informera deltagaren om hur testet går till." & vbCrLf &
                 "2. Vänd skärmen till deltagaren. Be sedan deltagaren klicka på start för att starta testet."
 
+            ParticipantInstructions = "SiP-testet (Adaptivt) - Övningstest" & vbCrLf & vbCrLf &
+                "Deltagarens uppgift: " & vbCrLf & vbCrLf &
+                " - Under testet ska du lyssna efter enstaviga ord i olika ljudmiljöer. Orden spelas upp fem i taget och du ska ange så snabbt och korrekt som möjligt vilka ord du uppfattat. " & vbCrLf &
+                " - Svarsalternativen finns i en tabell med tre kolumner och fem rader." & vbCrLf &
+                " - Första ordet som spelas upp finns nedersta raden." & vbCrLf &
+                " - Nästa ord finns i raden näst längst ned. Klicka på det ord du hört så snart du kan." & vbCrLf &
+                " - Fortsätt uppåt tills alla ord besvarats. " & vbCrLf &
+                " - Om du är osäker ska du gissa." & vbCrLf &
+                " - Du har maximalt " & MaximumResponseTime & " sekunder på dig att svara efter att sista ordet spelats upp." & vbCrLf &
+                " - Om svarsalternativen ändras till i röd färg har du inte svarat i tid. Testet går då vidare." & vbCrLf &
+                " - Vi börjar med ett kort övningstest. " & vbCrLf &
+                " - Starta testet genom att klicka på knappen 'Start'"
 
-        ParticipantInstructions = "Deltagarens uppgift: " & vbCrLf & vbCrLf &
-                " - Deltagaren startar testet genom att klicka på knappen 'Start'" & vbCrLf &
-                " - Under testet ska deltagaren lyssna efter enstaviga ord i olika ljudmiljöer. Orden presenteras fem i taget och deltagaren ska ange så snabbt och korrekt som möjligt vilka ord hen uppfattat. " & vbCrLf &
-                " - Svarsalternativen finns i en tabell med fem rader och tre kolumner." & vbCrLf &
-                "      - Första ordet är ett av de tre orden i raden längst ned." & vbCrLf &
-                "      - Nästa ord finns i raden näst längst ned." & vbCrLf &
-                "      - Fortsätt uppåt tills alla ord besvarats. " & vbCrLf &
-                " - Om deltagaren är osäker ska hen gissa." & vbCrLf &
-                " - Den maximala svarstiden är " & MaximumResponseTime & " sekunder efter att sista ordet spelats upp." & vbCrLf &
-                " - Om svarsalternativen ändras till i röd färg har deltagaren inte svarat i tid. Testet går då vidare."
+        Else
+
+            TesterInstructions = "SiP-testet (Adaptivt)" & vbCrLf & vbCrLf &
+                "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
+                "1. Informera deltagaren om hur testet går till." & vbCrLf &
+                "2. Vänd skärmen till deltagaren. Be sedan deltagaren klicka på start för att starta testet."
+
+            ParticipantInstructions = "SiP-testet (Adaptivt)" & vbCrLf & vbCrLf &
+                "Deltagarens uppgift: " & vbCrLf & vbCrLf &
+                " - Under testet ska du lyssna efter enstaviga ord i olika ljudmiljöer. Orden spelas upp fem i taget och du ska ange så snabbt och korrekt som möjligt vilka ord du uppfattat. " & vbCrLf &
+                " - Svarsalternativen finns i en tabell med tre kolumner och fem rader." & vbCrLf &
+                " - Första ordet som spelas upp finns nedersta raden." & vbCrLf &
+                " - Nästa ord finns i raden näst längst ned. Klicka på det ord du hört så snart du kan." & vbCrLf &
+                " - Fortsätt uppåt tills alla ord besvarats. " & vbCrLf &
+                " - Om du är osäker ska du gissa." & vbCrLf &
+                " - Du har maximalt " & MaximumResponseTime & " sekunder på dig att svara efter att sista ordet spelats upp." & vbCrLf &
+                " - Om svarsalternativen ändras till i röd färg har du inte svarat i tid. Testet går då vidare." & vbCrLf &
+                " - Testet tar ungefär sex minuter. " & vbCrLf &
+                " - Starta testet genom att klicka på knappen 'Start'"
+
+        End If
+
 
         'SupportsManualPausing = False
 
@@ -48,14 +75,16 @@ Public Class AdaptiveSiP
 
     Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
 
-
-    'Private PresetName As String = "IHeAR_CS"
-    Private PresetName As String = "AdaptiveSiP"
+    Private PresetName As String = "Adaptive SiP"
+    Private PresetName_PractiseTest As String = "Adaptive SiP - Practise"
 
     'Defines the number of times each test word group is tested
     Private TestLength As Integer
-    'Determines the number of test trials (this must be amultiple of 3, so that each trial is tested an equal number of times)
+    'Determines the number of test trials (this must be a multiple of 3, so that each trial is tested an equal number of times)
     Private TrialCount As Integer
+
+    Private TaskStandardTime As Double = 3 ' The time each test word sound occupies
+
 
     Private PlannedTestTrials As New TestTrialCollection
     Protected ObservedTrials As New TestTrialCollection
@@ -89,7 +118,11 @@ Public Class AdaptiveSiP
         End If
 
         'Defines the number of times each test word group is tested
-        TestLength = 10
+        If IsPractiseTest = True Then
+            TestLength = 1
+        Else
+            TestLength = 10
+        End If
         'Determines the number of test trials (this must be amultiple of 3, so that each trial is tested an equal number of times)
         TrialCount = TestLength * 3
 
@@ -107,7 +140,16 @@ Public Class AdaptiveSiP
         'Creating a test protocol
         TestProtocol = New BrandKollmeier2002_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
         'TestProtocol = New AdaptiveSiP_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
-        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = 10, .TestStage = 0, .TestLength = TrialCount})
+
+        'Setting the start PNR value. (Easier in the practise test.)
+        Dim InitialAdaptiveValue As Double
+        If IsPractiseTest = True Then
+            InitialAdaptiveValue = 14
+        Else
+            InitialAdaptiveValue = 10
+        End If
+
+        TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = InitialAdaptiveValue, .TestStage = 0, .TestLength = TrialCount})
 
 
         Return New Tuple(Of Boolean, String)(True, "")
@@ -132,8 +174,8 @@ Public Class AdaptiveSiP
 
         'Getting the preset
         Dim TestLists As List(Of SpeechMaterialComponent) = Nothing
-        If IsPractiseTest Then
-            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, False, True)
+        If IsPractiseTest = True Then
+            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName_PractiseTest).Members 'TODO! Specify correct members in text file
         Else
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members 'TODO! Specify correct members in text file
         End If
@@ -160,7 +202,19 @@ Public Class AdaptiveSiP
             'Creating a random order to draw words from 
             Dim RandomList As New SortedList(Of Integer, List(Of Integer)) 'TWG index, TW index presentation order
             For twgi = 0 To TestLists.Count - 1
-                RandomList.Add(twgi, Utils.SampleWithoutReplacement(3, 0, 3, Randomizer).ToList)
+
+                If IsPractiseTest = True Then
+                    'Sampling with replacement, so that any test word may occur in the practise test
+                    Dim PractiseRandomList As New List(Of Integer)
+                    PractiseRandomList.Add(Randomizer.Next(0, 3))
+                    PractiseRandomList.Add(Randomizer.Next(0, 3))
+                    PractiseRandomList.Add(Randomizer.Next(0, 3))
+                    RandomList.Add(twgi, PractiseRandomList)
+
+                Else
+                    'Sampling without replacement to get en equal number of presentations of all test words
+                    RandomList.Add(twgi, Utils.SampleWithoutReplacement(3, 0, 3, Randomizer).ToList)
+                End If
             Next
 
             'Iterating over three TWG indices
@@ -170,8 +224,16 @@ Public Class AdaptiveSiP
                 Dim NewTestTrial As New TestTrial
                 NewTestTrial.SubTrials = New TestTrialCollection
 
-                Dim modValue = i Mod 2
-                If (i) Mod 2 = 0 Then
+                Dim modValue As Integer
+                If IsPractiseTest = True Then
+                    'Putting every other trial left or right
+                    modValue = PlannedTestTrials.Count Mod 2
+                Else
+                    'Swapping left / right after three trials
+                    modValue = i Mod 2
+                End If
+
+                If modValue = 0 Then
 
                     For twgi = 0 To TestLists.Count - 1
 
@@ -264,15 +326,26 @@ Public Class AdaptiveSiP
                         Dim GainToTargetLevel = TargetCentralRegionLevel - CentralRegionLevel
                         Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
 
+                        ''Shortering the maskers if TaskStandardTime is less than three seconds (standard masker length)
+                        'Dim MaskerDuration As Double = LoadedSound.WaveData.SampleData(1).Length / LoadedSound.WaveFormat.SampleRate
+                        'If TaskStandardTime < MaskerDuration Then
+
+                        '    Dim ProportionToUse = TaskStandardTime / MaskerDuration
+                        '    Dim CropLength As Integer = System.Math.Floor(ProportionToUse * LoadedSound.WaveData.SampleData(1).Length)
+                        '    Dim CropStartSample As Integer = System.Math.Floor((LoadedSound.WaveData.SampleData(1).Length - CropLength) / 2)
+                        '    Audio.DSP.CropSection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), CropStartSample, CropLength)
+
+                        'End If
+
                         'Storing the new CentralRegionLevel as the Nominal level
                         SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = TargetCentralRegionLevel
-                        SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.InferNominalLevelToAllDescendants()
+                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.InferNominalLevelToAllDescendants()
 
-                        'Check the level (it should agree with TargetCentralRegionLevel)
-                        'SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.ChannelData(1)(0)(1).MeasureSoundLevels(False, 1, 0, 0)
+                            'Check the level (it should agree with TargetCentralRegionLevel)
+                            'SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.ChannelData(1)(0)(1).MeasureSoundLevels(False, 1, 0, 0)
 
-                        SoundsToUse.Add(LoadedSound.SourcePath, LoadedSound)
-                    End If
+                            SoundsToUse.Add(LoadedSound.SourcePath, LoadedSound)
+                        End If
                 Next
 
                 'Loading the background sound
@@ -575,6 +648,8 @@ Public Class AdaptiveSiP
         'Storing also in all subtrials, and mixes their sounds
         Dim TrialSounds As New List(Of Audio.Sound)
         Dim TaskStartTimes As New List(Of Double)
+        Dim OverlapTime As Double = ((TaskStandardTime - 1) / 2)
+
         For i = 0 To CurrentTestTrial.SubTrials.Count - 1
 
             Dim SubTrial = CurrentTestTrial.SubTrials(i)
@@ -590,21 +665,21 @@ Public Class AdaptiveSiP
             'Mixing the next sound in the unit
 
             If i = 0 Then
-                DirectCast(SubTrial, SipTrial).MixSound(Transducer, MinimumStimulusOnsetTime, MinimumStimulusOnsetTime, Randomizer, MinimumStimulusOnsetTime + 3, UseBackgroundSpeech, ,, False, True, True) ' Using only MinimumStimulusOnsetTime here
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, MinimumStimulusOnsetTime, MinimumStimulusOnsetTime, Randomizer, MinimumStimulusOnsetTime + TaskStandardTime, UseBackgroundSpeech, ,, False, True, True) ' Using only MinimumStimulusOnsetTime here
             ElseIf i = CurrentTestTrial.SubTrials.Count - 1 Then
                 DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, ,, True, False, True) ' TrialSoundMaxDuration should be shorter!
             Else
-                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, 3, UseBackgroundSpeech, ,, True, True, True)
+                DirectCast(SubTrial, SipTrial).MixSound(Transducer, 0, 0, Randomizer, TaskStandardTime, UseBackgroundSpeech, ,, True, True, True)
             End If
 
             'Exports sound file
-            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i & "wav"))
+            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i))
 
             'Storing the test word start times
             If i = 0 Then
                 TaskStartTimes.Add(DirectCast(SubTrial, SipTrial).TestWordStartTime)
             Else
-                TaskStartTimes.Add(MinimumStimulusOnsetTime + i * 2 + DirectCast(SubTrial, SipTrial).TestWordStartTime)
+                TaskStartTimes.Add(MinimumStimulusOnsetTime + i * (TaskStandardTime - OverlapTime) + DirectCast(SubTrial, SipTrial).TestWordStartTime)
             End If
 
             'Adds the sound
@@ -613,10 +688,10 @@ Public Class AdaptiveSiP
         Next
 
         'Mix full trial sound
-        CurrentTestTrial.Sound = Audio.DSP.ConcatenateSounds(TrialSounds, ,,,,, TrialSounds(0).WaveFormat.SampleRate * 1)
+        CurrentTestTrial.Sound = Audio.DSP.ConcatenateSounds2(TrialSounds, TrialSounds(0).WaveFormat.SampleRate * OverlapTime)
 
         'Exports sound file
-        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix" & "wav"))
+        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix"))
 
         'Waiting for the trial sound to be mixed, if not yet completed
         'WaitForTestTrialSound()
@@ -657,10 +732,25 @@ Public Class AdaptiveSiP
         Dim FinalResult = TestProtocol.GetFinalResultValue
 
         Dim TestResultSummaryLines = New List(Of String)
-        If FinalResult.HasValue Then
-            TestResultSummaryLines.Add("Resultat: " & vbTab & Math.Rounding(FinalResult.Value, 1) & " dB PNR")
+        If IsPractiseTest = True Then
+            'Reporting number of correct words
+            Dim PractiseTrialScoreList As New List(Of Integer)
+            For Each Trial In ObservedTrials
+                PractiseTrialScoreList.AddRange(Trial.ScoreList)
+            Next
+
+            If PractiseTrialScoreList.Count = 0 Then
+                TestResultSummaryLines.Add("Inga övningsresultat finns. Blev testet avbrutet?")
+            Else
+                TestResultSummaryLines.Add("Resultat från övningstestet: " & PractiseTrialScoreList.Sum & " av " & PractiseTrialScoreList.Count & " (" & System.Math.Round(100 * (PractiseTrialScoreList.Sum / PractiseTrialScoreList.Count)) & " %) ord var korrekta.")
+            End If
+
         Else
-            TestResultSummaryLines.Add("Resultat: Slutgiltigt tröskelvärde kunde ej bestämmas.")
+            If FinalResult.HasValue Then
+                TestResultSummaryLines.Add("Resultat: " & vbTab & Math.Rounding(FinalResult.Value, 1) & " dB PNR")
+            Else
+                TestResultSummaryLines.Add("Resultat: Slutgiltigt tröskelvärde kunde ej bestämmas.")
+            End If
         End If
 
         Return String.Join(vbCrLf, TestResultSummaryLines)
@@ -681,6 +771,25 @@ Public Class AdaptiveSiP
         NewProgressInfo.Value = GetObservedTestTrials.Count + 1 ' Adds one to show started instead of completed trials.
         NewProgressInfo.Maximum = TrialCount
         Return NewProgressInfo
+
+    End Function
+
+    Public Overrides Function GetTestCompletedGuiMessage() As String
+
+        Select Case STFN.SharedSpeechTestObjects.GuiLanguage
+            Case Utils.Constants.Languages.Swedish
+                If IsPractiseTest = True Then
+                    Return "Övningstestet är klart!"
+                Else
+                    Return "Testet är klart!"
+                End If
+            Case Else
+                If IsPractiseTest = True Then
+                    Return "The practise test is finished!"
+                Else
+                    Return "The test is finished!"
+                End If
+        End Select
 
     End Function
 

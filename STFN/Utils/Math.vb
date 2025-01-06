@@ -1980,6 +1980,17 @@ Namespace Utils
             Return UnwrappedAngle
         End Function
 
+        Public Function AllIndentical(ByVal Array1 As Single(), ByVal Array2 As Single()) As Boolean
+
+            If Array1.Length <> Array2.Length Then Return False
+
+            For i = 0 To Array1.Length - 1
+                If Array1(i) <> Array2(i) Then Return False
+            Next
+
+            Return True
+
+        End Function
 
     End Module
 

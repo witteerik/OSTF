@@ -11,4 +11,5 @@ Hagermans meningar (Matrix)
 Hörtröskel för tal (HTT)
 Manuell TP i brus
 Quick SiP
+SiP-testet (Adaptivt) - Övning
 SiP-testet (Adaptivt)

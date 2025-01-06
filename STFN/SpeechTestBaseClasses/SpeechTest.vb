@@ -433,6 +433,16 @@ Public MustInherit Class SpeechTest
     Public Property PreListenSofterButtonTitle As String = "Minska nivån"
 
 
+    Public Overridable Function GetTestCompletedGuiMessage() As String
+
+        Select Case STFN.SharedSpeechTestObjects.GuiLanguage
+            Case Utils.Constants.Languages.Swedish
+                Return "Testet är klart!"
+            Case Else
+                Return "The test is finished!"
+        End Select
+
+    End Function
 
 #End Region
 
@@ -1846,9 +1856,30 @@ Public MustInherit Class SpeechTest
 
 #Region "Test protocol"
 
-    Public Property TesterInstructions As String = ""
+    Private _TesterInstructions As String = ""
 
-    Public Property ParticipantInstructions As String = ""
+    Public Property TesterInstructions As String
+        Get
+            Return _TesterInstructions
+        End Get
+        Set(value As String)
+            _TesterInstructions = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+    Private _ParticipantInstructions As String = ""
+
+    Public Property ParticipantInstructions As String
+        Get
+            Return _ParticipantInstructions
+        End Get
+        Set(value As String)
+            _ParticipantInstructions = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
 
     Protected RandomSeed As Integer? = Nothing
 

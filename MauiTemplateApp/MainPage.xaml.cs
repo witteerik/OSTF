@@ -2,6 +2,10 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Numerics;
+using STFN;
+using STFN.Audio;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace MauiTemplateApp
 {
@@ -101,8 +105,8 @@ namespace MauiTemplateApp
             };
 
             // Set the main content of the page to include the CollectionView and the add button
-            MyHorizontalStackLayout.Children.Add(addButton);
-            MyHorizontalStackLayout.Children.Add(collectionView);
+            MyStackLayout.Children.Add(addButton);
+            MyStackLayout.Children.Add(collectionView);
 
         }
 
@@ -159,8 +163,8 @@ namespace MauiTemplateApp
             };
 
             // Set the main content of the page to include the CollectionView and the add button
-            MyHorizontalStackLayout.Children.Add(addButton);
-            MyHorizontalStackLayout.Children.Add(collectionView);
+            MyStackLayout.Children.Add(addButton);
+            MyStackLayout.Children.Add(collectionView);
 
         }
 
@@ -256,7 +260,7 @@ namespace MauiTemplateApp
             // Add the carouselView to the page's layout
             //Content = new StackLayout { Children = { carouselView } };
 
-            MyHorizontalStackLayout.Children.Add(carouselView);
+            MyStackLayout.Children.Add(carouselView);
 
 
 
@@ -408,6 +412,86 @@ namespace MauiTemplateApp
             }
 
             return sum;
+        }
+
+        private void TestButton_Clicked(object sender, EventArgs e)
+        {
+
+            TestConcatenateSounds2();
+            //TestArrayCopy();
+
+        }
+
+        private void TestArrayCopy()
+        {
+
+            STFN.OstfBase.CurrentPlatForm = OstfBase.Platforms.WinUI;
+
+            STFN.Audio.Sound Sound1 = STFN.Audio.Sound.LoadWaveFile("C:\\EriksDokument\\source\\repos\\OSTF\\OSTFMedia\\SpeechMaterials\\SwedishSiPTest\\Media\\City-Talker1-RVE\\BackgroundNonspeech\\CBG_Stad.wav");
+            STFN.Audio.Sound Sound2 = STFN.Audio.Sound.LoadWaveFile("C:\\EriksDokument\\source\\repos\\OSTF\\OSTFMedia\\SpeechMaterials\\SwedishSiPTest\\Media\\City-Talker1-RVE\\BackgroundNonspeech\\CBG_Stad.wav");
+            STFN.Audio.Sound Sound3 = STFN.Audio.Sound.LoadWaveFile("C:\\EriksDokument\\source\\repos\\OSTF\\OSTFMedia\\SpeechMaterials\\SwedishSiPTest\\Media\\City-Talker1-RVE\\BackgroundNonspeech\\CBG_Stad.wav");
+            STFN.Audio.Sound Sound4 = STFN.Audio.Sound.LoadWaveFile("C:\\EriksDokument\\source\\repos\\OSTF\\OSTFMedia\\SpeechMaterials\\SwedishSiPTest\\Media\\City-Talker1-RVE\\BackgroundNonspeech\\CBG_Stad.wav");
+
+            Stopwatch stopwatch1 = Stopwatch.StartNew();
+            float[] array1 = Sound1.WaveData.get_SampleData(1);
+            double[] array2 = new double[array1.Length];
+            STFN.LibOstfDsp_VB.CopyToDouble(array1, array2);
+            var elapsedTime1 = stopwatch1.ElapsedMilliseconds;
+
+            Stopwatch stopwatch3 = Stopwatch.StartNew();
+            double[] array5 = new double[array1.Length];
+            float[] array6 = new float[array1.Length];
+            STFN.LibOstfDsp_VB.CopyToSingle(array5, array6);
+            var elapsedTime3 = stopwatch3.ElapsedMilliseconds;
+
+            Stopwatch stopwatch2 = Stopwatch.StartNew();
+            float[] array3 = Sound3.WaveData.get_SampleData(1);
+            float[] array4 = new float[array3.Length];
+            Array.Copy(array3 , array4, array3.Length);
+            var elapsedTime2 = stopwatch2.ElapsedMilliseconds;
+
+
+
+            ResultLabel.Text = "elapsedTime1: " + elapsedTime1 + "\nelapsedTime2: " + elapsedTime2 + "\nelapsedTime3: " + elapsedTime3;
+
+            //bool IdenticalValue = STFN.Utils.Math.AllIndentical(ConcatSound1.WaveData.get_SampleData(1), ConcatSound2.WaveData.get_SampleData(1));
+            //ResultLabel.Text = "elapsedTime1: " + elapsedTime1 + "\nelapsedTime2: " + elapsedTime2 + "\nIdentical: " + IdenticalValue.ToString();
+
+        }
+
+        private void TestConcatenateSounds2()
+        {
+
+            STFN.OstfBase.CurrentPlatForm = OstfBase.Platforms.WinUI;
+
+            STFN.Audio.Sound Sound1 = STFN.Audio.Sound.LoadWaveFile("C:\\EriksDokument\\source\\repos\\OSTF\\OSTFMedia\\SpeechMaterials\\SwedishSiPTest\\Media\\City-Talker1-RVE\\BackgroundNonspeech\\CBG_Stad.wav");
+            STFN.Audio.Sound Sound2 = STFN.Audio.Sound.LoadWaveFile("C:\\EriksDokument\\source\\repos\\OSTF\\OSTFMedia\\SpeechMaterials\\SwedishSiPTest\\Media\\City-Talker1-RVE\\BackgroundNonspeech\\CBG_Stad.wav");
+            STFN.Audio.Sound Sound3 = STFN.Audio.Sound.LoadWaveFile("C:\\EriksDokument\\source\\repos\\OSTF\\OSTFMedia\\SpeechMaterials\\SwedishSiPTest\\Media\\City-Talker1-RVE\\BackgroundNonspeech\\CBG_Stad.wav");
+            STFN.Audio.Sound Sound4 = STFN.Audio.Sound.LoadWaveFile("C:\\EriksDokument\\source\\repos\\OSTF\\OSTFMedia\\SpeechMaterials\\SwedishSiPTest\\Media\\City-Talker1-RVE\\BackgroundNonspeech\\CBG_Stad.wav");
+
+            Stopwatch stopwatch1 = Stopwatch.StartNew();
+
+            List<STFN.Audio.Sound> soundList1 = new List<STFN.Audio.Sound> { Sound1, Sound2 };
+
+            STFN.Audio.Sound ConcatSound1 = STFN.Audio.DSP.Transformations.ConcatenateSounds(ref soundList1, CrossFadeLength: 48000 * 10);
+            //STFN.Audio.Sound ConcatSound1 = STFN.Audio.DSP.Transformations.ConcatenateSounds2(ref soundList1, 48000 * 10);
+
+            var elapsedTime1 = stopwatch1.ElapsedMilliseconds;
+
+
+            Stopwatch stopwatch2 = Stopwatch.StartNew();
+
+            List<STFN.Audio.Sound> soundList2 = new List<STFN.Audio.Sound> { Sound3, Sound4 };
+
+            //STFN.Audio.Sound ConcatSound2 = STFN.Audio.DSP.Transformations.ConcatenateSounds(ref soundList2, CrossFadeLength: 48000 * 10);
+            STFN.Audio.Sound ConcatSound2 = STFN.Audio.DSP.Transformations.ConcatenateSounds2(ref soundList2, 48000 * 10);
+
+            var elapsedTime2 = stopwatch2.ElapsedMilliseconds;
+
+            bool IdenticalValue = STFN.Utils.Math.AllIndentical(ConcatSound1.WaveData.get_SampleData(1), ConcatSound2.WaveData.get_SampleData(1));
+
+            ResultLabel.Text = "elapsedTime1: " + elapsedTime1 + "\nelapsedTime2: " + elapsedTime2 + "\nIdentical: " + IdenticalValue.ToString();
+
         }
 
     }

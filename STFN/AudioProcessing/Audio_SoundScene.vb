@@ -329,8 +329,25 @@ Namespace Audio.SoundScene
                             Dim MidFadeSpecs = New Audio.DSP.FadeSpecifications(FadeOutSpecs.EndAttenuation, FadeInSpecs.StartAttenuation,
                                                                                          MidStartSample, MidLength, FadeOutSpecs.SlopeType, FadeOutSpecs.CosinePower, FadeOutSpecs.EqualPower)
 
+                            'Fade out
                             Audio.DSP.Fade(Item.Sound, FadeOutSpecs, 1)
-                            Audio.DSP.Fade(Item.Sound, MidFadeSpecs, 1)
+
+                            'Mid section
+                            If MidFadeSpecs.StartAttenuation = MidFadeSpecs.EndAttenuation Then
+
+                                'Using amplification if start and end attenuation is the same
+                                If MidFadeSpecs.StartAttenuation <> 0 Then
+                                    Audio.DSP.AmplifySection(Item.Sound, -MidFadeSpecs.StartAttenuation, , MidFadeSpecs.StartSample, MidFadeSpecs.SectionLength, SoundDataUnit.dB)
+                                    ' Using StartAttenuation as it's here the same as EndAttenuation
+                                    ' Using negative attenuation since AmplifySection takes gain
+                                End If
+
+                            Else
+                                'Using fade, since the level is changed (which it most often would not be!
+                                Audio.DSP.Fade(Item.Sound, MidFadeSpecs, 1)
+                            End If
+
+                            'Fade in again
                             Audio.DSP.Fade(Item.Sound, FadeInSpecs, 1)
 
                         Next
