@@ -29,7 +29,10 @@ Public Class QuickSiP
 
         'ShowGuiChoice_SoundFieldSimulation = True
 
-        DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
+        DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP - HR"
+        'DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP"
+        ' DirectionalSimulationSet = "ARC - Harcellen - HATS 256 - 48kHz"
+
         PopulateSoundSourceLocationCandidates()
         SimulatedSoundField = True
 
@@ -37,8 +40,6 @@ Public Class QuickSiP
         ShowGuiChoice_MaskerLocations = False
         ShowGuiChoice_BackgroundNonSpeechLocations = False
         ShowGuiChoice_BackgroundSpeechLocations = False
-
-        ' DirectionalSimulationSet = "ARC - Harcellen - HATS 256 - 48kHz"
 
     End Sub
 

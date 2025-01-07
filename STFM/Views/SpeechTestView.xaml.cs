@@ -4,6 +4,7 @@ using STFN;
 using STFN.Audio.SoundPlayers;
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Security.AccessControl;
 using static STFN.ResponseViewEvents;
 
 namespace STFM.Views;
@@ -69,18 +70,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 Messager.RequestCloseApp();
             }
 
-            // Always using the first transducer
-            SelectedTransducer = LocalAvailableTransducers[0];
-            if (SelectedTransducer.CanPlay == true)
-            {
-                // (At this stage the sound player will be started, if not already done.)
-                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-                var argMixer = SelectedTransducer.Mixer;
-                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, argMixer,
-                    STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, ReOpenStream: true, ReStartStream: true);
-                SelectedTransducer.Mixer = argMixer;
-            }
-            else
+            if (UpdateSoundPlayerSettings() == false)
             {
                 await Messager.MsgBoxAsync("Unable to start the player using the selected transducer (probably the selected output device doesn't have enough output channels?)!", Messager.MsgBoxStyle.Exclamation, "Sound player failure");
                 Messager.RequestCloseApp();
@@ -319,6 +309,14 @@ public partial class SpeechTestView : ContentView, IDrawable
     void OnSpeechTestPickerSelectedItemChanged(object sender, EventArgs e)
     {
 
+        if (CurrentSpeechTest != null)
+        {
+            // Unsubscribing the event that updates the sound player settings when transducer is changed
+            CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+
+            // Note that if, in the future, different audio formats will exist within the same SpeechMaterial, a SpeechMaterialChanged Event will also have to be implemented.
+        }
+
         // Inactivates the SpeechMaterialPicker and re-activates it again only if it should be needed depending on the choice
         SpeechMaterialPicker.IsEnabled = false;
 
@@ -360,10 +358,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     audioMeterView.EnterFullScreenMode += OnEnterFullScreenMode;
                     audioMeterView.ExitFullScreenMode += OnExitFullScreenMode;
 
-                    // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
-                    OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
-                    OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
-
                     NewTestBtn.IsEnabled = true;
                     SpeechTestPicker.IsEnabled = false;
                     TestOptionsGrid.IsEnabled = false;
@@ -396,10 +390,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                     audiometerCalibView.EnterFullScreenMode += OnEnterFullScreenMode;
                     audiometerCalibView.ExitFullScreenMode += OnExitFullScreenMode;
 
-                    // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
-                    OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
-                    OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
-
                     NewTestBtn.IsEnabled = true;
                     SpeechTestPicker.IsEnabled = false;
                     TestOptionsGrid.IsEnabled = false;
@@ -421,11 +411,16 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Speech test
                     CurrentSpeechTest = new HintSpeechTest("Swedish HINT");
 
+                    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
                     var newOptionsHintTestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsHintTestView);
                     CurrentTestOptionsView = newOptionsHintTestView;
+
 
                     break;
 
@@ -436,6 +431,10 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Speech test
                     CurrentSpeechTest = new MatrixSpeechTest("Swedish Matrix Test (Hagerman)");
+
+                    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
 
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
@@ -453,6 +452,10 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Speech test
                     CurrentSpeechTest = new HTT23SpeechTest("Swedish Spondees 23");
 
+                    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
                     var newOptionsSrtTestView = new OptionsViewAll(CurrentSpeechTest);
@@ -469,6 +472,10 @@ public partial class SpeechTestView : ContentView, IDrawable
                     //CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishMonosyllablesTP800"); // This line was used during I HeAR data collection. The speech material name was changed after Protocol B1, but as this line was hard coded in the tablets a temporary speech material named SwedishMonosyllablesTP800 but located in the "SwedishTP50" folder was used. 
                     CurrentSpeechTest = new TP50SpeechTest("SwedishTP50"); // This line is new from 2024-11-02 (but not used in the data collection for protocol B2.
 
+                    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+
                     // Testoptions
                     TestOptionsGrid.Children.Clear();
                     var newOptionsPB2TestView = new OptionsViewAll(CurrentSpeechTest);
@@ -479,12 +486,16 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                //case "SiP-testet":
+                    //case "SiP-testet":
 
-                //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+                    //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
-                //    // Speech test
-                //    CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
+                    //    // Speech test
+                    //    CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
+
+                    //// Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                    //CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                    //CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
 
                 //    TestOptionsGrid.Children.Clear();
                 //    var newOptionsSipTestView2 = new OptionsViewAll(CurrentSpeechTest);
@@ -501,6 +512,10 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Speech test
                     CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
 
+                    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+
                     TestOptionsGrid.Children.Clear();
                     var newOptionsQSipView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsQSipView);
@@ -515,7 +530,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                         // Speech test
                         CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
 
-                        TestOptionsGrid.Children.Clear();
+                    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+
+                    TestOptionsGrid.Children.Clear();
                         var newOptionsASipTestView = new OptionsViewAll(CurrentSpeechTest);
                         TestOptionsGrid.Children.Add(newOptionsASipTestView);
                         CurrentTestOptionsView = newOptionsASipTestView;
@@ -530,7 +549,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                         CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
                         CurrentSpeechTest.IsPractiseTest = true;
 
-                        TestOptionsGrid.Children.Clear();
+                    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+
+                    TestOptionsGrid.Children.Clear();
                         var newOptionsPASipTestView = new OptionsViewAll(CurrentSpeechTest);
                         TestOptionsGrid.Children.Add(newOptionsPASipTestView);
                         CurrentTestOptionsView = newOptionsPASipTestView;
@@ -544,24 +567,21 @@ public partial class SpeechTestView : ContentView, IDrawable
                     break;
             }
 
-            // Updating settings needed for the loaded test
-            var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-            var argMixer = SelectedTransducer.Mixer;
-            if (CurrentSpeechTest != null)
-            {
-                var mediaSets = CurrentSpeechTest.AvailableMediasets;
-                if (mediaSets.Count > 0)
-                {
-                    OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings,
-                        mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
-                        CurrentSpeechTest.SoundOverlapDuration, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
-                    SelectedTransducer.Mixer = argMixer;
-                }
-            }
+            // TODO: If we re-structure the code above to first create speech test instances, and then the test-option views, we can subscribe to the TransducerChanged event only with one
+            // code chunk in between (see code below)
 
-            // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
-            OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
-            OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
+            //if (CurrentSpeechTest != null)
+            //{
+            //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+            //    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+            //    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+            //}
+
+            // This is not necessary since UpdateSoundPlayerSettings is called on an event chain that starts from selecting transcuder in the SpeechTest
+            //if (UpdateSoundPlayerSettings() == false)
+            //{
+            //    success = false;
+            //}
 
             if (success)
             {
@@ -602,39 +622,30 @@ public partial class SpeechTestView : ContentView, IDrawable
             //    // Assigning a new SpeechTest to the options
             //    CurrentSpeechTest = new SpeechAudiometryTest(SelectedSpeechMaterialName);
 
-            //    // Testoptions
-            //    TestOptionsGrid.Children.Clear();
-            //    var newOptionsSpeechAudiometryTestView = new OptionsViewAll(CurrentSpeechTest);
-            //    TestOptionsGrid.Children.Add(newOptionsSpeechAudiometryTestView);
-            //    CurrentTestOptionsView = newOptionsSpeechAudiometryTestView;
+        //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+        //            CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+        //CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
 
-            //    break;
+        //    // Testoptions
+        //    TestOptionsGrid.Children.Clear();
+        //    var newOptionsSpeechAudiometryTestView = new OptionsViewAll(CurrentSpeechTest);
+        //    TestOptionsGrid.Children.Add(newOptionsSpeechAudiometryTestView);
+        //    CurrentTestOptionsView = newOptionsSpeechAudiometryTestView;
 
-            default:
+        //    break;
+
+        default:
                 TestOptionsGrid.Children.Clear();
                 success = false;
                 break;
         }
 
+        // This is not necessary since UpdateSoundPlayerSettings is called on an event chain that starts from selecting transcuder in the SpeechTest
+        //if (UpdateSoundPlayerSettings() == false)
+        //{
+        //    success = false;
+        //}
 
-        // Updating settings needed for the loaded test (TODO: this code exists in sevaral places!)
-        var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-        var argMixer = SelectedTransducer.Mixer;
-        if (CurrentSpeechTest != null)
-        {
-            var mediaSets = CurrentSpeechTest.AvailableMediasets;
-            if (mediaSets.Count > 0)
-            {
-                OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings,
-                    mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
-                    CurrentSpeechTest.SoundOverlapDuration, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
-                SelectedTransducer.Mixer = argMixer;
-            }
-        }
-
-        // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
-        OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
-        OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
 
         if (success)
         {
@@ -649,9 +660,86 @@ public partial class SpeechTestView : ContentView, IDrawable
             TestResultGrid.IsEnabled = false;
         }
 
-
     }
 
+    private void UpdateSoundPlayerSettings(object sender, EventArgs e)
+    {
+        UpdateSoundPlayerSettings();
+    }
+
+    private bool UpdateSoundPlayerSettings()
+    {
+
+        // Updating settings needed for the loaded test 
+        if (CurrentSpeechTest != null)
+        {
+
+            // Getting the selected transducer from the current speech test
+            SelectedTransducer = CurrentSpeechTest.Transducer;
+
+            if (SelectedTransducer.CanPlay == true)
+            {
+                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+                var argMixer = SelectedTransducer.Mixer;
+                var mediaSets = CurrentSpeechTest.AvailableMediasets;
+                if (mediaSets.Count > 0)
+                {
+                    OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings,
+                        mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
+                        CurrentSpeechTest.SoundOverlapDuration, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
+                    SelectedTransducer.Mixer = argMixer;
+                }
+            }
+            else
+            {
+                Messager.MsgBox("The sound player cannot play with the selected speech test and transducer!", Messager.MsgBoxStyle.Critical, "Sound player unable to play");
+                return false;
+            }
+        }
+        else
+        {
+
+            // Checking that there are any transducers
+            var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
+            if (LocalAvailableTransducers.Count == 0)
+            {
+                Messager.MsgBox("Unable to start the sound player since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "No transducers found");
+                return false;
+            }
+
+            // Selecting the the first transducer as default
+            SelectedTransducer = LocalAvailableTransducers[0];
+            if (SelectedTransducer.CanPlay == true)
+            {
+                // (At this stage the sound player will be started, if not already done.)
+                var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
+                var argMixer = SelectedTransducer.Mixer;
+                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, argMixer,
+                    STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, ReOpenStream: true, ReStartStream: true);
+                SelectedTransducer.Mixer = argMixer;
+            }
+            else
+            {
+                Messager.MsgBox("Unable to start the sound player using the default settings!", Messager.MsgBoxStyle.Exclamation, "Sound player failure");
+                return false;
+            }
+        }
+
+        //if (OstfBase.SoundPlayer.IsPlaying == true)
+        //{
+
+            // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
+            OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
+            OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
+            return true;
+        //}
+        //else
+        //{
+        //    Messager.MsgBox("Unable to start the player using the selected transducer!", Messager.MsgBoxStyle.Exclamation, "Sound player failure");
+        //    return false;
+        //}
+
+    }
 
     private bool CreateTestGui()
     {
@@ -934,26 +1022,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                 return false; 
             }
 
-
-            // Updating settings needed for the loaded test
-            // This is actually done also after selecting the test, do we need to do it also here?
-            var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
-            var argMixer = SelectedTransducer.Mixer;
-            if (CurrentSpeechTest != null)
-            {
-                var mediaSets = CurrentSpeechTest.AvailableMediasets;
-                if (mediaSets.Count > 0)
-                {
-                    OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings,
-                        mediaSets[0].WaveFileSampleRate, mediaSets[0].WaveFileBitDepth, mediaSets[0].WaveFileEncoding,
-                        CurrentSpeechTest.SoundOverlapDuration, Mixer: argMixer, ReOpenStream: true, ReStartStream: true);
-                    SelectedTransducer.Mixer = argMixer;
-                }
-            }
-
-            // Starts listening to the FatalPlayerError event (first unsubscribing to avoid multiple subscriptions)
-            OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
-            OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
+            // Unsubsribes from the sound player updates from the change of transducers
+            CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
 
             // Setting TestIsInitiated to true to allow starting the test, and block any re-initializations
             TestIsInitiated = true;
@@ -1731,6 +1801,15 @@ public partial class SpeechTestView : ContentView, IDrawable
         {
             if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
             {
+                if (STFN.OstfBase.SoundPlayer.IsPlaying == false)
+                {
+                    if (UpdateSoundPlayerSettings() == false)
+                    {
+                        Messager.MsgBox("Unable to start the player! Try selecting a test first.", Messager.MsgBoxStyle.Exclamation, "Sound player failure");
+                        return;
+                    }
+                }
+
                 // Activates tackback
                 STFN.OstfBase.SoundPlayer.StartTalkback();
                 TalkbackButton.BackgroundColor = Colors.GreenYellow;

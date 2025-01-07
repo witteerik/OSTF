@@ -214,7 +214,7 @@ Namespace SipTest
         End Sub
 
         'Looks through all trials and returns True as soon as a trial that requires directional sound field simulation is detected, or false if no trial requires directional sound field simulation.
-        Public Function HasSimulatedSoundFieldTrials()
+        Public Function HasSimulatedSoundFieldTrials() As Boolean
 
             For Each Trial In PlannedTrials
                 If Trial.SoundPropagationType = SoundPropagationTypes.SimulatedSoundField Then Return True

@@ -280,6 +280,11 @@ namespace STFM
             if (SampleRate != null)
             {
                 this.SampleRate = SampleRate.Value;
+                // And also updating the sample rate in the current format (by changing it to a new instance, as SampleRate is ReadOnly)
+                if (CurrentFormat != null)
+                {
+                    CurrentFormat = new WaveFormat(SampleRate.Value, CurrentFormat.BitDepth, CurrentFormat.Channels, "", CurrentFormat.Encoding);
+                }
             }
 
             CheckWaveFormat(BitDepth, Encoding);
@@ -292,7 +297,7 @@ namespace STFM
                 this.Mixer = Mixer;
             }
 
-            // I would like to update the NumberOfOutputChannels here but it crashed the calibrationapp, don't know why, but probably a threadig problem...
+            // I would like to update the NumberOfOutputChannels here but it crashed the calibrationapp, don't know why, but probably a threading problem...
             //if (this.Mixer != null)
             //{
             //    // Updating the number of output channels
@@ -307,6 +312,7 @@ namespace STFM
             // SoundDirection is ignored, since this class is only PlaybackOnly
 
             // ClippingIsActivated is ignored for now (This player should clip all data at Int32.Max and Min values)
+
 
             if (WasPlaying == true)
             {

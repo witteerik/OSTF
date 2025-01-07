@@ -191,7 +191,7 @@ Public MustInherit Class SpeechTest
             Dim Output As New List(Of BinauralImpulseReponseSet)
 
             If OstfBase.AllowDirectionalSimulation = True Then
-                Dim SupportedIrNames As New List(Of String)
+                Dim SupportedIrNames As List(Of String)
                 If MediaSet IsNot Nothing Then
                     SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(MediaSet.WaveFileSampleRate)
                 ElseIf MediaSets.Count > 0 Then
@@ -1217,6 +1217,11 @@ Public MustInherit Class SpeechTest
     Private _FixedResponseAlternativeCount As Integer = 0
 
 
+    ''' <summary>
+    ''' An event that should be listened to by the object that holds the Transducer acctually used for the playback.
+    ''' </summary>
+    Public Event TransducerChanged As EventHandler
+
     Public Property Transducer As AudioSystemSpecification
         Get
             Return _Transducer
@@ -1233,6 +1238,9 @@ Public MustInherit Class SpeechTest
             If Transducer.IsHeadphones = True And CurrentSpeechTest.SimulatedSoundField = False And PhaseAudiometry = True Then ContralateralMasking = False
 
             OnPropertyChanged()
+
+            RaiseEvent TransducerChanged(Me, New EventArgs)
+
         End Set
     End Property
     Private _Transducer As AudioSystemSpecification

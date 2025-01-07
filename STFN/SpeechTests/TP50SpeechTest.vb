@@ -69,7 +69,7 @@ Public Class TP50SpeechTest
         MinimumLevel_ContralateralMaskers = -10
         MaximumLevel_ContralateralMaskers = 90
 
-        SoundOverlapDuration = 1
+        SoundOverlapDuration = 0.5
 
         'Setting default SNR. This could ideally be read from the selected MediaSet!
         TargetSNR = 6

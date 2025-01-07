@@ -38,7 +38,7 @@ Public Class HintSpeechTest
 
         SupportsManualPausing = True
 
-        SoundOverlapDuration = 0.1
+        SoundOverlapDuration = 0.5
 
         TargetLevel = 65
         MaskingLevel = 60
@@ -64,9 +64,9 @@ Public Class HintSpeechTest
 
 
 
-    Private MaximumSoundDuration As Double = 10
+    Private MaximumSoundDuration As Double = 14
     Private TestWordPresentationTime As Double = 0.5
-    Private MaximumResponseTime As Double = 7
+    Private MaximumResponseTime As Double = 12 'Similar to the original HINT lists. Measured from the start of one sentence to the start of the next, it is about 12.5 seconds. (i.e. like TestWordPresentationTime + MaximumResponseTime)
 
     Private ResultSummaryForGUI As New List(Of String)
 

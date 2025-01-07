@@ -59,7 +59,7 @@ Public Class HTT23SpeechTest
         MinimumLevel_ContralateralMaskers = -20
         MaximumLevel_ContralateralMaskers = 90
 
-        SoundOverlapDuration = 0.25
+        SoundOverlapDuration = 0.1
 
         ShowGuiChoice_TargetLocations = True
 

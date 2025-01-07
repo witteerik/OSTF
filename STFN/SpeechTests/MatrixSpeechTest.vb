@@ -44,7 +44,7 @@ Public Class MatrixSpeechTest
         MinimumLevel_ContralateralMaskers = 0
         MaximumLevel_ContralateralMaskers = 90
 
-        SoundOverlapDuration = 0.1
+        SoundOverlapDuration = 0.5
 
         ShowGuiChoice_TargetLocations = True
         ShowGuiChoice_MaskerLocations = True
@@ -73,9 +73,9 @@ Public Class MatrixSpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
 
-    Private MaximumSoundDuration As Double = 21
+    Private MaximumSoundDuration As Double = 12
     Private TestWordPresentationTime As Double = 0.5
-    Private MaximumResponseTime As Double = 20.5
+    Private MaximumResponseTime As Double = 10 'Similar to the original Hagerman lists. Measured from the start of one sentence to the start of the next, it is about 10.5 seconds. (i.e. like TestWordPresentationTime + MaximumResponseTime)
     Private ResultSummaryForGUI As New List(Of String)
 
 
@@ -469,7 +469,7 @@ Public Class MatrixSpeechTest
 
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = 1, .Type = ResponseViewEvent.ResponseViewEventTypes.PlaySound})
         CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * TestWordPresentationTime), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseAlternatives})
-        If IsFreeRecall = False Then CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
+        CurrentTestTrial.TrialEventList.Add(New ResponseViewEvent With {.TickTime = System.Math.Max(1, 1000 * (TestWordPresentationTime + MaximumResponseTime)), .Type = ResponseViewEvent.ResponseViewEventTypes.ShowResponseTimesOut})
 
         Return SpeechTestReplies.GotoNextTrial
 

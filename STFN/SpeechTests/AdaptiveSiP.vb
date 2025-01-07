@@ -58,7 +58,6 @@ Public Class AdaptiveSiP
 
         End If
 
-
         'SupportsManualPausing = False
 
         ShowGuiChoice_TargetLocations = False
@@ -104,6 +103,9 @@ Public Class AdaptiveSiP
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False ' TODO Set to false!
 
         If SimulatedSoundField = True Then
+
+            Return New Tuple(Of Boolean, String)(False, "Sound field simulation is not yet available in Adaptive SiP!")
+
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
@@ -133,14 +135,12 @@ Public Class AdaptiveSiP
         'Preparing sounds to use
         PrepareSounds()
 
-        If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
-            Return New Tuple(Of Boolean, String)(False, "The measurement requires a directional simulation set to be selected!")
-        End If
-
+        'If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
+        '    Return New Tuple(Of Boolean, String)(False, "The measurement requires a directional simulation set to be selected!")
+        'End If
 
         'Creating a test protocol
         TestProtocol = New BrandKollmeier2002_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
-        'TestProtocol = New AdaptiveSiP_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
 
         'Setting the start PNR value. (Easier in the practise test.)
         Dim InitialAdaptiveValue As Double
@@ -151,7 +151,6 @@ Public Class AdaptiveSiP
         End If
 
         TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = InitialAdaptiveValue, .TestStage = 0, .TestLength = TrialCount})
-
 
         Return New Tuple(Of Boolean, String)(True, "")
 
