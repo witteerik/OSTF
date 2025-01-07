@@ -187,36 +187,20 @@ Public Class QuickSiP
         Dim MaskerLocations_HeadTurnedLeft As SoundSourceLocation()
         Dim BackgroundLocations_HeadTurnedLeft As SoundSourceLocation()
 
-        'Placing trials with 10 degress of rotation is no longer (after 2025-01-05) used only with SimulatedSoundField, but also with loadspeakers at 0 / 180 degrees.
+        'Placing trials with 10 degrees of rotation is no longer (after 2025-01-05) used only with SimulatedSoundField, but also with loadspeakers at 0 / 180 degrees.
         'Note, however, that the actual audio signal will be rounded to the 0 / 180 degrees speakers, only if no closer speaker exist in the loudspeaker setup used. 
         ' Thus, in sound field, this test can only be performed if speakers are more than 20 degrees (equaliiy spaces) apart (with at least one in front and back positions).
         ' Note that for calculating speaker distance, not only the azimuth, but also the distance (and elevation?) is used.
-        'If SimulatedSoundField = True Then
 
         'Head slightly turned right (i.e. Speech on left side)
         TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}}
-            MaskerLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
-            BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
+        MaskerLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
+        BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = -10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 170, .Distance = 1.45}}
 
-            'Head slightly turned left (i.e. Speech on right side)
-            TargetStimulusLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}}
-            MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
-            BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
-
-        'Else
-
-        '    'Not using head turn simulation in sound field presentation, but instead a S0N180 situation
-        '    'Still using the same object names (these names should be changed in future verisons)
-        '    TargetStimulusLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}}
-        '    MaskerLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
-        '    BackgroundLocations_HeadTurnedRight = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
-
-        '    'Head slightly turned left (i.e. Speech on right side)
-        '    TargetStimulusLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}}
-        '    MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
-        '    BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 0, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 180, .Distance = 1.45}}
-
-        'End If
+        'Head slightly turned left (i.e. Speech on right side)
+        TargetStimulusLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}}
+        MaskerLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
+        BackgroundLocations_HeadTurnedLeft = {New SoundSourceLocation With {.HorizontalAzimuth = 10, .Distance = 1.45}, New SoundSourceLocation With {.HorizontalAzimuth = 190, .Distance = 1.45}}
 
 
         'Clearing any trials that may have been planned by a previous call
@@ -288,15 +272,55 @@ Public Class QuickSiP
         'Adds the last unit
         CurrentSipTestMeasurement.TestUnits.Add(CurrentTestUnit)
 
-        'Randomizing the order within units
+
+        'Randomizing the order within units, in blocks of three trials (so that the head doesn't have to be moved between every trial). Note that this latter is a modification from the initial Quick-SiP data collection in 2024.
+
+        'Randomizing the start order, left Right
+        Dim DirectionIndex As Integer = CurrentSipTestMeasurement.Randomizer.Next(0, 2)
+
         For ui = 0 To CurrentSipTestMeasurement.TestUnits.Count - 1
             Dim Unit As SiPTestUnit = CurrentSipTestMeasurement.TestUnits(ui)
+
+            Dim UnitLeftTurnTrials = New List(Of SipTrial)
+            Dim UnitRightTurnTrials = New List(Of SipTrial)
+
+            For Each Trial In Unit.PlannedTrials
+                If Trial.TargetStimulusLocations(0).HorizontalAzimuth < 0 Then
+                    ' Sound source is to the left of the head -> head is right turned in comparison
+                    UnitRightTurnTrials.Add(Trial)
+                Else
+                    ' Sound source is to the right of the head -> head is left turned in comparison
+                    UnitLeftTurnTrials.Add(Trial)
+                End If
+            Next
+
             Dim RandomList As New List(Of SipTrial)
-            Do Until Unit.PlannedTrials.Count = 0
-                Dim RandomIndex As Integer = CurrentSipTestMeasurement.Randomizer.Next(0, Unit.PlannedTrials.Count)
-                RandomList.Add(Unit.PlannedTrials(RandomIndex))
-                Unit.PlannedTrials.RemoveAt(RandomIndex)
-            Loop
+            For r = 0 To 1
+
+                If DirectionIndex = 0 Then
+
+                    Do Until UnitRightTurnTrials.Count = 0
+                        Dim RandomIndex As Integer = CurrentSipTestMeasurement.Randomizer.Next(0, UnitRightTurnTrials.Count)
+                        RandomList.Add(UnitRightTurnTrials(RandomIndex))
+                        UnitRightTurnTrials.RemoveAt(RandomIndex)
+                    Loop
+
+                    'Swapping the value of DirectionIndex, so that the other side gets included next time
+                    DirectionIndex = 1
+                Else
+
+                    Do Until UnitLeftTurnTrials.Count = 0
+                        Dim RandomIndex As Integer = CurrentSipTestMeasurement.Randomizer.Next(0, UnitLeftTurnTrials.Count)
+                        RandomList.Add(UnitLeftTurnTrials(RandomIndex))
+                        UnitLeftTurnTrials.RemoveAt(RandomIndex)
+                    Loop
+
+                    'Swapping the value of DirectionIndex, so that the other side gets included next time
+                    DirectionIndex = 0
+                End If
+
+            Next
+
             Unit.PlannedTrials = RandomList
         Next
 

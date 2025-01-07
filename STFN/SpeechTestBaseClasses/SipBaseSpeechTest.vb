@@ -39,12 +39,16 @@ Public MustInherit Class SipBaseSpeechTest
 
     End Sub
 
+    <ExludeFromPropertyListing>
     Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = True
 
+    <ExludeFromPropertyListing>
     Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = False
 
+    <ExludeFromPropertyListing>
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
 
+    <ExludeFromPropertyListing>
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
 

@@ -106,6 +106,7 @@ Public MustInherit Class SpeechTest
         End Set
     End Property
 
+
     Public ReadOnly Property SpeechMaterial As SpeechMaterialComponent
         Get
             If SpeechMaterialSpecification Is Nothing Then
@@ -518,6 +519,7 @@ Public MustInherit Class SpeechTest
 
     Public Overridable ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
 
+    <ExludeFromPropertyListing>
     Public Overridable ReadOnly Property ShowGuiChoice_TargetLevel As Boolean
         Get
             If CanHaveTargets() = True Then
@@ -528,6 +530,7 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
+    <ExludeFromPropertyListing>
     Public Overridable ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean
         Get
             If CanHaveMaskers() = True Then
@@ -538,6 +541,7 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
+    <ExludeFromPropertyListing>
     Public Overridable ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean
         Get
             If CanHaveBackgroundNonSpeech() = True Then
@@ -548,18 +552,21 @@ Public MustInherit Class SpeechTest
         End Get
     End Property
 
+    <ExludeFromPropertyListing>
     Public Overridable ReadOnly Property ShowGuiChoice_ContralateralMaskingLevel As Boolean
         Get
             Return CanHaveContralateralMasking()
         End Get
     End Property
 
+    <ExludeFromPropertyListing>
     Public Overridable ReadOnly Property ShowGuiChoice_ContralateralMasking As Boolean
         Get
             Return CanHaveContralateralMasking()
         End Get
     End Property
 
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_TargetLocations As Boolean
         Get
             Return _ShowGuiChoice_TargetLocations
@@ -575,6 +582,7 @@ Public MustInherit Class SpeechTest
     End Property
     Private _ShowGuiChoice_TargetLocations As Boolean
 
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_MaskerLocations As Boolean
         Get
             Return _ShowGuiChoice_MaskerLocations
@@ -590,6 +598,7 @@ Public MustInherit Class SpeechTest
     End Property
     Private _ShowGuiChoice_MaskerLocations As Boolean
 
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_BackgroundNonSpeechLocations As Boolean
         Get
             Return _ShowGuiChoice_BackgroundNonSpeechLocations
@@ -605,6 +614,7 @@ Public MustInherit Class SpeechTest
     End Property
     Private _ShowGuiChoice_BackgroundNonSpeechLocations As Boolean
 
+    <ExludeFromPropertyListing>
     Public Property ShowGuiChoice_BackgroundSpeechLocations As Boolean
         Get
             Return _ShowGuiChoice_BackgroundSpeechLocations
@@ -648,6 +658,7 @@ Public MustInherit Class SpeechTest
 #Region "GUI lock / unlock"
 
     Private _ListSelectionControlIsEnabled As Boolean = True
+    <ExludeFromPropertyListing>
     Public Property ListSelectionControlIsEnabled() As Boolean
         Get
             Return _ListSelectionControlIsEnabled
@@ -782,7 +793,7 @@ Public MustInherit Class SpeechTest
             OnPropertyChanged()
         End Set
     End Property
-    Private _Preset As SmcPresets.Preset
+    Private _Preset As SmcPresets.Preset = Nothing
 
     ''' <summary>
     ''' If specified, should contain the (one-based) index of the current experiment in the series of experiments in the current data collection (Optional).

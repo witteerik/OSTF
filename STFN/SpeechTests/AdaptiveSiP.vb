@@ -73,6 +73,7 @@ Public Class AdaptiveSiP
 
     End Sub
 
+    <ExludeFromPropertyListing>
     Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
 
     Private PresetName As String = "Adaptive SiP"

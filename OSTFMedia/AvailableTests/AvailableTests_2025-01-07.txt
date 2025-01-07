@@ -2,9 +2,10 @@
 // Available tests need to be specified by name below, one test per row.
 // Exact test names are required, possible values are:
 
-// Screening audiometer
-// Screening audiometer (Calibration mode)
+Screening audiometer
+Screening audiometer (Calibration mode)
 
+Talaudiometri
 Svenska HINT
 Hagermans meningar (Matrix)
 Hörtröskel för tal (HTT)

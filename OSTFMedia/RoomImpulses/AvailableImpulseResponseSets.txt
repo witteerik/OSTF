@@ -2,7 +2,8 @@
 
 //ImpulseResponseSetSpecifications/OL-HEAD_BuK_ECEbl_AKGK271.txt // This corrected version is unreliable so far!
 
-ImpulseResponseSetSpecifications/ARC_Harcellen_HATS_SiP.txt
+ImpulseResponseSetSpecifications/ARC_Harcellen_HATS_SiP_FrontBackWithHeadRot.txt
+//ImpulseResponseSetSpecifications/ARC_Harcellen_HATS_SiP.txt
 //ImpulseResponseSetSpecifications/OL-HEAD_BuK_ECEbl.txt
 //ImpulseResponseSetSpecifications/ARC_Harcellen_HATS_256_48k.txt
 //ImpulseResponseSetSpecifications/ARC_Harcellen_HATS_256_NotUse_48k.txt
