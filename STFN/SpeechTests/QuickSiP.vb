@@ -14,18 +14,21 @@ Public Class QuickSiP
 
     Public Shadows Sub ApplyTestSpecificSettings()
 
-        TesterInstructions = "(Detta test går ut på att undersöka en screening-version av SiP-testet.)" & vbCrLf & vbCrLf &
+        TesterInstructions = "--  Quick SiP  --" & vbCrLf & vbCrLf &
              "För detta test behövs inga inställningar." & vbCrLf & vbCrLf &
-             "1. Informera patienten om hur testet går till." & vbCrLf &
-             "2. Vänd skärmen till patienten. Be sedan patienten klicka på start för att starta testet."
+             "1. Informera deltagaren om hur testet går till." & vbCrLf &
+             "2. Vänd skärmen till deltagaren. Be sedan deltagaren klicka på start för att starta testet."
 
-        ParticipantInstructions = "Patientens uppgift: " & vbCrLf & vbCrLf &
-             " - Patienten startar testet genom att klicka på knappen 'Start'" & vbCrLf &
-             " - Under testet ska patienten lyssna efter enstaviga ord som uttalas i en stadsmiljö och efter varje ord ange på skärmen vilket ord hen uppfattade. " & vbCrLf &
-             " - Patienten ska gissa om hen är osäker." & vbCrLf &
-             " - Efter varje ord har patienten maximalt " & MaximumResponseTime & " sekunder på sig att ange sitt svar." & vbCrLf &
-             " - Om svarsalternativen blinkar i röd färg har patienten inte svarat i tid." & vbCrLf &
-             " - Testet består av totalt 30 ord, som blir svårare och svårare ju längre testet går."
+        ParticipantInstructions = "--  Quick SiP  --" & vbCrLf & vbCrLf &
+             "Lyssna efter enstaviga ord som uttalas i en stadsmiljö." & vbCrLf &
+             "Välj från svarsalternativen på skärmen det ord du uppfattade. " & vbCrLf &
+             "Gissa om du är osäker." & vbCrLf &
+             "Efter varje ord har du maximalt " & MaximumResponseTime & " sekunder på dig att ange ditt svar." & vbCrLf &
+             "Om svarsalternativen blinkar i röd färg har du inte svarat i tid." & vbCrLf &
+             "Testet består av totalt 30 ord, som blir svårare och svårare ju längre testet går." & vbCrLf &
+             "Starta testet genom att klicka på knappen 'Start'"
+
+        ParticipantInstructionsButtonText = "Deltagarinstruktion"
 
         'ShowGuiChoice_SoundFieldSimulation = True
 

@@ -16,6 +16,10 @@ Public Class SipSpeechTest
 
         TesterInstructions = ""
         ParticipantInstructions = ""
+
+        ParticipantInstructionsButtonText = "Deltagarinstruktion"
+
+
         ShowGuiChoice_PreSet = True
         ShowGuiChoice_SoundFieldSimulation = True
         AvailablePhaseAudiometryTypes = New List(Of BmldModes) From {BmldModes.RightOnly, BmldModes.LeftOnly, BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated}

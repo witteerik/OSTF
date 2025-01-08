@@ -19,7 +19,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     ResponseView CurrentResponseView;
     TestResultsView CurrentTestResultsView;
 
-    string SelectedSpeechMaterialName ="";
+    string SelectedSpeechMaterialName = "";
 
     SpeechTest CurrentSpeechTest
     {
@@ -50,7 +50,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         //});
 
         Initialize();
-           
+
     }
 
     async void Initialize()
@@ -88,7 +88,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         {
             SpeechMaterialPicker.Items.Add(speechMaterial.Name);
         }
-                
+
 
         var OSTF_AvailableTests = OstfBase.AvailableTests;
         if (OSTF_AvailableTests == null)
@@ -159,7 +159,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             // Correcting for the presence of the talkback control
             TestSettingsGrid.SetRowSpan(TestOptionsGrid, 1);
         }
-        else { 
+        else
+        {
             TalkbackControl.IsVisible = false;
 
             // Correcting for the absence of the talkback control
@@ -486,16 +487,16 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     break;
 
-                    //case "SiP-testet":
+                //case "SiP-testet":
 
-                    //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+                //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
-                    //    // Speech test
-                    //    CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
+                //    // Speech test
+                //    CurrentSpeechTest = new SipSpeechTest("Swedish SiP-test");
 
-                    //// Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                    //CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                    //CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+                //// Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                //CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                //CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
 
                 //    TestOptionsGrid.Children.Clear();
                 //    var newOptionsSipTestView2 = new OptionsViewAll(CurrentSpeechTest);
@@ -525,38 +526,38 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 case "SiP-testet (Adaptivt)":
 
-                        SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+                    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
-                        // Speech test
-                        CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
+                    // Speech test
+                    CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
 
                     // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
                     CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
                     CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
 
                     TestOptionsGrid.Children.Clear();
-                        var newOptionsASipTestView = new OptionsViewAll(CurrentSpeechTest);
-                        TestOptionsGrid.Children.Add(newOptionsASipTestView);
-                        CurrentTestOptionsView = newOptionsASipTestView;
+                    var newOptionsASipTestView = new OptionsViewAll(CurrentSpeechTest);
+                    TestOptionsGrid.Children.Add(newOptionsASipTestView);
+                    CurrentTestOptionsView = newOptionsASipTestView;
 
                     break;
 
                 case "SiP-testet (Adaptivt) - Övning":
 
-                        SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+                    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
 
-                        // Speech test
-                        CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
-                        CurrentSpeechTest.IsPractiseTest = true;
+                    // Speech test
+                    CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
+                    CurrentSpeechTest.IsPractiseTest = true;
 
                     // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
                     CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
                     CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
 
                     TestOptionsGrid.Children.Clear();
-                        var newOptionsPASipTestView = new OptionsViewAll(CurrentSpeechTest);
-                        TestOptionsGrid.Children.Add(newOptionsPASipTestView);
-                        CurrentTestOptionsView = newOptionsPASipTestView;
+                    var newOptionsPASipTestView = new OptionsViewAll(CurrentSpeechTest);
+                    TestOptionsGrid.Children.Add(newOptionsPASipTestView);
+                    CurrentTestOptionsView = newOptionsPASipTestView;
 
                     break;
 
@@ -622,19 +623,19 @@ public partial class SpeechTestView : ContentView, IDrawable
             //    // Assigning a new SpeechTest to the options
             //    CurrentSpeechTest = new SpeechAudiometryTest(SelectedSpeechMaterialName);
 
-        //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-        //            CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-        //CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+            //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+            //            CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+            //CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
 
-        //    // Testoptions
-        //    TestOptionsGrid.Children.Clear();
-        //    var newOptionsSpeechAudiometryTestView = new OptionsViewAll(CurrentSpeechTest);
-        //    TestOptionsGrid.Children.Add(newOptionsSpeechAudiometryTestView);
-        //    CurrentTestOptionsView = newOptionsSpeechAudiometryTestView;
+            //    // Testoptions
+            //    TestOptionsGrid.Children.Clear();
+            //    var newOptionsSpeechAudiometryTestView = new OptionsViewAll(CurrentSpeechTest);
+            //    TestOptionsGrid.Children.Add(newOptionsSpeechAudiometryTestView);
+            //    CurrentTestOptionsView = newOptionsSpeechAudiometryTestView;
 
-        //    break;
+            //    break;
 
-        default:
+            default:
                 TestOptionsGrid.Children.Clear();
                 success = false;
                 break;
@@ -728,10 +729,10 @@ public partial class SpeechTestView : ContentView, IDrawable
         //if (OstfBase.SoundPlayer.IsPlaying == true)
         //{
 
-            // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
-            OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
-            OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
-            return true;
+        // Starts listening to the FatalPlayerError event (first unsubsribing to avoid multiple subscriptions)
+        OstfBase.SoundPlayer.FatalPlayerError -= OnFatalPlayerError;
+        OstfBase.SoundPlayer.FatalPlayerError += OnFatalPlayerError;
+        return true;
         //}
         //else
         //{
@@ -897,7 +898,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     case "Quick SiP":
 
-                        CurrentResponseView = new ResponseView_SiP_SF(); 
+                        CurrentResponseView = new ResponseView_SiP_SF();
                         //CurrentResponseView = new ResponseView_Mafc();
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
@@ -940,30 +941,30 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     case "SiP-testet (Adaptivt)":
 
-                            CurrentResponseView = new ResponseView_AdaptiveSiP();
-                            TestReponseGrid.Children.Add(CurrentResponseView);
-                            CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
+                        CurrentResponseView = new ResponseView_AdaptiveSiP();
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
 
                         break;
 
                     case "SiP-testet (Adaptivt) - Övning":
 
-                            CurrentResponseView = new ResponseView_AdaptiveSiP();
-                            TestReponseGrid.Children.Add(CurrentResponseView);
-                            CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
+                        CurrentResponseView = new ResponseView_AdaptiveSiP();
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
 
                         break;
 
 
                     default:
-                        Messager.MsgBox("No participant response GUI available for the selected test! This is must likely a bug which should not occur!"); 
+                        Messager.MsgBox("No participant response GUI available for the selected test! This is must likely a bug which should not occur!");
                         return false;
                 }
                 return true;
             }
             catch (Exception)
             {
-                Messager.MsgBox("Something went wrong when creating the participant response GUI! Unable to start the selected test!", Messager.MsgBoxStyle.Information,"Something went wrong!");
+                Messager.MsgBox("Something went wrong when creating the participant response GUI! Unable to start the selected test!", Messager.MsgBoxStyle.Information, "Something went wrong!");
                 return false;
             }
         }
@@ -976,7 +977,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
 
-        async Task<bool> InitiateTesting()
+    async Task<bool> InitiateTesting()
     {
 
         if (TestIsInitiated == true)
@@ -998,7 +999,8 @@ public partial class SpeechTestView : ContentView, IDrawable
             // Initializing the test
             Tuple<bool, string> testInitializationResponse = CurrentSpeechTest.InitializeCurrentTest();
             await HandleTestInitializationResult(testInitializationResponse);
-            if (testInitializationResponse.Item1 == false) {
+            if (testInitializationResponse.Item1 == false)
+            {
 
                 // Initialization was not successful
                 if (CurrentResponseView != null)
@@ -1019,7 +1021,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 Messager.MsgBox("Something went wrong when trying to start the test! Unable to start the selected test!", Messager.MsgBoxStyle.Information, "Something went wrong!");
 
-                return false; 
+                return false;
             }
 
             // Unsubsribes from the sound player updates from the change of transducers
@@ -1126,7 +1128,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Pause testing
         StopAllTrialEventTimers();
 
-        if (CurrentSpeechTest.IsFreeRecall == true )
+        if (CurrentSpeechTest.IsFreeRecall == true)
         {
 
             // The test administrator must resume the test
@@ -1182,9 +1184,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    
+
     void StartedByTestee(object sender, EventArgs e)
-    { 
+    {
         // Not used
     }
 
@@ -1235,14 +1237,15 @@ public partial class SpeechTestView : ContentView, IDrawable
         // If SleepMilliseconds is not enough for the GUI to get updated, its value should be increased.
         // Thus, any calls to this method will cause a SleepMilliseconds ms delay. This is corrected for in the registration of timed events below.
         // The follwoing code block directs the call to the main thread (if not already on the main thread)
-        if (MainThread.IsMainThread == false) {
+        if (MainThread.IsMainThread == false)
+        {
             Thread.Sleep(SleepMilliseconds);
-            MethodBase currentMethod = MethodBase.GetCurrentMethod(); 
+            MethodBase currentMethod = MethodBase.GetCurrentMethod();
             MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [sender, e]); });
             //MainThread.InvokeOnMainThreadAsync(() => { currentMethod.Invoke(this, [sender, e]); });
-            return; 
+            return;
         }
-                
+
 
         // Registering timed trial event
         if (CurrentSpeechTest.CurrentTestTrial != null)
@@ -1307,9 +1310,13 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             case SpeechTest.SpeechTestReplies.AbortTest:
 
+
+                FinalizeTest(true);
+
                 CurrentSpeechTest.SaveTestTrialResults();
 
                 AbortTest(false);
+
 
                 break;
 
@@ -1486,7 +1493,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                             {
                                 CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.ResponseAlternativePositionsShown, DateTime.Now));
                             }
-                            
+
                             CurrentResponseView.ShowResponseAlternativePositions(CurrentSpeechTest.CurrentTestTrial.ResponseAlternativeSpellings);
                             break;
 
@@ -1649,14 +1656,12 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Directing the call to the main thread if not already on the main thread
         /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, new object[] { closeApp }); }); return; }
 
-        FinalizeTest(true);
-
         bool showDefaultInfo = true;
         bool msgBoxResult;
 
         if (CurrentSpeechTest != null)
         {
-            if (CurrentSpeechTest.AbortInformation !="")
+            if (CurrentSpeechTest.AbortInformation != "")
             {
                 showDefaultInfo = false;
                 msgBoxResult = await Messager.MsgBoxAsync(CurrentSpeechTest.AbortInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.AbortInformation, "OK");
@@ -1709,7 +1714,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     private void OnFatalPlayerError()
     {
-        Dispatcher.Dispatch(() => 
+        Dispatcher.Dispatch(() =>
         {
             OnFatalPlayerErrorSafe();
         });
@@ -1728,7 +1733,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                 break;
         }
 
-       AbortTest(true);
+        FinalizeTest(true);
+
+        CurrentSpeechTest.SaveTestTrialResults();
+
+        AbortTest(true);
 
     }
 
@@ -1745,15 +1754,16 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     public float TalkbackGain
     {
-        get {return talkbackGain; }
-        set { 
+        get { return talkbackGain; }
+        set
+        {
             talkbackGain = (float)Math.Round((double)value);
             TalkbackGainlevel_Span.Text = talkbackGain.ToString();
             OstfBase.SoundPlayer.TalkbackGain = talkbackGain;
         }
     }
 
-    bool  TalkbackOn = false;
+    bool TalkbackOn = false;
 
     private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {

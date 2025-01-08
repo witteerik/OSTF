@@ -11,24 +11,29 @@ Public Class TP50SpeechTest
         ApplyTestSpecificSettings()
     End Sub
 
-    Public Overrides ReadOnly Property FilePathRepresentation As String = "ProtocolB2_ManualWRS"
+    Public Overrides ReadOnly Property FilePathRepresentation As String = "TP50"
 
     Public Shadows Sub ApplyTestSpecificSettings()
 
-        TesterInstructions = "(Detta test går ut på att undersöka svårighetsgraden hos listor med nya enstaviga testord i brus.)" & vbCrLf & vbCrLf &
-            "1. Välj testöra." & vbCrLf &
-            "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel_Targets & " dB HL." & vbCrLf &
-            "3. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
-            "4. Använd kontrollen provlyssna för att ställa in 'Lagom-nivån' innan testet börjar. (Använd knappen TB för att prata med patienten när denna har lurar på sig.)" & vbCrLf &
-            "5. Klicka på start för att starta testet." & vbCrLf &
-            "6. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen" & vbCrLf &
-            "7. Patienten har maximalt " & TestWordPresentationTime + MaximumResponseTime & " sekunder på sig innan nästa ord kommer."
+        TesterInstructions = "--  Taluppfattningspoäng (TP) med enstaviga ord  --" & vbCrLf & vbCrLf &
+            "1. Välj testlista." & vbCrLf &
+            "2. Välj mediaset." & vbCrLf &
+            "3. Välj testöra." & vbCrLf &
+             "4. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel_Targets & " dB HL." & vbCrLf &
+             "5. Om kontralateralt brus behövs, akivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis." & vbCrLf &
+             "6. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att deltagaren kan uppfatta dem. Höj talnivån om deltagaren inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
+             "(Använd knappen TB för att prata med deltagaren när denna har lurar på sig.)" & vbCrLf &
+             "7. Om du låtit deltagaren provlyssna, välj en ny testlista (annars presenteras samma igen)." & vbCrLf &
+             "8. Klicka på start för att starta testet." & vbCrLf &
+            "9. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen"
 
-        ParticipantInstructions = "Patientens uppgift: " & vbCrLf & vbCrLf &
-            " - Under testet ska patienten lyssna efter enstaviga ord i brus och efter varje ord repetera ordet muntligt." & vbCrLf &
-            " - Patienten ska gissa om hen är osäker." & vbCrLf &
-            " - Patienten har maximalt " & TestWordPresentationTime + MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
-            " - Testet är 50 ord långt."
+        ParticipantInstructions = "--  Taluppfattningspoäng (TP) med enstaviga ord  --" & vbCrLf & vbCrLf &
+             "Du ska lyssna efter enstaviga ord och efter varje ord upprepa det muntligt." & vbCrLf &
+             "Gissa om du är osäker." & vbCrLf &
+             "Du har maximalt " & TestWordPresentationTime + MaximumResponseTime & " sekunder på dig innan nästa ord kommer." & vbCrLf &
+             "Testet är 50 ord långt."
+
+        ParticipantInstructionsButtonText = "Deltagarinstruktion"
 
 
         ShowGuiChoice_TargetLocations = True
@@ -47,10 +52,10 @@ Public Class TP50SpeechTest
         MinimumSoundFieldSpeechLocations = 1
         MinimumSoundFieldMaskerLocations = 0
 
-        ShowGuiChoice_WithinListRandomization = True
+        'ShowGuiChoice_WithinListRandomization = True
         WithinListRandomization = True
 
-        ShowGuiChoice_FreeRecall = True
+        'ShowGuiChoice_FreeRecall = True
         IsFreeRecall = True
 
         HistoricTrialCount = 3
@@ -72,12 +77,12 @@ Public Class TP50SpeechTest
         SoundOverlapDuration = 0.5
 
         'Setting default SNR. This could ideally be read from the selected MediaSet!
-        TargetSNR = 6
+        TargetSNR = 0
 
     End Sub
 
 
-    Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = True
+    Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
     Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = True
     Public Overrides ReadOnly Property ShowGuiChoice_MaskingLevel As Boolean = False
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False

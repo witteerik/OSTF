@@ -210,7 +210,11 @@ Public MustInherit Class SipBaseSpeechTest
     End Sub
 
     Public Overrides Sub FinalizeTestAheadOfTime()
-        'This is currently not used in the SiP-test
+
+        If TestProtocol IsNot Nothing Then
+            TestProtocol.AbortAheadOfTime(GetObservedTestTrials)
+        End If
+
     End Sub
 
     Public Overrides Function GetProgress() As ProgressInfo

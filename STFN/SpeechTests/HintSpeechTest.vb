@@ -18,8 +18,23 @@ Public Class HintSpeechTest
 
     Public Shadows Sub ApplyTestSpecificSettings()
 
-        TesterInstructions = ""
-        ParticipantInstructions = ""
+        TesterInstructions = "--  HINT-testet på svenska  --" & vbCrLf & vbCrLf &
+            "1. Välj startlista." & vbCrLf &
+            "2. Välj placering av tal och brus." & vbCrLf &
+            "3. Ställ in talnivå (vanligtvis 65 dB C)." & vbCrLf &
+            "4. Ställ in brusnivå (exempelvis 53 dB C)." & vbCrLf &
+            "5. Om testet körs i hörlurar, aktivera vid behov kontralateral maskering och justera dess nivå." & vbCrLf &
+            "6. Om testet ska inkludera ett övningstest, sätt knappen 'Övningstest' till 'On'. Då startar testet med ett övningstest på 10 meningar och går därefter automatiskt över i ett skarpt test." & vbCrLf &
+            "7. Starta testet, och rätta genom att markera de (nyckel-)ord som patienten uppfattat korrekt. Nivåjustering sker automatiskt (brusnivån ändras medan talnivån hålls konstant)."
+
+        ' This participant instruction is taken from the document "HINT-listor på svenska – klinisk användning [Swedish HINT lists..." at https://osf.io/362u7
+        ParticipantInstructions = "--  HINT-testet på svenska  --" & vbCrLf & vbCrLf &
+                "Vi kommer att presentera korta meningar tillsammans med brus. " &
+                "Ibland hör du hela meningen men ibland hör du ingenting eller bara enstaka ord i meningen pga av att bruset stör. " &
+                "Din uppgift är att upprepa så mycket som möjligt av meningen, helst hela meningen. Gissa om du är osäker."
+
+        ParticipantInstructionsButtonText = "Deltagarinstruktion"
+
         ShowGuiChoice_PractiseTest = True
         ShowGuiChoice_StartList = True
         ShowGuiChoice_MediaSet = True

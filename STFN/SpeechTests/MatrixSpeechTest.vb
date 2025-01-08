@@ -13,8 +13,24 @@ Public Class MatrixSpeechTest
 
     Public Shadows Sub ApplyTestSpecificSettings()
 
-        TesterInstructions = ""
-        ParticipantInstructions = ""
+        TesterInstructions = "--  Svenska matristestet (Hagermans test)  --" & vbCrLf & vbCrLf &
+            "1. Välj startlista." & vbCrLf &
+            "2. Välj placering av tal och brus." & vbCrLf &
+            "3. Ställ in talnivå (vanligtvis 65 dB C)." & vbCrLf &
+            "4. Ställ in brusnivå (vanligtvis 65 dB C)." & vbCrLf &
+            "5. Om testet körs i hörlurar, aktivera vid behov kontralateral maskering och justera dess nivå." & vbCrLf &
+            "6. Om testet ska inkludera ett övningstest, sätt knappen 'Övningstest' till 'On'. Då startar testet med ett övningstest på 10 meningar och går därefter automatiskt över i ett skarpt test." & vbCrLf &
+            "7. Starta testet, och rätta genom att markera de ord som patienten uppfattat korrekt. Nivåjustering sker automatiskt (brusnivån ändras medan talnivån hålls konstant)."
+
+        ParticipantInstructions = "--  Svenska matristestet (Hagermans test)  --" & vbCrLf & vbCrLf &
+            "Vi vill undersöka hur svårt Du har att uppfatta tal i bakgrundsbuller. " & vbCrLf &
+            "Du kommer att få höra meningar om 5 ord." & vbCrLf & vbCrLf &
+            "    Exempel:    Bertil fick åtta vita strumpor." & vbCrLf & vbCrLf &
+            "Beroende på bakgrundsljudets styrka blir det ibland ganska lätt men ofta mycket svårt att uppfatta orden. " &
+            "UPPREPA TYDLIGT DE ORD DU HÖRT. Gissa gärna, men tveka inte så länge att Du missar början på nästa mening." & vbCrLf & vbCrLf &
+            "Säg ingenting om de ord som Du absolut INTE kan uppfatta."
+
+        ParticipantInstructionsButtonText = "Deltagarinstruktion"
 
         ShowGuiChoice_PractiseTest = True
         ShowGuiChoice_StartList = True

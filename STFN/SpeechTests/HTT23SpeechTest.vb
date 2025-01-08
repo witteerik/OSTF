@@ -3,7 +3,7 @@
 Public Class HTT23SpeechTest
     Inherits SpeechAudiometryTest
 
-    Public Overrides ReadOnly Property FilePathRepresentation As String = "ProtocolB4_ManualSRT"
+    Public Overrides ReadOnly Property FilePathRepresentation As String = "HTT23"
 
     Public Sub New(SpeechMaterialName As String)
         MyBase.New(SpeechMaterialName)
@@ -12,21 +12,24 @@ Public Class HTT23SpeechTest
 
     Public Shadows Sub ApplyTestSpecificSettings()
 
-        TesterInstructions = "(Detta test går ut på att undersöka nya HTT-listor med muntliga svar, med manlig och kvinnlig röst.)" & vbCrLf & vbCrLf &
-             "Testet ska användas med personer som är hörselvårdspatienter." & vbCrLf &
-             "1. Välj testöra." & vbCrLf &
-             "2. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel_Targets & " dB HL." & vbCrLf &
-             "3. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
-             "4. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att patienten kan uppfatta dem. Höj talnivån om patienten inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
-             "(Använd knappen TB för att prata med patienten när denna har lurar på sig.)" & vbCrLf &
-             "5. Klicka på start för att starta testet." & vbCrLf &
-             "6. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen (nivåjusteringen sker automatiskt)"
+        TesterInstructions = "--  Hörtröskel för tal (HTT) med spondéer  --" & vbCrLf & vbCrLf &
+            "1. Välj startlista." & vbCrLf &
+            "2. Välj mediaset." & vbCrLf &
+            "3. Välj testöra." & vbCrLf &
+             "4. Ställ talnivå till TMV3 + 20 dB, eller maximalt " & MaximumLevel_Targets & " dB HL." & vbCrLf &
+             "5. Aktivera kontralateralt brus och ställ in brusnivå enligt normal klinisk praxis (OBS. Ha det aktiverat även om brusnivån är väldigt låg. Det går inte aktivera mitt under testet, ifall det skulle behövas.)." & vbCrLf &
+             "6. Använd kontrollen provlyssna för att presentera några ord, och kontrollera att deltagaren kan uppfatta dem. Höj talnivån om deltagaren inte kan uppfatta orden. (Dock maximalt till 80 dB HL)" & vbCrLf &
+             "(Använd knappen TB för att prata med deltagaren när denna har lurar på sig.)" & vbCrLf &
+             "7. Klicka på start för att starta testet." & vbCrLf &
+             "8. Rätta manuellt under testet genom att klicka på testorden som kommer upp på skärmen (nivåjusteringen sker automatiskt)"
 
-        ParticipantInstructions = "Patientens uppgift: " & vbCrLf & vbCrLf &
-             " - Patienten ska lyssna efter tvåstaviga ord och efter varje ord repetera ordet muntligt." & vbCrLf &
-             " - Patienten ska gissa om hen är osäker. " & vbCrLf &
-             " - Patienten har maximalt " & MaximumResponseTime & " sekunder på sig innan nästa ord kommer." & vbCrLf &
-             " - Testet består av två 25-ordslistor (en med manlig och en med kvinnlig röst) som körs direkt efter varandra, med möjlighet till en kort paus mellan varje."
+        ParticipantInstructions = "--  Mätning av hörtröskel för tal (HTT)  --" & vbCrLf & vbCrLf &
+             "Du ska lyssna efter tvåstaviga ord och efter varje ord upprepa det muntligt." & vbCrLf &
+             "Gissa om du är osäker. " & vbCrLf &
+             "Du har maximalt " & MaximumResponseTime & " sekunder på dig innan nästa ord kommer." & vbCrLf &
+             "Testet är 20 ord långt."
+
+        ParticipantInstructionsButtonText = "Deltagarinstruktion"
 
         ShowGuiChoice_StartList = True
         ShowGuiChoice_MediaSet = True
