@@ -218,6 +218,13 @@ Public Class MatrixSpeechTest
             Return False
         End If
 
+        'Adding the practise list
+        Dim PractiseLists = SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, False, True)
+        If PractiseLists.Count > 0 Then
+            'Inserts one practise list at the beginning of the test
+            ListsToUse.Insert(0, PractiseLists(0))
+        End If
+
         'Adding all planned test sentences, and stopping after MaximumNumberOfTestSentences have been added
         PlannedTestSentences = New List(Of SpeechMaterialComponent)
         Dim TargetNumberOfSentencesReached As Boolean = False
