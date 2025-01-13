@@ -433,6 +433,14 @@ Public MustInherit Class SpeechTest
     <ExludeFromPropertyListing>
     Public Property PreListenSofterButtonTitle As String = "Minska nivån"
 
+    <ExludeFromPropertyListing>
+    Public Property CalibrationCheckTitle As String = "Calibration check (play calibration signal at speech level)"
+
+    <ExludeFromPropertyListing>
+    Public Property CalibrationCheckPlayButtonTitle As String = "Play"
+
+    <ExludeFromPropertyListing>
+    Public Property CalibrationCheckStopButtonTitle As String = "Stop"
 
     Public Overridable Function GetTestCompletedGuiMessage() As String
 
@@ -860,6 +868,31 @@ Public MustInherit Class SpeechTest
         End Set
     End Property
     Private _MediaSets As New MediaSetLibrary
+
+    Public ReadOnly Property HasCalibrationComponent As Boolean
+        Get
+
+            Return True
+
+            'If MediaSet IsNot Nothing Then
+
+            '    If SpeechMaterial IsNot Nothing Then
+
+            '        Dim CalibrationSounds = SpeechMaterial.GetCalibrationSounds(MediaSet, 0, 1)
+
+            '        If CalibrationSounds.Count > 0 Then
+            '            Return True
+            '        End If
+            '    End If
+
+            'ElseIf MediaSets.Count > 0 Then
+            '    Throw New NotImplementedException("Implementation of several selected media sets is not yet implemented")
+            'End If
+
+            ''Returns False if no calibration sound was found
+            'Return False
+        End Get
+    End Property
 
 
     Private _MinimumReferenceLevel As Double = 0
@@ -1865,6 +1898,102 @@ Public MustInherit Class SpeechTest
         CurrentTestTrial.EfficientContralateralMaskingTerm = MediaSet.EffectiveContralateralMaskingGain
 
     End Sub
+
+    ''' <summary>
+    ''' This method should return a calibration sound mixed to the currently set level (Target level in most tests, ReferenceLevel in SiP-tests), presented from the first indicated target sound source.
+    ''' </summary>
+    ''' <param name="LevelType">The calibration level type</param>
+    ''' <returns></returns>
+    Public MustOverride Function CreateCalibrationCheckSignal() As Audio.Sound
+
+    Public Enum CalibrationCheckLevelTypes
+        TargetLevel
+        ReferenceLevel
+    End Enum
+
+    ''' <summary>
+    ''' This sub uses similar code as MixStandardTestTrialSound to mix the calibration sound for the current speech material and media set, in the same way as a target sound in MixStandardTestTrialSound, to the sound level (in dB HL or SPL as determined by the value selected in the current SpeechTest) of the targets in the location of the first specified target.
+    ''' </summary>
+    ''' <param name="UseNominalLevels">If True, applied gains are based on the nominal levels stored in the SMA object of each sound. If False, sound levels are re-calculated.</param>
+    ''' <param name="ExportSounds">Can be used to debug or analyse presented sounds. Default value is False. Sounds are stored into the current log folder.</param>
+    Protected Function MixStandardCalibrationSound(ByVal UseNominalLevels As Boolean, ByVal LevelType As CalibrationCheckLevelTypes, Optional ExportSounds As Boolean = False) As Audio.Sound
+
+        'Note that this sub should mix the calibration sound to the same level and location as single target in MixStandardTestTrialSound. It can be used to check that the calibration value and attenuator setting is correct, to ensure correct output levels in the transducer.
+
+        'Mix the signal using DuxplexMixer CreateSoundScene
+        'Sets a List of SoundSceneItem in which to put the sounds to mix
+        Dim ItemList = New List(Of SoundSceneItem)
+        Dim LevelGroup As Integer = 1 ' N.B. There is only one level group here, since there is only one calibration signal. The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
+        Dim CurrentSampleRate As Integer = -1
+
+        ' **TARGET SOUNDS**
+        If SignalLocations.Count > 0 Then
+
+            'Getting the target sound (i.e. test words)
+            Dim TargetSound = SpeechMaterial.GetCalibrationSignalSound(MediaSet, 0) ' Here we get the calibration signal instead of a test word. We use Index = 0. But this could well be updated to allow selection of specific calibration files.
+            'Dim TargetSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(MediaSet, 0, 1, , , , , False, False, False, , , False)
+
+            If TargetSound Is Nothing Then
+                'Returns Nothing if there is no calibration signal
+                Return Nothing
+            End If
+
+            'Storing the samplerate
+            CurrentSampleRate = TargetSound.WaveFormat.SampleRate
+
+            'Setting the insertion sample of the target
+            Dim TargetStartSample As Integer = CurrentSampleRate * 1
+
+            'Setting the TargetStartMeasureSample (i.e. the sample index in the TargetSound, not in the final mix)
+            Dim TargetStartMeasureSample As Integer = 0
+
+            'Getting the TargetMeasureLength from the length of the sound files (i.e. everything is measured)
+            Dim TargetMeasureLength As Integer = TargetSound.WaveData.SampleData(1).Length - TargetStartSample
+
+            'Sets up default fading specifications for the target
+            Dim FadeSpecs_Target = New List(Of STFN.Audio.DSP.Transformations.FadeSpecifications)
+            FadeSpecs_Target.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.5))
+            FadeSpecs_Target.Add(New STFN.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.5))
+
+            'Combining targets with the first selected SignalLocation
+            Dim Targets As New List(Of Tuple(Of Audio.Sound, SoundSourceLocation))
+            Targets.Add(New Tuple(Of Audio.Sound, SoundSourceLocation)(TargetSound, SignalLocations(0)))
+
+            'Adding the targets sources to the ItemList
+            For Index = 0 To Targets.Count - 1
+
+                Select Case LevelType
+                    Case CalibrationCheckLevelTypes.TargetLevel
+                        ItemList.Add(New SoundSceneItem(Targets(Index).Item1, 1, TargetLevel, LevelGroup, Targets(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Target, TargetStartSample, TargetStartMeasureSample, TargetMeasureLength,, FadeSpecs_Target))
+                    Case CalibrationCheckLevelTypes.ReferenceLevel
+                        ItemList.Add(New SoundSceneItem(Targets(Index).Item1, 1, ReferenceLevel, LevelGroup, Targets(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Target, TargetStartSample, TargetStartMeasureSample, TargetMeasureLength,, FadeSpecs_Target))
+                    Case Else
+                        Throw New ArgumentException("Unknown LevelType")
+                End Select
+
+            Next
+
+        Else
+
+            'Returns Nothing if there is no target locations
+            Return Nothing
+        End If
+
+
+        Dim CurrentSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
+        If SimulatedSoundField Then
+            CurrentSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
+            'TODO: This needs to be modified if/when more SoundPropagationTypes are starting to be supported
+        End If
+
+        'Creating the mix by calling CreateSoundScene of the current Mixer
+        Dim OutputSound = Transducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, LevelsAreIn_dBHL, CurrentSoundPropagationType, Transducer.LimiterThreshold, ExportSounds, "Calibration")
+
+        Return OutputSound
+
+    End Function
+
+
 
 
 

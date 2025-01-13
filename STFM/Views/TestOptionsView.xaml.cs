@@ -410,6 +410,20 @@ public partial class OptionsViewAll : ContentView
         OstfBase.SoundPlayer.FadeOutPlayback();
     }
 
+    private void CalibrationCheckPlayButton_Clicked(object sender, EventArgs e)
+    {
+        var PreTestStimulus = CurrentSpeechTest.CreateCalibrationCheckSignal();
+        if (PreTestStimulus != null)
+        {
+            OstfBase.SoundPlayer.SwapOutputSounds(ref PreTestStimulus);
+        }
+    }
+
+    private void CalibrationCheckStopButton_Clicked(object sender, EventArgs e)
+    {
+        OstfBase.SoundPlayer.FadeOutPlayback();
+    }
+
     //private void PreListenLouderButton_Clicked(object sender, EventArgs e)
     //{
     //    CurrentBindingContext.SpeechLevel += 5;

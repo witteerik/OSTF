@@ -425,7 +425,6 @@ Public Class SpeechMaterialComponent
     End Function
 
 
-
     ''' <summary>
     ''' Returns the sound representing background speech used with the current speech material component and mediaset as a new Audio.Sound. 
     ''' </summary>
@@ -439,6 +438,8 @@ Public Class SpeechMaterialComponent
         Return GetSoundFile(SoundPath)
 
     End Function
+
+
 
 
     '''' <summary>
@@ -1368,6 +1369,40 @@ Public Class SpeechMaterialComponent
 
     End Function
 
+    Public Function GetCalibrationSignalPath(ByRef MediaSet As MediaSet, ByVal Index As Integer) As String
+
+        Dim CurrentTestRootPath As String = ParentTestSpecification.GetTestRootPath
+        Dim FullCalibrationSignalParentFolderPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.CalibrationSignalParentFolder)
+        Dim AvailableFiles = GetAvailableFiles(FullCalibrationSignalParentFolderPath, SpeechMaterialComponent.MediaTypes.Audio)
+
+        If AvailableFiles.Count = 0 Then
+            'Returning an empty string if no calibration sound file was found
+            Return ""
+        End If
+
+        If Index > AvailableFiles.Count - 1 Then
+            'Returning the last file by default, if the index is too high
+            Return AvailableFiles.Last
+        Else
+            'Returning the requested index
+            Return AvailableFiles(Index)
+        End If
+
+    End Function
+
+
+    ''' <summary>
+    ''' Returns the calibration sound used with the current speech material component and media set as a new Audio.Sound. 
+    ''' </summary>
+    ''' <param name="Index"></param>
+    ''' <returns></returns>
+    Public Function GetCalibrationSignalSound(ByRef MediaSet As MediaSet, ByVal Index As Integer) As Audio.Sound
+
+        Dim SoundPath = GetCalibrationSignalPath(MediaSet, Index)
+
+        Return GetSoundFile(SoundPath)
+
+    End Function
 
     Public Function GetSoundPath(ByRef MediaSet As MediaSet, ByVal Index As Integer, Optional ByVal SearchAncestors As Boolean = True) As String
 
@@ -1401,10 +1436,10 @@ Public Class SpeechMaterialComponent
     Public Function GetSoundFile(ByVal Path As String) As Audio.Sound
 
         Select Case AudioFileLoadMode
-                Case MediaFileLoadModes.LoadEveryTime
-                    Return Audio.Sound.LoadWaveFile(Path)
+            Case MediaFileLoadModes.LoadEveryTime
+                Return Audio.Sound.LoadWaveFile(Path)
 
-                Case MediaFileLoadModes.LoadOnFirstUse
+            Case MediaFileLoadModes.LoadOnFirstUse
 
                 SyncLock SoundFileLock
 
@@ -1420,8 +1455,8 @@ Public Class SpeechMaterialComponent
                 End SyncLock
 
             Case Else
-                    Throw New NotImplementedException
-            End Select
+                Throw New NotImplementedException
+        End Select
 
     End Function
 

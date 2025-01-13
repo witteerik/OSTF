@@ -4466,14 +4466,14 @@ Public Class Form4
 
     Private Sub Button38_Click(sender As Object, e As EventArgs) Handles Button38.Click
 
-        Utils.CompareFiles("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV - NominalLevel-25dB\Media\Talker2-RVE\ContralateralMaskers\AMTEST_(SE)_MixIV_AMTEST_(SE)_MixIV\SpeechMaterialWeightedSNR_0.wav",
-                           "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareWaveFileData, False, True)
+        'Utils.CompareFiles("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV - NominalLevel-25dB\Media\Talker2-RVE\ContralateralMaskers\AMTEST_(SE)_MixIV_AMTEST_(SE)_MixIV\SpeechMaterialWeightedSNR_0.wav",
+        '                   "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareWaveFileData, False, True)
 
-        Utils.CompareFiles("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV - NominalLevel-25dB\Media\Talker2-RVE\ContralateralMaskers\AMTEST_(SE)_MixIV_AMTEST_(SE)_MixIV\SpeechMaterialWeightedSNR_0.wav",
-                           "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareBytes, False, True)
+        'Utils.CompareFiles("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV - NominalLevel-25dB\Media\Talker2-RVE\ContralateralMaskers\AMTEST_(SE)_MixIV_AMTEST_(SE)_MixIV\SpeechMaterialWeightedSNR_0.wav",
+        '                   "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareBytes, False, True)
 
-        Utils.CompareFiles("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV - NominalLevel-25dB\Media\Talker2-RVE\ContralateralMaskers\AMTEST_(SE)_MixIV_AMTEST_(SE)_MixIV\SpeechMaterialWeightedSNR_0.wav",
-                           "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareBits, False, True)
+        'Utils.CompareFiles("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\AMTEST_(SE)_MixIV - NominalLevel-25dB\Media\Talker2-RVE\ContralateralMaskers\AMTEST_(SE)_MixIV_AMTEST_(SE)_MixIV\SpeechMaterialWeightedSNR_0.wav",
+        '                   "C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker2-RVE\ContralateralMaskers\SwedishTP50_SwedishTP50\SpeechMaterialWeightedSNR_0.wav", Utils.GeneralIO.FileComparisonMethods.CompareBits, False, True)
 
     End Sub
 
@@ -4586,6 +4586,21 @@ Public Class Form4
         InputFile.RemoveUnparsedWaveChunks()
 
         InputFile.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard_Sentences\Maskers\Swedish_Matrix_Test_(Hagerman)_Swedish_Matrix_Test_(Hagerman)\Noise(cut_from_List11)_WithSMA.wav")
+
+    End Sub
+
+    Private Sub Button44_Click(sender As Object, e As EventArgs) Handles Button44.Click
+
+        'Dim Input = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard_Sentences\CalibrationSignal_-20dB.wav")
+        'Input.SMA.NominalLevel = -20
+        'Input.SMA.InferNominalLevelToAllDescendants()
+        'Input.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard_Sentences\CalibrationSignals\CalibrationSignal_-20dB.wav")
+
+        Dim Input = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\ForTablets_IHeAR-CS\IHEAR\OSTFMedia\SpeechMaterials\SwedishTP50\Media\CalibrationSignal_-25dB.wav")
+        Input.SMA.NominalLevel = -25
+        Input.SMA.InferNominalLevelToAllDescendants()
+        Input.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\ForTablets_IHeAR-CS\IHEAR\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker1-RVE\CalibrationSignals\CalibrationSignal_-25dB.wav")
+
 
     End Sub
 End Class

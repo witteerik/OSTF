@@ -3,6 +3,7 @@ Imports STFN.TestProtocol
 Imports STFN.Audio.SoundScene
 Imports System.Dynamic
 Imports System.Reflection
+Imports STFN.Audio
 
 <Serializable>
 Public Class HintSpeechTest
@@ -459,10 +460,10 @@ Public Class HintSpeechTest
 
                 Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestProtocol.TotalTrialCount)
                 Output.Add("SNR = " & Math.Round(CurrentSNR) & " " & dBString())
-                Output.Add("Talnivå = " & Math.Round(TargetLevel) & " " & dBString)
-                Output.Add("Brusnivå = " & Math.Round(MaskingLevel) & " " & dBString)
+                Output.Add("Talnivå = " & Math.Round(TargetLevel) & " " & dBString())
+                Output.Add("Brusnivå = " & Math.Round(MaskingLevel) & " " & dBString())
                 If ContralateralMasking = True Then
-                    Output.Add("Kontralateral brusnivå = " & Math.Round(ContralateralMaskingLevel) & " " & dBString)
+                    Output.Add("Kontralateral brusnivå = " & Math.Round(ContralateralMaskingLevel) & " " & dBString())
                 End If
             End If
         End If

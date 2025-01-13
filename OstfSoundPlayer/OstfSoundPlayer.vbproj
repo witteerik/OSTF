@@ -113,7 +113,9 @@
     <Compile Include="OstfSoundPlayerWindow.Designer.vb">
       <DependentUpon>OstfSoundPlayerWindow.vb</DependentUpon>
     </Compile>
-    <Compile Include="OstfSoundPlayerWindow.vb" />
+    <Compile Include="OstfSoundPlayerWindow.vb">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="AboutBox1.resx">

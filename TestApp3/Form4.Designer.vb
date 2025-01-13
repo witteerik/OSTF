@@ -74,6 +74,7 @@ Partial Class Form4
         Me.Button41 = New System.Windows.Forms.Button()
         Me.Button42 = New System.Windows.Forms.Button()
         Me.Button43 = New System.Windows.Forms.Button()
+        Me.Button44 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -544,12 +545,22 @@ Partial Class Form4
         Me.Button43.Text = "Fix-Hagerman-noise"
         Me.Button43.UseVisualStyleBackColor = True
         '
+        'Button44
+        '
+        Me.Button44.Location = New System.Drawing.Point(945, 432)
+        Me.Button44.Name = "Button44"
+        Me.Button44.Size = New System.Drawing.Size(75, 23)
+        Me.Button44.TabIndex = 62
+        Me.Button44.Text = "Button44"
+        Me.Button44.UseVisualStyleBackColor = True
+        '
         'Form4
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button44)
         Me.Controls.Add(Me.Button43)
         Me.Controls.Add(Me.Button42)
         Me.Controls.Add(Me.Button41)
@@ -660,4 +671,5 @@ Partial Class Form4
     Friend WithEvents Button41 As Button
     Friend WithEvents Button42 As Button
     Friend WithEvents Button43 As Button
+    Friend WithEvents Button44 As Button
 End Class

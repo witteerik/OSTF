@@ -41,6 +41,18 @@ Public MustInherit Class SpeechAudiometryTest
 
     Public MustOverride Overrides Function CreatePreTestStimulus() As Tuple(Of Sound, String)
 
+    ''' <summary>
+    ''' This method returns a calibration sound mixed to the currently set target level, presented from the first indicated target sound source.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function CreateCalibrationCheckSignal() As Audio.Sound
+
+        Return MixStandardCalibrationSound(True, CalibrationCheckLevelTypes.TargetLevel)
+
+    End Function
+
+
+
 End Class
 
 

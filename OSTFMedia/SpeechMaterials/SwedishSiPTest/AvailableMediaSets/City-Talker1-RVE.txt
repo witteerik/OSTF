@@ -15,6 +15,7 @@ CustomVariablesFolder = Media\City-Talker1-RVE\CustomVariables
 MediaParentFolder = Media\Unechoic-Talker1-RVE\TestWordRecordings
 MaskerParentFolder = Media\City-Talker1-RVE\TWRB
 BackgroundNonspeechParentFolder = Media\City-Talker1-RVE\BackgroundNonspeech
+CalibrationSignalParentFolder = Media\City-Talker1-RVE\CalibrationSignals
 BackgroundNonspeechRealisticLevel = 60
 BackgroundSpeechParentFolder = Media\City-Talker1-RVE\BackgroundSpeech
 PrototypeMediaParentFolder = Media\PrototypeRecordingsTalkerA-RVE

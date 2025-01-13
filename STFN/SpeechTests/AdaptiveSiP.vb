@@ -793,5 +793,23 @@ Public Class AdaptiveSiP
 
     End Function
 
+    ''' <summary>
+    ''' This method returns a calibration sound mixed to the currently set reference level, presented from the first indicated target sound source.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overrides Function CreateCalibrationCheckSignal() As Audio.Sound
+
+        'Referencing the/a mediaset in SpeechTest.MediaSet, which is normally not used in the SiP-test but needed for the calibration signal
+        'TODO: This function needs to read the selected SpeechTest.MediaSet. As of now, it just takes the first available MediaSet. The SiP-test does not yet read media set and stuff off the options control, but each test sets up it's own trials (including MediaSet selection in code.
+        MediaSet = SpeechMaterial.ParentTestSpecification.MediaSets(0)
+
+        'Overriding any value for LevelsAreIn_dBHL. This should always be False for the SiP-test (it's hard coded that way in the SipTrial.MixSound method.
+        LevelsAreIn_dBHL = False
+
+        'Note that the adaptive SiP uses nominal level to generate the mix, and need to override the CreateCalibrationCheckSignal method in SipBaseSpeechTest
+        Return MixStandardCalibrationSound(True, CalibrationCheckLevelTypes.ReferenceLevel)
+
+    End Function
+
 
 End Class

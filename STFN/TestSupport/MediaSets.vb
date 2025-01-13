@@ -80,6 +80,8 @@ Public Class MediaSet
     Public Property MediaParentFolder As String = ""
     Public Property MaskerParentFolder As String = ""
     Public Property ContralateralMaskerParentFolder As String = ""
+    Public Property CalibrationSignalParentFolder As String = ""
+
     Public Property EffectiveContralateralMaskingGain As Double = 0 'Holds the value in dB of the amplification that should be added to the contralateral masking to achieve effective masking
 
     ''' <summary>
@@ -380,6 +382,11 @@ Public Class MediaSet
                 Continue For
             End If
 
+            If Line.StartsWith("CalibrationSignalParentFolder") Then
+                Output.CalibrationSignalParentFolder = InputFileSupport.GetInputFileValue(Line, True)
+                Continue For
+            End If
+
             If Line.StartsWith("EffectiveContralateralMaskingGain") Then
                 Dim Value = InputFileSupport.InputFileDoubleValueParsing(Line, True, FilePath)
                 If Value.HasValue Then
@@ -495,6 +502,7 @@ Public Class MediaSet
         Output.LombardNoisePath = Utils.NormalizeCrossPlatformPath(Output.LombardNoisePath)
         Output.MaskerParentFolder = Utils.NormalizeCrossPlatformPath(Output.MaskerParentFolder)
         Output.ContralateralMaskerParentFolder = Utils.NormalizeCrossPlatformPath(Output.ContralateralMaskerParentFolder)
+        Output.CalibrationSignalParentFolder = Utils.NormalizeCrossPlatformPath(Output.CalibrationSignalParentFolder)
         Output.MasterPrototypeRecordingPath = Utils.NormalizeCrossPlatformPath(Output.MasterPrototypeRecordingPath)
         Output.MediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.MediaParentFolder)
         Output.PrototypeMediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.PrototypeMediaParentFolder)
@@ -787,6 +795,9 @@ Public Class MediaSet
         MsgBox("Recording and editing of media files is not supported in STFN")
 
     End Sub
+
+
+
 
     ''' <summary>
     ''' Copies all sound files to a folder structure which is based on the Id of the speech material component.
