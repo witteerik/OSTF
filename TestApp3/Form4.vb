@@ -4656,4 +4656,35 @@ Public Class Form4
 
 
     End Sub
+
+    Private Sub Button45_Click(sender As Object, e As EventArgs) Handles Button45.Click
+
+        'Utils.SendInfoToLog(Audio.Sound.ReadWaveFileFormat("C:\amspect\sounds\amspect\source\I_1b.wav"))
+
+        'Dim InputList As New List(Of String) From {
+        '   "C:\Temp6000\ExportedFiles\I_1b_sv.wav",
+        '   "C:\Temp6000\ExportedFiles\I_2b_sv.wav",
+        '   "C:\Temp6000\ExportedFiles\I_3b_sv.wav",
+        '   "C:\Temp6000\ExportedFiles\I_4b_sv.wav",
+        '   "C:\Temp6000\ExportedFiles\I_5b_sv.wav",
+        '   "C:\Temp6000\ExportedFiles\I_6b_sv.wav",
+        '   "C:\Temp6000\ExportedFiles\I_7b_sv.wav",
+        '   "C:\Temp6000\ExportedFiles\I_8b_sv.wav",
+        '   "C:\Temp6000\ExportedFiles\I_9b_sv.wav"}
+
+        'For Each File In InputList
+
+        '    Dim LoadedSound = Audio.Sound.LoadWaveFile(File)
+
+        '    LoadedSound.RemoveUnparsedWaveChunks()
+        '    LoadedSound.SMA = Nothing
+        '    LoadedSound.WriteWaveFile(IO.Path.Combine("C:\Temp6000\SwFiles\", IO.Path.GetFileName(File)))
+
+        'Next
+
+
+
+
+
+    End Sub
 End Class

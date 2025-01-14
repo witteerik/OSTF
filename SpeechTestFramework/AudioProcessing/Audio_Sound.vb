@@ -918,6 +918,138 @@ Namespace Audio
 
         End Function
 
+
+
+        ''' <summary>
+        ''' Reads and returns the information in the format chunk of a wave file.
+        ''' </summary>
+        ''' <param name="filePath">The file path to the file to read. If left empty a open file dialogue box will appear.</param>
+        Public Shared Function ReadWaveFileFormat(ByVal filePath As String) As String
+
+            Try
+
+                Dim fileName As String = ""
+
+                'Finds out the filename
+                If Not filePath = "" Then fileName = Path.GetFileNameWithoutExtension(filePath)
+
+                'Creates a variable to hold data chunk size
+                Dim dataSize As UInteger = 0
+
+                Dim fileStreamRead As FileStream = New FileStream(filePath, FileMode.Open)
+                Dim reader As BinaryReader = New BinaryReader(fileStreamRead, Text.Encoding.UTF8)
+
+                'Starts reading
+                Dim chunkID As String = reader.ReadChars(4)
+                Dim fileSize As UInteger = reader.ReadUInt32
+                Dim riffType As String = reader.ReadChars(4)
+                Dim fmtID As String = ""
+                Dim fmtSize As UInteger
+                Dim fmtCode As UShort
+                Dim channels As UShort
+                Dim sampleRate As UInteger
+                Dim fmtAvgBPS As UInteger
+                Dim fmtBlockAlign As UShort
+                Dim bitDepth As UShort
+
+                Dim FormatChunkIsRead As Boolean = False
+                Dim NumberOfOtherChunks As Integer = 0
+
+                'Chunks to ignore
+                Dim dataChunkFound As Boolean
+                While dataChunkFound = False
+
+                    Dim IDOfNextChunk As String = reader.ReadChars(4)
+                    Dim sizeOfNextChunk As UInteger = reader.ReadUInt32
+                    Select Case IDOfNextChunk
+
+                        Case "fmt "
+
+                            Dim fmtChunkStartPosition As Integer = reader.BaseStream.Position
+
+                            ' Reading the format chunk (not all data is stored)
+                            fmtID = IDOfNextChunk ' reader.ReadChars(4)
+                            fmtSize = sizeOfNextChunk ' reader.ReadUInt32
+                            fmtCode = reader.ReadUInt16
+                            channels = reader.ReadUInt16
+                            sampleRate = reader.ReadUInt32
+                            fmtAvgBPS = reader.ReadUInt32
+                            fmtBlockAlign = reader.ReadUInt16
+                            bitDepth = reader.ReadUInt16
+
+                            'Checks to see if the whole of subchunk1 has been read
+                            While reader.BaseStream.Position < fmtChunkStartPosition + fmtSize
+                                reader.ReadByte()
+                            End While
+
+                            'Noting that the format chunk is read
+                            FormatChunkIsRead = True
+
+                        Case "data"
+
+                            'Aborting if the format chink has not yet been read
+                            If FormatChunkIsRead = False Then
+                                AudioError("The wave file has an unsupported internal structure.")
+                                Return Nothing
+                            End If
+
+                            dataChunkFound = True
+                            dataSize = sizeOfNextChunk
+
+                        Case Else
+                            Dim SizeOfIgnoredChunk As UInteger = sizeOfNextChunk
+
+                            'Reads to the end of the chunk but does not save the data
+                            reader.ReadBytes(SizeOfIgnoredChunk)
+
+                            'Reads any padding bytes
+                            If SizeOfIgnoredChunk Mod 2 = 1 Then
+                                reader.ReadByte()
+                            End If
+
+                            NumberOfOtherChunks += 1
+
+                    End Select
+
+                End While
+
+                fileStreamRead.Close()
+
+                Dim ReturnStringList As New List(Of String)
+
+                If FormatChunkIsRead = True Then
+
+                    Dim Encoding As Audio.Formats.WaveFormat.WaveFormatEncodings = fmtCode
+
+                    ReturnStringList.Add("File type: " & vbTab & chunkID)
+                    ReturnStringList.Add("File size: " & vbTab & fileSize)
+                    ReturnStringList.Add("Riff type: " & vbTab & riffType)
+                    ReturnStringList.Add("Format ID: " & vbTab & fmtID)
+                    ReturnStringList.Add("Format chunk size: " & vbTab & fmtSize)
+                    ReturnStringList.Add("Format code: " & vbTab & fmtCode & vbTab & Encoding.ToString)
+                    ReturnStringList.Add("Channels: " & vbTab & channels)
+                    ReturnStringList.Add("Sample rate: " & vbTab & sampleRate)
+                    ReturnStringList.Add("Format average bytes per second: " & vbTab & fmtAvgBPS)
+                    ReturnStringList.Add("Format block align: " & vbTab & fmtBlockAlign)
+                    ReturnStringList.Add("Bit depth: " & vbTab & bitDepth)
+                    ReturnStringList.Add("Size of data chunk: " & vbTab & dataSize)
+                    ReturnStringList.Add("Number of other chunks (except format and data): " & vbTab & NumberOfOtherChunks)
+
+                Else
+                    ReturnStringList.Add("No format chunk was detected in the file " & filePath)
+                End If
+
+
+                Return String.Join(vbCrLf, ReturnStringList)
+
+            Catch ex As Exception
+                AudioError(ex.ToString)
+                Return Nothing
+            End Try
+
+        End Function
+
+
         ''' <summary>
         ''' Saves the current instance of Sound to a wave file.
         ''' </summary>
